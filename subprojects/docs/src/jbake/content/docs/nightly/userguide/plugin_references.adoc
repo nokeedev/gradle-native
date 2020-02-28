@@ -8,7 +8,7 @@ This page contains links and short descriptions for all the core plugins provide
 
 == JVM Runtimes
 
-<<jni_library_plugin.adoc#,JNI Library>>::
+<<jni_library_plugin.adoc#,Java Native Interface (JNI) Library>>::
 Provides support for building JNI library.
 
 == Native Languages
