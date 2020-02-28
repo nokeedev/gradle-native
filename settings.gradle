@@ -1,0 +1,17 @@
+//pluginManagement {
+//    resolutionStrategy {
+//        eachPlugin {
+//            if (requested.id.id.startsWith('dev.gradleplugins')) {
+//                useModule('dev.gradleplugins:gradle-plugin-development:0.0.22-SNAPSHOT')
+//            }
+//        }
+//    }
+//}
+
+rootProject.name = 'gradle-native'
+
+includeBuild '../toolbox'
+
+include 'platformJni'
+project(':platformJni').projectDir = file('subprojects/platform-jni')
+project(':platformJni').buildFileName = 'platform-jni.gradle'

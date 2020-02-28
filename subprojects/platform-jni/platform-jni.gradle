@@ -1,0 +1,29 @@
+plugins {
+    id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    functionalTestImplementation gradleTestKit() // Until we support other kind of GradleExecutor
+}
+
+gradlePlugin {
+    plugins {
+        jniLibrary {
+            id = 'dev.nokee.jni-library'
+            implementationClass = 'dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin'
+        }
+        cppLanguage {
+            id = 'dev.nokee.cpp-language'
+            implementationClass = 'dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin'
+        }
+    }
+}
