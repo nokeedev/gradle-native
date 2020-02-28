@@ -1,0 +1,39 @@
+= JNI Library
+:jbake-type: reference_chapter
+:jbake-status: published
+:jbake-tags: blog, asciidoc
+:idprefix:
+
+The JNI Library Plugin provides the tasks, configurations and conventions for building libraries using the Java Native Interface (JNI) runtime.
+It provide both an entry point (library) and runtime (JNI).
+An JVM and native implementation language plugins are required to be applied to produce anything meaningful.
+
+== Usage
+
+.Applying the JNI Library Plugin
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+plugins {
+    id 'dev.nokee.jni-library'
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+plugins {
+    id("dev.nokee.jni-library")
+}
+----
+=====
+====
+
+// TODO: Describe runtime plugin and entry point plugin
+NOTE: This plugin produce a JNI library JAR using the JNI runtime.
+It doesn't provide any implementation language capabilities and thus needs to be composed by applying other implementation language plugins, such as <<cpp_language_plugin.adoc#,{cpp} Language Plugin>> and link:https://docs.gradle.com/6.2.1/userguide/java_plugin.html[Java Plugin].

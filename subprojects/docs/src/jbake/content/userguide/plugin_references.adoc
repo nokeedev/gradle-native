@@ -1,0 +1,17 @@
+= Nokee Plugin Reference
+:jbake-type: reference_index
+:jbake-status: published
+:jbake-tags: blog, asciidoc
+:idprefix:
+
+This page contains links and short descriptions for all the core plugins provided by Nokee Labs.
+
+== JVM Runtimes
+
+<<jni_library_plugin.adoc#,JNI Library>>::
+Provides support for building JNI library.
+
+== Native Languages
+
+<<cpp_language_plugin.adoc#,{cpp} Language>>::
+Provides support for compiling {cpp} language.

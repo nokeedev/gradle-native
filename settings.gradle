@@ -15,3 +15,7 @@ includeBuild '../toolbox'
 include 'platformJni'
 project(':platformJni').projectDir = file('subprojects/platform-jni')
 project(':platformJni').buildFileName = 'platform-jni.gradle'
+
+include 'docs'
+project(':docs').projectDir = file('subprojects/docs')
+project(':docs').buildFileName = 'docs.gradle'
