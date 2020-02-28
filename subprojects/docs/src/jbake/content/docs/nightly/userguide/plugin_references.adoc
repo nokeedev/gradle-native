@@ -1,7 +1,6 @@
 = Nokee Plugin Reference
 :jbake-type: reference_index
 :jbake-status: published
-:jbake-tags: blog, asciidoc
 :idprefix:
 
 This page contains links and short descriptions for all the core plugins provided by Nokee Labs.

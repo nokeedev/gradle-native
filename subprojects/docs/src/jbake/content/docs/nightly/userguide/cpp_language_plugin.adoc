@@ -1,7 +1,6 @@
 = {cpp} Language
 :jbake-type: reference_chapter
 :jbake-status: published
-:jbake-tags: blog, asciidoc
 :idprefix:
 
 The {cpp} Language Plugin provides the tasks, configurations and conventions for compiling {cpp} source file.

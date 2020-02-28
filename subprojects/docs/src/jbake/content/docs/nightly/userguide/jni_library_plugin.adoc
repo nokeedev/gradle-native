@@ -1,7 +1,6 @@
 = Java Native Interface (JNI) Library
 :jbake-type: reference_chapter
 :jbake-status: published
-:jbake-tags: blog, asciidoc
 :idprefix:
 
 The JNI Library Plugin provides the tasks, configurations and conventions for building libraries using the Java Native Interface runtime.
