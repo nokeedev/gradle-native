@@ -1,3 +1,14 @@
 plugins {
     id 'org.jbake.site' version '5.0.0'
 }
+
+configurations {
+    contentElements {
+        canBeResolved = false
+        canBeConsumed = true
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-content'))
+        }
+        outgoing.artifact(file('src/jbake/content'))
+    }
+}
