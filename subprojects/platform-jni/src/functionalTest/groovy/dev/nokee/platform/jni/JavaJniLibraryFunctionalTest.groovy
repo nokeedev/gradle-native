@@ -87,7 +87,7 @@ class JavaJniLibraryFunctionalTest extends AbstractFunctionalSpec implements Mix
     }
 
 //    def "can compile and link against a library"() {
-
+// TODO: JNI Plugin should allow to work alone by embedding the runtime native dependencies into a JAR. It should also create an empty JAR when no language (not even Java). This Jar should be exposed via API outgoing dependencies.
 
     protected TestFile sharedLibrary(String path) {
         return file(path)
