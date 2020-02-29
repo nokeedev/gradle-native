@@ -4,7 +4,9 @@ import dev.nokee.language.jvm.internal.JvmResourceSetInternal;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.attributes.Usage;
@@ -28,6 +30,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.getJvmIncludeRoots;
+import static org.codehaus.groovy.runtime.MetaClassHelper.capitalize;
 
 public class CppJniLibraryRules extends RuleSource {
     @Model
@@ -45,6 +48,34 @@ public class CppJniLibraryRules extends RuleSource {
                 ((BinarySpecInternal)binary).setBuildable(false);
             });
         });
+    }
+
+    // Remove software model tasks from displaying when invoking `./gradlew tasks`
+    // These tasks are an implementation details to what we are trying to achieve here.
+    // The users should call the tasks that Nokee Labs vet as public APIs.
+    @Finalize
+    public void hideSoftwareModelTasks(TaskContainer tasks, ComponentSpecContainer components) {
+        Action<? super Task> hideTask = task -> {
+            task.setGroup(null);
+        };
+
+        NativeLibrarySpec library = components.withType(NativeLibrarySpec.class).get("main");
+
+        library.getBinaries().values().forEach(binary -> {
+            // Hide binary registered tasks
+            binary.getTasks().all(hideTask);
+
+            // Hide binary lifecycle task
+            hideTask.execute(binary.getTasks().getBuild());
+        });
+
+        // Hide dependents lifecycle tasks
+        tasks.named("assembleDependents" + capitalize(library.getName()), hideTask);
+        tasks.named("buildDependents" + capitalize(library.getName()), hideTask);
+
+        // Hide help tasks
+        tasks.named("components", hideTask);
+        tasks.named("dependentComponents", hideTask);
     }
 
     @Mutate
