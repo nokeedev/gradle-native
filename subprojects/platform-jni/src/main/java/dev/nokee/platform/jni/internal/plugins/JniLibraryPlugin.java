@@ -10,7 +10,6 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.internal.artifacts.ArtifactAttributes;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
-import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.DIRECTORY_TYPE;
 
 public class JniLibraryPlugin implements Plugin<Project> {
     @Override
@@ -42,7 +40,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
         project.getPluginManager().withPlugin("java", appliedPlugin -> registerJniHeaderSourceSet(project, library));
         project.getPluginManager().withPlugin("java-library", appliedPlugin -> { throw new GradleException("Use java plugin instead"); });
 
-        exportHeaders(project, library);
         registerJvmResourceSet(project, library);
     }
 
@@ -104,28 +101,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
         JvmResourceSetInternal resourceSet = project.getObjects().newInstance(JvmResourceSetInternal.class);
         resourceSet.getSource().from(nativeRuntimeRelease);
         library.getSources().add(resourceSet);
-    }
-
-    private void exportHeaders(Project project, JniLibraryInternal library) {
-        Usage cppApiUsage = project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API);
-
-        // outgoing public headers - this represents the headers we expose (including transitive headers)
-        Configuration headers = project.getConfigurations().create("headers", it -> {
-            it.setCanBeResolved(false);
-            it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, cppApiUsage);
-            it.getAttributes().attribute(ArtifactAttributes.ARTIFACT_FORMAT, DIRECTORY_TYPE);
-
-            library.getSources().withType(HeaderExportingSourceSetInternal.class, sourceSet -> {
-                sourceSet.getSource().getFiles().forEach(includeRoot -> {
-                    it.getOutgoing().artifact(includeRoot);
-                });
-            });
-        });
-
-        // Export JVM headers
-        // TODO: The headers should not be published
-        // TODO: Create outgoing artifact using attributes, it should event be a runtime dependency (we don't want the headers to be published.
-        getJvmIncludeRoots().forEach(includeRoot -> headers.getOutgoing().artifact(includeRoot));
     }
 
     public static List<File> getJvmIncludeRoots() {
