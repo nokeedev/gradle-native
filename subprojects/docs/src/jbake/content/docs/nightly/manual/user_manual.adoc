@@ -1,3 +1,9 @@
 = Nokee User Manual
 :jbake-type: manual_chapter
 :jbake-status: published
+
+This user manual cover the native support in Gradle offered by Nokee Labs plugin suite.
+It is recommended that you have a basic understanding of Gradle Build Tool before reading this manual as it builds on the functionality offered by Gradle.
+Start by going through the https://docs.gradle.org/current/userguide/getting_started.html[Getting Started chapter in the Gradle Build Tool user manual].
+
+// That being said, if you are coming from a full native background (mostly from CMake and such build tools), we recommend reading this crash course...

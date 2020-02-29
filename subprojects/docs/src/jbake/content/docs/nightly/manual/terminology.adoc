@@ -1,0 +1,23 @@
+= Terminology
+:jbake-type: manual_chapter
+:jbake-status: published
+
+// Entrypoint (or project entrypoint)
+// Plugins such as `application`, `swift-application`, `cpp-application` are opinionated on offering the application entry point.
+// Library plugins such as `java-library`, `swift-library` and `cpp-library` exists for the library entry point.
+
+// Implementation Language: The language a project support for compilation.
+// Such language plugin from the Gradle core plugins are `java`, `groovy`, `scala`.
+// Others are org.kotlin.jvm
+// From Nokee, dev.nokee.cpp-language
+// These plugins offer a language support. Some plugins are opinionated on the language to use such as `swift-application`, `cpp-application`.
+// Each of those plugins are opinionated on the language used, swift and {cpp} respectively.
+// When an opinion is stated, it's not typical to allow mixing languages as the DSL offered by such plugins are specialized for the specified language, entrypoint and runtime.
+// In this case, a runtime isn't specified and is thus composable.
+
+// Runtime (or Project Runtime)
+// The runtime is opinionated on where the artifact would ultimately execute.
+// A common example are `android-application` and `android-library`.
+// The `android` part specify the runtime will be Android OS.
+// From Nokee, `dev.nokee.jni-library` allow execution within the Java Native Interface runtime.
+
