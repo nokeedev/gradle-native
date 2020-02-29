@@ -9,11 +9,8 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
-import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.Directory;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.artifacts.ArtifactAttributes;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -23,10 +20,10 @@ import org.gradle.internal.jvm.Jvm;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.cpp.CppBinary;
+import org.gradle.util.GradleVersion;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,20 +62,28 @@ public class JniLibraryPlugin implements Plugin<Project> {
         return library;
     }
 
+    private static boolean isGradleVersionGreaterOrEqualsTo6Dot3() {
+        return GradleVersion.current().compareTo(GradleVersion.version("6.3")) >= 0;
+    }
+
     private void registerJniHeaderSourceSet(Project project, JniLibraryInternal library) {
         SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
         SourceSet main = sourceSets.getByName("main");
 
-        Provider<Directory> jniHeaderDirectory = project.getLayout().getBuildDirectory().dir("jniHeaders");
         TaskProvider<JavaCompile> compileTask = project.getTasks().named(main.getCompileJavaTaskName(), JavaCompile.class, task -> {
-            task.getOutputs().dir(jniHeaderDirectory);
-            task.getOptions().getCompilerArgumentProviders().add(() -> Arrays.asList("-h", jniHeaderDirectory.get().getAsFile().getAbsolutePath()));
-        });
-        ConfigurableFileCollection jniHeaders = project.files(jniHeaderDirectory, config -> {
-            config.builtBy(compileTask);
+            task.getOptions().getHeaderOutputDirectory().convention(project.getLayout().getBuildDirectory().dir("generated/jni-headers"));
+
+            // The nested output is not marked automatically as an output of the task regarding task dependencies.
+            // So we mark it manually here.
+            // See https://github.com/gradle/gradle/issues/6619.
+            task.getOutputs().dir(task.getOptions().getHeaderOutputDirectory());
+
+            // Cannot do incremental header generation before 6.3, since the pattern for cleaning them up is currently wrong.
+            // See https://github.com/gradle/gradle/issues/12084.
+            task.getOptions().setIncremental(isGradleVersionGreaterOrEqualsTo6Dot3());
         });
         HeaderExportingSourceSetInternal jniHeaderSourceSet = project.getObjects().newInstance(HeaderExportingSourceSetInternal.class);
-        jniHeaderSourceSet.getSource().from(jniHeaders);
+        jniHeaderSourceSet.getSource().from(compileTask.flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
         library.getSources().add(jniHeaderSourceSet);
     }
 
