@@ -159,43 +159,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 //            it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, true);
 //        });
 
-
-
-        // outgoing linktime libraries (i.e. static libraries) - this represents the libraries we expose (including transitive headers)
-        Configuration linkDebug = project.getConfigurations().create("linkDebug", it -> {
-            it.setCanBeResolved(false);
-//            it.extendsFrom(implementation);
-            it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, linkUsage);
-            it.getAttributes().attribute(CppBinary.DEBUGGABLE_ATTRIBUTE, true);
-            it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, false);
-        });
-        Configuration linkRelease = project.getConfigurations().create("linkRelease", it -> {
-            it.setCanBeResolved(false);
-//            it.extendsFrom(implementation);
-            it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, linkUsage);
-            it.getAttributes().attribute(CppBinary.DEBUGGABLE_ATTRIBUTE, true);
-            it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, true);
-        });
-
-        // outgoing runtime libraries (i.e. shared libraries) - this represents the libraries we expose (including transitive headers)
-        Configuration runtimeDebug = project.getConfigurations().create("runtimeDebug", it -> {
-            it.setCanBeResolved(false);
-//            it.extendsFrom(implementation);
-            it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, runtimeUsage);
-            it.getAttributes().attribute(CppBinary.DEBUGGABLE_ATTRIBUTE, true);
-            it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, false);
-        });
-        Configuration runtimeRelease = project.getConfigurations().create("runtimeRelease", it -> {
-            it.setCanBeResolved(false);
-//            it.extendsFrom(implementation);
-            it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, runtimeUsage);
-            it.getAttributes().attribute(CppBinary.DEBUGGABLE_ATTRIBUTE, true);
-            it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, true);
-        });
-
-
-
-
         project.getTasks().named("test", Test.class, task -> {
             task.dependsOn(library.getSources().withType(JvmResourceSetInternal.class).stream().map(JvmResourceSetInternal::getSource).collect(Collectors.toList()));
             // TODO: Notify when no native library exists
