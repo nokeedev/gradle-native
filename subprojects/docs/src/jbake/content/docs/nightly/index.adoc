@@ -1,3 +1,3 @@
 :jbake-type: redirection
 :jbake-status: published
-:jbake-redirecturl: manual/user_manual.html
+:jbake-redirecturl: manual/
