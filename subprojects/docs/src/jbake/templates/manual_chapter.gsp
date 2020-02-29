@@ -1,13 +1,13 @@
-<%include "header.gsp"%>
-	
-	<%include "menu.gsp"%>
-	
-	<div class="page-header">
-		<h1>${content.title}</h1>
+<% include "header.gsp" %>
+
+	<% include "menu.gsp" %>
+	<div class="container">
+
+		<div class="page-header">
+			<h1>${content.title}</h1>
+		</div>
+
+		<p>${content.body}</p>
+
 	</div>
-
-	<p>${content.body}</p>
-
-	<hr />
-	
-<%include "footer.gsp"%>
+<% include "footer.gsp" %>
