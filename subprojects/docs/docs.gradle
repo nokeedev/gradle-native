@@ -11,4 +11,16 @@ configurations {
         }
         outgoing.artifact(file('src/jbake/content'))
     }
+
+    templateElements {
+        canBeResolved = false
+        canBeConsumed = true
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-template'))
+        }
+        // Exported templates
+        ['redirection.gsp', 'manual_chapter.gsp', 'reference_chapter.gsp', 'reference_index.gsp', 'release_notes.gsp'].each {
+            outgoing.artifact(file("src/jbake/templates/${it}"))
+        }
+    }
 }
