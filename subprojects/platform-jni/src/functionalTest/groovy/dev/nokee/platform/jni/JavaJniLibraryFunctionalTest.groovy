@@ -86,6 +86,19 @@ class JavaJniLibraryFunctionalTest extends AbstractFunctionalSpec implements Mix
         jar("output/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'libjni-greeter.dylib')
     }
 
+    def "generate JNI headers when compiling Java source code"() {
+        makeSingleProject()
+        settingsFile << "rootProject.name = 'jni-greeter'"
+        componentUnderTest.writeToProject(testDirectory)
+
+        when:
+        file('build/generated/jni-headers').assertDoesNotExist()
+        succeeds(taskNames.java.tasks.compile)
+
+        then:
+        file('build/generated/jni-headers').assertHasDescendants('com_example_greeter_Greeter.h')
+    }
+
 //    def "can compile and link against a library"() {
 // TODO: JNI Plugin should allow to work alone by embedding the runtime native dependencies into a JAR. It should also create an empty JAR when no language (not even Java). This Jar should be exposed via API outgoing dependencies.
 
