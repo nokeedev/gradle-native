@@ -15,16 +15,12 @@ import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
-import org.gradle.internal.jvm.Jvm;
-import org.gradle.internal.os.OperatingSystem;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.cpp.CppBinary;
 import org.gradle.util.GradleVersion;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
@@ -101,19 +97,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
         JvmResourceSetInternal resourceSet = project.getObjects().newInstance(JvmResourceSetInternal.class);
         resourceSet.getSource().from(nativeRuntimeRelease);
         library.getSources().add(resourceSet);
-    }
-
-    public static List<File> getJvmIncludeRoots() {
-        List<File> result = new ArrayList<>();
-        result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include"));
-
-        // TODO: Create outgoing artifact using attributes, it should event be a runtime dependency (we don't want the headers to be published.
-        if (OperatingSystem.current().isMacOsX()) {
-            result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/darwin"));
-        } else if (OperatingSystem.current().isLinux()) {
-            result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/linux"));
-        }
-        return result;
     }
 
     private void configureJavaJniRuntime(Project project, JniLibraryInternal library) {

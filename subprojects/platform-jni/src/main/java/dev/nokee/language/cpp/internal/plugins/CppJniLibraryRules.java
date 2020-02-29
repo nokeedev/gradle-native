@@ -13,6 +13,8 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.internal.project.ProjectIdentifier;
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.internal.jvm.Jvm;
+import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.cpp.CppBinary;
 import org.gradle.language.cpp.tasks.CppCompile;
 import org.gradle.model.Finalize;
@@ -26,10 +28,12 @@ import org.gradle.nativeplatform.tasks.LinkSharedLibrary;
 import org.gradle.platform.base.ComponentSpecContainer;
 import org.gradle.platform.base.internal.BinarySpecInternal;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.getJvmIncludeRoots;
 import static org.codehaus.groovy.runtime.MetaClassHelper.capitalize;
 
 public class CppJniLibraryRules extends RuleSource {
@@ -127,8 +131,22 @@ public class CppJniLibraryRules extends RuleSource {
                 task.setDebuggable(true);
                 task.setOptimized(false);
                 task.includes(cppCompile);
+
                 library.getSources().withType(HeaderExportingSourceSetInternal.class, sourceSet -> task.getIncludes().from(sourceSet.getSource()));
-                getJvmIncludeRoots().forEach(includeRoot -> task.getIncludes().from(includeRoot));
+
+                task.getIncludes().from(project.provider(() -> {
+                    List<File> result = new ArrayList<>();
+                    result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include"));
+
+                    if (OperatingSystem.current().isMacOsX()) {
+                        result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/darwin"));
+                    } else if (OperatingSystem.current().isLinux()) {
+                        result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/linux"));
+                    } else if (OperatingSystem.current().isWindows()) {
+                        result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/win32"));
+                    }
+                    return result;
+                }));
             });
 
             binary.getTasks().withType(LinkSharedLibrary.class, task -> {
