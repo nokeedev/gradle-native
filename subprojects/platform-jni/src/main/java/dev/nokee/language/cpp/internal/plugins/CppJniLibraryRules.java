@@ -39,8 +39,9 @@ public class CppJniLibraryRules extends RuleSource {
     public void createNativeLibrary(ComponentSpecContainer components, ProjectIdentifier projectIdentifier) {
         components.create("main", NativeLibrarySpec.class, library -> {
             library.setBaseName(projectIdentifier.getName());
+
+            // Disable the StaticLibrary as we don't need it for JNI libraries
             library.getBinaries().withType(StaticLibraryBinarySpec.class, binary -> {
-                // Bad, bad, bad...
                 ((BinarySpecInternal)binary).setBuildable(false);
             });
         });
