@@ -1,0 +1,3 @@
+= Nokee User Manual
+:jbake-type: manual_chapter
+:jbake-status: published
