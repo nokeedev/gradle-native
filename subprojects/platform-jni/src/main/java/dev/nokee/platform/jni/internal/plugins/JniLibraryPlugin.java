@@ -237,7 +237,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
             task.dependsOn(library.getSources().withType(JvmResourceSetInternal.class).stream().map(JvmResourceSetInternal::getSource).collect(Collectors.toList()));
             // TODO: Notify when no native library exists
             String path = library.getSources().withType(JvmResourceSetInternal.class).stream().map(JvmResourceSetInternal::getSource).map(FileCollection::getFiles).flatMap(Collection::stream).map(File::getParent).collect(joining(File.pathSeparator));
-            System.out.println(path);
             task.systemProperty("java.library.path", path);
         });
 
