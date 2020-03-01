@@ -100,64 +100,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
     }
 
     private void configureJavaJniRuntime(Project project, JniLibraryInternal library) {
-        SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
-        SourceSet main = sourceSets.getByName("main");
-
         // Wire JVM to JniLibrary
         project.getConfigurations().getByName("implementation").extendsFrom(library.getJvmImplementationDependencies());
-
-        /*
-         * Define some configurations to present the outputs of this build
-         * to other Gradle projects.
-         */
-        final Usage cppApiUsage = project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API);
-        final Usage linkUsage = project.getObjects().named(Usage.class, Usage.NATIVE_LINK);
-        final Usage runtimeUsage = project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME);
-
-        // dependencies of the library
-//        Configuration implementation = project.getConfigurations().create("implementation", it -> {
-//            it.setCanBeConsumed(false);
-//            it.setCanBeResolved(false);
-//        });
-
-//        // incoming compile time headers - this represents the headers we consume
-//        project.getConfigurations().create("cppCompile", it -> {
-//            it.setCanBeConsumed(false);
-//            it.extendsFrom(implementation);
-//            it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, cppApiUsage);
-//        });
-
-//        // incoming linktime libraries (i.e. static libraries) - this represents the libraries we consume
-//        project.getConfigurations().create("cppLinkDebug", it -> {
-//            it.setCanBeConsumed(false);
-//            it.extendsFrom(implementation);
-//            it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, linkUsage);
-//            it.getAttributes().attribute(CppBinary.DEBUGGABLE_ATTRIBUTE, true);
-//            it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, false);
-//        });
-//        project.getConfigurations().create("cppLinkRelease", it -> {
-//            it.setCanBeConsumed(false);
-//            it.extendsFrom(implementation);
-//            it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, linkUsage);
-//            it.getAttributes().attribute(CppBinary.DEBUGGABLE_ATTRIBUTE, true);
-//            it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, true);
-//        });
-
-//        // incoming runtime libraries (i.e. shared libraries) - this represents the libraries we consume
-//        project.getConfigurations().create("cppRuntimeDebug", it -> {
-//            it.setCanBeConsumed(false);
-//            it.extendsFrom(implementation);
-//            it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, runtimeUsage);
-//            it.getAttributes().attribute(CppBinary.DEBUGGABLE_ATTRIBUTE, true);
-//            it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, false);
-//        });
-//        project.getConfigurations().create("cppRuntimeRelease", it -> {
-//            it.setCanBeConsumed(false);
-//            it.extendsFrom(implementation);
-//            it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, runtimeUsage);
-//            it.getAttributes().attribute(CppBinary.DEBUGGABLE_ATTRIBUTE, true);
-//            it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, true);
-//        });
 
         project.getTasks().named("test", Test.class, task -> {
             task.dependsOn(library.getSources().withType(JvmResourceSetInternal.class).stream().map(JvmResourceSetInternal::getSource).collect(Collectors.toList()));
