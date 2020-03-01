@@ -86,12 +86,12 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
         // TODO: Consume according to the "target" that people will need
         // incoming runtime libraries (i.e. shared libraries) - this represents the libraries we consume
-        Configuration nativeRuntimeRelease = project.getConfigurations().create("nativeRuntimeRelease", it -> {
+        Configuration nativeRuntimeRelease = project.getConfigurations().create("nativeRuntimeDebug", it -> {
             it.setCanBeConsumed(false);
             it.extendsFrom(implementation);
             it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, runtimeUsage);
             it.getAttributes().attribute(CppBinary.DEBUGGABLE_ATTRIBUTE, true);
-            it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, true);
+            it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, false);
         });
 
         JvmResourceSetInternal resourceSet = project.getObjects().newInstance(JvmResourceSetInternal.class);
