@@ -14,8 +14,8 @@ import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
 import static dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement.ofPackage
 
 class JavaJniCppGreeterLib extends JniLibraryElement {
-    final SourceElement jniBindings
-    final CppSourceElement nativeImplementation
+    final CppSourceElement jniBindings
+    final CppLibraryElement nativeImplementation
     final JavaSourceElement jvmImplementation
 	final JavaSourceElement junitTest
 
