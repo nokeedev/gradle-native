@@ -1,0 +1,6 @@
+image: openjdk:8
+
+build:
+  stage: build
+  script: ./gradlew assemble
+

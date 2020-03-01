@@ -1,16 +1,28 @@
-//pluginManagement {
-//    resolutionStrategy {
-//        eachPlugin {
-//            if (requested.id.id.startsWith('dev.gradleplugins')) {
-//                useModule('dev.gradleplugins:gradle-plugin-development:0.0.22-SNAPSHOT')
-//            }
-//        }
-//    }
-//}
-
 rootProject.name = 'gradle-native'
 
-includeBuild '../toolbox'
+/**
+ * Poor man's source dependencies
+ * @param repositoryName
+ * @param repositoryUrl
+ */
+void includeExternalBuild(String repositoryName, String repositoryUrl) {
+	// Opinionated on my local development layout
+	if (file("../${repositoryName}").exists()) {
+		includeBuild("../${repositoryName}")
+
+		// Else, just clone the repository
+	} else {
+		if (!file(".repositories/${repositoryName}").exists()) {
+			file('.repositories').mkdirs()
+			"git clone ${repositoryUrl} .repositories/${repositoryName}".execute().waitFor()
+		} else {
+			"git pull".execute(null, file(".repositories/${repositoryName}")).waitFor()
+		}
+		includeBuild(".repositories/${repositoryName}")
+	}
+}
+
+includeExternalBuild('toolbox', 'https://github.com/gradle-plugins/toolbox.git')
 
 include 'platformJni'
 project(':platformJni').projectDir = file('subprojects/platform-jni')
