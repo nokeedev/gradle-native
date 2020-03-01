@@ -7,7 +7,7 @@ configurations {
         canBeResolved = false
         canBeConsumed = true
         attributes {
-            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-content'))
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-content')) // TODO: Use doctype
         }
         outgoing.artifact(file('src/jbake/content'))
     }
