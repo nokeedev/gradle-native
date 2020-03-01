@@ -20,6 +20,7 @@ repositories {
 
 dependencies {
     functionalTestImplementation gradleTestKit() // Until we support other kind of GradleExecutor
+	functionalTestImplementation "dev.nokee:templates:latest.integration"
 }
 
 gradlePlugin {

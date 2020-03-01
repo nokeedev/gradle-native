@@ -1,0 +1,24 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css");
+
+.download {
+	display: flex;
+}
+
+.download ul {
+	list-style: none;
+	list-style-type: none;
+}
+
+.download li {
+	float: right;
+}
+
+.download a {
+	border-style: solid;
+	border-width: 1px;
+	text-decoration: none;
+	padding: 5px;
+	display: block;
+	width: 10em;
+	margin: 5px;
+}

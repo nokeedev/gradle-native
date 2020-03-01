@@ -1,26 +1,178 @@
+import dev.gradleplugins.test.fixtures.file.TestFile
+import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.docs.Dsl
+import dev.nokee.docs.GenerateSamplesContentTask
+import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
+import org.apache.tools.ant.filters.ConcatFilter
+import org.gradle.util.GUtil
+
+buildscript {
+	dependencies {
+		classpath 'dev.nokee:templates:latest.integration'
+	}
+}
+
 plugins {
     id 'org.jbake.site' version '5.0.0'
+	id 'dev.nokee.docs-classpath' apply false
+}
+
+// Stage jbake content
+def stageTask = tasks.register('stage', Sync) {
+	from('src/jbake')
+	into(layout.buildDirectory.dir('staging'))
+}
+jbake {
+	srcDirName = 'build/staging'
+}
+tasks.named('bake') {
+	dependsOn(stageTask)
+}
+
+class Sample {
+	private final String name
+	private final SourceElement fixture
+
+	Sample(String name, SourceElement fixture) {
+		this.fixture = fixture
+		this.name = name
+	}
+}
+
+TaskProvider<Wrapper> generateSamplesGradleWrapperTask = tasks.register('generateSamplesGradleWrapper', Wrapper) {
+	ext.outputDirectory = "build/tmp/${it.name}"
+	gradleVersion = gradle.gradleVersion
+	scriptFile = file("${outputDirectory}/gradlew")
+	jarFile = file("${outputDirectory}/gradle/wrapper/gradle-wrapper.jar")
+}
+def wrapperFiles = project.fileTree(generateSamplesGradleWrapperTask.map {it.outputDirectory}).builtBy(generateSamplesGradleWrapperTask)
+
+def generatedSampleSourceSet = project.layout.buildDirectory.dir('generated/samples')
+
+def stageSamplesTask = tasks.register('stageSamples', Sync) {
+	into(generatedSampleSourceSet)
+}
+
+def assembleSamplesTask = tasks.register('assembleSamples')
+
+TaskProvider<Task> generateKotlinDslNightlySettingsTask = tasks.register("configureKotlinDslNightlySettings") {
+	ext.outputFile = file("build/tmp/${it.name}/${Dsl.KOTLIN_DSL.settingsFileName}")
+	inputs.property('version', project.provider { project.version.toString() })
+	outputs.file(outputFile)
+	doLast {
+		outputFile.text = Dsl.KOTLIN_DSL.settingsPluginManagement.withVersion(project.version.toString())
+	}
+}
+
+TaskProvider<Task> generateGroovyDslNightlySettingsTask = tasks.register("configureGroovyDslNightlySettings") {
+	ext.outputFile = file("build/tmp/${it.name}/${Dsl.GROOVY_DSL.settingsFileName}")
+	inputs.property('version', project.provider { project.version.toString() })
+	outputs.file(outputFile)
+	doLast {
+		outputFile.text = Dsl.GROOVY_DSL.settingsPluginManagement.withVersion(project.version.toString())
+	}
+}
+
+TaskProvider<GenerateSamplesContentTask> generateSamplesContentTask = tasks.register('generateSamplesContent', GenerateSamplesContentTask)
+
+ConfigurableFileCollection dslSampleArchiveSourceSet = project.objects.fileCollection()
+stage.configure {
+	from(dslSampleArchiveSourceSet) { into('assets/zips') }
+	from(generateSamplesContentTask) { into('content/docs/nightly/samples') }
+}
+
+[new Sample('java-cpp-jni-library', new JavaJniCppGreeterLib())].each { Sample sample ->
+	String nameAsCamelCase = GUtil.toCamelCase(sample.name)
+
+	TaskProvider<Task> generateSampleCodeTask = tasks.register("generate${nameAsCamelCase}SampleContent") {
+		ext.outputDirectory = file("build/tmp/${it.name}")
+		outputs.dir(outputDirectory)
+		doLast {
+			// TODO: Change API to use File instead of TestFile
+			sample.fixture.writeToProject(TestFile.of(outputDirectory))
+		}
+	}
+
+	[Dsl.GROOVY_DSL, Dsl.KOTLIN_DSL].each { Dsl dsl ->
+		stageSamplesTask.configure {
+			from(wrapperFiles) { into("${sample.name}/${dsl.name}") }
+			from(generateSampleCodeTask) { into("${sample.name}/${dsl.name}") }
+			from(file("src/docs/samples/${sample.name}/${dsl.name}")) {
+				into("${sample.name}/${dsl.name}")
+				exclude("${dsl.settingsFileName}")
+			}
+			from(file("src/docs/samples/${sample.name}/${dsl.name}/${Dsl.GROOVY_DSL.settingsFileName}")) {
+				into("${sample.name}/${dsl.name}")
+
+				dependsOn(generateGroovyDslNightlySettingsTask)
+				inputs.file(generateGroovyDslNightlySettingsTask.map {it.outputFile})
+				filter(ConcatFilter, prepend: generateGroovyDslNightlySettingsTask.get().outputFile)
+			}
+			from(file("src/docs/samples/${sample.name}/${dsl.name}/${Dsl.KOTLIN_DSL.settingsFileName}")) {
+				into("${sample.name}/${dsl.name}")
+
+				dependsOn(generateKotlinDslNightlySettingsTask)
+				inputs.file(generateKotlinDslNightlySettingsTask.map {it.outputFile})
+				filter(ConcatFilter, prepend: generateKotlinDslNightlySettingsTask.get().outputFile)
+			}
+		}
+
+		TaskProvider<Task> zipDslSampleTask = tasks.register("zip${nameAsCamelCase}${GUtil.toCamelCase(dsl.name)}Sample", Zip) {
+			dependsOn(stageSamplesTask)
+			from(generatedSampleSourceSet.get().dir("${sample.name}/${dsl.name}"))
+			archiveBaseName = nameAsCamelCase
+			archiveClassifier = dsl.name
+			archiveVersion = project.provider { project.version.toString() }
+		}
+		dslSampleArchiveSourceSet.from(zipDslSampleTask)
+
+		assembleSamplesTask.configure {
+			dependsOn(zipDslSampleTask)
+		}
+
+		generateSamplesContentTask.configure {
+			it.sample {
+				source = file("src/docs/samples/${sample.name}/README.adoc")
+				permalink = sample.name
+				version = project.provider { project.version.toString() }
+				archiveBaseName = nameAsCamelCase
+			}
+		}
+	}
 }
 
 configurations {
-    contentElements {
-        canBeResolved = false
-        canBeConsumed = true
-        attributes {
-            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-content')) // TODO: Use doctype
-        }
-        outgoing.artifact(file('src/jbake/content'))
-    }
+	contentElements {
+		canBeResolved = false
+		canBeConsumed = true
+		attributes {
+			attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-content')) // TODO: Use doctype
+		}
+		outgoing.artifact(file('build/staging/content')) {
+			it.builtBy(stageTask)
+		}
+	}
 
-    templateElements {
-        canBeResolved = false
-        canBeConsumed = true
-        attributes {
-            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-template'))
-        }
-        // Exported templates
-        ['redirection.gsp', 'manual_chapter.gsp', 'reference_chapter.gsp', 'reference_index.gsp', 'release_notes.gsp', 'sample_index.gsp'].each {
-            outgoing.artifact(file("src/jbake/templates/${it}"))
-        }
-    }
+	sampleAssetElements {
+		canBeResolved = false
+		canBeConsumed = true
+		attributes {
+			attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-sample-asset'))
+		}
+		outgoing.artifact(file('build/staging/assets/zips')) {
+			it.builtBy(stageTask)
+		}
+	}
+
+	templateElements {
+		canBeResolved = false
+		canBeConsumed = true
+		attributes {
+			attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-template'))
+		}
+		// Exported templates
+		['redirection.gsp', 'manual_chapter.gsp', 'reference_chapter.gsp', 'reference_index.gsp', 'release_notes.gsp', 'sample_index.gsp', 'sample_chapter.gsp'].each {
+			outgoing.artifact(file("src/jbake/templates/${it}"))
+		}
+	}
 }

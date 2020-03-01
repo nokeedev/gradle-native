@@ -9,6 +9,10 @@
 
 		<p>${content.body}</p>
 
+		<%sample_chapters.each {sample ->%>
+		<a href="${sample.permalink}/"><h2>${sample.title}</h2></a>
+		<%}%>
+
 	</div>
 
 <% include "footer.gsp" %>

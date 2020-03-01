@@ -23,6 +23,8 @@ void includeExternalBuild(String repositoryName, String repositoryUrl) {
 }
 
 includeExternalBuild('toolbox', 'https://github.com/gradle-plugins/toolbox.git')
+includeBuild 'subprojects/templates'
+includeBuild 'gradle/plugins/docs-gradle-plugin'
 
 include 'platformJni'
 project(':platformJni').projectDir = file('subprojects/platform-jni')

@@ -1,0 +1,16 @@
+plugins {
+	id 'groovy'
+	id 'java-library'
+}
+
+group = 'dev.nokee'
+version = '0.1'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	implementation localGroovy()
+	api 'dev.gradleplugins:gradle-fixtures:latest.integration'
+}
