@@ -2,7 +2,8 @@ package dev.nokee.platform.jni
 
 import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
 import dev.nokee.language.MixedLanguageTaskNames
-import dev.nokee.platform.jni.fixtures.JniGreeterLibWithJUnitTest
+import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
+import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
 
 class JavaJniLibraryWithJUnitTestingFunctionalTest extends AbstractFunctionalSpec implements MixedLanguageTaskNames {
     def "can test library using JUnit"() {
@@ -38,7 +39,7 @@ class JavaJniLibraryWithJUnitTestingFunctionalTest extends AbstractFunctionalSpe
         '''
     }
 
-    protected JniGreeterLibWithJUnitTest getComponentUnderTest() {
-        return new JniGreeterLibWithJUnitTest()
+    protected JniLibraryElement getComponentUnderTest() {
+        return new JavaJniCppGreeterLib().withJUnitTest()
     }
 }

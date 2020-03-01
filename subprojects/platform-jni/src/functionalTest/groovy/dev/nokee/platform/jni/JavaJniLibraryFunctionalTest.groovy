@@ -4,7 +4,7 @@ import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
 import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.language.MixedLanguageTaskNames
-import dev.nokee.platform.jni.fixtures.JniGreeterLib
+import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 
 import static org.hamcrest.CoreMatchers.containsString
 
@@ -138,7 +138,7 @@ class JavaJniLibraryFunctionalTest extends AbstractFunctionalSpec implements Mix
         '''
     }
 
-    JniGreeterLib getComponentUnderTest() {
-        return new JniGreeterLib()
+    JavaJniCppGreeterLib getComponentUnderTest() {
+        return new JavaJniCppGreeterLib()
     }
 }

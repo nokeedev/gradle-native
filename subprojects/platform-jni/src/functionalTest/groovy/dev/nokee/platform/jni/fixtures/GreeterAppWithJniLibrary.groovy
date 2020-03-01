@@ -5,7 +5,7 @@ import dev.nokee.platform.jni.fixtures.elements.ApplicationWithLibraryElement
 import dev.nokee.platform.jni.fixtures.elements.JavaMainUsesGreeter
 
 class GreeterAppWithJniLibrary implements ApplicationWithLibraryElement {
-    final SourceElement library = new JniGreeterLib()
+    final SourceElement library = new JavaJniCppGreeterLib()
     final SourceElement application = new JavaMainUsesGreeter()
 
     @Override

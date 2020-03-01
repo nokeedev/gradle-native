@@ -1,7 +1,7 @@
 package dev.nokee.platform.jni
 
 import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
-import dev.nokee.platform.jni.fixtures.JniGreeterLib
+import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 
 class JniLibraryHiddingImplementationDetailsFunctionalTest extends AbstractFunctionalSpec {
     def "hides software model implementation details tasks"() {
@@ -13,7 +13,7 @@ class JniLibraryHiddingImplementationDetailsFunctionalTest extends AbstractFunct
                 id 'dev.nokee.cpp-language'
             }
         '''
-        new JniGreeterLib().writeToProject(testDirectory)
+        new JavaJniCppGreeterLib().writeToProject(testDirectory)
 
         when:
         succeeds('tasks')

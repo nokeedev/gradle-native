@@ -1,9 +1,9 @@
 package dev.nokee.platform.jni.fixtures.elements;
 
+import dev.gradleplugins.test.fixtures.file.TestFile;
 import dev.gradleplugins.test.fixtures.sources.SourceElement;
 import dev.gradleplugins.test.fixtures.sources.SourceFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class JniLibraryElement extends SourceElement {
@@ -13,9 +13,11 @@ public abstract class JniLibraryElement extends SourceElement {
 
     @Override
     public List<SourceFile> getFiles() {
-        List<SourceFile> result = new ArrayList<>();
-        result.addAll(getJvmSources().getFiles());
-        result.addAll(getNativeSources().getFiles());
-        return result;
+        return ofElements(getJvmSources(), getNativeSources()).getFiles();
     }
+
+	@Override
+	public void writeToProject(TestFile projectDir) {
+		ofElements(getJvmSources(), getNativeSources()).writeToProject(projectDir);
+	}
 }
