@@ -1,10 +1,17 @@
+import javax.annotation.Nullable
+import java.text.SimpleDateFormat
+
 plugins {
     id 'dev.gradleplugins.java-gradle-plugin'
+	id 'maven-publish'
+	id 'com.jfrog.bintray' version '1.8.4'
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+	withSourcesJar()
+	withJavadocJar()
 }
 
 repositories {
@@ -26,4 +33,54 @@ gradlePlugin {
             implementationClass = 'dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin'
         }
     }
+}
+
+@Nullable
+private String resolveProperty(Project project, String envVarKey, String projectPropKey) {
+	Object propValue = System.getenv().get(envVarKey);
+
+	if (propValue != null) {
+		return propValue.toString();
+	}
+
+	propValue = project.findProperty(projectPropKey);
+	if (propValue != null) {
+		return propValue.toString();
+	}
+
+	return null;
+}
+
+afterEvaluate {
+	// TODO: Publish Gradle metadata
+	bintray {
+		user = resolveProperty(project, "BINTRAY_USER", "dev.nokee.bintray.user")
+		key = resolveProperty(project, "BINTRAY_KEY", "dev.nokee.bintray.key")
+		publications = publishing.publications.collect { it.name }
+
+		publish = true
+		override = true // only for snapshot
+
+		pkg {
+			repo = 'distributions-snapshots' // only for snapshot
+			name = 'artifacts'
+			desc = project.description
+			userOrg = 'nokeedev'
+			websiteUrl = 'https://nokee.dev'
+			issueTrackerUrl = 'https://github.com/nokeedev/gradle-native/issues'
+			vcsUrl = 'https://github.com/nokeedev/gradle-native.git'
+			labels = ['gradle', 'gradle-native']
+			licenses = ['AGPL-V3'] // TODO: Clarify
+			publicDownloadNumbers = false
+
+			version {
+				released = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").format(new Date())
+				// TODO: Sign artifacts
+				gpg {
+					sign = false
+					passphrase = resolveProperty(project, "GPG_PASSPHRASE", "dev.nokee.bintray.gpgPassphrase")
+				}
+			}
+		}
+	}
 }

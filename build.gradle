@@ -1,3 +1,39 @@
+import org.gradle.util.VersionNumber
+
+class Version {
+	private VersionNumber delegate = null
+	private final ProjectLayout projectLayout
+
+	Version(ProjectLayout projectLayout) {
+		this.projectLayout = projectLayout
+	}
+
+	@Override
+	String toString() {
+		maybeLoad()
+		return delegate.toString()
+	}
+
+	private void maybeLoad() {
+		if (delegate == null) {
+			delegate = VersionNumber.parse("${loadBaseVersion()}-${loadQualifier()}")
+		}
+	}
+
+	private String loadBaseVersion() {
+		return projectLayout.projectDirectory.file('version.txt').asFile.text.trim()
+	}
+
+	private String loadQualifier() {
+		def process = "git rev-parse --short HEAD".execute(null, projectLayout.projectDirectory.asFile)
+		process.waitFor()
+		return process.in.text.trim()
+	}
+}
+
+def v = new Version(layout)
 allprojects {
+	version = v
     group = 'dev.nokee'
+	// TODO: set the status properly
 }
