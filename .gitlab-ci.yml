@@ -1,12 +1,11 @@
 image: openjdk:8
 
 build:
-	stage: build
-	script: ./gradlew assemble
+  stage: build
+  script: ./gradlew assemble
 
 deploy:
-	stage: deploy
-	script: ./gradlew bintrayUpload
-	only:
-		- master
-
+  stage: deploy
+  script: ./gradlew bintrayUpload
+  only:
+    - master
