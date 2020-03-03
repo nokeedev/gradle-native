@@ -38,4 +38,12 @@ BUILD SUCCESSFUL
 4 actionable tasks: 4 executed
 ----
 
+The JNI library produced inside `./build/libs` directory:
+
+[listing]
+----
+$ ls ./build/libs/*.jar
+./build/libs/java-cpp-jni-library.jar
+----
+
 For more information, see <<jni_library_plugin.adoc#,JNI Library Plugin reference chapter>>.

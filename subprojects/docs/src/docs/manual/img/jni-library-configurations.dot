@@ -1,0 +1,22 @@
+digraph jniLibraryConfigurations {
+	graph [ dpi = 100, fontname="Sans"];
+	node [fontname = "Sans"];
+	edge [fontname = "Sans"];
+	node [shape=rectangle, fixedsize=true, width=2.5, height=0.5];
+
+	subgraph central {
+	node[style=filled, fillcolor=white]
+	api -> jvmImplementation -> nativeImplementation [style=invis, weight=1000]
+	jvmImplementation -> api [headport=s, tailport=n]
+	}
+
+	subgraph left {
+	node[style=filled, fillcolor="#cfe2f3"]
+	nativeRuntimeVariant[label=<nativeRuntime<i>Variant</i> (R)>]
+	}
+
+	// Ensure the order is preserved
+  {rank=same nativeImplementation nativeRuntimeVariant}
+
+	{nativeRuntimeVariant} -> nativeImplementation [headport=w, tailport=e]
+}

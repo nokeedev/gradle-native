@@ -7,3 +7,9 @@ It is recommended that you have a basic understanding of Gradle Build Tool befor
 Start by going through the https://docs.gradle.org/current/userguide/getting_started.html[Getting Started chapter in the Gradle Build Tool user manual].
 
 // That being said, if you are coming from a full native background (mostly from CMake and such build tools), we recommend reading this crash course...
+
+This documentation is a work in progress, please use the link below until the side menu is implemented:
+
+- link:../samples[Sample index]
+- <<plugin_references.adoc#,Plugin references>>
+- <<terminology.adoc#,Terminology>>

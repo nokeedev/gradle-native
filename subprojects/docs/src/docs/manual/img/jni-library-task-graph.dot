@@ -1,0 +1,18 @@
+digraph jniLibraryTaskGraph {
+	graph [ dpi = 100, fontname="Sans"];
+	node [fontname = "Sans"];
+	edge [fontname = "Sans"];
+	node [shape=rectangle, fixedsize=true, width=2.5, height=0.5];
+	node [style=filled, fillcolor="#cfe2f3"]
+	rankdir=LR
+
+	assemble -> build [dir=back]
+	check -> build [dir=back]
+	clean
+
+	// Ensure ordering
+	assemble -> empty1 -> empty2 -> check [style=invis]
+	{rank=same assemble check empty1 empty2}
+	empty1[shape=plain, label=""]
+	empty2[shape=plain, label=""]
+}

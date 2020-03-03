@@ -1,12 +1,15 @@
 = Java Native Interface (JNI) Library
 :jbake-type: reference_chapter
 :jbake-status: published
+:imagesdir: ./img
+:gradle-user-manual: https://docs.gradle.org/6.2.1/userguide
 :idprefix:
 
 The JNI Library Plugin provides the tasks, configurations and conventions for building libraries using the Java Native Interface runtime.
 It provide both an entry point (library) and runtime (JNI).
-An JVM and native implementation language plugins are required to be applied to produce anything meaningful.
+An JVM (i.e. the link:{gradle-user-manual}/java_plugin.html[Java Core Plugin]) and native implementation (i.e. the <<cpp_language_plugin.adoc#,{cpp} Language Plugin>>) language plugins are required to be applied to produce anything meaningful.
 
+[[sec:jni_library_usage]]
 == Usage
 
 .Applying the JNI Library Plugin
@@ -35,4 +38,83 @@ plugins {
 
 // TODO: Describe runtime plugin and entry point plugin
 NOTE: This plugin produce a JNI library JAR using the JNI runtime.
-It doesn't provide any implementation language capabilities and thus needs to be composed by applying other implementation language plugins, such as <<cpp_language_plugin.adoc#,{cpp} Language Plugin>> and link:https://docs.gradle.org/6.2.1/userguide/java_plugin.html[Java Plugin].
+It doesn't provide any implementation language capabilities and thus needs to be composed by applying other implementation language plugins, such as <<cpp_language_plugin.adoc#,{cpp} Language Plugin>> and link:{gradle-user-manual}/java_plugin.html[Java Plugin].
+
+NOTE: This plugin is incompatible with the link:{gradle-user-manual}/java_library_plugin.html[core Java Library Plugin] and link:{gradle-user-manual}/application_plugin.html[core Java Application Plugin].
+Those two plugins provides an opinionated entry point (e.g. library and application respectively) and cannot be applied within the same project.
+Instead, use the link:{gradle-user-manual}/java_plugin.html[core Java Language Plugin].
+The plugin can consume JVM libraries produced by the link:{gradle-user-manual}/java_library_plugin.html[core Java Library Plugin] without any issue.
+
+[[sec:jni_library_tasks]]
+== Tasks
+
+The following diagram shows the relationships between tasks added by this plugin.
+
+.JNI Library Plugin default task graph
+image::jni-library-task-graph.png[]
+
+[[sec:jni_library_lifecycle_tasks]]
+=== Lifecycle Tasks
+
+The JNI Library Plugin attaches some of its tasks to the standard lifecycle tasks documented in the <<base_plugin.adoc#,Base Plugin chapter>> — which the JNI Library Plugin applies automatically:
+
+`assemble` - Task (lifecycle)::
+Aggregate task that assembles the debug variant of the shared library (if available) for the current host (if present) in the project as well as the JAR.
+This task is added by the <<base_plugin.adoc#,Base Plugin>>.
+
+`check` - Task (lifecycle)::
+Aggregate task that performs verification tasks, such as running the tests.
+Some plugins add their own verification task to `check`.
+This task is added by the <<base_plugin.adoc#,Base Plugin>>.
+
+`build` - Task (lifecycle)::
+Depends on: `check`, `assemble`
+::
+Aggregate tasks that perform a full build of the project.
+This task is added by the <<base_plugin.adoc#,Base Plugin>>.
+
+`clean` - Delete::
+Deletes the build directory and everything in it, i.e. the path specified by the `Project.getBuildDir()` project property.
+This task is added by the <<base_plugin.adoc#,Base Plugin>>.
+
+
+== Dependency management
+
+The following graph describes the configurations added by the JNI Library Plugin:
+
+.JNI Library Plugin configurations
+image::jni-library-configurations.png[]
+
+* The configurations in white are the ones a user should use to declare dependencies
+* The configurations in blue, also known as resolvable denoted by \(R), are internal to the component, for its own use
+
+Note: Languages plugins will add consumable configurations.
+Please refer to the appropriate reference chapter to learn more about their specific consumable configurations.
+Specific sub-section will note how the plugins will react to the supported languages.
+
+
+The following configurations can be used to declare dependencies:
+
+`api`::
+Used for declaring API dependencies for JVM consumers (see link:{gradle-user-manual}/java_library_plugin.html#sec:java_library_separation[API vs implementation section of the core Java Library Plugin chapter]).
+This is where you should declare dependencies which are transitively exported to consumers, for compile.
+Note that only JVM dependencies are transitively exported to consumers.
+
+`jvmImplementation` extends `api`::
+Used for declaring implementation dependencies for the JVM component (see link:{gradle-user-manual}/java_library_plugin.html#sec:java_library_separation[API vs implementation section of the core Java Library Plugin chapter]).
+This is where you should declare dependencies which are purely internal and not meant to be exposed to consumers.
+
+`nativeImplementation`::
+Used for declaring implementation dependencies for the native shared library component (see link:{gradle-user-manual}/cpp_library_plugin.html#sec:cpp_library_api_vs_implementation[API vs implementation section of the core {cpp} Library Plugin chapter]).
+This is where you should declare dependencies which are purely internal and not meant to be exposed to consumers.
+
+// TODO: Mention how the plugin interact with the language plugins
+
+The following configuration is used by the library itself:
+
+`nativeRuntime__Variant__` (e.g. `nativeRuntimeDebug`) extends `nativeImplementation`::
+Used for executing the library.
+This configuration contains the native runtime libraries of the shared library.
+
+
+// Conventions
