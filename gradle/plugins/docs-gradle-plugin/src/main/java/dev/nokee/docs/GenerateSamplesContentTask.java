@@ -66,6 +66,12 @@ public abstract class GenerateSamplesContentTask extends DefaultTask {
 		sb.append(":jbake-permalink: " + sample.getPermalink().get()).append("\n");
 		sb.append(":jbake-archivebasename: " + sample.getArchiveBaseName().get()).append("\n");
 		sb.append(":includedir: " + sample.getSourceDirectory().get().getAsFile().getAbsolutePath()).append("\n");
+
+		// TODO: Make sure to sync the Gradle version
+		sb.append(":gradle-user-manual: https://docs.gradle.org/6.2.1/userguide").append("\n");
+		sb.append(":gradle-language-reference: https://docs.gradle.org/6.2.1/userguide").append("\n");
+		sb.append(":gradle-api-reference: https://docs.gradle.org/6.2.1/userguide").append("\n");
+		sb.append(":gradle-guides: https://guides.gradle.org/").append("\n");
 		return sb.toString().getBytes();
 	}
 
