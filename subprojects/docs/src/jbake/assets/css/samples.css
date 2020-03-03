@@ -22,3 +22,7 @@
 	width: 10em;
 	margin: 5px;
 }
+
+code {
+	tab-size: 4;
+}
