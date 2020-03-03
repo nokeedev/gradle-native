@@ -2,4 +2,39 @@
 :jbake-type: sample_chapter
 :jbake-status: published
 
-Coming soon!
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how a JNI library implemented in Java and {cpp} can be built with Gradle.
+The library has no dependencies and the build has minimal configuration.
+
+.Applying the JNI Library Plugin
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::{includedir}/groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::{includedir}/kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+
+To build the library:
+
+[listing.terminal]
+----
+$ ./gradlew assemble
+
+BUILD SUCCESSFUL
+4 actionable tasks: 4 executed
+----
+
+For more information, see <<jni_library_plugin.adoc#,JNI Library Plugin reference chapter>>.

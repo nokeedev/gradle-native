@@ -5,11 +5,17 @@ import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.test.fixtures.gradle.GradleExecuterFactory
 import dev.gradleplugins.test.fixtures.gradle.executer.GradleExecuter
+import dev.gradleplugins.test.fixtures.gradle.executer.LogContent
+import dev.gradleplugins.test.fixtures.gradle.executer.OutputScrapingExecutionResult
+import dev.gradleplugins.test.fixtures.logging.ConsoleOutput
 import org.junit.Rule
 import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.util.concurrent.TimeUnit
+
+import static dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl.GROOVY_DSL
+import static dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl.KOTLIN_DSL
 
 @CleanupTestDirectory
 class JavaCppJniLibrarySampleTest extends Specification {
@@ -21,9 +27,9 @@ class JavaCppJniLibrarySampleTest extends Specification {
 	}
 
 	@Unroll
-	def "can run './gradlew #taskName' successfully"(taskName) {
+	def "can run './gradlew #taskName' successfully"(taskName, dsl) {
 		def fixture = new SampleContentFixture(sampleName)
-		unzipTo(fixture.groovyDslSample, temporaryFolder.testDirectory)
+		unzipTo(fixture.getDslSample(dsl), temporaryFolder.testDirectory)
 
 		GradleExecuter executer = new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory))
 		expect:
@@ -31,6 +37,25 @@ class JavaCppJniLibrarySampleTest extends Specification {
 
 		where:
 		taskName << ['help', 'tasks']
+		dsl << [GROOVY_DSL, KOTLIN_DSL]
+	}
+
+	def "can execute commands successfully"(dsl) {
+		def fixture = new SampleContentFixture(sampleName)
+		unzipTo(fixture.getDslSample(dsl), temporaryFolder.testDirectory)
+
+		GradleExecuter executer = new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory)).withConsole(ConsoleOutput.Rich)
+		expect:
+		fixture.getCommands().size() == 1
+		def command = fixture.getCommands()[0]
+		command.executable == './gradlew'
+		def result = executer.withArguments(command.args).run()
+		def expectedResult = OutputScrapingExecutionResult.from(command.expectedOutput.get(), '')
+
+		OutputScrapingExecutionResult.normalize(LogContent.of(result.getPlainTextOutput())).replace(' in 0s', '').startsWith(expectedResult.getOutput())
+
+		where:
+		dsl << [GROOVY_DSL, KOTLIN_DSL]
 	}
 
 	// TODO: Migrate to TestFile

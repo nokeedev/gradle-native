@@ -25,6 +25,7 @@ dependencies {
 	docsTestImplementation 'dev.gradleplugins:gradle-fixtures:latest.integration'
 	docsTestImplementation 'dev.gradleplugins:spock-test-directory-extension:latest.integration'
 	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
+	docsTestImplementation gradleApi() // Because there are some Gradle type leaking in, TODO: remove when those leaks are patched
 }
 
 // Stage jbake content
