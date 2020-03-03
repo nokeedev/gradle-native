@@ -18,4 +18,5 @@ repositories {
 
 dependencies {
 	implementation 'dev.gradleplugins:gradle-plugin-development:latest.integration'
+	implementation 'org.apache.commons:commons-exec:1.3'
 }
