@@ -35,7 +35,7 @@ def stageTask = tasks.register('stage', Sync) {
 jbake {
 	srcDirName = 'build/staging'
 }
-tasks.named('bake') {
+def bakeTask = tasks.named('bake') {
 	dependsOn(stageTask)
 }
 
@@ -140,6 +140,9 @@ stage.configure {
 			dependsOn(zipDslSampleTask)
 		}
 
+		bakeTask.configure {
+			inputs.dir(file("src/docs/samples/${sample.name}")) // Add sample files as input
+		}
 		generateSamplesContentTask.configure {
 			it.sample {
 				sourceDirectory = file("src/docs/samples/${sample.name}")
