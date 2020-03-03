@@ -14,7 +14,17 @@ buildscript {
 
 plugins {
     id 'org.jbake.site' version '5.0.0'
-	id 'dev.nokee.docs-classpath' apply false
+	id 'dev.nokeebuild.documentation'
+}
+
+docsTest.systemProperty('sampleArchiveDirectory', 'build/staging/assets/zips')
+docsTest.systemProperty('sampleContentDirectory', layout.buildDirectory.dir('staging/content/docs/nightly/samples').get().asFile.absolutePath)
+docsTest.dependsOn('stage')
+dependencies {
+	docsTestImplementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
+	docsTestImplementation 'dev.gradleplugins:gradle-fixtures:latest.integration'
+	docsTestImplementation 'dev.gradleplugins:spock-test-directory-extension:latest.integration'
+	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
 }
 
 // Stage jbake content

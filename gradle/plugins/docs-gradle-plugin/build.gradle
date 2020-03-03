@@ -4,9 +4,18 @@ plugins {
 
 gradlePlugin {
 	plugins {
-		documentationClasspath {
-			id = 'dev.nokee.docs-classpath'
-			implementationClass = 'dev.nokee.docs.DocumentationClasspathPlugin'
+		documentation {
+			id = 'dev.nokeebuild.documentation'
+			implementationClass = 'dev.nokee.docs.DocumentationPlugin'
 		}
 	}
+}
+
+repositories {
+	mavenCentral()
+	jcenter()
+}
+
+dependencies {
+	implementation 'dev.gradleplugins:gradle-plugin-development:latest.integration'
 }
