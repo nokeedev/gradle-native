@@ -4,7 +4,6 @@ import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
@@ -49,7 +48,7 @@ public abstract class GenerateSamplesContentTask extends DefaultTask {
 
 	private void writeContent(Sample sample) {
 		File outputFile = getOutputDirectory().get().dir(sample.getPermalink().get() + "/index.adoc").getAsFile();
-		Path sourceFile = sample.getSource().get().getAsFile().toPath();
+		Path sourceFile = sample.getSourceDirectory().get().file("README.adoc").getAsFile().toPath();
 
 		outputFile.getParentFile().mkdirs();
 
@@ -66,12 +65,13 @@ public abstract class GenerateSamplesContentTask extends DefaultTask {
 		sb.append(":jbake-version: " + sample.getVersion().get()).append("\n");
 		sb.append(":jbake-permalink: " + sample.getPermalink().get()).append("\n");
 		sb.append(":jbake-archivebasename: " + sample.getArchiveBaseName().get()).append("\n");
+		sb.append(":includedir: " + sample.getSourceDirectory().get().getAsFile().getAbsolutePath()).append("\n");
 		return sb.toString().getBytes();
 	}
 
 	public interface Sample {
-		@InputFile
-		RegularFileProperty getSource();
+		@InputDirectory
+		DirectoryProperty getSourceDirectory();
 
 		@Input
 		Property<String> getPermalink();

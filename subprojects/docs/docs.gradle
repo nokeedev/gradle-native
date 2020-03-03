@@ -142,7 +142,7 @@ stage.configure {
 
 		generateSamplesContentTask.configure {
 			it.sample {
-				source = file("src/docs/samples/${sample.name}/README.adoc")
+				sourceDirectory = file("src/docs/samples/${sample.name}")
 				permalink = sample.name
 				version = project.provider { project.version.toString() }
 				archiveBaseName = nameAsCamelCase
