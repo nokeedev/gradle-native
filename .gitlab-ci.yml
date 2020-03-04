@@ -2,10 +2,10 @@ image: nokeedev/generic-builder
 
 build:
   stage: build
-  script: ./gradlew assemble
+  script: gradle assemble
 
 deploy:
   stage: deploy
-  script: ./gradlew bintrayUpload
+  script: gradle bintrayUpload
   only:
     - master
