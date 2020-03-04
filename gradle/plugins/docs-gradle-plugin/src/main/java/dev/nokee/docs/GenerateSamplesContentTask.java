@@ -69,8 +69,8 @@ public abstract class GenerateSamplesContentTask extends DefaultTask {
 
 		// TODO: Make sure to sync the Gradle version
 		sb.append(":gradle-user-manual: https://docs.gradle.org/6.2.1/userguide").append("\n");
-		sb.append(":gradle-language-reference: https://docs.gradle.org/6.2.1/userguide").append("\n");
-		sb.append(":gradle-api-reference: https://docs.gradle.org/6.2.1/userguide").append("\n");
+		sb.append(":gradle-language-reference: https://docs.gradle.org/6.2.1/dsl").append("\n");
+		sb.append(":gradle-api-reference: https://docs.gradle.org/6.2.1/javadoc").append("\n");
 		sb.append(":gradle-guides: https://guides.gradle.org/").append("\n");
 		return sb.toString().getBytes();
 	}
