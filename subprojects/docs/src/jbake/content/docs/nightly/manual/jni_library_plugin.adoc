@@ -1,9 +1,10 @@
-= Java Native Interface (JNI) Library
+= Java Native Interface Library
 :jbake-type: reference_chapter
 :jbake-status: published
 :imagesdir: ./img
 :gradle-user-manual: https://docs.gradle.org/6.2.1/userguide
 :idprefix:
+:cpplower: c++
 
 The JNI Library Plugin provides the tasks, configurations and conventions for building libraries using the Java Native Interface runtime.
 It provide both an entry point (library) and runtime (JNI).
@@ -53,6 +54,31 @@ The following diagram shows the relationships between tasks added by this plugin
 .JNI Library Plugin default task graph
 image::jni-library-task-graph.png[]
 
+`jar` — link:{gradle-language-reference}/org.gradle.api.tasks.bundling.Jar.html[Jar]::
+Depends on: All the task which contribute to the JAR library (e.g. `classes`)
+::
+Assembles the production JAR file, based on the classes and resources attached to the main source set.
+
+[[sec:jni_library_task_variants]]
+=== Variant-dependent Tasks
+
+The JNI Library Plugin creates tasks based on variants of the library component.
+Read the link:{gradle-user-manual}/building_cpp_projects.html#sec:introducing_build_variants-cpp[introduction to build variants] for more information.
+
+`link__Variant__` (e.g. `linkWindows` and `linkLinux`) - Task (lifecycle)::
+Depends on: All tasks which contribute to the link libraries, including `link__Variant__` and `create__Variant__` tasks from projects that are resolved via project dependencies
+::
+Links shared library from compiled object files using the selected linker.
+
+`sharedLibrary__Variant__` (e.g. `sharedLibraryWindows` and `sharedLibraryLinux`) - Task (lifecycle)::
+Depends on: `link__Variant__`
+This is an aggregate task that just depends on tasks for creating the Shared Library binary.
+
+`jar__Variant__` (e.g. `jarWindows` and `jarLinux`) - link:{gradle-language-reference}/org.gradle.api.tasks.bundling.Jar.html[Jar]::
+Depends on: `sharedLibrary__Variant__`
+::
+Assembles the production JAR file, containing the shared library for the JNI bridge as well as all the runtime dependencies.
+
 [[sec:jni_library_lifecycle_tasks]]
 === Lifecycle Tasks
 
@@ -92,6 +118,40 @@ Note: Languages plugins will add consumable configurations.
 Please refer to the appropriate reference chapter to learn more about their specific consumable configurations.
 Specific sub-section will note how the plugins will react to the supported languages.
 
+// TODO: Blog why it's preferred to use the `library` extension
+To declare dependencies, it is preferred to use the `library` extension:
+
+.Adding JVM and native dependencies
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+library {
+	dependencies {
+		api 'org.apache.httpcomponents:httpclient:4.5.7'
+		jvmImplementation 'org.apache.commons:commons-lang3:3.5'
+		nativeImplementation 'io.qt:network:5.1'
+	}
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+library {
+	dependencies {
+		api("org.apache.httpcomponents:httpclient:4.5.7")
+		jvmImplementation("org.apache.commons:commons-lang3:3.5")
+		nativeImplementation("io.qt:network:5.1")
+	}
+}
+----
+=====
+====
 
 The following configurations can be used to declare dependencies:
 
@@ -116,5 +176,3 @@ The following configuration is used by the library itself:
 Used for executing the library.
 This configuration contains the native runtime libraries of the shared library.
 
-
-// Conventions

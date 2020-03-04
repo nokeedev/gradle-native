@@ -1,18 +1,46 @@
 digraph jniLibraryTaskGraph {
-	graph [ dpi = 100, fontname="Sans"];
-	node [fontname = "Sans"];
-	edge [fontname = "Sans"];
-	node [shape=rectangle, fixedsize=true, width=2.5, height=0.5];
-	node [style=filled, fillcolor="#cfe2f3"]
-	rankdir=LR
+  graph [ dpi = 100, fontname="Sans"];
+  node [fontname = "Sans"];
+  edge [fontname = "Sans"];
+  node [shape=rectangle, fixedsize=true, width=3.3, height=0.5];
+  node [style=filled, fillcolor="#cfe2f3"]
+  rankdir=LR
 
-	assemble -> build [dir=back]
-	check -> build [dir=back]
-	clean
+  subgraph cluster_cppLanguage {
+    label = "C++ Language Plugin"
+    color = black
 
-	// Ensure ordering
-	assemble -> empty1 -> empty2 -> check [style=invis]
-	{rank=same assemble check empty1 empty2}
-	empty1[shape=plain, label=""]
-	empty2[shape=plain, label=""]
+    compileCpp [label=<compile<i>Variant</i>>]
+  }
+
+  subgraph cluster_javaLanguage {
+    label = "Java Language Plugin"
+
+    {compileJava, processResources} -> classes [dir=back]
+    {rank=same compileJava processResources}
+  }
+
+  // Styling
+  link [label=<link<i>Variant</i>>]
+  sharedLibrary [style=dashed, label=<sharedLibrary<i>Variant</i>>]
+  jarNative [style=dashed, label=<jar<i>Variant</i>>]
+  jarJvm [label="jar"]
+
+  // link to assemble
+  compileCpp -> link -> sharedLibrary [dir=back, style=dashed]
+  sharedLibrary -> jarNative [dir=back]
+  {rank=same sharedLibrary jarNative}
+  jarNative -> assemble [dir=back, style=dashed]
+
+  // classes to assemble
+  classes -> jarJvm [dir=back, style=dashed]
+  jarJvm -> assemble [dir=back]
+
+  // assemble & check to build
+  assemble -> build [dir=back]
+  check -> build [dir=back]
+
+  // align check & clean
+  check -> clean [style=invis]
+  {rank=same check clean}
 }
