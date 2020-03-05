@@ -1,18 +1,22 @@
 <% include "header.gsp" %>
 
 	<% include "menu.gsp" %>
-	<div class="container">
+	<main class="main-content">
+		<% include "docs_navigation.gsp" %>
 
-		<div class="page-header">
-			<h1>${content.title}</h1>
+		<div class="chapter">
+			<div id="header">
+				<h1>${content.title}</h1>
+			</div>
+
+			<div id="content">
+				${content.body}
+
+				<%sample_chapters.each {sample ->%>
+				<a href="${sample.permalink}/"><h2>${sample.title}</h2></a>
+				<%}%>
+			</div>
 		</div>
-
-		<p>${content.body}</p>
-
-		<%sample_chapters.each {sample ->%>
-		<a href="${sample.permalink}/"><h2>${sample.title}</h2></a>
-		<%}%>
-
-	</div>
-
+		<aside class="secondary-navigation"></aside>
+	</main>
 <% include "footer.gsp" %>

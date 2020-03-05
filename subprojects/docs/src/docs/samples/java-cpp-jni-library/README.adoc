@@ -1,6 +1,7 @@
+:icons: font
+:jbake-status: published
 = Java Native Interface Library implemented in Java and {cpp}
 :jbake-type: sample_chapter
-:jbake-status: published
 :jbake-tags: sample, jni
 
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].

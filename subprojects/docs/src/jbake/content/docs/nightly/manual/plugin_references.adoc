@@ -1,9 +1,18 @@
+:toc:
+:toclevels: 1
+:toc-title: Contents
+:icons: font
+:idprefix:
+:jbake-status: published
+:encoding: utf-8
+:lang: en-US
+:sectanchors: true
+:sectlinks: true
+:linkattrs: true
 = Nokee Plugin Reference
 :jbake-type: reference_index
-:jbake-status: published
-:idprefix:
 
-This page contains links and short descriptions for all the core plugins provided by Nokee Labs.
+This page contains links and short descriptions for all the core plugins provided by Nokee.
 
 == JVM Runtimes
 

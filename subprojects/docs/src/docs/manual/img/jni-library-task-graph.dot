@@ -21,7 +21,7 @@ digraph jniLibraryTaskGraph {
   }
 
   // Styling
-  link [label=<link<i>Variant</i>>]
+  link [style=dashed, label=<link<i>Variant</i>>]
   sharedLibrary [style=dashed, label=<sharedLibrary<i>Variant</i>>]
   jarNative [style=dashed, label=<jar<i>Variant</i>>]
   jarJvm [label="jar"]

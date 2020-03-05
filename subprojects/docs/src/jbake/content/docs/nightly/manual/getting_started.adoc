@@ -1,0 +1,125 @@
+:jbake-version: 0.1.0-foobar
+:gradle-user-manual: https://docs.gradle.org/6.2.1/userguide
+:toc:
+:toclevels: 1
+:toc-title: Contents
+:icons: font
+:jbake-status: published
+:encoding: utf-8
+:lang: en-US
+:sectanchors: true
+:sectlinks: true
+:linkattrs: true
+= Getting Started with Nokee Plugins
+:jbake-type: manual_chapter
+
+Getting started with Nokee plugins is simple and easy.
+
+== Method 1: Using PluginManagement block (preferred)
+
+Using the link:{gradle-user-manual}/plugins.html#sec:plugin_management[Plugin Management block] is the preferred way to get started.
+You will lower your maintenance cost when upgrading to newer version, both released and nightly, as well as aligns all the plugin versions together for maximum compatibility.
+First, copy the following `pluginManagement` block to your settings script:
+
+.Configuring Gradle plugin resolution
+====
+[.multi-language-sample]
+=====
+.settings.gradle
+[source,groovy,subs=attributes+]
+----
+pluginManagement {
+	repositories {
+		gradlePluginPortal()
+		maven {
+			url = uri('https://dl.bintray.com/nokeedev/distributions-snapshots')
+		}
+	}
+	resolutionStrategy {
+		eachPlugin {
+			if (requested.id.id.startsWith('dev.nokee.')) {
+				useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:{jbake-version}")
+			}
+		}
+	}
+}
+----
+=====
+[.multi-language-sample]
+=====
+.settings.gradle.kts
+[source,kotlin,subs=attributes+]
+----
+pluginManagement {
+	repositories {
+		gradlePluginPortal()
+		maven {
+			url = uri("https://dl.bintray.com/nokeedev/distributions-snapshots")
+		}
+	}
+	resolutionStrategy {
+		eachPlugin {
+			if (requested.id.id.startsWith("dev.nokee.")) {
+				useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:{jbake-version}")
+			}
+		}
+	}
+}
+----
+=====
+====
+
+Second, apply one of <<plugin_references.adoc#,Nokee plugins>> to your build using the link:{gradle-user-manual}/plugins.html#sec:plugins_block[plugins DSL block]:
+
+.Apply Nokee plugin
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy,subs=attributes+]
+----
+plugins {
+	id 'dev.nokee.jni-library'
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin,subs=attributes+]
+----
+plugins {
+	id("dev.nokee.jni-library")
+}
+----
+=====
+====
+
+== Method 2: Using Plugin DSL with version
+
+You can also apply one of <<plugin_references.adoc#,Nokee plugins>> by link:{gradle-user-manual}/plugins.html#sec:plugins_blocks[pecifying the version inside the plugins block] as shown in the following example.
+Because of the link:{gradle-user-manual}/plugins.html#plugins_dsl_limitations[various limitation of the plugin DSL], it is strongly recommended to use the first method.
+
+.Apply Nokee plugin with version
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+plugins {
+	id 'dev.nokee.jni-library' version '{jbake-version}'
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+plugins {
+	id("dev.nokee.jni-library") version '{jbake-version}'
+}
+----
+=====
+====

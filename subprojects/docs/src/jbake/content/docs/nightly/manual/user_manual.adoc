@@ -1,15 +1,17 @@
+:toc:
+:toclevels: 1
+:toc-title: Contents
+:icons: font
+:idprefix:
+:jbake-status: published
+:encoding: utf-8
+:lang: en-US
+:sectanchors: true
+:sectlinks: true
+:linkattrs: true
 = Nokee User Manual
 :jbake-type: manual_chapter
-:jbake-status: published
 
-This user manual cover the native support in Gradle offered by Nokee Labs plugin suite.
+This user manual cover the native support in Gradle offered by Nokee plugin suite.
 It is recommended that you have a basic understanding of Gradle Build Tool before reading this manual as it builds on the functionality offered by Gradle.
-Start by going through the https://docs.gradle.org/current/userguide/getting_started.html[Getting Started chapter in the Gradle Build Tool user manual].
-
-// That being said, if you are coming from a full native background (mostly from CMake and such build tools), we recommend reading this crash course...
-
-This documentation is a work in progress, please use the link below until the side menu is implemented:
-
-- link:../samples[Sample index]
-- <<plugin_references.adoc#,Plugin references>>
-- <<terminology.adoc#,Terminology>>
+Start by going through the https://docs.gradle.org/current/userguide/getting_started.html[Getting Started chapter in the Gradle user manual].

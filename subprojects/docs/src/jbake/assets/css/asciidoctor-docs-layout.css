@@ -1,0 +1,237 @@
+.main-content > .chapter {
+	background-color: white;
+	border-radius: 5px;
+	max-width: 45rem;
+	padding: 1.5rem;
+}
+
+/* < 720px */
+@media screen and (max-width: 45em) {
+	.main-content > .chapter {
+		margin-top: 0;
+		margin-bottom: 0;
+	}
+}
+
+@media screen and (min-width: 45rem) {
+	.main-content {
+		display: flex;
+		justify-content: center;
+	}
+}
+
+/* > 1024 px */
+@media screen and (min-width: 64rem) {
+	.main-content {
+		padding-top: 75px;
+	}
+
+	.main-content > .chapter {
+		flex: 0 0 45rem;
+		margin: 0 20px;
+	}
+}
+
+@media screen and (min-width: 84.375rem) {
+	.main-content > .chapter {
+		flex-basis: 50rem;
+		max-width: 50rem;
+	}
+}
+
+@media screen and (min-width: 93.75rem) {
+	.main-content > .chapter {
+		flex-basis: 60rem;
+		max-width: 60rem;
+	}
+}
+
+/* Side Navigation styles */
+/* Docs Navigation */
+.docs-navigation {
+	display: none;
+	padding-left: 5px;
+}
+
+/* Docsearch overrides */
+.docs-navigation a, .docs-navigation a:visited {
+	color: #222629;
+	display: block;
+	font-size: 1rem;
+	line-height: 1.25;
+}
+
+.docs-navigation a code {
+	color: #222629;
+	overflow-wrap: break-word;
+	padding: 0;
+	word-break: break-all;
+}
+
+.docs-navigation a.active {
+	color: #86C232;
+}
+
+.docs-navigation ul {
+	list-style-type: none;
+	margin: 0.5em 0;
+	padding: 0;
+}
+
+.docs-navigation ul:last-of-type {
+	margin-bottom: 0;
+}
+
+.docs-navigation li:first-of-type {
+	margin-top: 0;
+}
+
+.docs-navigation li {
+	margin-bottom: 0.5em;
+}
+
+.docs-navigation li:last-of-type {
+	margin-bottom: 0;
+}
+
+.docs-navigation > ul ul,
+.docs-navigation > ul ul ul {
+	margin-left: 1rem;
+}
+
+.docs-navigation h3 {
+	font-size: 1rem;
+	font-weight: 700;
+	line-height: 1.5;
+	margin: 1.5em 0 0;
+}
+
+.docs-navigation .docs-home-link {
+	position: relative;
+}
+
+@media screen and (min-width: 64rem) {
+	.docs-navigation {
+		display: block;
+		flex: 0 0 auto;
+		width: 13.75rem;
+	}
+}
+
+@media screen and (min-width: 75rem) and (min-height: 48rem) {
+	.docs-navigation {
+		flex-basis: 13.75rem;
+	}
+}
+
+@media screen and (min-width: 75rem) and (min-height: 48rem) {
+	/* Sneaky way to make room for TOC */
+	.secondary-navigation {
+		flex: 0 0 13.75rem;
+	}
+}
+
+/* TOC */
+#content > h1:first-child + #toc {
+	background: none;
+	border: 0 none;
+	margin-top: 0;
+}
+
+#content #toctitle {
+	padding-left: 0;
+	margin-bottom: 0.425rem;
+}
+
+#toc,
+#content #toc {
+	border: 0 none;
+}
+
+#toc > ul {
+	margin-left: 0;
+	font-family: inherit;
+}
+
+#toc > ul > li {
+	line-height: 1.25;
+	margin-top: 0;
+	padding-bottom: 0.5rem;
+}
+
+#toc > ul > li:last-of-type {
+	padding-bottom: 0;
+}
+
+#toc a {
+	font-style: normal;
+}
+
+#toc a:hover,
+#toc a:focus,
+#toc a:hover code,
+#toc a:focus code {
+	color: #86C232;
+}
+
+#toc a:active {
+	text-decoration: none;
+}
+
+@media screen and (min-width: 75rem) and (min-height: 48rem) {
+	#content #toc {
+		font-size: 1rem;
+		background: #f7f7f8;
+		border-radius: 0;
+		margin-bottom: 0;
+		padding: 15px 0 0;
+	}
+
+	#content #toctitle {
+		font-size: 1rem;
+		font-weight: 700;
+		margin: 0.4rem 0 0.5rem 0;
+	}
+
+	#toc a {
+		color: #222629;
+	}
+
+	#toc a.active {
+		color: #86C232;
+	}
+}
+
+/* Fixed intra-chapter navigation for desktops */
+@media screen and (min-width: 75rem) and (min-height: 48rem) {
+	.chapter #content #toc {
+		position: fixed;
+		left: calc(50% + 380px);
+		top: 50px;
+		width: 13.75rem;
+		padding-top: 15px;
+		font-size: 1rem;
+		background-color: #F7F7F8;
+	}
+
+	.chapter #toc a {
+		color: #222629;
+		display: inline-block;
+	}
+
+	.chapter #toc a.active {
+		color: #86C232;
+	}
+}
+
+@media screen and (min-width: 84.375rem) and (min-height: 48rem) {
+	.chapter #content #toc {
+		left: calc(50% + 26.25rem);
+	}
+}
+
+@media screen and (min-width: 93.75rem) and (min-height: 48rem) {
+	.chapter #content #toc {
+		left: calc(50% + 31.25rem);
+	}
+}

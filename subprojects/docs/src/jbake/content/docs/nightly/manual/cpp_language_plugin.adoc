@@ -1,7 +1,16 @@
+:toc:
+:toclevels: 1
+:toc-title: Contents
+:icons: font
+:idprefix:
+:jbake-status: published
+:encoding: utf-8
+:lang: en-US
+:sectanchors: true
+:sectlinks: true
+:linkattrs: true
 = {cpp} Language
 :jbake-type: reference_chapter
-:jbake-status: published
-:idprefix:
 
 The {cpp} Language Plugin provides the tasks, configurations and conventions for compiling {cpp} source file.
 It's an implementation language plugin and works in tandem with plugins providing a runtime and/or entry point.
@@ -34,3 +43,26 @@ plugins {
 
 // TODO: Describe runtime plugin and entry point plugin
 NOTE: This plugin provide the {cpp} implementation language capability to a project already providing a runtime and/or entry point, such as the <<jni_library_plugin.adoc#,JNI Library Plugin>>.
+
+//[[sec:jni_library_conventions]]
+//== Conventions
+//
+//The JNI Library Plugin adds conventions for sources, shown below.
+//
+//[[sec:jni_library_layout]]
+//=== Project layout
+//
+//The JNI Library Plugin assumes the project layout shown below.
+//None of these directories needs to exist or have anything in them.
+//The JNI Library Plugin will compile whatever it finds and ignore anything missing.
+//
+//`src/main/cpp`::
+//{cpp} source with extension of `.cpp`, `.{cpplower}` or `.cc`
+//
+//`src/main/headers`::
+//Headers - headers needed to compile the library
+//
+//You <<building_cpp_projects.adoc#sec:custom_cpp_source_set_paths,configure the project layout>> by configuring the `source`, `privateHeaders` and `publicHeaders` respectively on the `library` script block.
+
+
+// TODO: Add the tasks conventions
