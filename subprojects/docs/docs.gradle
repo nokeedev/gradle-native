@@ -1,8 +1,6 @@
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.nokee.docs.DotCompile
-import dev.nokee.docs.Dsl
-import dev.nokee.docs.GenerateSamplesContentTask
+import dev.nokee.docs.*
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import org.apache.tools.ant.filters.ConcatFilter
 import org.gradle.util.GUtil
@@ -30,16 +28,8 @@ dependencies {
 }
 
 // Stage jbake content
-def stageTask = tasks.register('stage', Sync) {
-	from('src/jbake')
-	into(layout.buildDirectory.dir('staging'))
-}
-jbake {
-	srcDirName = 'build/staging'
-}
-def bakeTask = tasks.named('bake') {
-	dependsOn(stageTask)
-}
+def stageTask = tasks.named('stage', Sync)
+def bakeTask = tasks.named('bake')
 
 class Sample {
 	private final String name
@@ -85,15 +75,10 @@ TaskProvider<Task> generateGroovyDslNightlySettingsTask = tasks.register("config
 	}
 }
 
-TaskProvider<DotCompile> dotCompileUserManualTask = tasks.register("compileDot", DotCompile) {
-	source.from(fileTree('src/docs/manual/img').include('*.dot'))
-}
-
 TaskProvider<GenerateSamplesContentTask> generateSamplesContentTask = tasks.register('generateSamplesContent', GenerateSamplesContentTask)
 
 ConfigurableFileCollection dslSampleArchiveSourceSet = project.objects.fileCollection()
 stage.configure {
-	from(dotCompileUserManualTask) { into('content/docs/nightly/manual/img') } // TODO: copy image to final folder
 	from(dslSampleArchiveSourceSet) { into('assets/zips') }
 	from(generateSamplesContentTask) { into('content/docs/nightly/samples') }
 }

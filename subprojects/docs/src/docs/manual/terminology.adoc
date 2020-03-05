@@ -1,14 +1,3 @@
-:toc:
-:toclevels: 1
-:toc-title: Contents
-:icons: font
-:idprefix:
-:jbake-status: published
-:encoding: utf-8
-:lang: en-US
-:sectanchors: true
-:sectlinks: true
-:linkattrs: true
 = Terminology
 :jbake-type: manual_chapter
 
