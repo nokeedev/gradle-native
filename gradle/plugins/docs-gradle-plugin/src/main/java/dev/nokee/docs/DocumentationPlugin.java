@@ -34,6 +34,7 @@ public class DocumentationPlugin implements Plugin<Project> {
 		ConfigurationContainer configurations = project.getConfigurations();
 		ProviderFactory providers = project.getProviders();
 
+		project.getPluginManager().apply("org.jbake.site");
 		project.getPluginManager().apply(SpockFrameworkTestSuiteBasePlugin.class);
 
 		components.add(objects.newInstance(GroovySpockFrameworkTestSuite.class, "docsTest"));

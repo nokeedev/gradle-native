@@ -14,7 +14,6 @@ buildscript {
 }
 
 plugins {
-    id 'org.jbake.site' version '5.0.0'
 	id 'dev.nokeebuild.documentation'
 }
 
@@ -28,10 +27,6 @@ dependencies {
 	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
 	docsTestImplementation gradleApi() // Because there are some Gradle type leaking in, TODO: remove when those leaks are patched
 }
-
-// Stage jbake content
-def stageTask = tasks.named('stage', Sync)
-def bakeTask = tasks.named('bake')
 
 class Sample {
 	private final String name
@@ -132,9 +127,6 @@ components.add(dslSampleArchiveSourceSet)
 			dependsOn(zipDslSampleTask)
 		}
 
-		bakeTask.configure {
-			inputs.dir(file("src/docs/samples/${sample.name}")) // Add sample files as input
-		}
 		generateSamplesContentTask.configure {
 			it.sample {
 				sourceDirectory = file("src/docs/samples/${sample.name}")
@@ -146,38 +138,3 @@ components.add(dslSampleArchiveSourceSet)
 	}
 }
 
-//configurations {
-//	contentElements {
-//		canBeResolved = false
-//		canBeConsumed = true
-//		attributes {
-//			attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-content')) // TODO: Use doctype
-//		}
-//		outgoing.artifact(file('build/staging/content')) {
-//			it.builtBy(stageTask)
-//		}
-//	}
-//
-//	sampleAssetElements {
-//		canBeResolved = false
-//		canBeConsumed = true
-//		attributes {
-//			attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-sample-asset'))
-//		}
-//		outgoing.artifact(file('build/staging/assets/zips')) {
-//			it.builtBy(stageTask)
-//		}
-//	}
-//
-//	templateElements {
-//		canBeResolved = false
-//		canBeConsumed = true
-//		attributes {
-//			attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-template'))
-//		}
-//		// Exported templates
-//		['redirection.gsp', 'manual_chapter.gsp', 'reference_chapter.gsp', 'reference_index.gsp', 'release_notes.gsp', 'sample_index.gsp', 'sample_chapter.gsp'].each {
-//			outgoing.artifact(file("src/jbake/templates/${it}"))
-//		}
-//	}
-//}
