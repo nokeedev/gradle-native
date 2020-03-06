@@ -17,10 +17,7 @@ import org.gradle.internal.jvm.Jvm;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.cpp.CppBinary;
 import org.gradle.language.cpp.tasks.CppCompile;
-import org.gradle.model.Finalize;
-import org.gradle.model.Model;
-import org.gradle.model.Mutate;
-import org.gradle.model.RuleSource;
+import org.gradle.model.*;
 import org.gradle.nativeplatform.NativeLibrarySpec;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
@@ -83,8 +80,8 @@ public class CppJniLibraryRules extends RuleSource {
     }
 
     @Mutate
-    public void configureJniLibrary(JniLibraryInternal library, ComponentSpecContainer components, ProjectIdentifier projectIdentifier) {
-        Collection<SharedLibraryBinarySpec> binaries = components.withType(NativeLibrarySpec.class).get("main").getBinaries().withType(SharedLibraryBinarySpec.class).values();
+    public void configureJniLibrary(TaskContainer tasks, @Path("components.main") NativeLibrarySpec nativeLibrary, ProjectIdentifier projectIdentifier, JniLibraryInternal library) {
+        Collection<SharedLibraryBinarySpec> binaries = nativeLibrary.getBinaries().withType(SharedLibraryBinarySpec.class).values();
         if (binaries.size() > 1) {
             throw new IllegalStateException("More binaries than predicted");
         }
@@ -153,10 +150,5 @@ public class CppJniLibraryRules extends RuleSource {
                 task.getLibs().from(cppLinkDebug);
             });
         });
-    }
-
-    @Finalize
-    public void forceResolve(TaskContainer tasks, JniLibraryInternal library) {
-
     }
 }
