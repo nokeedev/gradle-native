@@ -4,6 +4,7 @@ import dev.nokee.language.jvm.internal.JvmResourceSetInternal;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
+import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -37,6 +38,12 @@ public class JniLibraryPlugin implements Plugin<Project> {
         project.getPluginManager().withPlugin("java-library", appliedPlugin -> { throw new GradleException("Use java plugin instead"); });
 
         registerJvmResourceSet(project, library);
+
+        project.afterEvaluate(proj -> {
+			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
+				library.getBinaries().add(project.getObjects().newInstance(SharedLibraryBinaryInternal.class, project.getConfigurations(), library.getSources(), library.getNativeImplementationDependencies()));
+			}
+		});
     }
 
     private JniLibraryInternal registerExtension(Project project) {
