@@ -123,7 +123,7 @@ public class DocumentationPlugin implements Plugin<Project> {
 			project.afterEvaluate(proj -> {
 				components.withType(JBakeContentSourceSet.class).stream().map(LanguageSourceSet::getSource).forEach(source -> {
 					source.getFiles().forEach(file -> {
-						configuration.getOutgoing().artifact(file, it -> it.builtBy(source.getBuiltBy()));
+						configuration.getOutgoing().artifact(file, it -> it.builtBy(source));
 					});
 				});
 			});
@@ -137,7 +137,7 @@ public class DocumentationPlugin implements Plugin<Project> {
 			project.afterEvaluate(proj -> {
 				components.withType(JBakeAssetSourceSet.class).stream().map(LanguageSourceSet::getSource).forEach(source -> {
 					source.getFiles().forEach(file -> {
-						configuration.getOutgoing().artifact(file, it -> it.builtBy(source.getBuiltBy()));
+						configuration.getOutgoing().artifact(file, it -> it.builtBy(source));
 					});
 				});
 			});
@@ -151,7 +151,7 @@ public class DocumentationPlugin implements Plugin<Project> {
 			project.afterEvaluate(proj -> {
 				components.withType(JBakeTemplateSourceSet.class).stream().map(LanguageSourceSet::getSource).forEach(source -> {
 					source.getFiles().forEach(file -> {
-						configuration.getOutgoing().artifact(file, it -> it.builtBy(source.getBuiltBy()));
+						configuration.getOutgoing().artifact(file, it -> it.builtBy(source));
 					});
 				});
 			});
