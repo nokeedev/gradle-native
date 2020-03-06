@@ -1,6 +1,8 @@
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.nokee.docs.*
+import dev.nokee.docs.Dsl
+import dev.nokee.docs.JBakeAssetSourceSet
+import dev.nokee.docs.tasks.GenerateSamplesContentTask
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import org.apache.tools.ant.filters.ConcatFilter
 import org.gradle.util.GUtil
@@ -75,14 +77,10 @@ TaskProvider<Task> generateGroovyDslNightlySettingsTask = tasks.register("config
 	}
 }
 
-TaskProvider<GenerateSamplesContentTask> generateSamplesContentTask = tasks.register('generateSamplesContent', GenerateSamplesContentTask)
-
-ConfigurableFileCollection dslSampleArchiveSourceSet = project.objects.fileCollection()
-stage.configure {
-	from(dslSampleArchiveSourceSet) { into('assets/zips') }
-	from(generateSamplesContentTask) { into('content/docs/nightly/samples') }
-}
-
+def generateSamplesContentTask = tasks.named('generateSamplesAsciidoctors', GenerateSamplesContentTask)
+def dslSampleArchiveSourceSet = project.objects.newInstance(JBakeAssetSourceSet, 'dslSampleArchive')
+dslSampleArchiveSourceSet.source.from(layout.buildDirectory.dir('generated/assets'))
+components.add(dslSampleArchiveSourceSet)
 
 [new Sample('java-cpp-jni-library', new JavaJniCppGreeterLib())].each { Sample sample ->
 	String nameAsCamelCase = GUtil.toCamelCase(sample.name)
@@ -126,8 +124,9 @@ stage.configure {
 			archiveBaseName = nameAsCamelCase
 			archiveClassifier = dsl.name
 			archiveVersion = project.provider { project.version.toString() }
+			destinationDirectory.set(layout.buildDirectory.dir("generated/assets/zips"))
 		}
-		dslSampleArchiveSourceSet.from(zipDslSampleTask)
+		dslSampleArchiveSourceSet.source.builtBy(zipDslSampleTask)
 
 		assembleSamplesTask.configure {
 			dependsOn(zipDslSampleTask)
@@ -147,38 +146,38 @@ stage.configure {
 	}
 }
 
-configurations {
-	contentElements {
-		canBeResolved = false
-		canBeConsumed = true
-		attributes {
-			attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-content')) // TODO: Use doctype
-		}
-		outgoing.artifact(file('build/staging/content')) {
-			it.builtBy(stageTask)
-		}
-	}
-
-	sampleAssetElements {
-		canBeResolved = false
-		canBeConsumed = true
-		attributes {
-			attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-sample-asset'))
-		}
-		outgoing.artifact(file('build/staging/assets/zips')) {
-			it.builtBy(stageTask)
-		}
-	}
-
-	templateElements {
-		canBeResolved = false
-		canBeConsumed = true
-		attributes {
-			attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-template'))
-		}
-		// Exported templates
-		['redirection.gsp', 'manual_chapter.gsp', 'reference_chapter.gsp', 'reference_index.gsp', 'release_notes.gsp', 'sample_index.gsp', 'sample_chapter.gsp'].each {
-			outgoing.artifact(file("src/jbake/templates/${it}"))
-		}
-	}
-}
+//configurations {
+//	contentElements {
+//		canBeResolved = false
+//		canBeConsumed = true
+//		attributes {
+//			attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-content')) // TODO: Use doctype
+//		}
+//		outgoing.artifact(file('build/staging/content')) {
+//			it.builtBy(stageTask)
+//		}
+//	}
+//
+//	sampleAssetElements {
+//		canBeResolved = false
+//		canBeConsumed = true
+//		attributes {
+//			attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-sample-asset'))
+//		}
+//		outgoing.artifact(file('build/staging/assets/zips')) {
+//			it.builtBy(stageTask)
+//		}
+//	}
+//
+//	templateElements {
+//		canBeResolved = false
+//		canBeConsumed = true
+//		attributes {
+//			attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'docs-template'))
+//		}
+//		// Exported templates
+//		['redirection.gsp', 'manual_chapter.gsp', 'reference_chapter.gsp', 'reference_index.gsp', 'release_notes.gsp', 'sample_index.gsp', 'sample_chapter.gsp'].each {
+//			outgoing.artifact(file("src/jbake/templates/${it}"))
+//		}
+//	}
+//}

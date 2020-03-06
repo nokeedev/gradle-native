@@ -24,6 +24,12 @@ public abstract class ProcessAsciidoctor extends ProcessorTask {
 	@Input
 	public abstract Property<String> getRelativePath();
 
+	@Input
+	public abstract Property<String> getVersion();
+
+	@Input
+	public abstract Property<String> getMinimumGradleVersion();
+
 	@TaskAction
 	private void doProcess(InputChanges inputChanges) {
 		if (!inputChanges.isIncremental()) {
@@ -66,7 +72,7 @@ public abstract class ProcessAsciidoctor extends ProcessorTask {
 	}
 
 	private void writeAsciidoctorHeader(PrintWriter out) {
-		out.println(":jbake-version: 0.0.0-foobar");
+		out.println(":jbake-version: " + getVersion().get());
 		out.println(":toc:");
 		out.println(":toclevels: 1");
 		out.println(":toc-title: Contents");
@@ -80,9 +86,9 @@ public abstract class ProcessAsciidoctor extends ProcessorTask {
 		out.println(":linkattrs: true");
 
 		// TODO: Make sure to sync the Gradle version
-		out.println(":gradle-user-manual: https://docs.gradle.org/6.2.1/userguide");
-		out.println(":gradle-language-reference: https://docs.gradle.org/6.2.1/dsl");
-		out.println(":gradle-api-reference: https://docs.gradle.org/6.2.1/javadoc");
+		out.println(":gradle-user-manual: https://docs.gradle.org/" + getMinimumGradleVersion().get() + "/userguide");
+		out.println(":gradle-language-reference: https://docs.gradle.org/" + getMinimumGradleVersion().get() + "/dsl");
+		out.println(":gradle-api-reference: https://docs.gradle.org/" + getMinimumGradleVersion().get() + "/javadoc");
 		out.println(":gradle-guides: https://guides.gradle.org/");
 	}
 }

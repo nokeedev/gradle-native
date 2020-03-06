@@ -1,7 +1,7 @@
-<% include "header.gsp" %>
+<% include "header-docs.gsp" %>
 
 	<% include "menu.gsp" %>
-	<main class="main-container">
+	<main class="main-content">
 		<% include "docs_navigation.gsp" %>
 
 		<div class="chapter">
@@ -26,4 +26,4 @@
 		</div>
 		<aside class="secondary-navigation"></aside>
 	</main>
-<% include "footer.gsp" %>
+<% include "footer-docs.gsp" %>

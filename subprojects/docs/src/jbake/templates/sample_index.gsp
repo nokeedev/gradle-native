@@ -1,4 +1,4 @@
-<% include "header.gsp" %>
+<% include "header-docs.gsp" %>
 
 	<% include "menu.gsp" %>
 	<main class="main-content">
@@ -19,4 +19,4 @@
 		</div>
 		<aside class="secondary-navigation"></aside>
 	</main>
-<% include "footer.gsp" %>
+<% include "footer-docs.gsp" %>

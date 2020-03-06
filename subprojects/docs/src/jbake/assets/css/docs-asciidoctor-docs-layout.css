@@ -23,7 +23,7 @@
 /* > 1024 px */
 @media screen and (min-width: 64rem) {
 	.main-content {
-		padding-top: 75px;
+		padding-top: 16px;
 	}
 
 	.main-content > .chapter {
