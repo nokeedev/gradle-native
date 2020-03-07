@@ -1,6 +1,7 @@
 package dev.nokee.platform.jni
 
 import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
+import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import dev.nokee.platform.jni.fixtures.elements.JavaGreeter
 import dev.nokee.platform.jni.fixtures.elements.JavaMainUsesGreeter
@@ -143,5 +144,37 @@ class JniLibraryFunctionalTest extends AbstractFunctionalSpec {
 
 		then:
 		outputContains('Bonjour, World!')
+	}
+
+	def "produces an empty JNI Jar"() {
+		settingsFile << "rootProject.name = 'library'"
+		buildFile << '''
+			plugins {
+				id 'dev.nokee.jni-library'
+			}
+		'''
+
+		when:
+		succeeds('assemble')
+
+		then:
+		jar('build/libs/library-macos-x86-64.jar').hasDescendants()
+	}
+
+	def "ignores all language implementations"() {
+		buildFile << '''
+			plugins {
+				id 'dev.nokee.jni-library'
+			}
+		'''
+		file("src/main/java/broken.java") << "broken!"
+		file("src/main/cpp/broken.cpp") << "broken!"
+
+		expect:
+		succeeds('assemble')
+	}
+
+	protected JarTestFixture jar(String path) {
+		return new JarTestFixture(file(path))
 	}
 }

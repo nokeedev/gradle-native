@@ -9,6 +9,29 @@ import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import static org.hamcrest.CoreMatchers.containsString
 
 class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements MixedLanguageTaskNames {
+	def "can apply plugins in what ever order"(pluginIds) {
+		given:
+		settingsFile << "rootProject.name = 'library'"
+		buildFile << configurePlugins(pluginIds)
+
+		when:
+		succeeds('assemble')
+
+		then:
+		jar('build/libs/library.jar')
+		jar('build/libs/library-macos-x86-64.jar')
+
+		where:
+		pluginIds << collectEachPermutation(['java', 'dev.nokee.jni-library', 'dev.nokee.cpp-language'])
+	}
+
+	private static collectEachPermutation(values) {
+		def result = []
+		values.eachPermutation {
+			result << it
+		}
+		return result
+	}
 
     def "skip compilation and linking tasks when no source"() {
         given:
@@ -144,4 +167,12 @@ class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements 
     JavaJniCppGreeterLib getComponentUnderTest() {
         return new JavaJniCppGreeterLib('jni-greeter')
     }
+
+	protected static String configurePlugins(List<String> pluginIds) {
+		return """
+			plugins {
+				${pluginIds.collect { "id '$it'"}.join('\n')}
+			}
+		"""
+	}
 }
