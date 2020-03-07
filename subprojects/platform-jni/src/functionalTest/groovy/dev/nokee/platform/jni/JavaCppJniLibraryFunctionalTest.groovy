@@ -8,7 +8,7 @@ import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 
 import static org.hamcrest.CoreMatchers.containsString
 
-class JavaJniLibraryFunctionalTest extends AbstractFunctionalSpec implements MixedLanguageTaskNames {
+class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements MixedLanguageTaskNames {
 
     def "skip compilation and linking tasks when no source"() {
         given:

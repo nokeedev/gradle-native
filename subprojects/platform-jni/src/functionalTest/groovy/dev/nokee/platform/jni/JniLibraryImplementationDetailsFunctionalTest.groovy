@@ -3,8 +3,12 @@ package dev.nokee.platform.jni
 import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 
-class JniLibraryHiddingImplementationDetailsFunctionalTest extends AbstractFunctionalSpec {
-    def "hides software model implementation details tasks"() {
+/**
+ * The usage of the Software Model by the C++ Language Plugin is an implementation detail.
+ * Since users shouldn't rely on this detail, we are hiding the tasks.
+ */
+class JniLibraryImplementationDetailsFunctionalTest extends AbstractFunctionalSpec {
+    def "hides software model implementation detail tasks"() {
         settingsFile << "rootProject.name = 'lib'"
         buildFile << '''
             plugins {
