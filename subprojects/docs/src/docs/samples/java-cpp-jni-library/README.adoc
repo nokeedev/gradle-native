@@ -1,4 +1,4 @@
-= Java Native Interface Library implemented in Java and {cpp}
+= JNI Library implemented in Java and {cpp}
 :jbake-type: sample_chapter
 :jbake-tags: sample, jni
 
@@ -7,7 +7,6 @@ NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com
 This sample shows how a JNI library implemented in Java and {cpp} can be built with Gradle.
 The library has no dependencies and the build has minimal configuration.
 
-.Applying the JNI Library Plugin
 ====
 [.multi-language-sample]
 =====
