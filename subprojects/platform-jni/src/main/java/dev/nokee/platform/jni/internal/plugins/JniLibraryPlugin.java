@@ -3,10 +3,13 @@ package dev.nokee.platform.jni.internal.plugins;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.JniLibraryExtensionInternal;
+import dev.nokee.platform.jni.internal.JniLibraryInternal;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.attributes.LibraryElements;
+import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
@@ -18,6 +21,7 @@ import org.gradle.util.GradleVersion;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
@@ -25,6 +29,7 @@ import static java.util.stream.Collectors.joining;
 public class JniLibraryPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
+		project.getPluginManager().apply("base");
 		project.getPluginManager().apply("lifecycle-base");
 
 		JniLibraryExtensionInternal extension = registerExtension(project);
@@ -44,19 +49,20 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		});
 
 		// Attach JNI Jar to runtimeElements
-		project.getPluginManager().withPlugin("java", appliedPlugin -> {
-			extension.getVariants().configureEach(library -> {
-				// TODO: Maybe go through the source set instead
-				// TODO: Expose Jar on runtimeElements but the directory where the shared library is located
-				project.getConfigurations().getByName("runtimeElements").getOutgoing().artifact(library.getJar().getArchiveFile());
-			});
+		extension.getVariants().configureEach(library -> {
+			// TODO: Maybe go through the source set instead
+			// TODO: Expose Jar on runtimeElements but the directory where the shared library is located
+			project.getConfigurations().getByName("runtimeElements").getOutgoing().artifact(library.getJar().getArchiveFile());
 		});
 
 		project.afterEvaluate(proj -> {
+			// Find toolchain capable of building C++
+			JniLibraryInternal library = extension.newVariant();
 			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
-				// Find toolchain capable of building C++
-				extension.registerVariant();
+				library.registerSharedLibraryBinary();
 			}
+			library.registerJniJarBinary();
+			extension.getVariants().add(library);
 		});
 	}
 
@@ -66,9 +72,42 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			configuration.setCanBeConsumed(false);
 		});
 
+		// TODO: Attach to api configuration
+		Configuration jvmApi = project.getConfigurations().create("api", configuration -> {
+			configuration.setCanBeResolved(false);
+			configuration.setCanBeConsumed(false);
+		});
+
+		// TODO: Attach to apiElements of main SourceSet
+		Configuration jvmApiElements = Optional.ofNullable(project.getConfigurations().findByName("apiElements")).orElseGet(() -> {
+			return project.getConfigurations().create("apiElements", configuration -> {
+				configuration.setCanBeResolved(false);
+				configuration.setCanBeConsumed(true);
+				configuration.attributes(attributes -> {
+					attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_API));
+					attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR));
+				});
+			});
+		});
+		jvmApiElements.extendsFrom(jvmApi);
+
+
+		Configuration jvmRuntimeElements = Optional.ofNullable(project.getConfigurations().findByName("runtimeElements")).orElseGet(() -> {
+			return project.getConfigurations().create("runtimeElements", configuration -> {
+				configuration.setCanBeResolved(false);
+				configuration.setCanBeConsumed(true);
+				configuration.attributes(attributes -> {
+					attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME));
+					attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR));
+				});
+			});
+		});
+		jvmRuntimeElements.extendsFrom(jvmApi);
+
 		Configuration jvmImplementation = project.getConfigurations().create("jvmImplementation", configuration -> {
 			configuration.setCanBeResolved(false);
 			configuration.setCanBeConsumed(false);
+			configuration.extendsFrom(jvmApi);
 		});
 
 		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, project.getConfigurations(), nativeImplementation, jvmImplementation);

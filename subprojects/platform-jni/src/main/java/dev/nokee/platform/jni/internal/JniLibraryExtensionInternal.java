@@ -31,11 +31,8 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
     @Inject
 	protected abstract ObjectFactory getObjectFactory();
 
-    public void registerVariant() {
-		JniLibraryInternal library = getObjectFactory().newInstance(JniLibraryInternal.class, configurations, sources, nativeImplementationDependencies);
-		library.registerSharedLibraryBinary();
-		library.registerJniJarBinary();
-		variants.add(library);
+    public JniLibraryInternal newVariant() {
+		return getObjectFactory().newInstance(JniLibraryInternal.class, configurations, sources, nativeImplementationDependencies);
 	}
 
     public DomainObjectSet<? super BinaryInternal> getBinaries() {
