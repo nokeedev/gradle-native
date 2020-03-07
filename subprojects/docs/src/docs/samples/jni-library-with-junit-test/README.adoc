@@ -1,0 +1,47 @@
+= JNI Library with JUnit Test
+:jbake-type: sample_chapter
+:jbake-tags: sample, jni, junit
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how a Java Native Interface (JNI) library can be tested with JUnit.
+The library has a single dependency to the JUnit and the build has minimal configuration.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::{includedir}/groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::{includedir}/kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+
+To test the library:
+
+[listing.terminal]
+----
+$ ./gradlew test
+
+BUILD SUCCESSFUL
+5 actionable tasks: 5 executed
+----
+
+The test result are produced inside `./build/reports/tests/`:
+
+[listing]
+----
+$ ls ./build/reports/tests/test/index.html
+./build/reports/tests/test/index.html
+----
+
+For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin reference chapter>>.

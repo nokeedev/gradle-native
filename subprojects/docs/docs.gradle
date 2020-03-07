@@ -77,7 +77,10 @@ def dslSampleArchiveSourceSet = project.objects.newInstance(JBakeAssetSourceSet,
 dslSampleArchiveSourceSet.source.from(layout.buildDirectory.dir('generated/assets'))
 components.add(dslSampleArchiveSourceSet)
 
-[new Sample('java-cpp-jni-library', new JavaJniCppGreeterLib('java-cpp-jni-library'))].each { Sample sample ->
+[
+	new Sample('java-cpp-jni-library', new JavaJniCppGreeterLib('java-cpp-jni-library')),
+	new Sample('jni-library-with-junit-test', new JavaJniCppGreeterLib('jni-library-with-junit-test').withJUnitTest()),
+].each { Sample sample ->
 	String nameAsCamelCase = GUtil.toCamelCase(sample.name)
 
 	TaskProvider<Task> generateSampleCodeTask = tasks.register("generate${nameAsCamelCase}SampleContent") {
