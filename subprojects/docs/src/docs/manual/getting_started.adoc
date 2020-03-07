@@ -64,7 +64,7 @@ Second, apply one of <<plugin_references.adoc#,Nokee plugins>> to your build usi
 [.multi-language-sample]
 =====
 .build.gradle
-[source,groovy,subs=attributes+]
+[source,groovy]
 ----
 plugins {
 	id 'dev.nokee.jni-library'
@@ -74,7 +74,7 @@ plugins {
 [.multi-language-sample]
 =====
 .build.gradle.kts
-[source,kotlin,subs=attributes+]
+[source,kotlin]
 ----
 plugins {
 	id("dev.nokee.jni-library")
@@ -93,7 +93,7 @@ Because of the link:{gradle-user-manual}/plugins.html#plugins_dsl_limitations[va
 [.multi-language-sample]
 =====
 .build.gradle
-[source,groovy]
+[source,groovy,subs=attributes+]
 ----
 plugins {
 	id 'dev.nokee.jni-library' version '{jbake-version}'
@@ -103,7 +103,7 @@ plugins {
 [.multi-language-sample]
 =====
 .build.gradle.kts
-[source,kotlin]
+[source,kotlin,subs=attributes+]
 ----
 plugins {
 	id("dev.nokee.jni-library") version '{jbake-version}'
