@@ -70,10 +70,12 @@ Links shared library from compiled object files using the selected linker.
 Depends on: `link__Variant__`
 This is an aggregate task that just depends on tasks for creating the Shared Library binary.
 
-`jniJar__Variant__` (e.g. `jarWindows` and `jarLinux`) - link:{gradle-language-reference}/org.gradle.api.tasks.bundling.Jar.html[Jar]::
+`jar__Variant__` (e.g. `jarWindows` and `jarLinux`) - link:{gradle-language-reference}/org.gradle.api.tasks.bundling.Jar.html[Jar]::
 Depends on: `sharedLibrary__Variant__`
 ::
-Assembles the production JAR file containing the shared library for the JNI bridge as well as all the runtime dependencies for the particular variant.
+Assembles the production JAR file, based on the classes and resources attached to the main source set.
+The task will contain the shared library for the JNI bridge as well as all the native runtime dependencies when a single target machine is configured.
+When multiple target machines are configured, a separate JAR task is created for each variant containing the respective shared library and native runtime dependencies.
 
 [[sec:jni_library_lifecycle_tasks]]
 === Lifecycle Tasks

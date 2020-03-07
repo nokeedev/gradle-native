@@ -158,7 +158,7 @@ class JniLibraryFunctionalTest extends AbstractFunctionalSpec {
 		succeeds('assemble')
 
 		then:
-		jar('build/libs/library-macos-x86-64.jar').hasDescendants()
+		jar('build/libs/library.jar').hasDescendants()
 	}
 
 	def "ignores all language implementations"() {

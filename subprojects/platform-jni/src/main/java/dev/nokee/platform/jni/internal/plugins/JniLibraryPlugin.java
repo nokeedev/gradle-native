@@ -11,11 +11,13 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
+import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.util.GradleVersion;
 
@@ -62,7 +64,11 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
 				library.registerSharedLibraryBinary();
 			}
-			library.registerJniJarBinary();
+			if (proj.getPluginManager().hasPlugin("java")) {
+				library.registerJniJarBinary(project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class));
+			} else {
+				library.registerJniJarBinary();
+			}
 			extension.getVariants().add(library);
 		});
 	}

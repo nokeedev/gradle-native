@@ -19,7 +19,6 @@ class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements 
 
 		then:
 		jar('build/libs/library.jar')
-		jar('build/libs/library-macos-x86-64.jar')
 
 		where:
 		pluginIds << collectEachPermutation(['java', 'dev.nokee.jni-library', 'dev.nokee.cpp-language'])
@@ -41,8 +40,8 @@ class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements 
         succeeds 'assemble'
         result.assertTasksExecuted(tasksToAssembleDevelopmentBinary, ':assemble')
         // TODO - should skip the task as NO-SOURCE
-        result.assertTasksSkipped((tasksToAssembleDevelopmentBinary - [taskNames.java.tasks.jar, ':jniJar']))
-        result.assertTasksNotSkipped(taskNames.java.tasks.jar, ':jniJar', ':assemble')
+        result.assertTasksSkipped((tasksToAssembleDevelopmentBinary - [taskNames.java.tasks.jar]))
+        result.assertTasksNotSkipped(taskNames.java.tasks.jar, ':assemble')
     }
 
     def "build fails when C++ compilation fails"() {
@@ -75,24 +74,21 @@ class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements 
     // TODO: Maybe not
     def "adds shared library to JNI jar"() {
         makeSingleProject()
-        settingsFile << "rootProject.name = 'jni-greeter'"
         componentUnderTest.writeToProject(testDirectory)
 
         when:
         succeeds('assemble')
 
         then:
-        result.assertTasksExecuted(taskNames.cpp.tasks.allToSharedLibrary, taskNames.java.tasks.allToJar, ':jniJar', ':assemble')
+        result.assertTasksExecuted(taskNames.cpp.tasks.allToSharedLibrary, taskNames.java.tasks.allToJar, ':assemble')
         result.assertTasksSkipped(taskNames.java.tasks.processResources)
 
         sharedLibrary("build/libs/main/shared/libjni-greeter.dylib").assertExists()
-		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class')
-        jar("build/libs/jni-greeter-macos-x86-64.jar").hasDescendants('libjni-greeter.dylib')
+		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'libjni-greeter.dylib')
     }
 
     def "build logic can change buildDir"() {
         makeSingleProject()
-        settingsFile << "rootProject.name = 'jni-greeter'"
         componentUnderTest.writeToProject(testDirectory)
 
         given:
@@ -102,18 +98,16 @@ class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements 
 
         expect:
         succeeds 'assemble'
-        result.assertTasksExecuted(taskNames.cpp.tasks.allToSharedLibrary, taskNames.java.tasks.allToJar, ':jniJar', ':assemble')
+        result.assertTasksExecuted(taskNames.cpp.tasks.allToSharedLibrary, taskNames.java.tasks.allToJar, ':assemble')
 
         !file('build').exists()
         file('output/objs/main/shared/mainCpp').assertIsDirectory()
         sharedLibrary("output/libs/main/shared/libjni-greeter.dylib").assertExists()
-		jar("output/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class')
-        jar("output/libs/jni-greeter-macos-x86-64.jar").hasDescendants('libjni-greeter.dylib')
+		jar("output/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'libjni-greeter.dylib')
     }
 
     def "generate JNI headers when compiling Java source code"() {
         makeSingleProject()
-        settingsFile << "rootProject.name = 'jni-greeter'"
         componentUnderTest.writeToProject(testDirectory)
 
         when:
@@ -142,7 +136,7 @@ class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements 
     // TODO: Should be abstracted
     protected List<String> getTasksToAssembleDevelopmentBinary() {
         // We are going to ignore the C++ compile task as the software model avoid creating the task when no sources
-        return taskNames.cpp.tasks.allToSharedLibrary + taskNames.java.tasks.allToJar + [':jniJar'] - [taskNames.cpp.tasks.compile]
+        return taskNames.cpp.tasks.allToSharedLibrary + taskNames.java.tasks.allToJar - [taskNames.cpp.tasks.compile]
     }
 
     protected String getDevelopmentBinaryNativeCompileTask() {

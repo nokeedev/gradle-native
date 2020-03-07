@@ -10,6 +10,9 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.TaskProvider;
+import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.cpp.CppBinary;
 
 import javax.inject.Inject;
@@ -45,6 +48,9 @@ public abstract class JniLibraryInternal {
 	@Inject
 	protected abstract ObjectFactory getObjectFactory();
 
+	@Inject
+	protected abstract TaskContainer getTasks();
+
 	public DomainObjectSet<? super BinaryInternal> getBinaries() {
 		return binaries;
 	}
@@ -56,8 +62,8 @@ public abstract class JniLibraryInternal {
 	}
 
 	public void registerJniJarBinary() {
-		jarBinary = getObjectFactory().newInstance(JniJarBinaryInternal.class);
-		binaries.add(jarBinary);
+		TaskProvider<Jar> jarTask = getTasks().register("jar", Jar.class);
+		registerJniJarBinary(jarTask);
 	}
 
 	public JniJarBinaryInternal getJar() {
@@ -73,4 +79,9 @@ public abstract class JniLibraryInternal {
 	}
 
 	public abstract ConfigurableFileCollection getNativeRuntimeFiles();
+
+	public void registerJniJarBinary(TaskProvider<Jar> jarTask) {
+		jarBinary = getObjectFactory().newInstance(JniJarBinaryInternal.class, jarTask);
+		binaries.add(jarBinary);
+	}
 }
