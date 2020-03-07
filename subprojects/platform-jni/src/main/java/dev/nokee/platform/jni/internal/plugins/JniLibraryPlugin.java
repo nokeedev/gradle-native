@@ -34,6 +34,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 		JniLibraryExtensionInternal extension = registerExtension(project);
 
+		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
 		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJniHeaderSourceSet(project, extension));
 		project.getPluginManager().withPlugin("java-library", appliedPlugin -> { throw new GradleException("Use java plugin instead"); });
@@ -72,13 +73,11 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			configuration.setCanBeConsumed(false);
 		});
 
-		// TODO: Attach to api configuration
 		Configuration jvmApi = project.getConfigurations().create("api", configuration -> {
 			configuration.setCanBeResolved(false);
 			configuration.setCanBeConsumed(false);
 		});
 
-		// TODO: Attach to apiElements of main SourceSet
 		Configuration jvmApiElements = Optional.ofNullable(project.getConfigurations().findByName("apiElements")).orElseGet(() -> {
 			return project.getConfigurations().create("apiElements", configuration -> {
 				configuration.setCanBeResolved(false);
