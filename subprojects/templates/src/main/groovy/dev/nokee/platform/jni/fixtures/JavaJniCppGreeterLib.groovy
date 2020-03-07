@@ -29,9 +29,9 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
         return ofElements(jniBindings, nativeImplementation);
     }
 
-	JavaJniCppGreeterLib() {
+	JavaJniCppGreeterLib(String projectName) {
         def javaPackage = ofPackage('com.example.greeter')
-        String sharedLibraryBaseName = 'jni-greeter'
+        String sharedLibraryBaseName = projectName
         jvmImplementation = new JavaNativeGreeter(javaPackage, sharedLibraryBaseName)
 
         jniBindings = new CppGreeterJniBinding(javaPackage)

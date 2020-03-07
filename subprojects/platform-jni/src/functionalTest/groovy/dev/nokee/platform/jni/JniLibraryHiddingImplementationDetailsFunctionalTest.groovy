@@ -13,7 +13,7 @@ class JniLibraryHiddingImplementationDetailsFunctionalTest extends AbstractFunct
                 id 'dev.nokee.cpp-language'
             }
         '''
-        new JavaJniCppGreeterLib().writeToProject(testDirectory)
+        new JavaJniCppGreeterLib('jni-greeter').writeToProject(testDirectory)
 
         when:
         succeeds('tasks')

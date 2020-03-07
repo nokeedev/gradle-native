@@ -34,7 +34,7 @@ class JavaJniLibraryWithCppLibraryDependenciesFunctionalTest extends AbstractFun
 
 			library.linkage.set([Linkage.STATIC])
 		'''
-		def fixture = new  JavaJniCppGreeterLib()
+		def fixture = new  JavaJniCppGreeterLib('jni-greeter')
 		fixture.withoutNativeImplementation().writeToProject(testDirectory)
 		fixture.nativeImplementation.asLib().writeToProject(file('cpp-greeter'))
 
@@ -77,7 +77,7 @@ class JavaJniLibraryWithCppLibraryDependenciesFunctionalTest extends AbstractFun
 
 			library.linkage.set([Linkage.SHARED])
 		'''
-		def fixture = new  JavaJniCppGreeterLib()
+		def fixture = new  JavaJniCppGreeterLib('jni-greeter')
 		fixture.withoutNativeImplementation().writeToProject(testDirectory)
 		fixture.nativeImplementation.asLib().writeToProject(file('cpp-greeter'))
 

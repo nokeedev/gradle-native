@@ -40,6 +40,6 @@ class JavaJniLibraryWithJUnitTestingFunctionalTest extends AbstractFunctionalSpe
     }
 
     protected JniLibraryElement getComponentUnderTest() {
-        return new JavaJniCppGreeterLib().withJUnitTest()
+        return new JavaJniCppGreeterLib('jni-greeter').withJUnitTest()
     }
 }

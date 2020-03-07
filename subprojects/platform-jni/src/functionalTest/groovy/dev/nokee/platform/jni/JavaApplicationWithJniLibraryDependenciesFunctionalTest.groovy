@@ -15,11 +15,11 @@ class JavaApplicationWithJniLibraryDependenciesFunctionalTest extends AbstractFu
                 id 'java'
                 id 'application'
             }
-            
+
             application {
                 mainClassName = 'com.example.app.Main'
             }
-            
+
             dependencies {
                 implementation project(':jni-greeter')
             }
@@ -46,11 +46,11 @@ class JavaApplicationWithJniLibraryDependenciesFunctionalTest extends AbstractFu
                 id 'java'
                 id 'application'
             }
-            
+
             application {
                 mainClassName = 'com.example.app.Main'
             }
-            
+
             dependencies {
                 implementation 'com.example.greeter:jni-greeter:1.0'
             }
@@ -63,7 +63,7 @@ class JavaApplicationWithJniLibraryDependenciesFunctionalTest extends AbstractFu
                 id 'dev.nokee.jni-library'
                 id 'dev.nokee.cpp-language'
             }
-            
+
             group = 'com.example.greeter'
             version = '1.0'
         '''
@@ -73,7 +73,7 @@ class JavaApplicationWithJniLibraryDependenciesFunctionalTest extends AbstractFu
     }
 
     private ApplicationWithLibraryElement getComponentsUnderTest() {
-        return new GreeterAppWithJniLibrary()
+        return new GreeterAppWithJniLibrary('jni-greeter')
     }
 
     def "can run application as multi-project dependency"() {

@@ -138,9 +138,10 @@ class JavaJniLibraryFunctionalTest extends AbstractFunctionalSpec implements Mix
                 id 'dev.nokee.cpp-language'
             }
         '''
+		settingsFile << "rootProject.name = 'jni-greeter'"
     }
 
     JavaJniCppGreeterLib getComponentUnderTest() {
-        return new JavaJniCppGreeterLib()
+        return new JavaJniCppGreeterLib('jni-greeter')
     }
 }
