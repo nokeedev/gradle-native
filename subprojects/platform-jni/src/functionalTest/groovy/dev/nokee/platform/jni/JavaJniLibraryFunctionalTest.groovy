@@ -18,8 +18,8 @@ class JavaJniLibraryFunctionalTest extends AbstractFunctionalSpec implements Mix
         succeeds 'assemble'
         result.assertTasksExecuted(tasksToAssembleDevelopmentBinary, ':assemble')
         // TODO - should skip the task as NO-SOURCE
-        result.assertTasksSkipped((tasksToAssembleDevelopmentBinary - [taskNames.java.tasks.jar]))
-        result.assertTasksNotSkipped(taskNames.java.tasks.jar, ':assemble')
+        result.assertTasksSkipped((tasksToAssembleDevelopmentBinary - [taskNames.java.tasks.jar, ':jniJar']))
+        result.assertTasksNotSkipped(taskNames.java.tasks.jar, ':jniJar', ':assemble')
     }
 
     def "build fails when C++ compilation fails"() {
@@ -50,7 +50,7 @@ class JavaJniLibraryFunctionalTest extends AbstractFunctionalSpec implements Mix
     }
 
     // TODO: Maybe not
-    def "adds shared library to jar"() {
+    def "adds shared library to JNI jar"() {
         makeSingleProject()
         settingsFile << "rootProject.name = 'jni-greeter'"
         componentUnderTest.writeToProject(testDirectory)
@@ -59,11 +59,12 @@ class JavaJniLibraryFunctionalTest extends AbstractFunctionalSpec implements Mix
         succeeds('assemble')
 
         then:
-        result.assertTasksExecuted(taskNames.cpp.tasks.allToSharedLibrary, taskNames.java.tasks.allToJar, ':assemble')
+        result.assertTasksExecuted(taskNames.cpp.tasks.allToSharedLibrary, taskNames.java.tasks.allToJar, ':jniJar', ':assemble')
         result.assertTasksSkipped(taskNames.java.tasks.processResources)
 
         sharedLibrary("build/libs/main/shared/libjni-greeter.dylib").assertExists()
-        jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'libjni-greeter.dylib')
+		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class')
+        jar("build/libs/jni-greeter-macos-x86-64.jar").hasDescendants('libjni-greeter.dylib')
     }
 
     def "build logic can change buildDir"() {
@@ -78,12 +79,13 @@ class JavaJniLibraryFunctionalTest extends AbstractFunctionalSpec implements Mix
 
         expect:
         succeeds 'assemble'
-        result.assertTasksExecuted(taskNames.cpp.tasks.allToSharedLibrary, taskNames.java.tasks.allToJar, ':assemble')
+        result.assertTasksExecuted(taskNames.cpp.tasks.allToSharedLibrary, taskNames.java.tasks.allToJar, ':jniJar', ':assemble')
 
         !file('build').exists()
         file('output/objs/main/shared/mainCpp').assertIsDirectory()
         sharedLibrary("output/libs/main/shared/libjni-greeter.dylib").assertExists()
-        jar("output/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'libjni-greeter.dylib')
+		jar("output/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class')
+        jar("output/libs/jni-greeter-macos-x86-64.jar").hasDescendants('libjni-greeter.dylib')
     }
 
     def "generate JNI headers when compiling Java source code"() {
@@ -117,7 +119,7 @@ class JavaJniLibraryFunctionalTest extends AbstractFunctionalSpec implements Mix
     // TODO: Should be abstracted
     protected List<String> getTasksToAssembleDevelopmentBinary() {
         // We are going to ignore the C++ compile task as the software model avoid creating the task when no sources
-        return taskNames.cpp.tasks.allToSharedLibrary + taskNames.java.tasks.allToJar - [taskNames.cpp.tasks.compile]
+        return taskNames.cpp.tasks.allToSharedLibrary + taskNames.java.tasks.allToJar + [':jniJar'] - [taskNames.cpp.tasks.compile]
     }
 
     protected String getDevelopmentBinaryNativeCompileTask() {

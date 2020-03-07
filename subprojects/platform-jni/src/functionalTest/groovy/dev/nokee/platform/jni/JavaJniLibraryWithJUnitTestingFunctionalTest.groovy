@@ -14,9 +14,9 @@ class JavaJniLibraryWithJUnitTestingFunctionalTest extends AbstractFunctionalSpe
         succeeds('test')
 
         then:
-        result.assertTasksExecuted(taskNames.java.tasks.allToTest, taskNames.cpp.tasks.allToSharedLibrary)
+        result.assertTasksExecuted(taskNames.java.tasks.allToTest, taskNames.cpp.tasks.allToLink)
         result.assertTasksSkipped(taskNames.java.tasks.main.processResources, taskNames.java.tasks.test.processResources)
-        result.assertTasksNotSkipped(taskNames.java.tasks.allToTest - [taskNames.java.tasks.main.processResources, taskNames.java.tasks.test.processResources], taskNames.cpp.tasks.allToSharedLibrary)
+        result.assertTasksNotSkipped(taskNames.java.tasks.allToTest - [taskNames.java.tasks.main.processResources, taskNames.java.tasks.test.processResources], taskNames.cpp.tasks.allToLink)
         // TODO: assert JUnit result
     }
 

@@ -42,7 +42,8 @@ class JavaJniLibraryWithCppLibraryDependenciesFunctionalTest extends AbstractFun
 		succeeds('assemble')
 
 		then:
-		jar('build/libs/jni-greeter.jar').hasDescendants('com/example/greeter/Greeter.class', 'libjni-greeter.dylib')
+		jar('build/libs/jni-greeter.jar').hasDescendants('com/example/greeter/Greeter.class')
+		jar('build/libs/jni-greeter-macos-x86-64.jar').hasDescendants('libjni-greeter.dylib')
 		result.assertTaskNotExecuted(':cpp-greeter:compileReleaseCpp')
 		result.assertTaskNotExecuted(':cpp-greeter:createRelease')
 	}
@@ -84,7 +85,8 @@ class JavaJniLibraryWithCppLibraryDependenciesFunctionalTest extends AbstractFun
 		succeeds('assemble')
 
 		then:
-		jar('build/libs/jni-greeter.jar').hasDescendants('com/example/greeter/Greeter.class', 'libcpp-greeter.dylib', 'libjni-greeter.dylib')
+		jar('build/libs/jni-greeter.jar').hasDescendants('com/example/greeter/Greeter.class')
+		jar('build/libs/jni-greeter-macos-x86-64.jar').hasDescendants('libcpp-greeter.dylib', 'libjni-greeter.dylib')
 		result.assertTaskNotExecuted(':cpp-greeter:compileReleaseCpp')
 		result.assertTaskNotExecuted(':cpp-greeter:linkRelease')
 	}

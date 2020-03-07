@@ -1,41 +1,76 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
-import dev.nokee.platform.jni.JniLibrary;
+import dev.nokee.platform.base.internal.BinaryInternal;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.attributes.Usage;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.language.cpp.CppBinary;
 
 import javax.inject.Inject;
 
-public abstract class JniLibraryInternal implements JniLibrary {
-    private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
-    private final Configuration nativeImplementationDependencies;
-    private final Configuration jvmImplementationDependencies;
-    private final DomainObjectSet<SharedLibraryBinaryInternal> binaries;
+public abstract class JniLibraryInternal {
+	private final DomainObjectSet<? super BinaryInternal> binaries;
+	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
+	private final Configuration implementation;
+	private final ConfigurationContainer configurations;
+	private final Configuration nativeRuntime;
+	private JniJarBinaryInternal jarBinary;
+	private SharedLibraryBinaryInternal sharedLibraryBinary;
 
-    @Inject
-    public JniLibraryInternal(ObjectFactory objectFactory, Configuration nativeImplementationDependencies, Configuration jvmImplementationDependencies) {
-        binaries = objectFactory.domainObjectSet(SharedLibraryBinaryInternal.class);
-        sources = objectFactory.domainObjectSet(LanguageSourceSetInternal.class);
-        this.nativeImplementationDependencies = nativeImplementationDependencies;
-        this.jvmImplementationDependencies = jvmImplementationDependencies;
-    }
+	@Inject
+	public JniLibraryInternal(ObjectFactory objectFactory, ConfigurationContainer configurations, DomainObjectSet<? super LanguageSourceSetInternal> sources, Configuration implementation) {
+		binaries = objectFactory.domainObjectSet(BinaryInternal.class);
+		this.configurations = configurations;
+		this.sources = sources;
+		this.implementation = implementation;
 
-    public DomainObjectSet<SharedLibraryBinaryInternal> getBinaries() {
-        return binaries;
-    }
+		Usage runtimeUsage = getObjectFactory().named(Usage.class, Usage.NATIVE_RUNTIME);
+		// incoming runtime libraries (i.e. shared libraries) - this represents the libraries we consume
+		nativeRuntime = configurations.create("nativeRuntime", it -> {
+			it.setCanBeConsumed(false);
+			it.extendsFrom(implementation);
+			it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, runtimeUsage);
+			it.getAttributes().attribute(CppBinary.DEBUGGABLE_ATTRIBUTE, true);
+			it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, false);
+		});
+		getNativeRuntimeFiles().from(nativeRuntime);
+	}
 
-    public DomainObjectSet<? super LanguageSourceSetInternal> getSources() {
-        return sources;
-    }
+	@Inject
+	protected abstract ObjectFactory getObjectFactory();
 
-    public Configuration getNativeImplementationDependencies() {
-        return nativeImplementationDependencies;
-    }
+	public DomainObjectSet<? super BinaryInternal> getBinaries() {
+		return binaries;
+	}
 
-    public Configuration getJvmImplementationDependencies() {
-        return jvmImplementationDependencies;
-    }
+	public void registerSharedLibraryBinary() {
+		sharedLibraryBinary = getObjectFactory().newInstance(SharedLibraryBinaryInternal.class, configurations, sources, implementation);
+		getNativeRuntimeFiles().from(sharedLibraryBinary.getLinkedFile());
+		binaries.add(sharedLibraryBinary);
+	}
+
+	public void registerJniJarBinary() {
+		jarBinary = getObjectFactory().newInstance(JniJarBinaryInternal.class);
+		binaries.add(jarBinary);
+	}
+
+	public JniJarBinaryInternal getJar() {
+		return jarBinary;
+	}
+
+	public SharedLibraryBinaryInternal getSharedLibrary() {
+		return sharedLibraryBinary;
+	}
+
+	public FileCollection getNativeRuntimeDependencies() {
+		return nativeRuntime;
+	}
+
+	public abstract ConfigurableFileCollection getNativeRuntimeFiles();
 }

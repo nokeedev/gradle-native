@@ -36,7 +36,7 @@ To build the library:
 $ ./gradlew assemble
 
 BUILD SUCCESSFUL
-4 actionable tasks: 4 executed
+5 actionable tasks: 5 executed
 ----
 
 The JNI library produced inside `./build/libs` directory:

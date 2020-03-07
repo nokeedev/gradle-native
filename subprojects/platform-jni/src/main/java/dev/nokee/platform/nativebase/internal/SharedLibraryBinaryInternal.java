@@ -2,12 +2,16 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
+import dev.nokee.platform.base.internal.BinaryInternal;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.jvm.Jvm;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.cpp.CppBinary;
@@ -20,13 +24,15 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SharedLibraryBinaryInternal {
+public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 	private final Configuration cppCompile;
 	private final Configuration cppLinkDebug;
+	private final TaskContainer tasks;
 	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
 
 	@Inject
-	public SharedLibraryBinaryInternal(ConfigurationContainer configurations, ObjectFactory objectFactory, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation) {
+	public SharedLibraryBinaryInternal(TaskContainer tasks, ConfigurationContainer configurations, ObjectFactory objectFactory, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation) {
+		this.tasks = tasks;
 		sources = objectFactory.domainObjectSet(LanguageSourceSetInternal.class);
 		parentSources.all(it -> sources.add(it));
 
@@ -52,6 +58,10 @@ public abstract class SharedLibraryBinaryInternal {
 			it.getAttributes().attribute(CppBinary.DEBUGGABLE_ATTRIBUTE, true);
 			it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, false);
 		});
+	}
+
+	public TaskProvider<LinkSharedLibrary> getLinkTask() {
+		return tasks.named("", LinkSharedLibrary.class);
 	}
 
 	@Inject
@@ -85,4 +95,6 @@ public abstract class SharedLibraryBinaryInternal {
 			task.getLibs().from(cppLinkDebug);
 		});
 	}
+
+	public abstract RegularFileProperty getLinkedFile();
 }

@@ -1,8 +1,9 @@
 package dev.nokee.language.cpp.internal.plugins;
 
 import dev.nokee.language.jvm.internal.JvmResourceSetInternal;
-import dev.nokee.platform.jni.JniLibrary;
-import dev.nokee.platform.jni.internal.JniLibraryInternal;
+import dev.nokee.platform.jni.JniLibraryExtension;
+import dev.nokee.platform.jni.internal.JniLibraryExtensionInternal;
+import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.internal.project.ProjectIdentifier;
@@ -12,6 +13,7 @@ import org.gradle.model.*;
 import org.gradle.nativeplatform.NativeLibrarySpec;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
+import org.gradle.nativeplatform.tasks.LinkSharedLibrary;
 import org.gradle.platform.base.ComponentSpecContainer;
 import org.gradle.platform.base.internal.BinarySpecInternal;
 
@@ -21,8 +23,8 @@ import static org.codehaus.groovy.runtime.MetaClassHelper.capitalize;
 
 public class CppJniLibraryRules extends RuleSource {
     @Model
-    public JniLibraryInternal library(ExtensionContainer extensions) {
-        return (JniLibraryInternal)extensions.getByType(JniLibrary.class);
+    public JniLibraryExtensionInternal library(ExtensionContainer extensions) {
+        return (JniLibraryExtensionInternal)extensions.getByType(JniLibraryExtension.class);
     }
 
     @Mutate
@@ -64,14 +66,18 @@ public class CppJniLibraryRules extends RuleSource {
     }
 
     @Mutate
-    public void configureJniLibrary(TaskContainer tasks, @Path("components.main") NativeLibrarySpec nativeLibrary, ProjectIdentifier projectIdentifier, JniLibraryInternal library) {
+    public void configureJniLibrary(TaskContainer tasks, @Path("components.main") NativeLibrarySpec nativeLibrary, ProjectIdentifier projectIdentifier, JniLibraryExtensionInternal library) {
         Collection<SharedLibraryBinarySpec> binaries = nativeLibrary.getBinaries().withType(SharedLibraryBinarySpec.class).values();
-        if (binaries.size() > library.getBinaries().size()) {
+        if (binaries.size() > library.getVariants().size()) {
             throw new IllegalStateException("More binaries than predicted");
         }
         SharedLibraryBinarySpec binary = binaries.iterator().next();
-        library.getBinaries().iterator().next().configureSoftwareModelBinary(binary);
+		SharedLibraryBinaryInternal sharedLibrary = library.getVariants().iterator().next().getSharedLibrary();
+        sharedLibrary.configureSoftwareModelBinary(binary);
+		sharedLibrary.getLinkedFile().set(((LinkSharedLibrary)binary.getTasks().getLink()).getLinkedFile());
+		sharedLibrary.getLinkedFile().disallowChanges();
 
+		// TODO remove
         library.getSources().withType(JvmResourceSetInternal.class, resourceSet -> {
 			resourceSet.getSource().from(binary.getSharedLibraryFile()).builtBy(binary);
         });
