@@ -1,2 +1,5 @@
 = Nokee Samples
 :jbake-type: sample_index
+
+// publishing JNI library
+// piecing together a JNI lirary from external projects

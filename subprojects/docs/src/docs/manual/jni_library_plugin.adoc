@@ -70,10 +70,10 @@ Links shared library from compiled object files using the selected linker.
 Depends on: `link__Variant__`
 This is an aggregate task that just depends on tasks for creating the Shared Library binary.
 
-`jar__Variant__` (e.g. `jarWindows` and `jarLinux`) - link:{gradle-language-reference}/org.gradle.api.tasks.bundling.Jar.html[Jar]::
+`jniJar__Variant__` (e.g. `jarWindows` and `jarLinux`) - link:{gradle-language-reference}/org.gradle.api.tasks.bundling.Jar.html[Jar]::
 Depends on: `sharedLibrary__Variant__`
 ::
-Assembles the production JAR file, containing the shared library for the JNI bridge as well as all the runtime dependencies.
+Assembles the production JAR file containing the shared library for the JNI bridge as well as all the runtime dependencies for the particular variant.
 
 [[sec:jni_library_lifecycle_tasks]]
 === Lifecycle Tasks
@@ -108,11 +108,8 @@ The following graph describes the configurations added by the JNI Library Plugin
 image::jni-library-configurations.png[]
 
 * The configurations in white are the ones a user should use to declare dependencies
+* The configurations in pink, also known as consumable denoted by \(C), are the ones used when a component runs against the library
 * The configurations in blue, also known as resolvable denoted by \(R), are internal to the component, for its own use
-
-Note: Languages plugins will add consumable configurations.
-Please refer to the appropriate reference chapter to learn more about their specific consumable configurations.
-Specific sub-section will note how the plugins will react to the supported languages.
 
 // TODO: Blog why it's preferred to use the `library` extension
 To declare dependencies, it is preferred to use the `library` extension:
@@ -164,7 +161,15 @@ This is where you should declare dependencies which are purely internal and not 
 Used for declaring implementation dependencies for the native shared library component (see link:{gradle-user-manual}/cpp_library_plugin.html#sec:cpp_library_api_vs_implementation[API vs implementation section of the {cpp} Library Plugin chapter]).
 This is where you should declare dependencies which are purely internal and not meant to be exposed to consumers.
 
-// TODO: Mention how the plugin interact with the language plugins
+The following configurations are used by consumers:
+
+`apiElements` extends `jvmImplementation`::
+Used for compiling the library.
+This configuration is meant to be used by consumers, to retrieve all the elements necessary to compile against the library.
+
+`runtimeElements` extends `jvmImplementation`::
+Used for executing the library.
+This configuration is meant to be used by consumers, to retrieve all the elements necessary to run against the library.
 
 The following configuration is used by the library itself:
 
