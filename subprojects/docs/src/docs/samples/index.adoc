@@ -1,10 +1,2 @@
-:icons: font
-:idprefix:
-:jbake-status: published
-:encoding: utf-8
-:lang: en-US
-:sectanchors: true
-:sectlinks: true
-:linkattrs: true
 = Nokee Samples
 :jbake-type: sample_index

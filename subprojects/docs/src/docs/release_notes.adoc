@@ -1,7 +1,5 @@
 = Nokee Release Notes
 :jbake-type: release_notes
-:jbake-status: published
-:idprefix:
 
 This first release kickstart the native development by providing the Gradle community with a plugin to support building JVM libraries using the Java Native Interface runtime.
 
