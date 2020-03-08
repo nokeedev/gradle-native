@@ -32,16 +32,13 @@ class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements 
 		return result
 	}
 
-    def "skip compilation and linking tasks when no source"() {
+    def "generates a empty JAR when no souce"() {
         given:
         makeSingleProject()
 
         expect:
         succeeds 'assemble'
-        result.assertTasksExecuted(tasksToAssembleDevelopmentBinary, ':assemble')
-        // TODO - should skip the task as NO-SOURCE
-        result.assertTasksSkipped((tasksToAssembleDevelopmentBinary - [taskNames.java.tasks.jar]))
-        result.assertTasksNotSkipped(taskNames.java.tasks.jar, ':assemble')
+		jar('build/libs/jni-greeter.jar').hasDescendants()
     }
 
     def "build fails when C++ compilation fails"() {
@@ -71,8 +68,7 @@ class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements 
         failure.assertHasCause("Compilation failed; see the compiler error output for details.")
     }
 
-    // TODO: Maybe not
-    def "adds shared library to JNI jar"() {
+    def "produce a single JAR containing the shared library for single variant"() {
         makeSingleProject()
         componentUnderTest.writeToProject(testDirectory)
 
@@ -83,11 +79,11 @@ class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements 
         result.assertTasksExecuted(taskNames.cpp.tasks.allToSharedLibrary, taskNames.java.tasks.allToJar, ':assemble')
         result.assertTasksSkipped(taskNames.java.tasks.processResources)
 
-        sharedLibrary("build/libs/main/shared/libjni-greeter.dylib").assertExists()
-		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'libjni-greeter.dylib')
+		file('build/libs').assertHasDescendants('main/shared/libjni-greeter.dylib', 'jni-greeter.jar')
+		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', 'libjni-greeter.dylib')
     }
 
-    def "build logic can change buildDir"() {
+    def "build logic can change build directory location"() {
         makeSingleProject()
         componentUnderTest.writeToProject(testDirectory)
 
@@ -102,8 +98,8 @@ class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements 
 
         !file('build').exists()
         file('output/objs/main/shared/mainCpp').assertIsDirectory()
-        sharedLibrary("output/libs/main/shared/libjni-greeter.dylib").assertExists()
-		jar("output/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'libjni-greeter.dylib')
+		file('build/libs').assertHasDescendants('main/shared/libjni-greeter.dylib', 'jni-greeter.jar')
+		jar("output/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', 'libjni-greeter.dylib')
     }
 
     def "generate JNI headers when compiling Java source code"() {

@@ -5,7 +5,6 @@ import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceFileElement
 import dev.gradleplugins.test.fixtures.sources.cpp.CppLibraryElement
 import dev.gradleplugins.test.fixtures.sources.cpp.CppSourceElement
-import dev.gradleplugins.test.fixtures.sources.cpp.CppSourceFileElement
 import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
 import dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement
 import dev.gradleplugins.test.fixtures.sources.java.JavaSourceFileElement
@@ -15,27 +14,29 @@ import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
 import static dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement.ofPackage
 
 class JavaJniCppGreeterLib extends JniLibraryElement {
-    final CppSourceElement jniBindings
+    final CppGreeterJniBinding nativeBindings
+    final JavaSourceElement jvmBindings
+	final JavaSourceElement jvmImplementation
     final CppLibraryElement nativeImplementation
-    final JavaSourceElement jvmImplementation
 	final JavaSourceElement junitTest
 
     @Override
     SourceElement getJvmSources() {
-        return jvmImplementation
+        return ofElements(jvmBindings, jvmImplementation)
     }
 
     @Override
     SourceElement getNativeSources() {
-        return ofElements(jniBindings, nativeImplementation);
+        return ofElements(nativeBindings, nativeImplementation);
     }
 
 	JavaJniCppGreeterLib(String projectName) {
         def javaPackage = ofPackage('com.example.greeter')
         String sharedLibraryBaseName = projectName
-        jvmImplementation = new JavaNativeGreeter(javaPackage, sharedLibraryBaseName)
+		jvmBindings = new JavaNativeGreeter(javaPackage, sharedLibraryBaseName)
+        nativeBindings = new CppGreeterJniBinding(javaPackage)
 
-        jniBindings = new CppGreeterJniBinding(javaPackage)
+		jvmImplementation = new JavaNativeLoader(javaPackage);
 
         nativeImplementation = new CppGreeter()
 
@@ -46,12 +47,12 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
         return new JniLibraryElement() {
             @Override
             SourceElement getJvmSources() {
-                return jvmImplementation
+                return JavaJniCppGreeterLib.this.jvmBindings
             }
 
             @Override
             SourceElement getNativeSources() {
-                return jniBindings
+                return nativeBindings
             }
         }
     }
@@ -60,14 +61,63 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 		return new JniLibraryElement() {
 			@Override
 			SourceElement getJvmSources() {
-				return ofElements(jvmImplementation, junitTest)
+				return ofElements(JavaJniCppGreeterLib.this.jvmBindings, junitTest)
 			}
 
 			@Override
 			SourceElement getNativeSources() {
-				return ofElements(jniBindings, nativeImplementation)
+				return ofElements(nativeBindings, nativeImplementation)
 			}
 		}
+	}
+}
+
+class JavaNativeLoader extends JavaSourceFileElement {
+	private final SourceFileElement source
+
+	@Override
+	SourceFileElement getSource() {
+		return source
+	}
+
+	JavaNativeLoader(JavaPackage javaPackage) {
+		source = ofFile(sourceFile("java/${javaPackage.directoryLayout}", 'NativeLoader.java', """
+package ${javaPackage.name};
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.net.URL;
+import java.nio.file.Files;
+
+public class NativeLoader {
+
+    public static void loadLibrary(ClassLoader classLoader, String libName) {
+		try {
+            System.loadLibrary("libName");
+        } catch (UnsatisfiedLinkError ex) {
+            URL url = classLoader.getResource(libFilename(libName));
+            try {
+                File file = Files.createTempFile("jni", "greeter").toFile();
+                file.deleteOnExit();
+                file.delete();
+                try (InputStream in = url.openStream()) {
+                    Files.copy(in, file.toPath());
+                }
+                System.load(file.getCanonicalPath());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+	}
+
+    private static String libFilename(String libName) {
+        // TODO depend on OS
+        return "lib" + libName + ".dylib";
+    }
+}
+"""))
 	}
 }
 
@@ -93,28 +143,7 @@ import java.nio.file.Files;
 public class Greeter {
 
     static {
-        try {
-            System.loadLibrary("${sharedLibraryBaseName}");
-        } catch (UnsatisfiedLinkError ex) {
-            String libName = "${sharedLibraryBaseName}";
-            URL url = Greeter.class.getClassLoader().getResource(libFilename(libName));
-            try {
-                File file = Files.createTempFile("jni", "greeter").toFile();
-                file.deleteOnExit();
-                file.delete();
-                try (InputStream in = url.openStream()) {
-                    Files.copy(in, file.toPath());
-                }
-                System.load(file.getCanonicalPath());
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-    }
-
-    private static String libFilename(String libName) {
-        // TODO depend on OS
-        return "lib" + libName + ".dylib";
+        NativeLoader.loadLibrary(Greeter.class.getClassLoader(), "${sharedLibraryBaseName}");
     }
 
     public native String sayHello(String name);

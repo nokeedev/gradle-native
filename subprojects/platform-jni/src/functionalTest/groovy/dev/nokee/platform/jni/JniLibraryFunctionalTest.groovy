@@ -103,9 +103,9 @@ class JniLibraryFunctionalTest extends AbstractFunctionalSpec {
 		"""
 		new JavaMainUsesGreeter().writeToProject(file('consumer'))
 		def fixture = new JavaJniCppGreeterLib('producer')
-		fixture.jvmImplementation.writeToProject(file('consumer'))
+		fixture.jvmBindings.writeToProject(file('consumer'))
 		fixture.nativeImplementation.writeToProject(file('producer'))
-		fixture.jniBindings.withJniGeneratedHeader().writeToProject(file('producer'))
+		fixture.nativeBindings.withJniGeneratedHeader().writeToProject(file('producer'))
 
 		when:
 		succeeds(':consumer:run')
