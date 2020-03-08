@@ -47,7 +47,7 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
         return new JniLibraryElement() {
             @Override
             SourceElement getJvmSources() {
-                return JavaJniCppGreeterLib.this.jvmBindings
+                return ofElements(JavaJniCppGreeterLib.this.jvmBindings, JavaJniCppGreeterLib.this.jvmImplementation)
             }
 
             @Override
@@ -61,7 +61,7 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 		return new JniLibraryElement() {
 			@Override
 			SourceElement getJvmSources() {
-				return ofElements(JavaJniCppGreeterLib.this.jvmBindings, junitTest)
+				return ofElements(JavaJniCppGreeterLib.this.jvmBindings, JavaJniCppGreeterLib.this.jvmImplementation, junitTest)
 			}
 
 			@Override
@@ -95,7 +95,7 @@ public class NativeLoader {
 
     public static void loadLibrary(ClassLoader classLoader, String libName) {
 		try {
-            System.loadLibrary("libName");
+            System.loadLibrary(libName);
         } catch (UnsatisfiedLinkError ex) {
             URL url = classLoader.getResource(libFilename(libName));
             try {

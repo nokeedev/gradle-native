@@ -19,6 +19,7 @@ import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
+import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
 import org.gradle.util.GradleVersion;
 
 import java.io.File;
@@ -40,6 +41,9 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
 		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJniHeaderSourceSet(project, extension));
 		project.getPluginManager().withPlugin("java-library", appliedPlugin -> { throw new GradleException("Use java plugin instead"); });
+		project.getPlugins().withType(NativeComponentPlugin.class, appliedPlugin -> {
+			project.getPluginManager().apply(JniLibraryRules.class);
+		});
 
 		// Include native runtime files inside JNI jar
 		extension.getVariants().configureEach(library -> {

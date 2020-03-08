@@ -98,7 +98,7 @@ class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements 
 
         !file('build').exists()
         file('output/objs/main/shared/mainCpp').assertIsDirectory()
-		file('build/libs').assertHasDescendants('main/shared/libjni-greeter.dylib', 'jni-greeter.jar')
+		file('output/libs').assertHasDescendants('main/shared/libjni-greeter.dylib', 'jni-greeter.jar')
 		jar("output/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', 'libjni-greeter.dylib')
     }
 
