@@ -12,3 +12,6 @@ Provides support for building JNI library.
 
 <<cpp_language_plugin.adoc#,{cpp} Language>>::
 Provides support for compiling {cpp} language.
+
+<<c_language_plugin.adoc#,C Language>>::
+Provides support for compiling C language.

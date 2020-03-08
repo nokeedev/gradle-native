@@ -1,13 +1,10 @@
 package dev.nokee.platform.jni.fixtures
 
-
 import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement
 import dev.gradleplugins.test.fixtures.sources.cpp.CppLibraryElement
 import dev.gradleplugins.test.fixtures.sources.cpp.CppSourceElement
 import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
 import dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement
-import dev.gradleplugins.test.fixtures.sources.java.JavaSourceFileElement
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
 
 import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
@@ -69,91 +66,6 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 				return ofElements(nativeBindings, nativeImplementation)
 			}
 		}
-	}
-}
-
-class JavaNativeLoader extends JavaSourceFileElement {
-	private final SourceFileElement source
-
-	@Override
-	SourceFileElement getSource() {
-		return source
-	}
-
-	JavaNativeLoader(JavaPackage javaPackage) {
-		source = ofFile(sourceFile("java/${javaPackage.directoryLayout}", 'NativeLoader.java', """
-package ${javaPackage.name};
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.net.URL;
-import java.nio.file.Files;
-
-public class NativeLoader {
-
-	public static void loadLibrary(ClassLoader classLoader, String libName) {
-		try {
-			System.loadLibrary(libName);
-		} catch (UnsatisfiedLinkError ex) {
-			URL url = classLoader.getResource(libFilename(libName));
-			try {
-				File file = Files.createTempFile("jni", "greeter").toFile();
-				file.deleteOnExit();
-				file.delete();
-				try (InputStream in = url.openStream()) {
-					Files.copy(in, file.toPath());
-				}
-				System.load(file.getCanonicalPath());
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
-		}
-	}
-
-	private static String libFilename(String libName) {
-		String osName = System.getProperty("os.name").toLowerCase();
-		if (osName.indexOf("win") >= 0) {
-			return libName + ".dll";
-		} else if (osName.indexOf("mac") >= 0) {
-			return "lib" + libName + ".dylib";
-		}
-		return "lib" + libName + ".so";
-	}
-}
-"""))
-	}
-}
-
-class JavaNativeGreeter extends JavaSourceFileElement {
-	private final SourceFileElement source
-
-	@Override
-	SourceFileElement getSource() {
-		return source
-	}
-
-	JavaNativeGreeter(JavaPackage javaPackage, String sharedLibraryBaseName) {
-		source = ofFile(sourceFile("java/${javaPackage.directoryLayout}", 'Greeter.java', """
-package ${javaPackage.name};
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.net.URL;
-import java.nio.file.Files;
-
-public class Greeter {
-
-	static {
-		NativeLoader.loadLibrary(Greeter.class.getClassLoader(), "${sharedLibraryBaseName}");
-	}
-
-	public native String sayHello(String name);
-}
-"""))
 	}
 }
 
@@ -278,43 +190,3 @@ JNIEXPORT jstring JNICALL ${javaPackage.jniMethodName('Greeter', 'sayHello')}
 	}
 }
 
-class JavaGreeterJUnitTest extends JavaSourceFileElement {
-	private final SourceFileElement source
-
-	@Override
-	SourceFileElement getSource() {
-		return source
-	}
-
-	@Override
-	String getSourceSetName() {
-		return 'test'
-	}
-
-	JavaGreeterJUnitTest() {
-		source = ofFile(sourceFile('java/com/example/greeter', 'GreeterTest.java', '''
-package com.example.greeter;
-
-import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
-public class GreeterTest {
-	@Test
-	public void testGreeter() {
-		Greeter greeter = new Greeter();
-		String greeting = greeter.sayHello("World");
-		assertThat(greeting, equalTo("Bonjour, World!"));
-	}
-
-	@Test
-	public void testNullGreeter() {
-		Greeter greeter = new Greeter();
-		String greeting = greeter.sayHello(null);
-		assertThat(greeting, equalTo("name cannot be null"));
-	}
-}
-'''))
-	}
-}

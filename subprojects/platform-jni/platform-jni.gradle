@@ -33,6 +33,10 @@ gradlePlugin {
 			id = 'dev.nokee.cpp-language'
 			implementationClass = 'dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin'
 		}
+		cLanguage {
+			id = 'dev.nokee.c-language'
+			implementationClass = 'dev.nokee.language.c.internal.plugins.CLanguagePlugin'
+		}
 	}
 }
 

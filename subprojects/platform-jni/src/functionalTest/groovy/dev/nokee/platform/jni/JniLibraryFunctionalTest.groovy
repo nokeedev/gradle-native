@@ -168,8 +168,9 @@ class JniLibraryFunctionalTest extends AbstractFunctionalSpec {
 				id 'dev.nokee.jni-library'
 			}
 		'''
-		file("src/main/java/broken.java") << "broken!"
-		file("src/main/cpp/broken.cpp") << "broken!"
+		file('src/main/java/broken.java') << 'broken!'
+		file('src/main/cpp/broken.cpp') << 'broken!'
+		file('src/main/c/broken.c') << 'broken!'
 
 		expect:
 		succeeds('assemble')

@@ -66,7 +66,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(proj -> {
 			// Find toolchain capable of building C++
 			JniLibraryInternal library = extension.newVariant();
-			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
+			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language") || proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
 				library.registerSharedLibraryBinary();
 			}
 			if (proj.getPluginManager().hasPlugin("java")) {

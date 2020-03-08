@@ -1,10 +1,10 @@
-= JNI Library implemented in Java and {cpp}
+= JNI Library implemented in Java and C
 :jbake-type: sample_chapter
 :jbake-tags: sample, jni
 
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
-This sample shows how a JNI library implemented in Java and {cpp} can be built with Gradle.
+This sample shows how a JNI library implemented in Java and C can be built with Gradle.
 The library has no dependencies and the build has minimal configuration.
 
 ====
@@ -41,7 +41,7 @@ The JNI library produced inside `./build/libs` directory:
 [listing]
 ----
 $ ls ./build/libs/*.jar
-./build/libs/java-cpp-jni-library.jar
+./build/libs/java-c-jni-library.jar
 ----
 
-For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin>> and <<../../manual/cpp_language_plugin.adoc#{cpp} Language Plugin>> reference chapters.
+For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin>> and <<../../manual/c_language_plugin.adoc#,C Language Plugin>> reference chapters.

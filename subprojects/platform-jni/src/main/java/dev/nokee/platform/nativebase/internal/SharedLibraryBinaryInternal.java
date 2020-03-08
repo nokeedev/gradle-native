@@ -14,6 +14,7 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.jvm.Jvm;
 import org.gradle.internal.os.OperatingSystem;
+import org.gradle.language.c.tasks.CCompile;
 import org.gradle.language.cpp.CppBinary;
 import org.gradle.language.cpp.tasks.CppCompile;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
@@ -69,6 +70,29 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 
 	public void configureSoftwareModelBinary(SharedLibraryBinarySpec binary) {
 		binary.getTasks().withType(CppCompile.class, task -> {
+			// configure includes using the native incoming compile configuration
+			task.setDebuggable(true);
+			task.setOptimized(false);
+			task.includes(cppCompile);
+
+			sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> task.getIncludes().from(sourceSet.getSource()));
+
+			task.getIncludes().from(getProviderFactory().provider(() -> {
+				List<File> result = new ArrayList<>();
+				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include"));
+
+				if (OperatingSystem.current().isMacOsX()) {
+					result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/darwin"));
+				} else if (OperatingSystem.current().isLinux()) {
+					result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/linux"));
+				} else if (OperatingSystem.current().isWindows()) {
+					result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/win32"));
+				}
+				return result;
+			}));
+		});
+
+		binary.getTasks().withType(CCompile.class, task -> {
 			// configure includes using the native incoming compile configuration
 			task.setDebuggable(true);
 			task.setOptimized(false);
