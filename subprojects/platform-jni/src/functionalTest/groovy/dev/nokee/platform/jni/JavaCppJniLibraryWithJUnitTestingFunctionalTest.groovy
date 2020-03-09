@@ -1,11 +1,12 @@
 package dev.nokee.platform.jni
 
-import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
+
+import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.nokee.language.MixedLanguageTaskNames
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
 
-class JavaJniLibraryWithJUnitTestingFunctionalTest extends AbstractFunctionalSpec implements MixedLanguageTaskNames {
+class JavaCppJniLibraryWithJUnitTestingFunctionalTest extends AbstractInstalledToolChainIntegrationSpec implements MixedLanguageTaskNames {
     def "can test library using JUnit"() {
         makeSingleProject()
         componentUnderTest.writeToProject(testDirectory)

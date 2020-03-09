@@ -1,6 +1,7 @@
 package dev.nokee.platform.jni
 
-import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
+
+import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.language.MixedLanguageTaskNames
@@ -8,7 +9,7 @@ import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 
 import static org.hamcrest.CoreMatchers.containsString
 
-class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements MixedLanguageTaskNames {
+class JavaCppJniLibraryFunctionalTest extends AbstractInstalledToolChainIntegrationSpec implements MixedLanguageTaskNames {
 	def "can apply plugins in what ever order"(pluginIds) {
 		given:
 		settingsFile << "rootProject.name = 'library'"
@@ -32,7 +33,7 @@ class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements 
 		return result
 	}
 
-    def "generates a empty JAR when no souce"() {
+	def "generates a empty JAR when no souce"() {
         given:
         makeSingleProject()
 
@@ -79,8 +80,8 @@ class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements 
         result.assertTasksExecuted(taskNames.cpp.tasks.allToSharedLibrary, taskNames.java.tasks.allToJar, ':assemble')
         result.assertTasksSkipped(taskNames.java.tasks.processResources)
 
-		file('build/libs').assertHasDescendants('main/shared/libjni-greeter.dylib', 'jni-greeter.jar')
-		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', 'libjni-greeter.dylib')
+		file('build/libs').assertHasDescendants(sharedLibraryName('main/shared/jni-greeter'), 'jni-greeter.jar')
+		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', sharedLibraryName('jni-greeter'))
     }
 
     def "build logic can change build directory location"() {
@@ -98,8 +99,8 @@ class JavaCppJniLibraryFunctionalTest extends AbstractFunctionalSpec implements 
 
         !file('build').exists()
         file('output/objs/main/shared/mainCpp').assertIsDirectory()
-		file('output/libs').assertHasDescendants('main/shared/libjni-greeter.dylib', 'jni-greeter.jar')
-		jar("output/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', 'libjni-greeter.dylib')
+		file('output/libs').assertHasDescendants(sharedLibraryName('main/shared/jni-greeter'), 'jni-greeter.jar')
+		jar("output/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', sharedLibraryName('jni-greeter'))
     }
 
     def "generate JNI headers when compiling Java source code"() {

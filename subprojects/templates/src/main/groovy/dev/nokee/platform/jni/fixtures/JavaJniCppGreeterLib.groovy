@@ -113,9 +113,14 @@ public class NativeLoader {
 	}
 
     private static String libFilename(String libName) {
-        // TODO depend on OS
-        return "lib" + libName + ".dylib";
-    }
+		String osName = System.getProperty("os.name").toLowerCase();
+		if (osName.indexOf("win") >= 0) {
+			return libName + ".dll";
+		} else if (osName.indexOf("mac") >= 0) {
+			return "lib" + libName + ".dylib";
+		}
+		return "lib" + libName + ".so";
+	}
 }
 """))
 	}

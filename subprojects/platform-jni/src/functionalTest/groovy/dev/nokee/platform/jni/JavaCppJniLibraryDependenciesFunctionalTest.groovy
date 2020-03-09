@@ -1,10 +1,11 @@
 package dev.nokee.platform.jni
 
-import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
+
+import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 
-class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractFunctionalSpec {
+class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "can define api dependencies on component"() {
 		given:
 		makeComponentWithLibraries()
@@ -21,7 +22,7 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractFunctionalSpec
 		run('assemble')
 
 		then:
-		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'libjni-greeter.dylib', 'libcpp-library.dylib')
+		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', sharedLibraryName('jni-greeter'), sharedLibraryName('cpp-library'))
 	}
 
 	def "can define implementation dependencies on component"() {
@@ -40,7 +41,7 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractFunctionalSpec
 		run('assemble')
 
 		then:
-		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'libjni-greeter.dylib', 'libcpp-library.dylib')
+		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', sharedLibraryName('jni-greeter'), sharedLibraryName('cpp-library'))
 	}
 
 	def "can define an included build api dependencies on component"() {
@@ -59,7 +60,7 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractFunctionalSpec
 		run('assemble')
 
 		then:
-		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'libjni-greeter.dylib', 'libcpp-library.dylib')
+		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', sharedLibraryName('jni-greeter'), sharedLibraryName('cpp-library'))
 	}
 
 	def "can define an included build implementation dependencies on component"() {
@@ -78,7 +79,7 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractFunctionalSpec
 		run('assemble')
 
 		then:
-		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'libjni-greeter.dylib', 'libcpp-library.dylib')
+		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', sharedLibraryName('jni-greeter'), sharedLibraryName('cpp-library'))
 	}
 
 //	def "can define implementation dependencies on each variant"() {
@@ -99,7 +100,7 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractFunctionalSpec
 //		run('assemble')
 //
 //		then:
-//		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', 'libjni-greeter.dylib')
+//		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', sharedLibraryName('jni-greeter'))
 //	}
 
     protected void makeComponentWithLibraries() {
@@ -215,7 +216,7 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractFunctionalSpec
 		succeeds('assemble')
 
 		then:
-		jar('build/libs/jni-greeter.jar').hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', 'libjni-greeter.dylib')
+		jar('build/libs/jni-greeter.jar').hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', sharedLibraryName('jni-greeter'))
 		result.assertTaskNotExecuted(':cpp-greeter:compileReleaseCpp')
 		result.assertTaskNotExecuted(':cpp-greeter:createRelease')
 	}
@@ -255,7 +256,7 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractFunctionalSpec
 		succeeds('assemble')
 
 		then:
-		jar('build/libs/jni-greeter.jar').hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', 'libcpp-greeter.dylib', 'libjni-greeter.dylib')
+		jar('build/libs/jni-greeter.jar').hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', sharedLibraryName('cpp-greeter'), sharedLibraryName('jni-greeter'))
 		result.assertTaskNotExecuted(':cpp-greeter:compileReleaseCpp')
 		result.assertTaskNotExecuted(':cpp-greeter:linkRelease')
 	}

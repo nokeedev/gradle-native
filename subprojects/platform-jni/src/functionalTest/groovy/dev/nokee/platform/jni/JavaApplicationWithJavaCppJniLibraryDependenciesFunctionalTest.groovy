@@ -1,9 +1,10 @@
 package dev.nokee.platform.jni
 
-import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
+
+import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.nokee.platform.jni.fixtures.GreeterAppWithJniLibrary
 
-class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends AbstractFunctionalSpec  {
+class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec  {
     private void makeComponentWithLibrary() {
 		settingsFile << '''
             rootProject.name = 'app'
