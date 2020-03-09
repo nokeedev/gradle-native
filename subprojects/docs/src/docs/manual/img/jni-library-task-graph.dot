@@ -7,17 +7,17 @@ digraph jniLibraryTaskGraph {
   rankdir=LR
 
   subgraph cluster_cppLanguage {
-    label = "C++ Language Plugin"
-    color = black
+	label = "C++ Language Plugin"
+	color = black
 
-    compileCpp [label=<compile<i>Variant</i>>]
+	compileCpp [label=<compile<i>Variant</i>>]
   }
 
   subgraph cluster_javaLanguage {
-    label = "Java Language Plugin"
+	label = "Java Language Plugin"
 
-    {compileJava, processResources} -> classes [dir=back]
-    {rank=same compileJava processResources}
+	{compileJava, processResources} -> classes [dir=back]
+	{rank=same compileJava processResources}
   }
 
   // Styling

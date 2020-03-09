@@ -12,8 +12,8 @@ class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends 
 		makeComponentWithLibrary()
 		buildFile << '''
 			dependencies {
-                implementation project(':jni-library')
-            }
+				implementation project(':jni-library')
+			}
 		'''
 
 		when:
@@ -27,8 +27,8 @@ class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends 
 		makeComponentWithIncludedBuildLibrary()
 		buildFile << '''
 			dependencies {
-                implementation 'com.example:jni-library:4.2'
-            }
+				implementation 'com.example:jni-library:4.2'
+			}
 		'''
 
 		when:
@@ -43,8 +43,8 @@ class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends 
 		makeComponentWithLibraries()
 		buildFile << '''
 			dependencies {
-                implementation project(':jni-library')
-            }
+				implementation project(':jni-library')
+			}
 		'''
 
 		when:
@@ -58,8 +58,8 @@ class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends 
 		makeComponentWithIncludedBuildLibraries()
 		buildFile << '''
 			dependencies {
-                implementation 'com.example:jni-library:4.2'
-            }
+				implementation 'com.example:jni-library:4.2'
+			}
 		'''
 
 		when:
@@ -76,9 +76,9 @@ class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends 
 
 	private void makeComponentWithLibrary() {
 		settingsFile << '''
-            rootProject.name = 'application'
-            include 'jni-library'
-        '''
+			rootProject.name = 'application'
+			include 'jni-library'
+		'''
 		buildFile << '''
 			plugins {
 				id 'java'
@@ -101,9 +101,9 @@ class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends 
 
 	private void makeComponentWithIncludedBuildLibrary() {
 		settingsFile << '''
-            rootProject.name = 'application'
-            includeBuild 'jni-library'
-        '''
+			rootProject.name = 'application'
+			includeBuild 'jni-library'
+		'''
 		buildFile << '''
 			plugins {
 				id 'java'
@@ -129,11 +129,11 @@ class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends 
 
 	private void makeComponentWithLibraries() {
 		settingsFile << '''
-            rootProject.name = 'application'
-            include 'jni-library'
-            include 'java-library'
-            include 'cpp-library'
-        '''
+			rootProject.name = 'application'
+			include 'jni-library'
+			include 'java-library'
+			include 'cpp-library'
+		'''
 		buildFile << '''
 			plugins {
 				id 'java'
@@ -194,11 +194,11 @@ class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends 
 
 	private void makeComponentWithIncludedBuildLibraries() {
 		settingsFile << '''
-            rootProject.name = 'application'
-            includeBuild 'jni-library'
-            includeBuild 'java-library'
-            includeBuild 'cpp-library'
-        '''
+			rootProject.name = 'application'
+			includeBuild 'jni-library'
+			includeBuild 'java-library'
+			includeBuild 'cpp-library'
+		'''
 		buildFile << '''
 			plugins {
 				id 'java'

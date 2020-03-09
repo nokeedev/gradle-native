@@ -10,13 +10,13 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolC
 		given:
 		makeComponentWithLibraries()
 		buildFile << """
-            library {
-                dependencies {
-                    api project(':java-library')
-                    nativeImplementation project(':cpp-library')
-                }
-            }
-        """
+			library {
+				dependencies {
+					api project(':java-library')
+					nativeImplementation project(':cpp-library')
+				}
+			}
+		"""
 
 		when:
 		run('assemble')
@@ -29,13 +29,13 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolC
 		given:
 		makeComponentWithLibraries()
 		buildFile << """
-            library {
-                dependencies {
-                    jvmImplementation project(':java-library')
-                    nativeImplementation project(':cpp-library')
-                }
-            }
-        """
+			library {
+				dependencies {
+					jvmImplementation project(':java-library')
+					nativeImplementation project(':cpp-library')
+				}
+			}
+		"""
 
 		when:
 		run('assemble')
@@ -48,13 +48,13 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolC
 		given:
 		makeComponentWithIncludedBuildLibraries()
 		buildFile << """
-            library {
-                dependencies {
-                    api 'com.example:java-library:4.2'
-                    nativeImplementation 'com.example:cpp-library:4.2'
-                }
-            }
-        """
+			library {
+				dependencies {
+					api 'com.example:java-library:4.2'
+					nativeImplementation 'com.example:cpp-library:4.2'
+				}
+			}
+		"""
 
 		when:
 		run('assemble')
@@ -67,13 +67,13 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolC
 		given:
 		makeComponentWithIncludedBuildLibraries()
 		buildFile << """
-            library {
-                dependencies {
-                    jvmImplementation 'com.example:java-library:4.2'
-                    nativeImplementation 'com.example:cpp-library:4.2'
-                }
-            }
-        """
+			library {
+				dependencies {
+					jvmImplementation 'com.example:java-library:4.2'
+					nativeImplementation 'com.example:cpp-library:4.2'
+				}
+			}
+		"""
 
 		when:
 		run('assemble')
@@ -89,8 +89,8 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolC
 //			${componentUnderTestDsl} {
 //				variants.configureEach {
 //					dependencies {
-//                    	jvmImplementation project(':java-library')
-//                    	nativeImplementation project(':cpp-library')
+//						jvmImplementation project(':java-library')
+//						nativeImplementation project(':cpp-library')
 //					}
 //				}
 //			}
@@ -103,73 +103,73 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolC
 //		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', sharedLibraryName('jni-greeter'))
 //	}
 
-    protected void makeComponentWithLibraries() {
+	protected void makeComponentWithLibraries() {
 		settingsFile << '''
-            rootProject.name = 'jni-greeter'
-            include 'java-library'
-            include 'cpp-library'
-        '''
+			rootProject.name = 'jni-greeter'
+			include 'java-library'
+			include 'cpp-library'
+		'''
 		buildFile << '''
-            plugins {
-                id 'java'
-                id 'dev.nokee.jni-library'
-                id 'dev.nokee.cpp-language'
-            }
-        '''
+			plugins {
+				id 'java'
+				id 'dev.nokee.jni-library'
+				id 'dev.nokee.cpp-language'
+			}
+		'''
 		file('java-library/build.gradle') << '''
-            plugins {
-                id 'java-library'
-            }
-        '''
+			plugins {
+				id 'java-library'
+			}
+		'''
 		file('cpp-library/build.gradle') << '''
-            plugins {
-                id 'cpp-library'
-            }
-        '''
+			plugins {
+				id 'cpp-library'
+			}
+		'''
 
 		componentsUnderTest.jvmImplementation.writeToProject(file('java-library'))
 		componentsUnderTest.nativeImplementation.asLib().writeToProject(file('cpp-library'))
 		componentsUnderTest.nativeBindings.writeToProject(testDirectory)
 		componentsUnderTest.jvmBindings.writeToProject(testDirectory)
-    }
+	}
 
-    protected void makeComponentWithIncludedBuildLibraries() {
+	protected void makeComponentWithIncludedBuildLibraries() {
 		settingsFile << '''
-            rootProject.name = 'jni-greeter'
-            includeBuild 'java-library'
-            includeBuild 'cpp-library'
-        '''
+			rootProject.name = 'jni-greeter'
+			includeBuild 'java-library'
+			includeBuild 'cpp-library'
+		'''
 		buildFile << '''
-            plugins {
-                id 'java'
-                id 'dev.nokee.jni-library'
-                id 'dev.nokee.cpp-language'
-            }
-        '''
+			plugins {
+				id 'java'
+				id 'dev.nokee.jni-library'
+				id 'dev.nokee.cpp-language'
+			}
+		'''
 		file('java-library/settings.gradle') << "rootProject.name = 'java-library'"
 		file('java-library/build.gradle') << '''
-            plugins {
-                id 'java-library'
-            }
+			plugins {
+				id 'java-library'
+			}
 
-            group = 'com.example'
-            version = '4.2'
-        '''
+			group = 'com.example'
+			version = '4.2'
+		'''
 		file('cpp-library/settings.gradle') << "rootProject.name = 'cpp-library'"
 		file('cpp-library/build.gradle') << '''
-            plugins {
-                id 'cpp-library'
-            }
+			plugins {
+				id 'cpp-library'
+			}
 
-            group = 'com.example'
-            version = '4.2'
-        '''
+			group = 'com.example'
+			version = '4.2'
+		'''
 
 		componentsUnderTest.jvmImplementation.writeToProject(file('java-library'))
 		componentsUnderTest.nativeImplementation.asLib().writeToProject(file('cpp-library'))
 		componentsUnderTest.nativeBindings.writeToProject(testDirectory)
 		componentsUnderTest.jvmBindings.writeToProject(testDirectory)
-    }
+	}
 
 	protected JavaJniCppGreeterLib getComponentsUnderTest() {
 		return new JavaJniCppGreeterLib('jni-greeter')
@@ -192,8 +192,8 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolC
 			}
 
 			repositories {
-                mavenCentral()
-            }
+				mavenCentral()
+			}
 
 			library {
 				dependencies {
@@ -234,8 +234,8 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolC
 			}
 
 			repositories {
-                mavenCentral()
-            }
+				mavenCentral()
+			}
 
 			library {
 				dependencies {

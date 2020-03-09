@@ -2,38 +2,38 @@ import javax.annotation.Nullable
 import java.text.SimpleDateFormat
 
 plugins {
-    id 'dev.gradleplugins.java-gradle-plugin'
+	id 'dev.gradleplugins.java-gradle-plugin'
 	id 'maven-publish'
 	id 'com.jfrog.bintray' version '1.8.4'
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
 	withSourcesJar()
 	withJavadocJar()
 }
 
 repositories {
-    jcenter()
+	jcenter()
 }
 
 dependencies {
-    functionalTestImplementation gradleTestKit() // Until we support other kind of GradleExecutor
+	functionalTestImplementation gradleTestKit() // Until we support other kind of GradleExecutor
 	functionalTestImplementation "dev.nokee:templates:latest.integration"
 }
 
 gradlePlugin {
-    plugins {
-        jniLibrary {
-            id = 'dev.nokee.jni-library'
-            implementationClass = 'dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin'
-        }
-        cppLanguage {
-            id = 'dev.nokee.cpp-language'
-            implementationClass = 'dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin'
-        }
-    }
+	plugins {
+		jniLibrary {
+			id = 'dev.nokee.jni-library'
+			implementationClass = 'dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin'
+		}
+		cppLanguage {
+			id = 'dev.nokee.cpp-language'
+			implementationClass = 'dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin'
+		}
+	}
 }
 
 @Nullable

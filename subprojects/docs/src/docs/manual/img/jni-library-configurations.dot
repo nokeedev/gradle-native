@@ -19,12 +19,12 @@ digraph jniLibraryConfigurations {
 	}
 
 	subgraph right {
-        node[style=filled, fillcolor="#ea9999"]
-        apiElements -> runtimeElements [style=invis]
+		node[style=filled, fillcolor="#ea9999"]
+		apiElements -> runtimeElements [style=invis]
 
-        apiElements[label="apiElements (C)"]
-        runtimeElements[label="runtimeElements (C)"]
-    }
+		apiElements[label="apiElements (C)"]
+		runtimeElements[label="runtimeElements (C)"]
+	}
 
 	// Ensure the order is preserved
 	{rank=same nativeImplementation nativeRuntime}

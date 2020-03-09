@@ -7,14 +7,14 @@ import dev.gradleplugins.test.fixtures.sources.SourceFile;
 import java.util.List;
 
 public abstract class JniLibraryElement extends SourceElement {
-    public abstract SourceElement getJvmSources();
+	public abstract SourceElement getJvmSources();
 
-    public abstract SourceElement getNativeSources();
+	public abstract SourceElement getNativeSources();
 
-    @Override
-    public List<SourceFile> getFiles() {
-        return ofElements(getJvmSources(), getNativeSources()).getFiles();
-    }
+	@Override
+	public List<SourceFile> getFiles() {
+		return ofElements(getJvmSources(), getNativeSources()).getFiles();
+	}
 
 	@Override
 	public void writeToProject(TestFile projectDir) {

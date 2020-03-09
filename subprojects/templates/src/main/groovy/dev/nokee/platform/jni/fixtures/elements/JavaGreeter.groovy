@@ -26,9 +26,9 @@ import java.net.URL;
 import java.nio.file.Files;
 
 public class Greeter {
-    public String sayHello(String name) {
-    	return "Bonjour, " + name + "!";
-    }
+	public String sayHello(String name) {
+		return "Bonjour, " + name + "!";
+	}
 }
 """))
 	}

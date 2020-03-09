@@ -18,7 +18,7 @@ An JVM (i.e. the link:{gradle-user-manual}/java_plugin.html[Java Plugin]) and na
 [source,groovy]
 ----
 plugins {
-    id 'dev.nokee.jni-library'
+	id 'dev.nokee.jni-library'
 }
 ----
 =====
@@ -28,7 +28,7 @@ plugins {
 [source,kotlin]
 ----
 plugins {
-    id("dev.nokee.jni-library")
+	id("dev.nokee.jni-library")
 }
 ----
 =====

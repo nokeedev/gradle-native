@@ -11,47 +11,47 @@ import org.gradle.api.model.ObjectFactory;
 import javax.inject.Inject;
 
 public abstract class JniLibraryExtensionInternal implements JniLibraryExtension {
-    private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
+	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
 	private final ConfigurationContainer configurations;
 	private final Configuration nativeImplementationDependencies;
-    private final Configuration jvmImplementationDependencies;
-    private final DomainObjectSet<? super BinaryInternal> binaries;
-    private final DomainObjectSet<JniLibraryInternal> variants;
+	private final Configuration jvmImplementationDependencies;
+	private final DomainObjectSet<? super BinaryInternal> binaries;
+	private final DomainObjectSet<JniLibraryInternal> variants;
 
-    @Inject
-    public JniLibraryExtensionInternal(ObjectFactory objectFactory, ConfigurationContainer configurations, Configuration nativeImplementationDependencies, Configuration jvmImplementationDependencies) {
-        binaries = objectFactory.domainObjectSet(BinaryInternal.class);
-        sources = objectFactory.domainObjectSet(LanguageSourceSetInternal.class);
-        variants = objectFactory.domainObjectSet(JniLibraryInternal.class);
+	@Inject
+	public JniLibraryExtensionInternal(ObjectFactory objectFactory, ConfigurationContainer configurations, Configuration nativeImplementationDependencies, Configuration jvmImplementationDependencies) {
+		binaries = objectFactory.domainObjectSet(BinaryInternal.class);
+		sources = objectFactory.domainObjectSet(LanguageSourceSetInternal.class);
+		variants = objectFactory.domainObjectSet(JniLibraryInternal.class);
 		this.configurations = configurations;
 		this.nativeImplementationDependencies = nativeImplementationDependencies;
-        this.jvmImplementationDependencies = jvmImplementationDependencies;
-    }
+		this.jvmImplementationDependencies = jvmImplementationDependencies;
+	}
 
-    @Inject
+	@Inject
 	protected abstract ObjectFactory getObjectFactory();
 
-    public JniLibraryInternal newVariant() {
+	public JniLibraryInternal newVariant() {
 		return getObjectFactory().newInstance(JniLibraryInternal.class, configurations, sources, nativeImplementationDependencies);
 	}
 
-    public DomainObjectSet<? super BinaryInternal> getBinaries() {
-        return binaries;
-    }
+	public DomainObjectSet<? super BinaryInternal> getBinaries() {
+		return binaries;
+	}
 
 	public DomainObjectSet<JniLibraryInternal> getVariants() {
 		return variants;
 	}
 
 	public DomainObjectSet<? super LanguageSourceSetInternal> getSources() {
-        return sources;
-    }
+		return sources;
+	}
 
-    public Configuration getNativeImplementationDependencies() {
-        return nativeImplementationDependencies;
-    }
+	public Configuration getNativeImplementationDependencies() {
+		return nativeImplementationDependencies;
+	}
 
-    public Configuration getJvmImplementationDependencies() {
-        return jvmImplementationDependencies;
-    }
+	public Configuration getJvmImplementationDependencies() {
+		return jvmImplementationDependencies;
+	}
 }

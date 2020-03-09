@@ -1,6 +1,6 @@
 <%
 	def path='../'
-    if (content.uri.endsWith('release_notes.html')) {
+	if (content.uri.endsWith('release_notes.html')) {
 		path=''
 	} else if (content.uri.contains('/samples/') && !content.uri.endsWith('/samples/index.html')) {
 		path = '../../'

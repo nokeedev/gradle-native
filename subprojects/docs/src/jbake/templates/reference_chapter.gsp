@@ -13,6 +13,6 @@
 				${content.body}
 			</div>
 		</div>
-    	<aside class="secondary-navigation"></aside>
+		<aside class="secondary-navigation"></aside>
 	</main>
 <% include "footer-docs.gsp" %>
