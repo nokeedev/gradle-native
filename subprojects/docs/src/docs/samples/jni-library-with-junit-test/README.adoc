@@ -7,6 +7,8 @@ NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com
 This sample shows how a Java Native Interface (JNI) library can be tested with JUnit.
 The library has a single dependency to the JUnit and the build has minimal configuration.
 
+In this sample, we are testing a JNI library implemented in Java and {cpp} with JUnit4; however, this applies to other JVM and native languages as well.
+
 ====
 [.multi-language-sample]
 =====
