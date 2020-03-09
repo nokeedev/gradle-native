@@ -1,46 +1,36 @@
-digraph jniLibraryTaskGraph {
-  graph [ dpi = 100, fontname="Sans"];
-  node [fontname = "Sans"];
-  edge [fontname = "Sans"];
-  node [shape=rectangle, fixedsize=true, width=3.3, height=0.5];
-  node [style=filled, fillcolor="#cfe2f3"]
-  rankdir=LR
+digraph jniLibraryConfigurations {
+	graph [ dpi = 100, fontname="Sans"];
+	node [fontname = "Sans"];
+	edge [fontname = "Sans"];
+	node [shape=rectangle, fixedsize=true, width=2.5, height=0.5];
 
-  subgraph cluster_cppLanguage {
-    label = "C++ Language Plugin"
-    color = black
+	subgraph central {
+		node[style=filled, fillcolor=white]
+		api -> jvmImplementation -> nativeImplementation [style=invis weight=1000]
+		jvmImplementation -> api [headport=s tailport=n]
+	}
 
-    compileCpp [label=<compile<i>Variant</i>>]
-  }
+	subgraph left {
+		node[style=filled, fillcolor="#cfe2f3"]
+		nativeLink[label=<nativeLink<i>Variant</i> (R)>]
+		nativeRuntime[label=<nativeRuntime<i>Variant</i> (R)>]
 
-  subgraph cluster_javaLanguage {
-    label = "Java Language Plugin"
+		nativeLink -> nativeRuntime [style=invis]
+	}
 
-    {compileJava, processResources} -> classes [dir=back]
-    {rank=same compileJava processResources}
-  }
+	subgraph right {
+        node[style=filled, fillcolor="#ea9999"]
+        apiElements -> runtimeElements [style=invis]
 
-  // Styling
-  link [style=dashed, label=<link<i>Variant</i>>]
-  sharedLibrary [style=dashed, label=<sharedLibrary<i>Variant</i>>]
-  jarNative [label=<jniJar<i>Variant</i>>]
-  jarJvm [style=dashed label="jar"]
+        apiElements[label="apiElements (C)"]
+        runtimeElements[label="runtimeElements (C)"]
+    }
 
-  // link to assemble
-  compileCpp -> link -> sharedLibrary [dir=back, style=dashed]
-  sharedLibrary -> jarNative [dir=back]
-  {rank=same sharedLibrary jarNative}
-  jarNative -> assemble [dir=back, style=dashed]
+	// Ensure the order is preserved
+	{rank=same nativeImplementation nativeRuntime}
+	{rank=same nativeLink runtimeElements jvmImplementation}
+	nativeLink -> jvmImplementation -> runtimeElements [style=invis]
 
-  // classes to assemble
-  classes -> jarJvm [dir=back, style=dashed]
-  jarJvm -> assemble [dir=back]
-
-  // assemble & check to build
-  assemble -> build [dir=back]
-  check -> build [dir=back]
-
-  // align check & clean
-  check -> clean [style=invis]
-  {rank=same check clean}
+	{nativeLink nativeRuntime} -> nativeImplementation [headport=w tailport=e]
+	{apiElements runtimeElements} -> jvmImplementation [headport=e tailport=w]
 }
