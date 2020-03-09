@@ -17,12 +17,21 @@ plugins {
 	id 'dev.nokeebuild.documentation'
 }
 
+docsTest.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
+// The following inputs cause the task to never be up-to-date.
+// The solution would be to correctly declare the input/output for `publishAllPublicationsToDocsRepository` so it doesn't republish when nothing has changed.
+// For now, it's ok, let's solve this when it becomes a real problem.
+docsTest.inputs.dir(layout.buildDirectory.dir('repository'))
+docsTest.inputs.dir('build/staging/assets/zips')
+docsTest.inputs.dir(layout.buildDirectory.dir('staging/content/docs/nightly/samples'))
+docsTest.systemProperty('dev.nokee.docsRepository', layout.buildDirectory.dir('repository').get().asFile.absolutePath)
 docsTest.systemProperty('sampleArchiveDirectory', 'build/staging/assets/zips')
 docsTest.systemProperty('sampleContentDirectory', layout.buildDirectory.dir('staging/content/docs/nightly/samples').get().asFile.absolutePath)
 docsTest.dependsOn('stage')
 dependencies {
 	docsTestImplementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
 	docsTestImplementation 'dev.gradleplugins:gradle-fixtures:latest.integration'
+	docsTestImplementation 'dev.gradleplugins:spock-gradle-fixtures:latest.integration'
 	docsTestImplementation 'dev.gradleplugins:spock-test-directory-extension:latest.integration'
 	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
 	docsTestImplementation gradleApi() // Because there are some Gradle type leaking in, TODO: remove when those leaks are patched

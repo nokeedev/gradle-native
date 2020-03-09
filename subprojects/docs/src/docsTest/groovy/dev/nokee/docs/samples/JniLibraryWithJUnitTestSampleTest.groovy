@@ -1,15 +1,12 @@
 package dev.nokee.docs.samples
 
-import dev.gradleplugins.spock.lang.CleanupTestDirectory
-import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
+
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.test.fixtures.gradle.GradleExecuterFactory
 import dev.gradleplugins.test.fixtures.gradle.executer.GradleExecuter
 import dev.gradleplugins.test.fixtures.gradle.executer.LogContent
 import dev.gradleplugins.test.fixtures.gradle.executer.OutputScrapingExecutionResult
 import dev.gradleplugins.test.fixtures.logging.ConsoleOutput
-import org.junit.Rule
-import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.util.concurrent.TimeUnit
@@ -17,11 +14,7 @@ import java.util.concurrent.TimeUnit
 import static dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl.GROOVY_DSL
 import static dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl.KOTLIN_DSL
 
-@CleanupTestDirectory
-class JniLibraryWithJUnitTestSampleTest extends Specification {
-	@Rule
-	final TestNameTestDirectoryProvider temporaryFolder = new TestNameTestDirectoryProvider()
-
+class JniLibraryWithJUnitTestSampleTest extends WellBehavingSampleTest {
 	String getSampleName() {
 		return 'jni-library-with-junit-test'
 	}
@@ -31,7 +24,7 @@ class JniLibraryWithJUnitTestSampleTest extends Specification {
 		def fixture = new SampleContentFixture(sampleName)
 		unzipTo(fixture.getDslSample(dsl), temporaryFolder.testDirectory)
 
-		GradleExecuter executer = new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory))
+		GradleExecuter executer = configureLocalPluginResolution(new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory)))
 		expect:
 		executer.withTasks(taskName).run()
 
@@ -44,7 +37,7 @@ class JniLibraryWithJUnitTestSampleTest extends Specification {
 		def fixture = new SampleContentFixture(sampleName)
 		unzipTo(fixture.getDslSample(dsl), temporaryFolder.testDirectory)
 
-		GradleExecuter executer = new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory)).withConsole(ConsoleOutput.Rich)
+		GradleExecuter executer = configureLocalPluginResolution(new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory)).withConsole(ConsoleOutput.Rich))
 		expect:
 		fixture.getCommands().size() == 1
 		def command = fixture.getCommands()[0]

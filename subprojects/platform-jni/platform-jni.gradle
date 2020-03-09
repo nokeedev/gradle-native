@@ -36,6 +36,15 @@ gradlePlugin {
 	}
 }
 
+publishing {
+	repositories {
+		maven {
+			name = 'docs'
+			url = project(':docs').layout.buildDirectory.dir('repository')
+		}
+	}
+}
+
 @Nullable
 private String resolveProperty(Project project, String envVarKey, String projectPropKey) {
 	Object propValue = System.getenv().get(envVarKey);
