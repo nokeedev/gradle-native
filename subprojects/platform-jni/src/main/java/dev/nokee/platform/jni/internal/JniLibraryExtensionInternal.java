@@ -2,7 +2,9 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.internal.BinaryInternal;
+import dev.nokee.platform.jni.JniLibraryDependencies;
 import dev.nokee.platform.jni.JniLibraryExtension;
+import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -13,26 +15,24 @@ import javax.inject.Inject;
 public abstract class JniLibraryExtensionInternal implements JniLibraryExtension {
 	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
 	private final ConfigurationContainer configurations;
-	private final Configuration nativeImplementationDependencies;
-	private final Configuration jvmImplementationDependencies;
+	private final JniLibraryDependenciesInternal dependencies;
 	private final DomainObjectSet<? super BinaryInternal> binaries;
 	private final DomainObjectSet<JniLibraryInternal> variants;
 
 	@Inject
-	public JniLibraryExtensionInternal(ObjectFactory objectFactory, ConfigurationContainer configurations, Configuration nativeImplementationDependencies, Configuration jvmImplementationDependencies) {
+	public JniLibraryExtensionInternal(ObjectFactory objectFactory, ConfigurationContainer configurations, JniLibraryDependenciesInternal dependencies) {
 		binaries = objectFactory.domainObjectSet(BinaryInternal.class);
 		sources = objectFactory.domainObjectSet(LanguageSourceSetInternal.class);
 		variants = objectFactory.domainObjectSet(JniLibraryInternal.class);
 		this.configurations = configurations;
-		this.nativeImplementationDependencies = nativeImplementationDependencies;
-		this.jvmImplementationDependencies = jvmImplementationDependencies;
+		this.dependencies = dependencies;
 	}
 
 	@Inject
 	protected abstract ObjectFactory getObjectFactory();
 
 	public JniLibraryInternal newVariant() {
-		return getObjectFactory().newInstance(JniLibraryInternal.class, configurations, sources, nativeImplementationDependencies);
+		return getObjectFactory().newInstance(JniLibraryInternal.class, configurations, sources, dependencies.getNativeDependencies());
 	}
 
 	public DomainObjectSet<? super BinaryInternal> getBinaries() {
@@ -48,10 +48,20 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	}
 
 	public Configuration getNativeImplementationDependencies() {
-		return nativeImplementationDependencies;
+		return dependencies.getNativeDependencies();
 	}
 
 	public Configuration getJvmImplementationDependencies() {
-		return jvmImplementationDependencies;
+		return dependencies.getJvmDependencies();
+	}
+
+	@Override
+	public JniLibraryDependencies getDependencies() {
+		return dependencies;
+	}
+
+	@Override
+	public void dependencies(Action<? super JniLibraryDependencies> action) {
+		action.execute(dependencies);
 	}
 }

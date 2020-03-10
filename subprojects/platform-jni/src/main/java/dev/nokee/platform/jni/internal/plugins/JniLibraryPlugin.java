@@ -2,6 +2,7 @@ package dev.nokee.platform.jni.internal.plugins;
 
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.platform.jni.JniLibraryExtension;
+import dev.nokee.platform.jni.internal.JniLibraryDependenciesInternal;
 import dev.nokee.platform.jni.internal.JniLibraryExtensionInternal;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
 import org.gradle.api.GradleException;
@@ -78,16 +79,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private JniLibraryExtensionInternal registerExtension(Project project) {
-		Configuration nativeImplementation = project.getConfigurations().create("nativeImplementation", configuration -> {
-			configuration.setCanBeResolved(false);
-			configuration.setCanBeConsumed(false);
-		});
-
-		Configuration jvmApi = project.getConfigurations().create("api", configuration -> {
-			configuration.setCanBeResolved(false);
-			configuration.setCanBeConsumed(false);
-		});
-
+		JniLibraryDependenciesInternal dependencies = project.getObjects().newInstance(JniLibraryDependenciesInternal.class);
 		Configuration jvmApiElements = Optional.ofNullable(project.getConfigurations().findByName("apiElements")).orElseGet(() -> {
 			return project.getConfigurations().create("apiElements", configuration -> {
 				configuration.setCanBeResolved(false);
@@ -98,7 +90,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				});
 			});
 		});
-		jvmApiElements.extendsFrom(jvmApi);
+		jvmApiElements.extendsFrom(dependencies.getApiDependencies());
 
 
 		Configuration jvmRuntimeElements = Optional.ofNullable(project.getConfigurations().findByName("runtimeElements")).orElseGet(() -> {
@@ -111,15 +103,9 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				});
 			});
 		});
-		jvmRuntimeElements.extendsFrom(jvmApi);
+		jvmRuntimeElements.extendsFrom(dependencies.getApiDependencies());
 
-		Configuration jvmImplementation = project.getConfigurations().create("jvmImplementation", configuration -> {
-			configuration.setCanBeResolved(false);
-			configuration.setCanBeConsumed(false);
-			configuration.extendsFrom(jvmApi);
-		});
-
-		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, project.getConfigurations(), nativeImplementation, jvmImplementation);
+		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, dependencies);
 		project.getExtensions().add(JniLibraryExtension.class, "library", library);
 		return library;
 	}
