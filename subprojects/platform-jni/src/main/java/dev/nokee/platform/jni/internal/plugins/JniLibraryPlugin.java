@@ -5,6 +5,7 @@ import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.JniLibraryDependenciesInternal;
 import dev.nokee.platform.jni.internal.JniLibraryExtensionInternal;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
+import dev.nokee.platform.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -42,7 +43,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
 		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJniHeaderSourceSet(project, extension));
 		project.getPluginManager().withPlugin("java-library", appliedPlugin -> { throw new GradleException("Use java plugin instead"); });
-		project.getPlugins().withType(NativeComponentPlugin.class, appliedPlugin -> {
+		project.getPlugins().withType(NativePlatformCapabilitiesMarkerPlugin.class, appliedPlugin -> {
 			project.getPluginManager().apply(JniLibraryRules.class);
 		});
 
