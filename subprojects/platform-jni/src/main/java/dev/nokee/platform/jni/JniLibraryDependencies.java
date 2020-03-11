@@ -13,6 +13,7 @@ public interface JniLibraryDependencies {
 	 * Adds an JVM API dependency to this library. An API dependency is made visible to consumers that are compiled against this component.
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+	 * @since 0.1
 	 */
 	void api(Object notation);
 
@@ -21,6 +22,7 @@ public interface JniLibraryDependencies {
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 * @param action The action to run to configure the dependency.
+	 * @since 0.1
 	 */
 	void api(Object notation, Action<? super ExternalModuleDependency> action);
 
@@ -28,6 +30,7 @@ public interface JniLibraryDependencies {
 	 * Adds an JVM implementation dependency to this library. An implementation dependency is not visible to consumers that are compiled against this component.
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+	 * @since 0.1
 	 */
 	void jvmImplementation(Object notation);
 
@@ -36,6 +39,7 @@ public interface JniLibraryDependencies {
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 * @param action The action to run to configure the dependency.
+	 * @since 0.1
 	 */
 	void jvmImplementation(Object notation, Action<? super ExternalModuleDependency> action);
 
@@ -43,6 +47,7 @@ public interface JniLibraryDependencies {
 	 * Adds an native implementation dependency to this component. An implementation dependency is not visible to consumers that are compiled against this component.
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+	 * @since 0.1
 	 */
 	void nativeImplementation(Object notation);
 
@@ -51,6 +56,7 @@ public interface JniLibraryDependencies {
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 * @param action The action to run to configure the dependency.
+	 * @since 0.1
 	 */
 	void nativeImplementation(Object notation, Action<? super ExternalModuleDependency> action);
 }

@@ -12,13 +12,17 @@ import org.gradle.api.Action;
 public interface JniLibraryExtension {
 	/**
 	 * Returns the dependencies of this component.
+	 *
+	 * @return a {@link JniLibraryDependencies}, never null.
+	 * @since 0.1
 	 */
 	JniLibraryDependencies getDependencies();
 
 	/**
 	 * Configure the dependencies of this component.
 	 *
-	 * @param action configuration
+	 * @param action configuration action for {@link JniLibraryDependencies}.
+	 * @since 0.1
 	 */
 	void dependencies(Action<? super JniLibraryDependencies> action);
 }
