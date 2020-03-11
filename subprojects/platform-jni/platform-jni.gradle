@@ -23,6 +23,10 @@ dependencies {
 	functionalTestImplementation "dev.nokee:templates:latest.integration"
 }
 
+tasks.named('javadoc', Javadoc) {
+	exclude('**/internal/**')
+}
+
 gradlePlugin {
 	plugins {
 		jniLibrary {
