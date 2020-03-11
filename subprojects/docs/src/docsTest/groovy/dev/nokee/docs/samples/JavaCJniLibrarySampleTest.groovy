@@ -24,7 +24,7 @@ class JavaCJniLibrarySampleTest extends WellBehavingSampleTest {
 		def fixture = new SampleContentFixture(sampleName)
 		unzipTo(fixture.getDslSample(dsl), temporaryFolder.testDirectory)
 
-		GradleExecuter executer = new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory))
+		GradleExecuter executer = configureLocalPluginResolution(new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory)))
 		expect:
 		executer.withTasks(taskName).run()
 
@@ -37,7 +37,7 @@ class JavaCJniLibrarySampleTest extends WellBehavingSampleTest {
 		def fixture = new SampleContentFixture(sampleName)
 		unzipTo(fixture.getDslSample(dsl), temporaryFolder.testDirectory)
 
-		GradleExecuter executer = new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory)).withConsole(ConsoleOutput.Rich)
+		GradleExecuter executer = configureLocalPluginResolution(new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory)).withConsole(ConsoleOutput.Rich))
 		expect:
 		fixture.getCommands().size() == 1
 		def command = fixture.getCommands()[0]

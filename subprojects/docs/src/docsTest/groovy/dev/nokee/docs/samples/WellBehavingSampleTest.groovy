@@ -7,11 +7,11 @@ import org.junit.Rule
 import spock.lang.Specification
 
 @CleanupTestDirectory
-class WellBehavingSampleTest extends Specification {
+abstract class WellBehavingSampleTest extends Specification {
 	@Rule
 	final TestNameTestDirectoryProvider temporaryFolder = new TestNameTestDirectoryProvider()
 
-	GradleExecuter configureLocalPluginResolution(GradleExecuter executer) {
+	protected GradleExecuter configureLocalPluginResolution(GradleExecuter executer) {
 		def initScriptFile = temporaryFolder.file('repo.init.gradle')
 		initScriptFile << """
 			settingsEvaluated { settings ->
