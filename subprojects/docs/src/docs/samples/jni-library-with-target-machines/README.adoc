@@ -1,0 +1,50 @@
+= JNI Library with Target Machines
+:jbake-type: sample_chapter
+:jbake-tags: sample, jni, junit
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how a Java Native Interface (JNI) library can target multiple machines.
+The library has no dependencies and the build has minimal configuration.
+
+In this sample, we are configuring the target machines of a JNI library implemented in Java and {cpp}; however, this applies to other JVM and native languages as well.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::{includedir}/groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::{includedir}/kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+
+To build the library:
+
+[listing.terminal]
+----
+$ ./gradlew assemble
+
+BUILD SUCCESSFUL
+5 actionable tasks: 5 executed
+----
+
+The JNI library JARs produced inside `./build/libs` directory:
+
+[listing]
+----
+$ ls ./build/libs/*.jar
+./build/libs/jni-library-with-target-machines.jar
+./build/libs/jni-library-with-target-machines-macOS.jar
+----
+
+For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin reference chapter>>.

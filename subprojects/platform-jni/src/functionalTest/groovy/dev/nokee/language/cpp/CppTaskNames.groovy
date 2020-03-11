@@ -42,7 +42,7 @@ trait CppTaskNames implements LanguageTaskNames {
 		}
 
 		List<String> getAllToAssemble() {
-			return allToLink + [assemble]
+			return allToSharedLibrary + [assemble]
 		}
 
 		private withProject(String t) {

@@ -2,9 +2,10 @@ package dev.nokee.platform.jni.internal.plugins;
 
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.platform.jni.JniLibraryExtension;
-import dev.nokee.platform.jni.internal.JniLibraryDependenciesInternal;
-import dev.nokee.platform.jni.internal.JniLibraryExtensionInternal;
-import dev.nokee.platform.jni.internal.JniLibraryInternal;
+import dev.nokee.platform.jni.internal.*;
+import dev.nokee.platform.nativebase.TargetMachine;
+import dev.nokee.platform.nativebase.TargetMachineFactory;
+import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
@@ -13,31 +14,42 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
-import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
+import org.gradle.language.nativeplatform.internal.toolchains.ToolChainSelector;
+import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
 import org.gradle.util.GradleVersion;
 
+import javax.inject.Inject;
 import java.io.File;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 
-public class JniLibraryPlugin implements Plugin<Project> {
+public abstract class JniLibraryPlugin implements Plugin<Project> {
+	private final ToolChainSelectorInternal toolChainSelector = getObjectFactory().newInstance(ToolChainSelectorInternal.class);
+
 	@Override
 	public void apply(Project project) {
+		TaskContainer tasks = project.getTasks();
 		project.getPluginManager().apply("base");
 		project.getPluginManager().apply("lifecycle-base");
+		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
-		JniLibraryExtensionInternal extension = registerExtension(project);
+		DefaultTargetMachineFactory targetMachineFactory = registerTargetMachineFactoryAsExtension(project.getExtensions());
+		JniLibraryExtensionInternal extension = registerExtension(project, targetMachineFactory);
 
 		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
@@ -52,11 +64,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			library.getJar().getJarTask().configure(it -> it.from(library.getNativeRuntimeFiles()));
 		});
 
-		// Attach JNI Jar to assemble
-		extension.getVariants().configureEach(library -> {
-			project.getTasks().named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME, it -> it.dependsOn(library.getJar().getJarTask()));
-		});
-
 		// Attach JNI Jar to runtimeElements
 		extension.getVariants().configureEach(library -> {
 			// TODO: Maybe go through the source set instead
@@ -64,22 +71,91 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			project.getConfigurations().getByName("runtimeElements").getOutgoing().artifact(library.getJar().getArchiveFile());
 		});
 
+		// Names
+		NamingSchemeFactory namingSchemeFactory = new NamingSchemeFactory(project.getName());
+		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent();
+
 		project.afterEvaluate(proj -> {
-			// Find toolchain capable of building C++
-			JniLibraryInternal library = extension.newVariant();
-			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language") || proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
-				library.registerSharedLibraryBinary();
-			}
-			if (proj.getPluginManager().hasPlugin("java")) {
-				library.registerJniJarBinary(project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class));
-			} else {
-				library.registerJniJarBinary();
-			}
-			extension.getVariants().add(library);
+			extension.getTargetMachines().disallowChanges();
+			extension.getTargetMachines().finalizeValue();
+			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
+			assertNonEmpty(extension.getTargetMachines().get(), "target machine", "library");
+			assertTargetMachinesAreKnown(targetMachines);
+
+			targetMachines.stream().filter(toolChainSelector::canBuild).forEach(targetMachine -> {
+
+				NamingScheme names = mainComponentNames;
+				names = names.withVariantDimension((DefaultOperatingSystemFamily)targetMachine.getOperatingSystemFamily(), targetMachinesToOperatingSystems(targetMachines));
+				names = names.withVariantDimension((DefaultMachineArchitecture)targetMachine.getArchitecture(), targetMachinesToArchitectures(targetMachines));
+
+				// Find toolchain capable of building C++
+				JniLibraryInternal library = extension.newVariant(names, targetMachine);
+				if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language") || proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
+					library.registerSharedLibraryBinary();
+				}
+				if (proj.getPluginManager().hasPlugin("java") && targetMachines.size() == 1) {
+					library.registerJniJarBinary(project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class));
+				} else {
+					library.registerJniJarBinary();
+				}
+
+				// Attach JNI Jar to assemble task
+				if (DefaultTargetMachine.isTargetingHost().test(targetMachine)) {
+					// Attach JNI Jar to assemble
+					project.getTasks().named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME, it -> it.dependsOn(library.getJar().getJarTask()));
+				}
+
+				extension.getVariants().add(library);
+			});
+		});
+
+
+		// Warn if component is cannot build on this machine
+		tasks.named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME, task -> {
+			task.dependsOn((Callable) () -> {
+				boolean targetsCurrentMachine = extension.getTargetMachines().get().stream().anyMatch(toolChainSelector::canBuild);
+				if (!targetsCurrentMachine) {
+					task.getLogger().warn("'main' component in project '" + project.getPath() + "' cannot build on this machine.");
+				}
+				return Collections.emptyList();
+			});
 		});
 	}
 
-	private JniLibraryExtensionInternal registerExtension(Project project) {
+	private static Set<DefaultOperatingSystemFamily> targetMachinesToOperatingSystems(Collection<TargetMachine> targetMachines) {
+		return targetMachines.stream().map(it -> ((DefaultTargetMachine)it).getOperatingSystemFamily()).collect(Collectors.toSet());
+	}
+
+	private static Set<DefaultMachineArchitecture> targetMachinesToArchitectures(Collection<TargetMachine> targetMachines) {
+		return targetMachines.stream().map(it -> ((DefaultTargetMachine)it).getArchitecture()).collect(Collectors.toSet());
+	}
+
+	private static DefaultTargetMachineFactory registerTargetMachineFactoryAsExtension(ExtensionContainer extensions) {
+		DefaultTargetMachineFactory targetMachineFactory = new DefaultTargetMachineFactory();
+		extensions.add(TargetMachineFactory.class, "machines", targetMachineFactory);
+		return targetMachineFactory;
+	}
+
+	@Inject
+	protected abstract ToolChainSelector getToolChainSelector();
+
+	@Inject
+	protected abstract ObjectFactory getObjectFactory();
+
+	private static void assertNonEmpty(Collection<?> values, String propertyName, String componentName) {
+		if (values.isEmpty()) {
+			throw new IllegalArgumentException(String.format("A %s needs to be specified for the %s.", propertyName, componentName));
+		}
+	}
+
+	private void assertTargetMachinesAreKnown(Collection<TargetMachine> targetMachines) {
+		List<TargetMachine> unknownTargetMachines = targetMachines.stream().filter(it -> !toolChainSelector.isKnown(it)).collect(Collectors.toList());
+		if (!unknownTargetMachines.isEmpty()) {
+			throw new IllegalArgumentException("The following target machines are not know by the defined tool chains:\n" + unknownTargetMachines.stream().map(it -> " * " + ((DefaultOperatingSystemFamily)it.getOperatingSystemFamily()).getName() + " " + ((DefaultMachineArchitecture)it.getArchitecture()).getName()).collect(joining("\n")));
+		}
+	}
+
+	private JniLibraryExtensionInternal registerExtension(Project project, DefaultTargetMachineFactory targetMachineFactory) {
 		JniLibraryDependenciesInternal dependencies = project.getObjects().newInstance(JniLibraryDependenciesInternal.class);
 		Configuration jvmApiElements = Optional.ofNullable(project.getConfigurations().findByName("apiElements")).orElseGet(() -> {
 			return project.getConfigurations().create("apiElements", configuration -> {
@@ -107,6 +183,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		jvmRuntimeElements.extendsFrom(dependencies.getApiDependencies());
 
 		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, dependencies);
+		library.getTargetMachines().convention(singletonList(targetMachineFactory.host()));
 		project.getExtensions().add(JniLibraryExtension.class, "library", library);
 		return library;
 	}

@@ -19,8 +19,17 @@ repositories {
 }
 
 dependencies {
+	implementation 'com.google.guava:guava:28.0-jre'
+	implementation 'org.apache.commons:commons-lang3:3.9'
+
+	def lombokVersion = '1.18.12'
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
 	functionalTestImplementation gradleTestKit() // Until we support other kind of GradleExecutor
-	functionalTestImplementation "dev.nokee:templates:latest.integration"
+	functionalTestImplementation 'dev.nokee:templates:latest.integration'
+
+	testImplementation 'org.spockframework:spock-core:1.2-groovy-2.5'
 }
 
 tasks.named('javadoc', Javadoc) {

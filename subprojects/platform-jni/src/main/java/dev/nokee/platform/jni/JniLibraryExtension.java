@@ -1,6 +1,9 @@
 package dev.nokee.platform.jni;
 
+import dev.nokee.platform.nativebase.TargetMachine;
+import dev.nokee.platform.nativebase.TargetMachineFactory;
 import org.gradle.api.Action;
+import org.gradle.api.provider.SetProperty;
 
 /**
  * Configuration for a Java Native Interface (JNI) library, defining the dependencies that make up the library plus other settings.
@@ -25,4 +28,18 @@ public interface JniLibraryExtension {
 	 * @since 0.1
 	 */
 	void dependencies(Action<? super JniLibraryDependencies> action);
+
+	/**
+	 * Specifies the target machines this component should be built for.
+	 * The "machines" extension property (see {@link TargetMachineFactory}) can be used to construct common operating system and architecture combinations.
+	 *
+	 * <p>For example:</p>
+	 * <pre>
+	 * targetMachines = [machines.linux.x86_64, machines.windows.x86_64]
+	 * </pre>
+	 *
+	 * @return a property for configuring the {@link TargetMachine}.
+	 * @since 0.1
+	 */
+	SetProperty<TargetMachine> getTargetMachines();
 }

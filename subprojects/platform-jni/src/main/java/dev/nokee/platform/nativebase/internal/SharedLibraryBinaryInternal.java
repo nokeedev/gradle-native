@@ -3,6 +3,7 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.platform.base.internal.BinaryInternal;
+import dev.nokee.platform.jni.internal.NamingScheme;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -32,7 +33,7 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
 
 	@Inject
-	public SharedLibraryBinaryInternal(TaskContainer tasks, ConfigurationContainer configurations, ObjectFactory objectFactory, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation) {
+	public SharedLibraryBinaryInternal(NamingScheme names, TaskContainer tasks, ConfigurationContainer configurations, ObjectFactory objectFactory, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation) {
 		this.tasks = tasks;
 		sources = objectFactory.domainObjectSet(LanguageSourceSetInternal.class);
 		parentSources.all(it -> sources.add(it));
@@ -45,14 +46,14 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 		final Usage linkUsage = objectFactory.named(Usage.class, Usage.NATIVE_LINK);
 
 		// incoming compile time headers - this represents the headers we consume
-		this.cppCompile = configurations.create("cppCompile", it -> {
+		this.cppCompile = configurations.create(names.getConfigurationName("headerSearchPaths"), it -> {
 			it.setCanBeConsumed(false);
 			it.extendsFrom(implementation);
 			it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, cppApiUsage);
 		});
 
 		// incoming linktime libraries (i.e. static libraries) - this represents the libraries we consume
-		this.cppLinkDebug = configurations.create("cppLink", it -> {
+		this.cppLinkDebug = configurations.create(names.getConfigurationName("nativeLink"), it -> {
 			it.setCanBeConsumed(false);
 			it.extendsFrom(implementation);
 			it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, linkUsage);

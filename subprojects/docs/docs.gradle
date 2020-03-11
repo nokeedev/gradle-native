@@ -91,6 +91,7 @@ components.add(dslSampleArchiveSourceSet)
 	new Sample('java-cpp-jni-library', new JavaJniCppGreeterLib('java-cpp-jni-library')),
 	new Sample('java-c-jni-library', new JavaJniCGreeterLib('java-c-jni-library')),
 	new Sample('jni-library-with-junit-test', new JavaJniCppGreeterLib('jni-library-with-junit-test').withJUnitTest()),
+	new Sample('jni-library-with-target-machines', new JavaJniCppGreeterLib('jni-library-with-target-machines')),
 ].each { Sample sample ->
 	String nameAsCamelCase = GUtil.toCamelCase(sample.name)
 

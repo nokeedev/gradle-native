@@ -4,11 +4,13 @@ import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.internal.BinaryInternal;
 import dev.nokee.platform.jni.JniLibraryDependencies;
 import dev.nokee.platform.jni.JniLibraryExtension;
+import dev.nokee.platform.nativebase.TargetMachine;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
 
@@ -31,8 +33,8 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	@Inject
 	protected abstract ObjectFactory getObjectFactory();
 
-	public JniLibraryInternal newVariant() {
-		return getObjectFactory().newInstance(JniLibraryInternal.class, configurations, sources, dependencies.getNativeDependencies());
+	public JniLibraryInternal newVariant(NamingScheme names, TargetMachine targetMachine) {
+		return getObjectFactory().newInstance(JniLibraryInternal.class, names, configurations, sources, dependencies.getNativeDependencies(), targetMachine);
 	}
 
 	public DomainObjectSet<? super BinaryInternal> getBinaries() {
@@ -64,4 +66,7 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	public void dependencies(Action<? super JniLibraryDependencies> action) {
 		action.execute(dependencies);
 	}
+
+	@Override
+	public abstract SetProperty<TargetMachine> getTargetMachines();
 }

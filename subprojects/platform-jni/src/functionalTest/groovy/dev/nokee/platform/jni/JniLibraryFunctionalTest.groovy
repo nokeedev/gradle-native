@@ -44,7 +44,7 @@ class JniLibraryFunctionalTest extends AbstractFunctionalSpec {
 		new JavaGreeter().writeToProject(file('producer'))
 
 		when:
-		succeeds(':consumer:run')
+		succeeds ':consumer:run'
 
 		then:
 		outputContains('Bonjour, World!')
@@ -109,7 +109,7 @@ class JniLibraryFunctionalTest extends AbstractFunctionalSpec {
 		fixture.nativeBindings.withJniGeneratedHeader().writeToProject(file('producer'))
 
 		when:
-		succeeds(':consumer:run')
+		succeeds ':consumer:run'
 
 		then:
 		outputContains('Bonjour, World!')
@@ -141,7 +141,7 @@ class JniLibraryFunctionalTest extends AbstractFunctionalSpec {
 		new JavaGreeter().writeToProject(file('consumer'))
 
 		when:
-		succeeds(':consumer:run')
+		succeeds ':consumer:run'
 
 		then:
 		outputContains('Bonjour, World!')
@@ -156,7 +156,7 @@ class JniLibraryFunctionalTest extends AbstractFunctionalSpec {
 		'''
 
 		when:
-		succeeds('assemble')
+		succeeds 'assemble'
 
 		then:
 		jar('build/libs/library.jar').hasDescendants()
@@ -173,7 +173,7 @@ class JniLibraryFunctionalTest extends AbstractFunctionalSpec {
 		file('src/main/c/broken.c') << 'broken!'
 
 		expect:
-		succeeds('assemble')
+		succeeds 'assemble'
 	}
 
 	protected JarTestFixture jar(String path) {

@@ -206,6 +206,46 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 		result.assertOutputContains(componentsUnderTest.expectedOutput)
 	}
 
+	def "can define implementation dependencies on component with target machines"() {
+		makeComponentWithLibrary()
+		buildFile << '''
+			dependencies {
+				implementation project(':jni-library')
+			}
+		'''
+		file('jni-library/build.gradle') << '''
+			library {
+				targetMachines = [machines.windows, machines.linux, machines.macOS]
+			}
+		'''
+
+		when:
+		run('run')
+
+		then:
+		result.assertOutputContains(componentsUnderTest.expectedOutput)
+	}
+
+	def "can define an included build implementation dependencies on component with target machines"() {
+		makeComponentWithIncludedBuildLibrary()
+		buildFile << '''
+			dependencies {
+				implementation 'com.example:jni-library:4.2'
+			}
+		'''
+		file('jni-library/build.gradle') << '''
+			library {
+				targetMachines = [machines.windows, machines.linux, machines.macOS]
+			}
+		'''
+
+		when:
+		run('run')
+
+		then:
+		result.assertOutputContains(componentsUnderTest.expectedOutput)
+	}
+
 	def "can consume transitive dependencies on component"() {
 		given:
 		makeComponentWithLibraries()
