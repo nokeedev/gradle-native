@@ -30,6 +30,7 @@
 		<ul>
 			<li><a ${anchorOf('manual/jni_library_plugin.html')}>JNI Library Plugin</a></li>
 			<li><a ${anchorOf('manual/cpp_language_plugin.html')}>C++ Language Plugin</a></li>
+			<li><a ${anchorOf('manual/c_language_plugin.html')}>C Language Plugin</a></li>
 		</ul>
 	</ul>
 </nav>
