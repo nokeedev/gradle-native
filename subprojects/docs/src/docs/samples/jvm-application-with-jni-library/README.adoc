@@ -1,0 +1,71 @@
+= JVM Application with JNI Library
+:jbake-type: sample_chapter
+:jbake-tags: sample, jni
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how a JNI library can be used by an JVM application in Gradle.
+The library has no dependencies and the build has minimal configuration.
+
+In this sample, we are using a JNI library implemented in Java and {cpp} within a application implemented in Java; however, this applies to other JVM and native languages as well.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::{includedir}/groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::{includedir}/kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+
+To build the library:
+
+[listing.terminal]
+----
+$ ./gradlew run
+
+> Task :run
+Bonjour, World!
+
+BUILD SUCCESSFUL
+4 actionable tasks: 4 executed
+----
+
+It's also possible to build a distribution archive:
+
+[listing]
+----
+$ ./gradlew :distZip
+
+BUILD SUCCESSFUL
+4 actionable tasks: 4 executed
+$ ls ./build/distributions/*.zip
+./build/distributions/jvm-application-with-jni-library.zip
+----
+
+The distribution can be used on system where the code wasn't built, given the native part of the JNI library is supported on the platform:
+
+[listing]
+----
+$ mv ./build/distributions/jvm-application-with-jni-library.zip .
+$ ./gradlew clean
+
+BUILD SUCCESSFUL
+4 actionable tasks: 4 executed
+$ unzip jvm-application-with-jni-library.zip -d .
+...
+$ ./jvm-application-with-jni-library/bin/jvm-application-with-jni-library
+Bonjour, World!
+----
+
+For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin>>, <<../../manual/cpp_language_plugin.adoc#{cpp} Language Plugin>> and link:{gradle-user-manual}/application_plugin.html[Application Plugin] reference chapters.

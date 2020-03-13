@@ -40,6 +40,10 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 		junitTest = new JavaGreeterJUnitTest()
 	}
 
+	JavaJniCppGreeterLib withProjectName(String projectName) {
+		return new JavaJniCppGreeterLib(projectName)
+	}
+
 	JniLibraryElement withoutNativeImplementation() {
 		return new JniLibraryElement() {
 			@Override

@@ -3,6 +3,7 @@ import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.docs.Dsl
 import dev.nokee.docs.JBakeAssetSourceSet
 import dev.nokee.docs.tasks.GenerateSamplesContentTask
+import dev.nokee.platform.jni.fixtures.GreeterAppWithJniLibrary
 import dev.nokee.platform.jni.fixtures.JavaJniCGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import org.apache.tools.ant.filters.ConcatFilter
@@ -92,6 +93,7 @@ components.add(dslSampleArchiveSourceSet)
 	new Sample('java-c-jni-library', new JavaJniCGreeterLib('java-c-jni-library')),
 	new Sample('jni-library-with-junit-test', new JavaJniCppGreeterLib('jni-library-with-junit-test').withJUnitTest()),
 	new Sample('jni-library-with-target-machines', new JavaJniCppGreeterLib('jni-library-with-target-machines')),
+	new Sample('jvm-application-with-jni-library', new GreeterAppWithJniLibrary('jvm-application-with-jni-library').withLibraryAsSubproject('jni-library')),
 ].each { Sample sample ->
 	String nameAsCamelCase = GUtil.toCamelCase(sample.name)
 
