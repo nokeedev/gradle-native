@@ -3,9 +3,12 @@ package dev.nokee.docs.samples
 import dev.gradleplugins.spock.lang.CleanupTestDirectory
 import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
 import dev.gradleplugins.test.fixtures.file.TestFile
+import dev.gradleplugins.test.fixtures.gradle.GradleExecuterFactory
+import dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl
 import dev.gradleplugins.test.fixtures.gradle.executer.GradleExecuter
 import org.junit.Rule
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import java.util.concurrent.TimeUnit
 
@@ -50,5 +53,19 @@ abstract class WellBehavingSampleTest extends Specification {
 		assert process.exitValue() == 0
 		stdoutThread.join(5000)
 		stderrThread.join(5000)
+	}
+
+	@Unroll
+	def "can run './gradlew #taskName' successfully"(taskName, dsl) {
+		def fixture = new SampleContentFixture(sampleName)
+		unzipTo(fixture.getDslSample(dsl), temporaryFolder.testDirectory)
+
+		GradleExecuter executer = configureLocalPluginResolution(new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory)))
+		expect:
+		executer.withTasks(taskName).run()
+
+		where:
+		taskName << ['help', 'tasks']
+		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]
 	}
 }
