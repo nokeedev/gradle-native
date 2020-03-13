@@ -11,6 +11,7 @@
 
 	<!-- Le styles -->
 	<link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+	<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 	<link href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>css/normalize-8.0.1.css" rel="stylesheet">
 	<link href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>css/docs-asciidoctor.css" rel="stylesheet">
 	<link href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>css/docs-asciidoctor-override.css" rel="stylesheet">
