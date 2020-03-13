@@ -33,6 +33,7 @@ abstract class WellBehavingSampleTest extends Specification {
 
 	// TODO TEST: Ensure settings.gradle[.kts] contains sample name as rootProject.name
 
+	protected abstract String getSampleName();
 
 	// TODO: Migrate to TestFile
 	protected void unzipTo(TestFile zipFile, File workingDirectory) {

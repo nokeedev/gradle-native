@@ -12,9 +12,7 @@ import static dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl.GROOVY_DSL
 import static dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl.KOTLIN_DSL
 
 class JvmApplicationWithJniLibrarySampleTest extends WellBehavingSampleTest {
-	String getSampleName() {
-		return 'jvm-application-with-jni-library'
-	}
+	final String sampleName = 'jvm-application-with-jni-library'
 
 	@Unroll
 	def "can run './gradlew #taskName' successfully"(taskName, dsl) {
