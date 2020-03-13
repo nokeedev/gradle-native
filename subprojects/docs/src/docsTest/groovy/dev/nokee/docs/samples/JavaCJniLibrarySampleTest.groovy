@@ -1,6 +1,5 @@
 package dev.nokee.docs.samples
 
-
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.test.fixtures.gradle.GradleExecuterFactory
 import dev.gradleplugins.test.fixtures.gradle.executer.GradleExecuter
@@ -8,8 +7,6 @@ import dev.gradleplugins.test.fixtures.gradle.executer.LogContent
 import dev.gradleplugins.test.fixtures.gradle.executer.OutputScrapingExecutionResult
 import dev.gradleplugins.test.fixtures.logging.ConsoleOutput
 import spock.lang.Unroll
-
-import java.util.concurrent.TimeUnit
 
 import static dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl.GROOVY_DSL
 import static dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl.KOTLIN_DSL
@@ -49,22 +46,5 @@ class JavaCJniLibrarySampleTest extends WellBehavingSampleTest {
 
 		where:
 		dsl << [GROOVY_DSL, KOTLIN_DSL]
-	}
-
-	// TODO: Migrate to TestFile
-	void unzipTo(TestFile zipFile, File workingDirectory) {
-		zipFile.assertIsFile()
-		workingDirectory.mkdirs()
-		assertSuccessfulExecution(['unzip', zipFile.getCanonicalPath(), '-d', workingDirectory.getCanonicalPath()])
-	}
-
-	private void assertSuccessfulExecution(List<String> commandLine, File workingDirectory = null) {
-		def process = commandLine.execute(null, workingDirectory)
-		def stdoutThread = Thread.start { process.in.eachByte { print(new String(it)) } }
-		def stderrThread = Thread.start { process.err.eachByte { print(new String(it)) } }
-		assert process.waitFor(30, TimeUnit.SECONDS)
-		assert process.exitValue() == 0
-		stdoutThread.join(5000)
-		stderrThread.join(5000)
 	}
 }
