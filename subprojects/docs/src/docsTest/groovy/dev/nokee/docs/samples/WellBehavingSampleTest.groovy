@@ -27,4 +27,6 @@ abstract class WellBehavingSampleTest extends Specification {
 		"""
 		return executer.usingInitScript(initScriptFile)
 	}
+
+	// TODO TEST: Ensure settings.gradle[.kts] contains sample name as rootProject.name
 }
