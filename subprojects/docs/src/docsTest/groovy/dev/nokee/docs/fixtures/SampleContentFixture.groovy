@@ -1,4 +1,4 @@
-package dev.nokee.docs.samples
+package dev.nokee.docs.fixtures
 
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl

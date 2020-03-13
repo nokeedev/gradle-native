@@ -9,6 +9,7 @@ import dev.gradleplugins.test.fixtures.gradle.executer.GradleExecuter
 import dev.gradleplugins.test.fixtures.gradle.executer.LogContent
 import dev.gradleplugins.test.fixtures.gradle.executer.OutputScrapingExecutionResult
 import dev.gradleplugins.test.fixtures.logging.ConsoleOutput
+import dev.nokee.docs.fixtures.SampleContentFixture
 import org.junit.Rule
 import spock.lang.Specification
 import spock.lang.Unroll

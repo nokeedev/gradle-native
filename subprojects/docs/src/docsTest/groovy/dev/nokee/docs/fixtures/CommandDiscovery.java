@@ -1,4 +1,4 @@
-package dev.nokee.docs.samples;
+package dev.nokee.docs.fixtures;
 
 import org.asciidoctor.ast.Block;
 import org.asciidoctor.ast.StructuralNode;
