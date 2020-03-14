@@ -38,7 +38,7 @@ BUILD SUCCESSFUL
 
 The JNI library produced inside `./build/libs` directory:
 
-[listing]
+[listing.terminal]
 ----
 $ ls ./build/libs/*.jar
 ./build/libs/java-cpp-jni-library.jar

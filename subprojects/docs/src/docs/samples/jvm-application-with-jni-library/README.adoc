@@ -43,27 +43,34 @@ BUILD SUCCESSFUL
 
 It's also possible to build a distribution archive:
 
-[listing]
+[listing.terminal]
 ----
 $ ./gradlew :distZip
 
 BUILD SUCCESSFUL
-4 actionable tasks: 4 executed
+8 actionable tasks: 3 executed, 5 up-to-date
 $ ls ./build/distributions/*.zip
 ./build/distributions/jvm-application-with-jni-library.zip
 ----
 
 The distribution can be used on system where the code wasn't built, given the native part of the JNI library is supported on the platform:
 
-[listing]
+[listing.terminal]
 ----
 $ mv ./build/distributions/jvm-application-with-jni-library.zip .
 $ ./gradlew clean
 
 BUILD SUCCESSFUL
-4 actionable tasks: 4 executed
+2 actionable tasks: 2 executed
 $ unzip jvm-application-with-jni-library.zip -d .
-...
+Archive:  /Users/daniel/jvm-application-with-jni-library.zip
+   creating: /Users/daniel/jvm-application-with-jni-library/
+   creating: /Users/daniel/jvm-application-with-jni-library/lib/
+  inflating: /Users/daniel/jvm-application-with-jni-library/lib/jvm-application-with-jni-library.jar
+  inflating: /Users/daniel/jvm-application-with-jni-library/lib/jni-library.jar
+   creating: /Users/daniel/jvm-application-with-jni-library/bin/
+  inflating: /Users/daniel/jvm-application-with-jni-library/bin/jvm-application-with-jni-library
+  inflating: /Users/daniel/jvm-application-with-jni-library/bin/jvm-application-with-jni-library.bat
 $ ./jvm-application-with-jni-library/bin/jvm-application-with-jni-library
 Bonjour, World!
 ----

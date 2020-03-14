@@ -40,7 +40,7 @@ BUILD SUCCESSFUL
 
 The test result are produced inside `./build/reports/tests/`:
 
-[listing]
+[listing.terminal]
 ----
 $ ls ./build/reports/tests/test/index.html
 ./build/reports/tests/test/index.html

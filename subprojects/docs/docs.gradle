@@ -37,6 +37,7 @@ dependencies {
 	docsTestImplementation 'dev.gradleplugins:spock-test-directory-extension:latest.integration'
 	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
 	docsTestImplementation gradleApi() // Because there are some Gradle type leaking in, TODO: remove when those leaks are patched
+	docsTestImplementation 'org.apache.commons:commons-lang3:3.9'
 }
 
 class Sample {

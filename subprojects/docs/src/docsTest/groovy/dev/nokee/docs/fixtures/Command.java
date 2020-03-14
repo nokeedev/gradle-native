@@ -15,9 +15,12 @@
  */
 package dev.nokee.docs.fixtures;
 
+import lombok.ToString;
+
 import java.util.List;
 import java.util.Optional;
 
+@ToString
 public class Command {
 	private final CommandLine commandLine;
 	private final Optional<String> executionSubdirectory;
