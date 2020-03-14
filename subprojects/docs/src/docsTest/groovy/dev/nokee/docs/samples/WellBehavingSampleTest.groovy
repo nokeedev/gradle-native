@@ -42,9 +42,11 @@ abstract class WellBehavingSampleTest extends Specification {
 		return executer.usingInitScript(initScriptFile)
 	}
 
-	// TODO TEST: Ensure settings.gradle[.kts] contains sample name as rootProject.name
-
 	protected abstract String getSampleName();
+
+	protected TestFile getTestDirectory() {
+		return TestFile.of(temporaryFolder.testDirectory)
+	}
 
 	// TODO: Migrate to TestFile
 	protected String unzipTo(TestFile zipFile, File workingDirectory) {
@@ -63,6 +65,19 @@ abstract class WellBehavingSampleTest extends Specification {
 		stdoutThread.join(5000)
 		stderrThread.join(5000)
 		return outStream.toString()
+	}
+
+	@Unroll
+	def "ensure root project name is configured for the sample"(dsl) {
+		def fixture = new SampleContentFixture(sampleName)
+		unzipTo(fixture.getDslSample(dsl), temporaryFolder.testDirectory)
+
+		expect:
+		// TODO: Improve assertion to ensure it's rootProject.name = <sampleName> and not just a random <sampleName> in the settings script
+		testDirectory.file(dsl.settingsFileName).assertIsFile().text.contains(sampleName)
+
+		where:
+		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]
 	}
 
 	/**
