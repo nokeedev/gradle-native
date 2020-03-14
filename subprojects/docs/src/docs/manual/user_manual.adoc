@@ -2,6 +2,6 @@
 :jbake-type: manual_chapter
 :jbake-description: Learn the concept behind Nokee plugins for Gradle.
 
-This user manual cover the native support in Gradle offered by Nokee plugin suite.
-It is recommended that you have a basic understanding of Gradle Build Tool before reading this manual as it builds on the functionality offered by Gradle.
-Start by going through the https://docs.gradle.org/current/userguide/getting_started.html[Getting Started chapter in the Gradle user manual].
+This user manual covers the native support in Gradle offered by the Nokee plugin suite.
+We recommend that you have a basic understanding of Gradle Build Tool before reading this manual as it builds on the functionality offered by Gradle.
+Start by going through the https://docs.gradle.org/current/userguide/getting_started.html[Getting Started chapter in the Gradle user manual] then <<getting_started.adoc#,get started by configuring the plugins in your build>>.

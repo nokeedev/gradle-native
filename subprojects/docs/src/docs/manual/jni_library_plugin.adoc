@@ -5,7 +5,7 @@
 :jbake-description: Learn what the Nokee's Java Native Interface (JNI) library plugin (i.e. dev.nokee.jni-library) has to offer to your Gradle build.
 
 The JNI Library Plugin provides the tasks, configurations and conventions for building libraries using the Java Native Interface runtime.
-It provide both an entry point (library) and runtime (JNI).
+It provides both an entry point (library) and runtime (JNI).
 An JVM (i.e. the link:{gradle-user-manual}/java_plugin.html[Java Plugin]) and native implementation (i.e. the <<cpp_language_plugin.adoc#,{cpp} Language Plugin>> or <<c_language_plugin.adoc#,C Language Plugin>>) language plugins are required to be applied to produce anything meaningful.
 
 [[sec:jni_library_usage]]
@@ -19,7 +19,7 @@ An JVM (i.e. the link:{gradle-user-manual}/java_plugin.html[Java Plugin]) and na
 [source,groovy]
 ----
 plugins {
-	id 'dev.nokee.jni-library'
+   id 'dev.nokee.jni-library'
 }
 ----
 =====
@@ -29,17 +29,18 @@ plugins {
 [source,kotlin]
 ----
 plugins {
-	id("dev.nokee.jni-library")
+   id("dev.nokee.jni-library")
 }
 ----
 =====
 ====
 
-NOTE: This plugin produce a JNI library as JARs using the JNI runtime.
+NOTE: This plugin produces a JNI library as JARs using the JNI runtime.
 It doesn't provide any implementation language capabilities and thus needs to be composed by applying other implementation language plugins, such as <<cpp_language_plugin.adoc#,{cpp} Language Plugin>>, <<c_language_plugin.adoc#C Language Plugin>> and link:{gradle-user-manual}/java_plugin.html[Java Plugin].
 
 NOTE: This plugin is incompatible with the link:{gradle-user-manual}/java_library_plugin.html[Java Library Plugin] and link:{gradle-user-manual}/application_plugin.html[Java Application Plugin].
-Those two plugins provides an opinionated entry point (e.g. library and application respectively) and cannot be applied within the same project.
+Those two plugins provide an opinionated entry point (e.g. library and application, respectively).
+They cannot be applied within the same project.
 Instead, use the link:{gradle-user-manual}/java_plugin.html[Java Language Plugin].
 The plugin can consume JVM libraries produced by the link:{gradle-user-manual}/java_library_plugin.html[Java Library Plugin] without any issue.
 
@@ -69,7 +70,7 @@ Links shared library from compiled object files using the selected linker.
 
 `sharedLibrary__Variant__` (e.g. `sharedLibraryWindows` and `sharedLibraryLinux`) - Task (lifecycle)::
 Depends on: `link__Variant__`
-This is an aggregate task that just depends on tasks for creating the Shared Library binary.
+This is an aggregate task that depends on tasks for creating the Shared Library binary.
 
 `jar__Variant__` (e.g. `jarWindows` and `jarLinux`) - link:{gradle-language-reference}/org.gradle.api.tasks.bundling.Jar.html[Jar]::
 Depends on: `sharedLibrary__Variant__`
@@ -84,12 +85,12 @@ When multiple target machines are configured, a separate JAR task is created for
 The JNI Library Plugin attaches some of its tasks to the standard lifecycle tasks documented in the link:{gradle-user-manual}/base_plugin.html[Base Plugin chapter] — which the <<jni_library_plugin.adoc#,JNI Library Plugin] applies automatically:
 
 `assemble` - Task (lifecycle)::
-Aggregate task that assembles the debug variant of the shared library (if available) for the current host (if present) in the project as well as the JAR.
+Aggregates task that assembles the debug variant of the shared library (if available) for the current host (if present) in the project as well as the JAR.
 This task is added by the link:{gradle-user-manual}/base_plugin.html[Base Plugin].
 
 `check` - Task (lifecycle)::
-Aggregate task that performs verification tasks, such as running the tests.
-Some plugins add their own verification task to `check`.
+Aggregates task that performs verification tasks, such as running the tests.
+Some plugins add their verification task to `check`.
 This task is added by the link:{gradle-user-manual}/base_plugin.html[Base Plugin].
 
 `build` - Task (lifecycle)::
@@ -125,11 +126,11 @@ To declare dependencies, it is preferred to use the `library` extension:
 [source,groovy]
 ----
 library {
-	dependencies {
-		api 'org.apache.httpcomponents:httpclient:4.5.7'
-		jvmImplementation 'org.apache.commons:commons-lang3:3.5'
-		nativeImplementation 'io.qt:network:5.1'
-	}
+   dependencies {
+      api 'org.apache.httpcomponents:httpclient:4.5.7'
+      jvmImplementation 'org.apache.commons:commons-lang3:3.5'
+      nativeImplementation 'io.qt:network:5.1'
+   }
 }
 ----
 =====
@@ -139,11 +140,11 @@ library {
 [source,kotlin]
 ----
 library {
-	dependencies {
-		api("org.apache.httpcomponents:httpclient:4.5.7")
-		jvmImplementation("org.apache.commons:commons-lang3:3.5")
-		nativeImplementation("io.qt:network:5.1")
-	}
+   dependencies {
+      api("org.apache.httpcomponents:httpclient:4.5.7")
+      jvmImplementation("org.apache.commons:commons-lang3:3.5")
+      nativeImplementation("io.qt:network:5.1")
+   }
 }
 ----
 =====
@@ -153,7 +154,7 @@ The following configurations can be used to declare dependencies:
 
 `api`::
 Used for declaring API dependencies for JVM consumers (see link:{gradle-user-manual}/java_library_plugin.html#sec:java_library_separation[API vs implementation section of the Java Library Plugin chapter]).
-This is where you should declare dependencies which are transitively exported to consumers, for compile.
+This is where you should declare dependencies that are transitively exported to consumers for compile.
 Note that only JVM dependencies are transitively exported to consumers.
 
 `jvmImplementation` extends `api`::
@@ -168,11 +169,11 @@ The following configurations are used by consumers:
 
 `apiElements` extends `jvmImplementation`::
 Used for compiling the library.
-This configuration is meant to be used by consumers, to retrieve all the elements necessary to compile against the library.
+This configuration is meant to be used by consumers to retrieve all the elements necessary to compile against the library.
 
 `runtimeElements` extends `jvmImplementation`::
 Used for executing the library.
-This configuration is meant to be used by consumers, to retrieve all the elements necessary to run against the library.
+This configuration is meant to be used by consumers to retrieve all the elements necessary to run against the library.
 
 The following configuration is used by the library itself:
 

@@ -2,7 +2,7 @@
 :jbake-type: reference_chapter
 :jbake-description: Learn what the Nokee's C language plugin (i.e. dev.nokee.c-language) has to offer for your Gradle build.
 
-The C Language Plugin provides the tasks, configurations and conventions for compiling C source file.
+The C Language Plugin provides the tasks, configurations and conventions for compiling C source files.
 It's an implementation language plugin and works in tandem with plugins providing a runtime and/or entry point.
 
 == Usage
@@ -32,7 +32,7 @@ plugins {
 ====
 
 // TODO: Describe runtime plugin and entry point plugin
-NOTE: This plugin provide the C implementation language capability to a project already providing a runtime and/or entry point, such as the <<jni_library_plugin.adoc#,JNI Library Plugin>>.
+NOTE: This plugin provides the C implementation language capability to a project already providing a runtime and/or entry point, such as the <<jni_library_plugin.adoc#,JNI Library Plugin>>.
 
 //[[sec:jni_library_conventions]]
 //== Conventions

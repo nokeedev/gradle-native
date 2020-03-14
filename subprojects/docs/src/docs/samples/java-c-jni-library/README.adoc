@@ -3,12 +3,12 @@
 :jbake-type: sample_chapter
 :jbake-tags: sample, jni
 :jbake-category: Java Native Interface (JNI)
-:jbake-description: See how to Nokee Gradle plugins are used for building a Java Native Interface (JNI) library implemented in Java and C.
+:jbake-description: See how to Nokee Gradle plugins can build a Java Native Interface (JNI) library implemented in Java and C.
 
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
 This sample shows how a JNI library implemented in Java and C can be built with Gradle.
-The library has no dependencies and the build has minimal configuration.
+The library has no dependencies, and the build has a minimal configuration.
 
 ====
 [.multi-language-sample]

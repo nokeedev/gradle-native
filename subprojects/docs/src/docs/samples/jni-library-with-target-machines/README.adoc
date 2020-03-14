@@ -8,7 +8,7 @@
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
 This sample shows how a Java Native Interface (JNI) library can target multiple machines.
-The library has no dependencies and the build has minimal configuration.
+The library has no dependencies, and the build has a minimal configuration.
 
 In this sample, we are configuring the target machines of a JNI library implemented in Java and {cpp}; however, this applies to other JVM and native languages as well.
 

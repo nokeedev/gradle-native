@@ -3,14 +3,14 @@
 :jbake-type: sample_chapter
 :jbake-tags: sample, jni
 :jbake-category: Java Native Interface (JNI)
-:jbake-description: See how to use a Java Native Interface (JNI) library with in an application using Gradle Nokee plugins.
+:jbake-description: See how to use a Java Native Interface (JNI) library within an application using Gradle Nokee plugins.
 
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
-This sample shows how a JNI library can be used by an JVM application in Gradle.
-The library has no dependencies and the build has minimal configuration.
+This sample shows how a JVM application in Gradle can use a JNI library.
+The library has no dependencies, and the build has a minimal configuration.
 
-In this sample, we are using a JNI library implemented in Java and {cpp} within a application implemented in Java; however, this applies to other JVM and native languages as well.
+In this sample, we are using a JNI library implemented in Java and {cpp} within an application implemented in Java; however, this applies to other JVM and native languages as well.
 
 ====
 [.multi-language-sample]
@@ -56,7 +56,7 @@ $ ls ./build/distributions/*.zip
 ./build/distributions/jvm-application-with-jni-library.zip
 ----
 
-The distribution can be used on system where the code wasn't built, given the native part of the JNI library is supported on the platform:
+It is possible to use the distribution on a system where the code wasn't built, given the native component of the JNI library is supported on the platform:
 
 [listing.terminal]
 ----

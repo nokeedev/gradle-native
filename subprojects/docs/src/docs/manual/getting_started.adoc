@@ -1,13 +1,13 @@
 = Getting Started with Nokee Plugins
 :jbake-type: manual_chapter
-:jbake-description: Learn how to get started with building native project in Gradle.
+:jbake-description: Learn how to get started with building native projects in Gradle.
 
 Getting started with Nokee plugins is simple and easy.
 
 == Method 1: Using PluginManagement block (preferred)
 
 Using the link:{gradle-user-manual}/plugins.html#sec:plugin_management[Plugin Management block] is the preferred way to get started.
-You will lower your maintenance cost when upgrading to newer version, both released and nightly, as well as aligns all the plugin versions together for maximum compatibility.
+You will lower your maintenance cost when upgrading to a newer version, both released and nightly, as well as aligns all the plugin versions together for maximum compatibility.
 First, copy the following `pluginManagement` block to your settings script:
 
 .Configuring Gradle plugin resolution
@@ -18,19 +18,19 @@ First, copy the following `pluginManagement` block to your settings script:
 [source,groovy,subs=attributes+]
 ----
 pluginManagement {
-	repositories {
-		gradlePluginPortal()
-		maven {
-			url = uri('https://dl.bintray.com/nokeedev/distributions-snapshots')
-		}
-	}
-	resolutionStrategy {
-		eachPlugin {
-			if (requested.id.id.startsWith('dev.nokee.')) {
-				useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:{jbake-version}")
-			}
-		}
-	}
+   repositories {
+      gradlePluginPortal()
+      maven {
+         url = uri('https://dl.bintray.com/nokeedev/distributions-snapshots')
+      }
+   }
+   resolutionStrategy {
+      eachPlugin {
+         if (requested.id.id.startsWith('dev.nokee.')) {
+            useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:{jbake-version}")
+         }
+      }
+   }
 }
 ----
 =====
@@ -40,19 +40,19 @@ pluginManagement {
 [source,kotlin,subs=attributes+]
 ----
 pluginManagement {
-	repositories {
-		gradlePluginPortal()
-		maven {
-			url = uri("https://dl.bintray.com/nokeedev/distributions-snapshots")
-		}
-	}
-	resolutionStrategy {
-		eachPlugin {
-			if (requested.id.id.startsWith("dev.nokee.")) {
-				useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:{jbake-version}")
-			}
-		}
-	}
+   repositories {
+      gradlePluginPortal()
+      maven {
+         url = uri("https://dl.bintray.com/nokeedev/distributions-snapshots")
+      }
+   }
+   resolutionStrategy {
+      eachPlugin {
+         if (requested.id.id.startsWith("dev.nokee.")) {
+            useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:{jbake-version}")
+         }
+      }
+   }
 }
 ----
 =====
@@ -68,7 +68,7 @@ Second, apply one of <<plugin_references.adoc#,Nokee plugins>> to your build usi
 [source,groovy]
 ----
 plugins {
-	id 'dev.nokee.jni-library'
+   id 'dev.nokee.jni-library'
 }
 ----
 =====
@@ -78,7 +78,7 @@ plugins {
 [source,kotlin]
 ----
 plugins {
-	id("dev.nokee.jni-library")
+   id("dev.nokee.jni-library")
 }
 ----
 =====
@@ -97,7 +97,7 @@ Because of the link:{gradle-user-manual}/plugins.html#plugins_dsl_limitations[va
 [source,groovy,subs=attributes+]
 ----
 plugins {
-	id 'dev.nokee.jni-library' version '{jbake-version}'
+   id 'dev.nokee.jni-library' version '{jbake-version}'
 }
 ----
 =====
@@ -107,7 +107,7 @@ plugins {
 [source,kotlin,subs=attributes+]
 ----
 plugins {
-	id("dev.nokee.jni-library") version '{jbake-version}'
+   id("dev.nokee.jni-library") version '{jbake-version}'
 }
 ----
 =====
