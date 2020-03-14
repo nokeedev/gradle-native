@@ -20,7 +20,11 @@
 
 
 /* Typography resets */
-div, dl, dt, dd, ul, ol, li, h1, h2, h3, #toctitle, .sidebarblock > .content > .title, h4, h5, h6, pre, form, p, blockquote, th, td { margin: 0; padding: 0; direction: ltr; }
+div, dl, dt, dd, ol, h1, h2, h3, #toctitle, .sidebarblock > .content > .title, h4, h5, h6, pre, form, p, blockquote, th, td { margin: 0; padding: 0; direction: ltr; }
+ul, li {
+	padding: 0;
+	direction: ltr;
+}
 
 /* Default Link Styles */
 a { color: #86C232; text-decoration: none; line-height: inherit; }
