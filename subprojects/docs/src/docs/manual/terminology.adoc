@@ -1,5 +1,6 @@
 = Terminology
 :jbake-type: manual_chapter
+:jbake-description: Learn about Gradle project's entry point, implementation language and runtime.
 
 Gradle has a wealth of terminology. Here you can find the terms Nokee plugins aligns around.
 

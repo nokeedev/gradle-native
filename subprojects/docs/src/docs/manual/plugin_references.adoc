@@ -1,5 +1,6 @@
 = Nokee Plugin Reference
 :jbake-type: reference_index
+:jbake-description: Learn about all the Gradle plugins offered by Nokee.
 
 This page contains links and short descriptions for all the core plugins provided by Nokee.
 

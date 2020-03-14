@@ -1,5 +1,6 @@
 = {cpp} Language
 :jbake-type: reference_chapter
+:jbake-description: Learn what the Nokee's {cpp} language plugin (i.e. dev.nokee.cpp-language) has to offer for your Gradle build.
 
 The {cpp} Language Plugin provides the tasks, configurations and conventions for compiling {cpp} source file.
 It's an implementation language plugin and works in tandem with plugins providing a runtime and/or entry point.

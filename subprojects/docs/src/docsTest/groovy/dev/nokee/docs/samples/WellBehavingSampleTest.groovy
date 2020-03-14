@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
 @CleanupTestDirectory
 abstract class WellBehavingSampleTest extends Specification {
 	@Rule
-	final TestNameTestDirectoryProvider temporaryFolder = new TestNameTestDirectoryProvider()
+	final TestNameTestDirectoryProvider temporaryFolder = new TestNameTestDirectoryProvider(getClass())
 
 	protected GradleExecuter configureLocalPluginResolution(GradleExecuter executer) {
 		def initScriptFile = temporaryFolder.file('repo.init.gradle')
@@ -63,6 +63,15 @@ abstract class WellBehavingSampleTest extends Specification {
 		stdoutThread.join(5000)
 		stderrThread.join(5000)
 		return outStream.toString()
+	}
+
+	def "has meta description tags not exceeding 160 characters"() {
+		def fixture = new SampleContentFixture(sampleName)
+
+		expect:
+		def description = fixture.description
+		description.present
+		description.get().length() <= 160
 	}
 
 	@Unroll

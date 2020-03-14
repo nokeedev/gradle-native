@@ -2,6 +2,7 @@
 :jbake-type: reference_chapter
 :imagesdir: ./img
 :cpplower: c++
+:jbake-description: Learn what the Nokee's Java Native Interface (JNI) library plugin (i.e. dev.nokee.jni-library) has to offer to your Gradle build.
 
 The JNI Library Plugin provides the tasks, configurations and conventions for building libraries using the Java Native Interface runtime.
 It provide both an entry point (library) and runtime (JNI).
