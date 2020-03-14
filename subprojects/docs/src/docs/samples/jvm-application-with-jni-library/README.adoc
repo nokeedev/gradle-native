@@ -38,7 +38,7 @@ $ ./gradlew run
 Bonjour, World!
 
 BUILD SUCCESSFUL
-4 actionable tasks: 4 executed
+6 actionable tasks: 6 executed
 ----
 
 It's also possible to build a distribution archive:
