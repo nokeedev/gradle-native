@@ -18,6 +18,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.util.concurrent.TimeUnit
+import java.util.regex.Pattern
 
 @CleanupTestDirectory
 abstract class WellBehavingSampleTest extends Specification {
@@ -42,7 +43,6 @@ abstract class WellBehavingSampleTest extends Specification {
 	}
 
 	// TODO TEST: Ensure settings.gradle[.kts] contains sample name as rootProject.name
-	// TODO TEST: Make sure Gradle build result doesn't contain any timing values
 
 	protected abstract String getSampleName();
 
@@ -63,6 +63,19 @@ abstract class WellBehavingSampleTest extends Specification {
 		stdoutThread.join(5000)
 		stderrThread.join(5000)
 		return outStream.toString()
+	}
+
+	/**
+	 * Timing values are heavily dependent on the system where the command was executed.
+	 * It's better to remove the information to avoid creating false or misleading expectation on the performance.
+	 */
+	def "ensure gradle commands does not have any timing values in build result"() {
+		def fixture = new SampleContentFixture(sampleName)
+
+		expect:
+		// TODO: Reports all the error at once instead of failing on the first one
+		def commands = wrap(fixture.commands).findAll { it instanceof GradleWrapperCommand } as List<GradleWrapperCommand>
+		commands*.assertNoTimingInformationOnBuildResult()
 	}
 
 	def "has meta description tags not exceeding 160 characters"() {
@@ -140,6 +153,13 @@ abstract class WellBehavingSampleTest extends Specification {
 			def expectedResult = OutputScrapingExecutionResult.from(command.expectedOutput.get(), '')
 
 			assert OutputScrapingExecutionResult.normalize(LogContent.of(result.getPlainTextOutput())).replace(' in 0s', '').startsWith(expectedResult.getOutput())
+		}
+
+		private static final Pattern BUILD_RESULT_PATTERN = Pattern.compile("BUILD (SUCCESSFUL|FAILED) in \\d+(ms|s|m|h)( \\d+(ms|s|m|h))*");
+		void assertNoTimingInformationOnBuildResult() {
+			command.expectedOutput.ifPresent { output ->
+				assert !BUILD_RESULT_PATTERN.matcher(output).find()
+			}
 		}
 	}
 
