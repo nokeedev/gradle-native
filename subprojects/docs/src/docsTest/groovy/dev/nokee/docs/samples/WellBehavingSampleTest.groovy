@@ -9,6 +9,7 @@ import dev.gradleplugins.test.fixtures.gradle.executer.GradleExecuter
 import dev.gradleplugins.test.fixtures.gradle.executer.LogContent
 import dev.gradleplugins.test.fixtures.gradle.executer.OutputScrapingExecutionResult
 import dev.gradleplugins.test.fixtures.logging.ConsoleOutput
+import dev.nokee.docs.fixtures.Command
 import dev.nokee.docs.fixtures.SampleContentFixture
 import org.junit.Rule
 import spock.lang.Specification
@@ -77,17 +78,57 @@ abstract class WellBehavingSampleTest extends Specification {
 		def fixture = new SampleContentFixture(sampleName)
 		unzipTo(fixture.getDslSample(dsl), temporaryFolder.testDirectory)
 
-		GradleExecuter executer = configureLocalPluginResolution(new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory)).withConsole(ConsoleOutput.Rich))
 		expect:
-		fixture.getCommands().size() == 1
-		def command = fixture.getCommands()[0]
-		command.executable == './gradlew'
-		def result = executer.withArguments(command.args).run()
-		def expectedResult = OutputScrapingExecutionResult.from(command.expectedOutput.get(), '')
-
-		OutputScrapingExecutionResult.normalize(LogContent.of(result.getPlainTextOutput())).replace(' in 0s', '').startsWith(expectedResult.getOutput())
+		def c = wrap(fixture.getCommands())
+		c.each { it.execute(temporaryFolder.testDirectory) }
 
 		where:
 		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]
+	}
+
+	private List<? super Comm> wrap(List<Command> commands) {
+		commands.collect { command ->
+			if (command.executable == './gradlew') {
+				return new GradleWrapperCommand(command)
+			}
+			return new GenericCommand(command)
+		}
+	}
+
+	private static abstract class Comm {
+		protected final Command command
+
+		Comm(Command command) {
+			this.command = command
+		}
+
+		public abstract void execute(File testDirectory);
+	}
+
+	private class GradleWrapperCommand extends Comm {
+		GradleWrapperCommand(Command command) {
+			super(command)
+		}
+
+		@Override
+		void execute(File testDirectory) {
+			GradleExecuter executer = configureLocalPluginResolution(new GradleExecuterFactory().wrapper(TestFile.of(testDirectory)).withConsole(ConsoleOutput.Rich))
+
+			def result = executer.withArguments(command.args).run()
+			def expectedResult = OutputScrapingExecutionResult.from(command.expectedOutput.get(), '')
+
+			assert OutputScrapingExecutionResult.normalize(LogContent.of(result.getPlainTextOutput())).replace(' in 0s', '').startsWith(expectedResult.getOutput())
+		}
+	}
+
+	private static class GenericCommand extends Comm {
+		GenericCommand(Command command) {
+			super(command)
+		}
+
+		@Override
+		void execute(File testDirectory) {
+			throw new UnsupportedOperationException("bob")
+		}
 	}
 }
