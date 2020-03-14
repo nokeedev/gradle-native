@@ -42,18 +42,12 @@ public class CommandDiscovery {
 	}
 
 	private static int parseOneCommand(String[] lines, int pos, Map<String, Object> attributes, List<Command> commands) {
-		String commandLine = lines[pos];
-		if (!commandLine.startsWith(COMMAND_PREFIX)) {
-			throw new RuntimeException("Inline sample command " + commandLine);
+		String commandLineString = lines[pos];
+		if (!commandLineString.startsWith(COMMAND_PREFIX)) {
+			throw new RuntimeException("Inline sample command " + commandLineString);
 		}
 
-		String[] commandLineWords = commandLine.substring(COMMAND_PREFIX.length()).split("\\s+");
-		String executable = commandLineWords[0];
-
-		List<String> args = Collections.emptyList();
-		if (commandLineWords.length > 1) {
-			args = Arrays.asList(Arrays.copyOfRange(commandLineWords, 1, commandLineWords.length));
-		}
+		CommandLine commandLine = CommandLine.of(commandLineString.substring(COMMAND_PREFIX.length()));
 
 		StringBuilder expectedOutput = new StringBuilder();
 		int nextCommand = pos + 1;
@@ -65,9 +59,8 @@ public class CommandDiscovery {
 			nextCommand++;
 		}
 
-		Command command = new Command(executable,
+		Command command = new Command(commandLine,
 			Optional.<String>empty(),
-			args,
 			Collections.<String>emptyList(),
 			Optional.of(expectedOutput.toString()),
 			attributes.containsKey("expect-failure"),

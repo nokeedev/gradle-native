@@ -19,9 +19,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class Command {
-	private final String executable;
+	private final CommandLine commandLine;
 	private final Optional<String> executionSubdirectory;
-	private final List<String> args;
 	private final List<String> flags;
 	private final Optional<String> expectedOutput;
 	private final boolean expectFailure;
@@ -29,10 +28,9 @@ public class Command {
 	private final boolean allowDisorderedOutput;
 	private final List<String> userInputs;
 
-	public Command(String executable, Optional<String> executionDirectory, List<String> args, List<String> flags, Optional<String> expectedOutput, boolean expectFailure, boolean allowAdditionalOutput, boolean allowDisorderedOutput, List<String> userInputs) {
-		this.executable = executable;
+	public Command(CommandLine commandLine, Optional<String> executionDirectory, List<String> flags, Optional<String> expectedOutput, boolean expectFailure, boolean allowAdditionalOutput, boolean allowDisorderedOutput, List<String> userInputs) {
+		this.commandLine = commandLine;
 		this.executionSubdirectory = executionDirectory;
-		this.args = args;
 		this.flags = flags;
 		this.expectedOutput = expectedOutput;
 		this.expectFailure = expectFailure;
@@ -42,7 +40,7 @@ public class Command {
 	}
 
 	public String getExecutable() {
-		return executable;
+		return commandLine.getExecutable();
 	}
 
 	public Optional<String> getExecutionSubdirectory() {
@@ -50,7 +48,7 @@ public class Command {
 	}
 
 	public List<String> getArgs() {
-		return args;
+		return commandLine.getArguments();
 	}
 
 	public List<String> getFlags() {
