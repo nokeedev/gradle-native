@@ -80,6 +80,21 @@ abstract class WellBehavingSampleTest extends Specification {
 		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]
 	}
 
+	def "ensure sample has a category"() {
+		def fixture = new SampleContentFixture(sampleName)
+
+		expect:
+		fixture.category != null
+	}
+
+	def "ensure sample has a valid summary"() {
+		def fixture = new SampleContentFixture(sampleName)
+
+		expect:
+		fixture.summary != null
+		fixture.summary.endsWith('.')
+	}
+
 	/**
 	 * Timing values are heavily dependent on the system where the command was executed.
 	 * It's better to remove the information to avoid creating false or misleading expectation on the performance.

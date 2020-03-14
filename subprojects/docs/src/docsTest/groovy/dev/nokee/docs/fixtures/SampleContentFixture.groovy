@@ -49,4 +49,16 @@ class SampleContentFixture {
 		Document document = asciidoctor.loadFile(contentFile, options().asMap())
 		return Optional.<String>ofNullable((String)document.attributes.get('jbake-description'))
 	}
+
+	String getCategory() {
+		Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+		Document document = asciidoctor.loadFile(contentFile, options().asMap())
+		return (String)document.attributes.get('jbake-category')
+	}
+
+	String getSummary() {
+		Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+		Document document = asciidoctor.loadFile(contentFile, options().asMap())
+		return (String)document.attributes.get('jbake-summary')
+	}
 }

@@ -1,3 +1,7 @@
+<%
+def categories = sample_chapters.collect { it.category } as Set
+%>
+
 <% include "header-docs.gsp" %>
 
 	<% include "menu.gsp" %>
@@ -11,9 +15,13 @@
 
 			<div id="content">
 				${content.body}
-
-				<%sample_chapters.each {sample ->%>
-				<a href="${sample.permalink}/"><h2>${sample.title}</h2></a>
+				<%categories.each { category ->%>
+					<h2>${category}</h2>
+					<ul>
+					<%sample_chapters.findAll { it.category == category }.each {sample ->%>
+						<li><p><a href="${sample.permalink}/">${sample.title}</a>: ${sample.summary}</p></li>
+					<%}%>
+					</ul>
 				<%}%>
 			</div>
 		</div>
