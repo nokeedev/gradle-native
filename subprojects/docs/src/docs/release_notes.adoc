@@ -2,15 +2,98 @@
 :jbake-type: release_notes
 :jbake-description: See what version {jbake-version} of the Gradle Nokee plugins has to offer!
 
-This first release kickstart the native development by providing the Gradle community with a plugin to support building JVM libraries using the Java Native Interface runtime.
+The Nokee team is excited to announce the first release that will kickstart the new wave of native development in Gradle.
 
-== Java Native Interface (JNI) libraries
+This release focus on adding <<release_notes.adoc#sec:jni_libraries,support for building JVM libraries using the Java Native Interface (JNI) runtime>>, writing <<release_notes.adoc#sec:documentation,helpful documentation>>, and creating <<release_notes.adoc#sec:infrastructure,the infrastructure to ensure quality releases in the future>>.
 
-// Explain what can be done
-// Link to samples
-// Link to guides
-// Link to plugin references
-// Explain limitation
+== Getting Started
+
+To use the Nokee plugins in Gradle, simply copy the following code to the settings script of your project, then apply any of the <<manual/plugin_references.adoc#,Nokee plugins>> to your build using the link:{gradle-user-manual}/plugins.html#sec:plugins_block[plugins DSL block]:
+
+.Configuring Gradle plugin resolution
+====
+[.multi-language-sample]
+=====
+.settings.gradle
+[source,groovy,subs=attributes+]
+----
+pluginManagement {
+   repositories {
+      gradlePluginPortal()
+      maven {
+         url = uri('https://dl.bintray.com/nokeedev/distributions-snapshots')
+      }
+   }
+   def nokeeVersion = '{jbake-version}'
+   resolutionStrategy {
+      eachPlugin {
+         if (requested.id.id.startsWith('dev.nokee.')) {
+            useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:${nokeeVersion}")
+         }
+      }
+   }
+}
+----
+=====
+[.multi-language-sample]
+=====
+.settings.gradle.kts
+[source,kotlin,subs=attributes+]
+----
+pluginManagement {
+   repositories {
+      gradlePluginPortal()
+      maven {
+         url = uri("https://dl.bintray.com/nokeedev/distributions-snapshots")
+      }
+   }
+   val nokeeVersion = "{jbake-version}"
+   resolutionStrategy {
+      eachPlugin {
+         if (requested.id.id.startsWith("dev.nokee.")) {
+            useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:${nokeeVersion}")
+         }
+      }
+   }
+}
+----
+=====
+====
+
+[[sec:jni_libraries]]
+== Java Native Interface (JNI) Libraries
+
+The Nokee plugins let you build JNI libraries <<sample/java-cpp-jni-library/index.adoc#,as a single project>> or by <<sample/jni-library-composing/index.adoc#,composing multiple projects together>>.
+The native component of the JNI library can be implemented <<sample/java-c-jni-library/index.adoc#,in C>> or <<sample/java-cpp-jni-library/index.adoc#,in {cpp}>>.
+More implementation language support will follow in future releases.
+You can <<sample/jni-library-with-junit-test/index.adoc#,test your JNI library with JUnit as you would with any Java library>>.
+Finally, <<sample/jni-library-with-target-machine/index.adoc#,the native component of the JNI library can target different machines>>.
+
+For more information on the JNI library plugin, <<manual/jni_library_plugin.adoc#,read the reference chapter in the user manual>>.
+
+The JNI Library plugin is limited to JDK 8+ for header generation; the previous JDK versions use `javah`.
+The target platforms are limited to the three major operating systems - e.g. Windows, macOS, Linux - and to the Intel architecture - e.g. x86 and x86_64.
+The implementation language of the native component for the JNI library is limited to C and {cpp}.
+Finally, publishing the JNI libraries to binary repositories requires customization of your build script, see <<sample/publish-jni-library/index.adoc#,this sample to learn more>>.
+If any of those limitations are a deal-breaker, link:https://github.com/nokeedev/gradle-native/issues/new[please open an issue so we can promptly resolve the issue for you].
+
+[[sec:documentation]]
+== Documentation
+
+The documentation portal was also completed for this release which includes a <<manual/getting_started.adoc#,getting started>>, <<manual/plugin_references.adoc#,plugin references>>, <<manual/terminology.adoc#,terminology>> and <<samples/index.adoc#,downloadable samples>>.
+
+The documentation will keep getting better over time.
+If you have any suggestions for content, demonstrations, tutorials or general improvements, link:https://github.com/nokeedev/gradle-native/issues/new[please open a new issue].
+
+[[sec::infrastructure]]
+== Infrastructure
+
+This release prepared the infrastructure for <<../nightly/manual/user_manual.adoc#,the documentation portal to provide automated nightly releases of the plugins>>.
+It also rolled out a <<sample/index.adoc#,sample infrastructure to allow users to see how particular use cases are solved quickly>>.
+There is also an ongoing effort in providing appropriate coverage for a broad set of architectures, operating systems and toolchains.
+We are committed to quality and features will only be available if we have test coverage for them.
+For this commitment, we are extracting relevant parts from the link:http://github.com/gradle/gradle[Gradle codebase] to ease our testing needs.
+You can follow this ongoing effort over on the link:https://github.com/gradle-plugins/toolbox[Gradle Plugins Development repository].
 
 == Reporting Problems
 If you find a problem with any of the plugins, please file a bug on https://github.com/nokeedev/gradle-native[GitHub Issues] adhering to our issue guidelines.
