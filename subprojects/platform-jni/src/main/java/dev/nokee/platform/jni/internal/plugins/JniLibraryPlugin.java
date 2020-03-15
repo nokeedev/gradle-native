@@ -68,7 +68,9 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		extension.getVariants().configureEach(library -> {
 			// TODO: Maybe go through the source set instead
 			// TODO: Expose Jar on runtimeElements but the directory where the shared library is located
-			project.getConfigurations().getByName("runtimeElements").getOutgoing().artifact(library.getJar().getArchiveFile());
+			if (extension.getTargetMachines().get().size() > 1 || !project.getPluginManager().hasPlugin("java")) {
+				project.getConfigurations().getByName("runtimeElements").getOutgoing().artifact(library.getJar().getArchiveFile());
+			}
 		});
 
 		// Names
