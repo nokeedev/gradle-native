@@ -24,10 +24,11 @@ pluginManagement {
          url = uri('https://dl.bintray.com/nokeedev/distributions-snapshots')
       }
    }
+   def nokeeVersion = '{jbake-version}'
    resolutionStrategy {
       eachPlugin {
          if (requested.id.id.startsWith('dev.nokee.')) {
-            useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:{jbake-version}")
+            useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:${nokeeVersion}")
          }
       }
    }
@@ -46,10 +47,11 @@ pluginManagement {
          url = uri("https://dl.bintray.com/nokeedev/distributions-snapshots")
       }
    }
+   val nokeeVersion = "{jbake-version}"
    resolutionStrategy {
       eachPlugin {
          if (requested.id.id.startsWith("dev.nokee.")) {
-            useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:{jbake-version}")
+            useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:${nokeeVersion}")
          }
       }
    }
