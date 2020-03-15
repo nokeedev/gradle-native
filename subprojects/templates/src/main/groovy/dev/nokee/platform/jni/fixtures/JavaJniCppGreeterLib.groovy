@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni.fixtures
 
+import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.gradleplugins.test.fixtures.sources.cpp.CppLibraryElement
 import dev.gradleplugins.test.fixtures.sources.cpp.CppSourceElement
@@ -12,7 +13,7 @@ import static dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement.ofP
 
 class JavaJniCppGreeterLib extends JniLibraryElement {
 	final CppGreeterJniBinding nativeBindings
-	final JavaSourceElement jvmBindings
+	final JavaNativeGreeter jvmBindings
 	final JavaSourceElement jvmImplementation
 	final CppLibraryElement nativeImplementation
 	final JavaSourceElement junitTest
@@ -68,6 +69,32 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 			@Override
 			SourceElement getNativeSources() {
 				return ofElements(nativeBindings, nativeImplementation)
+			}
+		}
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	JniLibraryElement withImplementationAsSubprojects() {
+		return new JniLibraryElement() {
+			@Override
+			SourceElement getJvmSources() {
+				throw new UnsupportedOperationException()
+			}
+
+			@Override
+			SourceElement getNativeSources() {
+				throw new UnsupportedOperationException()
+			}
+
+			@Override
+			void writeToProject(TestFile projectDir) {
+				jvmBindings.withSharedLibraryBaseName('cpp-jni-greeter').writeToProject(projectDir.file('java-jni-greeter'))
+				nativeBindings.withJniGeneratedHeader().writeToProject(projectDir.file('cpp-jni-greeter'))
+				jvmImplementation.writeToProject(projectDir.file('java-loader'))
+				nativeImplementation.asLib().writeToProject(projectDir.file('cpp-greeter'))
 			}
 		}
 	}

@@ -3,5 +3,4 @@
 :jbake-description: See the Nokee plugins in action for building native project in Gradle.
 
 // publishing JNI library
-// piecing together a JNI lirary from external projects
 // Mixing JVM languages

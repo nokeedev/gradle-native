@@ -138,6 +138,7 @@ abstract class WellBehavingSampleTest extends Specification {
 
 		expect:
 		def c = wrap(fixture.getCommands())
+		c.size() > 0
 		c.each { it.execute(TestFile.of(temporaryFolder.testDirectory)) }
 
 		where:

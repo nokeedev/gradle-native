@@ -1,0 +1,208 @@
+= Compose a JNI Library
+:jbake-summary: Compose JNI library from other projects.
+:jbake-type: sample_chapter
+:jbake-tags: sample, jni
+:jbake-category: Java Native Interface (JNI)
+:jbake-description: See how to Nokee Gradle plugins are used for composing multiple projects as a Java Native Interface (JNI) library.
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how a Java Native Interface (JNI) library can be composed of multiple projects with Gradle.
+
+In this sample, we are composing a JNI library with components implemented in Java and {cpp}; however, this applies to other JVM and native languages as well.
+
+== Project Structure
+
+You can visualize the project structure and layout using the `projects` tasks.
+
+[listing.terminal]
+----
+$ ./gradlew projects
+
+> Task :projects
+
+------------------------------------------------------------
+Root project - The JNI library as the consumer would expect.
+------------------------------------------------------------
+
+Root project 'jni-library-composing' - The JNI library as the consumer would expect.
++--- Project ':cpp-greeter' - The C++ implementation, has no knowledge of the JVM.
++--- Project ':cpp-jni-greeter' - The JNI shared library, also known as the native bindings.
++--- Project ':java-jni-greeter' - The JNI classes, also known as the JVM bindings.
+\--- Project ':java-loader' - The library for loading the shared library from the classpath or JAR.
+
+To see a list of the tasks of a project, run gradlew <project-path>:tasks
+For example, try running gradlew :cpp-greeter:tasks
+
+BUILD SUCCESSFUL
+1 actionable task: 1 executed
+----
+
+The JNI library, as the root project, is composed of four projects.
+The following subsection will go through each one of them.
+
+=== {cpp} Library
+
+This library is a pure {cpp} library.
+It has no dependency or knowledge of the JVM.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::{includedir}/groovy-dsl/cpp-greeter/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::{includedir}/kotlin-dsl/cpp-greeter/build.gradle.kts[]
+----
+=====
+====
+
+It could be built by another build system altogether.
+In this case, we are using the link:{gradle-user-manual}/cpp_library_plugin.html[Gradle {cpp} library core plugin].
+
+=== Java/{cpp} JNI Bindings
+
+The JNI bindings are split into two separate projects.
+Each project is fulfilling two sides of the same coin, the JNI bindings on the JVM and the native side, respectively.
+
+The JVM JNI binding project defines the classes with methods marked with the `native` keyword.
+We are using the link:{gradle-user-manual}/java_library_plugin.html[Gradle Java library core plugin].
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::{includedir}/groovy-dsl/java-jni-greeter/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::{includedir}/kotlin-dsl/java-jni-greeter/build.gradle.kts[]
+----
+=====
+====
+
+The native JNI binding project is coupled to the JVM.
+It uses link:https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/types.html[JVM types provided by the `jni.h` header].
+In this sample, we are assuming the user would have generated the JNI header manually to be used within the project.
+It is considered bad practice to generate the JNI headers manually.
+The <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin>> will automatically generate the JNI headers and wire them properly to the native compilation task when both JNI binding project is inside the same project.
+See the link:../java-cpp-jni-library/[Java/{cpp} JNI library sample] for a demonstration of this feature.
+We are using the link:{gradle-user-manual}/cpp_library_plugin.html[Gradle {cpp} library core plugin].
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::{includedir}/groovy-dsl/cpp-jni-greeter/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::{includedir}/kotlin-dsl/cpp-jni-greeter/build.gradle.kts[]
+----
+=====
+====
+
+WARNING: The samples use `Jvm` class, which is an internal type to Gradle.
+This type was used as conveniences and demonstration purposes.
+It should not be used in production.
+
+=== Java Library
+
+This library is a pure Java library supporting the JNI binding on the JVM side.
+It could be any API or implementation dependencies.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::{includedir}/groovy-dsl/java-loader/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::{includedir}/kotlin-dsl/java-loader/build.gradle.kts[]
+----
+=====
+====
+
+== Assembling the JNI Library
+
+To build the library:
+
+[listing.terminal]
+----
+$ ./gradlew assemble
+
+BUILD SUCCESSFUL
+9 actionable tasks: 9 executed
+----
+
+All the native runtime dependencies will be packaged inside the generated JAR:
+
+[listing.terminal,only-if='macos']
+----
+$ jar tf ./build/libs/jni-library-composing.jar
+META-INF/
+META-INF/MANIFEST.MF
+libcpp-jni-greeter.dylib
+----
+
+The JNI JAR is also registered as an outgoing variant:
+
+[listing.terminal]
+----
+$ ./gradlew outgoingVariants
+
+> Task :outgoingVariants
+--------------------------------------------------
+Variant apiElements
+--------------------------------------------------
+Capabilities
+    - :jni-library-composing:unspecified (default capability)
+Attributes
+    - org.gradle.libraryelements = jar
+    - org.gradle.usage           = java-api
+
+--------------------------------------------------
+Variant runtimeElements
+--------------------------------------------------
+Capabilities
+    - :jni-library-composing:unspecified (default capability)
+Attributes
+    - org.gradle.libraryelements = jar
+    - org.gradle.usage           = java-runtime
+
+Artifacts
+    - build/libs/jni-library-composing.jar (artifactType = jar)
+
+
+BUILD SUCCESSFUL
+1 actionable task: 1 executed
+----
+
+For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin>> and <<../../manual/cpp_language_plugin.adoc#{cpp} Language Plugin>> reference chapters.

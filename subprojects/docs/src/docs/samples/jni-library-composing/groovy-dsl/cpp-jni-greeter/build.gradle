@@ -1,0 +1,30 @@
+plugins {
+	id 'cpp-library'
+}
+
+description = 'The JNI shared library, also known as the native bindings.'
+
+import org.gradle.internal.jvm.Jvm
+
+library {
+	// The native component of the JNI library needs to be a shared library.
+	linkage = [Linkage.SHARED]
+	dependencies {
+		implementation project(':cpp-greeter')
+	}
+
+	binaries.configureEach {
+		compileTask.get().getIncludes().from(compileTask.get().targetPlatform.map {
+			def result = [new File("${Jvm.current().javaHome.absolutePath}/include")]
+
+			if (it.operatingSystem.macOsX) {
+				result.add(new File("${Jvm.current().javaHome.absolutePath}/include/darwin"))
+			} else if (it.operatingSystem.linux) {
+				result.add(new File("${Jvm.current().javaHome.absolutePath}/include/linux"))
+			} else if (it.operatingSystem.windows) {
+				result.add(new File("${Jvm.current().javaHome.absolutePath}/include/win32"))
+			}
+			return result
+		})
+	}
+}

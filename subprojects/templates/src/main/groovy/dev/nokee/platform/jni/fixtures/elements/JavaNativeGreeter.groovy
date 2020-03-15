@@ -6,6 +6,7 @@ import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
 
 class JavaNativeGreeter extends JavaSourceFileElement {
 	private final SourceFileElement source
+	private final JavaPackage javaPackage
 
 	@Override
 	SourceFileElement getSource() {
@@ -13,6 +14,7 @@ class JavaNativeGreeter extends JavaSourceFileElement {
 	}
 
 	JavaNativeGreeter(JavaPackage javaPackage, String sharedLibraryBaseName) {
+		this.javaPackage = javaPackage
 		source = ofFile(sourceFile("java/${javaPackage.directoryLayout}", 'Greeter.java', """
 package ${javaPackage.name};
 
@@ -32,5 +34,9 @@ public class Greeter {
     public native String sayHello(String name);
 }
 """))
+	}
+
+	JavaNativeGreeter withSharedLibraryBaseName(String sharedLibraryBaseName) {
+		return new JavaNativeGreeter(javaPackage, sharedLibraryBaseName)
 	}
 }
