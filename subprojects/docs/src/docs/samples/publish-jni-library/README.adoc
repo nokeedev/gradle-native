@@ -2,13 +2,15 @@
 :jbake-summary: Publish a JNI library to a binary repository.
 :jbake-type: sample_chapter
 :jbake-category: Java Native Interface (JNI)
-:jbake-description: See how to Nokee Gradle plugins are used for building a Java Native Interface (JNI) library implemented in Java and {cpp}.
+:jbake-description: See how to publish a Java Native Interface (JNI) library.
 
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
-This sample shows how to publish a JNI library implemented in Java and {cpp} with Gradle.
+This sample shows how to publish a JNI library with Gradle to a binary repository.
 The library has no dependencies, and the build has a minimal configuration.
 If you are looking at publishing a JNI library with multiple target machines, see link:../publishing-jni-library-with-target-machines/[this other sample].
+
+In this sample, we are publishing a JNI library implemented in Java and {cpp}; however, this applies to other JVM and native languages as well.
 
 ====
 [.multi-language-sample]
