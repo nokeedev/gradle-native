@@ -1,7 +1,6 @@
 = Application with JNI Library
 :jbake-summary: Use a JNI Library in an application.
 :jbake-type: sample_chapter
-:jbake-tags: sample, jni
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how to use a Java Native Interface (JNI) library within an application using Gradle Nokee plugins.
 

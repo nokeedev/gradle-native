@@ -1,7 +1,6 @@
 = JNI Library Target Machines Configuration
 :jbake-summary: Configure the target machines for a JNI library.
 :jbake-type: sample_chapter
-:jbake-tags: sample, jni, junit
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how to configure the target machines of a Java Native Interface (JNI) library using the Gradle Nokee plugins.
 

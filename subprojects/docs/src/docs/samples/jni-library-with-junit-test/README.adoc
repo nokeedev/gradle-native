@@ -1,7 +1,6 @@
 = JNI Library Testing with JUnit4
 :jbake-summary: Test a JNI library with JUnit 4.
 :jbake-type: sample_chapter
-:jbake-tags: sample, jni, junit
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how to test your Java Native Interface (JNI) library with JUnit4 with the Gradle Nokee plugins.
 

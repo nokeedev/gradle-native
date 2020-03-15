@@ -1,7 +1,6 @@
 = Publishing JNI Library
 :jbake-summary: Publish a JNI library to a binary repository.
 :jbake-type: sample_chapter
-:jbake-tags: sample, jni
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how to Nokee Gradle plugins are used for building a Java Native Interface (JNI) library implemented in Java and {cpp}.
 

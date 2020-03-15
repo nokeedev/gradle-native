@@ -1,7 +1,6 @@
 = Java/{cpp} JNI Library
 :jbake-summary: JNI library implemented in Java and {cpp}.
 :jbake-type: sample_chapter
-:jbake-tags: sample, jni
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how the Nokee Gradle plugins are used for building a Java Native Interface (JNI) library implemented in Java and {cpp}.
 
