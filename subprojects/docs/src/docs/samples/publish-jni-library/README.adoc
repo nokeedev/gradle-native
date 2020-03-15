@@ -1,0 +1,72 @@
+= Publishing JNI Library
+:jbake-summary: Publish a JNI library to a binary repository.
+:jbake-type: sample_chapter
+:jbake-tags: sample, jni
+:jbake-category: Java Native Interface (JNI)
+:jbake-description: See how to Nokee Gradle plugins are used for building a Java Native Interface (JNI) library implemented in Java and {cpp}.
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how to publish a JNI library implemented in Java and {cpp} with Gradle.
+The library has no dependencies, and the build has a minimal configuration.
+If you are looking at publishing a JNI library with multiple target machines, see link:../publishing-jni-library-with-target-machines/[this other sample].
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::{includedir}/groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::{includedir}/kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+
+To publish the library:
+
+[listing.terminal]
+----
+$ ./gradlew publish
+
+BUILD SUCCESSFUL
+7 actionable tasks: 7 executed
+$ tree ./build/publishing-repository
+./build/publishing-repository
+└── com
+    └── example
+        └── greeter
+            └── publish-jni-library
+                ├── 4.2
+                │   ├── publish-jni-library-4.2.jar
+                │   ├── publish-jni-library-4.2.jar.md5
+                │   ├── publish-jni-library-4.2.jar.sha1
+                │   ├── publish-jni-library-4.2.jar.sha256
+                │   ├── publish-jni-library-4.2.jar.sha512
+                │   ├── publish-jni-library-4.2.module
+                │   ├── publish-jni-library-4.2.module.md5
+                │   ├── publish-jni-library-4.2.module.sha1
+                │   ├── publish-jni-library-4.2.module.sha256
+                │   ├── publish-jni-library-4.2.module.sha512
+                │   ├── publish-jni-library-4.2.pom
+                │   ├── publish-jni-library-4.2.pom.md5
+                │   ├── publish-jni-library-4.2.pom.sha1
+                │   ├── publish-jni-library-4.2.pom.sha256
+                │   └── publish-jni-library-4.2.pom.sha512
+                ├── maven-metadata.xml
+                ├── maven-metadata.xml.md5
+                ├── maven-metadata.xml.sha1
+                ├── maven-metadata.xml.sha256
+                └── maven-metadata.xml.sha512
+
+5 directories, 20 files
+----
+
+For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin>> and link:{gradle-user-manual}/publishing_maven.html[Maven Publish Plugin] reference chapters.
