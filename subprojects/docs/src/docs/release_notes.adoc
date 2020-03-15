@@ -85,7 +85,7 @@ The documentation portal was also completed for this release which includes a <<
 The documentation will keep getting better over time.
 If you have any suggestions for content, demonstrations, tutorials or general improvements, link:https://github.com/nokeedev/gradle-native/issues/new[please open a new issue].
 
-[[sec::infrastructure]]
+[[sec:infrastructure]]
 == Infrastructure
 
 This release prepared the infrastructure for <<../nightly/manual/user_manual.adoc#,the documentation portal to provide automated nightly releases of the plugins>>.
