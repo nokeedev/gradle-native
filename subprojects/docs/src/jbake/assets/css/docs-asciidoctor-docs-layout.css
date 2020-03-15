@@ -310,7 +310,7 @@
 	.chapter #content #toc {
 		position: fixed;
 		left: calc(50% + 380px);
-		top: 50px;
+		top: 80px;
 		width: 13.75rem;
 		padding-top: 15px;
 		font-size: 1rem;
