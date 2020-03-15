@@ -1,0 +1,96 @@
+= Publish JNI Library with Target Machines
+:jbake-summary: Publish a JNI library with target machines to a binary repository.
+:jbake-type: sample_chapter
+:jbake-category: Java Native Interface (JNI)
+:jbake-description: See how to publish a Java Native Interface (JNI) library for multiple machines.
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how to publish a JNI library with multiple target machines with Gradle to a binary repository.
+The library has no dependencies, and the build has a minimal configuration.
+
+In this sample, we are publishing a JNI library with multiple machines implemented in Java and {cpp}; however, this applies to other JVM and native languages as well.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::{includedir}/groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::{includedir}/kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+
+To publish the library:
+
+[listing.terminal,only-if="macos"]
+----
+$ ./gradlew publishJniLibraryPublicationToMavenRepository publishJniLibraryMacosPublicationToMavenRepository
+
+BUILD SUCCESSFUL
+11 actionable tasks: 11 executed
+$ tree ./build/publishing-repository
+./build/publishing-repository
+└── com
+    └── example
+        └── greeter
+            ├── publish-jni-library-with-target-machines
+            │   ├── 4.2
+            │   │   ├── publish-jni-library-with-target-machines-4.2.jar
+            │   │   ├── publish-jni-library-with-target-machines-4.2.jar.md5
+            │   │   ├── publish-jni-library-with-target-machines-4.2.jar.sha1
+            │   │   ├── publish-jni-library-with-target-machines-4.2.jar.sha256
+            │   │   ├── publish-jni-library-with-target-machines-4.2.jar.sha512
+            │   │   ├── publish-jni-library-with-target-machines-4.2.module
+            │   │   ├── publish-jni-library-with-target-machines-4.2.module.md5
+            │   │   ├── publish-jni-library-with-target-machines-4.2.module.sha1
+            │   │   ├── publish-jni-library-with-target-machines-4.2.module.sha256
+            │   │   ├── publish-jni-library-with-target-machines-4.2.module.sha512
+            │   │   ├── publish-jni-library-with-target-machines-4.2.pom
+            │   │   ├── publish-jni-library-with-target-machines-4.2.pom.md5
+            │   │   ├── publish-jni-library-with-target-machines-4.2.pom.sha1
+            │   │   ├── publish-jni-library-with-target-machines-4.2.pom.sha256
+            │   │   └── publish-jni-library-with-target-machines-4.2.pom.sha512
+            │   ├── maven-metadata.xml
+            │   ├── maven-metadata.xml.md5
+            │   ├── maven-metadata.xml.sha1
+            │   ├── maven-metadata.xml.sha256
+            │   └── maven-metadata.xml.sha512
+            └── publish-jni-library-with-target-machines-macos
+                ├── 4.2
+                │   ├── publish-jni-library-with-target-machines-macos-4.2.jar
+                │   ├── publish-jni-library-with-target-machines-macos-4.2.jar.md5
+                │   ├── publish-jni-library-with-target-machines-macos-4.2.jar.sha1
+                │   ├── publish-jni-library-with-target-machines-macos-4.2.jar.sha256
+                │   ├── publish-jni-library-with-target-machines-macos-4.2.jar.sha512
+                │   ├── publish-jni-library-with-target-machines-macos-4.2.module
+                │   ├── publish-jni-library-with-target-machines-macos-4.2.module.md5
+                │   ├── publish-jni-library-with-target-machines-macos-4.2.module.sha1
+                │   ├── publish-jni-library-with-target-machines-macos-4.2.module.sha256
+                │   ├── publish-jni-library-with-target-machines-macos-4.2.module.sha512
+                │   ├── publish-jni-library-with-target-machines-macos-4.2.pom
+                │   ├── publish-jni-library-with-target-machines-macos-4.2.pom.md5
+                │   ├── publish-jni-library-with-target-machines-macos-4.2.pom.sha1
+                │   ├── publish-jni-library-with-target-machines-macos-4.2.pom.sha256
+                │   └── publish-jni-library-with-target-machines-macos-4.2.pom.sha512
+                ├── maven-metadata.xml
+                ├── maven-metadata.xml.md5
+                ├── maven-metadata.xml.sha1
+                ├── maven-metadata.xml.sha256
+                └── maven-metadata.xml.sha512
+
+7 directories, 40 files
+----
+
+NOTE: The other publish tasks will need to be called on each platform that can build the JNI library.
+
+For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin>> and link:{gradle-user-manual}/publishing_maven.html[Maven Publish Plugin] reference chapters.

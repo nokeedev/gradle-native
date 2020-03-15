@@ -1,0 +1,17 @@
+plugins {
+	id 'groovy'
+	id 'java-gradle-plugin'
+}
+
+gradlePlugin {
+	plugins {
+		jniLibraryPublish {
+			id = 'dev.nokee.samples.jni-library-publish'
+			implementationClass = 'dev.nokee.samples.JniLibraryPublishPlugin'
+		}
+	}
+}
+
+dependencies {
+	compileOnly localGroovy()
+}

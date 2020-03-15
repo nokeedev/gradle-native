@@ -1,0 +1,46 @@
+plugins {
+	id 'java'
+	id 'dev.nokee.jni-library'
+	id 'dev.nokee.cpp-language'
+	id 'maven-publish'
+	id 'dev.nokee.samples.jni-library-publish'
+}
+
+group = 'com.example.greeter'
+version = '4.2'
+
+library {
+	targetMachines = [
+		machines.windows.x86_64,
+		machines.macOS.x86_64,
+		machines.linux.x86_64
+	]
+}
+
+afterEvaluate {
+	publishing {
+		publications {
+			jniLibrary(MavenPublication) {
+				from components.jni
+				artifactId = project.name
+			}
+			jniLibraryMacos(MavenPublication) {
+				from components.getByName('jniMacos')
+				artifactId = "${project.name}-macos"
+			}
+			jniLibraryLinux(MavenPublication) {
+				from components.jniLinux
+				artifactId = "${project.name}-linux"
+			}
+			jniLibraryWindows(MavenPublication) {
+				from components.jniWindows
+				artifactId = "${project.name}-windows"
+			}
+		}
+		repositories {
+			maven {
+				url = "${buildDir}/publishing-repository"
+			}
+		}
+	}
+}

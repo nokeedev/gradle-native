@@ -248,7 +248,9 @@ abstract class WellBehavingSampleTest extends Specification {
 		void execute(TestFile testDirectory) {
 			def process = (['/bin/bash', '-c'] + ([command.executable] + command.args).join(' ')).execute(null, testDirectory)
 			assert process.waitFor() == 0
-			assert process.in.text.startsWith(command.getExpectedOutput().get())
+			def stdout = process.in.text
+			println stdout // TODO: Port this capability to other commands
+			assert stdout.startsWith(command.getExpectedOutput().get())
 		}
 	}
 }
