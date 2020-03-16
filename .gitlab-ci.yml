@@ -2,7 +2,7 @@ image: nokeedev/generic-builder
 
 build:
   stage: build
-  script: gradle assemble -i
+  script: gradle assemble -x :docs:generateSamplesAsciinema -x :docs:compileDocsAsciicast
   artifacts:
     when: on_failure
     paths:
