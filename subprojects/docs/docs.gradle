@@ -3,6 +3,7 @@ import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.docs.Dsl
 import dev.nokee.docs.JBakeAssetSourceSet
 import dev.nokee.docs.tasks.GenerateSamplesContentTask
+import dev.nokee.docs.tasks.CreateAsciinema
 import dev.nokee.platform.jni.fixtures.GreeterAppWithJniLibrary
 import dev.nokee.platform.jni.fixtures.JavaJniCGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
@@ -32,10 +33,10 @@ docsTest.systemProperty('sampleContentDirectory', layout.buildDirectory.dir('sta
 docsTest.dependsOn('stage')
 dependencies {
 	docsTestImplementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
+	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
 	docsTestImplementation 'dev.gradleplugins:gradle-fixtures:latest.integration'
 	docsTestImplementation 'dev.gradleplugins:spock-gradle-fixtures:latest.integration'
 	docsTestImplementation 'dev.gradleplugins:spock-test-directory-extension:latest.integration'
-	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
 	docsTestImplementation gradleApi() // Because there are some Gradle type leaking in, TODO: remove when those leaks are patched
 
 	def lombokVersion = '1.18.12'
@@ -90,6 +91,7 @@ TaskProvider<Task> generateGroovyDslNightlySettingsTask = tasks.register("config
 }
 
 def generateSamplesContentTask = tasks.named('generateSamplesAsciidoctors', GenerateSamplesContentTask)
+def generateSamplesAsciinemaTask = tasks.named('generateSamplesAsciinema', CreateAsciinema)
 def dslSampleArchiveSourceSet = project.objects.newInstance(JBakeAssetSourceSet, 'dslSampleArchive')
 dslSampleArchiveSourceSet.source.from(layout.buildDirectory.dir('generated/assets'))
 components.add(dslSampleArchiveSourceSet)
@@ -139,7 +141,7 @@ components.add(dslSampleArchiveSourceSet)
 			}
 		}
 
-		TaskProvider<Task> zipDslSampleTask = tasks.register("zip${nameAsCamelCase}${GUtil.toCamelCase(dsl.name)}Sample", Zip) {
+		TaskProvider<Zip> zipDslSampleTask = tasks.register("zip${nameAsCamelCase}${GUtil.toCamelCase(dsl.name)}Sample", Zip) {
 			dependsOn(stageSamplesTask)
 			from(generatedSampleSourceSet.get().dir("${sample.name}/${dsl.name}"))
 			archiveBaseName = nameAsCamelCase
@@ -159,6 +161,16 @@ components.add(dslSampleArchiveSourceSet)
 				permalink = sample.name
 				version = project.provider { project.version.toString() }
 				archiveBaseName = nameAsCamelCase
+			}
+		}
+		if (dsl == Dsl.GROOVY_DSL) {
+			generateSamplesAsciinemaTask.configure {
+				it.dependsOn(zipDslSampleTask)
+				it.sample {
+					contentFile = generateSamplesContentTask.flatMap { it.outputDirectory.file("${sample.name}/index.adoc") }
+					permalink = sample.name
+					source.set(zipDslSampleTask.flatMap { zipTask -> zipTask.getArchiveFile() })
+				}
 			}
 		}
 	}

@@ -2,14 +2,12 @@ package dev.nokee.docs;
 
 import dev.gradleplugins.internal.GroovySpockFrameworkTestSuite;
 import dev.gradleplugins.internal.plugins.SpockFrameworkTestSuiteBasePlugin;
-import dev.nokee.docs.tasks.DotCompile;
-import dev.nokee.docs.tasks.GenerateSamplesContentTask;
-import dev.nokee.docs.tasks.ProcessAsciidoctor;
-import dev.nokee.docs.tasks.ProcessorTask;
+import dev.nokee.docs.tasks.*;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.attributes.DocsType;
 import org.gradle.api.component.SoftwareComponentContainer;
 import org.gradle.api.file.Directory;
@@ -33,6 +31,7 @@ public class DocumentationPlugin implements Plugin<Project> {
 		ProjectLayout layout = project.getLayout();
 		ConfigurationContainer configurations = project.getConfigurations();
 		ProviderFactory providers = project.getProviders();
+		DependencyHandler dependencies = project.getDependencies();
 
 		project.getPluginManager().apply("org.jbake.site");
 		project.getPluginManager().apply(SpockFrameworkTestSuiteBasePlugin.class);
@@ -60,12 +59,29 @@ public class DocumentationPlugin implements Plugin<Project> {
 		contentSourceSet.getSource().from(processSamplesTask.flatMap(ProcessorTask::getOutputDirectory));
 		components.add(contentSourceSet);
 
+		// *.dot -> *.png
 		TaskProvider<DotCompile> compileDotTask = tasks.register("compileDocsDot", DotCompile.class, task -> {
 			task.getSource().setDir("src/docs").include("**/*.dot");
 			task.getRelativePath().set("docs/nightly");
 		});
+		// *.adoc -> *.cast -> *.gif
+		Configuration asciidoctorToAsciinema = configurations.create("asciidoctorToAsciinema");
+		dependencies.add(asciidoctorToAsciinema.getName(), "org.asciidoctor:asciidoctorj-api:2.2.0");
+		dependencies.add(asciidoctorToAsciinema.getName(), "org.asciidoctor:asciidoctorj:2.2.0");
+		TaskProvider<CreateAsciinema> createAsciinemaTask = tasks.register("generateSamplesAsciinema", CreateAsciinema.class, task -> {
+			task.getClasspath().from(asciidoctorToAsciinema);
+			task.getLocalRepository().set(project.getLayout().getBuildDirectory().dir("repository"));
+			task.getVersion().set(project.provider(() -> project.getVersion().toString()));
+			task.getRelativePath().set("docs/nightly/samples"); // TODO: Maybe it should be context path instead of relative path
+		});
+		TaskProvider<AsciicastCompile> compileAsciicastTask = tasks.register("compileDocsAsciicast", AsciicastCompile.class, task -> {
+			task.dependsOn(createAsciinemaTask);
+			task.getSource().setDir(createAsciinemaTask.flatMap(it -> it.getOutputDirectory())).include("**/*.cast");
+		});
 		JBakeAssetSourceSet assetSourceSet = objects.newInstance(JBakeAssetSourceSet.class, "jbakeAssets");
 		assetSourceSet.getSource().from(compileDotTask.flatMap(ProcessorTask::getOutputDirectory));
+		assetSourceSet.getSource().from(createAsciinemaTask.flatMap(ProcessorTask::getOutputDirectory));
+		assetSourceSet.getSource().from(compileAsciicastTask.flatMap(ProcessorTask::getOutputDirectory));
 		assetSourceSet.getSource().from("src/jbake/assets");
 		components.add(assetSourceSet);
 

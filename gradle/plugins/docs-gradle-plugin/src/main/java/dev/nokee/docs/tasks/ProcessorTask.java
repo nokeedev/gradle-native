@@ -12,7 +12,7 @@ public abstract class ProcessorTask extends DefaultTask {
 	public abstract DirectoryProperty getOutputDirectory();
 
 	public ProcessorTask() {
-		getOutputDirectory().set(getProjectLayout().getBuildDirectory().dir("tmp/" + getName()));
+		getOutputDirectory().set(getProjectLayout().getBuildDirectory().dir("tmp/" + getName() + "/outputs"));
 		getOutputDirectory().disallowChanges();
 	}
 
