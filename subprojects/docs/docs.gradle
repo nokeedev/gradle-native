@@ -165,7 +165,7 @@ components.add(dslSampleArchiveSourceSet)
 		}
 		if (dsl == Dsl.GROOVY_DSL) {
 			generateSamplesAsciinemaTask.configure {
-				it.dependsOn(zipDslSampleTask)
+				it.dependsOn(zipDslSampleTask, generateSamplesContentTask)
 				it.sample {
 					contentFile = generateSamplesContentTask.flatMap { it.outputDirectory.file("${sample.name}/index.adoc") }
 					permalink = sample.name
