@@ -16,7 +16,11 @@ class Version {
 
 	private void maybeLoad() {
 		if (delegate == null) {
-			delegate = VersionNumber.parse("${loadBaseVersion()}-${loadQualifier()}")
+			if (System.getProperties().containsKey("release")) {
+				delegate = VersionNumber.parse(loadBaseVersion())
+			} else {
+				delegate = VersionNumber.parse("${loadBaseVersion()}-${loadQualifier()}")
+			}
 		}
 	}
 
