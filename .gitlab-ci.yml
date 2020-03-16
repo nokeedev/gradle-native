@@ -3,6 +3,10 @@ image: nokeedev/generic-builder
 build:
   stage: build
   script: gradle assemble -i
+  artifacts:
+    when: on_failure
+    paths:
+      - subprojects/docs/build/
 
 deploy:
   stage: deploy
