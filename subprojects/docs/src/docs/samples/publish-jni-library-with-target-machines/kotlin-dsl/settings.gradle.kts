@@ -1,3 +1,3 @@
 rootProject.name = "publish-jni-library-with-target-machines"
 
-includeBuild("gradle/jni-library-publish")
+includeBuild("gradle/plugins/jni-library-publish")
