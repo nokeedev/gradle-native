@@ -88,7 +88,7 @@ If you have any suggestions for content, demonstrations, tutorials or general im
 [[sec:infrastructure]]
 == Infrastructure
 
-This release prepared the infrastructure for <<../nightly/manual/user_manual.adoc#,the documentation portal to provide automated nightly releases of the plugins>>.
+This release prepared the infrastructure for <<manual/user_manual.adoc#,the documentation portal to provide automated nightly releases of the plugins>>.
 It also rolled out a <<samples/index.adoc#,sample infrastructure to allow users to see how particular use cases are solved quickly>>.
 There is also an ongoing effort in providing appropriate coverage for a broad set of architectures, operating systems and toolchains.
 We are committed to quality and features will only be available if we have test coverage for them.
