@@ -38,19 +38,21 @@ public class DocumentationPlugin implements Plugin<Project> {
 
 		components.add(objects.newInstance(GroovySpockFrameworkTestSuite.class, "docsTest"));
 
+		String version = toVersion(project);
+
 		// Source sets
 		TaskProvider<GenerateSamplesContentTask> generateSamplesContentTask = tasks.register("generateSamplesAsciidoctors", GenerateSamplesContentTask.class);
 		TaskProvider<ProcessAsciidoctor> processSamplesTask = tasks.register("processSamplesAsciidoctors", ProcessAsciidoctor.class, task -> {
 			task.dependsOn(generateSamplesContentTask);
 			task.getSource().setDir(generateSamplesContentTask.flatMap(it -> it.getOutputDirectory())).include("**/*");
-			task.getRelativePath().set("docs/nightly/samples");
+			task.getRelativePath().set("docs/" + version + "/samples");
 			task.getVersion().set(providers.provider(() -> project.getVersion().toString()));
 			task.getMinimumGradleVersion().set("6.2.1");
 		});
 
 		TaskProvider<ProcessAsciidoctor> processDocsTask = tasks.register("processDocsAsciidoctors", ProcessAsciidoctor.class, task -> {
 			task.getSource().setDir("src/docs").include("**/*.adoc").exclude("samples/*/*").include("samples/index.adoc");
-			task.getRelativePath().set("docs/nightly");
+			task.getRelativePath().set("docs/" + version);
 			task.getVersion().set(providers.provider(() -> project.getVersion().toString()));
 			task.getMinimumGradleVersion().set("6.2.1");
 		});
@@ -62,7 +64,7 @@ public class DocumentationPlugin implements Plugin<Project> {
 		// *.dot -> *.png
 		TaskProvider<DotCompile> compileDotTask = tasks.register("compileDocsDot", DotCompile.class, task -> {
 			task.getSource().setDir("src/docs").include("**/*.dot");
-			task.getRelativePath().set("docs/nightly");
+			task.getRelativePath().set("docs/" + version);
 		});
 		// *.adoc -> *.cast -> *.gif
 		Configuration asciidoctorToAsciinema = configurations.create("asciidoctorToAsciinema");
@@ -73,7 +75,7 @@ public class DocumentationPlugin implements Plugin<Project> {
 			task.getClasspath().from(asciidoctorToAsciinema);
 			task.getLocalRepository().set(project.getLayout().getBuildDirectory().dir("repository"));
 			task.getVersion().set(project.provider(() -> project.getVersion().toString()));
-			task.getRelativePath().set("docs/nightly/samples"); // TODO: Maybe it should be context path instead of relative path
+			task.getRelativePath().set("docs/" + version + "/samples"); // TODO: Maybe it should be context path instead of relative path
 		});
 		TaskProvider<AsciicastCompile> compileAsciicastTask = tasks.register("compileDocsAsciicast", AsciicastCompile.class, task -> {
 			task.setEnabled(false);
@@ -182,5 +184,12 @@ public class DocumentationPlugin implements Plugin<Project> {
 			});
 			configuration.getOutgoing().artifact(project.file("src/jbake/jbake.properties"));
 		});
+	}
+
+	private static String toVersion(Project project) {
+		if (project.getVersion().toString().contains("-")) {
+			return "nightly";
+		}
+		return project.getVersion().toString();
 	}
 }

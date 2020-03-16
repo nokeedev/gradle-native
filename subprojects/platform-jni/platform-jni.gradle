@@ -79,17 +79,37 @@ private String resolveProperty(Project project, String envVarKey, String project
 
 afterEvaluate {
 	// TODO: Publish Gradle metadata
+	if (System.getProperties().containsKey('release')) {
+		bintray {
+			override = false
+			pkg {
+				repo = 'distributions'
+				name = 'dev.nokee:nokee-gradle-plugins'
+				version {
+					attributes = ['gradle-plugin': ["dev.nokee.jni-library:${project.group}:${project.name}",
+													"dev.nokee.cpp-language:${project.group}:${project.name}",
+													"dev.nokee.c-language:${project.group}:${project.name}"]]
+				}
+			}
+		}
+	} else {
+		bintray {
+			override = true
+			pkg {
+				repo = 'distributions-snapshots' // only for snapshot
+				name = 'artifacts'
+			}
+		}
+	}
+
 	bintray {
 		user = resolveProperty(project, "BINTRAY_USER", "dev.nokee.bintray.user")
 		key = resolveProperty(project, "BINTRAY_KEY", "dev.nokee.bintray.key")
 		publications = publishing.publications.collect { it.name }
 
 		publish = true
-		override = true // only for snapshot
 
 		pkg {
-			repo = 'distributions-snapshots' // only for snapshot
-			name = 'artifacts'
 			desc = project.description
 			userOrg = 'nokeedev'
 			websiteUrl = 'https://nokee.dev'

@@ -20,6 +20,13 @@ plugins {
 	id 'dev.nokeebuild.documentation'
 }
 
+String toVersion(Project project) {
+	if (project.version.toString().contains('-')) {
+		return 'nightly'
+	}
+	return project.version.toString()
+}
+
 docsTest.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
 processSamplesAsciidoctors.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
 generateSamplesAsciinema.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
@@ -28,10 +35,10 @@ generateSamplesAsciinema.dependsOn({ project(':platformJni').tasks.named('publis
 // For now, it's ok, let's solve this when it becomes a real problem.
 docsTest.inputs.dir(layout.buildDirectory.dir('repository'))
 docsTest.inputs.dir('build/staging/assets/zips')
-docsTest.inputs.dir(layout.buildDirectory.dir('staging/content/docs/nightly/samples'))
+docsTest.inputs.dir(layout.buildDirectory.dir("staging/content/docs/${toVersion(project)}/samples"))
 docsTest.systemProperty('dev.nokee.docsRepository', layout.buildDirectory.dir('repository').get().asFile.absolutePath)
 docsTest.systemProperty('sampleArchiveDirectory', 'build/staging/assets/zips')
-docsTest.systemProperty('sampleContentDirectory', layout.buildDirectory.dir('staging/content/docs/nightly/samples').get().asFile.absolutePath)
+docsTest.systemProperty('sampleContentDirectory', layout.buildDirectory.dir("staging/content/docs/${toVersion(project)}/samples").get().asFile.absolutePath)
 docsTest.dependsOn('stage')
 dependencies {
 	docsTestImplementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
