@@ -69,12 +69,14 @@ public class DocumentationPlugin implements Plugin<Project> {
 		dependencies.add(asciidoctorToAsciinema.getName(), "org.asciidoctor:asciidoctorj-api:2.2.0");
 		dependencies.add(asciidoctorToAsciinema.getName(), "org.asciidoctor:asciidoctorj:2.2.0");
 		TaskProvider<CreateAsciinema> createAsciinemaTask = tasks.register("generateSamplesAsciinema", CreateAsciinema.class, task -> {
+			task.setEnabled(false);
 			task.getClasspath().from(asciidoctorToAsciinema);
 			task.getLocalRepository().set(project.getLayout().getBuildDirectory().dir("repository"));
 			task.getVersion().set(project.provider(() -> project.getVersion().toString()));
 			task.getRelativePath().set("docs/nightly/samples"); // TODO: Maybe it should be context path instead of relative path
 		});
 		TaskProvider<AsciicastCompile> compileAsciicastTask = tasks.register("compileDocsAsciicast", AsciicastCompile.class, task -> {
+			task.setEnabled(false);
 			task.dependsOn(createAsciinemaTask);
 			task.getSource().setDir(createAsciinemaTask.flatMap(it -> it.getOutputDirectory())).include("**/*.cast");
 		});
