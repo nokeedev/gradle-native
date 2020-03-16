@@ -22,6 +22,7 @@ plugins {
 
 docsTest.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
 processSamplesAsciidoctors.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
+generateSamplesAsciinema.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
 // The following inputs cause the task to never be up-to-date.
 // The solution would be to correctly declare the input/output for `publishAllPublicationsToDocsRepository` so it doesn't republish when nothing has changed.
 // For now, it's ok, let's solve this when it becomes a real problem.
