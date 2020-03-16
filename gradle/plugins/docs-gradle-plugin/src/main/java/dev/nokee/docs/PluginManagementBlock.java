@@ -91,13 +91,15 @@ public abstract class PluginManagementBlock {
 			out.println("pluginManagement {");
 			out.println("	repositories {");
 			out.println("		gradlePluginPortal()");
-			out.println(maven("https://dl.bintray.com/nokeedev/distributions-snapshots"));
+			out.println("		" + maven("https://dl.bintray.com/nokeedev/distributions"));
+			out.println("		" + maven("https://dl.bintray.com/nokeedev/distributions-snapshots"));
 			repositoryUris.stream().map(KotlinDslPluginManagementBlock::maven).forEach(out::println);
 			out.println("	}");
+			out.println("	val nokeeVersion = \"" + version + "\"");
 			out.println("	resolutionStrategy {");
 			out.println("		eachPlugin {");
 			out.println("			if (requested.id.id.startsWith(\"dev.nokee.\")) {");
-			out.println("				useModule(\"${requested.id.id}:${requested.id.id}.gradle.plugin:" + version + "\")");
+			out.println("				useModule(\"${requested.id.id}:${requested.id.id}.gradle.plugin:${nokeeVersion}\")");
 			out.println("			}");
 			out.println("		}");
 			out.println("	}");
@@ -108,9 +110,7 @@ public abstract class PluginManagementBlock {
 		}
 
 		private static String maven(String repositoryUri) {
-			return "		maven {\n" +
-			"			url = uri(\"" + repositoryUri + "\")\n" +
-			"		}";
+			return "maven { url = uri(\"" + repositoryUri + "\") }";
 		}
 	}
 
@@ -139,13 +139,15 @@ public abstract class PluginManagementBlock {
 			out.println("pluginManagement {");
 			out.println("	repositories {");
 			out.println("		gradlePluginPortal()");
-			out.println(maven("https://dl.bintray.com/nokeedev/distributions-snapshots"));
+			out.println("		" + maven("https://dl.bintray.com/nokeedev/distributions"));
+			out.println("		" + maven("https://dl.bintray.com/nokeedev/distributions-snapshots"));
 			repositoryUris.stream().map(GroovyDslPluginManagementBlock::maven).forEach(out::println);
 			out.println("	}");
+			out.println("	def nokeeVersion = \"" + version + "\"");
 			out.println("	resolutionStrategy {");
 			out.println("		eachPlugin {");
 			out.println("			if (requested.id.id.startsWith('dev.nokee.')) {");
-			out.println("				useModule(\"${requested.id.id}:${requested.id.id}.gradle.plugin:" + version + "\")");
+			out.println("				useModule(\"${requested.id.id}:${requested.id.id}.gradle.plugin:${nokeeVersion}\")");
 			out.println("			}");
 			out.println("		}");
 			out.println("	}");
@@ -156,9 +158,7 @@ public abstract class PluginManagementBlock {
 		}
 
 		private static String maven(String repositoryUri) {
-			return "		maven {\n" +
-				"			url = '" + repositoryUri + "'\n" +
-				"		}";
+			return "maven { url = '" + repositoryUri + "' }";
 		}
 	}
 }
