@@ -1,19 +1,21 @@
 package dev.nokee.platform.jni.internal;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Named;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
 
 public abstract class NamingScheme {
 	private final String baseName;
 	private final List<String> dimensions;
 
 	private NamingScheme(String baseName) {
-		this(baseName, ImmutableList.of());
+		this(baseName, emptyList());
 	}
 
 	private NamingScheme(String baseName, List<String> dimensions) {
@@ -39,7 +41,10 @@ public abstract class NamingScheme {
 			return this;
 		}
 
-		return new Other(baseName, ImmutableList.<String>builder().addAll(dimensions).add(value.getName()).build());
+		List<String> newDimmensions = new ArrayList<>();
+		newDimmensions.addAll(dimensions);
+		newDimmensions.add(value.getName());
+		return new Other(baseName, newDimmensions);
 	}
 
 	public abstract String getTaskName(String verb);
@@ -48,7 +53,10 @@ public abstract class NamingScheme {
 		private BaseNameNamingScheme() {}
 
 		public String withKababDimensions() {
-			return String.join("-", ImmutableList.<String>builder().add(baseName).addAll(dimensions).build());
+			List<String> values = new ArrayList<>();
+			values.add(baseName);
+			values.addAll(dimensions);
+			return String.join("-", values);
 		}
 	}
 

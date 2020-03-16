@@ -1,6 +1,5 @@
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.platform.nativebase.TargetMachine;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.model.internal.registry.ModelRegistry;
@@ -13,7 +12,9 @@ import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import org.gradle.nativeplatform.toolchain.internal.msvcpp.VisualCppToolChain;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
@@ -36,7 +37,10 @@ public class ToolChainSelectorInternal {
 	}
 
 	private Collection<ToolChain> getToolChains() {
-		return ImmutableList.<ToolChain>builder().add(new DomainKnowledgeToolChain()).addAll(modelRegistry.realize("toolChains", NativeToolChainRegistryInternal.class).withType(NativeToolChainInternal.class).stream().map(SoftwareModelToolChain::new).collect(Collectors.toList())).build();
+		List<ToolChain> result = new ArrayList<>();
+		result.add(new DomainKnowledgeToolChain());
+		result.addAll(modelRegistry.realize("toolChains", NativeToolChainRegistryInternal.class).withType(NativeToolChainInternal.class).stream().map(SoftwareModelToolChain::new).collect(Collectors.toList()));
+		return result;
 	}
 
 	private interface ToolChain {
