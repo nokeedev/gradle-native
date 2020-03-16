@@ -172,7 +172,7 @@
 }
 
 .docs-navigation a.active {
-	color: #86C232;
+	color: #74AF31;
 }
 
 .docs-navigation ul {
@@ -274,7 +274,7 @@
 #toc a:focus,
 #toc a:hover code,
 #toc a:focus code {
-	color: #86C232;
+	color: #74AF31;
 }
 
 #toc a:active {
@@ -301,7 +301,7 @@
 	}
 
 	#toc a.active {
-		color: #86C232;
+		color: #74AF31;
 	}
 }
 
@@ -323,7 +323,7 @@
 	}
 
 	.chapter #toc a.active {
-		color: #86C232;
+		color: #74AF31;
 	}
 }
 

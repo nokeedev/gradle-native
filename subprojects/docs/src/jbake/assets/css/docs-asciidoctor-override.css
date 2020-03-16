@@ -27,7 +27,7 @@ ul, li {
 }
 
 /* Default Link Styles */
-a { color: #86C232; text-decoration: none; line-height: inherit; }
+a { color: #74AF31; text-decoration: none; line-height: inherit; }
 a:hover, a:focus { color: #61892F; text-decoration: underline; }
 a img { border: none; }
 
