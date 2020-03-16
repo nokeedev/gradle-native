@@ -2,7 +2,7 @@ image: nokeedev/generic-builder
 
 build:
   stage: build
-  script: gradle assemble
+  script: gradle assemble --stacktrace
 
 deploy:
   stage: deploy
