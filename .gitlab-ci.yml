@@ -13,3 +13,33 @@ deploy:
   script: gradle bintrayUpload
   only:
     - master
+
+
+publish jbakes:
+  stage: build
+  script:
+    - gradle :docs:publishJbakePublicationToS3Repository
+      #- curl --request POST --form "token=$CI_JOB_TOKEN" --form ref=master https://gitlab.com/api/v4/projects/17545900/trigger/pipeline # docs.nokee.dev
+      #- curl --request POST --form "token=$CI_JOB_TOKEN" --form ref=master https://gitlab.com/api/v4/projects/16537594/trigger/pipeline # nokeedev.gitlab.io
+  only:
+    changes:
+      - .gitlab-ci.yml
+      - subprojects/docs/src/jbake/**/*
+      - subprojects/docs/docs.gradle
+      - gradle/plugins/docs-gradle-plugin
+    refs:
+      - master
+
+publish baked:
+  stage: build
+  script:
+    - gradle :docs:publishBakedPublicationToS3Repository
+      #- curl --request POST --form "token=$CI_JOB_TOKEN" --form ref=master https://gitlab.com/api/v4/projects/16537594/trigger/pipeline # nokeedev.gitlab.io
+  only:
+    changes:
+      - .gitlab-ci.yml
+      - subprojects/docs/**/*
+      - subprojects/docs/docs.gradle
+      - gradle/plugins/docs-gradle-plugin
+    refs:
+      - master

@@ -7,9 +7,15 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.artifacts.ConfigurationVariant;
+import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition;
 import org.gradle.api.attributes.DocsType;
+import org.gradle.api.component.AdhocComponentWithVariants;
+import org.gradle.api.component.ConfigurationVariantDetails;
 import org.gradle.api.component.SoftwareComponentContainer;
+import org.gradle.api.component.SoftwareComponentFactory;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
@@ -18,11 +24,14 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.api.tasks.bundling.Zip;
 import org.jbake.gradle.JBakeExtension;
+import org.jbake.gradle.JBakeTask;
 
+import javax.inject.Inject;
 import java.util.stream.Collectors;
 
-public class DocumentationPlugin implements Plugin<Project> {
+public abstract class DocumentationPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		ObjectFactory objects = project.getObjects();
@@ -148,7 +157,7 @@ public class DocumentationPlugin implements Plugin<Project> {
 				});
 			});
 		});
-		configurations.create("assetsElements", configuration -> {
+		Configuration assetsElements = configurations.create("assetsElements", configuration -> {
 			configuration.setCanBeConsumed(false);
 			configuration.setCanBeConsumed(true);
 			configuration.attributes(attributes -> {
@@ -157,12 +166,21 @@ public class DocumentationPlugin implements Plugin<Project> {
 			project.afterEvaluate(proj -> {
 				components.withType(JBakeAssetSourceSet.class).stream().map(LanguageSourceSet::getSource).forEach(source -> {
 					source.getFiles().forEach(file -> {
-						configuration.getOutgoing().artifact(file, it -> it.builtBy(source));
+						configuration.getOutgoing().getVariants().maybeCreate("directory").artifact(file, it -> {
+							it.setType(ArtifactTypeDefinition.DIRECTORY_TYPE);
+							it.builtBy(source);
+						});
 					});
 				});
 			});
 		});
-		configurations.create("templatesElements", configuration -> {
+		TaskProvider<Zip> zipJbakeAssetsTask = tasks.register("zipJbakeAssets", Zip.class, task ->{
+			task.from(components.withType(JBakeAssetSourceSet.class).stream().map(LanguageSourceSet::getSource).collect(Collectors.toList()));
+			task.getArchiveClassifier().set("assets");
+		});
+		assetsElements.getOutgoing().artifact(zipJbakeAssetsTask);
+
+		Configuration templatesElements = configurations.create("templatesElements", configuration -> {
 			configuration.setCanBeConsumed(false);
 			configuration.setCanBeConsumed(true);
 			configuration.attributes(attributes -> {
@@ -171,12 +189,21 @@ public class DocumentationPlugin implements Plugin<Project> {
 			project.afterEvaluate(proj -> {
 				components.withType(JBakeTemplateSourceSet.class).stream().map(LanguageSourceSet::getSource).forEach(source -> {
 					source.getFiles().forEach(file -> {
-						configuration.getOutgoing().artifact(file, it -> it.builtBy(source));
+						configuration.getOutgoing().getVariants().maybeCreate("directory").artifact(file, it -> {
+							it.setType(ArtifactTypeDefinition.DIRECTORY_TYPE);
+							it.builtBy(source);
+						});
 					});
 				});
 			});
 		});
-		configurations.create("propertiesElements", configuration -> {
+		TaskProvider<Zip> zipJbakeTemplatesTask = tasks.register("zipJbakeTemplates", Zip.class, task ->{
+			task.from(components.withType(JBakeTemplateSourceSet.class).stream().map(LanguageSourceSet::getSource).collect(Collectors.toList()));
+			task.getArchiveClassifier().set("templates");
+		});
+		templatesElements.getOutgoing().artifact(zipJbakeTemplatesTask);
+
+		Configuration propertiesElements = configurations.create("propertiesElements", configuration -> {
 			configuration.setCanBeConsumed(false);
 			configuration.setCanBeConsumed(true);
 			configuration.attributes(attributes -> {
@@ -184,12 +211,64 @@ public class DocumentationPlugin implements Plugin<Project> {
 			});
 			configuration.getOutgoing().artifact(project.file("src/jbake/jbake.properties"));
 		});
+
+		AdhocComponentWithVariants jbake = getSoftwareComponentFactory().adhoc("jbake");
+		jbake.addVariantsFromConfiguration(assetsElements, this::configureVariant);
+		jbake.addVariantsFromConfiguration(templatesElements, this::configureVariant);
+		jbake.addVariantsFromConfiguration(propertiesElements, this::configureVariant);
+		project.getComponents().add(jbake);
+
+
+
+
+
+
+		Configuration bakedElements = configurations.create("bakedElements", configuration -> {
+			configuration.setCanBeResolved(false);
+			configuration.setCanBeConsumed(true);
+			configuration.attributes(attributes -> {
+				attributes.attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.class, "jbake-baked"));
+			});
+			project.afterEvaluate(proj -> {
+				TaskProvider<JBakeTask> bakeTask = tasks.named("bake", JBakeTask.class);
+				configuration.getOutgoing().getVariants().create("directory").artifact(bakeTask.map(JBakeTask::getOutput), it -> {
+					it.setType(ArtifactTypeDefinition.DIRECTORY_TYPE);
+					it.builtBy(bakeTask);
+				});
+			});
+		});
+		TaskProvider<Zip> zipJbakeBakedTask = tasks.register("zipJbakeBaked", Zip.class, task ->{
+			task.from(tasks.named("bake", JBakeTask.class).map(JBakeTask::getOutput));
+			task.getArchiveClassifier().set("baked");
+		});
+		bakedElements.getOutgoing().artifact(zipJbakeBakedTask);
+		AdhocComponentWithVariants baked = getSoftwareComponentFactory().adhoc("baked");
+		baked.addVariantsFromConfiguration(bakedElements, this::configureVariant);
+		project.getComponents().add(baked);
 	}
+
+	@Inject
+	protected abstract SoftwareComponentFactory getSoftwareComponentFactory();
 
 	private static String toVersion(Project project) {
 		if (project.getVersion().toString().contains("-")) {
 			return "nightly";
 		}
 		return project.getVersion().toString();
+	}
+
+	private void configureVariant(ConfigurationVariantDetails variantDetails) {
+		if (hasUnpublishableArtifactType(variantDetails.getConfigurationVariant())) {
+			variantDetails.skip();
+		}
+	}
+
+	public static boolean hasUnpublishableArtifactType(ConfigurationVariant element) {
+		for (PublishArtifact artifact : element.getArtifacts()) {
+			if (ArtifactTypeDefinition.DIRECTORY_TYPE.equals(artifact.getType())) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

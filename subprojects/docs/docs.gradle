@@ -10,6 +10,8 @@ import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import org.apache.tools.ant.filters.ConcatFilter
 import org.gradle.util.GUtil
 
+import java.text.SimpleDateFormat
+
 buildscript {
 	dependencies {
 		classpath 'dev.nokee:templates:latest.integration'
@@ -18,6 +20,7 @@ buildscript {
 
 plugins {
 	id 'dev.nokeebuild.documentation'
+	id 'maven-publish'
 }
 
 String toVersion(Project project) {
@@ -102,7 +105,7 @@ TaskProvider<Task> generateGroovyDslNightlySettingsTask = tasks.register("config
 def generateSamplesContentTask = tasks.named('generateSamplesAsciidoctors', GenerateSamplesContentTask)
 def generateSamplesAsciinemaTask = tasks.named('generateSamplesAsciinema', CreateAsciinema)
 def dslSampleArchiveSourceSet = project.objects.newInstance(JBakeAssetSourceSet, 'dslSampleArchive')
-dslSampleArchiveSourceSet.source.from(layout.buildDirectory.dir('generated/assets'))
+dslSampleArchiveSourceSet.source.from(layout.buildDirectory.dir('generated/assets').map { it.asFileTree.matching { PatternFilterable p -> p.include("**/*-${project.version}-*.zip")} })
 components.add(dslSampleArchiveSourceSet)
 
 [
@@ -185,3 +188,43 @@ components.add(dslSampleArchiveSourceSet)
 	}
 }
 
+
+publishing {
+	publications {
+		jbake(MavenPublication) {
+			from components.jbake
+			artifactId = 'jbake'
+			group = 'dev.nokee.docs'
+		}
+		baked(MavenPublication) {
+			from components.baked
+			artifactId = 'nightly'
+			group = 'dev.nokee.docs'
+		}
+	}
+	repositories {
+		maven {
+			name = 'S3'
+			credentials(AwsCredentials) {
+				it.accessKey = resolveProperty(project, "AWS_ACCESS_KEY", "dev.nokee.aws.user")
+				it.secretKey = resolveProperty(project, "AWS_SECRET_KEY", "dev.nokee.aws.key")
+			}
+			url = 's3://docs.nokee.dev/'
+		}
+	}
+}
+
+private String resolveProperty(Project project, String envVarKey, String projectPropKey) {
+	Object propValue = System.getenv().get(envVarKey);
+
+	if (propValue != null) {
+		return propValue.toString();
+	}
+
+	propValue = project.findProperty(projectPropKey);
+	if (propValue != null) {
+		return propValue.toString();
+	}
+
+	return null;
+}
