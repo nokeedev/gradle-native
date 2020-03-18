@@ -180,7 +180,10 @@ abstract class WellBehavingSampleTest extends Specification {
 		void execute(TestFile testDirectory) {
 			GradleExecuter executer = configureLocalPluginResolution(new GradleExecuterFactory().wrapper(TestFile.of(testDirectory)).withConsole(ConsoleOutput.Rich))
 
-			def result = executer.withArguments(command.args).run()
+			command.args.each {
+				executer = executer.withArgument(it)
+			}
+			def result = executer.run()
 			def expectedResult = OutputScrapingExecutionResult.from(command.expectedOutput.get(), '')
 
 			assert OutputScrapingExecutionResult.normalize(LogContent.of(result.getPlainTextOutput())).replace(' in 0s', '').startsWith(expectedResult.getOutput())

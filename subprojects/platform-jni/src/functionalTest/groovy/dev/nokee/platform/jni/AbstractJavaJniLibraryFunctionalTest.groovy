@@ -114,7 +114,24 @@ abstract class AbstractJavaJniLibraryFunctionalTest extends AbstractInstalledToo
 
 		then:
 		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', sharedLibraryName('com/example/greeter/jni-greeter'))
+	}
 
+	def "can configure the resource path for each variant"() {
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+		buildFile << """
+			library {
+				variants.configureEach {
+					resourcePath = 'com/example/foobar'
+				}
+			}
+		"""
+
+		when:
+		succeeds('assemble')
+
+		then:
+		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', sharedLibraryName('com/example/foobar/jni-greeter'))
 	}
 
 	protected String configureProjectGroup(String groupId) {

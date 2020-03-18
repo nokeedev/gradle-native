@@ -2,15 +2,13 @@ import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.docs.Dsl
 import dev.nokee.docs.JBakeAssetSourceSet
-import dev.nokee.docs.tasks.GenerateSamplesContentTask
 import dev.nokee.docs.tasks.CreateAsciinema
+import dev.nokee.docs.tasks.GenerateSamplesContentTask
 import dev.nokee.platform.jni.fixtures.GreeterAppWithJniLibrary
 import dev.nokee.platform.jni.fixtures.JavaJniCGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import org.apache.tools.ant.filters.ConcatFilter
 import org.gradle.util.GUtil
-
-import java.text.SimpleDateFormat
 
 buildscript {
 	dependencies {
@@ -117,6 +115,7 @@ components.add(dslSampleArchiveSourceSet)
 	new Sample('jni-library-composing', new JavaJniCppGreeterLib('jni-library-composing').withImplementationAsSubprojects()),
 	new Sample('publish-jni-library', new JavaJniCppGreeterLib('publish-jni-library')),
 	new Sample('publish-jni-library-with-target-machines', new JavaJniCppGreeterLib('publish-jni-library-with-target-machines')),
+	new Sample('jni-library-with-resource-path', new JavaJniCppGreeterLib('jni-library-with-resource-path')),
 ].each { Sample sample ->
 	String nameAsCamelCase = GUtil.toCamelCase(sample.name)
 

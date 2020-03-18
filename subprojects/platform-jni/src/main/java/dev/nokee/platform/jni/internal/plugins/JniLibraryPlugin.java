@@ -108,7 +108,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 					project.getTasks().named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME, it -> it.dependsOn(library.getJar().getJarTask()));
 				}
 
-				extension.getVariants().add(library);
+				extension.getVariantCollection().add(library);
 			});
 		});
 
@@ -221,7 +221,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		project.getConfigurations().getByName("implementation").extendsFrom(library.getJvmImplementationDependencies());
 
 		project.getTasks().named("test", Test.class, task -> {
-			List<FileCollection> files = library.getVariants().stream().map(it -> it.getNativeRuntimeFiles()).collect(Collectors.toList());
+			List<FileCollection> files = library.getVariantCollection().stream().map(it -> it.getNativeRuntimeFiles()).collect(Collectors.toList());
 			task.dependsOn(files);
 
 			// TODO: notify when no native library exists

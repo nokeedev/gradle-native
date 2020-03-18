@@ -36,7 +36,7 @@ public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Name
 		String osName = name.toLowerCase();
 		if (osName.contains("windows")) {
 			return WINDOWS;
-		} else if (osName.contains("mac os x") || osName.contains("darwin") || osName.contains("osx")) {
+		} else if (osName.contains("mac os x") || osName.contains("darwin") || osName.contains("osx") || osName.contains("macos")) {
 			return MACOS;
 		} else if (osName.contains("linux")) {
 			return LINUX;

@@ -9,8 +9,6 @@ class DefaultMachineArchitectureTest extends Specification {
 		expect:
 		X86 == X86
 		X86 != X86_64
-		X86 == new DefaultMachineArchitecture(X86.name)
-		X86 != new DefaultMachineArchitecture(X86_64.name)
 	}
 
 	def "defaults to the right pre-made instances"() {

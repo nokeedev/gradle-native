@@ -32,7 +32,7 @@ class GreeterAppWithJniLibrary implements ApplicationWithLibraryElement {
 
 			@Override
 			void writeToProject(TestFile projectDir) {
-				library.withProjectName(libraryProjectName).writeToProject(projectDir.file(libraryProjectName))
+				library.withResourcePath("${projectName}/").withProjectName(libraryProjectName).writeToProject(projectDir.file(libraryProjectName))
 				application.writeToProject(projectDir)
 			}
 		}

@@ -9,4 +9,19 @@ package dev.nokee.platform.nativebase;
  * @since 0.1
  */
 public interface MachineArchitecture {
+	/**
+	 * Returns whether or not the architecture has 32-bit pointer size.
+	 *
+	 * @return {@code true} if the architecture is 32-bit or {@code false} otherwise.
+	 * @since 0.2
+	 */
+	boolean is32Bit();
+
+	/**
+	 * Returns whether or not the architecture has 64-bit pointer size.
+	 *
+	 * @return {@code true} if the architecture is 64-bit or {@code false} otherwise.
+	 * @since 0.2
+	 */
+	boolean is64Bit();
 }

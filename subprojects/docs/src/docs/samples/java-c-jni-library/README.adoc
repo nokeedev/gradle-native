@@ -46,4 +46,20 @@ $ ls ./build/libs/*.jar
 ./build/libs/java-c-jni-library.jar
 ----
 
+Since there is only one variant, the native component is included inside the main JAR:
+
+[listing.terminal,only-if='macos']
+----
+$ jar tf ./build/libs/java-c-jni-library.jar
+META-INF/
+META-INF/MANIFEST.MF
+com/
+com/example/
+com/example/greeter/
+com/example/greeter/NativeLoader.class
+com/example/greeter/Greeter.class
+libjava-c-jni-library.dylib
+----
+
+
 For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin>> and <<../../manual/c_language_plugin.adoc#,C Language Plugin>> reference chapters.

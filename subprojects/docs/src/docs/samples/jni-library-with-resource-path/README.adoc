@@ -1,0 +1,99 @@
+= JNI Library Resource Path Configuration
+:jbake-summary: Configure the resource path mapping of the native component in a JNI library.
+:jbake-type: sample_chapter
+:jbake-category: Java Native Interface (JNI)
+:jbake-description: See how to configure the resource path mapping of the native component in a Java Native Interface (JNI) library using the Gradle Nokee plugins.
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how a Java Native Interface (JNI) library can configure the resource path of the native component inside the JAR.
+The library has no dependencies, and the build has a minimal configuration.
+
+In this sample, we are configuring the resource path of a JNI library implemented in Java and {cpp}; however, this applies to other JVM and native languages as well.
+
+The resource path is derived from the project's group by default.
+For example, if the project group is `com.example.greeter`, the resource path for the shared library will be `com/example/greeter`.
+Given the following build script:
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::{includedir}/groovy-dsl/build.gradle[tag=configureViaGroup]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::{includedir}/kotlin-dsl/build.gradle.kts[tag=configureViaGroup]
+----
+=====
+====
+
+We can see the effect of configuring the project group:
+
+[listing.terminal,only-if='macos']
+----
+$ ./gradlew assemble
+
+BUILD SUCCESSFUL
+4 actionable tasks: 4 executed
+$ jar tf ./build/libs/jni-library-with-resource-path.jar
+META-INF/
+META-INF/MANIFEST.MF
+com/
+com/example/
+com/example/greeter/
+com/example/greeter/NativeLoader.class
+com/example/greeter/Greeter.class
+com/example/greeter/libjni-library-with-resource-path.dylib
+----
+
+If is also possible to change the resource path value for each variant as follow:
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy,indent=0]
+----
+include::{includedir}/groovy-dsl/build.gradle[tag=configureViaDsl]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin,indent=0]
+----
+include::{includedir}/kotlin-dsl/build.gradle.kts[tag=configureViaDsl]
+----
+=====
+====
+
+[listing.terminal,only-if='macos']
+----
+$ ./gradlew assemble -PconfigureViaDsl
+
+BUILD SUCCESSFUL
+4 actionable tasks: 1 executed, 3 up-to-date
+$ jar tf ./build/libs/jni-library-with-resource-path.jar
+META-INF/
+META-INF/MANIFEST.MF
+com/
+com/example/
+com/example/greeter/
+com/example/greeter/NativeLoader.class
+com/example/greeter/Greeter.class
+libs/
+libs/macos-x86-64/
+libs/macos-x86-64/libjni-library-with-resource-path.dylib
+----
+
+When the project configures multiple target machines, each native component will be placed inside their own variant aware resource path.
+See the <<../jni-library-with-target-machines/index.adoc#,sample on configuring target machines>>.
+
+For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin>> and <<../../manual/cpp_language_plugin.adoc#{cpp} Language Plugin>> reference chapters.

@@ -42,11 +42,31 @@ BUILD SUCCESSFUL
 
 The JNI library JARs produced inside `./build/libs` directory:
 
-[listing]
+[listing.terminal,only-if='macos']
 ----
 $ ls ./build/libs/*.jar
+./build/libs/jni-library-with-target-machines-macos.jar
 ./build/libs/jni-library-with-target-machines.jar
-./build/libs/jni-library-with-target-machines-macOS.jar
+----
+
+It's also important to note that when multiple target platform are configured, the native component will be namespaced inside their own variant directory.
+Gradle will also produce a separated JAR for each variant:
+
+[listing.terminal,only-if='macos']
+----
+$ jar tf ./build/libs/jni-library-with-target-machines.jar
+META-INF/
+META-INF/MANIFEST.MF
+com/
+com/example/
+com/example/greeter/
+com/example/greeter/NativeLoader.class
+com/example/greeter/Greeter.class
+$ jar tf ./build/libs/jni-library-with-target-machines-macos.jar
+META-INF/
+META-INF/MANIFEST.MF
+macos/
+macos/libjni-library-with-target-machines.dylib
 ----
 
 For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin reference chapter>>.

@@ -28,6 +28,7 @@ public abstract class JniLibraryInternal implements JniLibrary {
 	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
 	private final Configuration implementation;
 	private final DefaultTargetMachine targetMachine;
+	private final GroupId groupId;
 	private final ConfigurationContainer configurations;
 	private final Configuration nativeRuntime;
 	private JniJarBinaryInternal jarBinary;
@@ -41,6 +42,7 @@ public abstract class JniLibraryInternal implements JniLibrary {
 		this.sources = sources;
 		this.implementation = implementation;
 		this.targetMachine = targetMachine;
+		this.groupId = groupId;
 
 		Usage runtimeUsage = getObjectFactory().named(Usage.class, Usage.NATIVE_RUNTIME);
 		// incoming runtime libraries (i.e. shared libraries) - this represents the libraries we consume

@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni;
 
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.nativebase.TargetMachine;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
 import org.gradle.api.Action;
@@ -38,8 +39,15 @@ public interface JniLibraryExtension {
 	 * targetMachines = [machines.linux.x86_64, machines.windows.x86_64]
 	 * </pre>
 	 *
-	 * @return a property for configuring the {@link TargetMachine}.
+	 * @return a property for configuring the {@link TargetMachine}, never null.
 	 * @since 0.1
 	 */
 	SetProperty<TargetMachine> getTargetMachines();
+
+	/**
+	 * Configure the variants of this component.
+	 *
+	 * @return a {@link VariantView} for configuring each {@link JniLibrary}, never null.
+	 */
+	VariantView<? extends JniLibrary> getVariants();
 }

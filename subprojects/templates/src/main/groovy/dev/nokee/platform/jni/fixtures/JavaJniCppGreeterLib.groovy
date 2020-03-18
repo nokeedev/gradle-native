@@ -50,6 +50,7 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 	}
 
 	JavaJniCppGreeterLib withResourcePath(String resourcePath) {
+		assert resourcePath.endsWith('/')
 		return new JavaJniCppGreeterLib(projectName, resourcePath);
 	}
 

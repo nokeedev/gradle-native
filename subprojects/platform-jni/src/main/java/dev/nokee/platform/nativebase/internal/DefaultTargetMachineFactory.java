@@ -61,7 +61,7 @@ public class DefaultTargetMachineFactory implements TargetMachineFactory {
 		}
 
 		public TargetMachine architecture(String name) {
-			return new DefaultTargetMachine(getOperatingSystemFamily(), new DefaultMachineArchitecture(name));
+			return new DefaultTargetMachine(getOperatingSystemFamily(), new DefaultMachineArchitecture.UnknownMachineArchitecture(name));
 		}
 	}
 }

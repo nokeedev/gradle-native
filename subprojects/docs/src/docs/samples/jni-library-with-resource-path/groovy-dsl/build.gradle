@@ -1,0 +1,38 @@
+// tag::configureViaGroup[]
+plugins {
+	id 'java'
+	id 'dev.nokee.jni-library'
+	id 'dev.nokee.cpp-language'
+}
+
+group = 'com.example.greeter'
+// end::configureViaGroup[]
+
+if (project.hasProperty('configureViaDsl')) {
+// tag::configureViaDsl[]
+	library {
+		variants.configureEach {
+			String osName
+			if (targetMachine.operatingSystemFamily.windows) {
+				osName = 'windows'
+			} else if (targetMachine.operatingSystemFamily.linux) {
+				osName = 'linux'
+			} else if (targetMachine.operatingSystemFamily.macOs) {
+				osName = 'macos'
+			} else {
+				throw new GradleException('Unknown operating system family')
+			}
+
+			String architectureName
+			if (targetMachine.architecture.is32Bit()) {
+				architectureName = 'x86'
+			} else if (targetMachine.architecture.is64Bit()) {
+				architectureName = 'x86-64'
+			} else {
+				throw new GradleException('Unknown architecture')
+			}
+			resourcePath = "libs/${osName}-${architectureName}"
+		}
+	}
+// end::configureViaDsl[]
+}
