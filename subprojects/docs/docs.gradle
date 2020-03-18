@@ -10,6 +10,8 @@ import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import org.apache.tools.ant.filters.ConcatFilter
 import org.gradle.util.GUtil
 
+import java.text.SimpleDateFormat
+
 buildscript {
 	dependencies {
 		classpath 'dev.nokee:templates:latest.integration'
@@ -194,11 +196,15 @@ publishing {
 			from components.jbake
 			artifactId = 'jbake'
 			group = 'dev.nokee.docs'
+			// Use date/time as the version because commits mess-up the "latest" search
+			version = new SimpleDateFormat("yyyyMMddHHmm").format(new Date())
 		}
 		baked(MavenPublication) {
 			from components.baked
 			artifactId = 'nightly'
 			group = 'dev.nokee.docs'
+			// Use date/time as the version because commits mess-up the "latest" search
+			version = new SimpleDateFormat("yyyyMMddHHmm").format(new Date())
 		}
 	}
 	repositories {
