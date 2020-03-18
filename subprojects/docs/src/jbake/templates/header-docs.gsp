@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" prefix="og: https://ogp.me/ns#">
   <head>
 	<meta charset="utf-8"/>
-	<title><%if (content.title) {%>${content.title}<% } else { %>JBake<% }%></title>
+	<title><%if (content.title) {%>${content.title}<% } else { %>Nokee Labs<% }%></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<%if (content.description) {%><meta name="description" content="${content.description}"><%}%>
 	<meta name="author" content="">
 	<meta name="keywords" content="">
+	<% include "meta-open-graph.gsp" %>
+	<% include "meta-twitter-card.gsp" %>
 
 	<!-- Le styles -->
 	<link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
