@@ -52,6 +52,7 @@ class JniLibraryFunctionalTest extends AbstractFunctionalSpec {
 
 	def "can consume transitive native runtime dependencies from no language JNI library"() {
 		settingsFile << '''
+			rootProject.name = 'library'
 			include 'consumer', 'jni-library', 'producer'
 		'''
 		file('consumer/build.gradle') << '''
@@ -103,7 +104,7 @@ class JniLibraryFunctionalTest extends AbstractFunctionalSpec {
 		"""
 		new JavaMainUsesGreeter().writeToProject(file('consumer'))
 		def fixture = new JavaJniCppGreeterLib('producer')
-		fixture.jvmBindings.writeToProject(file('consumer'))
+		fixture.jvmBindings.withResourcePath('library/').writeToProject(file('consumer'))
 		fixture.jvmImplementation.writeToProject(file('consumer'))
 		fixture.nativeImplementation.writeToProject(file('producer'))
 		fixture.nativeBindings.withJniGeneratedHeader().writeToProject(file('producer'))

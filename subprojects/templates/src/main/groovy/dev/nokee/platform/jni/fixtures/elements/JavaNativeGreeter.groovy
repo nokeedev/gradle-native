@@ -7,14 +7,18 @@ import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
 class JavaNativeGreeter extends JavaSourceFileElement {
 	private final SourceFileElement source
 	private final JavaPackage javaPackage
+	private final String sharedLibraryBaseName
+	private final String resourcePath
 
 	@Override
 	SourceFileElement getSource() {
 		return source
 	}
 
-	JavaNativeGreeter(JavaPackage javaPackage, String sharedLibraryBaseName) {
+	JavaNativeGreeter(JavaPackage javaPackage, String sharedLibraryBaseName, String resourcePath = '') {
 		this.javaPackage = javaPackage
+		this.sharedLibraryBaseName = sharedLibraryBaseName
+		this.resourcePath = resourcePath
 		source = ofFile(sourceFile("java/${javaPackage.directoryLayout}", 'Greeter.java', """
 package ${javaPackage.name};
 
@@ -28,7 +32,7 @@ import java.nio.file.Files;
 public class Greeter {
 
     static {
-        NativeLoader.loadLibrary(Greeter.class.getClassLoader(), "${sharedLibraryBaseName}");
+        NativeLoader.loadLibrary(Greeter.class.getClassLoader(), "${resourcePath}${sharedLibraryBaseName}");
     }
 
     public native String sayHello(String name);
@@ -37,6 +41,10 @@ public class Greeter {
 	}
 
 	JavaNativeGreeter withSharedLibraryBaseName(String sharedLibraryBaseName) {
-		return new JavaNativeGreeter(javaPackage, sharedLibraryBaseName)
+		return new JavaNativeGreeter(javaPackage, sharedLibraryBaseName, resourcePath)
+	}
+
+	JavaNativeGreeter withResourcePath(String resourcePath) {
+		return new JavaNativeGreeter(javaPackage, sharedLibraryBaseName, resourcePath)
 	}
 }

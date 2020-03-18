@@ -17,6 +17,8 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 	final JavaSourceElement jvmImplementation
 	final CppLibraryElement nativeImplementation
 	final JavaSourceElement junitTest
+	private final String projectName
+	private final String resourcePath
 
 	@Override
 	SourceElement getJvmSources() {
@@ -28,10 +30,12 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 		return ofElements(nativeBindings, nativeImplementation);
 	}
 
-	JavaJniCppGreeterLib(String projectName) {
+	JavaJniCppGreeterLib(String projectName, String resourcePath = '') {
+		this.resourcePath = resourcePath
+		this.projectName = projectName
 		def javaPackage = ofPackage('com.example.greeter')
 		String sharedLibraryBaseName = projectName
-		jvmBindings = new JavaNativeGreeter(javaPackage, sharedLibraryBaseName)
+		jvmBindings = new JavaNativeGreeter(javaPackage, sharedLibraryBaseName, resourcePath)
 		nativeBindings = new CppGreeterJniBinding(javaPackage)
 
 		jvmImplementation = new JavaNativeLoader(javaPackage);
@@ -42,7 +46,11 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 	}
 
 	JavaJniCppGreeterLib withProjectName(String projectName) {
-		return new JavaJniCppGreeterLib(projectName)
+		return new JavaJniCppGreeterLib(projectName, resourcePath)
+	}
+
+	JavaJniCppGreeterLib withResourcePath(String resourcePath) {
+		return new JavaJniCppGreeterLib(projectName, resourcePath);
 	}
 
 	JniLibraryElement withoutNativeImplementation() {

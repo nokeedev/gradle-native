@@ -1,6 +1,7 @@
 package dev.nokee.platform.jni.internal.plugins;
 
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
+import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
 import dev.nokee.platform.nativebase.TargetMachine;
@@ -61,7 +62,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 
 		// Include native runtime files inside JNI jar
 		extension.getVariants().configureEach(library -> {
-			library.getJar().getJarTask().configure(it -> it.from(library.getNativeRuntimeFiles()));
+			library.getJar().getJarTask().configure(task -> task.from(library.getNativeRuntimeFiles(), spec -> spec.into(library.getResourcePath().get())));
 		});
 
 		// Attach JNI Jar to runtimeElements
@@ -184,7 +185,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		});
 		jvmRuntimeElements.extendsFrom(dependencies.getApiDependencies());
 
-		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, dependencies);
+		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, dependencies, GroupId.of(project::getGroup));
 		library.getTargetMachines().convention(singletonList(targetMachineFactory.host()));
 		project.getExtensions().add(JniLibraryExtension.class, "library", library);
 		return library;

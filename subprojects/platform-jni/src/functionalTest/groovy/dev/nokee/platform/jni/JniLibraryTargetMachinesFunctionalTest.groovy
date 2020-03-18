@@ -59,11 +59,32 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 			jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', sharedLibraryName('jni-greeter'))
 		} else {
 			jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class')
-			jar("build/libs/jni-greeter-${variant}.jar").hasDescendants(sharedLibraryName('jni-greeter'))
+			jar("build/libs/jni-greeter-${variant}.jar").hasDescendants(sharedLibraryName("${variant}/jni-greeter"))
 		}
 	}
 
 	protected JarTestFixture jar(String path) {
 		return new JarTestFixture(file(path))
+	}
+
+	def "uses group and visible dimensions as resource path for the shared library inside JAR"() {
+		given:
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+
+		and:
+		buildFile << configureTargetMachines("machines.linux", "machines.macOS", "machines.windows")
+		buildFile << configureProjectGroup('com.example.greeter')
+
+		expect:
+		succeeds 'assemble'
+		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class')
+		jar("build/libs/jni-greeter-${currentOsFamilyName}.jar").hasDescendants(sharedLibraryName("com/example/greeter/${currentOsFamilyName}/jni-greeter"))
+	}
+
+	protected String configureProjectGroup(String groupId) {
+		return """
+			group = '${groupId}'
+		"""
 	}
 }

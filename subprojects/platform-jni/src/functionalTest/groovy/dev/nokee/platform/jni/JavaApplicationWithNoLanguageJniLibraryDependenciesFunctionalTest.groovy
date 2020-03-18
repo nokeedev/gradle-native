@@ -71,7 +71,7 @@ class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends 
 
 
 	private GreeterAppWithJniLibrary getComponentsUnderTest() {
-		return new GreeterAppWithJniLibrary('cpp-library')
+		return new GreeterAppWithJniLibrary('cpp-library', 'application/')
 	}
 
 	private void makeComponentWithLibrary() {
@@ -265,7 +265,7 @@ class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends 
 		"""
 
 		[componentsUnderTest.library.nativeBindings.withJniGeneratedHeader(), componentsUnderTest.library.nativeImplementation]*.writeToProject(file('cpp-library'))
-		[componentsUnderTest.library.jvmBindings, componentsUnderTest.library.jvmImplementation]*.writeToProject(file('java-library'))
+		[componentsUnderTest.library.jvmBindings.withResourcePath('com/example/'), componentsUnderTest.library.jvmImplementation]*.writeToProject(file('java-library'))
 		componentsUnderTest.application.writeToProject(testDirectory)
 	}
 }

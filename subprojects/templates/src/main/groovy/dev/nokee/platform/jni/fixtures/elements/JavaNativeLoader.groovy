@@ -49,9 +49,21 @@ public class NativeLoader {
 		if (osName.indexOf("win") >= 0) {
 			return libName + ".dll";
 		} else if (osName.indexOf("mac") >= 0) {
-			return "lib" + libName + ".dylib";
+			return decorateLibraryName(libName, ".dylib");
 		}
-		return "lib" + libName + ".so";
+		return decorateLibraryName(libName, ".so");
+	}
+
+	public static String decorateLibraryName(String libraryName, String suffix) {
+		if (libraryName.endsWith(suffix)) {
+			return libraryName;
+		}
+		int pos = libraryName.lastIndexOf('/');
+		if (pos >= 0) {
+			return libraryName.substring(0, pos + 1) + "lib" + libraryName.substring(pos + 1) + suffix;
+		} else {
+			return "lib" + libraryName + suffix;
+		}
 	}
 }
 """))

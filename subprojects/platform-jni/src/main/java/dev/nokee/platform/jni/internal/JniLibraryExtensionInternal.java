@@ -2,6 +2,7 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.internal.BinaryInternal;
+import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.jni.JniLibraryDependencies;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.nativebase.TargetMachine;
@@ -18,23 +19,25 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
 	private final ConfigurationContainer configurations;
 	private final JniLibraryDependenciesInternal dependencies;
+	private final GroupId groupId;
 	private final DomainObjectSet<? super BinaryInternal> binaries;
 	private final DomainObjectSet<JniLibraryInternal> variants;
 
 	@Inject
-	public JniLibraryExtensionInternal(ObjectFactory objectFactory, ConfigurationContainer configurations, JniLibraryDependenciesInternal dependencies) {
+	public JniLibraryExtensionInternal(ObjectFactory objectFactory, ConfigurationContainer configurations, JniLibraryDependenciesInternal dependencies, GroupId groupId) {
 		binaries = objectFactory.domainObjectSet(BinaryInternal.class);
 		sources = objectFactory.domainObjectSet(LanguageSourceSetInternal.class);
 		variants = objectFactory.domainObjectSet(JniLibraryInternal.class);
 		this.configurations = configurations;
 		this.dependencies = dependencies;
+		this.groupId = groupId;
 	}
 
 	@Inject
 	protected abstract ObjectFactory getObjectFactory();
 
 	public JniLibraryInternal newVariant(NamingScheme names, TargetMachine targetMachine) {
-		return getObjectFactory().newInstance(JniLibraryInternal.class, names, configurations, sources, dependencies.getNativeDependencies(), targetMachine);
+		return getObjectFactory().newInstance(JniLibraryInternal.class, names, configurations, sources, dependencies.getNativeDependencies(), targetMachine, groupId);
 	}
 
 	public DomainObjectSet<? super BinaryInternal> getBinaries() {

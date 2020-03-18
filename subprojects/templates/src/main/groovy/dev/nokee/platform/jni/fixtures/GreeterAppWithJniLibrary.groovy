@@ -9,9 +9,13 @@ import dev.nokee.platform.jni.fixtures.elements.JavaMainUsesGreeter
 class GreeterAppWithJniLibrary implements ApplicationWithLibraryElement {
 	final JavaJniCppGreeterLib library
 	final JavaMainUsesGreeter application = new JavaMainUsesGreeter()
+	private final String resourcePath
+	private final String projectName
 
-	GreeterAppWithJniLibrary(String projectName) {
-		library = new JavaJniCppGreeterLib(projectName)
+	GreeterAppWithJniLibrary(String projectName, String resourcePath = '') {
+		this.projectName = projectName
+		this.resourcePath = resourcePath
+		library = new JavaJniCppGreeterLib(projectName, resourcePath)
 	}
 
 	@Override
@@ -32,5 +36,9 @@ class GreeterAppWithJniLibrary implements ApplicationWithLibraryElement {
 				application.writeToProject(projectDir)
 			}
 		}
+	}
+
+	GreeterAppWithJniLibrary withResourcePath(String resourcePath) {
+		return new GreeterAppWithJniLibrary(projectName, resourcePath)
 	}
 }

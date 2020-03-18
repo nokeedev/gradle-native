@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.platform.base.internal.GroupId;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Named;
 
@@ -31,6 +32,10 @@ public abstract class NamingScheme {
 
 	public BaseNameNamingScheme getBaseName() {
 		return new BaseNameNamingScheme();
+	}
+
+	public String getResourcePath(GroupId groupId) {
+		return groupId.get().map(it -> it.replace('.', '/') + '/').orElse("") + String.join("-", dimensions);
 	}
 
 	/**

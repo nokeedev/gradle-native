@@ -104,6 +104,25 @@ abstract class AbstractJavaJniLibraryFunctionalTest extends AbstractInstalledToo
 		jar('build/libs/jni-greeter.jar').hasDescendants()
     }
 
+	def "uses the project group as the default resource path for the shared library"() {
+		makeSingleProject()
+		buildFile << configureProjectGroup('com.example.greeter')
+		componentUnderTest.writeToProject(testDirectory)
+
+		when:
+		succeeds('assemble')
+
+		then:
+		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', sharedLibraryName('com/example/greeter/jni-greeter'))
+
+	}
+
+	protected String configureProjectGroup(String groupId) {
+		return """
+			group = '${groupId}'
+		"""
+	}
+
 	protected abstract String getDevelopmentBinaryNativeCompileTask()
 
 	protected abstract void makeSingleProject()

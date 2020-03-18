@@ -2,6 +2,8 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.internal.BinaryInternal;
+import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import org.gradle.api.DomainObjectSet;
@@ -11,6 +13,7 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.jvm.tasks.Jar;
@@ -19,7 +22,7 @@ import org.gradle.language.cpp.CppBinary;
 import javax.inject.Inject;
 import java.util.Optional;
 
-public abstract class JniLibraryInternal {
+public abstract class JniLibraryInternal implements JniLibrary {
 	private final NamingScheme names;
 	private final DomainObjectSet<? super BinaryInternal> binaries;
 	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
@@ -31,7 +34,7 @@ public abstract class JniLibraryInternal {
 	private Optional<SharedLibraryBinaryInternal> sharedLibraryBinary = Optional.empty();
 
 	@Inject
-	public JniLibraryInternal(NamingScheme names, ObjectFactory objectFactory, ConfigurationContainer configurations, DomainObjectSet<? super LanguageSourceSetInternal> sources, Configuration implementation, DefaultTargetMachine targetMachine) {
+	public JniLibraryInternal(NamingScheme names, ObjectFactory objectFactory, ProviderFactory providers, ConfigurationContainer configurations, DomainObjectSet<? super LanguageSourceSetInternal> sources, Configuration implementation, DefaultTargetMachine targetMachine, GroupId groupId) {
 		this.names = names;
 		binaries = objectFactory.domainObjectSet(BinaryInternal.class);
 		this.configurations = configurations;
@@ -49,6 +52,7 @@ public abstract class JniLibraryInternal {
 			it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, false);
 		});
 		getNativeRuntimeFiles().from(nativeRuntime);
+		getResourcePath().convention(providers.provider(() -> names.getResourcePath(groupId)));
 	}
 
 	@Inject

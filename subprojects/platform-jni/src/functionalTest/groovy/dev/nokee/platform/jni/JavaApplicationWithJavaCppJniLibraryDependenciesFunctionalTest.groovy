@@ -7,7 +7,7 @@ import dev.nokee.platform.jni.fixtures.GreeterAppWithJniLibrary
 class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec  {
 	private void makeComponentWithLibrary() {
 		settingsFile << '''
-			rootProject.name = 'app'
+			rootProject.name = 'application'
 			include 'jni-library'
 		'''
 		buildFile << '''
@@ -28,13 +28,12 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 			}
 		'''
 
-		componentsUnderTest.library.writeToProject(testDirectory.file('jni-library'))
-		componentsUnderTest.application.writeToProject(testDirectory)
+		componentsUnderTest.withLibraryAsSubproject('jni-library').writeToProject(testDirectory)
 	}
 
 	private void makeComponentWithLibraries() {
 		settingsFile << '''
-			rootProject.name = 'app'
+			rootProject.name = 'application'
 			include 'jni-library'
 			include 'java-library'
 			include 'cpp-library'
@@ -73,11 +72,6 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 				id 'cpp-library'
 			}
 		'''
-
-		[componentsUnderTest.library.jvmBindings, componentsUnderTest.library.nativeBindings]*.writeToProject(file('jni-library'))
-		componentsUnderTest.library.jvmImplementation.writeToProject(file('java-library'))
-		componentsUnderTest.library.nativeImplementation.asLib().writeToProject(file('cpp-library'))
-		componentsUnderTest.application.writeToProject(testDirectory)
 	}
 
 	private void makeComponentWithIncludedBuildLibrary() {
@@ -107,14 +101,11 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 			group = 'com.example'
 			version = '4.2'
 		'''
-
-		componentsUnderTest.library.writeToProject(testDirectory.file('jni-library'))
-		componentsUnderTest.application.writeToProject(testDirectory)
 	}
 
 	private void makeComponentWithIncludedBuildLibraries() {
 		settingsFile << '''
-			rootProject.name = 'app'
+			rootProject.name = 'application'
 			includeBuild 'jni-library'
 			includeBuild 'java-library'
 			includeBuild 'cpp-library'
@@ -165,15 +156,10 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 			group = 'com.example'
 			version = '4.2'
 		'''
-
-		[componentsUnderTest.library.jvmBindings, componentsUnderTest.library.nativeBindings]*.writeToProject(file('jni-library'))
-		componentsUnderTest.library.jvmImplementation.writeToProject(file('java-library'))
-		componentsUnderTest.library.nativeImplementation.asLib().writeToProject(file('cpp-library'))
-		componentsUnderTest.application.writeToProject(testDirectory)
 	}
 
 	private GreeterAppWithJniLibrary getComponentsUnderTest() {
-		return new GreeterAppWithJniLibrary('jni-library')
+		return new GreeterAppWithJniLibrary('jni-library', 'application/')
 	}
 
 	def "can define implementation dependencies on component"() {
@@ -198,6 +184,7 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 				implementation 'com.example:jni-library:4.2'
 			}
 		'''
+		componentsUnderTest.withResourcePath('com/example/').withLibraryAsSubproject('jni-library').writeToProject(testDirectory)
 
 		when:
 		run('run')
@@ -218,6 +205,7 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 				targetMachines = [machines.windows, machines.linux, machines.macOS]
 			}
 		'''
+		componentsUnderTest.withResourcePath("application/${currentOsFamilyName}/").withLibraryAsSubproject('jni-library').writeToProject(testDirectory)
 
 		when:
 		run('run')
@@ -238,6 +226,7 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 				targetMachines = [machines.windows, machines.linux, machines.macOS]
 			}
 		'''
+		componentsUnderTest.withResourcePath("com/example/${currentOsFamilyName}/").withLibraryAsSubproject('jni-library').writeToProject(testDirectory)
 
 		when:
 		run('run')
@@ -254,6 +243,10 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 				implementation project(':jni-library')
 			}
 		'''
+		[componentsUnderTest.library.jvmBindings, componentsUnderTest.library.nativeBindings]*.writeToProject(file('jni-library'))
+		componentsUnderTest.library.jvmImplementation.writeToProject(file('java-library'))
+		componentsUnderTest.library.nativeImplementation.asLib().writeToProject(file('cpp-library'))
+		componentsUnderTest.application.writeToProject(testDirectory)
 
 		when:
 		run('run')
@@ -269,6 +262,10 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 				implementation 'com.example:jni-library:4.2'
 			}
 		'''
+		[componentsUnderTest.library.jvmBindings.withResourcePath('com/example/'), componentsUnderTest.library.nativeBindings]*.writeToProject(file('jni-library'))
+		componentsUnderTest.library.jvmImplementation.writeToProject(file('java-library'))
+		componentsUnderTest.library.nativeImplementation.asLib().writeToProject(file('cpp-library'))
+		componentsUnderTest.application.writeToProject(testDirectory)
 
 		when:
 		run('run')
