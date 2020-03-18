@@ -15,6 +15,7 @@ public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Name
 	public static final DefaultOperatingSystemFamily WINDOWS = new DefaultOperatingSystemFamily("windows");
 	public static final DefaultOperatingSystemFamily LINUX = new DefaultOperatingSystemFamily("linux");
 	public static final DefaultOperatingSystemFamily MACOS = new DefaultOperatingSystemFamily("macos");
+	public static final DefaultOperatingSystemFamily FREE_BSD = new DefaultOperatingSystemFamily("freebsd");
 	public static final DefaultOperatingSystemFamily HOST = forName(System.getProperty("os.name"));
 
 	@Override
@@ -32,6 +33,11 @@ public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Name
 		return equals(MACOS);
 	}
 
+	@Override
+	public boolean isFreeBSD() {
+		return equals(FREE_BSD);
+	}
+
 	public static DefaultOperatingSystemFamily forName(String name) {
 		String osName = name.toLowerCase();
 		if (osName.contains("windows")) {
@@ -40,6 +46,8 @@ public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Name
 			return MACOS;
 		} else if (osName.contains("linux")) {
 			return LINUX;
+		} else if (osName.contains("freebsd")) {
+			return FREE_BSD;
 		} else {
 			throw new UnsupportedOperationException("Unsupported operating system family of name '" + osName + "'");
 		}

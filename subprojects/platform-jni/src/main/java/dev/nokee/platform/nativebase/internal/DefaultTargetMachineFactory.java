@@ -25,6 +25,11 @@ public class DefaultTargetMachineFactory implements TargetMachineFactory {
 		return new DefaultTargetMachineBuilder(MACOS, DefaultMachineArchitecture.HOST);
 	}
 
+	@Override
+	public TargetMachineBuilder getFreeBSD() {
+		return new DefaultTargetMachineBuilder(FREE_BSD, DefaultMachineArchitecture.HOST);
+	}
+
 	/**
 	 * Creates an {@link TargetMachine} with the host's operating system family and architecture.
 	 *

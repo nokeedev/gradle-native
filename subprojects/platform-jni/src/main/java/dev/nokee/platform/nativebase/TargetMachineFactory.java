@@ -28,4 +28,11 @@ public interface TargetMachineFactory {
 	 * @return a {@link TargetMachineBuilder} to further configure the target machine, never null.
 	 */
 	TargetMachineBuilder getMacOS();
+
+	/**
+	 * Creates a {@link TargetMachineBuilder} for the FreeBSD operating system family and the architecture of the current host.
+	 *
+	 * @return a {@link TargetMachineBuilder} to further configure the target machine, never null.
+	 */
+	TargetMachineBuilder getFreeBSD();
 }

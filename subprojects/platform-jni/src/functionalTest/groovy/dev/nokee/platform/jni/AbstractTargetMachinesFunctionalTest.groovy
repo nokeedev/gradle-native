@@ -94,7 +94,7 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 		componentUnderTest.writeToProject(testDirectory)
 
 		and:
-		buildFile << configureTargetMachines("machines.linux", "machines.macOS", "machines.windows")
+		buildFile << configureTargetMachines("machines.linux", "machines.macOS", "machines.windows", "machines.freeBSD")
 
 		expect:
 		succeeds taskNameToAssembleDevelopmentBinary

@@ -180,4 +180,3 @@ The following configuration is used by the library itself:
 `nativeRuntime__Variant__` (e.g. `nativeRuntimeDebug`) extends `nativeImplementation`::
 Used for executing the library.
 This configuration contains the native runtime libraries of the shared library.
-

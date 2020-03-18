@@ -29,4 +29,22 @@ public interface OperatingSystemFamily {
 	 * @return {@code true} if the operating system family is macOS or {@code false} otherwise.
 	 */
 	boolean isMacOs();
+
+	/**
+	 * Check if the operating system family is macOS.
+	 *
+	 * @return {@code true} if the operating system family is macOS or {@code false} otherwise.
+	 * @since 0.2
+	 */
+	default boolean isMacOS() {
+		return isMacOs();
+	}
+
+	/**
+	 * Checks if the operating system family is FreeBSD.
+	 *
+	 * @return {@code true} if the operating system family is FreeBSD or {@code false} otherwise.
+	 * @since 0.2
+	 */
+	boolean isFreeBSD();
 }

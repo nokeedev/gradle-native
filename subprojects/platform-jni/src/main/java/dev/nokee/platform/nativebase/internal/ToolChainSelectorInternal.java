@@ -1,6 +1,7 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.platform.nativebase.TargetMachine;
+import org.apache.commons.lang3.SystemUtils;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.model.internal.registry.ModelRegistry;
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform;
@@ -94,7 +95,7 @@ public class ToolChainSelectorInternal {
 			//      or
 			//      ... target macOS and current host is not macOS
 			//   we know it is known and we should be able to compile for it
-			if ((isTargetingLinuxButNotLinux(targetMachine) || isTargetingMacOsButNotMacOs(targetMachine)) && isKnownArchitecture(targetMachine)) {
+			if ((isTargetingLinuxButNotLinux(targetMachine) || isTargetingMacOsButNotMacOs(targetMachine) || isTargetingFreeBsdButNotFreeBsd(targetMachine)) && isKnownArchitecture(targetMachine)) {
 				return true;
 			}
 			return false;
@@ -109,7 +110,11 @@ public class ToolChainSelectorInternal {
 		}
 
 		private static boolean isTargetingLinuxButNotLinux(TargetMachine targetMachine) {
-			return targetMachine.getOperatingSystemFamily().isLinux() && !OperatingSystem.current().isLinux();
+			return targetMachine.getOperatingSystemFamily().isLinux() && !SystemUtils.IS_OS_LINUX;
+		}
+
+		private static boolean isTargetingFreeBsdButNotFreeBsd(TargetMachine targetMachine) {
+			return targetMachine.getOperatingSystemFamily().isFreeBSD() && !SystemUtils.IS_OS_FREE_BSD;
 		}
 
 		@Override

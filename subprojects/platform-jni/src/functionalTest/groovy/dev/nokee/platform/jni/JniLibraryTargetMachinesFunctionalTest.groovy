@@ -75,7 +75,7 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 		componentUnderTest.writeToProject(testDirectory)
 
 		and:
-		buildFile << configureTargetMachines("machines.linux", "machines.macOS", "machines.windows")
+		buildFile << configureTargetMachines("machines.linux", "machines.macOS", "machines.windows", "machines.freeBSD")
 		buildFile << configureProjectGroup('com.example.greeter')
 
 		expect:
@@ -90,7 +90,7 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 		componentUnderTest.writeToProject(testDirectory)
 
 		and:
-		buildFile << configureTargetMachines("machines.linux", "machines.macOS", "machines.windows")
+		buildFile << configureTargetMachines("machines.linux", "machines.macOS", "machines.windows", "machines.freeBSD")
 		buildFile << """
 			library {
 				variants.configureEach {
@@ -99,8 +99,10 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 						osName = 'windows'
 					} else if (targetMachine.operatingSystemFamily.linux) {
 						osName = 'linux'
-					} else if (targetMachine.operatingSystemFamily.macOs) {
+					} else if (targetMachine.operatingSystemFamily.macOS) {
 						osName = 'macos'
+					} else if (targetMachine.operatingSystemFamily.freeBSD) {
+						osName = 'freebsd'
 					} else {
 						throw new GradleException('Unknown operating system family')
 					}
