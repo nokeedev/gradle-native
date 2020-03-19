@@ -5,6 +5,8 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToo
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.platform.jni.fixtures.GreeterAppWithJniLibrary
 
+import java.util.concurrent.TimeUnit
+
 class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec  {
 	private void makeComponentWithLibrary() {
 		settingsFile << '''
