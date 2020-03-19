@@ -77,8 +77,9 @@ abstract class JniLibraryPublishPlugin implements Plugin<Project> {
 						attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, MachineArchitecture.X86_64))
 					}
 				}
-				AdhocComponentWithVariants jniVariant = softwareComponentFactory.adhoc("jni${variantName(targetMachine).capitalize()}");
-				def jniLibraries = extension.variants.matching { it.targetMachine.equals(targetMachine) }
+				AdhocComponentWithVariants jniVariant = softwareComponentFactory.adhoc("jni${variantName(targetMachine).capitalize()}")
+				// FIXME: Introduce APIs to avoid using getVariantCollection() internal API
+				def jniLibraries = extension.variantCollection.matching { it.targetMachine.equals(targetMachine) }
 				if (!jniLibraries.isEmpty()) {
 					/*dev.nokee.platform.jni.JniLibrary*/def jniLibrary = jniLibraries.iterator().next()
 					jniLibraryVariant.outgoing.artifact(jniLibrary.jar.jarTask.flatMap { it.archiveFile })
