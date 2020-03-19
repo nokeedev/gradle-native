@@ -24,6 +24,13 @@ class GreeterAppWithJniLibrary implements ApplicationWithLibraryElement {
 	}
 
 	SourceElement withLibraryAsSubproject(String libraryProjectName) {
+		if (resourcePath.isEmpty()) {
+			return newLibraryAsSubproject(libraryProjectName, "${projectName}/")
+		}
+		return newLibraryAsSubproject(libraryProjectName, resourcePath);
+	}
+
+	private SourceElement newLibraryAsSubproject(String libraryProjectName, String resourcePath) {
 		return new SourceElement() {
 			@Override
 			List<SourceFile> getFiles() {
@@ -32,8 +39,12 @@ class GreeterAppWithJniLibrary implements ApplicationWithLibraryElement {
 
 			@Override
 			void writeToProject(TestFile projectDir) {
-				library.withResourcePath("${projectName}/").withProjectName(libraryProjectName).writeToProject(projectDir.file(libraryProjectName))
+				library.withResourcePath(resourcePath).withProjectName(libraryProjectName).writeToProject(projectDir.file(libraryProjectName))
 				application.writeToProject(projectDir)
+			}
+
+			SourceElement withResourcePath(String newResourcePath) {
+				return newLibraryAsSubproject(libraryProjectName, newResourcePath);
 			}
 		}
 	}
