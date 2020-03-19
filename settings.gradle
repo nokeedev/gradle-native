@@ -1,28 +1,20 @@
-rootProject.name = 'gradle-native'
-
-/**
- * Poor man's source dependencies
- * @param repositoryName
- * @param repositoryUrl
- */
-void includeExternalBuild(String repositoryName, String repositoryUrl) {
-	// Opinionated on my local development layout
-	if (file("../${repositoryName}").exists()) {
-		includeBuild("../${repositoryName}")
-
-		// Else, just clone the repository
-	} else {
-		if (!file(".repositories/${repositoryName}").exists()) {
-			file('.repositories').mkdirs()
-			"git clone ${repositoryUrl} .repositories/${repositoryName}".execute().waitFor()
-		} else {
-			"git pull".execute(null, file(".repositories/${repositoryName}")).waitFor()
+pluginManagement {
+	repositories {
+		gradlePluginPortal()
+		maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+	}
+	def gradlePluginVersion = "0.0.24"
+	resolutionStrategy {
+		eachPlugin {
+			if (requested.id.id.startsWith('dev.gradleplugins.')) {
+				useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:${gradlePluginVersion}")
+			}
 		}
-		includeBuild(".repositories/${repositoryName}")
 	}
 }
 
-includeExternalBuild('toolbox', 'https://github.com/gradle-plugins/toolbox.git')
+rootProject.name = 'gradle-native'
+
 includeBuild 'subprojects/templates'
 includeBuild 'gradle/plugins/docs-gradle-plugin'
 

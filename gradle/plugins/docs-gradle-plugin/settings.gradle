@@ -1,1 +1,16 @@
+pluginManagement {
+	repositories {
+		gradlePluginPortal()
+		maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+	}
+	def gradlePluginVersion = "0.0.24"
+	resolutionStrategy {
+		eachPlugin {
+			if (requested.id.id.startsWith('dev.gradleplugins.')) {
+				useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:${gradlePluginVersion}")
+			}
+		}
+	}
+}
+
 rootProject.name = 'docs-gradle-plugin'

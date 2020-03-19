@@ -46,9 +46,11 @@ docsTest.dependsOn('stage')
 dependencies {
 	docsTestImplementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
 	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
-	docsTestImplementation 'dev.gradleplugins:gradle-fixtures:latest.integration'
-	docsTestImplementation 'dev.gradleplugins:spock-gradle-fixtures:latest.integration'
-	docsTestImplementation 'dev.gradleplugins:spock-test-directory-extension:latest.integration'
+	docsTestImplementation('dev.gradleplugins:gradle-fixtures:latest.integration') {
+		capabilities {
+			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
+		}
+	}
 	docsTestImplementation gradleApi() // Because there are some Gradle type leaking in, TODO: remove when those leaks are patched
 
 	def lombokVersion = '1.18.12'
@@ -56,6 +58,10 @@ dependencies {
 	docsTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
 	docsTestImplementation 'org.apache.commons:commons-lang3:3.9'
+}
+
+repositories {
+	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
 }
 
 class Sample {

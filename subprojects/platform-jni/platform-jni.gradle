@@ -16,6 +16,7 @@ java {
 
 repositories {
 	jcenter()
+	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
 }
 
 dependencies {
