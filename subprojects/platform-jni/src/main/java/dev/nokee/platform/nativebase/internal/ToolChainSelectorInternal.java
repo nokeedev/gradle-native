@@ -95,7 +95,7 @@ public class ToolChainSelectorInternal {
 			//      or
 			//      ... target macOS and current host is not macOS
 			//   we know it is known and we should be able to compile for it
-			if ((isTargetingLinuxButNotLinux(targetMachine) || isTargetingMacOsButNotMacOs(targetMachine) || isTargetingFreeBsdButNotFreeBsd(targetMachine)) && isKnownArchitecture(targetMachine)) {
+			if ((isTargetingLinuxButNotLinux(targetMachine) || isTargetingMacOsButNotMacOs(targetMachine) || isTargetingFreeBsdButNotFreeBsd(targetMachine) || isTargetingWindowsButNotWindows(targetMachine)) && isKnownArchitecture(targetMachine)) {
 				return true;
 			}
 			return false;
@@ -115,6 +115,10 @@ public class ToolChainSelectorInternal {
 
 		private static boolean isTargetingFreeBsdButNotFreeBsd(TargetMachine targetMachine) {
 			return targetMachine.getOperatingSystemFamily().isFreeBSD() && !SystemUtils.IS_OS_FREE_BSD;
+		}
+
+		private static boolean isTargetingWindowsButNotWindows(TargetMachine targetMachine) {
+			return targetMachine.getOperatingSystemFamily().isWindows() && !SystemUtils.IS_OS_WINDOWS;
 		}
 
 		@Override
