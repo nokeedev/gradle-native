@@ -26,5 +26,6 @@ library {
 			}
 			return result
 		})
+		compileTask.get().positionIndependentCode = true
 	}
 }

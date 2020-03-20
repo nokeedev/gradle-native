@@ -74,6 +74,13 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 			plugins {
 				id 'cpp-library'
 			}
+
+			library {
+				linkage = [Linkage.STATIC]
+				binaries.configureEach {
+					compileTask.get().positionIndependentCode = true
+				}
+			}
 		'''
 	}
 
@@ -158,6 +165,13 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 
 			group = 'com.example'
 			version = '4.2'
+
+			library {
+				linkage = [Linkage.STATIC]
+				binaries.configureEach {
+					compileTask.get().positionIndependentCode = true
+				}
+			}
 		'''
 	}
 

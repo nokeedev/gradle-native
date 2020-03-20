@@ -74,6 +74,7 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 			// configure includes using the native incoming compile configuration
 			task.setDebuggable(true);
 			task.setOptimized(false);
+			task.setPositionIndependentCode(true);
 			task.includes(cppCompile);
 
 			sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> task.getIncludes().from(sourceSet.getSource()));

@@ -206,7 +206,12 @@ class JavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolC
 				id 'cpp-library'
 			}
 
-			library.linkage.set([Linkage.STATIC])
+			library {
+				linkage = [Linkage.STATIC]
+				binaries.configureEach {
+					compileTask.get().positionIndependentCode = true
+				}
+			}
 		'''
 		def fixture = new  JavaJniCppGreeterLib('jni-greeter')
 		fixture.withoutNativeImplementation().writeToProject(testDirectory)
