@@ -11,8 +11,8 @@ import dev.gradleplugins.test.fixtures.gradle.executer.OutputScrapingExecutionRe
 import dev.gradleplugins.test.fixtures.logging.ConsoleOutput
 import dev.nokee.docs.fixtures.Command
 import dev.nokee.docs.fixtures.SampleContentFixture
+import dev.nokee.docs.fixtures.UnzipCommandHelper
 import groovy.transform.ToString
-import org.apache.commons.lang3.StringUtils
 import org.junit.Rule
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -237,8 +237,9 @@ abstract class WellBehavingSampleTest extends Specification {
 
 			String stdout = unzipTo(inputFile, outputDirectory)
 			// unzip add extra newline but also have extra tailing spaces
-			stdout = stdout.readLines().collect { StringUtils.stripEnd(it, ' ')}.join('\n')
-			assert stdout.replace(testDirectory.absolutePath, '/Users/daniel') == command.expectedOutput.get()
+			stdout = stdout.replace(testDirectory.absolutePath, '/Users/daniel')
+
+			assert UnzipCommandHelper.Output.parse(stdout) == UnzipCommandHelper.Output.parse(command.expectedOutput.get())
 		}
 	}
 

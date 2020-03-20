@@ -21,6 +21,7 @@ buildscript {
 plugins {
 	id 'dev.nokeebuild.documentation'
 	id 'maven-publish'
+	id 'antlr'
 }
 
 String toVersion(Project project) {
@@ -58,7 +59,17 @@ dependencies {
 	docsTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
 	docsTestImplementation 'org.apache.commons:commons-lang3:3.9'
+	docsTestImplementation 'org.hamcrest:hamcrest:2.2'
+
+	docsTestImplementation 'org.antlr:antlr4:4.8'
+	antlr "org.antlr:antlr4:4.8"
 }
+// TODO: Improve this Antlr mess... :(
+afterEvaluate {
+	sourceSets.docsTest.groovy.srcDirs(sourceSets.docsTest.java.srcDirs)
+	sourceSets.docsTest.java.srcDirs = []
+}
+compileGroovy.dependsOn(generateDocsTestGrammarSource)
 
 repositories {
 	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
