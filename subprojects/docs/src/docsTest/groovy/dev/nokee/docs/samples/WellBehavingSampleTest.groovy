@@ -1,5 +1,6 @@
 package dev.nokee.docs.samples
 
+import dev.gradleplugins.integtests.fixtures.nativeplatform.AvailableToolChains
 import dev.gradleplugins.spock.lang.CleanupTestDirectory
 import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
 import dev.gradleplugins.test.fixtures.file.TestFile
@@ -19,6 +20,9 @@ import spock.lang.Unroll
 
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
+
+import static org.hamcrest.Matchers.greaterThan
+import static org.junit.Assume.assumeThat
 
 @CleanupTestDirectory
 abstract class WellBehavingSampleTest extends Specification {
@@ -131,33 +135,42 @@ abstract class WellBehavingSampleTest extends Specification {
 		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]
 	}
 
+	AvailableToolChains.InstalledToolChain toolChain;
 	@Unroll
 	def "can execute commands successfully"(dsl) {
+		toolChain = AvailableToolChains.getDefaultToolChain()
+
 		def fixture = new SampleContentFixture(sampleName)
 		unzipTo(fixture.getDslSample(dsl), temporaryFolder.testDirectory)
 
+		def c = wrapAndGetExecutable(fixture.getCommands())
+		assumeThat(c.size(), greaterThan(0));
 		expect:
-		def c = wrap(fixture.getCommands())
-		c.size() > 0
 		c.each { it.execute(TestFile.of(temporaryFolder.testDirectory)) }
 
 		where:
 		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]
 	}
 
+	private List<? super Comm> wrapAndGetExecutable(List<Command> commands) {
+		return commands.findAll { it.canExecute() }.collect { convert(it) }
+	}
+
 	private List<? super Comm> wrap(List<Command> commands) {
-		commands.collect { command ->
-			if (command.executable == './gradlew') {
-				return new GradleWrapperCommand(command)
-			} else if (command.executable == 'ls') {
-				return new ListDirectoryCommand(command)
-			} else if (command.executable == 'mv') {
-				return new MoveFilesCommand(command)
-			} else if (command.executable == 'unzip') {
-				return new UnzipCommand(command)
-			}
-			return new GenericCommand(command)
+		return commands.collect { convert(it) }
+	}
+
+	protected Comm convert(Command command) {
+		if (command.executable == './gradlew') {
+			return new GradleWrapperCommand(command)
+		} else if (command.executable == 'ls') {
+			return new ListDirectoryCommand(command)
+		} else if (command.executable == 'mv') {
+			return new MoveFilesCommand(command)
+		} else if (command.executable == 'unzip') {
+			return new UnzipCommand(command)
 		}
+		return new GenericCommand(command)
 	}
 
 	@ToString
@@ -180,6 +193,18 @@ abstract class WellBehavingSampleTest extends Specification {
 		void execute(TestFile testDirectory) {
 			GradleExecuter executer = configureLocalPluginResolution(new GradleExecuterFactory().wrapper(TestFile.of(testDirectory)).withConsole(ConsoleOutput.Rich))
 
+			def initScript = testDirectory.file("init.gradle") << """
+				allprojects { p ->
+					apply plugin: ${toolChain.pluginClass}
+
+					model {
+						toolChains {
+							${toolChain.buildScriptConfig}
+						}
+					}
+				}
+			"""
+			executer = toolChain.configureExecuter(executer.usingInitScript(initScript))
 			command.args.each {
 				executer = executer.withArgument(it)
 			}
