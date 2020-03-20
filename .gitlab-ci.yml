@@ -8,6 +8,19 @@ build:
     paths:
       - subprojects/docs/build/
 
+test:
+  image: nokeedev/gcc-builder
+  stage: test
+  script: ./gradlew check --continue
+  artifacts:
+    when: on_failure
+    paths:
+      - subprojects/platform-jni/build/tmp/test files
+      - subprojects/platform-jni/build/reports/tests
+      - subprojects/docs/build/repository
+      - subprojects/docs/build/tmp/test files
+      - subprojects/docs/build/reports/tests
+
 deploy:
   stage: deploy
   script: gradle bintrayUpload
