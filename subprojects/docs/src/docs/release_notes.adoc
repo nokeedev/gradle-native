@@ -67,7 +67,7 @@ The Nokee plugins let you build JNI libraries <<samples/java-cpp-jni-library/ind
 The native component of the JNI library can be implemented <<samples/java-c-jni-library/index.adoc#,in C>> or <<samples/java-cpp-jni-library/index.adoc#,in {cpp}>>.
 More implementation language support will follow in future releases.
 You can <<samples/jni-library-with-junit-test/index.adoc#,test your JNI library with JUnit as you would with any Java library>>.
-Finally, <<samples/jni-library-with-target-machine/index.adoc#,the native component of the JNI library can target different machines>>.
+Finally, <<samples/jni-library-with-target-machines/index.adoc#,the native component of the JNI library can target different machines>>.
 
 For more information on the JNI library plugin, <<manual/jni_library_plugin.adoc#,read the reference chapter in the user manual>>.
 
@@ -92,7 +92,7 @@ This release prepared the infrastructure for <<manual/user_manual.adoc#,the docu
 It also rolled out a <<samples/index.adoc#,sample infrastructure to allow users to see how particular use cases are solved quickly>>.
 There is also an ongoing effort in providing appropriate coverage for a broad set of architectures, operating systems and toolchains.
 We are committed to quality and features will only be available if we have test coverage for them.
-For this commitment, we are extracting relevant parts from the link:http://github.com/gradle/gradle[Gradle codebase] to ease our testing needs.
+For this commitment, we are extracting relevant parts from the link:https://github.com/gradle/gradle[Gradle codebase] to ease our testing needs.
 You can follow this ongoing effort over on the link:https://github.com/gradle-plugins/toolbox[Gradle Plugins Development repository].
 
 == Reporting Problems

@@ -8,7 +8,7 @@ NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com
 
 This sample shows how to publish a JNI library with Gradle to a binary repository.
 The library has no dependencies, and the build has a minimal configuration.
-If you are looking at publishing a JNI library with multiple target machines, see link:../publishing-jni-library-with-target-machines/[this other sample].
+If you are looking at publishing a JNI library with multiple target machines, see link:../publish-jni-library-with-target-machines/[this other sample].
 
 In this sample, we are publishing a JNI library implemented in Java and {cpp}; however, this applies to other JVM and native languages as well.
 

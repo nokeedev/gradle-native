@@ -21,7 +21,7 @@
 	}
 
 	def getBreadcrumbs = {
-		def kContentCrumb = crumb(content.title, content.uri)
+		def kContentCrumb = crumb(content.title, "/${content.uri}")
 		def kUserManualCrumb = crumb('User Manual', "${path}manual/user_manual.html")
 		def kReferencePluginsCrumb = crumb('Reference Plugins', "${path}manual/plugin_references.html")
 		def kSamplesCrumb = crumb('Samples', "${path}samples/index.html")
