@@ -30,6 +30,7 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 	private final Configuration cppCompile;
 	private final Configuration cppLinkDebug;
 	private final TaskContainer tasks;
+	private TaskProvider<LinkSharedLibrary> linkTask;
 	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
 
 	@Inject
@@ -63,7 +64,7 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 	}
 
 	public TaskProvider<LinkSharedLibrary> getLinkTask() {
-		return tasks.named("", LinkSharedLibrary.class);
+		return linkTask;
 	}
 
 	@Inject
@@ -119,6 +120,7 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 
 		binary.getTasks().withType(LinkSharedLibrary.class, task -> {
 			task.getLibs().from(cppLinkDebug);
+			linkTask = tasks.named(task.getName(), LinkSharedLibrary.class);
 		});
 	}
 

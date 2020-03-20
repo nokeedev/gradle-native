@@ -96,11 +96,21 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language") || proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
 					library.registerSharedLibraryBinary();
 				}
+
 				if (proj.getPluginManager().hasPlugin("java") && targetMachines.size() == 1) {
-					library.registerJniJarBinary(project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class));
+					TaskProvider<Jar> jvmJarTask = project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class);
+					library.registerJniJarBinary(jvmJarTask);
+					library.getAssembleTask().configure(task -> task.dependsOn(jvmJarTask));
 				} else {
 					library.registerJniJarBinary();
+					if (proj.getPluginManager().hasPlugin("java")) {
+						library.getAssembleTask().configure(task -> task.dependsOn(project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class)));
+					} else {
+						// FIXME: There is a gap here, if the project doesn't have any JVM plugin applied but specify multiple target machine what is expected?
+						//   Only JNI Jar? or an empty JVM Jar and JNI Jar?... Hmmm....
+					}
 				}
+
 
 				// Attach JNI Jar to assemble task
 				if (DefaultTargetMachine.isTargetingHost().test(targetMachine)) {

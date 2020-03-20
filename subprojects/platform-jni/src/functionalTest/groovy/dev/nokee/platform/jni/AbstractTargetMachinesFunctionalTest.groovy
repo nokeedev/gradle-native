@@ -4,13 +4,12 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.sources.SourceElement
-import org.gradle.nativeplatform.MachineArchitecture
+import dev.nokee.platform.nativebase.internal.DefaultMachineArchitecture
 import org.gradle.nativeplatform.OperatingSystemFamily
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import spock.lang.Unroll
 
 import static org.hamcrest.CoreMatchers.containsString
-
 // See https://github.com/gradle/gradle-native/issues/982 for the distinction between unknown, unsupported and unbuildable.
 abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "can build on current operating system family and architecture when explicitly specified"() {
@@ -111,11 +110,9 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 		buildFile << configureTargetMachines("machines.${currentHostOperatingSystemFamilyDsl}.x86", "machines.${currentHostOperatingSystemFamilyDsl}.x86_64")
 
 		expect:
-		succeeds getTaskNameToAssembleDevelopmentBinaryWithArchitecture(MachineArchitecture.X86), getTaskNameToAssembleDevelopmentBinaryWithArchitecture(MachineArchitecture.X86_64)
-		result.assertTasksExecutedAndNotSkipped(getTasksToAssembleDevelopmentBinary(MachineArchitecture.X86),
-			getTasksToAssembleDevelopmentBinary(MachineArchitecture.X86_64),
-			getTaskNameToAssembleDevelopmentBinaryWithArchitecture(MachineArchitecture.X86),
-			getTaskNameToAssembleDevelopmentBinaryWithArchitecture(MachineArchitecture.X86_64))
+		succeeds getTaskNameToAssembleDevelopmentBinaryWithArchitecture(DefaultMachineArchitecture.X86.name), getTaskNameToAssembleDevelopmentBinaryWithArchitecture(DefaultMachineArchitecture.X86_64.name)
+		assertComponentUnderTestWasBuilt(DefaultMachineArchitecture.X86.name)
+		assertComponentUnderTestWasBuilt(DefaultMachineArchitecture.X86_64.name)
 	}
 
 	def "fails when no target architecture can be built"() {
