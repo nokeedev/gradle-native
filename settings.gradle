@@ -3,7 +3,7 @@ pluginManagement {
 		gradlePluginPortal()
 		maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
 	}
-	def gradlePluginVersion = "0.0.24"
+	def gradlePluginVersion = "0.0.25"
 	resolutionStrategy {
 		eachPlugin {
 			if (requested.id.id.startsWith('dev.gradleplugins.')) {
