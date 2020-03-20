@@ -30,8 +30,9 @@ public class Command {
 	private final boolean allowAdditionalOutput;
 	private final boolean allowDisorderedOutput;
 	private final List<String> userInputs;
+	private final OnlyIfCondition onlyIfCondition;
 
-	public Command(CommandLine commandLine, Optional<String> executionDirectory, List<String> flags, Optional<String> expectedOutput, boolean expectFailure, boolean allowAdditionalOutput, boolean allowDisorderedOutput, List<String> userInputs) {
+	public Command(CommandLine commandLine, Optional<String> executionDirectory, List<String> flags, Optional<String> expectedOutput, boolean expectFailure, boolean allowAdditionalOutput, boolean allowDisorderedOutput, List<String> userInputs, OnlyIfCondition onlyIfCondition) {
 		this.commandLine = commandLine;
 		this.executionSubdirectory = executionDirectory;
 		this.flags = flags;
@@ -40,6 +41,7 @@ public class Command {
 		this.allowAdditionalOutput = allowAdditionalOutput;
 		this.allowDisorderedOutput = allowDisorderedOutput;
 		this.userInputs = userInputs;
+		this.onlyIfCondition = onlyIfCondition;
 	}
 
 	public String getExecutable() {
@@ -88,5 +90,9 @@ public class Command {
 	 */
 	public List<String> getUserInputs() {
 		return userInputs;
+	}
+
+	public boolean canExecute() {
+		return onlyIfCondition.canExecute();
 	}
 }

@@ -66,7 +66,8 @@ public class CommandDiscovery {
 			attributes.containsKey("expect-failure"),
 			attributes.containsKey("allow-additional-output"),
 			attributes.containsKey("allow-disordered-output"),
-			Collections.emptyList());
+			Collections.emptyList(),
+			OnlyIfCondition.of(Objects.toString(attributes.get("only-if"), null)));
 		commands.add(command);
 		return nextCommand;
 	}

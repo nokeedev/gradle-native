@@ -36,12 +36,15 @@ include::{includedir}/kotlin-dsl/build.gradle.kts[tag=configureViaGroup]
 
 We can see the effect of configuring the project group:
 
-[listing.terminal,only-if='macos']
+[listing.terminal]
 ----
 $ ./gradlew assemble
 
 BUILD SUCCESSFUL
 4 actionable tasks: 4 executed
+----
+[listing.terminal,only-if='macos']
+----
 $ jar tf ./build/libs/jni-library-with-resource-path.jar
 META-INF/
 META-INF/MANIFEST.MF
@@ -74,12 +77,15 @@ include::{includedir}/kotlin-dsl/build.gradle.kts[tag=configureViaDsl]
 =====
 ====
 
-[listing.terminal,only-if='macos']
+[listing.terminal]
 ----
 $ ./gradlew assemble -PconfigureViaDsl
 
 BUILD SUCCESSFUL
 4 actionable tasks: 1 executed, 3 up-to-date
+----
+[listing.terminal,only-if='macos']
+----
 $ jar tf ./build/libs/jni-library-with-resource-path.jar
 META-INF/
 META-INF/MANIFEST.MF

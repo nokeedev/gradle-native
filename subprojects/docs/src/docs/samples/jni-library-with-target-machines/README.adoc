@@ -52,7 +52,7 @@ $ ls ./build/libs/*.jar
 It's also important to note that when multiple target platform are configured, the native component will be namespaced inside their own variant directory.
 Gradle will also produce a separated JAR for each variant:
 
-[listing.terminal,only-if='macos']
+[listing.terminal]
 ----
 $ jar tf ./build/libs/jni-library-with-target-machines.jar
 META-INF/
@@ -62,6 +62,9 @@ com/example/
 com/example/greeter/
 com/example/greeter/NativeLoader.class
 com/example/greeter/Greeter.class
+----
+[listing.terminal,only-if='macos']
+----
 $ jar tf ./build/libs/jni-library-with-target-machines-macos.jar
 META-INF/
 META-INF/MANIFEST.MF
