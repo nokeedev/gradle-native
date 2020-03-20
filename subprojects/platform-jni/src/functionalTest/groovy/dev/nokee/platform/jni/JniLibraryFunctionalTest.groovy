@@ -1,6 +1,7 @@
 package dev.nokee.platform.jni
 
-import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
+
+import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import dev.nokee.platform.jni.fixtures.elements.JavaGreeter
@@ -8,7 +9,7 @@ import dev.nokee.platform.jni.fixtures.elements.JavaMainUsesGreeter
 import org.gradle.internal.jvm.Jvm
 import org.gradle.internal.os.OperatingSystem
 
-class JniLibraryFunctionalTest extends AbstractFunctionalSpec {
+class JniLibraryFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "can consume transitive JVM API dependencies from no language JNI library"() {
 		settingsFile << '''
 			include 'consumer', 'jni-library', 'producer'

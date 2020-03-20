@@ -1,13 +1,14 @@
 package dev.nokee.platform.jni
 
-import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
+
+import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.nokee.platform.jni.fixtures.GreeterAppWithJniLibrary
 import dev.nokee.platform.jni.fixtures.elements.JavaGreeter
 import dev.nokee.platform.jni.fixtures.elements.JavaMainUsesGreeter
 import org.gradle.internal.jvm.Jvm
 import org.gradle.internal.os.OperatingSystem
 
-class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends AbstractFunctionalSpec {
+class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "can define implementation dependencies on component"() {
 		makeComponentWithLibrary()
 		buildFile << '''
