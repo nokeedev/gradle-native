@@ -15,7 +15,7 @@ public class XPath {
 	@NonNull String value;
 
 	/**
-	 * Creates an XPath-like instance for a specific HTML node.
+     * Creates an XPath-like instance for a specific HTML node.
 	 *
 	 * @param e a {@link GPathResult} from {@link XmlSlurper}
 	 * @return an XPath instance representing the absolute path with id and class attributes if available, never null.

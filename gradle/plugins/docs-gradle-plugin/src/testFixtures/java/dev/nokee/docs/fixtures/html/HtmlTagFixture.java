@@ -9,7 +9,8 @@ import java.util.Optional;
 @ToString
 @AllArgsConstructor
 public abstract class HtmlTagFixture {
-	@Getter private HtmlTagPath path;
+	@Getter
+	private HtmlTagPath path;
 
 	public void assertBob() {
 		System.out.println(path);

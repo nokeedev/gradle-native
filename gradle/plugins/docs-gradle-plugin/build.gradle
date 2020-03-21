@@ -1,6 +1,10 @@
 plugins {
 	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'java-test-fixtures'
 }
+
+group = 'dev.nokee.docs'
+version = '0.1'
 
 gradlePlugin {
 	plugins {
@@ -25,4 +29,16 @@ dependencies {
 	implementation 'commons-io:commons-io:2.6'
 	implementation 'org.jbake:jbake-gradle-plugin:5.0.0'
 	implementation 'com.google.guava:guava:28.2-jre'
+
+
+	def lombokVersion = '1.18.12'
+	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+	testFixturesImplementation 'com.google.guava:guava:28.2-jre'
+	testFixturesImplementation 'org.hamcrest:hamcrest:2.2'
+	testFixturesImplementation 'commons-io:commons-io:2.6'
+	testFixturesImplementation 'net.sourceforge.nekohtml:nekohtml:1.9.21'
+	testFixturesImplementation 'io.github.http-builder-ng:http-builder-ng-core:1.0.4'
+	testFixturesImplementation 'junit:junit:4.13'
+
 }
