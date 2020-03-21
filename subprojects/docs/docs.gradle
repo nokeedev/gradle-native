@@ -43,7 +43,8 @@ docsTest.inputs.dir(layout.buildDirectory.dir("staging/content/docs/${toVersion(
 docsTest.systemProperty('dev.nokee.docsRepository', layout.buildDirectory.dir('repository').get().asFile.absolutePath)
 docsTest.systemProperty('sampleArchiveDirectory', 'build/staging/assets/zips')
 docsTest.systemProperty('sampleContentDirectory', layout.buildDirectory.dir("staging/content/docs/${toVersion(project)}/samples").get().asFile.absolutePath)
-docsTest.dependsOn('stage')
+docsTest.systemProperty('bakedContentDirectory', layout.buildDirectory.dir(jbake.destDirName).get().asFile.absolutePath)
+docsTest.dependsOn('stage', "bake")
 dependencies {
 	docsTestImplementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
 	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
@@ -63,6 +64,11 @@ dependencies {
 
 	docsTestImplementation 'org.antlr:antlr4:4.8'
 	antlr "org.antlr:antlr4:4.8"
+
+	docsTestImplementation 'commons-io:commons-io:2.6'
+	docsTestImplementation 'net.sourceforge.nekohtml:nekohtml:1.9.21'
+	docsTestImplementation 'io.github.http-builder-ng:http-builder-ng-core:1.0.4'
+	docsTestImplementation 'com.google.guava:guava:28.2-jre'
 }
 // TODO: Improve this Antlr mess... :(
 afterEvaluate {
