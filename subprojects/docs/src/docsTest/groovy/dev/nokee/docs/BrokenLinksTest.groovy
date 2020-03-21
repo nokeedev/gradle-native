@@ -1,6 +1,6 @@
 package dev.nokee.docs
 
-import dev.nokee.docs.fixtures.HtmlLinkTester
+import dev.nokee.docs.fixtures.html.HtmlLinkTester
 import spock.lang.Specification
 
 class BrokenLinksTest extends Specification {
