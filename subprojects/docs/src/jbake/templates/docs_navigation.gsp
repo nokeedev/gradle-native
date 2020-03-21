@@ -24,7 +24,7 @@
 		def kContentCrumb = crumb(content.title, "/${content.uri}")
 		def kUserManualCrumb = crumb('User Manual', "${path}manual/user_manual.html")
 		def kReferencePluginsCrumb = crumb('Reference Plugins', "${path}manual/plugin_references.html")
-		def kSamplesCrumb = crumb('Samples', "${path}samples/index.html")
+		def kSamplesCrumb = crumb('Samples', "${path}samples/")
 		def kReleaseNotesCrumb = crumb('Release Notes', "${path}release_notes.html")
 
 		switch (content.type) {
@@ -55,7 +55,7 @@
 	<div class="navigation-items">
 		<ul>
 			<li><a ${anchorOf('manual/user_manual.html')}>Docs Home</a></li>
-			<li><a ${anchorOf('samples/index.html')}>Samples</a></li>
+			<li><a ${anchorOf('samples/')}>Samples</a></li>
 			<li><a ${anchorOf('release_notes.html')}>Release Notes</a></li>
 		</ul>
 		<h3 id="user-manual">User Manual </h3>
