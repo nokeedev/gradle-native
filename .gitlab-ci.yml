@@ -2,7 +2,7 @@ image: nokeedev/generic-builder
 
 build:
   stage: build
-  script: ./gradlew assemble -x :docs:generateSamplesAsciinema -x :docs:compileDocsAsciicast
+  script: ./gradlew assemble
   artifacts:
     when: on_failure
     paths:
@@ -11,6 +11,7 @@ build:
 test:
   image: nokeedev/gcc-builder
   stage: test
+  # FIXME: Shouldn't need to ignore the Asciinema tasks, they should just not be wired in for testing
   script: ./gradlew check --continue -x :docs:generateSamplesAsciinema -x :docs:compileDocsAsciicast
   artifacts:
     when: on_failure
