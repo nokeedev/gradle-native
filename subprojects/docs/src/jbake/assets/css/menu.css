@@ -1,5 +1,4 @@
 .navigation {
-	background-color: #fff;
 	/*box-shadow: 1px 1px 4px 0 rgba(0,0,0,.1);*/
 	/*position: fixed;*/
 	width: 100%;
@@ -12,7 +11,6 @@
 	padding: 0;
 	list-style: none;
 	overflow: hidden;
-	background-color: #fff;
 }
 
 .navigation li a {
@@ -23,18 +21,7 @@
 	line-height: 1;
 }
 
-.navigation li a, .navigation li a:visited {
-	color: #222629;
-}
-
 /* GitHub logo fill */
-.navigation li a svg path {
-	fill: #02303A;
-}
-
-.navigation li a:hover {
-	color: #61892F;
-}
 
 .navigation li {
 	font-size: 16px;
@@ -73,7 +60,6 @@
 }
 
 .navigation .menu-icon .navicon {
-	background: #333;
 	display: block;
 	height: 2px;
 	position: relative;
@@ -83,7 +69,6 @@
 
 .navigation .menu-icon .navicon:before,
 .navigation .menu-icon .navicon:after {
-	background: #333;
 	content: '';
 	display: block;
 	height: 100%;

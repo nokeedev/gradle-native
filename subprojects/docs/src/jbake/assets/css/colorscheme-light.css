@@ -1,0 +1,31 @@
+.navigation {
+	background-color: #fff;
+}
+
+.navigation ul {
+	background-color: #fff;
+}
+
+.navigation li a, .navigation li a:visited {
+	color: #222629;
+}
+
+/* GitHub logo fill */
+.navigation li a svg path {
+	fill: #02303A;
+}
+
+.navigation li a:hover {
+	color: #61892F;
+}
+
+/* menu icon */
+
+.navigation .menu-icon .navicon {
+	background: #333;
+}
+
+.navigation .menu-icon .navicon:before,
+.navigation .menu-icon .navicon:after {
+	background: #333;
+}

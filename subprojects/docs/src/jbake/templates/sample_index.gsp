@@ -2,11 +2,16 @@
 def categories = sample_chapters.collect { it.category } as Set
 %>
 
-<% include "header-docs.gsp" %>
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+	<% include "fragment-docs-header.gsp" %>
+</head>
+<body onload="prettyPrint()">
 
-	<% include "menu.gsp" %>
+	<% include "fragment-menu.gsp" %>
 	<main class="main-content">
-		<% include "docs_navigation.gsp" %>
+		<% include "fragment-docs-navigation.gsp" %>
 
 		<div class="chapter">
 			<div id="header">
@@ -27,4 +32,6 @@ def categories = sample_chapters.collect { it.category } as Set
 		</div>
 		<aside class="secondary-navigation"></aside>
 	</main>
-<% include "footer-docs.gsp" %>
+<% include "fragment-docs-footer.gsp" %>
+</body>
+</html>
