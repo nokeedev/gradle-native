@@ -99,6 +99,24 @@ public abstract class HtmlTagFixture {
 	@Value
 	@EqualsAndHashCode(callSuper = true)
 	@ToString(callSuper = true)
+	public static class Meta extends HtmlTagFixture {
+		String nameOrProperty;
+		String content;
+
+		public boolean isOpenGraphUrl() {
+			return nameOrProperty != null && nameOrProperty.equals("og:url");
+		}
+
+		public Meta(HtmlTagPath path, String nameOrProperty, String content) {
+			super(path);
+			this.nameOrProperty = nameOrProperty;
+			this.content = content;
+		}
+	}
+
+	@Value
+	@EqualsAndHashCode(callSuper = true)
+	@ToString(callSuper = true)
 	public static class HtmlAnchor extends HtmlTagFixture {
 		String id;
 

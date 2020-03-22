@@ -55,6 +55,22 @@ public abstract class HtmlTag<T> {
 		}
 	};
 
+	public static final HtmlTag<HtmlTagFixture.Meta> META = new HtmlTag<HtmlTagFixture.Meta>() {
+		@Override
+		public boolean is(GPathResult e) {
+			return e.name().equals("META");
+		}
+
+		@Override
+		public HtmlTagFixture.Meta create(URI uri, NodeChild n) {
+			String nameOrProperty = Objects.toString(n.attributes().get("name"), null);
+			if (nameOrProperty == null) {
+				nameOrProperty = Objects.toString(n.attributes().get("property"), null);
+			}
+			return new HtmlTagFixture.Meta(new HtmlTagPath(uri, XPath.of(n)), nameOrProperty, Objects.toString(n.attributes().get("content"), null));
+		}
+	};
+
 	/**
 	 * A HTML tag that can be used as anchor with the URI fragment (e.g. #some-value).
 	 */

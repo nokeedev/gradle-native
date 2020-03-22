@@ -23,4 +23,14 @@ class ProperBakedHtmlTest extends Specification {
 			assert canonicalLinks.first().href.get() == it.getCanonicalPath()
 		}
 	}
+
+	def "has proper open-graph URL"() {
+		expect:
+		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
+		fixture.findAllHtml().each {
+			def canonicalLinks = it.findAll(HtmlTag.META).findAll { it.openGraphUrl }
+			assert canonicalLinks.size() == 1
+			assert canonicalLinks.first().content == it.getCanonicalPath()
+		}
+	}
 }
