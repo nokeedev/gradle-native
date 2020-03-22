@@ -79,14 +79,20 @@ public abstract class HtmlTagFixture {
 	@ToString(callSuper = true)
 	public static class Link extends HtmlTagFixture {
 		String href;
+		@NonNull String rel;
 
 		public Optional<String> getHref() {
 			return Optional.ofNullable(href);
 		}
 
-		public Link(HtmlTagPath path, String href) {
+		public boolean isCanonical() {
+			return rel.equals("canonical");
+		}
+
+		public Link(HtmlTagPath path, String href, String rel) {
 			super(path);
 			this.href = href;
+			this.rel = rel;
 		}
 	}
 

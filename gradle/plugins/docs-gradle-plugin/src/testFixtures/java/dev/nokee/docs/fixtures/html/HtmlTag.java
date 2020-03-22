@@ -51,7 +51,7 @@ public abstract class HtmlTag<T> {
 
 		@Override
 		public HtmlTagFixture.Link create(URI uri, NodeChild n) {
-			return new HtmlTagFixture.Link(new HtmlTagPath(uri, XPath.of(n)), Objects.toString(n.attributes().get("href"), null));
+			return new HtmlTagFixture.Link(new HtmlTagPath(uri, XPath.of(n)), Objects.toString(n.attributes().get("href"), null), n.attributes().get("rel").toString());
 		}
 	};
 

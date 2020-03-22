@@ -3,3 +3,4 @@
 <%if (content.description) {%><meta name="description" content="${content.description}"><%}%>
 <meta name="author" content="@nokeedev">
 <%if (content.keywords) {%><meta name="keywords" content=""><%}%>
+<% include 'fragment-meta-canonical.gsp' %>
