@@ -64,24 +64,24 @@ pluginManagement {
 [[sec:jni_libraries]]
 == Java Native Interface (JNI) Libraries
 
-The Nokee plugins let you build JNI libraries <<samples/java-cpp-jni-library/index.adoc#,as a single project>> or by <<samples/jni-library-composing/index.adoc#,composing multiple projects together>>.
-The native component of the JNI library can be implemented <<samples/java-c-jni-library/index.adoc#,in C>> or <<samples/java-cpp-jni-library/index.adoc#,in {cpp}>>.
+The Nokee plugins let you build JNI libraries link:samples/java-cpp-jni-library/[as a single project] or by link:samples/jni-library-composing/[composing multiple projects together].
+The native component of the JNI library can be implemented link:samples/java-c-jni-library/[in C] or link:samples/java-cpp-jni-library/[in {cpp}].
 More implementation language support will follow in future releases.
-You can <<samples/jni-library-with-junit-test/index.adoc#,test your JNI library with JUnit as you would with any Java library>>.
-Finally, <<samples/jni-library-with-target-machines/index.adoc#,the native component of the JNI library can target different machines>>.
+You can link:samples/jni-library-with-junit-test/[test your JNI library with JUnit as you would with any Java library].
+Finally, link:samples/jni-library-with-target-machines/[the native component of the JNI library can target different machines].
 
 For more information on the JNI library plugin, <<manual/jni-library-plugin.adoc#,read the reference chapter in the user manual>>.
 
 The JNI Library plugin is limited to JDK 8+ for header generation; the previous JDK versions use `javah`.
 The target platforms are limited to the three major operating systems - e.g. Windows, macOS, Linux - and to the Intel architecture - e.g. x86 and x86_64.
 The implementation language of the native component for the JNI library is limited to C and {cpp}.
-Finally, publishing the JNI libraries to binary repositories requires customization of your build script, see <<samples/publish-jni-library/index.adoc#,this sample to learn more>>.
+Finally, publishing the JNI libraries to binary repositories requires customization of your build script, see link:samples/publish-jni-library/[this sample to learn more].
 If any of those limitations are a deal-breaker, link:https://github.com/nokeedev/gradle-native/issues/new[please open an issue so we can promptly resolve the issue for you].
 
 [[sec:documentation]]
 == Documentation
 
-The documentation portal was also completed for this release which includes a <<manual/getting-started.adoc#,getting started>>, <<manual/plugin-references.adoc#,plugin references>>, <<manual/terminology.adoc#,terminology>> and <<samples/index.adoc#,downloadable samples>>.
+The documentation portal was also completed for this release which includes a <<manual/getting-started.adoc#,getting started>>, <<manual/plugin-references.adoc#,plugin references>>, <<manual/terminology.adoc#,terminology>> and link:samples/[downloadable samples].
 
 The documentation will keep getting better over time.
 If you have any suggestions for content, demonstrations, tutorials or general improvements, link:https://github.com/nokeedev/gradle-native/issues/new[please open a new issue].
@@ -90,7 +90,7 @@ If you have any suggestions for content, demonstrations, tutorials or general im
 == Infrastructure
 
 This release prepared the infrastructure for <<manual/user-manual.adoc#,the documentation portal to provide automated nightly releases of the plugins>>.
-It also rolled out a <<samples/index.adoc#,sample infrastructure to allow users to see how particular use cases are solved quickly>>.
+It also rolled out a link:samples/[sample infrastructure to allow users to see how particular use cases are solved quickly].
 There is also an ongoing effort in providing appropriate coverage for a broad set of architectures, operating systems and toolchains.
 We are committed to quality and features will only be available if we have test coverage for them.
 For this commitment, we are extracting relevant parts from the link:https://github.com/gradle/gradle[Gradle codebase] to ease our testing needs.
