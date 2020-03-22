@@ -28,9 +28,21 @@ class ProperBakedHtmlTest extends Specification {
 		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
 		fixture.findAllHtml().each {
-			def canonicalLinks = it.findAll(HtmlTag.META).findAll { it.openGraphUrl }
-			assert canonicalLinks.size() == 1
-			assert canonicalLinks.first().content == it.getCanonicalPath()
+			def openGraphUrls = it.findAll(HtmlTag.META).findAll { it.openGraphUrl }
+			assert openGraphUrls.size() == 1
+			assert openGraphUrls.first().content == it.getCanonicalPath()
+		}
+	}
+
+	def "has proper description"() {
+		// It seems 160 characters is a good limit
+		expect:
+		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
+		fixture.findAllHtml().each {
+			def metaDescriptions = it.findAll(HtmlTag.META).findAll { it.description }
+			assert metaDescriptions.size() == 1, "${it.uri} does not have meta description tag"
+			assert metaDescriptions.first().content.size() > 0, "${it.uri} cannot have empty meta description tag"
+			assert metaDescriptions.first().content.size() <= 160
 		}
 	}
 }

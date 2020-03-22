@@ -107,6 +107,10 @@ public abstract class HtmlTagFixture {
 			return nameOrProperty != null && nameOrProperty.equals("og:url");
 		}
 
+		public boolean isDescription() {
+			return nameOrProperty != null && nameOrProperty.equals("description");
+		}
+
 		public Meta(HtmlTagPath path, String nameOrProperty, String content) {
 			super(path);
 			this.nameOrProperty = nameOrProperty;

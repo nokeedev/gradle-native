@@ -112,15 +112,6 @@ abstract class WellBehavingSampleTest extends Specification {
 		commands*.assertNoTimingInformationOnBuildResult()
 	}
 
-	def "has meta description tags not exceeding 160 characters"() {
-		def fixture = new SampleContentFixture(sampleName)
-
-		expect:
-		def description = fixture.description
-		description.present
-		description.get().length() <= 160
-	}
-
 	@Unroll
 	def "can run './gradlew #taskName' successfully"(taskName, dsl) {
 		def fixture = new SampleContentFixture(sampleName)

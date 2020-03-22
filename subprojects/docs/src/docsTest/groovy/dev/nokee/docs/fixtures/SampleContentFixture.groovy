@@ -44,12 +44,6 @@ class SampleContentFixture {
 		return new CommandDiscovery().extractAsciidocCommands(document)
 	}
 
-	Optional<String> getDescription() {
-		Asciidoctor asciidoctor = Asciidoctor.Factory.create()
-		Document document = asciidoctor.loadFile(contentFile, options().asMap())
-		return Optional.<String>ofNullable((String)document.attributes.get('jbake-description'))
-	}
-
 	String getCategory() {
 		Asciidoctor asciidoctor = Asciidoctor.Factory.create()
 		Document document = asciidoctor.loadFile(contentFile, options().asMap())
