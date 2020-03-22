@@ -130,3 +130,17 @@
 		display: none;
 	}
 }
+
+.navigation-socials li {
+	float: left;
+}
+
+.navigation-socials li a {
+	padding-left: 10px;
+	padding-right: 15px;
+}
+
+li.navigation-twitter a {
+	padding-top: 18px;
+	padding-bottom: 18px;
+}
