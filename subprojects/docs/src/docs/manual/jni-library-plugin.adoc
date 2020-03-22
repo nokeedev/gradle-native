@@ -6,7 +6,7 @@
 
 The JNI Library Plugin provides the tasks, configurations and conventions for building libraries using the Java Native Interface runtime.
 It provides both an entry point (library) and runtime (JNI).
-An JVM (i.e. the link:{gradle-user-manual}/java_plugin.html[Java Plugin]) and native implementation (i.e. the <<cpp_language_plugin.adoc#,{cpp} Language Plugin>> or <<c_language_plugin.adoc#,C Language Plugin>>) language plugins are required to be applied to produce anything meaningful.
+An JVM (i.e. the link:{gradle-user-manual}/java_plugin.html[Java Plugin]) and native implementation (i.e. the <<cpp-language-plugin.adoc#,{cpp} Language Plugin>> or <<c-language-plugin.adoc#,C Language Plugin>>) language plugins are required to be applied to produce anything meaningful.
 
 [[sec:jni_library_usage]]
 == Usage
@@ -36,7 +36,7 @@ plugins {
 ====
 
 NOTE: This plugin produces a JNI library as JARs using the JNI runtime.
-It doesn't provide any implementation language capabilities and thus needs to be composed by applying other implementation language plugins, such as <<cpp_language_plugin.adoc#,{cpp} Language Plugin>>, <<c_language_plugin.adoc#,C Language Plugin>> and link:{gradle-user-manual}/java_plugin.html[Java Plugin].
+It doesn't provide any implementation language capabilities and thus needs to be composed by applying other implementation language plugins, such as <<cpp-language-plugin.adoc#,{cpp} Language Plugin>>, <<c-language-plugin.adoc#,C Language Plugin>> and link:{gradle-user-manual}/java_plugin.html[Java Plugin].
 
 NOTE: This plugin is incompatible with the link:{gradle-user-manual}/java_library_plugin.html[Java Library Plugin] and link:{gradle-user-manual}/application_plugin.html[Java Application Plugin].
 Those two plugins provide an opinionated entry point (e.g. library and application, respectively).
@@ -82,7 +82,7 @@ When multiple target machines are configured, a separate JAR task is created for
 [[sec:jni_library_lifecycle_tasks]]
 === Lifecycle Tasks
 
-The JNI Library Plugin attaches some of its tasks to the standard lifecycle tasks documented in the link:{gradle-user-manual}/base_plugin.html[Base Plugin chapter] — which the <<jni_library_plugin.adoc#,JNI Library Plugin] applies automatically:
+The JNI Library Plugin attaches some of its tasks to the standard lifecycle tasks documented in the link:{gradle-user-manual}/base_plugin.html[Base Plugin chapter] — which the <<jni-library-plugin.adoc#,JNI Library Plugin] applies automatically:
 
 `assemble` - Task (lifecycle)::
 Aggregates task that assembles the debug variant of the shared library (if available) for the current host (if present) in the project as well as the JAR.

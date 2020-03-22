@@ -48,4 +48,4 @@ $ ls ./build/reports/tests/test/index.html
 ./build/reports/tests/test/index.html
 ----
 
-For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin reference chapter>>.
+For more information, see <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin reference chapter>>.

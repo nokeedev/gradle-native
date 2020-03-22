@@ -1,2 +1,2 @@
 :jbake-type: redirection
-:jbake-redirecturl: manual/user_manual.html
+:jbake-redirecturl: manual/user-manual.html

@@ -1,13 +1,13 @@
-= {cpp} Language
+= C Language
 :jbake-type: reference_chapter
-:jbake-description: Learn what the Nokee's {cpp} language plugin (i.e. dev.nokee.cpp-language) has to offer for your Gradle build.
+:jbake-description: Learn what the Nokee's C language plugin (i.e. dev.nokee.c-language) has to offer for your Gradle build.
 
-The {cpp} Language Plugin provides the tasks, configurations and conventions for compiling {cpp} source files.
+The C Language Plugin provides the tasks, configurations and conventions for compiling C source files.
 It's an implementation language plugin and works in tandem with plugins providing a runtime and/or entry point.
 
 == Usage
 
-.Applying the {cpp} Language Plugin
+.Applying the C Language Plugin
 ====
 [.multi-language-sample]
 =====
@@ -15,7 +15,7 @@ It's an implementation language plugin and works in tandem with plugins providin
 [source,groovy]
 ----
 plugins {
-   id 'dev.nokee.cpp-language'
+    id 'dev.nokee.c-language'
 }
 ----
 =====
@@ -25,14 +25,14 @@ plugins {
 [source,kotlin]
 ----
 plugins {
-   id("dev.nokee.cpp-language")
+    id("dev.nokee.c-language")
 }
 ----
 =====
 ====
 
 // TODO: Describe runtime plugin and entry point plugin
-NOTE: This plugin provides the {cpp} implementation language capability to a project already providing a runtime and/or entry point, such as the <<jni_library_plugin.adoc#,JNI Library Plugin>>.
+NOTE: This plugin provides the C implementation language capability to a project already providing a runtime and/or entry point, such as the <<jni-library-plugin.adoc#,JNI Library Plugin>>.
 
 //[[sec:jni_library_conventions]]
 //== Conventions

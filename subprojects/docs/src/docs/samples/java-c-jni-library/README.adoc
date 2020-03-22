@@ -62,4 +62,4 @@ libjava-c-jni-library.dylib
 ----
 
 
-For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin>> and <<../../manual/c_language_plugin.adoc#,C Language Plugin>> reference chapters.
+For more information, see <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin>> and <<../../manual/c-language-plugin.adoc#,C Language Plugin>> reference chapters.

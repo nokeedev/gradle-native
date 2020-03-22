@@ -60,7 +60,7 @@ pluginManagement {
 =====
 ====
 
-Second, apply one of <<plugin_references.adoc#,Nokee plugins>> to your build using the link:{gradle-user-manual}/plugins.html#sec:plugins_block[plugins DSL block]:
+Second, apply one of <<plugin-references.adoc#,Nokee plugins>> to your build using the link:{gradle-user-manual}/plugins.html#sec:plugins_block[plugins DSL block]:
 
 .Apply Nokee plugin
 ====
@@ -88,7 +88,7 @@ plugins {
 
 == Method 2: Using Plugin DSL with version
 
-You can also apply one of <<plugin_references.adoc#,Nokee plugins>> by link:{gradle-user-manual}/plugins.html#sec:plugins_block[pecifying the version inside the plugins block] as shown in the following example.
+You can also apply one of <<plugin-references.adoc#,Nokee plugins>> by link:{gradle-user-manual}/plugins.html#sec:plugins_block[pecifying the version inside the plugins block] as shown in the following example.
 Because of the link:{gradle-user-manual}/plugins.html#plugins_dsl_limitations[various limitation of the plugin DSL], it is strongly recommended to use the first method.
 
 .Apply Nokee plugin with version

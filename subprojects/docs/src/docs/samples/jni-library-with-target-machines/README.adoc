@@ -72,4 +72,4 @@ macos/
 macos/libjni-library-with-target-machines.dylib
 ----
 
-For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin reference chapter>>.
+For more information, see <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin reference chapter>>.

@@ -93,4 +93,4 @@ $ tree ./build/publishing-repository
 
 NOTE: The other publish tasks will need to be called on each platform that can build the JNI library.
 
-For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin>> and link:{gradle-user-manual}/publishing_maven.html[Maven Publish Plugin] reference chapters.
+For more information, see <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin>> and link:{gradle-user-manual}/publishing_maven.html[Maven Publish Plugin] reference chapters.

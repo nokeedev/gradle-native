@@ -98,7 +98,7 @@ The native JNI binding project is coupled to the JVM.
 It uses link:https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/types.html[JVM types provided by the `jni.h` header].
 In this sample, we are assuming the user would have generated the JNI header manually to be used within the project.
 It is considered bad practice to generate the JNI headers manually.
-The <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin>> will automatically generate the JNI headers and wire them properly to the native compilation task when both JNI binding project is inside the same project.
+The <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin>> will automatically generate the JNI headers and wire them properly to the native compilation task when both JNI binding project is inside the same project.
 See the link:../java-cpp-jni-library/[Java/{cpp} JNI library sample] for a demonstration of this feature.
 We are using the link:{gradle-user-manual}/cpp_library_plugin.html[Gradle {cpp} library core plugin].
 
@@ -204,4 +204,4 @@ BUILD SUCCESSFUL
 1 actionable task: 1 executed
 ----
 
-For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin>> and <<../../manual/cpp_language_plugin.adoc#,{cpp} Language Plugin>> reference chapters.
+For more information, see <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin>> and <<../../manual/cpp-language-plugin.adoc#,{cpp} Language Plugin>> reference chapters.

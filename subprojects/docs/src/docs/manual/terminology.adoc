@@ -9,18 +9,18 @@ Gradle has a wealth of terminology. Here you can find the terms Nokee plugins al
 
 Represent the capability of how a component is used.
 A component can be used as a library, as an application, as a test suite, as a device driver, etc.
-For example, the <<jni_library_plugin.adoc#,JNI Library Plugin>> provides the library entry point capability to the project it is applied.
+For example, the <<jni-library-plugin.adoc#,JNI Library Plugin>> provides the library entry point capability to the project it is applied.
 
 [[sec:terminology_language]]
 == Language
 
 Represent the capability of how a component is implementated.
 A component can be implemented in {cpp}, C, Objective-C, Objective-{cpp}, Swift, etc. or as a mix of those languages.
-For example, the <<cpp_language_plugin.adoc#,{cpp} Language Plugin>> provide the {cpp} language implementation capability to the project it is applied.
+For example, the <<cpp-language-plugin.adoc#,{cpp} Language Plugin>> provide the {cpp} language implementation capability to the project it is applied.
 
 [[sec:terminology_runtime]]
 == Runtime
 
 Represent the capability of how a component is targetting an environment.
 A component can target Java Native Interface (JNI), Windows API, iOS, Android, etc.
-For example, the <<jni_library_plugin.adoc#,JNI Library Plugin>> provides the JNI runtime capability to the project it is applied.
+For example, the <<jni-library-plugin.adoc#,JNI Library Plugin>> provides the JNI runtime capability to the project it is applied.

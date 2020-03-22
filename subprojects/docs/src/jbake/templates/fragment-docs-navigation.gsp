@@ -1,6 +1,6 @@
 <%
 	def path='../'
-	if (content.uri.endsWith('release_notes.html')) {
+	if (content.uri.endsWith('release-notes.html')) {
 		path=''
 	} else if (content.uri.contains('/samples/') && !content.uri.endsWith('/samples/index.html')) {
 		path = '../../'
@@ -22,10 +22,10 @@
 
 	def getBreadcrumbs = {
 		def kContentCrumb = crumb(content.title, "/${content.uri}")
-		def kUserManualCrumb = crumb('User Manual', "${path}manual/user_manual.html")
-		def kReferencePluginsCrumb = crumb('Reference Plugins', "${path}manual/plugin_references.html")
+		def kUserManualCrumb = crumb('User Manual', "${path}manual/user-manual.html")
+		def kReferencePluginsCrumb = crumb('Reference Plugins', "${path}manual/plugin-references.html")
 		def kSamplesCrumb = crumb('Samples', "${path}samples/")
-		def kReleaseNotesCrumb = crumb('Release Notes', "${path}release_notes.html")
+		def kReleaseNotesCrumb = crumb('Release Notes', "${path}release-notes.html")
 
 		switch (content.type) {
 			case 'reference_chapter': return [kUserManualCrumb, kReferencePluginsCrumb, kContentCrumb]
@@ -34,7 +34,7 @@
 			case 'sample_index': return [kSamplesCrumb]
 			case 'release_notes': return [kReleaseNotesCrumb]
 			case 'manual_chapter':
-				if (content.uri.endsWith('user_manual.html')) {
+				if (content.uri.endsWith('user-manual.html')) {
 					return [kUserManualCrumb]
 				} else {
 					return [kUserManualCrumb, kContentCrumb]
@@ -54,22 +54,22 @@
 	<label class="menu-icon" for="docs-navigation-hamburger"><span class="fa navicon"></span></label>
 	<div class="navigation-items">
 		<ul>
-			<li><a ${anchorOf('manual/user_manual.html')}>Docs Home</a></li>
+			<li><a ${anchorOf('manual/user-manual.html')}>Docs Home</a></li>
 			<li><a ${anchorOf('samples/')}>Samples</a></li>
-			<li><a ${anchorOf('release_notes.html')}>Release Notes</a></li>
+			<li><a ${anchorOf('release-notes.html')}>Release Notes</a></li>
 		</ul>
 		<h3 id="user-manual">User Manual </h3>
 		<ul>
-			<li><a ${anchorOf('manual/getting_started.html')}>Getting Started</a></li>
+			<li><a ${anchorOf('manual/getting-started.html')}>Getting Started</a></li>
 			<li><a ${anchorOf('manual/terminology.html')}>Terminology</a></li>
 		</ul>
 		<h3 id="reference">Reference</h3>
 		<ul>
-			<li><a ${anchorOf('manual/plugin_references.html')}>Nokee Plugins</a></li>
+			<li><a ${anchorOf('manual/plugin-references.html')}>Nokee Plugins</a></li>
 			<ul>
-				<li><a ${anchorOf('manual/jni_library_plugin.html')}>JNI Library Plugin</a></li>
-				<li><a ${anchorOf('manual/cpp_language_plugin.html')}>C++ Language Plugin</a></li>
-				<li><a ${anchorOf('manual/c_language_plugin.html')}>C Language Plugin</a></li>
+				<li><a ${anchorOf('manual/jni-library-plugin.html')}>JNI Library Plugin</a></li>
+				<li><a ${anchorOf('manual/cpp-language-plugin.html')}>C++ Language Plugin</a></li>
+				<li><a ${anchorOf('manual/c-language-plugin.html')}>C Language Plugin</a></li>
 			</ul>
 		</ul>
 	</div>

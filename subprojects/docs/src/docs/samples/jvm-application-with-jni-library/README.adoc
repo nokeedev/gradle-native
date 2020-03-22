@@ -77,4 +77,4 @@ $ ./jvm-application-with-jni-library/bin/jvm-application-with-jni-library
 Bonjour, World!
 ----
 
-For more information, see <<../../manual/jni_library_plugin.adoc#,JNI Library Plugin>>, <<../../manual/cpp_language_plugin.adoc#,{cpp} Language Plugin>> and link:{gradle-user-manual}/application_plugin.html[Application Plugin] reference chapters.
+For more information, see <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin>>, <<../../manual/cpp-language-plugin.adoc#,{cpp} Language Plugin>> and link:{gradle-user-manual}/application_plugin.html[Application Plugin] reference chapters.
