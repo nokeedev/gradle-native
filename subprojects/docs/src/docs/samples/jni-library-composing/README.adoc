@@ -1,6 +1,7 @@
 = Compose a JNI Library
 :jbake-summary: Compose JNI library from other projects.
 :jbake-type: sample_chapter
+:jbake-tags: sample, jni, library, native, c++, dependency management, java, gradle
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how the Nokee Gradle plugins are used for composing multiple projects as a Java Native Interface (JNI) library.
 

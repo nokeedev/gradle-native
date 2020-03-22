@@ -1,5 +1,6 @@
 = Nokee Samples
 :jbake-type: sample_index
+:jbake-tags: sample, native, gradle, c++, c, jni
 :jbake-description: See the Nokee plugins in action for building native project in Gradle.
 
 // publishing JNI library

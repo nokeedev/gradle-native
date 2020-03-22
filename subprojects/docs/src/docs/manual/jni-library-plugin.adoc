@@ -1,5 +1,6 @@
 = Java Native Interface Library
 :jbake-type: reference_chapter
+:jbake-tags: user manual, gradle plugin reference, jni, library, gradle, native, java, jvm
 :imagesdir: ./img
 :cpplower: c++
 :jbake-description: Learn what the Nokee's Java Native Interface (JNI) library plugin (i.e. dev.nokee.jni-library) has to offer to your Gradle build.

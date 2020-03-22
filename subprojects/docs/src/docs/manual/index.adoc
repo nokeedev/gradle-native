@@ -1,3 +1,4 @@
 :jbake-type: redirection
+:jbake-tags: user manual, nokee, gradle, gradle plugin
 :jbake-redirecturl: user-manual.html
 :jbake-description: The full user manual for Nokee Gradle plugins. Want to learn the concept of building native code faster? Read how Nokee can enhance native support in Gradle.

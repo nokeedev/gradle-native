@@ -1,6 +1,7 @@
 = JNI Library Resource Path Configuration
 :jbake-summary: Configure the resource path mapping of the native component in a JNI library.
 :jbake-type: sample_chapter
+:jbake-tags: sample, jni, library, native, jvm, c++, gradle
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how to configure the resource path mapping of the native component in a Java Native Interface (JNI) library using the Gradle Nokee plugins.
 

@@ -45,4 +45,15 @@ class ProperBakedHtmlTest extends Specification {
 			assert metaDescriptions.first().content.size() <= 160
 		}
 	}
+
+	def "has proper keywords"() {
+		expect:
+		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
+		fixture.findAllHtml().each {
+			def metaKeywords = it.findAll(HtmlTag.META).findAll { it.keywords }
+			assert metaKeywords.size() == 1, "${it.uri} does not have meta keyword tag"
+			assert metaKeywords.first().content.size() > 0, "${it.uri} cannot have empty meta keyword tag"
+			assert !metaKeywords.first().content.startsWith('[') && !metaKeywords.first().content.endsWith(']')
+		}
+	}
 }

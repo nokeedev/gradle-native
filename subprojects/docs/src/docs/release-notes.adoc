@@ -1,5 +1,6 @@
 = Nokee Release Notes
 :jbake-type: release_notes
+:jbake-tags: {jbake-version}, jvm, jni, objective c, objective cpp
 :jbake-description: See what version {jbake-version} of the Gradle Nokee plugins has to offer!
 
 The Nokee team is excited to announce the first release that will kickstart the new wave of native development in Gradle.

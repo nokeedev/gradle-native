@@ -1,5 +1,6 @@
 = Nokee User Manual
 :jbake-type: manual_chapter
+:jbake-tags: user manual, nokee, gradle, gradle plugin
 :jbake-description: Learn the concept behind Nokee plugins for Gradle.
 
 This user manual covers the native support in Gradle offered by the Nokee plugin suite.

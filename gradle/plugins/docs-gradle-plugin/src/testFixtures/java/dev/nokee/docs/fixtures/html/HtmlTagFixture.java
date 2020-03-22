@@ -111,6 +111,10 @@ public abstract class HtmlTagFixture {
 			return nameOrProperty != null && nameOrProperty.equals("description");
 		}
 
+		public boolean isKeywords() {
+			return nameOrProperty != null && nameOrProperty.equals("keywords");
+		}
+
 		public Meta(HtmlTagPath path, String nameOrProperty, String content) {
 			super(path);
 			this.nameOrProperty = nameOrProperty;
