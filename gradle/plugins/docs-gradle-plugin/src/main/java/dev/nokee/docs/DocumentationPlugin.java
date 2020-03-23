@@ -89,10 +89,25 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			task.dependsOn(createAsciinemaTask);
 			task.getSource().setDir(createAsciinemaTask.flatMap(it -> it.getOutputDirectory())).include("**/*.cast");
 		});
+		TaskProvider<GifCompile> compileGifTask = tasks.register("compileDocsGif", GifCompile.class, task -> {
+			task.dependsOn(compileAsciicastTask);
+			task.getSource().setDir(compileAsciicastTask.flatMap(it -> it.getOutputDirectory())).include("**/*.gif");
+		});
+		TaskProvider<ExtractScreenshot> extractScreenshotTask = tasks.register("extractDocsScreenshot", ExtractScreenshot.class, task -> {
+			task.dependsOn(compileGifTask);
+			task.getSource().setDir(compileGifTask.flatMap(it -> it.getOutputDirectory())).include("**/*.mp4");
+		});
+		TaskProvider<CreateEmbeddedPlayer> createEmbeddedPlayer = tasks.register("createDocsPlayer", CreateEmbeddedPlayer.class, task -> {
+			task.dependsOn(extractScreenshotTask, compileGifTask);
+			task.getSource().setDir(compileGifTask.flatMap(it -> it.getOutputDirectory())).include("**/*.mp4");
+		});
 		JBakeAssetSourceSet assetSourceSet = objects.newInstance(JBakeAssetSourceSet.class, "jbakeAssets");
 		assetSourceSet.getSource().from(compileDotTask.flatMap(ProcessorTask::getOutputDirectory));
 		assetSourceSet.getSource().from(createAsciinemaTask.flatMap(ProcessorTask::getOutputDirectory));
 		assetSourceSet.getSource().from(compileAsciicastTask.flatMap(ProcessorTask::getOutputDirectory));
+		assetSourceSet.getSource().from(compileGifTask.flatMap(ProcessorTask::getOutputDirectory));
+		assetSourceSet.getSource().from(extractScreenshotTask.flatMap(ProcessorTask::getOutputDirectory));
+		assetSourceSet.getSource().from(createEmbeddedPlayer.flatMap(ProcessorTask::getOutputDirectory));
 		assetSourceSet.getSource().from("src/jbake/assets");
 		components.add(assetSourceSet);
 

@@ -35,6 +35,6 @@ public class BakedHtmlFixture {
 	}
 
 	private static boolean isHtmlFile(Path path) {
-		return path.getFileName().toString().endsWith(".html");
+		return path.getFileName().toString().endsWith(".html") && !path.getFileName().toString().endsWith(".embed.html");
 	}
 }
