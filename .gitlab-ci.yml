@@ -2,7 +2,7 @@ image: nokeedev/gcc-builder
 
 build:
   stage: build
-  script: ./gradlew assemble
+  script: ./gradlew assemble --continue
   artifacts:
     when: on_failure
     paths:
