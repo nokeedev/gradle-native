@@ -115,6 +115,22 @@ public abstract class HtmlTagFixture {
 			return nameOrProperty != null && nameOrProperty.equals("keywords");
 		}
 
+		public boolean isTwitterDescription() {
+			return nameOrProperty != null && nameOrProperty.equals("twitter:description");
+		}
+
+		public boolean isTwitterImage() {
+			return nameOrProperty != null && nameOrProperty.equals("twitter:image");
+		}
+
+		public boolean isTwitterCard() {
+			return nameOrProperty != null && nameOrProperty.equals("twitter:card");
+		}
+
+		public boolean isTwitterPlayer() {
+			return nameOrProperty != null && nameOrProperty.equals("twitter:player");
+		}
+
 		public Meta(HtmlTagPath path, String nameOrProperty, String content) {
 			super(path);
 			this.nameOrProperty = nameOrProperty;

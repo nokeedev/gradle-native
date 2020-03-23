@@ -40,7 +40,7 @@ class ProperBakedHtmlTest extends Specification {
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
 		fixture.findAllHtml().each {
 			def metaDescriptions = it.findAll(HtmlTag.META).findAll { it.description }
-			assert metaDescriptions.size() == 1, "${it.uri} does not have meta description tag"
+			assert metaDescriptions.size() == 1, "${it.uri} does not have the right meta description tag count"
 			assert metaDescriptions.first().content.size() > 0, "${it.uri} cannot have empty meta description tag"
 			assert metaDescriptions.first().content.size() <= 160
 		}
@@ -51,9 +51,20 @@ class ProperBakedHtmlTest extends Specification {
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
 		fixture.findAllHtml().each {
 			def metaKeywords = it.findAll(HtmlTag.META).findAll { it.keywords }
-			assert metaKeywords.size() == 1, "${it.uri} does not have meta keyword tag"
+			assert metaKeywords.size() == 1, "${it.uri} does not have the right meta keyword tag count"
 			assert metaKeywords.first().content.size() > 0, "${it.uri} cannot have empty meta keyword tag"
 			assert !metaKeywords.first().content.startsWith('[') && !metaKeywords.first().content.endsWith(']')
+		}
+	}
+
+	def "has proper twitter meta description"() {
+		expect:
+		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
+		fixture.findAllHtml().each {
+			def twitterDescriptions = it.findAll(HtmlTag.META).findAll { it.twitterDescription }
+			assert twitterDescriptions.size() == 1, "${it.uri} does not have the right meta twitter description tag count"
+			assert twitterDescriptions.first().content.size() > 0, "${it.uri} cannot have empty meta keyword tag"
+			assert twitterDescriptions.first().content.size() <= 160
 		}
 	}
 }

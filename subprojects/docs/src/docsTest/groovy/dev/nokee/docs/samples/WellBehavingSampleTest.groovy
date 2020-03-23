@@ -13,6 +13,7 @@ import dev.gradleplugins.test.fixtures.logging.ConsoleOutput
 import dev.nokee.docs.fixtures.Command
 import dev.nokee.docs.fixtures.SampleContentFixture
 import dev.nokee.docs.fixtures.UnzipCommandHelper
+import dev.nokee.docs.fixtures.html.HtmlTag
 import groovy.transform.ToString
 import org.junit.Rule
 import spock.lang.Specification
@@ -110,6 +111,25 @@ abstract class WellBehavingSampleTest extends Specification {
 		// TODO: Reports all the error at once instead of failing on the first one
 		def commands = wrap(fixture.commands).findAll { it instanceof GradleWrapperCommand } as List<GradleWrapperCommand>
 		commands*.assertNoTimingInformationOnBuildResult()
+	}
+
+	def "has the twitter player meta data"() {
+		expect:
+		def fixture = new SampleContentFixture(sampleName)
+		def it = fixture.bakedFile
+		def twitterImages = it.findAll(HtmlTag.META).findAll { it.twitterImage }
+		assert twitterImages.size() == 1, "${it.uri} does not have the right meta twitter image tag count"
+		assert twitterImages.first().content == "${it.canonicalPath}all-commands.png"
+
+		and:
+		def twitterCards = it.findAll(HtmlTag.META).findAll { it.twitterCard }
+		assert twitterCards.size() == 1, "${it.uri} does not have the right meta twitter card tag count"
+		assert twitterCards.first().content == "player"
+
+		and:
+		def twitterPlayers = it.findAll(HtmlTag.META).findAll { it.twitterPlayer }
+		assert twitterPlayers.size() == 1, "${it.uri} does not have the right meta twitter player tag count"
+		assert twitterPlayers.first().content == "${it.canonicalPath}all-commands.embed.html"
 	}
 
 	@Unroll

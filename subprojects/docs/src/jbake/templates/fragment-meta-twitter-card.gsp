@@ -7,6 +7,7 @@
 <meta name="twitter:site" content="@nokeedev">
 <meta name="twitter:creator" content="${twitterCreator}">
 <meta name="twitter:title" content="${content.title}">
+<meta name="twitter:description" content="${content.description}">
 <%if (content.twitter) {%>
   <%if (content.twitter.card) {%><meta name="twitter:card" content="${content.twitter.card}"><%}%>
 <%}%>
