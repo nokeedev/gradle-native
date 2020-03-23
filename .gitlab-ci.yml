@@ -2,7 +2,7 @@ image: nokeedev/generic-builder
 
 build:
   stage: build
-  script: gradle assemble -x :docs:generateSamplesAsciinema -x :docs:compileDocsAsciicast
+  script: ./gradlew assemble -x :docs:generateSamplesAsciinema -x :docs:compileDocsAsciicast
   artifacts:
     when: on_failure
     paths:
@@ -23,7 +23,7 @@ test:
 
 deploy:
   stage: deploy
-  script: gradle bintrayUpload
+  script: ./gradlew bintrayUpload
   only:
     - master
 
@@ -31,7 +31,7 @@ deploy:
 publish jbakes:
   stage: build
   script:
-    - gradle :docs:publishJbakePublicationToS3Repository
+    - ./gradlew :docs:publishJbakePublicationToS3Repository
     - curl --request POST --form "token=$CI_JOB_TOKEN" --form ref=master https://gitlab.com/api/v4/projects/17545900/trigger/pipeline # docs.nokee.dev
     - curl --request POST --form "token=$CI_JOB_TOKEN" --form ref=master https://gitlab.com/api/v4/projects/16537594/trigger/pipeline # nokeedev.gitlab.io
   only:
@@ -50,7 +50,7 @@ publish jbakes:
 publish baked:
   stage: build
   script:
-    - gradle :docs:publishBakedPublicationToS3Repository
+    - ./gradlew :docs:publishBakedPublicationToS3Repository
     - curl --request POST --form "token=$CI_JOB_TOKEN" --form ref=master https://gitlab.com/api/v4/projects/16537594/trigger/pipeline # nokeedev.gitlab.io
   only:
     changes:
