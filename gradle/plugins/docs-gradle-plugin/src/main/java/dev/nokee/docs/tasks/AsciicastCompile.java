@@ -1,14 +1,11 @@
 package dev.nokee.docs.tasks;
 
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.Executor;
-import org.apache.commons.exec.PumpStreamHandler;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.FileType;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecOperations;
 import org.gradle.work.ChangeType;
 import org.gradle.work.FileChange;
 import org.gradle.work.InputChanges;
@@ -18,8 +15,6 @@ import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.stream.StreamSupport;
 
 public abstract class AsciicastCompile extends ProcessorTask {
@@ -51,22 +46,6 @@ public abstract class AsciicastCompile extends ProcessorTask {
 	@Inject
 	protected abstract WorkerExecutor getWorkerExecutor();
 
-//	private void compileFile(File sourceFile) {
-//		File outputFile = outputFileFor(sourceFile);
-//		outputFile.getParentFile().mkdirs();
-//
-//		CommandLine commandLine = CommandLine.parse("asciicast2gif " + sourceFile.getAbsolutePath() + " " + outputFile);
-//		Executor executor = new DefaultExecutor();
-//		// TODO: Pump stream to file
-//		executor.setStreamHandler(new PumpStreamHandler(System.out, System.err));
-//		executor.setExitValue(0);
-//		try {
-//			executor.execute(commandLine);
-//		} catch (IOException e) {
-//			throw new UncheckedIOException(e);
-//		}
-//	}
-
 	private void submitCompileFile(File sourceFile) {
 		getWorkerExecutor().classLoaderIsolation().submit(CompileAction.class, it -> {
 			it.getInputFile().set(sourceFile);
@@ -90,16 +69,12 @@ public abstract class AsciicastCompile extends ProcessorTask {
 			File outputFile = getParameters().getOutputFile().get().getAsFile();
 			outputFile.getParentFile().mkdirs();
 
-			CommandLine commandLine = CommandLine.parse("asciicast2gif " + getParameters().getInputFile().get().getAsFile().getAbsolutePath() + " " + outputFile.getAbsolutePath());
-			Executor executor = new DefaultExecutor();
-			// TODO: Pump stream to file
-			executor.setStreamHandler(new PumpStreamHandler(System.out, System.err));
-			executor.setExitValue(0);
-			try {
-				executor.execute(commandLine);
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
+			getExecOperations().exec(spec -> {
+				spec.commandLine("asciicast2gif", getParameters().getInputFile().get().getAsFile().getAbsolutePath(), outputFile.getAbsolutePath());
+			});
 		}
+
+		@Inject
+		protected abstract ExecOperations getExecOperations();
 	}
 }
