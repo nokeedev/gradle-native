@@ -112,6 +112,7 @@ public abstract class CreateAsciinema extends ProcessorTask {
 					spec.setErrorOutput(logStream);
 					spec.setStandardOutput(logStream);
 					spec.environment("GRADLE_USER_HOME", getParameters().getGradleUserHomeDirectory().get().getAsFile().getAbsolutePath());
+					spec.environment("TERM", getTerm());
 				} catch (FileNotFoundException e) {
 					throw new UncheckedIOException(e);
 				}
@@ -129,10 +130,15 @@ public abstract class CreateAsciinema extends ProcessorTask {
 					spec.setErrorOutput(logStream);
 					spec.setStandardOutput(logStream);
 					spec.environment("GRADLE_USER_HOME", getParameters().getGradleUserHomeDirectory().get().getAsFile().getAbsolutePath());
+					spec.environment("TERM", getTerm());
 				} catch (FileNotFoundException e) {
 					throw new UncheckedIOException(e);
 				}
 			});
+		}
+
+		private String getTerm() {
+			return System.getenv().getOrDefault("TERM", "xterm-256color");
 		}
 
 		private void initAsciicastFile() {
