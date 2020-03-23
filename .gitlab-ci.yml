@@ -11,7 +11,7 @@ build:
 test:
   image: nokeedev/gcc-builder
   stage: test
-  script: ./gradlew check --continue
+  script: ./gradlew check --continue -x :docs:generateSamplesAsciinema -x :docs:compileDocsAsciicast
   artifacts:
     when: on_failure
     paths:
