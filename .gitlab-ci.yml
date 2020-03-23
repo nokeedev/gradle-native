@@ -48,6 +48,7 @@ publish jbakes:
       - subprojects/docs/build/**/*
 
 publish baked:
+  image: nokeedev/gcc-builder
   stage: build
   script:
     - ./gradlew :docs:publishBakedPublicationToS3Repository
