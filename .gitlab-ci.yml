@@ -1,4 +1,4 @@
-image: nokeedev/generic-builder
+image: nokeedev/gcc-builder
 
 build:
   stage: build
@@ -9,7 +9,6 @@ build:
       - subprojects/docs/build/
 
 test:
-  image: nokeedev/gcc-builder
   stage: test
   # FIXME: Shouldn't need to ignore the Asciinema tasks, they should just not be wired in for testing
   script: ./gradlew check --continue -x :docs:generateSamplesAsciinema -x :docs:compileDocsAsciicast
@@ -49,7 +48,6 @@ publish jbakes:
       - subprojects/docs/build/**/*
 
 publish baked:
-  image: nokeedev/gcc-builder
   stage: build
   script:
     - ./gradlew :docs:publishBakedPublicationToS3Repository
