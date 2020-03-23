@@ -42,6 +42,10 @@ publish jbakes:
       - gradle/plugins/docs-gradle-plugin
     refs:
       - master
+  artifacts:
+    when: on_failure
+    paths:
+      - subprojects/docs/build/**/*
 
 publish baked:
   stage: build
@@ -56,3 +60,7 @@ publish baked:
       - gradle/plugins/docs-gradle-plugin
     refs:
       - master
+  artifacts:
+    when: on_failure
+    paths:
+      - subprojects/docs/build/**/*
