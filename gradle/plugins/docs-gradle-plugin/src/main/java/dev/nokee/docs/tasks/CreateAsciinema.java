@@ -49,8 +49,6 @@ public abstract class CreateAsciinema extends ProcessorTask {
 				it.getOutputFile().set(getOutputDirectory().file(getRelativePath().get() + "/" + sample.getPermalink().get() + "/all-commands.cast"));
 				it.getLogFile().set(new File(getTemporaryDir(), "logs/" + getRelativePath().get() + "/" + sample.getPermalink().get() + "/all-commands.txt"));
 
-
-
 				try {
 					File workingDirectory = Files.createTempDirectory("").toFile();
 					it.getSource().set(workingDirectory);
@@ -93,6 +91,8 @@ public abstract class CreateAsciinema extends ProcessorTask {
 
 			outputFile = getParameters().getOutputFile().get().getAsFile();
 			outputFile.getParentFile().mkdirs();
+
+			getParameters().getLogFile().get().getAsFile().delete();
 
 			primeGradle();
 			initAsciicastFile();
