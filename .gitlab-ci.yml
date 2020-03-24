@@ -39,7 +39,7 @@ publish jbakes:
       - .gitlab-ci.yml
       - subprojects/docs/src/jbake/**/*
       - subprojects/docs/docs.gradle
-      - gradle/plugins/docs-gradle-plugin
+      - gradle/plugins/docs-gradle-plugin/**/*
     refs:
       - master
   artifacts:
@@ -57,7 +57,7 @@ publish baked:
       - .gitlab-ci.yml
       - subprojects/docs/**/*
       - subprojects/docs/docs.gradle
-      - gradle/plugins/docs-gradle-plugin
+      - gradle/plugins/docs-gradle-plugin/**/*
     refs:
       - master
   artifacts:
