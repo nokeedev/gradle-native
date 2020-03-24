@@ -8,6 +8,8 @@
 	<meta name="twitter:card" content="player">
 	<meta name="twitter:player" content="${config.site_host}/${permalink}/all-commands.embed.html">
 	<meta name="twitter:image" content="${config.site_host}/${permalink}/all-commands.png">
+	<meta name="twitter:player:width" content="1179">
+	<meta name="twitter:player:height" content="792">
 </head>
 <body onload="prettyPrint()">
 
