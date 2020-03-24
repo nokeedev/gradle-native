@@ -44,7 +44,12 @@ public abstract class CreateAsciinema extends ProcessorTask {
 	@TaskAction
 	private void doCreate() {
 		samples.forEach(sample -> {
-			getWorkerExecutor().classLoaderIsolation(it -> it.getClasspath().from(getClasspath())).submit(CreateAsciinemaAction.class, it -> {
+			getWorkerExecutor().processIsolation(it -> {
+				it.getClasspath().from(getClasspath());
+				it.forkOptions(fork -> {
+					fork.setEnvironment(System.getenv());
+				});
+			}).submit(CreateAsciinemaAction.class, it -> {
 				it.getContentFile().set(sample.getContentFile());
 				it.getOutputFile().set(getOutputDirectory().file(getRelativePath().get() + "/" + sample.getPermalink().get() + "/all-commands.cast"));
 				it.getLogFile().set(new File(getTemporaryDir(), "logs/" + getRelativePath().get() + "/" + sample.getPermalink().get() + "/all-commands.txt"));
