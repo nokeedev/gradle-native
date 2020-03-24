@@ -2,6 +2,7 @@ package dev.nokee.docs
 
 import dev.nokee.docs.fixtures.html.BakedHtmlFixture
 import dev.nokee.docs.fixtures.html.HtmlTag
+import groovy.json.JsonSlurper
 import spock.lang.Specification
 
 class ProperBakedHtmlTest extends Specification {
@@ -65,6 +66,35 @@ class ProperBakedHtmlTest extends Specification {
 			assert twitterDescriptions.size() == 1, "${it.uri} does not have the right meta twitter description tag count"
 			assert twitterDescriptions.first().content.size() > 0, "${it.uri} cannot have empty meta keyword tag"
 			assert twitterDescriptions.first().content.size() <= 160
+		}
+	}
+
+	def "has breadcrumb structured data"() {
+		expect:
+		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
+		fixture.allHtmlWithoutRedirection.each {
+			// Retrieve structured data tag
+			def scripts = it.findAll(HtmlTag.SCRIPT).findAll { it.type.present && it.type.get() == 'application/ld+json' }
+			assert scripts.size() == 1, "${it.uri} does not have the right structured data tag count"
+
+			// Retrieve structured data
+			assert scripts.first().text.present
+			def data = new JsonSlurper().parse(scripts.first().text.get().bytes)
+
+			// Retrieve breadcrumb data
+			def breadcrumb = data.findAll { it.'@type' == 'BreadcrumbList' }
+			assert breadcrumb.size() == 1
+			assert breadcrumb.first().itemListElement.size() == it.breadcrumbs.size()
+
+			GroovyCollections.transpose(breadcrumb.first().itemListElement, it.breadcrumbs).eachWithIndex { obj, index ->
+				def left = obj[0]
+				assert left.'@type' == 'ListItem'
+				assert left.position == (index + 1)
+
+				def right = obj[1]
+				// We are not asserting the name for now because it doesn't exactly align with the URL
+				assert left.item == right.item
+			}
 		}
 	}
 }

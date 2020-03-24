@@ -11,6 +11,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Value
 public class BakedHtmlFixture {
@@ -32,6 +33,10 @@ public class BakedHtmlFixture {
 			throw new UncheckedIOException("Unable to find href containing files", e);
 		}
 		return result;
+	}
+
+	public List<HtmlTestFixture> getAllHtmlWithoutRedirection() {
+		return findAllHtml().stream().filter(it -> !it.isRedirectionPage()).collect(Collectors.toList());
 	}
 
 	private static boolean isHtmlFile(Path path) {

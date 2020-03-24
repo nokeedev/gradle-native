@@ -63,14 +63,26 @@ public abstract class HtmlTagFixture {
 	@ToString(callSuper = true)
 	public static class Script extends HtmlTagFixture {
 		String src;
+		String type;
+		String text;
 
 		public Optional<String> getSrc() {
 			return Optional.ofNullable(src);
 		}
 
-		public Script(HtmlTagPath path, String src) {
+		public Optional<String> getType() {
+			return Optional.ofNullable(type);
+		}
+
+		public Optional<String> getText() {
+			return Optional.ofNullable(text);
+		}
+
+		public Script(HtmlTagPath path, String src, String type, String text) {
 			super(path);
 			this.src = src;
+			this.type = type;
+			this.text = text;
 		}
 	}
 

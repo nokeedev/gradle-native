@@ -39,7 +39,10 @@ public abstract class HtmlTag<T> {
 
 		@Override
 		public HtmlTagFixture.Script create(URI uri, NodeChild n) {
-			return new HtmlTagFixture.Script(new HtmlTagPath(uri, XPath.of(n)), Objects.toString(n.attributes().get("src"), null));
+			return new HtmlTagFixture.Script(new HtmlTagPath(uri, XPath.of(n)),
+				Objects.toString(n.attributes().get("src"), null),
+				Objects.toString(n.attributes().get("type"), null),
+				n.text());
 		}
 	};
 

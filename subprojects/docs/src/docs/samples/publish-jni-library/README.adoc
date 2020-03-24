@@ -1,4 +1,4 @@
-= Publishing JNI Library
+= Publish JNI Library
 :jbake-summary: Publish a JNI library to a binary repository.
 :jbake-type: sample_chapter
 :jbake-tags: sample, jni, java, jvm, native, c++, maven, gradle
