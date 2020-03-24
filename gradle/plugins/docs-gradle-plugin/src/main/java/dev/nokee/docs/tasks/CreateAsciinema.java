@@ -57,12 +57,14 @@ public abstract class CreateAsciinema extends ProcessorTask {
 						spec.into(workingDirectory);
 					});
 
-					File gradleUserHomeDirectory = Files.createTempDirectory("").toFile();
+					File homeDirectory = Files.createTempDirectory("").toFile();
+					File gradleUserHomeDirectory = new File(homeDirectory, ".gradle");
 					File initScript = new File(gradleUserHomeDirectory, "init.d/init.gradle");
 					initScript.getParentFile().mkdirs();
 					FileUtils.write(initScript, PluginManagementBlock.asGroovyDsl().withVersion(getVersion().get()).withRepository(getLocalRepository().get().getAsFile().getAbsolutePath()).configureFromInitScript(), Charset.defaultCharset());
 					Files.createSymbolicLink(new File(gradleUserHomeDirectory, "wrapper").toPath(), new File(System.getProperty("user.home") + "/.gradle/wrapper").toPath());
 					it.getGradleUserHomeDirectory().set(gradleUserHomeDirectory);
+					it.getHomeDirectory().set(homeDirectory);
 				} catch (IOException e) {
 					throw new UncheckedIOException(e);
 				}
@@ -78,6 +80,7 @@ public abstract class CreateAsciinema extends ProcessorTask {
 		RegularFileProperty getLogFile();
 
 		DirectoryProperty getGradleUserHomeDirectory();
+		DirectoryProperty getHomeDirectory();
 	}
 
 	public static abstract class CreateAsciinemaAction implements WorkAction<CreateAsciinemaParameters> {
@@ -111,6 +114,7 @@ public abstract class CreateAsciinema extends ProcessorTask {
 					OutputStream logStream = new FileOutputStream(logFile, true);
 					spec.setErrorOutput(logStream);
 					spec.setStandardOutput(logStream);
+					spec.environment("HOME", getParameters().getHomeDirectory().get().getAsFile().getAbsolutePath());
 					spec.environment("GRADLE_USER_HOME", getParameters().getGradleUserHomeDirectory().get().getAsFile().getAbsolutePath());
 					spec.environment("TERM", getTerm());
 				} catch (FileNotFoundException e) {
@@ -129,6 +133,7 @@ public abstract class CreateAsciinema extends ProcessorTask {
 					OutputStream logStream = new FileOutputStream(logFile, true);
 					spec.setErrorOutput(logStream);
 					spec.setStandardOutput(logStream);
+					spec.environment("HOME", getParameters().getHomeDirectory().get().getAsFile().getAbsolutePath());
 					spec.environment("GRADLE_USER_HOME", getParameters().getGradleUserHomeDirectory().get().getAsFile().getAbsolutePath());
 					spec.environment("TERM", getTerm());
 				} catch (FileNotFoundException e) {
