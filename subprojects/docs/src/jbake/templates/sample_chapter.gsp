@@ -5,6 +5,7 @@
 <html lang="en" prefix="og: https://ogp.me/ns#">
 <head>
 	<% include "fragment-docs-header.gsp" %>
+	<link href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>css/docs-samples.css" rel="stylesheet">
 	<meta name="twitter:card" content="player">
 	<meta name="twitter:player" content="${config.site_host}/${permalink}/all-commands.embed.html">
 	<meta name="twitter:image" content="${config.site_host}/${permalink}/all-commands.png">
