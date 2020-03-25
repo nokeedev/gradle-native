@@ -37,7 +37,7 @@ plugins {
 ====
 
 NOTE: This plugin produces a JNI library as JARs using the JNI runtime.
-It doesn't provide any implementation language capabilities and thus needs to be composed by applying other implementation language plugins, such as <<cpp-language-plugin.adoc#,{cpp} Language Plugin>>, <<c-language-plugin.adoc#,C Language Plugin>>, <<objective-c-language-plugin.adoc#,Objective-C Language Plugin>> and link:{gradle-user-manual}/java_plugin.html[Java Plugin].
+It doesn't provide any implementation language capabilities and thus needs to be composed by applying other implementation language plugins, such as <<cpp-language-plugin.adoc#,{cpp} Language Plugin>>, <<c-language-plugin.adoc#,C Language Plugin>>, <<objective-c-language-plugin.adoc#,Objective-C Language Plugin>>, <<objective-cpp-language-plugin.adoc#,Objective-{cpp} Language Plugin>> and link:{gradle-user-manual}/java_plugin.html[Java Plugin].
 
 NOTE: This plugin is incompatible with the link:{gradle-user-manual}/java_library_plugin.html[Java Library Plugin] and link:{gradle-user-manual}/application_plugin.html[Java Application Plugin].
 Those two plugins provide an opinionated entry point (e.g. library and application, respectively).

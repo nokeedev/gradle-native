@@ -4,10 +4,7 @@ import dev.nokee.docs.Dsl
 import dev.nokee.docs.JBakeAssetSourceSet
 import dev.nokee.docs.tasks.CreateAsciinema
 import dev.nokee.docs.tasks.GenerateSamplesContentTask
-import dev.nokee.platform.jni.fixtures.GreeterAppWithJniLibrary
-import dev.nokee.platform.jni.fixtures.JavaJniCGreeterLib
-import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
-import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
+import dev.nokee.platform.jni.fixtures.*
 import org.apache.tools.ant.filters.ConcatFilter
 import org.gradle.util.GUtil
 
@@ -137,6 +134,7 @@ components.add(dslSampleArchiveSourceSet)
 	new Sample('java-cpp-jni-library', new JavaJniCppGreeterLib('java-cpp-jni-library')),
 	new Sample('java-c-jni-library', new JavaJniCGreeterLib('java-c-jni-library')),
 	new Sample('java-objective-c-jni-library', new JavaJniObjectiveCGreeterLib('java-objective-c-jni-library')),
+	new Sample('java-objective-cpp-jni-library', new JavaJniObjectiveCppGreeterLib('java-objective-cpp-jni-library')),
 	new Sample('jni-library-with-junit-test', new JavaJniCppGreeterLib('jni-library-with-junit-test').withJUnitTest()),
 	new Sample('jni-library-with-target-machines', new JavaJniCppGreeterLib('jni-library-with-target-machines')),
 	new Sample('jvm-application-with-jni-library', new GreeterAppWithJniLibrary('jvm-application-with-jni-library').withLibraryAsSubproject('jni-library')),

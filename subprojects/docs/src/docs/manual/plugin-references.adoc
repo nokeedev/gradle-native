@@ -20,3 +20,6 @@ Provides support for compiling C language.
 
 <<objective-c-language-plugin.adoc#,Objective-C Language>>::
 Provides support for compiling Objective-C language.
+
+<<objective-cpp-language-plugin.adoc#,Objective-{cpp} Language>>::
+Provides support for compiling Objective-{cpp} language.

@@ -1,7 +1,6 @@
 package dev.nokee.platform.jni.fixtures
 
 import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.cpp.CppSourceElement
 import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
 import dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement
 import dev.gradleplugins.test.fixtures.sources.objectivec.ObjectiveCLibraryElement
@@ -194,7 +193,7 @@ JNIEXPORT jstring JNICALL ${javaPackage.jniMethodName('Greeter', 'sayHello')}
 	}
 
 	SourceElement withJniGeneratedHeader() {
-		return new CppSourceElement() {
+		return new ObjectiveCSourceElement() {
 			@Override
 			SourceElement getHeaders() {
 				return generatedHeader

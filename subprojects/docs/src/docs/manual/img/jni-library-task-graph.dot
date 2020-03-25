@@ -27,6 +27,13 @@ digraph jniLibraryTaskGraph {
 	compileObjC [label=<compile<i>Variant</i>>]
   }
 
+  subgraph cluster_objectiveCppLanguage {
+	label = "Objective-C++ Language Plugin"
+	color = black
+
+	compileObjCpp [label=<compile<i>Variant</i>>]
+  }
+
   subgraph cluster_javaLanguage {
 	label = "Java Language Plugin"
 
@@ -41,7 +48,7 @@ digraph jniLibraryTaskGraph {
   jarJvm [label="jar"]
 
   // link to assemble
-  {compileCpp compileC compileObjC} -> link -> sharedLibrary [dir=back style=dashed headport=w tailport=e]
+  {compileCpp compileC compileObjC compileObjCpp} -> link -> sharedLibrary [dir=back style=dashed headport=w tailport=e]
   sharedLibrary -> jarNative [dir=back]
   {rank=same sharedLibrary jarNative}
   jarNative -> assemble [dir=back style=dashed]
