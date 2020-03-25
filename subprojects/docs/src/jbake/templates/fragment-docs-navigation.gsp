@@ -70,6 +70,7 @@
 				<li><a ${anchorOf('manual/jni-library-plugin.html')}>JNI Library Plugin</a></li>
 				<li><a ${anchorOf('manual/cpp-language-plugin.html')}>C++ Language Plugin</a></li>
 				<li><a ${anchorOf('manual/c-language-plugin.html')}>C Language Plugin</a></li>
+				<% if (!content.uri.contains('0.1.0')) {%><li><a ${anchorOf('manual/objective-c-language-plugin.html')}>Objective-C Language Plugin</a></li><%}%>
 			</ul>
 		</ul>
 	</div>
