@@ -1,3 +1,5 @@
+package dev.nokee.platform.jni.fixtures.elements
+
 import dev.gradleplugins.test.fixtures.sources.SourceFileElement
 import dev.gradleplugins.test.fixtures.sources.java.JavaSourceFileElement
 

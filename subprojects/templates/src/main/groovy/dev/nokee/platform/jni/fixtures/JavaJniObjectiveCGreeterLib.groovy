@@ -6,6 +6,7 @@ import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
 import dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement
 import dev.gradleplugins.test.fixtures.sources.objectivec.ObjectiveCLibraryElement
 import dev.gradleplugins.test.fixtures.sources.objectivec.ObjectiveCSourceElement
+import dev.nokee.platform.jni.fixtures.elements.JavaGreeterJUnitTest
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
 
 import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
