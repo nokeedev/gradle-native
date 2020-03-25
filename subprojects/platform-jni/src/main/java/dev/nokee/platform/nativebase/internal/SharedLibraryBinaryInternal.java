@@ -19,7 +19,9 @@ import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.c.tasks.CCompile;
 import org.gradle.language.cpp.CppBinary;
 import org.gradle.language.cpp.tasks.CppCompile;
+import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.objectivec.tasks.ObjectiveCCompile;
+import org.gradle.language.objectivecpp.tasks.ObjectiveCppCompile;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.tasks.LinkSharedLibrary;
 
@@ -73,39 +75,10 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 	protected abstract ProviderFactory getProviderFactory();
 
 	public void configureSoftwareModelBinary(SharedLibraryBinarySpec binary) {
-		binary.getTasks().withType(CppCompile.class, task -> {
-			// configure includes using the native incoming compile configuration
-			task.setDebuggable(true);
-			task.setOptimized(false);
-			task.setPositionIndependentCode(true);
-			task.includes(cppCompile);
-
-			sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> task.getIncludes().from(sourceSet.getSource()));
-
-			task.getIncludes().from(getJvmIncludes());
-		});
-
-		binary.getTasks().withType(CCompile.class, task -> {
-			// configure includes using the native incoming compile configuration
-			task.setDebuggable(true);
-			task.setOptimized(false);
-			task.includes(cppCompile);
-
-			sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> task.getIncludes().from(sourceSet.getSource()));
-
-			task.getIncludes().from(getJvmIncludes());
-		});
-
-		binary.getTasks().withType(ObjectiveCCompile.class, task -> {
-			// configure includes using the native incoming compile configuration
-			task.setDebuggable(true);
-			task.setOptimized(false);
-			task.includes(cppCompile);
-
-			sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> task.getIncludes().from(sourceSet.getSource()));
-
-			task.getIncludes().from(getJvmIncludes());
-		});
+		binary.getTasks().withType(CppCompile.class, this::configureCompileTask);
+		binary.getTasks().withType(CCompile.class, this::configureCompileTask);
+		binary.getTasks().withType(ObjectiveCCompile.class, this::configureCompileTask);
+		binary.getTasks().withType(ObjectiveCppCompile.class, this::configureCompileTask);
 
 		binary.getTasks().withType(LinkSharedLibrary.class, task -> {
 			task.getLibs().from(cppLinkDebug);
@@ -114,6 +87,17 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 	}
 
 	public abstract RegularFileProperty getLinkedFile();
+
+	private void configureCompileTask(AbstractNativeCompileTask task) {
+		// configure includes using the native incoming compile configuration
+		task.setDebuggable(true);
+		task.setOptimized(false);
+		task.includes(cppCompile);
+
+		sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> task.getIncludes().from(sourceSet.getSource()));
+
+		task.getIncludes().from(getJvmIncludes());
+	}
 
 	private Provider<List<File>> getJvmIncludes() {
 		return getProviderFactory().provider(() -> {

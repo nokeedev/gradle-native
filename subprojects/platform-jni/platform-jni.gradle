@@ -54,6 +54,10 @@ gradlePlugin {
 			id = 'dev.nokee.objective-c-language'
 			implementationClass = 'dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin'
 		}
+		objectiveCppLanguage {
+			id = 'dev.nokee.objective-cpp-language'
+			implementationClass = 'dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin'
+		}
 	}
 }
 
@@ -94,7 +98,8 @@ afterEvaluate {
 					attributes = ['gradle-plugin': ["dev.nokee.jni-library:${project.group}:${project.name}",
 													"dev.nokee.cpp-language:${project.group}:${project.name}",
 													"dev.nokee.c-language:${project.group}:${project.name}",
-													"dev.nokee.objective-c-language:${project.group}:${project.name}"]]
+													"dev.nokee.objective-c-language:${project.group}:${project.name}",
+													"dev.nokee.objective-cpp-language:${project.group}:${project.name}"]]
 				}
 			}
 		}
