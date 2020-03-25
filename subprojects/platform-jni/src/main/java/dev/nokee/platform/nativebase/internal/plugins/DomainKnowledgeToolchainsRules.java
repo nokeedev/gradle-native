@@ -12,6 +12,8 @@ public class DomainKnowledgeToolchainsRules extends RuleSource {
 			toolchain.eachPlatform(platform -> {
 				platform.getcCompiler().setExecutable("gcc-8");
 				platform.getCppCompiler().setExecutable("g++-8");
+				platform.getObjcCompiler().setExecutable("gcc-8");
+				platform.getObjcppCompiler().setExecutable("g++-8");
 				platform.getAssembler().setExecutable("gcc-8");
 				platform.getStaticLibArchiver().setExecutable("gcc-ar-8");
 				platform.getLinker().setExecutable("g++-8");
