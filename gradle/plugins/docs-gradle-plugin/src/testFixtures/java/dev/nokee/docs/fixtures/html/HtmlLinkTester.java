@@ -117,7 +117,7 @@ public class HtmlLinkTester {
 		links.addAll(thiz.findAll(HtmlTag.A).stream().filter(it -> it.getHref().isPresent()).map(it -> new Hyperlink(it.getPath(), it.getHref().get())).collect(Collectors.toSet()));
 		links.addAll(thiz.findAll(HtmlTag.IMG).stream().filter(it -> it.getSrc().isPresent()).map(it -> new Hyperlink(it.getPath(), it.getSrc().get())).collect(Collectors.toSet()));
 		links.addAll(thiz.findAll(HtmlTag.SCRIPT).stream().filter(it -> it.getSrc().isPresent()).map(it -> new Hyperlink(it.getPath(), it.getSrc().get())).collect(Collectors.toSet()));
-		links.addAll(thiz.findAll(HtmlTag.LINK).stream().filter(it -> it.getHref().isPresent()).map(it -> new Hyperlink(it.getPath(), it.getHref().get())).collect(Collectors.toSet()));
+		links.addAll(thiz.findAll(HtmlTag.LINK).stream().filter(it -> it.getHref().isPresent() && !it.isCanonical()).map(it -> new Hyperlink(it.getPath(), it.getHref().get())).collect(Collectors.toSet()));
 		return links.stream().map(link -> {
 			String href = link.getHref();
 			if (href.startsWith("http://") || href.startsWith("https://")) {
