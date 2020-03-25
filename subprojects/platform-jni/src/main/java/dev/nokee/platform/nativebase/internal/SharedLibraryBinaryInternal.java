@@ -10,6 +10,7 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -18,6 +19,7 @@ import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.c.tasks.CCompile;
 import org.gradle.language.cpp.CppBinary;
 import org.gradle.language.cpp.tasks.CppCompile;
+import org.gradle.language.objectivec.tasks.ObjectiveCCompile;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.tasks.LinkSharedLibrary;
 
@@ -80,19 +82,7 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 
 			sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> task.getIncludes().from(sourceSet.getSource()));
 
-			task.getIncludes().from(getProviderFactory().provider(() -> {
-				List<File> result = new ArrayList<>();
-				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include"));
-
-				if (OperatingSystem.current().isMacOsX()) {
-					result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/darwin"));
-				} else if (OperatingSystem.current().isLinux()) {
-					result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/linux"));
-				} else if (OperatingSystem.current().isWindows()) {
-					result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/win32"));
-				}
-				return result;
-			}));
+			task.getIncludes().from(getJvmIncludes());
 		});
 
 		binary.getTasks().withType(CCompile.class, task -> {
@@ -103,19 +93,18 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 
 			sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> task.getIncludes().from(sourceSet.getSource()));
 
-			task.getIncludes().from(getProviderFactory().provider(() -> {
-				List<File> result = new ArrayList<>();
-				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include"));
+			task.getIncludes().from(getJvmIncludes());
+		});
 
-				if (OperatingSystem.current().isMacOsX()) {
-					result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/darwin"));
-				} else if (OperatingSystem.current().isLinux()) {
-					result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/linux"));
-				} else if (OperatingSystem.current().isWindows()) {
-					result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/win32"));
-				}
-				return result;
-			}));
+		binary.getTasks().withType(ObjectiveCCompile.class, task -> {
+			// configure includes using the native incoming compile configuration
+			task.setDebuggable(true);
+			task.setOptimized(false);
+			task.includes(cppCompile);
+
+			sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> task.getIncludes().from(sourceSet.getSource()));
+
+			task.getIncludes().from(getJvmIncludes());
 		});
 
 		binary.getTasks().withType(LinkSharedLibrary.class, task -> {
@@ -125,4 +114,20 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 	}
 
 	public abstract RegularFileProperty getLinkedFile();
+
+	private Provider<List<File>> getJvmIncludes() {
+		return getProviderFactory().provider(() -> {
+			List<File> result = new ArrayList<>();
+			result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include"));
+
+			if (OperatingSystem.current().isMacOsX()) {
+				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/darwin"));
+			} else if (OperatingSystem.current().isLinux()) {
+				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/linux"));
+			} else if (OperatingSystem.current().isWindows()) {
+				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/win32"));
+			}
+			return result;
+		});
+	}
 }
