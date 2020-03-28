@@ -35,7 +35,7 @@ public class DefaultTargetMachineFactory implements TargetMachineFactory {
 	 *
 	 * @return the {@link TargetMachine} for the host, never null.
 	 */
-	public DefaultTargetMachine host() {
+	public static DefaultTargetMachine host() {
 		return new DefaultTargetMachine(DefaultOperatingSystemFamily.HOST, DefaultMachineArchitecture.HOST);
 	}
 

@@ -46,12 +46,13 @@ docsTest.dependsOn('stage', "bake")
 dependencies {
 	docsTestImplementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
 	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
-	docsTestImplementation('dev.gradleplugins:gradle-fixtures:latest.integration') {
+	docsTestImplementation('dev.gradleplugins:gradle-fixtures:0.0.37') {
 		capabilities {
 			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
 		}
 	}
-	docsTestImplementation gradleApi() // Because there are some Gradle type leaking in, TODO: remove when those leaks are patched
+	docsTestCompileOnly 'dev.gradleplugins:gradle-api:6.2.1'
+	docsTestCompileOnly gradleTestKit() // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
 
 	def lombokVersion = '1.18.12'
 	docsTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"
@@ -68,6 +69,7 @@ dependencies {
 	docsTestImplementation 'io.github.http-builder-ng:http-builder-ng-core:1.0.4'
 	docsTestImplementation 'com.google.guava:guava:28.2-jre'
 	docsTestImplementation testFixtures('dev.nokee.docs:docs-gradle-plugin:latest.integration')
+	docsTestImplementation 'org.codehaus.groovy:groovy-all:2.5.2' // Need to look into this
 }
 // TODO: Improve this Antlr mess... :(
 afterEvaluate {
@@ -142,6 +144,7 @@ components.add(dslSampleArchiveSourceSet)
 	new Sample('publish-jni-library', new JavaJniCppGreeterLib('publish-jni-library')),
 	new Sample('publish-jni-library-with-target-machines', new JavaJniCppGreeterLib('publish-jni-library-with-target-machines')),
 	new Sample('jni-library-with-resource-path', new JavaJniCppGreeterLib('jni-library-with-resource-path')),
+	new Sample('jni-library-with-framework-dependencies', new JavaJniCppGreeterLib('jni-library-with-framework-dependencies')),
 ].each { Sample sample ->
 	String nameAsCamelCase = GUtil.toCamelCase(sample.name)
 

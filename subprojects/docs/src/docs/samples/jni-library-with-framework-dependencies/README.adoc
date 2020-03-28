@@ -1,0 +1,67 @@
+= JNI Library with macOS Framework Dependencies
+:jbake-summary: JNI library implemented in Java and Objective-C with macOS framework dependencies
+:jbake-type: sample_chapter
+:jbake-tags: sample, jni, library, jvm, java, objective c, native, gradle, macos framework, dependency management
+:jbake-category: Java Native Interface (JNI)
+:jbake-description: See how the Nokee Gradle plugins are used for building a Java Native Interface (JNI) library with macOS framework dependencies.
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how a JNI library implemented in Java and Objective-C can be built with Gradle.
+The library has macOS framework dependencies, and the build has a minimal configuration.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::{includedir}/groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::{includedir}/kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+<1> Adding dependencies to macOS framework bundle is done by using the `dev.nokee.framework` group, the framework name (without the `.framework`) and the version is currently infer from the framework
+<2> Adding dependencies to subframework is selected by using Gradle's capabilities
+
+To build the library:
+
+[listing.terminal,only-if='macos']
+----
+$ ./gradlew assemble
+
+BUILD SUCCESSFUL
+4 actionable tasks: 4 executed
+----
+
+The JNI library produced inside `./build/libs` directory:
+
+[listing.terminal,only-if='macos']
+----
+$ ls ./build/libs/*.jar
+./build/libs/jni-library-with-framework-dependencies.jar
+----
+
+Since there is only one variant, the native component is included inside the main JAR:
+
+[listing.terminal,only-if='macos']
+----
+$ jar tf ./build/libs/jni-library-with-framework-dependencies.jar
+META-INF/
+META-INF/MANIFEST.MF
+com/
+com/example/
+com/example/cocoa/
+com/example/cocoa/NativeLoader.class
+com/example/cocoa/NSSavePanel.class
+libjni-library-with-framework-dependencie.dylib
+----
+
+For more information, see <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin>> and <<../../manual/objective-c-language-plugin.adoc#,Objective-C Language Plugin>> reference chapters.

@@ -7,6 +7,7 @@ import dev.nokee.platform.jni.internal.*;
 import dev.nokee.platform.nativebase.TargetMachine;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.plugins.FakeMavenRepositoryPlugin;
 import dev.nokee.platform.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
@@ -40,7 +41,7 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 
 public abstract class JniLibraryPlugin implements Plugin<Project> {
-	private final ToolChainSelectorInternal toolChainSelector = getObjectFactory().newInstance(ToolChainSelectorInternal.class);
+	private final ToolChainSelectorInternal toolChainSelector = getObjects().newInstance(ToolChainSelectorInternal.class);
 
 	@Override
 	public void apply(Project project) {
@@ -58,6 +59,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().withPlugin("java-library", appliedPlugin -> { throw new GradleException("Use java plugin instead"); });
 		project.getPlugins().withType(NativePlatformCapabilitiesMarkerPlugin.class, appliedPlugin -> {
 			project.getPluginManager().apply(JniLibraryRules.class);
+			project.getPluginManager().apply(FakeMavenRepositoryPlugin.class);
 		});
 
 		// Include native runtime files inside JNI jar
@@ -153,7 +155,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 	protected abstract ToolChainSelector getToolChainSelector();
 
 	@Inject
-	protected abstract ObjectFactory getObjectFactory();
+	protected abstract ObjectFactory getObjects();
 
 	private static void assertNonEmpty(Collection<?> values, String propertyName, String componentName) {
 		if (values.isEmpty()) {

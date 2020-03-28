@@ -13,6 +13,9 @@ gradlePlugin {
 			implementationClass = 'dev.nokee.docs.DocumentationPlugin'
 		}
 	}
+	extra {
+		minimumGradleVersion = '6.2.1'
+	}
 }
 
 repositories {
@@ -41,5 +44,5 @@ dependencies {
 	testFixturesImplementation 'io.github.http-builder-ng:http-builder-ng-core:1.0.4'
 	testFixturesImplementation 'junit:junit:4.13'
 	testFixturesImplementation 'org.apache.commons:commons-lang3:3.9'
-
+	testFixturesCompileOnly 'org.codehaus.groovy:groovy-xml:2.5.10'
 }

@@ -94,7 +94,7 @@ public abstract class JniLibraryInternal implements JniLibrary {
 	}
 
 	public void registerSharedLibraryBinary() {
-		SharedLibraryBinaryInternal sharedLibraryBinary = getObjectFactory().newInstance(SharedLibraryBinaryInternal.class, names, configurations, sources, implementation);
+		SharedLibraryBinaryInternal sharedLibraryBinary = getObjectFactory().newInstance(SharedLibraryBinaryInternal.class, names, configurations, sources, implementation, targetMachine);
 		getNativeRuntimeFiles().from(sharedLibraryBinary.getLinkedFile());
 		this.sharedLibraryBinary = Optional.of(sharedLibraryBinary);
 		binaries.add(sharedLibraryBinary);

@@ -7,29 +7,36 @@ plugins {
 	id 'com.jfrog.bintray' version '1.8.4'
 }
 
-java {
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
-	withSourcesJar()
-	withJavadocJar()
-}
-
 repositories {
 	jcenter()
+	mavenCentral()
 	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
 }
 
 dependencies {
 	implementation 'org.apache.commons:commons-lang3:3.9'
+	implementation 'com.google.guava:guava:28.2-jre'
+	implementation 'org.eclipse.jetty:jetty-server:9.4.27.v20200227'
+	implementation 'com.google.code.gson:gson:2.8.6'
+	implementation 'commons-io:commons-io:2.6'
+	implementation 'org.apache.commons:commons-exec:1.3'
 
 	def lombokVersion = '1.18.12'
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-	functionalTestImplementation gradleTestKit() // Until we support other kind of GradleExecutor
 	functionalTestImplementation 'dev.nokee:templates:latest.integration'
+	functionalTestImplementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.71' // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
 
-	testImplementation 'org.spockframework:spock-core:1.2-groovy-2.5'
+	testImplementation platform('org.spockframework:spock-bom:1.2-groovy-2.5')
+	testImplementation 'org.spockframework:spock-core'
+	testImplementation 'dev.gradleplugins:gradle-api:6.2.1'
+	testImplementation('dev.gradleplugins:gradle-fixtures:0.0.37') {
+		capabilities {
+			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
+		}
+	}
+	testImplementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.71' // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
 }
 
 tasks.named('javadoc', Javadoc) {
@@ -58,6 +65,11 @@ gradlePlugin {
 			id = 'dev.nokee.objective-cpp-language'
 			implementationClass = 'dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin'
 		}
+	}
+	extra {
+		minimumGradleVersion = '6.2.1'
+		withJavadocJar()
+		withSourcesJar()
 	}
 }
 
