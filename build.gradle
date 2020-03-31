@@ -39,5 +39,4 @@ def v = new Version(layout)
 allprojects {
 	version = v
 	group = 'dev.nokee'
-	// TODO: set the status properly
 }
