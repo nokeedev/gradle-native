@@ -18,8 +18,8 @@
 
 
 /* Typography resets */
-div, dl, dt, dd, ol, h1, h2, h3, #toctitle, .sidebarblock > .content > .title, h4, h5, h6, pre, form, p, blockquote, th, td { margin: 0; padding: 0; direction: ltr; }
-ul, li {
+div, dl, dt, dd, h1, h2, h3, #toctitle, .sidebarblock > .content > .title, h4, h5, h6, pre, form, p, blockquote, th, td { margin: 0; padding: 0; direction: ltr; }
+ul, li, ol {
 	padding: 0;
 	direction: ltr;
 }
