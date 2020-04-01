@@ -9,15 +9,18 @@
 	if (indexOfLastSlash != -1) {
 		permalink = content.uri.substring(0, content.uri.lastIndexOf('/'))
 	}
+
+	def twitterCard = 'summary'
+	if (content.twitter && content.twitter.card) {
+		twitterCard = content.twitter.card
+	}
 %>
 <meta name="twitter:site" content="@nokeedev">
 <meta name="twitter:creator" content="${twitterCreator}">
 <meta name="twitter:title" content="${content.title}">
+<meta name="twitter:card" content="${twitterCard}">
 <%if (content.description) {%><meta name="twitter:description" content="${content.description}"><%}%>
-<%if (content.twitter) {%>
-	<%if (content.twitter.card) {%><meta name="twitter:card" content="${content.twitter.card}"><%}%>
-	<%if (content.twitter.card == 'summary_large_image') {%>
-		<%if (content.leadimage) {%><meta name="twitter:image" content="${config.site_host}/${permalink}/${content.leadimage}"><%}%>
-		<%if (content.leadimagealt) {%><meta name="twitter:image:alt" content="${content.leadimagealt}"><%}%>
-	<%}%>
+<%if (twitterCard == 'summary_large_image') {%>
+	<%if (content.leadimage) {%><meta name="twitter:image" content="${config.site_host}/${permalink}/${content.leadimage}"><%}%>
+	<%if (content.leadimagealt) {%><meta name="twitter:image:alt" content="${content.leadimagealt}"><%}%>
 <%}%>
