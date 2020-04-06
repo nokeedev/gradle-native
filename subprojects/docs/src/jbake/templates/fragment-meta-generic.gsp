@@ -62,12 +62,19 @@
 	}
 %>
 
-<% if (content.type != 'redirection') {%>
+<%
+if (content.type != 'redirection') {
+	def breadcrumbs = getBreadcrumbs()
+	if (!breadcrumbs.empty) {
+%>
 <script type="application/ld+json">
     [{
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
-      "itemListElement": [${getBreadcrumbs().withIndex().collect { element, index -> formatCrumb(index, element) }.join(',')}]
+      "itemListElement": [${breadcrumbs.withIndex().collect { element, index -> formatCrumb(index, element) }.join(',')}]
     }]
 </script>
-<%}%>
+<%
+	}
+}
+%>
