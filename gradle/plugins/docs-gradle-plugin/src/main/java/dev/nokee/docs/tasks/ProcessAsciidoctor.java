@@ -4,9 +4,7 @@ import org.apache.commons.io.output.CloseShieldOutputStream;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.FileType;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.work.ChangeType;
 import org.gradle.work.FileChange;
 import org.gradle.work.Incremental;
@@ -16,12 +14,14 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.stream.StreamSupport;
 
+@CacheableTask
 public abstract class ProcessAsciidoctor extends ProcessorTask {
 	@Incremental
 	@InputFiles
 	public abstract ConfigurableFileTree getSource();
 
 	@Input
+	@Optional
 	public abstract Property<String> getRelativePath();
 
 	@Input
@@ -68,7 +68,10 @@ public abstract class ProcessAsciidoctor extends ProcessorTask {
 
 	private File outputFileFor(File file) {
 		String relativePathFromSourceDirectory = getSource().getDir().toURI().relativize(file.toURI()).getPath();
-		return getOutputDirectory().file(getRelativePath().get() + "/" + relativePathFromSourceDirectory).get().getAsFile();
+		if (getRelativePath().isPresent()) {
+			return getOutputDirectory().file(getRelativePath().get() + "/" + relativePathFromSourceDirectory).get().getAsFile();
+		}
+		return getOutputDirectory().file(relativePathFromSourceDirectory).get().getAsFile();
 	}
 
 	private void writeAsciidoctorHeader(PrintWriter out) {

@@ -31,7 +31,7 @@ dependencies {
 	testImplementation platform('org.spockframework:spock-bom:1.2-groovy-2.5')
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation 'dev.gradleplugins:gradle-api:6.2.1'
-	testImplementation('dev.gradleplugins:gradle-fixtures:0.0.37') {
+	testImplementation('dev.gradleplugins:gradle-fixtures:0.0.41') {
 		capabilities {
 			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
 		}

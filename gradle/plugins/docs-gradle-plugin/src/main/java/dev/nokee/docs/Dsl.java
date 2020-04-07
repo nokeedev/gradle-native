@@ -1,5 +1,7 @@
 package dev.nokee.docs;
 
+import org.gradle.util.GUtil;
+
 public enum Dsl {
 	GROOVY_DSL("groovy-dsl", "gradle", PluginManagementBlock.asGroovyDsl()), KOTLIN_DSL("kotlin-dsl", "gradle.kts", PluginManagementBlock.asKotlinDsl());
 
@@ -11,6 +13,13 @@ public enum Dsl {
 		this.name = name;
 		this.extension = extension;
 		this.pluginManagementBlock = pluginManagementBlock;
+	}
+
+	public String getName() {
+		return name;
+	}
+	public String getNameAsCamelCase() {
+		return GUtil.toCamelCase(name);
 	}
 
 	public String getSettingsFileName() {

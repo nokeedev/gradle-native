@@ -23,14 +23,14 @@ class SampleContentFixture {
 		Asciidoctor asciidoctor = Asciidoctor.Factory.create()
 		Document document = asciidoctor.loadFile(contentFile, options().asMap())
 //		processAsciidocSampleBlocks(document)
-		return TestFile.of(new File("${System.getProperty('sampleArchiveDirectory')}/${document.attributes.get('jbake-archivebasename')}-${document.attributes.get('jbake-version')}-groovy-dsl.zip")).assertExists()
+		return TestFile.of(new File("${System.getProperty('sampleArchiveDirectory')}/docs/nightly/samples/${sampleName}/${document.attributes.get('jbake-archivebasename')}-${document.attributes.get('jbake-version')}-groovy-dsl.zip")).assertExists()
 	}
 
 	TestFile getKotlinDslSample() {
 		Asciidoctor asciidoctor = Asciidoctor.Factory.create()
 		Document document = asciidoctor.loadFile(contentFile, options().asMap())
 //		processAsciidocSampleBlocks(document)
-		return TestFile.of(new File("${System.getProperty('sampleArchiveDirectory')}/${document.attributes.get('jbake-archivebasename')}-${document.attributes.get('jbake-version')}-kotlin-dsl.zip")).assertExists()
+		return TestFile.of(new File("${System.getProperty('sampleArchiveDirectory')}/docs/nightly/samples/${sampleName}/${document.attributes.get('jbake-archivebasename')}-${document.attributes.get('jbake-version')}-kotlin-dsl.zip")).assertExists()
 	}
 
 	TestFile getDslSample(GradleScriptDsl dsl) {

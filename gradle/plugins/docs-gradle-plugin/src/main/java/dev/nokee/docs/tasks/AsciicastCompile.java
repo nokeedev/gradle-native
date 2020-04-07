@@ -3,6 +3,7 @@ package dev.nokee.docs.tasks;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.FileType;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.stream.StreamSupport;
 
+@CacheableTask
 public abstract class AsciicastCompile extends ProcessorTask {
 	@InputFiles
 	public abstract ConfigurableFileTree getSource();
@@ -70,7 +72,8 @@ public abstract class AsciicastCompile extends ProcessorTask {
 			outputFile.getParentFile().mkdirs();
 
 			getExecOperations().exec(spec -> {
-				spec.commandLine("asciicast2gif", getParameters().getInputFile().get().getAsFile().getAbsolutePath(), outputFile.getAbsolutePath());
+				// NOTE: Needs to quote the output path because the asciicast2git handle spaces in path when passed to gifsicle
+				spec.commandLine("asciicast2gif", getParameters().getInputFile().get().getAsFile().getAbsolutePath(), "'" + outputFile.getAbsolutePath() + "'");
 			});
 		}
 

@@ -1,14 +1,12 @@
 package dev.nokee.docs.tasks;
 
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.Executor;
-import org.apache.commons.exec.PumpStreamHandler;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.FileType;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecOperations;
 import org.gradle.work.ChangeType;
 import org.gradle.work.FileChange;
 import org.gradle.work.InputChanges;
@@ -18,10 +16,9 @@ import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.stream.StreamSupport;
 
+@CacheableTask
 public abstract class GifCompile extends ProcessorTask {
 	@InputFiles
 	public abstract ConfigurableFileTree getSource();
@@ -69,21 +66,17 @@ public abstract class GifCompile extends ProcessorTask {
 	}
 
 	public static abstract class CompileAction implements WorkAction<CompileParameters> {
+		@Inject
+		protected abstract ExecOperations getExecOperations();
+
 		@Override
 		public void execute() {
 			File outputFile = getParameters().getOutputFile().get().getAsFile();
 			outputFile.getParentFile().mkdirs();
 
-			CommandLine commandLine = CommandLine.parse("ffmpeg -f gif -i " + getParameters().getInputFile().get().getAsFile().getAbsolutePath() + " " + outputFile.getAbsolutePath());
-			Executor executor = new DefaultExecutor();
-			// TODO: Pump stream to file
-			executor.setStreamHandler(new PumpStreamHandler(System.out, System.err));
-			executor.setExitValue(0);
-			try {
-				executor.execute(commandLine);
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
+			getExecOperations().exec(spec -> {
+				spec.commandLine("ffmpeg", "-f", "gif", "-i", getParameters().getInputFile().get().getAsFile().getAbsolutePath(), outputFile.getAbsolutePath());
+			});
 		}
 	}
 }

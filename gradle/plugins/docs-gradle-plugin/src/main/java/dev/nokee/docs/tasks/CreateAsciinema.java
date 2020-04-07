@@ -14,10 +14,7 @@ import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.Classpath;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
@@ -28,10 +25,12 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.Optional;
 
 import static org.asciidoctor.OptionsBuilder.options;
 import static org.codehaus.groovy.runtime.InvokerHelper.asList;
 
+@CacheableTask
 public abstract class CreateAsciinema extends ProcessorTask {
 	private final List<Sample> samples = new ArrayList<>();
 
@@ -58,7 +57,7 @@ public abstract class CreateAsciinema extends ProcessorTask {
 					File workingDirectory = Files.createTempDirectory("").toFile();
 					it.getSource().set(workingDirectory);
 					getFileOperations().sync(spec -> {
-						spec.from(getProject().zipTree(sample.getSource().get().getAsFile()));
+						spec.from(sample.getSource().get().getAsFile());
 						spec.into(workingDirectory);
 					});
 
@@ -199,7 +198,22 @@ Learn more at https://nokee.dev
 	@Input
 	public abstract Property<String> getVersion();
 
+	@Internal
 	public abstract DirectoryProperty getLocalRepository();
+
+	@InputDirectory
+	@PathSensitive(PathSensitivity.RELATIVE)
+	@org.gradle.api.tasks.Optional
+	protected File getLocalRepositoryIfNeeded() {
+		if (!getLocalRepository().isPresent()) {
+			return null;
+		}
+		File value = getLocalRepository().get().getAsFile();
+		if (!value.exists()) {
+			return null;
+		}
+		return value;
+	}
 
 	@Inject
 	protected abstract FileSystemOperations getFileOperations();
@@ -213,19 +227,15 @@ Learn more at https://nokee.dev
 
 	public interface Sample {
 		@InputFile
+		@PathSensitive(PathSensitivity.RELATIVE)
 		RegularFileProperty getContentFile();
 
 		@Input
 		Property<String> getPermalink();
 
-		@InputFile
-		RegularFileProperty getSource();
-
-		@Input
-		Property<String> getVersion();
-
-		@Input
-		Property<String> getArchiveBaseName();
+		@InputDirectory
+		@PathSensitive(PathSensitivity.RELATIVE)
+		DirectoryProperty getSource();
 	}
 
 	public static class CommandLine {

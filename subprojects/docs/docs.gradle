@@ -1,12 +1,4 @@
-import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.nokee.docs.Dsl
-import dev.nokee.docs.JBakeAssetSourceSet
-import dev.nokee.docs.tasks.CreateAsciinema
-import dev.nokee.docs.tasks.GenerateSamplesContentTask
 import dev.nokee.platform.jni.fixtures.*
-import org.apache.tools.ant.filters.ConcatFilter
-import org.gradle.util.GUtil
 
 import java.text.SimpleDateFormat
 
@@ -30,23 +22,25 @@ String toVersion(Project project) {
 }
 
 docsTest.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
-processSamplesAsciidoctors.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
-generateSamplesAsciinema.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
+// FIXME: HEREEREEE
+//processSamplesAsciidoctors.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
+//generateSamplesAsciinema.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
+
 // The following inputs cause the task to never be up-to-date.
 // The solution would be to correctly declare the input/output for `publishAllPublicationsToDocsRepository` so it doesn't republish when nothing has changed.
 // For now, it's ok, let's solve this when it becomes a real problem.
 docsTest.inputs.dir(layout.buildDirectory.dir('repository'))
-docsTest.inputs.dir('build/staging/assets/zips')
-docsTest.inputs.dir(layout.buildDirectory.dir("staging/content/docs/${toVersion(project)}/samples"))
+docsTest.inputs.dir(layout.buildDirectory.dir("generated/samples"))
+docsTest.inputs.dir(layout.buildDirectory.dir("generated/baked"))
 docsTest.systemProperty('dev.nokee.docsRepository', layout.buildDirectory.dir('repository').get().asFile.absolutePath)
-docsTest.systemProperty('sampleArchiveDirectory', 'build/staging/assets/zips')
-docsTest.systemProperty('sampleContentDirectory', layout.buildDirectory.dir("staging/content/docs/${toVersion(project)}/samples").get().asFile.absolutePath)
-docsTest.systemProperty('bakedContentDirectory', layout.buildDirectory.dir(jbake.destDirName).get().asFile.absolutePath)
-docsTest.dependsOn('stage', "bake")
+docsTest.systemProperty('sampleArchiveDirectory', layout.buildDirectory.dir("generated/baked").get().asFile.absolutePath)
+docsTest.systemProperty('sampleContentDirectory', layout.buildDirectory.dir("generated/samples").get().asFile.absolutePath)
+docsTest.systemProperty('bakedContentDirectory', layout.buildDirectory.dir("generated/baked").get().asFile.absolutePath)
+docsTest.dependsOn('assembleSamples', "assembleDocumentation")
 dependencies {
 	docsTestImplementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
 	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
-	docsTestImplementation('dev.gradleplugins:gradle-fixtures:0.0.37') {
+	docsTestImplementation('dev.gradleplugins:gradle-fixtures:0.0.41') {
 		capabilities {
 			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
 		}
@@ -84,136 +78,43 @@ repositories {
 	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
 }
 
-class Sample {
-	private final String name
-	private final SourceElement fixture
-
-	Sample(String name, SourceElement fixture) {
-		this.fixture = fixture
-		this.name = name
-	}
-}
-
-TaskProvider<Wrapper> generateSamplesGradleWrapperTask = tasks.register('generateSamplesGradleWrapper', Wrapper) {
-	ext.outputDirectory = "build/tmp/${it.name}"
-	gradleVersion = gradle.gradleVersion
-	scriptFile = file("${outputDirectory}/gradlew")
-	jarFile = file("${outputDirectory}/gradle/wrapper/gradle-wrapper.jar")
-}
-def wrapperFiles = project.fileTree(generateSamplesGradleWrapperTask.map {it.outputDirectory}).builtBy(generateSamplesGradleWrapperTask)
-
-def generatedSampleSourceSet = project.layout.buildDirectory.dir('generated/samples')
-
-def stageSamplesTask = tasks.register('stageSamples', Sync) {
-	into(generatedSampleSourceSet)
-}
-
-def assembleSamplesTask = tasks.register('assembleSamples')
-
-TaskProvider<Task> generateKotlinDslNightlySettingsTask = tasks.register("configureKotlinDslNightlySettings") {
-	ext.outputFile = file("build/tmp/${it.name}/${Dsl.KOTLIN_DSL.settingsFileName}")
-	inputs.property('version', project.provider { project.version.toString() })
-	outputs.file(outputFile)
-	doLast {
-		outputFile.text = Dsl.KOTLIN_DSL.settingsPluginManagement.withVersion(project.version.toString())
-	}
-}
-
-TaskProvider<Task> generateGroovyDslNightlySettingsTask = tasks.register("configureGroovyDslNightlySettings") {
-	ext.outputFile = file("build/tmp/${it.name}/${Dsl.GROOVY_DSL.settingsFileName}")
-	inputs.property('version', project.provider { project.version.toString() })
-	outputs.file(outputFile)
-	doLast {
-		outputFile.text = Dsl.GROOVY_DSL.settingsPluginManagement.withVersion(project.version.toString())
-	}
-}
-
-def generateSamplesContentTask = tasks.named('generateSamplesAsciidoctors', GenerateSamplesContentTask)
-def generateSamplesAsciinemaTask = tasks.named('generateSamplesAsciinema', CreateAsciinema)
-def dslSampleArchiveSourceSet = project.objects.newInstance(JBakeAssetSourceSet, 'dslSampleArchive')
-dslSampleArchiveSourceSet.source.from(layout.buildDirectory.dir('generated/assets').map { it.asFileTree.matching { PatternFilterable p -> p.include("**/*-${project.version}-*.zip")} })
-components.add(dslSampleArchiveSourceSet)
-
-[
-	new Sample('java-cpp-jni-library', new JavaJniCppGreeterLib('java-cpp-jni-library')),
-	new Sample('java-c-jni-library', new JavaJniCGreeterLib('java-c-jni-library')),
-	new Sample('java-objective-c-jni-library', new JavaJniObjectiveCGreeterLib('java-objective-c-jni-library')),
-	new Sample('java-objective-cpp-jni-library', new JavaJniObjectiveCppGreeterLib('java-objective-cpp-jni-library')),
-	new Sample('jni-library-with-junit-test', new JavaJniCppGreeterLib('jni-library-with-junit-test').withJUnitTest()),
-	new Sample('jni-library-with-target-machines', new JavaJniCppGreeterLib('jni-library-with-target-machines')),
-	new Sample('jvm-application-with-jni-library', new GreeterAppWithJniLibrary('jvm-application-with-jni-library').withLibraryAsSubproject('jni-library')),
-	new Sample('jni-library-composing', new JavaJniCppGreeterLib('jni-library-composing').withImplementationAsSubprojects()),
-	new Sample('publish-jni-library', new JavaJniCppGreeterLib('publish-jni-library')),
-	new Sample('publish-jni-library-with-target-machines', new JavaJniCppGreeterLib('publish-jni-library-with-target-machines')),
-	new Sample('jni-library-with-resource-path', new JavaJniCppGreeterLib('jni-library-with-resource-path')),
-	new Sample('jni-library-with-framework-dependencies', new JavaJniCppGreeterLib('jni-library-with-framework-dependencies')),
-].each { Sample sample ->
-	String nameAsCamelCase = GUtil.toCamelCase(sample.name)
-
-	TaskProvider<Task> generateSampleCodeTask = tasks.register("generate${nameAsCamelCase}SampleContent") {
-		ext.outputDirectory = file("build/tmp/${it.name}")
-		outputs.dir(outputDirectory)
-		doLast {
-			// TODO: Change API to use File instead of TestFile
-			sample.fixture.writeToProject(TestFile.of(outputDirectory))
+documentation {
+	samples {
+		'java-cpp-jni-library' {
+			template = new JavaJniCppGreeterLib('java-cpp-jni-library')
 		}
-	}
-
-	[Dsl.GROOVY_DSL, Dsl.KOTLIN_DSL].each { Dsl dsl ->
-		stageSamplesTask.configure {
-			from(wrapperFiles) { into("${sample.name}/${dsl.name}") }
-			from(generateSampleCodeTask) { into("${sample.name}/${dsl.name}") }
-			from(file("src/docs/samples/${sample.name}/${dsl.name}")) {
-				into("${sample.name}/${dsl.name}")
-				exclude("${dsl.settingsFileName}")
-			}
-			from(file("src/docs/samples/${sample.name}/${dsl.name}/${Dsl.GROOVY_DSL.settingsFileName}")) {
-				into("${sample.name}/${dsl.name}")
-
-				dependsOn(generateGroovyDslNightlySettingsTask)
-				inputs.file(generateGroovyDslNightlySettingsTask.map {it.outputFile})
-				filter(ConcatFilter, prepend: generateGroovyDslNightlySettingsTask.get().outputFile)
-			}
-			from(file("src/docs/samples/${sample.name}/${dsl.name}/${Dsl.KOTLIN_DSL.settingsFileName}")) {
-				into("${sample.name}/${dsl.name}")
-
-				dependsOn(generateKotlinDslNightlySettingsTask)
-				inputs.file(generateKotlinDslNightlySettingsTask.map {it.outputFile})
-				filter(ConcatFilter, prepend: generateKotlinDslNightlySettingsTask.get().outputFile)
-			}
+		'java-c-jni-library' {
+			template = new JavaJniCGreeterLib('java-c-jni-library')
 		}
-
-		TaskProvider<Zip> zipDslSampleTask = tasks.register("zip${nameAsCamelCase}${GUtil.toCamelCase(dsl.name)}Sample", Zip) {
-			dependsOn(stageSamplesTask)
-			from(generatedSampleSourceSet.get().dir("${sample.name}/${dsl.name}"))
-			archiveBaseName = nameAsCamelCase
-			archiveClassifier = dsl.name
-			archiveVersion = project.provider { project.version.toString() }
-			destinationDirectory.set(layout.buildDirectory.dir("generated/assets/zips"))
+		'java-objective-c-jni-library' {
+			template = new JavaJniObjectiveCGreeterLib('java-objective-c-jni-library')
 		}
-		dslSampleArchiveSourceSet.source.builtBy(zipDslSampleTask)
-
-		assembleSamplesTask.configure {
-			dependsOn(zipDslSampleTask)
+		'java-objective-cpp-jni-library' {
+			template = new JavaJniObjectiveCppGreeterLib('java-objective-cpp-jni-library')
 		}
-
-		generateSamplesContentTask.configure {
-			it.sample {
-				sourceDirectory = file("src/docs/samples/${sample.name}")
-				permalink = sample.name
-				version = project.provider { project.version.toString() }
-				archiveBaseName = nameAsCamelCase
-			}
+		'jni-library-with-junit-test' {
+			template = new JavaJniCppGreeterLib('jni-library-with-junit-test').withJUnitTest()
 		}
-		if (dsl == Dsl.GROOVY_DSL) {
-			generateSamplesAsciinemaTask.configure {
-				it.dependsOn(zipDslSampleTask, generateSamplesContentTask)
-				it.sample {
-					contentFile = generateSamplesContentTask.flatMap { it.outputDirectory.file("${sample.name}/index.adoc") }
-					permalink = sample.name
-					source.set(zipDslSampleTask.flatMap { zipTask -> zipTask.getArchiveFile() })
-				}
-			}
+		'jni-library-with-target-machines' {
+			template = new JavaJniCppGreeterLib('jni-library-with-target-machines')
+		}
+		'jvm-application-with-jni-library' {
+			template = new GreeterAppWithJniLibrary('jvm-application-with-jni-library').withLibraryAsSubproject('jni-library')
+		}
+		'jni-library-composing' {
+			template = new JavaJniCppGreeterLib('jni-library-composing').withImplementationAsSubprojects()
+		}
+		'publish-jni-library' {
+			template = new JavaJniCppGreeterLib('publish-jni-library')
+		}
+		'publish-jni-library-with-target-machines' {
+			template = new JavaJniCppGreeterLib('publish-jni-library-with-target-machines')
+		}
+		'jni-library-with-resource-path' {
+			template = new JavaJniCppGreeterLib('jni-library-with-resource-path')
+		}
+		'jni-library-with-framework-dependencies' {
+			template = new JavaJniCppGreeterLib('jni-library-with-framework-dependencies')
 		}
 	}
 }

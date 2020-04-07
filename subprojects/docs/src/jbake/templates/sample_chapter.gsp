@@ -9,7 +9,6 @@
 	<%
 		// Twitter player card doesn't exists for version 0.1.0
 		if (!content.uri.contains('0.1.0')) {%>
-	<meta name="twitter:card" content="player">
 	<meta name="twitter:player" content="${config.site_host}/${permalink}/all-commands.embed.html">
 	<meta name="twitter:image" content="${config.site_host}/${permalink}/all-commands.png">
 	<meta name="twitter:player:width" content="1179">
@@ -30,10 +29,10 @@
 			<div class="download">
 				<ul>
 					<li>
-						<p><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>zips/${content.archivebasename}-${content.version}-groovy-dsl.zip"><span class="icon"><i class="fa fa-download"></i></span> Groovy DSL</a></p>
+						<p><a href="${content.archivebasename}-${content.version}-groovy-dsl.zip"><span class="icon"><i class="fa fa-download"></i></span> Groovy DSL</a></p>
 					</li>
 					<li>
-						<p><a href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>zips/${content.archivebasename}-${content.version}-kotlin-dsl.zip"><span class="icon"><i class="fa fa-download"></i></span> Kotlin DSL</a></p>
+						<p><a href="${content.archivebasename}-${content.version}-kotlin-dsl.zip"><span class="icon"><i class="fa fa-download"></i></span> Kotlin DSL</a></p>
 					</li>
 				</ul>
 			</div>
