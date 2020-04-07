@@ -21,6 +21,7 @@ import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -45,7 +46,7 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply("org.jbake.site");
 		project.getPluginManager().apply(SpockFrameworkTestSuiteBasePlugin.class);
 
-		components.add(objects.newInstance(GroovySpockFrameworkTestSuite.class, "docsTest"));
+		components.add(objects.newInstance(GroovySpockFrameworkTestSuite.class, "docsTest", project.getExtensions().getByType(SourceSetContainer.class).create("docsTest")));
 
 		String version = toVersion(project);
 
