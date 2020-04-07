@@ -164,7 +164,7 @@ body {
 }
 
 /* Docsearch overrides */
-.docs-navigation a, .docs-navigation a:visited {
+.docs-navigation a, .docs-navigation a:visited, .docs-navigation a:hover {
 	color: #222629;
 	display: block;
 	font-size: 1rem;
