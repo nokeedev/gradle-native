@@ -51,7 +51,7 @@ dependencies {
 			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
 		}
 	}
-	docsTestCompileOnly 'dev.gradleplugins:gradle-api:6.2.1'
+	docsTestCompileOnly 'dev.gradleplugins:gradle-api:6.2.1' // Is this really needed?
 	docsTestCompileOnly gradleTestKit() // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
 
 	def lombokVersion = '1.18.12'
