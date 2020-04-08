@@ -53,6 +53,7 @@ dependencies {
 	}
 	docsTestCompileOnly 'dev.gradleplugins:gradle-api:6.2.1' // Is this really needed?
 	docsTestCompileOnly gradleTestKit() // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
+	docsTestRuntimeOnly 'dev.gradleplugins:gradle-api:6.2.1' // Because of the gradle-fixtures AbstractInstalledToolChainIntegrationSpec
 
 	def lombokVersion = '1.18.12'
 	docsTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"
@@ -70,6 +71,7 @@ dependencies {
 	docsTestImplementation 'com.google.guava:guava:28.2-jre'
 	docsTestImplementation testFixtures('dev.nokee.docs:docs-gradle-plugin:latest.integration')
 	docsTestImplementation 'org.codehaus.groovy:groovy-all:2.5.2' // Need to look into this
+	docsTestImplementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.71' // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
 }
 // TODO: Improve this Antlr mess... :(
 afterEvaluate {
