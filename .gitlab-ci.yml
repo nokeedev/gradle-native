@@ -21,6 +21,24 @@ test:
       - subprojects/docs/build/tmp/test files
       - subprojects/docs/build/reports/tests
 
+test (windows):
+  stage: test
+  # FIXME: Shouldn't need to ignore the Asciinema tasks, they should just not be wired in for testing
+  script: Start-Process "cmd.exe" "/c gradlew.bat check --scan --continue -x :docs:compileDocsDot -PskipAllAsciinemaTasks -x :docs:compileDocsAsciicast"
+  #script: gradlew.bat check --scan --continue -x :docs:compileDocsDot -PskipAllAsciinemaTasks -x :docs:compileDocsAsciicast
+  tags:
+    - os=windows
+  variables:
+    GIT_CLONE_PATH: $CI_BUILDS_DIR/gn
+  #artifacts:
+  #  when: on_failure
+  #  paths:
+  #    - subprojects/platform-jni/build/tmp/test files
+  #    - subprojects/platform-jni/build/reports/tests
+  #    - subprojects/docs/build/repository
+  #    - subprojects/docs/build/tmp/test files
+  #    - subprojects/docs/build/reports/tests
+
 deploy:
   stage: deploy
   script: ./gradlew bintrayUpload
