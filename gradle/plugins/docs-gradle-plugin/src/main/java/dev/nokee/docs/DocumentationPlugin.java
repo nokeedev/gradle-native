@@ -43,6 +43,7 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 		ProviderFactory providers = project.getProviders();
 		DependencyHandler dependencies = project.getDependencies();
 
+		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply("org.jbake.site");
 		project.getPluginManager().apply(SpockFrameworkTestSuiteBasePlugin.class);
 

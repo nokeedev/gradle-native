@@ -40,3 +40,20 @@ allprojects {
 	version = v
 	group = 'dev.nokee'
 }
+
+// Cleans $buildDir/tmp/test files on project check
+subprojects {
+	plugins.withType(LifecycleBasePlugin) {
+		def cleanTestFiles = tasks.register('cleanTestFiles', Delete) {
+			delete(layout.buildDirectory.file('tmp/test files'))
+		}
+
+		tasks.withType(Test).configureEach {
+			mustRunAfter(cleanTestFiles)
+		}
+
+		tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
+			dependsOn cleanTestFiles
+		}
+	}
+}
