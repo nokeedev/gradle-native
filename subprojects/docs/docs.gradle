@@ -1,3 +1,4 @@
+import dev.nokee.docs.tasks.CreateAsciinema
 import dev.nokee.platform.jni.fixtures.*
 
 import java.text.SimpleDateFormat
@@ -14,17 +15,10 @@ plugins {
 	id 'antlr'
 }
 
-String toVersion(Project project) {
-	if (project.version.toString().contains('-')) {
-		return 'nightly'
-	}
-	return project.version.toString()
-}
-
 docsTest.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
-// FIXME: HEREEREEE
-//processSamplesAsciidoctors.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
-//generateSamplesAsciinema.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
+tasks.withType(CreateAsciinema).configureEach {
+	dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
+}
 
 // The following inputs cause the task to never be up-to-date.
 // The solution would be to correctly declare the input/output for `publishAllPublicationsToDocsRepository` so it doesn't republish when nothing has changed.
