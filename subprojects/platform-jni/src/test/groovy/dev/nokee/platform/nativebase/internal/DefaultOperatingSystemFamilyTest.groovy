@@ -25,7 +25,7 @@ class DefaultOperatingSystemFamilyTest extends Specification {
 	@Requires({ OperatingSystem.current.windows })
 	def "defaults to the right pre-made instances on Windows"() {
 		expect:
-		HOST == LINUX
+		HOST == WINDOWS
 	}
 
 	@Requires({ OperatingSystem.current.macOs })
