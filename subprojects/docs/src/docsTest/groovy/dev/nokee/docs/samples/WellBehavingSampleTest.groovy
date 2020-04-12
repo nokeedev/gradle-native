@@ -75,7 +75,7 @@ abstract class WellBehavingSampleTest extends Specification {
 	@Unroll
 	def "ensure root project name is configured for the sample"(dsl) {
 		def fixture = new SampleContentFixture(sampleName)
-		unzipTo(fixture.getDslSample(dsl), temporaryFolder.testDirectory)
+		fixture.getDslSample(dsl).unzipTo(temporaryFolder.testDirectory)
 
 		expect:
 		// TODO: Improve assertion to ensure it's rootProject.name = <sampleName> and not just a random <sampleName> in the settings script
@@ -135,7 +135,7 @@ abstract class WellBehavingSampleTest extends Specification {
 	@Unroll
 	def "can run './gradlew #taskName' successfully"(taskName, dsl) {
 		def fixture = new SampleContentFixture(sampleName)
-		unzipTo(fixture.getDslSample(dsl), temporaryFolder.testDirectory)
+		fixture.getDslSample(dsl).unzipTo(temporaryFolder.testDirectory)
 
 		GradleExecuter executer = configureLocalPluginResolution(new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory)))
 		expect:
@@ -152,7 +152,7 @@ abstract class WellBehavingSampleTest extends Specification {
 		toolChain = AvailableToolChains.getDefaultToolChain()
 
 		def fixture = new SampleContentFixture(sampleName)
-		unzipTo(fixture.getDslSample(dsl), temporaryFolder.testDirectory)
+		fixture.getDslSample(dsl).unzipTo(temporaryFolder.testDirectory)
 
 		def c = wrapAndGetExecutable(fixture.getCommands())
 		assumeThat(c.size(), greaterThan(0));

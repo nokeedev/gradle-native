@@ -305,7 +305,7 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 		run('clean')
 
 		when:
-		unzipTo(file('application-distribution.zip'), file('application.zip'))
+		file('application-distribution.zip').unzipTo(file('application.zip'))
 
 		then:
 		file('application.zip/application/bin/application').exec().out.contains(componentsUnderTest.expectedOutput)
