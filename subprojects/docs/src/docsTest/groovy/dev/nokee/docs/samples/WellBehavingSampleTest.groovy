@@ -1,6 +1,7 @@
 package dev.nokee.docs.samples
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AvailableToolChains
+import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.spock.lang.CleanupTestDirectory
 import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
 import dev.gradleplugins.test.fixtures.file.TestFile
@@ -24,6 +25,7 @@ import java.util.regex.Pattern
 
 import static org.hamcrest.Matchers.greaterThan
 import static org.junit.Assume.assumeThat
+import static org.junit.Assume.assumeTrue
 
 @CleanupTestDirectory
 abstract class WellBehavingSampleTest extends Specification {
@@ -146,10 +148,16 @@ abstract class WellBehavingSampleTest extends Specification {
 		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]
 	}
 
+	protected ToolChainRequirement getToolChainRequirement() {
+		return ToolChainRequirement.AVAILABLE
+	}
+
 	AvailableToolChains.InstalledToolChain toolChain;
 	@Unroll
 	def "can execute commands successfully"(dsl) {
 		toolChain = AvailableToolChains.getDefaultToolChain()
+		// TODO: Allow better way to select a toolchain
+		assumeTrue(toolChain.meets(toolChainRequirement));
 
 		def fixture = new SampleContentFixture(sampleName)
 		fixture.getDslSample(dsl).unzipTo(temporaryFolder.testDirectory)

@@ -1,11 +1,16 @@
 package dev.nokee.platform.jni
 
-
+import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
+import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.language.objectivecpp.ObjectiveCppTaskNames
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCppGreeterLib
+import spock.lang.Requires
+import spock.util.environment.OperatingSystem
 
 import static org.hamcrest.CoreMatchers.containsString
 
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
 class JavaObjectiveCppJniLibraryFunctionalTest extends AbstractJavaJniLibraryFunctionalTest implements ObjectiveCppTaskNames {
 	def "build fails when Objective-C++ compilation fails"() {
 		given:
