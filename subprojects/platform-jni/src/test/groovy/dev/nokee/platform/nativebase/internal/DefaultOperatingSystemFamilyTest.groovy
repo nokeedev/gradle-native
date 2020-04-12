@@ -1,6 +1,6 @@
 package dev.nokee.platform.nativebase.internal
 
-
+import org.apache.commons.lang3.SystemUtils
 import spock.lang.Requires
 import spock.lang.Specification
 import spock.util.environment.OperatingSystem
@@ -32,5 +32,11 @@ class DefaultOperatingSystemFamilyTest extends Specification {
 	def "defaults to the right pre-made instances on macOS"() {
 		expect:
 		HOST == MACOS
+	}
+
+	@Requires({ SystemUtils.IS_OS_FREE_BSD })
+	def "defaults to the right pre-made instances on FreeBSD"() {
+		expect:
+		HOST == FREE_BSD
 	}
 }
