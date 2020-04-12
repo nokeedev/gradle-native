@@ -6,6 +6,7 @@ import groovy.util.slurpersupport.GPathResult;
 import groovy.util.slurpersupport.NodeChild;
 import lombok.NonNull;
 import lombok.Value;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cyberneko.html.parsers.SAXParser;
 import org.xml.sax.SAXException;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static java.util.Arrays.asList;
+import static org.apache.commons.io.FilenameUtils.separatorsToUnix;
 
 @Value
 public class HtmlTestFixture {
@@ -30,9 +32,9 @@ public class HtmlTestFixture {
 
 	private String getPath() {
 		if (uri.getScheme().equals("file")) {
-			return root.relativize(new File(uri).toPath()).toString();
+			return separatorsToUnix(root.relativize(new File(uri).toPath()).toString());
 		}
-		return uri.getPath();
+		return separatorsToUnix(uri.getPath());
 	}
 
 	public String getCanonicalPath() {
