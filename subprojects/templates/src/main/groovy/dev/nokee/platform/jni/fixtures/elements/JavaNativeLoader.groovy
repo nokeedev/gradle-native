@@ -31,7 +31,7 @@ public class NativeLoader {
 		} catch (UnsatisfiedLinkError ex) {
 			URL url = classLoader.getResource(libFilename(libName));
 			try {
-				File file = Files.createTempFile("jni", "greeter").toFile();
+				File file = Files.createTempFile("jni", libFilename(nameOnly(libName))).toFile();
 				file.deleteOnExit();
 				file.delete();
 				try (InputStream in = url.openStream()) {
@@ -54,7 +54,15 @@ public class NativeLoader {
 		return decorateLibraryName(libName, ".so");
 	}
 
-	public static String decorateLibraryName(String libraryName, String suffix) {
+	private static String nameOnly(String libName) {
+		int pos = libName.lastIndexOf('/');
+		if (pos >= 0) {
+			return libName.substring(pos + 1);
+		}
+		return libName;
+	}
+
+	private static String decorateLibraryName(String libraryName, String suffix) {
 		if (libraryName.endsWith(suffix)) {
 			return libraryName;
 		}
