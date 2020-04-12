@@ -16,6 +16,8 @@ import dev.nokee.docs.fixtures.SampleContentFixture
 import dev.nokee.docs.fixtures.UnzipCommandHelper
 import dev.nokee.docs.fixtures.html.HtmlTag
 import groovy.transform.ToString
+import org.apache.commons.lang3.SystemUtils
+import org.gradle.internal.os.OperatingSystem
 import org.junit.Rule
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -276,14 +278,36 @@ abstract class WellBehavingSampleTest extends Specification {
 
 		@Override
 		void execute(TestFile testDirectory) {
+			def tool = new ToolFromPath(command.args[0])
 			TestFile inputFile = testDirectory.file(command.args[0])
-			TestFile outputDirectory = testDirectory.file(command.args[command.args.findIndexOf {it == '-d'} + 1])
+			TestFile outputDirectory = testDirectory.file(command.args[command.args.findIndexOf { it == '-d' } + 1])
+			if (tool.available) {
+				String stdout = unzipTo(inputFile, outputDirectory)
+				// unzip add extra newline but also have extra tailing spaces
+				stdout = stdout.replace(testDirectory.absolutePath, '/Users/daniel')
 
-			String stdout = unzipTo(inputFile, outputDirectory)
-			// unzip add extra newline but also have extra tailing spaces
-			stdout = stdout.replace(testDirectory.absolutePath, '/Users/daniel')
+				assert UnzipCommandHelper.Output.parse(stdout) == UnzipCommandHelper.Output.parse(command.expectedOutput.get())
+			} else {
+				inputFile.unzipTo(outputDirectory)
+			}
+		}
+	}
 
-			assert UnzipCommandHelper.Output.parse(stdout) == UnzipCommandHelper.Output.parse(command.expectedOutput.get())
+	// TODO: Migrate to core code
+	private static class ToolFromPath {
+		private final String executable
+
+		ToolFromPath(String executable) {
+			// TODO: executable should not container File.separator
+			this.executable = executable
+		}
+
+		boolean isAvailable() {
+			return OperatingSystem.current().findInPath(executable) != null
+		}
+
+		File get() {
+			return OperatingSystem.current().findInPath(executable)
 		}
 	}
 
