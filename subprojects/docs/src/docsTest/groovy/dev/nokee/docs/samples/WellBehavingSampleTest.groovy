@@ -13,6 +13,7 @@ import dev.gradleplugins.test.fixtures.gradle.executer.OutputScrapingExecutionRe
 import dev.gradleplugins.test.fixtures.logging.ConsoleOutput
 import dev.nokee.docs.fixtures.Command
 import dev.nokee.docs.fixtures.SampleContentFixture
+import dev.nokee.docs.fixtures.TreeCommandHelper
 import dev.nokee.docs.fixtures.UnzipCommandHelper
 import dev.nokee.docs.fixtures.html.HtmlTag
 import dev.nokee.docs.tags.Baked
@@ -194,6 +195,8 @@ abstract class WellBehavingSampleTest extends Specification {
 			return new MoveFilesCommand(command)
 		} else if (command.executable == 'unzip') {
 			return new UnzipCommand(command)
+		} else if (command.executable == 'tree') {
+			return new TreeCommand(command)
 		}
 		return new GenericCommand(command)
 	}
@@ -328,6 +331,24 @@ abstract class WellBehavingSampleTest extends Specification {
 
 		File get() {
 			return OperatingSystem.current().findInPath(executable)
+		}
+	}
+
+	private class TreeCommand extends Comm {
+		TreeCommand(Command command) {
+			super(command)
+		}
+
+		@Override
+		void execute(TestFile testDirectory) {
+			if (!SystemUtils.IS_OS_WINDOWS) {
+				def process = (['/bin/bash', '-c'] + ([command.executable] + command.args).join(' ')).execute(null, testDirectory)
+				assert process.waitFor() == 0
+				def stdout = process.in.text
+				println stdout // TODO: Port this capability to other commands
+
+				assert TreeCommandHelper.Output.parse(stdout) == TreeCommandHelper.Output.parse(command.getExpectedOutput().get())
+			}
 		}
 	}
 
