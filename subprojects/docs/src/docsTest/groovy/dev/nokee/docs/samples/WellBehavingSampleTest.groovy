@@ -239,7 +239,15 @@ abstract class WellBehavingSampleTest extends Specification {
 			def result = executer.run()
 			def expectedResult = OutputScrapingExecutionResult.from(command.expectedOutput.get(), '')
 
-			assert OutputScrapingExecutionResult.normalize(LogContent.of(result.getPlainTextOutput())).replace(' in 0s', '').startsWith(expectedResult.getOutput())
+			// TODO: The file path normalizer should be taken cared as either: 1) a per Gradle task output normalizer or 2) a general path like normalizer across the entire output
+			//    The second option will need to be verbose (at least log when it's replacing paths)
+			//    Here we did a poor-man per task normalizer but it's simply because we don't detect what "look like a path", we dumbly convert \\ to /
+			if (command.args.contains('outgoingVariants')) {
+				assert OutputScrapingExecutionResult.normalize(LogContent.of(result.getPlainTextOutput())).replace(' in 0s', '').replace('\\', '/').startsWith(expectedResult.getOutput())
+
+			} else {
+				assert OutputScrapingExecutionResult.normalize(LogContent.of(result.getPlainTextOutput())).replace(' in 0s', '').startsWith(expectedResult.getOutput())
+			}
 		}
 
 		private static final Pattern BUILD_RESULT_PATTERN = Pattern.compile("BUILD (SUCCESSFUL|FAILED) in \\d+(ms|s|m|h)( \\d+(ms|s|m|h))*");
