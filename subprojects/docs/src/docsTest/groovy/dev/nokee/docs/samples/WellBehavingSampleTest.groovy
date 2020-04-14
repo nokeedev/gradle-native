@@ -12,6 +12,7 @@ import dev.gradleplugins.test.fixtures.gradle.executer.LogContent
 import dev.gradleplugins.test.fixtures.gradle.executer.OutputScrapingExecutionResult
 import dev.gradleplugins.test.fixtures.logging.ConsoleOutput
 import dev.nokee.docs.fixtures.Command
+import dev.nokee.docs.fixtures.JarCommandHelper
 import dev.nokee.docs.fixtures.SampleContentFixture
 import dev.nokee.docs.fixtures.TreeCommandHelper
 import dev.nokee.docs.fixtures.UnzipCommandHelper
@@ -197,6 +198,8 @@ abstract class WellBehavingSampleTest extends Specification {
 			return new UnzipCommand(command)
 		} else if (command.executable == 'tree') {
 			return new TreeCommand(command)
+		} else if (command.executable == 'jar') {
+			return new JarCommand(command)
 		}
 		return new GenericCommand(command)
 	}
@@ -338,6 +341,7 @@ abstract class WellBehavingSampleTest extends Specification {
 		}
 
 		File get() {
+			// TODO: Throw exception if not available
 			return OperatingSystem.current().findInPath(executable)
 		}
 	}
@@ -350,13 +354,57 @@ abstract class WellBehavingSampleTest extends Specification {
 		@Override
 		void execute(TestFile testDirectory) {
 			if (!SystemUtils.IS_OS_WINDOWS) {
-				def process = (['/bin/bash', '-c'] + ([command.executable] + command.args).join(' ')).execute(null, testDirectory)
+				def process = ([command.executable] + command.args).execute(null, testDirectory)
 				assert process.waitFor() == 0
 				def stdout = process.in.text
 				println stdout // TODO: Port this capability to other commands
 
 				assert TreeCommandHelper.Output.parse(stdout) == TreeCommandHelper.Output.parse(command.getExpectedOutput().get())
 			}
+		}
+	}
+
+	private class JarCommand extends Comm {
+		JarCommand(Command command) {
+			super(command)
+		}
+
+		@Override
+		void execute(TestFile testDirectory) {
+			def tool = new ToolFromPath('jar')
+			if (!tool.isAvailable()) {
+				String javaHome = System.getenv('JAVA_HOME')
+				if (javaHome == null && SystemUtils.IS_OS_WINDOWS) {
+					// Check known location
+					javaHome = "C:\\Program Files\\Java\\jdk1.8.0_241"
+				}
+				assert javaHome != null
+				tool = new Tool(new File(javaHome, OperatingSystem.current().getExecutableName("bin/jar")))
+			}
+			def process = ([tool.get()] + command.args).execute(null, testDirectory)
+			assert process.waitFor() == 0
+			def stdout = process.in.text
+			println stdout // TODO: Port this capability to other commands
+
+			assert JarCommandHelper.Output.parse(stdout).equals(JarCommandHelper.Output.parse(command.getExpectedOutput().get()))
+		}
+	}
+
+	private static class Tool {
+		private final File executable
+
+		Tool(File executable) {
+			// TODO: executable should not container File.separator
+			this.executable = executable
+		}
+
+		boolean isAvailable() {
+			return executable.exists()
+		}
+
+		File get() {
+			// TODO: Throw exception if not found
+			return executable
 		}
 	}
 
