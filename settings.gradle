@@ -31,6 +31,20 @@ plugins.withId('com.gradle.enterprise') {
 		buildScan {
 			termsOfServiceUrl = "https://gradle.com/terms-of-service"
 			termsOfServiceAgree = "yes"
+
+			if (System.getenv('CI')) {
+				tag 'CI'
+				value('Git Commit SHA', System.getenv('CI_COMMIT_SHA'))
+				value('GitLab Runner', System.getenv('CI_RUNNER_DESCRIPTION'))
+			} else {
+				tag 'LOCAL'
+			}
+
+			obfuscation {
+				username { name -> 'super-human' }
+				hostname { host -> 'somewhere' }
+				ipAddresses { addresses -> addresses.collect { '1.2.3.4' } }
+			}
 		}
 	}
 }
