@@ -5,6 +5,8 @@ import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils
 import dev.nokee.platform.nativebase.internal.plugins.CompatibilityRules
 
+import static org.apache.commons.io.FilenameUtils.separatorsToSystem
+
 abstract class AbstractConfigurationFunctionalTest extends AbstractFunctionalSpec {
 
 	protected TestFile getProducerBuildFile() {
@@ -28,20 +30,20 @@ abstract class AbstractConfigurationFunctionalTest extends AbstractFunctionalSpe
 	}
 
 	protected void assertSharedVariantSelected(BuildType consumer, BuildType producer) {
-		result.assertOutputContains("headerSearchPath${consumer.name.capitalize()}: [producer/includes]")
-		result.assertOutputContains("linkLibraries${consumer.name.capitalize()}: [producer/${producer.path}${importLibraryPath}]")
-		result.assertOutputContains("runtimeLibraries${consumer.name.capitalize()}: [producer/${producer.path}${sharedLibraryPath}]")
+		result.assertOutputContains("headerSearchPath${consumer.name.capitalize()}: [${separatorsToSystem('producer/includes')}]")
+		result.assertOutputContains("linkLibraries${consumer.name.capitalize()}: [${separatorsToSystem("producer/${producer.path}${importLibraryPath}")}]")
+		result.assertOutputContains("runtimeLibraries${consumer.name.capitalize()}: [${separatorsToSystem("producer/${producer.path}${sharedLibraryPath}")}]")
 	}
 
 	protected void assertFrameworkVariantSelected(BuildType consumer, BuildType producer) {
-		result.assertOutputContains("headerSearchPath${consumer.name.capitalize()}: [producer/${frameworkPath}]")
-		result.assertOutputContains("linkLibraries${consumer.name.capitalize()}: [producer/${frameworkPath}]")
-		result.assertOutputContains("runtimeLibraries${consumer.name.capitalize()}: [producer/${frameworkPath}]")
+		result.assertOutputContains("headerSearchPath${consumer.name.capitalize()}: [${separatorsToSystem("producer/${frameworkPath}")}]")
+		result.assertOutputContains("linkLibraries${consumer.name.capitalize()}: [${separatorsToSystem("producer/${frameworkPath}")}]")
+		result.assertOutputContains("runtimeLibraries${consumer.name.capitalize()}: [${separatorsToSystem("producer/${frameworkPath}")}]")
 	}
 
 	protected void assertStaticVariantSelected(BuildType consumer, BuildType producer) {
-		result.assertOutputContains("headerSearchPath${consumer.name.capitalize()}: [producer/includes]")
-		result.assertOutputContains("linkLibraries${consumer.name.capitalize()}: [producer/${producer.path}${staticLibraryPath}]")
+		result.assertOutputContains("headerSearchPath${consumer.name.capitalize()}: [${separatorsToSystem("producer/includes")}]")
+		result.assertOutputContains("linkLibraries${consumer.name.capitalize()}: [${separatorsToSystem("producer/${producer.path}${staticLibraryPath}")}]")
 		result.assertOutputContains("runtimeLibraries${consumer.name.capitalize()}: []")
 	}
 
@@ -68,7 +70,7 @@ abstract class AbstractConfigurationFunctionalTest extends AbstractFunctionalSpe
 			}
 
 			void displayResolved(Configuration c) {
-				def files = c.files.collect { it.absolutePath - "\${project.projectDir.absolutePath}/" }
+				def files = c.files.collect { (it.absolutePath - project.projectDir.absolutePath).substring(1) }
 				println("\${c.name}: \${files}")
 			}
 
