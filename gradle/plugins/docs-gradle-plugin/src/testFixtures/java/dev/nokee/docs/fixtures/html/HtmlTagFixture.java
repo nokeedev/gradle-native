@@ -12,10 +12,6 @@ public abstract class HtmlTagFixture {
 	@Getter
 	private HtmlTagPath path;
 
-	public void assertBob() {
-		System.out.println(path);
-	}
-
 	@Value
 	@EqualsAndHashCode(callSuper = true)
 	@ToString(callSuper = true)

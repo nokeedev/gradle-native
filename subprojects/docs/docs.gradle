@@ -26,7 +26,6 @@ tasks.withType(CreateAsciinema).configureEach {
 docsTest.inputs.dir(layout.buildDirectory.dir('repository'))
 docsTest.inputs.dir(layout.buildDirectory.dir("generated/samples"))
 docsTest.systemProperty('dev.nokee.docsRepository', layout.buildDirectory.dir('repository').get().asFile.absolutePath)
-docsTest.systemProperty('sampleArchiveDirectory', layout.buildDirectory.dir("generated/baked").get().asFile.absolutePath)
 docsTest.systemProperty('sampleContentDirectory', layout.buildDirectory.dir("generated/samples").get().asFile.absolutePath)
 docsTest.dependsOn('assembleSamples')
 dependencies {

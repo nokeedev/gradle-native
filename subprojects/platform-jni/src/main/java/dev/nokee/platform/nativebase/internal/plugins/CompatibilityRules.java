@@ -1,13 +1,14 @@
 package dev.nokee.platform.nativebase.internal.plugins;
 
 import dev.nokee.platform.nativebase.internal.LibraryElements;
-import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.attributes.AttributeCompatibilityRule;
 import org.gradle.api.attributes.AttributeDisambiguationRule;
 import org.gradle.api.attributes.CompatibilityCheckDetails;
 import org.gradle.api.attributes.MultipleCandidatesDetails;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.language.cpp.CppBinary;
 import org.gradle.nativeplatform.Linkage;
 
@@ -21,6 +22,7 @@ import static dev.nokee.platform.nativebase.internal.LibraryElements.DYNAMIC_LIB
 import static dev.nokee.platform.nativebase.internal.LibraryElements.FRAMEWORK_BUNDLE;
 
 public class CompatibilityRules implements Plugin<Project> {
+	private static final Logger LOGGER = Logging.getLogger(CompatibilityRules.class);
 	@Override
 	public void apply(Project project) {
 //		project.getDependencies().attributesSchema(schema -> {
@@ -39,7 +41,7 @@ public class CompatibilityRules implements Plugin<Project> {
 				matchingStrategy.getDisambiguationRules().pickFirst(new Comparator<Linkage>() {
 					@Override
 					public int compare(Linkage lhs, Linkage rhs) {
-						System.out.println("Disambiguation for linkage (" + lhs.getName() + " =?= " + rhs.getName() + ")");
+						LOGGER.debug("Disambiguation for linkage (" + lhs.getName() + " =?= " + rhs.getName() + ")");
 						if (lhs.equals(Linkage.SHARED) && rhs.equals(Linkage.SHARED)) {
 							return 0;
 						}
@@ -62,7 +64,7 @@ public class CompatibilityRules implements Plugin<Project> {
 	public static class OptimizationSelectionRule implements AttributeDisambiguationRule<Boolean> {
 		@Override
 		public void execute(MultipleCandidatesDetails<Boolean> details) {
-			System.out.println("Disambiguating 'org.gradle.native.optimized' requesting '" + details.getConsumerValue() + "' for values '" + details.getCandidateValues().stream().map(Object::toString).collect(Collectors.joining(", ")) + "'");
+			LOGGER.debug("Disambiguating 'org.gradle.native.optimized' requesting '" + details.getConsumerValue() + "' for values '" + details.getCandidateValues().stream().map(Object::toString).collect(Collectors.joining(", ")) + "'");
 			if (details.getCandidateValues().contains(Boolean.FALSE)) {
 				details.closestMatch(Boolean.FALSE);
 			}
@@ -72,8 +74,6 @@ public class CompatibilityRules implements Plugin<Project> {
 	public static class LibraryElementCompatibilityRules implements AttributeCompatibilityRule<LibraryElements> {
 		@Override
 		public void execute(CompatibilityCheckDetails<LibraryElements> details) {
-			System.out.println("COMPAT");
-			System.out.println(details.getConsumerValue().getName() + " - " + details.getProducerValue().getName());
 			if (details.getProducerValue().getName().startsWith("something-to-")) {
 				details.incompatible();
 			} else {
@@ -84,20 +84,18 @@ public class CompatibilityRules implements Plugin<Project> {
 	public static class LibraryElementDisambiguationRules implements AttributeDisambiguationRule<LibraryElements> {
 		@Override
 		public void execute(MultipleCandidatesDetails<LibraryElements> details) {
-			System.out.println("DISAMB");
-			System.out.println(details.getConsumerValue() + " - " + details.getCandidateValues().stream().map(Named::getName).collect(Collectors.joining(", ")));
 			Map<String, LibraryElements> candidates = details.getCandidateValues().stream().map(it -> new HashMap.SimpleEntry<>(it.getName(), it)).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			if (details.getConsumerValue() == null) {
-				System.out.println("no consumer value");
+				LOGGER.debug("no consumer value");
 			}
 			if (candidates.containsKey(FRAMEWORK_BUNDLE)) {
-				System.out.println("Pick framework " + candidates.get(FRAMEWORK_BUNDLE).getName());
+				LOGGER.debug("Pick framework " + candidates.get(FRAMEWORK_BUNDLE).getName());
 				details.closestMatch(candidates.get(FRAMEWORK_TYPE));
 			} else if (candidates.containsKey(DYNAMIC_LIB)) {
-				System.out.println("Pick dynamic library " + candidates.get(DYNAMIC_LIB).getName());
+				LOGGER.debug("Pick dynamic library " + candidates.get(DYNAMIC_LIB).getName());
 				details.closestMatch(candidates.get(DYNAMIC_LIB));
 			} else {
-				System.out.println("Not sure why there is an ambiguation");
+				LOGGER.debug("Not sure why there is an ambiguation");
 			}
 		}
 	}

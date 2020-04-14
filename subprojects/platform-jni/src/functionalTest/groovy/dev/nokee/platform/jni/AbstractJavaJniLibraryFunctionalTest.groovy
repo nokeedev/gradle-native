@@ -1,6 +1,5 @@
 package dev.nokee.platform.jni
 
-
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.gradleplugins.test.fixtures.sources.SourceElement
