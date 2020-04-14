@@ -163,8 +163,8 @@ tasks.withType(CreateAsciinema).configureEach {
 tasks.register('bakedDocsTest', Test) { task ->
 	task.group(LifecycleBasePlugin.VERIFICATION_GROUP)
 	task.dependsOn('assembleDocumentation')
-	task.inputs.dir(layout.buildDirectory.dir("generated/baked"))
-	task.systemProperty('bakedContentDirectory', layout.buildDirectory.dir("generated/baked").get().asFile.absolutePath)
+	task.inputs.dir(layout.buildDirectory.dir('generated/baked'))
+	task.systemProperty('bakedContentDirectory', layout.buildDirectory.dir('generated/baked').get().asFile.absolutePath)
 	task.useJUnit {
 		includeCategories('dev.nokee.docs.tags.Baked')
 	}
@@ -172,7 +172,10 @@ tasks.register('bakedDocsTest', Test) { task ->
 }
 
 tasks.named('docsTest', Test) { task ->
+	task.dependsOn('assembleSampleZips')
 	task.useJUnit {
 		excludeCategories('dev.nokee.docs.tags.Baked')
 	}
+	task.inputs.dir(layout.buildDirectory.dir('generated/zips'))
+	task.systemProperty('sampleArchiveDirectory', layout.buildDirectory.dir('generated/zips').get().asFile.absolutePath)
 }

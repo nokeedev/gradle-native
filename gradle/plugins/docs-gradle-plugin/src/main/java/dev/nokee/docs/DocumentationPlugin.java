@@ -354,6 +354,11 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			task.from(bakedFiles);
 		});
 
+		TaskProvider<Sync> assembleSampleZipsTask = tasks.register("assembleSampleZips", Sync.class, task -> {
+			task.getOutputs().cacheIf(Specs.satisfyAll());
+			task.setDestinationDir(getLayout().getBuildDirectory().dir("generated/zips").get().getAsFile());
+		});
+
 		/////////////////////////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////
@@ -387,6 +392,10 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			stageSamplesTask.configure(toCombinedSampleSourceSet(sample, Dsl.GROOVY_DSL, groovyDslSourceSet));
 			SourceSet<ZIP> groovyDslCompressedSourceSet = groovyDslSourceSet.transform(zipSample(sample, Dsl.GROOVY_DSL, projectVersion));
 			assembleSamplesTask.configure(it -> it.dependsOn(groovyDslCompressedSourceSet.getSource()));
+			assembleSampleZipsTask.configure(task -> {
+				task.getInputs().files(groovyDslCompressedSourceSet.getSource());
+				task.from(groovyDslCompressedSourceSet.getSource());
+			});
 			stageDocumentationTask.configure(task -> {
 				task.getInputs().files(groovyDslCompressedSourceSet.getSource());
 				task.into("docs/" + documentationVersion.get() + "/samples/" + sample.getName(), spec -> spec.from(groovyDslCompressedSourceSet.getSource()));
@@ -413,6 +422,10 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			stageSamplesTask.configure(toCombinedSampleSourceSet(sample, Dsl.KOTLIN_DSL, kotlinDslSourceSet));
 			SourceSet<ZIP> kotlinDslCompressedSourceSet = kotlinDslSourceSet.transform(zipSample(sample, Dsl.KOTLIN_DSL, projectVersion));
 			assembleSamplesTask.configure(it -> it.dependsOn(kotlinDslCompressedSourceSet.getSource()));
+			assembleSampleZipsTask.configure(task -> {
+				task.getInputs().files(kotlinDslCompressedSourceSet.getSource());
+				task.from(kotlinDslCompressedSourceSet.getSource());
+			});
 			stageDocumentationTask.configure(task -> {
 				task.getInputs().files(kotlinDslCompressedSourceSet.getSource());
 				task.into("docs/" + documentationVersion.get() + "/samples/" + sample.getName(), spec -> spec.from(kotlinDslCompressedSourceSet.getSource()));
