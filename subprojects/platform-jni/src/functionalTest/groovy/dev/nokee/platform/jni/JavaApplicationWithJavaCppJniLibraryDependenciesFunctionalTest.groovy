@@ -3,6 +3,7 @@ package dev.nokee.platform.jni
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.platform.jni.fixtures.GreeterAppWithJniLibrary
+import org.apache.commons.lang3.SystemUtils
 
 import java.util.concurrent.TimeUnit
 
@@ -308,7 +309,7 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 		file('application-distribution.zip').unzipTo(file('application.zip'))
 
 		then:
-		file('application.zip/application/bin/application').exec().out.contains(componentsUnderTest.expectedOutput)
+		file(scriptName('application.zip/application/bin/application')).exec().out.contains(componentsUnderTest.expectedOutput)
 	}
 
 	// TODO: Migrate to TestFile
@@ -326,5 +327,12 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 		assert process.exitValue() == 0
 		stdoutThread.join(5000)
 		stderrThread.join(5000)
+	}
+
+	String scriptName(Object path) {
+		if (SystemUtils.IS_OS_WINDOWS) {
+			return path.toString() + '.bat'
+		}
+		return path.toString()
 	}
 }
