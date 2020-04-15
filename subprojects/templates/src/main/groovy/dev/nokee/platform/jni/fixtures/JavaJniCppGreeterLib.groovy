@@ -128,9 +128,15 @@ class CppGreeter extends CppLibraryElement {
 		header = ofFile(sourceFile('headers', 'greeter.h', """
 #pragma once
 
+#ifdef _WIN32
+#define EXPORT_FUNC __declspec(dllexport)
+#else
+#define EXPORT_FUNC
+#endif
+
 #include <string>
 
-std::string say_hello(std::string name);
+std::string EXPORT_FUNC say_hello(std::string name);
 """))
 		source = ofFile(sourceFile('cpp', 'greeter_impl.cpp', """
 #include "greeter.h"
