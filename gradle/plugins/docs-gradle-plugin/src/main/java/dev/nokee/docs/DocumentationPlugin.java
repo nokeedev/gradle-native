@@ -33,6 +33,7 @@ import org.gradle.api.tasks.bundling.Zip;
 import org.gradle.api.tasks.wrapper.Wrapper;
 import org.gradle.util.GUtil;
 import org.jbake.gradle.JBakeExtension;
+import org.jbake.gradle.JBakeServeTask;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -322,6 +323,9 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			task.getOutputs().cacheIf(Specs.satisfyAll());
 			task.setDestinationDir(getLayout().getBuildDirectory().dir("generated/baked").get().getAsFile());
 			task.setIncludeEmptyDirs(false);
+		});
+		tasks.named("bakePreview", JBakeServeTask.class, task -> {
+			task.setInput(getLayout().getBuildDirectory().dir("generated/baked").get().getAsFile());
 		});
 
 		TaskProvider<Task> assembleDocumentationTask = tasks.register("assembleDocumentation", task -> task.dependsOn(stageDocumentationTask));
