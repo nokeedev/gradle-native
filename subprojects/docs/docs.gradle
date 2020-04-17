@@ -156,3 +156,9 @@ private String resolveProperty(Project project, String envVarKey, String project
 
 	return null;
 }
+
+tasks.withType(CreateAsciinema).configureEach {
+	onlyIf {
+		return !project.hasProperty('skipAllAsciinemaTasks')
+	}
+}
