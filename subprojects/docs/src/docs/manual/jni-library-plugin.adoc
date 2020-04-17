@@ -117,7 +117,7 @@ image::jni-library-configurations.png[]
 * The configurations in blue, also known as resolvable denoted by \(R), are internal to the component, for its own use
 
 // TODO: Blog why it's preferred to use the `library` extension
-To declare dependencies, it is preferred to use the `library` extension:
+To declare dependencies, it is preferred to use the link:#library-extension[`library` extension]:
 
 .Adding JVM and native dependencies
 ====
@@ -181,3 +181,24 @@ The following configuration is used by the library itself:
 `nativeRuntime__Variant__` (e.g. `nativeRuntimeDebug`) extends `nativeImplementation`::
 Used for executing the library.
 This configuration contains the native runtime libraries of the shared library.
+
+== Library Extension
+
+The plugin expose a Gradle extension to use for customizing the library.
+The extension name is `library` and is of type link:../javadoc/dev/nokee/platform/jni/JniLibraryExtension.html[JniLibraryExtension].
+
+=== Properties
+
+`targetMachines`::
+Configure the target machines of the library.
+Each target machines is a link:../javadoc/dev/nokee/platform/nativebase/TargetMachine.html[TargetMachine].
+It can be created via link:../javadoc/dev/nokee/platform/nativebase/TargetMachineFactory.html[TargetMachineFactory].
+
+`variants`::
+A view of all the variants available for the library.
+Each variant is a link:../javadoc/dev/nokee/platform/jni/JniLibrary.html[JniLibrary].
+
+=== Methods
+
+`dependencies(action)`::
+Configure the dependencies of the JNI library component.
