@@ -57,6 +57,7 @@
 			<li><a ${anchorOf('manual/user-manual.html')}>Docs Home</a></li>
 			<li><a ${anchorOf('samples/')}>Samples</a></li>
 			<li><a ${anchorOf('release-notes.html')}>Release Notes</a></li>
+			<% if (!content.uri.contains('0.1.0')) {%><li><a ${anchorOf('javadoc/index.html')}>Nokee Javadoc API</a></li><%}%>
 		</ul>
 		<h3 id="user-manual">User Manual </h3>
 		<ul>
