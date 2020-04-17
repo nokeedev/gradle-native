@@ -335,11 +335,18 @@ abstract class WellBehavingSampleTest extends Specification {
 
 		@Override
 		void execute(TestFile testDirectory) {
-			def process = (['/bin/bash', '-c'] + ([command.executable] + command.args).join(' ')).execute(null, testDirectory)
+			def scriptCommandLine = ['/bin/bash', '-c']
+			if (SystemUtils.IS_OS_WINDOWS) {
+				scriptCommandLine = ['cmd', '/c']
+			}
+			def executable = FilenameUtils.separatorsToSystem(command.executable)
+			def process = (scriptCommandLine + ([executable] + command.args).join(' ')).execute(null, testDirectory)
 			assert process.waitFor() == 0
 			def stdout = process.in.text
 			println stdout // TODO: Port this capability to other commands
-			assert stdout.startsWith(command.getExpectedOutput().get())
+
+			// TODO: Not technically right to use LogContent as it has some opinion on Gradle execution
+			assert LogContent.of(stdout).withNormalizedEol().startsWith(command.getExpectedOutput().get())
 		}
 	}
 }
