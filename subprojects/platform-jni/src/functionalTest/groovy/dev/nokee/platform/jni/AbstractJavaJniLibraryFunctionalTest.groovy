@@ -45,7 +45,7 @@ abstract class AbstractJavaJniLibraryFunctionalTest extends AbstractInstalledToo
 		succeeds('assemble')
 
 		then:
-		file('build/libs').assertHasDescendants(sharedLibraryName('main/shared/jni-greeter'), 'jni-greeter.jar')
+		file('build/libs').assertHasDescendants(*expectSharedLibrary('main/shared/jni-greeter'), 'jni-greeter.jar')
 		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', sharedLibraryName('jni-greeter'))
 	}
 
@@ -78,7 +78,7 @@ abstract class AbstractJavaJniLibraryFunctionalTest extends AbstractInstalledToo
         succeeds 'assemble'
 
         !file('build').exists()
-		file('output/libs').assertHasDescendants(sharedLibraryName('main/shared/jni-greeter'), 'jni-greeter.jar')
+		file('output/libs').assertHasDescendants(*expectSharedLibrary('main/shared/jni-greeter'), 'jni-greeter.jar')
 		jar("output/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', sharedLibraryName('jni-greeter'))
     }
 
@@ -145,4 +145,24 @@ abstract class AbstractJavaJniLibraryFunctionalTest extends AbstractInstalledToo
 	protected abstract void makeSingleProject()
 
 	abstract SourceElement getComponentUnderTest()
+
+	// TODO: Move to native fixtures
+	private List<String> expectSharedLibrary(Object path) {
+		List<String> result = new ArrayList<String>()
+
+		result.add(sharedLibraryName(path))
+		if (toolChain.isVisualCpp()) {
+			result.add(importLibraryName(path))
+			result.add(exportFileName(path))
+		}
+		return result
+	}
+
+	private String importLibraryName(Object path) {
+		return path.toString() + '.lib'
+	}
+
+	private String exportFileName(Object path) {
+		return path.toString() + '.exp'
+	}
 }
