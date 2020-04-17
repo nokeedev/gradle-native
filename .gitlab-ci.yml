@@ -59,7 +59,7 @@ deploy:
     - master
 
 
-publish jbakes:
+publish (JBake Templates):
   stage: build
   script:
     - ./gradlew :docs:publishJbakePublicationToS3Repository
@@ -78,7 +78,7 @@ publish jbakes:
     paths:
       - subprojects/docs/build/**/*
 
-publish baked:
+publish (docs nightly):
   stage: build
   script:
     - ./gradlew :docs:publishBakedPublicationToS3Repository
