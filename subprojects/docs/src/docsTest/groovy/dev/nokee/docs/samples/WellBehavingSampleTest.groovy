@@ -251,9 +251,13 @@ abstract class WellBehavingSampleTest extends Specification {
 
 		@Override
 		void execute(TestFile testDirectory) {
-			def process = (['/bin/bash', '-c'] + [([command.executable] + command.args).join(' ')]).execute(null, testDirectory)
-			assert process.waitFor() == 0
-			assert process.in.text.startsWith(command.expectedOutput.get())
+			if (!SystemUtils.IS_OS_WINDOWS) {
+				def scriptCommandLine = ['/bin/bash', '-c']
+				def executable = command.executable
+				def process = (scriptCommandLine + [([executable] + command.args).join(' ')]).execute(null, testDirectory)
+				assert process.waitFor() == 0
+				assert process.in.text.startsWith(command.expectedOutput.get())
+			}
 		}
 	}
 
