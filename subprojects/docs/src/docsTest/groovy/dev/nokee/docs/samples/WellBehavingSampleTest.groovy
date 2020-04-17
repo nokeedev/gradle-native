@@ -15,11 +15,13 @@ import dev.nokee.docs.fixtures.Command
 import dev.nokee.docs.fixtures.SampleContentFixture
 import dev.nokee.docs.fixtures.UnzipCommandHelper
 import dev.nokee.docs.fixtures.html.HtmlTag
+import dev.nokee.docs.tags.Baked
 import groovy.transform.ToString
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.internal.os.OperatingSystem
 import org.junit.Rule
+import org.junit.experimental.categories.Category
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -118,6 +120,7 @@ abstract class WellBehavingSampleTest extends Specification {
 		commands*.assertNoTimingInformationOnBuildResult()
 	}
 
+	@Category(Baked)
 	def "has the twitter player meta data"() {
 		expect:
 		def fixture = new SampleContentFixture(sampleName)

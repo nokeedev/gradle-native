@@ -2,9 +2,12 @@ package dev.nokee.docs
 
 import dev.nokee.docs.fixtures.html.BakedHtmlFixture
 import dev.nokee.docs.fixtures.html.HtmlTag
+import dev.nokee.docs.tags.Baked
 import groovy.json.JsonSlurper
+import org.junit.experimental.categories.Category
 import spock.lang.Specification
 
+@Category(Baked)
 class ProperBakedHtmlTest extends Specification {
 	def "has alt text on all images"() {
 		expect:

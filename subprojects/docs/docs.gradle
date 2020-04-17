@@ -25,12 +25,10 @@ tasks.withType(CreateAsciinema).configureEach {
 // For now, it's ok, let's solve this when it becomes a real problem.
 docsTest.inputs.dir(layout.buildDirectory.dir('repository'))
 docsTest.inputs.dir(layout.buildDirectory.dir("generated/samples"))
-docsTest.inputs.dir(layout.buildDirectory.dir("generated/baked"))
 docsTest.systemProperty('dev.nokee.docsRepository', layout.buildDirectory.dir('repository').get().asFile.absolutePath)
 docsTest.systemProperty('sampleArchiveDirectory', layout.buildDirectory.dir("generated/baked").get().asFile.absolutePath)
 docsTest.systemProperty('sampleContentDirectory', layout.buildDirectory.dir("generated/samples").get().asFile.absolutePath)
-docsTest.systemProperty('bakedContentDirectory', layout.buildDirectory.dir("generated/baked").get().asFile.absolutePath)
-docsTest.dependsOn('assembleSamples', "assembleDocumentation")
+docsTest.dependsOn('assembleSamples')
 dependencies {
 	docsTestImplementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
 	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
@@ -160,5 +158,22 @@ private String resolveProperty(Project project, String envVarKey, String project
 tasks.withType(CreateAsciinema).configureEach {
 	onlyIf {
 		return !project.hasProperty('skipAllAsciinemaTasks')
+	}
+}
+
+tasks.register('bakedDocsTest', Test) { task ->
+	task.group(LifecycleBasePlugin.VERIFICATION_GROUP)
+	task.dependsOn('assembleDocumentation')
+	task.inputs.dir(layout.buildDirectory.dir("generated/baked"))
+	task.systemProperty('bakedContentDirectory', layout.buildDirectory.dir("generated/baked").get().asFile.absolutePath)
+	task.useJUnit {
+		includeCategories('dev.nokee.docs.tags.Baked')
+	}
+	tasks.docsTest.copyTo(task)
+}
+
+tasks.named('docsTest', Test) { task ->
+	task.useJUnit {
+		excludeCategories('dev.nokee.docs.tags.Baked')
 	}
 }
