@@ -56,7 +56,7 @@ body {
 /* Side Navigation styles */
 /* Docs Navigation */
 .docs-navigation {
-	width: 14rem;
+	width: 13.75rem;
 	display: table;
 }
 
@@ -138,14 +138,14 @@ body {
 }
 
 /* 48em = 768px */
-@media (max-width: 45.25rem) {
+@media (max-width: 45rem) {
 	.docs-navigation {
 		width: 100%;
 		background-color: white;
 	}
 }
 
-@media (min-width: 45.25rem) {
+@media (min-width: 45rem) {
 	.docs-navigation .navigation-items {
 		clear: none;
 		max-height: none;
@@ -220,24 +220,24 @@ body {
 	position: relative;
 }
 
-@media screen and (min-width: 64.25rem) {
+@media screen and (min-width: 64rem) {
 	.docs-navigation {
 		display: block;
 		flex: 0 0 auto;
-		width: 14rem;
+		width: 13.75rem;
 	}
 }
 
-@media screen and (min-width: 75.25rem) and (min-height: 48rem) {
+@media screen and (min-width: 75rem) and (min-height: 48rem) {
 	.docs-navigation {
-		flex-basis: 14rem;
+		flex-basis: 13.75rem;
 	}
 }
 
-@media screen and (min-width: 75.25rem) and (min-height: 48rem) {
+@media screen and (min-width: 75rem) and (min-height: 48rem) {
 	/* Sneaky way to make room for TOC */
 	.secondary-navigation {
-		flex: 0 0 14rem;
+		flex: 0 0 13.75rem;
 	}
 }
 
@@ -313,12 +313,12 @@ body {
 }
 
 /* Fixed intra-chapter navigation for desktops */
-@media screen and (min-width: 75.25rem) and (min-height: 48rem) {
+@media screen and (min-width: 75rem) and (min-height: 48rem) {
 	.chapter #content #toc {
 		position: fixed;
 		left: calc(50% + 380px);
 		top: 80px;
-		width: 14rem;
+		width: 13.75rem;
 		padding-top: 15px;
 		font-size: 1rem;
 		background-color: #F7F7F8;
