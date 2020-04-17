@@ -3,10 +3,14 @@
 :jbake-tags: {jbake-version}, jvm, jni, objective c, objective cpp
 :jbake-description: See what version {jbake-version} of the Gradle Nokee plugins has to offer!
 
-The Nokee team is excited to announce the first release that will kickstart the new wave of native development in Gradle.
+The Nokee team is excited to announce the second release onward to a better native development experience in Gradle.
 
-This release focus on adding <<release-notes.adoc#sec:jni_libraries,support for building JVM libraries using the Java Native Interface (JNI) runtime>>, writing <<release-notes.adoc#sec:documentation,helpful documentation>>, and creating <<release-notes.adoc#sec:infrastructure,the infrastructure to ensure quality releases in the future>>.
+This release focus on adding <<release-notes.adoc#sec:macos-framework,support for macOS framework>>, adding <<release-notes.adoc#sec:objc-objcpp,support for Objective-C and Objective-C++ implementation languages>>, extend <<release-notes.adoc#sec:testing-coverage,automated test coverage to macOS, Linux, and Windows>>, and adding <<release-notes.adoc#sec:jni-resource-path,configuration for the resource path for the native libraries embedded inside the Java Native Interface (JNI) library>>.
 
+Since the last release, we tried many experiments for the work to come.
+You can read all about them in the link:/blog/release-0.2-announcement[announcement blog for this release].
+
+[[sec:getting-started]]
 == Getting Started
 
 To use the Nokee plugins in Gradle, simply copy the following code to the settings script of your project, then apply any of the <<manual/plugin-references.adoc#,Nokee plugins>> to your build using the link:{gradle-user-manual}/plugins.html#sec:plugins_block[plugins DSL block]:
@@ -61,41 +65,43 @@ pluginManagement {
 =====
 ====
 
-[[sec:jni_libraries]]
-== Java Native Interface (JNI) Libraries
+[[sec:macos-framework]]
+== Framework Support on macOS
 
-The Nokee plugins let you build JNI libraries link:samples/java-cpp-jni-library/[as a single project] or by link:samples/jni-library-composing/[composing multiple projects together].
-The native component of the JNI library can be implemented link:samples/java-c-jni-library/[in C] or link:samples/java-cpp-jni-library/[in {cpp}].
-More implementation language support will follow in future releases.
-You can link:samples/jni-library-with-junit-test/[test your JNI library with JUnit as you would with any Java library].
-Finally, link:samples/jni-library-with-target-machines/[the native component of the JNI library can target different machines].
+The link:samples/jni-library-with-framework-dependencies[macOS framework dependencies are supported as normal dependencies].
+It is also possible to depend on frameworks within other frameworks (also known as subframework).
+For example, `JavaNativeFoundation` is a subframework of `JavaVM` framework and is required for Cocoa development in Java through the JNI runtime.
+You can depend on subframework by requesting the link:{gradle-user-manual}/dependency_management_terminology.html#sub:terminology_capability[capability] matching the target subframework.
 
-For more information on the JNI library plugin, <<manual/jni-library-plugin.adoc#,read the reference chapter in the user manual>>.
+Because the underlying implementation relies on Gradle core native infrastructure, there are some inherent limitations.
+We will work out those limitations in future releases.
+The most important limitation is the ordering of the framework against header search paths and libraries to link.
+The frameworks should be allowed to interleave with other compiler and linker inputs.
+Instead, the frameworks are grouped on the command line passed to the compiler and linker.
+Also, the files inside a framework don't participate in the up-to-date checking for the compiler and linker tasks.
+However, since the framework support is limited to system frameworks, it is unlikely to change between build invocation, causing build issues.
+Finally, the dynamic version resolution of frameworks is not supported in this release.
 
-The JNI Library plugin is limited to JDK 8+ for header generation; the previous JDK versions use `javah`.
-The target platforms are limited to the three major operating systems - e.g. Windows, macOS, Linux - and to the Intel architecture - e.g. x86 and x86_64.
-The implementation language of the native component for the JNI library is limited to C and {cpp}.
-Finally, publishing the JNI libraries to binary repositories requires customization of your build script, see link:samples/publish-jni-library/[this sample to learn more].
-If any of those limitations are a deal-breaker, link:https://github.com/nokeedev/gradle-native/issues/new[please open an issue so we can promptly resolve the issue for you].
+[[sec:jni-resource-path]]
+== Resource Path Customization
 
-[[sec:documentation]]
-== Documentation
+The link:samples/jni-library-with-resource-path[mapping of the native runtime libraries inside the JNI library JAR is customizable per-variant].
+It will help with the migration from existing custom JNI support to the Nokee's JNI library support.
 
-The documentation portal was also completed for this release which includes a <<manual/getting-started.adoc#,getting started>>, <<manual/plugin-references.adoc#,plugin references>>, <<manual/terminology.adoc#,terminology>> and link:samples/[downloadable samples].
+[[sec:objc-objcpp]]
+== Objective-C and Objective-{cpp} Support
 
-The documentation will keep getting better over time.
-If you have any suggestions for content, demonstrations, tutorials or general improvements, link:https://github.com/nokeedev/gradle-native/issues/new[please open a new issue].
+The JNI library plugin now support link:samples/java-objective-c-jni-library[Objective-C] and link:samples/java-objective-cpp-jni-library[Objective-{cpp}] implementation language via <<manual/plugin-references.adoc#sec:native-language-plugins,language plugins>>.
+They work just like the other, C and {cpp}, language plugins.
 
-[[sec:infrastructure]]
-== Infrastructure
+[[sec:testing-coverage]]
+== Plugins Testing Coverage
 
-This release prepared the infrastructure for <<manual/user-manual.adoc#,the documentation portal to provide automated nightly releases of the plugins>>.
-It also rolled out a link:samples/[sample infrastructure to allow users to see how particular use cases are solved quickly].
-There is also an ongoing effort in providing appropriate coverage for a broad set of architectures, operating systems and toolchains.
-We are committed to quality and features will only be available if we have test coverage for them.
-For this commitment, we are extracting relevant parts from the link:https://github.com/gradle/gradle[Gradle codebase] to ease our testing needs.
-You can follow this ongoing effort over on the link:https://github.com/gradle-plugins/toolbox[Gradle Plugins Development repository].
+This release continues improving the testing coverage to prevent unintended breakage in future releases.
+Nokee's continuous integration infrastructure covers all three major operating systems (e.g. Windows, macOS and Linux).
+Native toolchains coverage is still partial and will be improved in the next release.
 
+[[sec:reporting-problems]]
 == Reporting Problems
 If you find a problem with any of the plugins, please file a bug on https://github.com/nokeedev/gradle-native[GitHub Issues] adhering to our issue guidelines.
 If you're not sure you're encountering a bug, please https://discuss.gradle.org/tags/c/help-discuss/14/native[use the Gradle user forum] or the https://app.slack.com/client/TA7ULVA9K/CDDGUSJ7R[[Gradle Community Slack].
