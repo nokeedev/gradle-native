@@ -3,5 +3,7 @@
 :jbake-tags: sample, native, gradle, c++, c, jni
 :jbake-description: See the Nokee plugins in action for building native project in Gradle.
 
-// publishing JNI library
-// Mixing JVM languages
+You are having trouble with a specific use case that you feel Nokee plugins should help solve?
+Why not link:https://github.com/nokeedev/gradle-native/issues[opening an issue with a description of your use case].
+We will do our best to deliver a high-quality demonstration.
+We may go as far as implement any missing features if there is a need.
