@@ -21,7 +21,6 @@ dependencies {
 	implementation 'commons-io:commons-io:2.6'
 	implementation 'org.apache.commons:commons-exec:1.3'
 
-	def lombokVersion = '1.18.12'
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
@@ -30,8 +29,8 @@ dependencies {
 
 	testImplementation platform('org.spockframework:spock-bom:1.2-groovy-2.5')
 	testImplementation 'org.spockframework:spock-core'
-	testImplementation 'dev.gradleplugins:gradle-api:6.2.1'
-	testImplementation('dev.gradleplugins:gradle-fixtures:0.0.41') {
+	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	testImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {
 		capabilities {
 			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
 		}
@@ -67,7 +66,7 @@ gradlePlugin {
 		}
 	}
 	extra {
-		minimumGradleVersion = '6.2.1'
+		minimumGradleVersion = project.minimumGradleVersion
 		withJavadocJar()
 		withSourcesJar()
 	}

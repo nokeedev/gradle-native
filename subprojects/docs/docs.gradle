@@ -34,16 +34,15 @@ docsTest.dependsOn('assembleSamples', "assembleDocumentation")
 dependencies {
 	docsTestImplementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
 	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
-	docsTestImplementation('dev.gradleplugins:gradle-fixtures:0.0.41') {
+	docsTestImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {
 		capabilities {
 			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
 		}
 	}
-	docsTestCompileOnly 'dev.gradleplugins:gradle-api:6.2.1' // Is this really needed?
+	docsTestCompileOnly "dev.gradleplugins:gradle-api:${minimumGradleVersion}" // Is this really needed?
 	docsTestCompileOnly gradleTestKit() // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
-	docsTestRuntimeOnly 'dev.gradleplugins:gradle-api:6.2.1' // Because of the gradle-fixtures AbstractInstalledToolChainIntegrationSpec
+	docsTestRuntimeOnly "dev.gradleplugins:gradle-api:${minimumGradleVersion}" // Because of the gradle-fixtures AbstractInstalledToolChainIntegrationSpec
 
-	def lombokVersion = '1.18.12'
 	docsTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 	docsTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
