@@ -8,6 +8,20 @@ build:
     paths:
       - subprojects/docs/build/
 
+test (macos):
+  stage: test
+  # FIXME: Shouldn't need to ignore the Asciinema tasks, they should just not be wired in for testing
+  script: ./gradlew check --scan --continue -x :docs:compileDocsDot -PskipAllAsciinemaTasks -x :docs:compileDocsAsciicast
+  variables:
+    LANG: en_CA.UTF-8
+  tags:
+    - os=macos
+  artifacts:
+    when: on_failure
+    paths:
+      - subprojects/platform-jni/build
+      - subprojects/docs/build
+
 test (linux):
   stage: test
   # FIXME: Shouldn't need to ignore the Asciinema tasks, they should just not be wired in for testing
