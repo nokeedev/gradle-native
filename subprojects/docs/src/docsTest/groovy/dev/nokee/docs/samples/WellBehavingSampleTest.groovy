@@ -16,6 +16,7 @@ import dev.nokee.docs.fixtures.SampleContentFixture
 import dev.nokee.docs.fixtures.UnzipCommandHelper
 import dev.nokee.docs.fixtures.html.HtmlTag
 import groovy.transform.ToString
+import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.internal.os.OperatingSystem
 import org.junit.Rule
@@ -269,9 +270,21 @@ abstract class WellBehavingSampleTest extends Specification {
 
 		@Override
 		void execute(TestFile testDirectory) {
-			def process = (['/bin/bash', '-c'] + ([command.executable] + command.args).join(' ')).execute(null, testDirectory)
+			def scriptCommandLine = ['/bin/bash', '-c']
+			if (SystemUtils.IS_OS_WINDOWS) {
+				scriptCommandLine = ['cmd', '/c']
+			}
+
+			def executable = command.executable
+			if (SystemUtils.IS_OS_WINDOWS) {
+				// Trust me? Not too sure if it's equal.
+				executable = 'move'
+			}
+			def process = (scriptCommandLine + ([executable] + command.args.collect { FilenameUtils.separatorsToSystem(it) }).join(' ')).execute(null, testDirectory)
 			assert process.waitFor() == 0
-			assert process.in.text.trim().empty
+			if (!SystemUtils.IS_OS_WINDOWS) {
+				assert process.in.text.trim().empty
+			}
 		}
 	}
 
