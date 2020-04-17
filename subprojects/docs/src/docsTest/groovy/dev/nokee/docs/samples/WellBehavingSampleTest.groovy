@@ -38,7 +38,7 @@ abstract class WellBehavingSampleTest extends Specification {
 					repositories {
 						maven {
 							name = 'docs'
-							url = '${System.getProperty('dev.nokee.docsRepository')}'
+							url = '${new File(System.getProperty("dev.nokee.docsRepository")).toURI().toString()}'
 						}
 					}
 				}
