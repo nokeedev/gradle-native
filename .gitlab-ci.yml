@@ -42,14 +42,11 @@ test (windows):
     - os=windows
   variables:
     GIT_CLONE_PATH: $CI_BUILDS_DIR/gn
-  #artifacts:
-  #  when: on_failure
-  #  paths:
-  #    - subprojects/platform-jni/build/tmp/test files
-  #    - subprojects/platform-jni/build/reports/tests
-  #    - subprojects/docs/build/repository
-  #    - subprojects/docs/build/tmp/test files
-  #    - subprojects/docs/build/reports/tests
+  artifacts:
+    when: on_failure
+    paths:
+      - subprojects/platform-jni/build
+      - subprojects/docs/build
 
 test (freebsd):
   stage: test
