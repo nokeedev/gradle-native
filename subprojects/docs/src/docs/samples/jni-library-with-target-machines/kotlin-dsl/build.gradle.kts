@@ -9,7 +9,6 @@ library {
 	targetMachines.set(listOf(
 		machines.windows.x86_64,
 		machines.macOS.x86_64,
-		machines.linux.x86_64,
-		machines.freeBSD.x86_64
+		machines.linux.x86_64
 	))
 }
