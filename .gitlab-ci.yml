@@ -48,21 +48,6 @@ test (windows):
       - subprojects/platform-jni/build
       - subprojects/docs/build
 
-test (freebsd):
-  stage: test
-  # FIXME: Shouldn't need to ignore the Asciinema tasks, they should just not be wired in for testing
-  script: ./gradlew check --scan --continue -x :docs:compileDocsDot -PskipAllAsciinemaTasks -x :docs:compileDocsAsciicast
-  tags:
-    - os=freebsd
-  #artifacts:
-  #  when: on_failure
-  #  paths:
-  #    - subprojects/platform-jni/build/tmp/test files
-  #    - subprojects/platform-jni/build/reports/tests
-  #    - subprojects/docs/build/repository
-  #    - subprojects/docs/build/tmp/test files
-  #    - subprojects/docs/build/reports/tests
-
 deploy:
   stage: deploy
   script: ./gradlew bintrayUpload
