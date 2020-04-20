@@ -147,6 +147,39 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 		succeeds 'verifyBinariesPlatformType'
 	}
 
+	def "can link against the right library variant from dependency"() {
+		makeSingleProject()
+		def fixture = new JavaJniCppGreeterLib('jni-greeter')
+		fixture.withoutNativeImplementation().writeToProject(testDirectory)
+		fixture.nativeImplementation.asLib().writeToProject(file('cpp-library'))
+		file('cpp-library/build.gradle') << """
+			plugins {
+				id 'cpp-library'
+			}
+
+			library.targetMachines = [machines.${currentHostOperatingSystemFamilyDsl}.x86, machines.${currentHostOperatingSystemFamilyDsl}.x86_64]
+		"""
+		settingsFile << '''
+			include 'cpp-library'
+		'''
+		buildFile << """
+			library {
+				targetMachines = [machines.${currentHostOperatingSystemFamilyDsl}.x86, machines.${currentHostOperatingSystemFamilyDsl}.x86_64]
+				dependencies {
+					nativeImplementation project(':cpp-library')
+				}
+			}
+		"""
+
+		when:
+		succeeds(':jarX86-64')
+
+		then:
+		result.assertTasksExecutedAndNotSkipped(':cpp-library:compileDebugX86-64Cpp', ':cpp-library:linkDebugX86-64',
+			":compileMain${currentOsFamilyName.capitalize()}x86-64SharedLibraryMainCpp", ":linkMain${currentOsFamilyName.capitalize()}x86-64SharedLibrary",
+			':compileJava', ':jarX86-64')
+	}
+
 	protected String configureProjectGroup(String groupId) {
 		return """
 			group = '${groupId}'

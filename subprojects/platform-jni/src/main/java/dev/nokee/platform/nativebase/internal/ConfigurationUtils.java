@@ -12,6 +12,8 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.internal.Cast;
 import org.gradle.language.cpp.CppBinary;
 import org.gradle.nativeplatform.Linkage;
+import org.gradle.nativeplatform.MachineArchitecture;
+import org.gradle.nativeplatform.OperatingSystemFamily;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -127,7 +129,7 @@ public abstract class ConfigurationUtils {
 		@Inject
 		protected abstract ObjectFactory getObjects();
 
-		IncomingConfigurationAction asDebug() {
+		public IncomingConfigurationAction asDebug() {
 			return getObjects().newInstance(IncomingConfigurationAction.class,
 				spec.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 					.putAll(spec.attributes)
@@ -136,12 +138,21 @@ public abstract class ConfigurationUtils {
 					.build()));
 		}
 
-		IncomingConfigurationAction asRelease() {
+		public IncomingConfigurationAction asRelease() {
 			return getObjects().newInstance(IncomingConfigurationAction.class,
 				spec.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 					.putAll(spec.attributes)
 					.put(CppBinary.DEBUGGABLE_ATTRIBUTE, Boolean.TRUE)
 					.put(CppBinary.OPTIMIZED_ATTRIBUTE, Boolean.TRUE)
+					.build()));
+		}
+
+		public IncomingConfigurationAction forTargetMachine(DefaultTargetMachine targetMachine) {
+			return getObjects().newInstance(IncomingConfigurationAction.class,
+				spec.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
+					.putAll(spec.attributes)
+					.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, getObjects().named(OperatingSystemFamily.class, targetMachine.getOperatingSystemFamily().getName()))
+					.put(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, getObjects().named(MachineArchitecture.class, targetMachine.getArchitecture().getName()))
 					.build()));
 		}
 

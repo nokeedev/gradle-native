@@ -4,13 +4,13 @@ import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.internal.BinaryInternal;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.jni.JniLibrary;
+import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
@@ -18,7 +18,6 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.jvm.tasks.Jar;
-import org.gradle.language.cpp.CppBinary;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -52,15 +51,9 @@ public abstract class JniLibraryInternal implements JniLibrary {
 		this.targetMachine = targetMachine;
 		this.groupId = groupId;
 
-		Usage runtimeUsage = getObjectFactory().named(Usage.class, Usage.NATIVE_RUNTIME);
-		// incoming runtime libraries (i.e. shared libraries) - this represents the libraries we consume
-		nativeRuntime = configurations.create(names.getConfigurationName("nativeRuntime"), it -> {
-			it.setCanBeConsumed(false);
-			it.extendsFrom(implementation);
-			it.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, runtimeUsage);
-			it.getAttributes().attribute(CppBinary.DEBUGGABLE_ATTRIBUTE, true);
-			it.getAttributes().attribute(CppBinary.OPTIMIZED_ATTRIBUTE, false);
-		});
+		ConfigurationUtils configurationUtils = objectFactory.newInstance(ConfigurationUtils.class);
+		nativeRuntime = configurations.create(names.getConfigurationName("nativeRuntime"), configurationUtils.asIncomingRuntimeLibrariesFrom(implementation).forTargetMachine(targetMachine));
+
 		getNativeRuntimeFiles().from(nativeRuntime);
 		getResourcePath().convention(providers.provider(() -> names.getResourcePath(groupId)));
 
