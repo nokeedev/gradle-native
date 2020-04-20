@@ -5,7 +5,8 @@
 
 The Nokee team is excited to announce the second release onward to a better native development experience in Gradle.
 
-This release focus on adding <<release-notes.adoc#sec:macos-framework,support for macOS framework>>, adding <<release-notes.adoc#sec:objc-objcpp,support for Objective-C and Objective-C++ implementation languages>>, extend <<release-notes.adoc#sec:testing-coverage,automated test coverage to macOS, Linux, and Windows>>, and adding <<release-notes.adoc#sec:jni-resource-path,configuration for the resource path for the native libraries embedded inside the Java Native Interface (JNI) library>>.
+This release focus on adding <<release-notes.adoc#sec:macos-framework,support for macOS framework>> as well as adding <<release-notes.adoc#sec:objc-objcpp,support for Objective-C and Objective-C++ implementation languages>>.
+It extends <<release-notes.adoc#sec:testing-coverage,automated test coverage to macOS, Linux, and Windows>> and adds <<release-notes.adoc#sec:jni-resource-path,configuration for the resource path for the native libraries embedded inside the Java Native Interface (JNI) library>>.
 
 Since the last release, we tried many experiments for the work to come.
 You can read all about them in the link:/blog/release-0.2-announcement[announcement blog for this release].
@@ -68,7 +69,7 @@ pluginManagement {
 [[sec:macos-framework]]
 == Framework Support on macOS
 
-The link:samples/jni-library-with-framework-dependencies[macOS framework dependencies are supported as normal dependencies].
+The Nokee plugin support link:samples/jni-library-with-framework-dependencies[macOS framework dependencies as normal dependencies].
 It is also possible to depend on frameworks within other frameworks (also known as subframework).
 For example, `JavaNativeFoundation` is a subframework of `JavaVM` framework and is required for Cocoa development in Java through the JNI runtime.
 You can depend on subframework by requesting the link:{gradle-user-manual}/dependency_management_terminology.html#sub:terminology_capability[capability] matching the target subframework.
@@ -77,10 +78,10 @@ Because the underlying implementation relies on Gradle core native infrastructur
 We will work out those limitations in future releases.
 The most important limitation is the ordering of the framework against header search paths and libraries to link.
 The frameworks should be allowed to interleave with other compiler and linker inputs.
-Instead, the frameworks are grouped on the command line passed to the compiler and linker.
+Instead, the command line passed to the compiler and linker group the frameworks.
 Also, the files inside a framework don't participate in the up-to-date checking for the compiler and linker tasks.
 However, since the framework support is limited to system frameworks, it is unlikely to change between build invocation, causing build issues.
-Finally, the dynamic version resolution of frameworks is not supported in this release.
+Finally, this release doesn't support dynamic version resolution of frameworks.
 
 [[sec:jni-resource-path]]
 == Resource Path Customization
@@ -91,7 +92,7 @@ It will help with the migration from existing custom JNI support to the Nokee's 
 [[sec:objc-objcpp]]
 == Objective-C and Objective-{cpp} Support
 
-The JNI library plugin now support link:samples/java-objective-c-jni-library[Objective-C] and link:samples/java-objective-cpp-jni-library[Objective-{cpp}] implementation language via <<manual/plugin-references.adoc#sec:native-language-plugins,language plugins>>.
+The JNI library plugin now support link:samples/java-objective-c-jni-library[Objective-C] and link:samples/java-objective-cpp-jni-library[Objective-{cpp}] implementation language via <<manual/plugin-references.adoc#sec:native-language-plugins,new language plugins>>.
 They work just like the other, C and {cpp}, language plugins.
 
 [[sec:testing-coverage]]
@@ -99,7 +100,8 @@ They work just like the other, C and {cpp}, language plugins.
 
 This release continues improving the testing coverage to prevent unintended breakage in future releases.
 Nokee's continuous integration infrastructure covers all three major operating systems (e.g. Windows, macOS and Linux).
-Native toolchains coverage is still partial and will be improved in the next release.
+Native toolchains and Gradle distribution coverage are still partial.
+Improvement will come in the next release.
 
 [[sec:reporting-problems]]
 == Reporting Problems
