@@ -52,7 +52,7 @@ public abstract class JniLibraryInternal implements JniLibrary {
 		this.groupId = groupId;
 
 		ConfigurationUtils configurationUtils = objectFactory.newInstance(ConfigurationUtils.class);
-		nativeRuntime = configurations.create(names.getConfigurationName("nativeRuntime"), configurationUtils.asIncomingRuntimeLibrariesFrom(implementation).forTargetMachine(targetMachine));
+		nativeRuntime = configurations.create(names.getConfigurationName("nativeRuntime"), configurationUtils.asIncomingRuntimeLibrariesFrom(implementation).forTargetMachine(targetMachine).asDebug());
 
 		getNativeRuntimeFiles().from(nativeRuntime);
 		getResourcePath().convention(providers.provider(() -> names.getResourcePath(groupId)));

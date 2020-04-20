@@ -59,7 +59,7 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 
 		ConfigurationUtils configurationUtils = objectFactory.newInstance(ConfigurationUtils.class);
 		this.compileConfiguration = configurations.create(names.getConfigurationName("headerSearchPaths"), configurationUtils.asIncomingHeaderSearchPathFrom(implementation));
-		this.linkConfiguration = configurations.create(names.getConfigurationName("nativeLink"), configurationUtils.asIncomingLinkLibrariesFrom(implementation).forTargetMachine(targetMachine));
+		this.linkConfiguration = configurations.create(names.getConfigurationName("nativeLink"), configurationUtils.asIncomingLinkLibrariesFrom(implementation).forTargetMachine(targetMachine).asDebug());
 	}
 
 	public TaskProvider<LinkSharedLibrary> getLinkTask() {
