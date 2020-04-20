@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.google.common.collect.ImmutableMap.of;
-import static dev.nokee.platform.nativebase.internal.ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE;
-import static dev.nokee.platform.nativebase.internal.ArtifactSerializationTypes.DESERIALIZED;
 import static dev.nokee.platform.nativebase.internal.ConfigurationUtils.ConfigurationSpec.Type.INCOMING;
 import static dev.nokee.platform.nativebase.internal.ConfigurationUtils.ConfigurationSpec.Type.OUTGOING;
 import static java.util.Collections.emptyMap;
@@ -47,8 +45,6 @@ public abstract class ConfigurationUtils {
 			ConfigurationSpec.asIncoming().withAttributes(
 				ImmutableMap.<Attribute<?>, Object>builder()
 					.put(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))
-					.put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.FRAMEWORK_BUNDLE))
-					.put(ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, DESERIALIZED)
 					.build()));
 	}
 
@@ -57,8 +53,6 @@ public abstract class ConfigurationUtils {
 			ConfigurationSpec.asIncoming(fromBucket).withAttributes(
 				ImmutableMap.<Attribute<?>, Object>builder()
 					.put(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))
-					.put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.FRAMEWORK_BUNDLE))
-					.put(ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, DESERIALIZED)
 					.build()));
 	}
 
@@ -67,8 +61,6 @@ public abstract class ConfigurationUtils {
 			ConfigurationSpec.asIncoming(fromBucket).withAttributes(
 				ImmutableMap.<Attribute<?>, Object>builder()
 					.put(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.NATIVE_LINK))
-					.put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.FRAMEWORK_BUNDLE))
-					.put(ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, DESERIALIZED)
 					.build()));
 	}
 
@@ -77,8 +69,6 @@ public abstract class ConfigurationUtils {
 			ConfigurationSpec.asIncoming(fromBucket).withAttributes(
 				ImmutableMap.<Attribute<?>, Object>builder()
 					.put(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))
-					.put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.FRAMEWORK_BUNDLE))
-					.put(ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, DESERIALIZED)
 					.build()));
 	}
 	//endregion

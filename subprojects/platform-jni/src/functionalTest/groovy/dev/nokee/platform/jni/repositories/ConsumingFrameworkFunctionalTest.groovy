@@ -4,8 +4,10 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToo
 import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCNSSavePanelLib
+import dev.nokee.platform.nativebase.internal.ArtifactSerializationTypes
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory
+import dev.nokee.platform.nativebase.internal.LibraryElements
 import dev.nokee.platform.nativebase.internal.plugins.FakeMavenRepositoryPlugin
 import spock.lang.Requires
 import spock.util.environment.OperatingSystem
@@ -131,6 +133,8 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 			import ${FakeMavenRepositoryPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
 			import ${DefaultTargetMachineFactory.canonicalName}
+			import ${LibraryElements.canonicalName}
+			import ${ArtifactSerializationTypes.canonicalName}
 
 			apply plugin: ${FakeMavenRepositoryPlugin.name}
 
@@ -139,7 +143,12 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 			}
 
 			dependencies {
-				framework 'non.magic.group:JavaVM:10.15'
+				framework('non.magic.group:JavaVM:10.15') {
+					attributes {
+						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
+						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
+					}
+				}
 			}
 
 			tasks.register('resolveConfiguration') {
@@ -167,6 +176,8 @@ Required by:
 			import ${FakeMavenRepositoryPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
 			import ${DefaultTargetMachineFactory.canonicalName}
+			import ${LibraryElements.canonicalName}
+			import ${ArtifactSerializationTypes.canonicalName}
 
 			apply plugin: ${FakeMavenRepositoryPlugin.name}
 
@@ -175,7 +186,12 @@ Required by:
 			}
 
 			dependencies {
-				framework 'dev.nokee.framework:NonExistantFramework:10.15'
+				framework('dev.nokee.framework:NonExistantFramework:10.15') {
+					attributes {
+						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
+						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
+					}
+				}
 			}
 
 			tasks.register('resolveConfiguration') {
@@ -204,6 +220,8 @@ Searched in the following locations:
 			import ${FakeMavenRepositoryPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
 			import ${DefaultTargetMachineFactory.canonicalName}
+			import ${LibraryElements.canonicalName}
+			import ${ArtifactSerializationTypes.canonicalName}
 
 			apply plugin: ${FakeMavenRepositoryPlugin.name}
 
@@ -212,7 +230,12 @@ Searched in the following locations:
 			}
 
 			dependencies {
-				framework 'dev.nokee.framework:Foundation:4.2'
+				framework('dev.nokee.framework:Foundation:4.2') {
+					attributes {
+						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
+						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
+					}
+				}
 			}
 
 			tasks.register('resolveConfiguration') {
@@ -242,6 +265,8 @@ Searched in the following locations:
 			import ${ConfigurationUtils.canonicalName}
 			import ${DefaultTargetMachineFactory.canonicalName}
 			import ${Files.canonicalName}
+			import ${LibraryElements.canonicalName}
+			import ${ArtifactSerializationTypes.canonicalName}
 
 			apply plugin: ${FakeMavenRepositoryPlugin.name}
 
@@ -250,7 +275,12 @@ Searched in the following locations:
 			}
 
 			dependencies {
-				framework 'dev.nokee.framework:Foundation:10.15'
+				framework('dev.nokee.framework:Foundation:10.15') {
+					attributes {
+						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
+						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
+					}
+				}
 			}
 
 			tasks.register('verify') {
@@ -273,6 +303,8 @@ Searched in the following locations:
 			import ${ConfigurationUtils.canonicalName}
 			import ${DefaultTargetMachineFactory.canonicalName}
 			import ${Files.canonicalName}
+			import ${LibraryElements.canonicalName}
+			import ${ArtifactSerializationTypes.canonicalName}
 
 			apply plugin: ${FakeMavenRepositoryPlugin.name}
 
@@ -281,7 +313,12 @@ Searched in the following locations:
 			}
 
 			dependencies {
-				framework 'dev.nokee.framework:Foundation:10.15'
+				framework('dev.nokee.framework:Foundation:10.15') {
+					attributes {
+						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
+						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
+					}
+				}
 			}
 
 			tasks.register('verify') {
@@ -305,6 +342,8 @@ Searched in the following locations:
 			import ${ConfigurationUtils.canonicalName}
 			import ${DefaultTargetMachineFactory.canonicalName}
 			import ${Files.canonicalName}
+			import ${LibraryElements.canonicalName}
+			import ${ArtifactSerializationTypes.canonicalName}
 
 			apply plugin: ${FakeMavenRepositoryPlugin.name}
 
@@ -313,7 +352,12 @@ Searched in the following locations:
 			}
 
 			dependencies {
-				framework 'dev.nokee.framework:Foundation:10.15'
+				framework('dev.nokee.framework:Foundation:10.15') {
+					attributes {
+						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
+						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
+					}
+				}
 			}
 
 			tasks.register('resolveConfiguration') {
