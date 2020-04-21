@@ -1,8 +1,12 @@
 package dev.nokee.platform.ios
 
 import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
+import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
+import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.platform.jni.fixtures.ObjectiveCIosApp
+import org.apache.commons.lang3.SystemUtils
+import spock.lang.Requires
 
 import java.nio.file.FileVisitResult
 import java.nio.file.FileVisitor
@@ -12,6 +16,8 @@ import java.nio.file.attribute.BasicFileAttributes
 
 import static org.junit.Assert.assertEquals
 
+@Requires({ SystemUtils.IS_OS_MAC })
+@RequiresInstalledToolChain(value = ToolChainRequirement.CLANG)
 class BasicIosApplicationFunctionalTest extends AbstractFunctionalSpec {
 	def "can assemble"() {
 		given:
