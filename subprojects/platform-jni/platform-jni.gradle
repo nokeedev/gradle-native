@@ -42,6 +42,7 @@ tasks.named('javadoc', Javadoc) {
 	options.links("https://docs.oracle.com/javase/8/docs/api", "https://docs.gradle.org/${minimumGradleVersion}/javadoc/")
 }
 
+// TODO: Move to gradle-development-plugins
 def pluginClasspathRuntimeOnly = configurations.create('pluginClasspathRuntimeOnly')
 dependencies {
 	add(pluginClasspathRuntimeOnly.name, project(':languageNative'))

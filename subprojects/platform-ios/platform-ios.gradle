@@ -9,3 +9,36 @@ repositories {
 	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
 }
 
+dependencies {
+	implementation "commons-io:commons-io:${commonsIoVersion}"
+
+	functionalTestImplementation 'dev.nokee:templates:latest.integration'
+
+	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
+	testImplementation 'org.spockframework:spock-core'
+	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	testImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {
+		capabilities {
+			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
+		}
+	}
+	testImplementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.71' // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
+}
+
+gradlePlugin {
+	plugins {
+		iosApplication {
+			id = 'dev.nokee.ios-application'
+			implementationClass = 'dev.nokee.platform.ios.internal.plugins.IosApplicationPlugin'
+		}
+	}
+}
+
+// TODO: Move to gradle-development-plugins
+def pluginClasspathRuntimeOnly = configurations.create('pluginClasspathRuntimeOnly')
+dependencies {
+	add(pluginClasspathRuntimeOnly.name, project(':languageNative'))
+}
+tasks.named('pluginUnderTestMetadata', PluginUnderTestMetadata) {
+	pluginClasspath.from(pluginClasspathRuntimeOnly)
+}

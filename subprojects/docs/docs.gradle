@@ -106,6 +106,10 @@ documentation {
 		'jni-library-with-framework-dependencies' {
 			template = new JavaJniCppGreeterLib('jni-library-with-framework-dependencies')
 		}
+
+		'objective-c-ios-application' {
+			template = new ObjectiveCIosApp()
+		}
 	}
 }
 

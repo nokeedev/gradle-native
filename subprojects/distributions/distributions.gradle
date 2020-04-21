@@ -12,7 +12,7 @@ def distributionRepository = layout.buildDirectory.dir('repository')
 [
 	':languageNative',
 	':platformBase',
-//	':platformIos',
+	':platformIos',
 	':platformJni',
 	':platformNative'
 ].each { String projectPath ->

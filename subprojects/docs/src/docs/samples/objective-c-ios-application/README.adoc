@@ -1,0 +1,64 @@
+= Objective-C iOS Application
+:jbake-summary: iOS application implemented in Objective-C built by Gradle.
+:jbake-type: sample_chapter
+:jbake-tags: sample, jni, library, jvm, java, objective c, native, gradle
+:jbake-category: Java Native Interface (JNI)
+:jbake-description: See how the Nokee Gradle plugins are used for building an iOS application implemented in Objective-C.
+
+CAUTION: The following sample shows a plugin in very early development.
+Don't hesitate to try it out.
+If you encounter any problems, please link:https://github.com/nokeedev/gradle-native/issues[open an issue on GitHub].
+
+This sample shows how a iOS application implemented in Objective-C can be built with Gradle.
+The application has no dependencies, target only iPhone Simulator with minimum iOS version of 13.3 and the build has a minimal configuration.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+
+To build the library:
+
+[listing.terminal]
+----
+$ ./gradlew assemble
+
+BUILD SUCCESSFUL
+8 actionable tasks: 8 executed
+----
+
+The build produce the iOS application inside `./build/ios/products/main` directory:
+
+[listing.terminal]
+----
+$ ls ./build/ios/products/main/
+ObjectiveCIosApplication-unsigned.app
+ObjectiveCIosApplication.app
+----
+
+The application bundles produces represent the signed and unsigned bundles:
+
+[listing.terminal]
+----
+$ ls ./build/ios/products/main/ObjectiveCIosApplication.app/
+Base.lproj
+Info.plist
+ObjectiveCIosApplication
+_CodeSignature
+----
+
+More information to come...
