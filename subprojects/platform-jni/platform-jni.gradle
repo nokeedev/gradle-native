@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat
 plugins {
 	id 'dev.gradleplugins.java-gradle-plugin'
 	id 'maven-publish'
-	id 'com.jfrog.bintray' version '1.8.4'
 }
 
 repositories {
@@ -14,29 +13,23 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.apache.commons:commons-lang3:3.9'
-	implementation 'com.google.guava:guava:28.2-jre'
-	implementation 'org.eclipse.jetty:jetty-server:9.4.27.v20200227'
-	implementation 'com.google.code.gson:gson:2.8.6'
-	implementation 'commons-io:commons-io:2.6'
-	implementation 'org.apache.commons:commons-exec:1.3'
+	api project(':platformBase')
+	api project(':platformNative')
+
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	implementation "com.google.guava:guava:${guavaVersion}"
+//	implementation 'com.google.code.gson:gson:2.8.6'
+	implementation "commons-io:commons-io:${commonsIoVersion}"
+//	implementation 'org.eclipse.jetty:jetty-server:9.4.27.v20200227'
+//	implementation 'org.apache.commons:commons-exec:1.3'
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
+	functionalTestImplementation project(':platformNative')
 	functionalTestImplementation 'dev.nokee:templates:latest.integration'
 	functionalTestImplementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.71' // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
 	functionalTestImplementation 'commons-io:commons-io:2.6'
-
-	testImplementation platform('org.spockframework:spock-bom:1.2-groovy-2.5')
-	testImplementation 'org.spockframework:spock-core'
-	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
-	testImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {
-		capabilities {
-			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
-		}
-	}
-	testImplementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.71' // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
 }
 
 tasks.named('javadoc', Javadoc) {
@@ -49,113 +42,24 @@ tasks.named('javadoc', Javadoc) {
 	options.links("https://docs.oracle.com/javase/8/docs/api", "https://docs.gradle.org/${minimumGradleVersion}/javadoc/")
 }
 
+def pluginClasspathRuntimeOnly = configurations.create('pluginClasspathRuntimeOnly')
+dependencies {
+	add(pluginClasspathRuntimeOnly.name, project(':languageNative'))
+}
+tasks.named('pluginUnderTestMetadata', PluginUnderTestMetadata) {
+	pluginClasspath.from(pluginClasspathRuntimeOnly)
+}
+
 gradlePlugin {
 	plugins {
 		jniLibrary {
 			id = 'dev.nokee.jni-library'
 			implementationClass = 'dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin'
 		}
-		cppLanguage {
-			id = 'dev.nokee.cpp-language'
-			implementationClass = 'dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin'
-		}
-		cLanguage {
-			id = 'dev.nokee.c-language'
-			implementationClass = 'dev.nokee.language.c.internal.plugins.CLanguagePlugin'
-		}
-		objectiveCLanguage {
-			id = 'dev.nokee.objective-c-language'
-			implementationClass = 'dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin'
-		}
-		objectiveCppLanguage {
-			id = 'dev.nokee.objective-cpp-language'
-			implementationClass = 'dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin'
-		}
 	}
 	extra {
 		minimumGradleVersion = project.minimumGradleVersion
 		withJavadocJar()
 		withSourcesJar()
-	}
-}
-
-publishing {
-	repositories {
-		maven {
-			name = 'docs'
-			url = project(':docs').layout.buildDirectory.dir('repository')
-		}
-	}
-}
-
-@Nullable
-private String resolveProperty(Project project, String envVarKey, String projectPropKey) {
-	Object propValue = System.getenv().get(envVarKey);
-
-	if (propValue != null) {
-		return propValue.toString();
-	}
-
-	propValue = project.findProperty(projectPropKey);
-	if (propValue != null) {
-		return propValue.toString();
-	}
-
-	return null;
-}
-
-afterEvaluate {
-	// TODO: Publish Gradle metadata
-	if (System.getProperties().containsKey('release')) {
-		bintray {
-			override = false
-			pkg {
-				repo = 'distributions'
-				name = 'dev.nokee:nokee-gradle-plugins'
-				version {
-					attributes = ['gradle-plugin': ["dev.nokee.jni-library:${project.group}:${project.name}",
-													"dev.nokee.cpp-language:${project.group}:${project.name}",
-													"dev.nokee.c-language:${project.group}:${project.name}",
-													"dev.nokee.objective-c-language:${project.group}:${project.name}",
-													"dev.nokee.objective-cpp-language:${project.group}:${project.name}"]]
-				}
-			}
-		}
-	} else {
-		bintray {
-			override = true
-			pkg {
-				repo = 'distributions-snapshots' // only for snapshot
-				name = 'artifacts'
-			}
-		}
-	}
-
-	bintray {
-		user = resolveProperty(project, "BINTRAY_USER", "dev.nokee.bintray.user")
-		key = resolveProperty(project, "BINTRAY_KEY", "dev.nokee.bintray.key")
-		publications = publishing.publications.collect { it.name }
-
-		publish = true
-
-		pkg {
-			desc = project.description
-			userOrg = 'nokeedev'
-			websiteUrl = 'https://nokee.dev'
-			issueTrackerUrl = 'https://github.com/nokeedev/gradle-native/issues'
-			vcsUrl = 'https://github.com/nokeedev/gradle-native.git'
-			labels = ['gradle', 'gradle-native']
-			licenses = ['AGPL-V3'] // TODO: Clarify
-			publicDownloadNumbers = false
-
-			version {
-				released = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").format(new Date())
-				// TODO: Sign artifacts
-				gpg {
-					sign = false
-					passphrase = resolveProperty(project, "GPG_PASSPHRASE", "dev.nokee.bintray.gpgPassphrase")
-				}
-			}
-		}
 	}
 }

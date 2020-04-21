@@ -1,0 +1,11 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'maven-publish'
+}
+
+repositories {
+	jcenter()
+	mavenCentral()
+	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+}
+

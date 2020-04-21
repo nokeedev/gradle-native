@@ -1,0 +1,42 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'maven-publish'
+}
+
+repositories {
+	jcenter()
+	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+}
+
+dependencies {
+	implementation project(':platformBase')
+	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	implementation "commons-io:commons-io:${commonsIoVersion}"
+
+	// Embedded repository
+	implementation 'com.google.code.gson:gson:2.8.6'
+	implementation 'org.eclipse.jetty:jetty-server:9.4.27.v20200227'
+	implementation 'org.apache.commons:commons-exec:1.3'
+
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	testImplementation platform('org.spockframework:spock-bom:1.2-groovy-2.5')
+	testImplementation 'org.spockframework:spock-core'
+	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	testImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {
+		capabilities {
+			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
+		}
+	}
+	testImplementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.71' // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
+}
+
+gradlePlugin {
+	extra {
+		minimumGradleVersion = project.minimumGradleVersion
+		withJavadocJar()
+		withSourcesJar()
+	}
+}

@@ -2,6 +2,8 @@ package dev.nokee.platform.jni.internal.plugins;
 
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
 import dev.nokee.platform.nativebase.TargetMachine;

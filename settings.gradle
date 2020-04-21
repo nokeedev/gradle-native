@@ -18,6 +18,26 @@ rootProject.name = 'gradle-native'
 includeBuild 'subprojects/templates'
 includeBuild 'gradle/plugins/docs-gradle-plugin'
 
+include 'distributions'
+project(':distributions').projectDir = file('subprojects/distributions')
+project(':distributions').buildFileName = 'distributions.gradle'
+
+include 'languageNative'
+project(':languageNative').projectDir = file('subprojects/language-native')
+project(':languageNative').buildFileName = 'language-native.gradle'
+
+include 'platformBase'
+project(':platformBase').projectDir = file('subprojects/platform-base')
+project(':platformBase').buildFileName = 'platform-base.gradle'
+
+include 'platformNative'
+project(':platformNative').projectDir = file('subprojects/platform-native')
+project(':platformNative').buildFileName = 'platform-native.gradle'
+
+include 'platformIos'
+project(':platformIos').projectDir = file('subprojects/platform-ios')
+project(':platformIos').buildFileName = 'platform-ios.gradle'
+
 include 'platformJni'
 project(':platformJni').projectDir = file('subprojects/platform-jni')
 project(':platformJni').buildFileName = 'platform-jni.gradle'

@@ -50,7 +50,7 @@ test (windows):
 
 deploy:
   stage: deploy
-  script: ./gradlew bintrayUpload
+  script: ./gradlew :distributions:publishToBintray
   only:
     - master
 

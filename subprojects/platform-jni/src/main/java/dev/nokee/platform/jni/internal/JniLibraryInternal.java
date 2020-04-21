@@ -3,6 +3,7 @@ package dev.nokee.platform.jni.internal;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.internal.BinaryInternal;
 import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachine;

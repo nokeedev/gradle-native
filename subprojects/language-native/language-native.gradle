@@ -1,0 +1,41 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'maven-publish'
+}
+
+// TODO: These repositories are required because IntelliJ fails again at detecting the repositories
+repositories {
+	jcenter()
+	mavenCentral()
+}
+
+dependencies {
+	implementation project(':platformBase')
+	implementation project(':platformNative')
+}
+
+gradlePlugin {
+	plugins {
+		cppLanguage {
+			id = 'dev.nokee.cpp-language'
+			implementationClass = 'dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin'
+		}
+		cLanguage {
+			id = 'dev.nokee.c-language'
+			implementationClass = 'dev.nokee.language.c.internal.plugins.CLanguagePlugin'
+		}
+		objectiveCLanguage {
+			id = 'dev.nokee.objective-c-language'
+			implementationClass = 'dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin'
+		}
+		objectiveCppLanguage {
+			id = 'dev.nokee.objective-cpp-language'
+			implementationClass = 'dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin'
+		}
+	}
+	extra {
+		minimumGradleVersion = project.minimumGradleVersion
+		withJavadocJar()
+		withSourcesJar()
+	}
+}

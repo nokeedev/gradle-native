@@ -1,0 +1,93 @@
+plugins {
+	id 'lifecycle-base'
+}
+
+import groovy.json.JsonOutput
+
+def publishToStaging = tasks.register('publishToStaging')
+
+// TODO: Add distribution test that ensure gradle-api is not inside any pom (or any dev.gradleplugins artifacts)
+
+def distributionRepository = layout.buildDirectory.dir('repository')
+[
+	':languageNative',
+	':platformBase',
+//	':platformIos',
+	':platformJni',
+	':platformNative'
+].each { String projectPath ->
+	project(projectPath) { Project proj ->
+		def publishToDistribution = proj.tasks.register('publishToDistribution')
+		proj.pluginManager.withPlugin('maven-publish') {
+			proj.publishing.repositories.maven {
+				name = 'distribution'
+				url = distributionRepository
+			}
+			publishToDistribution.configure { dependsOn('publishAllPublicationsToDistributionRepository') }
+		}
+	}
+	publishToStaging.configure { dependsOn("${projectPath}:publishToDistribution") }
+}
+
+tasks.register('publishToBintray') {
+	dependsOn(publishToStaging)
+	doLast {
+		// Credentials
+		def user = resolveProperty(project, "BINTRAY_USER", "dev.nokee.bintray.user")
+		def key = resolveProperty(project, "BINTRAY_KEY", "dev.nokee.bintray.key")
+
+		// Upload configurations
+		def repository = 'distributions-snapshots'
+		def packageName = 'artifacts'
+		def override = true
+		if (System.getProperties().containsKey('release')) {
+			repository = 'distributions'
+			packageName = 'dev.nokee:nokee-gradle-plugins'
+			override = false
+		}
+
+		// Upload files
+		distributionRepository.get().asFileTree.matching { PatternFilterable p ->
+			p.include("**/${project.version}/**/*")
+		}.each {
+			def publish = true
+			def filePath = distributionRepository.get().asFile.toPath().relativize(it.toPath())
+
+			print "Publishing ${filePath}... "
+			if (0 == ['curl', '-T', it, "-u${user}:${key}", "https://api.bintray.com/content/nokeedev/${repository}/${packageName}/${project.version}/${filePath}?publish=${publish?'1':'0'}&override=${override?'1':'0'}"].execute().waitFor()) {
+				println "done"
+			} else {
+				println "failed"
+			}
+		}
+
+		// Set attributes
+		if (System.getProperties().containsKey('release')) {
+			def data = ['gradle-plugin': ["dev.nokee.jni-library:${project.group}:${project.name}",
+													"dev.nokee.cpp-language:${project.group}:${project.name}",
+													"dev.nokee.c-language:${project.group}:${project.name}",
+													"dev.nokee.objective-c-language:${project.group}:${project.name}",
+													"dev.nokee.objective-cpp-language:${project.group}:${project.name}"]]
+			data = data.collect { k, v ->
+				return [name: k, values: v, type: 'string']
+			}
+
+			['curl', '--data', JsonOutput.toJson(data), "-u${user}:${key}", "https://api.bintray.com/packages/nokeedev/${repository}/${packageName}/versions/${project.version}/attributes}"].execute().waitFor()
+		}
+	}
+}
+
+private String resolveProperty(Project project, String envVarKey, String projectPropKey) {
+	Object propValue = System.getenv().get(envVarKey);
+
+	if (propValue != null) {
+		return propValue.toString();
+	}
+
+	propValue = project.findProperty(projectPropKey);
+	if (propValue != null) {
+		return propValue.toString();
+	}
+
+	return null;
+}

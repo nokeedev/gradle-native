@@ -15,17 +15,17 @@ plugins {
 	id 'antlr'
 }
 
-docsTest.dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
+docsTest.dependsOn({ project(':distributions').tasks.named('publishToStaging')})
 tasks.withType(CreateAsciinema).configureEach {
-	dependsOn({ project(':platformJni').tasks.named('publishAllPublicationsToDocsRepository')})
+	dependsOn({ project(':distributions').tasks.named('publishToStaging')})
 }
 
 // The following inputs cause the task to never be up-to-date.
-// The solution would be to correctly declare the input/output for `publishAllPublicationsToDocsRepository` so it doesn't republish when nothing has changed.
+// The solution would be to correctly declare the input/output for `publishToStaging` so it doesn't republish when nothing has changed (and dependencies)
 // For now, it's ok, let's solve this when it becomes a real problem.
-docsTest.inputs.dir(layout.buildDirectory.dir('repository'))
+docsTest.inputs.dir(fileTree(dir: rootProject.file('subprojects/distributions/build/repository'), includes:["**/${rootProject.version}/**/*"]))
 docsTest.inputs.dir(layout.buildDirectory.dir("generated/samples"))
-docsTest.systemProperty('dev.nokee.docsRepository', layout.buildDirectory.dir('repository').get().asFile.absolutePath)
+docsTest.systemProperty('dev.nokee.docsRepository', rootProject.file('subprojects/distributions/build/repository').absolutePath)
 docsTest.systemProperty('sampleContentDirectory', layout.buildDirectory.dir("generated/samples").get().asFile.absolutePath)
 docsTest.dependsOn('assembleSamples')
 dependencies {

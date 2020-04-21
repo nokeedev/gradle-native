@@ -5,6 +5,7 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BinaryInternal;
 import dev.nokee.platform.base.internal.DefaultVariantView;
 import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.jni.JniLibraryDependencies;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.nativebase.TargetMachine;
