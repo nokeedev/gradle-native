@@ -22,7 +22,7 @@ dependencies {
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-	testImplementation platform('org.spockframework:spock-bom:1.2-groovy-2.5')
+	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
 	testImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {

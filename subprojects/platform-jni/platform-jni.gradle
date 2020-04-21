@@ -29,7 +29,7 @@ dependencies {
 	functionalTestImplementation project(':platformNative')
 	functionalTestImplementation 'dev.nokee:templates:latest.integration'
 	functionalTestImplementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.71' // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
-	functionalTestImplementation 'commons-io:commons-io:2.6'
+	functionalTestImplementation "commons-io:commons-io:${commonsIoVersion}"
 }
 
 tasks.named('javadoc', Javadoc) {
