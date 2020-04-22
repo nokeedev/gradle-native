@@ -4,6 +4,7 @@ import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.file.TestFile
+import dev.nokee.platform.ios.fixtures.BundleFixture
 import dev.nokee.platform.jni.fixtures.ObjectiveCIosApp
 import org.apache.commons.lang3.SystemUtils
 import spock.lang.Requires
@@ -37,60 +38,6 @@ class BasicIosApplicationFunctionalTest extends AbstractFunctionalSpec {
 
 	BundleFixture bundle(String path) {
 		return new BundleFixture(file(path))
-	}
-
-	static class BundleFixture {
-		private final TestFile bundle
-
-		BundleFixture(TestFile bundle) {
-			bundle.assertIsDirectory()
-			this.bundle = bundle
-		}
-
-		BundleFixture assertHasDescendants(String... descendants) {
-			Set<String> actual = new TreeSet<String>();
-			visit(actual);
-			Set<String> expected = new TreeSet<String>(Arrays.asList(descendants));
-
-			Set<String> extras = new TreeSet<String>(actual);
-			extras.removeAll(expected);
-			Set<String> missing = new TreeSet<String>(expected);
-			missing.removeAll(actual);
-
-			assertEquals(String.format("For dir: %s\n extra files: %s, missing files: %s, expected: %s", this, extras, missing, expected), expected, actual);
-
-			return this;
-		}
-
-		private void visit(Set<String> actual) {
-			Path baseDirectory = bundle.toPath();
-			Files.walkFileTree(baseDirectory, new FileVisitor<Path>() {
-				@Override
-				FileVisitResult preVisitDirectory(Path path, BasicFileAttributes basicFileAttributes) throws IOException {
-					if (path.getFileName().toString().endsWith(".storyboardc")) {
-						actual.add(baseDirectory.relativize(path).toString());
-						return FileVisitResult.SKIP_SUBTREE;
-					}
-					return FileVisitResult.CONTINUE;
-				}
-
-				@Override
-				FileVisitResult visitFile(Path path, BasicFileAttributes basicFileAttributes) throws IOException {
-					actual.add(baseDirectory.relativize(path).toString());
-					return FileVisitResult.CONTINUE
-				}
-
-				@Override
-				FileVisitResult visitFileFailed(Path path, IOException e) throws IOException {
-					return FileVisitResult.TERMINATE
-				}
-
-				@Override
-				FileVisitResult postVisitDirectory(Path path, IOException e) throws IOException {
-					return FileVisitResult.CONTINUE
-				}
-			});
-		}
 	}
 
 	void makeSingleProject() {
