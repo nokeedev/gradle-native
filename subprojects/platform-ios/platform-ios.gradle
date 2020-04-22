@@ -12,6 +12,8 @@ repositories {
 dependencies {
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 
+	functionalTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+	functionalTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 	functionalTestImplementation 'dev.nokee:templates:latest.integration'
 
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
