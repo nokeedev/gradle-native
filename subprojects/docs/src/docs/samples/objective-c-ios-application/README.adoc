@@ -33,7 +33,7 @@ include::kotlin-dsl/build.gradle.kts[]
 
 To build the library:
 
-[listing.terminal]
+[listing]
 ----
 $ ./gradlew assemble
 
@@ -43,7 +43,7 @@ BUILD SUCCESSFUL
 
 The build produce the iOS application inside `./build/ios/products/main` directory:
 
-[listing.terminal]
+[listing]
 ----
 $ ls ./build/ios/products/main/
 ObjectiveCIosApplication-unsigned.app
@@ -52,7 +52,7 @@ ObjectiveCIosApplication.app
 
 The application bundles produces represent the signed and unsigned bundles:
 
-[listing.terminal]
+[listing]
 ----
 $ ls ./build/ios/products/main/ObjectiveCIosApplication.app/
 Base.lproj
