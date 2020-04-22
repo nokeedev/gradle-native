@@ -8,8 +8,12 @@ import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskPropertyValue
 import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskSpec
 import dev.nokee.platform.ios.tasks.internal.StoryboardCompileTask
 import dev.nokee.platform.jni.fixtures.BaseLanguage
+import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Task
+import spock.lang.Requires
 
+// TODO: Not technically right, it should be more toolchain requirements for iOS development
+@Requires({ SystemUtils.IS_OS_MAC})
 class StoryboardCompileWellBehavingTaskTest extends WellBehavingTaskTest {
 	@Override
 	protected Class<? extends Task> getTaskType() {
