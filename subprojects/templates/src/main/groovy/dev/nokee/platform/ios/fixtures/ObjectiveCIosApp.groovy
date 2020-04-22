@@ -1,4 +1,4 @@
-package dev.nokee.platform.jni.fixtures
+package dev.nokee.platform.ios.fixtures
 
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceFile

@@ -7,7 +7,7 @@ import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskProperty
 import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskPropertyValue
 import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskSpec
 import dev.nokee.platform.ios.tasks.internal.StoryboardCompileTask
-import dev.nokee.platform.jni.fixtures.BaseLanguage
+import dev.nokee.platform.ios.fixtures.BaseLanguage
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Task
 import spock.lang.Requires
