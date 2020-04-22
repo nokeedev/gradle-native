@@ -89,7 +89,8 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			TaskProvider<CreateAsciinema> createAsciinemaTask = getTasks().register("generateSamplesAsciinema" + sample.getNameAsCamelCase(), CreateAsciinema.class, task -> {
 				task.dependsOn(sourceSet.getSource(), dslSourceSet.getSource());
 				task.getClasspath().from(asciidoctorToAsciinema);
-				task.getLocalRepository().set(getLayout().getBuildDirectory().dir("repository"));
+				// TODO: Fix the evil in the following code
+				task.getLocalRepository().set(getLayout().getProjectDirectory().dir("../distributions/build/repository"));
 				task.getVersion().set(projectVersion);
 				task.getRelativePath().set(documentationVersion.map(it -> "docs/" + it + "/samples")); // TODO: Maybe it should be context path instead of relative path
 
