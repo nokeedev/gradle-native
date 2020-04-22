@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
 	implementation "commons-io:commons-io:${commonsIoVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 
 	functionalTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 	functionalTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"

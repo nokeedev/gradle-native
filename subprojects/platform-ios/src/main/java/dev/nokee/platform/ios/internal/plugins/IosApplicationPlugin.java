@@ -1,6 +1,7 @@
 package dev.nokee.platform.ios.internal.plugins;
 
 import dev.nokee.platform.ios.tasks.internal.*;
+import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.ProjectLayout;
@@ -24,6 +25,9 @@ public abstract class IosApplicationPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(LifecycleBasePlugin.class);
 
+		if (!SystemUtils.IS_OS_MAC) {
+			return; // Skipping on non macOS system for now
+		}
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-language", appliedPlugin -> project.getPluginManager().apply(IosApplicationRules.class));
 
 		String moduleName = GUtil.toCamelCase(project.getName());
