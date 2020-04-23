@@ -8,10 +8,7 @@ import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.StructuralNode;
 import org.asciidoctor.jruby.ast.impl.ListImpl;
 import org.gradle.api.Action;
-import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.FileSystemOperations;
-import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.file.*;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
@@ -201,10 +198,10 @@ Learn more at https://nokee.dev
 	@Internal
 	public abstract DirectoryProperty getLocalRepository();
 
-	@InputDirectory
+	@InputFiles
 	@PathSensitive(PathSensitivity.RELATIVE)
 	@org.gradle.api.tasks.Optional
-	protected File getLocalRepositoryIfNeeded() {
+	protected Set<File> getLocalRepositoryIfNeeded() {
 		if (!getLocalRepository().isPresent()) {
 			return null;
 		}
@@ -212,7 +209,9 @@ Learn more at https://nokee.dev
 		if (!value.exists()) {
 			return null;
 		}
-		return value;
+		ConfigurableFileTree result = getObjectFactory().fileTree().setDir(value);
+		result.include("**/*.jar");
+		return result.getFiles();
 	}
 
 	@Inject
