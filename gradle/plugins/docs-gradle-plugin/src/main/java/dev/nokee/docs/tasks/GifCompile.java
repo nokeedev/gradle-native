@@ -74,7 +74,7 @@ public abstract class GifCompile extends ProcessorTask {
 			outputFile.getParentFile().mkdirs();
 
 			getExecOperations().exec(spec -> {
-				spec.commandLine("ffmpeg", "-f", "gif", "-i", getParameters().getInputFile().get().getAsFile().getAbsolutePath(), outputFile.getAbsolutePath());
+				spec.commandLine("ffmpeg", "-loglevel", "fatal", "-f", "gif", "-i", getParameters().getInputFile().get().getAsFile().getAbsolutePath(), outputFile.getAbsolutePath());
 			});
 		}
 	}
