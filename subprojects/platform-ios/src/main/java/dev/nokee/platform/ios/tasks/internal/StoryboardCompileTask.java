@@ -29,8 +29,8 @@ public abstract class StoryboardCompileTask extends DefaultTask {
 
 	// TODO: This may need to be richer so we keep the context path
 	@Incremental
-	@SkipWhenEmpty
 	@InputFiles
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public abstract ConfigurableFileCollection getSources();
 
 	@Inject
@@ -73,6 +73,7 @@ public abstract class StoryboardCompileTask extends DefaultTask {
 	}
 
 	@InputFile
+	@PathSensitive(PathSensitivity.ABSOLUTE)
 	protected File getIbtoolExecutable() {
 		return new File(getIbtoolPath());
 	}
