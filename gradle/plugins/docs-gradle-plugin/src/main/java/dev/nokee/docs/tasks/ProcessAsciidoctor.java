@@ -16,6 +16,7 @@ import java.util.stream.StreamSupport;
 
 @CacheableTask
 public abstract class ProcessAsciidoctor extends ProcessorTask {
+	@PathSensitive(PathSensitivity.RELATIVE)
 	@Incremental
 	@InputFiles
 	public abstract ConfigurableFileTree getSource();

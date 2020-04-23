@@ -3,9 +3,7 @@ package dev.nokee.docs.tasks;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.FileType;
 import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.tasks.CacheableTask;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.work.ChangeType;
 import org.gradle.work.FileChange;
 import org.gradle.work.InputChanges;
@@ -19,6 +17,7 @@ import java.util.stream.StreamSupport;
 
 @CacheableTask
 public abstract class CreateEmbeddedPlayer extends ProcessorTask {
+	@PathSensitive(PathSensitivity.RELATIVE)
 	@InputFiles
 	public abstract ConfigurableFileTree getSource();
 
