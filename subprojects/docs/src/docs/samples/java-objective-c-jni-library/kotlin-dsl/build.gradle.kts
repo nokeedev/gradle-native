@@ -4,7 +4,8 @@ plugins {
 	id("dev.nokee.objective-c-language")
 }
 
-// Internal details, will be fixed in future commit
-tasks.withType<LinkSharedLibrary> {
-	linkerArgs.add("-lobjc")
+library.variants.configureEach {
+	sharedLibrary.linkTask.configure {
+		linkerArgs.add("-lobjc")
+	}
 }

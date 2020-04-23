@@ -3,8 +3,17 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
+import dev.nokee.language.nativebase.internal.ObjectSourceSetInternal;
+import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
+import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryInternal;
+import dev.nokee.platform.base.internal.DefaultTaskView;
 import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.TaskUtils;
+import dev.nokee.platform.nativebase.SharedLibraryBinary;
+import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
+import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import lombok.Value;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
@@ -26,31 +35,36 @@ import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.objectivec.tasks.ObjectiveCCompile;
 import org.gradle.language.objectivecpp.tasks.ObjectiveCppCompile;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
-import org.gradle.nativeplatform.tasks.LinkSharedLibrary;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
+import static dev.nokee.platform.base.internal.TaskUtils.dependsOn;
+
+public abstract class SharedLibraryBinaryInternal extends BinaryInternal implements SharedLibraryBinary {
 	private static final Logger LOGGER = Logger.getLogger(SharedLibraryBinaryInternal.class.getName());
 	private final Configuration compileConfiguration;
 	private final Configuration linkConfiguration;
 	private final TaskContainer tasks;
-	private TaskProvider<LinkSharedLibrary> linkTask;
+	private final TaskProvider<LinkSharedLibraryTask> linkTask;
 	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
 	private final DefaultTargetMachine targetMachine;
+	private final DefaultTaskView<NativeSourceCompile> compileTasks;
 
 	@Inject
 	public SharedLibraryBinaryInternal(NamingScheme names, TaskContainer tasks, ConfigurationContainer configurations, ObjectFactory objectFactory, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine) {
+		this.linkTask = tasks.register(names.getTaskName("link"), LinkSharedLibraryTask.class);
 		this.tasks = tasks;
 		sources = objectFactory.domainObjectSet(LanguageSourceSetInternal.class);
 		this.targetMachine = targetMachine;
 		parentSources.all(it -> sources.add(it));
+		compileTasks = objectFactory.newInstance(DefaultTaskView.class, sources.withType(ObjectSourceSetInternal.class).stream().map(ObjectSourceSetInternal::getCompileTask).collect(Collectors.toList()));
 
 		getCompilerInputs().value(fromCompileConfiguration()).finalizeValueOnRead();
 		getCompilerInputs().disallowChanges();
@@ -62,7 +76,12 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 		this.linkConfiguration = configurations.create(names.getConfigurationName("nativeLink"), configurationUtils.asIncomingLinkLibrariesFrom(implementation).forTargetMachine(targetMachine).asDebug());
 	}
 
-	public TaskProvider<LinkSharedLibrary> getLinkTask() {
+	@Override
+	public TaskView<? extends NativeSourceCompile> getCompileTasks() {
+		return compileTasks;
+	}
+
+	public TaskProvider<? extends LinkSharedLibrary> getLinkTask() {
 		return linkTask;
 	}
 
@@ -70,23 +89,31 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 	protected abstract ProviderFactory getProviderFactory();
 
 	public void configureSoftwareModelBinary(SharedLibraryBinarySpec binary) {
-		binary.getTasks().withType(CppCompile.class, this::configureCompileTask);
-		binary.getTasks().withType(CCompile.class, this::configureCompileTask);
-		binary.getTasks().withType(ObjectiveCCompile.class, this::configureCompileTask);
-		binary.getTasks().withType(ObjectiveCppCompile.class, this::configureCompileTask);
+		DomainObjectSet<ObjectSourceSetInternal> objectSourceSets = sources.withType(ObjectSourceSetInternal.class);
+		binary.getTasks().withType(CppCompile.class, task -> configureCompileTask(task, objectSourceSets.matching(it -> it.getLanguageType().equals(ObjectSourceSetInternal.LanguageType.CPP)).iterator().next().getCompileTask()));
+		binary.getTasks().withType(CCompile.class, task -> configureCompileTask(task, objectSourceSets.matching(it -> it.getLanguageType().equals(ObjectSourceSetInternal.LanguageType.C)).iterator().next().getCompileTask()));
+		binary.getTasks().withType(ObjectiveCCompile.class, task -> configureCompileTask(task, objectSourceSets.matching(it -> it.getLanguageType().equals(ObjectSourceSetInternal.LanguageType.OBJECTIVE_C)).iterator().next().getCompileTask()));
+		binary.getTasks().withType(ObjectiveCppCompile.class, task -> configureCompileTask(task, objectSourceSets.matching(it -> it.getLanguageType().equals(ObjectSourceSetInternal.LanguageType.OBJECTIVE_CPP)).iterator().next().getCompileTask()));
 
-		binary.getTasks().withType(LinkSharedLibrary.class, task -> {
-			linkTask = tasks.named(task.getName(), LinkSharedLibrary.class);
+		binary.getTasks().withType(org.gradle.nativeplatform.tasks.LinkSharedLibrary.class, task -> {
+			linkTask.configure(dependsOn(task.getName()));
+			linkTask.configure(it -> it.getToolChain().set(task.getToolChain()));
+			// TODO: We should copy other linkTask configuration to task
 
 			task.dependsOn(linkConfiguration);
 			task.getLibs().from(getLinkerInputs().map(this::toLinkLibraries));
+			task.getLinkerArgs().addAll(linkTask.flatMap(LinkSharedLibrary::getLinkerArgs));
 			task.getLinkerArgs().addAll(getLinkerInputs().map(this::toFrameworkFlags));
 		});
 	}
 
 	public abstract RegularFileProperty getLinkedFile();
 
-	private void configureCompileTask(AbstractNativeCompileTask task) {
+	private void configureCompileTask(AbstractNativeCompileTask task, TaskProvider<? extends NativeSourceCompileTask> compileTask) {
+		compileTask.configure(dependsOn(task));
+		compileTask.configure(it -> it.getToolChain().set(task.getToolChain()));
+		// TODO: We should copy other compileTask configuration to task
+
 		// configure includes using the native incoming compile configuration
 		task.dependsOn(compileConfiguration);
 		task.setDebuggable(true);
@@ -96,6 +123,7 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal {
 		sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> task.getIncludes().from(sourceSet.getSource()));
 
 		task.getIncludes().from(getJvmIncludes());
+		task.getCompilerArgs().addAll(compileTask.flatMap(NativeSourceCompile::getCompilerArgs));
 		task.getCompilerArgs().addAll(getCompilerInputs().map(this::toFrameworkSearchPathFlags));
 	}
 

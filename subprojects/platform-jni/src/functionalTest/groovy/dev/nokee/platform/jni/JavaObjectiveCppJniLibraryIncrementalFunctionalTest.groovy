@@ -19,9 +19,10 @@ class JavaObjectiveCppJniLibraryIncrementalFunctionalTest extends AbstractJavaJn
 				id 'dev.nokee.objective-cpp-language'
 			}
 
-			// Internal details
-			tasks.withType(LinkSharedLibrary) {
-				linkerArgs.add('-lobjc')
+			library.variants.configureEach {
+				sharedLibrary.linkTask.configure {
+					linkerArgs.add('-lobjc')
+				}
 			}
 		'''
 		settingsFile << "rootProject.name = 'jni-greeter'"

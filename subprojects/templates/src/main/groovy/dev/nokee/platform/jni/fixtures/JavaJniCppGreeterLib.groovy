@@ -16,7 +16,7 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 	final CppGreeterJniBinding nativeBindings
 	final JavaNativeGreeter jvmBindings
 	final JavaSourceElement jvmImplementation
-	final CppLibraryElement nativeImplementation
+	final CppGreeter nativeImplementation
 	final JavaSourceElement junitTest
 	private final String projectName
 	private final String resourcePath
@@ -83,10 +83,6 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 		}
 	}
 
-	/**
-	 *
-	 * @return
-	 */
 	JniLibraryElement withImplementationAsSubprojects() {
 		return new JniLibraryElement() {
 			@Override
@@ -105,6 +101,20 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 				nativeBindings.withJniGeneratedHeader().writeToProject(projectDir.file('cpp-jni-greeter'))
 				jvmImplementation.writeToProject(projectDir.file('java-loader'))
 				nativeImplementation.asLib().writeToProject(projectDir.file('cpp-greeter'))
+			}
+		}
+	}
+
+	JniLibraryElement withOptionalFeature() {
+		return new JniLibraryElement() {
+			@Override
+			SourceElement getJvmSources() {
+				return JavaJniCppGreeterLib.this.jvmSources
+			}
+
+			@Override
+			SourceElement getNativeSources() {
+				return ofElements(nativeBindings, nativeImplementation.withOptionalFeature())
 			}
 		}
 	}
@@ -147,6 +157,33 @@ std::string say_hello(std::string name) {
 	return "Bonjour, " + name + "!";
 }
 """))
+	}
+
+	CppLibraryElement withOptionalFeature() {
+		return new CppLibraryElement() {
+			@Override
+			SourceElement getPublicHeaders() {
+				return header
+			}
+
+			@Override
+			SourceElement getSources() {
+				return ofFile(sourceFile('cpp', 'greeter_impl.cpp', """
+#include "greeter.h"
+
+#include <string>
+
+std::string say_hello(std::string name) {
+#ifdef WITH_FEATURE
+#pragma message("compiling with feature enabled")
+	return "Hello, " + name + "!";
+#else
+	return "Bonjour, " + name + "!";
+#endif
+}
+"""))
+			}
+		}
 	}
 }
 

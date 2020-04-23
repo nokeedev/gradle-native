@@ -3,6 +3,7 @@ package dev.nokee.platform.jni.internal.plugins;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.JniLibraryExtensionInternal;
 import dev.nokee.platform.nativebase.internal.NativePlatformFactory;
+import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -93,11 +94,10 @@ public class JniLibraryRules extends RuleSource {
 		// TODO: Attach binary to the right variant
 		extension.getVariantCollection().forEach(library -> {
 			SharedLibraryBinarySpec binary = binaries.stream().filter(it -> platformNameFor(library.getTargetMachine()).equals(it.getTargetPlatform().getName())).findFirst().orElseThrow(() -> new RuntimeException("No binary available"));
-			library.getSharedLibrary().ifPresent(sharedLibrary -> {
-				sharedLibrary.configureSoftwareModelBinary(binary);
-				sharedLibrary.getLinkedFile().set(((LinkSharedLibrary)binary.getTasks().getLink()).getLinkedFile());
-				sharedLibrary.getLinkedFile().disallowChanges();
-			});
+			SharedLibraryBinaryInternal sharedLibrary = library.getSharedLibrary();
+			sharedLibrary.configureSoftwareModelBinary(binary);
+			sharedLibrary.getLinkedFile().set(((LinkSharedLibrary)binary.getTasks().getLink()).getLinkedFile());
+			sharedLibrary.getLinkedFile().disallowChanges();
 		});
 	}
 }

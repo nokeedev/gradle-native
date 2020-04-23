@@ -1,6 +1,3 @@
-import javax.annotation.Nullable
-import java.text.SimpleDateFormat
-
 plugins {
 	id 'dev.gradleplugins.java-gradle-plugin'
 	id 'maven-publish'

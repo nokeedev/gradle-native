@@ -20,7 +20,7 @@ import org.gradle.internal.Cast;
 import javax.inject.Inject;
 
 public abstract class JniLibraryExtensionInternal implements JniLibraryExtension {
-	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
+	private final DomainObjectSet<LanguageSourceSetInternal> sources;
 	private final ConfigurationContainer configurations;
 	private final JniLibraryDependenciesInternal dependencies;
 	private final GroupId groupId;
@@ -57,7 +57,7 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 		return Cast.uncheckedCast(getObjectFactory().newInstance(DefaultVariantView.class, variantCollection));
 	}
 
-	public DomainObjectSet<? super LanguageSourceSetInternal> getSources() {
+	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
 		return sources;
 	}
 

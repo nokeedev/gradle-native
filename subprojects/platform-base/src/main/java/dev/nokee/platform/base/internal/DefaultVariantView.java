@@ -7,7 +7,7 @@ import org.gradle.api.DomainObjectSet;
 
 import javax.inject.Inject;
 
-public class DefaultVariantView<T extends Variant> implements VariantView<T> {
+public abstract class DefaultVariantView<T extends Variant> implements VariantView<T> {
 	private final DomainObjectSet<T> delegate;
 
 	@Inject

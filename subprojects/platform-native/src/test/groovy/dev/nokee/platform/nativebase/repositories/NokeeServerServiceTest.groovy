@@ -3,6 +3,7 @@ package dev.nokee.platform.nativebase.repositories
 import dev.gradleplugins.spock.lang.CleanupTestDirectory
 import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
 import dev.nokee.platform.nativebase.internal.plugins.FakeMavenRepositoryPlugin
+import dev.nokee.platform.nativebase.internal.repositories.NokeeServerService
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import spock.lang.Requires

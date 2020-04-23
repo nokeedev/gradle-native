@@ -16,11 +16,14 @@ library {
 	}
 }
 
-// Internal details, will be fixed in future commit
-tasks.withType<LinkSharedLibrary> {
-	linkerArgs.add("-nostdinc")
-	linkerArgs.add("-lobjc")
-}
-tasks.withType<ObjectiveCCompile> {
-	compilerArgs.add("-nostdinc")
+library.variants.configureEach {
+	sharedLibrary {
+		linkTask.configure {
+			linkerArgs.add("-nostdinc")
+			linkerArgs.add("-lobjc")
+		}
+		compileTasks.configureEach {
+			compilerArgs.add("-nostdinc")
+		}
+	}
 }

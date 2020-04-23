@@ -15,7 +15,7 @@ class JavaJniObjectiveCppGreeterLib extends JniLibraryElement {
 	final ObjectiveCppGreeterJniBinding nativeBindings
 	final JavaSourceElement jvmBindings
 	final JavaSourceElement jvmImplementation
-	final ObjectiveCppLibraryElement nativeImplementation
+	final ObjectiveCppGreeter nativeImplementation
 	final JavaSourceElement junitTest
 
 	@Override
@@ -68,6 +68,20 @@ class JavaJniObjectiveCppGreeterLib extends JniLibraryElement {
 			}
 		}
 	}
+
+	JniLibraryElement withOptionalFeature() {
+		return new JniLibraryElement() {
+			@Override
+			SourceElement getJvmSources() {
+				return JavaJniObjectiveCppGreeterLib.this.jvmSources
+			}
+
+			@Override
+			SourceElement getNativeSources() {
+				return ofElements(nativeBindings, nativeImplementation.withOptionalFeature())
+			}
+		}
+	}
 }
 
 
@@ -111,6 +125,41 @@ class ObjectiveCppGreeter extends ObjectiveCppLibraryElement {
 }
 @end
 """))
+	}
+
+	ObjectiveCppLibraryElement withOptionalFeature() {
+		return new ObjectiveCppLibraryElement() {
+			@Override
+			SourceElement getPublicHeaders() {
+				return header
+			}
+
+			@Override
+			SourceElement getSources() {
+				return ofFile(sourceFile('objcpp', 'greeter_impl.mm', """
+#import "greeter.h"
+
+#include <string>
+#include <objc/runtime.h>
+
+@implementation Greeter
+
++(id)alloc {
+    return class_createInstance(self, 0);
+}
+
+- (std::string)sayHello:(std::string)name {
+#ifdef WITH_FEATURE
+#pragma message("compiling with feature enabled")
+	return "Hello, " + name + "!";
+#else
+    return "Bonjour, " + name + "!";
+#endif
+}
+@end
+"""))
+			}
+		}
 	}
 }
 

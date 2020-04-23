@@ -31,15 +31,20 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 			library {
 				dependencies {
 					nativeImplementation 'dev.nokee.framework:Foundation:10.15'
+					nativeImplementation 'dev.nokee.framework:CoreFoundation:10.15' // dependency of Foundation
 				}
 			}
 
-			// Internal details
-			tasks.withType(LinkSharedLibrary) {
-				linkerArgs.add('-lobjc')
-			}
-			tasks.withType(ObjectiveCCompile) {
-				compilerArgs.add('-nostdinc')
+			library.variants.configureEach {
+				sharedLibrary {
+					linkTask.configure {
+						linkerArgs.add('-nostdinc')
+						linkerArgs.add('-lobjc')
+					}
+					compileTasks.configureEach {
+						compilerArgs.add('-nostdinc')
+					}
+				}
 			}
 		"""
 		new JavaJniObjectiveCGreeterLib('greeter').withFoundationFrameworkDependency().writeToProject(testDirectory)
@@ -61,15 +66,20 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 			library {
 				dependencies {
 					nativeImplementation 'dev.nokee.framework:Foundation:10.15'
+					nativeImplementation 'dev.nokee.framework:CoreFoundation:10.15' // dependency of Foundation
 				}
 			}
 
-			// Internal details
-			tasks.withType(LinkSharedLibrary) {
-				linkerArgs.add('-lobjc')
-			}
-			tasks.withType(ObjectiveCCompile) {
-				compilerArgs.add('-nostdinc')
+			library.variants.configureEach {
+				sharedLibrary {
+					linkTask.configure {
+						linkerArgs.add('-nostdinc')
+						linkerArgs.add('-lobjc')
+					}
+					compileTasks.configureEach {
+						compilerArgs.add('-nostdinc')
+					}
+				}
 			}
 		"""
 		new JavaJniObjectiveCGreeterLib('greeter').withFoundationFrameworkDependency().writeToProject(testDirectory)
@@ -105,10 +115,12 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 				}
 			}
 
-			// Internal details
-			tasks.withType(LinkSharedLibrary) {
-				linkerArgs.add('-nostdinc')
-				linkerArgs.add('-lobjc')
+			library.variants.configureEach {
+				sharedLibrary {
+					linkTask.configure {
+						linkerArgs.add('-lobjc')
+					}
+				}
 			}
 		"""
 

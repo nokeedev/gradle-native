@@ -15,7 +15,7 @@ class JavaJniObjectiveCGreeterLib extends JniLibraryElement {
 	final ObjectiveCGreeterJniBinding nativeBindings
 	final JavaSourceElement jvmBindings
 	final JavaSourceElement jvmImplementation
-	final ObjectiveCLibraryElement nativeImplementation
+	final ObjectiveCGreeter nativeImplementation
 	final JavaSourceElement junitTest
 
 	@Override
@@ -79,6 +79,20 @@ class JavaJniObjectiveCGreeterLib extends JniLibraryElement {
 			@Override
 			SourceElement getNativeSources() {
 				return ofElements(nativeBindings, nativeImplementation.withFoundationFrameworkImplementation())
+			}
+		}
+	}
+
+	JniLibraryElement withOptionalFeature() {
+		return new JniLibraryElement() {
+			@Override
+			SourceElement getJvmSources() {
+				return JavaJniObjectiveCGreeterLib.this.jvmSources
+			}
+
+			@Override
+			SourceElement getNativeSources() {
+				return ofElements(nativeBindings, nativeImplementation.withOptionalFeature())
 			}
 		}
 	}
@@ -161,6 +175,50 @@ class ObjectiveCGreeter extends ObjectiveCLibraryElement {
     NSString * result_nsstring = [NSString stringWithFormat:@"Bonjour, %s!", name];
     char *result = calloc([result_nsstring length]+1, 1);
 	strncpy(result, [result_nsstring UTF8String], [result_nsstring length]);
+    return result;
+}
+@end
+"""))
+			}
+		}
+	}
+
+	ObjectiveCLibraryElement withOptionalFeature() {
+		return new ObjectiveCLibraryElement() {
+			@Override
+			SourceElement getPublicHeaders() {
+				return header
+			}
+
+			@Override
+			SourceElement getSources() {
+				return ofFile(sourceFile('objc', 'greeter_impl.m', """
+#import "greeter.h"
+
+#include <stdlib.h>
+#include <string.h>
+#include <objc/runtime.h>
+
+@implementation Greeter
+
++(id)alloc {
+    return class_createInstance(self, 0);
+}
+
+- (char *)sayHello:(const char *)name {
+#ifdef WITH_FEATURE
+#pragma message("compiling with feature enabled")
+	static const char HELLO_STRING[] = "Hello, ";
+#else
+	static const char HELLO_STRING[] = "Bonjour, ";
+#endif
+    static const char PONCTUATION_STRING[] = "!";
+    char * result = malloc((sizeof(HELLO_STRING)/sizeof(HELLO_STRING[0])) + strlen(name) + (sizeof(PONCTUATION_STRING)/sizeof(PONCTUATION_STRING[0])) + 1); // +1 for the null-terminator
+    // TODO: Check for error code from malloc
+    // TODO: Initialize result buffer to zeros
+    strcpy(result, HELLO_STRING);
+    strcat(result, name);
+    strcat(result, PONCTUATION_STRING);
     return result;
 }
 @end

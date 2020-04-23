@@ -1,33 +1,37 @@
 package dev.nokee.platform.jni.internal;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.internal.BinaryInternal;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.jni.JniLibrary;
+import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
+import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.RegularFile;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.jvm.tasks.Jar;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 
 public abstract class JniLibraryInternal implements JniLibrary {
 	private final NamingScheme names;
@@ -39,7 +43,7 @@ public abstract class JniLibraryInternal implements JniLibrary {
 	private final ConfigurationContainer configurations;
 	private final Configuration nativeRuntime;
 	private JniJarBinaryInternal jarBinary;
-	private Optional<SharedLibraryBinaryInternal> sharedLibraryBinary = Optional.empty();
+	private SharedLibraryBinaryInternal sharedLibraryBinary;
 	private final TaskProvider<Task> assembleTask;
 
 	@Inject
@@ -62,7 +66,7 @@ public abstract class JniLibraryInternal implements JniLibrary {
 		assembleTask.configure(task -> {
 			task.dependsOn((Callable<List<TaskProvider<?>>>) () -> {
 				List<TaskProvider<?>> result = new ArrayList<>();
-				result.addAll(sharedLibraryBinary.map(it -> singletonList(it.getLinkTask())).orElse(emptyList()));
+				result.add(sharedLibraryBinary.getLinkTask());
 				result.add(jarBinary.getJarTask());
 				return result;
 			});
@@ -89,8 +93,13 @@ public abstract class JniLibraryInternal implements JniLibrary {
 
 	public void registerSharedLibraryBinary() {
 		SharedLibraryBinaryInternal sharedLibraryBinary = getObjectFactory().newInstance(SharedLibraryBinaryInternal.class, names, configurations, sources, implementation, targetMachine);
-		getNativeRuntimeFiles().from(sharedLibraryBinary.getLinkedFile());
-		this.sharedLibraryBinary = Optional.of(sharedLibraryBinary);
+		getNativeRuntimeFiles().from((Callable<List<Provider<RegularFile>>>)() -> {
+			if (sharedLibraryBinary.getLinkedFile().isPresent()) {
+				return ImmutableList.of(sharedLibraryBinary.getLinkedFile());
+			}
+			return ImmutableList.of();
+		});
+		this.sharedLibraryBinary = sharedLibraryBinary;
 		binaries.add(sharedLibraryBinary);
 	}
 
@@ -105,8 +114,13 @@ public abstract class JniLibraryInternal implements JniLibrary {
 		return jarBinary;
 	}
 
-	public Optional<SharedLibraryBinaryInternal> getSharedLibrary() {
+	public SharedLibraryBinaryInternal getSharedLibrary() {
 		return sharedLibraryBinary;
+	}
+
+	@Override
+	public void sharedLibrary(Action<? super SharedLibraryBinary> action) {
+		action.execute(sharedLibraryBinary);
 	}
 
 	public FileCollection getNativeRuntimeDependencies() {

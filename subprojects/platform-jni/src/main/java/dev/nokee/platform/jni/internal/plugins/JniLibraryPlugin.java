@@ -1,6 +1,9 @@
 package dev.nokee.platform.jni.internal.plugins;
 
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
+import dev.nokee.language.nativebase.internal.ObjectSourceSetInternal;
+import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
+import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.NamingSchemeFactory;
@@ -95,11 +98,23 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				names = names.withVariantDimension((DefaultOperatingSystemFamily)targetMachine.getOperatingSystemFamily(), targetMachinesToOperatingSystems(targetMachines));
 				names = names.withVariantDimension((DefaultMachineArchitecture)targetMachine.getArchitecture(), targetMachinesToArchitectures(targetMachines));
 
+				// Build all language source set (TODO: It should happen inside the language plugins)
+				if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
+					extension.getSources().add(getObjects().newInstance(ObjectSourceSetInternal.class, tasks.register(names.getTaskName("compile", "cpp"), NativeSourceCompileTask.class), ObjectSourceSetInternal.LanguageType.CPP));
+				}
+				if (proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
+					extension.getSources().add(getObjects().newInstance(ObjectSourceSetInternal.class, tasks.register(names.getTaskName("compile", "c"), NativeSourceCompileTask.class), ObjectSourceSetInternal.LanguageType.C));
+				}
+				if (proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
+					extension.getSources().add(getObjects().newInstance(ObjectSourceSetInternal.class, tasks.register(names.getTaskName("compile", "objectiveCpp"), NativeSourceCompileTask.class), ObjectSourceSetInternal.LanguageType.OBJECTIVE_CPP));
+				}
+				if (proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
+					extension.getSources().add(getObjects().newInstance(ObjectSourceSetInternal.class, tasks.register(names.getTaskName("compile", "objectiveC"), NativeSourceCompileTask.class), ObjectSourceSetInternal.LanguageType.OBJECTIVE_C));
+				}
+
 				// Find toolchain capable of building C++
 				JniLibraryInternal library = extension.newVariant(names, targetMachine);
-				if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language") || proj.getPluginManager().hasPlugin("dev.nokee.c-language") || proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language") || proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
-					library.registerSharedLibraryBinary();
-				}
+				library.registerSharedLibraryBinary();
 
 				if (proj.getPluginManager().hasPlugin("java") && targetMachines.size() == 1) {
 					TaskProvider<Jar> jvmJarTask = project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class);

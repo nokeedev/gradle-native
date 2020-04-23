@@ -1,5 +1,5 @@
 digraph jniLibraryTaskGraph {
-  graph [ dpi = 100, fontname="Sans"];
+//   graph [ dpi = 100, fontname="Sans"];
   node [fontname = "Sans"];
   edge [fontname = "Sans"];
   node [shape=rectangle, fixedsize=true, width=3.3, height=0.5];
@@ -42,16 +42,27 @@ digraph jniLibraryTaskGraph {
   }
 
   // Styling
-  link [style=dashed, label=<link<i>Variant</i>>]
-  sharedLibrary [style=dashed, label=<sharedLibrary<i>Variant</i>>]
+  link [label=<link<i>Variant</i>>]
+  sharedLibrary [label=<sharedLibrary<i>Variant</i>>]
   jarNative [style=dashed, label=<jar<i>Variant</i>>]
   jarJvm [label="jar"]
 
   // link to assemble
-  {compileCpp compileC compileObjC compileObjCpp} -> link -> sharedLibrary [dir=back style=dashed headport=w tailport=e]
-  sharedLibrary -> jarNative [dir=back]
-  {rank=same sharedLibrary jarNative}
-  jarNative -> assemble [dir=back style=dashed]
+  {compileCpp compileC compileObjC compileObjCpp} -> link -> sharedLibrary -> jarNative [dir=back style=dashed headport=w tailport=e]
+  link -> sharedLibrary[dir=back]
+  sharedLibrary -> jarNative [dir=back style=dashed]
+
+  {01, 02, 03 [width=0 shape=point];}
+  02[label="multi-variant only" shape=plaintext]
+  jarNative -> 01 [dir=back style=dashed]
+  01 -> 02 -> 03 -> assemble [arrowhead=none style=dashed]
+  {rank=same assemble 01 02 03 jarNative}
+
+  {10, 20, 30 [width=0 shape=point];}
+  20[label="single variant only" shape=plaintext]
+  sharedLibrary -> 10 [dir=back style=dashed]
+  10 -> 20 -> 30 -> jarJvm [arrowhead=none style=dashed]
+  {rank=same jarJvm 10 20 30 sharedLibrary}
 
   // classes to assemble
   classes -> jarJvm [dir=back style=dashed]

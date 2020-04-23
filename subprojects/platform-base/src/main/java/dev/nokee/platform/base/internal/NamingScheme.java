@@ -53,6 +53,10 @@ public abstract class NamingScheme {
 
 	public abstract String getTaskName(String verb);
 
+	public String getTaskName(String verb, String object) {
+		return getTaskName(verb) + StringUtils.capitalize(object);
+	}
+
 	public class BaseNameNamingScheme {
 		private BaseNameNamingScheme() {}
 

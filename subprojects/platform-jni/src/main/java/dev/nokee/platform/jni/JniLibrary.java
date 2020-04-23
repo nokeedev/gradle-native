@@ -1,7 +1,9 @@
 package dev.nokee.platform.jni;
 
 import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.TargetMachine;
+import org.gradle.api.Action;
 import org.gradle.api.provider.Property;
 
 /**
@@ -23,4 +25,20 @@ public interface JniLibrary extends Variant {
 	 * @return a {@link TargetMachine} instance, never null.
 	 */
 	TargetMachine getTargetMachine();
+
+	/**
+	 * Returns the shared library binary built for this variant.
+	 *
+	 * @return a {@link SharedLibraryBinary} instance, never null.
+	 * @since 0.3
+	 */
+	SharedLibraryBinary getSharedLibrary();
+
+	/**
+	 * Configure the shared library binary for this variant.
+	 *
+	 * @param action configuration action for {@link SharedLibraryBinary}.
+	 * @since 0.3
+	 */
+	void sharedLibrary(Action<? super SharedLibraryBinary> action);
 }

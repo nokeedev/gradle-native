@@ -105,7 +105,7 @@ abstract class WellBehavingTaskTest extends AbstractFunctionalSpec implements We
 	def "can restore outputs from cache"() {
 		given:
 		makeSingleProject()
-		executer = executer.withBuildCacheEnabled()
+		executer = executer.requireOwnGradleUserHomeDirectory().withBuildCacheEnabled()
 
 		when:
 		succeeds('taskUnderTest')
