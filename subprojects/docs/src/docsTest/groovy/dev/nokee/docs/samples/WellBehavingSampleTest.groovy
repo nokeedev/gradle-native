@@ -116,9 +116,10 @@ abstract class WellBehavingSampleTest extends Specification {
 	def "ensure gradle commands does not have any timing values in build result"() {
 		def fixture = new SampleContentFixture(sampleName)
 
-		expect:
 		// TODO: Reports all the error at once instead of failing on the first one
 		def commands = wrap(fixture.commands).findAll { it instanceof GradleWrapperCommand } as List<GradleWrapperCommand>
+		assumeThat("Gradle commands are present", commands.size(), greaterThan(0))
+		expect:
 		commands*.assertNoTimingInformationOnBuildResult()
 	}
 
