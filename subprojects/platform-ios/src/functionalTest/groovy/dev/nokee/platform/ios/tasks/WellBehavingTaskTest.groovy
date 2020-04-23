@@ -31,6 +31,8 @@ abstract class WellBehavingTaskTest extends AbstractFunctionalSpec implements We
 	}
 	//endregion
 
+	// TODO: Maybe have similar check as validatePlugins, see https://scans.gradle.com/s/jn2rqe3hv3his/console-log#L327
+
 	def "ensure all getters are marked with annotations"() {
 		given:
 		List<Class<? extends Annotation>> allIncrementalGradleAnnotationTypes = [Input, InputDirectory, InputFiles, InputFile, OutputFile, OutputDirectory, OutputDirectories, Classpath]
