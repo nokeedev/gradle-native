@@ -106,6 +106,6 @@ Improvement will come in the next release.
 [[sec:reporting-problems]]
 == Reporting Problems
 If you find a problem with any of the plugins, please file a bug on https://github.com/nokeedev/gradle-native[GitHub Issues] adhering to our issue guidelines.
-If you're not sure you're encountering a bug, please https://discuss.gradle.org/tags/c/help-discuss/14/native[use the Gradle user forum] or the https://app.slack.com/client/TA7ULVA9K/CDDGUSJ7R[[Gradle Community Slack].
+If you're not sure you're encountering a bug, please https://discuss.gradle.org/tags/c/help-discuss/14/native[use the Gradle user forum] or the https://app.slack.com/client/TA7ULVA9K/CDDGUSJ7R[Gradle Community Slack].
 
 Let's build happiness with Gradle, and I'm looking forward to your feedback via https://twitter.com/nokeedev[Twitter] or on https://github.com/nokeedev[GitHub].
