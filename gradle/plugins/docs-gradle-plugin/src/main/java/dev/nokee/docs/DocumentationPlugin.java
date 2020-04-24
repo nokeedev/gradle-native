@@ -260,7 +260,7 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 								spec.filter(ImmutableMap.of("prepend", settingsTemplateFile.get().getAsFile()), ConcatFilter.class);
 							});
 							copySpec.into(outputDirectory);
-							copySpec.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
+							copySpec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE);
 						});
 					}
 				});
