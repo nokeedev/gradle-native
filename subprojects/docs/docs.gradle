@@ -159,21 +159,32 @@ private String resolveProperty(Project project, String envVarKey, String project
 	return null;
 }
 
-tasks.withType(CreateAsciinema).configureEach {
-	onlyIf {
-		return !project.hasProperty('skipAllAsciinemaTasks')
+afterEvaluate {
+	tasks.withType(CreateAsciinema).configureEach {
+		onlyIf {
+			return !project.hasProperty('skipAllAsciinemaTasks')
+		}
+	}
+	['extractDocsScreenshot', 'compileDocsAsciicast'].each { name ->
+		tasks.named(name) {
+			onlyIf {
+				return !project.hasProperty('skipAllAsciinemaTasks')
+			}
+		}
 	}
 }
 
 tasks.register('bakedDocsTest', Test) { task ->
 	task.group(LifecycleBasePlugin.VERIFICATION_GROUP)
 	task.dependsOn('assembleDocumentation')
+	tasks.docsTest.copyTo((JavaForkOptions)task)
 	task.inputs.dir(layout.buildDirectory.dir('generated/baked'))
 	task.systemProperty('bakedContentDirectory', layout.buildDirectory.dir('generated/baked').get().asFile.absolutePath)
 	task.useJUnit {
 		includeCategories('dev.nokee.docs.tags.Baked')
 	}
-	tasks.docsTest.copyTo(task)
+	task.testClassesDirs = tasks.docsTest.testClassesDirs
+	task.classpath = tasks.docsTest.classpath
 }
 
 tasks.named('docsTest', Test) { task ->
