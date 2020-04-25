@@ -7,7 +7,7 @@ import org.gradle.api.Action;
 import org.gradle.api.provider.Property;
 
 /**
- *  Configuration for a specific Java Native Interface (JNI) library variant, defining the dependencies that make up the library plus other settings.
+ * Configuration for a specific Java Native Interface (JNI) library variant, defining the dependencies that make up the library plus other settings.
  *
  * @since 0.2
  */
