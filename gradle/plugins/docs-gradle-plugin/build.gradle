@@ -1,5 +1,5 @@
 plugins {
-	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'dev.gradleplugins.groovy-gradle-plugin'
 	id 'java-test-fixtures'
 }
 
@@ -34,9 +34,13 @@ dependencies {
 	implementation 'org.jbake:jbake-gradle-plugin:5.0.0'
 	implementation 'com.google.guava:guava:28.2-jre'
 	implementation 'org.apache.commons:commons-lang3:3.9'
-
+	implementation 'com.github.javaparser:javaparser-core:3.15.18'
+	implementation 'org.codehaus.groovy:groovy-all:2.5.10'
 
 	def lombokVersion = '1.18.12'
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
 	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 	testFixturesImplementation 'com.google.guava:guava:28.2-jre'
@@ -47,4 +51,11 @@ dependencies {
 	testFixturesImplementation 'junit:junit:4.13'
 	testFixturesImplementation 'org.apache.commons:commons-lang3:3.9'
 	testFixturesCompileOnly 'org.codehaus.groovy:groovy-xml:2.5.10'
+
+	def spockVersion = '1.2-groovy-2.5'
+	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
+	testImplementation 'org.spockframework:spock-core'
+	testImplementation 'dev.gradleplugins:gradle-api:6.2.1'
+	testImplementation 'net.bytebuddy:byte-buddy:1.10.9'
+	testImplementation("org.objenesis:objenesis:3.1")
 }

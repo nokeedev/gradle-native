@@ -1,0 +1,15 @@
+<plugins>
+    <plugin id="dev.nokee.jni-library" description="JNI Library Plugin">
+        <extends targetClass="org.gradle.api.Project" id="library" extensionClass="dev.nokee.platform.jni.JniLibraryExtension"/>
+    </plugin>
+    <plugin id="dev.nokee.c-language" description="C Language Plugin">
+    </plugin>
+    <plugin id="dev.nokee.cpp-language" description="C++ Language Plugin">
+    </plugin>
+    <plugin id="dev.nokee.objective-c-language" description="Objective-C Language Plugin">
+    </plugin>
+    <plugin id="dev.nokee.objective-cpp-language" description="Objective-C++ Language Plugin">
+    </plugin>
+    <plugin id="dev.nokee.ios-application" description="iOS Application Plugin">
+    </plugin>
+</plugins>

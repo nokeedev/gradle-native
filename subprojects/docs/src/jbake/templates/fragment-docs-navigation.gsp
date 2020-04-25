@@ -26,6 +26,7 @@
 		def kReferencePluginsCrumb = crumb('Reference Plugins', "${path}manual/plugin-references.html")
 		def kSamplesCrumb = crumb('Samples', "${path}samples/")
 		def kReleaseNotesCrumb = crumb('Release Notes', "${path}release-notes.html")
+		def kDslCrumb = crumb('Domain Specific Language', "${path}/dsl/")
 
 		switch (content.type) {
 			case 'reference_chapter': return [kUserManualCrumb, kReferencePluginsCrumb, kContentCrumb]
@@ -40,13 +41,15 @@
 					return [kUserManualCrumb, kContentCrumb]
 				}
 			default:
-				throw new UnsupportedOperationException("Unknown content type (${content.type})")
+				throw new UnsupportedOperationException("[fragment-docs-navigation.gsp] Unknown content type (${content.type})")
 		}
 	}
 
 	def formatCrumbs = { List<Map> breadcrumbs ->
 		return "<ul>${breadcrumbs.collect({ '<li><a href="' + it.href + '">' + it.title + '</a></li>' }).join('')}</ul>"
 	}
+
+	def hasDsl = !content.uri.contains('0.1.0') && !content.uri.contains('0.2.0')
 %>
 <nav class="docs-navigation">
 	<div class="breadcrumbs">${formatCrumbs(getBreadcrumbs())}</div>
@@ -58,6 +61,7 @@
 			<li><a ${anchorOf('samples/')}>Samples</a></li>
 			<li><a ${anchorOf('release-notes.html')}>Release Notes</a></li>
 			<% if (!content.uri.contains('0.1.0')) {%><li><a ${anchorOf('javadoc/index.html')}>Nokee Javadoc API</a></li><%}%>
+			<% if (hasDsl) {%><li><a ${anchorOf('dsl/index.html')}>Nokee DSL Reference</a></li><%}%>
 		</ul>
 		<h3 id="user-manual">User Manual </h3>
 		<ul>

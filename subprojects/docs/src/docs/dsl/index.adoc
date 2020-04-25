@@ -1,0 +1,10 @@
+= Nokee Build Language Reference
+:jbake-type: dsl_index
+:jbake-tags: user manual, gradle plugin dsl, nokee build language
+:jbake-description: Learn about the build language for all Nokee plugins.
+
+== Introduction
+
+This reference guide describes the various types which make up the Nokee build language, or DSL.
+
+It is analogous to the link:{gradle-language-reference}[Gradle build language guide] and serves the same purpose.

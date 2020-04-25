@@ -67,18 +67,19 @@ trait DocumentationTaskNames {
 			}
 
 			List<String> getAllToAssembleSamples() {
-				return allToStageSamples + [withProject('assembleSamples')]
+				return allToStageSamples + [withProject('assembleSamples')] + allToZipGroovyDsl + allToZipKotlinDsl
 			}
 
 			List<String> getAllToStageBake() {
-				return allToStageSamples + [withProject('processDocsAsciidoctors'), withProject('stageBake')]
+				return allToStageSamples + [withProject('assembleDsl'), withProject('dslMetaData'), withProject('processDocsAsciidoctors'), withProject('stageBake')]
 			}
 
 			List<String> getAllToStageDocumentation() {
-				return allToStageSamples + [
+				return allToStageSamples + allToZipGroovyDsl + allToZipKotlinDsl + [
 					withProject("generateSamplesAsciinema${toCamelCase(sampleName)}"),
 					withProject('assembleAsciicast'), withProject('compileDocsAsciicast'), withProject('extractDocsScreenshot'), withProject('compileDocsGif'), withProject('createDocsPlayer'),
 					withProject('compileDocsDot'), withProject('processDocsAsciidoctors'),
+					withProject('assembleDsl'), withProject('dslMetaData'),
 					withProject('stageBake'), withProject('bake'),
 					withProject('stageDocumentation')]
 			}

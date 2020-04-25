@@ -59,7 +59,7 @@ BUILD SUCCESSFUL
 		when:
 		succeeds('stageBake')
 		then:
-		result.assertTasksExecutedAndNotSkipped(tasks.withSample('foo-bar').allToStageBake)
+		result.assertTasksExecuted(tasks.withSample('foo-bar').allToStageBake)
 		file('build/staging').assertHasDescendants('assets/js/foo.js', 'content/docs/4.2/samples/foo-bar/index.adoc',
 			'content/docs/4.2/samples/foo-bar/groovy-dsl/.jbakeignore', 'content/docs/4.2/samples/foo-bar/groovy-dsl/build.gradle', 'content/docs/4.2/samples/foo-bar/groovy-dsl/settings.gradle', 'content/docs/4.2/samples/foo-bar/groovy-dsl/gradlew', 'content/docs/4.2/samples/foo-bar/groovy-dsl/gradlew.bat', 'content/docs/4.2/samples/foo-bar/groovy-dsl/gradle/wrapper/gradle-wrapper.jar', 'content/docs/4.2/samples/foo-bar/groovy-dsl/gradle/wrapper/gradle-wrapper.properties', 'content/docs/4.2/samples/foo-bar/groovy-dsl/src/main/java/com/example/Foo.java',
 			'content/docs/4.2/samples/foo-bar/kotlin-dsl/.jbakeignore', 'content/docs/4.2/samples/foo-bar/kotlin-dsl/build.gradle.kts', 'content/docs/4.2/samples/foo-bar/kotlin-dsl/settings.gradle.kts', 'content/docs/4.2/samples/foo-bar/kotlin-dsl/gradlew', 'content/docs/4.2/samples/foo-bar/kotlin-dsl/gradlew.bat', 'content/docs/4.2/samples/foo-bar/kotlin-dsl/gradle/wrapper/gradle-wrapper.jar', 'content/docs/4.2/samples/foo-bar/kotlin-dsl/gradle/wrapper/gradle-wrapper.properties', 'content/docs/4.2/samples/foo-bar/kotlin-dsl/src/main/java/com/example/Foo.java',
@@ -93,7 +93,7 @@ BUILD SUCCESSFUL
 		when:
 		succeeds('assembleDocumentation')
 		then:
-		result.assertTasksExecutedAndNotSkipped(tasks.withSample('foo-bar').allToAssembleDocumentation)
+		result.assertTasksExecuted(tasks.withSample('foo-bar').allToAssembleDocumentation)
 
 		when:
 		assert file('build').deleteDir()
@@ -110,7 +110,7 @@ BUILD SUCCESSFUL
 		when:
 		succeeds('assembleDocumentation')
 		then:
-		result.assertTasksExecutedAndNotSkipped(tasks.withSample('foo-bar').allToAssembleDocumentation)
+		result.assertTasksExecuted(tasks.withSample('foo-bar').allToAssembleDocumentation)
 
 		when:
 		succeeds('assembleDocumentation', '-i')
@@ -211,7 +211,7 @@ Some more content
 		when:
 		succeeds('assembleSamples')
 		then:
-		result.assertTasksExecutedAndNotSkipped(tasks.withSample('foo-bar').allToAssembleSamples)
+		result.assertTasksExecuted(tasks.withSample('foo-bar').allToAssembleSamples)
 
 		when:
 		buildFile << '''
@@ -219,7 +219,7 @@ Some more content
 		'''
 		succeeds('assembleSamples')
 		then:
-		result.assertTasksSkipped(':generateSamplesGradleWrapper', ':generateFooBarSampleContent', ':processFooBarSampleAsciidoctors')
+		result.assertTasksSkipped(':assembleFooBarGroovyDsl', ':assembleFooBarKotlinDsl', ':generateSamplesGradleWrapper', ':generateFooBarSampleContent', ':processFooBarSampleAsciidoctors')
 		result.assertTasksExecuted(tasks.withSample('foo-bar').allToAssembleSamples)
 	}
 

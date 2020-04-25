@@ -1,0 +1,4 @@
+{
+	"properties": ["dependencies", "targetMachines", "variants"],
+	"methods": ["dependencies"]
+}

@@ -1,0 +1,4 @@
+{
+	"properties": ["compileTasks", "linkTask"],
+	"methods": []
+}

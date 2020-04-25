@@ -1,0 +1,4 @@
+{
+	"properties": ["windows", "linux", "macOS", "freeBSD"],
+	"methods": []
+}

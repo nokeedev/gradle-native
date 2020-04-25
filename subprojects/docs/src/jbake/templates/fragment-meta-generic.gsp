@@ -29,6 +29,7 @@
 		def kReferencePluginsCrumb = crumb('Reference Plugins', "${config.site_host}/docs/${version}/manual/plugin-references.html")
 		def kSamplesCrumb = crumb('Samples', "${config.site_host}/docs/${version}/samples/")
 		def kReleaseNotesCrumb = crumb('Release Notes', "${config.site_host}/docs/${version}/release-notes.html")
+		def kDslCrumb = crumb('Domain Specific Language', "${config.site_host}/docs/${version}/dsl/")
 
 		switch (content.type) {
 			case 'reference_chapter': return [kUserManualCrumb, kReferencePluginsCrumb, kContentCrumb]
@@ -36,6 +37,8 @@
 			case 'sample_chapter': return [kSamplesCrumb, kContentCrumb]
 			case 'sample_index': return [kSamplesCrumb]
 			case 'release_notes': return [kReleaseNotesCrumb]
+			case 'dsl_chapter': return [kDslCrumb, kContentCrumb]
+			case 'dsl_index': return [kDslCrumb]
 			case 'manual_chapter':
 				if (content.uri.endsWith('user-manual.html')) {
 					return [kUserManualCrumb]
@@ -48,7 +51,7 @@
 			case 'page':
 				return []
 			default:
-				throw new UnsupportedOperationException("Unknown content type (${content.type})")
+				throw new UnsupportedOperationException("[fragment-meta-generic.gsp] Unknown content type (${content.type})")
 		}
 	}
 
