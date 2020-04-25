@@ -80,12 +80,16 @@ public abstract class HtmlTag<T> {
 	public static final HtmlTag<HtmlTagFixture.HtmlAnchor> ANCHOR = new HtmlTag<HtmlTagFixture.HtmlAnchor>() {
 		@Override
 		public boolean is(GPathResult e) {
-			return ((NodeChild)e).attributes().containsKey("id");
+			return ((NodeChild)e).attributes().containsKey("id") || ((NodeChild)e).attributes().containsKey("name");
 		}
 
 		@Override
 		public HtmlTagFixture.HtmlAnchor create(URI uri, NodeChild n) {
-			return new HtmlTagFixture.HtmlAnchor(new HtmlTagPath(uri, XPath.of(n)), n.attributes().get("id").toString());
+			String idOrName = Objects.toString(n.attributes().get("id"), null);
+			if (idOrName == null) {
+				idOrName = Objects.toString(n.attributes().get("name"), null);
+			}
+			return new HtmlTagFixture.HtmlAnchor(new HtmlTagPath(uri, XPath.of(n)), idOrName);
 		}
 	};
 

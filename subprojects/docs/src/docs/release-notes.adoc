@@ -92,7 +92,7 @@ It will help with the migration from existing custom JNI support to the Nokee's 
 [[sec:objc-objcpp]]
 == Objective-C and Objective-{cpp} Support
 
-The JNI library plugin now support link:samples/java-objective-c-jni-library[Objective-C] and link:samples/java-objective-cpp-jni-library[Objective-{cpp}] implementation language via <<manual/plugin-references.adoc#sec:native-language-plugins,new language plugins>>.
+The JNI library plugin now support link:samples/java-objective-c-jni-library[Objective-C] and link:samples/java-objective-cpp-jni-library[Objective-{cpp}] implementation language via <<manual/plugin-references.adoc#native_languages,new language plugins>>.
 They work just like the other, C and {cpp}, language plugins.
 
 [[sec:testing-coverage]]

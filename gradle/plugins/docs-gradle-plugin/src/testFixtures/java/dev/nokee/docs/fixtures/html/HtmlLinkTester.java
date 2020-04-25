@@ -13,10 +13,11 @@ import org.junit.Assert;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -119,28 +120,43 @@ public class HtmlLinkTester {
 		links.addAll(thiz.findAll(HtmlTag.SCRIPT).stream().filter(it -> it.getSrc().isPresent()).map(it -> new Hyperlink(it.getPath(), it.getSrc().get())).collect(Collectors.toSet()));
 		links.addAll(thiz.findAll(HtmlTag.LINK).stream().filter(it -> it.getHref().isPresent() && !it.isCanonical()).map(it -> new Hyperlink(it.getPath(), it.getHref().get())).collect(Collectors.toSet()));
 		return links.stream().map(link -> {
-			String href = link.getHref();
-			if (href.startsWith("http://") || href.startsWith("https://")) {
-				return new HttpResource(link, URI.create(href));
-			} else if (href.startsWith("/")) {
-				return new OnDiskFile(link, thiz.getRoot(), thiz.getRoot().resolve(href.substring(1)).toUri());
-			} else if (href.startsWith("../")) {
-				return new OnDiskFile(link, thiz.getRoot(), new File(thiz.getUri()).toPath().getParent().resolve(href).normalize().toUri());
-			} else if (href.startsWith("#")) {
-				return new AnchorWithinFile(link, thiz.getRoot(), thiz.getUri(), href.substring(1));
+			String href = URLDecoder.decode(link.getHref());
+
+			// Shortcut for known href to ignore
+			if (href.startsWith("javascript:")) {
+				return new JavaScript();
 			} else if (href.startsWith("mailto:")) {
 				return new Mailto(link, URI.create(href));
-			} else if (href.contains("#")) {
-				if (href.contains(":")) {
-					if (href.indexOf(":") < href.indexOf("#")) {
-						// May be a unknown protocol/scheme
-						return new Unknown(link, href);
-					}
-				}
-				return new AnchorWithinFile(link, thiz.getRoot(), new File(thiz.getUri()).toPath().getParent().resolve(href.substring(0, href.indexOf("#"))).toUri(), href.substring(href.indexOf("#") + 1));
-			} else {
-				return new OnDiskFile(link, thiz.getRoot(), new File(thiz.getUri()).toPath().getParent().resolve(href).toUri());
 			}
+
+			Optional<String> anchor = Optional.empty();
+			if (href.contains("#")) {
+				anchor = Optional.of(href.substring(href.indexOf("#") + 1));
+				href = href.substring(0, href.indexOf("#"));
+			}
+
+			if (href.endsWith("/")) {
+				href += "index.html";
+			}
+
+			ResWithUri res = new OnDiskFile(link, thiz.getRoot(), new File(thiz.getUri()).toPath().getParent().resolve(href).toUri());
+			if (href.startsWith("http://") || href.startsWith("https://")) {
+				res = new HttpResource(link, URI.create(href));
+			} else if (href.startsWith("/")) {
+				res = new OnDiskFile(link, thiz.getRoot(), thiz.getRoot().resolve(href.substring(1)).toUri());
+			} else if (href.startsWith("../")) {
+				res = new OnDiskFile(link, thiz.getRoot(), new File(thiz.getUri()).toPath().getParent().resolve(href).normalize().toUri());
+			} else if (href.isEmpty()) {
+				res = new OnDiskFile(link, thiz.getRoot(), thiz.getUri());
+			} else if (href.contains(":")) {
+				// May be a unknown protocol/scheme
+				return new Unknown(link, href);
+			}
+
+			if (anchor.isPresent()) {
+				return new AnchorWithinResource(res, anchor.get());
+			}
+			return res;
 		}).collect(Collectors.toSet());
 	}
 
@@ -150,22 +166,48 @@ public class HtmlLinkTester {
 	}
 
 	@Value
-	public class HttpResource implements Res {
+	public class AnchorWithinResource implements Res {
+		@NonNull ResWithUri resource;
+		@NonNull String anchor;
+
+		@Override
+		public void validate(FailureReporter visitor) {
+			resource.validate(visitor);
+
+			if (resource.getFixture().findAll(HtmlTag.ANCHOR).stream().noneMatch(it -> it.getIdOrName().equals(anchor))) {
+				visitor.badAnchor(this);
+			}
+		}
+	}
+
+	@Value
+	public class JavaScript implements Res {
+		@Override
+		public void validate(FailureReporter visitor) {
+		}
+	}
+
+	public interface ResWithUri extends Res {
+		HtmlTestFixture getFixture();
+	}
+
+	@Value
+	public class HttpResource implements ResWithUri {
 		@NonNull Hyperlink link;
 		@NonNull URI uri;
+
+		@Override
+		public HtmlTestFixture getFixture() {
+			return new HtmlTestFixture(null, uri, UriService.INSTANCE);
+		}
 
 		@Override
 		public void validate(FailureReporter reporter) {
 			if (blackList.isBlackListed(uri)) {
 				return;
 			}
-			if (!service.exists(getUriWithoutFragment())) {
+			if (!service.exists(uri)) {
 				reporter.resourceDoesNotExists(this);
-			}
-			if (uri.getFragment() != null) {
-				if (new HtmlTestFixture(null, getUriWithoutFragment(), UriService.INSTANCE).findAll(HtmlTag.ANCHOR).stream().noneMatch(it -> it.getId().equals(uri.getFragment()))) {
-					reporter.badAnchor(this);
-				}
 			}
 			if (uri.getScheme().equals("http")) {
 				if (service.hasValidSslCertificate(uri)) {
@@ -173,52 +215,35 @@ public class HtmlLinkTester {
 				}
 			}
 		}
-
-		private URI getUriWithoutFragment() {
-			try {
-				return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), null);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException(e);
-			}
-		}
 	}
 
 	@Value
-	public class OnDiskFile implements Res {
+	public class OnDiskFile implements ResWithUri {
 		@NonNull Hyperlink link;
 		@NonNull Path root;
 		@NonNull URI uri;
+
+		@Override
+		public HtmlTestFixture getFixture() {
+			return new HtmlTestFixture(root, uri, UriService.INSTANCE);
+		}
 
 		@Override
 		public void validate(FailureReporter reporter) {
 			if (blackList.isBlackListed(uri)) {
 				return;
 			}
-			if (!new File(uri).exists()) {
+			if (!new File(withoutQueryString(uri)).exists()) {
 				reporter.resourceDoesNotExists(this);
 			}
 		}
-	}
 
-	@Value
-	public class AnchorWithinFile implements Res {
-		@NonNull Hyperlink link;
-		@NonNull Path root;
-		@NonNull URI uri;
-		@NonNull String anchor;
-
-		@Override
-		public void validate(FailureReporter reporter) {
-			if (blackList.isBlackListed(uri)) {
-				return;
+		private URI withoutQueryString(URI href) {
+			String uri = URLDecoder.decode(href.toString());
+			if (uri.contains("?")) {
+				return URI.create(uri.substring(0, uri.indexOf("?")));
 			}
-			if (!new File(uri).exists()) {
-				reporter.resourceDoesNotExists(this);
-			}
-
-			if (new HtmlTestFixture(root, uri, UriService.INSTANCE).findAll(HtmlTag.ANCHOR).stream().noneMatch(it -> it.getId().equals(anchor))) {
-				reporter.badAnchor(this);
-			}
+			return href;
 		}
 	}
 

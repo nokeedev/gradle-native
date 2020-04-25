@@ -12,7 +12,7 @@ class ProperBakedHtmlTest extends Specification {
 	def "has alt text on all images"() {
 		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
-		fixture.findAllHtml().collect { it.findAll(HtmlTag.IMG) }.each {
+		fixture.allHtmlWithoutJavadoc.collect { it.findAll(HtmlTag.IMG) }.each {
 			it*.assertHasAltText()
 		}
 	}
@@ -20,7 +20,7 @@ class ProperBakedHtmlTest extends Specification {
 	def "has proper canonical links"() {
 		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
-		fixture.findAllHtml().each {
+		fixture.allHtmlWithoutJavadoc.each {
 			def canonicalLinks = it.findAll(HtmlTag.LINK).findAll { it.isCanonical() }
 			assert canonicalLinks.size() == 1
 			assert canonicalLinks.first().href.present
@@ -31,7 +31,7 @@ class ProperBakedHtmlTest extends Specification {
 	def "has proper open-graph URL"() {
 		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
-		fixture.findAllHtml().each {
+		fixture.allHtmlWithoutJavadoc.each {
 			def openGraphUrls = it.findAll(HtmlTag.META).findAll { it.openGraphUrl }
 			assert openGraphUrls.size() == 1
 			assert openGraphUrls.first().content == it.getCanonicalPath()
@@ -42,7 +42,7 @@ class ProperBakedHtmlTest extends Specification {
 		// It seems 160 characters is a good limit
 		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
-		fixture.findAllHtml().each {
+		fixture.allHtmlWithoutJavadoc.each {
 			def metaDescriptions = it.findAll(HtmlTag.META).findAll { it.description }
 			assert metaDescriptions.size() == 1, "${it.uri} does not have the right meta description tag count"
 			assert metaDescriptions.first().content.size() > 0, "${it.uri} cannot have empty meta description tag"
@@ -53,7 +53,7 @@ class ProperBakedHtmlTest extends Specification {
 	def "has proper keywords"() {
 		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
-		fixture.findAllHtml().each {
+		fixture.allHtmlWithoutJavadoc.each {
 			def metaKeywords = it.findAll(HtmlTag.META).findAll { it.keywords }
 			assert metaKeywords.size() == 1, "${it.uri} does not have the right meta keyword tag count"
 			assert metaKeywords.first().content.size() > 0, "${it.uri} cannot have empty meta keyword tag"
@@ -64,7 +64,7 @@ class ProperBakedHtmlTest extends Specification {
 	def "has proper twitter meta description"() {
 		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
-		fixture.findAllHtml().each {
+		fixture.allHtmlWithoutJavadoc.each {
 			def twitterDescriptions = it.findAll(HtmlTag.META).findAll { it.twitterDescription }
 			assert twitterDescriptions.size() == 1, "${it.uri} does not have the right meta twitter description tag count"
 			assert twitterDescriptions.first().content.size() > 0, "${it.uri} cannot have empty meta keyword tag"
@@ -75,7 +75,7 @@ class ProperBakedHtmlTest extends Specification {
 	def "has breadcrumb structured data"() {
 		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
-		fixture.allHtmlWithoutRedirection.each {
+		fixture.allHtmlWithoutRedirectionAndJavadoc.each {
 			// Retrieve structured data tag
 			def scripts = it.findAll(HtmlTag.SCRIPT).findAll { it.type.present && it.type.get() == 'application/ld+json' }
 			assert scripts.size() == 1, "${it.uri} does not have the right structured data tag count"

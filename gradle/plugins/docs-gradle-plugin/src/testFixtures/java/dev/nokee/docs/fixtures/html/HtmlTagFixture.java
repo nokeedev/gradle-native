@@ -150,11 +150,11 @@ public abstract class HtmlTagFixture {
 	@EqualsAndHashCode(callSuper = true)
 	@ToString(callSuper = true)
 	public static class HtmlAnchor extends HtmlTagFixture {
-		String id;
+		String idOrName;
 
-		public HtmlAnchor(HtmlTagPath path, String id) {
+		public HtmlAnchor(HtmlTagPath path, String idOrName) {
 			super(path);
-			this.id = id;
+			this.idOrName = idOrName;
 		}
 	}
 }

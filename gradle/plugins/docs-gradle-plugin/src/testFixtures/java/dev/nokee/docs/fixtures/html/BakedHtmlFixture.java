@@ -35,8 +35,12 @@ public class BakedHtmlFixture {
 		return result;
 	}
 
-	public List<HtmlTestFixture> getAllHtmlWithoutRedirection() {
-		return findAllHtml().stream().filter(it -> !it.isRedirectionPage()).collect(Collectors.toList());
+	public List<HtmlTestFixture> getAllHtmlWithoutJavadoc() {
+		return findAllHtml().stream().filter(it -> !it.isJavadoc()).collect(Collectors.toList());
+	}
+
+	public List<HtmlTestFixture> getAllHtmlWithoutRedirectionAndJavadoc() {
+		return findAllHtml().stream().filter(it -> !it.isRedirectionPage() && !it.isJavadoc()).collect(Collectors.toList());
 	}
 
 	private static boolean isHtmlFile(Path path) {

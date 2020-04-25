@@ -62,6 +62,11 @@ public class HtmlTestFixture {
 		return false;
 	}
 
+	public boolean isJavadoc() {
+		String path = getPath();
+		return path.contains("/javadoc/");
+	}
+
 	public List<ListItem> getBreadcrumbs() {
 		String path = getPath();
 		if (path.endsWith("/plugin-references.html")) {
