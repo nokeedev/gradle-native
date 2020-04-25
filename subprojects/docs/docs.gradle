@@ -197,7 +197,7 @@ tasks.named('docsTest', Test) { task ->
 }
 
 tasks.named('stageDocumentation', Sync) {
-	from(tasks.getByPath(':platformJni:javadoc')) {
+	from(tasks.getByPath(':distributions:javadoc')) {
 		into('docs/nightly/javadoc')
 	}
 }

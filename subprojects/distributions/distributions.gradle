@@ -4,18 +4,20 @@ plugins {
 
 import groovy.json.JsonOutput
 
-def publishToStaging = tasks.register('publishToStaging')
-
-// TODO: Add distribution test that ensure gradle-api is not inside any pom (or any dev.gradleplugins artifacts)
-
-def distributionRepository = layout.buildDirectory.dir('repository')
-[
+def allPluginProjectPaths = [
 	':languageNative',
 	':platformBase',
 	':platformIos',
 	':platformJni',
 	':platformNative'
-].each { String projectPath ->
+]
+
+def publishToStaging = tasks.register('publishToStaging')
+
+// TODO: Add distribution test that ensure gradle-api is not inside any pom (or any dev.gradleplugins artifacts)
+
+def distributionRepository = layout.buildDirectory.dir('repository')
+allPluginProjectPaths.each { String projectPath ->
 	project(projectPath) { Project proj ->
 		def publishToDistribution = proj.tasks.register('publishToDistribution')
 		proj.pluginManager.withPlugin('maven-publish') {
@@ -90,4 +92,18 @@ private String resolveProperty(Project project, String envVarKey, String project
 	}
 
 	return null;
+}
+
+tasks.register('javadoc', Javadoc) {
+	source(allPluginProjectPaths.collect { evaluationDependsOn(it).sourceSets.main.allJava })
+	destinationDir = layout.buildDirectory.dir('javadoc').get().asFile
+	classpath = files(allPluginProjectPaths.collect { evaluationDependsOn(it).sourceSets.main.compileClasspath })
+
+	exclude('**/internal/**')
+
+	StandardJavadocDocletOptions options = it.options as StandardJavadocDocletOptions
+	options.setEncoding("utf-8")
+	options.setDocEncoding("utf-8")
+	options.setCharSet("utf-8")
+	options.links("https://docs.oracle.com/javase/8/docs/api", "https://docs.gradle.org/${minimumGradleVersion}/javadoc/")
 }
