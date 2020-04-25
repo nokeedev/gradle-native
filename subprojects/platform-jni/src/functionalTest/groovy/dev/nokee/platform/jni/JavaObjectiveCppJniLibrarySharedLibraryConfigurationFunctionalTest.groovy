@@ -1,8 +1,14 @@
 package dev.nokee.platform.jni
 
+import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
+import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCppGreeterLib
+import spock.lang.Requires
+import spock.util.environment.OperatingSystem
 
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
 class JavaObjectiveCppJniLibrarySharedLibraryConfigurationFunctionalTest extends AbstractSharedLibraryConfigurationFunctionalTest {
 	@Override
 	protected String getCompileTaskName() {
