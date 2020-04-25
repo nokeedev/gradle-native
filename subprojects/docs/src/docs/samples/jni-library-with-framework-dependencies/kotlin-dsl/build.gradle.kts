@@ -5,7 +5,7 @@ plugins {
 }
 
 library {
-	targetMachines = [machines.macOS]
+	targetMachines.set(listOf(machines.macOS))
 	dependencies {
 		nativeImplementation("dev.nokee.framework:Cocoa:10.15")        // <1>
 
