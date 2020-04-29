@@ -9,7 +9,7 @@ import dev.nokee.platform.jni.JvmJarBinary
 import dev.nokee.platform.jni.JniJarBinary
 
 library {
-	targetMachines.set(listOf(machines.macOS, machines.linux, machines.windows.x86, machines.windows.x86_64))
+	targetMachines.set(listOf(machines.macOS, machines.linux, machines.windows))
 }
 
 /**
