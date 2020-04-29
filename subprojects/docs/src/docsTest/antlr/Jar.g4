@@ -18,4 +18,4 @@ PathElement: (LOWERCASE | UPPERCASE | DIGIT | '_' | '.' | '-')+;
 
 RelativePath: (PathElement PATH_SEPARATOR)+ PathElement?;
 
-Newline: ('\n' | '\r\n' | '\f');
+Newline: ('\n' | '\r\n' | '\f') -> skip;

@@ -16,9 +16,9 @@ public class JarCommandHelper {
 		@NonNull Set<String> paths;
 
 		public static JarCommandHelper.Output parse(String output) {
-			dev.nokee.docs.fixtures.TreeLexer lexer = new dev.nokee.docs.fixtures.TreeLexer(CharStreams.fromString(output));
+			dev.nokee.docs.fixtures.JarLexer lexer = new dev.nokee.docs.fixtures.JarLexer(CharStreams.fromString(output));
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
-			dev.nokee.docs.fixtures.TreeParser parser = new dev.nokee.docs.fixtures.TreeParser(tokens);
+			dev.nokee.docs.fixtures.JarParser parser = new dev.nokee.docs.fixtures.JarParser(tokens);
 
 			ExtractJarModel l = new ExtractJarModel();
 			ParseTreeWalker.DEFAULT.walk((ParseTreeListener)l, parser.output());

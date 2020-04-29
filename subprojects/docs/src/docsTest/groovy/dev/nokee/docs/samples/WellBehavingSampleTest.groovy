@@ -274,8 +274,9 @@ abstract class WellBehavingSampleTest extends Specification {
 				def scriptCommandLine = ['/bin/bash', '-c']
 				def executable = command.executable
 				def process = (scriptCommandLine + [([executable] + command.args).join(' ')]).execute(null, testDirectory)
-				def stdout = process.in.text
 				assert process.waitFor() == 0
+				def stdout = process.in.text
+				println stdout
 				assert stdout.startsWith(command.expectedOutput.get())
 			}
 		}
