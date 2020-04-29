@@ -83,6 +83,10 @@ public class HtmlTestFixture {
 			return asList(new ListItem("User Manual", "https://nokee.dev/docs/nightly/manual/user-manual.html"));
 		} else if (path.contains("/manual/")) {
 			return asList(new ListItem("User Manual", "https://nokee.dev/docs/nightly/manual/user-manual.html"), new ListItem(getPageName(), "https://nokee.dev/" + canonicalize(path)));
+		} else if (path.endsWith("/dsl/index.html")) {
+			return asList(new ListItem("Domain Specific Language", "https://nokee.dev/docs/nightly/dsl/"));
+		} else if (path.contains("/dsl/")) {
+			return asList(new ListItem("Domain Specific Language", "https://nokee.dev/docs/nightly/dsl/"), new ListItem(getPageName(), "https://nokee.dev/" + canonicalize(path)));
 		}
 		return Collections.emptyList();
 	}
