@@ -12,7 +12,7 @@ class BrokenLinksTest extends Specification {
 		def report = new HtmlLinkTester(HtmlLinkTester.validEmails("hello@nokee.dev"), new HtmlLinkTester.BlackList() {
 			@Override
 			boolean isBlackListed(URI uri) {
-				return uri.toString().contains("/blog") || uri.toString().contains('/current/') || uri.toString().endsWith("/baked/index.html")
+				return uri.toString().contains("/blog") || uri.toString().contains('/current/') || uri.toString().endsWith("/baked/index.html") || uri.toString().contains('/api/javax/annotation/Nonnull.html')
 			}
 		}).reportBrokenLinks(new File(System.getProperty('bakedContentDirectory')))
 		report.assertNoFailures()
