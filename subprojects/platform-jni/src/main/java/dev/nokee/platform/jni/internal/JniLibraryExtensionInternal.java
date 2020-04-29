@@ -1,11 +1,11 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.BinaryInternal;
-import dev.nokee.platform.base.internal.DefaultVariantView;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryDependencies;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.nativebase.TargetMachine;
@@ -24,7 +24,7 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	private final ConfigurationContainer configurations;
 	private final JniLibraryDependenciesInternal dependencies;
 	private final GroupId groupId;
-	private final DomainObjectSet<? super BinaryInternal> binaries;
+	private final DomainObjectSet<BinaryInternal> binaryCollection;
 
 	public DomainObjectSet<JniLibraryInternal> getVariantCollection() {
 		return variantCollection;
@@ -34,7 +34,7 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 
 	@Inject
 	public JniLibraryExtensionInternal(ObjectFactory objectFactory, ConfigurationContainer configurations, JniLibraryDependenciesInternal dependencies, GroupId groupId) {
-		binaries = objectFactory.domainObjectSet(BinaryInternal.class);
+		binaryCollection = objectFactory.domainObjectSet(BinaryInternal.class);
 		sources = objectFactory.domainObjectSet(LanguageSourceSetInternal.class);
 		variantCollection = objectFactory.domainObjectSet(JniLibraryInternal.class);
 		this.configurations = configurations;
@@ -46,14 +46,14 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	protected abstract ObjectFactory getObjectFactory();
 
 	public JniLibraryInternal newVariant(NamingScheme names, TargetMachine targetMachine) {
-		return getObjectFactory().newInstance(JniLibraryInternal.class, names, configurations, sources, dependencies.getNativeDependencies(), targetMachine, groupId);
+		return getObjectFactory().newInstance(JniLibraryInternal.class, names, configurations, sources, dependencies.getNativeDependencies(), targetMachine, groupId, binaryCollection);
 	}
 
-	public DomainObjectSet<? super BinaryInternal> getBinaries() {
-		return binaries;
+	public BinaryView<Binary> getBinaries() {
+		return Cast.uncheckedCast(getObjectFactory().newInstance(DefaultBinaryView.class, binaryCollection));
 	}
 
-	public VariantView<? extends JniLibraryInternal> getVariants() {
+	public VariantView<JniLibrary> getVariants() {
 		return Cast.uncheckedCast(getObjectFactory().newInstance(DefaultVariantView.class, variantCollection));
 	}
 

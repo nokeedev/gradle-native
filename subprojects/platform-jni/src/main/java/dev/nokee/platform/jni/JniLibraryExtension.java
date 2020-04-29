@@ -1,5 +1,7 @@
 package dev.nokee.platform.jni;
 
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.nativebase.TargetMachine;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
@@ -48,6 +50,16 @@ public interface JniLibraryExtension {
 	 * Configure the variants of this component.
 	 *
 	 * @return a {@link VariantView} for configuring each {@link JniLibrary}, never null.
+	 * @since 0.2
 	 */
-	VariantView<? extends JniLibrary> getVariants();
+	VariantView<JniLibrary> getVariants();
+
+	/**
+	 * Configure the binaries of this component.
+	 * The view contains an aggregation of all the binaries for each realized variants.
+	 *
+	 * @return a {@link BinaryView} for configuring each binary, never null.
+	 * @since 0.3
+	 */
+	BinaryView<Binary> getBinaries();
 }

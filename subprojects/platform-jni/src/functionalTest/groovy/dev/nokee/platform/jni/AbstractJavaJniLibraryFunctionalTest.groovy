@@ -3,6 +3,7 @@ package dev.nokee.platform.jni
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.platform.nativebase.SharedLibraryBinary
 
 abstract class AbstractJavaJniLibraryFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	private static collectEachPermutation(values) {
@@ -131,6 +132,41 @@ abstract class AbstractJavaJniLibraryFunctionalTest extends AbstractInstalledToo
 
 		then:
 		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', sharedLibraryName('com/example/foobar/jni-greeter'))
+	}
+
+	def "can query the binaries for single-variant library"() {
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+		buildFile << """
+			import ${JarBinary.canonicalName}
+			import ${JniJarBinary.canonicalName}
+			import ${JvmJarBinary.canonicalName}
+			import ${SharedLibraryBinary.canonicalName}
+
+			tasks.register('verify') {
+				doLast {
+					def variants = library.variants.elements
+					assert variants.get().size() == 1
+
+					def binaries = variants.get().first().binaries.elements
+					assert binaries.get().size() == 2
+					assert binaries.get().count { it instanceof ${JarBinary.simpleName} } == 1
+					assert binaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 0
+					assert binaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
+					assert binaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 1
+
+					def allBinaries = library.binaries.elements
+					assert allBinaries.get().size() == 2
+					assert allBinaries.get().count { it instanceof ${JarBinary.simpleName} } == 1
+					assert allBinaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 0
+					assert allBinaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
+					assert allBinaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 1
+				}
+			}
+		"""
+
+		expect:
+		succeeds('verify')
 	}
 
 	protected String configureProjectGroup(String groupId) {

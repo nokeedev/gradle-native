@@ -1,0 +1,93 @@
+= JNI Library as Uber JAR
+:jbake-summary: Create an uber JAR containing all the buildable JNI shared library binaries.
+:jbake-type: sample_chapter
+:jbake-tags: sample, jni, java, jvm, native, c++, testing, gradle, uber jar
+:jbake-category: Java Native Interface (JNI)
+:jbake-description: See how to create an uber JAR containing all buildable Java Native Interface (JNI) shared library binaries with the Gradle Nokee plugins.
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how to create a single JAR containing the JVM code and all the buildable shared library binaries of a Java Native Interface (JNI) library.
+The library has no dependencies and targets Windows x86/x64, Linux x86-64 and macOS x86-64.
+
+In this sample, we use a JNI library implemented in Java and {cpp}; however, this applies to other JVM and native languages as well.
+
+JNI libraries producing a single variant, the shared library binary will be included inside the JVM JAR.
+The JVM JAR refers to the JAR containing all the JVM classes.
+When the library produces multiple variants, Gradle produces an additional, separated, JAR, referred to as the JNI JAR, for each variant. The JNI JAR contains only the shared library binary and a manifest file.
+In the event where releasing a single JAR containing both the classes and the shared library binaries for a platform is preferable, it is possible to create an uber JAR.
+The following code creates a new JAR task, i.e. `uberJar`, that merge the content of the JVM and JNI JARs.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+<1> Filtering all the binaries of the library for JNI JAR binaries.
+<2> Filtering all the binaries of the library for JVM JAR binaries.
+
+To create the uber JAR:
+
+[listing.terminal]
+----
+$ ./gradlew uberJar
+
+BUILD SUCCESSFUL
+6 actionable tasks: 6 executed
+----
+
+It will create the uber JAR together with the JVM and JNI JARs:
+
+[listing.terminal,only-if='macos']
+----
+$ ls ./build/libs/*.jar
+./build/libs/jni-library-as-uber-jar-macos-x86-64.jar
+./build/libs/jni-library-as-uber-jar-uber.jar
+./build/libs/jni-library-as-uber-jar.jar
+----
+
+We can inspect the content of JARs to reveal the intended result:
+
+[listing.terminal,only-if='macos']
+----
+$ jar tf ./build/libs/jni-library-as-uber-jar-macos-x86-64.jar
+META-INF/
+META-INF/MANIFEST.MF
+macos-x86-64/
+macos-x86-64/libjni-library-as-uber-jar.dylib
+
+$ jar tf ./build/libs/jni-library-as-uber-jar.jar
+META-INF/
+META-INF/MANIFEST.MF
+com/
+com/example/
+com/example/greeter/
+com/example/greeter/NativeLoader.class
+com/example/greeter/Greeter.class
+
+$ jar tf ./build/libs/jni-library-as-uber-jar-uber.jar
+META-INF/
+META-INF/MANIFEST.MF
+macos-x86-64/
+macos-x86-64/libjni-library-as-uber-jar.dylib
+com/
+com/example/
+com/example/greeter/
+com/example/greeter/NativeLoader.class
+com/example/greeter/Greeter.class
+----
+
+For more information, see <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin reference chapter>>.

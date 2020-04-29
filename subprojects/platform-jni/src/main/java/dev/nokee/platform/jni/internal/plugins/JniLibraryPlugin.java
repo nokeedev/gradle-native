@@ -2,13 +2,15 @@ package dev.nokee.platform.jni.internal.plugins;
 
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.language.nativebase.internal.ObjectSourceSetInternal;
-import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.jni.JniLibraryExtension;
-import dev.nokee.platform.jni.internal.*;
+import dev.nokee.platform.jni.internal.DefaultJvmJarBinary;
+import dev.nokee.platform.jni.internal.JniLibraryDependenciesInternal;
+import dev.nokee.platform.jni.internal.JniLibraryExtensionInternal;
+import dev.nokee.platform.jni.internal.JniLibraryInternal;
 import dev.nokee.platform.nativebase.TargetMachine;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.*;
@@ -68,12 +70,12 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		});
 
 		// Include native runtime files inside JNI jar
-		extension.getVariants().configureEach(library -> {
+		extension.getVariantCollection().configureEach(library -> {
 			library.getJar().getJarTask().configure(task -> task.from(library.getNativeRuntimeFiles(), spec -> spec.into(library.getResourcePath().get())));
 		});
 
 		// Attach JNI Jar to runtimeElements
-		extension.getVariants().configureEach(library -> {
+		extension.getVariantCollection().configureEach(library -> {
 			// TODO: Maybe go through the source set instead
 			// TODO: Expose Jar on runtimeElements but the directory where the shared library is located
 			if (extension.getTargetMachines().get().size() > 1 || !project.getPluginManager().hasPlugin("java")) {
@@ -92,6 +94,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			assertNonEmpty(extension.getTargetMachines().get(), "target machine", "library");
 			assertTargetMachinesAreKnown(targetMachines);
 
+			Optional<DefaultJvmJarBinary> jvmJarBinary = findJvmBinary(proj);
 			targetMachines.stream().filter(toolChainSelector::canBuild).forEach(targetMachine -> {
 
 				NamingScheme names = mainComponentNames;
@@ -116,18 +119,17 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				JniLibraryInternal library = extension.newVariant(names, targetMachine);
 				library.registerSharedLibraryBinary();
 
-				if (proj.getPluginManager().hasPlugin("java") && targetMachines.size() == 1) {
-					TaskProvider<Jar> jvmJarTask = project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class);
-					library.registerJniJarBinary(jvmJarTask);
-					library.getAssembleTask().configure(task -> task.dependsOn(jvmJarTask));
+				if (jvmJarBinary.isPresent() && targetMachines.size() == 1) {
+					library.addJniJarBinary(jvmJarBinary.get());
 				} else {
 					library.registerJniJarBinary();
-					if (proj.getPluginManager().hasPlugin("java")) {
-						library.getAssembleTask().configure(task -> task.dependsOn(project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class)));
-					} else {
-						// FIXME: There is a gap here, if the project doesn't have any JVM plugin applied but specify multiple target machine what is expected?
-						//   Only JNI Jar? or an empty JVM Jar and JNI Jar?... Hmmm....
-					}
+					jvmJarBinary.ifPresent(library::addJvmJarBinary);
+//					if (proj.getPluginManager().hasPlugin("java")) {
+//						library.getAssembleTask().configure(task -> task.dependsOn(project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class)));
+//					} else {
+//						// FIXME: There is a gap here, if the project doesn't have any JVM plugin applied but specify multiple target machine what is expected?
+//						//   Only JNI Jar? or an empty JVM Jar and JNI Jar?... Hmmm....
+//					}
 				}
 
 
@@ -152,6 +154,14 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				return Collections.emptyList();
 			});
 		});
+	}
+
+	private Optional<DefaultJvmJarBinary> findJvmBinary(Project project) {
+		if (project.getPluginManager().hasPlugin("java")) {
+			TaskProvider<Jar> jvmJarTask = project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class);
+			return Optional.of(getObjects().newInstance(DefaultJvmJarBinary.class, jvmJarTask));
+		}
+		return Optional.empty();
 	}
 
 	private static Set<DefaultOperatingSystemFamily> targetMachinesToOperatingSystems(Collection<TargetMachine> targetMachines) {

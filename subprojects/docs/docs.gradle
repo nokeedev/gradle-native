@@ -107,6 +107,9 @@ documentation {
 		'jni-library-with-framework-dependencies' {
 			template = new JavaJniCppGreeterLib('jni-library-with-framework-dependencies')
 		}
+		'jni-library-as-uber-jar' {
+			template = new JavaJniCppGreeterLib('jni-library-as-uber-jar')
+		}
 
 		'objective-c-ios-application' {
 			template = new ObjectiveCIosApp()

@@ -4,6 +4,7 @@ import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.language.MixedLanguageTaskNames
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
+import dev.nokee.platform.nativebase.SharedLibraryBinary
 import dev.nokee.platform.nativebase.internal.DefaultMachineArchitecture
 import dev.nokee.platform.nativebase.internal.DefaultOperatingSystemFamily
 
@@ -178,6 +179,43 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 		result.assertTasksExecutedAndNotSkipped(':cpp-library:compileDebugX86-64Cpp', ':cpp-library:linkDebugX86-64',
 			":compileMain${currentOsFamilyName.capitalize()}x86-64SharedLibraryMainCpp", ":linkMain${currentOsFamilyName.capitalize()}x86-64SharedLibrary",
 			':compileJava', ':jarX86-64')
+	}
+
+
+	def "can query the binaries for multi-variant library"() {
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+		buildFile << configureTargetMachines('machines.macOS', 'machines.windows', 'machines.linux')
+		buildFile << """
+			import ${JarBinary.canonicalName}
+			import ${JniJarBinary.canonicalName}
+			import ${JvmJarBinary.canonicalName}
+			import ${SharedLibraryBinary.canonicalName}
+
+			tasks.register('verify') {
+				doLast {
+					def variants = library.variants.elements
+					assert variants.get().size() == 1
+
+					def binaries = variants.get().first().binaries.elements
+					assert binaries.get().size() == 3
+					assert binaries.get().count { it instanceof ${JarBinary.simpleName} } == 2
+					assert binaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 1
+					assert binaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
+					assert binaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 1
+
+					def allBinaries = library.binaries.elements
+					assert allBinaries.get().size() == 3
+					assert allBinaries.get().count { it instanceof ${JarBinary.simpleName} } == 2
+					assert allBinaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 1
+					assert allBinaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
+					assert allBinaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 1
+				}
+			}
+		"""
+
+		expect:
+		succeeds('verify')
 	}
 
 	protected String configureProjectGroup(String groupId) {

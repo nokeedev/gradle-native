@@ -1,4 +1,6 @@
 package dev.nokee.platform.base.internal;
 
-public class BinaryInternal {
+import dev.nokee.platform.base.Binary;
+
+public class BinaryInternal implements Binary {
 }

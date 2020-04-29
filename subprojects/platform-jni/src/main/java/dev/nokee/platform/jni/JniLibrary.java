@@ -1,5 +1,7 @@
 package dev.nokee.platform.jni;
 
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.TargetMachine;
@@ -41,4 +43,13 @@ public interface JniLibrary extends Variant {
 	 * @since 0.3
 	 */
 	void sharedLibrary(Action<? super SharedLibraryBinary> action);
+
+	/**
+	 * Configure the binaries of this variant.
+	 * The view contains only the binaries participating to this variant.
+	 *
+	 * @return a {@link BinaryView} for configuring each binary, never null.
+	 * @since 0.3
+	 */
+	BinaryView<Binary> getBinaries();
 }
