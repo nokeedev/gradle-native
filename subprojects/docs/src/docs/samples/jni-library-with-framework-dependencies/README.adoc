@@ -38,7 +38,7 @@ To build the library:
 $ ./gradlew assemble
 
 BUILD SUCCESSFUL
-2 actionable tasks: 2 executed
+4 actionable tasks: 4 executed
 ----
 
 The JNI library produced inside `./build/libs` directory:
@@ -58,10 +58,13 @@ META-INF/
 META-INF/MANIFEST.MF
 com/
 com/example/
+com/example/greeter/
+com/example/greeter/NativeLoader.class
+com/example/greeter/Greeter.class
 com/example/cocoa/
 com/example/cocoa/NativeLoader.class
 com/example/cocoa/NSSavePanel.class
-libjni-library-with-framework-dependencie.dylib
+libjni-library-with-framework-dependencies.dylib
 ----
 
 For more information, see <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin>> and <<../../manual/objective-c-language-plugin.adoc#,Objective-C Language Plugin>> reference chapters.

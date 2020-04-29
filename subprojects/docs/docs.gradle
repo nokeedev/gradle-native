@@ -105,7 +105,7 @@ documentation {
 			template = new JavaJniCppGreeterLib('jni-library-with-resource-path')
 		}
 		'jni-library-with-framework-dependencies' {
-			template = new JavaJniCppGreeterLib('jni-library-with-framework-dependencies')
+			template = new JavaJniObjectiveCNSSavePanelLib('jni-library-with-framework-dependencies')
 		}
 		'jni-library-as-uber-jar' {
 			template = new JavaJniCppGreeterLib('jni-library-as-uber-jar')
