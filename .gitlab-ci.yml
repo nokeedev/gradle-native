@@ -56,7 +56,7 @@ deploy:
 
 
 publish (JBake Templates):
-  stage: build
+  stage: deploy
   script:
     - ./gradlew --scan :docs:publishJbakePublicationToS3Repository
     - curl --request POST --form "token=$CI_JOB_TOKEN" --form ref=master https://gitlab.com/api/v4/projects/17545900/trigger/pipeline # docs.nokee.dev
@@ -77,7 +77,7 @@ publish (JBake Templates):
 publish (docs nightly):
   stage: build
   script:
-    - ./gradlew --scan --max-workers 4 :docs:bakedDocsTest :docs:publishBakedPublicationToS3Repository
+    - ./gradlew --scan --max-workers 4 --info :docs:bakedDocsTest :docs:publishBakedPublicationToS3Repository
     - curl --request POST --form "token=$CI_JOB_TOKEN" --form ref=master https://gitlab.com/api/v4/projects/16537594/trigger/pipeline # nokeedev.gitlab.io
   only:
     changes:
