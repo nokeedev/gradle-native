@@ -54,7 +54,7 @@ It will create the uber JAR together with the JVM and JNI JARs:
 [listing.terminal,only-if='macos']
 ----
 $ ls ./build/libs/*.jar
-./build/libs/jni-library-as-uber-jar-macos-x86-64.jar
+./build/libs/jni-library-as-uber-jar-macos.jar
 ./build/libs/jni-library-as-uber-jar-uber.jar
 ./build/libs/jni-library-as-uber-jar.jar
 ----
@@ -63,11 +63,11 @@ We can inspect the content of JARs to reveal the intended result:
 
 [listing.terminal,only-if='macos']
 ----
-$ jar tf ./build/libs/jni-library-as-uber-jar-macos-x86-64.jar
+$ jar tf ./build/libs/jni-library-as-uber-jar-macos.jar
 META-INF/
 META-INF/MANIFEST.MF
-macos-x86-64/
-macos-x86-64/libjni-library-as-uber-jar.dylib
+macos/
+macos/libjni-library-as-uber-jar.dylib
 
 $ jar tf ./build/libs/jni-library-as-uber-jar.jar
 META-INF/
@@ -81,8 +81,8 @@ com/example/greeter/Greeter.class
 $ jar tf ./build/libs/jni-library-as-uber-jar-uber.jar
 META-INF/
 META-INF/MANIFEST.MF
-macos-x86-64/
-macos-x86-64/libjni-library-as-uber-jar.dylib
+macos/
+macos/libjni-library-as-uber-jar.dylib
 com/
 com/example/
 com/example/greeter/

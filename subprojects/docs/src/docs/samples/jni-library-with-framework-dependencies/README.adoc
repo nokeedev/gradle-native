@@ -58,9 +58,6 @@ META-INF/
 META-INF/MANIFEST.MF
 com/
 com/example/
-com/example/greeter/
-com/example/greeter/NativeLoader.class
-com/example/greeter/Greeter.class
 com/example/cocoa/
 com/example/cocoa/NativeLoader.class
 com/example/cocoa/NSSavePanel.class
