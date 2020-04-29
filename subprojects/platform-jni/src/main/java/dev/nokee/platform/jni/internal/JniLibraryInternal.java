@@ -143,7 +143,7 @@ public abstract class JniLibraryInternal implements JniLibrary {
 
 	public void addJvmJarBinary(DefaultJvmJarBinary jvmJarBinary) {
 		binaryCollection.add(jvmJarBinary);
-		assembleTask.configure(dependsOn(jvmJarBinary));
+		assembleTask.configure(dependsOn(jvmJarBinary.getJarTask()));
 	}
 
 	public DefaultTargetMachine getTargetMachine() {
