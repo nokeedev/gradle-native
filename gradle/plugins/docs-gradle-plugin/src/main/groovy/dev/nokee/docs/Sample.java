@@ -5,6 +5,7 @@ import dev.gradleplugins.test.fixtures.sources.SourceElement;
 import dev.nokee.docs.tasks.GenerateSamplesContentTask;
 import dev.nokee.docs.types.Asciidoctor;
 import dev.nokee.docs.types.PublicData;
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.Task;
@@ -18,6 +19,8 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 
 public abstract class Sample implements Named {
 	private final String name;
@@ -47,6 +50,11 @@ public abstract class Sample implements Named {
 			task.doLast(new Action<Task>() {
 				@Override
 				public void execute(Task task) {
+					try {
+						FileUtils.deleteDirectory(outputDirectory.get().getAsFile());
+					} catch (IOException e) {
+						throw new UncheckedIOException(e);
+					}
 					getTemplate().get().writeToProject(TestFile.of(outputDirectory.get().getAsFile()));
 				}
 			});
