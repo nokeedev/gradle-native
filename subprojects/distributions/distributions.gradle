@@ -98,12 +98,4 @@ tasks.register('javadoc', Javadoc) {
 	source(allPluginProjectPaths.collect { evaluationDependsOn(it).sourceSets.main.allJava })
 	destinationDir = layout.buildDirectory.dir('javadoc').get().asFile
 	classpath = files(allPluginProjectPaths.collect { evaluationDependsOn(it).sourceSets.main.compileClasspath })
-
-	exclude('**/internal/**')
-
-	StandardJavadocDocletOptions options = it.options as StandardJavadocDocletOptions
-	options.setEncoding("utf-8")
-	options.setDocEncoding("utf-8")
-	options.setCharSet("utf-8")
-	options.links("https://docs.oracle.com/javase/8/docs/api", "https://docs.gradle.org/${minimumGradleVersion}/javadoc/")
 }

@@ -21,16 +21,6 @@ dependencies {
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 }
 
-tasks.named('javadoc', Javadoc) {
-	exclude('**/internal/**')
-
-	StandardJavadocDocletOptions options = it.options as StandardJavadocDocletOptions
-	options.setEncoding("utf-8")
-	options.setDocEncoding("utf-8")
-	options.setCharSet("utf-8")
-	options.links("https://docs.oracle.com/javase/8/docs/api", "https://docs.gradle.org/${minimumGradleVersion}/javadoc/")
-}
-
 gradlePlugin {
 	plugins {
 		jniLibrary {
