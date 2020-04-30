@@ -37,9 +37,7 @@ dependencies {
 			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
 		}
 	}
-	docsTestCompileOnly "dev.gradleplugins:gradle-api:${minimumGradleVersion}" // Is this really needed?
-	docsTestCompileOnly gradleTestKit() // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
-	docsTestRuntimeOnly "dev.gradleplugins:gradle-api:${minimumGradleVersion}" // Because of the gradle-fixtures AbstractInstalledToolChainIntegrationSpec
+	docsTestImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}" // Is this really needed?
 
 	docsTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 	docsTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
@@ -55,8 +53,6 @@ dependencies {
 	docsTestImplementation 'io.github.http-builder-ng:http-builder-ng-core:1.0.4'
 	docsTestImplementation 'com.google.guava:guava:28.2-jre'
 	docsTestImplementation testFixtures('dev.nokee.docs:docs-gradle-plugin:latest.integration')
-	docsTestImplementation 'org.codehaus.groovy:groovy-all:2.5.2' // Need to look into this
-	docsTestImplementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.71' // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
 }
 // TODO: Improve this Antlr mess... :(
 afterEvaluate {

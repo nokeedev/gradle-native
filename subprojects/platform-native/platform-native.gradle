@@ -30,7 +30,6 @@ dependencies {
 			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
 		}
 	}
-	testImplementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.71' // Because of java.lang.NoClassDefFoundError: kotlin/jvm/functions/Function0 from AbstractInstalledToolChains
 }
 
 gradlePlugin {
