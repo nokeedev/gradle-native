@@ -28,11 +28,6 @@ gradlePlugin {
 			implementationClass = 'dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin'
 		}
 	}
-	extra {
-		minimumGradleVersion = project.minimumGradleVersion
-		withJavadocJar()
-		withSourcesJar()
-	}
 }
 
 components.functionalTest {

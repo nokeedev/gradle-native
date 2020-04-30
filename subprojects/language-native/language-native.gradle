@@ -33,9 +33,4 @@ gradlePlugin {
 			implementationClass = 'dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin'
 		}
 	}
-	extra {
-		minimumGradleVersion = project.minimumGradleVersion
-		withJavadocJar()
-		withSourcesJar()
-	}
 }

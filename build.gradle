@@ -58,6 +58,19 @@ subprojects {
 	}
 }
 
+// Configure gradlePlugin
+subprojects {
+	pluginManager.withPlugin('dev.gradleplugins.java-gradle-plugin') {
+		gradlePlugin {
+			extra {
+				minimumGradleVersion = project.minimumGradleVersion
+				withJavadocJar()
+				withSourcesJar()
+			}
+		}
+	}
+}
+
 // Configure javadoc tasks
 subprojects {
 	tasks.withType(Javadoc).configureEach {
