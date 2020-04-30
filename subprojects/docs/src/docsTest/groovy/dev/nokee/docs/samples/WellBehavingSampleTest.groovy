@@ -8,9 +8,9 @@ import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.test.fixtures.gradle.GradleExecuterFactory
 import dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl
 import dev.gradleplugins.test.fixtures.gradle.executer.GradleExecuter
-import dev.gradleplugins.test.fixtures.gradle.executer.LogContent
-import dev.gradleplugins.test.fixtures.gradle.executer.OutputScrapingExecutionResult
-import dev.gradleplugins.test.fixtures.logging.ConsoleOutput
+import dev.gradleplugins.test.fixtures.gradle.executer.internal.LogContent
+import dev.gradleplugins.test.fixtures.gradle.executer.internal.OutputScrapingExecutionResult
+import dev.gradleplugins.test.fixtures.gradle.logging.ConsoleOutput
 import dev.nokee.docs.fixtures.Command
 import dev.nokee.docs.fixtures.JarCommandHelper
 import dev.nokee.docs.fixtures.SampleContentFixture
@@ -84,7 +84,7 @@ abstract class WellBehavingSampleTest extends Specification {
 	@Unroll
 	def "ensure root project name is configured for the sample"(dsl) {
 		def fixture = new SampleContentFixture(sampleName)
-		fixture.getDslSample(dsl).unzipTo(temporaryFolder.testDirectory)
+		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
 
 		expect:
 		// TODO: Improve assertion to ensure it's rootProject.name = <sampleName> and not just a random <sampleName> in the settings script
@@ -146,7 +146,7 @@ abstract class WellBehavingSampleTest extends Specification {
 	@Unroll
 	def "can run './gradlew #taskName' successfully"(taskName, dsl) {
 		def fixture = new SampleContentFixture(sampleName)
-		fixture.getDslSample(dsl).unzipTo(temporaryFolder.testDirectory)
+		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
 
 		GradleExecuter executer = configureLocalPluginResolution(new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory)))
 		expect:
@@ -169,7 +169,7 @@ abstract class WellBehavingSampleTest extends Specification {
 		assumeTrue(toolChain.meets(toolChainRequirement));
 
 		def fixture = new SampleContentFixture(sampleName)
-		fixture.getDslSample(dsl).unzipTo(temporaryFolder.testDirectory)
+		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
 
 		def c = wrapAndGetExecutable(fixture.getCommands())
 		assumeThat(c.size(), greaterThan(0));
