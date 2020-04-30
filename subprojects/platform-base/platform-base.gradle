@@ -17,7 +17,7 @@ dependencies {
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 }
 
-// TODO: Align with Gradle plugin development
+// TODO(toolbox): Expose the APIs allowing to query the compatibility based on Gradle version
 java {
 	sourceCompatibility = JavaVersion.VERSION_1_8
 	targetCompatibility = JavaVersion.VERSION_1_8
