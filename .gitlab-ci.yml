@@ -37,7 +37,7 @@ test (linux):
 test (windows):
   stage: test
   # FIXME: Shouldn't need to ignore the Asciinema tasks, they should just not be wired in for testing
-  script: cmd.exe /c "gradlew.bat check --scan --continue -x :docs:compileDocsDot -PskipAllAsciinemaTasks -x :docs:compileDocsAsciicast"
+  script: cmd.exe /c "gradlew.bat check --scan --continue --no-daemon -x :docs:compileDocsDot -PskipAllAsciinemaTasks -x :docs:compileDocsAsciicast"
   tags:
     - os=windows
   variables:
