@@ -22,6 +22,16 @@ public abstract class DefaultBinaryView<T extends Binary> implements BinaryView<
 	}
 
 	@Override
+	public void configureEach(Action<? super T> action) {
+		delegate.configureEach(action);
+	}
+
+	@Override
+	public <S extends T> void configureEach(Class<S> type, Action<? super S> action) {
+		delegate.withType(type).configureEach(action);
+	}
+
+	@Override
 	public <S extends T> BinaryView<S> withType(Class<S> type) {
 		return Cast.uncheckedCast(getObjects().newInstance(DefaultBinaryView.class, delegate.withType(type)));
 	}
