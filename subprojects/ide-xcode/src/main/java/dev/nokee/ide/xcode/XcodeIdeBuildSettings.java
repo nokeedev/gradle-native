@@ -7,12 +7,12 @@ import java.util.Map;
 /**
  * Represent the build settings of a build configuration for a target.
  *
- * <blockquote cite="https://developer.apple.com/library/content/featuredarticles/XcodeConcepts/Concept-Build_Settings.html">
+ * <blockquote>
  *     <p>
  *         A build setting is a variable that contains information about how a particular aspect of a product’s build process should be performed.
  *         For example, the information in a build setting can specify which options Xcode passes to the compiler.
  *     </p>
- *     <footer>—Xcode Build Settings Concept</footer>
+ *     <span>—Xcode Build Settings Concept</span>
  * </blockquote>
  *
  * It is assumed that Xcode will be delegating to Gradle for most of the build requirements.

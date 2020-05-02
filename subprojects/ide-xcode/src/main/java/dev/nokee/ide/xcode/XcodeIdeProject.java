@@ -9,14 +9,14 @@ import org.gradle.api.provider.Provider;
 /**
  * Represents a Xcode IDE project.
  *
- * <blockquote cite="https://developer.apple.com/library/content/featuredarticles/XcodeConcepts/Concept-Projects.html">
+ * <blockquote>
  *     <p>
  *         An Xcode project is a repository for all the files, resources, and information required to build one or more software products.
  *         A project contains all the elements used to build your products and maintains the relationships between those elements.
  *         It contains one or more targets, which specify how to build products.
  *         A project defines default build settings for all the targets in the project (each target can also specify its own build settings, which override the project build settings).
  *     </p>
- *     <footer>—Xcode Projects Concept</footer>
+ *     <span>—Xcode Projects Concept</span>
  * </blockquote>
  *
  * It is assumed that each project will delegate to Gradle for building.

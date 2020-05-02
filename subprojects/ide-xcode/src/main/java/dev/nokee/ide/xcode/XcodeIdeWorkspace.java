@@ -8,13 +8,13 @@ import org.gradle.api.provider.SetProperty;
 /**
  * Represents the generated Xcode IDE workspace.
  *
- * <blockquote cite="https://developer.apple.com/library/content/featuredarticles/XcodeConcepts/Concept-Workspace.html">
+ * <blockquote>
  *     <p>
  *         A workspace is an Xcode document that groups projects and other documents so you can work on them together.
  *         A workspace can contain any number of Xcode projects, plus any other files you want to include.
  *         In addition to organizing all the files in each Xcode project, a workspace provides implicit and explicit relationships among the included projects and their targets.
  *     </p>
- *     <footer>—Xcode Workspace Concept</footer>
+ * 	   <span>—Xcode Workspace Concept</span>
  * </blockquote>
  *
  * @since 0.3
