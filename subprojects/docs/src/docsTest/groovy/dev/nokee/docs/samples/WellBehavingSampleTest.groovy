@@ -325,7 +325,7 @@ abstract class WellBehavingSampleTest extends Specification {
 
 				assert UnzipCommandHelper.Output.parse(stdout) == UnzipCommandHelper.Output.parse(command.expectedOutput.get())
 			} else {
-				inputFile.unzipTo(outputDirectory)
+				inputFile.usingNativeTools().unzipTo(outputDirectory)
 			}
 		}
 	}
