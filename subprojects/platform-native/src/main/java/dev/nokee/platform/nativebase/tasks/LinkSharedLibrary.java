@@ -1,6 +1,7 @@
 package dev.nokee.platform.nativebase.tasks;
 
 import org.gradle.api.Task;
+import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Internal;
@@ -30,4 +31,12 @@ public interface LinkSharedLibrary extends Task {
 	 */
 	@Internal
 	ListProperty<String> getLinkerArgs();
+
+	/**
+	 * Returns the location of the linked binary.
+	 *
+	 * @return a provider of where the binary is linked.
+	 */
+	@Internal
+	Provider<RegularFile> getLinkedFile();
 }

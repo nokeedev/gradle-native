@@ -23,6 +23,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
 import org.gradle.api.attributes.Attribute;
+import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
@@ -101,6 +102,7 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 		binary.getTasks().withType(org.gradle.nativeplatform.tasks.LinkSharedLibrary.class, task -> {
 			linkTask.configure(dependsOn(task.getName()));
 			linkTask.configure(it -> it.getToolChain().set(task.getToolChain()));
+			linkTask.configure(it -> it.getLinkedFile().set(task.getLinkedFile()));
 			// TODO: We should copy other linkTask configuration to task
 
 			task.dependsOn(linkConfiguration);
