@@ -423,11 +423,16 @@ abstract class WellBehavingSampleTest extends Specification {
 				scriptCommandLine = ['cmd', '/c']
 			}
 			def executable = FilenameUtils.separatorsToSystem(command.executable)
+			println "Executing ${([executable] + command.args).join(' ')}"
 			def process = (scriptCommandLine + ([executable] + command.args).join(' ')).execute(null, testDirectory)
-			assert process.waitFor() == 0
+			int exitCode = process.waitFor()
 			def stdout = process.in.text
+			def stderr = process.err.text
 			println stdout // TODO: Port this capability to other commands
-
+			if (exitCode != 0) {
+				println stderr
+			}
+			assert exitCode == 0
 			// TODO: Not technically right to use LogContent as it has some opinion on Gradle execution
 			assert LogContent.of(stdout).withNormalizedEol().startsWith(command.getExpectedOutput().get())
 		}
