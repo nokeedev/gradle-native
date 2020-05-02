@@ -5,6 +5,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
@@ -20,6 +21,9 @@ public abstract class IosApplicationPlugin implements Plugin<Project> {
 
 	@Inject
 	protected abstract TaskContainer getTasks();
+
+	@Inject
+	protected abstract ProviderFactory getProviders();
 
 	@Override
 	public void apply(Project project) {
@@ -60,7 +64,7 @@ public abstract class IosApplicationPlugin implements Plugin<Project> {
 		TaskProvider<CreateIosApplicationBundleTask> createApplicationBundleTask = getTasks().register("createApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
 			task.getApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/main/" + moduleName + "-unsigned.app"));
 			task.getSources().from(linkStoryboardTask.flatMap(StoryboardLinkTask::getDestinationDirectory));
-			task.getSources().from(getTasks().withType(AbstractLinkTask.class).stream().map(AbstractLinkTask::getLinkedFile).collect(Collectors.toList()));
+			task.getSources().from(getProviders().provider(() -> getTasks().withType(AbstractLinkTask.class).stream().map(AbstractLinkTask::getLinkedFile).collect(Collectors.toList())));
 			task.getSources().from(assetCatalogCompileTaskTask.flatMap(AssetCatalogCompileTask::getDestinationDirectory));
 			task.getSources().from(processPropertyListTask.flatMap(ProcessPropertyListTask::getOutputFile));
 		});
