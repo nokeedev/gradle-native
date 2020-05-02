@@ -1,0 +1,49 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'maven-publish'
+}
+
+repositories {
+	mavenCentral()
+	jcenter()
+}
+
+dependencies {
+	compileOnly "org.codehaus.groovy:groovy-templates:${groovyVersion}"
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.8'
+	implementation project(':platformBase') // only for TaskUtils... TODO: move the utils class to another project
+	implementation 'com.googlecode.plist:dd-plist:1.23'
+	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "commons-io:commons-io:${commonsIoVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	compileOnly project(':platformIos')
+
+
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
+	testImplementation 'org.spockframework:spock-core'
+	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	testImplementation "org.codehaus.groovy:groovy-all:2.5.8"
+}
+
+gradlePlugin {
+	plugins {
+		xcodeIde {
+			id = 'dev.nokee.xcode-ide'
+			implementationClass = 'dev.nokee.ide.xcode.internal.plugins.XcodeIdePlugin'
+		}
+	}
+}
+
+components.functionalTest {
+	dependencies {
+		pluginUnderTestMetadata project(':languageNative')
+		pluginUnderTestMetadata project(':platformIos')
+		pluginUnderTestMetadata project(':platformJni')
+		implementation project(':platformJni')
+		implementation 'com.googlecode.plist:dd-plist:1.23'
+		implementation 'dev.nokee:templates:latest.integration'
+	}
+}

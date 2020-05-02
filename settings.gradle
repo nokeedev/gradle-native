@@ -22,6 +22,10 @@ include 'distributions'
 project(':distributions').projectDir = file('subprojects/distributions')
 project(':distributions').buildFileName = 'distributions.gradle'
 
+include 'ideXcode'
+project(':ideXcode').projectDir = file('subprojects/ide-xcode')
+project(':ideXcode').buildFileName = 'ide-xcode.gradle'
+
 include 'languageNative'
 project(':languageNative').projectDir = file('subprojects/language-native')
 project(':languageNative').buildFileName = 'language-native.gradle'
