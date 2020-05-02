@@ -315,7 +315,7 @@ abstract class WellBehavingSampleTest extends Specification {
 
 		@Override
 		void execute(TestFile testDirectory) {
-			def tool = new ToolFromPath(command.args[0])
+			def tool = new ToolFromPath(command.executable)
 			TestFile inputFile = testDirectory.file(command.args[0])
 			TestFile outputDirectory = testDirectory.file(command.args[command.args.findIndexOf { it == '-d' } + 1])
 			if (tool.available) {
