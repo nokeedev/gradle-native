@@ -1,10 +1,14 @@
 package dev.nokee.language.nativebase.tasks;
 
+import dev.nokee.language.nativebase.HeaderSearchPath;
 import org.gradle.api.Task;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Internal;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
+
+import java.util.Set;
 
 /**
  * Compiles native source files into object files.
@@ -30,4 +34,12 @@ public interface NativeSourceCompile extends Task {
 	 */
 	@Internal
 	ListProperty<String> getCompilerArgs();
+
+	/**
+	 * Returns the header search paths used during the compilation.
+	 *
+	 * @return a provider of search path entries, never null.
+	 */
+	@Internal
+	Provider<Set<HeaderSearchPath>> getHeaderSearchPaths();
 }

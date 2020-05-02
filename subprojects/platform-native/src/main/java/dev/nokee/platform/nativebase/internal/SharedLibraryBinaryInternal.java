@@ -1,7 +1,10 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
+import dev.nokee.language.nativebase.HeaderSearchPath;
+import dev.nokee.language.nativebase.internal.DefaultHeaderSearchPath;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.language.nativebase.internal.ObjectSourceSetInternal;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
@@ -112,6 +115,10 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 	private void configureCompileTask(AbstractNativeCompileTask task, TaskProvider<? extends NativeSourceCompileTask> compileTask) {
 		compileTask.configure(dependsOn(task));
 		compileTask.configure(it -> it.getToolChain().set(task.getToolChain()));
+		compileTask.configure(t -> {
+			t.getHeaderSearchPaths().addAll(task.getIncludes().getElements().map(SharedLibraryBinaryInternal::toHeaderSearchPaths));
+			// TODO: Add framework
+		});
 		// TODO: We should copy other compileTask configuration to task
 
 		// configure includes using the native incoming compile configuration
@@ -125,6 +132,10 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 		task.getIncludes().from(getJvmIncludes());
 		task.getCompilerArgs().addAll(compileTask.flatMap(NativeSourceCompile::getCompilerArgs));
 		task.getCompilerArgs().addAll(getCompilerInputs().map(this::toFrameworkSearchPathFlags));
+	}
+
+	private static List<HeaderSearchPath> toHeaderSearchPaths(Set<FileSystemLocation> paths) {
+		return paths.stream().map(FileSystemLocation::getAsFile).map(DefaultHeaderSearchPath::new).collect(Collectors.toList());
 	}
 
 	private Provider<List<File>> getJvmIncludes() {
