@@ -8,7 +8,6 @@ import spock.lang.Requires
 
 import static org.junit.Assume.assumeTrue
 
-@Requires({ SystemUtils.IS_OS_MAC })
 abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctionalSpec {
 	def "adds the Xcode project to the workspace"() {
 		makeSingleProject()
@@ -138,6 +137,7 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 	protected abstract SourceElement getComponentUnderTest()
 }
 
+@Requires({ SystemUtils.IS_OS_MAC }) // TODO: It should create unbuildable targets
 class NoSourceIosApplicationXcodeIdeFunctionalTest extends IosApplicationXcodeFunctionalTest {
 	protected SourceElement getComponentUnderTest() {
 		return new SourceElement() {
@@ -166,6 +166,7 @@ class NoSourceIosApplicationXcodeIdeFunctionalTest extends IosApplicationXcodeFu
 	}
 }
 
+@Requires({ SystemUtils.IS_OS_MAC }) // TODO: It should create unbuildable targets
 class ObjectiveCIosApplicationXcodeIdeFunctionalTest extends IosApplicationXcodeFunctionalTest {
 	protected ObjectiveCIosApp getComponentUnderTest() {
 		return new ObjectiveCIosApp()
