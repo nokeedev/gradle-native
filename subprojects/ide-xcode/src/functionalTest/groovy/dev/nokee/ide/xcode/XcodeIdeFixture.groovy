@@ -20,7 +20,7 @@ trait XcodeIdeFixture {
 						productType.set(productTypes.of("${productType.identifier}"))
 						buildConfigurations.register("Default") {
 							productLocation.set(layout.projectDirectory.dir("${name.capitalize()}.app"))
-							buildSettings.put("PRODUCT_NAME", target.productName)
+							buildSettings.put("PRODUCT_NAME", ideTarget.productName)
 						}
 					}
 				}
