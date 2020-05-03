@@ -27,8 +27,8 @@ repositories {
 dependencies {
 	compileOnly 'org.asciidoctor:asciidoctorj-api:2.2.0'
 	compileOnly 'org.asciidoctor:asciidoctorj:2.2.0'
-	implementation 'dev.gradleplugins:gradle-plugin-development:0.0.57'
-	implementation 'dev.gradleplugins:gradle-fixtures:0.0.57'
+	implementation 'dev.gradleplugins:gradle-plugin-development:0.0.58'
+	implementation 'dev.gradleplugins:gradle-fixtures:0.0.58'
 	implementation 'org.apache.commons:commons-exec:1.3'
 	implementation 'commons-io:commons-io:2.6'
 	implementation 'org.jbake:jbake-gradle-plugin:5.0.0'
