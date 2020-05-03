@@ -3,6 +3,7 @@ package dev.nokee.ide.xcode
 import dev.nokee.platform.jni.JvmJarBinary
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
 import dev.nokee.platform.nativebase.SharedLibraryBinary
+import org.gradle.internal.os.OperatingSystem
 
 class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalSpec implements JavaObjectiveCJniLibraryXcodeIdeFixture {
 	protected void makeSingleProject() {
@@ -55,7 +56,7 @@ class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalS
 		xcodeProject('jni-greeter').assertHasTarget('JniGreeter')
 		xcodeProject('jni-greeter').assertHasTarget('JniSharedLibrary')
 		xcodeProject('jni-greeter').assertHasSchemes('JniGreeter', 'JniSharedLibrary')
-		xcodeProject('jni-greeter').assertHasSourceLayout('JniGreeter/Greeter.java', 'JniGreeter/NativeLoader.java', 'JniSharedLibrary/greeter.h', 'JniSharedLibrary/greeter.m', 'JniSharedLibrary/greeter_impl.m', 'Products/jni-greeter.jar', 'Products/libjni-greeter.dylib', 'build.gradle', 'settings.gradle')
+		xcodeProject('jni-greeter').assertHasSourceLayout('JniGreeter/Greeter.java', 'JniGreeter/NativeLoader.java', 'JniSharedLibrary/greeter.h', 'JniSharedLibrary/greeter.m', 'JniSharedLibrary/greeter_impl.m', 'Products/jni-greeter.jar', sharedLibraryName('Products/jni-greeter'), 'build.gradle', 'settings.gradle')
 	}
 
 	def "creates an indexer target for known product type"() {
@@ -109,7 +110,7 @@ class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalS
 		and:
 		xcodeProject('jni-shared-library').assertHasTarget('JniSharedLibrary')
 		xcodeProject('jni-shared-library').assertHasSchemes('JniSharedLibrary')
-		xcodeProject('jni-shared-library').assertHasSourceLayout('JniSharedLibrary/greeter.h', 'JniSharedLibrary/greeter.m', 'JniSharedLibrary/greeter_impl.m', 'Products/libjni-greeter.dylib', 'build.gradle', 'settings.gradle')
+		xcodeProject('jni-shared-library').assertHasSourceLayout('JniSharedLibrary/greeter.h', 'JniSharedLibrary/greeter.m', 'JniSharedLibrary/greeter_impl.m', sharedLibraryName('Products/jni-greeter'), 'build.gradle', 'settings.gradle')
 	}
 
 	def "creates indexer target inside the correct Xcode project when multiple projects"() {
@@ -134,6 +135,11 @@ class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalS
 		result.assertTasksExecutedAndNotSkipped(':jni-greeterXcodeProject', ':jni-shared-libraryXcodeProject', ':xcodeWorkspace', ':xcode')
 		xcodeProject('jni-greeter').assertHasTargets('JniGreeter')
 		xcodeProject('jni-shared-library').assertHasTargets('JniSharedLibrary', '__idx_JniSharedLibrary')
+	}
+
+	// TODO: Create a GradleNativeFixture trait to includes all those utility methods.
+	String sharedLibraryName(Object path) {
+		return OperatingSystem.current().getSharedLibraryName(path.toString())
 	}
 
 	// TODO: Can create build configuration inside project

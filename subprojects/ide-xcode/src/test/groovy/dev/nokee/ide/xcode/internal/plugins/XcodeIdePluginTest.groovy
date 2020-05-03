@@ -4,9 +4,12 @@ import dev.nokee.ide.xcode.XcodeIdeProductType
 import dev.nokee.ide.xcode.XcodeIdeProductTypes
 import dev.nokee.ide.xcode.XcodeIdeProjectExtension
 import dev.nokee.ide.xcode.XcodeIdeWorkspaceExtension
+import org.apache.commons.io.FilenameUtils
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
+
+import static org.apache.commons.io.FilenameUtils.separatorsToSystem
 
 @Subject(XcodeIdePlugin)
 class XcodeIdePluginTest extends Specification {
@@ -71,7 +74,7 @@ class XcodeIdePluginTest extends Specification {
 		then:
 		project.xcode.workspace.displayName == 'Xcode workspace'
 		project.xcode.workspace.projects.get() == [] as Set
-		project.xcode.workspace.location.get().asFile.absolutePath == "${project.projectDir}/${project.name}.xcworkspace"
+		project.xcode.workspace.location.get().asFile.absolutePath == separatorsToSystem("${project.projectDir}/${project.name}.xcworkspace")
 
 		and:
 		project.xcode.projects == [] as Set
