@@ -1,6 +1,7 @@
 package dev.nokee.ide.xcode;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
@@ -10,7 +11,8 @@ import lombok.Value;
  *
  * @since 0.3
  */
-@Value(staticConstructor = "of")
+@Value
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class XcodeIdeProductType {
 	String identifier;
 
