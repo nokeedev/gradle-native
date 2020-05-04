@@ -30,7 +30,7 @@ public interface XcodeIdeWorkspace extends Describable {
 
 	/**
 	 * Returns the location of the generated workspace.
-	 * It defaults to {@literal ${project.projectDir}/${project.name}.xcworkspace}.
+	 * It defaults to <pre>${project.projectDir}/${project.name}.xcworkspace</pre>.
 	 *
 	 * @return a provider to the location of the generated workspace.
 	 */

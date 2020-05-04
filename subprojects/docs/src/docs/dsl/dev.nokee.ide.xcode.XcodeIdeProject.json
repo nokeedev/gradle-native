@@ -1,0 +1,4 @@
+{
+	"properties": ["location", "targets"],
+	"methods": ["targets"]
+}

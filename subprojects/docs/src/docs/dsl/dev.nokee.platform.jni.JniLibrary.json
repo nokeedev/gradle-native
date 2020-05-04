@@ -1,4 +1,4 @@
 {
-	"properties": ["resourcePath", "targetMachine", "sharedLibrary"],
+	"properties": ["resourcePath", "targetMachine", "sharedLibrary", "binaries"],
 	"methods": ["sharedLibrary"]
 }

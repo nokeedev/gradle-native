@@ -1,4 +1,4 @@
 {
 	"properties": ["elements"],
-	"methods": ["configureEach"]
+	"methods": ["put", "put"]
 }

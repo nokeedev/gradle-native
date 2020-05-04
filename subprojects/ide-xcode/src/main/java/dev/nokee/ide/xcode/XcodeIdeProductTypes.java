@@ -18,22 +18,52 @@ public interface XcodeIdeProductTypes {
 	XcodeIdeProductType UI_TEST = XcodeIdeProductType.of("com.apple.product-type.bundle.ui-testing");
 	XcodeIdeProductType APP_EXTENSION = XcodeIdeProductType.of("com.apple.product-type.app-extension");
 
+	/**
+	 * Returns a static library product, also known as static library.
+	 *
+	 * @return a {@link XcodeIdeProductType} instance representing a static library, never null.
+	 * @see XcodeIdeProductTypes#STATIC_LIBRARY
+	 */
 	default XcodeIdeProductType getStaticLibrary() {
 		return STATIC_LIBRARY;
 	}
 
+	/**
+	 * Returns a dynamic library product type, also known as a shared library.
+	 *
+	 * @return a {@link XcodeIdeProductType} instance representing a dynamic library, never null.
+	 * @see XcodeIdeProductTypes#DYNAMIC_LIBRARY
+	 */
 	default XcodeIdeProductType getDynamicLibrary() {
 		return DYNAMIC_LIBRARY;
 	}
 
+	/**
+	 * Returns a tool product type, also known as a command line executable.
+	 *
+	 * @return a {@link XcodeIdeProductType} instance representing a tool, never null.
+	 * @see XcodeIdeProductTypes#TOOL
+	 */
 	default XcodeIdeProductType getTool() {
 		return TOOL;
 	}
 
+	/**
+	 * Returns an application product type, also known as an application bundle.
+	 *
+	 * @return a {@link XcodeIdeProductType} instance representing an application, never null.
+	 * @see XcodeIdeProductTypes#APPLICATION
+	 */
 	default XcodeIdeProductType getApplication() {
 		return APPLICATION;
 	}
 
+	/**
+	 * Creates a product type of the specified identifier.
+	 *
+	 * @param identifier a identifier for the product type to create.
+	 * @return a {@link XcodeIdeProductType} instance, never null.
+	 */
 	default XcodeIdeProductType of(String identifier) {
 		return XcodeIdeProductType.of(identifier);
 	}

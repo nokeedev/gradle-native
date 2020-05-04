@@ -1,0 +1,4 @@
+{
+	"properties": ["projects", "productTypes"],
+	"methods": ["projects"]
+}

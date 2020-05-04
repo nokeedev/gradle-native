@@ -22,10 +22,7 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.GradleException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.Text;
+import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.*;
@@ -344,6 +341,8 @@ public class JavadocConverter {
 			elementToElementMap.put("b", "emphasis");
 			elementToElementMap.put("code", "literal");
 			elementToElementMap.put("tt", "literal");
+			elementToElementMap.put("blockquote", "blockquote");
+			elementToElementMap.put("span", "span");
 		}
 
 		@Override

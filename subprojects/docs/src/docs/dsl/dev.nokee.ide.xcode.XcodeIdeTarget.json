@@ -1,0 +1,4 @@
+{
+	"properties": ["productName", "productType", "productReference", "buildConfigurations", "sources", "ideTarget"],
+	"methods": ["buildConfigurations"]
+}

@@ -1,0 +1,4 @@
+{
+	"properties": ["staticLibrary", "dynamicLibrary", "tool", "application", "knownValues"],
+	"methods": ["of"]
+}

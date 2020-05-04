@@ -16,7 +16,7 @@
 
 API Documentation: link:../javadoc/${content.name.replace('.', '/')}.html[${content.simpleName}]
 
-${content.description}
+${content.comment.render(renderer)}
 
 ${include("properties.gsp")}
 

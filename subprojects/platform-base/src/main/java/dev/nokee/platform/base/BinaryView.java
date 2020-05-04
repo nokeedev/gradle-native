@@ -26,9 +26,10 @@ public interface BinaryView<T extends Binary> {
 	 * The action is only executed for those elements that are required.
 	 * Fails if any matching element has already been finalized.
 	 *
-	 * This method is equivalent to {@code binaries.withType(Foo).configureEach { ... }}.
+	 * This method is equivalent to <code>binaries.withType(Foo).configureEach { ... }</code>.
 	 *
 	 * @param type The type of binary to select.
+	 * @param <S> The base type of the binary to configure.
 	 * @param action The action to execute on each element for configuration.
 	 */
 	<S extends T> void configureEach(Class<S> type, Action<? super S> action);

@@ -1,4 +1,4 @@
 {
-	"properties": ["dependencies", "targetMachines", "variants"],
+	"properties": ["dependencies", "targetMachines", "variants", "binaries"],
 	"methods": ["dependencies"]
 }

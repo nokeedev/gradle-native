@@ -28,7 +28,7 @@ import org.gradle.api.provider.Provider;
 public interface XcodeIdeProject extends Named {
 	/**
 	 * Returns the location of the generated project.
-	 * It defaults to {@literal ${project.projectDir}/${project.name}.xcodeproj}.
+	 * It defaults to <pre>${project.projectDir}/${project.name}.xcodeproj</pre>.
 	 *
 	 * @return a provider to the location of the generated project.
 	 */

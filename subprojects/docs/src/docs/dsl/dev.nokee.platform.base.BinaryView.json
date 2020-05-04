@@ -1,0 +1,4 @@
+{
+	"properties": ["elements"],
+	"methods": ["configureEach", "withType"]
+}

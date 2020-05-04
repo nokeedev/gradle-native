@@ -1,4 +1,4 @@
 {
-	"properties": [],
+	"properties": ["elements"],
 	"methods": ["configureEach"]
 }
