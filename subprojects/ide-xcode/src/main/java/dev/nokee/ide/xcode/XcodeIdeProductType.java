@@ -10,9 +10,9 @@ import lombok.Value;
  *
  * @since 0.3
  */
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@Value(staticConstructor = "of")
 public class XcodeIdeProductType {
-	private final String identifier;
+	String identifier;
 
 	/**
 	 * Returns the product type identifier.
