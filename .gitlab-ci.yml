@@ -37,11 +37,12 @@ test (linux):
 test (windows):
   stage: test
   # FIXME: Shouldn't need to ignore the Asciinema tasks, they should just not be wired in for testing
-  script: cmd.exe /c "gradlew.bat check --scan --continue -Dorg.gradle.daemon=false -x :docs:compileDocsDot -PskipAllAsciinemaTasks -x :docs:compileDocsAsciicast"
+  script: cmd.exe /c "gradlew.bat check --scan --continue -x :docs:compileDocsDot -PskipAllAsciinemaTasks -x :docs:compileDocsAsciicast"
   tags:
     - os=windows
   variables:
     GIT_CLONE_PATH: $CI_BUILDS_DIR/gn
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   artifacts:
     when: on_failure
     paths:
