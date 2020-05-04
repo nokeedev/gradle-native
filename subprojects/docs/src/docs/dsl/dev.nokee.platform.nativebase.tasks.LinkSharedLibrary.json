@@ -1,4 +1,4 @@
 {
-	"properties": ["toolChain", "linkerArgs"],
+	"properties": ["toolChain", "linkerArgs", "linkedFile"],
 	"methods": []
 }
