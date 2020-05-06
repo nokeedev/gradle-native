@@ -1,0 +1,18 @@
+digraph xcodeTaskGraph {
+  graph [ dpi = 100, fontname="Sans"];
+  node [fontname = "Sans"];
+  edge [fontname = "Sans"];
+  node [shape=rectangle, fixedsize=true, width=3.3, height=0.5];
+  node [style=filled, fillcolor="#cfe2f3"]
+  rankdir=LR
+
+  subgraph cluster_rootProject {
+      label = "Root Project Only"
+      openXcode
+  }
+
+  xcode -> openXcode[dir=back, style=dashed]
+
+  xcode -> cleanXcode[style=invis]
+  {rank=same xcode cleanXcode}
+}
