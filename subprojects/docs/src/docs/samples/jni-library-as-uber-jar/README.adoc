@@ -8,7 +8,7 @@
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
 This sample shows how to create a single JAR containing the JVM code and all the buildable shared library binaries of a Java Native Interface (JNI) library.
-The library has no dependencies and targets Windows x86/x64, Linux x86-64 and macOS x86-64.
+The library has no dependencies and targets Windows x64, Linux x86-64 and macOS x86-64.
 
 In this sample, we use a JNI library implemented in Java and {cpp}; however, this applies to other JVM and native languages as well.
 

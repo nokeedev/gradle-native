@@ -2,15 +2,17 @@
 :jbake-summary: iOS application implemented in Objective-C built by Gradle.
 :jbake-type: sample_chapter
 :jbake-tags: sample, jni, library, jvm, java, objective c, native, gradle
-:jbake-category: Java Native Interface (JNI)
-:jbake-description: See how the Nokee Gradle plugins are used for building an iOS application implemented in Objective-C.
+:jbake-category: iOS
+:jbake-description: See how to use the Nokee Gradle plugins for building an iOS application implemented in Objective-C.
 
 CAUTION: The following sample shows a plugin in very early development.
 Don't hesitate to try it out.
 If you encounter any problems, please link:https://github.com/nokeedev/gradle-native/issues[open an issue on GitHub].
 
-This sample shows how a iOS application implemented in Objective-C can be built with Gradle.
-The application has no dependencies, target only iPhone Simulator with minimum iOS version of 13.3 and the build has a minimal configuration.
+NOTE: You can open this sample inside the Xcode IDE using the link:../../manual/xcode-ide-plugin.html[Xcode IDE plugin].
+
+This sample shows how to build an iOS application implemented in Objective-C with Gradle.
+The application has no dependencies and targets only the iPhone Simulator with a minimum iOS version of 13.2.
 
 ====
 [.multi-language-sample]
@@ -62,4 +64,20 @@ PkgInfo
 _CodeSignature
 ----
 
-More information to come...
+To open the application in Xcode and launch them in a simulator:
+
+[listing]
+----
+$ ./gradlew openXcode
+
+> Task :xcode
+Generated Xcode workspace at file://objective-c-ios-application.xcworkspace/
+
+BUILD SUCCESSFUL
+4 actionable tasks: 4 executed
+----
+
+image::xcode-ide-ios-launch-action.gif[Launch iOS application inside simulator from Xcode IDE]
+
+For more information, see <<../../manual/objective-c-ios-application-plugin.adoc#,Objective-C iOS Application Plugin>> and <<../../manual/xcode-ide-plugin.adoc#,Xcode IDE Plugin>> reference chapters.
+We discuss the <<../../manual/developing-with-xcode-ide.adoc#,Xcode IDE integration in a separated chapter>>.
