@@ -12,8 +12,8 @@ class XcodeIdeIndexerTargetsFunctionalTest extends AbstractXcodeIdeFunctionalSpe
 		succeeds('xcode')
 
 		then:
-		xcodeProject('foo').targets*.name == ['Foo', '__idx_Foo']
-		xcodeProject('foo').getTargetByName('__idx_Foo').productType == 'dev.nokee.product-type.indexer'
+		xcodeProject('foo').targets*.name == ['Foo', '__indexer_Foo']
+		xcodeProject('foo').getTargetByName('__indexer_Foo').productType == 'dev.nokee.product-type.indexer'
 		// TODO: Ensure each product type has the right build settings configured
 
 		where:

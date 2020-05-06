@@ -83,9 +83,9 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 
 		then:
 		def xcodeProject = xcodeProject('app')
-		xcodeProject.assertHasTarget('__idx_App')
-		xcodeProject.getTargetByName('__idx_App').productReference.name == 'App.app'
-		xcodeProject.getTargetByName('__idx_App').productType == 'dev.nokee.product-type.indexer'
+		xcodeProject.assertHasTarget('__indexer_App')
+		xcodeProject.getTargetByName('__indexer_App').productReference.name == 'App.app'
+		xcodeProject.getTargetByName('__indexer_App').productType == 'dev.nokee.product-type.indexer'
 
 		and:
 		xcodeProject.targets.first().assertTargetDelegateToGradle()

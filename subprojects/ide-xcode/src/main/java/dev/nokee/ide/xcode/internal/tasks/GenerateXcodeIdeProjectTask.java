@@ -186,7 +186,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 	private PBXTarget toIndexTarget(XcodeIdeTarget xcodeTarget) {
 		PBXFileReference productReference = new PBXFileReference(xcodeTarget.getProductReference().get(), xcodeTarget.getProductReference().get(), PBXReference.SourceTree.BUILT_PRODUCTS_DIR);
 
-		PBXNativeTarget target = new PBXNativeTarget("__idx_" + xcodeTarget.getName(), INDEXER_PRODUCT_TYPE);
+		PBXNativeTarget target = new PBXNativeTarget("__indexer_" + xcodeTarget.getName(), INDEXER_PRODUCT_TYPE);
 		target.setProductName(xcodeTarget.getProductName().get());
 		target.getBuildPhases().add(newSourceBuildPhase(xcodeTarget.getSources()));
 		target.setGlobalID(getGidGenerator().get().generateGid("PBXNativeTarget", xcodeTarget.getName().hashCode()));

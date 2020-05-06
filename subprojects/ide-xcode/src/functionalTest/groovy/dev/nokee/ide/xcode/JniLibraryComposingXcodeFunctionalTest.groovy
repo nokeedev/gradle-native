@@ -77,7 +77,7 @@ class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalS
 
 		then:
 		result.assertTasksExecutedAndNotSkipped(':jni-greeterXcodeProject', ':xcodeWorkspace', ':xcode')
-		xcodeProject('jni-greeter').assertHasTargets('JniGreeter', 'JniSharedLibrary', '__idx_JniSharedLibrary')
+		xcodeProject('jni-greeter').assertHasTargets('JniGreeter', 'JniSharedLibrary', '__indexer_JniSharedLibrary')
 	}
 
 	def "can create multiple Xcode projects per Gradle project"() {
@@ -134,7 +134,7 @@ class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalS
 		then:
 		result.assertTasksExecutedAndNotSkipped(':jni-greeterXcodeProject', ':jni-shared-libraryXcodeProject', ':xcodeWorkspace', ':xcode')
 		xcodeProject('jni-greeter').assertHasTargets('JniGreeter')
-		xcodeProject('jni-shared-library').assertHasTargets('JniSharedLibrary', '__idx_JniSharedLibrary')
+		xcodeProject('jni-shared-library').assertHasTargets('JniSharedLibrary', '__indexer_JniSharedLibrary')
 	}
 
 	// TODO: Create a GradleNativeFixture trait to includes all those utility methods.
