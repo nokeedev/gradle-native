@@ -25,8 +25,8 @@ ul, li, ol {
 }
 
 /* Default Link Styles */
-a { color: #6BA530; text-decoration: none; line-height: inherit; }
-a:hover, a:focus { color: #61892F; text-decoration: underline; }
+a { color: #208665; text-decoration: none; line-height: inherit; }
+a:hover, a:focus { color: #165f47; text-decoration: underline; }
 a img { border: none; }
 
 /* Default paragraph styles */
@@ -34,7 +34,7 @@ p { font-family: inherit; font-weight: normal; font-size: 1em; line-height: 1.6;
 p aside { font-size: 0.875em; line-height: 1.35; font-style: italic; }
 
 /* Default header styles */
-h1, h2, h3, #toctitle, .sidebarblock > .content > .title, h4, h5, h6 { font-family: "Open Sans", "DejaVu Sans", sans-serif; font-weight: 300; font-style: normal; color: #ba3925; text-rendering: optimizeLegibility; margin-top: 1em; margin-bottom: 0.5em; line-height: 1.0125em; }
+h1, h2, h3, #toctitle, .sidebarblock > .content > .title, h4, h5, h6 { font-family: 'Rajdhani', sans-serif; font-weight: 300; font-style: normal; color: #ba3925; text-rendering: optimizeLegibility; margin-top: 1em; margin-bottom: 0.5em; line-height: 1.0125em; }
 h1 small, h2 small, h3 small, #toctitle small, .sidebarblock > .content > .title small, h4 small, h5 small, h6 small { font-size: 60%; color: #e99b8f; line-height: 0; }
 
 h1 { font-size: 2.125em; }
@@ -83,7 +83,7 @@ code { font-family: "Droid Sans Mono", "DejaVu Sans Mono", monospace; font-weigh
 }
 
 p {
-	color: #02303A;
+	color: #001824;
 }
 
 h1,
@@ -166,7 +166,7 @@ p.lead,
 }
 
 .admonitionblock > table td.icon .title {
-	font-family: "Lato", Arial, sans-serif;
+	font-family: 'IBM Plex Sans', sans-serif;
 }
 
 .admonitionblock .content,
@@ -175,7 +175,7 @@ p.lead,
 }
 
 .verseblock pre {
-	font-family: "Lato", Arial, sans-serif;
+	font-family: 'IBM Plex Sans', sans-serif;
 }
 
 td.hdlist1 {
@@ -215,7 +215,7 @@ body.book #header > h1 {
 }
 
 .conum[data-value] {
-	font-family: "Lato", Arial, sans-serif;
+	font-family: 'IBM Plex Sans', sans-serif;
 }
 
 .colist > table tr > td:first-of-type {

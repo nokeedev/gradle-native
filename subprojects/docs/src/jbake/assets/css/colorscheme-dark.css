@@ -1,22 +1,27 @@
 .navigation {
-	background-color: #222629;
+	background-color: #001824;
 }
 
 .navigation ul {
-	background-color: #222629;
+	background-color: #001824;
 }
 
 .navigation li a, .navigation li a:visited {
 	color: white;
+	font-weight: bold;
 }
 
-/* GitHub logo fill */
+.navigation .logo {
+	fill: #00FF8A;
+}
+
+/* GitHub/Twitter logo fill */
 .navigation li a svg path {
 	fill: white;
 }
 
 .navigation li a:hover {
-	color: #61892F;
+	color: #00FF8A;
 }
 
 /* menu icon */
@@ -32,7 +37,7 @@
 
 
 body {
-	background-color: #222629;
+	background-color: #001824;
 }
 
 /*.landing-page-section {*/
@@ -50,5 +55,5 @@ p {
 }
 
 #footer p {
-	color: #222629;
+	color: #001824;
 }

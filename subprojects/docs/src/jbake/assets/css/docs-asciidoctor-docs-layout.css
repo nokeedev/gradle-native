@@ -165,21 +165,21 @@ body {
 
 /* Docsearch overrides */
 .docs-navigation a, .docs-navigation a:visited, .docs-navigation a:hover {
-	color: #222629;
+	color: #001824;
 	display: block;
 	font-size: 1rem;
 	line-height: 1.25;
 }
 
 .docs-navigation a code {
-	color: #222629;
+	color: #001824;
 	overflow-wrap: break-word;
 	padding: 0;
 	word-break: break-all;
 }
 
 .docs-navigation a.active {
-	color: #6BA530;
+	color: #208665;
 }
 
 .docs-navigation ul {
@@ -281,7 +281,7 @@ body {
 #toc a:focus,
 #toc a:hover code,
 #toc a:focus code {
-	color: #6BA530;
+	color: #165f47;
 }
 
 #toc a:active {
@@ -304,11 +304,11 @@ body {
 	}
 
 	#toc a {
-		color: #222629;
+		color: #001824;
 	}
 
 	#toc a.active {
-		color: #6BA530;
+		color: #208665;
 	}
 }
 
@@ -325,12 +325,12 @@ body {
 	}
 
 	.chapter #toc a {
-		color: #222629;
+		color: #001824;
 		display: inline-block;
 	}
 
 	.chapter #toc a.active {
-		color: #6BA530;
+		color: #208665;
 	}
 }
 

@@ -6,7 +6,7 @@ body {
 	height: 100%;
 	/* The html and body elements cannot have any padding or margin. */
 	color: #02303A;  /* TODO: Use color from scheme*/
-	font-family: 'Lato', sans-serif;
+	font-family: 'IBM Plex Sans', sans-serif;
 }
 
 /* Wrapper for page content to push down footer */

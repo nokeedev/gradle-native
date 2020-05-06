@@ -7,16 +7,21 @@
 }
 
 .navigation li a, .navigation li a:visited {
-	color: #222629;
+	color: #001824;
+	font-weight: bold;
 }
 
-/* GitHub logo fill */
+.navigation .logo {
+	fill: #001824;
+}
+
+/* GitHub/Twitter logo fill */
 .navigation li a svg path {
 	fill: #02303A;
 }
 
 .navigation li a:hover {
-	color: #61892F;
+	color: #165f47;
 }
 
 /* menu icon */
