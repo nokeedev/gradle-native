@@ -26,10 +26,13 @@ public abstract class CreateIosApplicationBundleTask extends DefaultTask {
 	protected abstract FileSystemOperations getFileOperations();
 
 	@TaskAction
-	private void create() {
+	private void create() throws IOException {
 		getFileOperations().sync(spec -> {
 			spec.from(getSources().getFiles());
 			spec.into(getApplicationBundle());
 		});
+
+		// Oversimplification of how this file is created
+		FileUtils.write(new File(getApplicationBundle().get().getAsFile(), "PkgInfo"), "APPL????", Charset.defaultCharset());
 	}
 }

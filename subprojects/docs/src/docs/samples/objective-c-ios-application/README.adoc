@@ -58,6 +58,7 @@ $ ls ./build/ios/products/main/ObjectiveCIosApplication.app/
 Base.lproj
 Info.plist
 ObjectiveCIosApplication
+PkgInfo
 _CodeSignature
 ----
 

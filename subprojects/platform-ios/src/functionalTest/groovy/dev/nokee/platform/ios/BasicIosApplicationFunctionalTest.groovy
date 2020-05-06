@@ -22,7 +22,7 @@ class BasicIosApplicationFunctionalTest extends AbstractFunctionalSpec {
 		result.assertTasksExecutedAndNotSkipped(':compileMainExecutableMainObjc', ':linkMainExecutable', ':mainExecutable',
 			':compileStoryboard', ':linkStoryboard', ':compileAssetCatalog', ':createApplicationBundle', ':processPropertyList', ':signApplicationBundle',
 			':assemble')
-		bundle('build/ios/products/main/Application.app').assertHasDescendants('Application', 'Base.lproj/LaunchScreen.storyboardc', 'Base.lproj/Main.storyboardc', 'Info.plist', '_CodeSignature/CodeResources')
+		bundle('build/ios/products/main/Application.app').assertHasDescendants('Application', 'Base.lproj/LaunchScreen.storyboardc', 'Base.lproj/Main.storyboardc', 'Info.plist', 'PkgInfo', '_CodeSignature/CodeResources')
 		// TODO: Check that it's signed
 		// TODO: Check what is the target of the app
 	}
