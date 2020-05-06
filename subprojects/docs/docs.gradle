@@ -107,6 +107,10 @@ documentation {
 			template = new JavaJniCppGreeterLib('jni-library-as-uber-jar')
 		}
 
+		'xcode-ide-composing' {
+			template = new JavaJniObjectiveCGreeterLib('xcode-ide-composing')
+		}
+
 		'objective-c-ios-application' {
 			template = new ObjectiveCIosApp()
 		}

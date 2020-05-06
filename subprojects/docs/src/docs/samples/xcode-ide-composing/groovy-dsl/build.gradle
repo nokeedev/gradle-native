@@ -1,0 +1,56 @@
+import dev.nokee.platform.jni.JvmJarBinary
+import dev.nokee.platform.nativebase.SharedLibraryBinary
+
+plugins {
+	id 'java'
+	id 'dev.nokee.jni-library'
+	id 'dev.nokee.objective-c-language'
+	id 'dev.nokee.xcode-ide'
+}
+
+library.variants.configureEach {
+	sharedLibrary.linkTask.configure {
+		linkerArgs.add('-lobjc')
+	}
+}
+
+//region Helper methods
+Provider<JvmJarBinary> getJvmBinary() {
+	return library.binaries.withType(JvmJarBinary).elements.map { it.first() }
+}
+
+Provider<SharedLibraryBinary> getSharedLibraryBinary() {
+	return library.binaries.withType(SharedLibraryBinary).elements.map { it.first() }
+}
+
+Transformer<String, SharedLibraryBinary> asHeaderSearchPaths() {
+	return {
+		it.compileTasks.elements.get().first().headerSearchPaths.get().collect { "\"${it.asFile.absolutePath}\"" }.join(' ')
+	}
+}
+//endregion
+
+xcode {
+	projects.register('jni-greeter') {
+		targets.register('JniJar') {
+			productReference = jvmBinary.flatMap { it.jarTask.get().archiveFileName }
+			productType = productTypes.of('com.apple.product-type.library.java.archive')
+			buildConfigurations.register('Default') {
+				productLocation = jvmBinary.flatMap { it.jarTask.get().archiveFile }
+				buildSettings.put('PRODUCT_NAME', ideTarget.productName)
+			}
+			sources.from(fileTree('src/main/java') { include('**/*.java') })
+		}
+		targets.register('JniSharedLibrary') {
+			productReference = sharedLibraryBinary.map { it.linkTask.get().linkedFile.get().asFile.getName() }
+			productType = productTypes.dynamicLibrary
+			buildConfigurations.register('Default') {
+				productLocation = sharedLibraryBinary.flatMap { it.linkTask.get().linkedFile }
+				buildSettings.put('HEADER_SEARCH_PATHS', sharedLibraryBinary.map(asHeaderSearchPaths()))
+				buildSettings.put('PRODUCT_NAME', ideTarget.productName)
+			}
+			sources.from(fileTree('src/main/objc') { include('**/*.m') })
+			sources.from(fileTree('src/main/headers') { include('**/*.h') })
+		}
+	}
+}

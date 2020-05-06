@@ -21,6 +21,7 @@ import dev.nokee.docs.tags.Baked
 import groovy.transform.ToString
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.SystemUtils
+import org.gradle.internal.logging.ConsoleRenderer
 import org.gradle.internal.os.OperatingSystem
 import org.junit.Rule
 import org.junit.experimental.categories.Category
@@ -201,6 +202,8 @@ abstract class WellBehavingSampleTest extends Specification {
 			return new TreeCommand(command)
 		} else if (command.executable == 'jar') {
 			return new JarCommand(command)
+		} else if (command.executable == 'xcodebuild') {
+			return new XcodebuildCommand(command)
 		}
 		return new GenericCommand(command)
 	}
@@ -253,7 +256,8 @@ abstract class WellBehavingSampleTest extends Specification {
 			//    Here we did a poor-man per task normalizer but it's simply because we don't detect what "look like a path", we dumbly convert \\ to /
 			if (command.args.contains('outgoingVariants')) {
 				assert OutputScrapingExecutionResult.normalize(LogContent.of(stdout)).replace(' in 0s', '').replace('\\', '/').startsWith(expectedResult.getOutput())
-
+			} else if (command.args.contains('xcode')) {
+				assert OutputScrapingExecutionResult.normalize(LogContent.of(stdout)).replace(' in 0s', '').replace(new ConsoleRenderer().asClickableFileUrl(testDirectory), 'file://').replace('\\', '/').startsWith(expectedResult.getOutput())
 			} else {
 				assert OutputScrapingExecutionResult.normalize(LogContent.of(stdout)).replace(' in 0s', '').startsWith(expectedResult.getOutput())
 			}
@@ -264,6 +268,30 @@ abstract class WellBehavingSampleTest extends Specification {
 			command.expectedOutput.ifPresent { output ->
 				assert !BUILD_RESULT_PATTERN.matcher(output).find()
 			}
+		}
+	}
+
+	private class XcodebuildCommand extends Comm {
+		XcodebuildCommand(Command command) {
+			super(command)
+		}
+
+		@Override
+		void execute(TestFile testDirectory) {
+			def process = ([command.executable] + command.args).execute(null, testDirectory)
+			int exitCode = process.waitFor()
+			def stdout = process.in.text
+			def stderr = process.err.text
+			println stdout
+			if (exitCode != 0) {
+				println stderr
+			}
+			assert exitCode == 0
+
+			def expectedResult = OutputScrapingExecutionResult.from(command.expectedOutput.get().split('\n').drop(6).join('\n'), '')
+			def result = OutputScrapingExecutionResult.from(stdout.split('\n').drop(6).join('\n'), '')
+
+			assert OutputScrapingExecutionResult.normalize(LogContent.of(result.getPlainTextOutput())).replace(' in 0s', '').startsWith(expectedResult.getOutput())
 		}
 	}
 
