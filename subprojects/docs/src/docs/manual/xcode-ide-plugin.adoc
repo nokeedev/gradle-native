@@ -1,0 +1,162 @@
+= Xcode IDE
+:jbake-type: reference_chapter
+:jbake-tags: user manual, gradle plugin reference, xcode ide, ide, gradle, native, objective-c, objc, ios
+:imagesdir: ./img
+:jbake-description: Learn what the Xcode IDE plugin (i.e. dev.nokee.xcode-ide) has to offer to your Gradle build.
+
+CAUTION: The following plugin is in very early development.
+Don't hesitate to try it out.
+If you encounter any problems, please link:https://github.com/nokeedev/gradle-native/issues[open an issue on GitHub].
+
+The Xcode IDE Plugin generates workspace and projects that are used by the https://developer.apple.com/xcode/[Xcode IDE] to open Gradle projects into Xcode (`File` - `Open...`).
+The generated Xcode project delegates build actions to Gradle.
+For known product types, the plugin generates additional targets to be used by the Xcode indexer.
+It allows features like autocomplete and cmd-click navigation to work as expected.
+
+The plugin generates Xcode projects depending on the other plugins applied:
+
+.Xcode IDE Plugin behaviour
+[%header%autowidth,compact]
+|===
+| Plugin | Description
+
+| <<objective-c-ios-application-plugin.adoc#,Objective-C iOS Application>>
+| Adds a target representing the iOS application implemented in Objective-C to a Xcode project.
+
+| None of the above
+| Does not generate any project.
+It is possible to compose your own Xcode project(s) using the link:#sec:build-language[build language].
+|===
+
+== Usage
+
+.Applying the Xcode IDE Plugin
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+plugins {
+   id 'dev.nokee.xcode-ide'
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+plugins {
+   id("dev.nokee.xcode-ide")
+}
+----
+=====
+====
+
+== Tasks
+
+The Xcode IDE Plugin adds three new tasks to your project: `xcode`, `cleanXcode` and `openXcode` (root project only).
+The following diagram shows the relationships between the tasks:
+
+.Xcode IDE Plugin task graph
+image::xcode-ide-task-graph.png[]
+
+[[sec:xcode_lifecycle_tasks]]
+=== Lifecycle Tasks
+
+`xcode` — link:{gradle-language-reference}/org.gradle.api.Task.html[Task]::
+Aggregates tasks that generate the Xcode IDE workspace and projects.
+In a multi-project build, only the root project will generate an Xcode IDE workspace.
+
+`cleanXcode` — link:{gradle-language-reference}/org.gradle.api.tasks.Delete.html[Delete]::
+Removes all generated Xcode IDE workspace and projects.
+
+`openXcode` - link:{gradle-language-reference}/org.gradle.api.Task.html[Task]::
+_Depends on_: `xcode`
++
+Open the Xcode workspace inside the IDE.
+_Only available on the root project._
+
+== Extensions
+
+The plugin register an extension of type link:../dsl/dev.nokee.ide.xcode.XcodeIdeProjectExtension.html[XcodeIdeProjectExtension].
+The extensions offer the capability of registering any number of link:../dsl/dev.nokee.ide.xcode.XcodeIdeProject.html[XcodeIdeProject] instances, each of which generates an Xcode Project.
+On the root project only, the plugin will register an extended extension of the type link:../dsl/dev.nokee.ide.xcode.XcodeIdeWorkspaceExtension.html[XcodeIdeWorkspaceExtension].
+The extended extension offers the added capability of configuring a link:../dsl/dev.nokee.ide.xcode.XcodeIdeWorkspace.html[XcodeIdeWorkspace] instance which generates an Xcode Workspace.
+
+[%header%autowidth,compact]
+|===
+| Gradle Project Hierarchy | Extension Type
+
+| Root project
+| link:../dsl/dev.nokee.ide.xcode.XcodeIdeWorkspaceExtension.html[XcodeIdeWorkspaceExtension]
+
+| Any other projects
+| link:../dsl/dev.nokee.ide.xcode.XcodeIdeProjectExtension.html[XcodeIdeProjectExtension]
+
+|===
+
+The plugin register both types of extensions under the name `xcode` on the `Project` object.
+It can be configure just like any other Gradle extension:
+
+.Configuring the Xcode IDE extensions
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+plugins {
+   id 'dev.nokee.xcode-ide'
+}
+
+xcode {
+    // configuration goes here
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+plugins {
+   id("dev.nokee.xcode-ide")
+}
+
+xcode {
+    // configuration goes here
+}
+----
+=====
+====
+
+[[sec:build-language]]
+== Build Language
+
+The following summary presents the mapping of each Xcode IDE concept to the Nokee build language.
+The mapping is roughly one-to-one.
+
+Xcode Target (link:../dsl/dev.nokee.ide.xcode.XcodeIdeTarget.html[XcodeIdeTarget])::
+Represent a single product to build and the instructions for building the product from a set of files.
+Projects can contain one or more targets, each of which produces one product.
+
+XcodeProject (link:../dsl/dev.nokee.ide.xcode.XcodeIdeProject.html[XcodeIdeProject])::
+Represent a repository for all the files, resources, and information required to build one or more software products.
+It contains all the elements used to build your products and maintains the relationships between those elements.
+
+Xcode Build Settings (link:../dsl/dev.nokee.ide.xcode.XcodeIdeBuildSettings.html[XcodeIdeBuildSettings])::
+Represent information about how to perform a particular aspect of the product's build process.
+
+Xcode Workspace (link:../dsl/dev.nokee.ide.xcode.XcodeIdeWorkspace.html[XcodeIdeWorkspace])::
+Represent a group of projects to be worked on together.
+
+Xcode Build Configuration (link:../dsl/dev.nokee.ide.xcode.XcodeIdeBuildConfiguration.html[XcodeIdeBuildConfiguration])::
+Represent a group of build settings to build a variant of the product.
+
+== Configuration
+
+The Xcode IDE project automatically registered as a result of a default behaviour allows only minimal configuration, such as adding additional targets, build configuration and build settings.
+Any additional Xcode IDE projects added via the build language are entirely configurable within the assumption imposed by the plugin.
+Head over to the <<developing-with-xcode-ide.adoc#,Developing with Xcode IDE>> chapter to learn more about the integration between Gradle and Xcode provided by this plugin.
