@@ -1,0 +1,53 @@
+:jbake-version: 0.2.0
+image::nokee.png[Nokee logo]
+
+Painless native development with Gradle.
+Nokee is a suite of high-quality Gradle plugins aimed explicitly at enabling build happiness for all natively compiled language.
+It allows compilation of languages such C, {cpp}, Objective-C and Objective-{cpp}.
+
+*For more information, visit the link:https://nokee.dev[official project homepage]*
+
+== Install
+
+Copy the following inside your `settings.gradle[.kts]`:
+
+[source,groovy,subs=attributes+]
+----
+pluginManagement {
+   repositories {
+      gradlePluginPortal()
+      maven { url = uri("https://dl.bintray.com/nokeedev/distributions") }
+      maven { url = uri("https://dl.bintray.com/nokeedev/distributions-snapshots") }
+   }
+   val nokeeVersion = "{jbake-version}"
+   resolutionStrategy {
+      eachPlugin {
+         if (requested.id.id.startsWith("dev.nokee.")) {
+            useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:${nokeeVersion}")
+         }
+      }
+   }
+}
+----
+
+== Usage
+
+Apply link:https://nokee.dev/docs/{jbake-version}/plugin-references.html[any of the Nokee plugins] to your build just like any other Gradle plugin:
+
+[source,groovy]
+----
+plugins {
+    id("dev.nokee.objective-c-ios-application")
+}
+----
+
+== Examples
+
+Look at link:https://nokee.dev/docs/{jbake-version}/samples[all the samples demonstrating various use cases solved by Nokee plugins].
+
+== Need Help?
+
+* Get familiar with the link:https://nokee.dev/current/manual/user-manual.html[Nokee User Manual]
+* Ask on the link:https://discuss.gradle.org/tag/native[native forum]
+* Have a look at the link:https://nokee.dev/current/samples[Samples]
+* Join the link:https://gradl.es/slack-invite-2019[#native Slack Channel]
