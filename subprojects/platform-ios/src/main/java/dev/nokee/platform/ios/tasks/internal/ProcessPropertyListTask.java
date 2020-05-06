@@ -55,10 +55,10 @@ public abstract class ProcessPropertyListTask extends DefaultTask {
 		// Add information automatically added by Xcode, part 1
 		getExecOperations().exec(spec -> {
 			spec.executable(getPlistBuddyExecutable().getAbsolutePath());
-			spec.args("-c", "Add :DTSDKName string iphonesimulator13.3");
-			spec.args("-c", "Add :DTXcode string 0920");
-			spec.args("-c", "Add :DTSDKBuild string 15C107");
-			spec.args("-c", "Add :BuildMachineOSBuild string 17D102");
+			spec.args("-c", "Add :DTSDKName string iphonesimulator13.2");
+			spec.args("-c", "Add :DTXcode string 1130");
+			spec.args("-c", "Add :DTSDKBuild string 17B102");
+			spec.args("-c", "Add :BuildMachineOSBuild string 19D76");
 			spec.args("-c", "Add :DTPlatformName string iphonesimulator");
 			spec.args("-c", "Add :CFBundleSupportedPlatforms array");
 			spec.args("-c", "Add :CFBundleSupportedPlatforms:0 string iPhoneSimulator");
@@ -75,12 +75,12 @@ public abstract class ProcessPropertyListTask extends DefaultTask {
 		// Add information automatically added by Xcode, part 2
 		getExecOperations().exec(spec -> {
 			spec.executable(getPlistBuddyExecutable().getAbsolutePath());
-			spec.args("-c", "Add :MinimumOSVersion string 13.3");
-			spec.args("-c", "Add :DTPlatformVersion string 13.3");
+			spec.args("-c", "Add :MinimumOSVersion string 13.2");
+			spec.args("-c", "Add :DTPlatformVersion string 13.2");
 			spec.args("-c", "Add :UIDeviceFamily array");
 			spec.args("-c", "Add :UIDeviceFamily:0 integer 1");
 			spec.args("-c", "Add :UIDeviceFamily:1 integer 2");
-			spec.args("-c", "Add :DTXcodeBuild string 9C40b");
+			spec.args("-c", "Add :DTXcodeBuild string 11C504");
 			spec.args("-c", "Add :DTPlatformBuild string");
 			spec.args("-c", "Save");
 			spec.args(xmlPlist.getAbsolutePath());
@@ -91,7 +91,7 @@ public abstract class ProcessPropertyListTask extends DefaultTask {
 			}
 		});
 
-		String data = FileUtils.readFileToString(xmlPlist, Charset.defaultCharset()).replace("$(PRODUCT_NAME)", getModule().get()).replace("$(EXECUTABLE_NAME)", getModule().get()).replace("$(PRODUCT_BUNDLE_IDENTIFIER)", getIdentifier().get()).replace("$(DEVELOPMENT_LANGUAGE)", "en");
+		String data = FileUtils.readFileToString(xmlPlist, Charset.defaultCharset()).replace("$(PRODUCT_NAME)", getModule().get()).replace("$(EXECUTABLE_NAME)", getModule().get()).replace("$(PRODUCT_BUNDLE_IDENTIFIER)", getIdentifier().get()).replace("$(DEVELOPMENT_LANGUAGE)", "en").replace("$(PRODUCT_BUNDLE_PACKAGE_TYPE)", "APPL");
 		FileUtils.write(xmlPlist, data, Charset.defaultCharset());
 
 		getExecOperations().exec(spec -> {

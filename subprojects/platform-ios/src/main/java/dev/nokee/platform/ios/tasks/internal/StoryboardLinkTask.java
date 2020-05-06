@@ -34,7 +34,7 @@ public abstract class StoryboardLinkTask extends DefaultTask {
 
 		getExecOperations().exec(spec -> {
 			spec.setExecutable(ibtoolExecutable);
-			spec.args("--errors", "--warnings", "--notices", "--module", getModule().get(), "--auto-activate-custom-fonts", "--target-device", "iphone", "--target-device", "ipad", "--minimum-deployment-target", "13.3", "--output-format", "human-readable-text", "--link", getDestinationDirectory().get().getAsFile().getAbsolutePath(), getSources().getFiles().stream().flatMap(it -> Arrays.stream(it.listFiles())).map(File::getAbsolutePath).collect(Collectors.joining(" ")));
+			spec.args("--errors", "--warnings", "--notices", "--module", getModule().get(), "--auto-activate-custom-fonts", "--target-device", "iphone", "--target-device", "ipad", "--minimum-deployment-target", "13.2", "--output-format", "human-readable-text", "--link", getDestinationDirectory().get().getAsFile().getAbsolutePath(), getSources().getFiles().stream().flatMap(it -> Arrays.stream(it.listFiles())).map(File::getAbsolutePath).collect(Collectors.joining(" ")));
 			try {
 				spec.setStandardOutput(new FileOutputStream(new File(getTemporaryDir(), "outputs.txt")));
 			} catch (FileNotFoundException e) {

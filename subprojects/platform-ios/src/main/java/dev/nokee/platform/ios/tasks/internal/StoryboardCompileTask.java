@@ -63,7 +63,7 @@ public abstract class StoryboardCompileTask extends DefaultTask {
 
 		getExecOperations().exec(spec -> {
 			spec.setExecutable(ibtoolExecutable);
-			spec.args("--errors", "--warnings", "--notices", "--module", getModule().get(), "--output-partial-info-plist", getTemporaryDir().getAbsolutePath() + "/" + FilenameUtils.removeExtension(source.getName()) + "-SBPartialInfo.plist", "--auto-activate-custom-fonts", "--target-device", "iphone", "--target-device", "ipad", "--minimum-deployment-target", "13.3", "--output-format", "human-readable-text", "--compilation-directory", getDestinationDirectory().get().getAsFile().getAbsolutePath() + "/" + source.getParentFile().getName(), source.getAbsolutePath());
+			spec.args("--errors", "--warnings", "--notices", "--module", getModule().get(), "--output-partial-info-plist", getTemporaryDir().getAbsolutePath() + "/" + FilenameUtils.removeExtension(source.getName()) + "-SBPartialInfo.plist", "--auto-activate-custom-fonts", "--target-device", "iphone", "--target-device", "ipad", "--minimum-deployment-target", "13.2", "--output-format", "human-readable-text", "--compilation-directory", getDestinationDirectory().get().getAsFile().getAbsolutePath() + "/" + source.getParentFile().getName(), source.getAbsolutePath());
 			try {
 				spec.setStandardOutput(new FileOutputStream(new File(getTemporaryDir(), "outputs.txt"), true));
 			} catch (FileNotFoundException e) {
