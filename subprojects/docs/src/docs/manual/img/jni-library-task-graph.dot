@@ -1,5 +1,5 @@
 digraph jniLibraryTaskGraph {
-//   graph [ dpi = 100, fontname="Sans"];
+  graph [ dpi = 100, fontname="Sans"];
   node [fontname = "Sans"];
   edge [fontname = "Sans"];
   node [shape=rectangle, fixedsize=true, width=3.3, height=0.5];
