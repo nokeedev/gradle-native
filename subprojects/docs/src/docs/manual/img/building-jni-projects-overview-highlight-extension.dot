@@ -1,0 +1,53 @@
+digraph buildingJniProjectsOverview {
+	graph [ dpi = 100, fontname="Sans"];
+	node [fontname = "Sans"];
+	edge [fontname = "Sans"];
+	compound=true
+	graph[nodesep=0.5, ranksep=1]
+	node [shape=rectangle, fixedsize=true];
+
+	extension[style=filled label="JNI Library Extension" height=2 width=2.3 fillcolor="#cdfdc5"]
+	variants [shape=none margin=0 width=1.6 height=2 label=
+		<<table border="0" cellspacing="0" cellborder="1">
+		 <tr>
+			<td width="10" height="10" colspan="2" fixedsize="true"	style="invis"></td>
+			<td colspan="3" fixedsize="false" sides="ltr"></td>
+		 </tr>
+		 <tr>
+			<td width="10" height="10" fixedsize="true" style="invis"></td>
+			<td colspan="3" fixedsize="false" sides="ltr"></td>
+			<td width="10" height="10" fixedsize="true" sides="r"></td>
+		 </tr>
+		 <tr>
+			<td colspan="3" rowspan="2" fixedsize="false" sides="ltr">JNI Library<br/>Variants</td>
+			<td width="10" height="100" fixedsize="true" sides="r"></td>
+			<td width="10" height="100" fixedsize="true" sides="rb"></td>
+		 </tr>
+		 <tr>
+			<td width="10" height="10" fixedsize="true" sides="rb"></td>
+			<td width="10" height="10" fixedsize="true" style="invis"></td>
+		 </tr>
+		 <tr>
+			<td width="10" height="10" fixedsize="true" sides="lb"></td>
+			<td width="10" height="10" fixedsize="true" sides="b"></td>
+			<td width="70" height="10" fixedsize="false" sides="rb"></td>
+			<td width="10" height="10" fixedsize="true" style="invis"></td>
+			<td width="10" height="10" fixedsize="true" style="invis"></td>
+		 </tr>
+	</table>>]
+
+	subgraph cluster_binaries {
+		node[width=1.8]
+		jvmJar[label="JVM Jar"]
+		sharedLibrary[label="Shared Library"]
+		jniJar[label="JNI Jar"]
+
+		jvmJar -> sharedLibrary -> jniJar[style=invis]
+		{rank=same jvmJar sharedLibrary jniJar}
+		label="JNI Variant Binaries"
+	}
+
+	extension -> variants
+	{rank=same extension variants}
+	variants -> {jvmJar sharedLibrary jniJar}[lhead=cluster_binaries]
+}

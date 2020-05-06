@@ -1,0 +1,44 @@
+digraph buildingJniProjectsBuildOverview {
+	graph [ dpi = 100, fontname="Sans"];
+	node [fontname = "Sans"];
+	edge [fontname = "Sans"];
+	compound=true
+	graph[nodesep=0.5, ranksep=1]
+	node [shape=rectangle, fixedsize=true, width=2.7, height=0.5];
+	rankdir=LR
+
+	jar[style=rounded label="Jar"]
+
+	subgraph cluster_jvm {
+		jvmSourceSet[style=rounded label="JVM Source Files"]
+		compileJvm[label="JVM Compilation"]
+		classes[style=rounded label="Classes Files"]
+		jvmLibraries[style=dashed label="JVM libraries"]
+
+		jvmSourceSet -> compileJvm -> classes
+		jvmLibraries -> compileJvm
+		label="General JVM Build"
+	}
+
+	subgraph cluster_native {
+		nativeSourceSet[style=rounded label="Native Source Files"]
+		headerSearchPath[style=dashed label="Header Search Path"]
+		frameworkSearchPath[style=dashed label="Framework Search Path"]
+		compileNative[label="Native Compilation"]
+		objects[style=rounded label="Objects Files"]
+		nativeLibraries[style=dashed label="Native Libraries"]
+		framework[style=dashed label="Framework"]
+		link[label="Native Linking"]
+		sharedLibrary[style=rounded label="JNI Shared Library"]
+
+		nativeSourceSet -> compileNative -> objects -> link -> sharedLibrary
+		headerSearchPath -> compileNative
+		frameworkSearchPath -> compileNative
+		nativeLibraries -> link
+		framework -> link
+		label="General Native Build"
+	}
+
+	classes -> jar
+	sharedLibrary -> jar
+}

@@ -1,0 +1,43 @@
+digraph buildingJniProjectsPluginTriplet {
+ 	graph [ dpi = 100, fontname="Sans"];
+	node [fontname = "Sans"];
+	edge [fontname = "Sans"];
+    graph[splines=ortho]
+	node [shape=rectangle, fixedsize=true, width=2.5, height=0.5];
+
+    pluginId[label=<<i>dev.nokee.jni-library</i>> width=4.8]
+
+    groupId[style=filled shape=underline label=<<i>dev.nokee</i>> width=1]
+    dot[shape=point width=0.06]
+    noLanguage[style=dashed shape=underline label=<<i>absent</i>> width=1]
+    ios[style=filled shape=underline label=<<i>jni</i>> width=1 fillcolor="#cdfdc5"]
+    library[style=filled shape=underline label=<<i>library</i>> width=1 fillcolor="#ea9999"]
+
+    pluginId -> {groupId ios library}
+    pluginId -> noLanguage[style=invis]
+    groupId -> dot -> noLanguage[arrowhead=none style=invis]
+    noLanguage -> ios[arrowhead=none style=dashed]
+    ios -> library [arrowhead=none]
+    {rank=same groupId dot noLanguage ios library}
+
+    {0001 [width=0, shape=point];}
+    library -> 0001 -> entrypoint[arrowhead=none]
+    {rank=same; 0001 entrypoint}
+
+    {0010, 0020 [width=0, shape=point];}
+    ios -> 0010 -> 0020 -> runtime[arrowhead=none]
+    {rank=same; 0020 runtime}
+
+    {0100, 0200, 0300 [width=0, shape=point];}
+    noLanguage -> 0100 -> 0200 -> 0300 -> language[arrowhead=none style=dashed]
+    {rank=same; 0300 language}
+
+    {1000, 2000, 3000, 4000 [width=0, shape=point];}
+    groupId -> 1000 -> 2000 -> 3000 -> 4000 -> namespace[arrowhead=none]
+    {rank=same; 4000 namespace}
+
+    entrypoint[style=filled label="Entrypoint (1)" fillcolor="#ea9999"]
+    runtime[style=filled label="Runtime (2)" fillcolor="#cdfdc5"]
+    language[style=dashed label="Language (3)"]
+    namespace[style=filled label="Plugin namespace"]
+}
