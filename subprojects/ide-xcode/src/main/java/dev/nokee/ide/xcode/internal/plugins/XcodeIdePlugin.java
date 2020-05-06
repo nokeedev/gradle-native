@@ -130,8 +130,8 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 
 		project.getTasks().addRule(getObjects().newInstance(XcodeIdeBridge.class, projectExtension.getProjects(), project));
 
-		project.getPluginManager().withPlugin("dev.nokee.ios-application", appliedPlugin -> {
-			project.getPluginManager().apply(XcodeIdeIosApplicationPlugin.class);
+		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
+			project.getPluginManager().apply(XcodeIdeObjectiveCIosApplicationPlugin.class);
 		});
 	}
 

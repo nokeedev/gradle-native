@@ -34,8 +34,7 @@ class BasicIosApplicationFunctionalTest extends AbstractFunctionalSpec {
 	void makeSingleProject() {
 		buildFile << '''
 			plugins {
-				id 'dev.nokee.ios-application'
-				id 'dev.nokee.objective-c-language'
+				id 'dev.nokee.objective-c-ios-application'
 			}
 		'''
 		settingsFile << "rootProject.name = 'application'"

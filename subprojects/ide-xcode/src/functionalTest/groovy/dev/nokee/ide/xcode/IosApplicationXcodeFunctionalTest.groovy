@@ -150,7 +150,7 @@ class NoSourceIosApplicationXcodeIdeFunctionalTest extends IosApplicationXcodeFu
 		buildFile << """
 			plugins {
 				id 'dev.nokee.xcode-ide'
-				id 'dev.nokee.ios-application'
+				id 'dev.nokee.objective-c-ios-application'
 			}
 		"""
 	}
@@ -177,8 +177,7 @@ class ObjectiveCIosApplicationXcodeIdeFunctionalTest extends IosApplicationXcode
 		buildFile << """
 			plugins {
 				id 'dev.nokee.xcode-ide'
-				id 'dev.nokee.ios-application'
-				id 'dev.nokee.objective-c-language'
+				id 'dev.nokee.objective-c-ios-application'
 			}
 		"""
 	}

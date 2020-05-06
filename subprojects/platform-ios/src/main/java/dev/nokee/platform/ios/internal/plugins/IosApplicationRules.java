@@ -2,13 +2,10 @@ package dev.nokee.platform.ios.internal.plugins;
 
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.internal.project.ProjectIdentifier;
-import org.gradle.model.Each;
 import org.gradle.model.Mutate;
-import org.gradle.model.Path;
 import org.gradle.model.RuleSource;
 import org.gradle.nativeplatform.NativeExecutableBinarySpec;
 import org.gradle.nativeplatform.NativeExecutableSpec;
-import org.gradle.nativeplatform.NativeLibrarySpec;
 import org.gradle.nativeplatform.toolchain.Clang;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
 import org.gradle.nativeplatform.toolchain.internal.gcc.DefaultGccPlatformToolChain;

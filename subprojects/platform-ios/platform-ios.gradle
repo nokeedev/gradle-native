@@ -10,6 +10,7 @@ repositories {
 }
 
 dependencies {
+	implementation project(':languageNative')
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 
@@ -26,15 +27,14 @@ dependencies {
 gradlePlugin {
 	plugins {
 		iosApplication {
-			id = 'dev.nokee.ios-application'
-			implementationClass = 'dev.nokee.platform.ios.internal.plugins.IosApplicationPlugin'
+			id = 'dev.nokee.objective-c-ios-application'
+			implementationClass = 'dev.nokee.platform.ios.internal.plugins.ObjectiveCIosApplicationPlugin'
 		}
 	}
 }
 
 components.functionalTest {
 	dependencies {
-		pluginUnderTestMetadata project(':languageNative')
 		compileOnly "org.projectlombok:lombok:${lombokVersion}"
 		annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 		implementation 'dev.nokee:templates:latest.integration'

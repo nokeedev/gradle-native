@@ -1,9 +1,7 @@
 package dev.nokee.ide.xcode.internal.plugins;
 
-import dev.nokee.ide.xcode.XcodeIdeProductType;
 import dev.nokee.ide.xcode.XcodeIdeProductTypes;
 import dev.nokee.ide.xcode.XcodeIdeProjectExtension;
-import dev.nokee.ide.xcode.internal.xcodeproj.PBXTarget;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -12,7 +10,6 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.FileVisitResult;
@@ -23,11 +20,13 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class XcodeIdeIosApplicationPlugin implements Plugin<Project> {
+public abstract class XcodeIdeObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getExtensions().getByType(XcodeIdeProjectExtension.class).getProjects().register(project.getName(), xcodeProject -> {
 			String moduleName = GUtil.toCamelCase(project.getName());
+
+			// TODO: Lock properties to avoid breaking the assumption
 			xcodeProject.getTargets().register(moduleName, xcodeTarget -> {
 
 				xcodeTarget.getProductName().set(moduleName);
@@ -43,7 +42,8 @@ public abstract class XcodeIdeIosApplicationPlugin implements Plugin<Project> {
 						.put("IPHONEOS_DEPLOYMENT_TARGET", 13.2)
 						.put("PRODUCT_BUNDLE_IDENTIFIER", project.getGroup().toString() + "." + moduleName)
 						.put("PRODUCT_NAME", "$(TARGET_NAME)")
-						.put("TARGETED_DEVICE_FAMILY", "1,2");
+						.put("TARGETED_DEVICE_FAMILY", "1,2")
+						.put("SDKROOT", "iphoneos");
 				});
 
 				xcodeTarget.getSources().from(project.fileTree("src/main/headers", it -> it.include("*")));

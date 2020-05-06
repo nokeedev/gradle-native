@@ -15,7 +15,7 @@ import org.gradle.util.GUtil;
 import javax.inject.Inject;
 import java.util.stream.Collectors;
 
-public abstract class IosApplicationPlugin implements Plugin<Project> {
+public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	@Inject
 	protected abstract ProjectLayout getLayout();
 
@@ -28,6 +28,7 @@ public abstract class IosApplicationPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(LifecycleBasePlugin.class);
+		project.getPluginManager().apply("dev.nokee.objective-c-language");
 
 		if (!SystemUtils.IS_OS_MAC) {
 			return; // Skipping on non macOS system for now

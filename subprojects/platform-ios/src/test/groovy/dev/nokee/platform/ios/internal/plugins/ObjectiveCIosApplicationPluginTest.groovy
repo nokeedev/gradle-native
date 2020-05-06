@@ -14,9 +14,9 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 @Requires({SystemUtils.IS_OS_MAC})
-@Subject(IosApplicationPlugin)
+@Subject(ObjectiveCIosApplicationPlugin)
 @CleanupTestDirectory
-class IosApplicationPluginTest extends Specification {
+class ObjectiveCIosApplicationPluginTest extends Specification {
 	@Rule
 	private final TestNameTestDirectoryProvider temporaryFolder = new TestNameTestDirectoryProvider(getClass())
 
@@ -24,7 +24,7 @@ class IosApplicationPluginTest extends Specification {
 
 	def "applies the lifecycle-base plugin"() {
 		when:
-		project.apply plugin: 'dev.nokee.ios-application'
+		project.apply plugin: 'dev.nokee.objective-c-ios-application'
 
 		then:
 		project.pluginManager.hasPlugin('lifecycle-base')
@@ -32,7 +32,7 @@ class IosApplicationPluginTest extends Specification {
 
 	def "creates storyboard build tasks"() {
 		given:
-		project.apply plugin: 'dev.nokee.ios-application'
+		project.apply plugin: 'dev.nokee.objective-c-ios-application'
 
 		when:
 		project.evaluate()
@@ -46,7 +46,7 @@ class IosApplicationPluginTest extends Specification {
 
 	def "creates asset compilation tasks"() {
 		given:
-		project.apply plugin: 'dev.nokee.ios-application'
+		project.apply plugin: 'dev.nokee.objective-c-ios-application'
 
 		when:
 		project.evaluate()
@@ -57,7 +57,7 @@ class IosApplicationPluginTest extends Specification {
 
 	def "creates application bundle creation tasks"() {
 		given:
-		project.apply plugin: 'dev.nokee.ios-application'
+		project.apply plugin: 'dev.nokee.objective-c-ios-application'
 
 		when:
 		project.evaluate()
