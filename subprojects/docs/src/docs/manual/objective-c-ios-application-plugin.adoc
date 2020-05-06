@@ -1,0 +1,73 @@
+= Objective-C iOS Application
+:jbake-type: reference_chapter
+:jbake-tags: user manual, gradle plugin reference, ios, application, gradle, native, objective-c
+:imagesdir: ./img
+:jbake-description: Learn what the Nokee's Objective-C iOS application plugin (i.e. dev.nokee.objective-c-ios-application) has to offer to your Gradle build.
+
+CAUTION: The following plugin is in very early development.
+Don't hesitate to try it out.
+If you encounter any problems, please link:https://github.com/nokeedev/gradle-native/issues[open an issue on GitHub].
+
+The Objective-C iOS Application Plugin provides the tasks, configurations and conventions for building applications for iOS devices implemented in Objective-C.
+It provides an entry point (application), runtime (iOS) and implementation language (Objective-C).
+
+[[sec:jni_library_usage]]
+== Usage
+
+.Applying the JNI Library Plugin
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+plugins {
+   id 'dev.nokee.objective-c-ios-application'
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+plugins {
+   id("dev.nokee.objective-c-ios-application")
+}
+----
+=====
+====
+
+
+== Tasks
+
+=== Lifecycle Tasks
+
+The Objective-C iOS Application Plugin attaches some of its tasks to the standard lifecycle tasks documented in the link:{gradle-user-manual}/base_plugin.html[Base Plugin chapter] — which the plugin applies automatically:
+
+`assemble` - Task (lifecycle)::
+Aggregates task that assembles the debug variant of the iOS application for the iPhone simulator targeting iOS 13.2.
+This task is added by the link:{gradle-user-manual}/base_plugin.html[Base Plugin].
+
+`check` - Task (lifecycle)::
+Aggregates task that performs verification tasks, such as running the tests.
+Some plugins add their verification task to `check`.
+This task is added by the link:{gradle-user-manual}/base_plugin.html[Base Plugin].
+
+`build` - Task (lifecycle)::
+Depends on: `check`, `assemble`
+::
+Aggregate tasks that perform a full build of the project.
+This task is added by the link:{gradle-user-manual}/base_plugin.html[Base Plugin].
+
+`clean` - Delete::
+Deletes the build directory and everything in it, i.e. the path specified by the `Project.getBuildDir()` project property.
+This task is added by the link:{gradle-user-manual}/base_plugin.html[Base Plugin].
+
+== Limitation
+
+At the moment, the plugin has the following limitations:
+
+- No dependencies can be configured for the iOS application.
+- Targeted iOS version is fixed to 13.2.
+- Single variant running only on the iPhone simulator.
