@@ -10,6 +10,12 @@ This page contains links and short descriptions for all the core plugins provide
 <<jni-library-plugin.adoc#,Java Native Interface (JNI) Library>>::
 Provides support for building JNI library.
 
+== iOS Development
+
+<<objective-c-ios-application-plugin.adoc#,Objective-C iOS Application>>::
+Provides support for building Objective-C application for iOS devices.
+
+[[sec:native-language-plugins]]
 == Native Languages
 
 <<cpp-language-plugin.adoc#,{cpp} Language>>::
@@ -23,3 +29,8 @@ Provides support for compiling Objective-C language.
 
 <<objective-cpp-language-plugin.adoc#,Objective-{cpp} Language>>::
 Provides support for compiling Objective-{cpp} language.
+
+== IDE Integration
+
+<<xcode-ide-plugin.adoc#,Xcode IDE>>::
+Generates Xcode workspace and project files for the build that can be opened by the IDE.
