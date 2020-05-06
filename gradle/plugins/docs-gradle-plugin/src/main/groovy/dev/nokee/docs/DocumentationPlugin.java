@@ -343,6 +343,18 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			task.getOutputs().cacheIf(Specs.satisfyAll());
 			task.setDestinationDir(getLayout().getBuildDirectory().dir("generated/baked").get().getAsFile());
 			task.setIncludeEmptyDirs(false);
+
+			// Copy images from samples (TODO: it should be done somewhere else)
+			task.from("src/docs/samples", spec -> {
+				spec.include("**/*.gif");
+				spec.into("docs/" + documentationVersion.get() + "/samples");
+			});
+
+			// Copy images from manual (TODO: it should be done somewhere else)
+			task.from("src/docs/manual", spec -> {
+				spec.include("**/*.png");
+				spec.into("docs/" + documentationVersion.get() + "/manual");
+			});
 		});
 		tasks.named("bakePreview", JBakeServeTask.class, task -> {
 			task.setInput(getLayout().getBuildDirectory().dir("generated/baked").get().getAsFile());
