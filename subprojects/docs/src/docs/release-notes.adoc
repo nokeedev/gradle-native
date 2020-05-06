@@ -3,13 +3,14 @@
 :jbake-tags: {jbake-version}, jvm, jni, objective c, objective cpp
 :jbake-description: See what version {jbake-version} of the Gradle Nokee plugins has to offer!
 
-The Nokee team is excited to announce the second release onward to a better native development experience in Gradle.
+The Nokee team is excited to announce the third release onward to a better native development experience in Gradle.
 
-This release focus on adding <<release-notes.adoc#sec:macos-framework,support for macOS framework>> as well as adding <<release-notes.adoc#sec:objc-objcpp,support for Objective-C and Objective-C++ implementation languages>>.
-It extends <<release-notes.adoc#sec:testing-coverage,automated test coverage to macOS, Linux, and Windows>> and adds <<release-notes.adoc#sec:jni-resource-path,configuration for the resource path for the native libraries embedded inside the Java Native Interface (JNI) library>>.
+This release focus on adding link:#sec:supporting-api-for-jni[convenient APIs to address common Java Native Interface (JNI) use cases].
+There was a focus on delivering an link:#sec:ios-application-plugin[experimental iOS application development workflow in Gradle].
+To support iOS development, an link:#sec:xcode-ide-plugin[Xcode IDE plugin was also developed].
+Finally, this release continues to link:#sec:improvements-to-documentation[improve the documentation portal for the Nokee plugins].
 
-Since the last release, we tried many experiments for the work to come.
-You can read all about them in the link:/blog/release-0.2-announcement[announcement blog for this release].
+You can read more about the first step in the iOS support in Gradle in the link:https://nokee.dev/blog/release-0.3-announcement[announcement blog for this release].
 
 [[sec:getting-started]]
 == Getting Started
@@ -66,42 +67,45 @@ pluginManagement {
 =====
 ====
 
-[[sec:macos-framework]]
-== Framework Support on macOS
+[[sec:supporting-api-for-jni]]
+== New APIs Supporting JNI Library Development
 
-The Nokee plugin support link:samples/jni-library-with-framework-dependencies[macOS framework dependencies as normal dependencies].
-It is also possible to depend on frameworks within other frameworks (also known as subframework).
-For example, `JavaNativeFoundation` is a subframework of `JavaVM` framework and is required for Cocoa development in Java through the JNI runtime.
-You can depend on subframework by requesting the link:{gradle-user-manual}/dependency_management_terminology.html#sub:terminology_capability[capability] matching the target subframework.
+We added new convenient APIs to support JNI library development.
+The APIs in questions allow easier manipulation of the JNI library link:dsl/dev.nokee.platform.base.VariantView.html[variants] and link:dsl/dev.nokee.platform.base.BinaryView.html[binaries] by additional tasks.
+You can see the new APIs in action in link:samples[the samples], more specifically, in the link:samples/jni-library-as-uber-jar[sample on creating an uber JAR for JNI libraries].
+For more information, head over to the new <<manual/building-jni-projects.adoc#,Building JNI Projects>> chapter.
 
-Because the underlying implementation relies on Gradle core native infrastructure, there are some inherent limitations.
-We will work out those limitations in future releases.
-The most important limitation is the ordering of the framework against header search paths and libraries to link.
-The frameworks should be allowed to interleave with other compiler and linker inputs.
-Instead, the command line passed to the compiler and linker group the frameworks.
-Also, the files inside a framework don't participate in the up-to-date checking for the compiler and linker tasks.
-However, since the framework support is limited to system frameworks, it is unlikely to change between build invocation, causing build issues.
-Finally, this release doesn't support dynamic version resolution of frameworks.
+[[sec:ios-application-plugin]]
+== Experimental iOS Application Plugin
 
-[[sec:jni-resource-path]]
-== Resource Path Customization
+This release reveals a link:samples/objective-c-ios-application[very early experimental iOS support for application in Gradle].
+At this stage, the plugin offers no configurability.
+The application built will target iOS version 13.2 for the iPhone simulator.
 
-The link:samples/jni-library-with-resource-path[mapping of the native runtime libraries inside the JNI library JAR is customizable per-variant].
-It will help with the migration from existing custom JNI support to the Nokee's JNI library support.
+It is important to stress the experimental aspect of the plugin.
+The limitation will be removed over the following releases to address more use cases.
 
-[[sec:objc-objcpp]]
-== Objective-C and Objective-{cpp} Support
+[[sec:xcode-ide-plugin]]
+== Xcode IDE Plugin
 
-The JNI library plugin now support link:samples/java-objective-c-jni-library[Objective-C] and link:samples/java-objective-cpp-jni-library[Objective-{cpp}] implementation language via <<manual/plugin-references.adoc#native_languages,new language plugins>>.
-They work just like the other, C and {cpp}, language plugins.
+To support iOS development, we are also revealing the <<manual/xcode-ide-plugin.adoc#,Xcode IDE plugin>>.
+It has out-of-the-box support for the new iOS application plugin.
+It also provide an <<manual/xcode-ide-plugin.adoc#sec:build-language,extensive build language>> to support integration with 3rd party plugins.
+You can see the APIs in action with the link:samples/xcode-ide-composing[compose an Xcode IDE project sample].
 
-[[sec:testing-coverage]]
-== Plugins Testing Coverage
+[[sec:improvements-to-documentation]]
+== Improvements to the Documentation Portal
 
-This release continues improving the testing coverage to prevent unintended breakage in future releases.
-Nokee's continuous integration infrastructure covers all three major operating systems (e.g. Windows, macOS and Linux).
-Native toolchains and Gradle distribution coverage are still partial.
-Improvement will come in the next release.
+This release introduces the link:dsl[build language reference, also known as DSL reference].
+It covers the complete public APIs for the Nokee plugins.
+
+We wrote three new chapters:
+
+- <<manual/plugin-anatomy.adoc#,Anatomy of a Nokee Plugin>>: Explains the plugin triplet pattern.
+- <<manual/building-jni-projects.adoc#,Building JNI projects>>: Discuss the modelling of a JNI project.
+- <<manual/developing-with-xcode-ide.adoc#,Developing with Xcode IDE>>: Covers the integration of Gradle with Xcode IDE.
+
+The documentation also includes three new samples covering link:samples/jni-library-as-uber-jar[creating uber JAR for JNI library], link:samples/objective-c-ios-application[iOS application support] and link:samples/xcode-ide-composing[integrating Gradle with Xcode IDE for 3rd party plugins].
 
 [[sec:reporting-problems]]
 == Reporting Problems
