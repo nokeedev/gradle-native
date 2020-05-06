@@ -2,10 +2,13 @@ package dev.nokee.ide.xcode.internal.tasks;
 
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.FileSystemOperations;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
 
@@ -17,8 +20,22 @@ public abstract class SyncXcodeIdeProduct extends DefaultTask {
 	@InputFiles
 	public abstract Property<FileSystemLocation> getProductLocation();
 
-	@OutputFiles
+	@Internal
 	public abstract Property<FileSystemLocation> getDestinationLocation();
+
+	@OutputFiles
+	protected FileCollection getOutputFiles() {
+		return getObjects().fileCollection().from(getDestinationLocation().map(location -> {
+			File locationAsFile = location.getAsFile();
+			if (locationAsFile.isDirectory()) {
+				return getObjects().fileTree().setDir(locationAsFile).matching(it -> it.include("**/*"));
+			}
+			return locationAsFile;
+		}));
+	}
+
+	@Inject
+	protected abstract ObjectFactory getObjects();
 
 	@Inject
 	protected abstract FileSystemOperations getFileOperations();

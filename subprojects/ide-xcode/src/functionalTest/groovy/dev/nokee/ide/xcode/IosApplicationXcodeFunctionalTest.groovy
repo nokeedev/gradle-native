@@ -127,6 +127,27 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 		result.assertTasksExecutedAndNotSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileMainExecutableMainObjc', ':linkMainExecutable', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___app_App_Default')
 	}
 
+	@Requires({ SystemUtils.IS_OS_MAC })
+	def "can build iOS application from Xcode IDE multiple time"() {
+		assumeTrue('iOS application does not support no source', hasSourcesToBuild())
+
+		useXcodebuildTool()
+		settingsFile << configurePluginClasspathAsBuildScriptDependencies()
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+		succeeds('xcode')
+
+		when:
+		def xcodeResult1 = xcodebuild.withWorkspace(xcodeWorkspace('app.xcworkspace')).withScheme("App").succeeds()
+		then:
+		xcodeResult1.assertTasksExecutedAndNotSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileMainExecutableMainObjc', ':linkMainExecutable', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___app_App_Default')
+
+		when:
+		def xcodeResult2 = xcodebuild.withWorkspace(xcodeWorkspace('app.xcworkspace')).withScheme("App").succeeds()
+		then:
+		xcodeResult2.assertTasksSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileMainExecutableMainObjc', ':linkMainExecutable', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___app_App_Default')
+	}
+
 	protected abstract List<String> getExpectedSourceLayoutOfComponentUnderTest();
 
 	// TODO: Remove once the iOS application plugin support no source

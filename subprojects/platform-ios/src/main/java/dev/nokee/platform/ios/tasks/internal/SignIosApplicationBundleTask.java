@@ -2,8 +2,9 @@ package dev.nokee.platform.ios.tasks.internal;
 
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.FileSystemOperations;
-import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
@@ -16,10 +17,10 @@ import java.nio.charset.Charset;
 
 public abstract class SignIosApplicationBundleTask extends DefaultTask {
 	@InputDirectory
-	public abstract RegularFileProperty getUnsignedApplicationBundle();
+	public abstract Property<FileSystemLocation> getUnsignedApplicationBundle();
 
 	@OutputDirectory
-	public abstract RegularFileProperty getSignedApplicationBundle();
+	public abstract Property<FileSystemLocation> getSignedApplicationBundle();
 
 	@Inject
 	protected abstract ExecOperations getExecOperations();
