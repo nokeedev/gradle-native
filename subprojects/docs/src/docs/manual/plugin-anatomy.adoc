@@ -1,0 +1,125 @@
+= Anatomy of Nokee Plugins
+:jbake-type: manual_chapter
+:jbake-tags: user manual, gradle plugin
+:jbake-description: Discuss the concept of Nokee's plugin convention.
+
+The Nokee plugins follows a strong model.
+In this chapter, we will look at the established plugin capability convention.
+We will discuss about the three dimension forming the plugin identification triplet: implementation language, runtime and entry point.
+How they mix together...
+
+== Introduction
+
+Gradle requires all plugins to include a prefix known as the _plugin namespace_.
+What follows the namespace is known as the _plugin name_.
+Together, they form the _fully qualified plugin name_:
+
+image::img/plugin-anatomy-plugin-concept.png[Gradle plugin naming concepts,align="center"]
+
+Non-Gradle core plugins are referenced via their fully qualified name.
+Core Gradle plugins are implicitly part of the `org.gradle` namespace and can be referenced only by their plugin name.
+
+The rather flat naming scheme does not provide the necessary information to understand what capability a plugin offers as well as how plugins can mix together.
+The Nokee plugins further divides the plugin name into _capability dimensions_ which forms the _plugin identification triplet_.
+
+== What is the plugin identification triplet?
+
+At its core, Gradle plugins provide additional capabilities to a project.
+The project capabilities can be grouped into three major dimensions: the _entry point_, the _runtime_, and the _implementation language_.
+The _plugin identification triplet_ allows to represent these three dimensions and imply certain rules when mixing plugins together.
+
+As we explain each dimension of the triplet, let's consider the plugin `dev.nokee.objective-c-ios-application`:
+
+image::img/plugin-anatomy-plugin-identification-triplet.png[Example plugin identification triplet breakdown,align="center"]
+
+=== 1. Entry point
+
+The entry point represent how a component will be used, for example, as an application, library or device driver.
+Each entry point provide some opinion on what can be achieve by the project.
+For example, an application can be ran but can't be dependent upon in the context of providing an API to a component being built.
+A device driver would be loadable instead of runnable.
+It would provide restriction for which kernel it can load into versus an application would be imposing a limitation at the runtime level.
+In general, there should only be one entry point per project.
+
+=== 2. Runtime
+
+The runtime represent where a component will be executed, for example, iOS, Android, Windows.
+Each runtime provides specific model for configuring the target runtime requirements.
+In native, we often talk about the architecture, operating system, instruction sets.
+These example are on the lower spec of the abstraction.
+Runtime plugins could provide higher level of abstraction.
+For example, iOS runtime would provide abstraction to target Apple devices.
+The higher level of abstraction helps prevent invalid configuration such as compiling for Itanium architecture and running the produced binary on an iPhone.
+
+=== 3. Implementation Language
+
+The implementation language represent what the component is implemented with, for example, Objective-C, Swift, {cpp}.
+In general, native languages can be mixed together.
+However, some languages have special requirement when mixing them with others.
+For example, Swift requires additional runtime libraries to be included inside an application bundle.
+This dimensions ensure those requirements are met.
+
+== Dimensional Plugins
+
+For plugins that only specify a single dimensions, they are usually referred as a dimensional plugin.
+For example, `dev.nokee.cpp-language` only provide the {cpp} implementation language capability.
+It would need to be applied with a runtime and entry point plugin.
+Those dimensional plugins are offering less convenience than a fully opnionated plugin.
+For example appling plugin `dev.nokee.objective-c-language`, `dev.nokee.ios-runtime`, `dev.nokee.application-entry-point` wouldn't necessarily be the equivalent to `dev.nokee.objective-c-ios-application`.
+The later would provide more convenience than the all the individual dimensional plugins together.
+It's based on how much plugin would know before hand.
+
+== Filling missing dimension
+
+Some dimension can be unset.
+In that case they are not present.
+The specificity of the plugin dimensions starts at the entry point and becomes more and more opinionated as we move through the dimensions.
+Typically, the implementation language is the most often missing dimension.
+When a dimension is missing, you can fill it by applying one or more dimensional plugins.
+In the case of an unset implementation language dimension, you can apply any language plugins.
+However, the runtime + entry point combinason may have an opinion on which implementation language it supports.
+It would then disallow language plugin by returning error message and/or stating it clearly in their plugin reference documentation.
+
+== Implicit rules
+
+CAUTION: Not completed yet.
+
+The more of the triplet is defined the more opinionated a plugin is.
+Some dimension of the triplet may be unset which allows to use multiple plugins to fill the capability.
+For example, objective-c-ios-application express a full opinion on all dimension (iOS application implemented in Objective-C).
+However, the ios-application plugin is less opinionated and allow multiple implementation language.
+
+== Why using the plugin identification triplet?
+
+CAUTION: Not completed yet.
+
+Picture this this example...
+What do the plugin do?
+
+How can it be mixed together?
+
+From just the name we can infer a lot of information.
+
+== Exceptional entry point
+
+CAUTION: Not completed yet.
+
+Some entry point are a bit special given they are supporting the already defined entry point.
+They are: test suites and IDE integration.
+Both are providing additional entry points.
+For example `dev.nokee.xcode-ide` is providing an IDE entry point for Xcode.
+Here Xcode is considered a runtime dimension.
+
+== Base Plugins
+
+CAUTION: Not completed yet.
+
+One final plugin type to notes are the base plugins.
+Generally with the suffix of `-base` are plugins offering the capability but in an unopinionated way.
+It provides all the convenience (configuration) without actually creating any components (tasks, extensions, etc).
+For example, the `java-base` plugins offers all the configuration for compiling Java code but doesn't create any source set.
+The `java` plugin is opinionated and creates a `main` and `test` source set.
+
+
+
+//It means the plugin is highly opinionated and leave little room for further capability customization.
