@@ -85,3 +85,12 @@ subprojects {
 		}
 	}
 }
+
+// Configure functionalTest
+subprojects {
+	pluginManager.withPlugin('dev.gradleplugins.java-gradle-plugin') {
+		components.functionalTest {
+			testingStrategies = [strategies.coverageForMinimumVersion, strategies.coverageForLatestGlobalAvailableVersion, strategies.coverageForLatestNightlyVersion]
+		}
+	}
+}
