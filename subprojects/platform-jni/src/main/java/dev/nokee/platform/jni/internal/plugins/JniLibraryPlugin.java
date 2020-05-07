@@ -249,7 +249,9 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			// The nested output is not marked automatically as an output of the task regarding task dependencies.
 			// So we mark it manually here.
 			// See https://github.com/gradle/gradle/issues/6619.
-			task.getOutputs().dir(task.getOptions().getHeaderOutputDirectory());
+			if (!isGradleVersionGreaterOrEqualsTo6Dot3()) {
+				task.getOutputs().dir(task.getOptions().getHeaderOutputDirectory());
+			}
 
 			// Cannot do incremental header generation before 6.3, since the pattern for cleaning them up is currently wrong.
 			// See https://github.com/gradle/gradle/issues/12084.
