@@ -1,3 +1,4 @@
+[[chapter:user-manual]]
 = Nokee User Manual
 :jbake-type: manual_chapter
 :jbake-tags: user manual, nokee, gradle, gradle plugin

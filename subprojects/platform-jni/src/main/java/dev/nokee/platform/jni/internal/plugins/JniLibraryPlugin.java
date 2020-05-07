@@ -271,6 +271,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			task.dependsOn(files);
 
 			// TODO: notify when no native library exists
+			// TODO: Use Jvm Argument Providers to lazily pass -Djava.library.path=...
 			String path = files.stream().flatMap(it -> it.getFiles().stream()).map(it -> it.getParentFile().getAbsolutePath()).collect(joining(File.pathSeparator));
 			task.systemProperty("java.library.path", path);
 		});

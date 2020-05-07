@@ -1,3 +1,4 @@
+[[chapter:xcode-dev]]
 = Developing with Xcode IDE
 :jbake-type: manual_chapter
 :jbake-tags: user manual, xcode, ide, gradle
@@ -8,6 +9,7 @@ The Nokee plugins provide the <<xcode-ide-plugin.adoc#, Xcode IDE Plugin>> for t
 This chapter will discuss how Nokee integrates with the Xcode IDE.
 See the <<xcode-ide-plugin.adoc#,plugin reference chapter>> for a more technical reference.
 
+[[sec:xcode-dev-introduction]]
 == Introduction
 
 We will refer to Xcode as the Integrated Development Environment (IDE) for developing source code.
@@ -16,6 +18,7 @@ The plugin focuses heavily on keeping the developer experience within the IDE as
 For example, executing tests from the sidebar, cmd+click navigation, searching symbols are all considered and work as expected.
 We will discuss the background of the choices made by the plugin.
 
+[[sec:xcode-dev-assumption]]
 == Assumption made by the plugin
 
 The Xcode IDE plugin assumes a unidirectional transfer of the build knowledge, from Gradle to Xcode.
@@ -32,7 +35,8 @@ The plugin also assumes a single workspace per Gradle multi-project build.
 Each Gradle project can contribute more than one Xcode project to the workspace if required.
 For this reason, the plugin registers an extended extension on the root Gradle project to provide the additional capability for generating a workspace.
 
-== Xcode Projects
+[[sec:xcode-dev-projects]]
+== Xcode projects
 
 By default, the Xcode IDE plugin considers a one-to-one mapping of the Gradle project to the Xcode project.
 Despite this mapping, it is possible to register additional Xcode project via the link:../dsl/dev.nokee.ide.xcode.XcodeIdeProjectExtension.html#dev.nokee.ide.xcode.XcodeIdeProjectExtension:projects[container available on the extension].
@@ -41,6 +45,7 @@ The plugin disregards the on-disk layout of the sources when adding them to the 
 
 image::img/xcode-ide-source-layout.png[Xcode target and source group layout,align="center"]
 
+[[sec:xcode-dev-build-files]]
 == Editing Gradle build files from the IDE
 
 The Gradle build configuration is easily accessible from the IDE.
@@ -50,7 +55,8 @@ It also considers changes to the setting and build file locations.
 
 image::img/xcode-ide-build-files.png[Xcode project with Gradle build files,align="center"]
 
-== Xcode Targets
+[[sec:xcode-dev-targets]]
+== Xcode targets
 
 The plugins consider a one-to-one mapping between the Gradle project components to Xcode targets.
 Each target registered to an Xcode project will delegate to Gradle.
@@ -60,9 +66,10 @@ The external build target offers less constraint than native Xcode targets allow
 
 image::img/xcode-ide-delegate-target.png[Xcode target delegating to Gradle,align="center"]
 
-NOTE: Head over to the link:#sec:how-xcode-delegate-to-gradle[appendix of this chapter to learn more how the plugin delegate to Gradle].
+NOTE: Head over to the <<sec:xcode-dev-appendix-how-xcode-delegate-to-gradle, appendix of this chapter to learn more how the plugin delegate to Gradle>>.
 
-== Implicit Xcode Indexer Targets
+[[sec:xcode-dev-indexer]]
+== Implicit Xcode indexer targets
 
 Xcode IDE has a process to understand the sources to provide code assistance features such as syntax highlighting, code completion, and search for definitions and references.
 The plugin will create an additional indexer target identified by the `\__indexer_` prefix for each product type it known as indexable.
@@ -74,13 +81,15 @@ You should never use any of those targets while developing inside the Xcode IDE.
 
 image::img/xcode-ide-indexer-target.png[Implicit indexer target for Xcode code-completion]
 
-== Xcode Build Configurations
+[[sec:xcode-dev-build-configurations]]
+== Xcode build configurations
 
 A build configuration is analogous to a build type in Gradle, typically known as Debug and Release variant.
 When no build type is configured for a native component, the plugin creates a default build configuration named `Default`.
 When a component does not build on the host machine due to missing toolchain, for example, the plugin creates a default build configuration named `Unbuildable` instead.
 
-== Xcode Build Settings
+[[sec:xcode-dev-build-settings]]
+== Xcode build settings
 
 In a _vanilla Xcode experience_, developers would use the build settings to configure a particular aspect of a product's build process.
 With the Xcode IDE plugin, developers configure the product's build process using the Gradle build language.
@@ -88,9 +97,10 @@ Modifying the build settings inside Xcode is discourage and is unlikely to have 
 
 image::img/xcode-ide-build-settings.png[Xcode build settings configuration,align="center"]
 
+[[sec:xcode-dev-appendix]]
 == Appendix
 
-[[sec:how-xcode-delegate-to-gradle]]
+[[sec:xcode-dev-appendix-how-xcode-delegate-to-gradle]]
 === How Nokee configure Xcode IDE to delegate to Gradle
 
 The Xcode IDE plugin registers a bridging task rule that matches any tasks that starts with `\__xcode_`.

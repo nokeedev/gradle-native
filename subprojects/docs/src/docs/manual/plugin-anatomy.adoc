@@ -51,7 +51,7 @@ Runtime plugins could provide higher level of abstraction.
 For example, iOS runtime would provide abstraction to target Apple devices.
 The higher level of abstraction helps prevent invalid configuration such as compiling for Itanium architecture and running the produced binary on an iPhone.
 
-=== 3. Implementation Language
+=== 3. Implementation language
 
 The implementation language represent what the component is implemented with, for example, Objective-C, Swift, {cpp}.
 In general, native languages can be mixed together.
@@ -59,7 +59,7 @@ However, some languages have special requirement when mixing them with others.
 For example, Swift requires additional runtime libraries to be included inside an application bundle.
 This dimensions ensure those requirements are met.
 
-== Dimensional Plugins
+== Dimensional plugins
 
 For plugins that only specify a single dimensions, they are usually referred as a dimensional plugin.
 For example, `dev.nokee.cpp-language` only provide the {cpp} implementation language capability.
@@ -110,7 +110,7 @@ Both are providing additional entry points.
 For example `dev.nokee.xcode-ide` is providing an IDE entry point for Xcode.
 Here Xcode is considered a runtime dimension.
 
-== Base Plugins
+== Base plugins
 
 CAUTION: Not completed yet.
 

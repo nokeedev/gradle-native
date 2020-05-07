@@ -1,0 +1,15 @@
+digraph binaryClassDiagram {
+	graph [dpi = 100, fontname="Sans"];
+	node [fontname = "Sans"];
+	edge [fontname = "Sans"];
+	node [shape=rectangle, fixedsize=true, width=2.7, height=0.5];
+
+	binary[label="Binary"]
+	jar[label="JarBinary"]
+	jvmJar[label="JvmJarBinary"]
+	jniJar[label="JniJarBinary"]
+	sharedLibrary[label="SharedLibraryBinary"]
+
+    binary -> jar -> {jvmJar, jniJar}[dir=back]
+    binary -> sharedLibrary[dir=back]
+}

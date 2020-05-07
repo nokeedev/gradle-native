@@ -90,7 +90,7 @@ The limitation will be removed over the following releases to address more use c
 
 To support iOS development, we are also revealing the <<manual/xcode-ide-plugin.adoc#,Xcode IDE plugin>>.
 It has out-of-the-box support for the new iOS application plugin.
-It also provide an <<manual/xcode-ide-plugin.adoc#sec:build-language,extensive build language>> to support integration with 3rd party plugins.
+It also provide an <<manual/xcode-ide-plugin.adoc#sec:xcode-ide-build-language,extensive build language>> to support integration with 3rd party plugins.
 You can see the APIs in action with the link:samples/xcode-ide-composing[compose an Xcode IDE project sample].
 
 [[sec:improvements-to-documentation]]

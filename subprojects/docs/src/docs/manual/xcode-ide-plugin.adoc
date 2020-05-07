@@ -1,3 +1,4 @@
+[[chapter:xcode-ide]]
 = Xcode IDE
 :jbake-type: reference_chapter
 :jbake-tags: user manual, gradle plugin reference, xcode ide, ide, gradle, native, objective-c, objc, ios
@@ -25,9 +26,10 @@ The plugin generates Xcode projects depending on the other plugins applied:
 
 | None of the above
 | Does not generate any project.
-It is possible to compose your own Xcode project(s) using the link:#sec:build-language[build language].
+It is possible to compose your own Xcode project(s) using the link:#sec:xcode-ide-build-language[build language].
 |===
 
+[[sec:xcode-ide-usage]]
 == Usage
 
 .Applying the Xcode IDE Plugin
@@ -54,6 +56,7 @@ plugins {
 =====
 ====
 
+[[sec:xcode-ide-tasks]]
 == Tasks
 
 The Xcode IDE Plugin adds three new tasks to your project: `xcode`, `cleanXcode` and `openXcode` (root project only).
@@ -62,7 +65,7 @@ The following diagram shows the relationships between the tasks:
 .Xcode IDE Plugin task graph
 image::xcode-ide-task-graph.png[]
 
-[[sec:xcode_lifecycle_tasks]]
+[[sec:xcode-ide-lifecycle-tasks]]
 === Lifecycle Tasks
 
 `xcode` — link:{gradle-language-reference}/org.gradle.api.Task.html[Task]::
@@ -78,6 +81,7 @@ _Depends on_: `xcode`
 Open the Xcode workspace inside the IDE.
 _Only available on the root project._
 
+[[sec:xcode-ide-extensions]]
 == Extensions
 
 The plugin register an extension of type link:../dsl/dev.nokee.ide.xcode.XcodeIdeProjectExtension.html[XcodeIdeProjectExtension].
@@ -132,7 +136,7 @@ xcode {
 =====
 ====
 
-[[sec:build-language]]
+[[sec:xcode-ide-build-language]]
 == Build Language
 
 The following summary presents the mapping of each Xcode IDE concept to the Nokee build language.
@@ -155,6 +159,7 @@ Represent a group of projects to be worked on together.
 Xcode Build Configuration (link:../dsl/dev.nokee.ide.xcode.XcodeIdeBuildConfiguration.html[XcodeIdeBuildConfiguration])::
 Represent a group of build settings to build a variant of the product.
 
+[[sec:xcode-ide-configuration]]
 == Configuration
 
 The Xcode IDE project automatically registered as a result of a default behaviour allows only minimal configuration, such as adding additional targets, build configuration and build settings.

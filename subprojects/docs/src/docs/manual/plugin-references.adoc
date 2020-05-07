@@ -1,3 +1,4 @@
+[[chapter:plugin-reference]]
 = Nokee Plugin Reference
 :jbake-type: reference_index
 :jbake-tags: user manual, gradle plugin reference, nokee plugin, gradle
@@ -5,17 +6,19 @@
 
 This page contains links and short descriptions for all the core plugins provided by Nokee.
 
+[[sec:plugin-reference-jvm]]
 == JVM Runtimes
 
 <<jni-library-plugin.adoc#,Java Native Interface (JNI) Library>>::
 Provides support for building JNI library.
 
+[[sec:plugin-reference-ios]]
 == iOS Development
 
 <<objective-c-ios-application-plugin.adoc#,Objective-C iOS Application>>::
 Provides support for building Objective-C application for iOS devices.
 
-[[sec:native-language-plugins]]
+[[sec:plugin-reference-native-languages]]
 == Native Languages
 
 <<cpp-language-plugin.adoc#,{cpp} Language>>::
@@ -30,6 +33,7 @@ Provides support for compiling Objective-C language.
 <<objective-cpp-language-plugin.adoc#,Objective-{cpp} Language>>::
 Provides support for compiling Objective-{cpp} language.
 
+[[sec:plugin-reference-ide]]
 == IDE Integration
 
 <<xcode-ide-plugin.adoc#,Xcode IDE>>::

@@ -1,5 +1,16 @@
 <%
-def categories = sample_chapters.collect { it.category } as Set
+def categories = sample_chapters.collectEntries {
+	switch (it.category) {
+		case 'Java Native Interface (JNI)':
+			return ['sec:samples-jni': it.category]
+		case 'iOS':
+			return ['sec:samples-ios': it.category]
+		case 'Integrated Development Environment (IDE)':
+			return ['sec:samples-ide': it.category]
+		default:
+			throw new IllegalArgumentException("Unknown category ${it.category}, please specify the id in 'sample_index.gsp'")
+	}
+}
 %>
 
 <!DOCTYPE html>
@@ -20,13 +31,25 @@ def categories = sample_chapters.collect { it.category } as Set
 
 			<div id="content">
 				${content.body}
-				<%categories.each { category ->%>
-					<h2>${category}</h2>
-					<ul>
-					<%sample_chapters.findAll { it.category == category }.each {sample ->%>
-						<li><p><a href="${sample.permalink}/">${sample.title}</a>: ${sample.summary}</p></li>
-					<%}%>
-					</ul>
+
+				<%
+				    // The following HTML structure mirror how adoc render each document section
+					// It mostly allow anchors on h2
+				    categories.each { id, category ->
+				%>
+					<div class="sec1">
+						<h2 id="${id}">
+							<a class="anchor" href="#${id}"></a>
+							<a class="link" href="#${id}">${category}</a>
+						</h2>
+						<div class="sectionbody">
+							<ul>
+							<%sample_chapters.findAll { it.category == category }.each {sample ->%>
+								<li><p><a href="${sample.permalink}/">${sample.title}</a>: ${sample.summary}</p></li>
+							<%}%>
+							</ul>
+						</div>
+					</div>
 				<%}%>
 			</div>
 		</div>
