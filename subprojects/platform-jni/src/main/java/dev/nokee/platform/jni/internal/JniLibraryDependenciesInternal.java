@@ -21,7 +21,12 @@ public abstract class JniLibraryDependenciesInternal implements JniLibraryDepend
 
 	@Inject
 	public JniLibraryDependenciesInternal(ConfigurationContainer configurations) {
-		apiDependencies = configurations.create("api", JniLibraryDependenciesInternal::bucket);
+		Configuration api = configurations.findByName("api");
+		if (api == null) {
+			apiDependencies = configurations.create("api", JniLibraryDependenciesInternal::bucket);
+		} else {
+			apiDependencies = api;
+		}
 		jvmImplementationDependencies = configurations.create("jvmImplementation", JniLibraryDependenciesInternal::bucket);
 		nativeImplementationDependencies = configurations.create("nativeImplementation", JniLibraryDependenciesInternal::bucket);
 
