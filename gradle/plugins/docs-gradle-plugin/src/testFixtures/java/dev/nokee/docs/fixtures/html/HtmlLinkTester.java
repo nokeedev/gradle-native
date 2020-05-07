@@ -120,7 +120,7 @@ public class HtmlLinkTester {
 		links.addAll(thiz.findAll(HtmlTag.SCRIPT).stream().filter(it -> it.getSrc().isPresent()).map(it -> new Hyperlink(it.getPath(), it.getSrc().get())).collect(Collectors.toSet()));
 		links.addAll(thiz.findAll(HtmlTag.LINK).stream().filter(it -> it.getHref().isPresent() && !it.isCanonical()).map(it -> new Hyperlink(it.getPath(), it.getHref().get())).collect(Collectors.toSet()));
 		return links.stream().map(link -> {
-			String href = URLDecoder.decode(link.getHref());
+			String href = link.getHref();
 
 			// Shortcut for known href to ignore
 			if (href.startsWith("javascript:")) {
