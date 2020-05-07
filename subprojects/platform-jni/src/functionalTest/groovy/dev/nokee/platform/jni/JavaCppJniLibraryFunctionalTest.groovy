@@ -1,10 +1,6 @@
 package dev.nokee.platform.jni
 
 
-import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
-import dev.gradleplugins.test.fixtures.archive.JarTestFixture
-import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.nokee.language.MixedLanguageTaskNames
 import dev.nokee.language.cpp.CppTaskNames
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 
