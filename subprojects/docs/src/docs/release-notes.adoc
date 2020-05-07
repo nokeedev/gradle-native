@@ -105,7 +105,11 @@ We wrote three new chapters:
 - <<manual/building-jni-projects.adoc#,Building JNI projects>>: Discuss the modelling of a JNI project.
 - <<manual/developing-with-xcode-ide.adoc#,Developing with Xcode IDE>>: Covers the integration of Gradle with Xcode IDE.
 
-The documentation also includes three new samples covering link:samples/jni-library-as-uber-jar[creating uber JAR for JNI library], link:samples/objective-c-ios-application[iOS application support] and link:samples/xcode-ide-composing[integrating Gradle with Xcode IDE for 3rd party plugins].
+The documentation also includes four new samples:
+- link:samples/jni-library-as-uber-jar[Create an uber JAR for JNI library]
+- link:samples/objective-c-ios-application[Support iOS application]
+- link:samples/xcode-ide-composing[Integrate Gradle with Xcode IDE for 3rd party plugins]
+- link:samples/kotlin-cpp-jni-library[Demonstrate JNI Library implemented with Kotlin and {cpp}]
 
 [[sec:reporting-problems]]
 == Reporting Problems

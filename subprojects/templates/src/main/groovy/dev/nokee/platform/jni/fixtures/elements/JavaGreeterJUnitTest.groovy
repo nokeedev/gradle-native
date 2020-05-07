@@ -1,6 +1,7 @@
 package dev.nokee.platform.jni.fixtures.elements
 
 import dev.gradleplugins.test.fixtures.sources.SourceFileElement
+import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
 import dev.gradleplugins.test.fixtures.sources.java.JavaSourceFileElement
 
 import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
@@ -18,9 +19,9 @@ class JavaGreeterJUnitTest extends JavaSourceFileElement {
 		return 'test'
 	}
 
-	JavaGreeterJUnitTest() {
-		source = ofFile(sourceFile('java/com/example/greeter', 'GreeterTest.java', '''
-package com.example.greeter;
+	JavaGreeterJUnitTest(JavaPackage javaPackage = new JavaPackage('com.example.greeter')) {
+		source = ofFile(sourceFile("java/${javaPackage.directoryLayout}", 'GreeterTest.java', """
+package ${javaPackage.name};
 
 import org.junit.Test;
 
@@ -42,6 +43,6 @@ public class GreeterTest {
         assertThat(greeting, equalTo("name cannot be null"));
     }
 }
-'''))
+"""))
 	}
 }

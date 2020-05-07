@@ -67,6 +67,9 @@ repositories {
 
 documentation {
 	samples {
+		'kotlin-cpp-jni-library' {
+			template = new KotlinJniCppGreeterLib('kotlin-cpp-jni-library').withJUnitTest()
+		}
 		'java-cpp-jni-library' {
 			template = new JavaJniCppGreeterLib('java-cpp-jni-library')
 		}

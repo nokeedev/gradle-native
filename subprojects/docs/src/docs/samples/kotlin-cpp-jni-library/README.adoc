@@ -1,0 +1,67 @@
+= Kotlin/{cpp} JNI Library
+:jbake-summary: JNI library implemented in Kotlin and {cpp}.
+:jbake-type: sample_chapter
+:jbake-tags: sample, jni, library, jvm, kotlin, c++, native, gradle
+:jbake-category: Java Native Interface (JNI)
+:jbake-description: See how the Nokee Gradle plugins are used for building a Java Native Interface (JNI) library implemented in Kotlin and {cpp}.
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how to build a JNI library with Gradle implemented in Kotlin and {cpp}; however, this applies to other native language as well.
+The library includes JUnit tests with minimal configuration.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+
+To build and test the library:
+
+[listing.terminal]
+----
+$ ./gradlew build
+
+BUILD SUCCESSFUL
+6 actionable tasks: 6 executed
+----
+
+The JNI library produced inside `./build/libs` directory:
+
+[listing.terminal]
+----
+$ ls ./build/libs/*.jar
+./build/libs/kotlin-cpp-jni-library.jar
+----
+
+Since there is only one variant, the native component is included inside the main JAR:
+
+[listing.terminal,only-if='macos']
+----
+$ jar tf ./build/libs/kotlin-cpp-jni-library.jar
+META-INF/
+META-INF/MANIFEST.MF
+META-INF/kotlin-cpp-jni-library.kotlin_module
+com/
+com/example/
+com/example/greeter/
+com/example/greeter/NativeLoader.class
+com/example/greeter/Greeter.class
+com/example/greeter/Greeter$Companion.class
+libkotlin-cpp-jni-library.dylib
+----
+
+For more information, see <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin>> and <<../../manual/cpp-language-plugin.adoc#,{cpp} Language Plugin>> reference chapters.

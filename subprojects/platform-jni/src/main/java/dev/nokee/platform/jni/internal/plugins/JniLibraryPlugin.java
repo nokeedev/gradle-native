@@ -71,7 +71,12 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 
 		// Include native runtime files inside JNI jar
 		extension.getVariantCollection().configureEach(library -> {
-			library.getJar().getJarTask().configure(task -> task.from(library.getNativeRuntimeFiles(), spec -> spec.into(library.getResourcePath().get())));
+			library.getJar().getJarTask().configure(task -> {
+				task.from(library.getNativeRuntimeFiles(), spec -> {
+					// Don't resolve the resourcePath now as the JVM Kotlin plugin (as of 1.3.72) was resolving the `jar` task early.
+					spec.into(library.getResourcePath());
+				});
+			});
 		});
 
 		// Attach JNI Jar to runtimeElements

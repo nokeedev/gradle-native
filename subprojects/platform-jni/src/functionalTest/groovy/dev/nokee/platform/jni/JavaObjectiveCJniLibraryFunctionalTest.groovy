@@ -21,7 +21,7 @@ class JavaObjectiveCJniLibraryFunctionalTest extends AbstractJavaJniLibraryFunct
 
 		expect:
 		fails "assemble"
-		failure.assertHasDescription("Execution failed for task '$developmentBinaryNativeCompileTask'.")
+		failure.assertHasDescription("Execution failed for task '${tasks.compile}'.")
 		failure.assertHasCause("A build operation failed.")
 		failure.assertThatCause(containsString("Objective-C compiler failed while compiling broken.m"))
 	}
@@ -29,12 +29,6 @@ class JavaObjectiveCJniLibraryFunctionalTest extends AbstractJavaJniLibraryFunct
 
 //	def "can compile and link against a library"() {
 // TODO: JNI Plugin should allow to work alone by embedding the runtime native dependencies into a JAR. It should also create an empty JAR when no language (not even Java). This Jar should be exposed via API outgoing dependencies.
-
-	// TODO: Should be abstracted
-	@Override
-	protected String getDevelopmentBinaryNativeCompileTask() {
-		return tasks.compile
-	}
 
 	@Override
 	protected void makeSingleProject() {
@@ -57,5 +51,10 @@ class JavaObjectiveCJniLibraryFunctionalTest extends AbstractJavaJniLibraryFunct
 	@Override
 	JavaJniObjectiveCGreeterLib getComponentUnderTest() {
 		return new JavaJniObjectiveCGreeterLib('jni-greeter')
+	}
+
+	@Override
+	protected String getNativePluginId() {
+		return 'dev.nokee.objective-c-language'
 	}
 }

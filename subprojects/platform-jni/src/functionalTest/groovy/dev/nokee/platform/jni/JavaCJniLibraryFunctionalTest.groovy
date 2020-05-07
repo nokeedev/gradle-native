@@ -7,11 +7,6 @@ import static org.hamcrest.CoreMatchers.containsString
 
 class JavaCJniLibraryFunctionalTest extends AbstractJavaJniLibraryFunctionalTest implements CTaskNames {
 	@Override
-	protected String getDevelopmentBinaryNativeCompileTask() {
-		return tasks.compile
-	}
-
-	@Override
 	protected void makeSingleProject() {
 		buildFile << '''
             plugins {
@@ -37,8 +32,13 @@ class JavaCJniLibraryFunctionalTest extends AbstractJavaJniLibraryFunctionalTest
 
 		expect:
 		fails "assemble"
-		failure.assertHasDescription("Execution failed for task '$developmentBinaryNativeCompileTask'.")
+		failure.assertHasDescription("Execution failed for task '${tasks.compile}'.")
 		failure.assertHasCause("A build operation failed.")
 		failure.assertThatCause(containsString("C compiler failed while compiling broken.c"))
+	}
+
+	@Override
+	protected String getNativePluginId() {
+		return 'dev.nokee.c-language'
 	}
 }

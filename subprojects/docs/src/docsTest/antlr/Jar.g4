@@ -14,7 +14,7 @@ fragment LOWERCASE: [a-z];
 fragment UPPERCASE: [A-Z];
 fragment DIGIT: [0-9];
 
-PathElement: (LOWERCASE | UPPERCASE | DIGIT | '_' | '.' | '-')+;
+PathElement: (LOWERCASE | UPPERCASE | DIGIT | '_' | '.' | '-' | '$')+;
 
 RelativePath: (PathElement PATH_SEPARATOR)+ PathElement?;
 
