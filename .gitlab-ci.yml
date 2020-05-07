@@ -57,7 +57,7 @@ deploy:
 
 
 publish (JBake Templates):
-  stage: deploy
+  stage: build
   script:
     - ./gradlew --scan :docs:publishJbakePublicationToS3Repository
     - curl --request POST --form "token=$CI_JOB_TOKEN" --form ref=master https://gitlab.com/api/v4/projects/17545900/trigger/pipeline # docs.nokee.dev
