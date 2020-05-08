@@ -17,7 +17,7 @@
 
 	def getBreadcrumbs = {
 		def kContentCrumb = crumb(content.title, "/${content.uri}")
-		def kDslCrumb = crumb('Domain Specific Language', "${path}/dsl/")
+		def kDslCrumb = crumb('Domain Specific Language', "${path}dsl/")
 
 		switch (content.type) {
 			case 'dsl_chapter': return [kDslCrumb, kContentCrumb]

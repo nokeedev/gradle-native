@@ -26,7 +26,6 @@
 		def kReferencePluginsCrumb = crumb('Reference Plugins', "${path}manual/plugin-references.html")
 		def kSamplesCrumb = crumb('Samples', "${path}samples/")
 		def kReleaseNotesCrumb = crumb('Release Notes', "${path}release-notes.html")
-		def kDslCrumb = crumb('Domain Specific Language', "${path}/dsl/")
 
 		switch (content.type) {
 			case 'reference_chapter': return [kUserManualCrumb, kReferencePluginsCrumb, kContentCrumb]
