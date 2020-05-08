@@ -97,6 +97,22 @@ Modifying the build settings inside Xcode is discourage and is unlikely to have 
 
 image::img/xcode-ide-build-settings.png[Xcode build settings configuration,align="center"]
 
+[[sec:xcode-dev-whats-next]]
+== What's next?
+
+You should now have a grasp on the concept used by <<xcode-ide-plugin.adoc#,Xcode IDE Plugin>>.
+Head over the link:../samples/index.html#sec:samples-ide[IDE samples] to see a demonstration of the plugins for common scenarios.
+Bookmark the relevant <<plugin-references.adoc#,plugin chapters>> for future reference.
+
+[[sec:xcode-dev-help-improve-chapter]]
+== Help improve this chapter
+
+Have feedback or a question?
+Found a typo?
+Is something unclear?
+Help is just a GitHub issue away.
+Please link:https://github.com/nokeedev/gradle-native/issues[open an issue] or link:https://github.com/nokeedev/gradle-native[create a pull request], and we'll get back to you.
+
 [[sec:xcode-dev-appendix]]
 == Appendix
 

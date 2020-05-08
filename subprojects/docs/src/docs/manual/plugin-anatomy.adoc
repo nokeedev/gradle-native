@@ -123,3 +123,19 @@ The `java` plugin is opinionated and creates a `main` and `test` source set.
 
 
 //It means the plugin is highly opinionated and leave little room for further capability customization.
+
+[[sec:plugin-anatomy-whats-next]]
+== What's next?
+
+You should now have a grasp on the anatomy of a Nokee plugin.
+Head over the link:../samples[samples] to see a demonstration of the Nokee plugins for common scenarios.
+Bookmark the relevant <<plugin-references.adoc#,plugin chapters>> for future reference.
+
+[[sec:plugin-anatomy-help-improve-chapter]]
+== Help improve this chapter
+
+Have feedback or a question?
+Found a typo?
+Is something unclear?
+Help is just a GitHub issue away.
+Please link:https://github.com/nokeedev/gradle-native/issues[open an issue] or link:https://github.com/nokeedev/gradle-native[create a pull request], and we'll get back to you.
