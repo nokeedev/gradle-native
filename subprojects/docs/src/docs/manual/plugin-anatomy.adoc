@@ -1,3 +1,4 @@
+[[chapter:plugin-anatomy]]
 = Anatomy of Nokee Plugins
 :jbake-type: manual_chapter
 :jbake-tags: user manual, gradle plugin
@@ -8,6 +9,7 @@ In this chapter, we will look at the established plugin capability convention.
 We will discuss about the three dimension forming the plugin identification triplet: implementation language, runtime and entry point.
 How they mix together...
 
+[[sec:plugin-anatomy-introduction]]
 == Introduction
 
 Gradle requires all plugins to include a prefix known as the _plugin namespace_.
@@ -22,6 +24,7 @@ Core Gradle plugins are implicitly part of the `org.gradle` namespace and can be
 The rather flat naming scheme does not provide the necessary information to understand what capability a plugin offers as well as how plugins can mix together.
 The Nokee plugins further divides the plugin name into _capability dimensions_ which forms the _plugin identification triplet_.
 
+[[sec:plugin-anatomy-triplet]]
 == What is the plugin identification triplet?
 
 At its core, Gradle plugins provide additional capabilities to a project.
@@ -32,6 +35,7 @@ As we explain each dimension of the triplet, let's consider the plugin `dev.noke
 
 image::img/plugin-anatomy-plugin-identification-triplet.png[Example plugin identification triplet breakdown,align="center"]
 
+[[sec:plugin-anatomy-triplet-entry-poin]]
 === 1. Entry point
 
 The entry point represent how a component will be used, for example, as an application, library or device driver.
@@ -41,6 +45,7 @@ A device driver would be loadable instead of runnable.
 It would provide restriction for which kernel it can load into versus an application would be imposing a limitation at the runtime level.
 In general, there should only be one entry point per project.
 
+[[sec:plugin-anatomy-triplet-runtime]]
 === 2. Runtime
 
 The runtime represent where a component will be executed, for example, iOS, Android, Windows.
@@ -51,6 +56,7 @@ Runtime plugins could provide higher level of abstraction.
 For example, iOS runtime would provide abstraction to target Apple devices.
 The higher level of abstraction helps prevent invalid configuration such as compiling for Itanium architecture and running the produced binary on an iPhone.
 
+[[sec:plugin-anatomy-triplet-language]]
 === 3. Implementation language
 
 The implementation language represent what the component is implemented with, for example, Objective-C, Swift, {cpp}.
@@ -59,6 +65,7 @@ However, some languages have special requirement when mixing them with others.
 For example, Swift requires additional runtime libraries to be included inside an application bundle.
 This dimensions ensure those requirements are met.
 
+[[sec:plugin-anatomy-dimensional-plugins]]
 == Dimensional plugins
 
 For plugins that only specify a single dimensions, they are usually referred as a dimensional plugin.
@@ -69,6 +76,7 @@ For example appling plugin `dev.nokee.objective-c-language`, `dev.nokee.ios-runt
 The later would provide more convenience than the all the individual dimensional plugins together.
 It's based on how much plugin would know before hand.
 
+[[sec:plugin-anatomy-missing-dimension]]
 == Filling missing dimension
 
 Some dimension can be unset.
@@ -80,6 +88,7 @@ In the case of an unset implementation language dimension, you can apply any lan
 However, the runtime + entry point combinason may have an opinion on which implementation language it supports.
 It would then disallow language plugin by returning error message and/or stating it clearly in their plugin reference documentation.
 
+[[sec:plugin-anatomy-implicit-rules]]
 == Implicit rules
 
 CAUTION: Not completed yet.
@@ -89,6 +98,7 @@ Some dimension of the triplet may be unset which allows to use multiple plugins 
 For example, objective-c-ios-application express a full opinion on all dimension (iOS application implemented in Objective-C).
 However, the ios-application plugin is less opinionated and allow multiple implementation language.
 
+[[sec:plugin-anatomy-why-triplet]]
 == Why using the plugin identification triplet?
 
 CAUTION: Not completed yet.
@@ -100,6 +110,7 @@ How can it be mixed together?
 
 From just the name we can infer a lot of information.
 
+[[sec:plugin-anatomy-entry-point-exception]]
 == Exceptional entry point
 
 CAUTION: Not completed yet.
@@ -110,6 +121,7 @@ Both are providing additional entry points.
 For example `dev.nokee.xcode-ide` is providing an IDE entry point for Xcode.
 Here Xcode is considered a runtime dimension.
 
+[[sec:plugin-anatomy-base-plugins]]
 == Base plugins
 
 CAUTION: Not completed yet.
