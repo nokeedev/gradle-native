@@ -231,6 +231,14 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 			return new NSNumber((Long) o);
 		} else if (o instanceof Double) {
 			return new NSNumber((Double) o);
+		} else if (o instanceof Collection) {
+			NSArray result = new NSArray(((Collection<?>) o).size());
+			int key = 0;
+			for (Object obj : (Collection<?>)o) {
+				result.setValue(key, toValue(obj));
+				key++;
+			}
+			return result;
 		}
 		return new NSString(o.toString());
 	}
