@@ -117,6 +117,9 @@ documentation {
 		'objective-c-ios-application' {
 			template = new ObjectiveCIosApp()
 		}
+		'objective-c-ios-xctest-test-suite' {
+			template = new ObjectiveCIosApp().withUnitTest().withUiTest()
+		}
 	}
 }
 

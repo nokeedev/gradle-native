@@ -10,6 +10,7 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
+import org.gradle.nativeplatform.tasks.LinkExecutable;
 import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
@@ -65,7 +66,7 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 		TaskProvider<CreateIosApplicationBundleTask> createApplicationBundleTask = getTasks().register("createApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
 			task.getApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/main/" + moduleName + "-unsigned.app"));
 			task.getSources().from(linkStoryboardTask.flatMap(StoryboardLinkTask::getDestinationDirectory));
-			task.getSources().from(getProviders().provider(() -> getTasks().withType(AbstractLinkTask.class).stream().map(AbstractLinkTask::getLinkedFile).collect(Collectors.toList())));
+			// Linked file is configured in IosApplicationRules
 			task.getSources().from(assetCatalogCompileTaskTask.flatMap(AssetCatalogCompileTask::getDestinationDirectory));
 			task.getSources().from(processPropertyListTask.flatMap(ProcessPropertyListTask::getOutputFile));
 		});

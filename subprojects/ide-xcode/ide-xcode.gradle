@@ -17,6 +17,7 @@ dependencies {
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	compileOnly project(':platformIos')
+	compileOnly project(':testingXctest')
 
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"

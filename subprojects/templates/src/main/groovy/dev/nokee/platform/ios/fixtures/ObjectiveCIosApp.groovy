@@ -18,6 +18,10 @@ class ObjectiveCIosApp extends SourceElement {
 	List<SourceFile> getFiles() {
 		return main.files
 	}
+
+	ObjectiveCIosUnitXCTest withUnitTest() {
+		return new ObjectiveCIosUnitXCTest(this)
+	}
 }
 
 class ObjectiveCAppDelegate extends ObjectiveCSourceFileElement {

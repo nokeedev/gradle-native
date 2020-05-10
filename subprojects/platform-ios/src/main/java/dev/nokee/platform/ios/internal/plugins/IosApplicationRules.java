@@ -1,11 +1,14 @@
 package dev.nokee.platform.ios.internal.plugins;
 
+import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.internal.project.ProjectIdentifier;
+import org.gradle.api.tasks.TaskContainer;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
 import org.gradle.nativeplatform.NativeExecutableBinarySpec;
 import org.gradle.nativeplatform.NativeExecutableSpec;
+import org.gradle.nativeplatform.tasks.LinkExecutable;
 import org.gradle.nativeplatform.toolchain.Clang;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
 import org.gradle.nativeplatform.toolchain.internal.gcc.DefaultGccPlatformToolChain;
@@ -15,6 +18,7 @@ import org.gradle.util.GUtil;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class IosApplicationRules extends RuleSource {
 	@Mutate
@@ -28,6 +32,13 @@ public class IosApplicationRules extends RuleSource {
 				((DefaultGccPlatformToolChain)platform).getCompilerProbeArgs().clear();
 				((DefaultGccPlatformToolChain)platform).getCompilerProbeArgs().addAll(Arrays.asList("-target", "x86_64-apple-ios13.2-simulator", "-isysroot", getSdkPath()));
 			});
+		});
+	}
+
+	@Mutate
+	public void configureLinkedBundle(TaskContainer tasks, ComponentSpecContainer components) {
+		tasks.named("createApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
+			task.getSources().from(components.withType(NativeExecutableSpec.class).get("main").getBinaries().withType(NativeExecutableBinarySpec.class).values().stream().map(it -> ((LinkExecutable)it.getTasks().getLink()).getLinkedFile()).collect(Collectors.toList()));
 		});
 	}
 
@@ -51,7 +62,8 @@ public class IosApplicationRules extends RuleSource {
 		});
 	}
 
-	private static String getSdkPath() {
+	// Api used by :testingXctest
+	public static String getSdkPath() {
 		try {
 			Process process = new ProcessBuilder("xcrun", "--sdk", "iphonesimulator", "--show-sdk-path").start();
 			process.waitFor();

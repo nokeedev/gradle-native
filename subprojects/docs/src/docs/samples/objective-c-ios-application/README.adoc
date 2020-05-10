@@ -1,7 +1,7 @@
 = Objective-C iOS Application
 :jbake-summary: iOS application implemented in Objective-C built by Gradle.
 :jbake-type: sample_chapter
-:jbake-tags: sample, jni, library, jvm, java, objective c, native, gradle
+:jbake-tags: sample, objective c, native, gradle
 :jbake-category: iOS
 :jbake-description: See how to use the Nokee Gradle plugins for building an iOS application implemented in Objective-C.
 
@@ -33,7 +33,7 @@ include::kotlin-dsl/build.gradle.kts[]
 =====
 ====
 
-To build the library:
+To build the application:
 
 [listing]
 ----

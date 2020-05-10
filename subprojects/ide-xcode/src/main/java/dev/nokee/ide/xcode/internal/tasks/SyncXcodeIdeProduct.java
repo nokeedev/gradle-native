@@ -42,6 +42,8 @@ public abstract class SyncXcodeIdeProduct extends DefaultTask {
 
 	@TaskAction
 	private void sync() throws IOException {
+		// TODO: Investigate using APFS Clone Copy when syncing the product to Xcode built product directory.
+		//       See https://eclecticlight.co/2020/04/14/copy-move-and-clone-files-in-apfs-a-primer/
 		File productLocation = getProductLocation().get().getAsFile();
 		if (productLocation.isDirectory()) {
 			getFileOperations().sync(spec -> {

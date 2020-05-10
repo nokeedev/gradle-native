@@ -17,7 +17,7 @@ class XcodeIdeIndexerTargetsFunctionalTest extends AbstractXcodeIdeFunctionalSpe
 		// TODO: Ensure each product type has the right build settings configured
 
 		where:
-		productType << XcodeIdeProductTypes.getKnownValues()
+		productType << (XcodeIdeProductTypes.getKnownValues() - [XcodeIdeProductTypes.UNIT_TEST, XcodeIdeProductTypes.UI_TEST])
 	}
 
 	def "does not create schemes for indexer target"() {

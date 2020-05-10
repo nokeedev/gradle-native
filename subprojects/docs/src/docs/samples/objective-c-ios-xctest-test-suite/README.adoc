@@ -1,0 +1,52 @@
+= iOS Application with XCTest
+:jbake-summary: iOS application with XCTest implemented in Objective-C built by Gradle.
+:jbake-type: sample_chapter
+:jbake-tags: sample, objective c, native, gradle, xctest
+:jbake-category: iOS
+:jbake-description: See how to use the Nokee Gradle plugins for building an iOS application with XCTest implemented in Objective-C.
+
+CAUTION: The following sample shows a plugin in very early development.
+Don't hesitate to try it out.
+If you encounter any problems, please link:https://github.com/nokeedev/gradle-native/issues[open an issue on GitHub].
+
+NOTE: You can open this sample inside the Xcode IDE using the link:../../manual/xcode-ide-plugin.html[Xcode IDE plugin].
+
+This sample shows how to execute the XCTest of an iOS application built by Gradle inside Xcode.
+The application and tests has no dependencies and targets only the iPhone Simulator with a minimum iOS version of 13.2.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+
+Open the application in Xcode and execute the tests:
+
+[listing]
+----
+$ ./gradlew openXcode
+
+> Task :xcode
+Generated Xcode workspace at file://objective-c-ios-application.xcworkspace/
+
+BUILD SUCCESSFUL
+4 actionable tasks: 4 executed
+----
+
+//image::xcode-ide-ios-test-action.gif[Execute iOS XCTest inside simulator from Xcode IDE]
+
+For more information, see <<../../manual/objective-c-ios-application-plugin.adoc#,Objective-C iOS Application Plugin>>, <<../../manual/objective-c-xctest-test-suite-plugin.adoc#,Objective-C XCTest Plugin>>, and <<../../manual/xcode-ide-plugin.adoc#,Xcode IDE Plugin>> reference chapters.
+We discuss the <<../../manual/developing-with-xcode-ide.adoc#,Xcode IDE integration in a separated chapter>>.

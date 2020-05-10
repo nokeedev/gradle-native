@@ -46,6 +46,10 @@ include 'platformJni'
 project(':platformJni').projectDir = file('subprojects/platform-jni')
 project(':platformJni').buildFileName = 'platform-jni.gradle'
 
+include 'testingXctest'
+project(':testingXctest').projectDir = file('subprojects/testing-xctest')
+project(':testingXctest').buildFileName = 'testing-xctest.gradle'
+
 include 'docs'
 project(':docs').projectDir = file('subprojects/docs')
 project(':docs').buildFileName = 'docs.gradle'

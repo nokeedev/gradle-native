@@ -1,0 +1,19 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'maven-publish'
+}
+
+dependencies {
+	implementation project(':platformIos')
+	implementation "commons-io:commons-io:${commonsIoVersion}"
+	implementation "com.google.guava:guava:${guavaVersion}"
+}
+
+gradlePlugin {
+	plugins {
+		objcXctestTestSuite {
+			id = 'dev.nokee.objective-c-xctest-test-suite'
+			implementationClass = 'dev.nokee.testing.xctest.internal.plugins.ObjectiveCXCTestTestSuitePlugin'
+		}
+	}
+}

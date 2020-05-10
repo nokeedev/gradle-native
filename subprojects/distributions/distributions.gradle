@@ -10,7 +10,8 @@ def allPluginProjectPaths = [
 	':platformBase',
 	':platformIos',
 	':platformJni',
-	':platformNative'
+	':platformNative',
+	':testingXctest'
 ]
 
 def publishToStaging = tasks.register('publishToStaging')

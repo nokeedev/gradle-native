@@ -6,6 +6,7 @@ import dev.nokee.ide.xcode.internal.*;
 import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
 import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeProjectTask;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
+import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.*;
@@ -29,6 +30,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static dev.nokee.internal.ProjectUtils.getPrefixableProjectPath;
@@ -91,6 +94,11 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 			});
 		});
 
+		// TODO: Add a task for cleaning the Xcode derived data for the workspace/project.
+		//  It could be something like cleanXcodeDerivedData or just the same cleanXcode task.
+		//  See https://pewpewthespells.com/blog/xcode_deriveddata_hashes.html
+		//  The reason for cleaning the derived data is mainly because Xcode sometimes gets into a bad states.
+		//  Cleaning that directory also deletes indexing data.
 		TaskProvider<Delete> cleanXcodeTask = getTasks().register("cleanXcode", Delete.class, task -> {
 			task.setGroup(IDE_GROUP_NAME);
 			task.setDescription("Cleans Xcode IDE configuration");
@@ -287,28 +295,29 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 		@Override
 		public void apply(String taskName) {
 			if (taskName.startsWith("_xcode")) {
-				String action = xcodePropertyAdapter.getAction();
+				XcodeIdeRequest request = XcodeIdeRequest.of(taskName);
+				String action = request.getAction();
 				if (action.equals("clean")) {
 					Task bridgeTask = getTasks().create(taskName);
 					bridgeTask.dependsOn("clean");
 				} else if ("".equals(action) || "build".equals(action)) {
-					final XcodeIdeTarget target = findXcodeTarget();
+					final XcodeIdeTarget target = findXcodeTarget(request);
 					SyncXcodeIdeProduct bridgeTask = getTasks().create(taskName, SyncXcodeIdeProduct.class);
-					bridgeProductBuild(bridgeTask, target);
+					bridgeProductBuild(bridgeTask, target, request);
 				} else {
 					throw new GradleException("Unrecognized bridge action from Xcode '" + action + "'");
 				}
 			}
 		}
 
-		private XcodeIdeTarget findXcodeTarget() {
-			String projectName = xcodePropertyAdapter.getProjectName();
+		private XcodeIdeTarget findXcodeTarget(XcodeIdeRequest request) {
+			String projectName = request.getProjectName();
 			XcodeIdeProject project = xcodeProjects.findByName(projectName);
 			if (project == null) {
 				throw new GradleException(String.format("Unknown Xcode IDE project '%s', try re-generating the Xcode IDE configuration using '%s:xcode' task.", projectName, getPrefixableProjectPath(this.project)));
 			}
 
-			String targetName = xcodePropertyAdapter.getTargetName();
+			String targetName = request.getTargetName();
 			XcodeIdeTarget target = project.getTargets().findByName(targetName);
 			if (target == null) {
 				throw new GradleException(String.format("Unknown Xcode IDE target '%s', try re-generating the Xcode IDE configuration using '%s:xcode' task.", targetName, getPrefixableProjectPath(this.project)));
@@ -316,9 +325,9 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 			return target;
 		}
 
-		private void bridgeProductBuild(SyncXcodeIdeProduct bridgeTask, XcodeIdeTarget target) {
+		private void bridgeProductBuild(SyncXcodeIdeProduct bridgeTask, XcodeIdeTarget target, XcodeIdeRequest request) {
 			// Library or executable
-			final String configurationName = xcodePropertyAdapter.getConfiguration();
+			final String configurationName = request.getConfiguration();
 			XcodeIdeBuildConfiguration configuration = target.getBuildConfigurations().findByName(configurationName);
 			if (configuration == null) {
 				throw new GradleException(String.format("Unknown Xcode IDE configuration '%s', try re-generating the Xcode IDE configuration using '%s:xcode' task.", configurationName, getPrefixableProjectPath(this.project)));
@@ -330,8 +339,29 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 			// To simplify the configuration, let's always copy the product where Xcode expect it to be.
 			// It remove complexity and fragility on the Gradle side.
 			final Directory builtProductsPath = getObjects().directoryProperty().fileValue(new File(xcodePropertyAdapter.getBuiltProductsDir())).get();
-			bridgeTask.getProductLocation().set(configuration.getProductLocation());
-			bridgeTask.getDestinationLocation().set(builtProductsPath.file(target.getProductReference().get()));
+			bridgeTask.getProductLocation().convention(configuration.getProductLocation());
+			bridgeTask.getDestinationLocation().convention(builtProductsPath.file(target.getProductReference().get()));
+		}
+	}
+
+	// TODO: Converge XcodeIdeRequest, XcodeIdeBridge and XcodeIdePropertyAdapter. All three have overlapping responsibilities.
+	//  Specifically for XcodeIdeBridge, we may want to attach the product sync task directly to the XcodeIde* model an convert the lifecycle task type to Task.
+	//  It would make the bridge task more dummy and open for further customization of the Xcode delegation by allowing configuring the bridge task.
+	// TODO: XcodeIdeRequest should convert the action string/null to an XcodeIdeAction enum
+	@Value
+	public static class XcodeIdeRequest {
+		private static final Pattern LIFECYCLE_TASK_PATTERN = Pattern.compile("_xcode__(?<action>build|clean)?_(?<project>[a-zA-Z\\-_]+)_(?<target>[a-zA-Z\\-_]+)_(?<configuration>[a-zA-Z\\-_]+)");
+		String action;
+		String projectName;
+		String targetName;
+		String configuration;
+
+		public static XcodeIdeRequest of(String taskName) {
+			Matcher m = LIFECYCLE_TASK_PATTERN.matcher(taskName);
+			if (m.matches()) {
+				return new XcodeIdeRequest(Optional.ofNullable(m.group("action")).orElse("build"), m.group("project"), m.group("target"), m.group("configuration"));
+			}
+			throw new GradleException(String.format("Unable to match the lifecycle task name '%s', it is most likely a bug. Please report it at https://github.com/nokeedev/gradle-native/issues.", taskName));
 		}
 	}
 }

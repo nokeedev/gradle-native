@@ -22,6 +22,12 @@ public abstract class CreateIosApplicationBundleTask extends DefaultTask {
 	@InputFiles
 	public abstract ConfigurableFileCollection getSources();
 
+	@InputFiles
+	public abstract ConfigurableFileCollection getPlugIns();
+
+	@InputFiles
+	public abstract ConfigurableFileCollection getFrameworks();
+
 	@Inject
 	protected abstract FileSystemOperations getFileOperations();
 
@@ -29,6 +35,22 @@ public abstract class CreateIosApplicationBundleTask extends DefaultTask {
 	private void create() throws IOException {
 		getFileOperations().sync(spec -> {
 			spec.from(getSources().getFiles());
+
+			for (File file : getFrameworks().getFiles()) {
+				if (file.isDirectory()) {
+					spec.from(file, it -> it.into("Frameworks/" + file.getName()));
+				} else {
+					spec.from(file, it -> it.into("Frameworks"));
+				}
+			}
+
+			for (File file : getPlugIns().getFiles()) {
+				if (file.isDirectory()) {
+					spec.from(file, it -> it.into("PlugIns/" + file.getName()));
+				} else {
+					spec.from(file, it -> it.into("PlugIns"));
+				}
+			}
 			spec.into(getApplicationBundle());
 		});
 
