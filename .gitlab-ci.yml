@@ -50,7 +50,7 @@ test (windows):
       - subprojects/docs/build
 
 deploy:
-  stage: deploy
+  stage: build
   script: ./gradlew --scan :distributions:publishToBintray
   only:
     - master
