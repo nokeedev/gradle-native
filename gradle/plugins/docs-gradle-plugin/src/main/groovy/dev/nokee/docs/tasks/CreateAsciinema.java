@@ -162,12 +162,14 @@ Painless development for C++ and C.
 
 Learn more at https://nokee.dev
 			 */
-			exec("asciinema", "rec", "-c echo \"  _  _     _             ___                  _        \";", "--overwrite", outputFile.getAbsolutePath());
+			exec("asciinema", "rec", "-c printf '\\e[38;5;48m\\033[1m';", "--overwrite", outputFile.getAbsolutePath());
+			exec("asciinema", "rec", "-c echo \"  _  _     _             ___                  _        \";", "--append", outputFile.getAbsolutePath());
 			exec("asciinema", "rec", "-c echo \" | \\| |___| |_____ ___  / __| __ _ _ __  _ __| |___ ___\";", "--append", outputFile.getAbsolutePath());
 			exec("asciinema", "rec", "-c echo \" | .\\` / _ \\ / / -_) -_) \\__ \\/ _\\` | '  \\| '_ \\ / -_|_-<\"", "--append", outputFile.getAbsolutePath());
 			exec("asciinema", "rec", "-c echo \" |_|\\_\\___/_\\_\\___\\___| |___/\\__,_|_|_|_| .__/_\\___/__/\";", "--append", outputFile.getAbsolutePath());
 			exec("asciinema", "rec", "-c echo \"                                        |_|            \";", "--append", outputFile.getAbsolutePath());
-			exec("asciinema", "rec", "-c echo 'Painless development for C++ and C.';", "--append", outputFile.getAbsolutePath());
+			exec("asciinema", "rec", "-c printf '\\033[0m';", "--append", outputFile.getAbsolutePath());
+			exec("asciinema", "rec", "-c printf 'Painless development for \\033[1many native language\\033[0m with \\033[1mGradle\\033[0m.';", "--append", outputFile.getAbsolutePath());
 			exec("asciinema", "rec", "-c echo '';", "--append", outputFile.getAbsolutePath());
 			exec("asciinema", "rec", "-c echo 'Learn more at https://nokee.dev';", "--append", outputFile.getAbsolutePath());
 			exec("asciinema", "rec", "-c echo '';", "--append", outputFile.getAbsolutePath());
