@@ -3,6 +3,10 @@ plugins {
 	id 'maven-publish'
 }
 
+repositories {
+	jcenter()
+}
+
 dependencies {
 	implementation project(':platformIos')
 	implementation "commons-io:commons-io:${commonsIoVersion}"
