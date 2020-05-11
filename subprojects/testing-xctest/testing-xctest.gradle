@@ -11,6 +11,7 @@ dependencies {
 	implementation project(':platformIos')
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 }
 
 gradlePlugin {

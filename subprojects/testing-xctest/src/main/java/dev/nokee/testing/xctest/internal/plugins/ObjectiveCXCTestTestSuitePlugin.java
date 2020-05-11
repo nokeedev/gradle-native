@@ -6,6 +6,7 @@ import dev.nokee.platform.ios.tasks.internal.ProcessPropertyListTask;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.ProjectLayout;
@@ -34,6 +35,10 @@ public abstract class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project>
 
 	@Override
 	public void apply(Project project) {
+		if (!SystemUtils.IS_OS_MAC) {
+			return; // Skipping on non macOS system for now
+		}
+
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
 			project.getPluginManager().apply(XCTestRules.class);
 
