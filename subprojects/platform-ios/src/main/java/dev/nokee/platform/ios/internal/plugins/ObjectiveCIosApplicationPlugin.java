@@ -31,9 +31,6 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 		project.getPluginManager().apply(LifecycleBasePlugin.class);
 		project.getPluginManager().apply("dev.nokee.objective-c-language");
 
-		if (!SystemUtils.IS_OS_MAC) {
-			return; // Skipping on non macOS system for now
-		}
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-language", appliedPlugin -> project.getPluginManager().apply(IosApplicationRules.class));
 
 		String moduleName = GUtil.toCamelCase(project.getName());
