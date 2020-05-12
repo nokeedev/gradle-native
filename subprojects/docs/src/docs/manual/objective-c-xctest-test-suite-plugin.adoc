@@ -3,4 +3,46 @@
 :jbake-tags: user manual, gradle plugin reference, objective c, native, gradle, xctest, ios
 :jbake-description: Learn what the Nokee's Objective-C XCTest test suite plugin (i.e. dev.nokee.objective-c-xctest-test-suite) has to offer for your Gradle build.
 
-Coming soon...
+CAUTION: The following plugin is in very early development.
+Don't hesitate to try it out.
+If you encounter any problems, please link:https://github.com/nokeedev/gradle-native/issues[open an issue on GitHub].
+
+The Objective-C XCTest Test Suite Plugin provides the tasks, configurations and conventions for building XCTest implemented in Objective-C.
+The plugin
+It provides two entry points for iOS (test suite for unit and UI tests), runtime (XCTest) and implementation language (Objective-C).
+
+[[sec:jni_library_usage]]
+== Usage
+
+.Applying the JNI Library Plugin
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+plugins {
+   id 'dev.nokee.objective-c-xctest-test-suite'
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+plugins {
+   id("dev.nokee.objective-c-xctest-test-suite")
+}
+----
+=====
+====
+
+== Limitation
+
+At the moment, the plugin has the following limitations:
+
+- No dependencies can be configured for the XCTest test suites.
+- Can only be used with <<objective-c-ios-application-plugin.adoc#,iOS Application Plugin>>.
+- The targeted iOS version is fixed to 13.2.
+- It produces a single variant for each test suites running only on the iPhone simulator.
