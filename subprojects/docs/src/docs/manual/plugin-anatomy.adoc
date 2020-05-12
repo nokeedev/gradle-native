@@ -4,10 +4,10 @@
 :jbake-tags: user manual, gradle plugin
 :jbake-description: Discuss the concept of Nokee's plugin convention.
 
-The Nokee plugins follows a strong model.
+The Nokee plugins follow a strong model.
 In this chapter, we will look at the established plugin capability convention.
-We will discuss about the three dimension forming the plugin identification triplet: implementation language, runtime and entry point.
-How they mix together...
+We will discuss the three dimensions forming the plugin identification triplet: implementation language, runtime and entry point.
+We will also cover exceptions and base plugins.
 
 [[sec:plugin-anatomy-introduction]]
 == Introduction
@@ -18,29 +18,30 @@ Together, they form the _fully qualified plugin name_:
 
 image::img/plugin-anatomy-plugin-concept.png[Gradle plugin naming concepts,align="center"]
 
-Non-Gradle core plugins are referenced via their fully qualified name.
-Core Gradle plugins are implicitly part of the `org.gradle` namespace and can be referenced only by their plugin name.
+We reference non-Gradle core plugins via their fully qualified name.
+Core Gradle plugins are implicitly part of the `org.gradle` namespace and can be referenced name only.
 
-The rather flat naming scheme does not provide the necessary information to understand what capability a plugin offers as well as how plugins can mix together.
-The Nokee plugins further divides the plugin name into _capability dimensions_ which forms the _plugin identification triplet_.
+The rather flat naming scheme does not provide the necessary information to understand what capability a plugin offers as well as how plugins can mix.
+The Nokee plugins further divide the plugin name into _capability dimensions_, which forms the _plugin identification triplet_.
 
 [[sec:plugin-anatomy-triplet]]
 == What is the plugin identification triplet?
 
 At its core, Gradle plugins provide additional capabilities to a project.
-The project capabilities can be grouped into three major dimensions: the _entry point_, the _runtime_, and the _implementation language_.
-The _plugin identification triplet_ allows to represent these three dimensions and imply certain rules when mixing plugins together.
+We can group the project capabilities into three major dimensions: the _entry point_, the _runtime_, and the _implementation language_.
+The _plugin identification triplet_ allows us to represent these three dimensions and imply specific rules when mixing plugins.
 
-As we explain each dimension of the triplet, let's consider the plugin `dev.nokee.objective-c-ios-application`:
+As we explain each dimension of the triplet, let's consider the plugin `dev.nokee.objective-c-ios-application` and its breakdown:
 
 image::img/plugin-anatomy-plugin-identification-triplet.png[Example plugin identification triplet breakdown,align="center"]
 
 [[sec:plugin-anatomy-triplet-entry-poin]]
 === 1. Entry point
 
-The entry point represent how a component will be used, for example, as an application, library or device driver.
-Each entry point provide some opinion on what can be achieve by the project.
-For example, an application can be ran but can't be dependent upon in the context of providing an API to a component being built.
+The entry point represents how a component will be used, for example, as an application, library or device driver.
+Each entry point provides some opinion on what can be achieved by the project.
+For example, an application can run.
+However, it cannot be dependent upon in the context of providing an API to a consumer project.
 A device driver would be loadable instead of runnable.
 It would provide restriction for which kernel it can load into versus an application would be imposing a limitation at the runtime level.
 In general, there should only be one entry point per project.
@@ -48,93 +49,79 @@ In general, there should only be one entry point per project.
 [[sec:plugin-anatomy-triplet-runtime]]
 === 2. Runtime
 
-The runtime represent where a component will be executed, for example, iOS, Android, Windows.
-Each runtime provides specific model for configuring the target runtime requirements.
-In native, we often talk about the architecture, operating system, instruction sets.
-These example are on the lower spec of the abstraction.
-Runtime plugins could provide higher level of abstraction.
-For example, iOS runtime would provide abstraction to target Apple devices.
-The higher level of abstraction helps prevent invalid configuration such as compiling for Itanium architecture and running the produced binary on an iPhone.
+The runtime represents where a component will be executed, for example, iOS, Android, Windows.
+Each runtime provides a specific model for configuring the target runtime requirements.
+In native, we often talk about the architecture, operating system, instruction sets, etc.
+These examples are on the lower spec of the abstraction.
+Runtime plugins could provide a higher level of abstraction.
+For example, iOS runtime would provide the model for targeting Apple devices.
+The higher level of abstraction helps prevent invalid configuration, such as compiling an iPhone application targeting the Itanium architecture.
 
 [[sec:plugin-anatomy-triplet-language]]
 === 3. Implementation language
 
-The implementation language represent what the component is implemented with, for example, Objective-C, Swift, {cpp}.
-In general, native languages can be mixed together.
-However, some languages have special requirement when mixing them with others.
+The implementation language represents what the component is implemented with, for example, Objective-C, Swift, {cpp}.
+In general, we can mix native languages.
+However, some languages have special requirements when mixing them with others.
 For example, Swift requires additional runtime libraries to be included inside an application bundle.
-This dimensions ensure those requirements are met.
+This dimension ensures we met those requirements.
 
 [[sec:plugin-anatomy-dimensional-plugins]]
 == Dimensional plugins
 
-For plugins that only specify a single dimensions, they are usually referred as a dimensional plugin.
-For example, `dev.nokee.cpp-language` only provide the {cpp} implementation language capability.
-It would need to be applied with a runtime and entry point plugin.
-Those dimensional plugins are offering less convenience than a fully opnionated plugin.
+Dimensional plugins represent plugins that only specify a single dimension.
+For example, `dev.nokee.cpp-language` provides only the {cpp} implementation language capability.
+It would need to be applied with a runtime and entry point plugin to produce anything meaningful.
+Those dimensional plugins are offering less convenience than an entirely opinionated plugin.
 For example appling plugin `dev.nokee.objective-c-language`, `dev.nokee.ios-runtime`, `dev.nokee.application-entry-point` wouldn't necessarily be the equivalent to `dev.nokee.objective-c-ios-application`.
-The later would provide more convenience than the all the individual dimensional plugins together.
-It's based on how much plugin would know before hand.
+The latter would provide more convenience than all the individual dimensional plugins together.
+The more a plugin knows before hands, the better the modelling can be.
 
 [[sec:plugin-anatomy-missing-dimension]]
 == Filling missing dimension
 
-Some dimension can be unset.
-In that case they are not present.
-The specificity of the plugin dimensions starts at the entry point and becomes more and more opinionated as we move through the dimensions.
-Typically, the implementation language is the most often missing dimension.
-When a dimension is missing, you can fill it by applying one or more dimensional plugins.
-In the case of an unset implementation language dimension, you can apply any language plugins.
-However, the runtime + entry point combinason may have an opinion on which implementation language it supports.
-It would then disallow language plugin by returning error message and/or stating it clearly in their plugin reference documentation.
-
-[[sec:plugin-anatomy-implicit-rules]]
-== Implicit rules
-
-CAUTION: Not completed yet.
-
-The more of the triplet is defined the more opinionated a plugin is.
-Some dimension of the triplet may be unset which allows to use multiple plugins to fill the capability.
-For example, objective-c-ios-application express a full opinion on all dimension (iOS application implemented in Objective-C).
-However, the ios-application plugin is less opinionated and allow multiple implementation language.
+A plugin can have no opinion on a dimension.
+The dimension will then be considered unset.
+It allows additional plugins to be applied to fill the dimension requirements.
+For example, the `dev.nokee.jni-library` plugin has no opinion on the implementation plugins and allows language plugins to be applied.
 
 [[sec:plugin-anatomy-why-triplet]]
-== Why using the plugin identification triplet?
+== Why Nokee plugins using the plugin identification triplet?
 
-CAUTION: Not completed yet.
-
-Picture this this example...
-What do the plugin do?
-
-How can it be mixed together?
-
-From just the name we can infer a lot of information.
+Thanks to the plugin identification triplet, we can assume what capability is provided by a plugin.
+It allows for a more natural understanding without having to open the documentation.
+As the development of the Nokee plugins moves forward, the convention will become more apparent and easier to understand.
 
 [[sec:plugin-anatomy-entry-point-exception]]
 == Exceptional entry point
 
-CAUTION: Not completed yet.
+It exists exceptional entry points that don't follow the rules of one entry point per project.
+They are test suites and IDE integrations.
 
-Some entry point are a bit special given they are supporting the already defined entry point.
-They are: test suites and IDE integration.
-Both are providing additional entry points.
-For example `dev.nokee.xcode-ide` is providing an IDE entry point for Xcode.
-Here Xcode is considered a runtime dimension.
+It's a good engineering practice to tests the code of the project's main entry point.
+Test suites provide additional entry points for this specific need.
+Another testing trend is to separate the tests into various buckets such as unit tests, integration tests and functional tests.
+We often model them as separate entry points.
+In the Java world, testing resolve mostly around the JUnit testing framework.
+However, in the native world, there are a considerable amount of testing frameworks.
+There is a need to differentiate tests written for each testing runtime.
+For this reason, test suites are special entry points.
+
+IDE integration is also unique as it provides a capability that is often opinion-based.
+Some developers like to use Xcode, while others prefer Visual Studio Code.
+The IDE integration plugins should be applied as requested.
+However, Gradle doesn't expose an _auto applying plugin API_.
+For this reason, build authors has to apply individual IDE plugins their developers require.
 
 [[sec:plugin-anatomy-base-plugins]]
 == Base plugins
 
-CAUTION: Not completed yet.
-
-One final plugin type to notes are the base plugins.
-Generally with the suffix of `-base` are plugins offering the capability but in an unopinionated way.
-It provides all the convenience (configuration) without actually creating any components (tasks, extensions, etc).
-For example, the `java-base` plugins offers all the configuration for compiling Java code but doesn't create any source set.
+The final plugin types to mention are base plugins.
+We can identify them by the `-base` suffix.
+These plugins offer capabilities in an unopinionated manner.
+It provides all the convenience and configuration rules without actually creating any components such as tasks, extensions, etc.
+For example, the `java-base` plugins offer all the configuration for compiling Java code but don't create any source set.
 The `java` plugin is opinionated and creates a `main` and `test` source set.
-
-
-
-//It means the plugin is highly opinionated and leave little room for further capability customization.
 
 [[sec:plugin-anatomy-whats-next]]
 == What's next?
