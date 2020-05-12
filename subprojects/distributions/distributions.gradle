@@ -71,12 +71,14 @@ tasks.register('publishToBintray') {
 													"dev.nokee.cpp-language:${project.group}:${project.name}",
 													"dev.nokee.c-language:${project.group}:${project.name}",
 													"dev.nokee.objective-c-language:${project.group}:${project.name}",
-													"dev.nokee.objective-cpp-language:${project.group}:${project.name}"]]
+													"dev.nokee.objective-cpp-language:${project.group}:${project.name}",
+													"dev.nokee.objective-c-ios-application:${project.group}:${project.name}",
+													"dev.nokee.objective-c-xctest-test-suite:${project.group}:${project.name}"]]
 			data = data.collect { k, v ->
 				return [name: k, values: v, type: 'string']
 			}
 
-			['curl', '--data', JsonOutput.toJson(data), "-u${user}:${key}", "https://api.bintray.com/packages/nokeedev/${repository}/${packageName}/versions/${project.version}/attributes}"].execute().waitFor()
+			['curl', '-X', 'POST', '-H', 'Content-Type: application/json', '--data', JsonOutput.toJson(data), "-u${user}:${key}", "https://api.bintray.com/packages/nokeedev/${repository}/${packageName}/versions/${project.version}/attributes"].execute().waitFor()
 		}
 	}
 }
