@@ -1,6 +1,7 @@
 package dev.nokee.testing.xctest.internal.plugins;
 
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
+import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.internal.project.ProjectIdentifier;
@@ -60,18 +61,21 @@ public class XCTestRules extends RuleSource {
 			unitTest.setBaseName(GUtil.toCamelCase(projectIdentifier.getName()) + suffix);
 
 			unitTest.getBinaries().withType(NativeExecutableBinarySpec.class, binary -> {
-				binary.getObjcCompiler().args("-target", "x86_64-apple-ios13.2-simulator", "-isysroot", getSdkPath(), "-iframework", getSdkPlatformPath() + "/Developer/Library/Frameworks");
-				binary.getLinker().args("-target", "x86_64-apple-ios13.2-simulator", "-isysroot", getSdkPath(),
-					"-Xlinker", "-rpath", "-Xlinker", "@executable_path/Frameworks",
-					"-Xlinker", "-rpath", "-Xlinker", "@loader_path/Frameworks",
-					"-Xlinker", "-export_dynamic",
-					"-Xlinker", "-no_deduplicate",
-					"-Xlinker", "-objc_abi_version", "-Xlinker", "2",
-//					"-Xlinker", "-sectcreate", "-Xlinker", "__TEXT", "-Xlinker", "__entitlements", "-Xlinker", createEntitlementTask.get().outputFile.get().asFile.absolutePath
-					"-fobjc-arc", "-fobjc-link-runtime",
-					"-bundle_loader", ((Project)projectIdentifier).file("build/exe/main/" + GUtil.toCamelCase(projectIdentifier.getName())).getAbsolutePath(),
-					"-lobjc", "-L" + getSdkPlatformPath() + "/Developer/usr/lib", "-F" + getSdkPlatformPath() + "/Developer/Library/Frameworks", "-framework", "XCTest"
-				);
+				// Can't differ the argument to the task so we will just disable it.
+				if (SystemUtils.IS_OS_MAC) {
+					binary.getObjcCompiler().args("-target", "x86_64-apple-ios13.2-simulator", "-isysroot", getSdkPath(), "-iframework", getSdkPlatformPath() + "/Developer/Library/Frameworks");
+					binary.getLinker().args("-target", "x86_64-apple-ios13.2-simulator", "-isysroot", getSdkPath(),
+						"-Xlinker", "-rpath", "-Xlinker", "@executable_path/Frameworks",
+						"-Xlinker", "-rpath", "-Xlinker", "@loader_path/Frameworks",
+						"-Xlinker", "-export_dynamic",
+						"-Xlinker", "-no_deduplicate",
+						"-Xlinker", "-objc_abi_version", "-Xlinker", "2",
+//						"-Xlinker", "-sectcreate", "-Xlinker", "__TEXT", "-Xlinker", "__entitlements", "-Xlinker", createEntitlementTask.get().outputFile.get().asFile.absolutePath
+						"-fobjc-arc", "-fobjc-link-runtime",
+						"-bundle_loader", ((Project) projectIdentifier).file("build/exe/main/" + GUtil.toCamelCase(projectIdentifier.getName())).getAbsolutePath(),
+						"-lobjc", "-L" + getSdkPlatformPath() + "/Developer/usr/lib", "-F" + getSdkPlatformPath() + "/Developer/Library/Frameworks", "-framework", "XCTest"
+					);
+				}
 			});
 		};
 	}

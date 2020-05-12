@@ -35,10 +35,6 @@ public abstract class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project>
 
 	@Override
 	public void apply(Project project) {
-		if (!SystemUtils.IS_OS_MAC) {
-			return; // Skipping on non macOS system for now
-		}
-
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
 			project.getPluginManager().apply(XCTestRules.class);
 
