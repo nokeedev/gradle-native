@@ -44,10 +44,9 @@
 		<h3 id="core-types">Core Types</h3>
 		<ul>
 			<%
-			    def nonIndexFile = { it.name != 'index.adoc' }
-				println new File("${config.working_directory}/content/${content.uri}").parentFile.listFiles().findAll(nonIndexFile).collect { coreType ->
-					def typePath = "dsl/${coreType.name - '.adoc'}.html"
-					def typeName = (coreType.name - '.adoc')
+			    println dsl_chapters.collect { dsl ->
+					def typePath = dsl.uri
+					def typeName = dsl.uri.substring(dsl.uri.lastIndexOf('/') + 1) - '.html'
 					typeName = typeName.substring(typeName.lastIndexOf('.') + 1)
 					return [path: typePath, name: typeName]
 				}.sort {a, b -> a.name <=> b.name}.collect { o ->
