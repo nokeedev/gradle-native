@@ -79,6 +79,7 @@ For more information, head over to the new <<manual/building-jni-projects.adoc#,
 == Experimental iOS Application Plugin
 
 This release reveals a link:samples/objective-c-ios-application[very early experimental iOS support for application in Gradle].
+It also link:samples/objective-c-ios-xctest-test-suite[support XCTest for unit and UI testing].
 At this stage, the plugin offers no configurability.
 The application built will target iOS version 13.2 for the iPhone simulator.
 
@@ -106,6 +107,7 @@ We wrote three new chapters:
 - <<manual/developing-with-xcode-ide.adoc#,Developing with Xcode IDE>>: Covers the integration of Gradle with Xcode IDE.
 
 The documentation also includes four new samples:
+
 - link:samples/jni-library-as-uber-jar[Create an uber JAR for JNI library]
 - link:samples/objective-c-ios-application[Support iOS application]
 - link:samples/xcode-ide-composing[Integrate Gradle with Xcode IDE for 3rd party plugins]
