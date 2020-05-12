@@ -46,7 +46,7 @@ BUILD SUCCESSFUL
 4 actionable tasks: 4 executed
 ----
 
-//image::xcode-ide-ios-test-action.gif[Execute iOS XCTest inside simulator from Xcode IDE]
+image::xcode-ide-ios-test-action.gif[Execute iOS XCTest inside simulator from Xcode IDE,align=center]
 
 For more information, see <<../../manual/objective-c-ios-application-plugin.adoc#,Objective-C iOS Application Plugin>>, <<../../manual/objective-c-xctest-test-suite-plugin.adoc#,Objective-C XCTest Plugin>>, and <<../../manual/xcode-ide-plugin.adoc#,Xcode IDE Plugin>> reference chapters.
 We discuss the <<../../manual/developing-with-xcode-ide.adoc#,Xcode IDE integration in a separated chapter>>.
