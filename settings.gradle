@@ -18,6 +18,10 @@ rootProject.name = 'gradle-native'
 includeBuild 'subprojects/templates'
 includeBuild 'gradle/plugins/docs-gradle-plugin'
 
+include 'coreExec'
+project(':coreExec').projectDir = file('subprojects/core-exec')
+project(':coreExec').buildFileName = 'core-exec.gradle'
+
 include 'distributions'
 project(':distributions').projectDir = file('subprojects/distributions')
 project(':distributions').buildFileName = 'distributions.gradle'

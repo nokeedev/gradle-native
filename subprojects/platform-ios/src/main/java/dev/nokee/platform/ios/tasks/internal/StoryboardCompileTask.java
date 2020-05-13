@@ -1,23 +1,24 @@
 package dev.nokee.platform.ios.tasks.internal;
 
+import dev.nokee.core.exec.CommandLineTool;
+import dev.nokee.core.exec.GradleWorkerExecutorEngine;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileType;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
-import org.gradle.process.ExecOperations;
 import org.gradle.work.ChangeType;
 import org.gradle.work.FileChange;
 import org.gradle.work.Incremental;
 import org.gradle.work.InputChanges;
 
 import javax.inject.Inject;
-import java.io.*;
-import java.nio.charset.Charset;
+import java.io.File;
+import java.io.IOException;
 
 @CacheableTask
 public abstract class StoryboardCompileTask extends DefaultTask {
@@ -33,8 +34,11 @@ public abstract class StoryboardCompileTask extends DefaultTask {
 	@PathSensitive(PathSensitivity.RELATIVE)
 	public abstract ConfigurableFileCollection getSources();
 
+	@Nested
+	public abstract Property<CommandLineTool> getInterfaceBuilderTool();
+
 	@Inject
-	protected abstract ExecOperations getExecOperations();
+	protected abstract ObjectFactory getObjects();
 
 	@TaskAction
 	private void compile(InputChanges inputChanges) throws IOException {
@@ -59,32 +63,20 @@ public abstract class StoryboardCompileTask extends DefaultTask {
 	}
 
 	private void build(File source) {
-		String ibtoolExecutable = getIbtoolExecutable().getAbsolutePath();
-
-		getExecOperations().exec(spec -> {
-			spec.setExecutable(ibtoolExecutable);
-			spec.args("--errors", "--warnings", "--notices", "--module", getModule().get(), "--output-partial-info-plist", getTemporaryDir().getAbsolutePath() + "/" + FilenameUtils.removeExtension(source.getName()) + "-SBPartialInfo.plist", "--auto-activate-custom-fonts", "--target-device", "iphone", "--target-device", "ipad", "--minimum-deployment-target", "13.2", "--output-format", "human-readable-text", "--compilation-directory", getDestinationDirectory().get().getAsFile().getAbsolutePath() + "/" + source.getParentFile().getName(), source.getAbsolutePath());
-			try {
-				spec.setStandardOutput(new FileOutputStream(new File(getTemporaryDir(), "outputs.txt"), true));
-			} catch (FileNotFoundException e) {
-				throw new UncheckedIOException(e);
-			}
-		});
-	}
-
-	@InputFile
-	@PathSensitive(PathSensitivity.ABSOLUTE)
-	protected File getIbtoolExecutable() {
-		return new File(getIbtoolPath());
-	}
-
-	private static String getIbtoolPath() {
-		try {
-			Process process = new ProcessBuilder("xcrun", "--sdk", "iphonesimulator", "--find", "ibtool").start();
-			process.waitFor();
-			return IOUtils.toString(process.getInputStream(), Charset.defaultCharset()).trim();
-		} catch (InterruptedException | IOException e) {
-			throw new RuntimeException(e);
-		}
+		getInterfaceBuilderTool().get()
+			.withArguments(
+				"--errors", "--warnings",
+				"--notices",
+				"--module", getModule().get(),
+				"--output-partial-info-plist", getTemporaryDir().getAbsolutePath() + "/" + FilenameUtils.removeExtension(source.getName()) + "-SBPartialInfo.plist",
+				"--auto-activate-custom-fonts",
+				"--target-device", "iphone", "--target-device", "ipad",
+				"--minimum-deployment-target", "13.2",
+				"--output-format", "human-readable-text",
+				"--compilation-directory", getDestinationDirectory().get().getAsFile().getAbsolutePath() + "/" + source.getParentFile().getName(),
+				source.getAbsolutePath())
+			.newInvocation()
+			.appendStandardStreamToFile(new File(getTemporaryDir(), "outputs.txt"))
+			.buildAndSubmit(getObjects().newInstance(GradleWorkerExecutorEngine.class));
 	}
 }

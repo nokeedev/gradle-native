@@ -1,20 +1,22 @@
 package dev.nokee.platform.ios.internal.plugins;
 
+import dev.nokee.core.exec.CommandLineTool;
+import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
+import dev.nokee.core.exec.internal.VersionedCommandLineTool;
 import dev.nokee.platform.ios.tasks.internal.*;
-import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
-import org.gradle.nativeplatform.tasks.AbstractLinkTask;
-import org.gradle.nativeplatform.tasks.LinkExecutable;
 import org.gradle.util.GUtil;
+import org.gradle.util.VersionNumber;
 
 import javax.inject.Inject;
-import java.util.stream.Collectors;
+import java.io.File;
 
 public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	@Inject
@@ -33,24 +35,31 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-language", appliedPlugin -> project.getPluginManager().apply(IosApplicationRules.class));
 
+		Provider<CommandLineTool> interfaceBuilderTool = getProviders().provider(() -> new VersionedCommandLineTool(new File("/usr/bin/ibtool"), VersionNumber.parse("11.3.1")));
+		Provider<CommandLineTool> assetCompilerTool = getProviders().provider(() -> new VersionedCommandLineTool(new File("/usr/bin/actool"), VersionNumber.parse("11.3.1")));
+		Provider<CommandLineTool> codeSignatureTool = getProviders().provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
+
 		String moduleName = GUtil.toCamelCase(project.getName());
 
 		TaskProvider<StoryboardCompileTask> compileStoryboardTask = getTasks().register("compileStoryboard", StoryboardCompileTask.class, task -> {
 			task.getDestinationDirectory().set(getLayout().getBuildDirectory().dir("ios/storyboards/compiled/main"));
 			task.getModule().set(moduleName);
 			task.getSources().from(project.fileTree("src/main/resources", it -> it.include("*.lproj/*.storyboard")));
+			task.getInterfaceBuilderTool().set(interfaceBuilderTool);
 		});
 
 		TaskProvider<StoryboardLinkTask> linkStoryboardTask = getTasks().register("linkStoryboard", StoryboardLinkTask.class, task -> {
 			task.getDestinationDirectory().set(getLayout().getBuildDirectory().dir("ios/storyboards/linked/main"));
 			task.getModule().set(moduleName);
 			task.getSources().from(compileStoryboardTask.flatMap(StoryboardCompileTask::getDestinationDirectory));
+			task.getInterfaceBuilderTool().set(interfaceBuilderTool);
 		});
 
 		TaskProvider<AssetCatalogCompileTask> assetCatalogCompileTaskTask = getTasks().register("compileAssetCatalog", AssetCatalogCompileTask.class, task -> {
 			task.getSource().set(project.file("src/main/resources/Assets.xcassets"));
 			task.getIdentifier().set(project.provider(() -> project.getGroup().toString() + "." + moduleName));
 			task.getDestinationDirectory().set(getLayout().getBuildDirectory().dir("ios/assets/main"));
+			task.getAssetCompilerTool().set(assetCompilerTool);
 		});
 
 		TaskProvider<ProcessPropertyListTask> processPropertyListTask = getTasks().register("processPropertyList", ProcessPropertyListTask.class, task -> {
@@ -71,6 +80,7 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 		TaskProvider<SignIosApplicationBundleTask> signApplicationBundleTask = getTasks().register("signApplicationBundle", SignIosApplicationBundleTask.class, task -> {
 			task.getUnsignedApplicationBundle().set(createApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
 			task.getSignedApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/main/" + moduleName + ".app"));
+			task.getCodeSignatureTool().set(codeSignatureTool);
 		});
 
 		getTasks().named("assemble", it -> it.dependsOn(signApplicationBundleTask));

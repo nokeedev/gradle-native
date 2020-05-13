@@ -1,16 +1,16 @@
 package dev.nokee.platform.ios.tasks.internal;
 
-import org.apache.commons.io.IOUtils;
+import dev.nokee.core.exec.CommandLineTool;
+import dev.nokee.core.exec.GradleWorkerExecutorEngine;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
-import org.gradle.process.ExecOperations;
 
 import javax.inject.Inject;
-import java.io.*;
-import java.nio.charset.Charset;
+import java.io.File;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -25,36 +25,25 @@ public abstract class StoryboardLinkTask extends DefaultTask {
 	@InputFiles
 	public abstract ConfigurableFileCollection getSources();
 
+	@Nested
+	public abstract Property<CommandLineTool> getInterfaceBuilderTool();
+
 	@Inject
-	protected abstract ExecOperations getExecOperations();
+	protected abstract ObjectFactory getObjects();
 
 	@TaskAction
 	private void doLink() {
-		String ibtoolExecutable = getIbtoolExecutable().getAbsolutePath();
-
-		getExecOperations().exec(spec -> {
-			spec.setExecutable(ibtoolExecutable);
-			spec.args("--errors", "--warnings", "--notices", "--module", getModule().get(), "--auto-activate-custom-fonts", "--target-device", "iphone", "--target-device", "ipad", "--minimum-deployment-target", "13.2", "--output-format", "human-readable-text", "--link", getDestinationDirectory().get().getAsFile().getAbsolutePath(), getSources().getFiles().stream().flatMap(it -> Arrays.stream(it.listFiles())).map(File::getAbsolutePath).collect(Collectors.joining(" ")));
-			try {
-				spec.setStandardOutput(new FileOutputStream(new File(getTemporaryDir(), "outputs.txt")));
-			} catch (FileNotFoundException e) {
-				throw new UncheckedIOException(e);
-			}
-		});
-	}
-
-	@InputFile
-	protected File getIbtoolExecutable() {
-		return new File(getIbtoolPath());
-	}
-
-	private static String getIbtoolPath() {
-		try {
-			Process process = new ProcessBuilder("xcrun", "--sdk", "iphonesimulator", "--find", "ibtool").start();
-			process.waitFor();
-			return IOUtils.toString(process.getInputStream(), Charset.defaultCharset()).trim();
-		} catch (InterruptedException | IOException e) {
-			throw new RuntimeException(e);
-		}
+		getInterfaceBuilderTool().get()
+			.withArguments(
+				"--errors", "--warnings", "--notices",
+				"--module", getModule().get(),
+				"--auto-activate-custom-fonts",
+				"--target-device", "iphone", "--target-device", "ipad",
+				"--minimum-deployment-target", "13.2",
+				"--output-format", "human-readable-text",
+				"--link", getDestinationDirectory().get().getAsFile().getAbsolutePath(), getSources().getFiles().stream().flatMap(it -> Arrays.stream(it.listFiles())).map(File::getAbsolutePath).collect(Collectors.joining(" ")))
+			.newInvocation()
+			.appendStandardStreamToFile(new File(getTemporaryDir(), "outputs.txt"))
+			.buildAndSubmit(getObjects().newInstance(GradleWorkerExecutorEngine.class));
 	}
 }

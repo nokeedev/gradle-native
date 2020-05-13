@@ -1,0 +1,36 @@
+plugins {
+	id 'java-library'
+	id 'maven-publish'
+	id 'groovy-base'
+}
+
+repositories {
+	jcenter()
+	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+}
+
+dependencies {
+	implementation "org.apache.commons:commons-exec:${commonsExecVersion}"
+	compileOnly "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	implementation "com.google.guava:guava:${guavaVersion}"
+
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
+	testImplementation 'org.spockframework:spock-core'
+}
+
+// TODO(toolbox): Expose the APIs allowing to query the compatibility based on Gradle version
+java {
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+publishing {
+	publications {
+		library(MavenPublication) {
+			from components.java
+		}
+	}
+}

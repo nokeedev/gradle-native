@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
 	implementation project(':languageNative')
+	implementation project(':coreExec')
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 
