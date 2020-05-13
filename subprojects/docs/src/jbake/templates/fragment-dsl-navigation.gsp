@@ -1,11 +1,9 @@
 <%
-	def path='../'
-
 	def anchorOf = { String href ->
 		if (content.uri.endsWith(href)) {
-			return "href=\"${path}${href}\" class=\"active\""
+			return "href=\"/${href}\" class=\"active\""
 		}
-		return "href=\"${path}${href}\""
+		return "href=\"/${href}\""
 	}
 
 	def crumb = { String anchorName, String uri ->
@@ -17,7 +15,7 @@
 
 	def getBreadcrumbs = {
 		def kContentCrumb = crumb(content.title, "/${content.uri}")
-		def kDslCrumb = crumb('Domain Specific Language', "${path}dsl/")
+		def kDslCrumb = crumb('Domain Specific Language', '../dsl/')
 
 		switch (content.type) {
 			case 'dsl_chapter': return [kDslCrumb, kContentCrumb]
