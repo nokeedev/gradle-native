@@ -1,9 +1,9 @@
 <%
 	def anchorOf = { String href ->
 		if (content.uri.endsWith(href)) {
-			return "href=\"/${href}\" class=\"active\""
+			return "href=\"${href}\" class=\"active\""
 		}
-		return "href=\"/${href}\""
+		return "href=\"${href}\""
 	}
 
 	def crumb = { String anchorName, String uri ->
@@ -35,15 +35,15 @@
 	<label class="menu-icon" for="docs-navigation-hamburger"><span class="fa navicon"></span></label>
 	<div class="navigation-items">
 		<ul>
-			<li><a ${anchorOf('manual/user-manual.html')}>User Manual Home</a></li>
-			<li><a ${anchorOf('dsl/index.html')}>DSL Reference Home</a></li>
-			<li><a ${anchorOf('release-notes.html')}>Release Notes</a></li>
+			<li><a ${anchorOf('../manual/user-manual.html')}>User Manual Home</a></li>
+			<li><a ${anchorOf('../dsl/index.html')}>DSL Reference Home</a></li>
+			<li><a ${anchorOf('../release-notes.html')}>Release Notes</a></li>
 		</ul>
 		<h3 id="core-types">Core Types</h3>
 		<ul>
 			<%
 			    println dsl_chapters.collect { dsl ->
-					def typePath = dsl.uri
+					def typePath = "/${dsl.uri}"
 					def typeName = dsl.uri.substring(dsl.uri.lastIndexOf('/') + 1) - '.html'
 					typeName = typeName.substring(typeName.lastIndexOf('.') + 1)
 					return [path: typePath, name: typeName]
