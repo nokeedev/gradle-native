@@ -2,7 +2,6 @@ package dev.nokee.platform.nativebase.internal.repositories;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import dev.nokee.platform.nativebase.internal.LibraryElements;
 import dev.nokee.platform.nativebase.internal.locators.XcRunLocator;
@@ -20,26 +19,39 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
-public class XcRunFrameworkResolver implements FrameworkResolver {
-	private static final Logger LOGGER = Logger.getLogger(XcRunFrameworkResolver.class.getName());
+public class FrameworkHandler implements Handler {
+	private static final Logger LOGGER = Logger.getLogger(FrameworkHandler.class.getName());
+	public static final String CONTEXT_PATH = "/dev/nokee/framework/";
 	private static final Map<String, Object> CURRENT_PLATFORM_ATTRIBUTES = ImmutableMap.<String, Object>builder()
 		.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE.getName(), OperatingSystemFamily.MACOS)
 		.put(MachineArchitecture.ARCHITECTURE_ATTRIBUTE.getName(), MachineArchitecture.X86_64)
 		.build();
 	private final XcRunLocator xcRunLocator;
 
-	public XcRunFrameworkResolver(XcRunLocator xcRunLocator) {
+	public FrameworkHandler(XcRunLocator xcRunLocator) {
 		this.xcRunLocator = xcRunLocator;
 	}
 
-	@Nullable
 	@Override
+	public Optional<String> handle(String target) {
+		LOGGER.info("Requesting a framework");
+		target = target.substring(CONTEXT_PATH.length());
+		byte[] result = resolve(target);
+		if (result != null) {
+			String s = new String(result);// TODO: remove this ping-pong convertion
+			return Optional.of(s);
+		}
+		return Optional.empty();
+	}
+
+	@Nullable
 	public byte[] resolve(String path) {
 		int idx = path.indexOf('/');
 		String frameworkName = path.substring(0, idx);
@@ -64,8 +76,6 @@ public class XcRunFrameworkResolver implements FrameworkResolver {
 
 		if (path.endsWith(".module")) {
 			return getValue(frameworkName).getBytes(Charset.defaultCharset());
-		} else if (path.endsWith(".module.sha1")) {
-			return Hashing.sha1().hashString(getValue(frameworkName), Charset.defaultCharset()).asBytes();
 		} else if (path.endsWith(".framework.localpath")) {
 			path = path.substring(path.lastIndexOf("/") + 1);
 			if (path.startsWith(frameworkName + ".framework")) {

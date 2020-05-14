@@ -1,24 +1,30 @@
 package dev.nokee.platform.nativebase.internal.repositories;
 
+import com.google.common.collect.ImmutableMap;
 import dev.nokee.platform.nativebase.internal.locators.XcRunLocator;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.gradle.api.provider.Provider;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class JettyEmbeddedHttpServer extends AbstractHandler {
 	private static final Logger LOGGER = Logger.getLogger(JettyEmbeddedHttpServer.class.getName());
-	private final List<FrameworkResolver> resolvers = new ArrayList<>();
+	private final Handler handler;
 
 	public JettyEmbeddedHttpServer(XcRunLocator xcRunLocator) {
-		resolvers.add(new XcRunFrameworkResolver(xcRunLocator));
+		this.handler = new ContentHashingHandler(
+			new ContextAwareHandler(ImmutableMap.<String, Handler>builder()
+				.put(FrameworkHandler.CONTEXT_PATH, new FrameworkHandler(xcRunLocator))
+				.build())
+		);
 	}
 
 	@Override
@@ -26,23 +32,14 @@ public class JettyEmbeddedHttpServer extends AbstractHandler {
 		try {
 			String path = request.getRequestURI();
 			LOGGER.info("Received " + request.getMethod() + " " + path);
-			if (!path.startsWith("/dev/nokee/framework/")) {
-				LOGGER.info("The requested path doesn't match the magic value, make sure you are requesting group 'dev.nokee.framework'.");
-				response.sendError(HttpServletResponse.SC_NOT_FOUND, "Not found");
+			Optional<String> result = handler.handle(path);
+			if (result.isPresent()) {
+				response.setContentType("text/plain; charset=utf-8");
+				response.setStatus(HttpServletResponse.SC_OK);
+				PrintWriter out = response.getWriter();
+				out.write(result.get());
+				out.flush();
 				return;
-			}
-			path = path.substring(21);
-			for (FrameworkResolver resolver : resolvers) {
-				byte[] result = resolver.resolve(path);
-				if (result != null) {
-					String s = new String(result);// TODO: remove this ping-pong convertion
-					response.setContentType("text/plain; charset=utf-8");
-					response.setStatus(HttpServletResponse.SC_OK);
-					PrintWriter out = response.getWriter();
-					out.write(s);
-					out.flush();
-					return;
-				}
 			}
 
 			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Not found");
