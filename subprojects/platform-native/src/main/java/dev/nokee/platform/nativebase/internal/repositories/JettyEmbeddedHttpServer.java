@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import dev.nokee.platform.nativebase.internal.locators.XcRunLocator;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.gradle.api.provider.Provider;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -12,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Optional;
-import java.util.Set;
 import java.util.logging.Logger;
 
 public class JettyEmbeddedHttpServer extends AbstractHandler {
@@ -23,6 +21,7 @@ public class JettyEmbeddedHttpServer extends AbstractHandler {
 		this.handler = new ContentHashingHandler(
 			new ContextAwareHandler(ImmutableMap.<String, Handler>builder()
 				.put(FrameworkHandler.CONTEXT_PATH, new FrameworkHandler(xcRunLocator))
+				.put(ToolHandler.CONTEXT_PATH, new ToolHandler())
 				.build())
 		);
 	}

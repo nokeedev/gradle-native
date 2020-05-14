@@ -16,6 +16,7 @@ dependencies {
 
 	// Embedded repository
 	implementation project(':coreExec')
+	implementation 'com.googlecode.plist:dd-plist:1.23'
 	implementation 'com.google.code.gson:gson:2.8.6'
 	implementation 'org.eclipse.jetty:jetty-server:9.4.27.v20200227'
 

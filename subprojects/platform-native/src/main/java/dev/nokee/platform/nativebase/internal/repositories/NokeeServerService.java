@@ -112,6 +112,7 @@ public abstract class NokeeServerService implements BuildService<BuildServicePar
 			repo.metadataSources(MavenArtifactRepository.MetadataSources::gradleMetadata);
 			repo.mavenContent(content -> {
 				content.includeGroup("dev.nokee.framework");
+				content.includeGroup("dev.nokee.tool");
 			});
 		});
 	}

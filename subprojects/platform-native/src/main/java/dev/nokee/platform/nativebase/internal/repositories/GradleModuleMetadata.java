@@ -47,7 +47,7 @@ public class GradleModuleMetadata {
 		@NonNull List<Capability> capabilities;
 
 		@Value
-		@AllArgsConstructor(access = AccessLevel.PRIVATE)
+		@AllArgsConstructor()
 		public static class File {
 			@NonNull String name;
 			@NonNull String url;
