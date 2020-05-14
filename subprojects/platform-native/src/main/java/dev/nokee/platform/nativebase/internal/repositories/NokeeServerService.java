@@ -4,8 +4,6 @@ import dev.nokee.platform.nativebase.internal.locators.CachingXcRunLocator;
 import dev.nokee.platform.nativebase.internal.locators.MacOSSdkPathLocator;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.util.MultiException;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
@@ -24,8 +22,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.logging.Logger;
@@ -39,62 +35,23 @@ public abstract class NokeeServerService implements BuildService<BuildServicePar
 	private static final Logger LOGGER = Logger.getLogger(NokeeServerService.class.getName());
 	private final Object lock = new Object();
 	private final Server server;
-	private int port;
 
 	@Inject
 	public NokeeServerService() {
 		MacOSSdkPathLocator locator = getObjects().newInstance(MacOSSdkPathLocator.class);
-		int retryCount = 3;
-		MultiException exception = new MultiException();
-		Server server = null;
-		int port = -1;
-
-		do {
-			port = findRandomOpenPortOnAllLocalInterfaces();
-			server = new Server();
-			server.setHandler(new JettyEmbeddedHttpServer(new CachingXcRunLocator(locator)));
-			server.setStopAtShutdown(true);
-			ServerConnector connector = new ServerConnector(server);
-			connector.setReuseAddress(true);
-			connector.setPort(port);
-			server.addConnector(connector);
-			try {
-				server.start();
-				LOGGER.info("Nokee server started on port " + port);
-			} catch (Exception e) {
-				exception.add(e);
-				retryCount--;
-				LOGGER.warning("Failed starting the Nokee server with: " + e.getMessage());
-				try {
-					server.stop();
-					server.join();
-					server.destroy();
-				} catch (Exception ee) {
-					exception.add(ee);
-					exception.ifExceptionThrowRuntime(); // Give up, too many errors
-				}
-			}
-		} while(!server.isStarted() && retryCount != 0);
-
-		if (retryCount == 0) {
-			exception.ifExceptionThrowRuntime(); // Will certainly throw
+		server = new Server(0);
+		server.setHandler(new JettyEmbeddedHttpServer(new CachingXcRunLocator(locator)));
+		server.setStopAtShutdown(true);
+		try {
+			server.start();
+			LOGGER.info("Nokee server started on port " + server.getURI().getPort());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
-
-		this.server = server;
-		this.port = port;
 	}
 
 	@Inject
 	protected abstract ObjectFactory getObjects();
-
-	private int findRandomOpenPortOnAllLocalInterfaces() {
-		try (ServerSocket socket = new ServerSocket(0, 0, InetAddress.getByName(null))) {
-			socket.setReuseAddress(true);
-			return socket.getLocalPort();
-		} catch (IOException e) {
-			throw new RuntimeException("Wat");
-		}
-	}
 
 	@Override
 	public void close() throws Exception {
@@ -108,7 +65,7 @@ public abstract class NokeeServerService implements BuildService<BuildServicePar
 
 	public void configure(RepositoryHandler repositories) {
 		repositories.maven(repo -> {
-			repo.setUrl("http://localhost:" + port);
+			repo.setUrl(server.getURI());
 			repo.metadataSources(MavenArtifactRepository.MetadataSources::gradleMetadata);
 			repo.mavenContent(content -> {
 				content.includeGroup("dev.nokee.framework");
