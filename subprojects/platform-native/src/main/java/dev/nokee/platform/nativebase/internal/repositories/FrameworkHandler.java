@@ -107,8 +107,8 @@ public class FrameworkHandler implements Handler {
 			.add(runtimeVariant("runtime", emptyList()));
 
 		findSubFrameworks(getLocalPath(frameworkName)).forEach(it -> {
-			l.add(compileVariant("compileCapable", file, toCapabilities(frameworkName, it)));
-			l.add(linkVariant("linkCapable", file, toCapabilities(frameworkName, it)));
+			l.add(compileVariant("compileCapable", GradleModuleMetadata.Variant.File.ofLocalFile(it), toCapabilities(frameworkName, it)));
+			l.add(linkVariant("linkCapable", GradleModuleMetadata.Variant.File.ofLocalFile(it), toCapabilities(frameworkName, it)));
 			l.add(runtimeVariant("runtimeCapable", toCapabilities(frameworkName, it)));
 		});
 
