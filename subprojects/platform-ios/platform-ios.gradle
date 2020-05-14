@@ -39,5 +39,7 @@ components.functionalTest {
 		compileOnly "org.projectlombok:lombok:${lombokVersion}"
 		annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 		implementation 'dev.nokee:templates:latest.integration'
+		implementation project(':coreExec')
+		pluginUnderTestMetadata project(':coreExec')
 	}
 }

@@ -35,7 +35,8 @@ abstract class WellBehavingTaskTest extends AbstractFunctionalSpec implements We
 
 	def "ensure all getters are marked with annotations"() {
 		given:
-		List<Class<? extends Annotation>> allIncrementalGradleAnnotationTypes = [Input, InputDirectory, InputFiles, InputFile, OutputFile, OutputDirectory, OutputDirectories, Classpath]
+		// TODO: Recursive check for @Nested
+		List<Class<? extends Annotation>> allIncrementalGradleAnnotationTypes = [Input, InputDirectory, InputFiles, InputFile, OutputFile, OutputDirectory, OutputDirectories, Classpath, Nested]
 		Closure nonPrivateMethods = { (it.modifiers & Modifier.PRIVATE) == 0 }
 		Closure nonStaticMethods = { (it.modifiers & Modifier.STATIC) == 0 }
 		Closure nonInjectAnnotatedMethods = { !it.declaredAnnotations*.annotationType().contains(Inject) }

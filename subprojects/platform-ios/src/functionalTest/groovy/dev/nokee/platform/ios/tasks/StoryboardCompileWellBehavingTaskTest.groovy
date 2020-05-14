@@ -1,6 +1,7 @@
 package dev.nokee.platform.ios.tasks
 
 import dev.gradleplugins.test.fixtures.file.TestFile
+import dev.nokee.core.exec.CommandLineTool
 import dev.nokee.platform.ios.fixtures.elements.GenericStoryboard
 import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskAssertion
 import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskProperty
@@ -100,7 +101,9 @@ class StoryboardCompileWellBehavingTaskTest extends WellBehavingTaskTest {
 
 		// TODO: Maybe we should just move the initial value here and remove all the Mutator and Value modeling...
 		buildFile << """
+			import ${CommandLineTool.canonicalName}
 			${taskUnderTestDsl} {
+				interfaceBuilderTool = CommandLineTool.of('/usr/bin/ibtool')
 			}
 		"""
 	}

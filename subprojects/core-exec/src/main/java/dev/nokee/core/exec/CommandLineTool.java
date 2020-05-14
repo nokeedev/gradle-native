@@ -1,5 +1,8 @@
 package dev.nokee.core.exec;
 
+import dev.nokee.core.exec.internal.SystemCommandLineTool;
+import org.gradle.api.tasks.Internal;
+
 import java.io.File;
 
 /**
@@ -18,6 +21,11 @@ public interface CommandLineTool {
 		return CommandLineToolFactory.fromLocation(executable);
 	}
 
+	static CommandLineTool of(Object executable) {
+		return new SystemCommandLineTool(executable);
+	}
+
+	@Internal
 	String getExecutable();
 
 	CommandLine withArguments(Object... arguments);

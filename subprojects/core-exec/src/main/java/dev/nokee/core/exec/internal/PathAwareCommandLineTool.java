@@ -1,7 +1,7 @@
 package dev.nokee.core.exec.internal;
 
-import dev.nokee.core.exec.internal.DefaultCommandLineTool;
 import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 
@@ -13,6 +13,12 @@ public class PathAwareCommandLineTool extends DefaultCommandLineTool {
 	public PathAwareCommandLineTool(File toolLocation) {
 		super(toolLocation);
 		this.toolLocation = toolLocation;
+	}
+
+	@Internal
+	@Override
+	public String getExecutable() {
+		return super.getExecutable();
 	}
 
 	@InputFile
