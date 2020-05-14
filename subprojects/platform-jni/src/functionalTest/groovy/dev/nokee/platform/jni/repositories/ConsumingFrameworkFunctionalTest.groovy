@@ -10,6 +10,7 @@ import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory
 import dev.nokee.platform.nativebase.internal.LibraryElements
 import dev.nokee.platform.nativebase.internal.plugins.FakeMavenRepositoryPlugin
 import spock.lang.Requires
+import spock.lang.Unroll
 import spock.util.environment.OperatingSystem
 
 import java.nio.file.Files
@@ -346,6 +347,54 @@ Searched in the following locations:
 
 		expect:
 		succeeds('verify')
+	}
+
+	@Unroll
+	def "can resolve dynamic #displayName of framework bundle"(String versionNotation, String displayName) {
+		buildFile << configurePluginClasspathAsBuildScriptDependencies() << """
+			import ${FakeMavenRepositoryPlugin.canonicalName}
+			import ${ConfigurationUtils.canonicalName}
+			import ${DefaultTargetMachineFactory.canonicalName}
+			import ${Files.canonicalName}
+			import ${LibraryElements.canonicalName}
+			import ${ArtifactSerializationTypes.canonicalName}
+
+			apply plugin: ${FakeMavenRepositoryPlugin.name}
+
+			configurations {
+				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())
+			}
+
+			dependencies {
+				framework('dev.nokee.framework:Foundation:$versionNotation') {
+					attributes {
+						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
+						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
+					}
+				}
+			}
+
+			tasks.register('verify') {
+				doLast {
+					def f = configurations.framework.singleFile
+					assert f.name == 'Foundation.framework'
+					assert Files.exists(f.toPath())
+					assert Files.isSymbolicLink(f.toPath())
+					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Foundation.framework'
+				}
+			}
+		"""
+
+		expect:
+		succeeds('verify', '-i')
+
+		where:
+		versionNotation 		| displayName
+		'latest.integration'	| 'latest status for integration'
+		'latest.release'		| 'latest status for release'
+		'10.+'					| 'prefix version range'
+		'[10.0,10.17]'			| 'version range'
+		'[10.0,10.17]!!10.15'	| 'version range with preference'
 	}
 
 	def "handles xcrun errors without logging beyond info level"() {

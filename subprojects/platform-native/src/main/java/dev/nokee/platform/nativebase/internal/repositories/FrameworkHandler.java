@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,24 +39,31 @@ public class FrameworkHandler implements Handler {
 	}
 
 	@Override
-	public Optional<String> handle(String target) {
+	public Optional<Response> handle(String target) {
 		LOGGER.info("Requesting a framework");
 		target = target.substring(CONTEXT_PATH.length());
-		byte[] result = resolve(target);
+		Response result = resolve(target);
 		if (result != null) {
-			String s = new String(result);// TODO: remove this ping-pong convertion
-			return Optional.of(s);
+			return Optional.of(result);
 		}
 		return Optional.empty();
 	}
 
 	@Nullable
-	public byte[] resolve(String path) {
+	public Response resolve(String path) {
 		int idx = path.indexOf('/');
 		String frameworkName = path.substring(0, idx);
 		path = path.substring(idx + 1);
 
 		idx = path.indexOf('/');
+		if (idx == -1) {
+			if (getLocalPath(frameworkName).exists()) {
+				// TODO: Use `xcodebuild -showsdks` to list supported sdks
+				return new ListingResponse(singletonList(xcRunLocator.findVersion()));
+			} else {
+				return null;
+			}
+		}
 		String version = path.substring(0, idx);
 		if (!xcRunLocator.findVersion().equals(version)) {
 			// TODO: List versions
@@ -75,15 +81,15 @@ public class FrameworkHandler implements Handler {
 		LOGGER.fine(() -> String.format("Searching for framework '%s' for version '%s'", frameworkName, version));
 
 		if (path.endsWith(".module")) {
-			return getValue(frameworkName).getBytes(Charset.defaultCharset());
+			return new StringResponse(getValue(frameworkName, version));
 		} else if (path.endsWith(".framework.localpath")) {
 			path = path.substring(path.lastIndexOf("/") + 1);
 			if (path.startsWith(frameworkName + ".framework")) {
-				return localPath.getPath().getBytes(Charset.defaultCharset());
+				return new StringResponse(localPath.getPath());
 			}
 			// Subframework
 			path = path.substring(0, path.lastIndexOf(".localpath"));
-			return new File(localPath, "Frameworks/" + path).getPath().getBytes(Charset.defaultCharset());
+			return new StringResponse(new File(localPath, "Frameworks/" + path).getPath());
 		}
 		return null;
 	}
@@ -93,21 +99,21 @@ public class FrameworkHandler implements Handler {
 		return new File(xcRunLocator.findPath(), "System/Library/Frameworks/" + frameworkName + ".framework");
 	}
 
-	String getValue(String frameworkName) {
+	String getValue(String frameworkName, String version) {
 		GradleModuleMetadata.Variant.File file = GradleModuleMetadata.Variant.File.ofLocalFile(getLocalPath(frameworkName));
 		ImmutableList.Builder<GradleModuleMetadata.Variant> l = ImmutableList.<GradleModuleMetadata.Variant>builder()
-			.add(compileVariant("compile", GradleModuleMetadata.Variant.File.ofLocalFile(getLocalPath(frameworkName)), emptyList()))
-			.add(linkVariant("link", GradleModuleMetadata.Variant.File.ofLocalFile(getLocalPath(frameworkName)), emptyList()))
+			.add(compileVariant("compile", file, emptyList()))
+			.add(linkVariant("link", file, emptyList()))
 			.add(runtimeVariant("runtime", emptyList()));
 
 		findSubFrameworks(getLocalPath(frameworkName)).forEach(it -> {
-			l.add(compileVariant("compileCapable", GradleModuleMetadata.Variant.File.ofLocalFile(it), toCapabilities(frameworkName, it)));
-			l.add(linkVariant("linkCapable", GradleModuleMetadata.Variant.File.ofLocalFile(it), toCapabilities(frameworkName, it)));
+			l.add(compileVariant("compileCapable", file, toCapabilities(frameworkName, it)));
+			l.add(linkVariant("linkCapable", file, toCapabilities(frameworkName, it)));
 			l.add(runtimeVariant("runtimeCapable", toCapabilities(frameworkName, it)));
 		});
 
 		List<GradleModuleMetadata.Variant> v = l.build();
-		return new Gson().toJson(GradleModuleMetadata.of(v));
+		return new Gson().toJson(GradleModuleMetadata.of(GradleModuleMetadata.Component.of("dev.nokee.framework", frameworkName, version), v));
 	}
 
 	List<GradleModuleMetadata.Variant.Capability> toCapabilities(String frameworkName, File subframework) {

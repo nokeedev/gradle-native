@@ -11,7 +11,7 @@ public class ContextAwareHandler implements Handler {
 	}
 
 	@Override
-	public Optional<String> handle(String target) {
+	public Optional<Response> handle(String target) {
 		return handlers.entrySet().stream().filter(it -> target.startsWith(it.getKey())).findFirst().flatMap(it -> it.getValue().handle(target));
 	}
 }

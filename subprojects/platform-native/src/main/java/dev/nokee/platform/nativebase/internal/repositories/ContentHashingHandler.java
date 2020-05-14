@@ -13,14 +13,14 @@ public class ContentHashingHandler implements Handler {
 	}
 
 	@Override
-	public Optional<String> handle(String target) {
+	public Optional<Response> handle(String target) {
 		if (FilenameUtils.isExtension(target, "sha1")) {
 			return delegate.handle(FilenameUtils.removeExtension(target)).map(ContentHashingHandler::sha1);
 		}
 		return delegate.handle(target);
 	}
 
-	private static String sha1(String content) {
-		return Hashing.sha1().hashString(content).toString();
+	private static Response sha1(Response content) {
+		return new StringResponse(Hashing.sha1().hashString(content.getContent()).toString());
 	}
 }

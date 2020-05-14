@@ -1,6 +1,7 @@
 package dev.nokee.platform.nativebase.internal.repositories;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,14 +16,27 @@ import java.util.Map;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class GradleModuleMetadata {
 	@NonNull String formatVersion;
+	@NonNull Component component;
 	@NonNull List<Variant> variants;
 
-	public static GradleModuleMetadata of() {
-		return of(ImmutableList.of());
+	public static GradleModuleMetadata of(@NonNull Component component) {
+		return of(component, ImmutableList.of());
 	}
 
-	public static GradleModuleMetadata of(@NonNull List<Variant> variants) {
-		return new GradleModuleMetadata("1.0", variants);
+	public static GradleModuleMetadata of(@NonNull Component component, @NonNull List<Variant> variants) {
+		return new GradleModuleMetadata("1.0", component, variants);
+	}
+
+	@Value
+	public static class Component {
+		@NonNull String group;
+		@NonNull String module;
+		@NonNull String version;
+		@NonNull Map<String, Object> attributes;
+
+		public static Component of(String group, String module, String version) {
+			return new Component(group, module, version, ImmutableMap.of("org.gradle.status", "release"));
+		}
 	}
 
 	@Value

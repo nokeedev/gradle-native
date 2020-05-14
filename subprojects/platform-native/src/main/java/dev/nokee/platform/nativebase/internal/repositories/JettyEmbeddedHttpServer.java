@@ -32,12 +32,12 @@ public class JettyEmbeddedHttpServer extends AbstractHandler {
 		try {
 			String path = request.getRequestURI();
 			LOGGER.info("Received " + request.getMethod() + " " + path);
-			Optional<String> result = handler.handle(path);
+			Optional<Response> result = handler.handle(path);
 			if (result.isPresent()) {
-				response.setContentType("text/plain; charset=utf-8");
+				response.setContentType(result.get().getContentType());
 				response.setStatus(HttpServletResponse.SC_OK);
 				PrintWriter out = response.getWriter();
-				out.write(result.get());
+				out.write(result.get().getContent());
 				out.flush();
 				return;
 			}
