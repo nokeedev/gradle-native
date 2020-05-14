@@ -433,8 +433,7 @@ Searched in the following locations:
 		when:
 		def failure = executer.withEnvironmentVars([DEVELOPER_DIR: '/opt/xcode']).withTasks('resolveConfiguration', '-i').runWithFailure()
 		then:
-		failure.assertOutputContains('''An exception occurred during the dispatch of the request: Fail to execute xcrun:
-xcrun: error: missing DEVELOPER_DIR path: /opt/xcode''')
+		failure.assertOutputContains('''An exception occurred during the dispatch of the request: Process 'xcrun --show-sdk-version' finished with non-zero exit value 1''')
 		and:
 		failure.assertHasDescription("Execution failed for task ':resolveConfiguration'.")
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
