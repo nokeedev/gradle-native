@@ -1,11 +1,14 @@
 package dev.nokee.platform.ios.internal.plugins;
 
 import dev.nokee.core.exec.CommandLineTool;
+import dev.nokee.platform.ios.internal.DescriptorCommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.core.exec.internal.VersionedCommandLineTool;
 import dev.nokee.platform.ios.tasks.internal.*;
+import dev.nokee.platform.nativebase.internal.plugins.FakeMavenRepositoryPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -32,10 +35,14 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 	public void apply(Project project) {
 		project.getPluginManager().apply(LifecycleBasePlugin.class);
 		project.getPluginManager().apply("dev.nokee.objective-c-language");
+		project.getPluginManager().apply(FakeMavenRepositoryPlugin.class);
 
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-language", appliedPlugin -> project.getPluginManager().apply(IosApplicationRules.class));
 
-		Provider<CommandLineTool> interfaceBuilderTool = getProviders().provider(() -> new VersionedCommandLineTool(new File("/usr/bin/ibtool"), VersionNumber.parse("11.3.1")));
+		Configuration interfaceBuilderToolConfiguration = project.getConfigurations().create("interfaceBuilderTool");
+		interfaceBuilderToolConfiguration.getDependencies().add(project.getDependencies().create("dev.nokee.tool:ibtool:latest.release"));
+		Provider<CommandLineTool> interfaceBuilderTool = getProviders().provider(() -> new DescriptorCommandLineTool(interfaceBuilderToolConfiguration.getSingleFile()));
+
 		Provider<CommandLineTool> assetCompilerTool = getProviders().provider(() -> new VersionedCommandLineTool(new File("/usr/bin/actool"), VersionNumber.parse("11.3.1")));
 		Provider<CommandLineTool> codeSignatureTool = getProviders().provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
 
@@ -46,6 +53,7 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 			task.getModule().set(moduleName);
 			task.getSources().from(project.fileTree("src/main/resources", it -> it.include("*.lproj/*.storyboard")));
 			task.getInterfaceBuilderTool().set(interfaceBuilderTool);
+			task.getInterfaceBuilderTool().finalizeValueOnRead();
 		});
 
 		TaskProvider<StoryboardLinkTask> linkStoryboardTask = getTasks().register("linkStoryboard", StoryboardLinkTask.class, task -> {
@@ -53,6 +61,7 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 			task.getModule().set(moduleName);
 			task.getSources().from(compileStoryboardTask.flatMap(StoryboardCompileTask::getDestinationDirectory));
 			task.getInterfaceBuilderTool().set(interfaceBuilderTool);
+			task.getInterfaceBuilderTool().finalizeValueOnRead();
 		});
 
 		TaskProvider<AssetCatalogCompileTask> assetCatalogCompileTaskTask = getTasks().register("compileAssetCatalog", AssetCatalogCompileTask.class, task -> {
