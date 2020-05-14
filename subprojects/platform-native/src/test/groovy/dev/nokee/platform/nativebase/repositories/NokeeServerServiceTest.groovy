@@ -4,6 +4,9 @@ import dev.gradleplugins.spock.lang.CleanupTestDirectory
 import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
 import dev.nokee.platform.nativebase.internal.plugins.FakeMavenRepositoryPlugin
 import dev.nokee.platform.nativebase.internal.repositories.NokeeServerService
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.api.logging.LogLevel
+import org.gradle.api.logging.StandardOutputListener
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import spock.lang.Requires
@@ -12,6 +15,7 @@ import spock.lang.Subject
 import spock.util.environment.OperatingSystem
 
 import java.util.logging.Handler
+import java.util.logging.Level
 import java.util.logging.LogManager
 import java.util.logging.LogRecord
 
@@ -29,6 +33,7 @@ class NokeeServerServiceTest extends Specification {
 
 		when:
 		project.apply plugin: FakeMavenRepositoryPlugin
+		project.gradle.sharedServices.registrations.nokeeServer.service.get() // Force start
 
 		then:
 		noExceptionThrown()
@@ -38,7 +43,7 @@ class NokeeServerServiceTest extends Specification {
 		project.gradle.sharedServices.registrations.nokeeServer.service.get().close()
 	}
 
-	def "only start one server"() {
+	def "does not start a server when not trying to resolve from the Nokee repository"() {
 		given:
 		LogHandler log = new LogHandler()
 		LogManager.logManager.getLogger("").addHandler(log)
@@ -48,6 +53,34 @@ class NokeeServerServiceTest extends Specification {
 		when:
 		rootProject.apply plugin: FakeMavenRepositoryPlugin
 		project.apply plugin: FakeMavenRepositoryPlugin
+
+		then:
+		noExceptionThrown()
+
+		and:
+		log.output.count('Nokee server started on port') == 0
+	}
+
+	def "only start one server when trying to resolve from the Nokee repository"() {
+		given:
+		LogHandler log = new LogHandler()
+		LogManager.logManager.getLogger("").addHandler(log)
+		def rootProject = ProjectBuilder.builder().withProjectDir(temporaryFolder.testDirectory).withName('root').build()
+		def project = ProjectBuilder.builder().withProjectDir(temporaryFolder.createDirectory('subproject')).withParent(rootProject).build()
+
+		and:
+		rootProject.apply plugin: FakeMavenRepositoryPlugin
+		project.apply plugin: FakeMavenRepositoryPlugin
+
+		and: 'a configuration that will be resolved by the local repository'
+		project.repositories.getByName(NokeeServerService.NOKEE_LOCAL_REPOSITORY_NAME).mavenContent {
+			includeGroup('dev.nokee.heartbeat')
+		}
+		def foo = project.configurations.create('foo')
+		foo.dependencies.add(project.dependencies.create("dev.nokee.heartbeat:heartbeat:latest.integration"))
+
+		when: 'it is resolved'
+		foo.resolvedConfiguration.lenientConfiguration.each {}
 
 		then:
 		noExceptionThrown()

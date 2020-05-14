@@ -16,6 +16,7 @@ import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.FakeMavenRepositoryPlugin;
 import dev.nokee.platform.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
+import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -66,7 +67,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().withPlugin("java-library", appliedPlugin -> { throw new GradleException("Use java plugin instead"); });
 		project.getPlugins().withType(NativePlatformCapabilitiesMarkerPlugin.class, appliedPlugin -> {
 			project.getPluginManager().apply(JniLibraryRules.class);
-			project.getPluginManager().apply(FakeMavenRepositoryPlugin.class);
+			project.getPluginManager().apply(DarwinFrameworkResolutionSupportPlugin.class);
 		});
 
 		// Include native runtime files inside JNI jar

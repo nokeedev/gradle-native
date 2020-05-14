@@ -143,13 +143,13 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 
 	def "fails to resolve for non-magic group"() {
 		buildFile << configurePluginClasspathAsBuildScriptDependencies() << """
-			import ${FakeMavenRepositoryPlugin.canonicalName}
+			import ${DarwinFrameworkResolutionSupportPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
 			import ${DefaultTargetMachineFactory.canonicalName}
 			import ${LibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
 
-			apply plugin: ${FakeMavenRepositoryPlugin.name}
+			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
 
 			configurations {
 				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())
@@ -186,13 +186,13 @@ Required by:
 
 	def "fails to resolve for non-existant framework"() {
 		buildFile << configurePluginClasspathAsBuildScriptDependencies() << """
-			import ${FakeMavenRepositoryPlugin.canonicalName}
+			import ${DarwinFrameworkResolutionSupportPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
 			import ${DefaultTargetMachineFactory.canonicalName}
 			import ${LibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
 
-			apply plugin: ${FakeMavenRepositoryPlugin.name}
+			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
 
 			configurations {
 				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())
@@ -230,13 +230,13 @@ Searched in the following locations:
 
 	def "fails to resolve framework for bad SDK version"() {
 		buildFile << configurePluginClasspathAsBuildScriptDependencies() << """
-			import ${FakeMavenRepositoryPlugin.canonicalName}
+			import ${DarwinFrameworkResolutionSupportPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
 			import ${DefaultTargetMachineFactory.canonicalName}
 			import ${LibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
 
-			apply plugin: ${FakeMavenRepositoryPlugin.name}
+			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
 
 			configurations {
 				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())
@@ -274,14 +274,14 @@ Searched in the following locations:
 
 	def "can resolve framework search path"() {
 		buildFile << configurePluginClasspathAsBuildScriptDependencies() << """
-			import ${FakeMavenRepositoryPlugin.canonicalName}
+			import ${DarwinFrameworkResolutionSupportPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
 			import ${DefaultTargetMachineFactory.canonicalName}
 			import ${Files.canonicalName}
 			import ${LibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
 
-			apply plugin: ${FakeMavenRepositoryPlugin.name}
+			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
 
 			configurations {
 				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())
@@ -312,14 +312,14 @@ Searched in the following locations:
 
 	def "can resolve framework bundle"() {
 		buildFile << configurePluginClasspathAsBuildScriptDependencies() << """
-			import ${FakeMavenRepositoryPlugin.canonicalName}
+			import ${DarwinFrameworkResolutionSupportPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
 			import ${DefaultTargetMachineFactory.canonicalName}
 			import ${Files.canonicalName}
 			import ${LibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
 
-			apply plugin: ${FakeMavenRepositoryPlugin.name}
+			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
 
 			configurations {
 				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())
@@ -352,14 +352,14 @@ Searched in the following locations:
 	@Unroll
 	def "can resolve dynamic #displayName of framework bundle"(String versionNotation, String displayName) {
 		buildFile << configurePluginClasspathAsBuildScriptDependencies() << """
-			import ${FakeMavenRepositoryPlugin.canonicalName}
+			import ${DarwinFrameworkResolutionSupportPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
 			import ${DefaultTargetMachineFactory.canonicalName}
 			import ${Files.canonicalName}
 			import ${LibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
 
-			apply plugin: ${FakeMavenRepositoryPlugin.name}
+			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
 
 			configurations {
 				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())
@@ -399,14 +399,14 @@ Searched in the following locations:
 
 	def "handles xcrun errors without logging beyond info level"() {
 		buildFile << configurePluginClasspathAsBuildScriptDependencies() << """
-			import ${FakeMavenRepositoryPlugin.canonicalName}
+			import ${DarwinFrameworkResolutionSupportPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
 			import ${DefaultTargetMachineFactory.canonicalName}
 			import ${Files.canonicalName}
 			import ${LibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
 
-			apply plugin: ${FakeMavenRepositoryPlugin.name}
+			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
 
 			configurations {
 				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())

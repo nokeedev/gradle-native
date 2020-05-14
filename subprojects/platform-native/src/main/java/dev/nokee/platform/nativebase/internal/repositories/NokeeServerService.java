@@ -2,36 +2,19 @@ package dev.nokee.platform.nativebase.internal.repositories;
 
 import dev.nokee.platform.nativebase.internal.locators.CachingXcRunLocator;
 import dev.nokee.platform.nativebase.internal.locators.MacOSSdkPathLocator;
-import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.server.Server;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.artifacts.dsl.RepositoryHandler;
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
-import org.gradle.api.artifacts.transform.InputArtifact;
-import org.gradle.api.artifacts.transform.TransformAction;
-import org.gradle.api.artifacts.transform.TransformOutputs;
-import org.gradle.api.artifacts.transform.TransformParameters;
-import org.gradle.api.attributes.LibraryElements;
-import org.gradle.api.file.FileSystemLocation;
+import org.eclipse.jetty.server.ServerConnector;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.services.BuildService;
 import org.gradle.api.services.BuildServiceParameters;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
+import java.net.URI;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import static dev.nokee.platform.nativebase.internal.ArtifactSerializationTypes.*;
-import static dev.nokee.platform.nativebase.internal.ArtifactTypes.ARTIFACT_TYPES_ATTRIBUTE;
-import static dev.nokee.platform.nativebase.internal.ArtifactTypes.FRAMEWORK_TYPE;
-import static dev.nokee.platform.nativebase.internal.LibraryElements.FRAMEWORK_BUNDLE;
-
 public abstract class NokeeServerService implements BuildService<BuildServiceParameters.None>, AutoCloseable {
+	public static final String NOKEE_LOCAL_REPOSITORY_NAME = "Nokee Local Repository";
 	private static final Logger LOGGER = Logger.getLogger(NokeeServerService.class.getName());
 	private final Object lock = new Object();
 	private final Server server;
@@ -53,6 +36,12 @@ public abstract class NokeeServerService implements BuildService<BuildServicePar
 	@Inject
 	protected abstract ObjectFactory getObjects();
 
+	public URI getUri() {
+		return server.getURI();
+	}
+
+	// TODO: Maybe registerIfAbsent(Class...)
+
 	@Override
 	public void close() throws Exception {
 		synchronized (lock) {
@@ -60,53 +49,6 @@ public abstract class NokeeServerService implements BuildService<BuildServicePar
 			server.join(); // TODO Timeout
 			server.destroy();
 			LOGGER.info("Nokee server stopped");
-		}
-	}
-
-	public void configure(RepositoryHandler repositories) {
-		repositories.maven(repo -> {
-			repo.setUrl(server.getURI());
-			repo.metadataSources(MavenArtifactRepository.MetadataSources::gradleMetadata);
-			repo.mavenContent(content -> {
-				content.includeGroup("dev.nokee.framework");
-				content.includeGroup("dev.nokee.tool");
-			});
-		});
-	}
-
-	public void configure(DependencyHandler dependencies) {
-		dependencies.artifactTypes(it -> {
-			it.create("localpath", type -> type.getAttributes().attribute(ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, SERIALIZED));
-			it.create(FRAMEWORK_TYPE);
-		});
-		dependencies.registerTransform(DeserializeLocalFramework.class, variantTransform -> {
-			variantTransform.getFrom()
-				.attribute(ARTIFACT_TYPES_ATTRIBUTE, "localpath")
-				.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, FRAMEWORK_BUNDLE))
-				.attribute(ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, SERIALIZED);
-			variantTransform.getTo()
-				.attribute(ARTIFACT_TYPES_ATTRIBUTE, FRAMEWORK_TYPE)
-				.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, FRAMEWORK_BUNDLE))
-				.attribute(ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, DESERIALIZED);
-		});
-	}
-
-	public static abstract class DeserializeLocalFramework implements TransformAction<TransformParameters.None> {
-		@InputArtifact
-		public abstract Provider<FileSystemLocation> getInputArtifact();
-
-		public void transform(TransformOutputs outputs) {
-			try {
-				String s = FileUtils.readFileToString(getInputArtifact().get().getAsFile(), Charset.defaultCharset());
-				File framework = new File(s);
-				File o = outputs.dir(framework.getName());
-				if (!o.delete()) {
-					throw new RuntimeException("Can't delete file");
-				}
-				Files.createSymbolicLink(o.toPath(), framework.toPath());
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
 		}
 	}
 }
