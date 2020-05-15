@@ -4,6 +4,7 @@ import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolArguments;
 import dev.nokee.core.exec.CommandLineToolInvocation;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -11,8 +12,9 @@ import java.io.File;
 import java.util.Optional;
 
 @RequiredArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class DefaultCommandLineToolInvocation implements CommandLineToolInvocation {
-	private final CommandLine commandLine;
+	@EqualsAndHashCode.Include private final CommandLine commandLine;
 	@Getter private final boolean capturingStandardOutput;
 	private final File standardStreamFile;
 

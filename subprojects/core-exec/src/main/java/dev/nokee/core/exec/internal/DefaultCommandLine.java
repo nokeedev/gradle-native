@@ -1,9 +1,11 @@
 package dev.nokee.core.exec.internal;
 
 import dev.nokee.core.exec.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@EqualsAndHashCode
 @RequiredArgsConstructor
 public class DefaultCommandLine implements CommandLine {
 	@Getter private final CommandLineTool tool;

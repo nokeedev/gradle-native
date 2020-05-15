@@ -1,7 +1,6 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.nativebase.HeaderSearchPath;
 import dev.nokee.language.nativebase.internal.DefaultHeaderSearchPath;
@@ -13,10 +12,10 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryInternal;
 import dev.nokee.platform.base.internal.DefaultTaskView;
 import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.TaskUtils;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
+import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import lombok.Value;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;

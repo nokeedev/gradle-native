@@ -14,7 +14,6 @@ import dev.nokee.platform.jni.internal.JniLibraryInternal;
 import dev.nokee.platform.nativebase.TargetMachine;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.*;
-import dev.nokee.platform.nativebase.internal.plugins.FakeMavenRepositoryPlugin;
 import dev.nokee.platform.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
 import org.gradle.api.GradleException;

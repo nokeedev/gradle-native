@@ -12,7 +12,7 @@ dependencies {
 	compileOnly "org.codehaus.groovy:groovy-templates:${groovyVersion}"
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.8'
 	implementation project(':platformBase') // only for TaskUtils... TODO: move the utils class to another project
-	implementation 'com.googlecode.plist:dd-plist:1.23'
+	implementation "com.googlecode.plist:dd-plist:${ddPlist}"
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"

@@ -4,10 +4,10 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToo
 import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCNSSavePanelLib
-import dev.nokee.platform.nativebase.internal.ArtifactSerializationTypes
+import dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory
-import dev.nokee.platform.nativebase.internal.LibraryElements
+import dev.nokee.runtime.nativebase.internal.LibraryElements
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin
 import spock.lang.Requires
 import spock.lang.Unroll
@@ -433,7 +433,7 @@ Searched in the following locations:
 		when:
 		def failure = executer.withEnvironmentVars([DEVELOPER_DIR: '/opt/xcode']).withTasks('resolveConfiguration', '-i').runWithFailure()
 		then:
-		failure.assertOutputContains('''An exception occurred during the dispatch of the request: Process 'xcrun --show-sdk-version' finished with non-zero exit value 1''')
+		failure.assertOutputContains('''An exception occurred during the dispatch of the request: Process '/usr/bin/xcrun --version' finished with non-zero exit value 1''')
 		and:
 		failure.assertHasDescription("Execution failed for task ':resolveConfiguration'.")
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
@@ -445,8 +445,7 @@ Searched in the following locations:
 		when:
 		failure = executer.withEnvironmentVars([DEVELOPER_DIR: '/opt/xcode']).withTasks('resolveConfiguration').runWithFailure()
 		then:
-		failure.assertNotOutput('''An exception occurred during the dispatch of the request: Fail to execute xcrun:
-xcrun: error: missing DEVELOPER_DIR path: /opt/xcode''')
+		failure.assertNotOutput('''An exception occurred during the dispatch of the request: Process '/usr/bin/xcrun --version' finished with non-zero exit value 1''')
 		and:
 		failure.assertHasDescription("Execution failed for task ':resolveConfiguration'.")
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")

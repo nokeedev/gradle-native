@@ -1,11 +1,11 @@
 package dev.nokee.platform.ios.internal.plugins;
 
 import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.platform.ios.internal.DescriptorCommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.core.exec.internal.VersionedCommandLineTool;
+import dev.nokee.platform.ios.internal.DescriptorCommandLineTool;
 import dev.nokee.platform.ios.tasks.internal.*;
-import dev.nokee.platform.nativebase.internal.plugins.FakeMavenRepositoryPlugin;
+import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -35,7 +35,7 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 	public void apply(Project project) {
 		project.getPluginManager().apply(LifecycleBasePlugin.class);
 		project.getPluginManager().apply("dev.nokee.objective-c-language");
-		project.getPluginManager().apply(FakeMavenRepositoryPlugin.class);
+		project.getPluginManager().apply(DarwinRuntimePlugin.class);
 
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-language", appliedPlugin -> project.getPluginManager().apply(IosApplicationRules.class));
 

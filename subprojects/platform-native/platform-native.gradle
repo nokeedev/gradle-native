@@ -10,15 +10,10 @@ repositories {
 
 dependencies {
 	implementation project(':platformBase')
+	implementation project(':runtimeNative')
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
-
-	// Embedded repository
-	implementation project(':coreExec')
-	implementation 'com.googlecode.plist:dd-plist:1.23'
-	implementation 'com.google.code.gson:gson:2.8.6'
-	implementation 'org.eclipse.jetty:jetty-server:9.4.27.v20200227'
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"

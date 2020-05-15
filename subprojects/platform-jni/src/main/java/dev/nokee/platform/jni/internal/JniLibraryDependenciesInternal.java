@@ -1,8 +1,8 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.platform.jni.JniLibraryDependencies;
-import dev.nokee.platform.nativebase.internal.ArtifactSerializationTypes;
-import dev.nokee.platform.nativebase.internal.LibraryElements;
+import dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes;
+import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;

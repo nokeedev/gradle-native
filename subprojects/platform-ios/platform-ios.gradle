@@ -12,9 +12,9 @@ repositories {
 dependencies {
 	implementation project(':languageNative')
 	implementation project(':coreExec')
+	implementation project(':runtimeDarwin')
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	implementation project(':platformNative') // only for fake maven repo
 	implementation 'com.google.code.gson:gson:2.8.6' // For deserializing the descriptor... probably not the right place to do this
 	implementation "commons-io:commons-io:${commonsIoVersion}" // same as previous
 

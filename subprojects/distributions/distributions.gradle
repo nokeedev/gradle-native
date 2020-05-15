@@ -12,6 +12,9 @@ def allPluginProjectPaths = [
 	':platformIos',
 	':platformJni',
 	':platformNative',
+	':runtimeBase',
+	':runtimeNative',
+	':runtimeDarwin',
 	':testingXctest'
 ]
 

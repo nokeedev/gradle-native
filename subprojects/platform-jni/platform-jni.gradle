@@ -12,6 +12,8 @@ repositories {
 dependencies {
 	api project(':platformBase')
 	api project(':platformNative')
+	implementation project(':runtimeDarwin')
+	implementation project(':runtimeNative')
 
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "com.google.guava:guava:${guavaVersion}"
@@ -36,6 +38,8 @@ components.functionalTest {
 
 		implementation project(':platformBase')
 		implementation project(':platformNative')
+		implementation project(':runtimeDarwin')
+		implementation project(':runtimeNative')
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation "commons-io:commons-io:${commonsIoVersion}"
 	}

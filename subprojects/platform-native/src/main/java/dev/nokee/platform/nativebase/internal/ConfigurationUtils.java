@@ -2,6 +2,8 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import dev.nokee.runtime.nativebase.internal.ArtifactTypes;
+import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import lombok.Value;
 import lombok.With;
 import org.gradle.api.Action;

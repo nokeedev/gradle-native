@@ -2,11 +2,8 @@ package dev.nokee.platform.nativebase.repositories
 
 import dev.gradleplugins.spock.lang.CleanupTestDirectory
 import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
-import dev.nokee.platform.nativebase.internal.plugins.FakeMavenRepositoryPlugin
+import dev.nokee.runtime.base.internal.plugins.FakeMavenRepositoryPlugin
 import dev.nokee.platform.nativebase.internal.repositories.NokeeServerService
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository
-import org.gradle.api.logging.LogLevel
-import org.gradle.api.logging.StandardOutputListener
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import spock.lang.Requires
@@ -15,7 +12,6 @@ import spock.lang.Subject
 import spock.util.environment.OperatingSystem
 
 import java.util.logging.Handler
-import java.util.logging.Level
 import java.util.logging.LogManager
 import java.util.logging.LogRecord
 

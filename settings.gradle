@@ -50,6 +50,18 @@ include 'platformJni'
 project(':platformJni').projectDir = file('subprojects/platform-jni')
 project(':platformJni').buildFileName = 'platform-jni.gradle'
 
+include 'runtimeBase'
+project(':runtimeBase').projectDir = file('subprojects/runtime-base')
+project(':runtimeBase').buildFileName = 'runtime-base.gradle'
+
+include 'runtimeNative'
+project(':runtimeNative').projectDir = file('subprojects/runtime-native')
+project(':runtimeNative').buildFileName = 'runtime-native.gradle'
+
+include 'runtimeDarwin'
+project(':runtimeDarwin').projectDir = file('subprojects/runtime-darwin')
+project(':runtimeDarwin').buildFileName = 'runtime-darwin.gradle'
+
 include 'testingXctest'
 project(':testingXctest').projectDir = file('subprojects/testing-xctest')
 project(':testingXctest').buildFileName = 'testing-xctest.gradle'

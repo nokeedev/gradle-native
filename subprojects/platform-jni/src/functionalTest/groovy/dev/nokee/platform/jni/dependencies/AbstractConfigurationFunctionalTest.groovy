@@ -3,7 +3,7 @@ package dev.nokee.platform.jni.dependencies
 import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils
-import dev.nokee.platform.nativebase.internal.plugins.CompatibilityRules
+import dev.nokee.runtime.darwin.internal.plugins.CompatibilityRules
 
 import static org.apache.commons.io.FilenameUtils.separatorsToSystem
 
