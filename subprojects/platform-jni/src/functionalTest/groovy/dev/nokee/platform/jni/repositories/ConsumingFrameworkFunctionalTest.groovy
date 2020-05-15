@@ -8,7 +8,7 @@ import dev.nokee.platform.nativebase.internal.ArtifactSerializationTypes
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory
 import dev.nokee.platform.nativebase.internal.LibraryElements
-import dev.nokee.platform.nativebase.internal.plugins.FakeMavenRepositoryPlugin
+import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin
 import spock.lang.Requires
 import spock.lang.Unroll
 import spock.util.environment.OperatingSystem
@@ -222,7 +222,7 @@ Required by:
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
 		failure.assertThatCause(matchesPattern(compile("""Could not find dev.nokee.framework:NonExistantFramework:10.15.
 Searched in the following locations:
-  - http://localhost:\\d+/dev/nokee/framework/NonExistantFramework/10.15/NonExistantFramework-10.15.module
+  - http://127.0.0.1:\\d+/dev/nokee/framework/NonExistantFramework/10.15/NonExistantFramework-10.15.module
 .+""", MULTILINE | DOTALL)))
 
 		failure.assertOutputContains("The requested framework 'NonExistantFramework' wasn't found at in '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/'.")
@@ -266,7 +266,7 @@ Searched in the following locations:
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
 		failure.assertThatCause(matchesPattern(compile("""Could not find dev.nokee.framework:Foundation:4.2.
 Searched in the following locations:
-  - http://localhost:\\d+/dev/nokee/framework/Foundation/4.2/Foundation-4.2.module
+  - http://127.0.0.1:\\d+/dev/nokee/framework/Foundation/4.2/Foundation-4.2.module
 .+""", MULTILINE | DOTALL)))
 
 		failure.assertOutputContains("The requested framework 'Foundation' version '4.2' doesn't match current SDK version '10.15'.")
@@ -439,7 +439,7 @@ Searched in the following locations:
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
 		failure.assertThatCause(matchesPattern(compile("""Could not find dev.nokee.framework:Foundation:10.15.
 Searched in the following locations:
-  - http://localhost:\\d+/dev/nokee/framework/Foundation/10.15/Foundation-10.15.module
+  - http://127.0.0.1:\\d+/dev/nokee/framework/Foundation/10.15/Foundation-10.15.module
 .+""", MULTILINE | DOTALL)))
 
 		when:
@@ -452,7 +452,7 @@ xcrun: error: missing DEVELOPER_DIR path: /opt/xcode''')
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
 		failure.assertThatCause(matchesPattern(compile("""Could not find dev.nokee.framework:Foundation:10.15.
 Searched in the following locations:
-  - http://localhost:\\d+/dev/nokee/framework/Foundation/10.15/Foundation-10.15.module
+  - http://127.0.0.1:\\d+/dev/nokee/framework/Foundation/10.15/Foundation-10.15.module
 .+""", MULTILINE | DOTALL)))
 	}
 
