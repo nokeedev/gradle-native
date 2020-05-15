@@ -3,14 +3,7 @@
 :jbake-tags: {jbake-version}, jvm, jni, objective c, objective cpp
 :jbake-description: See what version {jbake-version} of the Gradle Nokee plugins has to offer!
 
-The Nokee team is excited to announce the third release onward to a better native development experience in Gradle.
-
-This release focus on adding link:#sec:supporting-api-for-jni[convenient APIs to address common Java Native Interface (JNI) use cases].
-There was a focus on delivering an link:#sec:ios-application-plugin[experimental iOS application development workflow in Gradle].
-To support iOS development, an link:#sec:xcode-ide-plugin[Xcode IDE plugin was also developed].
-Finally, this release continues to link:#sec:improvements-to-documentation[improve the documentation portal for the Nokee plugins].
-
-You can read more about the first step in the iOS support in Gradle in the link:https://nokee.dev/blog/release-0.3-announcement[announcement blog for this release].
+Coming soon...
 
 [[sec:getting-started]]
 == Getting Started
@@ -66,52 +59,6 @@ pluginManagement {
 ----
 =====
 ====
-
-[[sec:supporting-api-for-jni]]
-== New APIs Supporting JNI Library Development
-
-We added new convenient APIs to support JNI library development.
-The APIs in questions allow easier manipulation of the JNI library link:dsl/dev.nokee.platform.base.VariantView.html[variants] and link:dsl/dev.nokee.platform.base.BinaryView.html[binaries] by additional tasks.
-You can see the new APIs in action in link:samples[the samples], more specifically, in the link:samples/jni-library-as-uber-jar[sample on creating an uber JAR for JNI libraries].
-For more information, head over to the new <<manual/building-jni-projects.adoc#,Building JNI Projects>> chapter.
-
-[[sec:ios-application-plugin]]
-== Experimental iOS Application Plugin
-
-This release reveals a link:samples/objective-c-ios-application[very early experimental iOS support for application in Gradle].
-It also link:samples/objective-c-ios-xctest-test-suite[support XCTest for unit and UI testing].
-At this stage, the plugin offers no configurability.
-The application built will target iOS version 13.2 for the iPhone simulator.
-
-It is important to stress the experimental aspect of the plugin.
-The limitation will be removed over the following releases to address more use cases.
-
-[[sec:xcode-ide-plugin]]
-== Xcode IDE Plugin
-
-To support iOS development, we are also revealing the <<manual/xcode-ide-plugin.adoc#,Xcode IDE plugin>>.
-It has out-of-the-box support for the new iOS application plugin.
-It also provide an <<manual/xcode-ide-plugin.adoc#sec:xcode-ide-build-language,extensive build language>> to support integration with 3rd party plugins.
-You can see the APIs in action with the link:samples/xcode-ide-composing[compose an Xcode IDE project sample].
-
-[[sec:improvements-to-documentation]]
-== Improvements to the Documentation Portal
-
-This release introduces the link:dsl[build language reference, also known as DSL reference].
-It covers the complete public APIs for the Nokee plugins.
-
-We wrote three new chapters:
-
-- <<manual/plugin-anatomy.adoc#,Anatomy of a Nokee Plugin>>: Explains the plugin triplet pattern.
-- <<manual/building-jni-projects.adoc#,Building JNI projects>>: Discuss the modelling of a JNI project.
-- <<manual/developing-with-xcode-ide.adoc#,Developing with Xcode IDE>>: Covers the integration of Gradle with Xcode IDE.
-
-The documentation also includes four new samples:
-
-- link:samples/jni-library-as-uber-jar[Create an uber JAR for JNI library]
-- link:samples/objective-c-ios-application[Support iOS application]
-- link:samples/xcode-ide-composing[Integrate Gradle with Xcode IDE for 3rd party plugins]
-- link:samples/kotlin-cpp-jni-library[Demonstrate JNI Library implemented with Kotlin and {cpp}]
 
 [[sec:reporting-problems]]
 == Reporting Problems
