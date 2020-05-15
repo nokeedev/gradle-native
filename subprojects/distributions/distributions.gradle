@@ -39,6 +39,7 @@ allPluginProjectPaths.each { String projectPath ->
 
 tasks.register('publishToBintray') {
 	dependsOn(publishToStaging)
+	finalizedBy("updateBintrayMetadata")
 	doLast {
 		// Credentials
 		def user = resolveProperty(project, "BINTRAY_USER", "dev.nokee.bintray.user")
@@ -68,16 +69,26 @@ tasks.register('publishToBintray') {
 				println "failed"
 			}
 		}
+	}
+}
 
+tasks.register("updateBintrayMetadata") {
+	doLast {
 		// Set attributes
 		if (System.getProperties().containsKey('release')) {
-			def data = ['gradle-plugin': ["dev.nokee.jni-library:${project.group}:${project.name}",
-													"dev.nokee.cpp-language:${project.group}:${project.name}",
-													"dev.nokee.c-language:${project.group}:${project.name}",
-													"dev.nokee.objective-c-language:${project.group}:${project.name}",
-													"dev.nokee.objective-cpp-language:${project.group}:${project.name}",
-													"dev.nokee.objective-c-ios-application:${project.group}:${project.name}",
-													"dev.nokee.objective-c-xctest-test-suite:${project.group}:${project.name}"]]
+			// Credentials
+			def user = resolveProperty(project, "BINTRAY_USER", "dev.nokee.bintray.user")
+			def key = resolveProperty(project, "BINTRAY_KEY", "dev.nokee.bintray.key")
+			def repository = 'distributions'
+			def packageName = 'dev.nokee:nokee-gradle-plugins'
+
+			def data = ['gradle-plugin': ["dev.nokee.jni-library:${project.group}:platformJni",
+										  "dev.nokee.cpp-language:${project.group}:languageNative",
+										  "dev.nokee.c-language:${project.group}:languageNative",
+										  "dev.nokee.objective-c-language:${project.group}:languageNative",
+										  "dev.nokee.objective-cpp-language:${project.group}:languageNative",
+										  "dev.nokee.objective-c-ios-application:${project.group}:platformIos",
+										  "dev.nokee.objective-c-xctest-test-suite:${project.group}:testingXctest"]]
 			data = data.collect { k, v ->
 				return [name: k, values: v, type: 'string']
 			}
