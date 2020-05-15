@@ -61,23 +61,29 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 	private final DefaultTaskView<NativeSourceCompile> compileTasks;
 
 	@Inject
-	public SharedLibraryBinaryInternal(NamingScheme names, TaskContainer tasks, ConfigurationContainer configurations, ObjectFactory objectFactory, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine) {
+	public SharedLibraryBinaryInternal(NamingScheme names, TaskContainer tasks, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine) {
 		this.linkTask = tasks.register(names.getTaskName("link"), LinkSharedLibraryTask.class);
 		this.tasks = tasks;
-		sources = objectFactory.domainObjectSet(LanguageSourceSetInternal.class);
+		sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
 		this.targetMachine = targetMachine;
 		parentSources.all(it -> sources.add(it));
-		compileTasks = objectFactory.newInstance(DefaultTaskView.class, sources.withType(ObjectSourceSetInternal.class).stream().map(ObjectSourceSetInternal::getCompileTask).collect(Collectors.toList()));
+		compileTasks = getObjects().newInstance(DefaultTaskView.class, sources.withType(ObjectSourceSetInternal.class).stream().map(ObjectSourceSetInternal::getCompileTask).collect(Collectors.toList()));
 
 		getCompilerInputs().value(fromCompileConfiguration()).finalizeValueOnRead();
 		getCompilerInputs().disallowChanges();
 		getLinkerInputs().value(fromLinkConfiguration()).finalizeValueOnRead();
 		getLinkerInputs().disallowChanges();
 
-		ConfigurationUtils configurationUtils = objectFactory.newInstance(ConfigurationUtils.class);
-		this.compileConfiguration = configurations.create(names.getConfigurationName("headerSearchPaths"), configurationUtils.asIncomingHeaderSearchPathFrom(implementation));
-		this.linkConfiguration = configurations.create(names.getConfigurationName("nativeLink"), configurationUtils.asIncomingLinkLibrariesFrom(implementation).forTargetMachine(targetMachine).asDebug());
+		ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
+		this.compileConfiguration = getConfigurations().create(names.getConfigurationName("headerSearchPaths"), configurationUtils.asIncomingHeaderSearchPathFrom(implementation));
+		this.linkConfiguration = getConfigurations().create(names.getConfigurationName("nativeLink"), configurationUtils.asIncomingLinkLibrariesFrom(implementation).forTargetMachine(targetMachine).asDebug());
 	}
+
+	@Inject
+	protected abstract ConfigurationContainer getConfigurations();
+
+	@Inject
+	protected abstract ObjectFactory getObjects();
 
 	@Override
 	public TaskView<? extends NativeSourceCompile> getCompileTasks() {

@@ -5,7 +5,6 @@ import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
@@ -41,17 +40,15 @@ public abstract class JniLibraryInternal implements JniLibrary {
 	private final Configuration implementation;
 	private final DefaultTargetMachine targetMachine;
 	private final GroupId groupId;
-	private final ConfigurationContainer configurations;
 	private final Configuration nativeRuntime;
 	private AbstractJarBinary jarBinary;
 	private SharedLibraryBinaryInternal sharedLibraryBinary;
 	private final TaskProvider<Task> assembleTask;
 
 	@Inject
-	public JniLibraryInternal(TaskContainer tasks, NamingScheme names, ObjectFactory objectFactory, ProviderFactory providers, ConfigurationContainer configurations, DomainObjectSet<? super LanguageSourceSetInternal> sources, Configuration implementation, DefaultTargetMachine targetMachine, GroupId groupId, DomainObjectSet<BinaryInternal> parentBinaries) {
+	public JniLibraryInternal(TaskContainer tasks, NamingScheme names, DomainObjectSet<? super LanguageSourceSetInternal> sources, Configuration implementation, DefaultTargetMachine targetMachine, GroupId groupId, DomainObjectSet<BinaryInternal> parentBinaries) {
 		this.names = names;
-		binaryCollection = objectFactory.domainObjectSet(BinaryInternal.class);
-		this.configurations = configurations;
+		binaryCollection = getObjects().domainObjectSet(BinaryInternal.class);
 		this.sources = sources;
 		this.implementation = implementation;
 		this.targetMachine = targetMachine;
@@ -61,11 +58,11 @@ public abstract class JniLibraryInternal implements JniLibrary {
 			parentBinaries.add(binary);
 		});
 
-		ConfigurationUtils configurationUtils = objectFactory.newInstance(ConfigurationUtils.class);
-		nativeRuntime = configurations.create(names.getConfigurationName("nativeRuntime"), configurationUtils.asIncomingRuntimeLibrariesFrom(implementation).forTargetMachine(targetMachine).asDebug());
+		ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
+		nativeRuntime = getConfigurations().create(names.getConfigurationName("nativeRuntime"), configurationUtils.asIncomingRuntimeLibrariesFrom(implementation).forTargetMachine(targetMachine).asDebug());
 
 		getNativeRuntimeFiles().from(nativeRuntime);
-		getResourcePath().convention(providers.provider(() -> names.getResourcePath(groupId)));
+		getResourcePath().convention(getProviders().provider(() -> names.getResourcePath(groupId)));
 
 		this.assembleTask = registerAssembleTaskIfAbsent(tasks);
 		assembleTask.configure(task -> {
@@ -87,17 +84,23 @@ public abstract class JniLibraryInternal implements JniLibrary {
 	}
 
 	@Inject
-	protected abstract ObjectFactory getObjectFactory();
+	protected abstract ConfigurationContainer getConfigurations();
+
+	@Inject
+	protected abstract ObjectFactory getObjects();
+
+	@Inject
+	protected abstract ProviderFactory getProviders();
 
 	@Inject
 	protected abstract TaskContainer getTasks();
 
 	public BinaryView<Binary> getBinaries() {
-		return Cast.uncheckedCast(getObjectFactory().newInstance(DefaultBinaryView.class, binaryCollection));
+		return Cast.uncheckedCast(getObjects().newInstance(DefaultBinaryView.class, binaryCollection));
 	}
 
 	public void registerSharedLibraryBinary() {
-		SharedLibraryBinaryInternal sharedLibraryBinary = getObjectFactory().newInstance(SharedLibraryBinaryInternal.class, names, configurations, sources, implementation, targetMachine);
+		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, implementation, targetMachine);
 		getNativeRuntimeFiles().from((Callable<List<Provider<RegularFile>>>)() -> {
 			if (sharedLibraryBinary.getLinkedFile().isPresent()) {
 				return ImmutableList.of(sharedLibraryBinary.getLinkedFile());
@@ -113,7 +116,7 @@ public abstract class JniLibraryInternal implements JniLibrary {
 		TaskProvider<Jar> jarTask = getTasks().register(names.getTaskName("jar"), Jar.class, task -> {
 			task.getArchiveBaseName().set(names.getBaseName().withKababDimensions());
 		});
-		addJniJarBinary(getObjectFactory().newInstance(DefaultJniJarBinary.class, jarTask));
+		addJniJarBinary(getObjects().newInstance(DefaultJniJarBinary.class, jarTask));
 	}
 
 	public AbstractJarBinary getJar() {
