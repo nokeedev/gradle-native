@@ -12,6 +12,7 @@ import dev.nokee.platform.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
+import org.gradle.api.Named;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -33,7 +34,7 @@ import java.util.concurrent.Callable;
 
 import static dev.nokee.platform.base.internal.TaskUtils.dependsOn;
 
-public abstract class JniLibraryInternal implements JniLibrary {
+public abstract class JniLibraryInternal implements JniLibrary, Named {
 	private final NamingScheme names;
 	private final DomainObjectSet<BinaryInternal> binaryCollection;
 	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
@@ -44,9 +45,11 @@ public abstract class JniLibraryInternal implements JniLibrary {
 	private AbstractJarBinary jarBinary;
 	private SharedLibraryBinaryInternal sharedLibraryBinary;
 	private final TaskProvider<Task> assembleTask;
+	private final String name;
 
 	@Inject
-	public JniLibraryInternal(TaskContainer tasks, NamingScheme names, DomainObjectSet<? super LanguageSourceSetInternal> sources, Configuration implementation, DefaultTargetMachine targetMachine, GroupId groupId, DomainObjectSet<BinaryInternal> parentBinaries) {
+	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<? super LanguageSourceSetInternal> sources, Configuration implementation, DefaultTargetMachine targetMachine, GroupId groupId, DomainObjectSet<BinaryInternal> parentBinaries) {
+		this.name = name;
 		this.names = names;
 		binaryCollection = getObjects().domainObjectSet(BinaryInternal.class);
 		this.sources = sources;
@@ -64,7 +67,7 @@ public abstract class JniLibraryInternal implements JniLibrary {
 		getNativeRuntimeFiles().from(nativeRuntime);
 		getResourcePath().convention(getProviders().provider(() -> names.getResourcePath(groupId)));
 
-		this.assembleTask = registerAssembleTaskIfAbsent(tasks);
+		this.assembleTask = registerAssembleTaskIfAbsent(getTasks());
 		assembleTask.configure(task -> {
 			task.dependsOn((Callable<List<TaskProvider<?>>>) () -> {
 				List<TaskProvider<?>> result = new ArrayList<>();
@@ -73,6 +76,12 @@ public abstract class JniLibraryInternal implements JniLibrary {
 				return result;
 			});
 		});
+	}
+
+	// CAUTION: Never rely on the name of the variant, it isn't exposed on the public type!
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	private TaskProvider<Task> registerAssembleTaskIfAbsent(TaskContainer tasks) {

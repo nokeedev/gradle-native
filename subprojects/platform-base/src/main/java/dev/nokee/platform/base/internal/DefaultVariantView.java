@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import org.gradle.api.Action;
+import org.gradle.api.DomainObjectCollection;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -12,10 +13,10 @@ import javax.inject.Inject;
 import java.util.Set;
 
 public abstract class DefaultVariantView<T extends Variant> implements VariantView<T> {
-	private final DomainObjectSet<T> delegate;
+	private final DomainObjectCollection<T> delegate;
 
 	@Inject
-	public DefaultVariantView(DomainObjectSet<T> delegate) {
+	public DefaultVariantView(DomainObjectCollection<T> delegate) {
 		this.delegate = delegate;
 	}
 

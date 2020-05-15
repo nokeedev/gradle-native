@@ -17,6 +17,7 @@ import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
 import org.gradle.api.GradleException;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -26,6 +27,7 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskContainer;
@@ -101,10 +103,11 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 
 			Optional<DefaultJvmJarBinary> jvmJarBinary = findJvmBinary(proj);
 			targetMachines.stream().filter(toolChainSelector::canBuild).forEach(targetMachine -> {
+				DefaultTargetMachine targetMachineInternal = (DefaultTargetMachine)targetMachine;
 
 				NamingScheme names = mainComponentNames;
-				names = names.withVariantDimension((DefaultOperatingSystemFamily)targetMachine.getOperatingSystemFamily(), targetMachinesToOperatingSystems(targetMachines));
-				names = names.withVariantDimension((DefaultMachineArchitecture)targetMachine.getArchitecture(), targetMachinesToArchitectures(targetMachines));
+				names = names.withVariantDimension(targetMachineInternal.getOperatingSystemFamily(), targetMachinesToOperatingSystems(targetMachines));
+				names = names.withVariantDimension(targetMachineInternal.getArchitecture(), targetMachinesToArchitectures(targetMachines));
 
 				// Build all language source set (TODO: It should happen inside the language plugins)
 				if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
@@ -121,30 +124,30 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				}
 
 				// Find toolchain capable of building C++
-				JniLibraryInternal library = extension.newVariant(names, targetMachine);
-				library.registerSharedLibraryBinary();
+				NamedDomainObjectProvider<JniLibraryInternal> library = extension.registerVariant(names, targetMachineInternal, it -> {
+					it.registerSharedLibraryBinary();
 
-				if (jvmJarBinary.isPresent() && targetMachines.size() == 1) {
-					library.addJniJarBinary(jvmJarBinary.get());
-				} else {
-					library.registerJniJarBinary();
-					jvmJarBinary.ifPresent(library::addJvmJarBinary);
+					if (jvmJarBinary.isPresent() && targetMachines.size() == 1) {
+						it.addJniJarBinary(jvmJarBinary.get());
+					} else {
+						it.registerJniJarBinary();
+						jvmJarBinary.ifPresent(it::addJvmJarBinary);
 //					if (proj.getPluginManager().hasPlugin("java")) {
 //						library.getAssembleTask().configure(task -> task.dependsOn(project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class)));
 //					} else {
 //						// FIXME: There is a gap here, if the project doesn't have any JVM plugin applied but specify multiple target machine what is expected?
 //						//   Only JNI Jar? or an empty JVM Jar and JNI Jar?... Hmmm....
 //					}
-				}
+					}
+				});
+
 
 
 				// Attach JNI Jar to assemble task
 				if (DefaultTargetMachine.isTargetingHost().test(targetMachine)) {
 					// Attach JNI Jar to assemble
-					project.getTasks().named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME, it -> it.dependsOn(library.getJar().getJarTask()));
+					project.getTasks().named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME, it -> it.dependsOn(library.map(l -> l.getJar().getJarTask())));
 				}
-
-				extension.getVariantCollection().add(library);
 			});
 		});
 

@@ -92,7 +92,7 @@ public class JniLibraryRules extends RuleSource {
 	public void configureJniLibrary(TaskContainer tasks, @Path("components.main") NativeLibrarySpec nativeLibrary, JniLibraryExtensionInternal extension) {
 		Collection<SharedLibraryBinarySpec> binaries = nativeLibrary.getBinaries().withType(SharedLibraryBinarySpec.class).values();
 		// TODO: Attach binary to the right variant
-		extension.getVariantCollection().forEach(library -> {
+		extension.getVariantCollection().configureEach(library -> {
 			SharedLibraryBinarySpec binary = binaries.stream().filter(it -> platformNameFor(library.getTargetMachine()).equals(it.getTargetPlatform().getName())).findFirst().orElseThrow(() -> new RuntimeException("No binary available"));
 			SharedLibraryBinaryInternal sharedLibrary = library.getSharedLibrary();
 			sharedLibrary.configureSoftwareModelBinary(binary);
