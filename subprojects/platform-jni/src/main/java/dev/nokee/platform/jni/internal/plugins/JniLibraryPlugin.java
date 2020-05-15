@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni.internal.plugins;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.language.nativebase.internal.ObjectSourceSetInternal;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
@@ -28,6 +29,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskContainer;
@@ -38,6 +40,7 @@ import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.language.nativeplatform.internal.toolchains.ToolChainSelector;
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
+import org.gradle.process.CommandLineArgumentProvider;
 import org.gradle.util.GradleVersion;
 
 import javax.inject.Inject;
@@ -46,11 +49,15 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 
 public abstract class JniLibraryPlugin implements Plugin<Project> {
 	private final ToolChainSelectorInternal toolChainSelector = getObjects().newInstance(ToolChainSelectorInternal.class);
+
+	@Inject
+	protected abstract ProviderFactory getProviders();
 
 	@Override
 	public void apply(Project project) {
@@ -270,13 +277,17 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		project.getConfigurations().getByName("implementation").extendsFrom(library.getJvmImplementationDependencies());
 
 		project.getTasks().named("test", Test.class, task -> {
-			List<FileCollection> files = library.getVariantCollection().stream().map(it -> it.getNativeRuntimeFiles()).collect(Collectors.toList());
+			Provider<List<FileCollection>> files = getProviders().provider(() -> library.getVariantCollection().stream().map(it -> it.getNativeRuntimeFiles()).collect(Collectors.toList()));
 			task.dependsOn(files);
 
 			// TODO: notify when no native library exists
-			// TODO: Use Jvm Argument Providers to lazily pass -Djava.library.path=...
-			String path = files.stream().flatMap(it -> it.getFiles().stream()).map(it -> it.getParentFile().getAbsolutePath()).collect(joining(File.pathSeparator));
-			task.systemProperty("java.library.path", path);
+			task.getJvmArgumentProviders().add(new CommandLineArgumentProvider() {
+				@Override
+				public Iterable<String> asArguments() {
+					String path = files.get().stream().flatMap(it -> it.getFiles().stream()).map(it -> it.getParentFile().getAbsolutePath()).collect(joining(File.pathSeparator));
+					return ImmutableList.of("-Djava.library.path=" + path);
+				}
+			});
 		});
 	}
 }
