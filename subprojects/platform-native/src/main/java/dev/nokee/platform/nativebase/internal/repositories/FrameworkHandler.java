@@ -2,14 +2,12 @@ package dev.nokee.platform.nativebase.internal.repositories;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
 import dev.nokee.platform.nativebase.internal.LibraryElements;
 import dev.nokee.platform.nativebase.internal.locators.XcRunLocator;
 import org.gradle.api.attributes.Usage;
 import org.gradle.nativeplatform.MachineArchitecture;
 import org.gradle.nativeplatform.OperatingSystemFamily;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -18,14 +16,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
-public class FrameworkHandler implements Handler {
+public class FrameworkHandler extends AbstractHandler {
 	private static final Logger LOGGER = Logger.getLogger(FrameworkHandler.class.getName());
 	public static final String CONTEXT_PATH = "/dev/nokee/framework/";
 	private static final Map<String, Object> CURRENT_PLATFORM_ATTRIBUTES = ImmutableMap.<String, Object>builder()
@@ -35,71 +32,63 @@ public class FrameworkHandler implements Handler {
 	private final XcRunLocator xcRunLocator;
 
 	public FrameworkHandler(XcRunLocator xcRunLocator) {
+		super(CONTEXT_PATH);
 		this.xcRunLocator = xcRunLocator;
 	}
 
 	@Override
-	public Optional<Response> handle(String target) {
-		LOGGER.info("Requesting a framework");
-		target = target.substring(CONTEXT_PATH.length());
-		Response result = resolve(target);
-		if (result != null) {
-			return Optional.of(result);
+	public boolean isKnownModule(String moduleName) {
+		if (getLocalPath(moduleName).exists()) {
+			return true;
 		}
-		return Optional.empty();
+		LOGGER.info(String.format("The requested framework '%s' wasn't found at in '%s/System/Library/Frameworks/'.", moduleName, xcRunLocator.findPath().getPath()));
+		return false;
 	}
 
-	@Nullable
-	public Response resolve(String path) {
-		int idx = path.indexOf('/');
-		String frameworkName = path.substring(0, idx);
-		path = path.substring(idx + 1);
-
-		idx = path.indexOf('/');
-		if (idx == -1) {
-			if (getLocalPath(frameworkName).exists()) {
-				// TODO: Use `xcodebuild -showsdks` to list supported sdks
-				return new ListingResponse(singletonList(xcRunLocator.findVersion()));
-			} else {
-				return null;
-			}
-		}
-		String version = path.substring(0, idx);
+	@Override
+	public boolean isKnownVersion(String moduleName, String version) {
 		if (!xcRunLocator.findVersion().equals(version)) {
-			// TODO: List versions
-			LOGGER.info(String.format("The requested framework '%s' version '%s' doesn't match current SDK version '%s'.", frameworkName, version, xcRunLocator.findVersion()));
-			return null;
+			LOGGER.info(String.format("The requested framework '%s' version '%s' doesn't match current SDK version '%s'.", moduleName, version, xcRunLocator.findVersion()));
+			return false;
 		}
-
-		File localPath = getLocalPath(frameworkName);
-		if (!localPath.exists()) {
+		if (!getLocalPath(moduleName).exists()) {
 			// TODO: List frameworks?
-			LOGGER.info(String.format("The requested framework '%s' wasn't found at in '%s/System/Library/Frameworks/'.", frameworkName, xcRunLocator.findPath().getPath()));
-			return null;
+			LOGGER.info(String.format("The requested framework '%s' wasn't found at in '%s/System/Library/Frameworks/'.", moduleName, xcRunLocator.findPath().getPath()));
+			return false;
 		}
+		return true;
+	}
 
-		LOGGER.fine(() -> String.format("Searching for framework '%s' for version '%s'", frameworkName, version));
+	@Override
+	public List<String> findVersions(String moduleName) {
+		return singletonList(xcRunLocator.findVersion());
+	}
 
-		if (path.endsWith(".module")) {
-			return new StringResponse(getValue(frameworkName, version));
-		} else if (path.endsWith(".framework.localpath")) {
-			path = path.substring(path.lastIndexOf("/") + 1);
-			if (path.startsWith(frameworkName + ".framework")) {
-				return new StringResponse(localPath.getPath());
+	@Override
+	public GradleModuleMetadata getGradleModuleMetadata(String moduleName, String version) {
+		return getValue(moduleName, version);
+	}
+
+	@Override
+	public String handle(String moduleName, String version, String target) {
+		if (target.endsWith(".framework.localpath")) {
+			File localPath = getLocalPath(moduleName);
+			target = target.substring(target.lastIndexOf("/") + 1);
+			if (target.startsWith(moduleName + ".framework")) {
+				return localPath.getPath();
 			}
 			// Subframework
-			path = path.substring(0, path.lastIndexOf(".localpath"));
-			return new StringResponse(new File(localPath, "Frameworks/" + path).getPath());
+			target = target.substring(0, target.lastIndexOf(".localpath"));
+			return new File(localPath, "Frameworks/" + target).getPath();
 		}
 		return null;
 	}
-
 
 	File getLocalPath(String frameworkName) {
 		return new File(xcRunLocator.findPath(), "System/Library/Frameworks/" + frameworkName + ".framework");
 	}
 
-	String getValue(String frameworkName, String version) {
+	GradleModuleMetadata getValue(String frameworkName, String version) {
 		GradleModuleMetadata.Variant.File file = GradleModuleMetadata.Variant.File.ofLocalFile(getLocalPath(frameworkName));
 		ImmutableList.Builder<GradleModuleMetadata.Variant> l = ImmutableList.<GradleModuleMetadata.Variant>builder()
 			.add(compileVariant("compile", file, emptyList()))
@@ -113,7 +102,7 @@ public class FrameworkHandler implements Handler {
 		});
 
 		List<GradleModuleMetadata.Variant> v = l.build();
-		return new Gson().toJson(GradleModuleMetadata.of(GradleModuleMetadata.Component.of("dev.nokee.framework", frameworkName, version), v));
+		return GradleModuleMetadata.of(GradleModuleMetadata.Component.of("dev.nokee.framework", frameworkName, version), v);
 	}
 
 	List<GradleModuleMetadata.Variant.Capability> toCapabilities(String frameworkName, File subframework) {

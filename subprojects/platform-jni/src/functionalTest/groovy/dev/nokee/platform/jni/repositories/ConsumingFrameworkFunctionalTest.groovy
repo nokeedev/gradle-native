@@ -269,7 +269,7 @@ Searched in the following locations:
   - http://127.0.0.1:\\d+/dev/nokee/framework/Foundation/4.2/Foundation-4.2.module
 .+""", MULTILINE | DOTALL)))
 
-		failure.assertOutputContains("The requested framework 'Foundation' version '4.2' doesn't match current SDK version '10.15'.")
+		failure.assertOutputContains("The requested module 'Foundation' version '4.2' doesn't match current available versions '10.15'.")
 	}
 
 	def "can resolve framework search path"() {
