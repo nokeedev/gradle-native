@@ -158,6 +158,30 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			});
 		});
 
+		// Ensure the variants are resolved so all tasks are registered.
+		tasks.named("tasks", task -> {
+			task.dependsOn((Callable) () -> {
+				extension.getVariantCollection().iterator().next();
+				return emptyList();
+			});
+		});
+		// Ensure the variants are resolved so all configurations and dependencies are registered.
+		tasks.named("dependencies", task -> {
+			task.dependsOn((Callable) () -> {
+				extension.getVariantCollection().iterator().next();
+				return emptyList();
+			});
+		});
+		tasks.named("outgoingVariants", task -> {
+			task.dependsOn((Callable) () -> {
+				extension.getVariantCollection().iterator().next();
+				return emptyList();
+			});
+		});
+		// The previous trick doesn't work for dependencyInsight task and vice-versa.
+		project.getConfigurations().addRule("Java Native Interface (JNI) variants are resolved only when needed.", it -> {
+			extension.getVariantCollection().iterator().next();
+		});
 
 		// Warn if component is cannot build on this machine
 		tasks.named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME, task -> {
