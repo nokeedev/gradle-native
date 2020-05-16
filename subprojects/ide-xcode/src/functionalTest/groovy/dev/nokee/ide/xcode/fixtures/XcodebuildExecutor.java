@@ -77,7 +77,6 @@ public class XcodebuildExecutor {
 	}
 
 	public ExecOutput executeAndExpectFailure() {
-		System.out.println(args);
 		ExecOutput result = findXcodeBuild().execWithFailure(args, buildEnvironment(testDirectory));
 		System.out.println(result.getOut());
 		System.out.println(result.getError());

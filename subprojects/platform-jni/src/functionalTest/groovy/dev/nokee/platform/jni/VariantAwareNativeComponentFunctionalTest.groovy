@@ -52,7 +52,7 @@ class VariantAwareNativeComponentFunctionalTest extends AbstractInstalledToolCha
 			}
 
             gradle.buildFinished {
-                assert configuredVariants.size() == 1
+                assert configuredVariants.size() == 3
             }
 		'''
 
@@ -60,7 +60,9 @@ class VariantAwareNativeComponentFunctionalTest extends AbstractInstalledToolCha
 		succeeds('tasks')
 		result.assertOutputContains("""Custom tasks
 ------------
-custom${hostVariantName.capitalize()} - Custom task for variant '${hostVariantName}'.
+customLinux${currentArchitecture.capitalize()} - Custom task for variant 'linux${currentArchitecture.capitalize()}'.
+customMacos${currentArchitecture.capitalize()} - Custom task for variant 'macos${currentArchitecture.capitalize()}'.
+customWindows${currentArchitecture.capitalize()} - Custom task for variant 'windows${currentArchitecture.capitalize()}'.
 """)
 	}
 
@@ -82,13 +84,20 @@ custom${hostVariantName.capitalize()} - Custom task for variant '${hostVariantNa
 			}
 
             gradle.buildFinished {
-                assert configuredVariants.size() == 1
+                assert configuredVariants.size() == 3
             }
 		'''
 
 		expect:
 		succeeds('dependencies')
-		result.assertOutputContains("""custom${hostVariantName.capitalize()} - Custom configuration for variant '${hostVariantName}'.
+		result.assertOutputContains("""
+customLinux${currentArchitecture.capitalize()} - Custom configuration for variant 'linux${currentArchitecture.capitalize()}'.
+No dependencies
+
+customMacos${currentArchitecture.capitalize()} - Custom configuration for variant 'macos${currentArchitecture.capitalize()}'.
+No dependencies
+
+customWindows${currentArchitecture.capitalize()} - Custom configuration for variant 'windows${currentArchitecture.capitalize()}'.
 No dependencies
 """)
 	}
@@ -114,7 +123,7 @@ No dependencies
 			}
 
             gradle.buildFinished {
-                assert configuredVariants.size() == 1
+                assert configuredVariants.size() == 3
             }
 		'''
 
@@ -122,12 +131,28 @@ No dependencies
 		succeeds('outgoingVariants')
 		result.assertOutputContains("""
 --------------------------------------------------
-Variant custom${hostVariantName.capitalize()}Elements
+Variant customLinux${currentArchitecture.capitalize()}Elements
 --------------------------------------------------
-Description = Custom configuration for variant '${hostVariantName}'.
+Description = Custom configuration for variant 'linux${currentArchitecture.capitalize()}'.
 
 Artifacts
-    - build/${hostVariantName}.potato (artifactType = potato)
+    - build/linux${currentArchitecture.capitalize()}.potato (artifactType = potato)
+
+--------------------------------------------------
+Variant customMacos${currentArchitecture.capitalize()}Elements
+--------------------------------------------------
+Description = Custom configuration for variant 'macos${currentArchitecture.capitalize()}'.
+
+Artifacts
+    - build/macos${currentArchitecture.capitalize()}.potato (artifactType = potato)
+
+--------------------------------------------------
+Variant customWindows${currentArchitecture.capitalize()}Elements
+--------------------------------------------------
+Description = Custom configuration for variant 'windows${currentArchitecture.capitalize()}'.
+
+Artifacts
+    - build/windows${currentArchitecture.capitalize()}.potato (artifactType = potato)
 """)
 	}
 
@@ -156,7 +181,7 @@ Artifacts
 			}
 
             gradle.buildFinished {
-                assert configuredVariants.size() == 1
+                assert configuredVariants.size() == 3
             }
 		'''
 
@@ -185,7 +210,7 @@ dev.nokee:platformJni:0.3.0
 				id 'dev.nokee.jni-library'
 				id 'dev.nokee.cpp-language'
 			}
-		'''
+		''' << configureTargetMachines('machines.macOS', 'machines.windows', 'machines.linux')
 		settingsFile << "rootProject.name = 'jni-greeter'"
 	}
 
@@ -193,7 +218,19 @@ dev.nokee:platformJni:0.3.0
 		return new JavaJniCppGreeterLib('jni-greeter')
 	}
 
+	protected String getComponentUnderTestDsl() {
+		return 'library'
+	}
+
 	protected String getHostVariantName() {
 		return "${currentOsFamilyName}${currentArchitecture.capitalize()}"
+	}
+
+	protected configureTargetMachines(String... targetMachines) {
+		return """
+            ${componentUnderTestDsl} {
+                targetMachines = [${targetMachines.join(",")}]
+            }
+        """
 	}
 }

@@ -179,4 +179,38 @@ abstract class AbstractJniLibraryFunctionalTest extends AbstractInstalledToolCha
 		expect:
 		succeeds('verify')
 	}
+
+	def "resolve variants when all the binaries are queried"() {
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+		buildFile << """
+			import ${JarBinary.canonicalName}
+			import ${JniJarBinary.canonicalName}
+			import ${JvmJarBinary.canonicalName}
+			import ${SharedLibraryBinary.canonicalName}
+
+			def configuredVariants = []
+			library {
+				variants.configureEach { variant ->
+					configuredVariants << variant
+				}
+			}
+
+			tasks.register('verify') {
+				doLast {
+					def allBinaries = library.binaries.elements
+					assert allBinaries.get().size() == 2
+					assert allBinaries.get().count { it instanceof ${JarBinary.simpleName} } == 1
+					assert allBinaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 0
+					assert allBinaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
+					assert allBinaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 1
+
+					assert configuredVariants.size() == 1
+				}
+			}
+		"""
+
+		expect:
+		succeeds('verify')
+	}
 }

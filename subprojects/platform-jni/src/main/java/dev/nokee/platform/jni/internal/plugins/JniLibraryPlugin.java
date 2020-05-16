@@ -17,11 +17,9 @@ import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
-import org.gradle.api.GradleException;
-import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import org.gradle.api.*;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.FileCollection;
@@ -59,6 +57,12 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 	@Inject
 	protected abstract ProviderFactory getProviders();
 
+	@Inject
+	protected abstract TaskContainer getTasks();
+
+	@Inject
+	protected abstract ConfigurationContainer getConfigurations();
+
 	@Override
 	public void apply(Project project) {
 		TaskContainer tasks = project.getTasks();
@@ -78,25 +82,6 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			project.getPluginManager().apply(DarwinFrameworkResolutionSupportPlugin.class);
 		});
 
-		// Include native runtime files inside JNI jar
-		extension.getVariantCollection().configureEach(library -> {
-			library.getJar().getJarTask().configure(task -> {
-				task.from(library.getNativeRuntimeFiles(), spec -> {
-					// Don't resolve the resourcePath now as the JVM Kotlin plugin (as of 1.3.72) was resolving the `jar` task early.
-					spec.into(library.getResourcePath());
-				});
-			});
-		});
-
-		// Attach JNI Jar to runtimeElements
-		extension.getVariantCollection().configureEach(library -> {
-			// TODO: Maybe go through the source set instead
-			// TODO: Expose Jar on runtimeElements but the directory where the shared library is located
-			if (extension.getTargetMachines().get().size() > 1 || !project.getPluginManager().hasPlugin("java")) {
-				project.getConfigurations().getByName("runtimeElements").getOutgoing().artifact(library.getJar().getArchiveFile());
-			}
-		});
-
 		// Names
 		NamingSchemeFactory namingSchemeFactory = new NamingSchemeFactory(project.getName());
 		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent();
@@ -109,12 +94,14 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			assertTargetMachinesAreKnown(targetMachines);
 
 			Optional<DefaultJvmJarBinary> jvmJarBinary = findJvmBinary(proj);
-			targetMachines.stream().filter(toolChainSelector::canBuild).forEach(targetMachine -> {
+			targetMachines.stream().forEach(targetMachine -> {
 				DefaultTargetMachine targetMachineInternal = (DefaultTargetMachine)targetMachine;
 
-				NamingScheme names = mainComponentNames;
-				names = names.withVariantDimension(targetMachineInternal.getOperatingSystemFamily(), targetMachinesToOperatingSystems(targetMachines));
-				names = names.withVariantDimension(targetMachineInternal.getArchitecture(), targetMachinesToArchitectures(targetMachines));
+				NamingScheme namingScheme = mainComponentNames;
+				namingScheme = namingScheme.withVariantDimension(targetMachineInternal.getOperatingSystemFamily(), targetMachinesToOperatingSystems(targetMachines));
+				namingScheme = namingScheme.withVariantDimension(targetMachineInternal.getArchitecture(), targetMachinesToArchitectures(targetMachines));
+
+				final NamingScheme names = namingScheme;
 
 				// Build all language source set (TODO: It should happen inside the language plugins)
 				if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
@@ -131,7 +118,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				}
 
 				// Find toolchain capable of building C++
-				NamedDomainObjectProvider<JniLibraryInternal> library = extension.registerVariant(names, targetMachineInternal, it -> {
+				final NamedDomainObjectProvider<JniLibraryInternal> library = extension.registerVariant(names, targetMachineInternal, it -> {
 					it.registerSharedLibraryBinary();
 
 					if (jvmJarBinary.isPresent() && targetMachines.size() == 1) {
@@ -148,6 +135,39 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 					}
 				});
 
+				// Include native runtime files inside JNI jar
+				if (targetMachines.size() == 1) {
+					if (project.getPluginManager().hasPlugin("java")) {
+						getTasks().named("jar", Jar.class, configureJarTaskUsing(library));
+
+						// NOTE: We don't need to attach the JNI JAR to runtimeElements as the `java` plugin take cares of this.
+					} else {
+						TaskProvider<Jar> jarTask = getTasks().register("jar", Jar.class, configureJarTaskUsing(library));
+
+						// Attach JNI Jar to runtimeElements
+						// TODO: We could set the classes directory as secondary variant.
+						// TODO: We could maybe set the shared library directory as secondary variant.
+						//  However, the shared library would requires the resource path to be taken into consideration...
+						getConfigurations().named("runtimeElements", it -> it.getOutgoing().artifact(jarTask.flatMap(Jar::getArchiveFile)));
+					}
+				} else {
+					TaskProvider<Jar> jarTask = getTasks().register(names.getTaskName("jar"), Jar.class, task -> {
+						configureJarTaskUsing(library).execute(task);
+						task.getArchiveBaseName().set(names.getBaseName().withKababDimensions());
+					});
+
+					// Attach JNI Jar to runtimeElements
+					// TODO: only for the buildable elements? For a single variant, we attach the JNI binaries (see above)...
+					//  for multiple one, it's a bit convoluted.
+					//  If a buildable variant is available, we can attach that one and everything will be ketchup.
+					//  However, if all variants are unbuildable, we should still be alright as the consumer will still crash, but because of not found... :-(
+					//  We should probably attach at least one of the unbuildable variant to give a better error message.
+					if (toolChainSelector.canBuild(targetMachine)) {
+						// TODO: We could maybe set the shared library directory as secondary variant.
+						//  However, the shared library would requires the resource path to be taken into consideration...
+						getConfigurations().named("runtimeElements", it -> it.getOutgoing().artifact(jarTask.flatMap(Jar::getArchiveFile)));
+					}
+				}
 
 
 				// Attach JNI Jar to assemble task
@@ -161,6 +181,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		// Ensure the variants are resolved so all tasks are registered.
 		tasks.named("tasks", task -> {
 			task.dependsOn((Callable) () -> {
+				// TODO: Account for no variant, is that even possible?
 				extension.getVariantCollection().iterator().next();
 				return emptyList();
 			});
@@ -168,19 +189,25 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		// Ensure the variants are resolved so all configurations and dependencies are registered.
 		tasks.named("dependencies", task -> {
 			task.dependsOn((Callable) () -> {
+				// TODO: Account for no variant, is that even possible?
 				extension.getVariantCollection().iterator().next();
 				return emptyList();
 			});
 		});
 		tasks.named("outgoingVariants", task -> {
 			task.dependsOn((Callable) () -> {
+				// TODO: Account for no variant, is that even possible?
 				extension.getVariantCollection().iterator().next();
 				return emptyList();
 			});
 		});
-		// The previous trick doesn't work for dependencyInsight task and vice-versa.
-		project.getConfigurations().addRule("Java Native Interface (JNI) variants are resolved only when needed.", it -> {
-			extension.getVariantCollection().iterator().next();
+		// Differ this rules until after the project is evaluated to avoid interfering with other plugins
+		project.afterEvaluate(proj -> {
+			// The previous trick doesn't work for dependencyInsight task and vice-versa.
+			project.getConfigurations().addRule("Java Native Interface (JNI) variants are resolved only when needed.", it -> {
+				// TODO: Account for no variant, is that even possible?
+				extension.getVariantCollection().iterator().next();
+			});
 		});
 
 		// Warn if component is cannot build on this machine
@@ -193,6 +220,15 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				return Collections.emptyList();
 			});
 		});
+	}
+
+	private Action<Jar> configureJarTaskUsing(Provider<JniLibraryInternal> library) {
+		return task -> {
+			task.from(library.map(JniLibraryInternal::getNativeRuntimeFiles), spec -> {
+				// Don't resolve the resourcePath now as the JVM Kotlin plugin (as of 1.3.72) was resolving the `jar` task early.
+				spec.into(library.map(JniLibraryInternal::getResourcePath));
+			});
+		};
 	}
 
 	private Optional<DefaultJvmJarBinary> findJvmBinary(Project project) {

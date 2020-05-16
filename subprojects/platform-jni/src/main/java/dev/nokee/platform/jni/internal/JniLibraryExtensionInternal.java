@@ -16,7 +16,6 @@ import org.gradle.api.*;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.internal.Cast;
@@ -24,7 +23,6 @@ import org.gradle.internal.Cast;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 public abstract class JniLibraryExtensionInternal implements JniLibraryExtension {
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
@@ -75,7 +73,7 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	}
 
 	public BinaryView<Binary> getBinaries() {
-		return Cast.uncheckedCast(getObjects().newInstance(DefaultBinaryView.class, binaryCollection));
+		return Cast.uncheckedCast(getObjects().newInstance(VariantResolvingBinaryView.class, binaryCollection, variantCollection));
 	}
 
 	public VariantView<JniLibrary> getVariants() {
@@ -104,6 +102,19 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 		action.execute(dependencies);
 	}
 
-	@Override
-	public abstract SetProperty<TargetMachine> getTargetMachines();
+	public static abstract class VariantResolvingBinaryView extends DefaultBinaryView<Binary> {
+		private final DomainObjectCollection<JniLibraryInternal> variants;
+
+		@Inject
+		public VariantResolvingBinaryView(DomainObjectSet<Binary> delegate, DomainObjectCollection<JniLibraryInternal> variants) {
+			super(delegate);
+			this.variants = variants;
+		}
+
+		@Override
+		protected void doResolve() {
+			// TODO: Account for no variant, is that even possible?
+			variants.iterator().next();
+		}
+	}
 }

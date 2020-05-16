@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni.internal.plugins;
 
+import dev.nokee.platform.base.internal.BinaryInternal;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.JniLibraryExtensionInternal;
 import dev.nokee.platform.nativebase.internal.NativePlatformFactory;
@@ -59,6 +60,9 @@ public class JniLibraryRules extends RuleSource {
 		ToolChainSelectorInternal toolChainSelector = ((Project)projectIdentifier).getObjects().newInstance(ToolChainSelectorInternal.class);
 		extension.getTargetMachines().get().stream().forEach(targetMachine -> {
 			library.targetPlatform(platformNameFor(targetMachine));
+
+			// Detach unbuildable variant from the lifecycle tasks
+			library.getBinaries().all(it -> ((BinarySpecInternal)it).setBuildable(toolChainSelector.canBuild(targetMachine)));
 		});
 	}
 

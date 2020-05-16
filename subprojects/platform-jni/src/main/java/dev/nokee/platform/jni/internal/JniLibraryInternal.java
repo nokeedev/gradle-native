@@ -122,9 +122,7 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 	}
 
 	public void registerJniJarBinary() {
-		TaskProvider<Jar> jarTask = getTasks().register(names.getTaskName("jar"), Jar.class, task -> {
-			task.getArchiveBaseName().set(names.getBaseName().withKababDimensions());
-		});
+		TaskProvider<Jar> jarTask = getTasks().named(names.getTaskName("jar"), Jar.class);
 		addJniJarBinary(getObjects().newInstance(DefaultJniJarBinary.class, jarTask));
 	}
 

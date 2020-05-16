@@ -174,13 +174,18 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 
 		when:
 		succeeds(':jarX86-64')
-
 		then:
 		result.assertTasksExecutedAndNotSkipped(':cpp-library:compileDebugX86-64Cpp', ':cpp-library:linkDebugX86-64',
 			":compileMain${currentOsFamilyName.capitalize()}x86-64SharedLibraryMainCpp", ":linkMain${currentOsFamilyName.capitalize()}x86-64SharedLibrary",
 			':compileJava', ':jarX86-64')
-	}
+		jar('build/libs/jni-greeter-x86-64.jar').hasDescendants(sharedLibraryName('x86-64/cpp-library'), sharedLibraryName('x86-64/jni-greeter'))
 
+		when:
+		succeeds(':jar')
+		then:
+		result.assertTasksExecuted(':classes', ':processResources', ':compileJava', ':jar')
+		jar('build/libs/jni-greeter.jar').hasDescendants('com/example/greeter/NativeLoader.class', 'com/example/greeter/Greeter.class')
+	}
 
 	def "can query the binaries for multi-variant library"() {
 		makeSingleProject()
@@ -194,22 +199,81 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 
 			tasks.register('verify') {
 				doLast {
+					// All variants are created
 					def variants = library.variants.elements
-					assert variants.get().size() == 1
+					assert variants.get().size() == 3
 
-					def binaries = variants.get().first().binaries.elements
-					assert binaries.get().size() == 3
-					assert binaries.get().count { it instanceof ${JarBinary.simpleName} } == 2
-					assert binaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 1
-					assert binaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
-					assert binaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 1
+					// Each variants has the expected binaries
+					variants.get().each { variant ->
+						def binaries = variant.binaries.elements
+						assert binaries.get().size() == 3
+						assert binaries.get().count { it instanceof ${JarBinary.simpleName} } == 2
+						assert binaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 1
+						assert binaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
+						assert binaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 1
+					}
 
+					// All the binaries count, a shared library and JNI JAR for each variant and a single JVM JAR shared between all variants
 					def allBinaries = library.binaries.elements
-					assert allBinaries.get().size() == 3
-					assert allBinaries.get().count { it instanceof ${JarBinary.simpleName} } == 2
-					assert allBinaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 1
+					assert allBinaries.get().size() == 7
+					assert allBinaries.get().count { it instanceof ${JarBinary.simpleName} } == 4
+					assert allBinaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 3
 					assert allBinaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
-					assert allBinaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 1
+					assert allBinaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 3
+				}
+			}
+		"""
+
+		expect:
+		succeeds('verify')
+	}
+
+	def "can build the JVM JAR but not the JNI JAR when all variants are unbuildable"() {
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+		buildFile << configureToolChainSupport('foo', currentArchitecture)
+		buildFile << configureToolChainSupport('bar', currentArchitecture)
+		buildFile << configureTargetMachines('machines.os("foo")', 'machines.os("bar")')
+
+		when:
+		fails(':jarFoo')
+		then:
+		result.assertTasksExecutedAndNotSkipped(':compileJava', ':compileMainFoox86-64SharedLibraryMainCpp')
+
+		when:
+		succeeds(':jar')
+		then:
+		result.assertTasksExecuted(':classes', ':processResources', ':compileJava', ':jar')
+		jar('build/libs/jni-greeter.jar').hasDescendants('com/example/greeter/NativeLoader.class', 'com/example/greeter/Greeter.class')
+	}
+
+	def "resolve variants when all the binaries are queried"() {
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+		buildFile << configureTargetMachines('machines.macOS', 'machines.windows', 'machines.linux')
+		buildFile << """
+			import ${JarBinary.canonicalName}
+			import ${JniJarBinary.canonicalName}
+			import ${JvmJarBinary.canonicalName}
+			import ${SharedLibraryBinary.canonicalName}
+
+			def configuredVariants = []
+			library {
+				variants.configureEach { variant ->
+					configuredVariants << variant
+				}
+			}
+
+			tasks.register('verify') {
+				doLast {
+					def allBinaries = library.binaries.elements
+					assert allBinaries.get().size() == 7
+					assert allBinaries.get().count { it instanceof ${JarBinary.simpleName} } == 4
+					assert allBinaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 3
+					assert allBinaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
+					assert allBinaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 3
+
+					assert configuredVariants.size() == 3
 				}
 			}
 		"""

@@ -38,8 +38,13 @@ public abstract class DefaultBinaryView<T extends Binary> implements BinaryView<
 
 	@Override
 	public Provider<Set<? extends T>> getElements() {
-		return getProviders().provider(() -> ImmutableSet.copyOf(delegate));
+		return getProviders().provider(() -> {
+			doResolve();
+			return ImmutableSet.copyOf(delegate);
+		});
 	}
+
+	protected void doResolve() {}
 
 	@Inject
 	protected abstract ProviderFactory getProviders();
