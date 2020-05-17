@@ -62,7 +62,8 @@ public class JniLibraryRules extends RuleSource {
 			library.targetPlatform(platformNameFor(targetMachine));
 
 			// Detach unbuildable variant from the lifecycle tasks
-			library.getBinaries().all(it -> ((BinarySpecInternal)it).setBuildable(toolChainSelector.canBuild(targetMachine)));
+			library.getBinaries().withType(StaticLibraryBinarySpec.class).all(it -> ((BinarySpecInternal)it).setBuildable(false));
+			library.getBinaries().withType(SharedLibraryBinarySpec.class).all(it -> ((BinarySpecInternal)it).setBuildable(toolChainSelector.canBuild(targetMachine)));
 		});
 	}
 

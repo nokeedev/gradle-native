@@ -2,7 +2,15 @@ package dev.nokee.platform.jni
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AvailableToolChains
+import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
+import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.platform.jni.fixtures.JavaJniCGreeterLib
+import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
+import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
+import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCppGreeterLib
+import spock.lang.Requires
+import spock.util.environment.OperatingSystem
 
 abstract class AbstractSharedLibraryConfigurationFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "can define compiler flags from the model"() {
@@ -68,3 +76,115 @@ abstract class AbstractSharedLibraryConfigurationFunctionalTest extends Abstract
 
 	protected abstract SourceElement getComponentUnderTest();
 }
+
+class JavaCJniLibrarySharedLibraryConfigurationFunctionalTest extends AbstractSharedLibraryConfigurationFunctionalTest {
+	@Override
+	protected String getCompileTaskName() {
+		return "compileMainSharedLibraryMainC"
+	}
+
+	@Override
+	protected void makeSingleProject() {
+		settingsFile << "rootProject.name = 'jni-greeter'"
+		buildFile << '''
+			plugins {
+				id 'java'
+				id 'dev.nokee.jni-library'
+				id 'dev.nokee.c-language'
+			}
+		'''
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new JavaJniCGreeterLib('jni-greeter').withOptionalFeature()
+	}
+}
+
+class JavaCppJniLibrarySharedLibraryConfigurationFunctionalTest extends AbstractSharedLibraryConfigurationFunctionalTest {
+	@Override
+	protected String getCompileTaskName() {
+		return 'compileMainSharedLibraryMainCpp'
+	}
+
+	@Override
+	protected void makeSingleProject() {
+		settingsFile << "rootProject.name = 'jni-greeter'"
+		buildFile << '''
+            plugins {
+                id 'java'
+                id 'dev.nokee.jni-library'
+                id 'dev.nokee.cpp-language'
+            }
+        '''
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new JavaJniCppGreeterLib('jni-greeter').withOptionalFeature()
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class JavaObjectiveCJniLibrarySharedLibraryConfigurationFunctionalTest extends AbstractSharedLibraryConfigurationFunctionalTest {
+	@Override
+	protected String getCompileTaskName() {
+		return "compileMainSharedLibraryMainObjc"
+	}
+
+	@Override
+	protected void makeSingleProject() {
+		buildFile << '''
+			plugins {
+				id 'java'
+				id 'dev.nokee.jni-library'
+				id 'dev.nokee.objective-c-language'
+			}
+
+			library.variants.configureEach {
+				sharedLibrary.linkTask.configure {
+					linkerArgs.add('-lobjc')
+				}
+			}
+		'''
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new JavaJniObjectiveCGreeterLib().withOptionalFeature()
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class JavaObjectiveCppJniLibrarySharedLibraryConfigurationFunctionalTest extends AbstractSharedLibraryConfigurationFunctionalTest {
+	@Override
+	protected String getCompileTaskName() {
+		return "compileMainSharedLibraryMainObjcpp"
+	}
+
+	@Override
+	protected void makeSingleProject() {
+		settingsFile << "rootProject.name = 'jni-greeter'"
+		buildFile << '''
+			plugins {
+				id 'java'
+				id 'dev.nokee.jni-library'
+				id 'dev.nokee.objective-cpp-language'
+			}
+
+			library.variants.configureEach {
+				sharedLibrary.linkTask.configure {
+					linkerArgs.add('-lobjc')
+				}
+			}
+		'''
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new JavaJniObjectiveCppGreeterLib('jni-greeter').withOptionalFeature()
+	}
+}
+

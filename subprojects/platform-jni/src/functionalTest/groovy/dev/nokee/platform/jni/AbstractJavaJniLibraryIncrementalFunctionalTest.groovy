@@ -1,10 +1,18 @@
 package dev.nokee.platform.jni
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
+import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
+import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.platform.jni.fixtures.JavaJniCGreeterLib
+import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
+import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
+import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCppGreeterLib
 import org.gradle.nativeplatform.OperatingSystemFamily
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import spock.lang.Requires
+import spock.util.environment.OperatingSystem
 
 abstract class AbstractJavaJniLibraryIncrementalFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "recreate JAR when group change"() {
@@ -114,4 +122,96 @@ abstract class AbstractJavaJniLibraryIncrementalFunctionalTest extends AbstractI
 	protected abstract void makeSingleProject()
 
 	protected abstract SourceElement getComponentUnderTest()
+}
+
+class JavaCJniLibraryIncrementalFunctionalTest extends AbstractJavaJniLibraryIncrementalFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		buildFile << '''
+            plugins {
+                id 'java'
+                id 'dev.nokee.jni-library'
+                id 'dev.nokee.c-language'
+            }
+        '''
+		settingsFile << "rootProject.name = 'jni-greeter'"
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new JavaJniCGreeterLib('jni-greeter')
+	}
+}
+
+class JavaCppJniLibraryIncrementalFunctionalTest extends AbstractJavaJniLibraryIncrementalFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		buildFile << '''
+            plugins {
+                id 'java'
+                id 'dev.nokee.jni-library'
+                id 'dev.nokee.cpp-language'
+            }
+        '''
+		settingsFile << "rootProject.name = 'jni-greeter'"
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new JavaJniCppGreeterLib('jni-greeter')
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class JavaObjectiveCJniLibraryIncrementalFunctionalTest extends AbstractJavaJniLibraryIncrementalFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		buildFile << '''
+			plugins {
+				id 'java'
+				id 'dev.nokee.jni-library'
+				id 'dev.nokee.objective-c-language'
+			}
+
+			library.variants.configureEach {
+				sharedLibrary.linkTask.configure {
+					linkerArgs.add('-lobjc')
+				}
+			}
+		'''
+		settingsFile << "rootProject.name = 'jni-greeter'"
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new JavaJniObjectiveCGreeterLib('jni-greeter')
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class JavaObjectiveCppJniLibraryIncrementalFunctionalTest extends AbstractJavaJniLibraryIncrementalFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		buildFile << '''
+			plugins {
+				id 'java'
+				id 'dev.nokee.jni-library'
+				id 'dev.nokee.objective-cpp-language'
+			}
+
+			library.variants.configureEach {
+				sharedLibrary.linkTask.configure {
+					linkerArgs.add('-lobjc')
+				}
+			}
+		'''
+		settingsFile << "rootProject.name = 'jni-greeter'"
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new JavaJniObjectiveCppGreeterLib('jni-greeter')
+	}
 }

@@ -72,7 +72,7 @@ trait NativeLanguageTaskNames {
 			return withProject("compile${buildType}${variant}${languageTaskSuffix}")
 		}
 
-		private String getSoftwareModelCompile() {
+		String getSoftwareModelCompile() {
 			if (architecture == null && operatingSystemFamily != null) {
 				return withProject("compileMain${operatingSystemFamily.capitalize()}x86-64${binaryType.capitalize()}Main${softwareModelLanguageTaskSuffix}")
 			}
