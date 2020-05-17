@@ -1,6 +1,6 @@
 package dev.nokee.platform.jni.fixtures
 
-
+import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceFileElement
 import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
@@ -14,7 +14,7 @@ import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
 import static dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement.ofPackage
 
 class KotlinJniCppGreeterLib extends JniLibraryElement {
-	final SourceElement nativeBindings
+	final NativeSourceElement nativeBindings
 	final KotlinNativeGreeter jvmBindings
 	final JavaSourceElement jvmImplementation
 	final CppGreeter nativeImplementation
@@ -28,8 +28,8 @@ class KotlinJniCppGreeterLib extends JniLibraryElement {
 	}
 
 	@Override
-	SourceElement getNativeSources() {
-		return ofElements(nativeBindings, nativeImplementation);
+	NativeSourceElement getNativeSources() {
+		return ofNativeElements(nativeBindings, nativeImplementation);
 	}
 
 	KotlinJniCppGreeterLib(String projectName, String resourcePath = '') {
@@ -55,8 +55,8 @@ class KotlinJniCppGreeterLib extends JniLibraryElement {
 			}
 
 			@Override
-			SourceElement getNativeSources() {
-				return ofElements(nativeBindings, nativeImplementation)
+			NativeSourceElement getNativeSources() {
+				return ofNativeElements(nativeBindings, nativeImplementation)
 			}
 		}
 	}

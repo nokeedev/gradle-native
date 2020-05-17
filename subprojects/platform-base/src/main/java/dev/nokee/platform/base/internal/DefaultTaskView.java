@@ -5,14 +5,16 @@ import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class DefaultTaskView<T extends Task> implements TaskView<T> {
+public abstract class DefaultTaskView<T extends Task> implements TaskView<T>, TaskDependency {
 	private final List<TaskProvider<? extends T>> delegate;
 
 	@Inject
@@ -33,5 +35,10 @@ public abstract class DefaultTaskView<T extends Task> implements TaskView<T> {
 	@Override
 	public Provider<Set<? extends T>> getElements() {
 		return getProviders().provider(() -> delegate.stream().map(TaskProvider::get).collect(Collectors.toSet()));
+	}
+
+	@Override
+	public Set<? extends Task> getDependencies(@Nullable Task task) {
+		return delegate.stream().map(TaskProvider::get).collect(Collectors.toSet());
 	}
 }

@@ -37,7 +37,7 @@ import static dev.nokee.platform.base.internal.TaskUtils.dependsOn;
 public abstract class JniLibraryInternal implements JniLibrary, Named {
 	private final NamingScheme names;
 	private final DomainObjectSet<BinaryInternal> binaryCollection;
-	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
+	private final DomainObjectSet<LanguageSourceSetInternal> sources;
 	private final Configuration implementation;
 	private final DefaultTargetMachine targetMachine;
 	private final GroupId groupId;
@@ -48,14 +48,16 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 	private final String name;
 
 	@Inject
-	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<? super LanguageSourceSetInternal> sources, Configuration implementation, DefaultTargetMachine targetMachine, GroupId groupId, DomainObjectSet<BinaryInternal> parentBinaries) {
+	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine, GroupId groupId, DomainObjectSet<BinaryInternal> parentBinaries) {
 		this.name = name;
 		this.names = names;
 		binaryCollection = getObjects().domainObjectSet(BinaryInternal.class);
-		this.sources = sources;
+		this.sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
 		this.implementation = implementation;
 		this.targetMachine = targetMachine;
 		this.groupId = groupId;
+
+		parentSources.all(sources::add);
 
 		binaryCollection.configureEach( binary -> {
 			parentBinaries.add(binary);
@@ -82,6 +84,10 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
+		return sources;
 	}
 
 	private TaskProvider<Task> registerAssembleTaskIfAbsent(TaskContainer tasks) {

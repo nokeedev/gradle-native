@@ -1,6 +1,7 @@
 package dev.nokee.platform.jni.fixtures
 
 import dev.gradleplugins.test.fixtures.file.TestFile
+import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement
 import dev.nokee.platform.jni.fixtures.elements.CppGreeter
@@ -25,8 +26,8 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 	}
 
 	@Override
-	SourceElement getNativeSources() {
-		return ofElements(nativeBindings, nativeImplementation);
+	NativeSourceElement getNativeSources() {
+		return ofNativeElements(nativeBindings, nativeImplementation);
 	}
 
 	JavaJniCppGreeterLib(String projectName, String resourcePath = '') {
@@ -61,7 +62,7 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 			}
 
 			@Override
-			SourceElement getNativeSources() {
+			NativeSourceElement getNativeSources() {
 				return nativeBindings
 			}
 		}
@@ -75,8 +76,8 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 			}
 
 			@Override
-			SourceElement getNativeSources() {
-				return ofElements(nativeBindings, nativeImplementation)
+			NativeSourceElement getNativeSources() {
+				return ofNativeElements(nativeBindings, nativeImplementation)
 			}
 		}
 	}
@@ -89,7 +90,7 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 			}
 
 			@Override
-			SourceElement getNativeSources() {
+			NativeSourceElement getNativeSources() {
 				throw new UnsupportedOperationException()
 			}
 
@@ -111,8 +112,8 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 			}
 
 			@Override
-			SourceElement getNativeSources() {
-				return ofElements(nativeBindings, nativeImplementation.withOptionalFeature())
+			NativeSourceElement getNativeSources() {
+				return ofNativeElements(nativeBindings, nativeImplementation.withOptionalFeature())
 			}
 		}
 	}

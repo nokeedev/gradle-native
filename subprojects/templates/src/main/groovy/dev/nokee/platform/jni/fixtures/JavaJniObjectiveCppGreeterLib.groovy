@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni.fixtures
 
+import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
 import dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement
@@ -24,8 +25,8 @@ class JavaJniObjectiveCppGreeterLib extends JniLibraryElement {
 	}
 
 	@Override
-	SourceElement getNativeSources() {
-		return ofElements(nativeBindings, nativeImplementation);
+	NativeSourceElement getNativeSources() {
+		return ofNativeElements(nativeBindings, nativeImplementation);
 	}
 
 	JavaJniObjectiveCppGreeterLib(String projectName) {
@@ -49,7 +50,7 @@ class JavaJniObjectiveCppGreeterLib extends JniLibraryElement {
 			}
 
 			@Override
-			SourceElement getNativeSources() {
+			NativeSourceElement getNativeSources() {
 				return nativeBindings
 			}
 		}
@@ -63,8 +64,8 @@ class JavaJniObjectiveCppGreeterLib extends JniLibraryElement {
 			}
 
 			@Override
-			SourceElement getNativeSources() {
-				return ofElements(nativeBindings, nativeImplementation)
+			NativeSourceElement getNativeSources() {
+				return ofNativeElements(nativeBindings, nativeImplementation)
 			}
 		}
 	}
@@ -77,8 +78,8 @@ class JavaJniObjectiveCppGreeterLib extends JniLibraryElement {
 			}
 
 			@Override
-			SourceElement getNativeSources() {
-				return ofElements(nativeBindings, nativeImplementation.withOptionalFeature())
+			NativeSourceElement getNativeSources() {
+				return ofNativeElements(nativeBindings, nativeImplementation.withOptionalFeature())
 			}
 		}
 	}

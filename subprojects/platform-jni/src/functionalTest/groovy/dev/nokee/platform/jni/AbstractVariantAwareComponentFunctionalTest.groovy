@@ -1,10 +1,10 @@
 package dev.nokee.platform.jni
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
+import dev.nokee.platform.jni.fixtures.*
+import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
 
-class VariantAwareNativeComponentFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
+abstract class AbstractVariantAwareComponentFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "do not realize variants for unrelated tasks"(task) {
 		given:
 		makeSingleProject()
@@ -203,20 +203,9 @@ dev.nokee:platformJni:0.3.0
 \\--- custom${hostVariantName.capitalize()}""")
 	}
 
-	protected void makeSingleProject() {
-		buildFile << '''
-			plugins {
-				id 'java'
-				id 'dev.nokee.jni-library'
-				id 'dev.nokee.cpp-language'
-			}
-		''' << configureTargetMachines('machines.macOS', 'machines.windows', 'machines.linux')
-		settingsFile << "rootProject.name = 'jni-greeter'"
-	}
+	protected abstract void makeSingleProject()
 
-	protected SourceElement getComponentUnderTest() {
-		return new JavaJniCppGreeterLib('jni-greeter')
-	}
+	protected abstract JniLibraryElement getComponentUnderTest()
 
 	protected String getComponentUnderTestDsl() {
 		return 'library'
@@ -232,5 +221,131 @@ dev.nokee:platformJni:0.3.0
                 targetMachines = [${targetMachines.join(",")}]
             }
         """
+	}
+}
+
+class VariantAwareComponentJavaCJniLibraryFunctionalTest extends AbstractVariantAwareComponentFunctionalTest {
+	protected void makeSingleProject() {
+		buildFile << '''
+			plugins {
+				id 'java'
+				id 'dev.nokee.jni-library'
+				id 'dev.nokee.c-language'
+			}
+		'''
+		buildFile << configureTargetMachines('machines.macOS', 'machines.windows', 'machines.linux')
+		settingsFile << "rootProject.name = 'jni-greeter'"
+	}
+
+	protected JniLibraryElement getComponentUnderTest() {
+		return new JavaJniCGreeterLib('jni-greeter')
+	}
+}
+
+class VariantAwareComponentJavaCppJniLibraryFunctionalTest extends AbstractVariantAwareComponentFunctionalTest {
+	protected void makeSingleProject() {
+		buildFile << '''
+			plugins {
+				id 'java'
+				id 'dev.nokee.jni-library'
+				id 'dev.nokee.cpp-language'
+			}
+		'''
+		buildFile << configureTargetMachines('machines.macOS', 'machines.windows', 'machines.linux')
+		settingsFile << "rootProject.name = 'jni-greeter'"
+	}
+
+	protected JniLibraryElement getComponentUnderTest() {
+		return new JavaJniCppGreeterLib('jni-greeter')
+	}
+}
+
+class VariantAwareComponentJavaObjectiveCJniLibraryFunctionalTest extends AbstractVariantAwareComponentFunctionalTest {
+	protected void makeSingleProject() {
+		buildFile << '''
+			plugins {
+				id 'java'
+				id 'dev.nokee.jni-library'
+				id 'dev.nokee.objective-c-language'
+			}
+		'''
+		buildFile << configureTargetMachines('machines.macOS', 'machines.windows', 'machines.linux')
+		settingsFile << "rootProject.name = 'jni-greeter'"
+	}
+
+	protected JniLibraryElement getComponentUnderTest() {
+		return new JavaJniObjectiveCGreeterLib('jni-greeter')
+	}
+}
+
+class VariantAwareComponentJavaObjectiveCppJniLibraryFunctionalTest extends AbstractVariantAwareComponentFunctionalTest {
+	protected void makeSingleProject() {
+		buildFile << '''
+			plugins {
+				id 'java'
+				id 'dev.nokee.jni-library'
+				id 'dev.nokee.objective-cpp-language'
+			}
+		'''
+		buildFile << configureTargetMachines('machines.macOS', 'machines.windows', 'machines.linux')
+		settingsFile << "rootProject.name = 'jni-greeter'"
+	}
+
+	protected JniLibraryElement getComponentUnderTest() {
+		return new JavaJniObjectiveCppGreeterLib('jni-greeter')
+	}
+}
+
+class VariantAwareComponentKotlinCppJniLibraryFunctionalTest extends AbstractVariantAwareComponentFunctionalTest {
+	private static String getKotlinVersion() {
+		return '1.3.72'
+	}
+
+	protected void makeSingleProject() {
+		buildFile << """
+			plugins {
+				id 'org.jetbrains.kotlin.jvm'
+				id 'dev.nokee.jni-library'
+				id 'dev.nokee.cpp-language'
+			}
+
+			repositories {
+				mavenCentral()
+			}
+
+			dependencies {
+				implementation platform('org.jetbrains.kotlin:kotlin-bom:${kotlinVersion}')
+				implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+			}
+		"""
+		buildFile << configureTargetMachines('machines.macOS', 'machines.windows', 'machines.linux')
+		settingsFile << """
+			pluginManagement {
+				repositories {
+					gradlePluginPortal()
+					mavenCentral()
+				}
+
+				resolutionStrategy {
+					eachPlugin {
+						if (requested.id.id == 'org.jetbrains.kotlin.jvm') {
+							useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+						}
+					}
+				}
+			}
+		"""
+		settingsFile << '''
+			gradle.rootProject {
+				repositories {
+					mavenCentral()
+				}
+			}
+		'''
+		settingsFile << "rootProject.name = 'jni-greeter'"
+	}
+
+	protected JniLibraryElement getComponentUnderTest() {
+		return new KotlinJniCppGreeterLib('jni-greeter')
 	}
 }

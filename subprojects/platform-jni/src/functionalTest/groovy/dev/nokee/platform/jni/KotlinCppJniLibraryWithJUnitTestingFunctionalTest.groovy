@@ -45,13 +45,13 @@ class KotlinCppJniLibraryWithJUnitTestingFunctionalTest extends AbstractInstalle
 
 	protected void makeSingleProject() {
 		buildFile << """
-            plugins {
-                id 'org.jetbrains.kotlin.jvm'
-                id 'dev.nokee.jni-library'
-                id 'dev.nokee.cpp-language'
-            }
+			plugins {
+				id 'org.jetbrains.kotlin.jvm'
+				id 'dev.nokee.jni-library'
+				id 'dev.nokee.cpp-language'
+			}
 
-            repositories {
+			repositories {
 				mavenCentral()
 			}
 
@@ -59,7 +59,7 @@ class KotlinCppJniLibraryWithJUnitTestingFunctionalTest extends AbstractInstalle
 				implementation platform('org.jetbrains.kotlin:kotlin-bom:${kotlinVersion}')
 				implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 			}
-        """
+		"""
 		settingsFile << "rootProject.name = 'jni-greeter'"
 	}
 

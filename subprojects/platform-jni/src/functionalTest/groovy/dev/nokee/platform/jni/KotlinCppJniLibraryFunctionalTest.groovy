@@ -41,14 +41,14 @@ class KotlinCppJniLibraryFunctionalTest extends AbstractJniLibraryFunctionalTest
 
 	@Override
 	protected void makeSingleProject() {
-        buildFile << """
-            plugins {
-                id 'org.jetbrains.kotlin.jvm'
-                id 'dev.nokee.jni-library'
-                id 'dev.nokee.cpp-language'
-            }
+		buildFile << """
+			plugins {
+				id 'org.jetbrains.kotlin.jvm'
+				id 'dev.nokee.jni-library'
+				id 'dev.nokee.cpp-language'
+			}
 
-            repositories {
+			repositories {
 				mavenCentral()
 			}
 
@@ -56,14 +56,14 @@ class KotlinCppJniLibraryFunctionalTest extends AbstractJniLibraryFunctionalTest
 				implementation platform('org.jetbrains.kotlin:kotlin-bom:${kotlinVersion}')
 				implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 			}
-        """
+		"""
 		settingsFile << "rootProject.name = 'jni-greeter'"
 	}
 
 	@Override
 	KotlinJniCppGreeterLib getComponentUnderTest() {
-        return new KotlinJniCppGreeterLib('jni-greeter')
-    }
+		return new KotlinJniCppGreeterLib('jni-greeter')
+	}
 
 	@Override
 	protected String getJvmPluginId() {

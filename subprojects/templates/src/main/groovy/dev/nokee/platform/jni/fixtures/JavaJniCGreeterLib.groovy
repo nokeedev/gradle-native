@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni.fixtures
 
+import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.gradleplugins.test.fixtures.sources.c.CLibraryElement
 import dev.gradleplugins.test.fixtures.sources.c.CSourceElement
@@ -25,8 +26,8 @@ class JavaJniCGreeterLib extends JniLibraryElement {
 	}
 
 	@Override
-	SourceElement getNativeSources() {
-		return ofElements(nativeBindings, nativeImplementation);
+	NativeSourceElement getNativeSources() {
+		return ofNativeElements(nativeBindings, nativeImplementation);
 	}
 
 	JavaJniCGreeterLib(String projectName) {
@@ -50,7 +51,7 @@ class JavaJniCGreeterLib extends JniLibraryElement {
 			}
 
 			@Override
-			SourceElement getNativeSources() {
+			NativeSourceElement getNativeSources() {
 				return nativeBindings
 			}
 		}
@@ -64,8 +65,8 @@ class JavaJniCGreeterLib extends JniLibraryElement {
 			}
 
 			@Override
-			SourceElement getNativeSources() {
-				return ofElements(nativeBindings, nativeImplementation)
+			NativeSourceElement getNativeSources() {
+				return ofNativeElements(nativeBindings, nativeImplementation)
 			}
 		}
 	}
@@ -78,8 +79,8 @@ class JavaJniCGreeterLib extends JniLibraryElement {
 			}
 
 			@Override
-			SourceElement getNativeSources() {
-				return ofElements(nativeBindings, nativeImplementation.withOptionalFeature())
+			NativeSourceElement getNativeSources() {
+				return ofNativeElements(nativeBindings, nativeImplementation.withOptionalFeature())
 			}
 		}
 	}

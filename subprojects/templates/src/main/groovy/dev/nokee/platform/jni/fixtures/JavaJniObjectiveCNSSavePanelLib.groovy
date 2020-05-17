@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni.fixtures
 
+import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceFileElement
 import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
@@ -22,8 +23,8 @@ class JavaJniObjectiveCNSSavePanelLib extends JniLibraryElement {
 	}
 
 	@Override
-	SourceElement getNativeSources() {
-		return ofElements(nativeBindings);
+	NativeSourceElement getNativeSources() {
+		return ofNativeElements(nativeBindings);
 	}
 
 	JavaJniObjectiveCNSSavePanelLib(String projectName) {

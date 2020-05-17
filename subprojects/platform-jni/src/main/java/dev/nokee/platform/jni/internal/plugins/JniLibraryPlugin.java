@@ -1,9 +1,13 @@
 package dev.nokee.platform.jni.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.language.c.internal.tasks.CCompileTask;
+import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.language.nativebase.internal.ObjectSourceSetInternal;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
+import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
+import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.NamingSchemeFactory;
@@ -16,6 +20,7 @@ import dev.nokee.platform.nativebase.TargetMachine;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
+import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
 import org.gradle.api.*;
 import org.gradle.api.artifacts.Configuration;
@@ -103,22 +108,22 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 
 				final NamingScheme names = namingScheme;
 
-				// Build all language source set (TODO: It should happen inside the language plugins)
-				if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
-					extension.getSources().add(getObjects().newInstance(ObjectSourceSetInternal.class, tasks.register(names.getTaskName("compile", "cpp"), NativeSourceCompileTask.class), ObjectSourceSetInternal.LanguageType.CPP));
-				}
-				if (proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
-					extension.getSources().add(getObjects().newInstance(ObjectSourceSetInternal.class, tasks.register(names.getTaskName("compile", "c"), NativeSourceCompileTask.class), ObjectSourceSetInternal.LanguageType.C));
-				}
-				if (proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
-					extension.getSources().add(getObjects().newInstance(ObjectSourceSetInternal.class, tasks.register(names.getTaskName("compile", "objectiveCpp"), NativeSourceCompileTask.class), ObjectSourceSetInternal.LanguageType.OBJECTIVE_CPP));
-				}
-				if (proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-					extension.getSources().add(getObjects().newInstance(ObjectSourceSetInternal.class, tasks.register(names.getTaskName("compile", "objectiveC"), NativeSourceCompileTask.class), ObjectSourceSetInternal.LanguageType.OBJECTIVE_C));
-				}
-
 				// Find toolchain capable of building C++
 				final NamedDomainObjectProvider<JniLibraryInternal> library = extension.registerVariant(names, targetMachineInternal, it -> {
+					// Build all language source set
+					if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
+						it.getSources().add(getObjects().newInstance(ObjectSourceSetInternal.class, tasks.register(names.getTaskName("compile", "cpp"), NativeSourceCompileTask.class), ObjectSourceSetInternal.LanguageType.CPP));
+					}
+					if (proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
+						it.getSources().add(getObjects().newInstance(ObjectSourceSetInternal.class, tasks.register(names.getTaskName("compile", "c"), NativeSourceCompileTask.class), ObjectSourceSetInternal.LanguageType.C));
+					}
+					if (proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
+						it.getSources().add(getObjects().newInstance(ObjectSourceSetInternal.class, tasks.register(names.getTaskName("compile", "objcpp"), NativeSourceCompileTask.class), ObjectSourceSetInternal.LanguageType.OBJECTIVE_CPP));
+					}
+					if (proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
+						it.getSources().add(getObjects().newInstance(ObjectSourceSetInternal.class, tasks.register(names.getTaskName("compile", "objc"), NativeSourceCompileTask.class), ObjectSourceSetInternal.LanguageType.OBJECTIVE_C));
+					}
+
 					it.registerSharedLibraryBinary();
 
 					if (jvmJarBinary.isPresent() && targetMachines.size() == 1) {
@@ -133,6 +138,18 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 //						//   Only JNI Jar? or an empty JVM Jar and JNI Jar?... Hmmm....
 //					}
 					}
+				});
+
+				getTasks().register(names.getTaskName("objects"), task -> {
+					task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
+					task.setDescription("Assembles main objects.");
+					task.dependsOn(library.map(it -> it.getSharedLibrary().getCompileTasks()));
+				});
+
+				getTasks().register(names.getTaskName("sharedLibrary"), task -> {
+					task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
+					task.setDescription("Assembles a shared library binary containing the main objects.");
+					task.dependsOn(library.map(it -> it.getSharedLibrary().getLinkTask()));
 				});
 
 				// Include native runtime files inside JNI jar
