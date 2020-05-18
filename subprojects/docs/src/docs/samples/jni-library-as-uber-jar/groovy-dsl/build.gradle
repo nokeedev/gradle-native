@@ -7,27 +7,47 @@ plugins {
 import dev.nokee.platform.jni.JarBinary
 import dev.nokee.platform.jni.JvmJarBinary
 import dev.nokee.platform.jni.JniJarBinary
+import dev.nokee.platform.nativebase.TargetMachine
 
 library {
 	targetMachines = [machines.macOS, machines.linux, machines.windows]
 }
 
 /**
- * Returns a Groovy closure that convert a list of {@link JniJarBinary} or {@link JvmJarBinary} to a list of FileTree
+ * Returns a Groovy closure that convert a {@link JniJarBinary} or a {@link JvmJarBinary} to a {@link FileTree}
  * representing the JAR content.
  *
  * @return a transformer of {@link JarBinary} instances to {@link FileTree} of their JAR content.
  */
-def asZipTrees() {
-	return { jarBinaries ->
-		jarBinaries*.jarTask*.map { zipTree(it.archiveFile) }
+def asZipTree() {
+	return { jarBinary ->
+		jarBinary.jarTask.map { zipTree(it.archiveFile) }
 	}
 }
 
+boolean isHostTargeted(TargetMachine targetMachine) {
+	String osName = System.getProperty('os.name').toLowerCase().replace(' ', '')
+	def osFamily = targetMachine.operatingSystemFamily
+	if (osFamily.windows && osName.contains('windows')) {
+		return true
+	} else if (osFamily.linux && osName.contains('linux')) {
+		return true
+	} else if (osFamily.macOs && osName.contains('macos')) {
+		return true
+	}
+	return false
+}
+
 tasks.register("uberJar", Jar) {
-	from(library.binaries.withType(JniJarBinary).elements.map(asZipTrees())) { // <1>
+	from(library.variants.flatMap { variant ->
+		def result = []
+		if (isHostTargeted(variant.targetMachine)) {
+			result << variant.binaries.withType(JniJarBinary).map(asZipTree())
+		}
+		return result
+	}) { // <1>
 		exclude 'META-INF/**'
 	}
-	from(library.binaries.withType(JvmJarBinary).elements.map(asZipTrees()))   // <2>
+	from(library.binaries.withType(JvmJarBinary).map(asZipTree()))   // <2>
 	archiveClassifier = "uber"
 }

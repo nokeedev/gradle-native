@@ -57,8 +57,8 @@ ExternalBuildToolExecution JniJar (in target 'JniJar' from project 'jni-greeter'
 > Task :compileJava
 > Task :processResources NO-SOURCE
 > Task :classes
-> Task :compileMainSharedLibraryMainObjc
-> Task :linkMainSharedLibrary
+> Task :compileObjectiveC
+> Task :link
 > Task :jar
 > Task :_xcode___jni-greeter_JniJar_Default
 
