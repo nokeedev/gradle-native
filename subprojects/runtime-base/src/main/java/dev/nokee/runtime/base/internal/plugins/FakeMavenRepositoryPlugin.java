@@ -15,24 +15,22 @@ public abstract class FakeMavenRepositoryPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		if (SystemUtils.IS_OS_MAC) {
-			Provider<NokeeServerService> service = project.getGradle().getSharedServices().registerIfAbsent(NOKEE_SERVER_SERVICE_NAME, NokeeServerService.class, it -> {
-				it.parameters(p -> p.getRouteHandlers().add(ToolRouteHandler.class.getCanonicalName()));
-			});
+		Provider<NokeeServerService> service = project.getGradle().getSharedServices().registerIfAbsent(NOKEE_SERVER_SERVICE_NAME, NokeeServerService.class, it -> {
+			it.parameters(p -> p.getRouteHandlers().add(ToolRouteHandler.class.getCanonicalName()));
+		});
 
-			project.getRepositories().maven(repo -> {
-				repo.setName(NOKEE_LOCAL_REPOSITORY_NAME);
-				// It is important to differ the setURL(Provider) as late as possible until the following regression is resolved:
-				//  https://github.com/gradle/gradle/issues/13152
-				//  NOTE: We can only remove the workaround once we drop support for the affected versions.
-				project.afterEvaluate(proj -> {
-					repo.setUrl(service.map(NokeeServerService::getUri));
-				});
-				repo.metadataSources(MavenArtifactRepository.MetadataSources::gradleMetadata);
-				repo.mavenContent(content -> {
-					content.includeGroup("dev.nokee.tool");
-				});
+		project.getRepositories().maven(repo -> {
+			repo.setName(NOKEE_LOCAL_REPOSITORY_NAME);
+			// It is important to differ the setURL(Provider) as late as possible until the following regression is resolved:
+			//  https://github.com/gradle/gradle/issues/13152
+			//  NOTE: We can only remove the workaround once we drop support for the affected versions.
+			project.afterEvaluate(proj -> {
+				repo.setUrl(service.map(NokeeServerService::getUri));
 			});
-		}
+			repo.metadataSources(MavenArtifactRepository.MetadataSources::gradleMetadata);
+			repo.mavenContent(content -> {
+				content.includeGroup("dev.nokee.tool");
+			});
+		});
 	}
 }
