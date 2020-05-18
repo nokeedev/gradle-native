@@ -33,7 +33,7 @@ public abstract class DefaultBinaryView<T extends Binary> implements BinaryView<
 
 	@Override
 	public <S extends T> BinaryView<S> withType(Class<S> type) {
-		return Cast.uncheckedCast(getObjects().newInstance(DefaultBinaryView.class, delegate.withType(type)));
+		return newInstance(delegate.withType(type));
 	}
 
 	@Override
@@ -45,6 +45,10 @@ public abstract class DefaultBinaryView<T extends Binary> implements BinaryView<
 	}
 
 	protected void doResolve() {}
+
+	protected <S extends T> DefaultBinaryView<S> newInstance(DomainObjectSet<S> elements) {
+		return Cast.uncheckedCast(getObjects().newInstance(DefaultBinaryView.class, elements));
+	}
 
 	@Inject
 	protected abstract ProviderFactory getProviders();

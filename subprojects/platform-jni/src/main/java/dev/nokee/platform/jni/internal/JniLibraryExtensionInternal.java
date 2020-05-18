@@ -116,5 +116,10 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 			// TODO: Account for no variant, is that even possible?
 			variants.iterator().next();
 		}
+
+		@Override
+		protected <S extends Binary> DefaultBinaryView<S> newInstance(DomainObjectSet<S> elements) {
+			return Cast.uncheckedCast(getObjects().newInstance(VariantResolvingBinaryView.class, elements, variants));
+		}
 	}
 }

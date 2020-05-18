@@ -282,6 +282,41 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 		succeeds('verify')
 	}
 
+	def "resolve variants when a subset of binaries are queried"() {
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+		buildFile << configureTargetMachines('machines.macOS', 'machines.windows', 'machines.linux')
+		buildFile << """
+			import ${JarBinary.canonicalName}
+			import ${JniJarBinary.canonicalName}
+			import ${JvmJarBinary.canonicalName}
+			import ${SharedLibraryBinary.canonicalName}
+
+			def configuredVariants = []
+			library {
+				variants.configureEach { variant ->
+					configuredVariants << variant
+				}
+			}
+
+			tasks.register('verify') {
+				doLast {
+					def allBinaries = library.binaries.withType(${JarBinary.simpleName}).elements
+					assert allBinaries.get().size() == 4
+					assert allBinaries.get().count { it instanceof ${JarBinary.simpleName} } == 4
+					assert allBinaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 3
+					assert allBinaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
+					assert allBinaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 0
+
+					assert configuredVariants.size() == 3
+				}
+			}
+		"""
+
+		expect:
+		succeeds('verify')
+	}
+
 	protected String configureProjectGroup(String groupId) {
 		return """
 			group = '${groupId}'
