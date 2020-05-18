@@ -1,8 +1,10 @@
 package dev.nokee.platform.base.internal;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.platform.base.TaskView;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
+import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskDependency;
@@ -35,6 +37,34 @@ public abstract class DefaultTaskView<T extends Task> implements TaskView<T>, Ta
 	@Override
 	public Provider<Set<? extends T>> getElements() {
 		return getProviders().provider(() -> delegate.stream().map(TaskProvider::get).collect(Collectors.toSet()));
+	}
+
+	@Override
+	public <S> Provider<Set<? extends S>> map(Transformer<? extends S, ? super T> mapper) {
+		return getElements().map(new Transformer<Set<? extends S>, Set<? extends T>>() {
+			@Override
+			public Set<? extends S> transform(Set<? extends T> elements) {
+				ImmutableSet.Builder<S> result = ImmutableSet.builder();
+				for (T element : elements) {
+					result.add(mapper.transform(element));
+				}
+				return result.build();
+			}
+		});
+	}
+
+	@Override
+	public <S> Provider<Set<? extends S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper) {
+		return getElements().map(new Transformer<Set<? extends S>, Set<? extends T>>() {
+			@Override
+			public Set<? extends S> transform(Set<? extends T> elements) {
+				ImmutableSet.Builder<S> result = ImmutableSet.builder();
+				for (T element : elements) {
+					result.addAll(mapper.transform(element));
+				}
+				return result.build();
+			}
+		});
 	}
 
 	@Override

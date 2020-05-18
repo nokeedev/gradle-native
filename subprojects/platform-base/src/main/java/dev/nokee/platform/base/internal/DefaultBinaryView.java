@@ -5,6 +5,7 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
+import org.gradle.api.Transformer;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -41,6 +42,34 @@ public abstract class DefaultBinaryView<T extends Binary> implements BinaryView<
 		return getProviders().provider(() -> {
 			doResolve();
 			return ImmutableSet.copyOf(delegate);
+		});
+	}
+
+	@Override
+	public <S> Provider<Set<? extends S>> map(Transformer<? extends S, ? super T> mapper) {
+		return getElements().map(new Transformer<Set<? extends S>, Set<? extends T>>() {
+			@Override
+			public Set<? extends S> transform(Set<? extends T> elements) {
+				ImmutableSet.Builder<S> result = ImmutableSet.builder();
+				for (T element : elements) {
+					result.add(mapper.transform(element));
+				}
+				return result.build();
+			}
+		});
+	}
+
+	@Override
+	public <S> Provider<Set<? extends S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper) {
+		return getElements().map(new Transformer<Set<? extends S>, Set<? extends T>>() {
+			@Override
+			public Set<? extends S> transform(Set<? extends T> elements) {
+				ImmutableSet.Builder<S> result = ImmutableSet.builder();
+				for (T element : elements) {
+					result.addAll(mapper.transform(element));
+				}
+				return result.build();
+			}
 		});
 	}
 

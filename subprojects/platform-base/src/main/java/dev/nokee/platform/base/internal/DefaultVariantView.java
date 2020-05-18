@@ -5,7 +5,7 @@ import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectCollection;
-import org.gradle.api.DomainObjectSet;
+import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 
@@ -30,10 +30,34 @@ public abstract class DefaultVariantView<T extends Variant> implements VariantVi
 		return getProviders().provider(() -> ImmutableSet.copyOf(delegate));
 	}
 
+	@Override
+	public <S> Provider<Set<? extends S>> map(Transformer<? extends S, ? super T> mapper) {
+		return getElements().map(new Transformer<Set<? extends S>, Set<? extends T>>() {
+			@Override
+			public Set<? extends S> transform(Set<? extends T> elements) {
+				ImmutableSet.Builder<S> result = ImmutableSet.builder();
+				for (T element : elements) {
+					result.add(mapper.transform(element));
+				}
+				return result.build();
+			}
+		});
+	}
+
+	@Override
+	public <S> Provider<Set<? extends S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper) {
+		return getElements().map(new Transformer<Set<? extends S>, Set<? extends T>>() {
+			@Override
+			public Set<? extends S> transform(Set<? extends T> elements) {
+				ImmutableSet.Builder<S> result = ImmutableSet.builder();
+				for (T element : elements) {
+					result.addAll(mapper.transform(element));
+				}
+				return result.build();
+			}
+		});
+	}
+
 	@Inject
 	protected abstract ProviderFactory getProviders();
-
-//	public static <T extends Variant> DefaultVariantView<T> of(DomainObjectSet<T> delegate) {
-//		return new DefaultVariantView<>(delegate);
-//	}
 }
