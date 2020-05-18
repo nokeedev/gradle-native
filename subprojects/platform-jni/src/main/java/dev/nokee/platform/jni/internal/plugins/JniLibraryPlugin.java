@@ -6,10 +6,8 @@ import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.language.c.internal.CSourceSet;
 import dev.nokee.language.c.internal.CSourceSetTransform;
-import dev.nokee.language.c.internal.UTTypeCSource;
 import dev.nokee.language.cpp.internal.CppSourceSet;
 import dev.nokee.language.cpp.internal.CppSourceSetTransform;
-import dev.nokee.language.cpp.internal.UTTypeCppSource;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetTransform;
@@ -196,6 +194,17 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 					task.setDescription("Assembles a shared library binary containing the main objects.");
 					task.dependsOn(library.map(it -> it.getSharedLibrary().getLinkTask()));
 				});
+
+				if (targetMachines.size() > 1) {
+					getTasks().register(names.getTaskName(LifecycleBasePlugin.ASSEMBLE_TASK_NAME), task -> {
+						task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
+						task.setDescription(String.format("Assembles the '%s' outputs of this project.", library.getName()));
+						task.dependsOn((Callable<Object>)() -> {
+							library.get(); // resolve the variant
+							return emptyList();
+						});
+					});
+				}
 
 				// Include native runtime files inside JNI jar
 				if (targetMachines.size() == 1) {

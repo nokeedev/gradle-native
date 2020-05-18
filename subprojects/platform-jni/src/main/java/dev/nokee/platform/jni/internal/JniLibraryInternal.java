@@ -74,7 +74,7 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 		getNativeRuntimeFiles().from(nativeRuntime);
 		getResourcePath().convention(getProviders().provider(() -> names.getResourcePath(groupId)));
 
-		this.assembleTask = registerAssembleTaskIfAbsent(getTasks());
+		this.assembleTask = getAssembleTask();
 		assembleTask.configure(task -> {
 			task.dependsOn((Callable<List<TaskProvider<?>>>) () -> {
 				List<TaskProvider<?>> result = new ArrayList<>();
@@ -93,14 +93,6 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 
 	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
 		return sources;
-	}
-
-	private TaskProvider<Task> registerAssembleTaskIfAbsent(TaskContainer tasks) {
-		String assembleTaskName = names.getTaskName("assemble");
-		if (assembleTaskName.equals("assemble")) {
-			return tasks.named(assembleTaskName);
-		}
-		return tasks.register(assembleTaskName);
 	}
 
 	@Inject
@@ -177,6 +169,6 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 	}
 
 	public TaskProvider<Task> getAssembleTask() {
-		return assembleTask;
+		return getTasks().named(names.getTaskName("assemble"));
 	}
 }
