@@ -10,28 +10,28 @@ digraph jniLibraryTaskGraph {
 	label = "C++ Language Plugin"
 	color = black
 
-	compileCpp [label=<compile<i>Variant</i>>]
+	compileCpp [label=<compile<i>Variant</i>Cpp>]
   }
 
   subgraph cluster_cLanguage {
 	label = "C Language Plugin"
 	color = black
 
-	compileC [label=<compile<i>Variant</i>>]
+	compileC [label=<compile<i>Variant</i>C>]
   }
 
   subgraph cluster_objectiveCLanguage {
 	label = "Objective-C Language Plugin"
 	color = black
 
-	compileObjC [label=<compile<i>Variant</i>>]
+	compileObjC [label=<compile<i>Variant</i>ObjectiveC>]
   }
 
   subgraph cluster_objectiveCppLanguage {
 	label = "Objective-C++ Language Plugin"
 	color = black
 
-	compileObjCpp [label=<compile<i>Variant</i>>]
+	compileObjCpp [label=<compile<i>Variant</i>ObjectiveCpp>]
   }
 
   subgraph cluster_javaLanguage {
