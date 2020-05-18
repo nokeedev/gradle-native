@@ -11,7 +11,7 @@ public interface WellBehavingTaskSpec {
 	 * @param path a relative path from {@link WellBehavingTaskSpec#getTestDirectory}
 	 * @return a {@link TestFile} instance of the specified path
 	 */
-	TestFile file(String path);
+	TestFile file(Object... path);
 
 	/**
 	 * @return the build file for the project declaring the task under test
