@@ -2,8 +2,7 @@ package dev.nokee.runtime.darwin.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import dev.nokee.core.exec.CachingProcessBuilderEngine;
-import dev.nokee.core.exec.CommandLineTool;
+import dev.nokee.core.exec.*;
 import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import dev.nokee.runtime.base.internal.repositories.AbstractRouteHandler;
 import dev.nokee.runtime.base.internal.repositories.GradleModuleMetadata;
@@ -34,7 +33,7 @@ public class FrameworkRouteHandler extends AbstractRouteHandler {
 		.put(MachineArchitecture.ARCHITECTURE_ATTRIBUTE.getName(), MachineArchitecture.X86_64)
 		.build();
 	private final ToolRepository toolRepository;
-	private final CachingProcessBuilderEngine engine = new CachingProcessBuilderEngine();
+	private final CommandLineToolExecutionEngine<CachingProcessBuilderEngine.Handle> engine = new CachingProcessBuilderEngine(LoggingEngine.wrap(new ProcessBuilderEngine()));
 
 	@Inject
 	public FrameworkRouteHandler(ToolRepository toolRepository) {

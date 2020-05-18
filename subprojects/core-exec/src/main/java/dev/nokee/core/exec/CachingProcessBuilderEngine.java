@@ -5,7 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 public class CachingProcessBuilderEngine implements CommandLineToolExecutionEngine<CachingProcessBuilderEngine.Handle> {
-	private final ProcessBuilderEngine delegate = new ProcessBuilderEngine();
+	private final CommandLineToolExecutionEngine<ProcessBuilderEngine.Handle> delegate;
 	private final LoadingCache<CommandLineToolInvocation, CommandLineToolExecutionResult> cache = CacheBuilder.newBuilder()
 		.concurrencyLevel(4)
 		.build(new CacheLoader<CommandLineToolInvocation, CommandLineToolExecutionResult>() {
@@ -14,6 +14,10 @@ public class CachingProcessBuilderEngine implements CommandLineToolExecutionEngi
 			return delegate.submit(key).waitFor().assertNormalExitValue();
 		}
 	});
+
+	public CachingProcessBuilderEngine(CommandLineToolExecutionEngine<ProcessBuilderEngine.Handle> delegate) {
+		this.delegate = delegate;
+	}
 
 	@Override
 	public Handle submit(CommandLineToolInvocation invocation) {
