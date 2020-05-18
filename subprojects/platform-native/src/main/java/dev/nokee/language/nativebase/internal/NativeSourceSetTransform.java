@@ -56,7 +56,7 @@ public abstract class NativeSourceSetTransform<T extends UTType> implements Sour
 			task.getObjectFileDir().convention(getLayout().getBuildDirectory().dir(names.getOutputDirectoryBase("objs") + "/main" + getLanguageName()));
 
 			// TODO: Select the right value based on the build type dimension, once modeled
-			task.setDebuggable(true);
+			task.setDebuggable(false);
 			task.setOptimized(false);
 
 			NativePlatformFactory nativePlatformFactory = new NativePlatformFactory();
