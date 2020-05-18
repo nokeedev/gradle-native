@@ -149,6 +149,9 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 						task.getTargetPlatform().finalizeValueOnRead();
 						task.getTargetPlatform().disallowChanges();
 
+						// Until we model the build type
+						task.getDebuggable().set(false);
+
 						task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(names.getOutputDirectoryBase("libs")));
 						task.getLinkedFile().convention(getLayout().getBuildDirectory().file(nativePlatform.getOperatingSystem().getInternalOs().getSharedLibraryName(names.getOutputDirectoryBase("libs") + "/" + project.getName())));
 
