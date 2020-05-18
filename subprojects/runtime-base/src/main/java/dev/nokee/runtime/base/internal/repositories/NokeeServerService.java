@@ -27,6 +27,8 @@ public abstract class NokeeServerService implements BuildService<NokeeServerServ
 		ToolRepository toolRepository = newToolRepository();
 		Map<String, RouteHandler> routeMapping = getParameters().getRouteHandlers().get().stream().map(it -> getObjects().newInstance(toClass(AbstractRouteHandler.class, it), toolRepository)).collect(Collectors.toMap(NokeeServerService::getContextPath, Function.identity()));
 
+		LOGGER.info(() -> String.format("Nokee server will handle %d routes:%n%s", routeMapping.size(), routeMapping.entrySet().stream().map(it -> " * Routing " + it.getKey() + " to " + it.getValue().getClass().getCanonicalName()).collect(Collectors.joining("\n"))));
+
 		server = new Server(0);
 		server.setHandler(new JettyEmbeddedHttpServer(routeMapping));
 		server.setStopAtShutdown(true);

@@ -22,7 +22,12 @@ public abstract class FakeMavenRepositoryPlugin implements Plugin<Project> {
 
 			project.getRepositories().maven(repo -> {
 				repo.setName(NOKEE_LOCAL_REPOSITORY_NAME);
-				repo.setUrl(service.map(NokeeServerService::getUri));
+				// It is important to differ the setURL(Provider) as late as possible until the following regression is resolved:
+				//  https://github.com/gradle/gradle/issues/13152
+				//  NOTE: We can only remove the workaround once we drop support for the affected versions.
+				project.afterEvaluate(proj -> {
+					repo.setUrl(service.map(NokeeServerService::getUri));
+				});
 				repo.metadataSources(MavenArtifactRepository.MetadataSources::gradleMetadata);
 				repo.mavenContent(content -> {
 					content.includeGroup("dev.nokee.tool");
