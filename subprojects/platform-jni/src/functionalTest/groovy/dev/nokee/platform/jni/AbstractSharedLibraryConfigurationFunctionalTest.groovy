@@ -69,7 +69,7 @@ abstract class AbstractSharedLibraryConfigurationFunctionalTest extends Abstract
 		if (toolchainUnderTest.family == AvailableToolChains.ToolFamily.VISUAL_CPP) {
 			expectedFlag = '/Wall'
 		}
-		linkerOptionsFor('linkMainSharedLibrary').options.text.contains(expectedFlag)
+		linkerOptionsFor('link').options.text.contains(expectedFlag)
 	}
 
 	protected abstract void makeSingleProject();
@@ -80,7 +80,7 @@ abstract class AbstractSharedLibraryConfigurationFunctionalTest extends Abstract
 class JavaCJniLibrarySharedLibraryConfigurationFunctionalTest extends AbstractSharedLibraryConfigurationFunctionalTest {
 	@Override
 	protected String getCompileTaskName() {
-		return "compileMainSharedLibraryMainC"
+		return "compileC"
 	}
 
 	@Override
@@ -104,7 +104,7 @@ class JavaCJniLibrarySharedLibraryConfigurationFunctionalTest extends AbstractSh
 class JavaCppJniLibrarySharedLibraryConfigurationFunctionalTest extends AbstractSharedLibraryConfigurationFunctionalTest {
 	@Override
 	protected String getCompileTaskName() {
-		return 'compileMainSharedLibraryMainCpp'
+		return 'compileCpp'
 	}
 
 	@Override
@@ -130,7 +130,7 @@ class JavaCppJniLibrarySharedLibraryConfigurationFunctionalTest extends Abstract
 class JavaObjectiveCJniLibrarySharedLibraryConfigurationFunctionalTest extends AbstractSharedLibraryConfigurationFunctionalTest {
 	@Override
 	protected String getCompileTaskName() {
-		return "compileMainSharedLibraryMainObjc"
+		return "compileObjectiveC"
 	}
 
 	@Override
@@ -161,7 +161,7 @@ class JavaObjectiveCJniLibrarySharedLibraryConfigurationFunctionalTest extends A
 class JavaObjectiveCppJniLibrarySharedLibraryConfigurationFunctionalTest extends AbstractSharedLibraryConfigurationFunctionalTest {
 	@Override
 	protected String getCompileTaskName() {
-		return "compileMainSharedLibraryMainObjcpp"
+		return "compileObjectiveCpp"
 	}
 
 	@Override

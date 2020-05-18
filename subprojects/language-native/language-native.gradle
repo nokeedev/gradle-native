@@ -12,6 +12,12 @@ repositories {
 dependencies {
 	implementation project(':platformBase')
 	implementation project(':platformNative')
+
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
+	testImplementation 'org.spockframework:spock-core'
 }
 
 gradlePlugin {

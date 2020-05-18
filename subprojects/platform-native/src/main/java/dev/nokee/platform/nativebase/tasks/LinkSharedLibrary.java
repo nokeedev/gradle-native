@@ -4,7 +4,9 @@ import org.gradle.api.Task;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 
 /**
@@ -29,7 +31,7 @@ public interface LinkSharedLibrary extends Task {
 	 *
 	 * @return a property for adding additional arguments, never null.
 	 */
-	@Internal
+	@Input
 	ListProperty<String> getLinkerArgs();
 
 	/**
@@ -37,6 +39,6 @@ public interface LinkSharedLibrary extends Task {
 	 *
 	 * @return a provider of where the binary is linked.
 	 */
-	@Internal
+	@OutputFile
 	Provider<RegularFile> getLinkedFile();
 }

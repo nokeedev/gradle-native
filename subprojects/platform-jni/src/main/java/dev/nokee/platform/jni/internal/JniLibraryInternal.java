@@ -1,15 +1,19 @@
 package dev.nokee.platform.jni.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
+import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BinaryInternal;
+import dev.nokee.platform.base.internal.DefaultBinaryView;
+import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
-import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
-import dev.nokee.platform.nativebase.internal.DefaultTargetMachine;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
+import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Named;
@@ -26,6 +30,7 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.Cast;
 import org.gradle.jvm.tasks.Jar;
+import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -114,11 +119,16 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 		return Cast.uncheckedCast(getObjects().newInstance(DefaultBinaryView.class, binaryCollection));
 	}
 
-	public void registerSharedLibraryBinary() {
-		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, implementation, targetMachine);
+	public void registerSharedLibraryBinary(List<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants) {
+		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, implementation, targetMachine, objectSourceSets, linkTask);
 		getNativeRuntimeFiles().from((Callable<List<Provider<RegularFile>>>)() -> {
-			if (sharedLibraryBinary.getLinkedFile().isPresent()) {
-				return ImmutableList.of(sharedLibraryBinary.getLinkedFile());
+			// TODO: The following is debt that we accumulated from gradle/gradle.
+			//  The real condition to check is, do we know of a way to build the target machine on the current host.
+			//  If yes, we crash the build by attaching the native file which will tell the user how to install the right tools.
+			//  If no, we can "silently" ignore the build by saying you can't build on this machine.
+			//  One consideration is to deactivate publishing so we don't publish a half built jar.
+			if (multipleVariants || DefaultOperatingSystemFamily.HOST.equals(targetMachine.getOperatingSystemFamily())) {
+				return ImmutableList.of(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
 			}
 			return ImmutableList.of();
 		});

@@ -34,6 +34,7 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(LifecycleBasePlugin.class);
+		project.getPluginManager().apply("objective-c"); // Until we move away from the software model like platform JNI
 		project.getPluginManager().apply("dev.nokee.objective-c-language");
 		project.getPluginManager().apply(DarwinRuntimePlugin.class);
 

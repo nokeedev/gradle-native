@@ -21,7 +21,7 @@ abstract class AbstractNativeLinkingAwareComponentFunctionalTest extends Abstrac
 		then:
 		result.assertTasksExecuted(additionalCompileTasks, taskNames.allToBinary)
 		and:
-		sharedLibrary('build/libs/main/shared/jni-greeter').assertExists()
+		sharedLibrary('build/libs/main/jni-greeter').assertExists()
 	}
 
 	def "can link native sources of a specific variant using binary-specific lifecycle tasks"() {
@@ -38,7 +38,7 @@ abstract class AbstractNativeLinkingAwareComponentFunctionalTest extends Abstrac
 		then:
 		result.assertTasksExecuted(additionalCompileTasks, taskNames.withOperatingSystemFamily(currentOsFamilyName).allToBinary)
 		and:
-		sharedLibrary("build/libs/main/shared/${currentPlatformName}/jni-greeter").assertExists()
+		sharedLibrary("build/libs/main/${currentOsFamilyName}/jni-greeter").assertExists()
 	}
 
 	def "only resolves the targeted variant using binary-specific lifecycle tasks"() {

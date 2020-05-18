@@ -57,6 +57,8 @@ public abstract class NamingScheme {
 		return getTaskName(verb) + StringUtils.capitalize(object);
 	}
 
+	public abstract String getOutputDirectoryBase(String outputType);
+
 	public class BaseNameNamingScheme {
 		private BaseNameNamingScheme() {}
 
@@ -80,6 +82,11 @@ public abstract class NamingScheme {
 		@Override
 		public String getTaskName(String verb) {
 			return verb;
+		}
+
+		@Override
+		public String getOutputDirectoryBase(String outputType) {
+			return outputType + "/main";
 		}
 	}
 
@@ -105,6 +112,11 @@ public abstract class NamingScheme {
 				return "";
 			}
 			return StringUtils.uncapitalize(dimensions.stream().map(StringUtils::capitalize).collect(Collectors.joining()));
+		}
+
+		@Override
+		public String getOutputDirectoryBase(String outputType) {
+			return outputType + "/main/" + dimensionPrefix;
 		}
 	}
 

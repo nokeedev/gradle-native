@@ -14,7 +14,7 @@ abstract class AbstractJniLibraryFunctionalTest extends AbstractInstalledToolCha
 		succeeds('assemble')
 
 		then:
-		file('build/libs').assertHasDescendants(*expectSharedLibrary('main/shared/jni-greeter'), 'jni-greeter.jar')
+		file('build/libs').assertHasDescendants(*expectSharedLibrary('main/jni-greeter'), 'jni-greeter.jar')
 		jar("build/libs/jni-greeter.jar").hasDescendants(*expectedClasses, sharedLibraryName('jni-greeter'))
 	}
 
@@ -102,7 +102,7 @@ abstract class AbstractJniLibraryFunctionalTest extends AbstractInstalledToolCha
         succeeds 'assemble'
 
         !file('build').exists()
-		file('output/libs').assertHasDescendants(*expectSharedLibrary('main/shared/jni-greeter'), 'jni-greeter.jar')
+		file('output/libs').assertHasDescendants(*expectSharedLibrary('main/jni-greeter'), 'jni-greeter.jar')
 		jar("output/libs/jni-greeter.jar").hasDescendants(*expectedClasses, sharedLibraryName('jni-greeter'))
     }
 

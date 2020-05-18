@@ -51,7 +51,7 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 		new JavaJniObjectiveCGreeterLib('greeter').withFoundationFrameworkDependency().writeToProject(testDirectory)
 
 		expect:
-		succeeds('assemble')
+		succeeds('assemble', '-i')
 		jar('build/libs/greeter.jar').hasDescendants('com/example/greeter/NativeLoader.class', 'com/example/greeter/Greeter.class', sharedLibraryName('greeter'))
 	}
 

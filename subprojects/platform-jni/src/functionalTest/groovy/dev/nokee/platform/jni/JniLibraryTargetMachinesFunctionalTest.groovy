@@ -176,7 +176,7 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 		succeeds(':jarX86-64')
 		then:
 		result.assertTasksExecutedAndNotSkipped(':cpp-library:compileDebugX86-64Cpp', ':cpp-library:linkDebugX86-64',
-			":compileMain${currentOsFamilyName.capitalize()}x86-64SharedLibraryMainCpp", ":linkMain${currentOsFamilyName.capitalize()}x86-64SharedLibrary",
+			":compileX86-64Cpp", ":linkX86-64",
 			':compileJava', ':jarX86-64')
 		jar('build/libs/jni-greeter-x86-64.jar').hasDescendants(sharedLibraryName('x86-64/cpp-library'), sharedLibraryName('x86-64/jni-greeter'))
 
@@ -238,7 +238,7 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 		when:
 		fails(':jarFoo')
 		then:
-		result.assertTasksExecutedAndNotSkipped(':compileJava', ':compileMainFoox86-64SharedLibraryMainCpp')
+		result.assertTasksExecutedAndNotSkipped(':compileJava', ':compileFooCpp')
 
 		when:
 		succeeds(':jar')

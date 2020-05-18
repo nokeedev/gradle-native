@@ -37,6 +37,15 @@ public class ToolChainSelectorInternal {
 		return getToolChains().stream().anyMatch(it -> it.canBuild(targetMachine));
 	}
 
+	public NativeToolChainInternal select(TargetMachine targetMachine) {
+		NativePlatformInternal targetPlatform = nativePlatformFactory.create(targetMachine);
+		NativeToolChainRegistryInternal registry = modelRegistry.realize("toolChains", NativeToolChainRegistryInternal.class);
+		NativeToolChainInternal toolChain = (NativeToolChainInternal)registry.getForPlatform(targetPlatform);
+		toolChain.assertSupported();
+
+		return toolChain;
+	}
+
 	private Collection<ToolChain> getToolChains() {
 		List<ToolChain> result = new ArrayList<>();
 		result.add(new DomainKnowledgeToolChain());

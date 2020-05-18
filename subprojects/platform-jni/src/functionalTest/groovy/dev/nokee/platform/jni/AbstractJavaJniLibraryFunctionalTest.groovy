@@ -78,7 +78,7 @@ class JavaCJniLibraryFunctionalTest extends AbstractJavaJniLibraryFunctionalTest
 
 		expect:
 		fails "assemble"
-		failure.assertHasDescription("Execution failed for task '${tasks.forSharedLibrary.softwareModelCompile}'.")
+		failure.assertHasDescription("Execution failed for task '${tasks.forSharedLibrary.compile}'.")
 		failure.assertHasCause("A build operation failed.")
 		failure.assertThatCause(containsString("C compiler failed while compiling broken.c"))
 	}
@@ -99,7 +99,7 @@ class JavaCppJniLibraryFunctionalTest extends AbstractJavaJniLibraryFunctionalTe
 
 		expect:
 		fails "assemble"
-		failure.assertHasDescription("Execution failed for task '${tasks.forSharedLibrary.softwareModelCompile}'.")
+		failure.assertHasDescription("Execution failed for task '${tasks.forSharedLibrary.compile}'.")
 		failure.assertHasCause("A build operation failed.")
 		failure.assertThatCause(containsString("C++ compiler failed while compiling broken.cpp"))
 	}
@@ -143,7 +143,7 @@ class JavaObjectiveCJniLibraryFunctionalTest extends AbstractJavaJniLibraryFunct
 
 		expect:
 		fails "assemble"
-		failure.assertHasDescription("Execution failed for task '${tasks.forSharedLibrary.softwareModelCompile}'.")
+		failure.assertHasDescription("Execution failed for task '${tasks.forSharedLibrary.compile}'.")
 		failure.assertHasCause("A build operation failed.")
 		failure.assertThatCause(containsString("Objective-C compiler failed while compiling broken.m"))
 	}
@@ -193,7 +193,7 @@ class JavaObjectiveCppJniLibraryFunctionalTest extends AbstractJavaJniLibraryFun
 
 		expect:
 		fails "assemble"
-		failure.assertHasDescription("Execution failed for task '${tasks.forSharedLibrary.softwareModelCompile}'.")
+		failure.assertHasDescription("Execution failed for task '${tasks.forSharedLibrary.compile}'.")
 		failure.assertHasCause("A build operation failed.")
 		failure.assertThatCause(containsString("Objective-C++ compiler failed while compiling broken.mm"))
 	}

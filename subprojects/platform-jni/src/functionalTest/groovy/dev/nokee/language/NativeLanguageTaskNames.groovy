@@ -72,26 +72,12 @@ trait NativeLanguageTaskNames {
 			return withProject("compile${buildType}${variant}${languageTaskSuffix}")
 		}
 
-		String getSoftwareModelCompile() {
-			if (architecture == null && operatingSystemFamily != null) {
-				return withProject("compileMain${operatingSystemFamily.capitalize()}x86-64${binaryType.capitalize()}Main${softwareModelLanguageTaskSuffix}")
-			}
-			return withProject("compileMain${binaryType.capitalize()}Main${softwareModelLanguageTaskSuffix}")
-		}
-
 		String getObjects() {
 			return withProject("objects${buildType}${variant}")
 		}
 
 		String getLink() {
 			return withProject("link${buildType}${variant}")
-		}
-
-		private String getSoftwareModelLink() {
-			if (architecture == null && operatingSystemFamily != null) {
-				return withProject("linkMain${operatingSystemFamily.capitalize()}x86-64${binaryType.capitalize()}")
-			}
-			return withProject("linkMain${binaryType.capitalize()}")
 		}
 
 		String getCreate() {
@@ -107,7 +93,7 @@ trait NativeLanguageTaskNames {
 		}
 
 		List<String> getAllToObjects() {
-			return [softwareModelCompile, compile, objects]
+			return [compile, objects]
 		}
 
 		List<String> getAllToCreate() {
@@ -115,7 +101,7 @@ trait NativeLanguageTaskNames {
 		}
 
 		List<String> getAllToLink() {
-			return [softwareModelCompile, softwareModelLink, link]
+			return [compile, link]
 		}
 
 		List<String> getAllToInstall() {
