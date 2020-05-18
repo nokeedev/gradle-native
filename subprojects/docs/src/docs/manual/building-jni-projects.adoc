@@ -61,11 +61,17 @@ Provides support for compiling Objective-C language.
 <<objective-cpp-language-plugin.adoc#,`dev.nokee.objective-cpp-language`>>::
 Provides support for compiling Objective-{cpp} language.
 
-link:{gradle-user-manual}/java_plugin.html[`java`] (Gradle Core Plugin)::
+link:{gradle-user-manual}/java_plugin.html[`java` (maintained by Gradle)]::
 Provides support for compiling Java language.
+Gradle distributes the plugin inside the Gradle distribution.
 
-link:{gradle-user-manual}/groovy_plugin.html[`groovy`] (Gradle Core Plugin)::
+link:{gradle-user-manual}/groovy_plugin.html[`groovy` (maintained by Gradle)]::
 Provides support for compiling Groovy language.
+Gradle distributes the plugin inside the Gradle distribution.
+
+link:https://kotlinlang.org/docs/reference/using-gradle.html#targeting-the-jvm[`org.jetbrains.kotlin.jvm`] (maintained by Jetbrains)::
+Provides support for compiling Kotlin language.
+Jetbrains distributes the plugin on the link:https://plugins.gradle.org/[plugins portal].
 
 If we would like to build a JNI library implemented in Java and {cpp}, we would apply the `dev.nokee.jni-library`, `dev.nokee.cpp-language` and `java` plugins as shown below:
 
