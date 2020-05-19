@@ -49,7 +49,6 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 	private final Configuration nativeRuntime;
 	private AbstractJarBinary jarBinary;
 	private SharedLibraryBinaryInternal sharedLibraryBinary;
-	private final TaskProvider<Task> assembleTask;
 	private final String name;
 
 	@Inject
@@ -73,16 +72,6 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 
 		getNativeRuntimeFiles().from(nativeRuntime);
 		getResourcePath().convention(getProviders().provider(() -> names.getResourcePath(groupId)));
-
-		this.assembleTask = getAssembleTask();
-		assembleTask.configure(task -> {
-			task.dependsOn((Callable<List<TaskProvider<?>>>) () -> {
-				List<TaskProvider<?>> result = new ArrayList<>();
-				result.add(sharedLibraryBinary.getLinkTask());
-				result.add(jarBinary.getJarTask());
-				return result;
-			});
-		});
 	}
 
 	// CAUTION: Never rely on the name of the variant, it isn't exposed on the public type!
@@ -126,7 +115,7 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 		});
 		this.sharedLibraryBinary = sharedLibraryBinary;
 		binaryCollection.add(sharedLibraryBinary);
-		assembleTask.configure(dependsOn(sharedLibraryBinary.getLinkTask()));
+		getAssembleTask().configure(dependsOn(sharedLibraryBinary.getLinkTask()));
 	}
 
 	public void registerJniJarBinary() {
@@ -156,12 +145,12 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 	public void addJniJarBinary(AbstractJarBinary jniJarBinary) {
 		jarBinary = jniJarBinary;
 		binaryCollection.add(jniJarBinary);
-		assembleTask.configure(dependsOn(jniJarBinary.getJarTask()));
+		getAssembleTask().configure(dependsOn(jniJarBinary.getJarTask()));
 	}
 
 	public void addJvmJarBinary(DefaultJvmJarBinary jvmJarBinary) {
 		binaryCollection.add(jvmJarBinary);
-		assembleTask.configure(dependsOn(jvmJarBinary.getJarTask()));
+		getAssembleTask().configure(dependsOn(jvmJarBinary.getJarTask()));
 	}
 
 	public DefaultTargetMachine getTargetMachine() {

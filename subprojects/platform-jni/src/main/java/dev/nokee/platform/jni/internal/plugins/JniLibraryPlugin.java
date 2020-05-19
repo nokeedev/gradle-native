@@ -204,6 +204,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 						task.setDescription(String.format("Assembles the '%s' outputs of this project.", library.getName()));
 						task.dependsOn(library.map(it -> it.getSharedLibrary().getLinkTask()));
 						task.dependsOn(library.map(it -> it.getJar().getJarTask()));
+						task.dependsOn(jvmJarBinary.map(it -> ImmutableList.of(it.getJarTask())).orElse(ImmutableList.of()));
 					});
 				}
 
