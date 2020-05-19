@@ -58,6 +58,7 @@ public abstract class NativeSourceSetTransform<T extends UTType> implements Sour
 			// TODO: Select the right value based on the build type dimension, once modeled
 			task.setDebuggable(false);
 			task.setOptimized(false);
+			task.setPositionIndependentCode(true);
 
 			NativePlatformFactory nativePlatformFactory = new NativePlatformFactory();
 			NativePlatformInternal nativePlatform = nativePlatformFactory.create(targetMachine);

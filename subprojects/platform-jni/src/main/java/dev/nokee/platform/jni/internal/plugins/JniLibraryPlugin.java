@@ -152,6 +152,8 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 						// Until we model the build type
 						task.getDebuggable().set(false);
 
+						// Install name set inside SharedLibraryBinaryInternal
+
 						task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(names.getOutputDirectoryBase("libs")));
 						task.getLinkedFile().convention(getLayout().getBuildDirectory().file(nativePlatform.getOperatingSystem().getInternalOs().getSharedLibraryName(names.getOutputDirectoryBase("libs") + "/" + project.getName())));
 

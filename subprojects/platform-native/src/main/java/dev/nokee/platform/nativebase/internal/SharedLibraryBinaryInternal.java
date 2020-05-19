@@ -99,7 +99,6 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 
 			Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());
 			task.getInstallName().set(installName);
-			task.getDebuggable().set(true);
 		});
 
 		getLinkedFile().set(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
