@@ -92,17 +92,17 @@ public abstract class ConfigurationUtils {
 	}
 	//endregion
 
-	private static void configureAsIncoming(Configuration configuration) {
+	public static void configureAsIncoming(Configuration configuration) {
 		configuration.setCanBeConsumed(false);
 		configuration.setCanBeResolved(true);
 	}
 
-	private static void configureAsOutgoing(Configuration configuration) {
+	public static void configureAsOutgoing(Configuration configuration) {
 		configuration.setCanBeConsumed(true);
 		configuration.setCanBeResolved(false);
 	}
 
-	private static void configureAsBucket(Configuration configuration) {
+	public static void configureAsBucket(Configuration configuration) {
 		configuration.setCanBeConsumed(false);
 		configuration.setCanBeResolved(false);
 	}

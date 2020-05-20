@@ -2,6 +2,7 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.jni.JniLibraryNativeDependencies;
+import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes;
 import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import org.gradle.api.Action;
@@ -32,20 +33,15 @@ public abstract class JniLibraryNativeDependenciesInternal implements JniLibrary
 
 	@Inject
 	public JniLibraryNativeDependenciesInternal(NamingScheme names) {
-		nativeImplementationDependencies = getConfigurations().create(names.getConfigurationName("nativeImplementation"), JniLibraryDependenciesInternal::bucket);
-		nativeLinkOnly = getConfigurations().create(names.getConfigurationName("nativeLinkOnly"), JniLibraryDependenciesInternal::bucket); // TODO: Wire configuration with the real runtimeOnly
-		nativeRuntimeOnly = getConfigurations().create(names.getConfigurationName("nativeRuntimeOnly"), JniLibraryDependenciesInternal::bucket); // TODO: Wire configuration with the real runtimeOnly
+		nativeImplementationDependencies = getConfigurations().create(names.getConfigurationName("nativeImplementation"), ConfigurationUtils::configureAsBucket);
+		nativeLinkOnly = getConfigurations().create(names.getConfigurationName("nativeLinkOnly"), ConfigurationUtils::configureAsBucket);
+		nativeRuntimeOnly = getConfigurations().create(names.getConfigurationName("nativeRuntimeOnly"), ConfigurationUtils::configureAsBucket);
 	}
 
 	public JniLibraryNativeDependenciesInternal() {
-		nativeImplementationDependencies = getConfigurations().create("nativeImplementation", JniLibraryDependenciesInternal::bucket);
-		nativeLinkOnly = getConfigurations().create("nativeLinkOnly", JniLibraryDependenciesInternal::bucket); // TODO: Wire configuration with the real runtimeOnly
-		nativeRuntimeOnly = getConfigurations().create("nativeRuntimeOnly", JniLibraryDependenciesInternal::bucket); // TODO: Wire configuration with the real runtimeOnly
-	}
-
-	protected static void bucket(Configuration configuration) {
-		configuration.setCanBeConsumed(false);
-		configuration.setCanBeResolved(false);
+		nativeImplementationDependencies = getConfigurations().create("nativeImplementation", ConfigurationUtils::configureAsBucket);
+		nativeLinkOnly = getConfigurations().create("nativeLinkOnly", ConfigurationUtils::configureAsBucket);
+		nativeRuntimeOnly = getConfigurations().create("nativeRuntimeOnly", ConfigurationUtils::configureAsBucket);
 	}
 
 	@Override

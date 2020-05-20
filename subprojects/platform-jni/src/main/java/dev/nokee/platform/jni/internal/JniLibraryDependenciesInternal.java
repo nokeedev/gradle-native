@@ -1,6 +1,7 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.platform.jni.JniLibraryDependencies;
+import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ExternalModuleDependency;
@@ -17,12 +18,12 @@ public abstract class JniLibraryDependenciesInternal extends JniLibraryNativeDep
 	public JniLibraryDependenciesInternal() {
 		Configuration api = getConfigurations().findByName("api");
 		if (api == null) {
-			apiDependencies = getConfigurations().create("api", JniLibraryDependenciesInternal::bucket);
+			apiDependencies = getConfigurations().create("api", ConfigurationUtils::configureAsBucket);
 		} else {
 			apiDependencies = api;
 		}
-		jvmImplementationDependencies = getConfigurations().create("jvmImplementation", JniLibraryDependenciesInternal::bucket);
-		jvmRuntimeOnly = getConfigurations().create("jvmRuntimeOnly", JniLibraryDependenciesInternal::bucket); // TODO: Wire configuration with the real runtimeOnly
+		jvmImplementationDependencies = getConfigurations().create("jvmImplementation", ConfigurationUtils::configureAsBucket);
+		jvmRuntimeOnly = getConfigurations().create("jvmRuntimeOnly", ConfigurationUtils::configureAsBucket);
 		jvmImplementationDependencies.extendsFrom(apiDependencies);
 	}
 
