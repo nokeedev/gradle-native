@@ -17,6 +17,7 @@ public class UTTypeUtils {
 	 * @return a list of filters for all elements returned by {@link UTType#getFilenameExtensions()}, never null.
 	 */
 	public static Iterable<String> onlyIf(UTType type) {
+		// TODO: Could use new PatternSet().include...
 		return Arrays.stream(type.getFilenameExtensions()).map(it -> "**/*." + it).collect(Collectors.toList());
 	}
 }
