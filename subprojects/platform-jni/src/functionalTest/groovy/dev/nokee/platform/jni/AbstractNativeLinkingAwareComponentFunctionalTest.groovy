@@ -1,6 +1,8 @@
 package dev.nokee.platform.jni
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
+import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
+import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.language.NativeLanguageTaskNames
 import dev.nokee.language.c.CTaskNames
 import dev.nokee.language.cpp.CppTaskNames
@@ -8,6 +10,8 @@ import dev.nokee.language.objectivec.ObjectiveCTaskNames
 import dev.nokee.language.objectivecpp.ObjectiveCppTaskNames
 import dev.nokee.platform.jni.fixtures.*
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
+import spock.lang.Requires
+import spock.util.environment.OperatingSystem
 
 abstract class AbstractNativeLinkingAwareComponentFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "can link native objects using binary-specific lifecycle tasks"() {
@@ -153,6 +157,8 @@ class NativeLinkingJavaCJniLibraryFunctionalTest extends AbstractNativeLinkingAw
 	}
 }
 
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
 class NativeLinkingJavaObjectiveCJniLibraryFunctionalTest extends AbstractNativeLinkingAwareComponentFunctionalTest implements ObjectiveCTaskNames {
 	protected void makeSingleProject() {
 		buildFile << '''
@@ -186,6 +192,8 @@ class NativeLinkingJavaObjectiveCJniLibraryFunctionalTest extends AbstractNative
 	}
 }
 
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
 class NativeLinkingJavaObjectiveCppJniLibraryFunctionalTest extends AbstractNativeLinkingAwareComponentFunctionalTest implements ObjectiveCppTaskNames {
 	protected void makeSingleProject() {
 		buildFile << '''

@@ -1,6 +1,8 @@
 package dev.nokee.platform.jni
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
+import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
+import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.language.NativeLanguageTaskNames
 import dev.nokee.language.c.CTaskNames
 import dev.nokee.language.cpp.CppTaskNames
@@ -8,6 +10,8 @@ import dev.nokee.language.objectivec.ObjectiveCTaskNames
 import dev.nokee.language.objectivecpp.ObjectiveCppTaskNames
 import dev.nokee.platform.jni.fixtures.*
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
+import spock.lang.Requires
+import spock.util.environment.OperatingSystem
 
 abstract class AbstractNativeCompilationAwareComponentFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "can compile native sources using objects lifecycle tasks"() {
@@ -156,6 +160,8 @@ class NativeCompilationJavaCJniLibraryFunctionalTest extends AbstractNativeCompi
 	}
 }
 
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
 class NativeCompilationJavaObjectiveCJniLibraryFunctionalTest extends AbstractNativeCompilationAwareComponentFunctionalTest implements ObjectiveCTaskNames {
 	protected void makeSingleProject() {
 		buildFile << '''
@@ -183,6 +189,8 @@ class NativeCompilationJavaObjectiveCJniLibraryFunctionalTest extends AbstractNa
 	}
 }
 
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
 class NativeCompilationJavaObjectiveCppJniLibraryFunctionalTest extends AbstractNativeCompilationAwareComponentFunctionalTest implements ObjectiveCppTaskNames {
 	protected void makeSingleProject() {
 		buildFile << '''

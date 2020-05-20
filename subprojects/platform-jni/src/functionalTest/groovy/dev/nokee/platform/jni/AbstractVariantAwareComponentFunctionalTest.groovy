@@ -1,8 +1,12 @@
 package dev.nokee.platform.jni
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
+import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
+import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.platform.jni.fixtures.*
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
+import spock.lang.Requires
+import spock.util.environment.OperatingSystem
 
 import static org.apache.commons.io.FilenameUtils.separatorsToSystem
 
@@ -262,6 +266,8 @@ class VariantAwareComponentJavaCppJniLibraryFunctionalTest extends AbstractVaria
 	}
 }
 
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
 class VariantAwareComponentJavaObjectiveCJniLibraryFunctionalTest extends AbstractVariantAwareComponentFunctionalTest {
 	protected void makeSingleProject() {
 		buildFile << '''
@@ -280,6 +286,8 @@ class VariantAwareComponentJavaObjectiveCJniLibraryFunctionalTest extends Abstra
 	}
 }
 
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
 class VariantAwareComponentJavaObjectiveCppJniLibraryFunctionalTest extends AbstractVariantAwareComponentFunctionalTest {
 	protected void makeSingleProject() {
 		buildFile << '''
