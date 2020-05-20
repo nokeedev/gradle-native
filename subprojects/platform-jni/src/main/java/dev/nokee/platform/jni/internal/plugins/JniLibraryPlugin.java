@@ -200,11 +200,13 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 					}
 				});
 
-				getTasks().register(names.getTaskName("objects"), task -> {
-					task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
-					task.setDescription("Assembles main objects.");
-					task.dependsOn(library.map(it -> it.getSharedLibrary().getCompileTasks()));
-				});
+				if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
+					getTasks().register(names.getTaskName("objects"), task -> {
+						task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
+						task.setDescription("Assembles main objects.");
+						task.dependsOn(library.map(it -> it.getSharedLibrary().getCompileTasks()));
+					});
+				}
 
 				getTasks().register(names.getTaskName("sharedLibrary"), task -> {
 					task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
