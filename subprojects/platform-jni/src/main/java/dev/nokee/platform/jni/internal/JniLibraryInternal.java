@@ -70,7 +70,7 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 		});
 
 		ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
-		nativeRuntime = getConfigurations().create(names.getConfigurationName("nativeRuntime"), configurationUtils.asIncomingRuntimeLibrariesFrom(implementation).forTargetMachine(targetMachine).asDebug());
+		nativeRuntime = getConfigurations().create(names.getConfigurationName("nativeRuntimeLibraries"), configurationUtils.asIncomingRuntimeLibrariesFrom(dependencies.getNativeDependencies(), dependencies.getNativeRuntimeOnlyDependencies()).forTargetMachine(targetMachine).asDebug());
 
 		getNativeRuntimeFiles().from(nativeRuntime);
 		getResourcePath().convention(getProviders().provider(() -> names.getResourcePath(groupId)));
@@ -103,7 +103,7 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 	}
 
 	public void registerSharedLibraryBinary(List<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants) {
-		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, implementation, targetMachine, objectSourceSets, linkTask);
+		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, implementation, targetMachine, objectSourceSets, linkTask, dependencies.getNativeLinkOnlyDependencies());
 		getNativeRuntimeFiles().from((Callable<List<Provider<RegularFile>>>)() -> {
 			// TODO: The following is debt that we accumulated from gradle/gradle.
 			//  The real condition to check is, do we know of a way to build the target machine on the current host.

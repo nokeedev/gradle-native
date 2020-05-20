@@ -58,7 +58,7 @@ public abstract class ConfigurationUtils {
 					.build()));
 	}
 
-	public IncomingConfigurationAction asIncomingLinkLibrariesFrom(Configuration fromBucket) {
+	public IncomingConfigurationAction asIncomingLinkLibrariesFrom(Configuration... fromBucket) {
 		return getObjects().newInstance(IncomingConfigurationAction.class,
 			ConfigurationSpec.asIncoming(fromBucket).withAttributes(
 				ImmutableMap.<Attribute<?>, Object>builder()
@@ -66,7 +66,7 @@ public abstract class ConfigurationUtils {
 					.build()));
 	}
 
-	public IncomingConfigurationAction asIncomingRuntimeLibrariesFrom(Configuration fromBucket) {
+	public IncomingConfigurationAction asIncomingRuntimeLibrariesFrom(Configuration... fromBucket) {
 		return getObjects().newInstance(IncomingConfigurationAction.class,
 			ConfigurationSpec.asIncoming(fromBucket).withAttributes(
 				ImmutableMap.<Attribute<?>, Object>builder()
@@ -286,8 +286,8 @@ public abstract class ConfigurationUtils {
 			return new ConfigurationSpec(INCOMING, ImmutableList.of(), emptyMap(), /*emptyList(),*/ null, it -> {});
 		}
 
-		static ConfigurationSpec asIncoming(Configuration fromBucket) {
-			return new ConfigurationSpec(INCOMING, ImmutableList.of(fromBucket), emptyMap(), /*emptyList(),*/ null, it -> {});
+		static ConfigurationSpec asIncoming(Configuration... fromBucket) {
+			return new ConfigurationSpec(INCOMING, ImmutableList.copyOf(fromBucket), emptyMap(), /*emptyList(),*/ null, it -> {});
 		}
 
 		@Override

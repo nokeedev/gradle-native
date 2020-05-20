@@ -58,7 +58,7 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 	private final List<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets;
 
 	@Inject
-	public SharedLibraryBinaryInternal(NamingScheme names, TaskContainer tasks, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine, List<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask) {
+	public SharedLibraryBinaryInternal(NamingScheme names, TaskContainer tasks, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine, List<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, Configuration linkOnly) {
 		this.linkTask = linkTask;
 		this.tasks = tasks;
 		sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
@@ -71,7 +71,7 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 		getLinkerInputs().disallowChanges();
 
 		ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
-		this.linkConfiguration = getConfigurations().create(names.getConfigurationName("nativeLink"), configurationUtils.asIncomingLinkLibrariesFrom(implementation).forTargetMachine(targetMachine).asDebug());
+		this.linkConfiguration = getConfigurations().create(names.getConfigurationName("nativeLinkLibraries"), configurationUtils.asIncomingLinkLibrariesFrom(implementation, linkOnly).forTargetMachine(targetMachine).asDebug());
 
 		// configure includes using the native incoming compile configuration
 		compileTasks.configureEach(task -> {
