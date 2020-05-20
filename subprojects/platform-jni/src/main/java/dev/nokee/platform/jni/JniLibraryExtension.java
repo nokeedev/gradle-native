@@ -62,4 +62,12 @@ public interface JniLibraryExtension {
 	 * @since 0.3
 	 */
 	BinaryView<Binary> getBinaries();
+
+	/**
+	 * Returns a factory to create target machines when configuring {@link #getTargetMachines()}.
+	 *
+	 * @return a {@link TargetMachineFactory} for creating {@link TargetMachine} instance, never null.
+	 * @since 0.4
+	 */
+	TargetMachineFactory getMachines();
 }

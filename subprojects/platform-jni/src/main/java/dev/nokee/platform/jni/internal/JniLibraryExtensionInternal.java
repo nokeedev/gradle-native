@@ -9,7 +9,9 @@ import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryDependencies;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.nativebase.TargetMachine;
+import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachine;
+import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.*;
@@ -31,6 +33,7 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	private final DomainObjectSet<BinaryInternal> binaryCollection;
 	private final NamedDomainObjectContainer<JniLibraryInternal> variantCollection;
 	private final Map<String, JniLibraryCreationArguments> variantCreationArguments = new HashMap<>();
+	private final DefaultTargetMachineFactory targetMachineFactory;
 
 	@Value
 	private static class JniLibraryCreationArguments {
@@ -40,7 +43,8 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	}
 
 	@Inject
-	public JniLibraryExtensionInternal(JniLibraryDependenciesInternal dependencies, GroupId groupId) {
+	public JniLibraryExtensionInternal(JniLibraryDependenciesInternal dependencies, GroupId groupId, DefaultTargetMachineFactory targetMachineFactory) {
+		this.targetMachineFactory = targetMachineFactory;
 		binaryCollection = getObjects().domainObjectSet(BinaryInternal.class);
 		sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
 		variantCollection = getObjects().domainObjectContainer(JniLibraryInternal.class, name -> {
@@ -100,6 +104,11 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	@Override
 	public void dependencies(Action<? super JniLibraryDependencies> action) {
 		action.execute(dependencies);
+	}
+
+	@Override
+	public TargetMachineFactory getMachines() {
+		return targetMachineFactory;
 	}
 
 	public static abstract class VariantResolvingBinaryView extends DefaultBinaryView<Binary> {

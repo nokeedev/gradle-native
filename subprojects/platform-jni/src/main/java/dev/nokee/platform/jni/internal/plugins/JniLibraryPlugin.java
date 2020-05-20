@@ -21,7 +21,6 @@ import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
 import dev.nokee.platform.nativebase.TargetMachine;
-import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
@@ -34,7 +33,6 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -94,7 +92,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
-		DefaultTargetMachineFactory targetMachineFactory = registerTargetMachineFactoryAsExtension(project.getExtensions());
+		DefaultTargetMachineFactory targetMachineFactory = new DefaultTargetMachineFactory();
 		JniLibraryExtensionInternal extension = registerExtension(project, targetMachineFactory);
 
 		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
@@ -334,12 +332,6 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		return targetMachines.stream().map(it -> ((DefaultTargetMachine)it).getArchitecture()).collect(Collectors.toSet());
 	}
 
-	private static DefaultTargetMachineFactory registerTargetMachineFactoryAsExtension(ExtensionContainer extensions) {
-		DefaultTargetMachineFactory targetMachineFactory = new DefaultTargetMachineFactory();
-		extensions.add(TargetMachineFactory.class, "machines", targetMachineFactory);
-		return targetMachineFactory;
-	}
-
 	@Inject
 	protected abstract ToolChainSelector getToolChainSelector();
 
@@ -386,7 +378,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		});
 		jvmRuntimeElements.extendsFrom(dependencies.getApiDependencies());
 
-		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, dependencies, GroupId.of(project::getGroup));
+		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, dependencies, GroupId.of(project::getGroup), targetMachineFactory);
 		library.getTargetMachines().convention(singletonList(targetMachineFactory.host()));
 		project.getExtensions().add(JniLibraryExtension.class, "library", library);
 		return library;
