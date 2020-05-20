@@ -114,6 +114,16 @@ class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements Proje
 		and:
 		variants.size() == 1
 	}
+
+	// TODO: Check dependencies api of the right type on extension
+	// TODO: Check dependencies api of the right type on each variants
+	// TODO: Check easy access to shared library from each variants
+	// TODO: Migrate test about each binaries available on the extension and each variant
+	// TODO: Check each variant is of the right type and has the right target machine (platform) configured
+	// TODO: Check binary tasks are not null and of the right type
+
+	// TODO: as a well behaving plugin test, check mixing with other language
+	// TODO: check that no tasks are created when variants are realized
 }
 
 class JniLibraryPluginTargetMachineConfigurationTest extends AbstractJniLibraryPluginSpec implements ProjectTestFixture, JniLibraryPluginTestFixture {
@@ -685,6 +695,8 @@ class JniLibraryPluginWithNoLanguageTasksTest extends AbstractJniLibraryPluginSp
 	}
 }
 
+// TODO: Check that each native language adds native compile tasks & group/description
+
 @Subject(JniLibraryPlugin)
 class JniLibraryPluginWithNoLanguageConfigurationsTest extends AbstractJniLibraryPluginSpec implements ProjectTestFixture, JniLibraryPluginTestFixture {
 	def project = ProjectBuilder.builder().withName('lib').build()
@@ -821,3 +833,5 @@ class JniLibraryPluginWithNoLanguageConfigurationsTest extends AbstractJniLibrar
 		!configuredVariants.isEmpty()
 	}
 }
+
+// TODO: Check that each native language adds compile configuration & description
