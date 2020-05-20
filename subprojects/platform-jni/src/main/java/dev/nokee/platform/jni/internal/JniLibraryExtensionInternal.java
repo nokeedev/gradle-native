@@ -49,7 +49,14 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 		sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
 		variantCollection = getObjects().domainObjectContainer(JniLibraryInternal.class, name -> {
 			JniLibraryCreationArguments args = variantCreationArguments.remove(name);
-			JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, name, args.names, sources, dependencies.getNativeDependencies(), args.targetMachine, groupId, binaryCollection);
+
+			JniLibraryNativeDependenciesInternal variantDependencies = dependencies;
+			if (getTargetMachines().get().size() > 1) {
+				variantDependencies = getObjects().newInstance(JniLibraryNativeDependenciesInternal.class, args.names);
+				variantDependencies.extendsFrom(dependencies);
+			}
+
+			JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, name, args.names, sources, dependencies.getNativeDependencies(), args.targetMachine, groupId, binaryCollection, variantDependencies);
 			args.action.execute(result);
 			return result;
 		});

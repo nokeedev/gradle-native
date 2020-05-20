@@ -41,6 +41,7 @@ import static dev.nokee.platform.base.internal.TaskUtils.dependsOn;
 
 public abstract class JniLibraryInternal implements JniLibrary, Named {
 	private final NamingScheme names;
+	private final JniLibraryNativeDependenciesInternal dependencies;
 	private final DomainObjectSet<BinaryInternal> binaryCollection;
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
 	private final Configuration implementation;
@@ -52,9 +53,10 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 	private final String name;
 
 	@Inject
-	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine, GroupId groupId, DomainObjectSet<BinaryInternal> parentBinaries) {
+	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine, GroupId groupId, DomainObjectSet<BinaryInternal> parentBinaries, JniLibraryNativeDependenciesInternal dependencies) {
 		this.name = name;
 		this.names = names;
+		this.dependencies = dependencies;
 		binaryCollection = getObjects().domainObjectSet(BinaryInternal.class);
 		this.sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
 		this.implementation = implementation;
