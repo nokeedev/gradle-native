@@ -266,27 +266,29 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			});
 		});
 
-		// Ensure the variants are resolved so all tasks are registered.
-		tasks.named("tasks", task -> {
-			task.dependsOn((Callable) () -> {
-				// TODO: Account for no variant, is that even possible?
-				extension.getVariantCollection().iterator().next();
-				return emptyList();
+		project.afterEvaluate(proj -> {
+			// Ensure the variants are resolved so all tasks are registered.
+			tasks.named("tasks", task -> {
+				task.dependsOn((Callable) () -> {
+					// TODO: Account for no variant, is that even possible?
+					extension.getVariantCollection().iterator().next();
+					return emptyList();
+				});
 			});
-		});
-		// Ensure the variants are resolved so all configurations and dependencies are registered.
-		tasks.named("dependencies", task -> {
-			task.dependsOn((Callable) () -> {
-				// TODO: Account for no variant, is that even possible?
-				extension.getVariantCollection().iterator().next();
-				return emptyList();
+			// Ensure the variants are resolved so all configurations and dependencies are registered.
+			tasks.named("dependencies", task -> {
+				task.dependsOn((Callable) () -> {
+					// TODO: Account for no variant, is that even possible?
+					extension.getVariantCollection().iterator().next();
+					return emptyList();
+				});
 			});
-		});
-		tasks.named("outgoingVariants", task -> {
-			task.dependsOn((Callable) () -> {
-				// TODO: Account for no variant, is that even possible?
-				extension.getVariantCollection().iterator().next();
-				return emptyList();
+			tasks.named("outgoingVariants", task -> {
+				task.dependsOn((Callable) () -> {
+					// TODO: Account for no variant, is that even possible?
+					extension.getVariantCollection().iterator().next();
+					return emptyList();
+				});
 			});
 		});
 		// Differ this rules until after the project is evaluated to avoid interfering with other plugins
