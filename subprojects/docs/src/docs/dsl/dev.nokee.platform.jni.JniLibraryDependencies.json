@@ -1,4 +1,4 @@
 {
 	"properties": [],
-	"methods": ["api", "jvmImplementation", "nativeImplementation"]
+	"methods": ["api", "jvmImplementation", "jvmRuntimeOnly", "nativeImplementation", "nativeLinkOnly", "nativeRuntimeOnly"]
 }

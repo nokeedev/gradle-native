@@ -57,4 +57,40 @@ public interface JniLibraryDependencies extends JniLibraryNativeDependencies {
 	 * @param action The action to run to configure the dependency.
 	 */
 	void jvmRuntimeOnly(Object notation, Action<? super ExternalModuleDependency> action);
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	void nativeImplementation(Object notation);
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	void nativeImplementation(Object notation, Action<? super ExternalModuleDependency> action);
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	void nativeLinkOnly(Object notation);
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	void nativeLinkOnly(Object notation, Action<? super ExternalModuleDependency> action);
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	void nativeRuntimeOnly(Object notation);
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	void nativeRuntimeOnly(Object notation, Action<? super ExternalModuleDependency> action);
 }
