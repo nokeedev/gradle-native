@@ -63,7 +63,6 @@ import java.util.stream.Collectors;
 
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 
 public abstract class JniLibraryPlugin implements Plugin<Project> {
@@ -96,7 +95,9 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
 		DefaultTargetMachineFactory targetMachineFactory = new DefaultTargetMachineFactory();
-		JniLibraryExtensionInternal extension = registerExtension(project, targetMachineFactory);
+		NamingSchemeFactory namingSchemeFactory = new NamingSchemeFactory(project.getName());
+		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent();
+		JniLibraryExtensionInternal extension = registerExtension(project, targetMachineFactory, mainComponentNames);
 
 		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
@@ -105,29 +106,18 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			project.getPluginManager().apply(DarwinFrameworkResolutionSupportPlugin.class);
 		});
 
-		// Names
-		NamingSchemeFactory namingSchemeFactory = new NamingSchemeFactory(project.getName());
-		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent();
-
 		project.afterEvaluate(proj -> {
-			extension.getTargetMachines().disallowChanges();
-			extension.getTargetMachines().finalizeValue();
 			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
 			assertNonEmpty(extension.getTargetMachines().get(), "target machine", "library");
 			assertTargetMachinesAreKnown(targetMachines);
 
 			Optional<DefaultJvmJarBinary> jvmJarBinary = findJvmBinary(proj);
-			targetMachines.stream().forEach(targetMachine -> {
-				DefaultTargetMachine targetMachineInternal = (DefaultTargetMachine)targetMachine;
-
-				NamingScheme namingScheme = mainComponentNames;
-				namingScheme = namingScheme.withVariantDimension(targetMachineInternal.getOperatingSystemFamily(), targetMachinesToOperatingSystems(targetMachines));
-				namingScheme = namingScheme.withVariantDimension(targetMachineInternal.getArchitecture(), targetMachinesToArchitectures(targetMachines));
-
-				final NamingScheme names = namingScheme;
+			extension.getBuildVariants().get().forEach(buildVariant -> {
+				final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
+				final NamingScheme names = mainComponentNames.forBuildVariant(buildVariant, extension.getBuildVariants().get());
 
 				// Find toolchain capable of building C++
-				final NamedDomainObjectProvider<JniLibraryInternal> library = extension.getVariantCollection().registerVariant(names, targetMachineInternal, it -> {
+				final NamedDomainObjectProvider<JniLibraryInternal> library = extension.getVariantCollection().registerVariant(buildVariant, it -> {
 					// Build all language source set
 					List<SourceSet<UTTypeObjectCode>> objectSourceSets = new ArrayList<>();
 					if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
@@ -157,7 +147,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 						objectSourceSets.stream().map(SourceSet::getAsFileTree).forEach(task::source);
 
 						NativePlatformFactory nativePlatformFactory = new NativePlatformFactory();
-						NativePlatformInternal nativePlatform = nativePlatformFactory.create(targetMachine);
+						NativePlatformInternal nativePlatform = nativePlatformFactory.create(targetMachineInternal);
 						task.getTargetPlatform().set(nativePlatform);
 						task.getTargetPlatform().finalizeValueOnRead();
 						task.getTargetPlatform().disallowChanges();
@@ -170,7 +160,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 						task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(names.getOutputDirectoryBase("libs")));
 						task.getLinkedFile().convention(getLayout().getBuildDirectory().file(nativePlatform.getOperatingSystem().getInternalOs().getSharedLibraryName(names.getOutputDirectoryBase("libs") + "/" + project.getName())));
 
-						task.getToolChain().set(getProviders().provider(() -> toolChainSelector.select(targetMachine)));
+						task.getToolChain().set(getProviders().provider(() -> toolChainSelector.select(targetMachineInternal)));
 						task.getToolChain().finalizeValueOnRead();
 						task.getToolChain().disallowChanges();
 
@@ -259,7 +249,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 					//  If a buildable variant is available, we can attach that one and everything will be ketchup.
 					//  However, if all variants are unbuildable, we should still be alright as the consumer will still crash, but because of not found... :-(
 					//  We should probably attach at least one of the unbuildable variant to give a better error message.
-					if (toolChainSelector.canBuild(targetMachine)) {
+					if (toolChainSelector.canBuild(targetMachineInternal)) {
 						// TODO: We could maybe set the shared library directory as secondary variant.
 						//  However, the shared library would requires the resource path to be taken into consideration...
 						getConfigurations().named("runtimeElements", it -> it.getOutgoing().artifact(jarTask.flatMap(Jar::getArchiveFile)));
@@ -268,7 +258,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 
 
 				// Attach JNI Jar to assemble task
-				if (DefaultTargetMachine.isTargetingHost().test(targetMachine)) {
+				if (DefaultTargetMachine.isTargetingHost().test(targetMachineInternal)) {
 					// Attach JNI Jar to assemble
 					project.getTasks().named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME, it -> {
 						it.dependsOn(library.map(l -> l.getJar().getJarTask()));
@@ -363,7 +353,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		}
 	}
 
-	private JniLibraryExtensionInternal registerExtension(Project project, DefaultTargetMachineFactory targetMachineFactory) {
+	private JniLibraryExtensionInternal registerExtension(Project project, DefaultTargetMachineFactory targetMachineFactory, NamingScheme names) {
 		JniLibraryDependenciesInternal dependencies = project.getObjects().newInstance(JniLibraryDependenciesInternal.class);
 		Configuration jvmApiElements = Optional.ofNullable(project.getConfigurations().findByName("apiElements")).orElseGet(() -> {
 			return project.getConfigurations().create("apiElements", configuration -> {
@@ -394,8 +384,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			getConfigurations().getByName("runtimeOnly").extendsFrom(dependencies.getJvmRuntimeOnlyDependencies());
 		});
 
-		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, dependencies, GroupId.of(project::getGroup), targetMachineFactory);
-		library.getTargetMachines().convention(singletonList(targetMachineFactory.host()));
+		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, dependencies, GroupId.of(project::getGroup), targetMachineFactory, names);
 		project.getExtensions().add(JniLibraryExtension.class, "library", library);
 		return library;
 	}

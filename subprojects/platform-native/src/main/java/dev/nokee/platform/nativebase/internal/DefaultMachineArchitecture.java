@@ -1,5 +1,8 @@
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.platform.base.internal.DefaultDimensionType;
+import dev.nokee.platform.base.internal.Dimension;
+import dev.nokee.platform.base.internal.DimensionType;
 import dev.nokee.platform.nativebase.MachineArchitecture;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,9 +16,10 @@ import static java.util.Arrays.asList;
 
 @EqualsAndHashCode
 @AllArgsConstructor(access = AccessLevel.PACKAGE) /** Use {@link DefaultMachineArchitecture#forName(String)} instead */
-public abstract class DefaultMachineArchitecture implements MachineArchitecture, Named {
+public abstract class DefaultMachineArchitecture implements MachineArchitecture, Named, Dimension {
 	@Getter @Nonnull private final String name;
 
+	public static DimensionType DIMENSION_TYPE = new DefaultDimensionType(DefaultMachineArchitecture.class);
 	public static DefaultMachineArchitecture X86 = new MachineArchitectureX86();
 	public static DefaultMachineArchitecture X86_64 = new MachineArchitectureX86_64();
 	public static DefaultMachineArchitecture HOST = forName(System.getProperty("os.arch"));
@@ -45,6 +49,11 @@ public abstract class DefaultMachineArchitecture implements MachineArchitecture,
 		public boolean is64Bit() {
 			return false;
 		}
+
+		@Override
+		public DimensionType getType() {
+			return new DefaultDimensionType(DefaultMachineArchitecture.class);
+		}
 	}
 
 	private static final class MachineArchitectureX86_64 extends DefaultMachineArchitecture {
@@ -61,6 +70,11 @@ public abstract class DefaultMachineArchitecture implements MachineArchitecture,
 		public boolean is64Bit() {
 			return true;
 		}
+
+		@Override
+		public DimensionType getType() {
+			return new DefaultDimensionType(DefaultMachineArchitecture.class);
+		}
 	}
 
 	public static final class UnknownMachineArchitecture extends DefaultMachineArchitecture {
@@ -76,6 +90,11 @@ public abstract class DefaultMachineArchitecture implements MachineArchitecture,
 		@Override
 		public boolean is64Bit() {
 			throw new UnsupportedOperationException("Unknown architecture");
+		}
+
+		@Override
+		public DimensionType getType() {
+			return new DefaultDimensionType(DefaultMachineArchitecture.class);
 		}
 	}
 }

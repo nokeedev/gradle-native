@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 
 @Value
 @NonFinal /** Because the {@link DefaultTargetMachineFactory} creates a builder-like {@link TargetMachine} */
-@AllArgsConstructor(access = AccessLevel.PACKAGE) /** Use {@link TargetMachineFactory} instead */
+@AllArgsConstructor()
 public class DefaultTargetMachine implements TargetMachine {
 	@NonNull DefaultOperatingSystemFamily operatingSystemFamily;
 	@NonNull DefaultMachineArchitecture architecture;

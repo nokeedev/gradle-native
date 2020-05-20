@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import lombok.Value;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -12,10 +13,10 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.internal.Cast;
 
 import javax.inject.Inject;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class VariantCollection<T extends Variant> implements Realizable {
 	private final Map<String, VariantCreationArguments<T>> variantCreationArguments = new HashMap<>();
@@ -36,19 +37,24 @@ public abstract class VariantCollection<T extends Variant> implements Realizable
 
 	private T create(String name) {
 		VariantCreationArguments<T> args = variantCreationArguments.remove(name);
-		T result = factory.create(name, args.names, args.targetMachine);
+		T result = factory.create(name, args.buildVariant);
 		args.defaultAction.execute(result);
 		return result;
 	}
 
-	// TODO: The naming scheme and dimensions (targetMachine in this case) are closly related.
-	//  They should navigate together as a single type.
 	// TODO: It sucks that I'm leaking implementation details via the return type...
 	//  This needs to be cleaned up before making public.
-	public NamedDomainObjectProvider<T> registerVariant(NamingScheme names, Object targetMachine, Action<? super T> defaultAction) {
-		String variantName = names.getVariantName();//targetMachine.getOperatingSystemFamily().getName() + StringUtils.capitalize(targetMachine.getArchitecture().getName());
-		variantCreationArguments.put(variantName, new VariantCreationArguments<T>(names, targetMachine, defaultAction));
+	public NamedDomainObjectProvider<T> registerVariant(BuildVariant buildVariant, Action<? super T> defaultAction) {
+		String variantName = StringUtils.uncapitalize(buildVariant.getDimensions().stream().map(this::determineName).map(StringUtils::capitalize).collect(Collectors.joining()));
+		variantCreationArguments.put(variantName, new VariantCreationArguments<T>(buildVariant, defaultAction));
 		return collection.register(variantName);
+	}
+
+	private String determineName(Dimension dimension) {
+		if (dimension instanceof Named) {
+			return ((Named) dimension).getName();
+		}
+		throw new IllegalArgumentException("Can't determine name");
 	}
 
 	// TODO: I don't like that we have to pass in the viewElementType
@@ -69,8 +75,7 @@ public abstract class VariantCollection<T extends Variant> implements Realizable
 
 	@Value
 	private static class VariantCreationArguments<T extends Variant> {
-		NamingScheme names;
-		Object targetMachine;
+		BuildVariant buildVariant;
 		Action<? super T> defaultAction;
 	}
 }

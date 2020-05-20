@@ -6,6 +6,8 @@ import org.gradle.api.Named;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -29,8 +31,6 @@ public abstract class NamingScheme {
 
 	public abstract String getConfigurationName(String target);
 
-	public abstract String getVariantName();
-
 	public BaseNameNamingScheme getBaseName() {
 		return new BaseNameNamingScheme();
 	}
@@ -51,6 +51,26 @@ public abstract class NamingScheme {
 		newDimmensions.addAll(dimensions);
 		newDimmensions.add(value.getName());
 		return new Other(baseName, newDimmensions);
+	}
+
+	public NamingScheme forBuildVariant(BuildVariant value, Collection<? extends BuildVariant> allBuildVariants) {
+		NamingScheme result = this;
+		int index = 0;
+		for (Dimension dimension : value.getDimensions()) {
+			if (dimension instanceof Named) {
+				Set<Named> allValuesForAxis = allBuildVariants.stream().map(extractDimensionAtIndex(index)).collect(Collectors.toSet());
+				result = result.withVariantDimension((Named)dimension, allValuesForAxis);
+			} else {
+				throw new IllegalArgumentException("The dimension needs to implement Named, it's an implementation detail at this point");
+			}
+			index++;
+		}
+
+		return result;
+	}
+
+	private Function<BuildVariant, Named> extractDimensionAtIndex(int index) {
+		return buildVariant -> (Named)buildVariant.getDimensions().get(index);
 	}
 
 	public abstract String getTaskName(String verb);
@@ -90,11 +110,6 @@ public abstract class NamingScheme {
 		public String getOutputDirectoryBase(String outputType) {
 			return outputType + "/main";
 		}
-
-		@Override
-		public String getVariantName() {
-			return "default";
-		}
 	}
 
 	private static class Other extends NamingScheme {
@@ -124,11 +139,6 @@ public abstract class NamingScheme {
 		@Override
 		public String getOutputDirectoryBase(String outputType) {
 			return outputType + "/main/" + dimensionPrefix;
-		}
-
-		@Override
-		public String getVariantName() {
-			return dimensionPrefix;
 		}
 	}
 

@@ -1,5 +1,8 @@
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.platform.base.internal.DefaultDimensionType;
+import dev.nokee.platform.base.internal.Dimension;
+import dev.nokee.platform.base.internal.DimensionType;
 import dev.nokee.platform.nativebase.OperatingSystemFamily;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -9,9 +12,10 @@ import org.gradle.api.Named;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PACKAGE) /** Use {@link DefaultOperatingSystemFamily#forName(String)} instead */
-public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Named {
+public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Named, Dimension {
 	@NonNull String name;
 
+	public static final DimensionType DIMENSION_TYPE = new DefaultDimensionType(DefaultOperatingSystemFamily.class);
 	public static final DefaultOperatingSystemFamily WINDOWS = new DefaultOperatingSystemFamily("windows");
 	public static final DefaultOperatingSystemFamily LINUX = new DefaultOperatingSystemFamily("linux");
 	public static final DefaultOperatingSystemFamily MACOS = new DefaultOperatingSystemFamily("macos");
@@ -51,5 +55,10 @@ public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Name
 		} else {
 			throw new UnsupportedOperationException("Unsupported operating system family of name '" + osName + "'");
 		}
+	}
+
+	@Override
+	public DimensionType getType() {
+		return DIMENSION_TYPE;
 	}
 }

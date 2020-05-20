@@ -6,10 +6,7 @@ import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.internal.BinaryInternal;
-import dev.nokee.platform.base.internal.DefaultBinaryView;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.*;
@@ -53,14 +50,14 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 	private final String name;
 
 	@Inject
-	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine, GroupId groupId, DomainObjectSet<BinaryInternal> parentBinaries, JniLibraryNativeDependenciesInternal dependencies) {
+	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, BuildVariant buildVariant, GroupId groupId, DomainObjectSet<BinaryInternal> parentBinaries, JniLibraryNativeDependenciesInternal dependencies) {
 		this.name = name;
 		this.names = names;
 		this.dependencies = dependencies;
 		binaryCollection = getObjects().domainObjectSet(BinaryInternal.class);
 		this.sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
 		this.implementation = implementation;
-		this.targetMachine = targetMachine;
+		this.targetMachine = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
 		this.groupId = groupId;
 
 		parentSources.all(sources::add);
