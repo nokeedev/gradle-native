@@ -6,6 +6,7 @@ import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.language.base.internal.SourceSetTransform;
 import dev.nokee.language.base.internal.UTType;
 import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.platform.nativebase.internal.NativePlatformFactory;
 import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
