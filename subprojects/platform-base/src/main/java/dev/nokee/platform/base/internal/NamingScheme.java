@@ -29,6 +29,8 @@ public abstract class NamingScheme {
 
 	public abstract String getConfigurationName(String target);
 
+	public abstract String getVariantName();
+
 	public BaseNameNamingScheme getBaseName() {
 		return new BaseNameNamingScheme();
 	}
@@ -88,6 +90,11 @@ public abstract class NamingScheme {
 		public String getOutputDirectoryBase(String outputType) {
 			return outputType + "/main";
 		}
+
+		@Override
+		public String getVariantName() {
+			return "default";
+		}
 	}
 
 	private static class Other extends NamingScheme {
@@ -117,6 +124,11 @@ public abstract class NamingScheme {
 		@Override
 		public String getOutputDirectoryBase(String outputType) {
 			return outputType + "/main/" + dimensionPrefix;
+		}
+
+		@Override
+		public String getVariantName() {
+			return dimensionPrefix;
 		}
 	}
 

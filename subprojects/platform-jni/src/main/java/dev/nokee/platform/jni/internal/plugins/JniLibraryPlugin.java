@@ -127,7 +127,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				final NamingScheme names = namingScheme;
 
 				// Find toolchain capable of building C++
-				final NamedDomainObjectProvider<JniLibraryInternal> library = extension.registerVariant(names, targetMachineInternal, it -> {
+				final NamedDomainObjectProvider<JniLibraryInternal> library = extension.getVariantCollection().registerVariant(names, targetMachineInternal, it -> {
 					// Build all language source set
 					List<SourceSet<UTTypeObjectCode>> objectSourceSets = new ArrayList<>();
 					if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
@@ -281,23 +281,20 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			// Ensure the variants are resolved so all tasks are registered.
 			tasks.named("tasks", task -> {
 				task.dependsOn((Callable) () -> {
-					// TODO: Account for no variant, is that even possible?
-					extension.getVariantCollection().iterator().next();
+					extension.getVariantCollection().realize();
 					return emptyList();
 				});
 			});
 			// Ensure the variants are resolved so all configurations and dependencies are registered.
 			tasks.named("dependencies", task -> {
 				task.dependsOn((Callable) () -> {
-					// TODO: Account for no variant, is that even possible?
-					extension.getVariantCollection().iterator().next();
+					extension.getVariantCollection().realize();
 					return emptyList();
 				});
 			});
 			tasks.named("outgoingVariants", task -> {
 				task.dependsOn((Callable) () -> {
-					// TODO: Account for no variant, is that even possible?
-					extension.getVariantCollection().iterator().next();
+					extension.getVariantCollection().realize();
 					return emptyList();
 				});
 			});
@@ -306,8 +303,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(proj -> {
 			// The previous trick doesn't work for dependencyInsight task and vice-versa.
 			project.getConfigurations().addRule("Java Native Interface (JNI) variants are resolved only when needed.", it -> {
-				// TODO: Account for no variant, is that even possible?
-				extension.getVariantCollection().iterator().next();
+				extension.getVariantCollection().realize();
 			});
 		});
 
@@ -436,7 +432,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		project.getConfigurations().getByName("implementation").extendsFrom(library.getJvmImplementationDependencies());
 
 		project.getTasks().named("test", Test.class, task -> {
-			Provider<List<FileCollection>> files = getProviders().provider(() -> library.getVariantCollection().stream().map(it -> it.getNativeRuntimeFiles()).collect(Collectors.toList()));
+			Provider<List<FileCollection>> files = getProviders().provider(() -> library.getVariantCollection().get().stream().map(it -> it.getNativeRuntimeFiles()).collect(Collectors.toList()));
 			task.dependsOn(files);
 
 			// TODO: notify when no native library exists

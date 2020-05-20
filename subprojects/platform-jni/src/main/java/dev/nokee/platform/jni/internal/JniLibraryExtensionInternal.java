@@ -10,58 +10,44 @@ import dev.nokee.platform.jni.JniLibraryDependencies;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.nativebase.TargetMachine;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
-import dev.nokee.platform.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory;
-import lombok.Value;
-import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.*;
+import org.gradle.api.Action;
+import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.internal.Cast;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class JniLibraryExtensionInternal implements JniLibraryExtension {
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
 	private final JniLibraryDependenciesInternal dependencies;
 	private final GroupId groupId;
 	private final DomainObjectSet<BinaryInternal> binaryCollection;
-	private final NamedDomainObjectContainer<JniLibraryInternal> variantCollection;
-	private final Map<String, JniLibraryCreationArguments> variantCreationArguments = new HashMap<>();
+	private final VariantCollection<JniLibraryInternal> variantCollection = getObjects().newInstance(VariantCollection.class, JniLibraryInternal.class, (VariantFactory<JniLibraryInternal>)this::create);
 	private final DefaultTargetMachineFactory targetMachineFactory;
-
-	@Value
-	private static class JniLibraryCreationArguments {
-		NamingScheme names;
-		TargetMachine targetMachine;
-		Action<? super JniLibraryInternal> action;
-	}
 
 	@Inject
 	public JniLibraryExtensionInternal(JniLibraryDependenciesInternal dependencies, GroupId groupId, DefaultTargetMachineFactory targetMachineFactory) {
 		this.targetMachineFactory = targetMachineFactory;
 		binaryCollection = getObjects().domainObjectSet(BinaryInternal.class);
 		sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
-		variantCollection = getObjects().domainObjectContainer(JniLibraryInternal.class, name -> {
-			JniLibraryCreationArguments args = variantCreationArguments.remove(name);
-
-			JniLibraryNativeDependenciesInternal variantDependencies = dependencies;
-			if (getTargetMachines().get().size() > 1) {
-				variantDependencies = getObjects().newInstance(JniLibraryNativeDependenciesInternal.class, args.names);
-				variantDependencies.extendsFrom(dependencies);
-			}
-
-			JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, name, args.names, sources, dependencies.getNativeDependencies(), args.targetMachine, groupId, binaryCollection, variantDependencies);
-			args.action.execute(result);
-			return result;
-		});
 		this.dependencies = dependencies;
 		this.groupId = groupId;
+	}
+
+	private JniLibraryInternal create(String name, NamingScheme names, Object targetMachineObject) {
+		TargetMachine targetMachine = (TargetMachine)targetMachineObject;
+		JniLibraryNativeDependenciesInternal variantDependencies = dependencies;
+		if (getTargetMachines().get().size() > 1) {
+			variantDependencies = getObjects().newInstance(JniLibraryNativeDependenciesInternal.class, names);
+			variantDependencies.extendsFrom(dependencies);
+		}
+
+		JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, name, names, sources, dependencies.getNativeDependencies(), targetMachine, groupId, binaryCollection, variantDependencies);
+		return result;
 	}
 
 	@Inject
@@ -73,22 +59,18 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	@Inject
 	protected abstract ProviderFactory getProviders();
 
-	public NamedDomainObjectContainer<JniLibraryInternal> getVariantCollection() {
+	public VariantCollection<JniLibraryInternal> getVariantCollection() {
 		return variantCollection;
 	}
 
-	public NamedDomainObjectProvider<JniLibraryInternal> registerVariant(NamingScheme names, DefaultTargetMachine targetMachine, Action<? super JniLibraryInternal> action) {
-		String variantName = targetMachine.getOperatingSystemFamily().getName() + StringUtils.capitalize(targetMachine.getArchitecture().getName());
-		variantCreationArguments.put(variantName, new JniLibraryCreationArguments(names, targetMachine, action));
-		return getVariantCollection().register(variantName);
-	}
-
+	@Override
 	public BinaryView<Binary> getBinaries() {
 		return Cast.uncheckedCast(getObjects().newInstance(VariantResolvingBinaryView.class, binaryCollection, variantCollection));
 	}
 
+	@Override
 	public VariantView<JniLibrary> getVariants() {
-		return Cast.uncheckedCast(getObjects().newInstance(DefaultVariantView.class, variantCollection));
+		return variantCollection.getAsView(JniLibrary.class);
 	}
 
 	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
@@ -119,18 +101,17 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	}
 
 	public static abstract class VariantResolvingBinaryView extends DefaultBinaryView<Binary> {
-		private final DomainObjectCollection<JniLibraryInternal> variants;
+		private final Realizable variants;
 
 		@Inject
-		public VariantResolvingBinaryView(DomainObjectSet<Binary> delegate, DomainObjectCollection<JniLibraryInternal> variants) {
+		public VariantResolvingBinaryView(DomainObjectSet<Binary> delegate, Realizable variants) {
 			super(delegate);
 			this.variants = variants;
 		}
 
 		@Override
 		protected void doResolve() {
-			// TODO: Account for no variant, is that even possible?
-			variants.iterator().next();
+			variants.realize();
 		}
 
 		@Override
