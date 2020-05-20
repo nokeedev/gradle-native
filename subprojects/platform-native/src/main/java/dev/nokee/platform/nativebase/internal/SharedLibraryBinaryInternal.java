@@ -45,9 +45,10 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static dev.nokee.platform.nativebase.internal.DependencyUtils.isFrameworkDependency;
+
 public abstract class SharedLibraryBinaryInternal extends BinaryInternal implements SharedLibraryBinary {
 	private static final Logger LOGGER = Logger.getLogger(SharedLibraryBinaryInternal.class.getName());
-	private final Configuration compileConfiguration;
 	private final Configuration linkConfiguration;
 	private final TaskContainer tasks;
 	private final TaskProvider<LinkSharedLibraryTask> linkTask;
@@ -66,13 +67,10 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 		this.objectSourceSets = objectSourceSets;
 		compileTasks = getObjects().newInstance(DefaultTaskView.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()));
 
-		getCompilerInputs().value(fromCompileConfiguration()).finalizeValueOnRead();
-		getCompilerInputs().disallowChanges();
 		getLinkerInputs().value(fromLinkConfiguration()).finalizeValueOnRead();
 		getLinkerInputs().disallowChanges();
 
 		ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
-		this.compileConfiguration = getConfigurations().create(names.getConfigurationName("headerSearchPaths"), configurationUtils.asIncomingHeaderSearchPathFrom(implementation));
 		this.linkConfiguration = getConfigurations().create(names.getConfigurationName("nativeLink"), configurationUtils.asIncomingLinkLibrariesFrom(implementation).forTargetMachine(targetMachine).asDebug());
 
 		// configure includes using the native incoming compile configuration
@@ -81,15 +79,13 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 			NativeSourceCompileTask taskInternal = (NativeSourceCompileTask)task;
 			taskInternal.getHeaderSearchPaths().addAll(softwareModelTaskInternal.getIncludes().getElements().map(SharedLibraryBinaryInternal::toHeaderSearchPaths));
 
-			softwareModelTaskInternal.dependsOn(compileConfiguration);
 			softwareModelTaskInternal.includes("src/main/headers");
-			softwareModelTaskInternal.includes(getCompilerInputs().map(this::toHeaderSearchPaths));
+
 			softwareModelTaskInternal.setPositionIndependentCode(true);
 
 			sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> softwareModelTaskInternal.getIncludes().from(sourceSet.getSource()));
 
 			softwareModelTaskInternal.getIncludes().from(getJvmIncludes());
-			softwareModelTaskInternal.getCompilerArgs().addAll(getCompilerInputs().map(this::toFrameworkSearchPathFlags));
 		});
 
 		linkTask.configure(task -> {
@@ -144,45 +140,6 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 			return result;
 		});
 	}
-
-	private static boolean isFrameworkDependency(ResolvedArtifactResult result) {
-		Optional<Attribute<?>> attribute = result.getVariant().getAttributes().keySet().stream().filter(it -> it.getName().equals(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE.getName())).findFirst();
-		if (attribute.isPresent()) {
-			String v = result.getVariant().getAttributes().getAttribute(attribute.get()).toString();
-			if (v.equals(LibraryElements.FRAMEWORK_BUNDLE)) {
-				return true;
-			}
-			return false;
-		}
-		LOGGER.finest(() -> "No library elements on dependency\n" + result.getVariant().getAttributes().keySet().stream().map(Attribute::getName).collect(Collectors.joining(", ")));
-		return false;
-	}
-
-	//region Compiler inputs
-	public abstract ListProperty<CompilerInput> getCompilerInputs();
-
-	private Provider<List<CompilerInput>> fromCompileConfiguration() {
-		return getProviderFactory().provider(() -> compileConfiguration.getIncoming().getArtifacts().getArtifacts().stream().map(CompilerInput::of).collect(Collectors.toList()));
-	}
-
-	private List<String> toFrameworkSearchPathFlags(List<CompilerInput> inputs) {
-		return inputs.stream().filter(CompilerInput::isFramework).flatMap(it -> ImmutableList.of("-F", it.getFile().getParent()).stream()).collect(Collectors.toList());
-	}
-
-	private List<File> toHeaderSearchPaths(List<CompilerInput> inputs) {
-		return inputs.stream().filter(it -> !it.isFramework()).map(CompilerInput::getFile).collect(Collectors.toList());
-	}
-
-	@Value
-	static class CompilerInput {
-		boolean framework;
-		File file;
-
-		public static CompilerInput of(ResolvedArtifactResult result) {
-			return new CompilerInput(isFrameworkDependency(result), result.getFile());
-		}
-	}
-	//endregion
 
 	//region Linker inputs
 	private Provider<List<LinkerInput>> fromLinkConfiguration() {

@@ -5,6 +5,7 @@ import dev.nokee.language.nativebase.internal.NativeSourceSetTransform;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.nativeplatform.toolchain.internal.ToolType;
 
@@ -12,8 +13,8 @@ import javax.inject.Inject;
 
 public abstract class CSourceSetTransform extends NativeSourceSetTransform<UTTypeCSource> {
 	@Inject
-	public CSourceSetTransform(NamingScheme names, DefaultTargetMachine targetMachine, ToolChainSelectorInternal toolChainSelector) {
-		super(names, targetMachine, toolChainSelector);
+	public CSourceSetTransform(NamingScheme names, DefaultTargetMachine targetMachine, ToolChainSelectorInternal toolChainSelector, Configuration compileConfiguration) {
+		super(names, targetMachine, toolChainSelector, compileConfiguration);
 	}
 
 	@Override

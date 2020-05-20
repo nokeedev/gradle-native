@@ -7,6 +7,7 @@ import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.nativeplatform.toolchain.internal.ToolType;
 
@@ -14,8 +15,8 @@ import javax.inject.Inject;
 
 public abstract class ObjectiveCppSourceSetTransform extends NativeSourceSetTransform<UTTypeObjectiveCppSource> {
 	@Inject
-	public ObjectiveCppSourceSetTransform(NamingScheme names, DefaultTargetMachine targetMachine, ToolChainSelectorInternal toolChainSelector) {
-		super(names, targetMachine, toolChainSelector);
+	public ObjectiveCppSourceSetTransform(NamingScheme names, DefaultTargetMachine targetMachine, ToolChainSelectorInternal toolChainSelector, Configuration compileConfiguration) {
+		super(names, targetMachine, toolChainSelector, compileConfiguration);
 	}
 
 	@Override

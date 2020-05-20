@@ -1,6 +1,7 @@
 package dev.nokee.platform.jni.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.DefaultSourceSet;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.SourceSet;
@@ -18,10 +19,7 @@ import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.jni.JniLibraryExtension;
-import dev.nokee.platform.jni.internal.DefaultJvmJarBinary;
-import dev.nokee.platform.jni.internal.JniLibraryDependenciesInternal;
-import dev.nokee.platform.jni.internal.JniLibraryExtensionInternal;
-import dev.nokee.platform.jni.internal.JniLibraryInternal;
+import dev.nokee.platform.jni.internal.*;
 import dev.nokee.platform.nativebase.TargetMachine;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.*;
@@ -131,21 +129,26 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				final NamedDomainObjectProvider<JniLibraryInternal> library = extension.registerVariant(names, targetMachineInternal, it -> {
 					// Build all language source set
 					List<SourceSet<UTTypeObjectCode>> objectSourceSets = new ArrayList<>();
-					if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
-						SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(CppSourceSet.class).srcDir("src/main/cpp").transform(getObjects().newInstance(CppSourceSetTransform.class, names, targetMachineInternal, toolChainSelector));
-						objectSourceSets.add(objectSourceSet);
-					}
-					if (proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
-						SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(CSourceSet.class).srcDir("src/main/c").transform(getObjects().newInstance(CSourceSetTransform.class, names, targetMachineInternal, toolChainSelector));
-						objectSourceSets.add(objectSourceSet);
-					}
-					if (proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
-						SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(DefaultSourceSet.class, new UTTypeObjectiveCppSource()).srcDir("src/main/objcpp").transform(getObjects().newInstance(ObjectiveCppSourceSetTransform.class, names, targetMachineInternal, toolChainSelector));
-						objectSourceSets.add(objectSourceSet);
-					}
-					if (proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-						SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(DefaultSourceSet.class, new UTTypeObjectiveCSource()).srcDir("src/main/objc").transform(getObjects().newInstance(ObjectiveCSourceSetTransform.class, names, targetMachineInternal, toolChainSelector));
-						objectSourceSets.add(objectSourceSet);
+					if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
+						ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
+						Configuration compileConfiguration = getConfigurations().create(names.getConfigurationName("headerSearchPaths"), configurationUtils.asIncomingHeaderSearchPathFrom(extension.getNativeImplementationDependencies()));
+
+						if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
+							SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(CppSourceSet.class).srcDir("src/main/cpp").transform(getObjects().newInstance(CppSourceSetTransform.class, names, targetMachineInternal, toolChainSelector, compileConfiguration));
+							objectSourceSets.add(objectSourceSet);
+						}
+						if (proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
+							SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(CSourceSet.class).srcDir("src/main/c").transform(getObjects().newInstance(CSourceSetTransform.class, names, targetMachineInternal, toolChainSelector, compileConfiguration));
+							objectSourceSets.add(objectSourceSet);
+						}
+						if (proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
+							SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(DefaultSourceSet.class, new UTTypeObjectiveCppSource()).srcDir("src/main/objcpp").transform(getObjects().newInstance(ObjectiveCppSourceSetTransform.class, names, targetMachineInternal, toolChainSelector, compileConfiguration));
+							objectSourceSets.add(objectSourceSet);
+						}
+						if (proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
+							SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(DefaultSourceSet.class, new UTTypeObjectiveCSource()).srcDir("src/main/objc").transform(getObjects().newInstance(ObjectiveCSourceSetTransform.class, names, targetMachineInternal, toolChainSelector, compileConfiguration));
+							objectSourceSets.add(objectSourceSet);
+						}
 					}
 
 					TaskProvider<LinkSharedLibraryTask> linkTask = tasks.register(names.getTaskName("link"), LinkSharedLibraryTask.class, task -> {
