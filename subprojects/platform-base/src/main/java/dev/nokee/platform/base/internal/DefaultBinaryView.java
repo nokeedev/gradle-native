@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -12,6 +13,7 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.internal.Cast;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Set;
 
 public abstract class DefaultBinaryView<T extends Binary> implements BinaryView<T> {
@@ -46,11 +48,11 @@ public abstract class DefaultBinaryView<T extends Binary> implements BinaryView<
 	}
 
 	@Override
-	public <S> Provider<Set<? extends S>> map(Transformer<? extends S, ? super T> mapper) {
-		return getElements().map(new Transformer<Set<? extends S>, Set<? extends T>>() {
+	public <S> Provider<List<? extends S>> map(Transformer<? extends S, ? super T> mapper) {
+		return getElements().map(new Transformer<List<? extends S>, Set<? extends T>>() {
 			@Override
-			public Set<? extends S> transform(Set<? extends T> elements) {
-				ImmutableSet.Builder<S> result = ImmutableSet.builder();
+			public List<? extends S> transform(Set<? extends T> elements) {
+				ImmutableList.Builder<S> result = ImmutableList.builder();
 				for (T element : elements) {
 					result.add(mapper.transform(element));
 				}
@@ -60,11 +62,11 @@ public abstract class DefaultBinaryView<T extends Binary> implements BinaryView<
 	}
 
 	@Override
-	public <S> Provider<Set<? extends S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper) {
-		return getElements().map(new Transformer<Set<? extends S>, Set<? extends T>>() {
+	public <S> Provider<List<? extends S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper) {
+		return getElements().map(new Transformer<List<? extends S>, Set<? extends T>>() {
 			@Override
-			public Set<? extends S> transform(Set<? extends T> elements) {
-				ImmutableSet.Builder<S> result = ImmutableSet.builder();
+			public List<? extends S> transform(Set<? extends T> elements) {
+				ImmutableList.Builder<S> result = ImmutableList.builder();
 				for (T element : elements) {
 					result.addAll(mapper.transform(element));
 				}
