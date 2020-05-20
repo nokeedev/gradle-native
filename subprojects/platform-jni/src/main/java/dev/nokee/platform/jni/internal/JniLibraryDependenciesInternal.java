@@ -70,4 +70,8 @@ public abstract class JniLibraryDependenciesInternal extends JniLibraryNativeDep
 	public Configuration getJvmDependencies() {
 		return jvmImplementationDependencies;
 	}
+
+	public Configuration getJvmRuntimeOnlyDependencies() {
+		return jvmRuntimeOnly;
+	}
 }

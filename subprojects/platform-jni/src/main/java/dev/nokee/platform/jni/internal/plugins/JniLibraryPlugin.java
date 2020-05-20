@@ -394,6 +394,10 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		});
 		jvmRuntimeElements.extendsFrom(dependencies.getApiDependencies());
 
+		project.getPluginManager().withPlugin("java", appliedPlugin -> {
+			getConfigurations().getByName("runtimeOnly").extendsFrom(dependencies.getJvmRuntimeOnlyDependencies());
+		});
+
 		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, dependencies, GroupId.of(project::getGroup), targetMachineFactory);
 		library.getTargetMachines().convention(singletonList(targetMachineFactory.host()));
 		project.getExtensions().add(JniLibraryExtension.class, "library", library);
