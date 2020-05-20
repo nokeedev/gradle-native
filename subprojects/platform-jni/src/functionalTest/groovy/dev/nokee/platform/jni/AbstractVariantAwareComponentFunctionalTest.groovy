@@ -4,6 +4,8 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToo
 import dev.nokee.platform.jni.fixtures.*
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
 
+import static org.apache.commons.io.FilenameUtils.separatorsToSystem
+
 abstract class AbstractVariantAwareComponentFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "do not realize variants for unrelated tasks"(task) {
 		given:
@@ -129,7 +131,7 @@ No dependencies
 
 		expect:
 		succeeds('outgoingVariants')
-		result.assertOutputContains("""
+		result.assertOutputContains(separatorsToSystem("""
 --------------------------------------------------
 Variant customLinux${currentArchitecture.capitalize()}Elements
 --------------------------------------------------
@@ -153,7 +155,7 @@ Description = Custom configuration for variant 'windows${currentArchitecture.cap
 
 Artifacts
     - build/windows${currentArchitecture.capitalize()}.potato (artifactType = potato)
-""")
+"""))
 	}
 
 	def "can view dependency insight for configuration created by variants when executing dependencyInsight"() {
