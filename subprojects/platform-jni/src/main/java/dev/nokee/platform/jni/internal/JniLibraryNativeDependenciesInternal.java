@@ -33,15 +33,14 @@ public abstract class JniLibraryNativeDependenciesInternal implements JniLibrary
 
 	@Inject
 	public JniLibraryNativeDependenciesInternal(NamingScheme names) {
-		nativeImplementationDependencies = getConfigurations().create(names.getConfigurationName("nativeImplementation"), ConfigurationUtils::configureAsBucket);
-		nativeLinkOnly = getConfigurations().create(names.getConfigurationName("nativeLinkOnly"), ConfigurationUtils::configureAsBucket);
-		nativeRuntimeOnly = getConfigurations().create(names.getConfigurationName("nativeRuntimeOnly"), ConfigurationUtils::configureAsBucket);
+		ConfigurationUtils builder = getObjects().newInstance(ConfigurationUtils.class);
+		nativeImplementationDependencies = getConfigurations().create(names.getConfigurationName("nativeImplementation"), builder.asBucket().withDescription("Implementation only dependencies for JNI shared library."));
+		nativeLinkOnly = getConfigurations().create(names.getConfigurationName("nativeLinkOnly"), builder.asBucket().withDescription("Link only dependencies for JNI shared library."));
+		nativeRuntimeOnly = getConfigurations().create(names.getConfigurationName("nativeRuntimeOnly"), builder.asBucket().withDescription("Runtime only dependencies for JNI shared library."));
 	}
 
 	public JniLibraryNativeDependenciesInternal() {
-		nativeImplementationDependencies = getConfigurations().create("nativeImplementation", ConfigurationUtils::configureAsBucket);
-		nativeLinkOnly = getConfigurations().create("nativeLinkOnly", ConfigurationUtils::configureAsBucket);
-		nativeRuntimeOnly = getConfigurations().create("nativeRuntimeOnly", ConfigurationUtils::configureAsBucket);
+		this(NamingScheme.asMainComponent(null)); // TODO: allow namingscheme wihtout basename OR always pass in a namingscheme... probably the latter
 	}
 
 	@Override

@@ -770,4 +770,54 @@ class JniLibraryPluginWithNoLanguageConfigurationsTest extends AbstractJniLibrar
 			'macosX86-64NativeLinkLibraries', 'macosX86-64NativeRuntimeLibraries' /* macosX86-64 incoming */
 		] as Set
 	}
+
+	@Ignore
+	def "JVM configurations has description"() {
+		given:
+		applyPluginAndEvaluate('plugin registers variants in afterEvaluate')
+		resolveAllVariants('plugin creates configurations on demand')
+
+		expect:
+		project.configurations.api.description == ''
+		project.configurations.jvmImplementation.description == ''
+		project.configurations.jvmRuntimeOnly.description == ''
+		project.configurations.apiElements.description == ''
+		project.configurations.runtimeElements.description == ''
+	}
+
+	@Ignore
+	def "native configurations has description"() {
+		given:
+		applyPluginAndEvaluate('plugin registers variants in afterEvaluate')
+		resolveAllVariants('plugin creates configurations on demand')
+
+		expect:
+		project.configurations.nativeImplementation.description == 'Implementation only dependencies for JNI shared library.'
+		project.configurations.nativeLinkOnly.description == 'Link only dependencies for JNI shared library.'
+		project.configurations.nativeRuntimeOnly.description == 'Runtime only dependencies for JNI shared library.'
+		project.configurations.nativeLinkLibraries.description == ''
+		project.configurations.nativeRuntimeLibraries.description == ''
+	}
+
+	def "resolve variants when unrealized configuration are resolved"() {
+		given:
+		applyPlugin()
+		def configuredVariants = []
+		project.library.variants.configureEach { configuredVariants << it }
+
+		when:
+		evaluateProject('plugin registers variants in afterEvaluate and register the configuration rule for on demand realization')
+		then: 'nothing is realized initially'
+		configuredVariants == []
+
+		when:
+		project.configurations.getByName('nativeRuntimeOnly')
+		then: 'nothing is realized for base lifecycle configuration'
+		configuredVariants == []
+
+		when:
+		project.configurations.getByName('nativeRuntimeLibraries')
+		then: 'variants are realized for incoming configuration'
+		!configuredVariants.isEmpty()
+	}
 }

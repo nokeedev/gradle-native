@@ -23,21 +23,17 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.google.common.collect.ImmutableMap.of;
-import static dev.nokee.platform.nativebase.internal.ConfigurationUtils.ConfigurationSpec.Type.INCOMING;
-import static dev.nokee.platform.nativebase.internal.ConfigurationUtils.ConfigurationSpec.Type.OUTGOING;
+import static dev.nokee.platform.nativebase.internal.ConfigurationUtils.ConfigurationSpec.Type.*;
 import static java.util.Collections.emptyMap;
 
 public abstract class ConfigurationUtils {
 	//region Bucket
-	public Action<Configuration> asBucket() {
-		return configuration -> configureAsBucket(configuration);
+	public DescribableConfigurationAction asBucket() {
+		return new DescribableConfigurationAction(ConfigurationSpec.asBucket());
 	}
 
-	public Action<Configuration> asBucket(Configuration fromBucket) {
-		return configuration -> {
-			configureAsBucket(configuration);
-			configuration.extendsFrom(fromBucket);
-		};
+	public DescribableConfigurationAction asBucket(Configuration fromBucket) {
+		return new DescribableConfigurationAction(ConfigurationSpec.asBucket(fromBucket));
 	}
 	//endregion
 
@@ -110,12 +106,27 @@ public abstract class ConfigurationUtils {
 	@Inject
 	protected abstract ObjectFactory getObjects();
 
-	public static abstract class IncomingConfigurationAction implements Action<Configuration> {
-		private final ConfigurationSpec spec;
+	public static class DescribableConfigurationAction implements Action<Configuration> {
+		protected final ConfigurationSpec spec;
 
+		public DescribableConfigurationAction(ConfigurationSpec spec) {
+			this.spec = spec;
+		}
+
+		public DescribableConfigurationAction withDescription(String description) {
+			return new DescribableConfigurationAction(spec.withDescription(description));
+		}
+
+		@Override
+		public void execute(Configuration configuration) {
+			spec.execute(configuration);
+		}
+	}
+
+	public static abstract class IncomingConfigurationAction extends DescribableConfigurationAction {
 		@Inject
 		public IncomingConfigurationAction(ConfigurationSpec spec) {
-			this.spec = spec;
+			super(spec);
 		}
 
 		@Inject
@@ -149,26 +160,20 @@ public abstract class ConfigurationUtils {
 		}
 
 		@Override
-		public void execute(Configuration configuration) {
-			spec.execute(configuration);
+		public IncomingConfigurationAction withDescription(String description) {
+			return getObjects().newInstance(IncomingConfigurationAction.class, spec.withDescription(description));
 		}
 	}
 
-	public static abstract class VariantAwareOutgoingConfigurationAction implements Action<Configuration> {
-		private final ConfigurationSpec spec;
+	public static abstract class VariantAwareOutgoingConfigurationAction extends DescribableConfigurationAction {
 
 		@Inject
 		public VariantAwareOutgoingConfigurationAction(ConfigurationSpec spec) {
-			this.spec = spec;
+			super(spec);
 		}
 
 		@Inject
 		protected abstract ObjectFactory getObjects();
-
-		@Override
-		public void execute(Configuration configuration) {
-			spec.execute(configuration);
-		}
 
 		VariantAwareOutgoingConfigurationAction withStaticLinkage() {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
@@ -248,6 +253,11 @@ public abstract class ConfigurationUtils {
 		VariantAwareOutgoingConfigurationAction andThen(Action<Configuration> additionalAction) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class, spec.withAdditionalAction(additionalAction));
 		}
+
+		@Override
+		public VariantAwareOutgoingConfigurationAction withDescription(String description) {
+			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class, spec.withDescription(description));
+		}
 	}
 
 	@Value
@@ -263,9 +273,10 @@ public abstract class ConfigurationUtils {
 		@With Map<Attribute<?>, Object> attributes;
 		@With OutgoingArtifact artifact;
 		@With Action<Configuration> additionalAction;
+		@With String description;
 
 		enum Type {
-			INCOMING(ConfigurationUtils::configureAsIncoming), OUTGOING(ConfigurationUtils::configureAsOutgoing);
+			BUCKET(ConfigurationUtils::configureAsBucket), INCOMING(ConfigurationUtils::configureAsIncoming), OUTGOING(ConfigurationUtils::configureAsOutgoing);
 
 			private final Consumer<Configuration> action;
 
@@ -278,22 +289,34 @@ public abstract class ConfigurationUtils {
 			}
 		}
 
+		static ConfigurationSpec asBucket() {
+			return new ConfigurationSpec(BUCKET, ImmutableList.of(), emptyMap(), null, it -> {}, null);
+		}
+
+		static ConfigurationSpec asBucket(Configuration fromBucket) {
+			return new ConfigurationSpec(BUCKET, ImmutableList.of(fromBucket), emptyMap(), null, it -> {}, null);
+		}
+
 		static ConfigurationSpec asOutgoing(Configuration fromBucket, Map<Attribute<?>, Object> attributes) {
-			return new ConfigurationSpec(OUTGOING, ImmutableList.of(fromBucket), attributes, /*emptyList(),*/ null, it -> {});
+			return new ConfigurationSpec(OUTGOING, ImmutableList.of(fromBucket), attributes, null, it -> {}, null);
 		}
 
 		static ConfigurationSpec asIncoming() {
-			return new ConfigurationSpec(INCOMING, ImmutableList.of(), emptyMap(), /*emptyList(),*/ null, it -> {});
+			return new ConfigurationSpec(INCOMING, ImmutableList.of(), emptyMap(),null, it -> {}, null);
 		}
 
 		static ConfigurationSpec asIncoming(Configuration... fromBucket) {
-			return new ConfigurationSpec(INCOMING, ImmutableList.copyOf(fromBucket), emptyMap(), /*emptyList(),*/ null, it -> {});
+			return new ConfigurationSpec(INCOMING, ImmutableList.copyOf(fromBucket), emptyMap(), null, it -> {}, null);
 		}
 
 		@Override
 		public void execute(Configuration configuration) {
 			type.configure(configuration);
 			configuration.setExtendsFrom(fromBuckets);
+
+			if (description != null) {
+				configuration.setDescription(description);
+			}
 
 			attributes.forEach((key, value) -> configuration.getAttributes().attribute(Cast.uncheckedNonnullCast(key), Cast.uncheckedNonnullCast(value)));
 
