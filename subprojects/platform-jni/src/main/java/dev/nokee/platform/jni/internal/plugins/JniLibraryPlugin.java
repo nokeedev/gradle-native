@@ -153,6 +153,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 					}
 
 					TaskProvider<LinkSharedLibraryTask> linkTask = tasks.register(names.getTaskName("link"), LinkSharedLibraryTask.class, task -> {
+						task.setDescription("Links the shared library.");
 						objectSourceSets.stream().map(SourceSet::getAsFileTree).forEach(task::source);
 
 						NativePlatformFactory nativePlatformFactory = new NativePlatformFactory();
@@ -224,11 +225,19 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				// Include native runtime files inside JNI jar
 				if (targetMachines.size() == 1) {
 					if (project.getPluginManager().hasPlugin("java")) {
-						getTasks().named("jar", Jar.class, configureJarTaskUsing(library));
+						getTasks().named("jar", Jar.class, task -> {
+							task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
+							task.setDescription("Assembles a jar archive containing the main classes and shared library.");
+							configureJarTaskUsing(library).execute(task);
+						});
 
 						// NOTE: We don't need to attach the JNI JAR to runtimeElements as the `java` plugin take cares of this.
 					} else {
-						TaskProvider<Jar> jarTask = getTasks().register("jar", Jar.class, configureJarTaskUsing(library));
+						TaskProvider<Jar> jarTask = getTasks().register(JavaPlugin.JAR_TASK_NAME, Jar.class, task -> {
+							task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
+							task.setDescription("Assembles a jar archive containing the shared library.");
+							configureJarTaskUsing(library).execute(task);
+						});
 
 						// Attach JNI Jar to runtimeElements
 						// TODO: We could set the classes directory as secondary variant.
