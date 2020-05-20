@@ -48,6 +48,7 @@ import org.gradle.api.tasks.testing.Test;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.language.nativeplatform.internal.toolchains.ToolChainSelector;
+import org.gradle.language.plugins.NativeBasePlugin;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
@@ -61,6 +62,7 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
+import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
@@ -82,6 +84,13 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
+		IncompatiblePluginUsage.forProject(project)
+			.assertPluginIds(SOFTWARE_MODEL_PLUGIN_IDS, IncompatiblePluginsAdvice::forSoftwareModelNativePlugins)
+			.assertPluginId(JAVA_APPLICATION_PLUGIN_ID, IncompatiblePluginsAdvice::forJavaApplicationEntryPointPlugin)
+			.assertPluginId(JAVA_LIBRARY_PLUGIN_ID, IncompatiblePluginsAdvice::forJavaLibraryEntryPointPlugin)
+			.assertPluginIds(CURRENT_MODEL_PLUGIN_IDS, IncompatiblePluginsAdvice::forCurrentModelNativePlugins)
+			.assertPluginClass(NativeBasePlugin.class, IncompatiblePluginsAdvice::forNativeBasePlugin);
+
 		TaskContainer tasks = project.getTasks();
 		project.getPluginManager().apply("base");
 		project.getPluginManager().apply("lifecycle-base");
@@ -93,7 +102,6 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
 		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJniHeaderSourceSet(project, extension));
-		project.getPluginManager().withPlugin("java-library", appliedPlugin -> { throw new GradleException("Use java plugin instead"); });
 		project.getPlugins().withType(NativePlatformCapabilitiesMarkerPlugin.class, appliedPlugin -> {
 			project.getPluginManager().apply(DarwinFrameworkResolutionSupportPlugin.class);
 		});
@@ -425,5 +433,95 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				}
 			});
 		});
+	}
+
+	/**
+	 * Consider the following guidelines when writing the error message:
+	 *  - Clear, short and meaningful
+	 *  - No jargon
+	 *  - Be humble (no blaming)
+	 *  - Provide action
+	 *  - Yes answers
+	 */
+	static abstract class IncompatiblePluginsAdvice {
+		static final Set<String> SOFTWARE_MODEL_PLUGIN_IDS = ImmutableSet.of("cpp", "cpp-lang", "c", "c-lang", "objective-c", "objective-c-lang", "objective-cpp", "objective-cpp-lang");
+		static final Set<String> CURRENT_MODEL_PLUGIN_IDS = ImmutableSet.of("cpp-library", "cpp-application", "swift-library", "swift-application");
+		static final String JAVA_APPLICATION_PLUGIN_ID = "application";
+		static final String JAVA_LIBRARY_PLUGIN_ID = "java-library";
+
+		private static final String SOFTWARE_MODEL_MIGRATION = "To learn more about software model migration, visit https://nokee.dev/docs/migrating-from-software-model";
+		private static final String CURRENT_MODEL_MIGRATION = "To learn more about Gradle core native plugin migration, visit https://nokee.dev/docs/migrating-from-core-plugin";
+		private static final String PROJECT_ENTRY_POINT = "To learn more about project entry points, visit https://nokee.dev/docs/project-entry-points";
+		private static final String LEARN_CPP_LANGUAGE = "To learn more about 'dev.nokee.cpp-language' plugin, visit https://nokee.dev/docs/cpp-language-plugin";
+		private static final String USE_CPP_LANGUAGE = "Use 'dev.nokee.cpp-language' plugin instead of the 'cpp-application' and 'cpp-library' plugins";
+		private static final String VOTE_SWIFT_LANGUAGE = "Vote on https://github.com/nokeedev/gradle-native/issues/26 issue to show interest for Swift language support";
+		private static final String REMOTE_SWIFT_PLUGINS = "Remove 'swift-application' and 'swift-library' plugins from the project";
+
+		static void forJavaApplicationEntryPointPlugin(String pluginId, IncompatiblePluginUsage.Context context) {
+			context.advice("Refer to https://nokee.dev/docs/building-jni-application for learning how to build JNI application")
+				.withFootnote(PROJECT_ENTRY_POINT);
+		}
+
+		static void forJavaLibraryEntryPointPlugin(String pluginId, IncompatiblePluginUsage.Context context) {
+			context.advice("Use 'java' plugin instead of 'java-library' plugin")
+				.withFootnote(PROJECT_ENTRY_POINT);
+		}
+
+		static void forSoftwareModelNativePlugins(String pluginId, IncompatiblePluginUsage.Context context) {
+			switch (pluginId) {
+				case "cpp":
+				case "cpp-lang":
+					context.advice("Use 'dev.nokee.cpp-language' plugin instead of the 'cpp' and 'cpp-lang' plugins")
+						.withFootnote(LEARN_CPP_LANGUAGE)
+						.withFootnote(SOFTWARE_MODEL_MIGRATION);
+					break;
+				case "c":
+				case "c-lang":
+					context.advice("Use 'dev.nokee.c-language' plugin instead of the 'c' and 'c-lang' plugins")
+						.withFootnote("To learn more about 'dev.nokee.c-language' plugin, visit https://nokee.dev/docs/c-language-plugin")
+						.withFootnote(SOFTWARE_MODEL_MIGRATION);
+					break;
+				case "objective-c":
+				case "objective-c-lang":
+					context.advice("Use 'dev.nokee.objective-c-language' plugin instead of the 'objective-c' and 'objective-c-lang' plugins")
+						.withFootnote("To learn more about 'dev.nokee.objective-c-language' plugin, visit https://nokee.dev/docs/objective-c-language-plugin")
+						.withFootnote(SOFTWARE_MODEL_MIGRATION);
+					break;
+				case "objective-cpp":
+				case "objective-cpp-lang":
+					context.advice("Use 'dev.nokee.objective-cpp-language' plugin instead of the 'objective-cpp' and 'objective-cpp-lang' plugins")
+						.withFootnote("To learn more about 'dev.nokee.objective-cpp-language' plugin, visit https://nokee.dev/docs/objective-cpp-language-plugin")
+						.withFootnote(SOFTWARE_MODEL_MIGRATION);
+					break;
+			}
+		}
+
+		static void forCurrentModelNativePlugins(String pluginId, IncompatiblePluginUsage.Context context) {
+			switch (pluginId) {
+				case "cpp-application":
+				case "cpp-library":
+					context.advice(USE_CPP_LANGUAGE)
+						.withFootnote(LEARN_CPP_LANGUAGE)
+						.withFootnote(PROJECT_ENTRY_POINT)
+						.withFootnote(CURRENT_MODEL_MIGRATION);
+					break;
+				case "swift-application":
+				case "swift-library":
+					context.advice(REMOTE_SWIFT_PLUGINS)
+						.withFootnote(PROJECT_ENTRY_POINT);
+					context.advice(VOTE_SWIFT_LANGUAGE);
+					break;
+			}
+		}
+
+		static void forNativeBasePlugin(String pluginId, IncompatiblePluginUsage.Context context) {
+			context.advice(USE_CPP_LANGUAGE)
+				.withFootnote(LEARN_CPP_LANGUAGE)
+				.withFootnote(PROJECT_ENTRY_POINT)
+				.withFootnote(CURRENT_MODEL_MIGRATION);
+			context.advice(REMOTE_SWIFT_PLUGINS)
+				.withFootnote(PROJECT_ENTRY_POINT);
+			context.advice(VOTE_SWIFT_LANGUAGE);
+		}
 	}
 }
