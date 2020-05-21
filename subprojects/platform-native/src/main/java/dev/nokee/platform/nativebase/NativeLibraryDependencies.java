@@ -3,6 +3,8 @@ package dev.nokee.platform.nativebase;
 import dev.nokee.platform.base.ComponentDependencies;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ExternalModuleDependency;
+import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.artifacts.ProjectDependency;
 
 /**
  * Allows the API and implementation dependencies of a native library to be specified.
@@ -22,6 +24,7 @@ public interface NativeLibraryDependencies extends NativeComponentDependencies, 
      *
      * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
      * @param action The action to run to configure the dependency.
+	 * @param <T> The dependency type to configure, project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}.
      */
-    void api(Object notation, Action<? super ExternalModuleDependency> action);
+    <T extends ModuleDependency> void api(Object notation, Action<? super T> action);
 }

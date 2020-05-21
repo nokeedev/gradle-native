@@ -3,6 +3,8 @@ package dev.nokee.platform.nativebase;
 import dev.nokee.platform.base.ComponentDependencies;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ExternalModuleDependency;
+import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.artifacts.ProjectDependency;
 
 /**
  * Allows the implementation dependencies of a native component to be specified.
@@ -10,22 +12,23 @@ import org.gradle.api.artifacts.ExternalModuleDependency;
  * @since 0.4
  */
 public interface NativeComponentDependencies extends ComponentDependencies {
-    /**
-     * Adds an implementation dependency to this component.
+	/**
+	 * Adds an implementation dependency to this component.
 	 * An implementation dependency is not visible to consumers that are compiled against this component.
-     *
-     * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-     */
-    void implementation(Object notation);
+	 *
+	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+	 */
+	void implementation(Object notation);
 
-    /**
-     * Adds an implementation dependency to this component.
+	/**
+	 * Adds an implementation dependency to this component.
 	 * An implementation dependency is not visible to consumers that are compiled against this component.
-     *
-     * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-     * @param action The action to run to configure the dependency.
-     */
-    void implementation(Object notation, Action<? super ExternalModuleDependency> action);
+	 *
+	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+	 * @param action The action to run to configure the dependency.
+	 * @param <T> The dependency type to configure, project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}.
+	 */
+	<T extends ModuleDependency> void implementation(Object notation, Action<? super T> action);
 
 	/**
 	 * Adds an native compile only dependency to this component.
@@ -41,8 +44,9 @@ public interface NativeComponentDependencies extends ComponentDependencies {
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 * @param action The action to run to configure the dependency.
+	 * @param <T> The dependency type to configure, project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}.
 	 */
-	void compileOnly(Object notation, Action<? super ExternalModuleDependency> action);
+	<T extends ModuleDependency> void compileOnly(Object notation, Action<? super T> action);
 
 	/**
 	 * Adds an native link only dependency to this component.
@@ -58,8 +62,9 @@ public interface NativeComponentDependencies extends ComponentDependencies {
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 * @param action The action to run to configure the dependency.
+	 * @param <T> The dependency type to configure, project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}.
 	 */
-	void linkOnly(Object notation, Action<? super ExternalModuleDependency> action);
+	<T extends ModuleDependency> void linkOnly(Object notation, Action<? super T> action);
 
 	/**
 	 * Adds an native runtime only dependency to this component.
@@ -75,6 +80,7 @@ public interface NativeComponentDependencies extends ComponentDependencies {
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 * @param action The action to run to configure the dependency.
+	 * @param <T> The dependency type to configure, project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}.
 	 */
-	void runtimeOnly(Object notation, Action<? super ExternalModuleDependency> action);
+	<T extends ModuleDependency> void runtimeOnly(Object notation, Action<? super T> action);
 }

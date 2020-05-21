@@ -1,5 +1,6 @@
 package dev.nokee.platform.swift.internal.plugins;
 
+import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryDependencies;
 import dev.nokee.platform.swift.SwiftLibraryExtension;
 import dev.nokee.platform.swift.internal.DefaultSwiftLibraryExtension;
@@ -16,6 +17,6 @@ public abstract class SwiftLibraryPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getExtensions().add(SwiftLibraryExtension.class, "library", getObjects().newInstance(DefaultSwiftLibraryExtension.class,
-			getObjects().newInstance(DefaultNativeLibraryDependencies.class)));
+			getObjects().newInstance(DefaultNativeLibraryDependencies.class, NamingScheme.asMainComponent(project.getName()))));
 	}
 }

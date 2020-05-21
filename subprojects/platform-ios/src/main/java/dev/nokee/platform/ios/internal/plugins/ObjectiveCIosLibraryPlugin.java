@@ -1,5 +1,6 @@
 package dev.nokee.platform.ios.internal.plugins;
 
+import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.ios.ObjectiveCIosLibraryExtension;
 import dev.nokee.platform.ios.internal.DefaultObjectiveCIosLibraryExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryDependencies;
@@ -16,6 +17,6 @@ public abstract class ObjectiveCIosLibraryPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getExtensions().add(ObjectiveCIosLibraryExtension.class, "library", getObjects().newInstance(DefaultObjectiveCIosLibraryExtension.class,
-			getObjects().newInstance(DefaultNativeLibraryDependencies.class)));
+			getObjects().newInstance(DefaultNativeLibraryDependencies.class, NamingScheme.asMainComponent(project.getName()))));
 	}
 }

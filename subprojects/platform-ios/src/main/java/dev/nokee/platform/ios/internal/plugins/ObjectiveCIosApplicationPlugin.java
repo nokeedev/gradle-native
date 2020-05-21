@@ -3,6 +3,7 @@ package dev.nokee.platform.ios.internal.plugins;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.core.exec.internal.VersionedCommandLineTool;
+import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.ObjectiveCIosLibraryExtension;
 import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
@@ -42,7 +43,7 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 	@Override
 	public void apply(Project project) {
 		project.getExtensions().add(ObjectiveCIosApplicationExtension.class, "application", getObjects().newInstance(DefaultObjectiveCIosApplicationExtension.class,
-			getObjects().newInstance(DefaultNativeComponentDependencies.class)));
+			getObjects().newInstance(DefaultNativeComponentDependencies.class, NamingScheme.asMainComponent(project.getName()))));
 
 		project.getPluginManager().apply(LifecycleBasePlugin.class);
 		project.getPluginManager().apply("objective-c"); // Until we move away from the software model like platform JNI

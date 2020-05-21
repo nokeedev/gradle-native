@@ -1,5 +1,6 @@
 package dev.nokee.platform.objectivec.internal.plugins;
 
+import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryDependencies;
 import dev.nokee.platform.objectivec.ObjectiveCLibraryExtension;
 import dev.nokee.platform.objectivec.internal.DefaultObjectiveCLibraryExtension;
@@ -16,6 +17,6 @@ public abstract class ObjectiveCLibraryPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getExtensions().add(ObjectiveCLibraryExtension.class, "library", getObjects().newInstance(DefaultObjectiveCLibraryExtension.class,
-			getObjects().newInstance(DefaultNativeLibraryDependencies.class)));
+			getObjects().newInstance(DefaultNativeLibraryDependencies.class, NamingScheme.asMainComponent(project.getName()))));
 	}
 }

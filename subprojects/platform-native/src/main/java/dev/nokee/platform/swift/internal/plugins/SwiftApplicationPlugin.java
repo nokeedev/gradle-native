@@ -1,5 +1,6 @@
 package dev.nokee.platform.swift.internal.plugins;
 
+import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
 import dev.nokee.platform.swift.SwiftApplicationExtension;
 import dev.nokee.platform.swift.internal.DefaultSwiftApplicationExtension;
@@ -16,6 +17,6 @@ public abstract class SwiftApplicationPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getExtensions().add(SwiftApplicationExtension.class, "application", getObjects().newInstance(DefaultSwiftApplicationExtension.class,
-			getObjects().newInstance(DefaultNativeComponentDependencies.class)));
+			getObjects().newInstance(DefaultNativeComponentDependencies.class, NamingScheme.asMainComponent(project.getName()))));
 	}
 }

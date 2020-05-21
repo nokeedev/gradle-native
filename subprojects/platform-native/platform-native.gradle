@@ -6,6 +6,7 @@ plugins {
 
 repositories {
 	jcenter()
+	mavenCentral()
 	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
 }
 
@@ -22,15 +23,14 @@ dependencies {
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
-	testImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {
-		capabilities {
-			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
-		}
-	}
+	testRuntimeOnly 'net.bytebuddy:byte-buddy:1.10.10' // Because NamingScheme is not an interface
+	testRuntimeOnly 'org.objenesis:objenesis:3.1' // Because NamingScheme is not an interface
 
+	testFixturesImplementation project(':runtimeNative')
 	testFixturesImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testFixturesImplementation 'org.spockframework:spock-core'
 	testFixturesImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	testFixturesImplementation 'org.hamcrest:hamcrest:2.2'
 }
 
 gradlePlugin {

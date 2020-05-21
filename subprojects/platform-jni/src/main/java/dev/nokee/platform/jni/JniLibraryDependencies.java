@@ -3,6 +3,8 @@ package dev.nokee.platform.jni;
 import dev.nokee.platform.base.ComponentDependencies;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ExternalModuleDependency;
+import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.artifacts.ProjectDependency;
 
 /**
  * Allows the API and JVM implementation and native implementation dependencies of a JNI library to be specified.
@@ -23,8 +25,9 @@ public interface JniLibraryDependencies extends JniLibraryNativeDependencies, Co
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 * @param action The action to run to configure the dependency.
+	 * @param <T> The dependency type to configure, project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}.
 	 */
-	void api(Object notation, Action<? super ExternalModuleDependency> action);
+	<T extends ModuleDependency> void api(Object notation, Action<? super T> action);
 
 	/**
 	 * Adds an JVM implementation dependency to this library. An implementation dependency is not visible to consumers that are compiled against this component.
@@ -39,8 +42,9 @@ public interface JniLibraryDependencies extends JniLibraryNativeDependencies, Co
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 * @param action The action to run to configure the dependency.
+	 * @param <T> The dependency type to configure, project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}.
 	 */
-	void jvmImplementation(Object notation, Action<? super ExternalModuleDependency> action);
+	<T extends ModuleDependency> void jvmImplementation(Object notation, Action<? super T> action);
 
 	/**
 	 * Adds an JVM runtime only dependency to this library.
@@ -56,8 +60,9 @@ public interface JniLibraryDependencies extends JniLibraryNativeDependencies, Co
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 * @param action The action to run to configure the dependency.
+	 * @param <T> The dependency type to configure, project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}.
 	 */
-	void jvmRuntimeOnly(Object notation, Action<? super ExternalModuleDependency> action);
+	<T extends ModuleDependency> void jvmRuntimeOnly(Object notation, Action<? super T> action);
 
 	/**
 	 * {@inheritDoc}
@@ -69,7 +74,7 @@ public interface JniLibraryDependencies extends JniLibraryNativeDependencies, Co
 	 * {@inheritDoc}
 	 */
 	@Override
-	void nativeImplementation(Object notation, Action<? super ExternalModuleDependency> action);
+	<T extends ModuleDependency> void nativeImplementation(Object notation, Action<? super T> action);
 
 	/**
 	 * {@inheritDoc}
@@ -81,7 +86,7 @@ public interface JniLibraryDependencies extends JniLibraryNativeDependencies, Co
 	 * {@inheritDoc}
 	 */
 	@Override
-	void nativeLinkOnly(Object notation, Action<? super ExternalModuleDependency> action);
+	<T extends ModuleDependency> void nativeLinkOnly(Object notation, Action<? super T> action);
 
 	/**
 	 * {@inheritDoc}
@@ -93,5 +98,5 @@ public interface JniLibraryDependencies extends JniLibraryNativeDependencies, Co
 	 * {@inheritDoc}
 	 */
 	@Override
-	void nativeRuntimeOnly(Object notation, Action<? super ExternalModuleDependency> action);
+	<T extends ModuleDependency> void nativeRuntimeOnly(Object notation, Action<? super T> action);
 }

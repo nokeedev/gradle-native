@@ -1,5 +1,6 @@
 package dev.nokee.platform.cpp.internal.plugins;
 
+import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.cpp.CppApplicationExtension;
 import dev.nokee.platform.cpp.internal.DefaultCppApplicationExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
@@ -16,6 +17,6 @@ public abstract class CppApplicationPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getExtensions().add(CppApplicationExtension.class, "application", getObjects().newInstance(DefaultCppApplicationExtension.class,
-			getObjects().newInstance(DefaultNativeComponentDependencies.class)));
+			getObjects().newInstance(DefaultNativeComponentDependencies.class, NamingScheme.asMainComponent(project.getName()))));
 	}
 }
