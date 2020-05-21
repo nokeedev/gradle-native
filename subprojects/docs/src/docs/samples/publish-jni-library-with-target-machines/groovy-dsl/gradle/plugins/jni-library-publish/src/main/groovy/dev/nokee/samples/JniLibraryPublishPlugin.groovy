@@ -78,8 +78,12 @@ abstract class JniLibraryPublishPlugin implements Plugin<Project> {
 					}
 				}
 				AdhocComponentWithVariants jniVariant = softwareComponentFactory.adhoc("jni${variantName(targetMachine).capitalize()}")
-				// FIXME: Introduce APIs to avoid using getVariantCollection() internal API
-				def jniLibraries = extension.variantCollection.matching { it.targetMachine.equals(targetMachine) }
+				def jniLibraries = extension.variants.flatMap {
+					if (it.targetMachine.equals(targetMachine)) {
+						return [it]
+					}
+					return []
+				}.get()
 				if (!jniLibraries.isEmpty()) {
 					/*dev.nokee.platform.jni.JniLibrary*/def jniLibrary = jniLibraries.iterator().next()
 					jniLibraryVariant.outgoing.artifact(jniLibrary.jar.jarTask.flatMap { it.archiveFile })
