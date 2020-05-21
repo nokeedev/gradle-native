@@ -1,5 +1,7 @@
 package dev.nokee.platform.jni.internal.plugins
 
+import dev.nokee.fixtures.AbstractPluginTest
+import dev.nokee.fixtures.ProjectTestFixture
 import dev.nokee.platform.jni.JniLibrary
 import dev.nokee.platform.jni.JniLibraryDependencies
 import dev.nokee.platform.jni.JniLibraryExtension
@@ -12,8 +14,6 @@ import groovy.transform.Canonical
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
-import org.gradle.api.Task
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.internal.plugins.PluginApplicationException
 import org.gradle.jvm.tasks.Jar
 import org.gradle.testfixtures.ProjectBuilder
@@ -24,36 +24,15 @@ import spock.lang.Unroll
 
 import static org.hamcrest.Matchers.containsInAnyOrder
 
-trait ProjectTestFixture {
-	abstract Project getProjectUnderTest()
-
-	boolean hasTask(String name) {
-		return projectUnderTest.tasks.findByName(name) != null
-	}
-
-	boolean hasConfiguration(String name) {
-		return projectUnderTest.configurations.findByName(name) != null
-	}
-
-	Set<Configuration> getConfigurations() {
-		return projectUnderTest.configurations.findAll { !['archives', 'default'].contains(it.name) }
-	}
-
-	Set<Task> getTasks() {
-		return projectUnderTest.tasks.findAll { !['help', 'tasks', 'components', 'dependencies', 'dependencyInsight', 'dependentComponents', 'init', 'model', 'outgoingVariants', 'projects', 'properties', 'wrapper', 'buildEnvironment'].contains(it.name) }
-	}
-
-	public <T> T one(Iterable<T> c) {
-		assert c.size() == 1
-		return c.iterator().next()
-	}
-}
-
 trait JniLibraryPluginTestFixture {
 	abstract Project getProjectUnderTest()
 
 	void applyPlugin() {
 		projectUnderTest.apply plugin: 'dev.nokee.jni-library'
+	}
+
+	void applyPluginUnderTest() {
+		applyPlugin()
 	}
 
 	void evaluateProject(String because) {
@@ -70,8 +49,20 @@ trait JniLibraryPluginTestFixture {
 	}
 }
 
-@Subject(JniLibraryPlugin)
 abstract class AbstractJniLibraryPluginSpec extends Specification {}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginLayoutTest extends AbstractPluginTest implements JniLibraryPluginTestFixture {
+	@Override
+	def getExtensionUnderTest() {
+		return projectUnderTest.library
+	}
+
+	@Override
+	Class getExtensionType() {
+		return JniLibraryExtension
+	}
+}
 
 @Subject(JniLibraryPlugin)
 class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements ProjectTestFixture, JniLibraryPluginTestFixture {
@@ -80,24 +71,6 @@ class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements Proje
 	@Override
 	Project getProjectUnderTest() {
 		return project
-	}
-
-	def "registers extension on project"() {
-		when:
-		applyPlugin()
-
-		then:
-		project.library != null
-		project.library instanceof JniLibraryExtension
-	}
-
-	def "registers variants on extensions"() {
-		when:
-		applyPluginAndEvaluate('plugin register variants in afterEvaluate')
-
-		then:
-		def variant = one(project.library.variants.elements.get())
-		variant instanceof JniLibrary
 	}
 
 	def "disallows query of views before evaluation"() {

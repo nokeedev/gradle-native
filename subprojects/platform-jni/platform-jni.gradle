@@ -27,6 +27,7 @@ dependencies {
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
 	testImplementation 'org.hamcrest:hamcrest:2.2'
+	testImplementation testFixtures(project(':platformNative'))
 }
 
 gradlePlugin {

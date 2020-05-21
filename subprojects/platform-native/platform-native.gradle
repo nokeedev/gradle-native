@@ -1,5 +1,6 @@
 plugins {
 	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'java-test-fixtures'
 	id 'maven-publish'
 }
 
@@ -24,6 +25,55 @@ dependencies {
 	testImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {
 		capabilities {
 			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
+		}
+	}
+
+	testFixturesImplementation platform("org.spockframework:spock-bom:${spockVersion}")
+	testFixturesImplementation 'org.spockframework:spock-core'
+	testFixturesImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+}
+
+gradlePlugin {
+	plugins {
+		cppApplication {
+			id = 'dev.nokee.cpp-application'
+			implementationClass = 'dev.nokee.platform.cpp.internal.plugins.CppApplicationPlugin'
+		}
+		cppLibrary {
+			id = 'dev.nokee.cpp-library'
+			implementationClass = 'dev.nokee.platform.cpp.internal.plugins.CppLibraryPlugin'
+		}
+		cApplication {
+			id = 'dev.nokee.c-application'
+			implementationClass = 'dev.nokee.platform.c.internal.plugins.CApplicationPlugin'
+		}
+		cLibrary {
+			id = 'dev.nokee.c-library'
+			implementationClass = 'dev.nokee.platform.c.internal.plugins.CLibraryPlugin'
+		}
+		objcApplication {
+			id = 'dev.nokee.objective-c-application'
+			implementationClass = 'dev.nokee.platform.objectivec.internal.plugins.ObjectiveCApplicationPlugin'
+		}
+		objcLibrary {
+			id = 'dev.nokee.objective-c-library'
+			implementationClass = 'dev.nokee.platform.objectivec.internal.plugins.ObjectiveCLibraryPlugin'
+		}
+		objcppApplication {
+			id = 'dev.nokee.objective-cpp-application'
+			implementationClass = 'dev.nokee.platform.objectivecpp.internal.plugins.ObjectiveCppApplicationPlugin'
+		}
+		objcppLibrary {
+			id = 'dev.nokee.objective-cpp-library'
+			implementationClass = 'dev.nokee.platform.objectivecpp.internal.plugins.ObjectiveCppLibraryPlugin'
+		}
+		swiftApplication {
+			id = 'dev.nokee.swift-application'
+			implementationClass = 'dev.nokee.platform.swift.internal.plugins.SwiftApplicationPlugin'
+		}
+		swiftLibrary {
+			id = 'dev.nokee.swift-library'
+			implementationClass = 'dev.nokee.platform.swift.internal.plugins.SwiftLibraryPlugin'
 		}
 	}
 }

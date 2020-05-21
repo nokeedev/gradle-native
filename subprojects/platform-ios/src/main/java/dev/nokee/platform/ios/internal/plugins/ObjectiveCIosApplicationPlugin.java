@@ -3,6 +3,8 @@ package dev.nokee.platform.ios.internal.plugins;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.core.exec.internal.VersionedCommandLineTool;
+import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
+import dev.nokee.platform.ios.ObjectiveCIosLibraryExtension;
 import dev.nokee.platform.ios.internal.DescriptorCommandLineTool;
 import dev.nokee.platform.ios.tasks.internal.*;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
@@ -10,6 +12,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
@@ -23,6 +26,9 @@ import java.io.File;
 
 public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	@Inject
+	protected abstract ObjectFactory getObjects();
+
+	@Inject
 	protected abstract ProjectLayout getLayout();
 
 	@Inject
@@ -33,6 +39,8 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 
 	@Override
 	public void apply(Project project) {
+		project.getExtensions().add(ObjectiveCIosApplicationExtension.class, "application", getObjects().newInstance(ObjectiveCIosApplicationExtension.class));
+
 		project.getPluginManager().apply(LifecycleBasePlugin.class);
 		project.getPluginManager().apply("objective-c"); // Until we move away from the software model like platform JNI
 		project.getPluginManager().apply("dev.nokee.objective-c-language");
