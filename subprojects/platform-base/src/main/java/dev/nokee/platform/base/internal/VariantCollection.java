@@ -23,6 +23,7 @@ public abstract class VariantCollection<T extends Variant> implements Realizable
 	private final Class<T> elementType;
 	private final VariantFactory<T> factory;
 	private final NamedDomainObjectContainer<T> collection;
+	private boolean disallowChanges = false;
 
 	@Inject
 	protected abstract ObjectFactory getObjects();
@@ -45,6 +46,9 @@ public abstract class VariantCollection<T extends Variant> implements Realizable
 	// TODO: It sucks that I'm leaking implementation details via the return type...
 	//  This needs to be cleaned up before making public.
 	public NamedDomainObjectProvider<T> registerVariant(BuildVariant buildVariant, Action<? super T> defaultAction) {
+		if (disallowChanges) {
+			throw new IllegalStateException("The value cannot be changed any further.");
+		}
 		String variantName = StringUtils.uncapitalize(buildVariant.getDimensions().stream().map(this::determineName).map(StringUtils::capitalize).collect(Collectors.joining()));
 		variantCreationArguments.put(variantName, new VariantCreationArguments<T>(buildVariant, defaultAction));
 		return collection.register(variantName);
@@ -60,12 +64,20 @@ public abstract class VariantCollection<T extends Variant> implements Realizable
 	// TODO: I don't like that we have to pass in the viewElementType
 	public <S extends Variant> VariantView<S> getAsView(Class<S> viewElementType) {
 		Preconditions.checkArgument(viewElementType.isAssignableFrom(elementType), "element type of the view needs to be the same type or a supertype of the element of this collection");
-		return Cast.uncheckedCast(getObjects().newInstance(DefaultVariantView.class, collection));
+		return Cast.uncheckedCast(getObjects().newInstance(DefaultVariantView.class, collection, this));
 	}
 
 	public void realize() {
+		if (!disallowChanges) {
+			throw new IllegalStateException("Please disallow changes before realizing the variants.");
+		}
 		// TODO: Account for no variant, is that even possible?
 		collection.iterator().next();
+	}
+
+	public VariantCollection<T> disallowChanges() {
+		disallowChanges = true;
+		return this;
 	}
 
 	// TODO: This may not be needed, the only place it's used should probably use public API

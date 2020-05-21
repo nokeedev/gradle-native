@@ -26,6 +26,7 @@ dependencies {
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	testImplementation 'org.hamcrest:hamcrest:2.2'
 }
 
 gradlePlugin {

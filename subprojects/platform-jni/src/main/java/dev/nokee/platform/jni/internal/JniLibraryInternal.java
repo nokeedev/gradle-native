@@ -8,6 +8,7 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JniLibrary;
+import dev.nokee.platform.jni.JniLibraryNativeDependencies;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
@@ -67,7 +68,11 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 		});
 
 		ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
-		nativeRuntime = getConfigurations().create(names.getConfigurationName("nativeRuntimeLibraries"), configurationUtils.asIncomingRuntimeLibrariesFrom(dependencies.getNativeDependencies(), dependencies.getNativeRuntimeOnlyDependencies()).forTargetMachine(targetMachine).asDebug());
+		nativeRuntime = getConfigurations().create(names.getConfigurationName("nativeRuntimeLibraries"),
+			configurationUtils.asIncomingRuntimeLibrariesFrom(dependencies.getNativeDependencies(), dependencies.getNativeRuntimeOnlyDependencies())
+				.forTargetMachine(targetMachine)
+				.asDebug()
+				.withDescription("Runtime libraries for JNI shared library."));
 
 		getNativeRuntimeFiles().from(nativeRuntime);
 		getResourcePath().convention(getProviders().provider(() -> names.getResourcePath(groupId)));
@@ -96,7 +101,7 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 	protected abstract TaskContainer getTasks();
 
 	public BinaryView<Binary> getBinaries() {
-		return Cast.uncheckedCast(getObjects().newInstance(DefaultBinaryView.class, binaryCollection));
+		return Cast.uncheckedCast(getObjects().newInstance(DefaultBinaryView.class, binaryCollection, (Realizable)() -> {}));
 	}
 
 	public void registerSharedLibraryBinary(List<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants) {
@@ -158,5 +163,15 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 
 	public TaskProvider<Task> getAssembleTask() {
 		return getTasks().named(names.getTaskName("assemble"));
+	}
+
+	@Override
+	public JniLibraryNativeDependencies getDependencies() {
+		return dependencies;
+	}
+
+	@Override
+	public void dependencies(Action<? super JniLibraryNativeDependencies> action) {
+		action.execute(dependencies);
 	}
 }

@@ -52,4 +52,20 @@ public interface JniLibrary extends Variant {
 	 * @since 0.3
 	 */
 	BinaryView<Binary> getBinaries();
+
+	/**
+	 * Returns the dependencies of this variant.
+	 *
+	 * @return a {@link JniLibraryNativeDependencies}, never null.
+	 * @since 0.4
+	 */
+	JniLibraryNativeDependencies getDependencies();
+
+	/**
+	 * Configure the dependencies of this variant.
+	 *
+	 * @param action configuration action for {@link JniLibraryNativeDependencies}.
+	 * @since 0.4
+	 */
+	void dependencies(Action<? super JniLibraryNativeDependencies> action);
 }

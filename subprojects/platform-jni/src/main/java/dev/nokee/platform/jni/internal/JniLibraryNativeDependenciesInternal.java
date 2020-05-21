@@ -34,13 +34,12 @@ public abstract class JniLibraryNativeDependenciesInternal implements JniLibrary
 	@Inject
 	public JniLibraryNativeDependenciesInternal(NamingScheme names) {
 		ConfigurationUtils builder = getObjects().newInstance(ConfigurationUtils.class);
-		nativeImplementationDependencies = getConfigurations().create(names.getConfigurationName("nativeImplementation"), builder.asBucket().withDescription("Implementation only dependencies for JNI shared library."));
-		nativeLinkOnly = getConfigurations().create(names.getConfigurationName("nativeLinkOnly"), builder.asBucket().withDescription("Link only dependencies for JNI shared library."));
-		nativeRuntimeOnly = getConfigurations().create(names.getConfigurationName("nativeRuntimeOnly"), builder.asBucket().withDescription("Runtime only dependencies for JNI shared library."));
-	}
-
-	public JniLibraryNativeDependenciesInternal() {
-		this(NamingScheme.asMainComponent(null)); // TODO: allow namingscheme wihtout basename OR always pass in a namingscheme... probably the latter
+		nativeImplementationDependencies = getConfigurations().create(names.getConfigurationName("nativeImplementation"),
+			builder.asBucket().withDescription("Implementation only dependencies for JNI shared library."));
+		nativeLinkOnly = getConfigurations().create(names.getConfigurationName("nativeLinkOnly"),
+			builder.asBucket().withDescription("Link only dependencies for JNI shared library."));
+		nativeRuntimeOnly = getConfigurations().create(names.getConfigurationName("nativeRuntimeOnly"),
+			builder.asBucket().withDescription("Runtime only dependencies for JNI shared library."));
 	}
 
 	@Override

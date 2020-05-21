@@ -71,7 +71,11 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 		getLinkerInputs().disallowChanges();
 
 		ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
-		this.linkConfiguration = getConfigurations().create(names.getConfigurationName("nativeLinkLibraries"), configurationUtils.asIncomingLinkLibrariesFrom(implementation, linkOnly).forTargetMachine(targetMachine).asDebug());
+		this.linkConfiguration = getConfigurations().create(names.getConfigurationName("nativeLinkLibraries"),
+			configurationUtils.asIncomingLinkLibrariesFrom(implementation, linkOnly)
+				.forTargetMachine(targetMachine)
+				.asDebug()
+				.withDescription("Link libraries for JNI shared library."));
 
 		// configure includes using the native incoming compile configuration
 		compileTasks.configureEach(task -> {

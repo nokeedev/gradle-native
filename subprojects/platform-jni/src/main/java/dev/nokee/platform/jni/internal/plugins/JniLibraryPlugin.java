@@ -265,6 +265,8 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 					});
 				}
 			});
+
+			extension.getVariantCollection().disallowChanges();
 		});
 
 		project.afterEvaluate(proj -> {
@@ -354,11 +356,11 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private JniLibraryExtensionInternal registerExtension(Project project, DefaultTargetMachineFactory targetMachineFactory, NamingScheme names) {
-		JniLibraryDependenciesInternal dependencies = project.getObjects().newInstance(JniLibraryDependenciesInternal.class);
+		JniLibraryDependenciesInternal dependencies = project.getObjects().newInstance(JniLibraryDependenciesInternal.class, names);
 		Configuration jvmApiElements = Optional.ofNullable(project.getConfigurations().findByName("apiElements")).orElseGet(() -> {
 			return project.getConfigurations().create("apiElements", configuration -> {
-				configuration.setCanBeResolved(false);
-				configuration.setCanBeConsumed(true);
+				ConfigurationUtils.configureAsOutgoing(configuration);
+				configuration.setDescription("API elements for main.");
 				configuration.attributes(attributes -> {
 					attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_API));
 					attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR));
@@ -370,8 +372,8 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 
 		Configuration jvmRuntimeElements = Optional.ofNullable(project.getConfigurations().findByName("runtimeElements")).orElseGet(() -> {
 			return project.getConfigurations().create("runtimeElements", configuration -> {
-				configuration.setCanBeResolved(false);
-				configuration.setCanBeConsumed(true);
+				ConfigurationUtils.configureAsOutgoing(configuration);
+				configuration.setDescription("Elements of runtime for main.");
 				configuration.attributes(attributes -> {
 					attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME));
 					attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR));

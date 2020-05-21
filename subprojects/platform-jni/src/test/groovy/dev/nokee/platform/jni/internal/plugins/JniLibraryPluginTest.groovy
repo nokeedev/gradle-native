@@ -1,8 +1,13 @@
 package dev.nokee.platform.jni.internal.plugins
 
+import dev.nokee.platform.jni.JniLibrary
+import dev.nokee.platform.jni.JniLibraryDependencies
 import dev.nokee.platform.jni.JniLibraryExtension
+import dev.nokee.platform.jni.JniLibraryNativeDependencies
+import dev.nokee.platform.nativebase.SharedLibraryBinary
 import dev.nokee.platform.nativebase.TargetMachineFactory
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory
+import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary
 import groovy.transform.Canonical
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -10,11 +15,14 @@ import org.gradle.api.ProjectConfigurationException
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.internal.plugins.PluginApplicationException
+import org.gradle.jvm.tasks.Jar
 import org.gradle.testfixtures.ProjectBuilder
-import spock.lang.Ignore
+import org.hamcrest.MatcherAssert
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
+
+import static org.hamcrest.Matchers.containsInAnyOrder
 
 trait ProjectTestFixture {
 	abstract Project getProjectUnderTest()
@@ -33,6 +41,11 @@ trait ProjectTestFixture {
 
 	Set<Task> getTasks() {
 		return projectUnderTest.tasks.findAll { !['help', 'tasks', 'components', 'dependencies', 'dependencyInsight', 'dependentComponents', 'init', 'model', 'outgoingVariants', 'projects', 'properties', 'wrapper', 'buildEnvironment'].contains(it.name) }
+	}
+
+	public <T> T one(Iterable<T> c) {
+		assert c.size() == 1
+		return c.iterator().next()
 	}
 }
 
@@ -78,7 +91,15 @@ class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements Proje
 		project.library instanceof JniLibraryExtension
 	}
 
-	@Ignore() // TODO: Fix this before 0.4
+	def "registers variants on extensions"() {
+		when:
+		applyPluginAndEvaluate('plugin register variants in afterEvaluate')
+
+		then:
+		def variant = one(project.library.variants.elements.get())
+		variant instanceof JniLibrary
+	}
+
 	def "disallows query of views before evaluation"() {
 		given:
 		applyPlugin()
@@ -87,13 +108,13 @@ class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements Proje
 		project.library.binaries.elements.get()
 		then:
 		def ex1 = thrown(IllegalStateException)
-		ex1.message == ''
+		ex1.message == 'Please disallow changes before realizing the variants.'
 
 		when:
 		project.library.variants.elements.get()
 		then:
 		def ex2 = thrown(IllegalStateException)
-		ex2.message == ''
+		ex2.message == 'Please disallow changes before realizing the variants.'
 	}
 
 	def "allow query of views after evaluation"() {
@@ -115,12 +136,100 @@ class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements Proje
 		variants.size() == 1
 	}
 
-	// TODO: Check dependencies api of the right type on extension
-	// TODO: Check dependencies api of the right type on each variants
-	// TODO: Check easy access to shared library from each variants
+	def "resolve variants when unrealized configuration are resolved"() {
+		given:
+		applyPlugin()
+		def configuredVariants = []
+		project.library.variants.configureEach { configuredVariants << it }
+
+		when:
+		evaluateProject('plugin registers variants in afterEvaluate and register the configuration rule for on demand realization')
+		then: 'nothing is realized initially'
+		configuredVariants == []
+
+		when:
+		project.configurations.getByName('nativeRuntimeOnly')
+		then: 'nothing is realized for base lifecycle configuration'
+		configuredVariants == []
+
+		when:
+		project.configurations.getByName('nativeRuntimeLibraries')
+		then: 'variants are realized for incoming configuration'
+		!configuredVariants.isEmpty()
+	}
+
+	def "extensions has dependencies dsl"() {
+		given:
+		applyPlugin()
+
+		expect:
+		project.library.dependencies instanceof JniLibraryDependencies
+		def capturedDependencyDsl = null
+		project.library.dependencies {
+			capturedDependencyDsl = it
+		}
+		capturedDependencyDsl instanceof JniLibraryDependencies
+	}
+
+	def "variants has dependencies dsl"() {
+		given:
+		applyPluginAndEvaluate('plugin registers variants in afterEvaluate')
+
+		expect:
+		def variant = one(project.library.variants.elements.get())
+		variant.dependencies instanceof JniLibraryNativeDependencies
+		def capturedDependencyDsl = null
+		variant.dependencies {
+			capturedDependencyDsl = it
+		}
+		capturedDependencyDsl instanceof JniLibraryNativeDependencies
+	}
+
+	def "can access shared library from variant"() {
+		given:
+		applyPluginAndEvaluate('plugin registers variants in afterEvaluate')
+
+		expect:
+		def variant = one(project.library.variants.elements.get())
+		variant.sharedLibrary instanceof SharedLibraryBinary
+		def capturedBinaryDsl = null
+		variant.sharedLibrary {
+			capturedBinaryDsl = it
+		}
+		capturedBinaryDsl instanceof SharedLibraryBinary
+	}
+
+	def "can access tasks for each binaries"() {
+		given:
+		applyPluginAndEvaluate('plugin registers variants in afterEvaluate')
+
+		expect:
+		def variant = one(project.library.variants.elements.get())
+		def binaries = variant.binaries.elements.get()
+		binaries.size() == 2
+		binaries[0].linkTask.get() instanceof LinkSharedLibrary
+		binaries[1].jarTask.get() instanceof Jar
+	}
+
+	def "variants has target machines"() {
+		given:
+		applyPlugin()
+		project.library {
+			targetMachines = [machines.macOS.x86_64, machines.linux.x86]
+		}
+		evaluateProject('plugin register variants in afterEvaluate')
+
+		expect:
+		def variants = project.library.variants.elements.get()
+		variants.size() == 2
+		variants[0].targetMachine.operatingSystemFamily.linux
+		variants[0].targetMachine.architecture.'32Bit'
+
+		and:
+		variants[1].targetMachine.operatingSystemFamily.macOS
+		variants[1].targetMachine.architecture.'64Bit'
+	}
 	// TODO: Migrate test about each binaries available on the extension and each variant
-	// TODO: Check each variant is of the right type and has the right target machine (platform) configured
-	// TODO: Check binary tasks are not null and of the right type
 
 	// TODO: as a well behaving plugin test, check mixing with other language
 	// TODO: check that no tasks are created when variants are realized
@@ -697,8 +806,7 @@ class JniLibraryPluginWithNoLanguageTasksTest extends AbstractJniLibraryPluginSp
 
 // TODO: Check that each native language adds native compile tasks & group/description
 
-@Subject(JniLibraryPlugin)
-class JniLibraryPluginWithNoLanguageConfigurationsTest extends AbstractJniLibraryPluginSpec implements ProjectTestFixture, JniLibraryPluginTestFixture {
+abstract class AbstractJniLibraryPluginConfigurationsTest extends AbstractJniLibraryPluginSpec implements ProjectTestFixture, JniLibraryPluginTestFixture {
 	def project = ProjectBuilder.builder().withName('lib').build()
 
 	@Override
@@ -706,18 +814,21 @@ class JniLibraryPluginWithNoLanguageConfigurationsTest extends AbstractJniLibrar
 		return project
 	}
 
+	protected abstract String[] getLanguageConfigurations(String variantName = '')
+
 	def "creates buckets, JVM outgoing, native incoming for linking and runtime configurations"() {
 		when:
 		applyPluginAndEvaluate('plugin registers variants in afterEvaluate')
 		resolveAllVariants('plugin creates configurations on demand')
 
 		then:
-		configurations*.name as Set == [
+		MatcherAssert.assertThat(configurations*.name, containsInAnyOrder(
 			'api', 'jvmImplementation', 'jvmRuntimeOnly', /* JVM buckets */
 			'apiElements', 'runtimeElements', /* JVM outgoing */
 			'nativeImplementation', 'nativeLinkOnly', 'nativeRuntimeOnly', /* native buckets */
-			'nativeLinkLibraries', 'nativeRuntimeLibraries' /* native incoming */
-		] as Set
+			'nativeLinkLibraries', 'nativeRuntimeLibraries', /* native incoming */
+			*languageConfigurations
+		))
 	}
 
 	def "creates variant-aware configurations for ambiguous operating system family dimension"() {
@@ -730,15 +841,16 @@ class JniLibraryPluginWithNoLanguageConfigurationsTest extends AbstractJniLibrar
 		resolveAllVariants('plugin creates configuration on demand')
 
 		then:
-		configurations*.name as Set == [
+		MatcherAssert.assertThat(configurations*.name, containsInAnyOrder(
 			'api', 'jvmImplementation', 'jvmRuntimeOnly', /* JVM buckets */
 			'apiElements', 'runtimeElements', /* JVM outgoing */
 			'nativeImplementation', 'nativeLinkOnly', 'nativeRuntimeOnly', /* general native buckets */
 			'macosNativeImplementation', 'macosNativeLinkOnly', 'macosNativeRuntimeOnly', /* macOS buckets */
 			'linuxNativeImplementation', 'linuxNativeLinkOnly', 'linuxNativeRuntimeOnly', /* linux buckets */
 			'macosNativeLinkLibraries', 'macosNativeRuntimeLibraries', /* macOS incoming */
-			'linuxNativeLinkLibraries', 'linuxNativeRuntimeLibraries' /* linux incoming */
-		] as Set
+			'linuxNativeLinkLibraries', 'linuxNativeRuntimeLibraries', /* linux incoming */
+			*(([*getLanguageConfigurations('macos'), *getLanguageConfigurations('linux')] as Set) as String[])
+		))
 	}
 
 	def "creates variant-aware configurations for ambiguous architecture dimension"() {
@@ -751,15 +863,16 @@ class JniLibraryPluginWithNoLanguageConfigurationsTest extends AbstractJniLibrar
 		resolveAllVariants('plugin creates configuration on demand')
 
 		then:
-		configurations*.name as Set == [
+		MatcherAssert.assertThat(configurations*.name, containsInAnyOrder(
 			'api', 'jvmImplementation', 'jvmRuntimeOnly', /* JVM buckets */
 			'apiElements', 'runtimeElements', /* JVM outgoing */
 			'nativeImplementation', 'nativeLinkOnly', 'nativeRuntimeOnly', /* general native buckets */
 			'x86NativeImplementation', 'x86NativeLinkOnly', 'x86NativeRuntimeOnly', /* x86 buckets */
 			'x86-64NativeImplementation', 'x86-64NativeLinkOnly', 'x86-64NativeRuntimeOnly', /* x86-64 buckets */
 			'x86NativeLinkLibraries', 'x86NativeRuntimeLibraries', /* x86 incoming */
-			'x86-64NativeLinkLibraries', 'x86-64NativeRuntimeLibraries' /* x86-64 incoming */
-		] as Set
+			'x86-64NativeLinkLibraries', 'x86-64NativeRuntimeLibraries', /* x86-64 incoming */
+			*(([*getLanguageConfigurations('x86'), *getLanguageConfigurations('x86-64')] as Set) as String[])
+		))
 	}
 
 	def "creates variant-aware configurations for ambiguous operating system family and architecture dimensions"() {
@@ -772,32 +885,31 @@ class JniLibraryPluginWithNoLanguageConfigurationsTest extends AbstractJniLibrar
 		resolveAllVariants('plugin creates configuration on demand')
 
 		then:
-		configurations*.name as Set == [
+		MatcherAssert.assertThat(configurations*.name, containsInAnyOrder(
 			'api', 'jvmImplementation', 'jvmRuntimeOnly', /* JVM buckets */
 			'apiElements', 'runtimeElements', /* JVM outgoing */
 			'nativeImplementation', 'nativeLinkOnly', 'nativeRuntimeOnly', /* general native buckets */
 			'windowsX86NativeImplementation', 'windowsX86NativeLinkOnly', 'windowsX86NativeRuntimeOnly', /* windowsX86 buckets */
 			'macosX86-64NativeImplementation', 'macosX86-64NativeLinkOnly', 'macosX86-64NativeRuntimeOnly', /* macosX86-64 buckets */
 			'windowsX86NativeLinkLibraries', 'windowsX86NativeRuntimeLibraries', /* windowsX86 incoming */
-			'macosX86-64NativeLinkLibraries', 'macosX86-64NativeRuntimeLibraries' /* macosX86-64 incoming */
-		] as Set
+			'macosX86-64NativeLinkLibraries', 'macosX86-64NativeRuntimeLibraries', /* macosX86-64 incoming */
+			*(([*getLanguageConfigurations('windowsX86'), *getLanguageConfigurations('macosX86-64')] as Set) as String[])
+		))
 	}
 
-	@Ignore
 	def "JVM configurations has description"() {
 		given:
 		applyPluginAndEvaluate('plugin registers variants in afterEvaluate')
 		resolveAllVariants('plugin creates configurations on demand')
 
 		expect:
-		project.configurations.api.description == ''
-		project.configurations.jvmImplementation.description == ''
-		project.configurations.jvmRuntimeOnly.description == ''
-		project.configurations.apiElements.description == ''
-		project.configurations.runtimeElements.description == ''
+		project.configurations.api.description == "API dependencies for JNI library."
+		project.configurations.jvmImplementation.description == "Implementation only dependencies for JNI library."
+		project.configurations.jvmRuntimeOnly.description == "Runtime only dependencies for JNI library."
+		project.configurations.apiElements.description == "API elements for main."
+		project.configurations.runtimeElements.description == "Elements of runtime for main."
 	}
 
-	@Ignore
 	def "native configurations has description"() {
 		given:
 		applyPluginAndEvaluate('plugin registers variants in afterEvaluate')
@@ -807,31 +919,230 @@ class JniLibraryPluginWithNoLanguageConfigurationsTest extends AbstractJniLibrar
 		project.configurations.nativeImplementation.description == 'Implementation only dependencies for JNI shared library.'
 		project.configurations.nativeLinkOnly.description == 'Link only dependencies for JNI shared library.'
 		project.configurations.nativeRuntimeOnly.description == 'Runtime only dependencies for JNI shared library.'
-		project.configurations.nativeLinkLibraries.description == ''
-		project.configurations.nativeRuntimeLibraries.description == ''
-	}
-
-	def "resolve variants when unrealized configuration are resolved"() {
-		given:
-		applyPlugin()
-		def configuredVariants = []
-		project.library.variants.configureEach { configuredVariants << it }
-
-		when:
-		evaluateProject('plugin registers variants in afterEvaluate and register the configuration rule for on demand realization')
-		then: 'nothing is realized initially'
-		configuredVariants == []
-
-		when:
-		project.configurations.getByName('nativeRuntimeOnly')
-		then: 'nothing is realized for base lifecycle configuration'
-		configuredVariants == []
-
-		when:
-		project.configurations.getByName('nativeRuntimeLibraries')
-		then: 'variants are realized for incoming configuration'
-		!configuredVariants.isEmpty()
+		project.configurations.nativeLinkLibraries.description == 'Link libraries for JNI shared library.'
+		project.configurations.nativeRuntimeLibraries.description == 'Runtime libraries for JNI shared library.'
 	}
 }
 
-// TODO: Check that each native language adds compile configuration & description
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithNoLanguageConfigurationsTest extends AbstractJniLibraryPluginConfigurationsTest {
+	@Override
+	protected String[] getLanguageConfigurations(String variantName) {
+		return []
+	}
+}
+
+abstract class AbstractJniLibraryPluginWithJvmLanguageConfigurationsTest extends AbstractJniLibraryPluginConfigurationsTest {
+	@Override
+	void applyPlugin() {
+		super.applyPlugin()
+		project.apply plugin: jvmLanguagePluginIdUnderTest
+	}
+
+	protected abstract String getJvmLanguagePluginIdUnderTest()
+
+	@Override
+	protected String[] getLanguageConfigurations(String variantName) {
+		return jvmLanguageConfigurations
+	}
+
+	static List<String> getJvmLanguageConfigurations() {
+		return ['annotationProcessor', 'compile', 'compileClasspath', 'compileOnly', 'runtime', 'runtimeClasspath',
+				'testAnnotationProcessor', 'testCompile', 'testCompileClasspath', 'testCompileOnly', 'testRuntime', 'testRuntimeClasspath',
+				'implementation', 'runtimeOnly',
+				'testImplementation', 'testRuntimeOnly'
+		]
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithJavaLanguageConfigurationsTest extends AbstractJniLibraryPluginWithJvmLanguageConfigurationsTest {
+	@Override
+	protected String getJvmLanguagePluginIdUnderTest() {
+		return 'java'
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithGroovyLanguageConfigurationsTest extends AbstractJniLibraryPluginWithJvmLanguageConfigurationsTest {
+	@Override
+	protected String getJvmLanguagePluginIdUnderTest() {
+		return 'groovy'
+	}
+}
+
+abstract class AbstractJniLibraryPluginWithNativeLanguageConfigurationsTest extends AbstractJniLibraryPluginConfigurationsTest {
+	@Override
+	void applyPlugin() {
+		super.applyPlugin()
+		project.apply plugin: nativeLanguagePluginIdUnderTest
+	}
+
+	protected abstract String getNativeLanguagePluginIdUnderTest()
+
+	@Override
+	protected String[] getLanguageConfigurations(String variantName) {
+		return getNativeLanguageConfigurations(variantName)
+	}
+
+	static List<String> getNativeLanguageConfigurations(String variantName) {
+		if (variantName.isEmpty()) {
+			return ['headerSearchPaths']
+		}
+		return ["${variantName}HeaderSearchPaths"]
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithCppLanguageConfigurationsTest extends AbstractJniLibraryPluginWithNativeLanguageConfigurationsTest {
+	@Override
+	String getNativeLanguagePluginIdUnderTest() {
+		return 'dev.nokee.cpp-language'
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithCLanguageConfigurationsTest extends AbstractJniLibraryPluginWithNativeLanguageConfigurationsTest {
+	@Override
+	String getNativeLanguagePluginIdUnderTest() {
+		return 'dev.nokee.c-language'
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithObjectiveCppLanguageConfigurationsTest extends AbstractJniLibraryPluginWithNativeLanguageConfigurationsTest {
+	@Override
+	String getNativeLanguagePluginIdUnderTest() {
+		return 'dev.nokee.objective-cpp-language'
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithObjectiveCLanguageConfigurationsTest extends AbstractJniLibraryPluginWithNativeLanguageConfigurationsTest {
+	@Override
+	String getNativeLanguagePluginIdUnderTest() {
+		return 'dev.nokee.objective-c-language'
+	}
+}
+
+abstract class AbstractJniLibraryPluginWithJvmAndNativeLanguageConfigurationsTest extends AbstractJniLibraryPluginConfigurationsTest {
+	@Override
+	void applyPlugin() {
+		super.applyPlugin()
+		project.apply plugin: jvmLanguagePluginIdUnderTest
+		project.apply plugin: nativeLanguagePluginIdUnderTest
+	}
+
+	protected abstract String getNativeLanguagePluginIdUnderTest()
+
+	protected abstract String getJvmLanguagePluginIdUnderTest()
+
+	@Override
+	protected String[] getLanguageConfigurations(String variantName) {
+		return AbstractJniLibraryPluginWithNativeLanguageConfigurationsTest.getNativeLanguageConfigurations(variantName) + AbstractJniLibraryPluginWithJvmLanguageConfigurationsTest.jvmLanguageConfigurations
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithJavaCppLanguageConfigurationsTest extends AbstractJniLibraryPluginWithJvmAndNativeLanguageConfigurationsTest {
+	@Override
+	protected String getNativeLanguagePluginIdUnderTest() {
+		return 'dev.nokee.cpp-language'
+	}
+
+	@Override
+	protected String getJvmLanguagePluginIdUnderTest() {
+		return 'java'
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithJavaCLanguageConfigurationsTest extends AbstractJniLibraryPluginWithJvmAndNativeLanguageConfigurationsTest {
+	@Override
+	protected String getNativeLanguagePluginIdUnderTest() {
+		return 'dev.nokee.c-language'
+	}
+
+	@Override
+	protected String getJvmLanguagePluginIdUnderTest() {
+		return 'java'
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithJavaObjectiveCppLanguageConfigurationsTest extends AbstractJniLibraryPluginWithJvmAndNativeLanguageConfigurationsTest {
+	@Override
+	protected String getNativeLanguagePluginIdUnderTest() {
+		return 'dev.nokee.objective-cpp-language'
+	}
+
+	@Override
+	protected String getJvmLanguagePluginIdUnderTest() {
+		return 'java'
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithJavaObjectiveCLanguageConfigurationsTest extends AbstractJniLibraryPluginWithJvmAndNativeLanguageConfigurationsTest {
+	@Override
+	protected String getNativeLanguagePluginIdUnderTest() {
+		return 'dev.nokee.objective-c-language'
+	}
+
+	@Override
+	protected String getJvmLanguagePluginIdUnderTest() {
+		return 'java'
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithGroovyCppLanguageConfigurationsTest extends AbstractJniLibraryPluginWithJvmAndNativeLanguageConfigurationsTest {
+	@Override
+	protected String getNativeLanguagePluginIdUnderTest() {
+		return 'dev.nokee.cpp-language'
+	}
+
+	@Override
+	protected String getJvmLanguagePluginIdUnderTest() {
+		return 'groovy'
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithGroovyCLanguageConfigurationsTest extends AbstractJniLibraryPluginWithJvmAndNativeLanguageConfigurationsTest {
+	@Override
+	protected String getNativeLanguagePluginIdUnderTest() {
+		return 'dev.nokee.c-language'
+	}
+
+	@Override
+	protected String getJvmLanguagePluginIdUnderTest() {
+		return 'groovy'
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithGroovyObjectiveCppLanguageConfigurationsTest extends AbstractJniLibraryPluginWithJvmAndNativeLanguageConfigurationsTest {
+	@Override
+	protected String getNativeLanguagePluginIdUnderTest() {
+		return 'dev.nokee.objective-cpp-language'
+	}
+
+	@Override
+	protected String getJvmLanguagePluginIdUnderTest() {
+		return 'groovy'
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryPluginWithGroovyObjectiveCLanguageConfigurationsTest extends AbstractJniLibraryPluginWithJvmAndNativeLanguageConfigurationsTest {
+	@Override
+	protected String getNativeLanguagePluginIdUnderTest() {
+		return 'dev.nokee.objective-c-language'
+	}
+
+	@Override
+	protected String getJvmLanguagePluginIdUnderTest() {
+		return 'groovy'
+	}
+}

@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.jni.JniLibraryDependencies;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import org.gradle.api.Action;
@@ -7,6 +8,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 // TODO: Add tests for jvmRuntimeOnly
 public abstract class JniLibraryDependenciesInternal extends JniLibraryNativeDependenciesInternal implements JniLibraryDependencies {
@@ -15,16 +17,19 @@ public abstract class JniLibraryDependenciesInternal extends JniLibraryNativeDep
 	private final Configuration jvmRuntimeOnly;
 
 	@Inject
-	public JniLibraryDependenciesInternal() {
-		Configuration api = getConfigurations().findByName("api");
-		if (api == null) {
-			apiDependencies = getConfigurations().create("api", ConfigurationUtils::configureAsBucket);
-		} else {
-			apiDependencies = api;
-		}
-		jvmImplementationDependencies = getConfigurations().create("jvmImplementation", ConfigurationUtils::configureAsBucket);
-		jvmRuntimeOnly = getConfigurations().create("jvmRuntimeOnly", ConfigurationUtils::configureAsBucket);
-		jvmImplementationDependencies.extendsFrom(apiDependencies);
+	public JniLibraryDependenciesInternal(NamingScheme names) {
+		super(names);
+		ConfigurationUtils builder = getObjects().newInstance(ConfigurationUtils.class);
+
+		// Kotlin may create this configuration before us
+		apiDependencies = Optional.ofNullable(getConfigurations().findByName(names.getConfigurationName("api")))
+			.orElseGet(() -> getConfigurations().create(names.getConfigurationName("api"),
+				builder.asBucket().withDescription("API dependencies for JNI library.")));
+
+		jvmImplementationDependencies = getConfigurations().create("jvmImplementation",
+			builder.asBucket(apiDependencies).withDescription("Implementation only dependencies for JNI library."));
+		jvmRuntimeOnly = getConfigurations().create("jvmRuntimeOnly",
+			builder.asBucket().withDescription("Runtime only dependencies for JNI library."));
 	}
 
 	@Override

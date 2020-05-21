@@ -16,10 +16,12 @@ import java.util.Set;
 
 public abstract class DefaultVariantView<T extends Variant> implements VariantView<T> {
 	private final DomainObjectCollection<T> delegate;
+	private final Realizable variants;
 
 	@Inject
-	public DefaultVariantView(DomainObjectCollection<T> delegate) {
+	public DefaultVariantView(DomainObjectCollection<T> delegate, Realizable variants) {
 		this.delegate = delegate;
+		this.variants = variants;
 	}
 
 	@Override
@@ -29,7 +31,10 @@ public abstract class DefaultVariantView<T extends Variant> implements VariantVi
 
 	@Override
 	public Provider<Set<? extends T>> getElements() {
-		return getProviders().provider(() -> ImmutableSet.copyOf(delegate));
+		return getProviders().provider(() -> {
+			variants.realize();
+			return ImmutableSet.copyOf(delegate);
+		});
 	}
 
 	@Override

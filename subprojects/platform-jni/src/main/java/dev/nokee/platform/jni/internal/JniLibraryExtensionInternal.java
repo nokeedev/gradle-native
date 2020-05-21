@@ -28,6 +28,7 @@ import org.gradle.api.provider.SetProperty;
 import org.gradle.internal.Cast;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -89,11 +90,11 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 		return result;
 	}
 
-	private Set<BuildVariant> createBuildVariants() {
+	private List<BuildVariant> createBuildVariants() {
 		getTargetMachines().disallowChanges();
 		getTargetMachines().finalizeValue();
 		Set<TargetMachine> targetMachines = getTargetMachines().get();
-		return targetMachines.stream().map(it -> (DefaultTargetMachine)it).map(it -> DefaultBuildVariant.of(it.getOperatingSystemFamily(), it.getArchitecture())).collect(Collectors.toSet());
+		return targetMachines.stream().map(it -> (DefaultTargetMachine)it).map(it -> DefaultBuildVariant.of(it.getOperatingSystemFamily(), it.getArchitecture())).collect(Collectors.toList());
 	}
 
 	public VariantCollection<JniLibraryInternal> getVariantCollection() {
@@ -114,7 +115,7 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 
 	@Override
 	public BinaryView<Binary> getBinaries() {
-		return Cast.uncheckedCast(getObjects().newInstance(VariantResolvingBinaryView.class, binaryCollection, variantCollection));
+		return Cast.uncheckedCast(getObjects().newInstance(DefaultBinaryView.class, binaryCollection, variantCollection));
 	}
 
 	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
@@ -142,25 +143,5 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	@Override
 	public TargetMachineFactory getMachines() {
 		return targetMachineFactory;
-	}
-
-	public static abstract class VariantResolvingBinaryView extends DefaultBinaryView<Binary> {
-		private final Realizable variants;
-
-		@Inject
-		public VariantResolvingBinaryView(DomainObjectSet<Binary> delegate, Realizable variants) {
-			super(delegate);
-			this.variants = variants;
-		}
-
-		@Override
-		protected void doResolve() {
-			variants.realize();
-		}
-
-		@Override
-		protected <S extends Binary> DefaultBinaryView<S> newInstance(DomainObjectSet<S> elements) {
-			return Cast.uncheckedCast(getObjects().newInstance(VariantResolvingBinaryView.class, elements, variants));
-		}
 	}
 }

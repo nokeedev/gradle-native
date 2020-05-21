@@ -18,10 +18,12 @@ import java.util.Set;
 
 public abstract class DefaultBinaryView<T extends Binary> implements BinaryView<T> {
 	private final DomainObjectSet<T> delegate;
+	private final Realizable variants;
 
 	@Inject
-	public DefaultBinaryView(DomainObjectSet<T> delegate) {
+	public DefaultBinaryView(DomainObjectSet<T> delegate, Realizable variants) {
 		this.delegate = delegate;
+		this.variants = variants;
 	}
 
 	@Override
@@ -36,13 +38,13 @@ public abstract class DefaultBinaryView<T extends Binary> implements BinaryView<
 
 	@Override
 	public <S extends T> BinaryView<S> withType(Class<S> type) {
-		return newInstance(delegate.withType(type));
+		return Cast.uncheckedCast(getObjects().newInstance(DefaultBinaryView.class, delegate.withType(type), variants));
 	}
 
 	@Override
 	public Provider<Set<? extends T>> getElements() {
 		return getProviders().provider(() -> {
-			doResolve();
+			variants.realize();
 			return ImmutableSet.copyOf(delegate);
 		});
 	}
@@ -73,12 +75,6 @@ public abstract class DefaultBinaryView<T extends Binary> implements BinaryView<
 				return result.build();
 			}
 		});
-	}
-
-	protected void doResolve() {}
-
-	protected <S extends T> DefaultBinaryView<S> newInstance(DomainObjectSet<S> elements) {
-		return Cast.uncheckedCast(getObjects().newInstance(DefaultBinaryView.class, elements));
 	}
 
 	@Inject
