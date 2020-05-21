@@ -8,12 +8,12 @@ import spock.lang.Subject
 trait SwiftIosApplicationPluginTestFixture {
 	abstract Project getProjectUnderTest()
 
-	void applyPluginUnderTest() {
-		projectUnderTest.apply plugin: 'dev.nokee.swift-ios-application'
+	String getPluginId() {
+		return 'dev.nokee.swift-ios-application'
 	}
 
-	void evaluateProject(String because) {
-		projectUnderTest.evaluate()
+	void applyPluginUnderTest() {
+		projectUnderTest.apply plugin: pluginId
 	}
 
 	def getExtensionUnderTest() {
@@ -27,4 +27,5 @@ trait SwiftIosApplicationPluginTestFixture {
 
 @Subject(SwiftIosApplicationPlugin)
 class SwiftIosApplicationPluginTest extends AbstractPluginTest implements SwiftIosApplicationPluginTestFixture {
+	final String pluginIdUnderTest = pluginId
 }

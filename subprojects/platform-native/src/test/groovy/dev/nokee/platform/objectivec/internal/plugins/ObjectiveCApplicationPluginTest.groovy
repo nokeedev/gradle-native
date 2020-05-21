@@ -8,12 +8,12 @@ import spock.lang.Subject
 trait ObjectiveCApplicationPluginTestFixture {
 	abstract Project getProjectUnderTest()
 
-	void applyPluginUnderTest() {
-		projectUnderTest.apply plugin: 'dev.nokee.objective-c-application'
+	String getPluginId() {
+		return 'dev.nokee.objective-c-application'
 	}
 
-	void evaluateProject(String because) {
-		projectUnderTest.evaluate()
+	void applyPluginUnderTest() {
+		projectUnderTest.apply plugin: pluginId
 	}
 
 	def getExtensionUnderTest() {
@@ -27,4 +27,5 @@ trait ObjectiveCApplicationPluginTestFixture {
 
 @Subject(ObjectiveCApplicationPlugin)
 class ObjectiveCApplicationPluginTest extends AbstractPluginTest implements ObjectiveCApplicationPluginTestFixture {
+	final String pluginIdUnderTest = pluginId
 }

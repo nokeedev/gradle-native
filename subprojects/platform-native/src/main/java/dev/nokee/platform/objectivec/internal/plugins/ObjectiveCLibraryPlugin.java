@@ -1,6 +1,8 @@
 package dev.nokee.platform.objectivec.internal.plugins;
 
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryDependencies;
 import dev.nokee.platform.objectivec.ObjectiveCLibraryExtension;
+import dev.nokee.platform.objectivec.internal.DefaultObjectiveCLibraryExtension;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
@@ -13,6 +15,7 @@ public abstract class ObjectiveCLibraryPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		project.getExtensions().add(ObjectiveCLibraryExtension.class, "library", getObjects().newInstance(ObjectiveCLibraryExtension.class));
+		project.getExtensions().add(ObjectiveCLibraryExtension.class, "library", getObjects().newInstance(DefaultObjectiveCLibraryExtension.class,
+			getObjects().newInstance(DefaultNativeLibraryDependencies.class)));
 	}
 }

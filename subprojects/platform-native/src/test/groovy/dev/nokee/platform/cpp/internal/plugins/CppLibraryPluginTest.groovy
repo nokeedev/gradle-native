@@ -8,8 +8,12 @@ import spock.lang.Subject
 trait CppLibraryPluginTestFixture {
 	abstract Project getProjectUnderTest()
 
+	String getPluginId() {
+		return 'dev.nokee.cpp-library'
+	}
+
 	void applyPluginUnderTest() {
-		projectUnderTest.apply plugin: 'dev.nokee.cpp-library'
+		projectUnderTest.apply plugin: pluginId
 	}
 
 	def getExtensionUnderTest() {
@@ -23,4 +27,5 @@ trait CppLibraryPluginTestFixture {
 
 @Subject(CppLibraryPlugin)
 class CppLibraryPluginTest extends AbstractPluginTest implements CppLibraryPluginTestFixture {
+	final String pluginIdUnderTest = pluginId
 }

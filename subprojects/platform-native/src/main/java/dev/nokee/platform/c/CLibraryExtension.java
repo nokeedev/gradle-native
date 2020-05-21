@@ -1,4 +1,7 @@
 package dev.nokee.platform.c;
 
-public interface CLibraryExtension {
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.nativebase.NativeLibraryDependencies;
+
+public interface CLibraryExtension extends DependencyAwareComponent<NativeLibraryDependencies> {
 }

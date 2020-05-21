@@ -1,4 +1,7 @@
 package dev.nokee.platform.objectivec;
 
-public interface ObjectiveCLibraryExtension {
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.nativebase.NativeLibraryDependencies;
+
+public interface ObjectiveCLibraryExtension extends DependencyAwareComponent<NativeLibraryDependencies> {
 }

@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni;
 
+import dev.nokee.platform.base.ComponentDependencies;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 
@@ -9,7 +10,7 @@ import org.gradle.api.artifacts.ExternalModuleDependency;
  *
  * @since 0.1
  */
-public interface JniLibraryDependencies extends JniLibraryNativeDependencies {
+public interface JniLibraryDependencies extends JniLibraryNativeDependencies, ComponentDependencies {
 	/**
 	 * Adds an JVM API dependency to this library. An API dependency is made visible to consumers that are compiled against this component.
 	 *

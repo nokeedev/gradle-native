@@ -3,8 +3,6 @@ package dev.nokee.platform.ios.internal.plugins
 import dev.gradleplugins.spock.lang.CleanupTestDirectory
 import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
 import dev.nokee.fixtures.AbstractPluginTest
-import dev.nokee.platform.c.CApplicationExtension
-import dev.nokee.platform.c.internal.plugins.CApplicationPlugin
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension
 import dev.nokee.platform.ios.tasks.internal.AssetCatalogCompileTask
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask
@@ -21,13 +19,19 @@ import spock.lang.Subject
 trait ObjectiveCIosApplicationPluginTestFixture {
 	abstract Project getProjectUnderTest()
 
+	String getPluginId() {
+		return 'dev.nokee.objective-c-ios-application'
+	}
+
 	void applyPluginUnderTest() {
-		projectUnderTest.apply plugin: 'dev.nokee.objective-c-ios-application'
+		projectUnderTest.apply plugin: pluginId
 	}
 }
 
 @Subject(ObjectiveCIosApplicationPlugin)
 class ObjectiveCIosApplicationPluginLayoutTest extends AbstractPluginTest implements ObjectiveCIosApplicationPluginTestFixture {
+	final String pluginIdUnderTest = pluginId
+
 	@Override
 	def getExtensionUnderTest() {
 		return projectUnderTest.application

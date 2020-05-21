@@ -1,4 +1,7 @@
 package dev.nokee.platform.cpp;
 
-public interface CppLibraryExtension {
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.nativebase.NativeLibraryDependencies;
+
+public interface CppLibraryExtension extends DependencyAwareComponent<NativeLibraryDependencies> {
 }

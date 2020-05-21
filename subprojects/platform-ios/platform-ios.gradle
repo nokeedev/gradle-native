@@ -13,6 +13,8 @@ dependencies {
 	implementation project(':languageNative')
 	implementation project(':coreExec')
 	implementation project(':runtimeDarwin')
+	implementation project(':platformBase')
+	implementation project(':platformNative')
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation 'com.google.code.gson:gson:2.8.6' // For deserializing the descriptor... probably not the right place to do this

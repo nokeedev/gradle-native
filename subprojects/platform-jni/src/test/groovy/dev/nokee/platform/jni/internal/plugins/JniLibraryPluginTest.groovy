@@ -2,7 +2,6 @@ package dev.nokee.platform.jni.internal.plugins
 
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.ProjectTestFixture
-import dev.nokee.platform.jni.JniLibrary
 import dev.nokee.platform.jni.JniLibraryDependencies
 import dev.nokee.platform.jni.JniLibraryExtension
 import dev.nokee.platform.jni.JniLibraryNativeDependencies
@@ -27,12 +26,16 @@ import static org.hamcrest.Matchers.containsInAnyOrder
 trait JniLibraryPluginTestFixture {
 	abstract Project getProjectUnderTest()
 
-	void applyPlugin() {
-		projectUnderTest.apply plugin: 'dev.nokee.jni-library'
+	String getPluginId() {
+		return 'dev.nokee.jni-library'
 	}
 
 	void applyPluginUnderTest() {
 		applyPlugin()
+	}
+
+	void applyPlugin() {
+		projectUnderTest.apply plugin: pluginId
 	}
 
 	void evaluateProject(String because) {
@@ -53,6 +56,8 @@ abstract class AbstractJniLibraryPluginSpec extends Specification {}
 
 @Subject(JniLibraryPlugin)
 class JniLibraryPluginLayoutTest extends AbstractPluginTest implements JniLibraryPluginTestFixture {
+	final String pluginIdUnderTest = pluginId
+
 	@Override
 	def getExtensionUnderTest() {
 		return projectUnderTest.library
@@ -61,6 +66,11 @@ class JniLibraryPluginLayoutTest extends AbstractPluginTest implements JniLibrar
 	@Override
 	Class getExtensionType() {
 		return JniLibraryExtension
+	}
+
+	@Override
+	Class getDependenciesType() {
+		return JniLibraryDependencies
 	}
 }
 
@@ -129,19 +139,6 @@ class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements Proje
 		project.configurations.getByName('nativeRuntimeLibraries')
 		then: 'variants are realized for incoming configuration'
 		!configuredVariants.isEmpty()
-	}
-
-	def "extensions has dependencies dsl"() {
-		given:
-		applyPlugin()
-
-		expect:
-		project.library.dependencies instanceof JniLibraryDependencies
-		def capturedDependencyDsl = null
-		project.library.dependencies {
-			capturedDependencyDsl = it
-		}
-		capturedDependencyDsl instanceof JniLibraryDependencies
 	}
 
 	def "variants has dependencies dsl"() {

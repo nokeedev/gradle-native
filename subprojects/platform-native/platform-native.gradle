@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-	implementation project(':platformBase')
+	api project(':platformBase')
 	implementation project(':runtimeNative')
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"

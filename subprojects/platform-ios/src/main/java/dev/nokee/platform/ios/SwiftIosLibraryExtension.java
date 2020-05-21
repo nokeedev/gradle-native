@@ -1,4 +1,7 @@
 package dev.nokee.platform.ios;
 
-public interface SwiftIosLibraryExtension {
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.nativebase.NativeLibraryDependencies;
+
+public interface SwiftIosLibraryExtension extends DependencyAwareComponent<NativeLibraryDependencies> {
 }

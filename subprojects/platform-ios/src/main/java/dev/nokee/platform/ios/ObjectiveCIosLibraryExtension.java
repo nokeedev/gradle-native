@@ -1,4 +1,7 @@
 package dev.nokee.platform.ios;
 
-public interface ObjectiveCIosLibraryExtension {
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.nativebase.NativeLibraryDependencies;
+
+public interface ObjectiveCIosLibraryExtension extends DependencyAwareComponent<NativeLibraryDependencies> {
 }
