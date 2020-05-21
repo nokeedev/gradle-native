@@ -41,7 +41,7 @@ fun isHostTargeted(targetMachine: TargetMachine): Boolean {
 
 tasks.register<Jar>("uberJar") {
 	from(library.variants.flatMap { variant ->
-		val result = ArrayList<Provider<Set<Provider<FileTree>>>>()
+		val result = ArrayList<Provider<List<Provider<FileTree>>>>()
 		if (isHostTargeted(variant.targetMachine)) {
 			result.add(variant.binaries.withType(JniJarBinary::class.java).map(asZipTree()))
 		}
