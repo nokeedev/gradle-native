@@ -136,7 +136,7 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 		buildFile << """
             task verifyBinariesPlatformType {
                 doLast {
-                    ${componentUnderTestDsl}.variantCollection.each {
+                    ${componentUnderTestDsl}.variants.elements.get().each {
                         assert it.targetMachine.operatingSystemFamily == ${DefaultOperatingSystemFamily.canonicalName}.forName('${currentOsFamilyName}')
                         assert it.targetMachine.architecture == ${DefaultMachineArchitecture.canonicalName}.forName('${currentArchitecture}')
                     }

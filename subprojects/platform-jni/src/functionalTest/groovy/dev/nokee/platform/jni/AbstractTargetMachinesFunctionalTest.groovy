@@ -155,7 +155,7 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
             task verifyTargetMachineCount {
                 doLast {
                     assert ${componentUnderTestDsl}.targetMachines.get().size() == 1
-                    assert ${componentUnderTestDsl}.targetMachines.get() == [machines.${currentHostOperatingSystemFamilyDsl}] as Set
+                    assert ${componentUnderTestDsl}.targetMachines.get() == [library.machines.${currentHostOperatingSystemFamilyDsl}] as Set
                 }
             }
         """
