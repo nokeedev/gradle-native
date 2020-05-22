@@ -7,16 +7,22 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryDependencies;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
 
 import javax.inject.Inject;
 
 public abstract class ObjectiveCIosLibraryPlugin implements Plugin<Project> {
+	private static final String EXTENSION_NAME = "library";
+
 	@Inject
 	protected abstract ObjectFactory getObjects();
 
 	@Override
 	public void apply(Project project) {
-		project.getExtensions().add(ObjectiveCIosLibraryExtension.class, "library", getObjects().newInstance(DefaultObjectiveCIosLibraryExtension.class,
-			getObjects().newInstance(DefaultNativeLibraryDependencies.class, NamingScheme.asMainComponent(project.getName()))));
+		project.getPluginManager().apply(StandardToolChainsPlugin.class);
+
+		DefaultObjectiveCIosLibraryExtension extension = getObjects().newInstance(DefaultObjectiveCIosLibraryExtension.class,
+			getObjects().newInstance(DefaultNativeLibraryDependencies.class, NamingScheme.asMainComponent(project.getName())));
+		project.getExtensions().add(ObjectiveCIosLibraryExtension.class, EXTENSION_NAME, extension);
 	}
 }

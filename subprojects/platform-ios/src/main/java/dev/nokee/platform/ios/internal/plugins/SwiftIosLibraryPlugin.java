@@ -7,16 +7,22 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryDependencies;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
 import javax.inject.Inject;
 
 public abstract class SwiftIosLibraryPlugin implements Plugin<Project> {
+	private static final String EXTENSION_NAME = "library";
+
 	@Inject
 	protected abstract ObjectFactory getObjects();
 
 	@Override
 	public void apply(Project project) {
-		project.getExtensions().add(SwiftIosLibraryExtension.class, "library", getObjects().newInstance(DefaultSwiftIosLibraryExtension.class,
-			getObjects().newInstance(DefaultNativeLibraryDependencies.class, NamingScheme.asMainComponent(project.getName()))));
+		project.getPluginManager().apply(SwiftCompilerPlugin.class);
+
+		DefaultSwiftIosLibraryExtension extension = getObjects().newInstance(DefaultSwiftIosLibraryExtension.class,
+			getObjects().newInstance(DefaultNativeLibraryDependencies.class, NamingScheme.asMainComponent(project.getName())));
+		project.getExtensions().add(SwiftIosLibraryExtension.class, EXTENSION_NAME, extension);
 	}
 }

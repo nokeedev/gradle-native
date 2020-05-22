@@ -1,6 +1,7 @@
 package dev.nokee.platform.jni.internal.plugins
 
 import dev.nokee.fixtures.AbstractPluginTest
+import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
 import dev.nokee.fixtures.ProjectTestFixture
 import dev.nokee.platform.jni.JniLibraryDependencies
 import dev.nokee.platform.jni.JniLibraryExtension
@@ -205,74 +206,10 @@ class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements Proje
 	// TODO: check that no tasks are created when variants are realized
 }
 
-class JniLibraryPluginTargetMachineConfigurationTest extends AbstractJniLibraryPluginSpec implements ProjectTestFixture, JniLibraryPluginTestFixture {
-	def project = ProjectBuilder.builder().withName('lib').build()
-
+class JniLibraryTargetMachineAwarePluginTest extends AbstractTargetMachineAwarePluginTest implements JniLibraryPluginTestFixture {
 	@Override
-	Project getProjectUnderTest() {
-		return project
-	}
-
-	def "disallows modification to target machine after evaluation"() {
-		given:
-		applyPlugin()
-
-		when:
-		project.library {
-			targetMachines = [machines.windows]
-		}
-		then:
-		noExceptionThrown()
-
-		when:
-		evaluateProject('plugin lock target machines in afterEvaluate')
-		project.library {
-			targetMachines = [machines.macOS]
-		}
-		then:
-		def ex = thrown(IllegalStateException)
-		ex.message == "The value for property 'targetMachines' is final and cannot be changed any further."
-	}
-
-	def "disallows empty target machines list"() {
-		given:
-		applyPlugin()
-
-		when:
-		project.library.targetMachines = []
-		evaluateProject('plugin resolve target machines in afterEvaluate')
-
-		then:
-		def ex = thrown(ProjectConfigurationException)
-		ex.message == "A problem occurred configuring root project 'lib'."
-		ex.cause instanceof IllegalArgumentException
-		ex.cause.message == 'A target machine needs to be specified for the library.'
-	}
-
-	def "can reset target machines to host by setting to null"() {
-		given:
-		applyPlugin()
-
-		when:
-		project.library {
-			targetMachines = [machines.os('foo')]
-			targetMachines = null
-		}
-		evaluateProject('plugin resolve target machines in afterEvaluate')
-
-		then:
-		noExceptionThrown()
-
-		and:
-		project.library.targetMachines.get() == [DefaultTargetMachineFactory.host()] as Set
-	}
-
-	def "extensions has target machine factory"() {
-		given:
-		applyPlugin()
-
-		expect:
-		project.library.machines instanceof TargetMachineFactory
+	def getExtensionNameUnderTest() {
+		return 'library'
 	}
 }
 

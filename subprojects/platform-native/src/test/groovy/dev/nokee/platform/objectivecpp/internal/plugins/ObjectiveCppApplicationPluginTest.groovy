@@ -1,6 +1,7 @@
 package dev.nokee.platform.objectivecpp.internal.plugins
 
 import dev.nokee.fixtures.AbstractPluginTest
+import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplicationExtension
 import org.gradle.api.Project
 import spock.lang.Subject
@@ -16,12 +17,12 @@ trait ObjectiveCppApplicationPluginTestFixture {
 		projectUnderTest.apply plugin: pluginId
 	}
 
-	void evaluateProject(String because) {
-		projectUnderTest.evaluate()
-	}
-
 	def getExtensionUnderTest() {
 		return projectUnderTest.application
+	}
+
+	String getExtensionNameUnderTest() {
+		return 'application'
 	}
 
 	Class getExtensionType() {
@@ -32,4 +33,8 @@ trait ObjectiveCppApplicationPluginTestFixture {
 @Subject(ObjectiveCppApplicationPlugin)
 class ObjectiveCppApplicationPluginTest extends AbstractPluginTest implements ObjectiveCppApplicationPluginTestFixture {
 	final String pluginIdUnderTest = pluginId
+}
+
+@Subject(ObjectiveCppApplicationPlugin)
+class ObjectiveCppApplicationTargetMachineAwarePluginTest extends AbstractTargetMachineAwarePluginTest implements ObjectiveCppApplicationPluginTestFixture {
 }

@@ -1,6 +1,7 @@
 package dev.nokee.platform.objectivecpp.internal.plugins
 
 import dev.nokee.fixtures.AbstractPluginTest
+import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibraryExtension
 import org.gradle.api.Project
 import spock.lang.Subject
@@ -20,6 +21,10 @@ trait ObjectiveCppLibraryPluginTestFixture {
 		return projectUnderTest.library
 	}
 
+	String getExtensionNameUnderTest() {
+		return 'library'
+	}
+
 	Class getExtensionType() {
 		return ObjectiveCppLibraryExtension
 	}
@@ -28,4 +33,8 @@ trait ObjectiveCppLibraryPluginTestFixture {
 @Subject(ObjectiveCppLibraryPlugin)
 class ObjectiveCppLibraryPluginTest extends AbstractPluginTest implements ObjectiveCppLibraryPluginTestFixture {
 	final String pluginIdUnderTest = pluginId
+}
+
+@Subject(ObjectiveCppLibraryPlugin)
+class ObjectiveCppLibraryTargetMachineAwarePluginTest extends AbstractTargetMachineAwarePluginTest implements ObjectiveCppLibraryPluginTestFixture {
 }

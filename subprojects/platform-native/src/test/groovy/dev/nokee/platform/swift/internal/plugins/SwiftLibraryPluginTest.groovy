@@ -1,6 +1,7 @@
 package dev.nokee.platform.swift.internal.plugins
 
 import dev.nokee.fixtures.AbstractPluginTest
+import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
 import dev.nokee.platform.swift.SwiftLibraryExtension
 import org.gradle.api.Project
 import spock.lang.Subject
@@ -20,6 +21,10 @@ trait SwiftLibraryPluginTestFixture {
 		return projectUnderTest.library
 	}
 
+	String getExtensionNameUnderTest() {
+		return 'library'
+	}
+
 	Class getExtensionType() {
 		return SwiftLibraryExtension
 	}
@@ -28,4 +33,8 @@ trait SwiftLibraryPluginTestFixture {
 @Subject(SwiftLibraryPlugin)
 class SwiftLibraryPluginTest extends AbstractPluginTest implements SwiftLibraryPluginTestFixture {
 	final String pluginIdUnderTest = pluginId
+}
+
+@Subject(SwiftLibraryPlugin)
+class SwiftLibraryTargetMachineAwarePluginTest extends AbstractTargetMachineAwarePluginTest implements SwiftLibraryPluginTestFixture {
 }

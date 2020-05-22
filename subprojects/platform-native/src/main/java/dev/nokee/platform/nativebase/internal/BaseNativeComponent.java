@@ -10,4 +10,9 @@ public abstract class BaseNativeComponent {
 	public DefaultNativeComponentDependencies getDependencies() {
 		return dependencies;
 	}
+
+	// Not every implementation needs this, however, the public type may not expose it.
+	public DefaultTargetMachineFactory getMachines() {
+		return DefaultTargetMachineFactory.INSTANCE;
+	}
 }

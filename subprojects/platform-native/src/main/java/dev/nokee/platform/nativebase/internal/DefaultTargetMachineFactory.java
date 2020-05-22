@@ -10,6 +10,8 @@ import static dev.nokee.platform.nativebase.internal.DefaultMachineArchitecture.
 import static dev.nokee.platform.nativebase.internal.DefaultOperatingSystemFamily.*;
 
 public class DefaultTargetMachineFactory implements TargetMachineFactory {
+	public static final DefaultTargetMachineFactory INSTANCE = new DefaultTargetMachineFactory();
+
 	@Override
 	public TargetMachineBuilder getWindows() {
 		return new DefaultTargetMachineBuilder(WINDOWS, DefaultMachineArchitecture.HOST);

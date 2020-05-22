@@ -66,6 +66,8 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 
 public abstract class JniLibraryPlugin implements Plugin<Project> {
+	private static final String EXTENSION_NAME = "library";
+
 	private final ToolChainSelectorInternal toolChainSelector = getObjects().newInstance(ToolChainSelectorInternal.class);
 
 	@Inject
@@ -94,10 +96,10 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
-		DefaultTargetMachineFactory targetMachineFactory = new DefaultTargetMachineFactory();
 		NamingSchemeFactory namingSchemeFactory = new NamingSchemeFactory(project.getName());
 		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent();
-		JniLibraryExtensionInternal extension = registerExtension(project, targetMachineFactory, mainComponentNames);
+		JniLibraryExtensionInternal extension = registerExtension(project, mainComponentNames);
+		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 
 		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
@@ -108,9 +110,6 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 
 		project.afterEvaluate(proj -> {
 			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
-			assertNonEmpty(extension.getTargetMachines().get(), "target machine", "library");
-			assertTargetMachinesAreKnown(targetMachines);
-
 			Optional<DefaultJvmJarBinary> jvmJarBinary = findJvmBinary(proj);
 			extension.getBuildVariants().get().forEach(buildVariant -> {
 				final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
@@ -376,7 +375,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		}
 	}
 
-	private JniLibraryExtensionInternal registerExtension(Project project, DefaultTargetMachineFactory targetMachineFactory, NamingScheme names) {
+	private JniLibraryExtensionInternal registerExtension(Project project, NamingScheme names) {
 		JniLibraryDependenciesInternal dependencies = project.getObjects().newInstance(JniLibraryDependenciesInternal.class, names);
 		Configuration jvmApiElements = Optional.ofNullable(project.getConfigurations().findByName("apiElements")).orElseGet(() -> {
 			return project.getConfigurations().create("apiElements", configuration -> {
@@ -407,7 +406,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			getConfigurations().getByName("runtimeOnly").extendsFrom(dependencies.getJvmRuntimeOnlyDependencies());
 		});
 
-		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, dependencies, GroupId.of(project::getGroup), targetMachineFactory, names);
+		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, dependencies, GroupId.of(project::getGroup), names);
 		project.getExtensions().add(JniLibraryExtension.class, "library", library);
 		return library;
 	}

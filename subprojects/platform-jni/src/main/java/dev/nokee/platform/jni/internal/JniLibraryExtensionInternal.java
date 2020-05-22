@@ -39,19 +39,15 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	private final JniLibraryDependenciesInternal dependencies;
 	private final GroupId groupId;
 	private final DomainObjectSet<BinaryInternal> binaryCollection;
-	private final DefaultTargetMachineFactory targetMachineFactory;
 	private final NamingScheme names;
 
 	@Inject
-	public JniLibraryExtensionInternal(JniLibraryDependenciesInternal dependencies, GroupId groupId, DefaultTargetMachineFactory targetMachineFactory, NamingScheme names) {
-		this.targetMachineFactory = targetMachineFactory;
+	public JniLibraryExtensionInternal(JniLibraryDependenciesInternal dependencies, GroupId groupId, NamingScheme names) {
 		this.names = names;
 		binaryCollection = getObjects().domainObjectSet(BinaryInternal.class);
 		sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
 		this.dependencies = dependencies;
 		this.groupId = groupId;
-
-		getTargetMachines().convention(singletonList(targetMachineFactory.host()));
 
 		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 		getDimensions().finalizeValueOnRead();
@@ -91,8 +87,6 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	}
 
 	private List<BuildVariant> createBuildVariants() {
-		getTargetMachines().disallowChanges();
-		getTargetMachines().finalizeValue();
 		Set<TargetMachine> targetMachines = getTargetMachines().get();
 		return targetMachines.stream().map(it -> (DefaultTargetMachine)it).map(it -> DefaultBuildVariant.of(it.getOperatingSystemFamily(), it.getArchitecture())).collect(Collectors.toList());
 	}
@@ -142,6 +136,6 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 
 	@Override
 	public TargetMachineFactory getMachines() {
-		return targetMachineFactory;
+		return DefaultTargetMachineFactory.INSTANCE;
 	}
 }

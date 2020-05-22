@@ -10,6 +10,7 @@ import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DescriptorCommandLineTool;
 import dev.nokee.platform.ios.tasks.internal.*;
 import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
+import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppApplicationExtension;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -21,6 +22,7 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
+import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
 import org.gradle.util.GUtil;
 import org.gradle.util.VersionNumber;
 
@@ -28,6 +30,8 @@ import javax.inject.Inject;
 import java.io.File;
 
 public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
+	private static final String EXTENSION_NAME = "application";
+
 	@Inject
 	protected abstract ObjectFactory getObjects();
 
@@ -42,8 +46,11 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 
 	@Override
 	public void apply(Project project) {
-		project.getExtensions().add(ObjectiveCIosApplicationExtension.class, "application", getObjects().newInstance(DefaultObjectiveCIosApplicationExtension.class,
-			getObjects().newInstance(DefaultNativeComponentDependencies.class, NamingScheme.asMainComponent(project.getName()))));
+		project.getPluginManager().apply(StandardToolChainsPlugin.class);
+
+		DefaultObjectiveCIosApplicationExtension extension = getObjects().newInstance(DefaultObjectiveCIosApplicationExtension.class,
+			getObjects().newInstance(DefaultNativeComponentDependencies.class, NamingScheme.asMainComponent(project.getName())));
+		project.getExtensions().add(ObjectiveCIosApplicationExtension.class, EXTENSION_NAME, extension);
 
 		project.getPluginManager().apply(LifecycleBasePlugin.class);
 		project.getPluginManager().apply("objective-c"); // Until we move away from the software model like platform JNI

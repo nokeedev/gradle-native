@@ -5,6 +5,7 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.nativebase.TargetMachine;
+import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
 import org.gradle.api.Action;
 import org.gradle.api.provider.SetProperty;
@@ -16,7 +17,7 @@ import org.gradle.api.provider.SetProperty;
  *
  * @since 0.1
  */
-public interface JniLibraryExtension extends DependencyAwareComponent<JniLibraryDependencies> {
+public interface JniLibraryExtension extends DependencyAwareComponent<JniLibraryDependencies>, TargetMachineAwareComponent {
 	/**
 	 * Returns the dependencies of this component.
 	 *
