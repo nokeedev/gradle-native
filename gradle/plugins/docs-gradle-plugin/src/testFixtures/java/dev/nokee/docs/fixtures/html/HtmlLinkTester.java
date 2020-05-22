@@ -135,8 +135,8 @@ public class HtmlLinkTester {
 				href = href.substring(0, href.indexOf("#"));
 			}
 
-			if (href.endsWith("/")) {
-				href += "index.html";
+			if (!href.startsWith("http://") && !href.startsWith("https://") && href.endsWith("/")) {
+				href += "index.html"; // Only add index.html when it's not an external link
 			}
 
 			ResWithUri res = new OnDiskFile(link, thiz.getRoot(), new File(thiz.getUri()).toPath().getParent().resolve(href).toUri());
