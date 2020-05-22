@@ -91,7 +91,6 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			.assertPluginIds(CURRENT_MODEL_PLUGIN_IDS, IncompatiblePluginsAdvice::forCurrentModelNativePlugins)
 			.assertPluginClass(NativeBasePlugin.class, IncompatiblePluginsAdvice::forNativeBasePlugin);
 
-		TaskContainer tasks = project.getTasks();
 		project.getPluginManager().apply("base");
 		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
@@ -141,7 +140,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 						}
 					}
 
-					TaskProvider<LinkSharedLibraryTask> linkTask = tasks.register(names.getTaskName("link"), LinkSharedLibraryTask.class, task -> {
+					TaskProvider<LinkSharedLibraryTask> linkTask = getTasks().register(names.getTaskName("link"), LinkSharedLibraryTask.class, task -> {
 						task.setDescription("Links the shared library.");
 						objectSourceSets.stream().map(SourceSet::getAsFileTree).forEach(task::source);
 
@@ -272,20 +271,20 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 
 		project.afterEvaluate(proj -> {
 			// Ensure the variants are resolved so all tasks are registered.
-			tasks.named("tasks", task -> {
+			getTasks().named("tasks", task -> {
 				task.dependsOn((Callable) () -> {
 					extension.getVariantCollection().realize();
 					return emptyList();
 				});
 			});
 			// Ensure the variants are resolved so all configurations and dependencies are registered.
-			tasks.named("dependencies", task -> {
+			getTasks().named("dependencies", task -> {
 				task.dependsOn((Callable) () -> {
 					extension.getVariantCollection().realize();
 					return emptyList();
 				});
 			});
-			tasks.named("outgoingVariants", task -> {
+			getTasks().named("outgoingVariants", task -> {
 				task.dependsOn((Callable) () -> {
 					extension.getVariantCollection().realize();
 					return emptyList();
@@ -301,7 +300,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		});
 
 		// Warn if component is cannot build on this machine
-		tasks.named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME, task -> {
+		getTasks().named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME, task -> {
 			task.dependsOn((Callable) () -> {
 				boolean targetsCurrentMachine = extension.getTargetMachines().get().stream().anyMatch(toolChainSelector::canBuild);
 				if (!targetsCurrentMachine) {
@@ -346,14 +345,6 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			return Optional.of(getObjects().newInstance(DefaultJvmJarBinary.class, jvmJarTask));
 		}
 		return Optional.empty();
-	}
-
-	private static Set<DefaultOperatingSystemFamily> targetMachinesToOperatingSystems(Collection<TargetMachine> targetMachines) {
-		return targetMachines.stream().map(it -> ((DefaultTargetMachine)it).getOperatingSystemFamily()).collect(Collectors.toSet());
-	}
-
-	private static Set<DefaultMachineArchitecture> targetMachinesToArchitectures(Collection<TargetMachine> targetMachines) {
-		return targetMachines.stream().map(it -> ((DefaultTargetMachine)it).getArchitecture()).collect(Collectors.toSet());
 	}
 
 	@Inject
