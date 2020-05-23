@@ -157,14 +157,13 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 						task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(names.getOutputDirectoryBase("libs")));
 						task.getLinkedFile().convention(getLayout().getBuildDirectory().file(nativePlatform.getOperatingSystem().getInternalOs().getSharedLibraryName(names.getOutputDirectoryBase("libs") + "/" + project.getName())));
 
-						NativeToolChainInternal toolChain = toolChainSelector.select(targetMachine);
-						task.getToolChain().set(toolChain);
+						task.getToolChain().set(getProviders().provider(() -> toolChainSelector.select(targetMachine)));
 						task.getToolChain().finalizeValueOnRead();
 						task.getToolChain().disallowChanges();
 
 						// For windows
 						task.getImportLibrary().set(getProviders().provider(() -> {
-							PlatformToolProvider toolProvider = toolChain.select(nativePlatform);
+							PlatformToolProvider toolProvider = ((NativeToolChainInternal)task.getToolChain().get()).select(nativePlatform);
 							if (toolProvider.producesImportLibrary()) {
 								return getLayout().getBuildDirectory().file(toolProvider.getImportLibraryName(names.getOutputDirectoryBase("libs") + "/" + project.getName())).get();
 							}

@@ -10,6 +10,7 @@ import dev.nokee.platform.nativebase.internal.NativePlatformFactory;
 import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.Cast;
@@ -36,6 +37,9 @@ public abstract class NativeSourceSetTransform<T extends UTType> implements Sour
 
 	@Inject
 	protected abstract ProjectLayout getLayout();
+
+	@Inject
+	protected abstract ProviderFactory getProviders();
 
 	@Inject
 	public NativeSourceSetTransform(NamingScheme names, DefaultTargetMachine targetMachine, ToolChainSelectorInternal toolChainSelector) {
@@ -68,12 +72,11 @@ public abstract class NativeSourceSetTransform<T extends UTType> implements Sour
 
 			task.getSource().from(sourceSet.getAsFileTree());
 
-			NativeToolChainInternal toolChain = toolChainSelector.select(targetMachine);
-			task.getToolChain().set(toolChain);
+			task.getToolChain().set(getProviders().provider(() -> toolChainSelector.select(targetMachine)));
 			task.getToolChain().finalizeValueOnRead();
 			task.getToolChain().disallowChanges();
 
-			final Callable<List<File>> systemIncludes = () -> toolChain.select(nativePlatform).getSystemLibraries(getToolType()).getIncludeDirs();
+			final Callable<List<File>> systemIncludes = () -> ((NativeToolChainInternal)task.getToolChain().get()).select(nativePlatform).getSystemLibraries(getToolType()).getIncludeDirs();
 			task.getSystemIncludes().from(systemIncludes);
 		});
 
