@@ -25,4 +25,12 @@ public interface SharedLibraryBinary extends Binary {
 	 * @return a provider of {@link LinkSharedLibrary} task, never null.
 	 */
 	TaskProvider<? extends LinkSharedLibrary> getLinkTask();
+
+	/**
+	 * Returns whether or not this binary can be built in the current environment.
+	 *
+	 * @return {@code true} if this binary can be built in the current environment or {@code false} otherwise.
+	 * @since 0.4
+	 */
+	boolean isBuildable();
 }

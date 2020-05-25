@@ -317,6 +317,28 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 		succeeds('verify')
 	}
 
+	def "can check if a binary is buildable"() {
+		given:
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+
+		and:
+		buildFile << configureTargetMachines("machines.linux", "machines.macOS", "machines.windows", "machines.freeBSD")
+		buildFile << """
+			tasks.register('verify') {
+				doLast {
+					def variants = library.variants.elements.get()
+					def buildable = variants*.sharedLibrary*.buildable
+					assert buildable.count { it == true } == 1
+					assert buildable.count { it == false } == 3
+				}
+			}
+		"""
+
+		expect:
+		succeeds 'verify'
+	}
+
 	protected String configureProjectGroup(String groupId) {
 		return """
 			group = '${groupId}'

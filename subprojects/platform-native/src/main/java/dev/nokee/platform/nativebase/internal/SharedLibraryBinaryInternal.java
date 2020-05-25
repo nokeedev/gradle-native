@@ -16,13 +16,11 @@ import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
-import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import lombok.Value;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
-import org.gradle.api.attributes.Attribute;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
@@ -34,13 +32,17 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.jvm.Jvm;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
+import org.gradle.nativeplatform.platform.NativePlatform;
+import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
+import org.gradle.nativeplatform.toolchain.NativeToolChain;
+import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
+import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -124,6 +126,31 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 	protected abstract ProviderFactory getProviderFactory();
 
 	public abstract RegularFileProperty getLinkedFile();
+
+	@Override
+	public boolean isBuildable() {
+		if (!compileTasks.getElements().get().stream().allMatch(SharedLibraryBinaryInternal::isBuildable)) {
+			return false;
+		}
+		return isBuildable(linkTask.get());
+	}
+
+	private static boolean isBuildable(NativeSourceCompile compileTask) {
+		AbstractNativeCompileTask compileTaskInternal = (AbstractNativeCompileTask)compileTask;
+		return isBuildable(compileTaskInternal.getToolChain().get(), compileTaskInternal.getTargetPlatform().get());
+	}
+
+	private static boolean isBuildable(LinkSharedLibrary linkTask) {
+		AbstractLinkTask linkTaskInternal = (AbstractLinkTask)linkTask;
+		return isBuildable(linkTaskInternal.getToolChain().get(), linkTaskInternal.getTargetPlatform().get());
+	}
+
+	private static boolean isBuildable(NativeToolChain toolchain, NativePlatform platform) {
+		NativeToolChainInternal toolchainInternal = (NativeToolChainInternal)toolchain;
+		NativePlatformInternal platformInternal = (NativePlatformInternal)platform;
+		PlatformToolProvider toolProvider = toolchainInternal.select(platformInternal);
+		return toolProvider.isAvailable();
+	}
 
 	private static List<HeaderSearchPath> toHeaderSearchPaths(Set<FileSystemLocation> paths) {
 		return paths.stream().map(FileSystemLocation::getAsFile).map(DefaultHeaderSearchPath::new).collect(Collectors.toList());
