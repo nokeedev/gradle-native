@@ -115,8 +115,9 @@ private String resolveProperty(Project project, String envVarKey, String project
 	return null;
 }
 
+def allJavadocProjectPaths = allPluginProjectPaths - [':distributions:all', ':distributions:bom']
 tasks.register('javadoc', Javadoc) {
-	source(allPluginProjectPaths.collect { evaluationDependsOn(it).sourceSets.main.allJava })
+	source(allJavadocProjectPaths.collect { evaluationDependsOn(it).sourceSets.main.allJava })
 	destinationDir = layout.buildDirectory.dir('javadoc').get().asFile
-	classpath = files(allPluginProjectPaths.collect { evaluationDependsOn(it).sourceSets.main.compileClasspath })
+	classpath = files(allJavadocProjectPaths.collect { evaluationDependsOn(it).sourceSets.main.compileClasspath })
 }
