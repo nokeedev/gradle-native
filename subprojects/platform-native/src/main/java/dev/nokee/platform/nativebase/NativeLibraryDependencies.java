@@ -23,8 +23,7 @@ public interface NativeLibraryDependencies extends NativeComponentDependencies, 
      * Adds an API dependency to this library. An API dependency is made visible to consumers that are compiled against this component.
      *
      * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-     * @param action The action to run to configure the dependency.
-	 * @param <T> The dependency type to configure, project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}.
+     * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
      */
-    <T extends ModuleDependency> void api(Object notation, Action<? super T> action);
+    void api(Object notation, Action<? super ModuleDependency> action);
 }

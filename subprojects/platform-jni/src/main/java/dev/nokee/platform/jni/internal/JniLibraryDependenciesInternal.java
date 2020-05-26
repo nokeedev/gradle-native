@@ -36,7 +36,7 @@ public abstract class JniLibraryDependenciesInternal extends JniLibraryNativeDep
 	}
 
 	@Override
-	public <T extends ModuleDependency> void api(Object notation, Action<? super T> action) {
+	public void api(Object notation, Action<? super ModuleDependency> action) {
 		apiDependencies.addDependency(notation, action);
 	}
 
@@ -46,7 +46,7 @@ public abstract class JniLibraryDependenciesInternal extends JniLibraryNativeDep
 	}
 
 	@Override
-	public <T extends ModuleDependency> void jvmImplementation(Object notation, Action<? super T> action) {
+	public void jvmImplementation(Object notation, Action<? super ModuleDependency> action) {
 		jvmImplementationDependencies.addDependency(notation, action);
 	}
 
@@ -56,7 +56,7 @@ public abstract class JniLibraryDependenciesInternal extends JniLibraryNativeDep
 	}
 
 	@Override
-	public <T extends ModuleDependency> void jvmRuntimeOnly(Object notation, Action<? super T> action) {
+	public void jvmRuntimeOnly(Object notation, Action<? super ModuleDependency> action) {
 		jvmRuntimeOnly.addDependency(notation, action);
 	}
 

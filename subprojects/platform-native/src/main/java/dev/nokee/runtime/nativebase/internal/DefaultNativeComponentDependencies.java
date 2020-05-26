@@ -35,7 +35,7 @@ public abstract class DefaultNativeComponentDependencies implements NativeCompon
 	}
 
 	@Override
-	public <T extends ModuleDependency> void implementation(Object notation, Action<? super T> action) {
+	public void implementation(Object notation, Action<? super ModuleDependency> action) {
 		implementation.addDependency(notation, action);
 	}
 
@@ -45,7 +45,7 @@ public abstract class DefaultNativeComponentDependencies implements NativeCompon
 	}
 
 	@Override
-	public <T extends ModuleDependency> void compileOnly(Object notation, Action<? super T> action) {
+	public void compileOnly(Object notation, Action<? super ModuleDependency> action) {
 		compileOnly.addDependency(notation, action);
 	}
 
@@ -55,7 +55,7 @@ public abstract class DefaultNativeComponentDependencies implements NativeCompon
 	}
 
 	@Override
-	public <T extends ModuleDependency> void linkOnly(Object notation, Action<? super T> action) {
+	public void linkOnly(Object notation, Action<? super ModuleDependency> action) {
 		linkOnly.addDependency(notation, action);
 	}
 
@@ -65,7 +65,7 @@ public abstract class DefaultNativeComponentDependencies implements NativeCompon
 	}
 
 	@Override
-	public <T extends ModuleDependency> void runtimeOnly(Object notation, Action<? super T> action) {
+	public void runtimeOnly(Object notation, Action<? super ModuleDependency> action) {
 		runtimeOnly.addDependency(notation, action);
 	}
 }

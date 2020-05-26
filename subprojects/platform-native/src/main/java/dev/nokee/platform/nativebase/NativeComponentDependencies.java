@@ -25,10 +25,9 @@ public interface NativeComponentDependencies extends ComponentDependencies {
 	 * An implementation dependency is not visible to consumers that are compiled against this component.
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 * @param action The action to run to configure the dependency.
-	 * @param <T> The dependency type to configure, project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}.
+	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
-	<T extends ModuleDependency> void implementation(Object notation, Action<? super T> action);
+	void implementation(Object notation, Action<? super ModuleDependency> action);
 
 	/**
 	 * Adds an native compile only dependency to this component.
@@ -43,10 +42,9 @@ public interface NativeComponentDependencies extends ComponentDependencies {
 	 * An compile only dependency is not visible to consumers that are compiled or linked against this component.
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 * @param action The action to run to configure the dependency.
-	 * @param <T> The dependency type to configure, project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}.
+	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
-	<T extends ModuleDependency> void compileOnly(Object notation, Action<? super T> action);
+	void compileOnly(Object notation, Action<? super ModuleDependency> action);
 
 	/**
 	 * Adds an native link only dependency to this component.
@@ -61,10 +59,9 @@ public interface NativeComponentDependencies extends ComponentDependencies {
 	 * An link only dependency is not visible to consumers that are compiled or linked against this component.
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 * @param action The action to run to configure the dependency.
-	 * @param <T> The dependency type to configure, project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}.
+	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
-	<T extends ModuleDependency> void linkOnly(Object notation, Action<? super T> action);
+	void linkOnly(Object notation, Action<? super ModuleDependency> action);
 
 	/**
 	 * Adds an native runtime only dependency to this component.
@@ -79,8 +76,7 @@ public interface NativeComponentDependencies extends ComponentDependencies {
 	 * An runtime only dependency is visible only to consumers that are running against this component.
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 * @param action The action to run to configure the dependency.
-	 * @param <T> The dependency type to configure, project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}.
+	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
-	<T extends ModuleDependency> void runtimeOnly(Object notation, Action<? super T> action);
+	void runtimeOnly(Object notation, Action<? super ModuleDependency> action);
 }

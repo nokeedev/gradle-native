@@ -22,7 +22,7 @@ public abstract class DefaultNativeLibraryDependencies extends DefaultNativeComp
 	}
 
 	@Override
-	public <T extends ModuleDependency> void api(Object notation, Action<? super T> action) {
+	public void api(Object notation, Action<? super ModuleDependency> action) {
 		api.addDependency(notation, action);
 	}
 }
