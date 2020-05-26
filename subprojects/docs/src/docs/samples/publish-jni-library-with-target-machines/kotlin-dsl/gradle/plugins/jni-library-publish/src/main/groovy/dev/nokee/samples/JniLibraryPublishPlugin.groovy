@@ -45,37 +45,35 @@ abstract class JniLibraryPublishPlugin implements Plugin<Project> {
 
 		// Resolve all
 		project.afterEvaluate {
-			extension.targetMachines.get().each { targetMachine ->
+			for (def targetMachine : extension.targetMachines.get()) {
 				dependencies.add(library.name, "${project.group}:${project.name}-${variantName(targetMachine)}:${project.version}")
 
-				Configuration libraryVariant = configurations.create("library" + variantName(targetMachine).capitalize()) { Configuration config ->
-					config.canBeConsumed = false
-					config.canBeResolved = true
-					config.attributes { AttributeContainer attributes ->
-						attributes.attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
-						attributes.attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling, Bundling.EMBEDDED))
-						attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.JAR))
-						attributes.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
-						attributes.attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, objects.named(OperatingSystemFamily, toOperatingSystemFamily(targetMachine)))
-						attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, MachineArchitecture.X86_64))
-					}
-					config.getOutgoing().artifact(tasks.named("jar", Jar).flatMap { it.archiveFile })
+				Configuration libraryVariant = configurations.create("library" + variantName(targetMachine).capitalize())
+				libraryVariant.canBeConsumed = false
+				libraryVariant.canBeResolved = true
+				libraryVariant.attributes { AttributeContainer attributes ->
+					attributes.attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
+					attributes.attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling, Bundling.EMBEDDED))
+					attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.JAR))
+					attributes.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
+					attributes.attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, objects.named(OperatingSystemFamily, toOperatingSystemFamily(targetMachine)))
+					attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, MachineArchitecture.X86_64))
 				}
+				libraryVariant.getOutgoing().artifact(tasks.named("jar", Jar).flatMap { it.archiveFile })
 				jni.addVariantsFromConfiguration(libraryVariant) { it.mapToMavenScope("runtime") }
 				dependencies.add(libraryVariant.name, "${project.group}:${project.name}-${variantName(targetMachine)}:${project.version}")
 
 
-				Configuration jniLibraryVariant = configurations.create("jniLibrary" + variantName(targetMachine).capitalize()) { Configuration config ->
-					config.canBeConsumed = false
-					config.canBeResolved = true
-					config.attributes { AttributeContainer attributes ->
-						attributes.attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
-						attributes.attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling, Bundling.EMBEDDED))
-						attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.JAR))
-						attributes.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
-						attributes.attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, objects.named(OperatingSystemFamily, toOperatingSystemFamily(targetMachine)))
-						attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, MachineArchitecture.X86_64))
-					}
+				Configuration jniLibraryVariant = configurations.create("jniLibrary" + variantName(targetMachine).capitalize())
+				jniLibraryVariant.canBeConsumed = false
+				jniLibraryVariant.canBeResolved = true
+				jniLibraryVariant.attributes { AttributeContainer attributes ->
+					attributes.attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
+					attributes.attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling, Bundling.EMBEDDED))
+					attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.JAR))
+					attributes.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
+					attributes.attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, objects.named(OperatingSystemFamily, toOperatingSystemFamily(targetMachine)))
+					attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, MachineArchitecture.X86_64))
 				}
 				AdhocComponentWithVariants jniVariant = softwareComponentFactory.adhoc("jni${variantName(targetMachine).capitalize()}")
 				def jniLibraries = extension.variants.flatMap {
