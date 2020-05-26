@@ -1,22 +1,17 @@
 package dev.nokee.language.objectivecpp.internal;
 
-import dev.nokee.language.c.internal.UTTypeCSource;
-import dev.nokee.language.cpp.internal.UTTypeCppSource;
 import dev.nokee.language.nativebase.internal.NativeSourceSetTransform;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.nativebase.internal.DefaultTargetMachine;
-import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
-import org.gradle.nativeplatform.toolchain.internal.ToolType;
 
 import javax.inject.Inject;
 
 public abstract class ObjectiveCppSourceSetTransform extends NativeSourceSetTransform<UTTypeObjectiveCppSource> {
 	@Inject
-	public ObjectiveCppSourceSetTransform(NamingScheme names, DefaultTargetMachine targetMachine, ToolChainSelectorInternal toolChainSelector, Configuration compileConfiguration) {
-		super(names, targetMachine, toolChainSelector, compileConfiguration);
+	public ObjectiveCppSourceSetTransform(NamingScheme names, Configuration compileConfiguration) {
+		super(names, compileConfiguration);
 	}
 
 	@Override
@@ -29,8 +24,4 @@ public abstract class ObjectiveCppSourceSetTransform extends NativeSourceSetTran
 		return "ObjectiveCpp";
 	}
 
-	@Override
-	protected ToolType getToolType() {
-		return ToolType.OBJECTIVECPP_COMPILER;
-	}
 }

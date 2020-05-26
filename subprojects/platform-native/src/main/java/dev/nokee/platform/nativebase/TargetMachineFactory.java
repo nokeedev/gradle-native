@@ -1,5 +1,7 @@
 package dev.nokee.platform.nativebase;
 
+import dev.nokee.runtime.nativebase.TargetMachine;
+
 /**
  * A factory for creating {@link TargetMachine} instances.
  *

@@ -5,12 +5,10 @@ import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.core.exec.internal.VersionedCommandLineTool;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
-import dev.nokee.platform.ios.ObjectiveCIosLibraryExtension;
 import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DescriptorCommandLineTool;
 import dev.nokee.platform.ios.tasks.internal.*;
-import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
-import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppApplicationExtension;
+import dev.nokee.runtime.nativebase.internal.DefaultNativeComponentDependencies;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -48,8 +46,12 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 	public void apply(Project project) {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
+		NamingScheme names = NamingScheme.asMainComponent(project.getName());
 		DefaultObjectiveCIosApplicationExtension extension = getObjects().newInstance(DefaultObjectiveCIosApplicationExtension.class,
-			getObjects().newInstance(DefaultNativeComponentDependencies.class, NamingScheme.asMainComponent(project.getName())));
+			getObjects().newInstance(DefaultNativeComponentDependencies.class, names), names);
+
+		project.afterEvaluate(extension::finalizeExtension);
+
 		project.getExtensions().add(ObjectiveCIosApplicationExtension.class, EXTENSION_NAME, extension);
 
 		project.getPluginManager().apply(LifecycleBasePlugin.class);

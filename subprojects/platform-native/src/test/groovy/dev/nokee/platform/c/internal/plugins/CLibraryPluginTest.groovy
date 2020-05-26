@@ -2,6 +2,7 @@ package dev.nokee.platform.c.internal.plugins
 
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
+import dev.nokee.fixtures.AbstractTaskPluginTest
 import dev.nokee.platform.c.CLibraryExtension
 import org.gradle.api.Project
 import spock.lang.Subject
@@ -28,6 +29,10 @@ trait CLibraryPluginTestFixture {
 	Class getExtensionType() {
 		return CLibraryExtension
 	}
+
+	String[] getExpectedVariantAwareTaskNames() {
+		return ['objects', 'sharedLibrary']
+	}
 }
 
 @Subject(CLibraryPlugin)
@@ -37,4 +42,8 @@ class CLibraryPluginTest extends AbstractPluginTest implements CLibraryPluginTes
 
 @Subject(CLibraryPlugin)
 class CLibraryTargetMachineAwarePluginTest extends AbstractTargetMachineAwarePluginTest implements CLibraryPluginTestFixture {
+}
+
+@Subject(CLibraryPlugin)
+class CLibraryTaskPluginTest extends AbstractTaskPluginTest implements CLibraryPluginTestFixture {
 }

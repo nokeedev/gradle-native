@@ -10,14 +10,15 @@ import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryDependencies;
 import dev.nokee.platform.jni.JniLibraryExtension;
-import dev.nokee.platform.nativebase.MachineArchitecture;
-import dev.nokee.platform.nativebase.OperatingSystemFamily;
-import dev.nokee.platform.nativebase.TargetMachine;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
-import dev.nokee.platform.nativebase.internal.DefaultMachineArchitecture;
-import dev.nokee.platform.nativebase.internal.DefaultOperatingSystemFamily;
-import dev.nokee.platform.nativebase.internal.DefaultTargetMachine;
-import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory;
+import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
+import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import dev.nokee.runtime.nativebase.internal.DefaultTargetMachineFactory;
+import dev.nokee.runtime.base.internal.DimensionType;
+import dev.nokee.runtime.nativebase.MachineArchitecture;
+import dev.nokee.runtime.nativebase.OperatingSystemFamily;
+import dev.nokee.runtime.nativebase.TargetMachine;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
@@ -31,8 +32,6 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.Collections.singletonList;
 
 public abstract class JniLibraryExtensionInternal implements JniLibraryExtension {
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;

@@ -7,24 +7,28 @@ import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.language.c.internal.CSourceSet;
 import dev.nokee.language.c.internal.CSourceSetTransform;
+import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.cpp.internal.CppSourceSet;
 import dev.nokee.language.cpp.internal.CppSourceSetTransform;
+import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
+import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetTransform;
 import dev.nokee.language.objectivec.internal.UTTypeObjectiveCSource;
+import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetTransform;
 import dev.nokee.language.objectivecpp.internal.UTTypeObjectiveCppSource;
+import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
-import dev.nokee.platform.nativebase.TargetMachine;
-import dev.nokee.platform.nativebase.internal.*;
-import dev.nokee.platform.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
+import dev.nokee.runtime.nativebase.internal.*;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
+import dev.nokee.runtime.nativebase.TargetMachine;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
@@ -47,10 +51,12 @@ import org.gradle.api.tasks.testing.Test;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.language.nativeplatform.internal.toolchains.ToolChainSelector;
+import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.plugins.NativeBasePlugin;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
+import org.gradle.nativeplatform.toolchain.internal.ToolType;
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
 import org.gradle.process.CommandLineArgumentProvider;
 import org.gradle.util.GradleVersion;
@@ -59,6 +65,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
@@ -138,6 +145,41 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 							SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(DefaultSourceSet.class, new UTTypeObjectiveCSource()).srcDir("src/main/objc").transform(getObjects().newInstance(ObjectiveCSourceSetTransform.class, names, targetMachineInternal, toolChainSelector, compileConfiguration));
 							objectSourceSets.add(objectSourceSet);
 						}
+
+						objectSourceSets.forEach(objects -> {
+							GeneratedSourceSet<?> source = (GeneratedSourceSet<?>)objects;
+							source.getGeneratedByTask().configure(task -> {
+								AbstractNativeCompileTask compileTask = (AbstractNativeCompileTask)task;
+
+								NativePlatformFactory nativePlatformFactory = new NativePlatformFactory();
+								NativePlatformInternal nativePlatform = nativePlatformFactory.create(targetMachineInternal);
+								compileTask.getTargetPlatform().set(nativePlatform);
+								compileTask.getTargetPlatform().finalizeValueOnRead();
+								compileTask.getTargetPlatform().disallowChanges();
+
+								NativeToolChainInternal toolChain = toolChainSelector.select(targetMachineInternal);
+								compileTask.getToolChain().set(toolChain);
+								compileTask.getToolChain().finalizeValueOnRead();
+								compileTask.getToolChain().disallowChanges();
+
+								final Supplier<ToolType> toolTypeSupplier = () -> {
+									ToolType toolType = null;
+									if (compileTask instanceof CCompileTask) {
+										toolType = ToolType.CPP_COMPILER;
+									} else if (compileTask instanceof CppCompileTask) {
+										toolType = ToolType.CPP_COMPILER;
+									} else if (compileTask instanceof ObjectiveCCompileTask) {
+										toolType = ToolType.OBJECTIVEC_COMPILER;
+									} else if (compileTask instanceof ObjectiveCppCompileTask) {
+										toolType = ToolType.OBJECTIVECPP_COMPILER;
+									}
+									return toolType;
+								};
+
+								final Callable<List<File>> systemIncludes = () -> toolChain.select(nativePlatform).getSystemLibraries(toolTypeSupplier.get()).getIncludeDirs();
+								compileTask.getSystemIncludes().from(systemIncludes);
+							});
+						});
 					}
 
 					TaskProvider<LinkSharedLibraryTask> linkTask = getTasks().register(names.getTaskName("link"), LinkSharedLibraryTask.class, task -> {

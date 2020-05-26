@@ -1,6 +1,5 @@
 package dev.nokee.platform.jni.internal;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
@@ -10,7 +9,7 @@ import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryNativeDependencies;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
-import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.runtime.nativebase.internal.*;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
@@ -18,11 +17,8 @@ import org.gradle.api.Named;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.RegularFile;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -31,9 +27,7 @@ import org.gradle.jvm.tasks.Jar;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import static dev.nokee.platform.base.internal.TaskUtils.dependsOn;
 

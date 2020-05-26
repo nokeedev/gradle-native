@@ -1,5 +1,6 @@
 package dev.nokee.platform.nativebase;
 
+import dev.nokee.runtime.nativebase.TargetMachine;
 import org.gradle.api.provider.SetProperty;
 
 /**

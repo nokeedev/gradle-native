@@ -4,10 +4,10 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToo
 import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCNSSavePanelLib
-import dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes
+import dev.nokee.platform.nativebase.internal.ArtifactSerializationTypes
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory
-import dev.nokee.runtime.nativebase.internal.LibraryElements
+import dev.nokee.platform.nativebase.internal.LibraryElements
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin
 import spock.lang.Requires
 import spock.lang.Unroll

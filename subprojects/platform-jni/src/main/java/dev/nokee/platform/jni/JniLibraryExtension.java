@@ -4,9 +4,9 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.nativebase.TargetMachine;
-import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
+import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
+import dev.nokee.runtime.nativebase.TargetMachine;
 import org.gradle.api.Action;
 import org.gradle.api.provider.SetProperty;
 

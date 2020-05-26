@@ -3,6 +3,7 @@ package dev.nokee.platform.base.internal;
 import com.google.common.base.Preconditions;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.runtime.base.internal.Dimension;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;

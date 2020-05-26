@@ -1,8 +1,8 @@
 package dev.nokee.platform.objectivecpp.internal.plugins;
 
 import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.TargetMachineRule;
+import dev.nokee.runtime.nativebase.internal.DefaultNativeComponentDependencies;
+import dev.nokee.runtime.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplicationExtension;
 import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppApplicationExtension;
 import org.gradle.api.Plugin;
@@ -22,9 +22,11 @@ public abstract class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
-		DefaultObjectiveCppApplicationExtension extension = getObjects().newInstance(DefaultObjectiveCppApplicationExtension.class,getObjects().newInstance(DefaultNativeComponentDependencies.class, NamingScheme.asMainComponent(project.getName())));
+		NamingScheme names = NamingScheme.asMainComponent(project.getName());
+		DefaultObjectiveCppApplicationExtension extension = getObjects().newInstance(DefaultObjectiveCppApplicationExtension.class,getObjects().newInstance(DefaultNativeComponentDependencies.class, names), names);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
+		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(ObjectiveCppApplicationExtension.class, EXTENSION_NAME, extension);
 	}

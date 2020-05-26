@@ -2,6 +2,7 @@ package dev.nokee.platform.c.internal.plugins
 
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
+import dev.nokee.fixtures.AbstractTaskPluginTest
 import dev.nokee.platform.c.CApplicationExtension
 import org.gradle.api.Project
 import spock.lang.Subject
@@ -28,6 +29,10 @@ trait CApplicationPluginTestFixture {
 	Class getExtensionType() {
 		return CApplicationExtension
 	}
+
+	String[] getExpectedVariantAwareTaskNames() {
+		return ['objects', 'executable']
+	}
 }
 
 @Subject(CApplicationPlugin)
@@ -37,4 +42,8 @@ class CApplicationPluginTest extends AbstractPluginTest implements CApplicationP
 
 @Subject(CApplicationPlugin)
 class CApplicationTargetMachineAwarePluginTest extends AbstractTargetMachineAwarePluginTest implements CApplicationPluginTestFixture {
+}
+
+@Subject(CApplicationPlugin)
+class CApplicationTaskPluginTest extends AbstractTaskPluginTest implements CApplicationPluginTestFixture {
 }

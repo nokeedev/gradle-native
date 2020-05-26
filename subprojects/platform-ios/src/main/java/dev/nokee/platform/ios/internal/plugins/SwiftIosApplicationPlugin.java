@@ -3,7 +3,7 @@ package dev.nokee.platform.ios.internal.plugins;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.ios.SwiftIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultSwiftIosApplicationExtension;
-import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
+import dev.nokee.runtime.nativebase.internal.DefaultNativeComponentDependencies;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
@@ -21,8 +21,12 @@ public abstract class SwiftIosApplicationPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 
+		NamingScheme names = NamingScheme.asMainComponent(project.getName());
 		DefaultSwiftIosApplicationExtension extension = getObjects().newInstance(DefaultSwiftIosApplicationExtension.class,
-			getObjects().newInstance(DefaultNativeComponentDependencies.class, NamingScheme.asMainComponent(project.getName())));
+			getObjects().newInstance(DefaultNativeComponentDependencies.class, names), names);
+
+		project.afterEvaluate(extension::finalizeExtension);
+
 		project.getExtensions().add(SwiftIosApplicationExtension.class, EXTENSION_NAME, extension);
 	}
 }

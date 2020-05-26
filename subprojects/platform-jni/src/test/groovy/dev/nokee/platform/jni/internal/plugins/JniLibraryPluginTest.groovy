@@ -2,18 +2,16 @@ package dev.nokee.platform.jni.internal.plugins
 
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
+import dev.nokee.fixtures.AbstractTaskPluginTest
 import dev.nokee.fixtures.ProjectTestFixture
 import dev.nokee.platform.jni.JniLibraryDependencies
 import dev.nokee.platform.jni.JniLibraryExtension
 import dev.nokee.platform.jni.JniLibraryNativeDependencies
 import dev.nokee.platform.nativebase.SharedLibraryBinary
-import dev.nokee.platform.nativebase.TargetMachineFactory
-import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary
 import groovy.transform.Canonical
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.ProjectConfigurationException
 import org.gradle.api.internal.plugins.PluginApplicationException
 import org.gradle.jvm.tasks.Jar
 import org.gradle.testfixtures.ProjectBuilder
@@ -72,6 +70,17 @@ class JniLibraryPluginLayoutTest extends AbstractPluginTest implements JniLibrar
 	@Override
 	Class getDependenciesType() {
 		return JniLibraryDependencies
+	}
+}
+
+@Subject(JniLibraryPlugin)
+class JniLibraryTaskPluginTest extends AbstractTaskPluginTest implements JniLibraryPluginTestFixture {
+	@Override
+	String[] getExpectedVariantAwareTaskNames() {
+		return [
+			'jar', /* JVM lifecycle */
+			'sharedLibrary', /* native lifecycle */
+		]
 	}
 }
 
@@ -578,18 +587,6 @@ class JniLibraryPluginWithNoLanguageTasksTest extends AbstractJniLibraryPluginSp
 	@Override
 	Project getProjectUnderTest() {
 		return project
-	}
-
-	def "creates lifecycle tasks"() {
-		when:
-		applyPluginAndEvaluate('plugin registers lifecycle tasks in afterEvaluate')
-
-		then:
-		tasks*.name as Set == [
-			'jar', /* JVM lifecycle */
-			'sharedLibrary', /* native lifecycle */
-			'assemble', 'clean', 'build', 'check' /* general lifecycle */
-		] as Set
 	}
 
 	def "creates variant-aware tasks for ambiguous operating system family dimension"() {

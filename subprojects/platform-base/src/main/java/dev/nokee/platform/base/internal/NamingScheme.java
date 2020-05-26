@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.runtime.base.internal.Dimension;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Named;
 

@@ -1,5 +1,6 @@
 plugins {
 	id 'java-library'
+	id 'groovy-base'
 	id 'maven-publish'
 }
 
@@ -9,7 +10,15 @@ repositories {
 }
 
 dependencies {
+	api project(':runtimeBase')
 	compileOnly "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
+	testImplementation 'org.spockframework:spock-core'
+	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
 }
 
 // TODO(toolbox): Expose the APIs allowing to query the compatibility based on Gradle version

@@ -3,6 +3,7 @@ package dev.nokee.platform.ios.internal.plugins
 import dev.gradleplugins.spock.lang.CleanupTestDirectory
 import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
 import dev.nokee.fixtures.AbstractPluginTest
+import dev.nokee.fixtures.AbstractTaskPluginTest
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension
 import dev.nokee.platform.ios.tasks.internal.AssetCatalogCompileTask
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask
@@ -42,6 +43,11 @@ class ObjectiveCIosApplicationPluginLayoutTest extends AbstractPluginTest implem
 		return ObjectiveCIosApplicationExtension
 	}
 }
+
+// This plugin is still on the software model so it's hard to evolve it
+//@Subject(ObjectiveCIosApplicationPlugin)
+//class ObjectiveCIosApplicationTaskPluginTest extends AbstractTaskPluginTest implements ObjectiveCIosApplicationPluginTestFixture {
+//}
 
 @Requires({SystemUtils.IS_OS_MAC})
 @Subject(ObjectiveCIosApplicationPlugin)

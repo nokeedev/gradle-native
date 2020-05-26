@@ -1,5 +1,7 @@
 package dev.nokee.platform.nativebase;
 
+import dev.nokee.runtime.nativebase.TargetMachine;
+
 /**
  * A builder for configuring the architecture of a {@link TargetMachine} instances.
  *

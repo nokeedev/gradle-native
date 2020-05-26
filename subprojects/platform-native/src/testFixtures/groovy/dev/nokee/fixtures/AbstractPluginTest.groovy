@@ -140,3 +140,28 @@ abstract class AbstractTargetMachineAwarePluginTest extends Specification implem
 		project."${extensionNameUnderTest}".machines instanceof TargetMachineFactory
 	}
 }
+
+abstract class AbstractTaskPluginTest extends Specification implements ProjectTestFixture {
+	def project = ProjectBuilder.builder().withName('test').build()
+
+	@Override
+	Project getProjectUnderTest() {
+		return project
+	}
+
+	abstract void applyPluginUnderTest()
+
+	abstract String[] getExpectedVariantAwareTaskNames();
+
+	def "creates lifecycle tasks"() {
+		when:
+		applyPluginUnderTest()
+		evaluateProject('plugin registers lifecycle tasks in afterEvaluate')
+
+		then:
+		tasks*.name as Set == [
+			*expectedVariantAwareTaskNames,
+			'assemble', 'clean', 'build', 'check' /* general lifecycle */
+		] as Set
+	}
+}

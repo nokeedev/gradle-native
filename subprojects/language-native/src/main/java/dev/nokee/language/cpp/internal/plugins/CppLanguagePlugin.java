@@ -1,7 +1,7 @@
 package dev.nokee.language.cpp.internal.plugins;
 
-import dev.nokee.platform.nativebase.internal.plugins.DomainKnowledgeToolchainsRules;
-import dev.nokee.platform.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
+import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
+import dev.nokee.runtime.nativebase.internal.plugins.DomainKnowledgeToolchainsRules;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
