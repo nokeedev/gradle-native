@@ -1,0 +1,26 @@
+plugins {
+	id 'java-platform'
+	id 'maven-publish'
+}
+
+def allPlatformProjects = rootProject.subprojects - [project(':docs'), project(':distributions'), project(':distributions:bom'), project(':distributions:all'), project]
+
+javaPlatform {
+	allowDependencies()
+}
+
+dependencies {
+	api platform(project(':distributions:bom'))
+	allPlatformProjects.each {
+		api it
+	}
+}
+
+publishing {
+	publications {
+		nokeeDistributions(MavenPublication) {
+			from components.javaPlatform
+			artifactId = 'nokee-gradle-plugins'
+		}
+	}
+}

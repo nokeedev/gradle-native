@@ -26,6 +26,14 @@ include 'distributions'
 project(':distributions').projectDir = file('subprojects/distributions')
 project(':distributions').buildFileName = 'distributions.gradle'
 
+include 'distributions:all'
+project(':distributions:all').projectDir = file('subprojects/distributions/all')
+project(':distributions:all').buildFileName = 'distributions-all.gradle'
+
+include 'distributions:bom'
+project(':distributions:bom').projectDir = file('subprojects/distributions/bom')
+project(':distributions:bom').buildFileName = 'distributions-bom.gradle'
+
 include 'ideXcode'
 project(':ideXcode').projectDir = file('subprojects/ide-xcode')
 project(':ideXcode').buildFileName = 'ide-xcode.gradle'

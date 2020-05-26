@@ -6,6 +6,8 @@ import groovy.json.JsonOutput
 
 def allPluginProjectPaths = [
 	':coreExec',
+	':distributions:all',
+	':distributions:bom',
 	':ideXcode',
 	':languageNative',
 	':platformBase',
