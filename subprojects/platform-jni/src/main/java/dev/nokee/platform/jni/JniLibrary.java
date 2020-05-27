@@ -77,6 +77,7 @@ public interface JniLibrary extends Variant {
 	 *
 	 * @return a property for configuring the native runtime files to include inside the JNI JAR, never null.
 	 * @see #getResourcePath() for the resource path location for the native runtime files
+	 * @since 0.4
 	 */
 	ConfigurableFileCollection getNativeRuntimeFiles();
 }
