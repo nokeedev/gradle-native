@@ -1,7 +1,18 @@
+buildscript {
+	repositories {
+		maven { url = uri('https://dl.bintray.com/nokeedev/distributions-snapshots') }
+	}
+	dependencies {
+		classpath 'dev.nokee:coreExec:0.4.0-727859f'
+	}
+}
 plugins {
 	id 'lifecycle-base'
 }
 
+
+import dev.nokee.core.exec.CommandLine
+import dev.nokee.core.exec.GradleWorkerExecutorEngine
 import groovy.json.JsonOutput
 
 def allPluginProjectPaths = [
@@ -64,12 +75,8 @@ tasks.register('publishToBintray') {
 			def publish = true
 			def filePath = distributionRepository.get().asFile.toPath().relativize(it.toPath())
 
-			print "Publishing ${filePath}... "
-			if (0 == ['curl', '-T', it, "-u${user}:${key}", "https://api.bintray.com/content/nokeedev/${repository}/${packageName}/${project.version}/${filePath}?publish=${publish?'1':'0'}&override=${override?'1':'0'}"].execute().waitFor()) {
-				println "done"
-			} else {
-				println "failed"
-			}
+			println "Publishing ${filePath}... "
+			CommandLine.of(['curl', '-T', it, "-u${user}:${key}", "https://api.bintray.com/content/nokeedev/${repository}/${packageName}/${project.version}/${filePath}?publish=${publish?'1':'0'}&override=${override?'1':'0'}"]).execute(objects.newInstance(GradleWorkerExecutorEngine))
 		}
 	}
 }
