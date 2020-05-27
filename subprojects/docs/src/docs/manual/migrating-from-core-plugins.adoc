@@ -1,0 +1,5 @@
+= Migrating from Gradle Core Plugins
+:jbake-type: reference_chapter
+:jbake-tags: user manual, gradle plugin, gradle native
+:imagesdir: ./img
+:jbake-description: Learn about migrating existing native Gradle project from the newer core plugins to Nokee plugins for painless native development.

@@ -1,0 +1,6 @@
+= Migrating from Gradle Software Model Native Plugins
+:jbake-type: reference_chapter
+:jbake-tags: user manual, gradle plugin, gradle native, gradle software model
+:imagesdir: ./img
+:jbake-description: Learn about migrating existing native Gradle project from the software model to Nokee plugins for painless native development.
+
