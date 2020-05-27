@@ -41,6 +41,48 @@ abstract class AbstractJavaJniLibraryFunctionalTest extends AbstractJniLibraryFu
 		failure.assertHasCause("Compilation failed; see the compiler error output for details.")
 	}
 
+	def "can add ad-hoc files to be included inside the JNI JAR"() {
+		given:
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+
+		and:
+		file('src/foo.txt') << 'foo'
+		buildFile << '''
+			library {
+				variants.configureEach {
+					nativeRuntimeFiles.from('src/foo.txt')
+				}
+			}
+		'''
+
+		expect:
+		succeeds('assemble')
+		result.assertTasksExecuted(':assemble', ':classes', tasks.compile, ':compileJava', ':jar', ':link', ':processResources')
+		jar("build/libs/jni-greeter.jar").hasDescendants(*expectedClasses, sharedLibraryName('jni-greeter'), 'foo.txt')
+	}
+
+	def "can exclude default native runtime files from the JNI JAR"() {
+		given:
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+
+		and:
+		file('src/foo.txt') << 'foo'
+		buildFile << '''
+			library {
+				variants.configureEach {
+					nativeRuntimeFiles.setFrom('src/foo.txt')
+				}
+			}
+		'''
+
+		expect:
+		succeeds('assemble')
+		result.assertTasksExecuted(':assemble', ':classes', ':compileJava', ':jar', ':processResources')
+		jar("build/libs/jni-greeter.jar").hasDescendants(*expectedClasses, 'foo.txt')
+	}
+
 	protected List<String> getExpectedClasses() {
 		return ['com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class']
 	}
