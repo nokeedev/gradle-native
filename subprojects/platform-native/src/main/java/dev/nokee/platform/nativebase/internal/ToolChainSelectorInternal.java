@@ -1,6 +1,8 @@
-package dev.nokee.runtime.nativebase.internal;
+package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
+import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import org.apache.commons.lang3.SystemUtils;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.model.internal.registry.ModelRegistry;

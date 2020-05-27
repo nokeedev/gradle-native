@@ -5,8 +5,8 @@ import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.language.MixedLanguageTaskNames
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import dev.nokee.platform.nativebase.SharedLibraryBinary
-import dev.nokee.platform.nativebase.internal.DefaultMachineArchitecture
-import dev.nokee.platform.nativebase.internal.DefaultOperatingSystemFamily
+import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture
+import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily
 
 class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunctionalTest implements MixedLanguageTaskNames {
 	@Override

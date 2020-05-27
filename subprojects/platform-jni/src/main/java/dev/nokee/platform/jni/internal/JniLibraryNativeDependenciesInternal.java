@@ -2,9 +2,9 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.jni.JniLibraryNativeDependencies;
-import dev.nokee.runtime.nativebase.internal.ConfigurationUtils;
-import dev.nokee.runtime.nativebase.internal.DependencyBucket;
-import dev.nokee.runtime.nativebase.internal.NativeDependencyBucket;
+import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
+import dev.nokee.platform.nativebase.internal.DependencyBucket;
+import dev.nokee.platform.nativebase.internal.NativeDependencyBucket;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;

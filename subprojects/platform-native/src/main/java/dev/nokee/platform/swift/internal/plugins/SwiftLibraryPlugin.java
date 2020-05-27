@@ -1,8 +1,8 @@
 package dev.nokee.platform.swift.internal.plugins;
 
 import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.runtime.nativebase.internal.DefaultNativeLibraryDependencies;
-import dev.nokee.runtime.nativebase.internal.TargetMachineRule;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryDependencies;
+import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.swift.SwiftLibraryExtension;
 import dev.nokee.platform.swift.internal.DefaultSwiftLibraryExtension;
 import org.gradle.api.Plugin;

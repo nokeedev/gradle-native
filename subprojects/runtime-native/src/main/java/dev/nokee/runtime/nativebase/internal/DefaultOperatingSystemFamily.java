@@ -11,7 +11,6 @@ import lombok.Value;
 import org.gradle.api.Named;
 
 @Value
-@AllArgsConstructor(access = AccessLevel.PACKAGE) /** Use {@link DefaultOperatingSystemFamily#forName(String)} instead */
 public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Named, Dimension {
 	@NonNull String name;
 

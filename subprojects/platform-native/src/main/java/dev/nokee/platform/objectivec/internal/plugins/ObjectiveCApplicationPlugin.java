@@ -1,8 +1,8 @@
 package dev.nokee.platform.objectivec.internal.plugins;
 
 import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.runtime.nativebase.internal.DefaultNativeComponentDependencies;
-import dev.nokee.runtime.nativebase.internal.TargetMachineRule;
+import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.objectivec.ObjectiveCApplicationExtension;
 import dev.nokee.platform.objectivec.internal.DefaultObjectiveCApplicationExtension;
 import org.gradle.api.Plugin;

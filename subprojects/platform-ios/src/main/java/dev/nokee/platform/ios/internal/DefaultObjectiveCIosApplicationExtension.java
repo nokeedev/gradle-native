@@ -7,7 +7,10 @@ import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
-import dev.nokee.runtime.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.BaseNativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
+import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
+import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 
 import javax.inject.Inject;
 

@@ -1,5 +1,7 @@
-package dev.nokee.runtime.nativebase.internal;
+package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes;
+import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ExternalDependency;

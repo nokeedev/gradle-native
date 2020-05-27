@@ -1,4 +1,4 @@
-package dev.nokee.runtime.nativebase.internal;
+package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.language.base.internal.UTTypeSourceCode;
@@ -8,6 +8,9 @@ import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.runtime.base.internal.DimensionType;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
+import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;

@@ -1,7 +1,7 @@
 package dev.nokee.fixtures
 
 import dev.nokee.platform.base.internal.NamingScheme
-import dev.nokee.platform.nativebase.internal.LibraryElements
+import dev.nokee.runtime.nativebase.internal.LibraryElements
 import org.gradle.api.Action
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ExternalDependency
@@ -14,8 +14,8 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import static dev.nokee.fixtures.CollectionTestFixture.one
-import static dev.nokee.platform.nativebase.internal.ArtifactSerializationTypes.*
-import static dev.nokee.platform.nativebase.internal.LibraryElements.*
+import static dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes.*
+import static dev.nokee.runtime.nativebase.internal.LibraryElements.*
 import static org.junit.Assert.assertThat
 
 abstract class AbstractComponentDependenciesTest extends Specification {

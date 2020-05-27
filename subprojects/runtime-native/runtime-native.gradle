@@ -19,6 +19,7 @@ dependencies {
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	testImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 }
 
 // TODO(toolbox): Expose the APIs allowing to query the compatibility based on Gradle version

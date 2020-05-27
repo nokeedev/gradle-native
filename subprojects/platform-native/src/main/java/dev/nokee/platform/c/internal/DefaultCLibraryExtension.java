@@ -4,8 +4,8 @@ import dev.nokee.language.base.internal.DefaultSourceSet;
 import dev.nokee.language.c.internal.UTTypeCSource;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.c.CLibraryExtension;
-import dev.nokee.runtime.nativebase.internal.BaseNativeLibraryComponent;
-import dev.nokee.runtime.nativebase.internal.DefaultNativeLibraryDependencies;
+import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponent;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryDependencies;
 
 import javax.inject.Inject;
 

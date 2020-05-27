@@ -8,7 +8,7 @@ import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DescriptorCommandLineTool;
 import dev.nokee.platform.ios.tasks.internal.*;
-import dev.nokee.runtime.nativebase.internal.DefaultNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

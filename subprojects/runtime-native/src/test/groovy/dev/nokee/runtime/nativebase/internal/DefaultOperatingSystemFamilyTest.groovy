@@ -1,6 +1,6 @@
-package dev.nokee.platform.nativebase
+package dev.nokee.runtime.nativebase.internal
 
-import dev.nokee.platform.nativebase.internal.DefaultOperatingSystemFamily
+import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily
 import org.apache.commons.lang3.SystemUtils
 import spock.lang.Requires
 import spock.lang.Specification

@@ -1,6 +1,6 @@
-package dev.nokee.platform.nativebase
+package dev.nokee.runtime.nativebase.internal
 
-import dev.nokee.platform.nativebase.internal.DefaultMachineArchitecture
+import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture
 import spock.lang.Specification
 
 class DefaultMachineArchitectureTest extends Specification {

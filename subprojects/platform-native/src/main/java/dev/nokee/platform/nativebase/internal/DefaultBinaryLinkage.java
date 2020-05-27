@@ -1,4 +1,4 @@
-package dev.nokee.runtime.nativebase.internal;
+package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.runtime.base.internal.DefaultDimensionType;
 import dev.nokee.runtime.base.internal.Dimension;

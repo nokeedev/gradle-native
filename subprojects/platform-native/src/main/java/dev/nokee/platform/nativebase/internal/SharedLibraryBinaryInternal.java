@@ -1,4 +1,4 @@
-package dev.nokee.runtime.nativebase.internal;
+package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
@@ -17,6 +17,7 @@ import dev.nokee.platform.base.internal.Realizable;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
+import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.Value;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;

@@ -1,4 +1,4 @@
-package dev.nokee.runtime.nativebase.internal;
+package dev.nokee.platform.nativebase.internal;
 
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;

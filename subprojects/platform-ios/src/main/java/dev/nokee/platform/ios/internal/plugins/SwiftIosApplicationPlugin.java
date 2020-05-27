@@ -3,7 +3,7 @@ package dev.nokee.platform.ios.internal.plugins;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.ios.SwiftIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultSwiftIosApplicationExtension;
-import dev.nokee.runtime.nativebase.internal.DefaultNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;

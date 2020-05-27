@@ -1,7 +1,10 @@
-package dev.nokee.runtime.nativebase.internal;
+package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import dev.nokee.runtime.nativebase.internal.ArtifactTypes;
+import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import lombok.Value;
 import lombok.With;
 import org.gradle.api.Action;
@@ -21,7 +24,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.google.common.collect.ImmutableMap.of;
-import static dev.nokee.runtime.nativebase.internal.ConfigurationUtils.ConfigurationSpec.Type.*;
+import static dev.nokee.platform.nativebase.internal.ConfigurationUtils.ConfigurationSpec.Type.*;
 import static java.util.Collections.emptyMap;
 
 public abstract class ConfigurationUtils {

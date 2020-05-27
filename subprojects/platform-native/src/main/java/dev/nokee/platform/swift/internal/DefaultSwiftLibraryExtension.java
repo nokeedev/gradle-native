@@ -3,8 +3,8 @@ package dev.nokee.platform.swift.internal;
 import dev.nokee.language.base.internal.DefaultSourceSet;
 import dev.nokee.language.swift.internal.UTTypeSwiftSource;
 import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.runtime.nativebase.internal.BaseNativeLibraryComponent;
-import dev.nokee.runtime.nativebase.internal.DefaultNativeLibraryDependencies;
+import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponent;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryDependencies;
 import dev.nokee.platform.swift.SwiftLibraryExtension;
 
 import javax.inject.Inject;
