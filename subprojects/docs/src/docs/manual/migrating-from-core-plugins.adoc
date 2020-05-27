@@ -3,3 +3,11 @@
 :jbake-tags: user manual, gradle plugin, gradle native
 :imagesdir: ./img
 :jbake-description: Learn about migrating existing native Gradle project from the newer core plugins to Nokee plugins for painless native development.
+
+The Nokee project is a continuous effort for supporting the native ecosystem in Gradle.
+The project is progressing very fast.
+There isn't a clear cut migration path at the moment.
+It would be best to connect and discuss your specific needs to establish a customized migration plan for your projects and your needs.
+
+Ready to get started?
+Email us at hello@nokee.dev, and we will start working together soon.

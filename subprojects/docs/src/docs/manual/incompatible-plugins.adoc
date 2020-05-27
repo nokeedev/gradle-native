@@ -3,3 +3,49 @@
 :jbake-tags: user manual, gradle plugin
 :imagesdir: ./img
 :jbake-description: Learn about plugins incompatibility with Nokee within the same project.
+
+Not all plugins in the Gradle ecosystem are compatible with each other.
+However, Gradle doesn't provide APIs to address this use case neatly.
+It's also rare for plugins to state the extent of their compatibility across existing and future plugins.
+It isn't practical to build a compatibility matrix for all the plugins in existence.
+For this reason, we provide the following compatibility guidelines.
+Working around those compatibility guidelines will result in undefined behaviours.
+As much as possible, we try to enforce those guidelines by providing actionable error messages.
+For example, we display the following error message when using software model plugins with `dev.nokee.jni-library` plugin:
+
+[terminal]
+----
+Nokee detected the usage of incompatible plugins in the project ':'.
+We recommend taking the following action:
+ * Use 'dev.nokee.objective-cpp-language' plugin instead of the 'objective-cpp' and 'objective-cpp-lang' plugins [1][2]
+
+To learn more, visit https://nokee.dev/docs/incompatible-plugins
+
+[1] To learn more about 'dev.nokee.objective-cpp-language' plugin, visit https://nokee.dev/docs/objective-cpp-language-plugin
+[2] To learn more about software model migration, visit https://nokee.dev/docs/migrating-from-software-model
+----
+
+For a more in-depth understanding of the plugin identification convention used by Nokee and the capability dimensions, read the <<plugin-anatomy.adoc#,Anatomy of Nokee Plugins>> chapter.
+
+== Use only one main entry point capability per project
+
+As a general rule of thumb, each project should only have one main <<terminology.adoc#sec:terminology-entry-point,entry point capability>>.
+The application and library are well-known entry points.
+It is crucial to stress that plugins add capabilities to a project.
+Composing capabilities is a different concern and is solved differently.
+It doesn't mean Nokee will never allow multi-entry-point projects.
+It means plugins already specifying an entry point are incompatible with each other.
+For example, `dev.nokee.cpp-application` and `dev.nokee.c-application` are incompatible as both provide the application entry point, which is unlikely to use the same modelling.
+Similarly, `dev.nokee.cpp-application` and `dev.nokee.cpp-library` are also incompatible as both provide an entry point as well, that is, application and library respectively.
+Alternatively, `dev.nokee.jni-library` and `dev.nokee.cpp-language` are compatible as one plugin provides an entry point, e.g. library, while the other plugin provides an implementation language.
+
+== Avoid software model plugins
+
+The software model plugins are link:https://blog.gradle.org/state-and-future-of-the-gradle-software-model[in the process of being phased out].
+For this reason alone, we should avoid the software model plugins.
+See the <<migrating-from-software-model.adoc#,migrating from software model chapter>> to learn more.
+
+== Use language plugins when composing implementation language capabilities
+
+Plugins that allow additional <<terminology.adoc#sec:terminology-language,implementation language>>, such as `dev.nokee.jni-library`, should use the <<plugin-references.adoc#sec:plugin-reference-native-languages,language only plugins>>.
+For example, use `dev.nokee.cpp-language` instead of `dev.nokee.cpp-application`.
