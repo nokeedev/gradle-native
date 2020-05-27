@@ -24,6 +24,7 @@ trait ProjectTestFixture {
 	}
 
 	void evaluateProject(String because) {
+		NativeServicesTestFixture.initialize()
 		projectUnderTest.evaluate()
 	}
 

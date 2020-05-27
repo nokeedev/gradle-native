@@ -289,9 +289,9 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 					//  If a buildable variant is available, we can attach that one and everything will be ketchup.
 					//  However, if all variants are unbuildable, we should still be alright as the consumer will still crash, but because of not found... :-(
 					//  We should probably attach at least one of the unbuildable variant to give a better error message.
-					// TODO: We should really be testing: toolChainSelector.canBuild(targetMachienInternal)
+					// TODO: We should really be testing: toolChainSelector.canBuild(targetMachineInternal)
 					//  However, since we have to differ everything for testing, we have to approximate the API.
-					if (DefaultTargetMachine.isTargetingHost().test(targetMachineInternal)) {
+					if (toolChainSelector.canBuild(targetMachineInternal)) {
 						// TODO: We could maybe set the shared library directory as secondary variant.
 						//  However, the shared library would requires the resource path to be taken into consideration...
 						getConfigurations().named("runtimeElements", it -> it.getOutgoing().artifact(jarTask.flatMap(Jar::getArchiveFile)));
