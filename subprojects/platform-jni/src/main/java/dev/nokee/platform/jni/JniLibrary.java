@@ -6,6 +6,7 @@ import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.TargetMachine;
 import org.gradle.api.Action;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.Property;
 
 /**
@@ -68,4 +69,14 @@ public interface JniLibrary extends Variant {
 	 * @since 0.4
 	 */
 	void dependencies(Action<? super JniLibraryNativeDependencies> action);
+
+	/**
+	 * Configure the native runtime files to include inside the JNI JAR at the resource path location.
+	 *
+	 * By default, the native runtime files defaults contains the linked shared library and all of the native runtime dependencies.
+	 *
+	 * @return a property for configuring the native runtime files to include inside the JNI JAR, never null.
+	 * @see #getResourcePath() for the resource path location for the native runtime files
+	 */
+	ConfigurableFileCollection getNativeRuntimeFiles();
 }

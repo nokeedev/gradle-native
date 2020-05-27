@@ -106,17 +106,7 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 
 	public void registerSharedLibraryBinary(List<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants) {
 		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, implementation, targetMachine, objectSourceSets, linkTask, dependencies.getNativeLinkOnlyDependencies());
-		getNativeRuntimeFiles().from((Callable<List<Provider<RegularFile>>>)() -> {
-			// TODO: The following is debt that we accumulated from gradle/gradle.
-			//  The real condition to check is, do we know of a way to build the target machine on the current host.
-			//  If yes, we crash the build by attaching the native file which will tell the user how to install the right tools.
-			//  If no, we can "silently" ignore the build by saying you can't build on this machine.
-			//  One consideration is to deactivate publishing so we don't publish a half built jar.
-			if (multipleVariants || DefaultOperatingSystemFamily.HOST.equals(targetMachine.getOperatingSystemFamily())) {
-				return ImmutableList.of(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
-			}
-			return ImmutableList.of();
-		});
+		getNativeRuntimeFiles().from(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
 		this.sharedLibraryBinary = sharedLibraryBinary;
 		binaryCollection.add(sharedLibraryBinary);
 		getAssembleTask().configure(dependsOn(sharedLibraryBinary.getLinkTask()));
@@ -143,8 +133,6 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 	public FileCollection getNativeRuntimeDependencies() {
 		return nativeRuntime;
 	}
-
-	public abstract ConfigurableFileCollection getNativeRuntimeFiles();
 
 	public void addJniJarBinary(AbstractJarBinary jniJarBinary) {
 		jarBinary = jniJarBinary;
