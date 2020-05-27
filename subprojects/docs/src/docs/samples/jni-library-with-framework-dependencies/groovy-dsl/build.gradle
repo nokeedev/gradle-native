@@ -7,12 +7,12 @@ plugins {
 library {
 	targetMachines = [machines.macOS]
 	dependencies {
-		nativeImplementation 'dev.nokee.framework:Cocoa:10.15'         // <1>
+		nativeImplementation 'dev.nokee.framework:Cocoa:latest.release'         // <1>
 
-		nativeImplementation 'dev.nokee.framework:JavaVM:10.15'
-		nativeImplementation('dev.nokee.framework:JavaVM:10.15') {
+		nativeImplementation 'dev.nokee.framework:JavaVM:latest.release'
+		nativeImplementation('dev.nokee.framework:JavaVM:latest.release') {
 			capabilities {
-				requireCapability 'JavaVM:JavaNativeFoundation:10.15'  // <2>
+				requireCapability 'JavaVM:JavaNativeFoundation:latest.release'  // <2>
 			}
 		}
 	}
