@@ -225,7 +225,7 @@ Searched in the following locations:
   - http://127.0.0.1:\\d+/dev/nokee/framework/NonExistantFramework/10.15/NonExistantFramework-10.15.module
 .+""", MULTILINE | DOTALL)))
 
-		failure.assertOutputContains("The requested framework 'NonExistantFramework' wasn't found at in '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/'.")
+		failure.assertOutputContains("The requested framework 'NonExistantFramework' wasn't found at in '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/'.")
 	}
 
 	def "fails to resolve framework for bad SDK version"() {
@@ -301,7 +301,7 @@ Searched in the following locations:
 					def f = configurations.framework.singleFile
 					assert Files.exists(f.toPath())
 					assert Files.isSymbolicLink(f.toPath())
-					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Foundation.framework'
+					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/Foundation.framework'
 				}
 			}
 		"""
@@ -340,7 +340,7 @@ Searched in the following locations:
 					assert f.name == 'Foundation.framework'
 					assert Files.exists(f.toPath())
 					assert Files.isSymbolicLink(f.toPath())
-					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Foundation.framework'
+					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/Foundation.framework'
 				}
 			}
 		"""
@@ -380,7 +380,7 @@ Searched in the following locations:
 					assert f.name == 'Foundation.framework'
 					assert Files.exists(f.toPath())
 					assert Files.isSymbolicLink(f.toPath())
-					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Foundation.framework'
+					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/Foundation.framework'
 				}
 			}
 		"""
@@ -433,7 +433,7 @@ Searched in the following locations:
 		when:
 		def failure = executer.withEnvironmentVars([DEVELOPER_DIR: '/opt/xcode']).withTasks('resolveConfiguration', '-i').runWithFailure()
 		then:
-		failure.assertOutputContains('''An exception occurred during the dispatch of the request: Process '/usr/bin/xcrun --version' finished with non-zero exit value 1''')
+		failure.assertOutputContains('''An exception occurred during the dispatch of the request: Process '/usr/bin/xcrun --find xcodebuild' finished with non-zero exit value 1''')
 		and:
 		failure.assertHasDescription("Execution failed for task ':resolveConfiguration'.")
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
@@ -445,7 +445,7 @@ Searched in the following locations:
 		when:
 		failure = executer.withEnvironmentVars([DEVELOPER_DIR: '/opt/xcode']).withTasks('resolveConfiguration').runWithFailure()
 		then:
-		failure.assertNotOutput('''An exception occurred during the dispatch of the request: Process '/usr/bin/xcrun --version' finished with non-zero exit value 1''')
+		failure.assertNotOutput('''An exception occurred during the dispatch of the request: Process '/usr/bin/xcrun --find xcodebuild' finished with non-zero exit value 1''')
 		and:
 		failure.assertHasDescription("Execution failed for task ':resolveConfiguration'.")
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
