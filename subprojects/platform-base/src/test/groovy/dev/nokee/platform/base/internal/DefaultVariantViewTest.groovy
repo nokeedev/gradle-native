@@ -3,7 +3,9 @@ package dev.nokee.platform.base.internal
 import dev.nokee.platform.base.Variant
 import groovy.transform.ToString
 import org.gradle.api.provider.Provider
+import spock.lang.Subject
 
+@Subject(DefaultVariantView)
 class DefaultVariantViewTest extends AbstractViewTest<Variant> {
 	final def backingCollection = objects.domainObjectSet(TestVariant)
 

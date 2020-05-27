@@ -3,9 +3,11 @@ package dev.nokee.platform.base.internal
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
 import org.gradle.api.provider.Provider
+import spock.lang.Subject
 
 import javax.inject.Inject
 
+@Subject(DefaultTaskView)
 class DefaultTaskViewTest extends AbstractViewTest<Task> {
 	def backingCollection = []
 

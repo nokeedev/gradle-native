@@ -2,7 +2,9 @@ package dev.nokee.platform.base.internal
 
 import dev.nokee.platform.base.Binary
 import org.gradle.api.provider.Provider
+import spock.lang.Subject
 
+@Subject(DefaultBinaryView)
 class DefaultBinaryViewTest extends AbstractViewTest<Binary> {
 	final def backingCollection = objects.domainObjectSet(TestBinary)
 
