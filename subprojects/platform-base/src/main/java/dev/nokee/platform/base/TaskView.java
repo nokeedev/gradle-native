@@ -4,6 +4,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.specs.Spec;
 
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,17 @@ public interface TaskView<T extends Task> {
 	void configureEach(Action<? super T> action);
 
 	/**
+	 * Registers an action to execute to configure each element in the view matching the given specification.
+	 * The action is only executed for those elements that are required.
+	 * Fails if any element has already been finalized.
+	 *
+	 * @param spec a specification to satisfy. The spec is applied to each binary prior to configuration.
+	 * @param action The action to execute on each element for configuration.
+	 * @since 0.4
+	 */
+	void configureEach(Spec<? super T> spec, Action<? super T> action);
+
+	/**
 	 * Returns the contents of this view as a {@link Provider} of {@code <T>} instances.
 	 *
 	 * <p>The returned {@link Provider} is live, and tracks changes of the view.</p>
@@ -32,6 +44,14 @@ public interface TaskView<T extends Task> {
 	 * @return a provider containing all the elements included in this view.
 	 */
 	Provider<Set<? extends T>> getElements();
+
+	/**
+	 * Returns the contents of this view as a {@link Set} of {@code <T>} instances.
+	 *
+	 * @return a set containing all the elements included in this view.
+	 * @since 0.4
+	 */
+	Set<? extends T> get();
 
 	/**
 	 * Returns a list containing the results of applying the given mapper function to each element in the view.
@@ -56,4 +76,15 @@ public interface TaskView<T extends Task> {
 	 * @since 0.4
 	 */
 	<S> Provider<List<? extends S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper);
+
+	/**
+	 * Returns a single list containing all elements matching the given specification.
+	 *
+	 * <p>The returned {@link Provider} is live, and tracks changes of the view.</p>
+	 *
+	 * @param spec a specification to satisfy
+	 * @return a provider containing the filtered elements of this view.
+	 * @since 0.4
+	 */
+	Provider<List<? extends T>> filter(Spec<? super T> spec);
 }

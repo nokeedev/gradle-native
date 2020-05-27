@@ -13,6 +13,7 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryInternal;
 import dev.nokee.platform.base.internal.DefaultTaskView;
 import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.Realizable;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
@@ -29,6 +30,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.internal.Cast;
 import org.gradle.internal.jvm.Jvm;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
@@ -67,7 +69,7 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 		this.targetMachine = targetMachine;
 		parentSources.all(it -> sources.add(it));
 		this.objectSourceSets = objectSourceSets;
-		compileTasks = getObjects().newInstance(DefaultTaskView.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()));
+		compileTasks = getObjects().newInstance(DefaultTaskView.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), (Realizable)() -> {});
 
 		getLinkerInputs().value(fromLinkConfiguration()).finalizeValueOnRead();
 		getLinkerInputs().disallowChanges();

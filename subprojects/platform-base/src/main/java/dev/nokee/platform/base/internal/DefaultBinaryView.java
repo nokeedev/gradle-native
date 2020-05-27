@@ -10,6 +10,7 @@ import org.gradle.api.Transformer;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.specs.Spec;
 import org.gradle.internal.Cast;
 
 import javax.inject.Inject;
@@ -37,6 +38,15 @@ public abstract class DefaultBinaryView<T extends Binary> implements BinaryView<
 	}
 
 	@Override
+	public void configureEach(Spec<? super T> spec, Action<? super T> action) {
+		delegate.configureEach(element -> {
+			if (spec.isSatisfiedBy(element)) {
+				action.execute(element);
+			}
+		});
+	}
+
+	@Override
 	public <S extends T> BinaryView<S> withType(Class<S> type) {
 		return Cast.uncheckedCast(getObjects().newInstance(DefaultBinaryView.class, delegate.withType(type), variants));
 	}
@@ -47,6 +57,11 @@ public abstract class DefaultBinaryView<T extends Binary> implements BinaryView<
 			variants.realize();
 			return ImmutableSet.copyOf(delegate);
 		});
+	}
+
+	@Override
+	public Set<? extends T> get() {
+		return getElements().get();
 	}
 
 	@Override
@@ -82,4 +97,17 @@ public abstract class DefaultBinaryView<T extends Binary> implements BinaryView<
 
 	@Inject
 	protected abstract ObjectFactory getObjects();
+
+	@Override
+	public Provider<List<? extends T>> filter(Spec<? super T> spec) {
+		return flatMap(new Transformer<Iterable<? extends T>, T>() {
+			@Override
+			public Iterable<? extends T> transform(T t) {
+				if (spec.isSatisfiedBy(t)) {
+					return ImmutableList.of(t);
+				}
+				return ImmutableList.of();
+			}
+		});
+	}
 }

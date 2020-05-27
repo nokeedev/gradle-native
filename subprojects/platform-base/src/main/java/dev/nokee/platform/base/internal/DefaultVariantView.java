@@ -9,6 +9,7 @@ import org.gradle.api.DomainObjectCollection;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.specs.Spec;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -30,11 +31,25 @@ public abstract class DefaultVariantView<T extends Variant> implements VariantVi
 	}
 
 	@Override
+	public void configureEach(Spec<? super T> spec, Action<? super T> action) {
+		delegate.configureEach(element -> {
+			if (spec.isSatisfiedBy(element)) {
+				action.execute(element);
+			}
+		});
+	}
+
+	@Override
 	public Provider<Set<? extends T>> getElements() {
 		return getProviders().provider(() -> {
 			variants.realize();
 			return ImmutableSet.copyOf(delegate);
 		});
+	}
+
+	@Override
+	public Set<? extends T> get() {
+		return getElements().get();
 	}
 
 	@Override
@@ -67,4 +82,17 @@ public abstract class DefaultVariantView<T extends Variant> implements VariantVi
 
 	@Inject
 	protected abstract ProviderFactory getProviders();
+
+	@Override
+	public Provider<List<? extends T>> filter(Spec<? super T> spec) {
+		return flatMap(new Transformer<Iterable<? extends T>, T>() {
+			@Override
+			public Iterable<? extends T> transform(T t) {
+				if (spec.isSatisfiedBy(t)) {
+					return ImmutableList.of(t);
+				}
+				return ImmutableList.of();
+			}
+		});
+	}
 }
