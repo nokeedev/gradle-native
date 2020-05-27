@@ -35,7 +35,7 @@ As we explain each dimension of the triplet, let's consider the plugin `dev.noke
 
 image::img/plugin-anatomy-plugin-identification-triplet.png[Example plugin identification triplet breakdown,align="center"]
 
-[[sec:plugin-anatomy-triplet-entry-poin]]
+[[sec:plugin-anatomy-triplet-entry-point]]
 === 1. Entry point
 
 The entry point represents how a component will be used, for example, as an application, library or device driver.

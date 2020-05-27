@@ -453,7 +453,7 @@ class JniLibraryPluginWithIncompatiblePluginsTest extends AbstractJniLibraryPlug
 			|
 			|[1] To learn more about 'dev.nokee.cpp-language' plugin, visit https://nokee.dev/docs/cpp-language-plugin
 			|[2] To learn more about project entry points, visit https://nokee.dev/docs/project-entry-points
-			|[3] To learn more about Gradle core native plugin migration, visit https://nokee.dev/docs/migrating-from-core-plugin
+			|[3] To learn more about Gradle core native plugin migration, visit https://nokee.dev/docs/migrating-from-core-plugins
 			|'''.stripMargin()
 
 		where:
@@ -520,7 +520,7 @@ class JniLibraryPluginWithIncompatiblePluginsTest extends AbstractJniLibraryPlug
 			|
 			|[1] To learn more about 'dev.nokee.cpp-language' plugin, visit https://nokee.dev/docs/cpp-language-plugin
 			|[2] To learn more about project entry points, visit https://nokee.dev/docs/project-entry-points
-			|[3] To learn more about Gradle core native plugin migration, visit https://nokee.dev/docs/migrating-from-core-plugin
+			|[3] To learn more about Gradle core native plugin migration, visit https://nokee.dev/docs/migrating-from-core-plugins
 			|'''.stripMargin()
 
 		where:
