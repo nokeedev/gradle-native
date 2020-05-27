@@ -3,6 +3,8 @@ package dev.nokee.runtime.darwin.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.core.exec.*;
+import dev.nokee.runtime.base.internal.tools.CommandLineToolDescriptor;
+import dev.nokee.runtime.darwin.internal.parsers.XcodebuildParsers;
 import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import dev.nokee.runtime.base.internal.repositories.AbstractRouteHandler;
 import dev.nokee.runtime.base.internal.repositories.GradleModuleMetadata;
@@ -19,6 +21,8 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -40,12 +44,24 @@ public class FrameworkRouteHandler extends AbstractRouteHandler {
 		this.toolRepository = toolRepository;
 	}
 
-	private String findSdkVersion() {
-		return CommandLineTool.of(toolRepository.findAll("xcrun").iterator().next().getPath()).withArguments("--show-sdk-version").execute(engine).getResult().getStandardOutput().getAsString().trim();
+	private String findSdkVersion(XcodeSdk sdk) {
+		return CommandLineTool.of(toolRepository.findAll("xcrun").iterator().next().getPath()).withArguments("-sdk", sdk.getIdentifier(), "--show-sdk-version").execute(engine).getResult().getStandardOutput().getAsString().trim();
 	}
 
-	private File findSdkPath() {
-		return CommandLineTool.of(toolRepository.findAll("xcrun").iterator().next().getPath()).withArguments("--show-sdk-path").execute(engine).getResult().getStandardOutput().parse(it -> new File(it.trim()));
+	private File findSdkPath(XcodeSdk sdk) {
+		return CommandLineTool.of(toolRepository.findAll("xcrun").iterator().next().getPath()).withArguments("-sdk", sdk.getIdentifier(), "--show-sdk-path").execute(engine).getResult().getStandardOutput().parse(it -> new File(it.trim()));
+	}
+
+	private XcodeSdk findMacOsSdks() {
+		CommandLineToolDescriptor xcodebuilt = toolRepository.findAll("xcodebuild").iterator().next();
+		return CommandLineTool.of(xcodebuilt.getPath())
+			.withArguments("-showsdks")
+			.execute(engine)
+			.getResult()
+			.getStandardOutput()
+			.parse(XcodebuildParsers.showSdkParser())
+			.stream().filter(it -> it.getIdentifier().startsWith("macosx")).findFirst()
+			.orElseThrow(() -> new RuntimeException(String.format("MacOS SDK not found using '%s' version %s", xcodebuilt.getPath().getAbsolutePath(), xcodebuilt.getVersion())));
 	}
 
 	@Override
@@ -58,19 +74,20 @@ public class FrameworkRouteHandler extends AbstractRouteHandler {
 		if (getLocalPath(moduleName).exists()) {
 			return true;
 		}
-		LOGGER.info(String.format("The requested framework '%s' wasn't found at in '%s/System/Library/Frameworks/'.", moduleName, findSdkPath().getPath()));
+		LOGGER.info(String.format("The requested framework '%s' wasn't found at in '%s/System/Library/Frameworks/'.", moduleName, findSdkPath(findMacOsSdks()).getPath()));
 		return false;
 	}
 
 	@Override
 	public boolean isKnownVersion(String moduleName, String version) {
-		if (!findSdkVersion().equals(version)) {
-			LOGGER.info(String.format("The requested framework '%s' version '%s' doesn't match current SDK version '%s'.", moduleName, version, findSdkVersion()));
+		XcodeSdk sdk = findMacOsSdks();
+		if (!findSdkVersion(sdk).equals(version)) {
+			LOGGER.info(String.format("The requested framework '%s' version '%s' doesn't match current SDK version '%s'.", moduleName, version, findSdkVersion(sdk)));
 			return false;
 		}
 		if (!getLocalPath(moduleName).exists()) {
 			// TODO: List frameworks?
-			LOGGER.info(String.format("The requested framework '%s' wasn't found at in '%s/System/Library/Frameworks/'.", moduleName, findSdkPath().getPath()));
+			LOGGER.info(String.format("The requested framework '%s' wasn't found at in '%s/System/Library/Frameworks/'.", moduleName, findSdkPath(sdk).getPath()));
 			return false;
 		}
 		return true;
@@ -78,7 +95,8 @@ public class FrameworkRouteHandler extends AbstractRouteHandler {
 
 	@Override
 	public List<String> findVersions(String moduleName) {
-		return singletonList(findSdkVersion());
+		XcodeSdk sdk = findMacOsSdks();
+		return singletonList(findSdkVersion(sdk));
 	}
 
 	@Override
@@ -102,7 +120,7 @@ public class FrameworkRouteHandler extends AbstractRouteHandler {
 	}
 
 	File getLocalPath(String frameworkName) {
-		return new File(findSdkPath(), "System/Library/Frameworks/" + frameworkName + ".framework");
+		return new File(findSdkPath(findMacOsSdks()), "System/Library/Frameworks/" + frameworkName + ".framework");
 	}
 
 	GradleModuleMetadata getValue(String frameworkName, String version) {
@@ -123,7 +141,7 @@ public class FrameworkRouteHandler extends AbstractRouteHandler {
 	}
 
 	List<GradleModuleMetadata.Variant.Capability> toCapabilities(String frameworkName, File subframework) {
-		return singletonList(new GradleModuleMetadata.Variant.Capability(frameworkName, subframework.getName().substring(0, subframework.getName().lastIndexOf(".")), findSdkVersion()));
+		return singletonList(new GradleModuleMetadata.Variant.Capability(frameworkName, subframework.getName().substring(0, subframework.getName().lastIndexOf(".")), findSdkVersion(findMacOsSdks())));
 	}
 
 	List<File> findSubFrameworks(File framework) {

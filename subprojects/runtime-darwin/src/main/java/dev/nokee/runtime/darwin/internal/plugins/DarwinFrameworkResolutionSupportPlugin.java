@@ -3,6 +3,7 @@ package dev.nokee.runtime.darwin.internal.plugins;
 import dev.nokee.runtime.base.internal.plugins.FakeMavenRepositoryPlugin;
 import dev.nokee.runtime.base.internal.repositories.NokeeServerService;
 import dev.nokee.runtime.darwin.internal.FrameworkRouteHandler;
+import dev.nokee.runtime.darwin.internal.locators.XcodebuildLocator;
 import dev.nokee.runtime.darwin.internal.locators.XcrunLocator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -51,6 +52,7 @@ public abstract class DarwinFrameworkResolutionSupportPlugin implements Plugin<P
 			NokeeServerService.Parameters parameters = (NokeeServerService.Parameters)project.getGradle().getSharedServices().getRegistrations().getByName(NOKEE_SERVER_SERVICE_NAME).getParameters();
 			parameters.getRouteHandlers().add(FrameworkRouteHandler.class.getCanonicalName());
 			parameters.getToolLocators().add(XcrunLocator.class.getCanonicalName());
+			parameters.getToolLocators().add(XcodebuildLocator.class.getCanonicalName());
 
 			configure(project.getDependencies());
 

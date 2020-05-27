@@ -1,6 +1,5 @@
 package dev.nokee.runtime.darwin.internal.locators;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolOutputParser;
@@ -16,22 +15,23 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class XcrunLocator implements CommandLineToolLocator {
+import static dev.nokee.runtime.darwin.internal.locators.XcodeUtils.findTool;
+
+public class XcodebuildLocator implements CommandLineToolLocator {
 	public Set<CommandLineToolDescriptor> findAll(String toolName) {
-		File tool = OperatingSystem.current().findInPath("xcrun");
-		VersionNumber version = CommandLineTool.of(tool).withArguments("--version").execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().parse(asXcodeRunVersion());
+		File tool = findTool("xcodebuild");
+		VersionNumber version = CommandLineTool.of(tool).withArguments("-version").execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().parse(asXcodeRunVersion());
 		return ImmutableSet.of(new DefaultCommandLineToolDescriptor(tool, version.toString()));
 	}
 
 	public Set<String> getKnownTools() {
-		return ImmutableSet.of("xcrun");
+		return ImmutableSet.of("xcodebuild");
 	}
 
-	private static final Pattern XCRUN_VERSION_PATTERN = Pattern.compile("(\\d+(.\\d+)?)");
-	@VisibleForTesting
-	static CommandLineToolOutputParser<VersionNumber> asXcodeRunVersion() {
+	private static final Pattern XCODEBUILD_VERSION_PATTERN = Pattern.compile("(\\d+.\\d+(.\\d+)?)");
+	private static CommandLineToolOutputParser<VersionNumber> asXcodeRunVersion() {
 		return content -> {
-			Matcher matcher = XCRUN_VERSION_PATTERN.matcher(content);
+			Matcher matcher = XCODEBUILD_VERSION_PATTERN.matcher(content);
 			if (matcher.find()) {
 				return VersionNumber.parse(matcher.group(1));
 			}

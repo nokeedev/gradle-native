@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Set;
 
+import static dev.nokee.runtime.darwin.internal.locators.XcodeUtils.findTool;
+
 public class XcodeLocator implements CommandLineToolLocator {
 	public Set<CommandLineToolDescriptor> findAll(String toolName) {
 		switch (toolName) {
@@ -54,14 +56,6 @@ public class XcodeLocator implements CommandLineToolLocator {
 		File tool = findTool("codesign");
 		VersionNumber version = VersionNumber.parse("11.3.1");
 		return new DefaultCommandLineToolDescriptor(tool, version.toString());
-	}
-
-	public File findTool(String name) {
-		return CommandLineTool.fromPath("xcrun").withArguments("--find", name).newInvocation().buildAndSubmit(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().parse(asPath());
-	}
-
-	private static CommandLineToolOutputParser<File> asPath() {
-		return content -> new File(content.trim());
 	}
 
 	private static CommandLineToolOutputParser<VersionNumber> asVersion(String toolKey) {
