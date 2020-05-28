@@ -3,6 +3,7 @@ package dev.nokee.platform.jni.internal.plugins
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
 import dev.nokee.fixtures.AbstractTaskPluginTest
+import dev.nokee.fixtures.NativeServicesTestFixture
 import dev.nokee.fixtures.ProjectTestFixture
 import dev.nokee.platform.jni.JniLibraryDependencies
 import dev.nokee.platform.jni.JniLibraryExtension
@@ -10,6 +11,7 @@ import dev.nokee.platform.jni.JniLibraryNativeDependencies
 import dev.nokee.platform.nativebase.SharedLibraryBinary
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary
 import groovy.transform.Canonical
+import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.PluginApplicationException
@@ -86,7 +88,14 @@ class JniLibraryTaskPluginTest extends AbstractTaskPluginTest implements JniLibr
 
 @Subject(JniLibraryPlugin)
 class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements ProjectTestFixture, JniLibraryPluginTestFixture {
-	def project = ProjectBuilder.builder().withName('lib').build()
+	def project
+
+	def setup() {
+		if (SystemUtils.IS_OS_WINDOWS) {
+			NativeServicesTestFixture.initialize()
+		}
+		project = project = ProjectBuilder.builder().withName('lib').build()
+	}
 
 	@Override
 	Project getProjectUnderTest() {
@@ -223,7 +232,14 @@ class JniLibraryTargetMachineAwarePluginTest extends AbstractTargetMachineAwareP
 }
 
 class JniLibraryPluginWithIncompatiblePluginsTest extends AbstractJniLibraryPluginSpec implements ProjectTestFixture, JniLibraryPluginTestFixture {
-	def project = ProjectBuilder.builder().withName('lib').build()
+	def project
+
+	def setup() {
+		if (SystemUtils.IS_OS_WINDOWS) {
+			NativeServicesTestFixture.initialize()
+		}
+		project = project = ProjectBuilder.builder().withName('lib').build()
+	}
 
 	@Override
 	Project getProjectUnderTest() {
@@ -566,7 +582,14 @@ class JniLibraryPluginWithIncompatiblePluginsTest extends AbstractJniLibraryPlug
 
 @Subject(JniLibraryPlugin)
 class JniLibraryPluginVariantAwareTaskDescriptionTest extends AbstractJniLibraryPluginSpec implements ProjectTestFixture, JniLibraryPluginTestFixture {
-	def project = ProjectBuilder.builder().withName('lib').build()
+	def project
+
+	def setup() {
+		if (SystemUtils.IS_OS_WINDOWS) {
+			NativeServicesTestFixture.initialize()
+		}
+		project = project = ProjectBuilder.builder().withName('lib').build()
+	}
 
 	@Override
 	Project getProjectUnderTest() {
@@ -582,7 +605,14 @@ class JniLibraryPluginVariantAwareTaskDescriptionTest extends AbstractJniLibrary
 
 @Subject(JniLibraryPlugin)
 class JniLibraryPluginWithNoLanguageTasksTest extends AbstractJniLibraryPluginSpec implements ProjectTestFixture, JniLibraryPluginTestFixture {
-	def project = ProjectBuilder.builder().withName('lib').build()
+	def project
+
+	def setup() {
+		if (SystemUtils.IS_OS_WINDOWS) {
+			NativeServicesTestFixture.initialize()
+		}
+		project = project = ProjectBuilder.builder().withName('lib').build()
+	}
 
 	@Override
 	Project getProjectUnderTest() {
@@ -711,7 +741,14 @@ class JniLibraryPluginWithNoLanguageTasksTest extends AbstractJniLibraryPluginSp
 // TODO: Check that each native language adds native compile tasks & group/description
 
 abstract class AbstractJniLibraryPluginConfigurationsTest extends AbstractJniLibraryPluginSpec implements ProjectTestFixture, JniLibraryPluginTestFixture {
-	def project = ProjectBuilder.builder().withName('lib').build()
+	def project
+
+	def setup() {
+		if (SystemUtils.IS_OS_WINDOWS) {
+			NativeServicesTestFixture.initialize()
+		}
+		project = project = ProjectBuilder.builder().withName('lib').build()
+	}
 
 	@Override
 	Project getProjectUnderTest() {

@@ -32,6 +32,7 @@ dependencies {
 	testFixturesImplementation 'org.spockframework:spock-core'
 	testFixturesImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
 	testFixturesImplementation 'org.hamcrest:hamcrest:2.2'
+	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 }
 
 gradlePlugin {

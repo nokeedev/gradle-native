@@ -6,13 +6,21 @@ import dev.nokee.platform.nativebase.NativeLibraryDependencies
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent
 import dev.nokee.platform.nativebase.TargetMachineFactory
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory
+import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 abstract class AbstractPluginTest extends Specification implements ProjectTestFixture {
-	def project = ProjectBuilder.builder().withName('proj').build()
+	def project
+
+	def setup() {
+		if (SystemUtils.IS_OS_WINDOWS) {
+			NativeServicesTestFixture.initialize()
+		}
+		project = project = ProjectBuilder.builder().withName('proj').build()
+	}
 
 	Project getProjectUnderTest() {
 		return project
@@ -59,7 +67,14 @@ abstract class AbstractPluginTest extends Specification implements ProjectTestFi
 }
 
 abstract class AbstractTargetMachineAwarePluginTest extends Specification implements ProjectTestFixture {
-	def project = ProjectBuilder.builder().withName('test').build()
+	def project
+
+	def setup() {
+		if (SystemUtils.IS_OS_WINDOWS) {
+			NativeServicesTestFixture.initialize()
+		}
+		project = project = ProjectBuilder.builder().withName('lib').build()
+	}
 
 	@Override
 	Project getProjectUnderTest() {
@@ -142,7 +157,14 @@ abstract class AbstractTargetMachineAwarePluginTest extends Specification implem
 }
 
 abstract class AbstractTaskPluginTest extends Specification implements ProjectTestFixture {
-	def project = ProjectBuilder.builder().withName('test').build()
+	def project
+
+	def setup() {
+		if (SystemUtils.IS_OS_WINDOWS) {
+			NativeServicesTestFixture.initialize()
+		}
+		project = project = ProjectBuilder.builder().withName('lib').build()
+	}
 
 	@Override
 	Project getProjectUnderTest() {
