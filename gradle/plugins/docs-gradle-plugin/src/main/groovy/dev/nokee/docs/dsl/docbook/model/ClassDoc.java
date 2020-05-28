@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Value
@@ -37,6 +38,8 @@ public class ClassDoc implements DslElementDoc {
 	ClassDocSuperTypes superTypes;
 	@NonNull
 	DocComment comment;
+	@NonNull
+	Map<String, String> additionalData;
 
 	public String getId() {
 		return className;

@@ -1,5 +1,6 @@
 package dev.nokee.docs.dsl.docbook;
 
+import com.google.common.collect.ImmutableMap;
 import dev.nokee.docs.dsl.docbook.model.ClassDoc;
 import dev.nokee.docs.dsl.docbook.model.ClassDocSuperTypes;
 import dev.nokee.docs.dsl.docbook.model.ClassExtensionMetaData;
@@ -87,7 +88,10 @@ public class DslDocModel {
 					.withSuperTypes(ClassDocSuperTypes.of(classMetaData, this))
 					.withComment(javadocConverter.parse(classMetaData, DefaultGenerationListener.INSTANCE));
 
-				ClassDocBuilder docBuilder = new ClassDocBuilder(this, javadocConverter, classMetaData, ClassFile.parse(classFile), extensionMetaData);
+				ClassFile configurationFile = ClassFile.parse(classFile);
+				builder.withAdditionalData(ImmutableMap.of("category", configurationFile.category));
+
+				ClassDocBuilder docBuilder = new ClassDocBuilder(this, javadocConverter, classMetaData, configurationFile, extensionMetaData);
 				docBuilder.build(builder);
 
 				return builder.build();
@@ -107,12 +111,13 @@ public class DslDocModel {
 
 	@Value
 	static class ClassFile {
+		String category;
 		List<String> properties;
 		List<String> methods;
 
 		static ClassFile parse(File classFile) {
 			Map<Object, Object> v = (Map<Object, Object>) new JsonSlurper().parse(classFile);
-			return new ClassFile((List<String>) v.get("properties"), (List<String>) v.get("methods"));
+			return new ClassFile((String) v.get("category"), (List<String>) v.get("properties"), (List<String>) v.get("methods"));
 		}
 	}
 
