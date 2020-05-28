@@ -1,0 +1,15 @@
+digraph variantTaskGraph {
+  graph [ dpi = 100, fontname="Sans"];
+  node [fontname = "Sans"];
+  edge [fontname = "Sans"];
+  node [shape=rectangle, fixedsize=true, width=2.5, height=0.5];
+  node [style="dashed,filled", fillcolor=grey]
+  rankdir=LR
+
+  compileVariant -> objectsVariant -> linkVariant -> executableVariant -> assembleVariant [dir=back, style=dashed]
+  compileVariant[label=<compile<i>Variant</i>Cpp>]
+  objectsVariant[label=<objects<i>Variant</i>>]
+  linkVariant[label=<link<i>Variant</i>>]
+  executableVariant[label=<executable<i>Variant</i>>]
+  assembleVariant[label=<assemble<i>Variant</i>>]
+}

@@ -18,6 +18,39 @@ Provides support for building JNI library.
 <<objective-c-ios-application-plugin.adoc#,Objective-C iOS Application>>::
 Provides support for building Objective-C application for iOS devices.
 
+[[sec:plugin-reference-native-development]]
+== Native Development
+
+<<c-application-plugin.adoc#,C Application>>::
+Provides support for building C application on Windows, Linux, and macOS.
+
+<<c-library-plugin.adoc#,C Library>>::
+Provides support for building C library on Windows, Linux, and macOS.
+
+<<cpp-application-plugin.adoc#,{cpp} Application>>::
+Provides support for building {cpp} application on Windows, Linux, and macOS.
+
+<<cpp-library-plugin.adoc#,{cpp} Library>>::
+Provides support for building {cpp} library on Windows, Linux, and macOS.
+
+<<objective-c-application-plugin.adoc#,Objective-C Application>>::
+Provides support for building Objective-C application on Linux, and macOS.
+
+<<objective-c-library-plugin.adoc#,Objective-C Library>>::
+Provides support for building Objective-C library on Linux, and macOS.
+
+<<objective-cpp-application-plugin.adoc#,Objective-{cpp} Application>>::
+Provides support for building Objective-{cpp} application on Linux, and macOS.
+
+<<objective-cpp-library-plugin.adoc#,Objective-{cpp} Library>>::
+Provides support for building Objective-{cpp} library on Linux, and macOS.
+
+<<swift-application-plugin.adoc#,Swift Application>>::
+Provides support for building Swift application on Linux and macOS.
+
+<<swift-library-plugin.adoc#,Swift Library>>::
+Provides support for building Swift library on Linux and macOS.
+
 [[sec:plugin-reference-native-languages]]
 == Native Languages
 

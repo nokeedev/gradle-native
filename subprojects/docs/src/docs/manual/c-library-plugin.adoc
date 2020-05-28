@@ -1,0 +1,38 @@
+= C Library
+:jbake-type: reference_chapter
+:jbake-tags: user manual, gradle plugin reference, c, native, gradle, library
+:jbake-description: Learn what the Nokee's C library plugin (i.e. dev.nokee.c-library) has to offer for your Gradle build.
+:plugin-display-name: C Library
+:plugin-name: c-library
+:plugin-entrypoint-id: library
+:plugin-language: C
+:plugin-language-id: c
+:plugin-language-suffix: C
+:language-java-package: dev.nokee.language.c
+
+The {plugin-display-name} Plugin provides the tasks, configurations and conventions for a building {plugin-language} library.
+
+[[sec:c-library-usage]]
+== Usage
+
+include::plugin-reference-elements/section-usage.adoc[]
+
+[[sec:c-library-build-variants]]
+== Build variants
+
+include::plugin-reference-elements/section-build-variants.adoc[]
+
+[[sec:c-library-tasks]]
+== Tasks
+
+include::plugin-reference-elements/section-tasks.adoc[]
+
+[[sec:c-library-dependency-management]]
+== Dependency management
+
+include::plugin-reference-elements/section-dependency-management.adoc[]
+
+[[sec:c-library-conventions]]
+== Conventions
+
+include::plugin-reference-elements/section-conventions.adoc[]

@@ -1,4 +1,4 @@
 {
-	"properties": ["toolChain", "compilerArgs"],
+	"properties": ["toolChain", "compilerArgs", "headerSearchPaths"],
 	"methods": []
 }

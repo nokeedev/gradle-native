@@ -1,0 +1,38 @@
+= Objective-C Application
+:jbake-type: reference_chapter
+:jbake-tags: user manual, gradle plugin reference, objective c, native, gradle, application
+:jbake-description: Learn what the Nokee's Objective-C application plugin (i.e. dev.nokee.objective-c-application) has to offer for your Gradle build.
+:plugin-display-name: Objective-C Application
+:plugin-name: objective-c-application
+:plugin-entrypoint-id: application
+:plugin-language: Objective-C
+:plugin-language-id: objectivec
+:plugin-language-suffix: ObjectiveC
+:language-java-package: dev.nokee.language.objectivec
+
+The {plugin-display-name} Plugin provides the tasks, configurations and conventions for a building {plugin-language} application.
+
+[[sec:objective-c-application-usage]]
+== Usage
+
+include::plugin-reference-elements/section-usage.adoc[]
+
+[[sec:objective-c-application-build-variants]]
+== Build variants
+
+include::plugin-reference-elements/section-build-variants.adoc[]
+
+[[sec:objective-c-application-tasks]]
+== Tasks
+
+include::plugin-reference-elements/section-tasks.adoc[]
+
+[[sec:objective-c-application-dependency-management]]
+== Dependency management
+
+include::plugin-reference-elements/section-dependency-management.adoc[]
+
+[[sec:objective-c-application-conventions]]
+== Conventions
+
+include::plugin-reference-elements/section-conventions.adoc[]

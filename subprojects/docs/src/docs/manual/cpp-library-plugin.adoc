@@ -1,0 +1,38 @@
+= {cpp} Library
+:jbake-type: reference_chapter
+:jbake-tags: user manual, gradle plugin reference, c++, cxx, cpp, native, gradle, library
+:jbake-description: Learn what the Nokee's {cpp} library plugin (i.e. dev.nokee.cpp-library) has to offer for your Gradle build.
+:plugin-display-name: {cpp} Library
+:plugin-name: cpp-library
+:plugin-entrypoint-id: library
+:plugin-language: Cpp
+:plugin-language-id: cpp
+:plugin-language-suffix: Cpp
+:language-java-package: dev.nokee.language.cpp
+
+The {plugin-display-name} Plugin provides the tasks, configurations and conventions for a building {plugin-language} library.
+
+[[sec:cpp-library-usage]]
+== Usage
+
+include::plugin-reference-elements/section-usage.adoc[]
+
+[[sec:cpp-library-build-variants]]
+== Build variants
+
+include::plugin-reference-elements/section-build-variants.adoc[]
+
+[[sec:cpp-library-tasks]]
+== Tasks
+
+include::plugin-reference-elements/section-tasks.adoc[]
+
+[[sec:cpp-library-dependency-management]]
+== Dependency management
+
+include::plugin-reference-elements/section-dependency-management.adoc[]
+
+[[sec:cpp-library-conventions]]
+== Conventions
+
+include::plugin-reference-elements/section-conventions.adoc[]

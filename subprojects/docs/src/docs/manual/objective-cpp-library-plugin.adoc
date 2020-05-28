@@ -1,0 +1,39 @@
+= Objective-{cpp} Library
+:jbake-type: reference_chapter
+:jbake-tags: user manual, gradle plugin reference, objective c++, native, gradle, library
+:jbake-description: Learn what the Nokee's Objective-{cpp} library plugin (i.e. dev.nokee.objective-cpp-library) has to offer for your Gradle build.
+:plugin-display-name: Objective-{cpp} Library
+:plugin-name: objective-cpp-library
+:plugin-entrypoint-id: library
+:plugin-language: Objective-{cpp}
+:plugin-language-id: objectivecpp
+:plugin-language-suffix: ObjectiveCpp
+:language-java-package: dev.nokee.language.objectivecpp
+
+The {plugin-display-name} Plugin provides the tasks, configurations and conventions for a building {plugin-language} library.
+
+[[sec:objective-cpp-library-usage]]
+== Usage
+
+include::plugin-reference-elements/section-usage.adoc[]
+
+[[sec:objective-cpp-library-build-variants]]
+== Build variants
+
+include::plugin-reference-elements/section-build-variants.adoc[]
+
+[[sec:objective-cpp-library-tasks]]
+== Tasks
+
+include::plugin-reference-elements/section-tasks.adoc[]
+
+[[sec:objective-cpp-library-dependency-management]]
+== Dependency management
+
+include::plugin-reference-elements/section-dependency-management.adoc[]
+
+[[sec:objective-cpp-library-conventions]]
+== Conventions
+
+include::plugin-reference-elements/section-conventions.adoc[]
+

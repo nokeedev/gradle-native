@@ -1,0 +1,38 @@
+= Swift Application
+:jbake-type: reference_chapter
+:jbake-tags: user manual, gradle plugin reference, swift, native, gradle, application
+:jbake-description: Learn what the Nokee's Swift application plugin (i.e. dev.nokee.swift-application) has to offer for your Gradle build.
+:plugin-display-name: Swift Application
+:plugin-name: swift-application
+:plugin-entrypoint-id: application
+:plugin-language: Swift
+:plugin-language-id: swift
+:plugin-language-suffix: Swift
+:language-java-package: dev.nokee.language.swift
+
+The {plugin-display-name} Plugin provides the tasks, configurations and conventions for a building {plugin-language} application.
+
+[[sec:swift-application-usage]]
+== Usage
+
+include::plugin-reference-elements/section-usage.adoc[]
+
+[[sec:swift-application-build-variants]]
+== Build variants
+
+include::plugin-reference-elements/section-build-variants.adoc[]
+
+[[sec:swift-application-tasks]]
+== Tasks
+
+include::plugin-reference-elements/section-tasks.adoc[]
+
+[[sec:swift-application-dependency-management]]
+== Dependency management
+
+include::plugin-reference-elements/section-dependency-management.adoc[]
+
+[[sec:swift-application-conventions]]
+== Conventions
+
+include::plugin-reference-elements/section-conventions.adoc[]

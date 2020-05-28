@@ -1,0 +1,61 @@
+digraph taskGraph {
+  graph [ dpi = 100, fontname="Sans"];
+  node [fontname = "Sans"];
+  edge [fontname = "Sans"];
+  node [shape=rectangle, fixedsize=true, width=2.5, height=0.5];
+  node [style=filled, fillcolor="#cfe2f3"]
+  rankdir=LR
+
+  compileSharedLinkage[label=compileC]
+  compileStaticLinkage[label=compileC]
+  compileBothLinkageShared[label=compileSharedC]
+  compileBothLinkageStatic[label=compileStaticC]
+
+  subgraph cluster_sharedLinkage {
+	label = "Shared Linkage Only"
+	color = black
+
+	objectsSharedLinkage[label=objects]
+	linkSharedLinkage[label=link]
+
+	compileSharedLinkage -> objectsSharedLinkage -> linkSharedLinkage -> sharedLibrary [dir=back]
+  }
+
+  subgraph cluster_staticLinkage {
+	label = "Static Linkage Only"
+	color = black
+
+	objectsStaticLinkage[label=objects]
+	createStaticLinkage[label=create]
+
+	compileStaticLinkage -> objectsStaticLinkage -> createStaticLinkage -> staticLibrary [dir=back]
+  }
+
+  subgraph cluster_bothLinkage {
+	label = "Both Linkage"
+	color = black
+
+	objectsBothLinkageShared[label=objectsShared]
+	objectsBothLinkageStatic[label=objectsStatic]
+
+	linkBothLinkageShared[label=linkShared]
+	createBothLinkageStatic[label=createStatic]
+
+	sharedLibraryBothLinkage[label=sharedLibrary]
+	staticLibraryBothLinkage[label=staticLibrary]
+
+	assembleBothLinkageShared[label=assembleShared]
+	assembleBothLinkageStatic[label=assembleStatic]
+
+	compileBothLinkageShared -> objectsBothLinkageShared -> linkBothLinkageShared -> sharedLibraryBothLinkage -> assembleBothLinkageShared [dir=back]
+	compileBothLinkageStatic -> objectsBothLinkageStatic -> createBothLinkageStatic -> staticLibraryBothLinkage -> assembleBothLinkageStatic [dir=back]
+  }
+
+  { sharedLibrary, staticLibrary, sharedLibraryBothLinkage } -> assemble [dir=back headport=w tailport=e]
+  assemble -> build [dir=back]
+  check -> build [dir=back]
+  clean
+
+  check -> assemble [style=invis]
+  {rank=same clean check assemble}
+}

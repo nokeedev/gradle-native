@@ -1,0 +1,40 @@
+digraph nativeLibraryConfigurations {
+  graph [ dpi = 100, fontname="Sans"];
+  node [fontname = "Sans"];
+  edge [fontname = "Sans"];
+  node [shape=rectangle, fixedsize=true, width=2.5, height=0.5];
+
+  subgraph central {
+    node[style=filled, fillcolor=white]
+    api -> implementation -> variantImplementation [style=invis, weight=1000]
+    variantImplementation -> implementation -> api [headport=s, tailport=n]
+
+    variantImplementation[label=<<i>variant</i>Implementation>]
+  }
+
+  subgraph left {
+    node[style=filled, fillcolor="#cfe2f3"]
+    headerSearchPaths -> linkLibraries -> runtimeLibraries [style=invis, weight=1000]
+
+    headerSearchPaths[label=<<i>variant</i>HeaderSearchPaths (R)>]
+    linkLibraries[label=<<i>variant</i>LinkLibraries (R)>]
+    runtimeLibraries[label=<<i>variant</i>RuntimeLibraries (R)>]
+  }
+
+  subgraph right {
+    node[style=filled, fillcolor="#ea9999"]
+    compileElements -> linkElements -> runtimeElements [style=invis, weight=1000]
+
+    compileElements[label=<<i>variant</i>CompileElements (C)>]
+    linkElements[label=<<i>variant</i>LinkElements (C)>]
+    runtimeElements[label=<<i>variant</i>RuntimeElements (C)>]
+  }
+
+  // Ensure the order is preserved
+  {rank=same headerSearchPaths implementation compileElements}
+  {rank=same linkElements variantImplementation linkLibraries}
+  linkLibraries -> variantImplementation -> linkElements [style=invis]
+
+  {headerSearchPaths, linkLibraries, runtimeLibraries} -> variantImplementation [headport=w, tailport=e]
+  {compileElements, linkElements, runtimeElements} -> variantImplementation [headport=e, tailport=w]
+}

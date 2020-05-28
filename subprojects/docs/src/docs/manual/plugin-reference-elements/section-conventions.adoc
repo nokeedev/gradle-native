@@ -1,0 +1,102 @@
+//:plugin-language-id: cpp
+
+The {plugin-display-name} Plugin adds conventions for sources and tasks, shown below.
+
+[[sec:conventions-project-layout]]
+=== Project layout
+
+The {plugin-display-name} Plugin assumes the project layout shown below.
+None of these directories need to exist or have anything in them.
+The {plugin-display-name} Plugin will compile whatever it finds and ignore anything missing.
+
+ifeval::["{plugin-language-id}" == "c"]
+`src/main/c`::
+C source with extension of `.c`
+endif::[]
+
+ifeval::["{plugin-language-id}" == "cpp"]
+`src/main/cpp`::
+{cpp} source with extension of `.cp`, `.cpp`, `.c++`, `.cc`, or `.cxx`
+endif::[]
+
+ifeval::["{plugin-language-id}" == "objectivec"]
+`src/main/objc`::
+Objective-C source with extension of `.m`
+endif::[]
+
+ifeval::["{plugin-language-id}" == "objectivecpp"]
+`src/main/objcpp`::
+Objective-{cpp} source with extension of `.mm`
+endif::[]
+
+`src/main/headers`::
+Headers - headers needed to compile the application
+
+
+[[sec:conventions-compile-task]]
+=== Compile Task
+:compile-task-type: {language-java-package}.tasks.{plugin-language-suffix}Compile
+:dsl-compile-task-path: ../dsl/{compile-task-type}.html
+
+The {plugin-display-name} Plugin adds a link:{dsl-compile-task-path}[{plugin-language-suffix}Compile] instance for each variant of the {plugin-entrypoint-id} component to build (e.g. `compileWindows{plugin-language-suffix}` and `compileLinux{plugin-language-suffix}`).
+Read the <<building-native-projects.adoc#sec:introducing-build-variants,introduction to build variants>> for more information.
+Some of the most common configuration options are shown below.
+
+[horizontal]
+link:{dsl-compile-task-path}#{compile-task-type}:compilerArgs[compilerArgs]:: []
+
+link:{dsl-compile-task-path}#{compile-task-type}:headerSearchPaths[headerSearchPaths]:: `configurations.__variant__HeaderSearchPaths` + `${project.projectDir}/src/main/headers`
+
+link:{dsl-compile-task-path}#{compile-task-type}:toolChain[toolChain]:: <<building-native-projects.adoc#sec:supported-toolchain,automatically selected based on target machine>>
+
+[[sec:conventions-link-task]]
+=== Link Task
+
+ifeval::["{plugin-entrypoint-id}" == "application"]
+
+The {plugin-display-name} Plugin adds a link:../dsl/dev.nokee.platform.nativebase.tasks.LinkExecutable.html[LinkExecutable] instance for each variant of the application — e.g. `linkWindows` and `linkLinux`.
+Read the <<building-native-projects.adoc#sec:introducing-build-variants,introduction to build variants>> for more information.
+Some of the most common configuration options are shown below.
+
+[horizontal]
+link:../dsl/dev.nokee.platform.nativebase.tasks.LinkExecutable.html#dev.nokee.platform.nativebase.tasks.LinkExecutable:linkedFile[linkedFile]:: `$buildDir/exe/main/__variant__/baseName` (*nix) or `$buildDir\exe\main{backslash}__variant__\baseName.exe` (Windows)
+
+link:../dsl/dev.nokee.platform.nativebase.tasks.LinkExecutable.html#dev.nokee.platform.nativebase.tasks.LinkExecutable:linkerArgs[linkerArgs]:: []
+
+link:../dsl/dev.nokee.platform.nativebase.tasks.LinkExecutable.html#dev.nokee.platform.nativebase.tasks.LinkExecutable:toolChain[toolChain]:: <<building-native-projects.adoc#sec:supported-toolchain,automatically selected based on target machine>>
+
+endif::[]
+
+ifeval::["{plugin-entrypoint-id}" == "library"]
+
+The {cpp} Library Plugin adds a link:../dsl/dev.nokee.platform.nativebase.tasks.LinkSharedLibrary.html[LinkSharedLibrary] instance for each variant of the library containing shared linkage as a dimension - e.g. `linkWindows` and `linkLinux`.
+Read the <<building-native-projects.adoc#sec:introducing-build-variants,introduction to build variants>> for more information.
+Some of the most common configuration options are shown below.
+
+[horizontal]
+link:../dsl/dev.nokee.platform.nativebase.tasks.LinkSharedLibrary.html#dev.nokee.platform.nativebase.tasks.LinkSharedLibrary:linkedFile[linkedFile]:: `$buildDir/lib/main/__variant__/libBaseName[.so|dylib]` (*nix) or `$buildDir\lib\main{backslash}__variant__\baseName.dll` (Windows)
+
+link:../dsl/dev.nokee.platform.nativebase.tasks.LinkSharedLibrary.html#dev.nokee.platform.nativebase.tasks.LinkSharedLibrary:linkerArgs[linkerArgs]:: []
+
+link:../dsl/dev.nokee.platform.nativebase.tasks.LinkSharedLibrary.html#dev.nokee.platform.nativebase.tasks.LinkSharedLibrary:toolChain[toolChain]:: <<building-native-projects.adoc#sec:supported-toolchain,automatically selected based on target machine>>
+
+endif::[]
+
+
+ifeval::["{plugin-entrypoint-id}" == "library"]
+
+[[sec:conventions-create-task]]
+=== Create Task
+
+The {plugin-display-name} Plugin adds a link:../dsl/dev.nokee.platform.nativebase.tasks.CreateStaticLibrary.html[CreateStaticLibrary] instance for each variant of the library containing static linkage as a dimension - e.g. `createWindows` and `createLinux`.
+Read the <<building-native-projects.adoc#sec:introducing-build-variants,introduction to build variants>> for more information.
+Some of the most common configuration options are shown below.
+
+[horizontal]
+link:../dsl/dev.nokee.platform.nativebase.tasks.CreateStaticLibrary.html#dev.nokee.platform.nativebase.tasks.CreateStaticLibrary:outputFile[outputFile]:: `$buildDir/lib/main/__variant__/libBaseName.a` (*nix) or `$buildDir\lib\main{backslash}__variant__\baseName.lib` (Windows)
+
+link:../dsl/dev.nokee.platform.nativebase.tasks.CreateStaticLibrary.html#dev.nokee.platform.nativebase.tasks.CreateStaticLibrary:archiverArgs[archiverArgs]:: []
+
+link:../dsl/dev.nokee.platform.nativebase.tasks.CreateStaticLibrary.html#dev.nokee.platform.nativebase.tasks.CreateStaticLibrary:toolChain[toolChain]:: <<building-native-projects.adoc#sec:supported-toolchain,automatically selected based on target machine>>
+
+endif::[]

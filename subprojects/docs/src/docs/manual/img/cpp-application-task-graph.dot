@@ -1,0 +1,21 @@
+digraph taskGraph {
+  graph [ dpi = 100, fontname="Sans"];
+  node [fontname = "Sans"];
+  edge [fontname = "Sans"];
+  node [shape=rectangle, fixedsize=true, width=2.5, height=0.5];
+  node [style=filled, fillcolor="#cfe2f3"]
+  rankdir=LR
+
+  compile[label=compileCpp]
+
+  compile -> objects -> link -> executable -> assemble -> build [dir=back]
+  check -> build [dir=back]
+  clean
+
+  // Ensure ordering
+  compile -> clean [style=invis]
+  {rank=same compile clean}
+
+  check -> assemble [style=invis]
+  {rank=same check assemble}
+}

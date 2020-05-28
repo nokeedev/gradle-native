@@ -1,0 +1,39 @@
+= Objective-{cpp} Application
+:jbake-type: reference_chapter
+:jbake-tags: user manual, gradle plugin reference, objective c++, native, gradle, application
+:jbake-description: Learn what the Nokee's Objective-{cpp} application plugin (i.e. dev.nokee.objective-cpp-application) has to offer for your Gradle build.
+:plugin-display-name: Objective-{cpp} Application
+:plugin-name: objective-cpp-application
+:plugin-entrypoint-id: application
+:plugin-language: Objective-{cpp}
+:plugin-language-id: objectivecpp
+:plugin-language-suffix: ObjectiveCpp
+:language-java-package: dev.nokee.language.objectivecpp
+
+The {plugin-display-name} Plugin provides the tasks, configurations and conventions for a building {plugin-language} application.
+
+[[sec:objective-cpp-application-usage]]
+== Usage
+
+include::plugin-reference-elements/section-usage.adoc[]
+
+[[sec:objective-cpp-application-build-variants]]
+== Build variants
+
+include::plugin-reference-elements/section-build-variants.adoc[]
+
+[[sec:objective-cpp-application-tasks]]
+== Tasks
+
+include::plugin-reference-elements/section-tasks.adoc[]
+
+[[sec:objective-cpp-application-dependency-management]]
+== Dependency management
+
+include::plugin-reference-elements/section-dependency-management.adoc[]
+
+[[sec:objective-cpp-application-conventions]]
+== Conventions
+
+include::plugin-reference-elements/section-conventions.adoc[]
+

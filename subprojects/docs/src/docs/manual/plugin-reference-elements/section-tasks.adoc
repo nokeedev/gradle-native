@@ -1,0 +1,101 @@
+//:plugin-display-name: C Application
+//:plugin-name: c-application
+//:plugin-language: C
+
+The following diagram shows the relationships between tasks added by this plugin.
+
+.{plugin-display-name} Plugin default task graph
+image::img/{plugin-name}-task-graph.png[]
+
+[[sec:task-variants]]
+=== Variant-dependent Tasks
+
+The {plugin-display-name} Plugin creates tasks based on the variants of the {plugin-entrypoint-id} component.
+Read the <<building-native-projects.adoc#sec:introducing-build-variants,introduction to build variants>> for more information.
+The following diagram shows the relationship between variant-dependent tasks.
+
+.{plugin-display-name} Plugin variant-dependent task graph
+image::img/{plugin-name}-variant-task-graph.png[]
+
+`compile__Variant__{plugin-language-suffix}` (e.g. `compileWindows{plugin-language-suffix}` and `compileLinux{plugin-language-suffix}`)  - link:../dsl/{language-java-package}.tasks.{plugin-language-suffix}Compile.html[{plugin-language-suffix}Compile]::
+Depends on: All tasks that contribute source files to the compilation
+::
+Compiles {plugin-language} source files using the selected compiler.
+
+`objects__Variant__` (e.g. `objectsWindows` and `objectsLinux`) - Task (lifecycle)::
+Depends on: `compile__Variant__{plugin-language-suffix}`
+::
+Aggregates tasks that compile the source files to object files for the specific variant of this {plugin-entrypoint-id}.
+
+ifeval::["{plugin-entrypoint-id}" == "application"]
+
+`link__Variant__` (e.g. `linkWindows` and `linkLinux`) - link:../dsl/dev.nokee.platform.nativebase.tasks.LinkExecutable.html[LinkExecutable]::
+Depends on: All tasks which contribute to the link executable, including `link__Variant__` and `create__Variant__` tasks from projects that are resolved via project dependencies
+::
+Links executable from compiled object files using the selected linker.
+
+`executable__Variant__` (e.g. `executableWindows` and `executableLinux`) - Task (lifecycle)::
+Depends on: `link__Variant__`
+::
+Aggregates tasks that creates the executable binary for the specific variant of this application.
+
+endif::[]
+
+ifeval::["{plugin-entrypoint-id}" == "library"]
+
+`link__Variant__` (e.g. `linkWindows` and `linkLinux`) - link:../dsl/dev.nokee.platform.nativebase.tasks.LinkSharedLibrary.html[LinkSharedLibrary] (shared linkage)::
+Depends on: All tasks which contribute to the link libraries, including `link__Variant__` and `create__Variant__` tasks from projects that are resolved via project dependencies
+::
+Links shared library from compiled object files using the selected linker.
+
+`sharedLibrary__Variant__` (e.g. `sharedLibraryWindows` and `sharedLibraryLinux`) - Task (lifecycle)::
+Depends on: `sharedLibrary__Variant__`
+::
+Aggregates tasks that creates the shared library binary for the specific variant of this library.
+
+`create__Variant__` (e.g. `createDebug` and `createRelease`) - link:../dsl/dev.nokee.platform.nativebase.tasks.CreateStaticLibrary.html[CreateStaticLibrary] (static linkage)::
+Creates static library from compiled object files using selected archiver.
+
+`staticLibrary__Variant__` (e.g. `staticLibraryWindows` and `staticLibraryLinux`) - Task (lifecycle)::
+Depends on: `create__Variant__`
+::
+Aggregates tasks that creates the static library binary for the specific variant of this library.
+
+endif::[]
+
+`assemble__Variant__` (e.g. `assembleWindows` and `assembleLinux`) - Task (lifecycle)::
+ifeval::["{plugin-entrypoint-id}" == "application"]
+Depends on: `link__Variant__`
+endif::[]
+ifeval::["{plugin-entrypoint-id}" == "library"]
+Depends on: `link__Variant__` (shared linkage) or `create__Variant__` (static linkage)
+endif::[]
++
+Aggregates tasks that assemble the specific variant of this {plugin-entrypoint-id}.
+
+[[sec:lifecycle-tasks]]
+=== Lifecycle Tasks
+
+The {plugin-display-name} Plugin attaches some of its tasks to the standard lifecycle tasks documented in the link:{gradle-user-manual}/base_plugin.html[Base Plugin chapter] - which the {plugin-display-name} Plugin applies automatically:
+
+// TODO: Should link the host platform to terminology
+`assemble` - Task (lifecycle)::
+Depends on: link task for the current host, if present
+::
+Aggregate task that assembles the variant of the {plugin-entrypoint-id} for the current host (if present) in the project.
+This task is added by the link:{gradle-user-manual}/base_plugin.html[Base Plugin].
+
+`check` - Task (lifecycle)::
+Aggregate task that performs verification tasks, such as running the tests.
+Some plugins add their own verification task to `check`.
+This task is added by the link:{gradle-user-manual}/base_plugin.html[Base Plugin].
+
+`build` - Task (lifecycle)::
+Depends on: `check`, `assemble`
+::
+Aggregate tasks that perform a full build of the project.
+This task is added by the link:{gradle-user-manual}/base_plugin.html[Base Plugin].
+
+`clean` - link:{gradle-dsl-reference}/org.gradle.api.tasks.Delete.html[Delete]::
+Deletes the build directory and everything in it, i.e. the path specified by the `Project.getBuildDir()` project property.
+This task is added by the link:{gradle-user-manual}/base_plugin.html[Base Plugin].

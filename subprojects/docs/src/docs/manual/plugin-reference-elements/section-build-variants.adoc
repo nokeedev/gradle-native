@@ -1,0 +1,52 @@
+
+The {plugin-display-name} Plugin understands the following dimensions.
+Read the <<building-native-projects.adoc#sec:introducing-build-variants,introduction to build variants>> for more information.
+
+// TODO: Add terminology for build host
+// TODO: Add terminology for operating system family
+Operating system family - defaults to the build host::
+The operating system family expresses which environment the {plugin-entrypoint-id} targets.
+The supported operating system family are Windows, Linux, and macOS.
+
+// TODO: add terminology for machine architecture
+Machine architecture - defaults to the build host::
+The machine architecture expresses which architecture the {plugin-entrypoint-id} targets.
+The supported architecture are Intel instruction set for both 32 and 64 bit often referred as x86 and x86-64.
+
+Both dimensions are configured together as part of the target machine.
+ifeval::["{plugin-entrypoint-id}" == "application"]
+It expresses which machines the application expects to run.
+endif::[]
+Nokee uses the target machine to decide which toolchain to choose based on availability on the host machine.
+
+The target machine can be configured as follows:
+
+.Configure application target machines
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy,subs=attributes+]
+----
+{plugin-entrypoint-id} {
+    targetMachines = [
+        machines.linux.x86_64,
+        machines.windows.x86, machines.windows.x86_64,
+        machines.macOS.x86_64
+    ]
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin,subs=attributes+]
+----
+{plugin-entrypoint-id} {
+    targetMachines.set(listOf(machines.linux.x86_64,
+        machines.windows.x86, machines.windows.x86_64,
+        machines.macOS.x86_64))
+}
+----
+=====
+====

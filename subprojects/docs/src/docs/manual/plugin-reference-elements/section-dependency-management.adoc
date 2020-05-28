@@ -1,0 +1,74 @@
+
+Just like the tasks created by the {plugin-display-name} Plugin, multiple configurations are created based on the variants of the {plugin-entrypoint-id} component.
+Read the <<building-native-projects.adoc#sec:introducing-build-variants,introduction to build variants>> for more information.
+The following graph describes the configurations added by the {plugin-display-name} Plugin:
+
+.{plugin-display-name} Plugin configurations
+image::img/native-{plugin-entrypoint-id}-configurations.png[]
+
+* The configurations in white are the ones a user should use to declare dependencies
+* The configurations in pink, also known as consumable denoted by \(C), are the ones used when a component runs against the library
+* The configurations in blue, also known as resolvable denoted by \(R), are internal to the component, for its own use
+
+The following configurations are used to declare dependencies:
+
+ifeval::["{plugin-entrypoint-id}" == "library"]
+
+`api`::
+Used for declaring API dependencies (see <<building-native-projects.adoc#sec:library-api-vs-implementation,API vs implementation section>>).
+This is where you should declare dependencies which are transitively exported to consumers, for compile, link, and runtime.
+
+`implementation` extends `api`::
+Used for declaring implementation dependencies for all variants of the main component (see <<building-native-projects.adoc#sec:library-api-vs-implementation,API vs implementation section>>).
+This is where you should declare dependencies which are purely internal and not meant to be exposed to consumers of any variants.
+
+`__variant__Implementation` (e.g. `windowsImplementation` and `linuxImplementation`) extends `implementation`::
+Used for declaring implementation dependencies for a specific variant of the main component (see <<building-native-projects.adoc#sec:library-api-vs-implementation,API vs implementation section>>).
+This is where you should declare dependencies which are purely internal and not meant to be exposed to consumers of this specific variant.
+
+endif::[]
+
+ifeval::["{plugin-entrypoint-id}" == "application"]
+
+`implementation`::
+Used for declaring implementation dependencies for all variants of the main component.
+This is where you should declare dependencies of any variants.
+
+`__variant__Implementation` (e.g. `windowsImplementation` and `linuxImplementation`) extends `implementation`::
+Used for declaring implementation dependencies for a specific variant of the main component.
+This is where you should declare dependencies of the specific variant.
+
+endif::[]
+
+
+The following configurations are used by downstream consumers that depend on the {plugin-entrypoint-id} component:
+
+ifeval::["{plugin-entrypoint-id}" == "library"]
+
+`__variant__CompileElements` (e.g. `windowsCompileElements` and `linuxCompileElements`) extends `__variant__Implementation`::
+Used for compiling against the library.
+This configuration is meant to be used by consumers, to retrieve all the elements necessary to compile against the library.
+
+`__variant__LinkElements` (e.g. `windowsLinkElements` and `linuxLinkElements`) extends `__variant__Implementation`::
+Used for linking against the library.
+This configuration is meant to be used by consumers, to retrieve all the elements necessary to link against the library.
+
+endif::[]
+
+`__variant__RuntimeElements` (e.g. `windowsRuntimeElements` and `linuxRuntimeElements`) extends `__variant__Implementation`::
+Used for executing the {plugin-entrypoint-id}.
+This configuration is meant to be used by consumers, to retrieve all the elements necessary to run the {plugin-entrypoint-id}.
+
+The following configurations are used by the application itself:
+
+`__variant__HeaderSearchPaths` (e.g. `windowsHeaderSearchPaths` and `linuxHeaderSearchPaths`) extends `__variant__Implementation`::
+Used for compiling the {plugin-entrypoint-id}.
+This configuration contains the compile include roots of the {plugin-entrypoint-id} and is therefore used when invoking the {plugin-language} compiler to compile it.
+
+`__variant__LinkLibraries` (e.g. `windowsLinkLibraries` and `linuxLinkLibraries`) extends `__variant__Implementation`::
+Used for linking the {plugin-entrypoint-id}.
+This configuration contains the libraries of the {plugin-entrypoint-id} and is therefore used when invoking the {plugin-language} linker to link it.
+
+`__variant__RuntimeLibraries` (e.g. `windowsRuntimeLibraries` and `linuxRuntimeLibraries`) extends `__variant__Implementation`::
+Used for executing the {plugin-entrypoint-id}.
+This configuration contains the runtime libraries of the {plugin-entrypoint-id}.

@@ -1,0 +1,69 @@
+[[chapter:building-native]]
+= Building Native Projects
+:jbake-type: manual_chapter
+:jbake-tags: user manual, native, gradle
+:jbake-description: Learn the concept of building a native project with Gradle.
+
+[[sec:introducing-build-variants]]
+== Introducing build variants
+
+Native projects can typically produce several different binaries, such as debug or release ones, or ones that target particular platforms and processor architectures.
+Nokee manages this through the concepts of _dimensions_ and _variants_.
+
+A dimension is simply a category, where each category is orthogonal to the rest.
+For example, the "build type" dimension is a category that includes debug and release.
+The "architecture" dimension covers processor architectures like x86-64 and PowerPC.
+
+A variant is a combination of values for these dimensions, consisting of exactly one value for each dimension.
+You might have a "debug x86-64" or a "release PowerPC" variant.
+
+Nokee has built-in support for several dimensions and several values within each dimension.
+
+[[sec:api-vs-implementation]]
+=== API vs implementation
+
+The plugin exposes two configurations that can be used to declare dependencies: `api` and `implementation`.
+The `api` configuration should be used to declare dependencies which are exported by the library API, whereas the `implementation` configuration should be used to declare dependencies which are internal to the component.
+
+.Adding dependencies
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+library {
+    dependencies {
+        api "io.qt:core:5.1"
+        implementation "io.qt:network:5.1"
+    }
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+library {
+    dependencies {
+        api("io.qt:core:5.1")
+        implementation("io.qt:network:5.1")
+    }
+}
+----
+=====
+====
+
+Dependencies appearing in the `api` configurations will be transitively exposed to consumers of the library, and as such will appear on the compile include root and link libraries of consumers.
+Dependencies found in the `implementation` configuration will, on the other hand, not be exposed to consumers, and therefore not leak into the consumer's compile include root and link libraries.
+This comes with several benefits:
+
+* dependencies do not leak into the compile include roots and link libraries of consumers, so they can never accidentally depend on a transitive dependency
+* faster compilation thanks to the reduced include roots and link libraries
+* fewer recompilations when implementation dependencies change since the consumer would not need to be recompiled
+
+[[sec:supported-toolchain]]
+== Supported Toolchains
+
+Support for MSVC 2017, 2019, clang 9, Gcc 9

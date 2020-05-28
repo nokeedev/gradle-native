@@ -1,0 +1,38 @@
+= {cpp} Application
+:jbake-type: reference_chapter
+:jbake-tags: user manual, gradle plugin reference, c++, cxx, cpp, native, gradle, application
+:jbake-description: Learn what the Nokee's {cpp} application plugin (i.e. dev.nokee.cpp-application) has to offer for your Gradle build.
+:plugin-display-name: {cpp} Application
+:plugin-name: cpp-application
+:plugin-entrypoint-id: application
+:plugin-language: Cpp
+:plugin-language-id: cpp
+:plugin-language-suffix: Cpp
+:language-java-package: dev.nokee.language.cpp
+
+The {plugin-display-name} Plugin provides the tasks, configurations and conventions for a building {plugin-language} application.
+
+[[sec:cpp-application-usage]]
+== Usage
+
+include::plugin-reference-elements/section-usage.adoc[]
+
+[[sec:cpp-application-build-variants]]
+== Build variants
+
+include::plugin-reference-elements/section-build-variants.adoc[]
+
+[[sec:cpp-application-tasks]]
+== Tasks
+
+include::plugin-reference-elements/section-tasks.adoc[]
+
+[[sec:cpp-application-dependency-management]]
+== Dependency management
+
+include::plugin-reference-elements/section-dependency-management.adoc[]
+
+[[sec:cpp-application-conventions]]
+== Conventions
+
+include::plugin-reference-elements/section-conventions.adoc[]

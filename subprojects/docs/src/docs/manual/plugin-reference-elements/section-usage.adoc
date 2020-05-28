@@ -1,0 +1,26 @@
+//:plugin-display-name: C Application
+//:plugin-name: c-application
+
+.Applying the {plugin-display-name} Plugin
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy,subs=attributes+]
+----
+plugins {
+   id 'dev.nokee.{plugin-name}'
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin,subs=attributes+]
+----
+plugins {
+   id("dev.nokee.{plugin-name}")
+}
+----
+=====
+====

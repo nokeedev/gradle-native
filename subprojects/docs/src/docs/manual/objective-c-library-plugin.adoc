@@ -1,0 +1,38 @@
+= Objective-C Library
+:jbake-type: reference_chapter
+:jbake-tags: user manual, gradle plugin reference, objective c, native, gradle, library
+:jbake-description: Learn what the Nokee's Objective-C library plugin (i.e. dev.nokee.objective-c-library) has to offer for your Gradle build.
+:plugin-display-name: Objective-C Library
+:plugin-name: objective-c-library
+:plugin-entrypoint-id: library
+:plugin-language: Objective-C
+:plugin-language-id: objectivec
+:plugin-language-suffix: ObjectiveC
+:language-java-package: dev.nokee.language.objectivec
+
+The {plugin-display-name} Plugin provides the tasks, configurations and conventions for a building {plugin-language} library.
+
+[[sec:objective-c-library-usage]]
+== Usage
+
+include::plugin-reference-elements/section-usage.adoc[]
+
+[[sec:objective-c-library-build-variants]]
+== Build variants
+
+include::plugin-reference-elements/section-build-variants.adoc[]
+
+[[sec:objective-c-library-tasks]]
+== Tasks
+
+include::plugin-reference-elements/section-tasks.adoc[]
+
+[[sec:objective-c-library-dependency-management]]
+== Dependency management
+
+include::plugin-reference-elements/section-dependency-management.adoc[]
+
+[[sec:objective-c-library-conventions]]
+== Conventions
+
+include::plugin-reference-elements/section-conventions.adoc[]
