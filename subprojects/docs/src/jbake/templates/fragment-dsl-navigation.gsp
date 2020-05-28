@@ -28,6 +28,15 @@
 	def formatCrumbs = { List<Map> breadcrumbs ->
 		return "<ul>${breadcrumbs.collect({ '<li><a href="' + it.href + '">' + it.title + '</a></li>' }).join('')}</ul>"
 	}
+
+	def dslByCategory = new LinkedHashMap()
+	// Force an ordering for some types
+	['Core types', 'JNI types', 'Native types', 'C types', 'C++ types', 'Objective-C types', 'Objective-C++ types', 'Swift types', 'Xcode IDE types'].each { dslByCategory.put(it, [])}
+	dsl_chapters.each {
+		def category = it.category == null ? 'Core types' : it.category
+		dslByCategory.putIfAbsent(category, [])
+		dslByCategory.get(category).add(it)
+	}
 %>
 <nav class="docs-navigation">
 	<div class="breadcrumbs">${formatCrumbs(getBreadcrumbs())}</div>
@@ -39,18 +48,23 @@
 			<li><a ${anchorOf('../dsl/index.html')}>DSL Reference Home</a></li>
 			<li><a ${anchorOf('../release-notes.html')}>Release Notes</a></li>
 		</ul>
-		<h3 id="core-types">Core Types</h3>
+		<% dslByCategory.each { category, dslChapters ->
+			if (!dslChapters.empty) {
+		%>
+		<h3 id="${category.toLowerCase().replace(' ', '-')}">${category}</h3>
 		<ul>
-			<%
-			    println dsl_chapters.collect { dsl ->
-					def typePath = "/${dsl.uri}"
-					def typeName = dsl.uri.substring(dsl.uri.lastIndexOf('/') + 1) - '.html'
-					typeName = typeName.substring(typeName.lastIndexOf('.') + 1)
-					return [path: typePath, name: typeName]
-				}.sort {a, b -> a.name <=> b.name}.collect { o ->
-					return "<li><a ${anchorOf(o.path)}>${o.name}</a></li>"
-				}.join('\n')
+			<% dslChapters.collect { dslChapter ->
+				def typePath = dslChapter.uri.substring(dslChapter.uri.lastIndexOf('/') + 1)
+				def typeName = typePath - '.html'
+				typeName = typeName.substring(typeName.lastIndexOf('.') + 1)
+				return [path: typePath, name: typeName]
+			}.sort {a, b -> a.name <=> b.name}.each {
+				def typePath = it.path
+				def typeName = it.name
 			%>
+			<li><a ${anchorOf(typePath)}>${typeName}</a></li>
+			<%}%>
 		</ul>
+		<%}}%>
 	</div>
 </nav>

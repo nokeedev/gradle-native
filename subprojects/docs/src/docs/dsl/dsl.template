@@ -13,6 +13,7 @@
 :jbake-type: dsl_chapter
 :jbake-tags: user manual, gradle plugin dsl, ${content.simpleName}
 :jbake-description: Learn about the build language of the ${content.simpleName} type.
+:jbake-category: ${content.additionalData.category}
 
 API Documentation: link:../javadoc/${content.name.replace('.', '/')}.html[${content.simpleName}]
 
