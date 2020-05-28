@@ -1,4 +1,4 @@
-:jbake-version: 0.2.0
+:jbake-version: 0.3.0
 image::nokee.png[Nokee logo]
 
 Painless native development with Gradle.
