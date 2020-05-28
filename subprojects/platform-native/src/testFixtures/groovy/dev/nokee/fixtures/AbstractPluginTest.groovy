@@ -73,7 +73,7 @@ abstract class AbstractTargetMachineAwarePluginTest extends Specification implem
 		if (SystemUtils.IS_OS_WINDOWS) {
 			NativeServicesTestFixture.initialize()
 		}
-		project = project = ProjectBuilder.builder().withName('lib').build()
+		project = project = ProjectBuilder.builder().withName('test').build()
 	}
 
 	@Override

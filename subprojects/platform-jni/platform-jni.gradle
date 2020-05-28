@@ -53,3 +53,11 @@ components.functionalTest {
 		implementation "commons-io:commons-io:${commonsIoVersion}"
 	}
 }
+
+// Unfortunately, because of the debt inherited from Gradle around how Windows toolchains are discovered
+import org.gradle.internal.os.OperatingSystem
+if (OperatingSystem.current().windows) {
+	tasks.named('test', Test) {
+		forkEvery(1)
+	}
+}
