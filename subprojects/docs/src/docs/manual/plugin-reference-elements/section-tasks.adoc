@@ -96,6 +96,6 @@ Depends on: `check`, `assemble`
 Aggregate tasks that perform a full build of the project.
 This task is added by the link:{gradle-user-manual}/base_plugin.html[Base Plugin].
 
-`clean` - link:{gradle-dsl-reference}/org.gradle.api.tasks.Delete.html[Delete]::
+`clean` - link:{gradle-language-reference}/org.gradle.api.tasks.Delete.html[Delete]::
 Deletes the build directory and everything in it, i.e. the path specified by the `Project.getBuildDir()` project property.
 This task is added by the link:{gradle-user-manual}/base_plugin.html[Base Plugin].
