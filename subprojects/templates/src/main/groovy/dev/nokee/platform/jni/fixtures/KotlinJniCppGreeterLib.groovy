@@ -9,6 +9,7 @@ import dev.gradleplugins.test.fixtures.sources.java.JavaSourceFileElement
 import dev.nokee.platform.jni.fixtures.elements.CppGreeter
 import dev.nokee.platform.jni.fixtures.elements.CppGreeterJniBinding
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
+import dev.nokee.platform.jni.fixtures.elements.TestableJniLibraryElement
 
 import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
 import static dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement.ofPackage
@@ -47,18 +48,9 @@ class KotlinJniCppGreeterLib extends JniLibraryElement {
 		junitTest = new KotlinGreeterJUnitTest(javaPackage)
 	}
 
-	JniLibraryElement withJUnitTest() {
-		return new JniLibraryElement() {
-			@Override
-			SourceElement getJvmSources() {
-				return ofElements(KotlinJniCppGreeterLib.this.jvmBindings, KotlinJniCppGreeterLib.this.jvmImplementation, junitTest)
-			}
-
-			@Override
-			NativeSourceElement getNativeSources() {
-				return ofNativeElements(nativeBindings, nativeImplementation)
-			}
-		}
+	@Override
+	TestableJniLibraryElement withJUnitTest() {
+		return new TestableJniLibraryElement(this, junitTest)
 	}
 }
 

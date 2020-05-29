@@ -7,7 +7,6 @@ import dev.gradleplugins.test.fixtures.sources.c.CSourceElement
 import dev.gradleplugins.test.fixtures.sources.cpp.CppSourceElement
 import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
 import dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement
-import dev.nokee.platform.jni.fixtures.elements.JavaGreeterJUnitTest
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
 
 import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
@@ -18,7 +17,6 @@ class JavaJniCGreeterLib extends JniLibraryElement {
 	final JavaSourceElement jvmBindings
 	final JavaSourceElement jvmImplementation
 	final CGreeter nativeImplementation
-	final JavaSourceElement junitTest
 
 	@Override
 	SourceElement getJvmSources() {
@@ -39,8 +37,6 @@ class JavaJniCGreeterLib extends JniLibraryElement {
 		jvmImplementation = new JavaNativeLoader(javaPackage);
 
 		nativeImplementation = new CGreeter()
-
-		junitTest = new JavaGreeterJUnitTest()
 	}
 
 	JniLibraryElement withoutNativeImplementation() {
@@ -53,20 +49,6 @@ class JavaJniCGreeterLib extends JniLibraryElement {
 			@Override
 			NativeSourceElement getNativeSources() {
 				return nativeBindings
-			}
-		}
-	}
-
-	JniLibraryElement withJUnitTest() {
-		return new JniLibraryElement() {
-			@Override
-			SourceElement getJvmSources() {
-				return ofElements(JavaJniCGreeterLib.this.jvmBindings, JavaJniCGreeterLib.this.jvmImplementation, junitTest)
-			}
-
-			@Override
-			NativeSourceElement getNativeSources() {
-				return ofNativeElements(nativeBindings, nativeImplementation)
 			}
 		}
 	}

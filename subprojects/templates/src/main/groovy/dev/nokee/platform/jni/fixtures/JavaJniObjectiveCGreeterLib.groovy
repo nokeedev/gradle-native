@@ -6,7 +6,6 @@ import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
 import dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement
 import dev.gradleplugins.test.fixtures.sources.objectivec.ObjectiveCLibraryElement
 import dev.gradleplugins.test.fixtures.sources.objectivec.ObjectiveCSourceElement
-import dev.nokee.platform.jni.fixtures.elements.JavaGreeterJUnitTest
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
 
 import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
@@ -17,7 +16,6 @@ class JavaJniObjectiveCGreeterLib extends JniLibraryElement {
 	final JavaSourceElement jvmBindings
 	final JavaSourceElement jvmImplementation
 	final ObjectiveCGreeter nativeImplementation
-	final JavaSourceElement junitTest
 
 	@Override
 	SourceElement getJvmSources() {
@@ -38,8 +36,6 @@ class JavaJniObjectiveCGreeterLib extends JniLibraryElement {
 		jvmImplementation = new JavaNativeLoader(javaPackage);
 
 		nativeImplementation = new ObjectiveCGreeter()
-
-		junitTest = new JavaGreeterJUnitTest()
 	}
 
 	JniLibraryElement withoutNativeImplementation() {
@@ -56,25 +52,11 @@ class JavaJniObjectiveCGreeterLib extends JniLibraryElement {
 		}
 	}
 
-	JniLibraryElement withJUnitTest() {
-		return new JniLibraryElement() {
-			@Override
-			SourceElement getJvmSources() {
-				return ofElements(JavaJniObjectiveCGreeterLib.this.jvmBindings, JavaJniObjectiveCGreeterLib.this.jvmImplementation, junitTest)
-			}
-
-			@Override
-			NativeSourceElement getNativeSources() {
-				return ofNativeElements(nativeBindings, nativeImplementation)
-			}
-		}
-	}
-
 	JniLibraryElement withFoundationFrameworkDependency() {
 		return new JniLibraryElement() {
 			@Override
 			SourceElement getJvmSources() {
-				return ofElements(JavaJniObjectiveCGreeterLib.this.jvmBindings, JavaJniObjectiveCGreeterLib.this.jvmImplementation, junitTest)
+				return ofElements(JavaJniObjectiveCGreeterLib.this.jvmBindings, JavaJniObjectiveCGreeterLib.this.jvmImplementation, newJUnitTestElement())
 			}
 
 			@Override

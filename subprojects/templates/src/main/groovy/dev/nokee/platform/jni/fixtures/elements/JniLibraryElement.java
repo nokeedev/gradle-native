@@ -12,6 +12,14 @@ public abstract class JniLibraryElement extends SourceElement {
 
 	public abstract NativeSourceElement getNativeSources();
 
+	public TestableJniLibraryElement withJUnitTest() {
+		return new TestableJniLibraryElement(this, newJUnitTestElement());
+	}
+
+	protected SourceElement newJUnitTestElement() {
+		return new JavaGreeterJUnitTest();
+	}
+
 	@Override
 	public List<SourceFile> getFiles() {
 		return ofElements(getJvmSources(), getNativeSources()).getFiles();
