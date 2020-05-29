@@ -1,5 +1,5 @@
 = Incompatible plugins
-:jbake-type: reference_chapter
+:jbake-type: manual_chapter
 :jbake-tags: user manual, gradle plugin
 :imagesdir: ./img
 :jbake-description: Learn about plugins incompatibility with Nokee within the same project.
