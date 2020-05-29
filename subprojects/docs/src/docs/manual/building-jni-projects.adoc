@@ -150,10 +150,10 @@ C headers:: `src/main/headers`
 The target machines represent machines the JNI shared library should build.
 There are two important aspects:
 
-- The link:../dsl/dev.nokee.platform.nativebase.TargetMachine.html[target machine], which combine the link:../dsl/dev.nokee.platform.nativebase.OperatingSystemFamily.html[operating system family] and link:../dsl/dev.nokee.platform.nativebase.MachineArchitecture.html[machine architecture]; and
+- The link:../dsl/dev.nokee.runtime.nativebase.TargetMachine.html[target machine], which combine the link:../dsl/dev.nokee.runtime.nativebase.OperatingSystemFamily.html[operating system family] and link:../dsl/dev.nokee.runtime.nativebase.MachineArchitecture.html[machine architecture]; and
 - The link:../dsl/dev.nokee.platform.nativebase.TargetMachineFactory.html[target machine factory] provides a fluent API for building target machines.
 
-The factory is registered as a project extension named `machines` to allow easy configuration:
+The factory is accessible as an extension of the library component named `machines` to allow easy configuration:
 
 .Configuring JNI target machines
 ====
