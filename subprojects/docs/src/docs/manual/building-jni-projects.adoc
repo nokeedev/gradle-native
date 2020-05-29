@@ -228,9 +228,9 @@ For this reason, there aren't any native dependencies transitively exposed to th
 The plugin package all executable native artifacts from the dependencies inside a JAR file.
 It exposes the resulting JAR file to the consumers as runtime dependencies.
 
-IMPORTANT: For JVM `runtimeOnly` and `compileOnly` dependency bucket, use the dependency configuration block on the `Project` instance.
+NOTE: The JVM `compileOnly` and `runtimeOnly` dependency buckets are available via `jvmCompileOnly` and `jvmRuntimeOnly` respectively.
 
-IMPORTANT: At the moment, there is no `compileOnly`, `linkOnly`, and `runtimeOnly` dependency bucket for native dependencies.
+NOTE: The `nativeCompileOnly`, `nativeLinkOnly`, and `nativeRuntimeOnly` dependency buckets are available for declaring native dependencies for each step of the native build process.
 
 NOTE: Head over to <<sec:building-jni-appendix-project-dependencies-vs-extension-dependencies, the appendix>> to learn about the difference between the extension and project dependency configuration block.
 
