@@ -85,6 +85,9 @@ documentation {
 		'jni-library-with-junit-test' {
 			template = new JavaJniCppGreeterLib('jni-library-with-junit-test').withJUnitTest()
 		}
+		'jni-library-with-pre-built-binaries' {
+			template = new JavaJniCppGreeterLib('jni-library-with-pre-built-binaries')
+		}
 		'jni-library-with-target-machines' {
 			template = new JavaJniCppGreeterLib('jni-library-with-target-machines')
 		}

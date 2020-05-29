@@ -1,0 +1,98 @@
+= Using Pre-built Binaries
+:jbake-summary: Use pre-built binaries in a JNI library.
+:jbake-type: sample_chapter
+:jbake-tags: sample, jni, library, native, jvm, c++, gradle, pre-built binaries
+:jbake-category: Java Native Interface (JNI)
+:jbake-description: See how to use pre-built binaries in a Java Native Interface (JNI) library using the Gradle Nokee plugins.
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how to use pre-built binaries in a Java Native Interface (JNI) library.
+There are several possible use cases.
+This sample will cover the most common for Java developers.
+It uses a pre-built shared library, say from a continuous integration environment, as a replacement for building the native shared library from source.
+
+In this sample, the JNI library's implementation languages are Java and {cpp}; however, this applies to other JVM and native languages as well.
+
+The plugin sources the native libraries for the JNI JAR from the <<../../manual/building-jni-projects.adoc#sec:building-jni-variant-native-runtime-files, native runtime file collection>>.
+The sample configures the file collection to include only the pre-built shared library if they are present.
+If the pre-built binaries are absent, the plugin will build the shared library from the source.
+Given the following build script:
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::groovy-dsl/build.gradle
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/build.gradle.kts
+----
+=====
+====
+<1> We can use `sharedLibrary.buildable` as an alternate condition.
+<2> We wrap the logging inside a callable to only log when we will build the binary.
+<3> The `CallableLogger` ensure the log isn't displayed more than once.
+
+By default, the project will build the shared library from the source:
+
+[listing.terminal]
+----
+$ ./gradlew assemble
+Building from the source.
+
+BUILD SUCCESSFUL
+4 actionable tasks: 4 executed
+----
+
+We can validate the shared library was built as expected:
+
+[listing.terminal,only-if="macos"]
+----
+$ tree ./build/libs
+./build/libs
+├── jni-library-with-pre-built-binaries.jar
+└── main
+    └── libjni-library-with-pre-built-binaries.dylib
+
+1 directory, 2 files
+----
+
+Now, we can trigger the pre-built scenario.
+First, we copy the library we just built to the expected pre-built location.
+Then, we clean the project to remove any intermediate files.
+Finally, we launch the second build:
+
+[listing.terminal]
+----
+$ mv build/libs/main/* pre-built-library/
+$ ./gradlew clean
+
+BUILD SUCCESSFUL
+1 actionable task: 1 executed
+$ ./gradlew assemble
+Using the pre-build library.
+
+BUILD SUCCESSFUL
+2 actionable tasks: 2 executed
+$ tree ./build/libs
+./build/libs
+└── jni-library-with-pre-built-binaries.jar
+
+0 directories, 1 file
+----
+
+This second build used the pre-built shared library instead of building it from the source.
+As we reconfigured the native runtime file collection to include only the pre-built shared library, Gradle didn't build the library from the source.
+It would also be possible to write a custom task that downloads the pre-built binary from a known remote location.
+The download task would be part of the task graph by adding the output of the custom task to the file collection.
+It removes any manual steps required to source the pre-built binary.
+
+For more information, see <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin>> and <<../../manual/cpp-language-plugin.adoc#,{cpp} Language Plugin>> reference chapters.

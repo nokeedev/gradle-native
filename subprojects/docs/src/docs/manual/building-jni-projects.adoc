@@ -309,6 +309,22 @@ The following shows the class hierarchy of the JNI variant binary types:
 
 image::img/building-jni-projects-binary-class-diagram.png[Class diagram for JNI binaries]
 
+[[sec:building-jni-variant-native-runtime-files]]
+=== Native runtime files
+
+The native runtime file collection contains all the files required for the runtime of a specific variant.
+The plugin adds the files to the JNI JAR at the <<sec:building-jni-variant-resource-path,resource path location>>.
+Typically, it contains the shared library built for the variant and its runtime dependencies.
+It is possible to add files to the collection.
+Those files can be any file required at runtime that is ad-hoc runtime binaries or configuration data files.
+
+For more complex use cases, removing the default values disconnects the native compilation from the generation of the JNI JAR file.
+A particular useful application is the link:../samples/jni-library-with-pre-built-binaries[inclusion of pre-built binaries on host system not configured for native compilation].
+
+TIP: The native runtime file collection is task dependency aware.
+When we add the output of a task to the collection through a provider, Gradle will automatically wire the task producing the output to the task consuming it.
+The producer would typically be the task generating the JNI JAR. However, any consuming task of the native runtime file collection would benefit from such automatic wiring.
+
 [[sec:building-jni-binaries]]
 == JNI variant binaries
 
