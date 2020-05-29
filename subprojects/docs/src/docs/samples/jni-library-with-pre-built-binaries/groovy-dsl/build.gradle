@@ -8,7 +8,7 @@ import dev.nokee.runtime.nativebase.OperatingSystemFamily
 
 import java.util.concurrent.Callable
 
-def getLibraryFileNameFor(OperatingSystemFamily osFamily) {
+String getLibraryFileNameFor(OperatingSystemFamily osFamily) {
 	if (osFamily.windows) {
 		return "${project.name}.dll"
 	} else if (osFamily.linux) {

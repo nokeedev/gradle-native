@@ -95,4 +95,4 @@ It would also be possible to write a custom task that downloads the pre-built bi
 The download task would be part of the task graph by adding the output of the custom task to the file collection.
 It removes any manual steps required to source the pre-built binary.
 
-For more information, see <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin>> and <<../../manual/cpp-language-plugin.adoc#,{cpp} Language Plugin>> reference chapters.
+For more information, see <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin>>, <<../../manual/cpp-language-plugin.adoc#,{cpp} Language Plugin>>, and <<../../manual/building-jni-projects.adoc#,Building JNI Projects>> chapters.
