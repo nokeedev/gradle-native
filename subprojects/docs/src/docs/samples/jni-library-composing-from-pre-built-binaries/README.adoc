@@ -1,0 +1,66 @@
+= Composing a JNI Library from Pre-built Binaries
+:jbake-summary: Compose JNI library from pre-built binaries.
+:jbake-type: sample_chapter
+:jbake-tags: sample, jni, library, native, jvm, c++, gradle, pre-built binaries
+:jbake-category: Java Native Interface (JNI)
+:jbake-description: See how to compose a Java Native Interface (JNI) library from pre-built binaries using the Gradle Nokee plugins.
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how to compose a Java Native Interface (JNI) library from pre-built binaries.
+It may happen that we don't have source code access and all we have are pre-built binaries of the native component.
+This sample will show how to use the pre-built binaries with the JNI Library Plugin to compose a JNI library.
+
+CAUTION: The pre-built binaries offered with this sample may not be compatible on your system which could lead to runtime failures.
+
+In this sample, the JNI library's implementation languages are Java; however, this applies to other JVM as well.
+
+// TODO From this point on
+The plugin sources the native libraries for the JNI JAR from the <<../../manual/building-jni-projects.adoc#sec:building-jni-variant-native-runtime-files, native runtime file collection>>.
+The sample configures the file collection to include the pre-built shared library for each variant:
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::groovy-dsl/build.gradle
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/build.gradle.kts
+----
+=====
+====
+
+The plugin adds the pre-built binaries to the `java.library.path` during testing automatically:
+
+[listing.terminal]
+----
+$ ./gradlew test
+
+BUILD SUCCESSFUL
+3 actionable tasks: 3 executed
+----
+
+The plugin also adds the pre-built binaries to the JNI JAR just as it would when building a JNI shared library from the source:
+
+[listing.terminal]
+----
+$ ./gradlew assemble
+
+BUILD SUCCESSFUL
+3 actionable tasks: 2 executed, 1 up-to-date
+$ jar xvf ./build/libs/jni-library-composing-from-pre-built-binaries-macos.jar
+  created: META-INF/
+ inflated: META-INF/MANIFEST.MF
+  created: macos/
+ inflated: macos/libjni-greeter.dylib
+----
+
+For more information, see <<../../manual/jni-library-plugin.adoc#,JNI Library Plugin>> and <<../../manual/building-jni-projects.adoc#,Building JNI Projects>> chapters.

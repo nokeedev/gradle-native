@@ -97,6 +97,10 @@ documentation {
 		'jni-library-composing' {
 			template = new JavaJniCppGreeterLib('jni-library-composing').withImplementationAsSubprojects()
 		}
+		'jni-library-composing-from-pre-built-binaries' {
+			// The project name for the template needs to align with the pre-built binary name
+			template = new JavaJniCppGreeterLib('jni-greeter').withoutNativeImplementation().withJUnitTest()
+		}
 		'publish-jni-library' {
 			template = new JavaJniCppGreeterLib('publish-jni-library')
 		}

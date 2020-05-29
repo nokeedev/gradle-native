@@ -1,0 +1,33 @@
+plugins {
+	id 'java'
+	id 'dev.nokee.jni-library'
+}
+
+import dev.nokee.runtime.nativebase.OperatingSystemFamily
+
+String getLibraryFilePathFor(OperatingSystemFamily osFamily) {
+	if (osFamily.windows) {
+		return "pre-built-libraries/windows/jni-greeter.dll"
+	} else if (osFamily.linux) {
+		return "pre-built-libraries/linux/libjni-greeter.so"
+	} else if (osFamily.macOS) {
+		return "pre-built-libraries/macos/libjni-greeter.dylib"
+	}
+	throw new GradleException("Unknown operating system family '${osFamily}'.")
+}
+
+library {
+	targetMachines = [machines.windows.x86_64, machines.linux.x86_64, machines.macOS.x86_64]
+	variants.configureEach {
+		def prebuiltLibraryFile = file(getLibraryFilePathFor(targetMachine.operatingSystemFamily))
+		nativeRuntimeFiles.setFrom(prebuiltLibraryFile)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	testImplementation 'junit:junit:4.12'
+}
