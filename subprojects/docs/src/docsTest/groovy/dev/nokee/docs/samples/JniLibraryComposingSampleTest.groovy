@@ -1,5 +1,8 @@
 package dev.nokee.docs.samples
 
 class JniLibraryComposingSampleTest extends WellBehavingSampleTest {
-	final String sampleName = 'jni-library-composing'
+	@Override
+	protected String getSampleName() {
+		return 'jni-library-composing'
+	}
 }

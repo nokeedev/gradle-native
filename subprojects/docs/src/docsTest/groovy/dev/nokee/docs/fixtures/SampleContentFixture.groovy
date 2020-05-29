@@ -12,6 +12,7 @@ import static org.asciidoctor.OptionsBuilder.options
 class SampleContentFixture {
 	private final File contentFile
 	private final String sampleName
+	private Document document
 
 	SampleContentFixture(String sampleName) {
 		this.sampleName = sampleName
@@ -19,16 +20,22 @@ class SampleContentFixture {
 		this.contentFile = new File(contentDirectory, "${sampleName}/index.adoc")
 	}
 
+	private Document loadDocument() {
+		if (document == null) {
+			Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+			document = asciidoctor.loadFile(contentFile, options().asMap())
+		}
+		return document
+	}
+
 	TestFile getGroovyDslSample() {
-		Asciidoctor asciidoctor = Asciidoctor.Factory.create()
-		Document document = asciidoctor.loadFile(contentFile, options().asMap())
+		Document document = loadDocument()
 //		processAsciidocSampleBlocks(document)
 		return TestFile.of(new File("${System.getProperty('sampleArchiveDirectory')}/${document.attributes.get('jbake-archivebasename')}-${document.attributes.get('jbake-version')}-groovy-dsl.zip")).assertExists()
 	}
 
 	TestFile getKotlinDslSample() {
-		Asciidoctor asciidoctor = Asciidoctor.Factory.create()
-		Document document = asciidoctor.loadFile(contentFile, options().asMap())
+		Document document = loadDocument()
 //		processAsciidocSampleBlocks(document)
 		return TestFile.of(new File("${System.getProperty('sampleArchiveDirectory')}/${document.attributes.get('jbake-archivebasename')}-${document.attributes.get('jbake-version')}-kotlin-dsl.zip")).assertExists()
 	}
@@ -41,20 +48,17 @@ class SampleContentFixture {
 	}
 
 	List<Command> getCommands() {
-		Asciidoctor asciidoctor = Asciidoctor.Factory.create()
-		Document document = asciidoctor.loadFile(contentFile, options().asMap())
+		Document document = loadDocument()
 		return new CommandDiscovery().extractAsciidocCommands(document)
 	}
 
 	String getCategory() {
-		Asciidoctor asciidoctor = Asciidoctor.Factory.create()
-		Document document = asciidoctor.loadFile(contentFile, options().asMap())
+		Document document = loadDocument()
 		return (String)document.attributes.get('jbake-category')
 	}
 
 	String getSummary() {
-		Asciidoctor asciidoctor = Asciidoctor.Factory.create()
-		Document document = asciidoctor.loadFile(contentFile, options().asMap())
+		Document document = loadDocument()
 		return (String)document.attributes.get('jbake-summary')
 	}
 

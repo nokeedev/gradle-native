@@ -25,6 +25,7 @@ import org.gradle.internal.logging.ConsoleRenderer
 import org.gradle.internal.os.OperatingSystem
 import org.junit.Rule
 import org.junit.experimental.categories.Category
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -39,6 +40,8 @@ import static org.junit.Assume.assumeTrue
 abstract class WellBehavingSampleTest extends Specification {
 	@Rule
 	final TestNameTestDirectoryProvider temporaryFolder = new TestNameTestDirectoryProvider(getClass())
+
+	@Shared def fixture = new SampleContentFixture(sampleName)
 
 	protected GradleExecuter configureLocalPluginResolution(GradleExecuter executer) {
 		def initScriptFile = temporaryFolder.file('repo.init.gradle')
@@ -84,7 +87,6 @@ abstract class WellBehavingSampleTest extends Specification {
 
 	@Unroll
 	def "ensure root project name is configured for the sample"(dsl) {
-		def fixture = new SampleContentFixture(sampleName)
 		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
 
 		expect:
@@ -96,15 +98,11 @@ abstract class WellBehavingSampleTest extends Specification {
 	}
 
 	def "ensure sample has a category"() {
-		def fixture = new SampleContentFixture(sampleName)
-
 		expect:
 		fixture.category != null
 	}
 
 	def "ensure sample has a valid summary"() {
-		def fixture = new SampleContentFixture(sampleName)
-
 		expect:
 		fixture.summary != null
 		fixture.summary.endsWith('.')
@@ -115,8 +113,6 @@ abstract class WellBehavingSampleTest extends Specification {
 	 * It's better to remove the information to avoid creating false or misleading expectation on the performance.
 	 */
 	def "ensure gradle commands does not have any timing values in build result"() {
-		def fixture = new SampleContentFixture(sampleName)
-
 		// TODO: Reports all the error at once instead of failing on the first one
 		def commands = wrap(fixture.commands).findAll { it instanceof GradleWrapperCommand } as List<GradleWrapperCommand>
 		assumeThat("Gradle commands are present", commands.size(), greaterThan(0))
@@ -127,7 +123,6 @@ abstract class WellBehavingSampleTest extends Specification {
 	@Category(Baked)
 	def "has the twitter player meta data"() {
 		expect:
-		def fixture = new SampleContentFixture(sampleName)
 		def it = fixture.bakedFile
 		def twitterImages = it.findAll(HtmlTag.META).findAll { it.twitterImage }
 		assert twitterImages.size() == 1, "${it.uri} does not have the right meta twitter image tag count"
@@ -146,7 +141,6 @@ abstract class WellBehavingSampleTest extends Specification {
 
 	@Unroll
 	def "can run './gradlew #taskName' successfully"(taskName, dsl) {
-		def fixture = new SampleContentFixture(sampleName)
 		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
 
 		GradleExecuter executer = configureLocalPluginResolution(new GradleExecuterFactory().wrapper(TestFile.of(temporaryFolder.testDirectory)))
@@ -169,7 +163,6 @@ abstract class WellBehavingSampleTest extends Specification {
 		// TODO: Allow better way to select a toolchain
 		assumeTrue(toolChain.meets(toolChainRequirement));
 
-		def fixture = new SampleContentFixture(sampleName)
 		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
 
 		def c = wrapAndGetExecutable(fixture.getCommands())

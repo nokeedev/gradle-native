@@ -1,5 +1,8 @@
 package dev.nokee.docs.samples
 
 class JavaCJniLibrarySampleTest extends WellBehavingSampleTest {
-	final String sampleName = 'java-c-jni-library'
+	@Override
+	protected String getSampleName() {
+		return 'java-c-jni-library'
+	}
 }

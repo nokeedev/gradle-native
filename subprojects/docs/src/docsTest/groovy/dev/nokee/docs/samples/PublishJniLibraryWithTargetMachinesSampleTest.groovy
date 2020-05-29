@@ -1,5 +1,8 @@
 package dev.nokee.docs.samples
 
 class PublishJniLibraryWithTargetMachinesSampleTest extends WellBehavingSampleTest {
-	final String sampleName = 'publish-jni-library-with-target-machines'
+	@Override
+	protected String getSampleName() {
+		return 'publish-jni-library-with-target-machines'
+	}
 }
