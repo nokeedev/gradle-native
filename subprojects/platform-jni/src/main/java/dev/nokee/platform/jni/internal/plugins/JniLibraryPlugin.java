@@ -548,7 +548,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		project.getConfigurations().getByName("implementation").extendsFrom(library.getJvmImplementationDependencies());
 
 		project.getTasks().named("test", Test.class, task -> {
-			Provider<List<FileCollection>> files = getProviders().provider(() -> library.getVariantCollection().get().stream().map(it -> it.getNativeRuntimeFiles()).collect(Collectors.toList()));
+			Provider<List<? extends FileCollection>> files = library.getVariants().map(JniLibrary::getNativeRuntimeFiles);
 			task.dependsOn(files);
 
 			// TODO: notify when no native library exists
