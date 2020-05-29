@@ -15,8 +15,8 @@ summary: DirectoryCount ', ' FileCount;
 fragment PATH_SEPARATOR: '/';
 fragment LOWERCASE: [a-z];
 fragment UPPERCASE: [A-Z];
-fragment DIRECTORIES: 'directories';
-fragment FILES: 'files';
+fragment DIRECTORIES: 'directories'|'directory';
+fragment FILES: 'files'|'file';
 fragment DIGIT: [0-9];
 
 PathElement: (LOWERCASE | UPPERCASE | DIGIT | '_' | '.' | '-')+;
