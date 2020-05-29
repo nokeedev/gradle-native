@@ -1,5 +1,5 @@
-= Compose a JNI Library
-:jbake-summary: Compose JNI library from other projects.
+= Compose a JNI Library from the Source
+:jbake-summary: Compose a JNI librare from the source built by other projects.
 :jbake-type: sample_chapter
 :jbake-tags: sample, jni, library, native, c++, dependency management, java, gradle
 :jbake-category: Java Native Interface (JNI)
@@ -25,7 +25,7 @@ $ ./gradlew projects
 Root project - The JNI library as the consumer would expect.
 ------------------------------------------------------------
 
-Root project 'jni-library-composing' - The JNI library as the consumer would expect.
+Root project 'jni-library-composing-from-source' - The JNI library as the consumer would expect.
 +--- Project ':cpp-greeter' - The C++ implementation, has no knowledge of the JVM.
 +--- Project ':cpp-jni-greeter' - The JNI shared library, also known as the native bindings.
 +--- Project ':java-jni-greeter' - The JNI classes, also known as the JVM bindings.
@@ -52,7 +52,7 @@ It has no dependency or knowledge of the JVM.
 .build.gradle
 [source,groovy]
 ----
-include::{includedir}/groovy-dsl/cpp-greeter/build.gradle[]
+include::groovy-dsl/cpp-greeter/build.gradle[]
 ----
 =====
 [.multi-language-sample]
@@ -60,7 +60,7 @@ include::{includedir}/groovy-dsl/cpp-greeter/build.gradle[]
 .build.gradle.kts
 [source,kotlin]
 ----
-include::{includedir}/kotlin-dsl/cpp-greeter/build.gradle.kts[]
+include::kotlin-dsl/cpp-greeter/build.gradle.kts[]
 ----
 =====
 ====
@@ -82,7 +82,7 @@ We are using the link:{gradle-user-manual}/java_library_plugin.html[Gradle Java 
 .build.gradle
 [source,groovy]
 ----
-include::{includedir}/groovy-dsl/java-jni-greeter/build.gradle[]
+include::groovy-dsl/java-jni-greeter/build.gradle[]
 ----
 =====
 [.multi-language-sample]
@@ -90,7 +90,7 @@ include::{includedir}/groovy-dsl/java-jni-greeter/build.gradle[]
 .build.gradle.kts
 [source,kotlin]
 ----
-include::{includedir}/kotlin-dsl/java-jni-greeter/build.gradle.kts[]
+include::kotlin-dsl/java-jni-greeter/build.gradle.kts[]
 ----
 =====
 ====
@@ -109,7 +109,7 @@ We are using the link:{gradle-user-manual}/cpp_library_plugin.html[Gradle {cpp} 
 .build.gradle
 [source,groovy]
 ----
-include::{includedir}/groovy-dsl/cpp-jni-greeter/build.gradle[]
+include::groovy-dsl/cpp-jni-greeter/build.gradle[]
 ----
 =====
 [.multi-language-sample]
@@ -117,7 +117,7 @@ include::{includedir}/groovy-dsl/cpp-jni-greeter/build.gradle[]
 .build.gradle.kts
 [source,kotlin]
 ----
-include::{includedir}/kotlin-dsl/cpp-jni-greeter/build.gradle.kts[]
+include::kotlin-dsl/cpp-jni-greeter/build.gradle.kts[]
 ----
 =====
 ====
@@ -137,7 +137,7 @@ It could be any API or implementation dependencies.
 .build.gradle
 [source,groovy]
 ----
-include::{includedir}/groovy-dsl/java-loader/build.gradle[]
+include::groovy-dsl/java-loader/build.gradle[]
 ----
 =====
 [.multi-language-sample]
@@ -145,7 +145,7 @@ include::{includedir}/groovy-dsl/java-loader/build.gradle[]
 .build.gradle.kts
 [source,kotlin]
 ----
-include::{includedir}/kotlin-dsl/java-loader/build.gradle.kts[]
+include::kotlin-dsl/java-loader/build.gradle.kts[]
 ----
 =====
 ====
@@ -166,7 +166,7 @@ All the native runtime dependencies will be packaged inside the generated JAR:
 
 [listing.terminal,only-if='macos']
 ----
-$ jar tf ./build/libs/jni-library-composing.jar
+$ jar tf ./build/libs/jni-library-composing-from-source.jar
 META-INF/
 META-INF/MANIFEST.MF
 libcpp-jni-greeter.dylib
@@ -185,7 +185,7 @@ Variant apiElements
 Description = API elements for main.
 
 Capabilities
-    - :jni-library-composing:unspecified (default capability)
+    - :jni-library-composing-from-source:unspecified (default capability)
 Attributes
     - org.gradle.libraryelements = jar
     - org.gradle.usage           = java-api
@@ -196,13 +196,13 @@ Variant runtimeElements
 Description = Elements of runtime for main.
 
 Capabilities
-    - :jni-library-composing:unspecified (default capability)
+    - :jni-library-composing-from-source:unspecified (default capability)
 Attributes
     - org.gradle.libraryelements = jar
     - org.gradle.usage           = java-runtime
 
 Artifacts
-    - build/libs/jni-library-composing.jar (artifactType = jar)
+    - build/libs/jni-library-composing-from-source.jar (artifactType = jar)
 
 
 BUILD SUCCESSFUL

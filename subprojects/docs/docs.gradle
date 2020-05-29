@@ -94,8 +94,8 @@ documentation {
 		'jvm-application-with-jni-library' {
 			template = new GreeterAppWithJniLibrary('jvm-application-with-jni-library').withLibraryAsSubproject('jni-library')
 		}
-		'jni-library-composing' {
-			template = new JavaJniCppGreeterLib('jni-library-composing').withImplementationAsSubprojects()
+		'jni-library-composing-from-source' {
+			template = new JavaJniCppGreeterLib('jni-library-composing-from-source').withImplementationAsSubprojects()
 		}
 		'jni-library-composing-from-pre-built-binaries' {
 			// The project name for the template needs to align with the pre-built binary name

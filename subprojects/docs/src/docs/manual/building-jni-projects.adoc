@@ -43,7 +43,7 @@ It has no opinion on the <<terminology.adoc#sec:language,implementation language
 The implementation language refers to what language will be complied to form our project's artifacts.
 We will need to choose the corresponding <<plugin-references.adoc#sec:plugin-reference-native-languages,language plugins>> to apply as well.
 
-NOTE: Applying language plugins is not required when link:../samples/jni-library-composing[composing a JNI library from various sources].
+NOTE: Applying language plugins is not required when link:../samples/jni-library-composing-from-source[composing a JNI library from various sources].
 The JNI components could be coming from different build systems that are orchestrated by Gradle.
 Please link:https://github.com/nokeedev/gradle-native/issues/35[suggest and vote for the external build system wrapper] that would be the most beneficial for you.
 

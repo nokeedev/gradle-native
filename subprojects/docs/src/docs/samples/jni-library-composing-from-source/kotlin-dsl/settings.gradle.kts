@@ -1,4 +1,4 @@
-rootProject.name = "jni-library-composing"
+rootProject.name = "jni-library-composing-from-source"
 
 include("java-jni-greeter")
 include("cpp-jni-greeter")
