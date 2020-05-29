@@ -60,6 +60,22 @@ pluginManagement {
 =====
 ====
 
+== Native plugins
+
+Support for application and library implemented in {cpp}, C, Objective-C, Objective-{cpp} and Swift.
+
+== Swift support for JNI library
+
+== Xcode IDE support for all new plugins
+
+== New APIs for JNI library
+
+Native runtime file collection allows such use case like pre-built binary support.
+
+== iOS application/library in ObjC/Swift
+
+Dependencies between application and libraries.
+
 [[sec:reporting-problems]]
 == Reporting Problems
 If you find a problem with any of the plugins, please file a bug on https://github.com/nokeedev/gradle-native[GitHub Issues] adhering to our issue guidelines.
