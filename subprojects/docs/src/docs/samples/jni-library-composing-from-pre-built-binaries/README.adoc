@@ -25,7 +25,7 @@ The sample configures the file collection to include the pre-built shared librar
 .build.gradle
 [source,groovy]
 ----
-include::groovy-dsl/build.gradle
+include::groovy-dsl/build.gradle[]
 ----
 =====
 [.multi-language-sample]
@@ -33,7 +33,7 @@ include::groovy-dsl/build.gradle
 .build.gradle.kts
 [source,kotlin]
 ----
-include::kotlin-dsl/build.gradle.kts
+include::kotlin-dsl/build.gradle.kts[]
 ----
 =====
 ====
