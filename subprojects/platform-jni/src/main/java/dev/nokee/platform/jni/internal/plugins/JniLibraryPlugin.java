@@ -366,7 +366,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 	//  Some of the concept here should be shared with the incompatible plugin usage (and vice-versa).
 	private static class MissingFileDiagnostic {
 		private boolean hasAlreadyRan = false;
-		private List<File> missingFiles;
+		private final List<File> missingFiles = new ArrayList<>();
 
 		public void logTo(Logger logger) {
 			if (!missingFiles.isEmpty()) {
@@ -389,7 +389,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		}
 
 		public void missingFiles(List<File> missingFiles) {
-			this.missingFiles = missingFiles;
+			this.missingFiles.addAll(missingFiles);
 		}
 
 		public void run(Consumer<MissingFileDiagnostic> action) {
