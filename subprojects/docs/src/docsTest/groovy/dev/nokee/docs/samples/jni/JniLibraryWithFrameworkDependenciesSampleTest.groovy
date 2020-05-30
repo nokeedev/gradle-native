@@ -1,6 +1,7 @@
-package dev.nokee.docs.samples
+package dev.nokee.docs.samples.jni
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
+import dev.nokee.docs.samples.WellBehavingSampleTest
 import org.apache.commons.lang3.SystemUtils
 import org.junit.Assume
 

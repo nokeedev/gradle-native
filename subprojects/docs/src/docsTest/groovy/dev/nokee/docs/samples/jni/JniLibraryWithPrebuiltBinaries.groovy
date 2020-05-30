@@ -1,4 +1,6 @@
-package dev.nokee.docs.samples
+package dev.nokee.docs.samples.jni
+
+import dev.nokee.docs.samples.WellBehavingSampleTest
 
 class JniLibraryWithPrebuiltBinaries extends WellBehavingSampleTest {
 	@Override
