@@ -406,32 +406,8 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			task.doFirst(new Action<Task>() {
 				@Override
 				public void execute(Task task) {
+					diagnostic.run(warnAboutMissingFiles(task.getInputs().getSourceFiles()));
 					diagnostic.logTo(task.getLogger());
-				}
-			});
-			task.from(library.map(new Transformer<Iterable<? extends Object>, JniLibraryInternal>() {
-				@Override
-				public Iterable<? extends Object> transform(JniLibraryInternal it) {
-					// TODO: The following is debt that we accumulated from gradle/gradle.
-					//  The real condition to check is, do we know of a way to build the target machine on the current host.
-					//  If yes, we crash the build by attaching the native file which will tell the user how to install the right tools.
-					//  If no, we can "silently" ignore the build by saying you can't build on this machine.
-					//  One consideration is to deactivate publishing so we don't publish a half built jar.
-					//  TL;DR:
-					//    - Single variant where no toolchain could ever build the binary (unavailable) => print a warning
-					//    - Single variant where no toolchain is found to build the binary (unbuildable) => fail
-					//    - Single variant where toolchain is found to build the binary (buildable) => build (and hopefully succeed)
-					if (task.getName().equals("jar")) {
-						if (it.getTargetMachine().getOperatingSystemFamily().equals(DefaultOperatingSystemFamily.HOST)) {
-							diagnostic.run(warnAboutMissingFiles(it.getNativeRuntimeFiles()));
-							return it.getNativeRuntimeFiles();
-						} else {
-							task.getLogger().warn("'main' component in project '" + task.getProject().getPath() + "' cannot build on this machine.");
-							return emptyList();
-						}
-					}
-					diagnostic.run(warnAboutMissingFiles(it.getNativeRuntimeFiles()));
-					return it.getNativeRuntimeFiles();
 				}
 
 				private Consumer<MissingFileDiagnostic> warnAboutMissingFiles(Iterable<File> files) {
@@ -446,6 +422,26 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 						diagnostic.missingFiles(builder.build());
 					};
 				}
+			});
+			task.from(library.map(it -> {
+				// TODO: The following is debt that we accumulated from gradle/gradle.
+				//  The real condition to check is, do we know of a way to build the target machine on the current host.
+				//  If yes, we crash the build by attaching the native file which will tell the user how to install the right tools.
+				//  If no, we can "silently" ignore the build by saying you can't build on this machine.
+				//  One consideration is to deactivate publishing so we don't publish a half built jar.
+				//  TL;DR:
+				//    - Single variant where no toolchain could ever build the binary (unavailable) => print a warning
+				//    - Single variant where no toolchain is found to build the binary (unbuildable) => fail
+				//    - Single variant where toolchain is found to build the binary (buildable) => build (and hopefully succeed)
+				if (task.getName().equals("jar")) {
+					if (it.getTargetMachine().getOperatingSystemFamily().equals(DefaultOperatingSystemFamily.HOST)) {
+						return it.getNativeRuntimeFiles();
+					} else {
+						task.getLogger().warn("'main' component in project '" + task.getProject().getPath() + "' cannot build on this machine.");
+						return emptyList();
+					}
+				}
+				return it.getNativeRuntimeFiles();
 			}), spec -> {
 				// Don't resolve the resourcePath now as the JVM Kotlin plugin (as of 1.3.72) was resolving the `jar` task early.
 				spec.into(library.map(JniLibraryInternal::getResourcePath));
