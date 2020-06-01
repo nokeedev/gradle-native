@@ -73,7 +73,6 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
 import static java.util.Collections.emptyList;
@@ -255,7 +254,6 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 					getTasks().register(names.getTaskName(LifecycleBasePlugin.ASSEMBLE_TASK_NAME), task -> {
 						task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 						task.setDescription(String.format("Assembles the '%s' outputs of this project.", library.getName()));
-						task.dependsOn(library.map(it -> it.getSharedLibrary().getLinkTask()));
 						task.dependsOn(library.map(it -> it.getJar().getJarTask()));
 						task.dependsOn(jvmJarBinary.map(it -> ImmutableList.of(it.getJarTask())).orElse(ImmutableList.of()));
 					});

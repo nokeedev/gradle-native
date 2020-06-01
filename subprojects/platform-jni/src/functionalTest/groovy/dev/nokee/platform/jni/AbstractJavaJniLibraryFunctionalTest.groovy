@@ -83,6 +83,34 @@ abstract class AbstractJavaJniLibraryFunctionalTest extends AbstractJniLibraryFu
 		jar("build/libs/jni-greeter.jar").hasDescendants(*expectedClasses, 'foo.txt')
 	}
 
+	def "can detach native compilation from assemble by modifying native runtime files"() {
+		given:
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+
+		and:
+		file('src/foo.txt') << 'foo'
+		buildFile << '''
+			library {
+				variants.configureEach {
+					nativeRuntimeFiles.setFrom('src/foo.txt')
+				}
+			}
+		'''
+
+		and: 'eagerly realize everything'
+		buildFile << '''
+			afterEvaluate {
+				library.variants.get()
+			}
+		'''
+
+		expect:
+		succeeds('assemble')
+		result.assertTasksExecuted(':assemble', ':classes', ':compileJava', ':jar', ':processResources')
+		jar("build/libs/jni-greeter.jar").hasDescendants(*expectedClasses, 'foo.txt')
+	}
+
 	protected List<String> getExpectedClasses() {
 		return ['com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class']
 	}

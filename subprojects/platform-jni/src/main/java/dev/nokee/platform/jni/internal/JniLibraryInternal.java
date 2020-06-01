@@ -10,10 +10,10 @@ import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryNativeDependencies;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
+import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
+import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
@@ -32,8 +32,6 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
 import java.util.List;
-
-import static dev.nokee.platform.base.internal.TaskUtils.dependsOn;
 
 public abstract class JniLibraryInternal implements JniLibrary, Named {
 	private final NamingScheme names;
@@ -107,7 +105,6 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 		getNativeRuntimeFiles().from(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
 		this.sharedLibraryBinary = sharedLibraryBinary;
 		binaryCollection.add(sharedLibraryBinary);
-		getAssembleTask().configure(dependsOn(sharedLibraryBinary.getLinkTask()));
 	}
 
 	public void registerJniJarBinary() {
@@ -135,12 +132,10 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 	public void addJniJarBinary(AbstractJarBinary jniJarBinary) {
 		jarBinary = jniJarBinary;
 		binaryCollection.add(jniJarBinary);
-		getAssembleTask().configure(dependsOn(jniJarBinary.getJarTask()));
 	}
 
 	public void addJvmJarBinary(DefaultJvmJarBinary jvmJarBinary) {
 		binaryCollection.add(jvmJarBinary);
-		getAssembleTask().configure(dependsOn(jvmJarBinary.getJarTask()));
 	}
 
 	public DefaultTargetMachine getTargetMachine() {
