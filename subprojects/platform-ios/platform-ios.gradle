@@ -42,17 +42,9 @@ gradlePlugin {
 			id = 'dev.nokee.objective-c-ios-application'
 			implementationClass = 'dev.nokee.platform.ios.internal.plugins.ObjectiveCIosApplicationPlugin'
 		}
-		objcIosLibrary {
-			id = 'dev.nokee.objective-c-ios-library'
-			implementationClass = 'dev.nokee.platform.ios.internal.plugins.ObjectiveCIosLibraryPlugin'
-		}
 		swiftIosApplication {
 			id = 'dev.nokee.swift-ios-application'
 			implementationClass = 'dev.nokee.platform.ios.internal.plugins.SwiftIosApplicationPlugin'
-		}
-		swiftIosLibrary {
-			id = 'dev.nokee.swift-ios-library'
-			implementationClass = 'dev.nokee.platform.ios.internal.plugins.SwiftIosLibraryPlugin'
 		}
 	}
 }
