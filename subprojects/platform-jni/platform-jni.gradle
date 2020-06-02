@@ -30,6 +30,8 @@ dependencies {
 	testImplementation testFixtures(project(':platformNative'))
 	testRuntimeOnly 'net.bytebuddy:byte-buddy:1.10.10' // Because NamingScheme is not an interface
 	testRuntimeOnly 'org.objenesis:objenesis:3.1' // Because NamingScheme is not an interface
+
+	functionalTestImplementation testFixtures(project(':languageNative'))
 }
 
 gradlePlugin {

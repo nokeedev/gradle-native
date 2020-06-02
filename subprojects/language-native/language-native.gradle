@@ -1,5 +1,6 @@
 plugins {
 	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'java-test-fixtures'
 	id 'maven-publish'
 }
 
@@ -19,6 +20,8 @@ dependencies {
 
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
+
+	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
 }
 
 gradlePlugin {

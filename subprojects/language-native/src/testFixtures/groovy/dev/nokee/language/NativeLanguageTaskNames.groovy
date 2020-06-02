@@ -1,10 +1,6 @@
 package dev.nokee.language
 
-import dev.gradleplugins.integtests.fixtures.nativeplatform.AvailableToolChains
-
-trait NativeLanguageTaskNames {
-	abstract AvailableToolChains.InstalledToolChain getToolchainUnderTest()
-
+trait NativeLanguageTaskNames implements NativeProjectTaskNames {
 	abstract String getLanguageTaskSuffix()
 
 	String getSoftwareModelLanguageTaskSuffix() {
@@ -14,20 +10,19 @@ trait NativeLanguageTaskNames {
 	/**
 	 * Returns the tasks for the project with the given path.
 	 */
-	ProjectTasks tasks(String project) {
-		return new ProjectTasks(project, toolchainUnderTest, languageTaskSuffix, softwareModelLanguageTaskSuffix)
+	NativeProjectTasks tasks(String project) {
+		return new ProjectTasks(project, languageTaskSuffix, softwareModelLanguageTaskSuffix)
 	}
 
 	/**
 	 * Returns the tasks for the root project.
 	 */
-	ProjectTasks getTasks() {
-		return new ProjectTasks('', toolchainUnderTest, languageTaskSuffix, softwareModelLanguageTaskSuffix)
+	NativeProjectTasks getTasks() {
+		return new ProjectTasks('', languageTaskSuffix, softwareModelLanguageTaskSuffix)
 	}
 
-	static class ProjectTasks {
+	static class ProjectTasks implements NativeProjectTasks {
 		private final String project
-		private final AvailableToolChains.InstalledToolChain toolChainUnderTest
 		private final String languageTaskSuffix
 		private final String softwareModelLanguageTaskSuffix
 		private String architecture = null
@@ -35,8 +30,7 @@ trait NativeLanguageTaskNames {
 		private final String buildType = ''
 		private String binaryType = ''
 
-		ProjectTasks(String project, AvailableToolChains.InstalledToolChain toolChainUnderTest, String languageTaskSuffix, String softwareModelLanguageTaskSuffix) {
-			this.toolChainUnderTest = toolChainUnderTest
+		ProjectTasks(String project, String languageTaskSuffix, String softwareModelLanguageTaskSuffix) {
 			this.project = project
 			this.languageTaskSuffix = languageTaskSuffix
 			this.softwareModelLanguageTaskSuffix = softwareModelLanguageTaskSuffix
@@ -47,7 +41,7 @@ trait NativeLanguageTaskNames {
 			return this
 		}
 
-		private withProject(String t) {
+		String withProject(String t) {
 			project + ":" + t
 		}
 
