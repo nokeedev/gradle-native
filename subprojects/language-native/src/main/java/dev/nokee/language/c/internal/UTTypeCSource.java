@@ -5,6 +5,8 @@ import lombok.Value;
 
 @Value
 public class UTTypeCSource implements UTType {
+	public static final UTTypeCSource INSTANCE = new UTTypeCSource();
+
 	String identifier = "public.c-source";
 
 	@Override

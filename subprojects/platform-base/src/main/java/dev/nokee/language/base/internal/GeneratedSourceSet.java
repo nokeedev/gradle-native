@@ -34,6 +34,11 @@ public abstract class GeneratedSourceSet<T extends UTType> implements SourceSet<
 	}
 
 	@Override
+	public UTType getType() {
+		return type;
+	}
+
+	@Override
 	public FileTree getAsFileTree() {
 		return fileTree;
 	}

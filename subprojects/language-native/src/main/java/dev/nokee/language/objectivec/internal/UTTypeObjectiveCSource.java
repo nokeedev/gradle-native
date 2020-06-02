@@ -5,6 +5,8 @@ import lombok.Value;
 
 @Value
 public class UTTypeObjectiveCSource implements UTType {
+	public static final UTTypeObjectiveCSource INSTANCE = new UTTypeObjectiveCSource();
+
 	String identifier = "public.objective-c-source";
 
 	@Override

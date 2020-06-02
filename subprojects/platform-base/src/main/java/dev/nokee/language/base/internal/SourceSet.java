@@ -11,6 +11,8 @@ import org.gradle.api.file.FileTree;
 public interface SourceSet<T extends UTType> {
 	FileTree getAsFileTree();
 
+	UTType getType();
+
 	default <R extends UTType> SourceSet<R> transform(SourceSetTransform<T, R> transformer) {
 		return transformer.transform(this);
 	}

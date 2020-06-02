@@ -5,6 +5,7 @@ import lombok.Value;
 
 @Value
 public class UTTypeCppSource implements UTType {
+	public static final UTTypeCppSource INSTANCE = new UTTypeCppSource();
 	String identifier = "public.c-plus-plus-source";
 
 	@Override

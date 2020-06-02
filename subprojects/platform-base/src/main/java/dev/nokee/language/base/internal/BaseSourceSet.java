@@ -26,6 +26,11 @@ public abstract class BaseSourceSet<T extends UTType> implements ConfigurableSou
 	}
 
 	@Override
+	public UTType getType() {
+		return type;
+	}
+
+	@Override
 	public FileTree getAsFileTree() {
 		return sourceDirectorySet.getAsFileTree().matching(it -> it.include(onlyIf(type)));
 	}

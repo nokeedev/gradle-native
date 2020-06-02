@@ -5,6 +5,7 @@ import lombok.Value;
 
 @Value
 public class UTTypeObjectiveCppSource implements UTType {
+	public static final UTTypeObjectiveCppSource INSTANCE = new UTTypeObjectiveCppSource();
 	String identifier = "public.objective-c-plus-plus-source";
 
 	@Override

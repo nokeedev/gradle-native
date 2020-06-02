@@ -7,6 +7,6 @@ import javax.inject.Inject;
 public abstract class CSourceSet extends BaseSourceSet<UTTypeCSource> {
 	@Inject
 	public CSourceSet() {
-		super(new UTTypeCSource());
+		super(UTTypeCSource.INSTANCE);
 	}
 }

@@ -4,6 +4,8 @@ import lombok.Value;
 
 @Value
 public class UTTypeSourceCode implements UTType {
+	public static final UTTypeSourceCode INSTANCE = new UTTypeSourceCode();
+
 	String identifier = "public.source-code";
 
 	@Override

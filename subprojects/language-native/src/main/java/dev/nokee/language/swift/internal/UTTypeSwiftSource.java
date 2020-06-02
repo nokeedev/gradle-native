@@ -5,6 +5,7 @@ import lombok.Value;
 
 @Value
 public class UTTypeSwiftSource implements UTType {
+	public static final UTTypeSwiftSource INSTANCE = new UTTypeSwiftSource();
 	String identifier = "public.swift-source";
 
 	@Override
