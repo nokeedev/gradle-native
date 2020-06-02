@@ -3,12 +3,12 @@ package dev.nokee.platform.ios.fixtures
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceFile
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement
 import dev.gradleplugins.test.fixtures.sources.objectivec.ObjectiveCSourceElement
+import dev.nokee.platform.ios.fixtures.elements.NokeeAppUnitXCTestInfoPlist
 
 class ObjectiveCIosUnitXCTest extends SourceElement {
 	final SourceElement main
-	final SourceElement unitTest = ofElements(new ObjectiveCUnitTest(), new UnitXCTestInfoPlist())
+	final SourceElement unitTest = ofElements(new ObjectiveCUnitTest(), new NokeeAppUnitXCTestInfoPlist())
 
 	ObjectiveCIosUnitXCTest(SourceElement main) {
 		this.main = main
@@ -27,40 +27,6 @@ class ObjectiveCIosUnitXCTest extends SourceElement {
 
 	SourceElement withUiTest() {
 		return new ObjectiveCIosUiXCTest(this);
-	}
-}
-
-class UnitXCTestInfoPlist extends SourceFileElement {
-	@Override
-	SourceFile getSourceFile() {
-		return sourceFile('resources', 'Info.plist', '''<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
-	<key>CFBundlePackageType</key>
-	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
-	<key>CFBundleVersion</key>
-	<string>1</string>
-</dict>
-</plist>
-''')
-	}
-
-	@Override
-	String getSourceSetName() {
-		return 'unitTest'
 	}
 }
 
