@@ -46,15 +46,6 @@ public interface JniLibrary extends Variant {
 	void sharedLibrary(Action<? super SharedLibraryBinary> action);
 
 	/**
-	 * Configure the binaries of this variant.
-	 * The view contains only the binaries participating to this variant.
-	 *
-	 * @return a {@link BinaryView} for configuring each binary, never null.
-	 * @since 0.3
-	 */
-	BinaryView<Binary> getBinaries();
-
-	/**
 	 * Returns the dependencies of this variant.
 	 *
 	 * @return a {@link JniLibraryNativeDependencies}, never null.
