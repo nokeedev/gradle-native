@@ -3,8 +3,8 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.BinaryInternal;
 import dev.nokee.platform.base.internal.DefaultTaskView;
 import dev.nokee.platform.base.internal.Realizable;
 import dev.nokee.platform.nativebase.NativeBinary;
@@ -21,7 +21,7 @@ import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import javax.inject.Inject;
 import java.util.stream.Collectors;
 
-public abstract class BaseNativeBinary extends BinaryInternal implements NativeBinary {
+public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	private final DefaultTaskView<NativeSourceCompile> compileTasks;
 
 	public BaseNativeBinary() {

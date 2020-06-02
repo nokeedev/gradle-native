@@ -37,13 +37,13 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
 	private final JniLibraryDependenciesInternal dependencies;
 	private final GroupId groupId;
-	private final DomainObjectSet<BinaryInternal> binaryCollection;
+	private final DomainObjectSet<Binary> binaryCollection;
 	private final NamingScheme names;
 
 	@Inject
 	public JniLibraryExtensionInternal(JniLibraryDependenciesInternal dependencies, GroupId groupId, NamingScheme names) {
 		this.names = names;
-		binaryCollection = getObjects().domainObjectSet(BinaryInternal.class);
+		binaryCollection = getObjects().domainObjectSet(Binary.class);
 		sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
 		this.dependencies = dependencies;
 		this.groupId = groupId;

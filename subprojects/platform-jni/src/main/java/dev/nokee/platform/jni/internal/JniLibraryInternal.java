@@ -3,6 +3,7 @@ package dev.nokee.platform.jni.internal;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryNativeDependencies;
@@ -39,7 +40,7 @@ public abstract class JniLibraryInternal extends BaseVariant implements JniLibra
 	private SharedLibraryBinaryInternal sharedLibraryBinary;
 
 	@Inject
-	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, BuildVariant buildVariant, GroupId groupId, DomainObjectSet<BinaryInternal> parentBinaries, JniLibraryNativeDependenciesInternal dependencies) {
+	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, BuildVariant buildVariant, GroupId groupId, DomainObjectSet<Binary> parentBinaries, JniLibraryNativeDependenciesInternal dependencies) {
 		super(name, buildVariant);
 		this.names = names;
 		this.dependencies = dependencies;
@@ -49,9 +50,7 @@ public abstract class JniLibraryInternal extends BaseVariant implements JniLibra
 
 		parentSources.all(sources::add);
 
-		getBinaryCollection().configureEach( binary -> {
-			parentBinaries.add((BinaryInternal)binary);
-		});
+		getBinaryCollection().configureEach(parentBinaries::add);
 
 		ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
 		nativeRuntime = getConfigurations().create(names.getConfigurationName("nativeRuntimeLibraries"),

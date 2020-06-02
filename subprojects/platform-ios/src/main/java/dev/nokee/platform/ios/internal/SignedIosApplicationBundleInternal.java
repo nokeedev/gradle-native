@@ -2,8 +2,8 @@ package dev.nokee.platform.ios.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.BinaryInternal;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.NativeBinary;
 import org.gradle.api.Buildable;
@@ -19,7 +19,7 @@ import javax.inject.Inject;
 // TODO: Not sure about implementing NativeBinary...
 //  BaseNativeVariant#getDevelopmentBinary() assume a NativeBinary...
 //  There should probably be something high level in Variant or BaseNativeVariant shouldn't be used for iOS variant.
-public abstract class SignedIosApplicationBundleInternal extends BinaryInternal implements NativeBinary, Buildable {
+public abstract class SignedIosApplicationBundleInternal implements Binary, NativeBinary, Buildable {
 
 	@Inject
 	protected abstract TaskContainer getTasks();
