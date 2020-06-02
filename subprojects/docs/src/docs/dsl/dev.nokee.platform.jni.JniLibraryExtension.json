@@ -1,5 +1,5 @@
 {
 	"category": "JNI types",
-	"properties": ["dependencies", "targetMachines", "variants", "binaries"],
-	"methods": ["dependencies"]
+	"properties": ["targetMachines", "binaries"],
+	"methods": []
 }

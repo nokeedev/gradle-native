@@ -1,5 +1,5 @@
 {
 	"category": "JNI types",
-	"properties": ["resourcePath", "targetMachine", "sharedLibrary", "binaries"],
+	"properties": ["resourcePath", "targetMachine", "sharedLibrary"],
 	"methods": ["sharedLibrary"]
 }

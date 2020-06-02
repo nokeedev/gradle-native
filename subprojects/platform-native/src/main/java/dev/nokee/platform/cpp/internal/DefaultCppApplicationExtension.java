@@ -1,8 +1,10 @@
 package dev.nokee.platform.cpp.internal;
 
 import dev.nokee.language.cpp.internal.CppSourceSet;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.cpp.CppApplicationExtension;
+import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
@@ -30,5 +32,10 @@ public abstract class DefaultCppApplicationExtension extends BaseNativeExtension
 
 	public void finalizeExtension(Project project) {
 		getComponent().finalizeExtension(project);
+	}
+
+	@Override
+	public VariantView<NativeApplication> getVariants() {
+		return getComponent().getVariantCollection().getAsView(NativeApplication.class);
 	}
 }

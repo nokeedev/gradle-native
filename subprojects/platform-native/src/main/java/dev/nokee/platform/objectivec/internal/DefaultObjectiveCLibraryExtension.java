@@ -1,7 +1,9 @@
 package dev.nokee.platform.objectivec.internal;
 
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
@@ -30,5 +32,10 @@ public abstract class DefaultObjectiveCLibraryExtension extends BaseNativeExtens
 
 	public void finalizeExtension(Project project) {
 		getComponent().finalizeExtension(project);
+	}
+
+	@Override
+	public VariantView<NativeLibrary> getVariants() {
+		return getComponent().getVariantCollection().getAsView(NativeLibrary.class);
 	}
 }

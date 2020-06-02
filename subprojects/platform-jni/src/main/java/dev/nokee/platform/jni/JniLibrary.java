@@ -1,7 +1,6 @@
 package dev.nokee.platform.jni;
 
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -14,7 +13,7 @@ import org.gradle.api.provider.Property;
  *
  * @since 0.2
  */
-public interface JniLibrary extends Variant {
+public interface JniLibrary extends Variant, DependencyAwareComponent<JniLibraryNativeDependencies> {
 	/**
 	 * Specifies the resource path where the native components of the JNI library will be located within the JAR.
 	 *
@@ -44,22 +43,6 @@ public interface JniLibrary extends Variant {
 	 * @since 0.3
 	 */
 	void sharedLibrary(Action<? super SharedLibraryBinary> action);
-
-	/**
-	 * Returns the dependencies of this variant.
-	 *
-	 * @return a {@link JniLibraryNativeDependencies}, never null.
-	 * @since 0.4
-	 */
-	JniLibraryNativeDependencies getDependencies();
-
-	/**
-	 * Configure the dependencies of this variant.
-	 *
-	 * @param action configuration action for {@link JniLibraryNativeDependencies}.
-	 * @since 0.4
-	 */
-	void dependencies(Action<? super JniLibraryNativeDependencies> action);
 
 	/**
 	 * Configure the native runtime files to include inside the JNI JAR at the resource path location.

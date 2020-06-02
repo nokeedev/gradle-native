@@ -1,9 +1,10 @@
 package dev.nokee.platform.jni.internal.plugins
 
 import dev.nokee.fixtures.*
+import dev.nokee.platform.base.Variant
+import dev.nokee.platform.jni.JniLibrary
 import dev.nokee.platform.jni.JniLibraryDependencies
 import dev.nokee.platform.jni.JniLibraryExtension
-import dev.nokee.platform.jni.JniLibraryNativeDependencies
 import dev.nokee.platform.nativebase.SharedLibraryBinary
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary
 import groovy.transform.Canonical
@@ -83,6 +84,19 @@ class JniLibraryTaskPluginTest extends AbstractTaskPluginTest implements JniLibr
 }
 
 @Subject(JniLibraryPlugin)
+class JniLibraryVariantPluginTest extends AbstractVariantPluginTest implements JniLibraryPluginTestFixture {
+	@Override
+	def getExtensionUnderTest() {
+		return project.library
+	}
+
+	@Override
+	Class<? extends Variant> getVariantType() {
+		return JniLibrary
+	}
+}
+
+@Subject(JniLibraryPlugin)
 class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements ProjectTestFixture, JniLibraryPluginTestFixture {
 	def project
 
@@ -107,12 +121,6 @@ class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements Proje
 		then:
 		def ex1 = thrown(IllegalStateException)
 		ex1.message == 'Please disallow changes before realizing the variants.'
-
-		when:
-		project.library.variants.elements.get()
-		then:
-		def ex2 = thrown(IllegalStateException)
-		ex2.message == 'Please disallow changes before realizing the variants.'
 	}
 
 	def "allow query of views after evaluation"() {
@@ -125,13 +133,6 @@ class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements Proje
 		noExceptionThrown()
 		and:
 		binaries.size() == 2
-
-		when:
-		def variants = project.library.variants.elements.get()
-		then:
-		noExceptionThrown()
-		and:
-		variants.size() == 1
 	}
 
 	def "resolve variants when unrealized configuration are resolved"() {
@@ -154,20 +155,6 @@ class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements Proje
 		project.configurations.getByName('nativeRuntimeLibraries')
 		then: 'variants are realized for incoming configuration'
 		!configuredVariants.isEmpty()
-	}
-
-	def "variants has dependencies dsl"() {
-		given:
-		applyPluginAndEvaluate('plugin registers variants in afterEvaluate')
-
-		expect:
-		def variant = one(project.library.variants.elements.get())
-		variant.dependencies instanceof JniLibraryNativeDependencies
-		def capturedDependencyDsl = null
-		variant.dependencies {
-			capturedDependencyDsl = it
-		}
-		capturedDependencyDsl instanceof JniLibraryNativeDependencies
 	}
 
 	def "can access shared library from variant"() {

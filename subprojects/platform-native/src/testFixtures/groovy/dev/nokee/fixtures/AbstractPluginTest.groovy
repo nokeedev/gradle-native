@@ -1,6 +1,9 @@
 package dev.nokee.fixtures
 
 import dev.nokee.platform.base.DependencyAwareComponent
+import dev.nokee.platform.base.Variant
+import dev.nokee.platform.base.VariantAwareComponent
+import dev.nokee.platform.base.VariantView
 import dev.nokee.platform.nativebase.NativeComponentDependencies
 import dev.nokee.platform.nativebase.NativeLibraryDependencies
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent
@@ -38,6 +41,10 @@ abstract class AbstractPluginTest extends Specification implements ProjectTestFi
 		return NativeComponentDependencies
 	}
 
+	Class getVariantDependenciesType() {
+		return getDependenciesType()
+	}
+
 	def "registers extension on project"() {
 		when:
 		applyPluginUnderTest()
@@ -63,6 +70,39 @@ abstract class AbstractPluginTest extends Specification implements ProjectTestFi
 			capturedDependencyDsl = it
 		}
 		getDependenciesType().isAssignableFrom(capturedDependencyDsl.getClass())
+	}
+
+	def "extensions has variant view"() {
+		given:
+		applyPluginUnderTest()
+
+		expect: 'extension has public variant api'
+		extensionUnderTest instanceof VariantAwareComponent
+
+		and: 'variant getter is of the expected type'
+		extensionUnderTest.variants instanceof VariantView
+	}
+
+	def "variants has dependencies dsl"() {
+		given:
+		applyPluginUnderTest()
+		evaluateProject('plugin registers variants in afterEvaluate')
+		def variants = extensionUnderTest.variants.get()
+
+		expect: 'variant has public dependencies api'
+		variants.every { it instanceof DependencyAwareComponent }
+
+		and: 'dependency getter is of the expected type'
+		variants.every { getVariantDependenciesType().isAssignableFrom(it.dependencies.getClass()) }
+
+		and: 'dependency block is of the expected type'
+		variants.every { variant ->
+			def capturedDependencyDsl = null
+			variant.dependencies {
+				capturedDependencyDsl = it
+			}
+			return getVariantDependenciesType().isAssignableFrom(capturedDependencyDsl.getClass())
+		}
 	}
 }
 
@@ -185,5 +225,58 @@ abstract class AbstractTaskPluginTest extends Specification implements ProjectTe
 			*expectedVariantAwareTaskNames,
 			'assemble', 'clean', 'build', 'check' /* general lifecycle */
 		] as Set
+	}
+}
+
+abstract class AbstractVariantPluginTest extends Specification implements ProjectTestFixture {
+	def project
+
+	def setup() {
+		if (SystemUtils.IS_OS_WINDOWS) {
+			NativeServicesTestFixture.initialize()
+		}
+		project = project = ProjectBuilder.builder().withName('test').build()
+	}
+
+	@Override
+	Project getProjectUnderTest() {
+		return project
+	}
+
+	abstract void applyPluginUnderTest()
+
+	abstract def getExtensionUnderTest()
+
+	abstract Class<? extends Variant> getVariantType()
+
+	def "variants are of the expected type"() {
+		when:
+		applyPluginUnderTest()
+		evaluateProject('plugin registers variants in afterEvaluate')
+
+		then:
+		extensionUnderTest.variants.get().every { variantType.isAssignableFrom(it.class) }
+	}
+
+	def "disallows variant view realization before evaluation"() {
+		given:
+		applyPluginUnderTest()
+
+		when:
+		extensionUnderTest.variants.elements.get()
+		then:
+		def ex = thrown(IllegalStateException)
+		ex.message == 'Please disallow changes before realizing the variants.'
+	}
+
+	def "allow variant view realization after evaluation"() {
+		given:
+		applyPluginUnderTest()
+		evaluateProject('plugin locks variant view in afterEvaluate')
+
+		when:
+		extensionUnderTest.variants.elements.get()
+		then:
+		noExceptionThrown()
 	}
 }

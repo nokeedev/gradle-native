@@ -1,5 +1,6 @@
 package dev.nokee.platform.nativebase;
 
+import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.Variant;
 
 /**
@@ -7,5 +8,5 @@ import dev.nokee.platform.base.Variant;
  *
  * @since 4.2
  */
-public interface NativeApplication extends Variant {
+public interface NativeApplication extends Variant, DependencyAwareComponent<NativeComponentDependencies> {
 }

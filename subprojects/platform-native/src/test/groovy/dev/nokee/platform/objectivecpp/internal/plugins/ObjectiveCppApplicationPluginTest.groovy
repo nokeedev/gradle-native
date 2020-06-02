@@ -3,6 +3,8 @@ package dev.nokee.platform.objectivecpp.internal.plugins
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
 import dev.nokee.fixtures.AbstractTaskPluginTest
+import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.platform.nativebase.NativeApplication
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplicationExtension
 import org.gradle.api.Project
 import spock.lang.Subject
@@ -30,6 +32,10 @@ trait ObjectiveCppApplicationPluginTestFixture {
 		return ObjectiveCppApplicationExtension
 	}
 
+	Class getVariantType() {
+		return NativeApplication
+	}
+
 	String[] getExpectedVariantAwareTaskNames() {
 		return ['objects', 'executable']
 	}
@@ -46,4 +52,8 @@ class ObjectiveCppApplicationTargetMachineAwarePluginTest extends AbstractTarget
 
 @Subject(ObjectiveCppApplicationPlugin)
 class ObjectiveCppApplicationTaskPluginTest extends AbstractTaskPluginTest implements ObjectiveCppApplicationPluginTestFixture {
+}
+
+@Subject(ObjectiveCppLibraryPlugin)
+class ObjectiveCppApplicationVariantPluginTest extends AbstractVariantPluginTest implements ObjectiveCppApplicationPluginTestFixture {
 }

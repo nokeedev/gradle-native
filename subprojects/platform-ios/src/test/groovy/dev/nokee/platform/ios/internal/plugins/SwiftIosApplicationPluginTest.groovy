@@ -2,6 +2,8 @@ package dev.nokee.platform.ios.internal.plugins
 
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTaskPluginTest
+import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.platform.ios.IosApplication
 import dev.nokee.platform.ios.SwiftIosApplicationExtension
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project
@@ -27,6 +29,10 @@ trait SwiftIosApplicationPluginTestFixture {
 		return SwiftIosApplicationExtension
 	}
 
+	Class getVariantType() {
+		return IosApplication
+	}
+
 	String[] getExpectedVariantAwareTaskNames() {
 		return ['objects', 'bundle']
 	}
@@ -41,4 +47,8 @@ class SwiftIosApplicationPluginTest extends AbstractPluginTest implements SwiftI
 @Requires({SystemUtils.IS_OS_MAC})
 @Subject(SwiftIosApplicationPlugin)
 class SwiftIosApplicationTaskPluginTest extends AbstractTaskPluginTest implements SwiftIosApplicationPluginTestFixture {
+}
+
+@Subject(SwiftIosApplicationPlugin)
+class SwiftIosApplicationVariantPluginTest extends AbstractVariantPluginTest implements SwiftIosApplicationPluginTestFixture {
 }

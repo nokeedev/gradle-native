@@ -3,6 +3,8 @@ package dev.nokee.platform.swift.internal.plugins
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
 import dev.nokee.fixtures.AbstractTaskPluginTest
+import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.platform.nativebase.NativeLibrary
 import dev.nokee.platform.swift.SwiftLibraryExtension
 import org.gradle.api.Project
 import spock.lang.Subject
@@ -30,6 +32,10 @@ trait SwiftLibraryPluginTestFixture {
 		return SwiftLibraryExtension
 	}
 
+	Class getVariantType() {
+		return NativeLibrary
+	}
+
 	String[] getExpectedVariantAwareTaskNames() {
 		return ['objects', 'sharedLibrary']
 	}
@@ -46,4 +52,8 @@ class SwiftLibraryTargetMachineAwarePluginTest extends AbstractTargetMachineAwar
 
 @Subject(SwiftLibraryPlugin)
 class SwiftLibraryTaskPluginTest extends AbstractTaskPluginTest implements SwiftLibraryPluginTestFixture {
+}
+
+@Subject(SwiftLibraryPlugin)
+class SwiftLibraryVariantPluginTest extends AbstractVariantPluginTest implements SwiftLibraryPluginTestFixture {
 }

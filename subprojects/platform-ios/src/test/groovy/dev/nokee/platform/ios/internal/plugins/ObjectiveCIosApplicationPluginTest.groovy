@@ -3,6 +3,9 @@ package dev.nokee.platform.ios.internal.plugins
 import dev.gradleplugins.spock.lang.CleanupTestDirectory
 import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
 import dev.nokee.fixtures.AbstractPluginTest
+import dev.nokee.fixtures.AbstractTaskPluginTest
+import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.platform.ios.IosApplication
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension
 import dev.nokee.platform.ios.tasks.internal.AssetCatalogCompileTask
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask
@@ -26,6 +29,22 @@ trait ObjectiveCIosApplicationPluginTestFixture {
 	void applyPluginUnderTest() {
 		projectUnderTest.apply plugin: pluginId
 	}
+
+	def getExtensionUnderTest() {
+		return projectUnderTest.application
+	}
+
+	Class getExtensionType() {
+		return ObjectiveCIosApplicationExtension
+	}
+
+	Class getVariantType() {
+		return IosApplication
+	}
+
+	String[] getExpectedVariantAwareTaskNames() {
+		return ['objects', 'bundle']
+	}
 }
 
 @Requires({SystemUtils.IS_OS_MAC})
@@ -44,10 +63,9 @@ class ObjectiveCIosApplicationPluginLayoutTest extends AbstractPluginTest implem
 	}
 }
 
-// This plugin is still on the software model so it's hard to evolve it
-//@Subject(ObjectiveCIosApplicationPlugin)
-//class ObjectiveCIosApplicationTaskPluginTest extends AbstractTaskPluginTest implements ObjectiveCIosApplicationPluginTestFixture {
-//}
+@Subject(ObjectiveCIosApplicationPlugin)
+class ObjectiveCIosApplicationTaskPluginTest extends AbstractTaskPluginTest implements ObjectiveCIosApplicationPluginTestFixture {
+}
 
 @Requires({SystemUtils.IS_OS_MAC})
 @Subject(ObjectiveCIosApplicationPlugin)
@@ -104,4 +122,8 @@ class ObjectiveCIosApplicationPluginTest extends Specification {
 		then:
 		project.tasks.withType(CreateIosApplicationBundleTask).size() == 1
 	}
+}
+
+@Subject(ObjectiveCIosApplicationPlugin)
+class ObjectiveCIosApplicationVariantPluginTest extends AbstractVariantPluginTest implements ObjectiveCIosApplicationPluginTestFixture {
 }

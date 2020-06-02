@@ -3,7 +3,9 @@ package dev.nokee.platform.cpp.internal.plugins
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
 import dev.nokee.fixtures.AbstractTaskPluginTest
+import dev.nokee.fixtures.AbstractVariantPluginTest
 import dev.nokee.platform.cpp.CppLibraryExtension
+import dev.nokee.platform.nativebase.NativeLibrary
 import org.gradle.api.Project
 import spock.lang.Subject
 
@@ -30,6 +32,10 @@ trait CppLibraryPluginTestFixture {
 		return CppLibraryExtension
 	}
 
+	Class getVariantType() {
+		return NativeLibrary
+	}
+
 	String[] getExpectedVariantAwareTaskNames() {
 		return ['objects', 'sharedLibrary']
 	}
@@ -46,4 +52,8 @@ class CppLibraryTargetMachineAwarePluginTest extends AbstractTargetMachineAwareP
 
 @Subject(CppLibraryPlugin)
 class CppLibraryTaskPluginTest extends AbstractTaskPluginTest implements CppLibraryPluginTestFixture {
+}
+
+@Subject(CppLibraryPlugin)
+class CppLibraryVariantPluginTest extends AbstractVariantPluginTest implements CppLibraryPluginTestFixture {
 }

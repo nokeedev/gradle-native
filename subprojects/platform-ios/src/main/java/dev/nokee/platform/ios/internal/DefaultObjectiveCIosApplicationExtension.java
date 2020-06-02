@@ -9,7 +9,6 @@ import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
-import org.gradle.internal.Cast;
 
 import javax.inject.Inject;
 
@@ -36,6 +35,6 @@ public abstract class DefaultObjectiveCIosApplicationExtension extends BaseIosEx
 
 	@Override
 	public VariantView<IosApplication> getVariants() {
-		return Cast.uncheckedCast(getComponent().getVariants()); //???
+		return getComponent().getVariantCollection().getAsView(IosApplication.class);
 	}
 }
