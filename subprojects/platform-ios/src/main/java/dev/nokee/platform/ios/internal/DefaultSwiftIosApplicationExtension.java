@@ -1,37 +1,33 @@
 package dev.nokee.platform.ios.internal;
 
-import com.google.common.collect.ImmutableList;
-import dev.nokee.language.base.internal.DefaultSourceSet;
-import dev.nokee.language.swift.internal.UTTypeSwiftSource;
-import dev.nokee.platform.base.internal.BuildVariant;
-import dev.nokee.platform.base.internal.DefaultBuildVariant;
+import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.ios.SwiftIosApplicationExtension;
-import dev.nokee.platform.nativebase.internal.BaseNativeApplicationComponent;
-import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
 
 import javax.inject.Inject;
 
-public abstract class DefaultSwiftIosApplicationExtension extends BaseNativeApplicationComponent implements SwiftIosApplicationExtension {
+public abstract class DefaultSwiftIosApplicationExtension extends BaseIosExtension<DefaultIosApplicationComponent> implements SwiftIosApplicationExtension {
 	@Inject
-	public DefaultSwiftIosApplicationExtension(DefaultNativeComponentDependencies dependencies, NamingScheme names) {
-		super(dependencies, names);
-		getSourceCollection().add(getObjects().newInstance(DefaultSourceSet.class, new UTTypeSwiftSource()).srcDir("src/main/swift"));
+	public DefaultSwiftIosApplicationExtension(NamingScheme names, GroupId groupId) {
+		super(names, groupId, DefaultIosApplicationComponent.class);
+		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class).srcDir("src/main/swift"));
 	}
 
 	@Override
-	protected Iterable<BuildVariant> createBuildVariants() {
-		return ImmutableList.of(DefaultBuildVariant.of(DefaultOperatingSystemFamily.forName("ios"), DefaultMachineArchitecture.X86_64));
+	public NativeComponentDependencies getDependencies() {
+		return getComponent().getDependencies();
 	}
 
 	@Override
+	public void dependencies(Action<? super NativeComponentDependencies> action) {
+		getComponent().dependencies(action);
+	}
+
 	public void finalizeExtension(Project project) {
-		super.finalizeExtension(project);
-		getBuildVariants().get().forEach(buildVariant -> {
-			getTasks().register("bundle");
-		});
+		getComponent().finalizeExtension(project);
 	}
 }

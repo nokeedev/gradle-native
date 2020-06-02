@@ -14,6 +14,8 @@ import java.io.*;
 import java.nio.charset.Charset;
 
 public abstract class ProcessPropertyListTask extends DefaultTask {
+	@Optional
+	@SkipWhenEmpty // TODO: Test no source
 	@InputFiles
 	public abstract ConfigurableFileCollection getSources();
 

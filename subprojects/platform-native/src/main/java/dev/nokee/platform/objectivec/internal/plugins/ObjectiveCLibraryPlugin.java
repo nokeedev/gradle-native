@@ -23,8 +23,7 @@ public abstract class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
 		NamingScheme names = NamingScheme.asMainComponent(project.getName());
-		DefaultObjectiveCLibraryExtension extension = getObjects().newInstance(DefaultObjectiveCLibraryExtension.class,
-			getObjects().newInstance(DefaultNativeLibraryDependencies.class, names), names);
+		DefaultObjectiveCLibraryExtension extension = getObjects().newInstance(DefaultObjectiveCLibraryExtension.class, names);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);

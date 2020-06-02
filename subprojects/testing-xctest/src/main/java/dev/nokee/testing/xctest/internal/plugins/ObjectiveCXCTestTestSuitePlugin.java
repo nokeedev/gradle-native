@@ -1,6 +1,8 @@
 package dev.nokee.testing.xctest.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
+import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.ios.tasks.internal.ProcessPropertyListTask;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
@@ -59,10 +61,10 @@ public abstract class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project>
 				task.getSignedApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/unitTest/" + moduleName + "UnitTest.xctest"));
 			});
 
+			ObjectiveCIosApplicationExtension application = project.getExtensions().getByType(ObjectiveCIosApplicationExtension.class);
 			TaskProvider<CreateIosApplicationBundleTask> createUnitTestApplicationBundleTask = getTasks().register("createUnitTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
-				TaskProvider<CreateIosApplicationBundleTask> createApplicationBundleTask = getTasks().named("createApplicationBundle", CreateIosApplicationBundleTask.class);
 				task.getApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/unitTest/" + moduleName + "-unsigned.app"));
-				task.getSources().from(createApplicationBundleTask.map(CreateIosApplicationBundleTask::getSources));
+				task.getSources().from(application.getVariants().getElements().map(it -> it.iterator().next().getBinaries().withType(IosApplicationBundleInternal.class).get().iterator().next().getBundleTask().map(t -> t.getSources())));
 				task.getPlugIns().from(signUnitTestXCTestBundle.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle));
 				task.getFrameworks().from(getXCTestBundleInjectDynamicLibrary());
 				task.getFrameworks().from(getXCTestFrameworks());

@@ -1,34 +1,73 @@
 package dev.nokee.platform.nativebase.internal;
 
+import com.google.common.base.Preconditions;
+import dev.nokee.language.base.internal.GeneratedSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.language.base.internal.UTTypeSourceCode;
-import dev.nokee.platform.base.internal.BuildVariant;
-import dev.nokee.platform.base.internal.DefaultBuildVariant;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.language.c.internal.CSourceSetTransform;
+import dev.nokee.language.c.internal.UTTypeCSource;
+import dev.nokee.language.c.internal.tasks.CCompileTask;
+import dev.nokee.language.cpp.internal.CppSourceSetTransform;
+import dev.nokee.language.cpp.internal.UTTypeCppSource;
+import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
+import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetTransform;
+import dev.nokee.language.objectivec.internal.UTTypeObjectiveCSource;
+import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetTransform;
+import dev.nokee.language.objectivecpp.internal.UTTypeObjectiveCppSource;
+import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
+import dev.nokee.language.swift.internal.SwiftSourceSetTransform;
+import dev.nokee.language.swift.internal.UTTypeSwiftSource;
+import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.nativebase.ExecutableBinary;
+import dev.nokee.platform.nativebase.SharedLibraryBinary;
+import dev.nokee.platform.nativebase.StaticLibraryBinary;
+import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
+import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.base.internal.DimensionType;
-import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
-import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import org.gradle.api.DomainObjectSet;
-import org.gradle.api.GradleException;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.Cast;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
+import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
+import org.gradle.nativeplatform.NativeExecutableBinary;
+import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
+import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
+import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
+import org.gradle.nativeplatform.toolchain.internal.ToolType;
 
 import javax.inject.Inject;
-import java.util.Set;
+import java.io.File;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public abstract class BaseNativeComponent {
-	private final DefaultNativeComponentDependencies dependencies;
+public abstract class BaseNativeComponent<T extends Variant> {
+	private final ToolChainSelectorInternal toolChainSelector = getObjects().newInstance(ToolChainSelectorInternal.class);
 	private final NamingScheme names;
-	private final DomainObjectSet<SourceSet<UTTypeSourceCode>> sourceCollection;
+	private final SourceCollection<UTTypeSourceCode> sourceCollection;
+	private final VariantCollection<T> variantCollection;
+	private final Class<T> variantType;
 
 	@Inject
 	protected abstract ProviderFactory getProviders();
@@ -39,45 +78,33 @@ public abstract class BaseNativeComponent {
 	@Inject
 	protected abstract TaskContainer getTasks();
 
-	public BaseNativeComponent(DefaultNativeComponentDependencies dependencies, NamingScheme names) {
-		this.dependencies = dependencies;
+	@Inject
+	protected abstract ProjectLayout getLayout();
+
+	@Inject
+	protected abstract ConfigurationContainer getConfigurations();
+
+	public BaseNativeComponent(NamingScheme names, Class<T> variantType) {
+		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
 		this.names = names;
-		this.sourceCollection = Cast.uncheckedCast(getObjects().domainObjectSet(SourceSet.class));
+		this.variantType = variantType;
+		this.sourceCollection = Cast.uncheckedCast(getObjects().newInstance(SourceCollection.class, UTTypeSourceCode.INSTANCE));
+		this.variantCollection = Cast.uncheckedCast(getObjects().newInstance(VariantCollection.class, variantType, (VariantFactory<T>)this::createVariant));
 
-		getDimensions().convention(getProviders().provider(this::createDimensions));
 		getDimensions().finalizeValueOnRead();
-		getDimensions().disallowChanges(); // Let's disallow changing them for now.
-
-		getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
-		getBuildVariants().finalizeValueOnRead();
-		getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
 	}
 
-	public DefaultNativeComponentDependencies getDependencies() {
-		return dependencies;
+	public NamingScheme getNames() {
+		return names;
 	}
 
-	public DomainObjectSet<SourceSet<UTTypeSourceCode>> getSourceCollection() {
+	protected abstract T createVariant(String name, BuildVariant buildVariant);
+
+	public abstract AbstractNativeComponentDependencies getDependencies();
+
+	public SourceCollection<UTTypeSourceCode> getSourceCollection() {
 		return sourceCollection;
 	}
-
-	// TODO: Should be part of the extension not the component
-	// Not every implementation needs this, so we rely on the public type to expose it.
-	public DefaultTargetMachineFactory getMachines() {
-		return DefaultTargetMachineFactory.INSTANCE;
-	}
-
-	// TODO: Should use a strategy pattern or some sort of mixed in
-	protected Iterable<BuildVariant> createBuildVariants() {
-		if (this instanceof TargetMachineAwareComponent) {
-			Set<TargetMachine> targetMachines = ((TargetMachineAwareComponent) this).getTargetMachines().get();
-			return targetMachines.stream().map(it -> (DefaultTargetMachine)it).map(it -> DefaultBuildVariant.of(it.getOperatingSystemFamily(), it.getArchitecture())).collect(Collectors.toList());
-		}
-		throw new GradleException("Not able to create the default build variants");
-	}
-
-	// TODO: Should be part of the component configuration
-	protected abstract Iterable<DimensionType> createDimensions();
 
 	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
 	public abstract SetProperty<DimensionType> getDimensions();
@@ -85,35 +112,197 @@ public abstract class BaseNativeComponent {
 	// TODO: We may want to model this as a BuildVariantRegistry for more richness than a plain set
 	public abstract SetProperty<BuildVariant> getBuildVariants();
 
+	public VariantView<T> getVariants() {
+		return variantCollection.getAsView(variantType);
+	}
+
+	public Provider<? extends BaseNativeVariant> getDevelopmentVariant() {
+		return getProviders().provider(() -> {
+			List<BaseNativeVariant> variants = variantCollection.get().stream().map(it -> {
+				Preconditions.checkArgument(it instanceof BaseNativeVariant);
+				return (BaseNativeVariant) it;
+			}).filter(it -> {
+				DefaultOperatingSystemFamily osFamily = it.getBuildVariant().getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE);
+				DefaultMachineArchitecture architecture = it.getBuildVariant().getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE);
+				if (DefaultOperatingSystemFamily.HOST.equals(osFamily) && DefaultMachineArchitecture.HOST.equals(architecture)) {
+					return true;
+				}
+				return false;
+			}).collect(Collectors.toList());
+
+			if (variants.isEmpty()) {
+				return null;
+			}
+			return one(variants);
+		});
+	}
+
+	protected static <T> T one(Iterable<T> c) {
+		Iterator<T> iterator = c.iterator();
+		Preconditions.checkArgument(iterator.hasNext(), "collection needs to have one element, was empty");
+		T result = iterator.next();
+		Preconditions.checkArgument(!iterator.hasNext(), "collection needs to only have one element, more than one element found");
+		return result;
+	}
+
 	public void finalizeExtension(Project project) {
 		getBuildVariants().get().forEach(buildVariant -> {
 			final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE), buildVariant.getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE));
 			final NamingScheme names = this.names.forBuildVariant(buildVariant, getBuildVariants().get());
 
+			NamedDomainObjectProvider<? extends BaseNativeVariant> variant = Cast.uncheckedCast(variantCollection.registerVariant(buildVariant, it -> {
+				ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
+				// TODO: This is not correct for Swift
+				Configuration headerSearchPaths = getConfigurations().create(names.getConfigurationName("headerSearchPaths"), configurationUtils.asIncomingHeaderSearchPathFrom(getDependencies().getImplementationDependencies(), getDependencies().getCompileOnlyDependencies()));
+
+				DomainObjectSet<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets = Cast.uncheckedCast(getObjects().domainObjectSet(GeneratedSourceSet.class));
+				getSourceCollection().transformEach(UTTypeCSource.INSTANCE, getObjects().newInstance(CSourceSetTransform.class, names, headerSearchPaths)).all(objectSourceSets::add);
+				getSourceCollection().transformEach(UTTypeCppSource.INSTANCE, getObjects().newInstance(CppSourceSetTransform.class, names, headerSearchPaths)).all(objectSourceSets::add);
+				getSourceCollection().transformEach(UTTypeObjectiveCSource.INSTANCE, getObjects().newInstance(ObjectiveCSourceSetTransform.class, names, headerSearchPaths)).all(objectSourceSets::add);
+				getSourceCollection().transformEach(UTTypeObjectiveCppSource
+					.INSTANCE, getObjects().newInstance(ObjectiveCppSourceSetTransform.class, names, headerSearchPaths)).all(objectSourceSets::add);
+				getSourceCollection().transformEach(UTTypeSwiftSource.INSTANCE, getObjects().newInstance(SwiftSourceSetTransform.class, names, headerSearchPaths)).all(objectSourceSets::add);
+
+				objectSourceSets.forEach(objects -> {
+					GeneratedSourceSet<?> source = objects;
+					source.getGeneratedByTask().configure(task -> {
+
+						if (task instanceof AbstractNativeCompileTask) {
+							AbstractNativeCompileTask compileTask = (AbstractNativeCompileTask) task;
+
+							NativePlatformFactory nativePlatformFactory = new NativePlatformFactory();
+							NativePlatformInternal nativePlatform = nativePlatformFactory.create(targetMachineInternal);
+							compileTask.getTargetPlatform().set(nativePlatform);
+							compileTask.getTargetPlatform().finalizeValueOnRead();
+							compileTask.getTargetPlatform().disallowChanges();
+
+							NativeToolChainInternal toolChain = toolChainSelector.select(targetMachineInternal);
+							compileTask.getToolChain().set(toolChain);
+							compileTask.getToolChain().finalizeValueOnRead();
+							compileTask.getToolChain().disallowChanges();
+
+							compileTask.getIncludes().from("src/main/headers");
+
+							final Supplier<ToolType> toolTypeSupplier = () -> {
+								ToolType toolType = null;
+								if (compileTask instanceof CCompileTask) {
+									toolType = ToolType.CPP_COMPILER;
+								} else if (compileTask instanceof CppCompileTask) {
+									toolType = ToolType.CPP_COMPILER;
+								} else if (compileTask instanceof ObjectiveCCompileTask) {
+									toolType = ToolType.OBJECTIVEC_COMPILER;
+								} else if (compileTask instanceof ObjectiveCppCompileTask) {
+									toolType = ToolType.OBJECTIVECPP_COMPILER;
+								}
+								return toolType;
+							};
+
+							final Callable<List<File>> systemIncludes = () -> toolChain.select(nativePlatform).getSystemLibraries(toolTypeSupplier.get()).getIncludeDirs();
+							compileTask.getSystemIncludes().from(systemIncludes);
+						} else if (task instanceof SwiftCompileTask)  {
+							SwiftCompileTask compileTask = (SwiftCompileTask) task;
+
+							NativePlatformFactory nativePlatformFactory = new NativePlatformFactory();
+							NativePlatformInternal nativePlatform = nativePlatformFactory.create(targetMachineInternal);
+							compileTask.getTargetPlatform().set(nativePlatform);
+							compileTask.getTargetPlatform().finalizeValueOnRead();
+							compileTask.getTargetPlatform().disallowChanges();
+
+							NativeToolChainInternal toolChain = toolChainSelector.selectSwift(targetMachineInternal);
+							compileTask.getToolChain().set(toolChain);
+							compileTask.getToolChain().finalizeValueOnRead();
+							compileTask.getToolChain().disallowChanges();
+
+							compileTask.getModuleFile().set(getLayout().getBuildDirectory().file("modules/main/" + project.getName() + ".swiftmodule"));
+							compileTask.getModuleName().set(project.getName());
+						}
+					});
+				});
+
+				BaseNativeVariant variantInternal = (BaseNativeVariant)it;
+				if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
+					DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
+					if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
+						TaskProvider<LinkExecutableTask> linkTask = getTasks().register(names.getTaskName("link"), LinkExecutableTask.class, task -> {
+							task.setDescription("Links the executable.");
+							objectSourceSets.stream().map(SourceSet::getAsFileTree).forEach(task::source);
+
+							NativePlatformFactory nativePlatformFactory = new NativePlatformFactory();
+							NativePlatformInternal nativePlatform = nativePlatformFactory.create(targetMachineInternal);
+							task.getTargetPlatform().set(nativePlatform);
+							task.getTargetPlatform().finalizeValueOnRead();
+							task.getTargetPlatform().disallowChanges();
+
+							// Until we model the build type
+							task.getDebuggable().set(false);
+
+							// Install name set inside SharedLibraryBinaryInternal
+
+							task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(names.getOutputDirectoryBase("exes")));
+
+							task.getToolChain().set(getProviders().provider(() -> toolChainSelector.select(targetMachineInternal)));
+							task.getToolChain().finalizeValueOnRead();
+							task.getToolChain().disallowChanges();
+						});
+						ExecutableBinaryInternal binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets);
+						variantInternal.getBinaryCollection().add(binary);
+						binary.getBaseName().convention(project.getName()); // TODO: Should probably be somewhere else then here
+						linkTask.configure(task -> {
+							task.getLinkedFile().convention(task.getTargetPlatform().flatMap(nativePlatform -> {
+								NativePlatformInternal nativePlatformInternal = (NativePlatformInternal)nativePlatform;
+								String binaryName = nativePlatformInternal.getOperatingSystem().getInternalOs().getExecutableName(binary.getBaseName().get());
+								return getLayout().getBuildDirectory().file(names.getOutputDirectoryBase("exes") + "/" + binaryName);
+							}));
+						});
+					} else if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
+						TaskProvider<LinkSharedLibraryTask> linkTask = getTasks().register(names.getTaskName("link"), LinkSharedLibraryTask.class, task -> {
+							task.setDescription("Links the shared library.");
+							objectSourceSets.stream().map(SourceSet::getAsFileTree).forEach(task::source);
+
+							NativePlatformFactory nativePlatformFactory = new NativePlatformFactory();
+							NativePlatformInternal nativePlatform = nativePlatformFactory.create(targetMachineInternal);
+							task.getTargetPlatform().set(nativePlatform);
+							task.getTargetPlatform().finalizeValueOnRead();
+							task.getTargetPlatform().disallowChanges();
+
+							// Until we model the build type
+							task.getDebuggable().set(false);
+
+							// Install name set inside SharedLibraryBinaryInternal
+
+							task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(names.getOutputDirectoryBase("libs")));
+							task.getLinkedFile().convention(getLayout().getBuildDirectory().file(nativePlatform.getOperatingSystem().getInternalOs().getSharedLibraryName(names.getOutputDirectoryBase("libs") + "/" + project.getName())));
+
+							task.getToolChain().set(getProviders().provider(() -> toolChainSelector.select(targetMachineInternal)));
+							task.getToolChain().finalizeValueOnRead();
+							task.getToolChain().disallowChanges();
+
+							// For windows
+							task.getImportLibrary().set(getProviders().provider(() -> {
+								PlatformToolProvider toolProvider = ((NativeToolChainInternal)task.getToolChain().get()).select(nativePlatform);
+								if (toolProvider.producesImportLibrary()) {
+									return getLayout().getBuildDirectory().file(toolProvider.getImportLibraryName(names.getOutputDirectoryBase("libs") + "/" + project.getName())).get();
+								}
+								return null;
+							}));
+						});
+						// TODO: Dependencies should be coming from variant
+						variantInternal.getBinaryCollection().add(getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), getDependencies().getImplementationDependencies(), targetMachineInternal, objectSourceSets, linkTask, getDependencies().getLinkOnlyDependencies()));
+//					} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
+//						variantInternal.getBinaryCollection().add(getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets));
+					}
+				}
+			}));
+
 			getTasks().register(names.getTaskName("objects"), task -> {
 				task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 				task.setDescription("Assembles main objects.");
+				task.dependsOn(variant.map(it -> it.getBinaries().withType(ExecutableBinary.class).map(ExecutableBinary::getCompileTasks)));
+				task.dependsOn(variant.map(it -> it.getBinaries().withType(SharedLibraryBinary.class).map(SharedLibraryBinary::getCompileTasks)));
+				task.dependsOn(variant.map(it -> it.getBinaries().withType(StaticLibraryBinary.class).map(StaticLibraryBinary::getCompileTasks)));
 			});
 
-			if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
-				DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
-				if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
-					getTasks().register(names.getTaskName("sharedLibrary"), task -> {
-						task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
-						task.setDescription("Assembles a shared library binary containing the main objects.");
-					});
-				} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
-					getTasks().register(names.getTaskName("staticLibrary"), task -> {
-						task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
-						task.setDescription("Assembles a static library binary containing the main objects.");
-					});
-				} else if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
-					getTasks().register(names.getTaskName("executable"), task -> {
-						task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
-						task.setDescription("Assembles a executable binary containing the main objects.");
-					});
-				}
-			}
+			onEachVariant(buildVariant, variant);
 
 			if (getBuildVariants().get().size() > 1) {
 				getTasks().register(names.getTaskName(LifecycleBasePlugin.ASSEMBLE_TASK_NAME), task -> {
@@ -122,6 +311,40 @@ public abstract class BaseNativeComponent {
 			}
 		});
 
+		getTasks().named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME, task -> {
+			task.dependsOn(getDevelopmentVariant().flatMap(BaseNativeVariant::getDevelopmentBinary));
+		});
+
+		// TODO: This may need to be moved somewhere else.
 		// finalize the variantCollection
+		variantCollection.disallowChanges();
+	}
+
+	// TODO: BuildVariant and NamedDomainObjectProvider from VariantCollection should be together.
+	protected void onEachVariant(BuildVariant buildVariant, NamedDomainObjectProvider<? extends BaseNativeVariant> variant) {
+		// TODO: This is dependent per component, for example, iOS will have different target.
+		//  It should be moved lower to the "general" native component
+		if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
+			DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
+			if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
+				getTasks().register(names.getTaskName("sharedLibrary"), task -> {
+					task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
+					task.setDescription("Assembles a shared library binary containing the main objects.");
+					task.dependsOn(variant.map(it -> ((SharedLibraryBinary)it.getDevelopmentBinary().get()).getLinkTask()));
+				});
+			} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
+				getTasks().register(names.getTaskName("staticLibrary"), task -> {
+					task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
+					task.setDescription("Assembles a static library binary containing the main objects.");
+					task.dependsOn(variant.map(it -> ((StaticLibraryBinary)it.getDevelopmentBinary().get()).getCreateTask()));
+				});
+			} else if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
+				getTasks().register(names.getTaskName("executable"), task -> {
+					task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
+					task.setDescription("Assembles a executable binary containing the main objects.");
+					task.dependsOn(variant.map(it -> ((ExecutableBinary)it.getDevelopmentBinary().get()).getLinkTask()));
+				});
+			}
+		}
 	}
 }

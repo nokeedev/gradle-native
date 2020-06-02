@@ -124,7 +124,7 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 
 		and:
 		def result = xcodebuild.withWorkspace(xcodeWorkspace('app.xcworkspace')).withScheme("App").succeeds()
-		result.assertTasksExecutedAndNotSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileMainExecutableMainObjc', ':linkMainExecutable', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___app_App_Default')
+		result.assertTasksExecutedAndNotSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileObjectiveC', ':link', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___app_App_Default')
 	}
 
 	@Requires({ SystemUtils.IS_OS_MAC })
@@ -140,12 +140,12 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 		when:
 		def xcodeResult1 = xcodebuild.withWorkspace(xcodeWorkspace('app.xcworkspace')).withScheme("App").succeeds()
 		then:
-		xcodeResult1.assertTasksExecutedAndNotSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileMainExecutableMainObjc', ':linkMainExecutable', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___app_App_Default')
+		xcodeResult1.assertTasksExecutedAndNotSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileObjectiveC', ':link', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___app_App_Default')
 
 		when:
 		def xcodeResult2 = xcodebuild.withWorkspace(xcodeWorkspace('app.xcworkspace')).withScheme("App").succeeds()
 		then:
-		xcodeResult2.assertTasksSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileMainExecutableMainObjc', ':linkMainExecutable', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___app_App_Default')
+		xcodeResult2.assertTasksSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileObjectiveC', ':link', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___app_App_Default')
 	}
 
 	protected abstract List<String> getExpectedSourceLayoutOfComponentUnderTest();

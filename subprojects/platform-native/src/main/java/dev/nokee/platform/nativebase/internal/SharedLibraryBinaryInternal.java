@@ -1,24 +1,21 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.nativebase.HeaderSearchPath;
 import dev.nokee.language.nativebase.internal.DefaultHeaderSearchPath;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
-import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
-import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.BinaryInternal;
-import dev.nokee.platform.base.internal.DefaultTaskView;
 import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.Realizable;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.Value;
+import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -30,16 +27,13 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.jvm.Jvm;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
-import org.gradle.nativeplatform.platform.NativePlatform;
-import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
+import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
-import org.gradle.nativeplatform.toolchain.NativeToolChain;
-import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
-import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -51,25 +45,20 @@ import java.util.stream.Collectors;
 
 import static dev.nokee.runtime.nativebase.internal.DependencyUtils.isFrameworkDependency;
 
-public abstract class SharedLibraryBinaryInternal extends BinaryInternal implements SharedLibraryBinary {
+public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary, Buildable {
 	private static final Logger LOGGER = Logger.getLogger(SharedLibraryBinaryInternal.class.getName());
 	private final Configuration linkConfiguration;
-	private final TaskContainer tasks;
 	private final TaskProvider<LinkSharedLibraryTask> linkTask;
 	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
 	private final DefaultTargetMachine targetMachine;
-	private final DefaultTaskView<NativeSourceCompile> compileTasks;
-	private final List<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets;
 
 	@Inject
-	public SharedLibraryBinaryInternal(NamingScheme names, TaskContainer tasks, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine, List<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, Configuration linkOnly) {
+	public SharedLibraryBinaryInternal(NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, Configuration linkOnly) {
+		super(objectSourceSets);
 		this.linkTask = linkTask;
-		this.tasks = tasks;
 		sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
 		this.targetMachine = targetMachine;
 		parentSources.all(it -> sources.add(it));
-		this.objectSourceSets = objectSourceSets;
-		compileTasks = getObjects().newInstance(DefaultTaskView.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), (Realizable)() -> {});
 
 		getLinkerInputs().value(fromLinkConfiguration()).finalizeValueOnRead();
 		getLinkerInputs().disallowChanges();
@@ -82,18 +71,21 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 				.withDescription("Link libraries for JNI shared library."));
 
 		// configure includes using the native incoming compile configuration
-		compileTasks.configureEach(task -> {
-			AbstractNativeCompileTask softwareModelTaskInternal = (AbstractNativeCompileTask)task;
-			NativeSourceCompileTask taskInternal = (NativeSourceCompileTask)task;
-			taskInternal.getHeaderSearchPaths().addAll(softwareModelTaskInternal.getIncludes().getElements().map(SharedLibraryBinaryInternal::toHeaderSearchPaths));
+		getCompileTasks().configureEach(task -> {
+			if (task instanceof AbstractNativeCompileTask) {
+				AbstractNativeCompileTask softwareModelTaskInternal = (AbstractNativeCompileTask) task;
+				NativeSourceCompileTask taskInternal = (NativeSourceCompileTask) task;
+				taskInternal.getHeaderSearchPaths().addAll(softwareModelTaskInternal.getIncludes().getElements().map(SharedLibraryBinaryInternal::toHeaderSearchPaths));
 
-			softwareModelTaskInternal.includes("src/main/headers");
+				softwareModelTaskInternal.includes("src/main/headers");
 
-			softwareModelTaskInternal.setPositionIndependentCode(true);
+				softwareModelTaskInternal.setPositionIndependentCode(true);
 
-			sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> softwareModelTaskInternal.getIncludes().from(sourceSet.getSource()));
+				sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> softwareModelTaskInternal.getIncludes().from(sourceSet.getSource()));
 
-			softwareModelTaskInternal.getIncludes().from(getJvmIncludes());
+				// TODO: Move this to JNI Library configuration
+				softwareModelTaskInternal.getIncludes().from(getJvmIncludes());
+			}
 		});
 
 		linkTask.configure(task -> {
@@ -115,11 +107,6 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 	@Inject
 	protected abstract ObjectFactory getObjects();
 
-	@Override
-	public TaskView<? extends NativeSourceCompile> getCompileTasks() {
-		return compileTasks;
-	}
-
 	public TaskProvider<? extends LinkSharedLibrary> getLinkTask() {
 		return linkTask;
 	}
@@ -131,27 +118,12 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 
 	@Override
 	public boolean isBuildable() {
-		if (!compileTasks.getElements().get().stream().allMatch(SharedLibraryBinaryInternal::isBuildable)) {
-			return false;
-		}
-		return isBuildable(linkTask.get());
-	}
-
-	private static boolean isBuildable(NativeSourceCompile compileTask) {
-		AbstractNativeCompileTask compileTaskInternal = (AbstractNativeCompileTask)compileTask;
-		return isBuildable(compileTaskInternal.getToolChain().get(), compileTaskInternal.getTargetPlatform().get());
+		return super.isBuildable() && isBuildable(linkTask.get());
 	}
 
 	private static boolean isBuildable(LinkSharedLibrary linkTask) {
 		AbstractLinkTask linkTaskInternal = (AbstractLinkTask)linkTask;
 		return isBuildable(linkTaskInternal.getToolChain().get(), linkTaskInternal.getTargetPlatform().get());
-	}
-
-	private static boolean isBuildable(NativeToolChain toolchain, NativePlatform platform) {
-		NativeToolChainInternal toolchainInternal = (NativeToolChainInternal)toolchain;
-		NativePlatformInternal platformInternal = (NativePlatformInternal)platform;
-		PlatformToolProvider toolProvider = toolchainInternal.select(platformInternal);
-		return toolProvider.isAvailable();
 	}
 
 	private static List<HeaderSearchPath> toHeaderSearchPaths(Set<FileSystemLocation> paths) {
@@ -199,4 +171,10 @@ public abstract class SharedLibraryBinaryInternal extends BinaryInternal impleme
 		}
 	}
 	//endregion
+
+
+	@Override
+	public TaskDependency getBuildDependencies() {
+		return task -> ImmutableSet.of(getLinkTask().get());
+	}
 }

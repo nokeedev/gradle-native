@@ -23,8 +23,7 @@ public abstract class CppApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
 		NamingScheme names = NamingScheme.asMainComponent(project.getName());
-		DefaultCppApplicationExtension extension = getObjects().newInstance(DefaultCppApplicationExtension.class,
-			getObjects().newInstance(DefaultNativeComponentDependencies.class, names), names);
+		DefaultCppApplicationExtension extension = getObjects().newInstance(DefaultCppApplicationExtension.class, names);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);

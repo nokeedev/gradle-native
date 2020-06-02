@@ -23,8 +23,7 @@ public abstract class SwiftLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 
 		NamingScheme names = NamingScheme.asMainComponent(project.getName());
-		DefaultSwiftLibraryExtension extension = getObjects().newInstance(DefaultSwiftLibraryExtension.class,
-			getObjects().newInstance(DefaultNativeLibraryDependencies.class, names), names);
+		DefaultSwiftLibraryExtension extension = getObjects().newInstance(DefaultSwiftLibraryExtension.class, names);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);

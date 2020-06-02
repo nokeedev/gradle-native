@@ -93,12 +93,13 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 	@Inject
 	protected abstract TaskContainer getTasks();
 
+	@Override
 	public BinaryView<Binary> getBinaries() {
 		return Cast.uncheckedCast(getObjects().newInstance(DefaultBinaryView.class, binaryCollection, (Realizable)() -> {}));
 	}
 
-	public void registerSharedLibraryBinary(List<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants) {
-		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, implementation, targetMachine, objectSourceSets, linkTask, dependencies.getNativeLinkOnlyDependencies());
+	public void registerSharedLibraryBinary(DomainObjectSet<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants) {
+		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, dependencies.getNativeImplementationDependencies(), targetMachine, objectSourceSets, linkTask, dependencies.getNativeLinkOnlyDependencies());
 		getNativeRuntimeFiles().from(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
 		this.sharedLibraryBinary = sharedLibraryBinary;
 		binaryCollection.add(sharedLibraryBinary);

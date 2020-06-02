@@ -19,7 +19,7 @@ class BasicIosApplicationFunctionalTest extends AbstractFunctionalSpec {
 		when:
 		succeeds('assemble')
 		then:
-		result.assertTasksExecutedAndNotSkipped(':compileMainExecutableMainObjc', ':linkMainExecutable', ':mainExecutable',
+		result.assertTasksExecutedAndNotSkipped(':compileObjectiveC', ':link',
 			':compileStoryboard', ':linkStoryboard', ':compileAssetCatalog', ':createApplicationBundle', ':processPropertyList', ':signApplicationBundle',
 			':assemble')
 		bundle('build/ios/products/main/Application.app').assertHasDescendants('Application', 'Assets.car', 'Base.lproj/LaunchScreen.storyboardc', 'Base.lproj/Main.storyboardc', 'Info.plist', 'PkgInfo', '_CodeSignature/CodeResources')

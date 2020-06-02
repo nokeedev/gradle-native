@@ -11,7 +11,7 @@ import org.gradle.api.tasks.TaskProvider;
  *
  * @since 0.3
  */
-public interface SharedLibraryBinary extends Binary {
+public interface SharedLibraryBinary extends NativeBinary {
 	/**
 	 * Returns a view of all the compile tasks that participate to compiling all the object files for this binary.
 	 *

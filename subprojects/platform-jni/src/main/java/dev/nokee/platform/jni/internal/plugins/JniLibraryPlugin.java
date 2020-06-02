@@ -14,9 +14,11 @@ import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetTransform;
 import dev.nokee.language.objectivec.internal.UTTypeObjectiveCSource;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetTransform;
 import dev.nokee.language.objectivecpp.internal.UTTypeObjectiveCppSource;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
@@ -53,6 +55,7 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
+import org.gradle.internal.Cast;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.language.nativeplatform.internal.toolchains.ToolChainSelector;
@@ -130,26 +133,26 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				// Find toolchain capable of building C++
 				final NamedDomainObjectProvider<JniLibraryInternal> library = extension.getVariantCollection().registerVariant(buildVariant, it -> {
 					// Build all language source set
-					List<SourceSet<UTTypeObjectCode>> objectSourceSets = new ArrayList<>();
+					DomainObjectSet<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets = Cast.uncheckedCast(getObjects().domainObjectSet(GeneratedSourceSet.class));
 					if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
 						ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
 						Configuration compileConfiguration = getConfigurations().create(names.getConfigurationName("headerSearchPaths"), configurationUtils.asIncomingHeaderSearchPathFrom(extension.getNativeImplementationDependencies()));
 
 						if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
 							SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(CppSourceSet.class).srcDir("src/main/cpp").transform(getObjects().newInstance(CppSourceSetTransform.class, names, compileConfiguration));
-							objectSourceSets.add(objectSourceSet);
+							objectSourceSets.add((GeneratedSourceSet<UTTypeObjectCode>)objectSourceSet);
 						}
 						if (proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
 							SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(CSourceSet.class).srcDir("src/main/c").transform(getObjects().newInstance(CSourceSetTransform.class, names, compileConfiguration));
-							objectSourceSets.add(objectSourceSet);
+							objectSourceSets.add((GeneratedSourceSet<UTTypeObjectCode>)objectSourceSet);
 						}
 						if (proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
-							SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(DefaultSourceSet.class, new UTTypeObjectiveCppSource()).srcDir("src/main/objcpp").transform(getObjects().newInstance(ObjectiveCppSourceSetTransform.class, names, compileConfiguration));
-							objectSourceSets.add(objectSourceSet);
+							SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(ObjectiveCppSourceSet.class).srcDir("src/main/objcpp").transform(getObjects().newInstance(ObjectiveCppSourceSetTransform.class, names, compileConfiguration));
+							objectSourceSets.add((GeneratedSourceSet<UTTypeObjectCode>)objectSourceSet);
 						}
 						if (proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-							SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(DefaultSourceSet.class, new UTTypeObjectiveCSource()).srcDir("src/main/objc").transform(getObjects().newInstance(ObjectiveCSourceSetTransform.class, names, compileConfiguration));
-							objectSourceSets.add(objectSourceSet);
+							SourceSet<UTTypeObjectCode> objectSourceSet = getObjects().newInstance(ObjectiveCSourceSet.class).srcDir("src/main/objc").transform(getObjects().newInstance(ObjectiveCSourceSetTransform.class, names, compileConfiguration));
+							objectSourceSets.add((GeneratedSourceSet<UTTypeObjectCode>)objectSourceSet);
 						}
 
 						objectSourceSets.forEach(objects -> {
@@ -220,7 +223,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 						}));
 					});
 
-					it.registerSharedLibraryBinary(objectSourceSets.stream().map(s -> (GeneratedSourceSet<UTTypeObjectCode>)s).collect(Collectors.toList()), linkTask, targetMachines.size() > 1);
+					it.registerSharedLibraryBinary(objectSourceSets, linkTask, targetMachines.size() > 1);
 
 					if (jvmJarBinary.isPresent() && targetMachines.size() == 1) {
 						it.addJniJarBinary(jvmJarBinary.get());

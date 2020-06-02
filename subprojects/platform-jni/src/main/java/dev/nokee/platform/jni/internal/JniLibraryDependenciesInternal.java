@@ -26,8 +26,8 @@ public abstract class JniLibraryDependenciesInternal extends JniLibraryNativeDep
 		// Kotlin may create this configuration before us
 		apiDependencies = getObjects().newInstance(DefaultDependencyBucket.class, Optional.ofNullable(getConfigurations().findByName(names.getConfigurationName("api"))).orElseGet(() -> getConfigurations().create(names.getConfigurationName("api"), builder.asBucket().withDescription("API dependencies for JNI library."))));
 
-		jvmImplementationDependencies = getObjects().newInstance(DefaultDependencyBucket.class, getConfigurations().create("jvmImplementation", builder.asBucket(apiDependencies.getAsConfiguration()).withDescription("Implementation only dependencies for JNI library.")));
-		jvmRuntimeOnly = getObjects().newInstance(DefaultDependencyBucket.class, getConfigurations().create("jvmRuntimeOnly", builder.asBucket().withDescription("Runtime only dependencies for JNI library.")));
+		jvmImplementationDependencies = getObjects().newInstance(DefaultDependencyBucket.class, getConfigurations().create(names.getConfigurationName("jvmImplementation"), builder.asBucket(apiDependencies.getAsConfiguration()).withDescription("Implementation only dependencies for JNI library.")));
+		jvmRuntimeOnly = getObjects().newInstance(DefaultDependencyBucket.class, getConfigurations().create(names.getConfigurationName("jvmRuntimeOnly"), builder.asBucket().withDescription("Runtime only dependencies for JNI library.")));
 	}
 
 	@Override

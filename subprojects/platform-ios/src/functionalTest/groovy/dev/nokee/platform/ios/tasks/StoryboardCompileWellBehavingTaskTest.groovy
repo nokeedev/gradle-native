@@ -7,6 +7,7 @@ import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskAssertion
 import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskProperty
 import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskPropertyValue
 import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskSpec
+import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskTransform
 import dev.nokee.platform.ios.tasks.internal.StoryboardCompileTask
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppBaseLanguage
 import org.apache.commons.lang3.SystemUtils
@@ -43,15 +44,15 @@ class StoryboardCompileWellBehavingTaskTest extends WellBehavingTaskTest {
 			.configureAsFileCollection()
 			.withInitialValue(WellBehavingTaskPropertyValue.GroovyDslExpression.of('project.fileTree("src/main/resources", { include("*.lproj/*.storyboard") })'))
 			// Remove one file
-			.incremental({assert it.file('src/main/resources/Base.lproj/LaunchScreen.storyboard').delete()}, {
+			.incremental(describe('remove one file', {assert it.file('src/main/resources/Base.lproj/LaunchScreen.storyboard').delete()}), {
 				it.file('output-directory').assertIsDirectory()
 				it.file('output-directory/Base.lproj').assertIsDirectory()
 				assert it.file('output-directory/Base.lproj').listFiles()*.name as Set == ['Main.storyboardc'] as Set
 			})
 			// Remove all files
-			.incremental({assert it.file('src/main/resources/Base.lproj').deleteDir()}, {it.file('output-directory').assertHasDescendants()})
+			.incremental(describe('remove all files', {assert it.file('src/main/resources/Base.lproj').deleteDir()}), {it.file('output-directory').assertHasDescendants()})
 			// Add one file
-			.incremental({new GenericStoryboard('AnotherLaunchScreen').writeToProject(it.testDirectory)}, {
+			.incremental(describe('add one file', {new GenericStoryboard('AnotherLaunchScreen').writeToProject(it.testDirectory)}), {
 				it.file('output-directory').assertIsDirectory()
 				it.file('output-directory/Base.lproj').assertIsDirectory()
 				assert it.file('output-directory/Base.lproj').listFiles()*.name as Set == ['LaunchScreen.storyboardc', 'Main.storyboardc', 'AnotherLaunchScreen.storyboardc'] as Set
@@ -83,6 +84,20 @@ class StoryboardCompileWellBehavingTaskTest extends WellBehavingTaskTest {
 			.build()
 
 		return result
+	}
+
+	WellBehavingTaskTransform describe(String description, WellBehavingTaskTransform transform) {
+		return new WellBehavingTaskTransform() {
+			@Override
+			void applyChanges(WellBehavingTaskSpec context) {
+				transform.applyChanges(context)
+			}
+
+			@Override
+			String getDescription() {
+				return description
+			}
+		}
 	}
 
 	@Override

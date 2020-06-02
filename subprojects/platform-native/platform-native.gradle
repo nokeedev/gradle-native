@@ -33,7 +33,13 @@ dependencies {
 	testFixturesImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
 	testFixturesImplementation 'org.hamcrest:hamcrest:2.2'
 	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	testFixturesImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {
+		capabilities {
+			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
+		}
+	}
 
+	functionalTestImplementation testFixtures(project(':platformNative'))
 	functionalTestImplementation testFixtures(project(':languageNative'))
 }
 
@@ -79,5 +85,11 @@ gradlePlugin {
 			id = 'dev.nokee.swift-library'
 			implementationClass = 'dev.nokee.platform.swift.internal.plugins.SwiftLibraryPlugin'
 		}
+	}
+}
+
+components.functionalTest {
+	dependencies {
+		implementation 'dev.nokee:templates:latest.integration'
 	}
 }

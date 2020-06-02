@@ -23,8 +23,7 @@ public abstract class CLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
 		NamingScheme names = NamingScheme.asMainComponent(project.getName());
-		DefaultCLibraryExtension extension = getObjects().newInstance(DefaultCLibraryExtension.class,
-			getObjects().newInstance(DefaultNativeLibraryDependencies.class, names), names);
+		DefaultCLibraryExtension extension = getObjects().newInstance(DefaultCLibraryExtension.class, names);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);

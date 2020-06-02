@@ -5,8 +5,9 @@ import dev.nokee.ide.xcode.XcodeIdeProjectExtension;
 import dev.nokee.ide.xcode.XcodeIdeTarget;
 import dev.nokee.ide.xcode.internal.XcodeIdePropertyAdapter;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
+import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
+import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
-import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -49,6 +50,7 @@ import java.util.stream.Stream;
 public abstract class XcodeIdeObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
+		ObjectiveCIosApplicationExtension application = project.getExtensions().getByType(ObjectiveCIosApplicationExtension.class);
 		String moduleName = GUtil.toCamelCase(project.getName());
 		project.getExtensions().getByType(XcodeIdeProjectExtension.class).getProjects().register(project.getName(), xcodeProject -> {
 
@@ -60,7 +62,7 @@ public abstract class XcodeIdeObjectiveCIosApplicationPlugin implements Plugin<P
 				xcodeTarget.getProductType().set(XcodeIdeProductTypes.APPLICATION);
 
 				xcodeTarget.getBuildConfigurations().register("Default", xcodeConfiguration -> {
-					xcodeConfiguration.getProductLocation().set(getTasks().named("signApplicationBundle", SignIosApplicationBundleTask.class).flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle));
+					xcodeConfiguration.getProductLocation().set(application.getVariants().getElements().flatMap(it -> it.iterator().next().getBinaries().withType(SignedIosApplicationBundleInternal.class).get().iterator().next().getApplicationBundleLocation()));
 					xcodeConfiguration.getBuildSettings()
 						.put("BUNDLE_LOADER", "$(TEST_HOST)")
 						// Codesign

@@ -23,8 +23,7 @@ public abstract class SwiftApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 
 		NamingScheme names = NamingScheme.asMainComponent(project.getName());
-		DefaultSwiftApplicationExtension extension = getObjects().newInstance(DefaultSwiftApplicationExtension.class,
-			getObjects().newInstance(DefaultNativeComponentDependencies.class, names), names);
+		DefaultSwiftApplicationExtension extension = getObjects().newInstance(DefaultSwiftApplicationExtension.class, names);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);

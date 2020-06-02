@@ -14,7 +14,7 @@ dependencies {
 	implementation project(':coreExec')
 	implementation project(':runtimeDarwin')
 	implementation project(':runtimeNative')
-	implementation project(':platformBase')
+	api project(':platformBase')
 	implementation project(':platformNative')
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
@@ -34,6 +34,9 @@ dependencies {
 		}
 	}
 	testImplementation(testFixtures(project(':platformNative')))
+
+	functionalTestImplementation testFixtures(project(':platformNative'))
+	functionalTestImplementation testFixtures(project(':languageNative'))
 }
 
 gradlePlugin {

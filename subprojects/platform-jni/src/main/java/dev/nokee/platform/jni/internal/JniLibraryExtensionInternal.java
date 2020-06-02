@@ -81,7 +81,7 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 			variantDependencies.extendsFrom(dependencies);
 		}
 
-		JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, name, names, sources, dependencies.getNativeDependencies(), buildVariant, groupId, binaryCollection, variantDependencies);
+		JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, name, names, sources, buildVariant, groupId, binaryCollection, variantDependencies);
 		return result;
 	}
 

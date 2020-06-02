@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import java.io.*;
 
 public abstract class SignIosApplicationBundleTask extends DefaultTask {
+	@SkipWhenEmpty
 	@InputDirectory
 	public abstract Property<FileSystemLocation> getUnsignedApplicationBundle();
 

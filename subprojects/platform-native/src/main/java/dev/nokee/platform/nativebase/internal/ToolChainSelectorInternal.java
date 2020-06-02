@@ -14,6 +14,7 @@ import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInter
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import org.gradle.nativeplatform.toolchain.internal.msvcpp.VisualCppToolChain;
 import org.gradle.nativeplatform.toolchain.internal.swift.SwiftcToolChain;
+import org.gradle.platform.base.ToolChain;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -44,6 +45,20 @@ public class ToolChainSelectorInternal {
 		NativePlatformInternal targetPlatform = nativePlatformFactory.create(targetMachine);
 		NativeToolChainRegistryInternal registry = modelRegistry.realize("toolChains", NativeToolChainRegistryInternal.class);
 		NativeToolChainInternal toolChain = (NativeToolChainInternal)registry.getForPlatform(targetPlatform);
+		toolChain.assertSupported();
+
+		return toolChain;
+	}
+
+	public NativeToolChainInternal selectSwift(TargetMachine targetMachine) {
+		NativePlatformInternal targetPlatform = nativePlatformFactory.create(targetMachine);
+		// HACK(daniel): Supa hacka! The way native platform match with the toolchain for Swift is a bit special.
+		//  By using the "host" platform we can have the Swift toolchain selection happen. ;-)
+		if (targetMachine.getOperatingSystemFamily().equals(DefaultOperatingSystemFamily.IOS)) {
+			targetPlatform = DefaultNativePlatform.host();
+		}
+		NativeToolChainRegistryInternal registry = modelRegistry.realize("toolChains", NativeToolChainRegistryInternal.class);
+		NativeToolChainInternal toolChain = (NativeToolChainInternal)registry.getForPlatform(NativeLanguage.SWIFT, targetPlatform);
 		toolChain.assertSupported();
 
 		return toolChain;

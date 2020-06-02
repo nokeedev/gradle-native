@@ -7,7 +7,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.FileTree;
 import org.gradle.api.file.FileType;
+import org.gradle.api.internal.tasks.TaskExecutionOutcome;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
@@ -56,6 +58,11 @@ public abstract class StoryboardCompileTask extends DefaultTask {
 				}
 			}
 		} else {
+			if (getSources().getAsFileTree().isEmpty()) {
+				getState().setDidWork(false);
+				getState().setOutcome(TaskExecutionOutcome.NO_SOURCE);
+				return;
+			}
 			for (File source : getSources()) {
 				build(source);
 			}

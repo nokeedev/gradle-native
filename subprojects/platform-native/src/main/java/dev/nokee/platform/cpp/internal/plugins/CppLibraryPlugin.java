@@ -23,8 +23,7 @@ public abstract class CppLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
 		NamingScheme names = NamingScheme.asMainComponent(project.getName());
-		DefaultCppLibraryExtension extension = getObjects().newInstance(DefaultCppLibraryExtension.class,
-			getObjects().newInstance(DefaultNativeLibraryDependencies.class, names), names);
+		DefaultCppLibraryExtension extension = getObjects().newInstance(DefaultCppLibraryExtension.class, names);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);

@@ -16,6 +16,7 @@ public abstract class AssetCatalogCompileTask extends DefaultTask {
 	@OutputDirectory
 	public abstract DirectoryProperty getDestinationDirectory();
 
+	@SkipWhenEmpty
 	@InputDirectory
 	public abstract RegularFileProperty getSource();
 
