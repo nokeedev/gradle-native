@@ -1,18 +1,19 @@
 package dev.nokee.core.exec;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.output.TeeOutputStream;
+import org.gradle.api.GradleException;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.process.ExecOperations;
+import org.gradle.process.ExecResult;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 public abstract class GradleWorkerExecutorEngine implements CommandLineToolExecutionEngine<GradleWorkerExecutorEngine.Handle> {
 	@Inject
@@ -49,19 +50,25 @@ public abstract class GradleWorkerExecutorEngine implements CommandLineToolExecu
 
 		@Override
 		public void execute() {
-			getExecOperations().exec(spec -> {
-				spec.commandLine(getParameters().getCommandLine().get());
+			ByteArrayOutputStream logs = new ByteArrayOutputStream();
+			try {
+				getExecOperations().exec(spec -> {
+					spec.commandLine(getParameters().getCommandLine().get());
 
-				if (getParameters().getStandardStreamFile().isPresent()) {
-					try {
-						OutputStream outStream = new FileOutputStream(getParameters().getStandardStreamFile().get().getAsFile(), true);
-						spec.setStandardOutput(outStream);
-						spec.setErrorOutput(outStream);
-					} catch (FileNotFoundException e) {
-						throw new UnsupportedOperationException(e);
+					OutputStream outStream = logs;
+					if (getParameters().getStandardStreamFile().isPresent()) {
+						try {
+							outStream = new TeeOutputStream(new FileOutputStream(getParameters().getStandardStreamFile().get().getAsFile(), true), outStream);
+						} catch (FileNotFoundException e) {
+							throw new UncheckedIOException(e);
+						}
 					}
-				}
-			});
+					spec.setStandardOutput(outStream);
+					spec.setErrorOutput(outStream);
+				});
+			} catch (GradleException e) {
+				throw new ExecException("An error happen while executing command, here is the output:\n" + logs.toString());
+			}
 		}
 	}
 }
