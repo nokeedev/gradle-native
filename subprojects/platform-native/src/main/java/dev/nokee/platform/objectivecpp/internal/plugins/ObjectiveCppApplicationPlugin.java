@@ -1,7 +1,6 @@
 package dev.nokee.platform.objectivecpp.internal.plugins;
 
 import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplicationExtension;
 import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppApplicationExtension;

@@ -1,5 +1,4 @@
 import dev.nokee.platform.jni.JvmJarBinary
-import dev.nokee.platform.nativebase.SharedLibraryBinary
 
 plugins {
 	id 'java'

@@ -2,12 +2,8 @@ package dev.nokee.platform.objectivec
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
-import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
 import dev.nokee.fixtures.AbstractNativeLanguageIncrementalCompilationFunctionalTest
 import dev.nokee.language.objectivec.ObjectiveCTaskNames
-import dev.nokee.platform.nativebase.fixtures.ObjectiveCGreeterApp
-import dev.nokee.platform.nativebase.fixtures.ObjectiveCGreeterLib
 import spock.lang.Requires
 import spock.util.environment.OperatingSystem
 

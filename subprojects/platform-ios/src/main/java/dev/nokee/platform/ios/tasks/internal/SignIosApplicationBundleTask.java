@@ -10,7 +10,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.File;
 
 public abstract class SignIosApplicationBundleTask extends DefaultTask {
 	@SkipWhenEmpty

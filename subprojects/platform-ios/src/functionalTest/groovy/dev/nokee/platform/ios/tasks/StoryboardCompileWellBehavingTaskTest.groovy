@@ -3,13 +3,9 @@ package dev.nokee.platform.ios.tasks
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.core.exec.CommandLineTool
 import dev.nokee.platform.ios.fixtures.elements.GenericStoryboard
-import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskAssertion
-import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskProperty
-import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskPropertyValue
-import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskSpec
-import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskTransform
-import dev.nokee.platform.ios.tasks.internal.StoryboardCompileTask
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppBaseLanguage
+import dev.nokee.platform.ios.tasks.fixtures.*
+import dev.nokee.platform.ios.tasks.internal.StoryboardCompileTask
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Task
 import spock.lang.Requires

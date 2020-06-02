@@ -17,7 +17,6 @@
 package dev.nokee.ide.xcode.internal.xcodeproj;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 
 /**

@@ -5,7 +5,6 @@ import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.cpp.CppLibraryExtension;
 import dev.nokee.platform.nativebase.NativeLibraryDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import org.gradle.api.Action;
 import org.gradle.api.Project;

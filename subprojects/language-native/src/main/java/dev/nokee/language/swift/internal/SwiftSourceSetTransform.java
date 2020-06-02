@@ -6,8 +6,6 @@ import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.language.base.internal.SourceSetTransform;
 import dev.nokee.language.nativebase.internal.NativeSourceSetTransform;
 import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
-import dev.nokee.language.objectivecpp.internal.UTTypeObjectiveCppSource;
-import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.internal.NamingScheme;
 import lombok.Value;
@@ -21,7 +19,6 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.Cast;
-import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.swift.SwiftVersion;
 
 import javax.inject.Inject;

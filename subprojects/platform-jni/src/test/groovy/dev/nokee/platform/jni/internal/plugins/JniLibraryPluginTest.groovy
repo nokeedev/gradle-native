@@ -1,10 +1,6 @@
 package dev.nokee.platform.jni.internal.plugins
 
-import dev.nokee.fixtures.AbstractPluginTest
-import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
-import dev.nokee.fixtures.AbstractTaskPluginTest
-import dev.nokee.fixtures.NativeServicesTestFixture
-import dev.nokee.fixtures.ProjectTestFixture
+import dev.nokee.fixtures.*
 import dev.nokee.platform.jni.JniLibraryDependencies
 import dev.nokee.platform.jni.JniLibraryExtension
 import dev.nokee.platform.jni.JniLibraryNativeDependencies

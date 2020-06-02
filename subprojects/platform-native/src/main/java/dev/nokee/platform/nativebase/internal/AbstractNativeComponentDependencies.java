@@ -1,7 +1,6 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;

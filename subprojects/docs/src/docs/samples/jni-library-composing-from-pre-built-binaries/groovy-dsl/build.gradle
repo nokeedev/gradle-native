@@ -3,8 +3,6 @@ plugins {
 	id 'dev.nokee.jni-library'
 }
 
-import dev.nokee.runtime.nativebase.OperatingSystemFamily
-
 String getLibraryFilePathFor(OperatingSystemFamily osFamily) {
 	if (osFamily.windows) {
 		return "pre-built-libraries/windows/jni-greeter.dll"

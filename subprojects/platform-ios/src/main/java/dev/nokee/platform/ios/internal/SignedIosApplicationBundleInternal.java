@@ -2,7 +2,6 @@ package dev.nokee.platform.ios.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
-import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryInternal;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;

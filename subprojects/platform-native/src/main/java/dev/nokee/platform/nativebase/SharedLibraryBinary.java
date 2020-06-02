@@ -1,7 +1,6 @@
 package dev.nokee.platform.nativebase;
 
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
-import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import org.gradle.api.tasks.TaskProvider;

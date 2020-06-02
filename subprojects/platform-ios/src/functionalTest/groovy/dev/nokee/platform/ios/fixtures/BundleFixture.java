@@ -3,7 +3,6 @@ package dev.nokee.platform.ios.fixtures;
 import dev.gradleplugins.test.fixtures.file.TestFile;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;

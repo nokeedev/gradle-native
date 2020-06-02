@@ -1,13 +1,10 @@
 package dev.nokee.platform.objectivecpp.internal;
 
-import dev.nokee.language.base.internal.DefaultSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
-import dev.nokee.language.objectivecpp.internal.UTTypeObjectiveCppSource;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.NativeLibraryDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryDependencies;
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibraryExtension;
 import org.gradle.api.Action;
 import org.gradle.api.Project;

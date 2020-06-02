@@ -3,7 +3,6 @@ package dev.nokee.platform.ios
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.fixtures.AbstractNativeLanguageIncrementalCompilationFunctionalTest
-import dev.nokee.language.objectivec.ObjectiveCTaskNames
 import dev.nokee.language.swift.SwiftTaskNames
 import dev.nokee.platform.ios.fixtures.IosTaskNames
 

@@ -2,14 +2,11 @@ package dev.nokee.core.exec;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import dev.nokee.core.exec.internal.DefaultCommandLine;
-import dev.nokee.core.exec.internal.DefaultCommandLineTool;
 import dev.nokee.core.exec.internal.DefaultCommandLineToolArguments;
 import dev.nokee.core.exec.internal.SystemCommandLineTool;
 import lombok.NonNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;

@@ -1,7 +1,5 @@
 package dev.nokee.core.exec;
 
-import com.google.common.hash.Hasher;
-import com.google.common.hash.Hashing;
 import dev.nokee.core.exec.internal.DefaultCommandLineToolExecutionResult;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.exec.PumpStreamHandler;
@@ -9,8 +7,6 @@ import org.apache.commons.exec.PumpStreamHandler;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
-import java.util.Map;
 import java.util.function.Supplier;
 
 public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<ProcessBuilderEngine.Handle> {

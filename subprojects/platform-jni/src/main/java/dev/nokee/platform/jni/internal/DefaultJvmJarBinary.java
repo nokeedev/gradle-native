@@ -1,6 +1,5 @@
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JvmJarBinary;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.jvm.tasks.Jar;

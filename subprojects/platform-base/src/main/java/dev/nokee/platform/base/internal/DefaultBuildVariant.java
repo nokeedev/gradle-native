@@ -1,7 +1,6 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.runtime.base.internal.DefaultDimensionType;
 import dev.nokee.runtime.base.internal.Dimension;
 import dev.nokee.runtime.base.internal.DimensionType;
 import lombok.Value;

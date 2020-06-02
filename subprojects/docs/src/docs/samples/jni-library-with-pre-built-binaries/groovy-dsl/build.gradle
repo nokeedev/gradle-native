@@ -4,7 +4,6 @@ plugins {
 	id 'dev.nokee.cpp-language'
 }
 
-import dev.nokee.runtime.nativebase.OperatingSystemFamily
 
 import java.util.concurrent.Callable
 

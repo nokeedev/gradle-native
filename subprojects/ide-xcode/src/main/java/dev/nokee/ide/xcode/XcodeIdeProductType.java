@@ -2,7 +2,6 @@ package dev.nokee.ide.xcode;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 /**

@@ -11,11 +11,7 @@ import dev.gradleplugins.test.fixtures.gradle.executer.GradleExecuter
 import dev.gradleplugins.test.fixtures.gradle.executer.internal.LogContent
 import dev.gradleplugins.test.fixtures.gradle.executer.internal.OutputScrapingExecutionResult
 import dev.gradleplugins.test.fixtures.gradle.logging.ConsoleOutput
-import dev.nokee.docs.fixtures.Command
-import dev.nokee.docs.fixtures.JarCommandHelper
-import dev.nokee.docs.fixtures.SampleContentFixture
-import dev.nokee.docs.fixtures.TreeCommandHelper
-import dev.nokee.docs.fixtures.UnzipCommandHelper
+import dev.nokee.docs.fixtures.*
 import dev.nokee.docs.fixtures.html.HtmlTag
 import dev.nokee.docs.tags.Baked
 import groovy.transform.ToString

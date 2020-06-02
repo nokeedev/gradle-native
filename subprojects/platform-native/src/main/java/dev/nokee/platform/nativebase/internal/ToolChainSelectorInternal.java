@@ -14,7 +14,6 @@ import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInter
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import org.gradle.nativeplatform.toolchain.internal.msvcpp.VisualCppToolChain;
 import org.gradle.nativeplatform.toolchain.internal.swift.SwiftcToolChain;
-import org.gradle.platform.base.ToolChain;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

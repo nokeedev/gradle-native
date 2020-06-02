@@ -1,7 +1,6 @@
 package dev.nokee.platform.objectivec.internal.plugins;
 
 import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryDependencies;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.objectivec.ObjectiveCLibraryExtension;
 import dev.nokee.platform.objectivec.internal.DefaultObjectiveCLibraryExtension;

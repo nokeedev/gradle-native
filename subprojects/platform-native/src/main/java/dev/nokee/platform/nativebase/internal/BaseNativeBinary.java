@@ -1,7 +1,6 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.base.internal.GeneratedSourceSet;
-import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.platform.base.TaskView;

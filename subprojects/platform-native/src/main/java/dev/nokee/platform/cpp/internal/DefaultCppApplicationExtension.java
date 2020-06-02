@@ -1,14 +1,11 @@
 package dev.nokee.platform.cpp.internal;
 
-import dev.nokee.language.base.internal.DefaultSourceSet;
 import dev.nokee.language.cpp.internal.CppSourceSet;
-import dev.nokee.language.cpp.internal.UTTypeCppSource;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.cpp.CppApplicationExtension;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
-import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 

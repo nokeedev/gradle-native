@@ -3,7 +3,6 @@ package dev.nokee.platform.c.internal.plugins;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.c.CApplicationExtension;
 import dev.nokee.platform.c.internal.DefaultCApplicationExtension;
-import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

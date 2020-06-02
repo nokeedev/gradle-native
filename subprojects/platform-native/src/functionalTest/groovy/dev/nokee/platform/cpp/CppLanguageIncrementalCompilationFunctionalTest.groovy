@@ -1,11 +1,8 @@
 package dev.nokee.platform.cpp
 
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
-import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
+
 import dev.nokee.fixtures.AbstractNativeLanguageIncrementalCompilationFunctionalTest
 import dev.nokee.language.cpp.CppTaskNames
-import dev.nokee.platform.nativebase.fixtures.CppGreeterApp
-import dev.nokee.platform.nativebase.fixtures.CppGreeterLib
 
 class CppApplicationNativeLanguageIncrementalCompilationFunctionalTest extends AbstractNativeLanguageIncrementalCompilationFunctionalTest implements CppTaskNames {
 	@Override

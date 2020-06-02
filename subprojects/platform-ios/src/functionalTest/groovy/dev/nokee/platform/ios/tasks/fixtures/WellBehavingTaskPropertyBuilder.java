@@ -1,10 +1,5 @@
 package dev.nokee.platform.ios.tasks.fixtures;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import dev.gradleplugins.test.fixtures.file.TestFile;
-import dev.gradleplugins.test.fixtures.gradle.executer.ExecutionResult;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.gradle.api.Task;
 

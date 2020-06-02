@@ -1,6 +1,7 @@
 package dev.nokee.platform.ios.internal;
 
-import com.google.gson.*;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import dev.nokee.core.exec.internal.AbstractCommandLineTool;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.tasks.Input;

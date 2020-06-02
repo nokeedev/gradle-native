@@ -4,8 +4,6 @@ import dev.nokee.runtime.base.internal.DefaultDimensionType;
 import dev.nokee.runtime.base.internal.Dimension;
 import dev.nokee.runtime.base.internal.DimensionType;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.Value;
 import org.gradle.api.Named;

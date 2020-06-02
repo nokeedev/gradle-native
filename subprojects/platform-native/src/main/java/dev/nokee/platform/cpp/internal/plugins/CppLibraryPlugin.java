@@ -3,7 +3,6 @@ package dev.nokee.platform.cpp.internal.plugins;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.cpp.CppLibraryExtension;
 import dev.nokee.platform.cpp.internal.DefaultCppLibraryExtension;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryDependencies;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

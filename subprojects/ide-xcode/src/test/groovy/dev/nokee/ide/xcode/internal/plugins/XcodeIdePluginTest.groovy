@@ -4,7 +4,6 @@ import dev.nokee.ide.xcode.XcodeIdeProductType
 import dev.nokee.ide.xcode.XcodeIdeProductTypes
 import dev.nokee.ide.xcode.XcodeIdeProjectExtension
 import dev.nokee.ide.xcode.XcodeIdeWorkspaceExtension
-import org.apache.commons.io.FilenameUtils
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject

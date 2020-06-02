@@ -2,12 +2,8 @@ package dev.nokee.platform.swift
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
 import dev.nokee.fixtures.AbstractNativeLanguageIncrementalCompilationFunctionalTest
 import dev.nokee.language.swift.SwiftTaskNames
-import dev.nokee.platform.nativebase.fixtures.SwiftGreeterApp
-import dev.nokee.platform.nativebase.fixtures.SwiftGreeterLib
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
 class SwiftApplicationLanguageIncrementalCompilationFunctionalTest extends AbstractNativeLanguageIncrementalCompilationFunctionalTest implements SwiftTaskNames {

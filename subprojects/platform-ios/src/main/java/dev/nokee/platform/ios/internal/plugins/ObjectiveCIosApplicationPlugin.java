@@ -1,38 +1,26 @@
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
-import dev.nokee.core.exec.internal.VersionedCommandLineTool;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
-import dev.nokee.platform.ios.internal.DescriptorCommandLineTool;
-import dev.nokee.platform.ios.tasks.internal.*;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
-import org.gradle.api.tasks.TaskProvider;
-import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
 import org.gradle.nativeplatform.toolchain.Clang;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
 import org.gradle.nativeplatform.toolchain.internal.gcc.DefaultGccPlatformToolChain;
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
-import org.gradle.util.GUtil;
-import org.gradle.util.VersionNumber;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.util.Arrays;
 
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
