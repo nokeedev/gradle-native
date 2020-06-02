@@ -47,17 +47,17 @@ public abstract class ConfigurationUtils {
 					.build()));
 	}
 
-	public IncomingConfigurationAction asIncomingHeaderSearchPathFrom(Configuration fromBucket) {
+	public IncomingConfigurationAction asIncomingHeaderSearchPathFrom(Configuration... fromBuckets) {
 		return getObjects().newInstance(IncomingConfigurationAction.class,
-			ConfigurationSpec.asIncoming(fromBucket).withAttributes(
+			ConfigurationSpec.asIncoming(fromBuckets).withAttributes(
 				ImmutableMap.<Attribute<?>, Object>builder()
 					.put(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))
 					.build()));
 	}
 
-	public IncomingConfigurationAction asIncomingLinkLibrariesFrom(Configuration... fromBucket) {
+	public IncomingConfigurationAction asIncomingLinkLibrariesFrom(Configuration... fromBuckets) {
 		return getObjects().newInstance(IncomingConfigurationAction.class,
-			ConfigurationSpec.asIncoming(fromBucket).withAttributes(
+			ConfigurationSpec.asIncoming(fromBuckets).withAttributes(
 				ImmutableMap.<Attribute<?>, Object>builder()
 					.put(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.NATIVE_LINK))
 					.build()));

@@ -116,11 +116,11 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	}
 
 	public Configuration getNativeImplementationDependencies() {
-		return dependencies.getNativeDependencies();
+		return dependencies.getNativeImplementationDependencies();
 	}
 
 	public Configuration getJvmImplementationDependencies() {
-		return dependencies.getJvmDependencies();
+		return dependencies.getJvmImplementationDependencies();
 	}
 
 	@Override

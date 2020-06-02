@@ -14,22 +14,33 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import static dev.nokee.fixtures.CollectionTestFixture.one
-import static dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes.*
-import static dev.nokee.runtime.nativebase.internal.LibraryElements.*
+import static dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE
+import static dev.nokee.runtime.nativebase.internal.LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE
 import static org.junit.Assert.assertThat
 
 abstract class AbstractComponentDependenciesTest extends Specification {
 	def project = ProjectBuilder.builder().build()
-	def names = Mock(NamingScheme) {
-		getConfigurationName(_) >> { args -> args[0]}
+
+	protected newDependencies(String variant = '') {
+		def names = Mock(NamingScheme) {
+			getConfigurationName(_) >> { args ->
+				if (variant.empty) {
+					return args[0]
+				}
+				return "${variant}${args[0].toString().capitalize()}"
+			}
+		}
+		return project.objects.newInstance(getDependencyType(), names)
 	}
-	def dependencies = project.objects.newInstance(getDependencyType(), names)
 
 	protected abstract Class getDependencyType()
 
 	protected abstract List<String> getBucketsUnderTest()
 
 	def "creates dependency buckets"() {
+		given:
+		newDependencies()
+
 		expect:
 		assertThat(project.configurations*.name, Matchers.containsInAnyOrder(*bucketsUnderTest))
 
@@ -42,6 +53,9 @@ abstract class AbstractComponentDependenciesTest extends Specification {
 	//region Dependency declaration
 	@Unroll
 	def "can declare external #bucketName dependencies as #notationType"(bucketName, notation, notationType) {
+		given:
+		def dependencies = newDependencies()
+
 		when:
 		dependencies."${bucketName}"(notation)
 
@@ -60,6 +74,9 @@ abstract class AbstractComponentDependenciesTest extends Specification {
 	@Unroll
 	def "can declare project #bucketName dependencies"(bucketName) {
 		given:
+		def dependencies = newDependencies()
+
+		and:
 		def foo = ProjectBuilder.builder().withParent(project).withName('foo').build()
 		foo.group = 'com.example'
 		foo.version = '1.0'
@@ -84,6 +101,9 @@ abstract class AbstractComponentDependenciesTest extends Specification {
 	@Unroll
 	def "can configure project #bucketName dependencies"(bucketName) {
 		given:
+		def dependencies = newDependencies()
+
+		and:
 		def foo = ProjectBuilder.builder().withParent(project).withName('foo').build()
 		foo.group = 'com.example'
 		foo.version = '1.0'
@@ -112,6 +132,9 @@ abstract class AbstractComponentDependenciesTest extends Specification {
 
 	@Unroll
 	def "can configure external #bucketName dependencies as #notationType"(bucketName, notation, notationType) {
+		given:
+		def dependencies = newDependencies()
+
 		when:
 		def configuredDependencies = []
 		dependencies."${bucketName}"(notation) {
@@ -138,6 +161,9 @@ abstract class AbstractComponentDependenciesTest extends Specification {
 	@Unroll
 	def "ensure type safety of the additional #bucketName dependency configuration"(bucketName) {
 		given:
+		def dependencies = newDependencies()
+
+		and:
 		def foo = ProjectBuilder.builder().withParent(project).withName('foo').build()
 		foo.group = 'com.example'
 		foo.version = '1.0'
@@ -173,6 +199,40 @@ abstract class AbstractComponentDependenciesTest extends Specification {
 
 		where:
 		bucketName << bucketsUnderTest
+	}
+
+	@Unroll
+	def "can access underlying configuration of #bucketName bucket"(bucketName) {
+		given:
+		def dependencies = newDependencies()
+
+		expect:
+		dependencies."${bucketName}Dependencies" == project.configurations."${bucketName}"
+
+		where:
+		bucketName << bucketsUnderTest
+	}
+
+	def "can extend from other dependencies"() {
+		given:
+		def childDependencies = newDependencies('child')
+		def parentDependencies = newDependencies('parent')
+
+		when:
+		childDependencies.extendsFrom(parentDependencies)
+
+		then:
+		bucketsUnderTest.each {
+			assert childDependencies."${it}Dependencies".getExtendsFrom().contains(parentDependencies."${it}Dependencies")
+		}
+	}
+
+	def "uses naming scheme for all dependency bucket name"() {
+		when:
+		newDependencies('foo')
+
+		then:
+		project.configurations*.name as Set == bucketsUnderTest.collect { "foo${it.capitalize()}" } as Set
 	}
 
 	protected void assertIsDependencyBucket(Configuration c) {
@@ -343,5 +403,24 @@ abstract class AbstractLocalDarwinFrameworkDependenciesTest extends Specificatio
 
 		where:
 		[bucketName, notation, notationType] << withExternalDependencyNotation(bucketsUnderTest)
+	}
+}
+
+abstract class AbstractLibraryDependenciesTest extends Specification {
+	def project = ProjectBuilder.builder().build()
+	def names = Mock(NamingScheme) {
+		getConfigurationName(_) >> { args -> args[0]}
+	}
+	def dependencies = project.objects.newInstance(getDependencyType(), names)
+
+	protected abstract Class getDependencyType()
+
+	protected abstract String getApiBucketNameUnderTest()
+
+	protected abstract String getImplementationBucketNameUnderTest()
+
+	def "implementation bucket extends from api bucket"() {
+		expect:
+		dependencies."${implementationBucketNameUnderTest}Dependencies".getExtendsFrom() == [dependencies."${apiBucketNameUnderTest}Dependencies"] as Set
 	}
 }

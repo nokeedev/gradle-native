@@ -64,11 +64,21 @@ public abstract class JniLibraryDependenciesInternal extends JniLibraryNativeDep
 		return apiDependencies.getAsConfiguration();
 	}
 
-	public Configuration getJvmDependencies() {
+	public Configuration getJvmImplementationDependencies() {
 		return jvmImplementationDependencies.getAsConfiguration();
 	}
 
 	public Configuration getJvmRuntimeOnlyDependencies() {
 		return jvmRuntimeOnly.getAsConfiguration();
+	}
+
+	public JniLibraryDependenciesInternal extendsFrom(JniLibraryDependenciesInternal dependencies) {
+		getApiDependencies().extendsFrom().extendsFrom(dependencies.getApiDependencies());
+		getJvmImplementationDependencies().extendsFrom(dependencies.getJvmImplementationDependencies());
+		getJvmRuntimeOnlyDependencies().extendsFrom(dependencies.getJvmRuntimeOnlyDependencies());
+		getNativeImplementationDependencies().extendsFrom(dependencies.getNativeImplementationDependencies());
+		getNativeLinkOnlyDependencies().extendsFrom(dependencies.getNativeLinkOnlyDependencies());
+		getNativeRuntimeOnlyDependencies().extendsFrom(dependencies.getNativeRuntimeOnlyDependencies());
+		return this;
 	}
 }

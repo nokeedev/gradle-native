@@ -1,6 +1,7 @@
 package dev.nokee.platform.nativebase
 
 import dev.nokee.fixtures.AbstractComponentDependenciesTest
+import dev.nokee.fixtures.AbstractLibraryDependenciesTest
 import dev.nokee.fixtures.AbstractLocalDarwinFrameworkDependenciesTest
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryDependencies
 import spock.lang.Subject
@@ -28,5 +29,24 @@ class DefaultNativeLibraryLocalDarwinFrameworkDependenciesTest extends AbstractL
 	@Override
 	protected List<String> getBucketsUnderTest() {
 		return ['api', 'implementation', 'linkOnly', 'runtimeOnly', 'compileOnly']
+	}
+}
+
+@Subject(DefaultNativeLibraryDependencies)
+class DefaultLibraryDependenciesTest extends AbstractLibraryDependenciesTest {
+
+	@Override
+	protected Class getDependencyType() {
+		return DefaultNativeLibraryDependencies
+	}
+
+	@Override
+	protected String getApiBucketNameUnderTest() {
+		return 'api'
+	}
+
+	@Override
+	protected String getImplementationBucketNameUnderTest() {
+		return 'implementation'
 	}
 }

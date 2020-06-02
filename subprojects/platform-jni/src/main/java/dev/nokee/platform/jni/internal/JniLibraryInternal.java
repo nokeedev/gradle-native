@@ -31,14 +31,12 @@ import org.gradle.jvm.tasks.Jar;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
-import java.util.List;
 
 public abstract class JniLibraryInternal implements JniLibrary, Named {
 	private final NamingScheme names;
 	private final JniLibraryNativeDependenciesInternal dependencies;
 	private final DomainObjectSet<BinaryInternal> binaryCollection;
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
-	private final Configuration implementation;
 	private final DefaultTargetMachine targetMachine;
 	private final GroupId groupId;
 	private final Configuration nativeRuntime;
@@ -47,13 +45,12 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 	private final String name;
 
 	@Inject
-	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, BuildVariant buildVariant, GroupId groupId, DomainObjectSet<BinaryInternal> parentBinaries, JniLibraryNativeDependenciesInternal dependencies) {
+	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, BuildVariant buildVariant, GroupId groupId, DomainObjectSet<BinaryInternal> parentBinaries, JniLibraryNativeDependenciesInternal dependencies) {
 		this.name = name;
 		this.names = names;
 		this.dependencies = dependencies;
 		binaryCollection = getObjects().domainObjectSet(BinaryInternal.class);
 		this.sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
-		this.implementation = implementation;
 		this.targetMachine = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
 		this.groupId = groupId;
 
@@ -65,7 +62,7 @@ public abstract class JniLibraryInternal implements JniLibrary, Named {
 
 		ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
 		nativeRuntime = getConfigurations().create(names.getConfigurationName("nativeRuntimeLibraries"),
-			configurationUtils.asIncomingRuntimeLibrariesFrom(dependencies.getNativeDependencies(), dependencies.getNativeRuntimeOnlyDependencies())
+			configurationUtils.asIncomingRuntimeLibrariesFrom(dependencies.getNativeImplementationDependencies(), dependencies.getNativeRuntimeOnlyDependencies())
 				.forTargetMachine(targetMachine)
 				.asDebug()
 				.withDescription("Runtime libraries for JNI shared library."));

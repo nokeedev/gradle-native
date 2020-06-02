@@ -14,8 +14,6 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-// TODO: Add tests for linkOnly and runtimeOnly
-// TODO: Add tests for per variant dependencies
 public abstract class JniLibraryNativeDependenciesInternal implements JniLibraryNativeDependencies {
 	private final DependencyBucket nativeImplementationDependencies;
 	private final DependencyBucket nativeLinkOnly;
@@ -71,7 +69,7 @@ public abstract class JniLibraryNativeDependenciesInternal implements JniLibrary
 		nativeRuntimeOnly.addDependency(notation, action);
 	}
 
-	public Configuration getNativeDependencies() {
+	public Configuration getNativeImplementationDependencies() {
 		return nativeImplementationDependencies.getAsConfiguration();
 	}
 
@@ -84,7 +82,7 @@ public abstract class JniLibraryNativeDependenciesInternal implements JniLibrary
 	}
 
 	public JniLibraryNativeDependenciesInternal extendsFrom(JniLibraryNativeDependenciesInternal dependencies) {
-		getNativeDependencies().extendsFrom(dependencies.getNativeDependencies());
+		getNativeImplementationDependencies().extendsFrom(dependencies.getNativeImplementationDependencies());
 		getNativeLinkOnlyDependencies().extendsFrom(dependencies.getNativeLinkOnlyDependencies());
 		getNativeRuntimeOnlyDependencies().extendsFrom(dependencies.getNativeRuntimeOnlyDependencies());
 		return this;
