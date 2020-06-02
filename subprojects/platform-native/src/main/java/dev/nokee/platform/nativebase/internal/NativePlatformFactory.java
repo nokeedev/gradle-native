@@ -29,7 +29,10 @@ public class NativePlatformFactory {
 	}
 
 	public static String platformNameFor(TargetMachine targetMachine) {
-		DefaultTargetMachine targetMachineInternal = (DefaultTargetMachine)targetMachine;
-		return targetMachineInternal.getOperatingSystemFamily().getName() + targetMachineInternal.getArchitecture().getName();
+		return platformNameFor(targetMachine.getOperatingSystemFamily(), targetMachine.getArchitecture());
+	}
+
+	public static String platformNameFor(OperatingSystemFamily osFamily, MachineArchitecture architecture) {
+		return ((DefaultOperatingSystemFamily)osFamily).getName() + ((DefaultMachineArchitecture)architecture).getName();
 	}
 }
