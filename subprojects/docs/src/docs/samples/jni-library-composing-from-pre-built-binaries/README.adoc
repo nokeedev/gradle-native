@@ -50,7 +50,7 @@ BUILD SUCCESSFUL
 
 The plugin also adds the pre-built binaries to the JNI JAR just as it would when building a JNI shared library from the source:
 
-[listing.terminal]
+[listing.terminal,only-if='macos']
 ----
 $ ./gradlew assemble
 
