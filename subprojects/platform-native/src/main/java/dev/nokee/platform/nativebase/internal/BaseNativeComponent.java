@@ -23,13 +23,15 @@ import dev.nokee.language.swift.internal.UTTypeSwiftSource;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.SourceCollection;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
-import dev.nokee.runtime.base.internal.DimensionType;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
@@ -39,10 +41,8 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.Cast;
@@ -61,18 +61,13 @@ import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public abstract class BaseNativeComponent<T extends Variant> {
+public abstract class BaseNativeComponent<T extends Variant> extends BaseComponent<T> {
 	private final ToolChainSelectorInternal toolChainSelector = getObjects().newInstance(ToolChainSelectorInternal.class);
-	private final NamingScheme names;
 	private final SourceCollection<UTTypeSourceCode> sourceCollection;
-	private final VariantCollection<T> variantCollection;
 	private final Class<T> variantType;
 
 	@Inject
 	protected abstract ProviderFactory getProviders();
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
 
 	@Inject
 	protected abstract TaskContainer getTasks();
@@ -84,20 +79,11 @@ public abstract class BaseNativeComponent<T extends Variant> {
 	protected abstract ConfigurationContainer getConfigurations();
 
 	public BaseNativeComponent(NamingScheme names, Class<T> variantType) {
+		super(names, variantType);
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
-		this.names = names;
 		this.variantType = variantType;
 		this.sourceCollection = Cast.uncheckedCast(getObjects().newInstance(SourceCollection.class, UTTypeSourceCode.INSTANCE));
-		this.variantCollection = Cast.uncheckedCast(getObjects().newInstance(VariantCollection.class, variantType, (VariantFactory<T>)this::createVariant));
-
-		getDimensions().finalizeValueOnRead();
 	}
-
-	public NamingScheme getNames() {
-		return names;
-	}
-
-	protected abstract T createVariant(String name, BuildVariant buildVariant);
 
 	public abstract AbstractNativeComponentDependencies getDependencies();
 
@@ -105,19 +91,13 @@ public abstract class BaseNativeComponent<T extends Variant> {
 		return sourceCollection;
 	}
 
-	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
-	public abstract SetProperty<DimensionType> getDimensions();
-
-	// TODO: We may want to model this as a BuildVariantRegistry for more richness than a plain set
-	public abstract SetProperty<BuildVariant> getBuildVariants();
-
 	public VariantView<T> getVariants() {
-		return variantCollection.getAsView(variantType);
+		return getVariantCollection().getAsView(variantType);
 	}
 
 	public Provider<? extends BaseNativeVariant> getDevelopmentVariant() {
 		return getProviders().provider(() -> {
-			List<BaseNativeVariant> variants = variantCollection.get().stream().map(it -> {
+			List<BaseNativeVariant> variants = getVariantCollection().get().stream().map(it -> {
 				Preconditions.checkArgument(it instanceof BaseNativeVariant);
 				return (BaseNativeVariant) it;
 			}).filter(it -> {
@@ -147,9 +127,9 @@ public abstract class BaseNativeComponent<T extends Variant> {
 	public void finalizeExtension(Project project) {
 		getBuildVariants().get().forEach(buildVariant -> {
 			final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE), buildVariant.getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE));
-			final NamingScheme names = this.names.forBuildVariant(buildVariant, getBuildVariants().get());
+			final NamingScheme names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-			NamedDomainObjectProvider<? extends BaseNativeVariant> variant = Cast.uncheckedCast(variantCollection.registerVariant(buildVariant, it -> {
+			NamedDomainObjectProvider<? extends BaseNativeVariant> variant = Cast.uncheckedCast(getVariantCollection().registerVariant(buildVariant, it -> {
 				ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
 				// TODO: This is not correct for Swift
 				Configuration headerSearchPaths = getConfigurations().create(names.getConfigurationName("headerSearchPaths"), configurationUtils.asIncomingHeaderSearchPathFrom(getDependencies().getImplementationDependencies(), getDependencies().getCompileOnlyDependencies()));
@@ -316,7 +296,7 @@ public abstract class BaseNativeComponent<T extends Variant> {
 
 		// TODO: This may need to be moved somewhere else.
 		// finalize the variantCollection
-		variantCollection.disallowChanges();
+		getVariantCollection().disallowChanges();
 	}
 
 	// TODO: BuildVariant and NamedDomainObjectProvider from VariantCollection should be together.
@@ -326,19 +306,19 @@ public abstract class BaseNativeComponent<T extends Variant> {
 		if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
 			DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
 			if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
-				getTasks().register(names.getTaskName("sharedLibrary"), task -> {
+				getTasks().register(getNames().getTaskName("sharedLibrary"), task -> {
 					task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 					task.setDescription("Assembles a shared library binary containing the main objects.");
 					task.dependsOn(variant.map(it -> ((SharedLibraryBinary)it.getDevelopmentBinary().get()).getLinkTask()));
 				});
 			} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
-				getTasks().register(names.getTaskName("staticLibrary"), task -> {
+				getTasks().register(getNames().getTaskName("staticLibrary"), task -> {
 					task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 					task.setDescription("Assembles a static library binary containing the main objects.");
 					task.dependsOn(variant.map(it -> ((StaticLibraryBinary)it.getDevelopmentBinary().get()).getCreateTask()));
 				});
 			} else if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
-				getTasks().register(names.getTaskName("executable"), task -> {
+				getTasks().register(getNames().getTaskName("executable"), task -> {
 					task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 					task.setDescription("Assembles a executable binary containing the main objects.");
 					task.dependsOn(variant.map(it -> ((ExecutableBinary)it.getDevelopmentBinary().get()).getLinkTask()));

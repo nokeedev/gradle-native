@@ -475,7 +475,10 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private JniLibraryExtensionInternal registerExtension(Project project, NamingScheme names) {
-		JniLibraryDependenciesInternal dependencies = project.getObjects().newInstance(JniLibraryDependenciesInternal.class, names);
+		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, GroupId.of(project::getGroup), names);
+
+		JniLibraryDependenciesInternal dependencies = library.getDependencies();
+
 		Configuration jvmApiElements = Optional.ofNullable(project.getConfigurations().findByName("apiElements")).orElseGet(() -> {
 			return project.getConfigurations().create("apiElements", configuration -> {
 				ConfigurationUtils.configureAsOutgoing(configuration);
@@ -505,7 +508,6 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			getConfigurations().getByName("runtimeOnly").extendsFrom(dependencies.getJvmRuntimeOnlyDependencies());
 		});
 
-		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, dependencies, GroupId.of(project::getGroup), names);
 		project.getExtensions().add(JniLibraryExtension.class, "library", library);
 		return library;
 	}
