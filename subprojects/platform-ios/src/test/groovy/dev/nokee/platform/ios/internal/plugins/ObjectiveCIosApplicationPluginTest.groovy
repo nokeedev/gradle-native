@@ -73,6 +73,7 @@ class ObjectiveCIosApplicationPluginTest extends Specification {
 
 		when:
 		project.evaluate()
+		project.application.variants.get()
 
 		then:
 		project.tasks.withType(StoryboardCompileTask).size() == 1
@@ -87,6 +88,7 @@ class ObjectiveCIosApplicationPluginTest extends Specification {
 
 		when:
 		project.evaluate()
+		project.application.variants.get()
 
 		then:
 		project.tasks.withType(AssetCatalogCompileTask).size() == 1
@@ -98,6 +100,7 @@ class ObjectiveCIosApplicationPluginTest extends Specification {
 
 		when:
 		project.evaluate()
+		project.application.variants.get()
 
 		then:
 		project.tasks.withType(CreateIosApplicationBundleTask).size() == 1
