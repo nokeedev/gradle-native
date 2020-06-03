@@ -3,10 +3,7 @@ package dev.nokee.platform.jni.internal;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryDependencies;
@@ -28,18 +25,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JniLibraryDependencies> {
+public abstract class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JniLibraryDependencies>, BinaryAwareComponent {
 	private final JniLibraryDependenciesInternal dependencies;
 	private final GroupId groupId;
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
-	private final DomainObjectSet<Binary> binaryCollection;
 
 	@Inject
 	public JniLibraryComponentInternal(NamingScheme names, GroupId groupId) {
 		super(names, JniLibraryInternal.class);
 		this.dependencies = getObjects().newInstance(JniLibraryDependenciesInternal.class, names);
 		this.groupId = groupId;
-		this.binaryCollection = getObjects().domainObjectSet(Binary.class);
 		this.sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
 
 		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
@@ -80,7 +75,7 @@ public abstract class JniLibraryComponentInternal extends BaseComponent<JniLibra
 			variantDependencies.extendsFrom(dependencies);
 		}
 
-		JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, name, names, sources, buildVariant, groupId, binaryCollection, variantDependencies);
+		JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, name, names, sources, buildVariant, groupId, getBinaryCollection(), variantDependencies);
 		return result;
 	}
 
@@ -96,10 +91,6 @@ public abstract class JniLibraryComponentInternal extends BaseComponent<JniLibra
 
 	public Configuration getJvmImplementationDependencies() {
 		return dependencies.getJvmImplementationDependencies();
-	}
-
-	public BinaryView<Binary> getBinaries() {
-		return Cast.uncheckedCast(getObjects().newInstance(DefaultBinaryView.class, binaryCollection, getVariantCollection()));
 	}
 
 	public DomainObjectSet<LanguageSourceSetInternal> getSources() {

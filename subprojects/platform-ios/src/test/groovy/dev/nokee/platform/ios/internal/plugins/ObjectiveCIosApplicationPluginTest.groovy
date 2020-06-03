@@ -2,22 +2,30 @@ package dev.nokee.platform.ios.internal.plugins
 
 import dev.gradleplugins.spock.lang.CleanupTestDirectory
 import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
+import dev.nokee.fixtures.AbstractBinaryPluginTest
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTaskPluginTest
 import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.platform.base.Variant
 import dev.nokee.platform.ios.IosApplication
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension
+import dev.nokee.platform.ios.internal.IosApplicationBundleInternal
+import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal
 import dev.nokee.platform.ios.tasks.internal.AssetCatalogCompileTask
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask
 import dev.nokee.platform.ios.tasks.internal.StoryboardCompileTask
 import dev.nokee.platform.ios.tasks.internal.StoryboardLinkTask
+import dev.nokee.platform.nativebase.ExecutableBinary
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project
+import org.gradle.nativeplatform.NativeExecutable
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import spock.lang.Requires
 import spock.lang.Specification
 import spock.lang.Subject
+
+import static org.junit.Assume.assumeTrue
 
 trait ObjectiveCIosApplicationPluginTestFixture {
 	abstract Project getProjectUnderTest()
@@ -44,6 +52,10 @@ trait ObjectiveCIosApplicationPluginTestFixture {
 
 	String[] getExpectedVariantAwareTaskNames() {
 		return ['objects', 'bundle']
+	}
+
+	void configureMultipleVariants() {
+		assumeTrue(false)
 	}
 }
 
@@ -126,4 +138,29 @@ class ObjectiveCIosApplicationPluginTest extends Specification {
 
 @Subject(ObjectiveCIosApplicationPlugin)
 class ObjectiveCIosApplicationVariantPluginTest extends AbstractVariantPluginTest implements ObjectiveCIosApplicationPluginTestFixture {
+}
+
+@Subject(ObjectiveCIosApplicationPlugin)
+class ObjectiveCIosApplicationBinaryPluginTest extends AbstractBinaryPluginTest implements ObjectiveCIosApplicationPluginTestFixture {
+	@Override
+	boolean hasExpectedBinaries(Variant variant) {
+		variant.binaries.get().with { binaries ->
+			assert binaries.size() == 3
+			assert binaries.any { it instanceof ExecutableBinary }
+			assert binaries.any { it instanceof IosApplicationBundleInternal }
+			assert binaries.any { it instanceof SignedIosApplicationBundleInternal }
+		}
+		return true
+	}
+
+	@Override
+	boolean hasExpectedBinaries(Object extension) {
+		extension.binaries.get().with { binaries ->
+			assert binaries.size() == 3
+			assert binaries.any { it instanceof ExecutableBinary }
+			assert binaries.any { it instanceof IosApplicationBundleInternal }
+			assert binaries.any { it instanceof SignedIosApplicationBundleInternal }
+		}
+		return true
+	}
 }

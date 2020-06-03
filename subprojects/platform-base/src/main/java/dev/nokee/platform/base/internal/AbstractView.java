@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
@@ -21,6 +22,7 @@ public abstract class AbstractView<T> {
 	}
 
 	public <S> Provider<List<? extends S>> map(Transformer<? extends S, ? super T> mapper) {
+		Preconditions.checkArgument(mapper != null, "map mapper for %s must not be null", getDisplayName());
 		return getElements().map(new Transformer<List<? extends S>, Set<? extends T>>() {
 			@Override
 			public List<? extends S> transform(Set<? extends T> elements) {
@@ -34,6 +36,7 @@ public abstract class AbstractView<T> {
 	}
 
 	public <S> Provider<List<? extends S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper) {
+		Preconditions.checkArgument(mapper != null, "flatMap mapper for %s must not be null", getDisplayName());
 		return getElements().map(new Transformer<List<? extends S>, Set<? extends T>>() {
 			@Override
 			public List<? extends S> transform(Set<? extends T> elements) {
@@ -47,6 +50,7 @@ public abstract class AbstractView<T> {
 	}
 
 	public Provider<List<? extends T>> filter(Spec<? super T> spec) {
+		Preconditions.checkArgument(spec != null, "filter spec for %s must not be null", getDisplayName());
 		return flatMap(new Transformer<Iterable<? extends T>, T>() {
 			@Override
 			public Iterable<? extends T> transform(T t) {
@@ -57,4 +61,6 @@ public abstract class AbstractView<T> {
 			}
 		});
 	}
+
+	protected abstract String getDisplayName();
 }

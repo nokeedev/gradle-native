@@ -10,19 +10,6 @@ import org.gradle.api.Action;
  */
 public interface BinaryView<T extends Binary> extends View<T> {
 	/**
-	 * Registers an action to execute to configure each binary in the view.
-	 * The action is only executed for those elements that are required.
-	 * Fails if any matching element has already been finalized.
-	 *
-	 * This method is equivalent to <code>binaries.withType(Foo).configureEach { ... }</code>.
-	 *
-	 * @param type The type of binary to select.
-	 * @param <S> The base type of the binary to configure.
-	 * @param action The action to execute on each element for configuration.
-	 */
-	<S extends T> void configureEach(Class<S> type, Action<? super S> action);
-
-	/**
 	 * Returns a binary view containing the objects in this collection of the given type.
 	 * The returned collection is live, so that when matching objects are later added to this collection, they are also visible in the filtered binary view.
 	 *

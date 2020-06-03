@@ -1,10 +1,15 @@
 package dev.nokee.platform.swift.internal.plugins
 
+import dev.nokee.fixtures.AbstractBinaryPluginTest
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
 import dev.nokee.fixtures.AbstractTaskPluginTest
 import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.platform.base.Variant
+import dev.nokee.platform.c.internal.plugins.CLibraryPlugin
+import dev.nokee.platform.c.internal.plugins.CLibraryPluginTestFixture
 import dev.nokee.platform.nativebase.NativeLibrary
+import dev.nokee.platform.nativebase.SharedLibraryBinary
 import dev.nokee.platform.swift.SwiftLibraryExtension
 import org.gradle.api.Project
 import spock.lang.Subject
@@ -39,6 +44,10 @@ trait SwiftLibraryPluginTestFixture {
 	String[] getExpectedVariantAwareTaskNames() {
 		return ['objects', 'sharedLibrary']
 	}
+
+	void configureMultipleVariants() {
+		extensionUnderTest.targetMachines = [extensionUnderTest.machines.macOS, extensionUnderTest.machines.windows, extensionUnderTest.machines.linux]
+	}
 }
 
 @Subject(SwiftLibraryPlugin)
@@ -56,4 +65,32 @@ class SwiftLibraryTaskPluginTest extends AbstractTaskPluginTest implements Swift
 
 @Subject(SwiftLibraryPlugin)
 class SwiftLibraryVariantPluginTest extends AbstractVariantPluginTest implements SwiftLibraryPluginTestFixture {
+}
+
+@Subject(SwiftLibraryPlugin)
+class SwiftLibraryBinaryPluginTest extends AbstractBinaryPluginTest implements SwiftLibraryPluginTestFixture {
+	@Override
+	boolean hasExpectedBinaries(Variant variant) {
+		variant.binaries.get().with { binaries ->
+			assert binaries.size() == 1
+			assert binaries.any { it instanceof SharedLibraryBinary }
+		}
+		return true
+	}
+
+	@Override
+	boolean hasExpectedBinaries(Object extension) {
+		if (extension.targetMachines.get().size() == 1) {
+			extension.binaries.get().with { binaries ->
+				assert binaries.size() == 1
+				assert binaries.any { it instanceof SharedLibraryBinary }
+			}
+		} else {
+			extension.binaries.get().with { binaries ->
+				assert binaries.size() == 3
+				assert binaries.count { it instanceof SharedLibraryBinary } == 3
+			}
+		}
+		return true
+	}
 }

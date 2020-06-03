@@ -5,7 +5,7 @@ package dev.nokee.platform.base;
  *
  * @since 0.2
  */
-public interface Variant {
+public interface Variant extends BinaryAwareComponent {
 	/**
 	 * Configure the binaries of this variant.
 	 * The view contains only the binaries participating to this variant.

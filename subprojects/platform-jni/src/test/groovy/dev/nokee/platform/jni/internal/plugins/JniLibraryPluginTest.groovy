@@ -2,9 +2,11 @@ package dev.nokee.platform.jni.internal.plugins
 
 import dev.nokee.fixtures.*
 import dev.nokee.platform.base.Variant
+import dev.nokee.platform.jni.JniJarBinary
 import dev.nokee.platform.jni.JniLibrary
 import dev.nokee.platform.jni.JniLibraryDependencies
 import dev.nokee.platform.jni.JniLibraryExtension
+import dev.nokee.platform.jni.JvmJarBinary
 import dev.nokee.platform.nativebase.SharedLibraryBinary
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary
 import groovy.transform.Canonical
@@ -13,6 +15,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.PluginApplicationException
 import org.gradle.jvm.tasks.Jar
+import org.gradle.nativeplatform.NativeExecutable
 import org.gradle.testfixtures.ProjectBuilder
 import org.hamcrest.MatcherAssert
 import spock.lang.Specification
@@ -20,6 +23,7 @@ import spock.lang.Subject
 import spock.lang.Unroll
 
 import static org.hamcrest.Matchers.containsInAnyOrder
+import static org.junit.Assume.assumeTrue
 
 trait JniLibraryPluginTestFixture {
 	abstract Project getProjectUnderTest()
@@ -96,6 +100,50 @@ class JniLibraryVariantPluginTest extends AbstractVariantPluginTest implements J
 	}
 }
 
+// TODO: Write test variant for no language and JVM/native mix
+@Subject(JniLibraryPlugin)
+class JniLibraryBinaryPluginTest extends AbstractBinaryPluginTest implements JniLibraryPluginTestFixture {
+	@Override
+	def getExtensionUnderTest() {
+		return project.library
+	}
+
+	@Override
+	boolean hasExpectedBinaries(Variant variant) {
+		variant.binaries.get().with { binaries ->
+			assert binaries.size() == 2
+			assert binaries.any { it instanceof JniJarBinary }
+			assert binaries.any { it instanceof SharedLibraryBinary }
+		}
+		return true
+	}
+
+	@Override
+	boolean hasExpectedBinaries(Object extension) {
+		if (extension.targetMachines.get().size() == 1) {
+			extension.binaries.get().with { binaries ->
+				assert binaries.size() == 2
+				assert binaries.count { it instanceof JvmJarBinary } == 0
+				assert binaries.count { it instanceof JniJarBinary } == 1
+				assert binaries.count { it instanceof SharedLibraryBinary } == 1
+			}
+		} else {
+			extension.binaries.get().with { binaries ->
+				assert binaries.size() == 6
+				assert binaries.count { it instanceof JvmJarBinary } == 0
+				assert binaries.count { it instanceof JniJarBinary } == 3
+				assert binaries.count { it instanceof SharedLibraryBinary } == 3
+			}
+		}
+		return true
+	}
+
+	@Override
+	void configureMultipleVariants() {
+		extensionUnderTest.targetMachines = [extensionUnderTest.machines.macOS, extensionUnderTest.machines.windows, extensionUnderTest.machines.linux]
+	}
+}
+
 @Subject(JniLibraryPlugin)
 class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements ProjectTestFixture, JniLibraryPluginTestFixture {
 	def project
@@ -110,29 +158,6 @@ class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements Proje
 	@Override
 	Project getProjectUnderTest() {
 		return project
-	}
-
-	def "disallows query of views before evaluation"() {
-		given:
-		applyPlugin()
-
-		when:
-		project.library.binaries.elements.get()
-		then:
-		def ex1 = thrown(IllegalStateException)
-		ex1.message == 'Please disallow changes before realizing the variants.'
-	}
-
-	def "allow query of views after evaluation"() {
-		given:
-		applyPluginAndEvaluate('plugin locks views in afterEvaluate')
-
-		when:
-		def binaries = project.library.binaries.elements.get()
-		then:
-		noExceptionThrown()
-		and:
-		binaries.size() == 2
 	}
 
 	def "resolve variants when unrealized configuration are resolved"() {

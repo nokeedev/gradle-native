@@ -1,5 +1,7 @@
 package dev.nokee.fixtures
 
+import dev.nokee.platform.base.BinaryAwareComponent
+import dev.nokee.platform.base.BinaryView
 import dev.nokee.platform.base.DependencyAwareComponent
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.VariantAwareComponent
@@ -13,6 +15,7 @@ import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
 import org.gradle.testfixtures.ProjectBuilder
+import spock.lang.Ignore
 import spock.lang.Specification
 
 abstract class AbstractPluginTest extends Specification implements ProjectTestFixture {
@@ -83,6 +86,17 @@ abstract class AbstractPluginTest extends Specification implements ProjectTestFi
 		extensionUnderTest.variants instanceof VariantView
 	}
 
+	def "extensions has binary view"() {
+		given:
+		applyPluginUnderTest()
+
+		expect: 'extension has public binary api'
+		extensionUnderTest instanceof BinaryAwareComponent
+
+		and: 'variant getter is of the expected type'
+		extensionUnderTest.binaries instanceof BinaryView
+	}
+
 	def "variants has dependencies dsl"() {
 		given:
 		applyPluginUnderTest()
@@ -103,6 +117,19 @@ abstract class AbstractPluginTest extends Specification implements ProjectTestFi
 			}
 			return getVariantDependenciesType().isAssignableFrom(capturedDependencyDsl.getClass())
 		}
+	}
+
+	def "variants has binary view"() {
+		given:
+		applyPluginUnderTest()
+		evaluateProject('plugin registers variants in afterEvaluate')
+		def variants = extensionUnderTest.variants.get()
+
+		expect: 'variant has public dependencies api'
+		variants.every { it instanceof BinaryAwareComponent }
+
+		and: 'dependency getter is of the expected type'
+		variants.every { it.binaries instanceof BinaryView }
 	}
 }
 
@@ -278,5 +305,137 @@ abstract class AbstractVariantPluginTest extends Specification implements Projec
 		extensionUnderTest.variants.elements.get()
 		then:
 		noExceptionThrown()
+	}
+}
+
+abstract class AbstractBinaryPluginTest extends Specification implements ProjectTestFixture {
+	def project
+
+	def setup() {
+		if (SystemUtils.IS_OS_WINDOWS) {
+			NativeServicesTestFixture.initialize()
+		}
+		project = project = ProjectBuilder.builder().withName('test').build()
+	}
+
+	@Override
+	Project getProjectUnderTest() {
+		return project
+	}
+
+	abstract void applyPluginUnderTest()
+
+	abstract def getExtensionUnderTest()
+
+	def "disallows binary view realization before evaluation"() {
+		given:
+		applyPluginUnderTest()
+
+		when:
+		extensionUnderTest.binaries.elements.get()
+		then:
+		def ex = thrown(IllegalStateException)
+		ex.message == 'Please disallow changes before realizing the variants.'
+	}
+
+	def "allow binary view realization after evaluation"() {
+		given:
+		applyPluginUnderTest()
+		evaluateProject('plugin locks binary view in afterEvaluate')
+
+		when:
+		extensionUnderTest.binaries.elements.get()
+		then:
+		noExceptionThrown()
+	}
+
+	abstract boolean hasExpectedBinaries(Variant variant)
+	abstract boolean hasExpectedBinaries(def extension)
+
+	abstract void configureMultipleVariants()
+
+	def "has expected default binaries per-variant"() {
+		given:
+		applyPluginUnderTest()
+		evaluateProject('plugin locks binary view in afterEvaluate')
+
+		expect:
+		def variants = extensionUnderTest.variants.get()
+		variants.every { hasExpectedBinaries((Variant)it) }
+	}
+
+	def "has expected default binaries on extension"() {
+		given:
+		applyPluginUnderTest()
+		evaluateProject('plugin locks binary view in afterEvaluate')
+
+		expect:
+		hasExpectedBinaries(extensionUnderTest)
+	}
+
+	def "can configure each binaries via the component binary view"() {
+		given:
+		applyPluginUnderTest()
+
+		and: 'register configuration action'
+		def configured = false
+		extensionUnderTest.binaries.configureEach {
+			configured = true
+		}
+
+		and:
+		evaluateProject('plugin locks binary view in afterEvaluate')
+
+		when:
+		extensionUnderTest.binaries.get()
+
+		then:
+		configured
+	}
+
+	def "can configure each binaries via the variant binary view"() {
+		given:
+		applyPluginUnderTest()
+
+		and: 'register configuration action'
+		def configured = false
+		extensionUnderTest.variants.configureEach {
+			binaries.configureEach {
+				configured = true
+			}
+		}
+
+		and:
+		evaluateProject('plugin locks binary view in afterEvaluate')
+
+		when:
+		extensionUnderTest.binaries.get()
+
+		then:
+		configured
+	}
+
+	def "uses the same binary instance in both component and variant binary view"() {
+		given:
+		applyPluginUnderTest()
+		evaluateProject('plugin locks binary view in afterEvaluate')
+
+		expect:
+		extensionUnderTest.binaries.get() == one(extensionUnderTest.variants.get()).binaries.get()
+	}
+
+	@Ignore
+	def "aggregates binaries from each variant in the component binary view"() {
+		given:
+		applyPluginUnderTest()
+		configureMultipleVariants()
+		evaluateProject('plugin locks binary view in afterEvaluate')
+
+		expect:
+		hasExpectedBinaries(extensionUnderTest)
+
+		and:
+		def variants = extensionUnderTest.variants.get()
+		variants.every { hasExpectedBinaries((Variant)it) }
 	}
 }

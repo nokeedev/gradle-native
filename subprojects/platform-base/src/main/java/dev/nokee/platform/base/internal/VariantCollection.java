@@ -65,7 +65,7 @@ public abstract class VariantCollection<T extends Variant> implements Realizable
 	// TODO: I don't like that we have to pass in the viewElementType
 	public <S extends Variant> VariantView<S> getAsView(Class<S> viewElementType) {
 		Preconditions.checkArgument(viewElementType.isAssignableFrom(elementType), "element type of the view needs to be the same type or a supertype of the element of this collection");
-		return Cast.uncheckedCast(getObjects().newInstance(DefaultVariantView.class, collection, this));
+		return Cast.uncheckedCast(getObjects().newInstance(DefaultVariantView.class, viewElementType, collection, this));
 	}
 
 	public void realize() {

@@ -17,13 +17,13 @@ class DefaultTaskViewTest extends AbstractViewTest<Task> {
 	}
 
 	@Override
-	def createView() {
-		return objects.newInstance(viewType, backingCollection, realizeTrigger)
+	void realizeBackingCollection() {
+		project.tasks.withType(TestTask).iterator().next()
 	}
 
 	@Override
-	Class getViewType() {
-		return DefaultTaskView
+	def createView() {
+		return objects.newInstance(DefaultTaskView, TestTask.class, backingCollection, realizeTrigger)
 	}
 
 	@Override
@@ -34,6 +34,21 @@ class DefaultTaskViewTest extends AbstractViewTest<Task> {
 	@Override
 	Provider<Task> getB() {
 		return project.tasks.register('b', TestTask, 'b')
+	}
+
+	@Override
+	Provider<Task> getC() {
+		return project.tasks.register('c', TestChildTask, 'c')
+	}
+
+	@Override
+	Class<TestTask> getType() {
+		return TestTask
+	}
+
+	@Override
+	Class<TestChildTask> getOtherType() {
+		return TestChildTask
 	}
 
 	@Override
@@ -52,6 +67,13 @@ class DefaultTaskViewTest extends AbstractViewTest<Task> {
 		@Override
 		String getIdentification() {
 			return identification
+		}
+	}
+
+	static class TestChildTask extends TestTask {
+		@Inject
+		TestChildTask(String identification) {
+			super(identification)
 		}
 	}
 }

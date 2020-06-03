@@ -1,6 +1,8 @@
 package dev.nokee.platform.ios.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.base.internal.GroupId;
@@ -39,5 +41,9 @@ public abstract class BaseIosExtension<T extends BaseNativeComponent<?>> {
 
 	protected T getComponent() {
 		return component;
+	}
+
+	public BinaryView<Binary> getBinaries() {
+		return component.getBinaries();
 	}
 }

@@ -29,7 +29,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	}
 
 	public BaseNativeBinary(DomainObjectSet<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets) {
-		this.compileTasks = getObjects().newInstance(DefaultTaskView.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), (Realizable)() -> {});
+		this.compileTasks = getObjects().newInstance(DefaultTaskView.class, NativeSourceCompile.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), (Realizable)() -> {});
 	}
 
 	@Inject

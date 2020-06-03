@@ -125,6 +125,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 	}
 
 	public void finalizeExtension(Project project) {
+		// TODO: Assert build variant matches dimensions
 		getBuildVariants().get().forEach(buildVariant -> {
 			final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE), buildVariant.getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE));
 			final NamingScheme names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());

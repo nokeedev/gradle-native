@@ -1,6 +1,8 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.platform.base.BinaryAwareComponent;
+import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.NativeLibraryDependencies;
@@ -10,7 +12,7 @@ import org.gradle.api.Action;
 
 import javax.inject.Inject;
 
-public abstract class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNativeLibraryVariant> {
+public abstract class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNativeLibraryVariant> implements DependencyAwareComponent<NativeLibraryDependencies>, BinaryAwareComponent {
 	private final DefaultNativeLibraryDependencies dependencies;
 
 	@Inject

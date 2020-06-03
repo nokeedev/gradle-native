@@ -14,7 +14,7 @@ import org.gradle.api.provider.SetProperty;
  *
  * @since 0.1
  */
-public interface JniLibraryExtension extends DependencyAwareComponent<JniLibraryDependencies>, VariantAwareComponent<JniLibrary>, TargetMachineAwareComponent {
+public interface JniLibraryExtension extends DependencyAwareComponent<JniLibraryDependencies>, VariantAwareComponent<JniLibrary>, BinaryAwareComponent, TargetMachineAwareComponent {
 	/**
 	 * Returns the dependencies of this component.
 	 *

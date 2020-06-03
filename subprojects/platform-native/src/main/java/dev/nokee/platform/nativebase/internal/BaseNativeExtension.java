@@ -1,6 +1,8 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.base.internal.NamingScheme;
@@ -66,5 +68,9 @@ public abstract class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 
 	public DefaultTargetMachineFactory getMachines() {
 		return DefaultTargetMachineFactory.INSTANCE;
+	}
+
+	public BinaryView<Binary> getBinaries() {
+		return component.getBinaries();
 	}
 }

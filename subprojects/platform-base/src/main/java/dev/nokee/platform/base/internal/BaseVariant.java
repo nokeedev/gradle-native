@@ -22,6 +22,6 @@ public abstract class BaseVariant implements Named {
 	protected abstract ObjectFactory getObjects();
 
 	public BinaryView<Binary> getBinaries() {
-		return Cast.uncheckedCast("of type erasure", getObjects().newInstance(DefaultBinaryView.class, binaryCollection, Realizable.IDENTITY));
+		return Cast.uncheckedCast("of type erasure", getObjects().newInstance(DefaultBinaryView.class, Binary.class, binaryCollection, Realizable.IDENTITY));
 	}
 }
