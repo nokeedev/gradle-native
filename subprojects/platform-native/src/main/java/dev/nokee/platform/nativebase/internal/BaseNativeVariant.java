@@ -1,6 +1,7 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.base.Preconditions;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.NamingScheme;
@@ -33,7 +34,7 @@ public abstract class BaseNativeVariant extends BaseVariant {
 		return getTasks().named(names.getTaskName("assemble"));
 	}
 
-	public Provider<? extends NativeBinary> getDevelopmentBinary() {
+	public Provider<? extends Binary> getDevelopmentBinary() {
 		return getProviders().provider(() -> {
 			DefaultBinaryLinkage linkage = getBuildVariant().getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
 			if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {

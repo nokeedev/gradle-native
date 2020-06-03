@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.core.exec.internal.VersionedCommandLineTool;
+import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
@@ -97,7 +98,7 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 	protected void onEachVariant(BuildVariant buildVariant, NamedDomainObjectProvider<? extends BaseNativeVariant> variant) {
 		variant.configure(application -> {
 			application.getBinaries().configureEach(ExecutableBinary.class, binary -> {
-				binary.getCompileTasks().configureEach(task -> {
+				binary.getCompileTasks().configureEach(SourceCompile.class, task -> {
 					task.getCompilerArgs().addAll(getProviders().provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator", "-F", getSdkPath() + "/System/Library/Frameworks")));
 					task.getCompilerArgs().addAll(task.getToolChain().map(toolChain -> {
 						if (toolChain instanceof Swiftc) {

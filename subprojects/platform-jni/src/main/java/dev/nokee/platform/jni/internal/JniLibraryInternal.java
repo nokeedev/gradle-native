@@ -2,9 +2,11 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
-import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BaseVariant;
+import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryNativeDependencies;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
@@ -20,7 +22,6 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -76,10 +77,11 @@ public abstract class JniLibraryInternal extends BaseVariant implements JniLibra
 	@Inject
 	protected abstract TaskContainer getTasks();
 
-	public void registerSharedLibraryBinary(DomainObjectSet<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants) {
+	public void registerSharedLibraryBinary(DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants) {
 		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, dependencies.getNativeImplementationDependencies(), targetMachine, objectSourceSets, linkTask, dependencies.getNativeLinkOnlyDependencies());
 		getNativeRuntimeFiles().from(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
 		this.sharedLibraryBinary = sharedLibraryBinary;
+		sharedLibraryBinary.getBaseName().convention(names.getBaseName().getAsString());
 		getBinaryCollection().add(sharedLibraryBinary);
 	}
 

@@ -19,7 +19,7 @@ import javax.inject.Inject;
 // TODO: Not sure about implementing NativeBinary...
 //  BaseNativeVariant#getDevelopmentBinary() assume a NativeBinary...
 //  There should probably be something high level in Variant or BaseNativeVariant shouldn't be used for iOS variant.
-public abstract class IosApplicationBundleInternal implements Binary, NativeBinary, Buildable {
+public abstract class IosApplicationBundleInternal implements Binary, Buildable {
 
 	@Inject
 	protected abstract TaskContainer getTasks();
@@ -28,12 +28,6 @@ public abstract class IosApplicationBundleInternal implements Binary, NativeBina
 		return getTasks().named("createApplicationBundle", CreateIosApplicationBundleTask.class);
 	}
 
-	@Override
-	public TaskView<? extends NativeSourceCompile> getCompileTasks() {
-		throw new UnsupportedOperationException("Should not be used or here");
-	}
-
-	@Override
 	public boolean isBuildable() {
 		// We should check if the tools required are available (codesign, ibtool, actool, etc.)
 		return true;

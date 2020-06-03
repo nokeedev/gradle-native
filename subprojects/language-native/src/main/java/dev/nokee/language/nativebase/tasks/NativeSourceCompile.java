@@ -1,5 +1,6 @@
 package dev.nokee.language.nativebase.tasks;
 
+import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HeaderSearchPath;
 import org.gradle.api.Task;
 import org.gradle.api.provider.ListProperty;
@@ -15,14 +16,14 @@ import java.util.Set;
  *
  * @version 0.3
  */
-public interface NativeSourceCompile extends Task {
+public interface NativeSourceCompile extends Task, SourceCompile {
 	/**
 	 * The tool chain used for the compilation.
 	 *
 	 * @return a provider of a {@link NativeToolChain} instance of the tool chain used for the compilation, never null.
 	 */
 	@Internal
-	Provider<NativeToolChain> getToolChain();
+	Provider<? extends NativeToolChain> getToolChain();
 
 	/**
 	 * <em>Additional</em> arguments to provide to the compiler.

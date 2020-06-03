@@ -6,19 +6,14 @@ import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.language.c.internal.CSourceSet;
 import dev.nokee.language.c.internal.CSourceSetTransform;
-import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.cpp.internal.CppSourceSet;
 import dev.nokee.language.cpp.internal.CppSourceSetTransform;
-import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetTransform;
-import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetTransform;
-import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSetTransform;
-import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -27,47 +22,30 @@ import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
-import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
-import dev.nokee.runtime.nativebase.OperatingSystemFamily;
-import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
-import org.gradle.api.*;
+import org.gradle.api.DomainObjectSet;
+import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.file.RegularFile;
-import org.gradle.api.internal.provider.Providers;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.Cast;
-import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
-import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
-import org.gradle.nativeplatform.platform.NativePlatform;
-import org.gradle.nativeplatform.platform.internal.DefaultOperatingSystem;
-import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
-import org.gradle.nativeplatform.platform.internal.OperatingSystemInternal;
-import org.gradle.nativeplatform.toolchain.NativeToolChain;
-import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
-import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
-import org.gradle.nativeplatform.toolchain.internal.ToolType;
-import org.gradle.platform.base.ToolChain;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 public abstract class BaseNativeComponent<T extends Variant> extends BaseComponent<T> {
-	private final ToolChainSelectorInternal toolChainSelector = getObjects().newInstance(ToolChainSelectorInternal.class);
 	private final DomainObjectSet<SourceSet> sourceCollection = getObjects().domainObjectSet(SourceSet.class);
 	private final Class<T> variantType;
 
@@ -146,50 +124,14 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 				getSourceCollection().withType(ObjectiveCppSourceSet.class).configureEach(s -> objectSourceSets.add(getObjects().newInstance(ObjectiveCppSourceSetTransform.class, names, headerSearchPaths).transform(s)));
 				getSourceCollection().withType(SwiftSourceSet.class).configureEach(s -> objectSourceSets.add(getObjects().newInstance(SwiftSourceSetTransform.class, names, headerSearchPaths).transform(s)));
 
-				objectSourceSets.forEach(objects -> {
-					GeneratedSourceSet source = objects;
-					source.getGeneratedByTask().configure(task -> {
-
-						if (task instanceof AbstractNativeCompileTask) {
-							AbstractNativeCompileTask compileTask = (AbstractNativeCompileTask) task;
-
-							compileTask.getTargetPlatform().set(toTargetPlatform(targetMachineInternal));
-							compileTask.getTargetPlatform().finalizeValueOnRead();
-							compileTask.getTargetPlatform().disallowChanges();
-
-							compileTask.getToolChain().set(selectNativeToolChain(targetMachineInternal));
-							compileTask.getToolChain().finalizeValueOnRead();
-							compileTask.getToolChain().disallowChanges();
-
-							compileTask.getIncludes().from("src/main/headers");
-
-							compileTask.getSystemIncludes().from(getSystemIncludes(compileTask));
-						} else if (task instanceof SwiftCompileTask)  {
-							SwiftCompileTask compileTask = (SwiftCompileTask) task;
-
-							compileTask.getTargetPlatform().set(toTargetPlatform(targetMachineInternal));
-							compileTask.getTargetPlatform().finalizeValueOnRead();
-							compileTask.getTargetPlatform().disallowChanges();
-
-							compileTask.getToolChain().set(selectSwiftToolChain(targetMachineInternal));
-							compileTask.getToolChain().finalizeValueOnRead();
-							compileTask.getToolChain().disallowChanges();
-
-							compileTask.getModuleFile().set(getLayout().getBuildDirectory().file("modules/main/" + project.getName() + ".swiftmodule"));
-							compileTask.getModuleName().set(project.getName());
-						}
-					});
-				});
-
 				BaseNativeVariant variantInternal = (BaseNativeVariant)it;
 				if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
 					DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
 					if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
 						TaskProvider<LinkExecutableTask> linkTask = getTasks().register(names.getTaskName("link"), LinkExecutableTask.class);
-						ExecutableBinaryInternal binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets, targetMachineInternal);
+						ExecutableBinaryInternal binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets, targetMachineInternal, linkTask);
 						variantInternal.getBinaryCollection().add(binary);
 						binary.getBaseName().convention(project.getName());
-						linkTask.configure(configureExecutableTask(binary));
 					} else if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
 						TaskProvider<LinkSharedLibraryTask> linkTask = getTasks().register(names.getTaskName("link"), LinkSharedLibraryTask.class);
 
@@ -197,7 +139,6 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 						SharedLibraryBinaryInternal binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), getDependencies().getImplementationDependencies(), targetMachineInternal, objectSourceSets, linkTask, getDependencies().getLinkOnlyDependencies());
 						variantInternal.getBinaryCollection().add(binary);
 						binary.getBaseName().convention(project.getName());
-						linkTask.configure(configureSharedLibraryTask(binary));
 
 //					} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
 //						variantInternal.getBinaryCollection().add(getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets));
@@ -229,123 +170,6 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 		// TODO: This may need to be moved somewhere else.
 		// finalize the variantCollection
 		getVariantCollection().disallowChanges();
-	}
-
-	private Provider<NativeToolChain> selectNativeToolChain(TargetMachine targetMachine) {
-		return getProviders().provider(() -> toolChainSelector.select(targetMachine));
-	}
-
-	private Provider<NativeToolChain> selectSwiftToolChain(TargetMachine targetMachine) {
-		return getProviders().provider(() -> toolChainSelector.selectSwift(targetMachine));
-	}
-
-	private Provider<NativePlatform> toTargetPlatform(TargetMachine targetMachine) {
-		return getProviders().provider(() -> NativePlatformFactory.create(targetMachine));
-	}
-
-	private ToolType getToolType(Class<? extends Task> taskType) {
-		if (CCompileTask.class.isAssignableFrom(taskType)) {
-			return ToolType.CPP_COMPILER;
-		} else if (CppCompileTask.class.isAssignableFrom(taskType)) {
-			return ToolType.CPP_COMPILER;
-		} else if (ObjectiveCCompileTask.class.isAssignableFrom(taskType)) {
-			return ToolType.OBJECTIVEC_COMPILER;
-		} else if (ObjectiveCppCompileTask.class.isAssignableFrom(taskType)) {
-			return ToolType.OBJECTIVECPP_COMPILER;
-		}
-		throw new IllegalArgumentException(String.format("Unknown task type, '%s', cannot choose ToolType.", taskType.getSimpleName()));
-	}
-
-	private Callable<List<File>> getSystemIncludes(AbstractNativeCompileTask compileTask) {
-		return () -> {
-			NativeToolChainInternal toolChain = (NativeToolChainInternal)compileTask.getToolChain().get();
-			NativePlatformInternal targetPlatform = (NativePlatformInternal)compileTask.getTargetPlatform().get();
-			PlatformToolProvider toolProvider = toolChain.select(targetPlatform);
-
-			return toolProvider.getSystemLibraries(getToolType(compileTask.getClass())).getIncludeDirs();
-		};
-	}
-
-	private Provider<RegularFile> sharedLibraryLinkedFile(TargetMachine targetMachine, Provider<String> baseName) {
-		return getLayout().getBuildDirectory().file(baseName.map(it -> {
-			OperatingSystemFamily osFamily = targetMachine.getOperatingSystemFamily();
-			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
-			return osOperations.getSharedLibraryName(getNames().getOutputDirectoryBase("libs") + "/" + it);
-		}));
-	}
-
-	private Provider<RegularFile> executableLinkedFile(TargetMachine targetMachine, Provider<String> baseName) {
-		return getLayout().getBuildDirectory().file(baseName.map(it -> {
-			OperatingSystemFamily osFamily = targetMachine.getOperatingSystemFamily();
-			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
-			return osOperations.getExecutableName(getNames().getOutputDirectoryBase("exes") + "/" + it);
-		}));
-	}
-
-	private Transformer<PlatformToolProvider, NativeToolChain> selectToolProvider(TargetMachine targetMachine) {
-		return toolChain -> {
-			NativeToolChainInternal toolChainInternal = (NativeToolChainInternal) toolChain;
-			return toolChainInternal.select(NativePlatformFactory.create(targetMachine));
-		};
-	}
-
-	private Provider<RegularFile> importLibraryFile(Provider<PlatformToolProvider> platformToolProvider, Provider<String> baseName) {
-		return getProviders().provider(() -> {
-			PlatformToolProvider toolProvider = platformToolProvider.get();
-			if (toolProvider.producesImportLibrary()) {
-				return getLayout().getBuildDirectory().file(toolProvider.getImportLibraryName(getNames().getOutputDirectoryBase("libs") + "/" + baseName.get())).get();
-			}
-			return null;
-		});
-	}
-
-	private Action<LinkSharedLibraryTask> configureSharedLibraryTask(SharedLibraryBinaryInternal binary) {
-		return task -> {
-			task.setDescription("Links the shared library.");
-			task.source(binary.getObjectFiles());
-
-			task.getTargetPlatform().set(toTargetPlatform(binary.getTargetMachine()));
-			task.getTargetPlatform().finalizeValueOnRead();
-			task.getTargetPlatform().disallowChanges();
-
-			// Until we model the build type
-			task.getDebuggable().set(false);
-
-			// Install name set inside SharedLibraryBinaryInternal
-
-			task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(getNames().getOutputDirectoryBase("libs")));
-			task.getLinkedFile().convention(sharedLibraryLinkedFile(binary.getTargetMachine(), binary.getBaseName()));
-
-			// For windows
-			task.getImportLibrary().convention(importLibraryFile(task.getToolChain().map(selectToolProvider(binary.getTargetMachine())), binary.getBaseName()));
-
-			task.getToolChain().set(selectNativeToolChain(binary.getTargetMachine()));
-			task.getToolChain().finalizeValueOnRead();
-			task.getToolChain().disallowChanges();
-		};
-	}
-
-	private Action<LinkExecutableTask> configureExecutableTask(ExecutableBinaryInternal binary) {
-		return task -> {
-			task.setDescription("Links the executable.");
-			task.source(binary.getObjectFiles());
-
-			task.getTargetPlatform().set(toTargetPlatform(binary.getTargetMachine()));
-			task.getTargetPlatform().finalizeValueOnRead();
-			task.getTargetPlatform().disallowChanges();
-
-			// Until we model the build type
-			task.getDebuggable().set(false);
-
-			// Install name set inside SharedLibraryBinaryInternal
-
-			task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(getNames().getOutputDirectoryBase("exes")));
-			task.getLinkedFile().convention(executableLinkedFile(binary.getTargetMachine(), binary.getBaseName()));
-
-			task.getToolChain().set(selectNativeToolChain(binary.getTargetMachine()));
-			task.getToolChain().finalizeValueOnRead();
-			task.getToolChain().disallowChanges();
-		};
 	}
 
 	// TODO: BuildVariant and NamedDomainObjectProvider from VariantCollection should be together.

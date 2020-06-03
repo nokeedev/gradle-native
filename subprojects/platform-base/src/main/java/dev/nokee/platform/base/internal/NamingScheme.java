@@ -86,6 +86,10 @@ public abstract class NamingScheme {
 	public class BaseNameNamingScheme {
 		private BaseNameNamingScheme() {}
 
+		public String getAsString() {
+			return baseName;
+		}
+
 		public String getAsCamelCase() {
 			return GUtil.toCamelCase(baseName);
 		}
