@@ -14,6 +14,7 @@ import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.Getter;
 import lombok.Value;
 import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
@@ -21,6 +22,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
 import org.gradle.api.file.FileSystemLocation;
+import org.gradle.api.file.FileTree;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
@@ -37,6 +39,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -48,14 +51,12 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 	private final Configuration linkConfiguration;
 	private final TaskProvider<LinkSharedLibraryTask> linkTask;
 	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
-	private final DefaultTargetMachine targetMachine;
 
 	@Inject
 	public SharedLibraryBinaryInternal(NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, Configuration linkOnly) {
-		super(objectSourceSets);
+		super(objectSourceSets, targetMachine);
 		this.linkTask = linkTask;
 		sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
-		this.targetMachine = targetMachine;
 		parentSources.all(it -> sources.add(it));
 
 		getLinkerInputs().value(fromLinkConfiguration()).finalizeValueOnRead();

@@ -9,7 +9,7 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
 
 public class NativePlatformFactory {
-	public NativePlatformInternal create(TargetMachine targetMachine) {
+	public static NativePlatformInternal create(TargetMachine targetMachine) {
 		NativePlatformInternal result = new DefaultNativePlatform(platformNameFor(targetMachine));
 		result.architecture(architecturePlatformNameFor(targetMachine.getArchitecture()));
 		result.operatingSystem(operatingSystemPlatformNameFor(targetMachine.getOperatingSystemFamily()));

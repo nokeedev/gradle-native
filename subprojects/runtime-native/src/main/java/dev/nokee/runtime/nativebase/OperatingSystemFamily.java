@@ -47,4 +47,22 @@ public interface OperatingSystemFamily extends dev.nokee.platform.nativebase.Ope
 	 * @since 0.2
 	 */
 	boolean isFreeBSD();
+
+	/**
+	 * Check if the operating system family is iOS.
+	 *
+	 * @return {@code true} if the operating system family is iOS or {@code false} otherwise.
+	 * @since 0.4
+	 */
+	boolean isIos();
+
+	/**
+	 * Check if the operating system family is iOS.
+	 *
+	 * @return {@code true} if the operating system family is iOS or {@code false} otherwise.
+	 * @since 0.4
+	 */
+	default boolean isiOS() {
+		return isIos();
+	}
 }

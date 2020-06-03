@@ -40,6 +40,11 @@ public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Name
 		return equals(FREE_BSD);
 	}
 
+	@Override
+	public boolean isIos() {
+		return equals(IOS);
+	}
+
 	public static DefaultOperatingSystemFamily forName(String name) {
 		String osName = name.toLowerCase();
 		if (osName.contains("windows")) {

@@ -8,7 +8,10 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.DefaultTaskView;
 import dev.nokee.platform.base.internal.Realizable;
 import dev.nokee.platform.nativebase.NativeBinary;
+import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.Getter;
 import org.gradle.api.DomainObjectSet;
+import org.gradle.api.file.FileTree;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
@@ -19,17 +22,18 @@ import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 
 import javax.inject.Inject;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	private final DefaultTaskView<NativeSourceCompile> compileTasks;
+	private final DomainObjectSet<GeneratedSourceSet> objectSourceSets;
+	@Getter private final DefaultTargetMachine targetMachine;
 
-	public BaseNativeBinary() {
-		compileTasks = null;
-	}
-
-	public BaseNativeBinary(DomainObjectSet<GeneratedSourceSet> objectSourceSets) {
+	public BaseNativeBinary(DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine) {
 		this.compileTasks = getObjects().newInstance(DefaultTaskView.class, NativeSourceCompile.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), (Realizable)() -> {});
+		this.objectSourceSets = objectSourceSets;
+		this.targetMachine = targetMachine;
 	}
 
 	@Inject
@@ -61,4 +65,9 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	}
 
 	public abstract Property<String> getBaseName();
+
+	public FileTree getObjectFiles() {
+		Optional<FileTree> result = objectSourceSets.stream().map(GeneratedSourceSet::getAsFileTree).reduce(FileTree::plus);
+		return result.orElseGet(() -> getObjects().fileTree());
+	}
 }
