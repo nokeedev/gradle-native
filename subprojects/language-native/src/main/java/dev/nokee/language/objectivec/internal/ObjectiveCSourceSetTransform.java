@@ -8,7 +8,7 @@ import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 
 import javax.inject.Inject;
 
-public abstract class ObjectiveCSourceSetTransform extends NativeSourceSetTransform<UTTypeObjectiveCSource> {
+public abstract class ObjectiveCSourceSetTransform extends NativeSourceSetTransform {
 	@Inject
 	public ObjectiveCSourceSetTransform(NamingScheme names, Configuration compileConfiguration) {
 		super(names, compileConfiguration);

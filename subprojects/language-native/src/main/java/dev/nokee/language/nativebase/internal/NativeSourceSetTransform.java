@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 import static dev.nokee.runtime.nativebase.internal.DependencyUtils.isFrameworkDependency;
 
-public abstract class NativeSourceSetTransform<T extends UTType> implements SourceSetTransform<T, UTTypeObjectCode> {
+public abstract class NativeSourceSetTransform implements SourceSetTransform {
 	private final NamingScheme names;
 	private final Configuration compileConfiguration;
 
@@ -53,7 +53,7 @@ public abstract class NativeSourceSetTransform<T extends UTType> implements Sour
 	protected abstract String getLanguageName();
 
 	@Override
-	public SourceSet<UTTypeObjectCode> transform(SourceSet<T> sourceSet) {
+	public GeneratedSourceSet transform(SourceSet sourceSet) {
 		getCompilerInputs().value(fromCompileConfiguration()).finalizeValueOnRead();
 		getCompilerInputs().disallowChanges();
 

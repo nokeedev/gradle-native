@@ -12,7 +12,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.language.base.internal.UTTypeUtils.onlyIf;
 
-public abstract class GeneratedSourceSet<T extends UTType> implements SourceSet<T> {
+public abstract class GeneratedSourceSet implements SourceSet {
 	private final UTType type;
 	private final Provider<Directory> sourceDirectory;
 	private final TaskProvider<? extends Task> generatedByTask;

@@ -18,7 +18,7 @@ public abstract class ExecutableBinaryInternal extends BaseNativeBinary implemen
 	private final NamingScheme names;
 
 	@Inject
-	public ExecutableBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets) {
+	public ExecutableBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets) {
 		super(objectSourceSets);
 		this.names = names;
 	}

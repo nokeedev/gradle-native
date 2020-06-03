@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 import static dev.nokee.runtime.nativebase.internal.DependencyUtils.isFrameworkDependency;
 
-public abstract class SwiftSourceSetTransform implements SourceSetTransform<UTTypeSwiftSource, UTTypeObjectCode> {
+public abstract class SwiftSourceSetTransform implements SourceSetTransform {
 	private final NamingScheme names;
 	private final Configuration compileConfiguration;
 
@@ -51,7 +51,7 @@ public abstract class SwiftSourceSetTransform implements SourceSetTransform<UTTy
 	protected abstract ProviderFactory getProviders();
 
 	@Override
-	public SourceSet<UTTypeObjectCode> transform(SourceSet<UTTypeSwiftSource> sourceSet) {
+	public GeneratedSourceSet transform(SourceSet sourceSet) {
 		TaskProvider<SwiftCompileTask> compileTask = getTasks().register(names.getTaskName("compile", "Swift"), SwiftCompileTask.class, task -> {
 			task.getObjectFileDir().convention(getLayout().getBuildDirectory().dir(names.getOutputDirectoryBase("objs") + "/mainSwift"));
 

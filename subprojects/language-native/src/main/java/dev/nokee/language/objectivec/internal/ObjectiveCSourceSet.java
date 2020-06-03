@@ -4,7 +4,7 @@ import dev.nokee.language.base.internal.BaseSourceSet;
 
 import javax.inject.Inject;
 
-public abstract class ObjectiveCSourceSet extends BaseSourceSet<UTTypeObjectiveCSource> {
+public abstract class ObjectiveCSourceSet extends BaseSourceSet {
 	@Inject
 	public ObjectiveCSourceSet() {
 		super(UTTypeObjectiveCSource.INSTANCE);

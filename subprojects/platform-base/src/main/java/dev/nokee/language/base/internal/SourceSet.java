@@ -5,15 +5,14 @@ import org.gradle.api.file.FileTree;
 /**
  * An immutable set of source associating a set of directories with filter patterns.
  *
- * @param <T> the {@link UTType} of the source set.
  * @since 0.4
  */
-public interface SourceSet<T extends UTType> {
+public interface SourceSet {
 	FileTree getAsFileTree();
 
 	UTType getType();
 
-	default <R extends UTType> SourceSet<R> transform(SourceSetTransform<T, R> transformer) {
+	default SourceSet transform(SourceSetTransform transformer) {
 		return transformer.transform(this);
 	}
 }

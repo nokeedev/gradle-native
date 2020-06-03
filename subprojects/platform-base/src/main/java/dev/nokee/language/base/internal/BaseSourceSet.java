@@ -8,7 +8,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.language.base.internal.UTTypeUtils.onlyIf;
 
-public abstract class BaseSourceSet<T extends UTType> implements ConfigurableSourceSet<T> {
+public abstract class BaseSourceSet implements ConfigurableSourceSet {
 	private final UTType type;
 	private final SourceDirectorySet sourceDirectorySet = getObjects().sourceDirectorySet("foo", "bar");
 
@@ -20,7 +20,7 @@ public abstract class BaseSourceSet<T extends UTType> implements ConfigurableSou
 		sourceDirectorySet.getFilter().include(onlyIf(type));
 	}
 
-	public SourceSet<T> srcDir(Object srcPath) {
+	public BaseSourceSet srcDir(Object srcPath) {
 		sourceDirectorySet.srcDir(srcPath);
 		return this;
 	}

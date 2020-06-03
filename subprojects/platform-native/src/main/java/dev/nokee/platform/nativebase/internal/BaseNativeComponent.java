@@ -4,29 +4,26 @@ import com.google.common.base.Preconditions;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.base.internal.SourceSet;
-import dev.nokee.language.base.internal.UTTypeSourceCode;
+import dev.nokee.language.c.internal.CSourceSet;
 import dev.nokee.language.c.internal.CSourceSetTransform;
-import dev.nokee.language.c.internal.UTTypeCSource;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
+import dev.nokee.language.cpp.internal.CppSourceSet;
 import dev.nokee.language.cpp.internal.CppSourceSetTransform;
-import dev.nokee.language.cpp.internal.UTTypeCppSource;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
-import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetTransform;
-import dev.nokee.language.objectivec.internal.UTTypeObjectiveCSource;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetTransform;
-import dev.nokee.language.objectivecpp.internal.UTTypeObjectiveCppSource;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
+import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSetTransform;
-import dev.nokee.language.swift.internal.UTTypeSwiftSource;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.SourceCollection;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
@@ -63,7 +60,7 @@ import java.util.stream.Collectors;
 
 public abstract class BaseNativeComponent<T extends Variant> extends BaseComponent<T> {
 	private final ToolChainSelectorInternal toolChainSelector = getObjects().newInstance(ToolChainSelectorInternal.class);
-	private final SourceCollection<UTTypeSourceCode> sourceCollection;
+	private final DomainObjectSet<SourceSet> sourceCollection = getObjects().domainObjectSet(SourceSet.class);
 	private final Class<T> variantType;
 
 	@Inject
@@ -82,12 +79,11 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 		super(names, variantType);
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
 		this.variantType = variantType;
-		this.sourceCollection = Cast.uncheckedCast(getObjects().newInstance(SourceCollection.class, UTTypeSourceCode.INSTANCE));
 	}
 
 	public abstract AbstractNativeComponentDependencies getDependencies();
 
-	public SourceCollection<UTTypeSourceCode> getSourceCollection() {
+	public DomainObjectSet<SourceSet> getSourceCollection() {
 		return sourceCollection;
 	}
 
@@ -135,16 +131,15 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 				// TODO: This is not correct for Swift
 				Configuration headerSearchPaths = getConfigurations().create(names.getConfigurationName("headerSearchPaths"), configurationUtils.asIncomingHeaderSearchPathFrom(getDependencies().getImplementationDependencies(), getDependencies().getCompileOnlyDependencies()));
 
-				DomainObjectSet<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets = Cast.uncheckedCast(getObjects().domainObjectSet(GeneratedSourceSet.class));
-				getSourceCollection().transformEach(UTTypeCSource.INSTANCE, getObjects().newInstance(CSourceSetTransform.class, names, headerSearchPaths)).all(objectSourceSets::add);
-				getSourceCollection().transformEach(UTTypeCppSource.INSTANCE, getObjects().newInstance(CppSourceSetTransform.class, names, headerSearchPaths)).all(objectSourceSets::add);
-				getSourceCollection().transformEach(UTTypeObjectiveCSource.INSTANCE, getObjects().newInstance(ObjectiveCSourceSetTransform.class, names, headerSearchPaths)).all(objectSourceSets::add);
-				getSourceCollection().transformEach(UTTypeObjectiveCppSource
-					.INSTANCE, getObjects().newInstance(ObjectiveCppSourceSetTransform.class, names, headerSearchPaths)).all(objectSourceSets::add);
-				getSourceCollection().transformEach(UTTypeSwiftSource.INSTANCE, getObjects().newInstance(SwiftSourceSetTransform.class, names, headerSearchPaths)).all(objectSourceSets::add);
+				DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
+				getSourceCollection().withType(CSourceSet.class).configureEach(s -> objectSourceSets.add(getObjects().newInstance(CSourceSetTransform.class, names, headerSearchPaths).transform(s)));
+				getSourceCollection().withType(CppSourceSet.class).configureEach(s -> objectSourceSets.add(getObjects().newInstance(CppSourceSetTransform.class, names, headerSearchPaths).transform(s)));
+				getSourceCollection().withType(ObjectiveCSourceSet.class).configureEach(s -> objectSourceSets.add(getObjects().newInstance(ObjectiveCSourceSetTransform.class, names, headerSearchPaths).transform(s)));
+				getSourceCollection().withType(ObjectiveCppSourceSet.class).configureEach(s -> objectSourceSets.add(getObjects().newInstance(ObjectiveCppSourceSetTransform.class, names, headerSearchPaths).transform(s)));
+				getSourceCollection().withType(SwiftSourceSet.class).configureEach(s -> objectSourceSets.add(getObjects().newInstance(SwiftSourceSetTransform.class, names, headerSearchPaths).transform(s)));
 
 				objectSourceSets.forEach(objects -> {
-					GeneratedSourceSet<?> source = objects;
+					GeneratedSourceSet source = objects;
 					source.getGeneratedByTask().configure(task -> {
 
 						if (task instanceof AbstractNativeCompileTask) {

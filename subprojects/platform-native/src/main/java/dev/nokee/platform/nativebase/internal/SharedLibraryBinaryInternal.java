@@ -51,7 +51,7 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 	private final DefaultTargetMachine targetMachine;
 
 	@Inject
-	public SharedLibraryBinaryInternal(NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet<UTTypeObjectCode>> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, Configuration linkOnly) {
+	public SharedLibraryBinaryInternal(NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, Configuration linkOnly) {
 		super(objectSourceSets);
 		this.linkTask = linkTask;
 		sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
