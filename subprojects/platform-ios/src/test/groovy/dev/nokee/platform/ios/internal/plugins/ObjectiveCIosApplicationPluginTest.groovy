@@ -29,6 +29,7 @@ trait ObjectiveCIosApplicationPluginTestFixture {
 	}
 }
 
+@Requires({SystemUtils.IS_OS_MAC})
 @Subject(ObjectiveCIosApplicationPlugin)
 class ObjectiveCIosApplicationPluginLayoutTest extends AbstractPluginTest implements ObjectiveCIosApplicationPluginTestFixture {
 	final String pluginIdUnderTest = pluginId
