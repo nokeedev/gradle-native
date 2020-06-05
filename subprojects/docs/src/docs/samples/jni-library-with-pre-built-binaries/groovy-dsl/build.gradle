@@ -6,6 +6,7 @@ plugins {
 
 
 import java.util.concurrent.Callable
+import dev.nokee.runtime.nativebase.OperatingSystemFamily
 
 String getLibraryFileNameFor(OperatingSystemFamily osFamily) {
 	if (osFamily.windows) {
