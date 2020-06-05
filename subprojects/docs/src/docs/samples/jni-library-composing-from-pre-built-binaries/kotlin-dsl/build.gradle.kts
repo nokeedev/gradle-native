@@ -4,8 +4,9 @@ plugins {
 }
 
 import java.util.concurrent.Callable
+import dev.nokee.runtime.nativebase.OperatingSystemFamily
 
-fun getLibraryFilePathFor(osFamily: dev.nokee.runtime.nativebase.OperatingSystemFamily): String {
+fun getLibraryFilePathFor(osFamily: OperatingSystemFamily): String {
 	if (osFamily.isWindows) {
 		return "pre-built-libraries/windows/jni-greeter.dll"
 	} else if (osFamily.isLinux) {

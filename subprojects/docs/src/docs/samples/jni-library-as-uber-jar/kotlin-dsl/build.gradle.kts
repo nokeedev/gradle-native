@@ -7,7 +7,6 @@ plugins {
 import dev.nokee.platform.jni.JarBinary
 import dev.nokee.platform.jni.JvmJarBinary
 import dev.nokee.platform.jni.JniJarBinary
-import dev.nokee.platform.jni.JniLibrary
 import dev.nokee.platform.nativebase.TargetMachine
 
 library {

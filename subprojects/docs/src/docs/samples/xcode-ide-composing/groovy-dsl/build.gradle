@@ -1,3 +1,4 @@
+import dev.nokee.language.nativebase.tasks.NativeSourceCompile
 import dev.nokee.platform.jni.JvmJarBinary
 
 plugins {
@@ -24,7 +25,7 @@ Provider<SharedLibraryBinary> getSharedLibraryBinary() {
 
 Transformer<String, SharedLibraryBinary> asHeaderSearchPaths() {
 	return {
-		it.compileTasks.elements.get().first().headerSearchPaths.get().collect { "\"${it.asFile.absolutePath}\"" }.join(' ')
+		it.compileTasks.withType(NativeSourceCompile).get().first().headerSearchPaths.get().collect { "\"${it.asFile.absolutePath}\"" }.join(' ')
 	}
 }
 //endregion
