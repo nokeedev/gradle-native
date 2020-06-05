@@ -1,10 +1,14 @@
+//:plugin-display-name: C Application
+//:plugin-entrypoint-id: application
+//:plugin-configuration-style: native
+//:plugin-language: C
 
 Just like the tasks created by the {plugin-display-name} Plugin, multiple configurations are created based on the variants of the {plugin-entrypoint-id} component.
 Read the <<building-native-projects.adoc#sec:introducing-build-variants,introduction to build variants>> for more information.
 The following graph describes the configurations added by the {plugin-display-name} Plugin:
 
 .{plugin-display-name} Plugin configurations
-image::img/native-{plugin-entrypoint-id}-configurations.png[]
+image::img/{plugin-configuration-style}-{plugin-entrypoint-id}-configurations.png[]
 
 * The configurations in white are the ones a user should use to declare dependencies
 * The configurations in pink, also known as consumable denoted by \(C), are the ones used when a component runs against the library
@@ -61,9 +65,21 @@ This configuration is meant to be used by consumers, to retrieve all the element
 
 The following configurations are used by the application itself:
 
+ifeval::["{plugin-configuration-style}" == "native"]
+
 `__variant__HeaderSearchPaths` (e.g. `windowsHeaderSearchPaths` and `linuxHeaderSearchPaths`) extends `__variant__Implementation`::
 Used for compiling the {plugin-entrypoint-id}.
 This configuration contains the compile include roots of the {plugin-entrypoint-id} and is therefore used when invoking the {plugin-language} compiler to compile it.
+
+endif::[]
+
+ifeval::["{plugin-configuration-style}" == "swift"]
+
+`__variant__ImportSearchPaths` (e.g. `windowsImportSearchPaths` and `linuxImportSearchPaths`) extends `__variant__Implementation`::
+Used for compiling the {plugin-entrypoint-id}.
+This configuration contains the compile import roots of the {plugin-entrypoint-id} and is therefore used when invoking the {plugin-language} compiler to compile it.
+
+endif::[]
 
 `__variant__LinkLibraries` (e.g. `windowsLinkLibraries` and `linuxLinkLibraries`) extends `__variant__Implementation`::
 Used for linking the {plugin-entrypoint-id}.

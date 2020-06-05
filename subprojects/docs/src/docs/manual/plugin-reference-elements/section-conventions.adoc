@@ -1,4 +1,8 @@
-//:plugin-language-id: cpp
+//:plugin-language-id: c
+//:plugin-display-name: C Application
+//:language-java-package: dev.nokee.language.c
+//:plugin-language-suffix: C
+//:plugin-entrypoint-id: application
 
 The {plugin-display-name} Plugin adds conventions for sources and tasks, shown below.
 

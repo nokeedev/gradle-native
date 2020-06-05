@@ -1,3 +1,5 @@
+//:plugin-display-name: C Application
+//:plugin-entrypoint-id: application
 
 The {plugin-display-name} Plugin understands the following dimensions.
 Read the <<building-native-projects.adoc#sec:introducing-build-variants,introduction to build variants>> for more information.

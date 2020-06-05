@@ -14,9 +14,9 @@ digraph applicationConfigurations {
 
   subgraph left {
     node[style=filled, fillcolor="#cfe2f3"]
-    headerSearchPaths -> linkLibraries -> runtimeLibraries [style=invis, weight=1000]
+    importSearchPaths -> linkLibraries -> runtimeLibraries [style=invis, weight=1000]
 
-    headerSearchPaths[label=<<i>variant</i>HeaderSearchPaths (R)>]
+    importSearchPaths[label=<<i>variant</i>ImportSearchPaths (R)>]
     linkLibraries[label=<<i>variant</i>LinkLibraries (R)>]
     runtimeLibraries[label=<<i>variant</i>RuntimeLibraries (R)>]
   }
@@ -29,10 +29,10 @@ digraph applicationConfigurations {
   }
 
   // Ensure the order is preserved
-  {rank=same headerSearchPaths implementation}
+  {rank=same importSearchPaths implementation}
   {rank=same variantImplementation linkLibraries runtimeElements}
   linkLibraries -> variantImplementation -> runtimeElements [style=invis]
 
-  {headerSearchPaths, linkLibraries, runtimeLibraries} -> variantImplementation [headport=w, tailport=e]
+  {importSearchPaths, linkLibraries, runtimeLibraries} -> variantImplementation [headport=w, tailport=e]
   runtimeElements -> variantImplementation [headport=e, tailport=w]
 }

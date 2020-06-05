@@ -1,6 +1,8 @@
 //:plugin-display-name: C Application
 //:plugin-name: c-application
 //:plugin-language: C
+//:plugin-entrypoint-id: application
+//:plugin-language-suffix: C
 
 The following diagram shows the relationships between tasks added by this plugin.
 
