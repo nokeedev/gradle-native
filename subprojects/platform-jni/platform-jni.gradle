@@ -53,6 +53,7 @@ components.functionalTest {
 		implementation project(':runtimeNative')
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation "commons-io:commons-io:${commonsIoVersion}"
+		implementation project(':coreExec')
 	}
 }
 

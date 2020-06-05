@@ -278,8 +278,8 @@ abstract class WellBehavingSampleTest extends Specification {
 			}
 			assert exitCode == 0
 
-			def expectedResult = OutputScrapingExecutionResult.from(command.expectedOutput.get().split('\n').drop(6).join('\n'), '')
-			def result = OutputScrapingExecutionResult.from(stdout.split('\n').drop(6).join('\n'), '')
+			def expectedResult = OutputScrapingExecutionResult.from(command.expectedOutput.get().split('\n').dropWhile { !it.startsWith('> Task') }.join('\n'), '')
+			def result = OutputScrapingExecutionResult.from(stdout.split('\n').dropWhile { !it.startsWith('> Task') }.join('\n'), '')
 
 			assert OutputScrapingExecutionResult.normalize(LogContent.of(result.getPlainTextOutput())).replace(' in 0s', '').startsWith(expectedResult.getOutput())
 		}

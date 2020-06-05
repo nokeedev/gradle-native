@@ -2,6 +2,9 @@ package dev.nokee.platform.jni.repositories
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.archive.JarTestFixture
+import dev.nokee.core.exec.CachingProcessBuilderEngine
+import dev.nokee.core.exec.CommandLine
+import dev.nokee.core.exec.ProcessBuilderEngine
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCNSSavePanelLib
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils
@@ -31,8 +34,8 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 
 			library {
 				dependencies {
-					nativeImplementation 'dev.nokee.framework:Foundation:10.15'
-					nativeImplementation 'dev.nokee.framework:CoreFoundation:10.15' // dependency of Foundation
+					nativeImplementation 'dev.nokee.framework:Foundation:${sdkVersion}'
+					nativeImplementation 'dev.nokee.framework:CoreFoundation:${sdkVersion}' // dependency of Foundation
 				}
 			}
 
@@ -66,8 +69,8 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 
 			library {
 				dependencies {
-					nativeImplementation 'dev.nokee.framework:Foundation:10.15'
-					nativeImplementation 'dev.nokee.framework:CoreFoundation:10.15' // dependency of Foundation
+					nativeImplementation 'dev.nokee.framework:Foundation:${sdkVersion}'
+					nativeImplementation 'dev.nokee.framework:CoreFoundation:${sdkVersion}' // dependency of Foundation
 				}
 			}
 
@@ -107,12 +110,12 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 
 			library {
 				dependencies {
-					nativeImplementation('dev.nokee.framework:JavaVM:10.15') {
+					nativeImplementation('dev.nokee.framework:JavaVM:${sdkVersion}') {
 						capabilities {
-							requireCapability 'JavaVM:JavaNativeFoundation:10.15'
+							requireCapability 'JavaVM:JavaNativeFoundation:${sdkVersion}'
 						}
 					}
-					nativeImplementation 'dev.nokee.framework:Cocoa:10.15'
+					nativeImplementation 'dev.nokee.framework:Cocoa:${sdkVersion}'
 				}
 			}
 
@@ -156,7 +159,7 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 			}
 
 			dependencies {
-				framework('non.magic.group:JavaVM:10.15') {
+				framework('non.magic.group:JavaVM:${sdkVersion}') {
 					attributes {
 						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
 						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
@@ -177,7 +180,7 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 		fails('resolveConfiguration', '-i')
 		failure.assertHasDescription("Execution failed for task ':resolveConfiguration'.")
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
-		failure.assertHasCause("""Could not find non.magic.group:JavaVM:10.15.
+		failure.assertHasCause("""Could not find non.magic.group:JavaVM:${sdkVersion}.
 Required by:
     project :""")
 
@@ -199,7 +202,7 @@ Required by:
 			}
 
 			dependencies {
-				framework('dev.nokee.framework:NonExistantFramework:10.15') {
+				framework('dev.nokee.framework:NonExistantFramework:${sdkVersion}') {
 					attributes {
 						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
 						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
@@ -220,12 +223,12 @@ Required by:
 		fails('resolveConfiguration', '-i')
 		failure.assertHasDescription("Execution failed for task ':resolveConfiguration'.")
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
-		failure.assertThatCause(matchesPattern(compile("""Could not find dev.nokee.framework:NonExistantFramework:10.15.
+		failure.assertThatCause(matchesPattern(compile("""Could not find dev.nokee.framework:NonExistantFramework:${sdkVersion}.
 Searched in the following locations:
-  - http://127.0.0.1:\\d+/dev/nokee/framework/NonExistantFramework/10.15/NonExistantFramework-10.15.module
+  - http://127.0.0.1:\\d+/dev/nokee/framework/NonExistantFramework/${sdkVersion}/NonExistantFramework-${sdkVersion}.module
 .+""", MULTILINE | DOTALL)))
 
-		failure.assertOutputContains("The requested framework 'NonExistantFramework' wasn't found at in '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/'.")
+		failure.assertOutputContains("The requested framework 'NonExistantFramework' wasn't found at in '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${sdkFolderVersion}.sdk/System/Library/Frameworks/'.")
 	}
 
 	def "fails to resolve framework for bad SDK version"() {
@@ -269,7 +272,7 @@ Searched in the following locations:
   - http://127.0.0.1:\\d+/dev/nokee/framework/Foundation/4.2/Foundation-4.2.module
 .+""", MULTILINE | DOTALL)))
 
-		failure.assertOutputContains("The requested module 'Foundation' version '4.2' doesn't match current available versions '10.15'.")
+		failure.assertOutputContains("The requested module 'Foundation' version '4.2' doesn't match current available versions '${sdkVersion}'.")
 	}
 
 	def "can resolve framework search path"() {
@@ -288,7 +291,7 @@ Searched in the following locations:
 			}
 
 			dependencies {
-				framework('dev.nokee.framework:Foundation:10.15') {
+				framework('dev.nokee.framework:Foundation:${sdkVersion}') {
 					attributes {
 						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
 						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
@@ -301,7 +304,7 @@ Searched in the following locations:
 					def f = configurations.framework.singleFile
 					assert Files.exists(f.toPath())
 					assert Files.isSymbolicLink(f.toPath())
-					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/Foundation.framework'
+					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${sdkFolderVersion}.sdk/System/Library/Frameworks/Foundation.framework'
 				}
 			}
 		"""
@@ -326,7 +329,7 @@ Searched in the following locations:
 			}
 
 			dependencies {
-				framework('dev.nokee.framework:Foundation:10.15') {
+				framework('dev.nokee.framework:Foundation:${sdkVersion}') {
 					attributes {
 						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
 						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
@@ -340,7 +343,7 @@ Searched in the following locations:
 					assert f.name == 'Foundation.framework'
 					assert Files.exists(f.toPath())
 					assert Files.isSymbolicLink(f.toPath())
-					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/Foundation.framework'
+					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${sdkFolderVersion}.sdk/System/Library/Frameworks/Foundation.framework'
 				}
 			}
 		"""
@@ -380,7 +383,7 @@ Searched in the following locations:
 					assert f.name == 'Foundation.framework'
 					assert Files.exists(f.toPath())
 					assert Files.isSymbolicLink(f.toPath())
-					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/Foundation.framework'
+					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${sdkFolderVersion}.sdk/System/Library/Frameworks/Foundation.framework'
 				}
 			}
 		"""
@@ -389,12 +392,12 @@ Searched in the following locations:
 		succeeds('verify', '-i')
 
 		where:
-		versionNotation 		| displayName
-		'latest.integration'	| 'latest status for integration'
-		'latest.release'		| 'latest status for release'
-		'10.+'					| 'prefix version range'
-		'[10.0,10.17]'			| 'version range'
-		'[10.0,10.17]!!10.15'	| 'version range with preference'
+		versionNotation       			| displayName
+		'latest.integration'  			| 'latest status for integration'
+		'latest.release'      			| 'latest status for release'
+		'10.+'                			| 'prefix version range'
+		'[10.0,10.17]'        			| 'version range'
+		"[10.0,10.17]!!${sdkVersion}"	| 'version range with preference'
 	}
 
 	def "handles xcrun errors without logging beyond info level"() {
@@ -413,7 +416,7 @@ Searched in the following locations:
 			}
 
 			dependencies {
-				framework('dev.nokee.framework:Foundation:10.15') {
+				framework('dev.nokee.framework:Foundation:${sdkVersion}') {
 					attributes {
 						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
 						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
@@ -437,9 +440,9 @@ Searched in the following locations:
 		and:
 		failure.assertHasDescription("Execution failed for task ':resolveConfiguration'.")
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
-		failure.assertThatCause(matchesPattern(compile("""Could not find dev.nokee.framework:Foundation:10.15.
+		failure.assertThatCause(matchesPattern(compile("""Could not find dev.nokee.framework:Foundation:${sdkVersion}.
 Searched in the following locations:
-  - http://127.0.0.1:\\d+/dev/nokee/framework/Foundation/10.15/Foundation-10.15.module
+  - http://127.0.0.1:\\d+/dev/nokee/framework/Foundation/${sdkVersion}/Foundation-${sdkVersion}.module
 .+""", MULTILINE | DOTALL)))
 
 		when:
@@ -449,13 +452,36 @@ Searched in the following locations:
 		and:
 		failure.assertHasDescription("Execution failed for task ':resolveConfiguration'.")
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
-		failure.assertThatCause(matchesPattern(compile("""Could not find dev.nokee.framework:Foundation:10.15.
+		failure.assertThatCause(matchesPattern(compile("""Could not find dev.nokee.framework:Foundation:${sdkVersion}.
 Searched in the following locations:
-  - http://127.0.0.1:\\d+/dev/nokee/framework/Foundation/10.15/Foundation-10.15.module
+  - http://127.0.0.1:\\d+/dev/nokee/framework/Foundation/${sdkVersion}/Foundation-${sdkVersion}.module
 .+""", MULTILINE | DOTALL)))
 	}
 
 	protected JarTestFixture jar(String path) {
 		return new JarTestFixture(file(path))
+	}
+
+	private static final CachingProcessBuilderEngine ENGINE = new CachingProcessBuilderEngine(new ProcessBuilderEngine())
+	private String getSdkVersion() {
+		return CommandLine.of("xcrun", "--show-sdk-version")
+			.execute(ENGINE)
+			.result
+			.assertNormalExitValue()
+			.standardOutput.asString.trim()
+	}
+
+	// SDK version inside the path doesn't include the patch version, we simply drop it.
+	private String getSdkFolderVersion() {
+		String result = sdkVersion
+		int versionSeparator = result.count('.')
+		if (versionSeparator > 1) {
+			// input	| versionSeparator	| drop 	| result
+			// 10		| 0					| 0		| 10
+			// 10.15	| 1					| 0		| 10.15
+			// 10.15.4	| 2					| 1		| 10.15
+			return result.split('\\.').dropRight(versionSeparator - 1).join('.')
+		}
+		return result
 	}
 }
