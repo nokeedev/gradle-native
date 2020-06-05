@@ -3,26 +3,19 @@ package dev.nokee.platform.jni.internal.plugins;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
-import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.language.c.internal.CSourceSet;
-import dev.nokee.language.c.internal.CSourceSetTransform;
 import dev.nokee.language.cpp.internal.CppSourceSet;
-import dev.nokee.language.cpp.internal.CppSourceSetTransform;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetTransform;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetTransform;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
-import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
-import dev.nokee.platform.nativebase.internal.TargetMachineRule;
-import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
+import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -108,6 +101,20 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		});
 
 		project.afterEvaluate(proj -> {
+			// Create source set on extension
+			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
+				extension.getComponent().getSourceCollection().add(getObjects().newInstance(CppSourceSet.class).srcDir("src/main/cpp"));
+			}
+			if (proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
+				extension.getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class).srcDir("src/main/c"));
+			}
+			if (proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
+				extension.getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class).srcDir("src/main/objcpp"));
+			}
+			if (proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
+				extension.getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class).srcDir("src/main/objc"));
+			}
+
 			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
 			Optional<DefaultJvmJarBinary> jvmJarBinary = findJvmBinary(proj);
 			extension.getBuildVariants().get().forEach(buildVariant -> {
@@ -116,32 +123,32 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 
 				// Find toolchain capable of building C++
 				final NamedDomainObjectProvider<JniLibraryInternal> library = extension.getVariantCollection().registerVariant(buildVariant, it -> {
+					DefaultNativeDependencies nativeDependencies = getObjects().newInstance(DefaultNativeDependencies.class, names.withConfigurationNamePrefix("native").withComponentDisplayName("JNI shared library"), targetMachineInternal);
+					nativeDependencies.getLinkLibrariesConfiguration(); // Forcefully create
+					nativeDependencies.getRuntimeLibrariesConfiguration(); // Forcefully create
+
 					// Build all language source set
 					DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
 					if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
-						ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
-						Configuration compileConfiguration = getConfigurations().create(names.getConfigurationName("headerSearchPaths"), configurationUtils.asIncomingHeaderSearchPathFrom(extension.getNativeImplementationDependencies()));
-
+						getConfigurations().create(names.getConfigurationName("nativeCompileOnly"));
 						if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
-							SourceSet objectSourceSet = getObjects().newInstance(CppSourceSet.class).srcDir("src/main/cpp").transform(getObjects().newInstance(CppSourceSetTransform.class, names, compileConfiguration));
-							objectSourceSets.add((GeneratedSourceSet)objectSourceSet);
+							nativeDependencies.getHeaderSearchPathsConfiguration(); // Forcefully create
 						}
 						if (proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
-							SourceSet objectSourceSet = getObjects().newInstance(CSourceSet.class).srcDir("src/main/c").transform(getObjects().newInstance(CSourceSetTransform.class, names, compileConfiguration));
-							objectSourceSets.add((GeneratedSourceSet)objectSourceSet);
+							nativeDependencies.getHeaderSearchPathsConfiguration(); // Forcefully create
 						}
 						if (proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
-							SourceSet objectSourceSet = getObjects().newInstance(ObjectiveCppSourceSet.class).srcDir("src/main/objcpp").transform(getObjects().newInstance(ObjectiveCppSourceSetTransform.class, names, compileConfiguration));
-							objectSourceSets.add((GeneratedSourceSet)objectSourceSet);
+							nativeDependencies.getHeaderSearchPathsConfiguration(); // Forcefully create
 						}
 						if (proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-							SourceSet objectSourceSet = getObjects().newInstance(ObjectiveCSourceSet.class).srcDir("src/main/objc").transform(getObjects().newInstance(ObjectiveCSourceSetTransform.class, names, compileConfiguration));
-							objectSourceSets.add((GeneratedSourceSet)objectSourceSet);
+							nativeDependencies.getHeaderSearchPathsConfiguration(); // Forcefully create
 						}
+
+						objectSourceSets.addAll(getObjects().newInstance(NativeLanguageRules.class, names).apply(extension.getComponent().getSourceCollection()));
 					}
 
 					TaskProvider<LinkSharedLibraryTask> linkTask = getTasks().register(names.getTaskName("link"), LinkSharedLibraryTask.class);
-					it.registerSharedLibraryBinary(objectSourceSets, linkTask, targetMachines.size() > 1);
+					it.registerSharedLibraryBinary(objectSourceSets, linkTask, targetMachines.size() > 1, nativeDependencies);
 
 					if (jvmJarBinary.isPresent() && targetMachines.size() == 1) {
 						it.addJniJarBinary(jvmJarBinary.get());
@@ -263,6 +270,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(proj -> {
 			// The previous trick doesn't work for dependencyInsight task and vice-versa.
 			project.getConfigurations().addRule("Java Native Interface (JNI) variants are resolved only when needed.", it -> {
+				System.out.println("WAT " + it);
 				extension.getVariantCollection().realize();
 			});
 		});

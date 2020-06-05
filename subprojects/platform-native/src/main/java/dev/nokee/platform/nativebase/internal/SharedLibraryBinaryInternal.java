@@ -15,18 +15,16 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
-import lombok.Value;
+import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Transformer;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.result.ResolvedArtifactResult;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskDependency;
@@ -44,33 +42,22 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import static dev.nokee.runtime.nativebase.internal.DependencyUtils.isFrameworkDependency;
+import java.util.stream.Stream;
 
 public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary, Buildable {
-	private static final Logger LOGGER = Logger.getLogger(SharedLibraryBinaryInternal.class.getName());
-	private final Configuration linkConfiguration;
 	private final TaskProvider<LinkSharedLibraryTask> linkTask;
+	private final NativeDependencies dependencies;
 	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
 
+	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
-	public SharedLibraryBinaryInternal(NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, Configuration implementation, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, Configuration linkOnly) {
-		super(names, objectSourceSets, targetMachine);
+	public SharedLibraryBinaryInternal(NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeDependencies dependencies) {
+		super(names, objectSourceSets, targetMachine, dependencies);
 		this.linkTask = linkTask;
+		this.dependencies = dependencies;
 		sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
 		parentSources.all(it -> sources.add(it));
-
-		getLinkerInputs().value(fromLinkConfiguration()).finalizeValueOnRead();
-		getLinkerInputs().disallowChanges();
-
-		ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
-		this.linkConfiguration = getConfigurations().create(names.getConfigurationName("nativeLinkLibraries"),
-			configurationUtils.asIncomingLinkLibrariesFrom(implementation, linkOnly)
-				.forTargetMachine(targetMachine)
-				.asDebug()
-				.withDescription("Link libraries for JNI shared library."));
 
 		// configure includes using the native incoming compile configuration
 		getCompileTasks().configureEach(task -> {
@@ -87,9 +74,8 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 		});
 
 		linkTask.configure(task -> {
-			task.dependsOn(linkConfiguration);
-			task.getLibs().from(getLinkerInputs().map(this::toLinkLibraries));
-			task.getLinkerArgs().addAll(getLinkerInputs().map(this::toFrameworkFlags));
+			task.getLibs().from(dependencies.getLinkLibraries());
+			task.getLinkerArgs().addAll(getProviders().provider(() -> dependencies.getLinkFrameworks().getFiles().stream().flatMap(this::toFrameworkFlags).collect(Collectors.toList())));
 		});
 		linkTask.configure(this::configureSharedLibraryTask);
 
@@ -117,7 +103,6 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 		Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());
 		task.getInstallName().set(installName);
 
-		System.out.println("WAT");
 		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(getNames().getOutputDirectoryBase("libs")));
 		task.getLinkedFile().convention(getSharedLibraryLinkedFile());
 
@@ -193,35 +178,16 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 		});
 	}
 
-	//region Linker inputs
-	private Provider<List<LinkerInput>> fromLinkConfiguration() {
-		return getProviderFactory().provider(() -> linkConfiguration.getIncoming().getArtifacts().getArtifacts().stream().map(LinkerInput::of).collect(Collectors.toList()));
+	private Stream<String> toFrameworkFlags(File it) {
+		return ImmutableList.of("-F", it.getParent(), "-framework", FilenameUtils.removeExtension(it.getName())).stream();
 	}
-
-	public abstract ListProperty<LinkerInput> getLinkerInputs();
-
-	private List<String> toFrameworkFlags(List<LinkerInput> inputs) {
-		return inputs.stream().filter(LinkerInput::isFramework).flatMap(it -> ImmutableList.of("-F", it.getFile().getParent(), "-framework", it.getFile().getName().substring(0, it.getFile().getName().lastIndexOf("."))).stream()).collect(Collectors.toList());
-	}
-
-	private List<File> toLinkLibraries(List<LinkerInput> inputs) {
-		return inputs.stream().filter(it -> !it.isFramework()).map(LinkerInput::getFile).collect(Collectors.toList());
-	}
-
-	@Value
-	static class LinkerInput {
-		boolean framework;
-		File file;
-
-		public static LinkerInput of(ResolvedArtifactResult result) {
-			return new LinkerInput(isFrameworkDependency(result), result.getFile());
-		}
-	}
-	//endregion
-
 
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return task -> ImmutableSet.of(getLinkTask().get());
+	}
+
+	public FileCollection getRuntimeLibrariesDependencies() {
+		return dependencies.getRuntimeLibraries();
 	}
 }

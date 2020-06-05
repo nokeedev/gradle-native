@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Named;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
 
 import javax.inject.Inject;
 
@@ -24,4 +25,6 @@ public abstract class BaseVariant implements Named {
 	public BinaryView<Binary> getBinaries() {
 		return Cast.uncheckedCast("of type erasure", getObjects().newInstance(DefaultBinaryView.class, Binary.class, binaryCollection, Realizable.IDENTITY));
 	}
+
+	public abstract Property<Binary> getDevelopmentBinary();
 }

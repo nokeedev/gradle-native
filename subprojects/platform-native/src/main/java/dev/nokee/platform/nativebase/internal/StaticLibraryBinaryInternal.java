@@ -7,7 +7,7 @@ import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import org.gradle.api.DomainObjectSet;
 
 public abstract class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary {
-	public StaticLibraryBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine) {
-		super(names, objectSourceSets, targetMachine);
+	public StaticLibraryBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeDependencies dependencies) {
+		super(names, objectSourceSets, targetMachine, dependencies);
 	}
 }

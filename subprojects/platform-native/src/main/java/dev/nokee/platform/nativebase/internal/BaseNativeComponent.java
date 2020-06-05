@@ -3,17 +3,6 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.base.Preconditions;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
-import dev.nokee.language.base.internal.SourceSet;
-import dev.nokee.language.c.internal.CSourceSet;
-import dev.nokee.language.c.internal.CSourceSetTransform;
-import dev.nokee.language.cpp.internal.CppSourceSet;
-import dev.nokee.language.cpp.internal.CppSourceSetTransform;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetTransform;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetTransform;
-import dev.nokee.language.swift.internal.SwiftSourceSet;
-import dev.nokee.language.swift.internal.SwiftSourceSetTransform;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -30,7 +19,6 @@ import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.provider.Provider;
@@ -46,7 +34,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class BaseNativeComponent<T extends Variant> extends BaseComponent<T> {
-	private final DomainObjectSet<SourceSet> sourceCollection = getObjects().domainObjectSet(SourceSet.class);
 	private final Class<T> variantType;
 
 	@Inject
@@ -65,19 +52,16 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 		super(names, variantType);
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
 		this.variantType = variantType;
+		getDevelopmentVariant().convention(getDefaultVariant());
 	}
 
 	public abstract AbstractNativeComponentDependencies getDependencies();
-
-	public DomainObjectSet<SourceSet> getSourceCollection() {
-		return sourceCollection;
-	}
 
 	public VariantView<T> getVariants() {
 		return getVariantCollection().getAsView(variantType);
 	}
 
-	public Provider<? extends BaseNativeVariant> getDevelopmentVariant() {
+	protected Provider<Variant> getDefaultVariant() {
 		return getProviders().provider(() -> {
 			List<BaseNativeVariant> variants = getVariantCollection().get().stream().map(it -> {
 				Preconditions.checkArgument(it instanceof BaseNativeVariant);
@@ -94,7 +78,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 			if (variants.isEmpty()) {
 				return null;
 			}
-			return one(variants);
+			return (Variant)one(variants);
 		});
 	}
 
@@ -113,30 +97,21 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 			final NamingScheme names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
 			NamedDomainObjectProvider<? extends BaseNativeVariant> variant = Cast.uncheckedCast(getVariantCollection().registerVariant(buildVariant, it -> {
-				ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
-				// TODO: This is not correct for Swift
-				Configuration headerSearchPaths = getConfigurations().create(names.getConfigurationName("headerSearchPaths"), configurationUtils.asIncomingHeaderSearchPathFrom(getDependencies().getImplementationDependencies(), getDependencies().getCompileOnlyDependencies()));
-
-				DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
-				getSourceCollection().withType(CSourceSet.class).configureEach(s -> objectSourceSets.add(getObjects().newInstance(CSourceSetTransform.class, names, headerSearchPaths).transform(s)));
-				getSourceCollection().withType(CppSourceSet.class).configureEach(s -> objectSourceSets.add(getObjects().newInstance(CppSourceSetTransform.class, names, headerSearchPaths).transform(s)));
-				getSourceCollection().withType(ObjectiveCSourceSet.class).configureEach(s -> objectSourceSets.add(getObjects().newInstance(ObjectiveCSourceSetTransform.class, names, headerSearchPaths).transform(s)));
-				getSourceCollection().withType(ObjectiveCppSourceSet.class).configureEach(s -> objectSourceSets.add(getObjects().newInstance(ObjectiveCppSourceSetTransform.class, names, headerSearchPaths).transform(s)));
-				getSourceCollection().withType(SwiftSourceSet.class).configureEach(s -> objectSourceSets.add(getObjects().newInstance(SwiftSourceSetTransform.class, names, headerSearchPaths).transform(s)));
-
+				DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().newInstance(NativeLanguageRules.class, names).apply(getSourceCollection());
 				BaseNativeVariant variantInternal = (BaseNativeVariant)it;
 				if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
 					DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
+					NativeDependencies dependencies = getObjects().newInstance(DefaultNativeDependencies.class, names, targetMachineInternal);
 					if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
 						TaskProvider<LinkExecutableTask> linkTask = getTasks().register(names.getTaskName("link"), LinkExecutableTask.class);
-						ExecutableBinaryInternal binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets, targetMachineInternal, linkTask);
+						ExecutableBinaryInternal binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets, targetMachineInternal, linkTask, dependencies);
 						variantInternal.getBinaryCollection().add(binary);
 						binary.getBaseName().convention(project.getName());
 					} else if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
 						TaskProvider<LinkSharedLibraryTask> linkTask = getTasks().register(names.getTaskName("link"), LinkSharedLibraryTask.class);
 
 						// TODO: Dependencies should be coming from variant
-						SharedLibraryBinaryInternal binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), getDependencies().getImplementationDependencies(), targetMachineInternal, objectSourceSets, linkTask, getDependencies().getLinkOnlyDependencies());
+						SharedLibraryBinaryInternal binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask, dependencies);
 						variantInternal.getBinaryCollection().add(binary);
 						binary.getBaseName().convention(project.getName());
 
@@ -164,7 +139,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 		});
 
 		getTasks().named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME, task -> {
-			task.dependsOn(getDevelopmentVariant().flatMap(BaseNativeVariant::getDevelopmentBinary));
+			task.dependsOn(getDevelopmentVariant().flatMap(Variant::getDevelopmentBinary));
 		});
 
 		// TODO: This may need to be moved somewhere else.

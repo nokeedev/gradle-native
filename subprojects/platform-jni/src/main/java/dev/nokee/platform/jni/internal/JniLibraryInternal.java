@@ -10,7 +10,7 @@ import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryNativeDependencies;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
-import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
+import dev.nokee.platform.nativebase.internal.NativeDependencies;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
@@ -19,9 +19,7 @@ import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -36,7 +34,6 @@ public abstract class JniLibraryInternal extends BaseVariant implements JniLibra
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
 	private final DefaultTargetMachine targetMachine;
 	private final GroupId groupId;
-	private final Configuration nativeRuntime;
 	private AbstractJarBinary jarBinary;
 	private SharedLibraryBinaryInternal sharedLibraryBinary;
 
@@ -52,15 +49,6 @@ public abstract class JniLibraryInternal extends BaseVariant implements JniLibra
 		parentSources.all(sources::add);
 
 		getBinaryCollection().configureEach(parentBinaries::add);
-
-		ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
-		nativeRuntime = getConfigurations().create(names.getConfigurationName("nativeRuntimeLibraries"),
-			configurationUtils.asIncomingRuntimeLibrariesFrom(dependencies.getNativeImplementationDependencies(), dependencies.getNativeRuntimeOnlyDependencies())
-				.forTargetMachine(targetMachine)
-				.asDebug()
-				.withDescription("Runtime libraries for JNI shared library."));
-
-		getNativeRuntimeFiles().from(nativeRuntime);
 		getResourcePath().convention(getProviders().provider(() -> names.getResourcePath(groupId)));
 	}
 
@@ -77,9 +65,10 @@ public abstract class JniLibraryInternal extends BaseVariant implements JniLibra
 	@Inject
 	protected abstract TaskContainer getTasks();
 
-	public void registerSharedLibraryBinary(DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants) {
-		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, dependencies.getNativeImplementationDependencies(), targetMachine, objectSourceSets, linkTask, dependencies.getNativeLinkOnlyDependencies());
+	public void registerSharedLibraryBinary(DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants, NativeDependencies dependencies) {
+		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, targetMachine, objectSourceSets, linkTask, dependencies);
 		getNativeRuntimeFiles().from(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
+		getNativeRuntimeFiles().from(sharedLibraryBinary.getRuntimeLibrariesDependencies());
 		this.sharedLibraryBinary = sharedLibraryBinary;
 		sharedLibraryBinary.getBaseName().convention(names.getBaseName().getAsString());
 		getBinaryCollection().add(sharedLibraryBinary);
@@ -101,10 +90,6 @@ public abstract class JniLibraryInternal extends BaseVariant implements JniLibra
 	@Override
 	public void sharedLibrary(Action<? super SharedLibraryBinary> action) {
 		action.execute(sharedLibraryBinary);
-	}
-
-	public FileCollection getNativeRuntimeDependencies() {
-		return nativeRuntime;
 	}
 
 	public void addJniJarBinary(AbstractJarBinary jniJarBinary) {

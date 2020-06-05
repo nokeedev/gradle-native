@@ -15,6 +15,7 @@ import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory;
 import dev.nokee.runtime.base.internal.DimensionType;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
@@ -26,7 +27,7 @@ import org.gradle.api.provider.SetProperty;
 import javax.inject.Inject;
 
 public abstract class JniLibraryExtensionInternal implements JniLibraryExtension {
-	private final JniLibraryComponentInternal component;
+	@Getter private final JniLibraryComponentInternal component;
 
 	@Inject
 	public JniLibraryExtensionInternal(GroupId groupId, NamingScheme names) {

@@ -1,10 +1,10 @@
 package dev.nokee.platform.ios.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.ios.IosApplication;
-import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
 import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
@@ -34,7 +34,7 @@ public abstract class DefaultIosApplicationVariant extends BaseNativeVariant imp
 	}
 
 	@Override
-	public Provider<? extends NativeBinary> getDevelopmentBinary() {
+	protected Provider<Binary> getDefaultBinary() {
 		return getProviders().provider(() -> {
 			List<? extends SignedIosApplicationBundleInternal> binaries = getBinaries().flatMap(it -> {
 				if (it instanceof SignedIosApplicationBundleInternal) {

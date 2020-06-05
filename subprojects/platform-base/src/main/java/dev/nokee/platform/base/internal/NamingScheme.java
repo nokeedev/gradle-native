@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Named;
 import org.gradle.util.GUtil;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -15,15 +16,19 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyList;
 
 public abstract class NamingScheme {
-	private final String baseName;
-	private final List<String> dimensions;
+	protected final String baseName;
+	@Nullable protected final String configurationNamePrefix;
+	@Nullable protected final String componentDisplayName;
+	protected final List<String> dimensions;
 
-	private NamingScheme(String baseName) {
-		this(baseName, emptyList());
+	private NamingScheme(String baseName, @Nullable String configurationNamePrefix, @Nullable String componentDisplayName) {
+		this(baseName, configurationNamePrefix, componentDisplayName, emptyList());
 	}
 
-	private NamingScheme(String baseName, List<String> dimensions) {
+	private NamingScheme(String baseName, @Nullable String configurationNamePrefix, @Nullable String componentDisplayName, List<String> dimensions) {
 		this.baseName = baseName;
+		this.configurationNamePrefix = configurationNamePrefix;
+		this.componentDisplayName = componentDisplayName;
 		this.dimensions = dimensions;
 	}
 
@@ -32,6 +37,8 @@ public abstract class NamingScheme {
 	}
 
 	public abstract String getConfigurationName(String target);
+
+	public abstract String getConfigurationNameWithoutPrefix(String target);
 
 	public BaseNameNamingScheme getBaseName() {
 		return new BaseNameNamingScheme();
@@ -83,6 +90,14 @@ public abstract class NamingScheme {
 
 	public abstract String getOutputDirectoryBase(String outputType);
 
+    public abstract NamingScheme withConfigurationNamePrefix(String configurationNamePrefix);
+
+	public abstract NamingScheme withComponentDisplayName(String componentDisplayName);
+
+	public String getConfigurationDescription(String format) {
+		return String.format(format, componentDisplayName);
+	}
+
 	public class BaseNameNamingScheme {
 		private BaseNameNamingScheme() {}
 
@@ -104,10 +119,23 @@ public abstract class NamingScheme {
 
 	private static class Main extends NamingScheme {
 		public Main(String baseName) {
-			super(baseName);
+			this(baseName, null, null);
 		}
 
+		public Main(String baseName, @Nullable String configurationNamePrefix, @Nullable String componentDisplayName) {
+			super(baseName, configurationNamePrefix, componentDisplayName);
+		}
+
+		@Override
 		public String getConfigurationName(String target) {
+			if (configurationNamePrefix == null) {
+				return target;
+			}
+			return configurationNamePrefix + StringUtils.capitalize(target);
+		}
+
+		@Override
+		public String getConfigurationNameWithoutPrefix(String target) {
 			return target;
 		}
 
@@ -120,17 +148,40 @@ public abstract class NamingScheme {
 		public String getOutputDirectoryBase(String outputType) {
 			return outputType + "/main";
 		}
+
+		@Override
+		public NamingScheme withConfigurationNamePrefix(String configurationNamePrefix) {
+			return new Main(baseName, configurationNamePrefix, componentDisplayName);
+		}
+
+		@Override
+		public NamingScheme withComponentDisplayName(String componentDisplayName) {
+			return new Main(baseName, configurationNamePrefix, componentDisplayName);
+		}
 	}
 
 	private static class Other extends NamingScheme {
 		private final String dimensionPrefix;
 
 		Other(String baseName, List<String> dimensions) {
-			super(baseName, dimensions);
+			this(baseName, null, null, dimensions);
+		}
+
+		Other(String baseName, @Nullable String configurationNamePrefix, @Nullable String componentDisplayName, List<String> dimensions) {
+			super(baseName, configurationNamePrefix, componentDisplayName, dimensions);
 			this.dimensionPrefix = createPrefix(dimensions);
 		}
 
+		@Override
 		public String getConfigurationName(String target) {
+			if (configurationNamePrefix == null) {
+				return dimensionPrefix + StringUtils.capitalize(target);
+			}
+			return dimensionPrefix + StringUtils.capitalize(configurationNamePrefix) + StringUtils.capitalize(target);
+		}
+
+		@Override
+		public String getConfigurationNameWithoutPrefix(String target) {
 			return dimensionPrefix + StringUtils.capitalize(target);
 		}
 
@@ -149,6 +200,16 @@ public abstract class NamingScheme {
 		@Override
 		public String getOutputDirectoryBase(String outputType) {
 			return outputType + "/main/" + dimensionPrefix;
+		}
+
+		@Override
+		public NamingScheme withConfigurationNamePrefix(String configurationNamePrefix) {
+			return new Other(baseName, configurationNamePrefix, componentDisplayName, dimensions);
+		}
+
+		@Override
+		public NamingScheme withComponentDisplayName(String componentDisplayName) {
+			return new Other(baseName, configurationNamePrefix, componentDisplayName, dimensions);
 		}
 	}
 

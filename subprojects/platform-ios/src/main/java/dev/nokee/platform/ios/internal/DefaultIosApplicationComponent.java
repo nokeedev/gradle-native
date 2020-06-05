@@ -10,6 +10,7 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
@@ -62,7 +63,8 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 		action.execute(dependencies);
 	}
 
-	public Provider<? extends BaseNativeVariant> getDevelopmentVariant() {
+	@Override
+	protected Provider<Variant> getDefaultVariant() {
 		// By default, we should filter for the variant targeting the simulator
 		// Here we assume only one variant that target the simulator ;-)
 		return getProviders().provider(() -> {
@@ -74,7 +76,7 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 			if (variants.isEmpty()) {
 				return null;
 			}
-			return one(variants);
+			return (Variant)one(variants);
 		});
 	}
 

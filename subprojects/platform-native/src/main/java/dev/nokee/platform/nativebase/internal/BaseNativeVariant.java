@@ -5,9 +5,7 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.nativebase.NativeBinary;
 import org.gradle.api.Task;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
@@ -22,6 +20,8 @@ public abstract class BaseNativeVariant extends BaseVariant {
 	public BaseNativeVariant(String name, NamingScheme names, BuildVariant buildVariant) {
 		super(name, buildVariant);
 		this.names = names;
+
+		getDevelopmentBinary().convention(getDefaultBinary());
 	}
 
 	@Inject
@@ -34,7 +34,7 @@ public abstract class BaseNativeVariant extends BaseVariant {
 		return getTasks().named(names.getTaskName("assemble"));
 	}
 
-	public Provider<? extends Binary> getDevelopmentBinary() {
+	protected Provider<Binary> getDefaultBinary() {
 		return getProviders().provider(() -> {
 			DefaultBinaryLinkage linkage = getBuildVariant().getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
 			if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {

@@ -1,5 +1,7 @@
 package dev.nokee.platform.base;
 
+import org.gradle.api.provider.Provider;
+
 /**
  * A variant realization of a component.
  *
@@ -14,4 +16,13 @@ public interface Variant extends BinaryAwareComponent {
 	 * @since 0.4
 	 */
 	BinaryView<Binary> getBinaries();
+
+	/**
+	 * Returns a the development binary for this variant.
+	 * The development binary is used by lifecycle tasks.
+	 *
+	 * @return a provider for the development binary, never null.
+	 * @since 0.4
+	 */
+	Provider<Binary> getDevelopmentBinary();
 }

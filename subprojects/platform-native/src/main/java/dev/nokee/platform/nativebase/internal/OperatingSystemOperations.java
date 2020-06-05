@@ -21,7 +21,8 @@ public class OperatingSystemOperations {
 		} else if (osFamily.isiOS()) {
 			return new OperatingSystemOperations(OperatingSystem.MAC_OS);
 		}
-		throw new IllegalArgumentException(String.format("Unknown OS family: %s", osFamily));
+		// Assume *nix as default operating system
+		return new OperatingSystemOperations(OperatingSystem.LINUX);
 	}
 
 	public String getSharedLibraryName(String libraryName) {

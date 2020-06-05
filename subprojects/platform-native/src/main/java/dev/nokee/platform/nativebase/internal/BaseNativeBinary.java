@@ -1,10 +1,15 @@
 package dev.nokee.platform.nativebase.internal;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
+import dev.nokee.language.c.tasks.CCompile;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
+import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
+import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
+import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.TaskView;
@@ -12,12 +17,12 @@ import dev.nokee.platform.base.internal.DefaultTaskView;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.Realizable;
 import dev.nokee.platform.nativebase.NativeBinary;
-import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.Getter;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFile;
@@ -26,6 +31,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
+import org.gradle.language.swift.SwiftVersion;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
@@ -40,6 +46,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	private final ToolChainSelectorInternal toolChainSelector = getObjects().newInstance(ToolChainSelectorInternal.class);
@@ -47,23 +54,38 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	@Getter private final TaskView<Task> compileTasks;
 	private final DomainObjectSet<GeneratedSourceSet> objectSourceSets;
 	@Getter private final DefaultTargetMachine targetMachine;
+	@Getter private final NativeDependencies dependencies;
 
-	public BaseNativeBinary(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine) {
+	public BaseNativeBinary(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeDependencies dependencies) {
 		this.names = names;
 		this.compileTasks = getObjects().newInstance(DefaultTaskView.class, Task.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), (Realizable)() -> {});
 		this.objectSourceSets = objectSourceSets;
 		this.targetMachine = targetMachine;
+		this.dependencies = dependencies;
 
 		getCompileTasks().configureEach(AbstractNativeCompileTask.class, this::configureNativeSourceCompileTask);
+		getCompileTasks().configureEach(AbstractNativeCompileTask.class, task -> {
+			task.getIncludes().from(dependencies.getHeaderSearchPaths());
+			task.getCompilerArgs().addAll(getProviders().provider(() -> dependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(this::toFrameworkSearchPathFlags).collect(Collectors.toList())));
+		});
 		getCompileTasks().configureEach(SwiftCompileTask.class, this::configureSwiftCompileTask);
+		getCompileTasks().configureEach(SwiftCompileTask.class, task -> {
+			task.getModules().from(dependencies.getImportSearchPaths());
+			task.getCompilerArgs().addAll(getProviders().provider(() -> dependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(this::toFrameworkSearchPathFlags).collect(Collectors.toList())));
+		});
 	}
 
 	private void configureNativeSourceCompileTask(AbstractNativeCompileTask task) {
+		task.getObjectFileDir().convention(languageNameSuffixFor(task).flatMap(languageNameSuffix -> getLayout().getBuildDirectory().dir(names.getOutputDirectoryBase("objs") + "/main" + languageNameSuffix)));
+
 		task.getTargetPlatform().set(getTargetPlatform());
 		task.getTargetPlatform().finalizeValueOnRead();
 		task.getTargetPlatform().disallowChanges();
 
-		task.setPositionIndependentCode(this instanceof SharedLibraryBinary);
+		// TODO: Select the right value based on the build type dimension, once modeled
+		task.setDebuggable(false);
+		task.setOptimized(false);
+		task.setPositionIndependentCode(true);
 
 		task.getToolChain().set(selectNativeToolChain(targetMachine));
 		task.getToolChain().finalizeValueOnRead();
@@ -74,7 +96,30 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 		task.getSystemIncludes().from(getSystemIncludes(task));
 	}
 
+	private Provider<String> languageNameSuffixFor(AbstractNativeCompileTask task) {
+		return getProviders().provider(() -> {
+			if (task instanceof CCompile) {
+				return "C";
+			} else if (task instanceof CppCompile) {
+				return "Cpp";
+			} else if (task instanceof ObjectiveCCompile) {
+				return "ObjectiveC";
+			} else if (task instanceof ObjectiveCppCompile) {
+				return "ObjectiveCpp";
+			}
+			throw new IllegalArgumentException(String.format("Unknown native compile task '%s' (%s).", task.getName(), task.getClass().getSimpleName()));
+		});
+
+	}
+
 	private void configureSwiftCompileTask(SwiftCompileTask task) {
+		task.getObjectFileDir().convention(getLayout().getBuildDirectory().dir(names.getOutputDirectoryBase("objs") + "/mainSwift"));
+
+		// TODO: Select the right value based on the build type dimension, once modeled
+		task.getDebuggable().set(false);
+		task.getOptimized().set(false);
+		task.getSourceCompatibility().set(SwiftVersion.SWIFT5);
+
 		task.getTargetPlatform().set(getTargetPlatform());
 		task.getTargetPlatform().finalizeValueOnRead();
 		task.getTargetPlatform().disallowChanges();
@@ -139,6 +184,9 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	@Inject
 	protected abstract ProviderFactory getProviders();
 
+	@Inject
+	protected abstract ConfigurationContainer getConfigurations();
+
 	@Override
 	public boolean isBuildable() {
 		if (!compileTasks.withType(AbstractNativeCompileTask.class).get().stream().allMatch(BaseNativeBinary::isBuildable)) {
@@ -167,8 +215,12 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 
 	public abstract Property<String> getBaseName();
 
-	public FileTree getObjectFiles() {
-		Optional<FileTree> result = objectSourceSets.stream().map(GeneratedSourceSet::getAsFileTree).reduce(FileTree::plus);
-		return result.orElseGet(() -> getObjects().fileTree());
+	public Object getObjectFiles() {
+		Optional<Object> result = objectSourceSets.stream().map(GeneratedSourceSet::getAsFileTree).reduce(FileTree::plus).map(it -> it);
+		return result.orElseGet(() -> ImmutableList.of());
+	}
+
+	private Stream<String> toFrameworkSearchPathFlags(File it) {
+		return ImmutableList.of("-F", it.getAbsolutePath()).stream();
 	}
 }

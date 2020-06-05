@@ -2,11 +2,7 @@ package dev.nokee.platform.jni.internal.plugins
 
 import dev.nokee.fixtures.*
 import dev.nokee.platform.base.Variant
-import dev.nokee.platform.jni.JniJarBinary
-import dev.nokee.platform.jni.JniLibrary
-import dev.nokee.platform.jni.JniLibraryDependencies
-import dev.nokee.platform.jni.JniLibraryExtension
-import dev.nokee.platform.jni.JvmJarBinary
+import dev.nokee.platform.jni.*
 import dev.nokee.platform.nativebase.SharedLibraryBinary
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary
 import groovy.transform.Canonical
@@ -15,7 +11,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.PluginApplicationException
 import org.gradle.jvm.tasks.Jar
-import org.gradle.nativeplatform.NativeExecutable
 import org.gradle.testfixtures.ProjectBuilder
 import org.hamcrest.MatcherAssert
 import spock.lang.Specification
@@ -23,7 +18,6 @@ import spock.lang.Subject
 import spock.lang.Unroll
 
 import static org.hamcrest.Matchers.containsInAnyOrder
-import static org.junit.Assume.assumeTrue
 
 trait JniLibraryPluginTestFixture {
 	abstract Project getProjectUnderTest()
@@ -936,9 +930,9 @@ abstract class AbstractJniLibraryPluginWithNativeLanguageConfigurationsTest exte
 
 	static List<String> getNativeLanguageConfigurations(String variantName) {
 		if (variantName.isEmpty()) {
-			return ['headerSearchPaths']
+			return ['headerSearchPaths', 'nativeCompileOnly']
 		}
-		return ["${variantName}HeaderSearchPaths"]
+		return ["${variantName}HeaderSearchPaths", "${variantName}NativeCompileOnly"]
 	}
 }
 
