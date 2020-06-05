@@ -49,10 +49,10 @@ public abstract class NamingScheme {
 			return this;
 		}
 
-		List<String> newDimmensions = new ArrayList<>();
-		newDimmensions.addAll(dimensions);
-		newDimmensions.add(value.getName());
-		return new Other(baseName, newDimmensions);
+		List<String> newDimensions = new ArrayList<>();
+		newDimensions.addAll(dimensions);
+		newDimensions.add(value.getName());
+		return new Other(baseName, newDimensions);
 	}
 
 	public NamingScheme forBuildVariant(BuildVariant value, Collection<? extends BuildVariant> allBuildVariants) {
