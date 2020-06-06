@@ -71,10 +71,6 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 		return component.getSources();
 	}
 
-	public Configuration getNativeImplementationDependencies() {
-		return component.getNativeImplementationDependencies();
-	}
-
 	public Configuration getJvmImplementationDependencies() {
 		return component.getJvmImplementationDependencies();
 	}

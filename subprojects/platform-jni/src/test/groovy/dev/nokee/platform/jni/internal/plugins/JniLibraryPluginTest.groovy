@@ -68,6 +68,10 @@ class JniLibraryPluginLayoutTest extends AbstractPluginTest implements JniLibrar
 	Class getDependenciesType() {
 		return JniLibraryDependencies
 	}
+
+	Class getVariantDependenciesType() {
+		return JniLibraryNativeDependencies
+	}
 }
 
 @Subject(JniLibraryPlugin)
@@ -158,7 +162,10 @@ class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements Proje
 		given:
 		applyPlugin()
 		def configuredVariants = []
-		project.library.variants.configureEach { configuredVariants << it }
+		project.library.variants.configureEach {
+			configuredVariants << it
+			project.configurations.create('foo')
+		}
 
 		when:
 		evaluateProject('plugin registers variants in afterEvaluate and register the configuration rule for on demand realization')
@@ -171,7 +178,7 @@ class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements Proje
 		configuredVariants == []
 
 		when:
-		project.configurations.getByName('nativeRuntimeLibraries')
+		project.configurations.getByName('foo')
 		then: 'variants are realized for incoming configuration'
 		!configuredVariants.isEmpty()
 	}
@@ -930,9 +937,9 @@ abstract class AbstractJniLibraryPluginWithNativeLanguageConfigurationsTest exte
 
 	static List<String> getNativeLanguageConfigurations(String variantName) {
 		if (variantName.isEmpty()) {
-			return ['headerSearchPaths', 'nativeCompileOnly']
+			return ['headerSearchPaths']
 		}
-		return ["${variantName}HeaderSearchPaths", "${variantName}NativeCompileOnly"]
+		return ["${variantName}HeaderSearchPaths"]
 	}
 }
 

@@ -10,6 +10,7 @@ import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
+import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
@@ -47,12 +48,12 @@ import java.util.stream.Stream;
 
 public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary, Buildable {
 	private final TaskProvider<LinkSharedLibraryTask> linkTask;
-	private final NativeDependencies dependencies;
+	private final NativeIncomingDependencies dependencies;
 	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
 
 	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
-	public SharedLibraryBinaryInternal(NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeDependencies dependencies) {
+	public SharedLibraryBinaryInternal(NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeIncomingDependencies dependencies) {
 		super(names, objectSourceSets, targetMachine, dependencies);
 		this.linkTask = linkTask;
 		this.dependencies = dependencies;
@@ -60,17 +61,17 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 		parentSources.all(it -> sources.add(it));
 
 		// configure includes using the native incoming compile configuration
-		getCompileTasks().configureEach(task -> {
-			if (task instanceof AbstractNativeCompileTask) {
-				AbstractNativeCompileTask softwareModelTaskInternal = (AbstractNativeCompileTask) task;
-				NativeSourceCompileTask taskInternal = (NativeSourceCompileTask) task;
-				taskInternal.getHeaderSearchPaths().addAll(softwareModelTaskInternal.getIncludes().getElements().map(SharedLibraryBinaryInternal::toHeaderSearchPaths));
+		getCompileTasks().configureEach(AbstractNativeCompileTask.class, task -> {
+			AbstractNativeCompileTask softwareModelTaskInternal = (AbstractNativeCompileTask) task;
+			NativeSourceCompileTask taskInternal = (NativeSourceCompileTask) task;
+			taskInternal.getHeaderSearchPaths().addAll(softwareModelTaskInternal.getIncludes().getElements().map(SharedLibraryBinaryInternal::toHeaderSearchPaths));
 
-				sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> softwareModelTaskInternal.getIncludes().from(sourceSet.getSource()));
+			sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> softwareModelTaskInternal.getIncludes().from(sourceSet.getSource()));
 
-				// TODO: Move this to JNI Library configuration
-				softwareModelTaskInternal.getIncludes().from(getJvmIncludes());
-			}
+			task.getIncludes().from("src/main/public");
+
+			// TODO: Move this to JNI Library configuration
+			softwareModelTaskInternal.getIncludes().from(getJvmIncludes());
 		});
 
 		linkTask.configure(task -> {

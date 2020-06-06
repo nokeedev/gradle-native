@@ -22,13 +22,13 @@ public class DefaultBuildVariant implements BuildVariant {
 	}
 
 	@Override
-	public <T extends Dimension> T getAxisValue(DimensionType type) {
+	public <T extends Dimension> T getAxisValue(DimensionType<T> type) {
 		// TODO: We can validate the type of the value match the type of the dimension.
 		return Cast.uncheckedCast(dimensions.stream().filter(it -> it.getType().equals(type)).findAny().orElseThrow(() -> new GradleException(String.format("Dimension '%s' is not part of this build variant.", type.toString()))));
 	}
 
 	@Override
-	public boolean hasAxisValue(DimensionType type) {
+	public boolean hasAxisValue(DimensionType<? extends Dimension> type) {
 		return dimensions.stream().anyMatch(it -> it.getType().equals(type));
 	}
 }

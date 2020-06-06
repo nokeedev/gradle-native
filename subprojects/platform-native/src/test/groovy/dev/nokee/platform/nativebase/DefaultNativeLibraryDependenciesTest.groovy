@@ -3,14 +3,15 @@ package dev.nokee.platform.nativebase
 import dev.nokee.fixtures.AbstractComponentDependenciesTest
 import dev.nokee.fixtures.AbstractLibraryDependenciesTest
 import dev.nokee.fixtures.AbstractLocalDarwinFrameworkDependenciesTest
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryDependencies
+import dev.nokee.platform.base.internal.NamingScheme
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryDependencies
 import spock.lang.Subject
 
 @Subject(DefaultNativeLibraryDependencies)
 class DefaultNativeLibraryDependenciesTest extends AbstractComponentDependenciesTest {
 	@Override
-	protected Class getDependencyType() {
-		return DefaultNativeLibraryDependencies
+	protected newDependencies(NamingScheme names) {
+		return project.objects.newInstance(DefaultNativeLibraryDependencies, names)
 	}
 
 	@Override
@@ -22,8 +23,8 @@ class DefaultNativeLibraryDependenciesTest extends AbstractComponentDependencies
 @Subject(DefaultNativeLibraryDependencies)
 class DefaultNativeLibraryLocalDarwinFrameworkDependenciesTest extends AbstractLocalDarwinFrameworkDependenciesTest {
 	@Override
-	protected Class getDependencyType() {
-		return DefaultNativeLibraryDependencies
+	protected newDependencies(NamingScheme names) {
+		return project.objects.newInstance(DefaultNativeLibraryDependencies, names)
 	}
 
 	@Override
@@ -34,10 +35,9 @@ class DefaultNativeLibraryLocalDarwinFrameworkDependenciesTest extends AbstractL
 
 @Subject(DefaultNativeLibraryDependencies)
 class DefaultLibraryDependenciesTest extends AbstractLibraryDependenciesTest {
-
 	@Override
-	protected Class getDependencyType() {
-		return DefaultNativeLibraryDependencies
+	protected newDependencies(NamingScheme names) {
+		return project.objects.newInstance(DefaultNativeLibraryDependencies, names)
 	}
 
 	@Override

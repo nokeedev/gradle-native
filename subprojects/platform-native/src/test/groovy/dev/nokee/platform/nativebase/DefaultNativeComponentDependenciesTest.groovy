@@ -2,14 +2,15 @@ package dev.nokee.platform.nativebase
 
 import dev.nokee.fixtures.AbstractComponentDependenciesTest
 import dev.nokee.fixtures.AbstractLocalDarwinFrameworkDependenciesTest
-import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies
+import dev.nokee.platform.base.internal.NamingScheme
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies
 import spock.lang.Subject
 
 @Subject(DefaultNativeComponentDependencies)
 class DefaultNativeComponentDependenciesTest extends AbstractComponentDependenciesTest {
 	@Override
-	protected Class getDependencyType() {
-		return DefaultNativeComponentDependencies
+	protected newDependencies(NamingScheme names) {
+		return project.objects.newInstance(DefaultNativeComponentDependencies, names)
 	}
 
 	@Override
@@ -21,8 +22,8 @@ class DefaultNativeComponentDependenciesTest extends AbstractComponentDependenci
 @Subject(DefaultNativeComponentDependencies)
 class DefaultNativeComponentLocalDarwinFrameworkDependenciesTest extends AbstractLocalDarwinFrameworkDependenciesTest {
 	@Override
-	protected Class getDependencyType() {
-		return DefaultNativeComponentDependencies
+	protected newDependencies(NamingScheme names) {
+		return project.objects.newInstance(DefaultNativeComponentDependencies, names)
 	}
 
 	@Override

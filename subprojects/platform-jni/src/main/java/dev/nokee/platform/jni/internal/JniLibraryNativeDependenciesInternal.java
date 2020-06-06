@@ -1,10 +1,9 @@
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.jni.JniLibraryNativeDependencies;
-import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
-import dev.nokee.platform.nativebase.internal.DependencyBucket;
-import dev.nokee.platform.nativebase.internal.NativeDependencyBucket;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
+import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -15,9 +14,8 @@ import org.gradle.api.model.ObjectFactory;
 import javax.inject.Inject;
 
 public abstract class JniLibraryNativeDependenciesInternal implements JniLibraryNativeDependencies {
-	private final DependencyBucket nativeImplementationDependencies;
-	private final DependencyBucket nativeLinkOnly;
-	private final DependencyBucket nativeRuntimeOnly;
+	private final DefaultNativeComponentDependencies delegate;
+	@Getter private final NativeIncomingDependencies incoming;
 
 	@Inject
 	protected abstract DependencyHandler getDependencies();
@@ -29,62 +27,50 @@ public abstract class JniLibraryNativeDependenciesInternal implements JniLibrary
 	protected abstract ConfigurationContainer getConfigurations();
 
 	@Inject
-	public JniLibraryNativeDependenciesInternal(NamingScheme names) {
-		ConfigurationUtils builder = getObjects().newInstance(ConfigurationUtils.class);
-		nativeImplementationDependencies = getObjects().newInstance(NativeDependencyBucket.class,
-			getConfigurations().create(names.getConfigurationName("nativeImplementation"), builder.asBucket().withDescription("Implementation only dependencies for JNI shared library.")));
-		nativeLinkOnly = getObjects().newInstance(NativeDependencyBucket.class, getConfigurations().create(names.getConfigurationName("nativeLinkOnly"),
-			builder.asBucket().withDescription("Link only dependencies for JNI shared library.")));
-		nativeRuntimeOnly = getObjects().newInstance(NativeDependencyBucket.class, getConfigurations().create(names.getConfigurationName("nativeRuntimeOnly"),
-			builder.asBucket().withDescription("Runtime only dependencies for JNI shared library.")));
+	public JniLibraryNativeDependenciesInternal(DefaultNativeComponentDependencies delegate, NativeIncomingDependencies incoming) {
+		this.delegate = delegate;
+		this.incoming = incoming;
 	}
 
 	@Override
 	public void nativeImplementation(Object notation) {
-		nativeImplementationDependencies.addDependency(notation);
+		delegate.implementation(notation);
 	}
 
 	@Override
 	public void nativeImplementation(Object notation, Action<? super ModuleDependency> action) {
-		nativeImplementationDependencies.addDependency(notation, action);
+		delegate.implementation(notation, action);
 	}
 
 	@Override
 	public void nativeLinkOnly(Object notation) {
-		nativeLinkOnly.addDependency(notation);
+		delegate.linkOnly(notation);
 	}
 
 	@Override
 	public void nativeLinkOnly(Object notation, Action<? super ModuleDependency> action) {
-		nativeLinkOnly.addDependency(notation, action);
+		delegate.linkOnly(notation, action);
 	}
 
 	@Override
 	public void nativeRuntimeOnly(Object notation) {
-		nativeRuntimeOnly.addDependency(notation);
+		delegate.runtimeOnly(notation);
 	}
 
 	@Override
 	public void nativeRuntimeOnly(Object notation, Action<? super ModuleDependency> action) {
-		nativeRuntimeOnly.addDependency(notation, action);
+		delegate.runtimeOnly(notation, action);
 	}
 
 	public Configuration getNativeImplementationDependencies() {
-		return nativeImplementationDependencies.getAsConfiguration();
+		return delegate.getImplementationDependencies();
 	}
 
 	public Configuration getNativeLinkOnlyDependencies() {
-		return nativeLinkOnly.getAsConfiguration();
+		return delegate.getLinkOnlyDependencies();
 	}
 
 	public Configuration getNativeRuntimeOnlyDependencies() {
-		return nativeRuntimeOnly.getAsConfiguration();
-	}
-
-	public JniLibraryNativeDependenciesInternal extendsFrom(JniLibraryNativeDependenciesInternal dependencies) {
-		getNativeImplementationDependencies().extendsFrom(dependencies.getNativeImplementationDependencies());
-		getNativeLinkOnlyDependencies().extendsFrom(dependencies.getNativeLinkOnlyDependencies());
-		getNativeRuntimeOnlyDependencies().extendsFrom(dependencies.getNativeRuntimeOnlyDependencies());
-		return this;
+		return delegate.getRuntimeOnlyDependencies();
 	}
 }

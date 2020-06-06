@@ -10,7 +10,7 @@ import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryNativeDependencies;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
-import dev.nokee.platform.nativebase.internal.NativeDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
@@ -65,7 +65,7 @@ public abstract class JniLibraryInternal extends BaseVariant implements JniLibra
 	@Inject
 	protected abstract TaskContainer getTasks();
 
-	public void registerSharedLibraryBinary(DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants, NativeDependencies dependencies) {
+	public void registerSharedLibraryBinary(DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants, NativeIncomingDependencies dependencies) {
 		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, targetMachine, objectSourceSets, linkTask, dependencies);
 		getNativeRuntimeFiles().from(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
 		getNativeRuntimeFiles().from(sharedLibraryBinary.getRuntimeLibrariesDependencies());

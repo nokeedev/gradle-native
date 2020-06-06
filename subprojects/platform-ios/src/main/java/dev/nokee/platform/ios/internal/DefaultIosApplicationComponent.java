@@ -8,21 +8,23 @@ import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.core.exec.internal.VersionedCommandLineTool;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
+import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.VariantProvider;
 import dev.nokee.platform.ios.tasks.internal.*;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
@@ -49,7 +51,7 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 	public DefaultIosApplicationComponent(NamingScheme names, GroupId groupId) {
 		super(names, DefaultIosApplicationVariant.class);
 		this.groupId = groupId;
-		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, getNames());
+		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, names);
 		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, DefaultBinaryLinkage.DIMENSION_TYPE));
 	}
 
@@ -81,23 +83,42 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 	}
 
 	@Override
-	protected DefaultIosApplicationVariant createVariant(String name, BuildVariant buildVariant) {
+	protected DefaultIosApplicationVariant createVariant(String name, BuildVariant buildVariant, AbstractBinaryAwareNativeComponentDependencies variantDependencies) {
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
-		DefaultNativeComponentDependencies variantDependencies = getDependencies();
-		if (getBuildVariants().get().size() > 1) {
-			variantDependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, names);
-			variantDependencies.extendsFrom(getDependencies());
-		}
 
 		DefaultIosApplicationVariant result = getObjects().newInstance(DefaultIosApplicationVariant.class, name, names, buildVariant, variantDependencies);
 		return result;
+	}
+
+	@Override
+	protected AbstractBinaryAwareNativeComponentDependencies newDependencies(NamingScheme names, BuildVariant buildVariant) {
+		AbstractNativeComponentDependencies variantDependencies = getDependencies();
+		if (getBuildVariants().get().size() > 1) {
+			variantDependencies = variantDependencies.extendsWith(names);
+		}
+
+		SwiftModuleIncomingDependencies incomingSwiftDependencies = null;
+		HeaderIncomingDependencies incomingHeaderDependencies = null;
+		boolean hasSwift = !getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
+		if (hasSwift) {
+			incomingSwiftDependencies = getObjects().newInstance(DefaultSwiftModuleIncomingDependencies.class, names, variantDependencies);
+			incomingHeaderDependencies = getObjects().newInstance(NoHeaderIncomingDependencies.class);
+		} else {
+			incomingHeaderDependencies = getObjects().newInstance(DefaultHeaderIncomingDependencies.class, names, variantDependencies);
+			incomingSwiftDependencies = getObjects().newInstance(NoSwiftModuleIncomingDependencies.class);
+		}
+
+		NativeIncomingDependencies incoming = getObjects().newInstance(NativeIncomingDependencies.class, names, buildVariant, variantDependencies, incomingSwiftDependencies, incomingHeaderDependencies);
+		NativeOutgoingDependencies outgoing = getObjects().newInstance(IosApplicationOutgoingDependencies.class, names, buildVariant, variantDependencies);
+
+		return getObjects().newInstance(BinaryAwareNativeComponentDependencies.class, variantDependencies, incoming, outgoing);
 	}
 
 	@Inject
 	protected abstract DependencyHandler getDependencyHandler();
 
 	@Override
-	protected void onEachVariant(BuildVariant buildVariant, NamedDomainObjectProvider<? extends BaseNativeVariant> variant) {
+	protected void onEachVariant(BuildVariant buildVariant, VariantProvider<DefaultIosApplicationVariant> variant, NamingScheme names) {
 		variant.configure(application -> {
 			application.getBinaries().configureEach(ExecutableBinary.class, binary -> {
 				binary.getCompileTasks().configureEach(SourceCompile.class, task -> {
@@ -138,7 +159,7 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 			Provider<CommandLineTool> assetCompilerTool = getProviders().provider(() -> new VersionedCommandLineTool(new File("/usr/bin/actool"), VersionNumber.parse("11.3.1")));
 			Provider<CommandLineTool> codeSignatureTool = getProviders().provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
 
-			String moduleName = getNames().getBaseName().getAsCamelCase();
+			String moduleName = names.getBaseName().getAsCamelCase();
 			Provider<String> identifier = getProviders().provider(() -> groupId.get().map(it -> it + "." + moduleName).orElse(moduleName));
 
 			TaskProvider<StoryboardCompileTask> compileStoryboardTask = getTasks().register("compileStoryboard", StoryboardCompileTask.class, task -> {

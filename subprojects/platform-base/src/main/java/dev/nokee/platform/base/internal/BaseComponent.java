@@ -23,7 +23,7 @@ public abstract class BaseComponent<T extends Variant> {
 
 	protected BaseComponent(NamingScheme names, Class<T> variantType) {
 		this.names = names;
-		this.variantCollection = Cast.uncheckedCast("of type erasure", getObjects().newInstance(VariantCollection.class, variantType, (VariantFactory<T>)this::createVariant));
+		this.variantCollection = Cast.uncheckedCast("of type erasure", getObjects().newInstance(VariantCollection.class, variantType));
 		this.binaries = Cast.uncheckedCast("of type erasure", getObjects().newInstance(VariantAwareBinaryView.class, Binary.class, variantCollection.getAsView(variantType)));
 		this.binaryCollection = getObjects().domainObjectSet(Binary.class);
 		this.sourceCollection = getObjects().domainObjectSet(SourceSet.class);
@@ -33,8 +33,6 @@ public abstract class BaseComponent<T extends Variant> {
 
 	@Inject
 	protected abstract ObjectFactory getObjects();
-
-	protected abstract T createVariant(String name, BuildVariant buildVariant);
 
 	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
 	public abstract SetProperty<DimensionType> getDimensions();

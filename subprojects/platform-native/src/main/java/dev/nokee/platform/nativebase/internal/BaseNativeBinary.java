@@ -17,6 +17,7 @@ import dev.nokee.platform.base.internal.DefaultTaskView;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.Realizable;
 import dev.nokee.platform.nativebase.NativeBinary;
+import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.Getter;
@@ -54,9 +55,9 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	@Getter private final TaskView<Task> compileTasks;
 	private final DomainObjectSet<GeneratedSourceSet> objectSourceSets;
 	@Getter private final DefaultTargetMachine targetMachine;
-	@Getter private final NativeDependencies dependencies;
+	@Getter private final NativeIncomingDependencies dependencies;
 
-	public BaseNativeBinary(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeDependencies dependencies) {
+	public BaseNativeBinary(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeIncomingDependencies dependencies) {
 		this.names = names;
 		this.compileTasks = getObjects().newInstance(DefaultTaskView.class, Task.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), (Realizable)() -> {});
 		this.objectSourceSets = objectSourceSets;
@@ -70,7 +71,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 		});
 		getCompileTasks().configureEach(SwiftCompileTask.class, this::configureSwiftCompileTask);
 		getCompileTasks().configureEach(SwiftCompileTask.class, task -> {
-			task.getModules().from(dependencies.getImportSearchPaths());
+			task.getModules().from(dependencies.getSwiftModules());
 			task.getCompilerArgs().addAll(getProviders().provider(() -> dependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(this::toFrameworkSearchPathFlags).collect(Collectors.toList())));
 		});
 	}

@@ -3,10 +3,13 @@ package dev.nokee.platform.jni.internal;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
-import dev.nokee.platform.base.*;
+import dev.nokee.platform.base.BinaryAwareComponent;
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -18,7 +21,6 @@ import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
-import org.gradle.internal.Cast;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -33,7 +35,7 @@ public abstract class JniLibraryComponentInternal extends BaseComponent<JniLibra
 	@Inject
 	public JniLibraryComponentInternal(NamingScheme names, GroupId groupId) {
 		super(names, JniLibraryInternal.class);
-		this.dependencies = getObjects().newInstance(JniLibraryDependenciesInternal.class, names);
+		this.dependencies = getObjects().newInstance(JniLibraryDependenciesInternal.class, names, getObjects().newInstance(DefaultNativeComponentDependencies.class, names.withConfigurationNamePrefix("native").withComponentDisplayName("JNI shared library")));
 		this.groupId = groupId;
 		this.sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
 
@@ -63,17 +65,11 @@ public abstract class JniLibraryComponentInternal extends BaseComponent<JniLibra
 		return getVariantCollection().getAsView(JniLibrary.class);
 	}
 
-	@Override
-	protected JniLibraryInternal createVariant(String name, BuildVariant buildVariant) {
+	public JniLibraryInternal createVariant(String name, BuildVariant buildVariant, JniLibraryNativeDependenciesInternal variantDependencies) {
 		Preconditions.checkArgument(buildVariant.getDimensions().size() == 2);
 		Preconditions.checkArgument(buildVariant.getDimensions().get(0) instanceof OperatingSystemFamily);
 		Preconditions.checkArgument(buildVariant.getDimensions().get(1) instanceof MachineArchitecture);
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
-		JniLibraryNativeDependenciesInternal variantDependencies = dependencies;
-		if (getTargetMachines().get().size() > 1) {
-			variantDependencies = getObjects().newInstance(JniLibraryNativeDependenciesInternal.class, names);
-			variantDependencies.extendsFrom(dependencies);
-		}
 
 		JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, name, names, sources, buildVariant, groupId, getBinaryCollection(), variantDependencies);
 		return result;
@@ -84,10 +80,6 @@ public abstract class JniLibraryComponentInternal extends BaseComponent<JniLibra
 		return targetMachines.stream().map(it -> (DefaultTargetMachine)it).map(it -> DefaultBuildVariant.of(it.getOperatingSystemFamily(), it.getArchitecture())).collect(Collectors.toList());
 	}
 	//endregion
-
-	public Configuration getNativeImplementationDependencies() {
-		return dependencies.getNativeImplementationDependencies();
-	}
 
 	public Configuration getJvmImplementationDependencies() {
 		return dependencies.getJvmImplementationDependencies();

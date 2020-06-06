@@ -55,6 +55,14 @@ public abstract class ConfigurationUtils {
 					.build()));
 	}
 
+	public IncomingConfigurationAction asIncomingSwiftModuleFrom(Configuration... fromBuckets) {
+		return getObjects().newInstance(IncomingConfigurationAction.class,
+			ConfigurationSpec.asIncoming(fromBuckets).withAttributes(
+				ImmutableMap.<Attribute<?>, Object>builder()
+					.put(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.SWIFT_API))
+					.build()));
+	}
+
 	public IncomingConfigurationAction asIncomingLinkLibrariesFrom(Configuration... fromBuckets) {
 		return getObjects().newInstance(IncomingConfigurationAction.class,
 			ConfigurationSpec.asIncoming(fromBuckets).withAttributes(
@@ -73,19 +81,24 @@ public abstract class ConfigurationUtils {
 	//endregion
 
 	//region Outgoing
-	public VariantAwareOutgoingConfigurationAction asOutgoingHeaderSearchPathFrom(Configuration fromBucket) {
+	public VariantAwareOutgoingConfigurationAction asOutgoingHeaderSearchPathFrom(Configuration... fromBuckets) {
 		return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
-			ConfigurationSpec.asOutgoing(fromBucket, of(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))));
+			ConfigurationSpec.asOutgoing(fromBuckets).withAttributes(of(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))));
 	}
 
-	public VariantAwareOutgoingConfigurationAction asOutgoingLinkLibrariesFrom(Configuration fromBucket) {
+	public VariantAwareOutgoingConfigurationAction asOutgoingSwiftModuleFrom(Configuration... fromBuckets) {
 		return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
-			ConfigurationSpec.asOutgoing(fromBucket, of(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.NATIVE_LINK))));
+			ConfigurationSpec.asOutgoing(fromBuckets).withAttributes(of(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.SWIFT_API))));
 	}
 
-	public VariantAwareOutgoingConfigurationAction asOutgoingRuntimeLibrariesFrom(Configuration fromBucket) {
+	public VariantAwareOutgoingConfigurationAction asOutgoingLinkLibrariesFrom(Configuration... fromBuckets) {
 		return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
-			ConfigurationSpec.asOutgoing(fromBucket, of(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))));
+			ConfigurationSpec.asOutgoing(fromBuckets).withAttributes(of(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.NATIVE_LINK))));
+	}
+
+	public VariantAwareOutgoingConfigurationAction asOutgoingRuntimeLibrariesFrom(Configuration... fromBuckets) {
+		return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
+			ConfigurationSpec.asOutgoing(fromBuckets).withAttributes(of(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))));
 	}
 	//endregion
 
@@ -176,7 +189,7 @@ public abstract class ConfigurationUtils {
 		@Inject
 		protected abstract ObjectFactory getObjects();
 
-		VariantAwareOutgoingConfigurationAction withStaticLinkage() {
+		public VariantAwareOutgoingConfigurationAction withStaticLinkage() {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
 				spec.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 					.putAll(spec.attributes)
@@ -184,7 +197,7 @@ public abstract class ConfigurationUtils {
 					.build()));
 		}
 
-		VariantAwareOutgoingConfigurationAction withSharedLinkage() {
+		public VariantAwareOutgoingConfigurationAction withSharedLinkage() {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
 				spec.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 					.putAll(spec.attributes)
@@ -192,7 +205,7 @@ public abstract class ConfigurationUtils {
 					.build()));
 		}
 
-		VariantAwareOutgoingConfigurationAction asDebug() {
+		public VariantAwareOutgoingConfigurationAction asDebug() {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
 				spec.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 					.putAll(spec.attributes)
@@ -201,7 +214,7 @@ public abstract class ConfigurationUtils {
 					.build()));
 		}
 
-		VariantAwareOutgoingConfigurationAction asRelease() {
+		public VariantAwareOutgoingConfigurationAction asRelease() {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
 				spec.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 					.putAll(spec.attributes)
@@ -210,7 +223,7 @@ public abstract class ConfigurationUtils {
 					.build()));
 		}
 
-		VariantAwareOutgoingConfigurationAction frameworkArtifact(Object notation) {
+		public VariantAwareOutgoingConfigurationAction frameworkArtifact(Object notation) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
 				spec.withArtifact(new OutgoingArtifact(ArtifactTypes.FRAMEWORK_TYPE, notation))
 					.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
@@ -219,7 +232,7 @@ public abstract class ConfigurationUtils {
 						.build()));
 		}
 
-		VariantAwareOutgoingConfigurationAction headerDirectoryArtifact(Object notation) {
+		public VariantAwareOutgoingConfigurationAction headerDirectoryArtifact(Object notation) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
 				spec.withArtifact(new OutgoingArtifact(ArtifactTypes.DIRECTORY_TYPE, notation))
 					.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
@@ -227,7 +240,7 @@ public abstract class ConfigurationUtils {
 						.build()));
 		}
 
-		VariantAwareOutgoingConfigurationAction sharedLibraryArtifact(Object notation) {
+		public VariantAwareOutgoingConfigurationAction sharedLibraryArtifact(Object notation) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
 				spec.withArtifact(new OutgoingArtifact(null, notation))
 					.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
@@ -235,7 +248,7 @@ public abstract class ConfigurationUtils {
 						.build()));
 		}
 
-		VariantAwareOutgoingConfigurationAction staticLibraryArtifact(Object notation) {
+		public VariantAwareOutgoingConfigurationAction staticLibraryArtifact(Object notation) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
 				spec.withArtifact(new OutgoingArtifact(null, notation))
 					.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
@@ -243,7 +256,7 @@ public abstract class ConfigurationUtils {
 						.build()));
 		}
 
-		VariantAwareOutgoingConfigurationAction importLibraryArtifact(Object notation) {
+		public VariantAwareOutgoingConfigurationAction importLibraryArtifact(Object notation) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
 				spec.withArtifact(new OutgoingArtifact(null, notation))
 					.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
@@ -251,13 +264,22 @@ public abstract class ConfigurationUtils {
 						.build()));
 		}
 
-		VariantAwareOutgoingConfigurationAction andThen(Action<Configuration> additionalAction) {
+		public VariantAwareOutgoingConfigurationAction andThen(Action<Configuration> additionalAction) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class, spec.withAdditionalAction(additionalAction));
 		}
 
 		@Override
 		public VariantAwareOutgoingConfigurationAction withDescription(String description) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class, spec.withDescription(description));
+		}
+
+		public VariantAwareOutgoingConfigurationAction forTargetMachine(DefaultTargetMachine targetMachine) {
+			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
+				spec.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
+					.putAll(spec.attributes)
+					.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, getObjects().named(OperatingSystemFamily.class, targetMachine.getOperatingSystemFamily().getName()))
+					.put(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, getObjects().named(MachineArchitecture.class, targetMachine.getArchitecture().getName()))
+					.build()));
 		}
 	}
 
@@ -298,8 +320,8 @@ public abstract class ConfigurationUtils {
 			return new ConfigurationSpec(BUCKET, ImmutableList.of(fromBucket), emptyMap(), null, it -> {}, null);
 		}
 
-		static ConfigurationSpec asOutgoing(Configuration fromBucket, Map<Attribute<?>, Object> attributes) {
-			return new ConfigurationSpec(OUTGOING, ImmutableList.of(fromBucket), attributes, null, it -> {}, null);
+		static ConfigurationSpec asOutgoing(Configuration... fromBuckets) {
+			return new ConfigurationSpec(OUTGOING, ImmutableList.copyOf(fromBuckets), emptyMap(), null, it -> {}, null);
 		}
 
 		static ConfigurationSpec asIncoming() {

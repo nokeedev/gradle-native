@@ -1,6 +1,8 @@
-package dev.nokee.platform.nativebase.internal;
+package dev.nokee.platform.nativebase.internal.dependencies;
 
+import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.nativebase.internal.*;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -22,10 +24,23 @@ public abstract class AbstractNativeComponentDependencies {
 	protected abstract ConfigurationContainer getConfigurations();
 
 	protected AbstractNativeComponentDependencies(NamingScheme names) {
-		this.implementation = getObjects().newInstance(NativeDependencyBucket.class, getConfigurations().create(names.getConfigurationName("implementation"), ConfigurationUtils::configureAsBucket));
-		this.compileOnly = getObjects().newInstance(NativeDependencyBucket.class, getConfigurations().create(names.getConfigurationName("compileOnly"), ConfigurationUtils::configureAsBucket));
-		this.linkOnly = getObjects().newInstance(NativeDependencyBucket.class, getConfigurations().create(names.getConfigurationName("linkOnly"), ConfigurationUtils::configureAsBucket));
-		this.runtimeOnly = getObjects().newInstance(NativeDependencyBucket.class, getConfigurations().create(names.getConfigurationName("runtimeOnly"), ConfigurationUtils::configureAsBucket));
+		ConfigurationUtils builder = getObjects().newInstance(ConfigurationUtils.class);
+
+		this.implementation = getObjects().newInstance(NativeDependencyBucket.class, getConfigurations().create(names.getConfigurationName("implementation"),
+			builder.asBucket().withDescription(names.getConfigurationDescription("Implementation only dependencies for %s."))));
+
+		// HACK: For JNI, needs to clean this up
+		String compileOnlyName = names.getConfigurationName("compileOnly");
+		if (compileOnlyName.contains("native") || compileOnlyName.contains("Native")) {
+			this.compileOnly = null;
+		} else {
+			this.compileOnly = getObjects().newInstance(NativeDependencyBucket.class, getConfigurations().create(compileOnlyName,
+				builder.asBucket().withDescription(names.getConfigurationDescription("Compile only dependencies for %s."))));
+		}
+		this.linkOnly = getObjects().newInstance(NativeDependencyBucket.class, getConfigurations().create(names.getConfigurationName("linkOnly"),
+			builder.asBucket().withDescription(names.getConfigurationDescription("Link only dependencies for %s."))));
+		this.runtimeOnly = getObjects().newInstance(NativeDependencyBucket.class, getConfigurations().create(names.getConfigurationName("runtimeOnly"),
+			builder.asBucket().withDescription(names.getConfigurationDescription("Runtime only dependencies for %s."))));
 	}
 
 	public void implementation(Object notation) {
@@ -65,6 +80,10 @@ public abstract class AbstractNativeComponentDependencies {
 	}
 
 	public Configuration getCompileOnlyDependencies() {
+		// HACK: For JNI, needs to clean this up
+		if (compileOnly == null) {
+			return null;
+		}
 		return compileOnly.getAsConfiguration();
 	}
 
@@ -75,4 +94,9 @@ public abstract class AbstractNativeComponentDependencies {
 	public Configuration getRuntimeOnlyDependencies() {
 		return runtimeOnly.getAsConfiguration();
 	}
+
+	public abstract AbstractNativeComponentDependencies extendsWith(NamingScheme names);
+
+	// TODO: It doesn't make sense to have this here. It is shared with JNI platform but only used by native platform
+	public abstract AbstractBinaryAwareNativeComponentDependencies newVariantDependency(NamingScheme names, BuildVariant buildVariant, boolean hasSwift);
 }

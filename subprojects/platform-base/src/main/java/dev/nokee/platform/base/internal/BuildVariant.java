@@ -8,7 +8,7 @@ import java.util.List;
 public interface BuildVariant {
 	List<Dimension> getDimensions();
 
-	<T extends Dimension> T getAxisValue(DimensionType type);
+	<T extends Dimension> T getAxisValue(DimensionType<T> type);
 
-	boolean hasAxisValue(DimensionType type);
+	boolean hasAxisValue(DimensionType<? extends Dimension> type);
 }

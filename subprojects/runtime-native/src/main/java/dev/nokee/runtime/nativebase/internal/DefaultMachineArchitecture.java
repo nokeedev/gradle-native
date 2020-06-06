@@ -19,7 +19,7 @@ import static java.util.Arrays.asList;
 public abstract class DefaultMachineArchitecture implements MachineArchitecture, Named, Dimension {
 	@Getter @Nonnull private final String name;
 
-	public static DimensionType DIMENSION_TYPE = new DefaultDimensionType(DefaultMachineArchitecture.class);
+	public static DimensionType<DefaultMachineArchitecture> DIMENSION_TYPE = new DefaultDimensionType<>(DefaultMachineArchitecture.class);
 	public static DefaultMachineArchitecture X86 = new MachineArchitectureX86();
 	public static DefaultMachineArchitecture X86_64 = new MachineArchitectureX86_64();
 	public static DefaultMachineArchitecture HOST = forName(System.getProperty("os.arch"));
@@ -51,8 +51,8 @@ public abstract class DefaultMachineArchitecture implements MachineArchitecture,
 		}
 
 		@Override
-		public DimensionType getType() {
-			return new DefaultDimensionType(DefaultMachineArchitecture.class);
+		public DimensionType<DefaultMachineArchitecture> getType() {
+			return DIMENSION_TYPE;
 		}
 	}
 
@@ -72,8 +72,8 @@ public abstract class DefaultMachineArchitecture implements MachineArchitecture,
 		}
 
 		@Override
-		public DimensionType getType() {
-			return new DefaultDimensionType(DefaultMachineArchitecture.class);
+		public DimensionType<DefaultMachineArchitecture> getType() {
+			return DIMENSION_TYPE;
 		}
 	}
 
@@ -93,8 +93,8 @@ public abstract class DefaultMachineArchitecture implements MachineArchitecture,
 		}
 
 		@Override
-		public DimensionType getType() {
-			return new DefaultDimensionType(DefaultMachineArchitecture.class);
+		public DimensionType<DefaultMachineArchitecture> getType() {
+			return DIMENSION_TYPE;
 		}
 	}
 }

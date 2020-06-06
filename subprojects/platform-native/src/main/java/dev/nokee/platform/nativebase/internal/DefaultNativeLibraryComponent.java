@@ -6,6 +6,8 @@ import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.NativeLibraryDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.AbstractBinaryAwareNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryDependencies;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import org.gradle.api.Action;
@@ -32,13 +34,8 @@ public abstract class DefaultNativeLibraryComponent extends BaseNativeComponent<
 	}
 
 	@Override
-	protected DefaultNativeLibraryVariant createVariant(String name, BuildVariant buildVariant) {
+	protected DefaultNativeLibraryVariant createVariant(String name, BuildVariant buildVariant, AbstractBinaryAwareNativeComponentDependencies variantDependencies) {
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
-		DefaultNativeLibraryDependencies variantDependencies = getDependencies();
-		if (getBuildVariants().get().size() > 1) {
-			variantDependencies = getObjects().newInstance(DefaultNativeLibraryDependencies.class, names);
-			variantDependencies.extendsFrom(getDependencies());
-		}
 
 		DefaultNativeLibraryVariant result = getObjects().newInstance(DefaultNativeLibraryVariant.class, name, names, buildVariant, variantDependencies);
 		return result;

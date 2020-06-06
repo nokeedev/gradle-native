@@ -5,17 +5,18 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.c.internal.CSourceSet;
 import dev.nokee.language.cpp.internal.CppSourceSet;
+import dev.nokee.language.nativebase.internal.HeaderExportingSourceSet;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.NamingSchemeFactory;
+import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
 import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -75,6 +76,32 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 	@Inject
 	protected abstract ProjectLayout getLayout();
 
+	private JniLibraryNativeDependenciesInternal newDependencies(NamingScheme names, BuildVariant buildVariant, JniLibraryComponentInternal component) {
+		DefaultNativeComponentDependencies variantDependencies = component.getDependencies().getNativeDelegate();
+		if (component.getBuildVariants().get().size() > 1) {
+			variantDependencies = variantDependencies.extendsWith(names.withConfigurationNamePrefix("native"));
+		}
+
+		boolean hasSwift = !component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
+		boolean hasHeader = !component.getSourceCollection().matching(it -> it instanceof HeaderExportingSourceSet).isEmpty();
+		SwiftModuleIncomingDependencies incomingSwiftDependencies = null;
+		HeaderIncomingDependencies incomingHeaderDependencies = null;
+		if (hasSwift) {
+			incomingSwiftDependencies = getObjects().newInstance(DefaultSwiftModuleIncomingDependencies.class, names, variantDependencies);
+			incomingHeaderDependencies = getObjects().newInstance(NoHeaderIncomingDependencies.class);
+		} else if (hasHeader) {
+			incomingHeaderDependencies = getObjects().newInstance(DefaultHeaderIncomingDependencies.class, names, variantDependencies);
+			incomingSwiftDependencies = getObjects().newInstance(NoSwiftModuleIncomingDependencies.class);
+		} else {
+			incomingHeaderDependencies = getObjects().newInstance(NoHeaderIncomingDependencies.class);
+			incomingSwiftDependencies = getObjects().newInstance(NoSwiftModuleIncomingDependencies.class);
+		}
+
+		NativeIncomingDependencies incoming = getObjects().newInstance(NativeIncomingDependencies.class, names.withConfigurationNamePrefix("native"), buildVariant, variantDependencies, incomingSwiftDependencies, incomingHeaderDependencies);
+
+		return getObjects().newInstance(JniLibraryNativeDependenciesInternal.class, variantDependencies, incoming);
+	}
+
 	@Override
 	public void apply(Project project) {
 		IncompatiblePluginUsage.forProject(project)
@@ -121,34 +148,18 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
 				final NamingScheme names = mainComponentNames.forBuildVariant(buildVariant, extension.getBuildVariants().get());
 
-				// Find toolchain capable of building C++
-				final NamedDomainObjectProvider<JniLibraryInternal> library = extension.getVariantCollection().registerVariant(buildVariant, it -> {
-					DefaultNativeDependencies nativeDependencies = getObjects().newInstance(DefaultNativeDependencies.class, names.withConfigurationNamePrefix("native").withComponentDisplayName("JNI shared library"), targetMachineInternal);
-					nativeDependencies.getLinkLibrariesConfiguration(); // Forcefully create
-					nativeDependencies.getRuntimeLibrariesConfiguration(); // Forcefully create
+				JniLibraryNativeDependenciesInternal dependencies = newDependencies(names.withComponentDisplayName("JNI shared library"), buildVariant, extension.getComponent());
+				final VariantProvider<JniLibraryInternal> library = extension.getVariantCollection().registerVariant(buildVariant, (name, bv) -> {
+					JniLibraryInternal it = extension.getComponent().createVariant(name, bv, dependencies);
 
 					// Build all language source set
 					DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
 					if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
-						getConfigurations().create(names.getConfigurationName("nativeCompileOnly"));
-						if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
-							nativeDependencies.getHeaderSearchPathsConfiguration(); // Forcefully create
-						}
-						if (proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
-							nativeDependencies.getHeaderSearchPathsConfiguration(); // Forcefully create
-						}
-						if (proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
-							nativeDependencies.getHeaderSearchPathsConfiguration(); // Forcefully create
-						}
-						if (proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-							nativeDependencies.getHeaderSearchPathsConfiguration(); // Forcefully create
-						}
-
 						objectSourceSets.addAll(getObjects().newInstance(NativeLanguageRules.class, names).apply(extension.getComponent().getSourceCollection()));
 					}
 
 					TaskProvider<LinkSharedLibraryTask> linkTask = getTasks().register(names.getTaskName("link"), LinkSharedLibraryTask.class);
-					it.registerSharedLibraryBinary(objectSourceSets, linkTask, targetMachines.size() > 1, nativeDependencies);
+					it.registerSharedLibraryBinary(objectSourceSets, linkTask, targetMachines.size() > 1, dependencies.getIncoming());
 
 					if (jvmJarBinary.isPresent() && targetMachines.size() == 1) {
 						it.addJniJarBinary(jvmJarBinary.get());
@@ -162,6 +173,8 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 //						//   Only JNI Jar? or an empty JVM Jar and JNI Jar?... Hmmm....
 //					}
 					}
+
+					return it;
 				});
 
 				if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
@@ -181,7 +194,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				if (targetMachines.size() > 1) {
 					getTasks().register(names.getTaskName(LifecycleBasePlugin.ASSEMBLE_TASK_NAME), task -> {
 						task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
-						task.setDescription(String.format("Assembles the '%s' outputs of this project.", library.getName()));
+						task.setDescription(String.format("Assembles the '%s' outputs of this project.", library.getDelegate().getName()));
 						task.dependsOn(library.map(it -> it.getJar().getJarTask()));
 						task.dependsOn(jvmJarBinary.map(it -> ImmutableList.of(it.getJarTask())).orElse(ImmutableList.of()));
 					});
@@ -270,7 +283,6 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(proj -> {
 			// The previous trick doesn't work for dependencyInsight task and vice-versa.
 			project.getConfigurations().addRule("Java Native Interface (JNI) variants are resolved only when needed.", it -> {
-				System.out.println("WAT " + it);
 				extension.getVariantCollection().realize();
 			});
 		});
@@ -327,7 +339,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		}
 	}
 
-	private Action<Jar> configureJarTaskUsing(Provider<JniLibraryInternal> library) {
+	private Action<Jar> configureJarTaskUsing(VariantProvider<JniLibraryInternal> library) {
 		return task -> {
 			MissingFileDiagnostic diagnostic = new MissingFileDiagnostic();
 			task.doFirst(new Action<Task>() {

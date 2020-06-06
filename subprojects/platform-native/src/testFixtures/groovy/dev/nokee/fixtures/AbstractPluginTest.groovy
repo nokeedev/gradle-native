@@ -424,7 +424,6 @@ abstract class AbstractBinaryPluginTest extends Specification implements Project
 		extensionUnderTest.binaries.get() == one(extensionUnderTest.variants.get()).binaries.get()
 	}
 
-	@Ignore
 	def "aggregates binaries from each variant in the component binary view"() {
 		given:
 		applyPluginUnderTest()

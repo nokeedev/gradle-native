@@ -1,4 +1,4 @@
-package dev.nokee.platform.nativebase.internal;
+package dev.nokee.platform.nativebase.internal.dependencies;
 
 import dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes;
 import dev.nokee.runtime.nativebase.internal.LibraryElements;

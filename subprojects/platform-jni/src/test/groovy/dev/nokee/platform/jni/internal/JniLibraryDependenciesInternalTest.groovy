@@ -3,17 +3,23 @@ package dev.nokee.platform.jni.internal
 import dev.nokee.fixtures.AbstractComponentDependenciesTest
 import dev.nokee.fixtures.AbstractLibraryDependenciesTest
 import dev.nokee.fixtures.AbstractLocalDarwinFrameworkDependenciesTest
+import dev.nokee.platform.base.internal.NamingScheme
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies
 import spock.lang.Subject
 
 @Subject(JniLibraryDependenciesInternal)
 class JniLibraryDependenciesInternalTest extends AbstractComponentDependenciesTest {
 	@Override
-	protected Class getDependencyType() {
-		return JniLibraryDependenciesInternal
+	protected newDependencies(String variant) {
+		def nativeNames = variant.empty ? super.newNamingScheme('native') : super.newNamingScheme("${variant}Native")
+		def names = super.newNamingScheme(variant)
+		def buckets = project.objects.newInstance(DefaultNativeComponentDependencies, nativeNames)
+		return project.objects.newInstance(JniLibraryDependenciesInternal, names, buckets)
 	}
 
 	@Override
 	protected List<String> getBucketsUnderTest() {
+		// TODO: 'nativeCompileOnly' should not be added here
 		return ['api', 'jvmImplementation', 'jvmRuntimeOnly', 'nativeImplementation', 'nativeLinkOnly', 'nativeRuntimeOnly']
 	}
 }
@@ -21,8 +27,12 @@ class JniLibraryDependenciesInternalTest extends AbstractComponentDependenciesTe
 @Subject(JniLibraryDependenciesInternal)
 class JniLibraryLocalDarwinFrameworkDependenciesTest extends AbstractLocalDarwinFrameworkDependenciesTest {
 	@Override
-	protected Class getDependencyType() {
-		return JniLibraryDependenciesInternal
+	protected newDependencies(NamingScheme names) {
+		def nativeNames = Mock(NamingScheme) {
+			getConfigurationName(_) >> { args -> "native${args[0].capitalize()}" }
+		}
+		def buckets = project.objects.newInstance(DefaultNativeComponentDependencies, nativeNames)
+		return project.objects.newInstance(JniLibraryDependenciesInternal, names, buckets)
 	}
 
 	@Override
@@ -35,8 +45,12 @@ class JniLibraryLocalDarwinFrameworkDependenciesTest extends AbstractLocalDarwin
 
 class JniLibraryLibraryDependenciesTest extends AbstractLibraryDependenciesTest {
 	@Override
-	protected Class getDependencyType() {
-		return JniLibraryDependenciesInternal
+	protected newDependencies(NamingScheme names) {
+		def nativeNames = Mock(NamingScheme) {
+			getConfigurationName(_) >> { args -> "native${args[0].capitalize()}" }
+		}
+		def buckets = project.objects.newInstance(DefaultNativeComponentDependencies, nativeNames)
+		return project.objects.newInstance(JniLibraryDependenciesInternal, names, buckets)
 	}
 
 	@Override

@@ -12,7 +12,7 @@ import org.gradle.api.Named;
 public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Named, Dimension {
 	@NonNull String name;
 
-	public static final DimensionType DIMENSION_TYPE = new DefaultDimensionType(DefaultOperatingSystemFamily.class);
+	public static final DimensionType<DefaultOperatingSystemFamily> DIMENSION_TYPE = new DefaultDimensionType<>(DefaultOperatingSystemFamily.class);
 	public static final DefaultOperatingSystemFamily WINDOWS = new DefaultOperatingSystemFamily("windows");
 	public static final DefaultOperatingSystemFamily LINUX = new DefaultOperatingSystemFamily("linux");
 	public static final DefaultOperatingSystemFamily MACOS = new DefaultOperatingSystemFamily("macos");

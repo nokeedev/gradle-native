@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal;
 
+import com.google.common.base.Preconditions;
 import dev.nokee.runtime.base.internal.Dimension;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Named;
@@ -95,6 +96,7 @@ public abstract class NamingScheme {
 	public abstract NamingScheme withComponentDisplayName(String componentDisplayName);
 
 	public String getConfigurationDescription(String format) {
+		Preconditions.checkState(componentDisplayName != null, "make sure component display name is set");
 		return String.format(format, componentDisplayName);
 	}
 

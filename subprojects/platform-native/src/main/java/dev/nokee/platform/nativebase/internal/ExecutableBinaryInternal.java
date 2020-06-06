@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.ExecutableBinary;
+import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
@@ -26,7 +27,7 @@ import java.util.stream.Stream;
 public abstract class ExecutableBinaryInternal extends BaseNativeBinary implements ExecutableBinary, Buildable {
 
 	@Inject
-	public ExecutableBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeDependencies dependencies) {
+	public ExecutableBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeIncomingDependencies dependencies) {
 		super(names, objectSourceSets, targetMachine, dependencies);
 
 		linkTask.configure(this::configureExecutableTask);

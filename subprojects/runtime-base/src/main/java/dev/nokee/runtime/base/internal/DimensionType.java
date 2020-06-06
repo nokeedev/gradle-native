@@ -1,4 +1,4 @@
 package dev.nokee.runtime.base.internal;
 
-public interface DimensionType {
+public interface DimensionType<T extends Dimension> {
 }

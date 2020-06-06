@@ -7,7 +7,7 @@ import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
-import dev.nokee.platform.nativebase.internal.DefaultNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.BinaryAwareNativeComponentDependencies;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
 
@@ -15,16 +15,16 @@ import javax.inject.Inject;
 import java.util.List;
 
 public abstract class DefaultIosApplicationVariant extends BaseNativeVariant implements IosApplication {
-	private final DefaultNativeComponentDependencies dependencies;
+	private final BinaryAwareNativeComponentDependencies dependencies;
 
 	@Inject
-	public DefaultIosApplicationVariant(String name, NamingScheme names, BuildVariant buildVariant, DefaultNativeComponentDependencies dependencies) {
+	public DefaultIosApplicationVariant(String name, NamingScheme names, BuildVariant buildVariant, BinaryAwareNativeComponentDependencies dependencies) {
 		super(name, names, buildVariant);
 		this.dependencies = dependencies;
 	}
 
 	@Override
-	public NativeComponentDependencies getDependencies() {
+	public BinaryAwareNativeComponentDependencies getDependencies() {
 		return dependencies;
 	}
 

@@ -20,7 +20,7 @@ public abstract class BaseIosExtension<T extends BaseNativeComponent<?>> {
 	private final T component;
 
 	public BaseIosExtension(NamingScheme names, GroupId groupId, Class<T> componentType) {
-		this.component = getObjects().newInstance(componentType, names, groupId);
+		this.component = getObjects().newInstance(componentType, names.withComponentDisplayName("main iOS application"), groupId);
 
 		component.getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
 		component.getBuildVariants().finalizeValueOnRead();
