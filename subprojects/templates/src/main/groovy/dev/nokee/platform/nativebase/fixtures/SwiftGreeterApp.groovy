@@ -46,7 +46,7 @@ class SwiftMainUsesGreeter extends SourceFileElement {
 		return sourceFile('swift', 'main.swift', '''
 func main() -> Int {
 	let greeter = Greeter()
-	greeter.sayHello(name: "Alice")
+	print(greeter.sayHello(name: "Alice"))
 	return 0
 }
 

@@ -19,9 +19,8 @@ class ObjectiveCMainUsesGreeter extends ObjectiveCSourceElement {
 #include "greeter.h"
 
 int main(int argc, const char * argv[]) {
-	Greeter* greeter = [Greeter new];
-	printf("%s\\n", [greeter sayHello]);
-	[greeter release];
+	Greeter* greeter = [Greeter alloc];
+	printf("%s\\n", [greeter sayHello:"Alice"]);
 	return 0;
 }
 '''))
