@@ -83,11 +83,6 @@ publish (docs nightly):
   tags:
     - container=baremetal
   only:
-    changes:
-      - .gitlab-ci.yml
-      - subprojects/docs/**/*
-      - subprojects/docs/docs.gradle
-      - gradle/plugins/docs-gradle-plugin/**/*
     refs:
       - master
   artifacts:
