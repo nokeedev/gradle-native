@@ -46,12 +46,16 @@ The {plugin-display-name} Plugin adds a link:{dsl-compile-task-path}[{plugin-lan
 Read the <<building-native-projects.adoc#sec:introducing-build-variants,introduction to build variants>> for more information.
 Some of the most common configuration options are shown below.
 
+ifeval::["{plugin-language-id}" != "swift"]
+
 [horizontal]
 link:{dsl-compile-task-path}#{compile-task-type}:compilerArgs[compilerArgs]:: []
 
 link:{dsl-compile-task-path}#{compile-task-type}:headerSearchPaths[headerSearchPaths]:: `configurations.__variant__HeaderSearchPaths` + `${project.projectDir}/src/main/headers`
 
 link:{dsl-compile-task-path}#{compile-task-type}:toolChain[toolChain]:: <<building-native-projects.adoc#sec:supported-toolchain,automatically selected based on target machine>>
+
+endif::[]
 
 [[sec:conventions-link-task]]
 === Link Task
