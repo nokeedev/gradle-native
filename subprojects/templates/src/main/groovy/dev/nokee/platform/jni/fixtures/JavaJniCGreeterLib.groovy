@@ -87,9 +87,15 @@ class CGreeter extends CLibraryElement {
 		header = ofFile(sourceFile('headers', 'greeter.h', """
 #pragma once
 
+#ifdef _WIN32
+#define EXPORT_FUNC __declspec(dllexport)
+#else
+#define EXPORT_FUNC
+#endif
+
 #include <string.h>
 
-char * say_hello(const char * name);
+char * EXPORT_FUNC say_hello(const char * name);
 """))
 		source = ofFile(sourceFile('c', 'greeter_impl.c', """
 #include "greeter.h"
