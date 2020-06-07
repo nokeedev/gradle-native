@@ -1,9 +1,15 @@
 package dev.nokee.platform.objectivecpp
 
+import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
+import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.fixtures.AbstractNativeApplicationComponentFunctionalTest
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCppGreeterApp
+import spock.lang.Requires
+import spock.util.environment.OperatingSystem
 
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
 class ObjectiveCppApplicationComponentFunctionalTest extends AbstractNativeApplicationComponentFunctionalTest {
 	@Override
 	protected void makeSingleProject() {
