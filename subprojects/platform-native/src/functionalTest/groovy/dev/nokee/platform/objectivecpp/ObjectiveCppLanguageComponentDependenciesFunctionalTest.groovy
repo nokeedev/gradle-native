@@ -1,11 +1,17 @@
 package dev.nokee.platform.objectivecpp
 
+import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
+import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.fixtures.AbstractNativeComponentIncludedBuildDependenciesFunctionalTest
 import dev.nokee.fixtures.AbstractNativeComponentProjectDependenciesFunctionalTest
 import dev.nokee.language.objectivecpp.ObjectiveCppTaskNames
 import dev.nokee.platform.jni.fixtures.ObjectiveCppGreeter
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCppMainUsesGreeter
+import spock.lang.Requires
+import spock.util.environment.OperatingSystem
 
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
 class ObjectiveCppApplicationComponentProjectDependenciesFunctionalTest extends AbstractNativeComponentProjectDependenciesFunctionalTest implements ObjectiveCppTaskNames {
 	@Override
 	protected void makeComponentWithLibrary() {
@@ -43,6 +49,8 @@ class ObjectiveCppApplicationComponentProjectDependenciesFunctionalTest extends 
 	}
 }
 
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
 class ObjectiveCppApplicationComponentIncludedBuildDependenciesFunctionalTest extends AbstractNativeComponentIncludedBuildDependenciesFunctionalTest implements ObjectiveCppTaskNames {
 	@Override
 	protected void makeComponentWithLibrary() {
