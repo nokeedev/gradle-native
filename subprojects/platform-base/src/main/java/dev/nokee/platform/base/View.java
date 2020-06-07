@@ -49,8 +49,8 @@ public interface View<T> {
 	void configureEach(Spec<? super T> spec, Action<? super T> action);
 
 	/**
-	 * Returns a view containing the objects in this collection of the given type.
-	 * The returned collection is live, so that when matching objects are later added to this collection, they are also visible in the filtered binary view.
+	 * Returns a view containing the objects in this view of the given type.
+	 * The returned view is live, so that when matching objects are later added to this view, they are also visible in the filtered view.
 	 *
 	 * @param type the type of element to find.
 	 * @param <S> the base type of the element of the new view.

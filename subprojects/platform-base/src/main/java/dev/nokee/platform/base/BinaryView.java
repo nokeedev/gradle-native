@@ -10,12 +10,12 @@ import org.gradle.api.Action;
  */
 public interface BinaryView<T extends Binary> extends View<T> {
 	/**
-	 * Returns a binary view containing the objects in this collection of the given type.
-	 * The returned collection is live, so that when matching objects are later added to this collection, they are also visible in the filtered binary view.
+	 * Returns a binary view containing the objects in this view of the given type.
+	 * The returned view is live, so that when matching objects are later added to this view, they are also visible in the filtered binary view.
 	 *
 	 * @param type The type of binary to find.
 	 * @param <S> The base type of the new binary view.
-	 * @return The matching binaries. Returns an empty collection if there are no such objects in this collection.
+	 * @return the matching element as a {@link BinaryView}, never null.
 	 */
 	<S extends T> BinaryView<S> withType(Class<S> type);
 }
