@@ -7,6 +7,8 @@ def categories = sample_chapters.collectEntries {
 			return ['sec:samples-ios': it.category]
 		case 'Integrated Development Environment (IDE)':
 			return ['sec:samples-ide': it.category]
+		case 'Native Development':
+			return ['sec:samples-native': it.category]
 		default:
 			throw new IllegalArgumentException("Unknown category ${it.category}, please specify the id in 'sample_index.gsp'")
 	}
