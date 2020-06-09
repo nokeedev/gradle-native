@@ -64,7 +64,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 		return getVariantCollection().getAsView(variantType);
 	}
 
-	protected Provider<Variant> getDefaultVariant() {
+	protected Provider<T> getDefaultVariant() {
 		return getProviders().provider(() -> {
 			List<BaseNativeVariant> variants = getVariantCollection().get().stream().map(it -> {
 				Preconditions.checkArgument(it instanceof BaseNativeVariant);
@@ -81,7 +81,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 			if (variants.isEmpty()) {
 				return null;
 			}
-			return (Variant)one(variants);
+			return (T)one(variants);
 		});
 	}
 

@@ -66,7 +66,7 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 	}
 
 	@Override
-	protected Provider<Variant> getDefaultVariant() {
+	protected Provider<DefaultIosApplicationVariant> getDefaultVariant() {
 		// By default, we should filter for the variant targeting the simulator
 		// Here we assume only one variant that target the simulator ;-)
 		return getProviders().provider(() -> {
@@ -78,7 +78,7 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 			if (variants.isEmpty()) {
 				return null;
 			}
-			return (Variant)one(variants);
+			return (DefaultIosApplicationVariant)one(variants);
 		});
 	}
 
