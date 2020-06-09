@@ -49,4 +49,4 @@ $ ls ./build/libs/main/*
 ./build/libs/main/libswift-library.dylib
 ----
 
-For more information, see <<../../manual/{plugin-langauge-id}-library-plugin.adoc.adoc#,{plugin-language} Library Plugin>> reference chapter and <<../../manual/building-native-projects.adoc.adoc#,Building Native Projects>> chapter.
+For more information, see <<../../manual/{plugin-language-id}-library-plugin.adoc.adoc#,{plugin-language} Library Plugin>> reference chapter and <<../../manual/building-native-projects.adoc.adoc#,Building Native Projects>> chapter.

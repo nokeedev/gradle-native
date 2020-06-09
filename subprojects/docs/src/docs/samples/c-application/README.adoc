@@ -49,4 +49,4 @@ $ ./build/exes/main/c-application
 Bonjour, Alice!
 ----
 
-For more information, see <<../../manual/{plugin-langauge-id}-application-plugin.adoc.adoc#,{plugin-language} Application Plugin>> reference chapter and <<../../manual/building-native-projects.adoc.adoc#,Building Native Projects>> chapter.
+For more information, see <<../../manual/{plugin-language-id}-application-plugin.adoc.adoc#,{plugin-language} Application Plugin>> reference chapter and <<../../manual/building-native-projects.adoc.adoc#,Building Native Projects>> chapter.
