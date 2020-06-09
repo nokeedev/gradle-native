@@ -141,6 +141,37 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
 			project.getPluginManager().apply(XcodeIdeObjectiveCIosApplicationPlugin.class);
 		});
+
+		project.getPluginManager().withPlugin("dev.nokee.c-application", appliedPlugin -> {
+			project.getPluginManager().apply(XcodeIdeNativeApplicationPlugin.class);
+		});
+		project.getPluginManager().withPlugin("dev.nokee.cpp-application", appliedPlugin -> {
+			project.getPluginManager().apply(XcodeIdeNativeApplicationPlugin.class);
+		});
+		project.getPluginManager().withPlugin("dev.nokee.objective-c-application", appliedPlugin -> {
+			project.getPluginManager().apply(XcodeIdeNativeApplicationPlugin.class);
+		});
+		project.getPluginManager().withPlugin("dev.nokee.objective-cpp-application", appliedPlugin -> {
+			project.getPluginManager().apply(XcodeIdeNativeApplicationPlugin.class);
+		});
+		project.getPluginManager().withPlugin("dev.nokee.swift-application", appliedPlugin -> {
+			project.getPluginManager().apply(XcodeIdeSwiftApplicationPlugin.class);
+		});
+		project.getPluginManager().withPlugin("dev.nokee.c-library", appliedPlugin -> {
+			project.getPluginManager().apply(XcodeIdeNativeLibraryPlugin.class);
+		});
+		project.getPluginManager().withPlugin("dev.nokee.cpp-library", appliedPlugin -> {
+			project.getPluginManager().apply(XcodeIdeNativeLibraryPlugin.class);
+		});
+		project.getPluginManager().withPlugin("dev.nokee.objective-c-library", appliedPlugin -> {
+			project.getPluginManager().apply(XcodeIdeNativeLibraryPlugin.class);
+		});
+		project.getPluginManager().withPlugin("dev.nokee.objective-cpp-library", appliedPlugin -> {
+			project.getPluginManager().apply(XcodeIdeNativeLibraryPlugin.class);
+		});
+		project.getPluginManager().withPlugin("dev.nokee.swift-library", appliedPlugin -> {
+			project.getPluginManager().apply(XcodeIdeSwiftLibraryPlugin.class);
+		});
 	}
 
 	// TODO: Implicit init script should probably also be added to make the user realize those are affecting your build.

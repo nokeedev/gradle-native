@@ -137,7 +137,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 			xmlMapper.writeValue(new File(schemesDirectory, xcodeTarget.getName() + ".xcscheme"), new Scheme(
 				new Scheme.BuildAction(buildActionBuilder.build()),
 				new Scheme.TestAction(testActionBuilder.build()),
-				new Scheme.LaunchAction(new Scheme.LaunchAction.BuildableProductRunnable(newBuildableReference(xcodeTarget)))
+				new Scheme.LaunchAction(xcodeTarget.getProductType().equals(XcodeIdeProductTypes.DYNAMIC_LIBRARY) ? null : new Scheme.LaunchAction.BuildableProductRunnable(newBuildableReference(xcodeTarget)))
 			));
 		}
 
