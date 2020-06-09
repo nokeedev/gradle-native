@@ -42,8 +42,8 @@ public interface XcodeIdeTarget extends Named {
 	Property<XcodeIdeProductType> getProductType();
 
 	/**
-	 * Returns the product reference filename of the product.
-	 * It reference refers to the file name and extension of the built product.
+	 * Returns the reference filename of the product.
+	 * The reference refers to the file name and extension of the built product.
 	 *
 	 * @return a property to configure the target's product filename.
 	 */
