@@ -5,37 +5,37 @@
 
 Gradle has a wealth of terminology. Here you can find the terms Nokee plugins align around.
 
-[[sec:dimension]]
+[[sec:terminology-dimension]]
 == Dimension
 
 Represent a configuration group that hold a meaning.
 For example the architecture and operating system are both dimensions of a native component.
 All the dimensions are used to create the variants of a component.
 
-[[sec:entry-point]]
+[[sec:terminology-entry-point]]
 == Entry point
 
 Represent the capability of how a component is used.
 A component can be used as a library, as an application, as a test suite, as a device driver, etc.
 For example, the <<jni-library-plugin.adoc#,JNI Library Plugin>> provides the library entry point capability to the project it is applied.
 
-[[sec:language]]
+[[sec:terminology-language]]
 == Implementation Language
 
 Represent the capability of how a component is implemented.
 A component can be implemented in {cpp}, C, Objective-C, Objective-{cpp}, Swift, etc. or as a mix of those languages.
 For example, the <<cpp-language-plugin.adoc#,{cpp} Language Plugin>> provide the {cpp} language implementation capability to the project it is applied.
 
-[[sec:plugin-id-triplet]]
+[[sec:terminology-plugin-id-triplet]]
 == Plugin Identification Triplet
 
-Represent the capability combination of a plugin across the link:#sec:language[language], link:#sec:runtime[runtime] and link:#sec:entry-point[entry point] dimensions.
+Represent the capability combination of a plugin across the link:#sec:terminology-language[language], link:#sec:terminology-runtime[runtime] and link:#sec:terminology-entry-point[entry point] dimensions.
 Some combinations are also subject to implicit limitation with regards to mixing them with other plugins.
 The triplet offers a simple and concise way of understanding when and how a plugin can be used.
 Each segment of the triplet act as an opinion for the project's capabilities.
 Head over to the <<plugin-anatomy.adoc#,Anatomy of a Nokee Plugin>> chapter to learn more..
 
-[[sec:runtime]]
+[[sec:terminology-runtime]]
 == Runtime
 
 Represent the capability of how a component is targeting an environment.

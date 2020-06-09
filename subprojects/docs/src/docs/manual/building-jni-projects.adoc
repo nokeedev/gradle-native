@@ -30,7 +30,7 @@ This chapter is about explaining each of the model elements and their effect on 
 [[sec:building-jni-choosing-plugins]]
 == Choosing the right plugins
 
-TIP: All Nokee plugins follows the <<terminology.adoc#sec:plugin-id-triplet,plugin identification triplet>> convention.
+TIP: All Nokee plugins follows the <<terminology.adoc#sec:terminology-plugin-id-triplet,plugin identification triplet>> convention.
 Read the <<plugin-anatomy.adoc#, Anatomy of a Nokee Plugin>> chapter to learn more.
 
 The <<jni-library-plugin.adoc#,JNI Library Plugin>> is the only plugin available for targeting the JNI runtime.
@@ -38,8 +38,8 @@ First, let's understand the plugin identification:
 
 image::img/jni-library-plugin-triplet.png[Anatomy of the JNI Library plugin identifier,align="center"]
 
-As shown, the plugin only provide the library <<terminology.adoc#sec:entry-point,entry point>> and JNI <<terminology.adoc#sec:runtime,runtime>> capability to the project.
-It has no opinion on the <<terminology.adoc#sec:language,implementation language>> of the project's component.
+As shown, the plugin only provide the library <<terminology.adoc#sec:terminology-entry-point,entry point>> and JNI <<terminology.adoc#sec:terminology-runtime,runtime>> capability to the project.
+It has no opinion on the <<terminology.adoc#sec:terminology-language,implementation language>> of the project's component.
 The implementation language refers to what language will be complied to form our project's artifacts.
 We will need to choose the corresponding <<plugin-references.adoc#sec:plugin-reference-native-languages,language plugins>> to apply as well.
 
