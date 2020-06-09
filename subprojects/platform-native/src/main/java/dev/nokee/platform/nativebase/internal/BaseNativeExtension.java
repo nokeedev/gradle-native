@@ -20,8 +20,8 @@ import java.util.Set;
 public abstract class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 	private final T component;
 
-	public BaseNativeExtension(NamingScheme names, Class<T> componentType) {
-		this.component = getObjects().newInstance(componentType, names.withComponentDisplayName("main native component"));
+	public BaseNativeExtension(T component) {
+		this.component = component;
 
 		component.getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
 		component.getBuildVariants().finalizeValueOnRead();

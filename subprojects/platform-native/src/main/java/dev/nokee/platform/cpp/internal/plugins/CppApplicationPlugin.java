@@ -1,8 +1,12 @@
 package dev.nokee.platform.cpp.internal.plugins;
 
+import dev.nokee.internal.Cast;
+import dev.nokee.platform.base.internal.Component;
+import dev.nokee.platform.base.internal.ComponentCollection;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.cpp.CppApplicationExtension;
 import dev.nokee.platform.cpp.internal.DefaultCppApplicationExtension;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -21,8 +25,10 @@ public abstract class CppApplicationPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
-		NamingScheme names = NamingScheme.asMainComponent(project.getName());
-		DefaultCppApplicationExtension extension = getObjects().newInstance(DefaultCppApplicationExtension.class, names);
+		NamingScheme names = NamingScheme.asMainComponent(project.getName()).withComponentDisplayName("main native component");
+		ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", project.getExtensions().create("components", ComponentCollection.class));
+		DefaultNativeApplicationComponent component = components.register(DefaultNativeApplicationComponent.class, names).get();
+		DefaultCppApplicationExtension extension = getObjects().newInstance(DefaultCppApplicationExtension.class, component);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);

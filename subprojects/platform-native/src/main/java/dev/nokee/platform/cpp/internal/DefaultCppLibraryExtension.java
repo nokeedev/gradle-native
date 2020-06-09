@@ -2,7 +2,6 @@ package dev.nokee.platform.cpp.internal;
 
 import dev.nokee.language.cpp.internal.CppSourceSet;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.cpp.CppLibraryExtension;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryDependencies;
@@ -15,8 +14,8 @@ import javax.inject.Inject;
 
 public abstract class DefaultCppLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements CppLibraryExtension {
 	@Inject
-	public DefaultCppLibraryExtension(NamingScheme names) {
-		super(names, DefaultNativeLibraryComponent.class);
+	public DefaultCppLibraryExtension(DefaultNativeLibraryComponent component) {
+		super(component);
 		getComponent().getSourceCollection().add(getObjects().newInstance(CppSourceSet.class).srcDir("src/main/cpp"));
 	}
 

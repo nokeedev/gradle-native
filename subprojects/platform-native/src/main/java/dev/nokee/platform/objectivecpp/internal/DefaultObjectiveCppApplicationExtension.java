@@ -15,8 +15,8 @@ import javax.inject.Inject;
 
 public abstract class DefaultObjectiveCppApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCppApplicationExtension {
 	@Inject
-	public DefaultObjectiveCppApplicationExtension(NamingScheme names) {
-		super(names, DefaultNativeApplicationComponent.class);
+	public DefaultObjectiveCppApplicationExtension(DefaultNativeApplicationComponent component) {
+		super(component);
 		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class).srcDir("src/main/objcpp"));
 	}
 

@@ -15,8 +15,8 @@ import javax.inject.Inject;
 
 public abstract class DefaultSwiftApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements SwiftApplicationExtension {
 	@Inject
-	public DefaultSwiftApplicationExtension(NamingScheme names) {
-		super(names, DefaultNativeApplicationComponent.class);
+	public DefaultSwiftApplicationExtension(DefaultNativeApplicationComponent component) {
+		super(component);
 		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class).srcDir("src/main/swift"));
 	}
 

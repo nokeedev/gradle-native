@@ -1,6 +1,10 @@
 package dev.nokee.platform.objectivecpp.internal.plugins;
 
+import dev.nokee.internal.Cast;
+import dev.nokee.platform.base.internal.Component;
+import dev.nokee.platform.base.internal.ComponentCollection;
 import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibraryExtension;
 import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppLibraryExtension;
@@ -21,8 +25,10 @@ public abstract class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
-		NamingScheme names = NamingScheme.asMainComponent(project.getName());
-		DefaultObjectiveCppLibraryExtension extension = getObjects().newInstance(DefaultObjectiveCppLibraryExtension.class, names);
+		NamingScheme names = NamingScheme.asMainComponent(project.getName()).withComponentDisplayName("main native component");
+		ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", project.getExtensions().create("components", ComponentCollection.class));
+		DefaultNativeLibraryComponent component = components.register(DefaultNativeLibraryComponent.class, names).get();
+		DefaultObjectiveCppLibraryExtension extension = getObjects().newInstance(DefaultObjectiveCppLibraryExtension.class, component);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);

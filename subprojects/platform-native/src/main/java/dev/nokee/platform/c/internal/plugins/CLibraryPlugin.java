@@ -1,8 +1,12 @@
 package dev.nokee.platform.c.internal.plugins;
 
+import dev.nokee.internal.Cast;
+import dev.nokee.platform.base.internal.Component;
+import dev.nokee.platform.base.internal.ComponentCollection;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.c.CLibraryExtension;
 import dev.nokee.platform.c.internal.DefaultCLibraryExtension;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -21,8 +25,10 @@ public abstract class CLibraryPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
-		NamingScheme names = NamingScheme.asMainComponent(project.getName());
-		DefaultCLibraryExtension extension = getObjects().newInstance(DefaultCLibraryExtension.class, names);
+		NamingScheme names = NamingScheme.asMainComponent(project.getName()).withComponentDisplayName("main native component");
+		ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", project.getExtensions().create("components", ComponentCollection.class));
+		DefaultNativeLibraryComponent component = components.register(DefaultNativeLibraryComponent.class, names).get();
+		DefaultCLibraryExtension extension = getObjects().newInstance(DefaultCLibraryExtension.class, component);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);

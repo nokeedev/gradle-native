@@ -15,8 +15,8 @@ import javax.inject.Inject;
 
 public abstract class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements CApplicationExtension {
 	@Inject
-	public DefaultCApplicationExtension(NamingScheme names) {
-		super(names, DefaultNativeApplicationComponent.class);
+	public DefaultCApplicationExtension(DefaultNativeApplicationComponent component) {
+		super(component);
 		getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class).srcDir("src/main/c"));
 	}
 

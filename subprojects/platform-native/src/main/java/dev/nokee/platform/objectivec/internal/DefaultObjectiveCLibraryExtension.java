@@ -15,8 +15,8 @@ import javax.inject.Inject;
 
 public abstract class DefaultObjectiveCLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements ObjectiveCLibraryExtension {
 	@Inject
-	public DefaultObjectiveCLibraryExtension(NamingScheme names) {
-		super(names, DefaultNativeLibraryComponent.class);
+	public DefaultObjectiveCLibraryExtension(DefaultNativeLibraryComponent component) {
+		super(component);
 		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class).srcDir("src/main/objc"));
 	}
 

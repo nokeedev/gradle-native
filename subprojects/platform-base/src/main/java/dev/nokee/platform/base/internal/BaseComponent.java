@@ -31,6 +31,10 @@ public abstract class BaseComponent<T extends Variant> {
 		getDimensions().finalizeValueOnRead();
 	}
 
+	public String getName() {
+		return "main";
+	}
+
 	@Inject
 	protected abstract ObjectFactory getObjects();
 

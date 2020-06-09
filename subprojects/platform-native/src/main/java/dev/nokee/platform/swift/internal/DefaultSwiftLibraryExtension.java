@@ -15,8 +15,8 @@ import javax.inject.Inject;
 
 public abstract class DefaultSwiftLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements SwiftLibraryExtension {
 	@Inject
-	public DefaultSwiftLibraryExtension(NamingScheme names) {
-		super(names, DefaultNativeLibraryComponent.class);
+	public DefaultSwiftLibraryExtension(DefaultNativeLibraryComponent component) {
+		super(component);
 		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class).srcDir("src/main/swift"));
 	}
 
