@@ -1,6 +1,9 @@
 import dev.nokee.docs.tasks.CreateAsciinema
 import dev.nokee.platform.ios.fixtures.ObjectiveCIosApp
 import dev.nokee.platform.jni.fixtures.*
+import dev.nokee.platform.jni.fixtures.elements.CppGreeter
+import dev.nokee.platform.jni.fixtures.elements.SwiftGreeter
+import dev.nokee.platform.nativebase.fixtures.*
 
 import java.text.SimpleDateFormat
 
@@ -115,6 +118,37 @@ documentation {
 		}
 		'jni-library-as-uber-jar' {
 			template = new JavaJniCppGreeterLib('jni-library-as-uber-jar')
+		}
+
+		'c-application' {
+			template = new CGreeterApp()
+		}
+		'c-library' {
+			template = new CGreeter().asLib()
+		}
+		'cpp-application' {
+			template = new CppGreeterApp()
+		}
+		'cpp-library' {
+			template = new CppGreeter().asLib()
+		}
+		'objective-c-application' {
+			template = new ObjectiveCGreeterApp()
+		}
+		'objective-c-library' {
+			template = new ObjectiveCGreeter().asLib()
+		}
+		'objective-cpp-application' {
+			template = new ObjectiveCppGreeterApp()
+		}
+		'objective-cpp-library' {
+			template = new ObjectiveCppGreeter().asLib()
+		}
+		'swift-application' {
+			template = new SwiftGreeterApp()
+		}
+		'swift-library' {
+			template = new SwiftGreeter()
 		}
 
 		'xcode-ide-composing' {

@@ -1,0 +1,52 @@
+= Objective-{cpp} Application
+:jbake-summary: Application implemented in Objective-{cpp}.
+:jbake-type: sample_chapter
+:jbake-tags: sample, application, objective-cpp, native, gradle
+:jbake-category: Native Development
+:jbake-description: See how the Nokee Gradle plugins are used for building a native application implemented in Objective-{cpp}.
+:plugin-language: Objective-{cpp}
+:plugin-language-id: objective-cpp
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer], https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship], or <<../../manual/developing-with-xcode-ide.adoc#, Nokee's Xcode IDE plugin>>
+
+This sample shows how a native application implemented in {plugin-language} can be built with Gradle.
+The application has no dependencies, and the build has a minimal configuration.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+
+To build the application:
+
+[listing.terminal]
+----
+$ ./gradlew assemble
+
+BUILD SUCCESSFUL
+2 actionable tasks: 2 executed
+----
+
+The application produced inside `./build/exes/main` directory:
+
+[listing.terminal,subs=attributes+,only-if='macos']
+----
+$ ./build/exes/main/{plugin-language-id}-application
+Bonjour, Alice!
+----
+
+For more information, see <<../../manual/{plugin-langauge-id}-application-plugin.adoc.adoc#,{plugin-language} Application Plugin>> reference chapter and <<../../manual/building-native-projects.adoc.adoc#,Building Native Projects>> chapter.

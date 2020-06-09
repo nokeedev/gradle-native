@@ -1,0 +1,52 @@
+= Swift Library
+:jbake-summary: Library implemented in Swift.
+:jbake-type: sample_chapter
+:jbake-tags: sample, library, swift, native, gradle
+:jbake-category: Native Development
+:jbake-description: See how the Nokee Gradle plugins are used for building a native library implemented in Swift.
+:plugin-language: Swift
+:plugin-language-id: swift
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer], https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship], or <<../../manual/developing-with-xcode-ide.adoc#, Nokee's Xcode IDE plugin>>
+
+This sample shows how to build a native library implemented in {plugin-language} with Gradle.
+The library has no dependencies, and the build has a minimal configuration.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+
+To build the library:
+
+[listing.terminal]
+----
+$ ./gradlew assemble
+
+BUILD SUCCESSFUL
+2 actionable tasks: 2 executed
+----
+
+The native library produced inside `./build/libs/main` directory:
+
+[listing.terminal,only-if='macos,subs=attributes+]
+----
+$ ls ./build/libs/main/
+./build/libs/lib{plugin-language-id}-library.dylib
+----
+
+For more information, see <<../../manual/{plugin-langauge-id}-library-plugin.adoc.adoc#,{plugin-language} Library Plugin>> reference chapter and <<../../manual/building-native-projects.adoc.adoc#,Building Native Projects>> chapter.
