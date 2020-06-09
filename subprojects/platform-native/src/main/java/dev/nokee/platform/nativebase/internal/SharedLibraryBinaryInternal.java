@@ -125,7 +125,7 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 
 	public Provider<Set<FileSystemLocation>> getImportSearchPaths() {
 		return getObjects().fileCollection()
-			.from(getCompileTasks().withType(SwiftCompileTask.class).getElements().map(tasks -> tasks.stream().map(SwiftCompileTask::getModuleFile).collect(Collectors.toList())))
+			.from(getCompileTasks().withType(SwiftCompileTask.class).getElements().map(tasks -> tasks.stream().map(task -> task.getModuleFile().map(it -> it.getAsFile().getParentFile())).collect(Collectors.toList())))
 			.from(getDependencies().getSwiftModules().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList())))
 			.getElements();
 	}
