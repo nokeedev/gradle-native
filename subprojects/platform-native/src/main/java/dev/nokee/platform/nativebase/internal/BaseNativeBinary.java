@@ -1,6 +1,8 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.core.exec.CommandLine;
+import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.c.tasks.CCompile;
@@ -17,6 +19,8 @@ import dev.nokee.platform.base.internal.DefaultTaskView;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.Realizable;
 import dev.nokee.platform.nativebase.NativeBinary;
+import dev.nokee.platform.nativebase.SharedLibraryBinary;
+import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
@@ -32,6 +36,8 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
+import org.gradle.language.swift.SwiftSharedLibrary;
+import org.gradle.language.swift.SwiftStaticLibrary;
 import org.gradle.language.swift.SwiftVersion;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
@@ -131,6 +137,16 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 
 		task.getModuleName().convention(getBaseName().map(this::toModuleName));
 		task.getModuleFile().convention(task.getModuleName().flatMap(this::toSwiftModuleFile));
+
+		if (targetMachine.getOperatingSystemFamily().isMacOs()) {
+			task.getCompilerArgs().add("-sdk");
+			// TODO: Support DEVELOPER_DIR or request the xcrun tool from backend
+			task.getCompilerArgs().add(getProviders().provider(() -> CommandLine.of("xcrun", "--show-sdk-path").execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().getAsString().trim()));
+		}
+
+		if (this instanceof SharedLibraryBinary || this instanceof StaticLibraryBinary) {
+			task.getCompilerArgs().add("-parse-as-library");
+		}
 	}
 
 	private String toModuleName(String baseName) {

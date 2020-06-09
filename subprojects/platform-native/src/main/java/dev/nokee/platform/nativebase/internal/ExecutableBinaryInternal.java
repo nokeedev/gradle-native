@@ -2,6 +2,8 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.core.exec.CommandLine;
+import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.internal.NamingScheme;
@@ -21,6 +23,7 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
+import org.gradle.nativeplatform.toolchain.Swiftc;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -38,6 +41,14 @@ public abstract class ExecutableBinaryInternal extends BaseNativeBinary implemen
 		linkTask.configure(task -> {
 			task.getLibs().from(dependencies.getLinkLibraries());
 			task.getLinkerArgs().addAll(getProviders().provider(() -> dependencies.getLinkFrameworks().getFiles().stream().flatMap(this::toFrameworkFlags).collect(Collectors.toList())));
+
+			task.getLinkerArgs().addAll(task.getToolChain().map(it -> {
+				if (it instanceof Swiftc && targetMachine.getOperatingSystemFamily().isMacOs()) {
+					// TODO: Support DEVELOPER_DIR or request the xcrun tool from backend
+					return ImmutableList.of("-sdk", CommandLine.of("xcrun", "--show-sdk-path").execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().getAsString().trim());
+				}
+				return ImmutableList.of();
+			}));
 		});
 	}
 

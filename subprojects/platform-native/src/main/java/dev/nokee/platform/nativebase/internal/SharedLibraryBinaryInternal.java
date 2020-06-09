@@ -2,6 +2,8 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.core.exec.CommandLine;
+import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.nativebase.HeaderSearchPath;
@@ -37,8 +39,10 @@ import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
+import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
+import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -79,11 +83,30 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 		linkTask.configure(task -> {
 			task.getLibs().from(dependencies.getLinkLibraries());
 			task.getLinkerArgs().addAll(getProviders().provider(() -> dependencies.getLinkFrameworks().getFiles().stream().flatMap(this::toFrameworkFlags).collect(Collectors.toList())));
+
+			task.getLinkerArgs().addAll(task.getToolChain().map(it -> {
+				if (it instanceof Swiftc && targetMachine.getOperatingSystemFamily().isMacOs()) {
+					// TODO: Support DEVELOPER_DIR or request the xcrun tool from backend
+					return ImmutableList.of("-sdk", CommandLine.of("xcrun", "--show-sdk-path").execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().getAsString().trim());
+				}
+				return ImmutableList.of();
+			}));
+
+			task.getLinkerArgs().addAll(task.getToolChain().map(it -> {
+				if (it instanceof Swiftc) {
+					return ImmutableList.of("-module-name", toModuleName(getBaseName().get()));
+				}
+				return ImmutableList.of();
+			}));
 		});
 		linkTask.configure(this::configureSharedLibraryTask);
 
 		getLinkedFile().set(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
 		getLinkedFile().disallowChanges();
+	}
+
+	private String toModuleName(String baseName) {
+		return GUtil.toCamelCase(baseName);
 	}
 
 	@Inject
