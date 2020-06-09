@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -118,7 +119,8 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		simpleModule.addSerializer(Boolean.class,new XcodeIdeBooleanSerializer());
 		simpleModule.addSerializer(boolean.class,new XcodeIdeBooleanSerializer());
 		xmlMapper.registerModule(simpleModule);
-		xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
+		xmlMapper.enable(ToXmlGenerator.Feature.WRITE_XML_DECLARATION);
+		xmlMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
 		for (PBXTarget xcodeTarget : project.getTargets().stream().filter(it -> !isTestingTarget(it)).collect(Collectors.toList())) {
 			ImmutableList.Builder<Scheme.BuildAction.BuildActionEntry> buildActionBuilder = ImmutableList.builder();
