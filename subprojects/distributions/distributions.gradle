@@ -97,7 +97,19 @@ tasks.register("updateBintrayMetadata") {
 										  "dev.nokee.objective-c-language:${project.group}:languageNative",
 										  "dev.nokee.objective-cpp-language:${project.group}:languageNative",
 										  "dev.nokee.objective-c-ios-application:${project.group}:platformIos",
-										  "dev.nokee.objective-c-xctest-test-suite:${project.group}:testingXctest"]]
+										  "dev.nokee.swift-ios-application:${project.group}:platformIos",
+										  "dev.nokee.objective-c-xctest-test-suite:${project.group}:testingXctest",
+										  "dev.nokee.c-application:${project.group}:platformNative",
+										  "dev.nokee.c-library:${project.group}:platformNative",
+										  "dev.nokee.cpp-application:${project.group}:platformNative",
+										  "dev.nokee.cpp-library:${project.group}:platformNative",
+										  "dev.nokee.objective-c-application:${project.group}:platformNative",
+										  "dev.nokee.objective-c-library:${project.group}:platformNative",
+										  "dev.nokee.objective-cpp-application:${project.group}:platformNative",
+										  "dev.nokee.objective-cpp-library:${project.group}:platformNative",
+										  "dev.nokee.swift-application:${project.group}:platformNative",
+										  "dev.nokee.swift-library:${project.group}:platformNative"
+										]]
 			data = data.collect { k, v ->
 				return [name: k, values: v, type: 'string']
 			}
