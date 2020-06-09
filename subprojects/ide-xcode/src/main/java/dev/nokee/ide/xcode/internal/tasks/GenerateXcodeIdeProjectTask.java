@@ -14,13 +14,21 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import dev.nokee.ide.xcode.*;
 import dev.nokee.ide.xcode.internal.XcodeIdePropertyAdapter;
 import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
 import dev.nokee.ide.xcode.internal.xcodeproj.*;
+import dev.nokee.language.base.internal.UTTypeSourceCode;
+import dev.nokee.language.c.internal.UTTypeCSource;
+import dev.nokee.language.cpp.internal.UTTypeCppSource;
+import dev.nokee.language.objectivec.internal.UTTypeObjectiveCSource;
+import dev.nokee.language.objectivecpp.internal.UTTypeObjectiveCppSource;
+import dev.nokee.language.swift.internal.UTTypeSwiftSource;
 import lombok.Value;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
@@ -371,8 +379,15 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		}
 		return result;
 	}
+	private static Set<String> COMPILATION_UNITS_EXTENSIONS = ImmutableSet.<String>builder()
+		.add(UTTypeObjectiveCSource.INSTANCE.getFilenameExtensions())
+		.add(UTTypeCppSource.INSTANCE.getFilenameExtensions())
+		.add(UTTypeCSource.INSTANCE.getFilenameExtensions())
+		.add(UTTypeObjectiveCppSource.INSTANCE.getFilenameExtensions())
+		.add(UTTypeSwiftSource.INSTANCE.getFilenameExtensions())
+		.build();
 	private static boolean keepingOnlyCompilationUnits(File sourceFile) {
-		return sourceFile.getName().endsWith(".m");
+		return COMPILATION_UNITS_EXTENSIONS.contains(FilenameUtils.getExtension(sourceFile.getName()));
 	}
 
 	private PBXTarget toGradleTarget(XcodeIdeTarget xcodeTarget) {

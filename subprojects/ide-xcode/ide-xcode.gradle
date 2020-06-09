@@ -19,6 +19,7 @@ dependencies {
 	compileOnly project(':platformIos')
 	compileOnly project(':testingXctest')
 	compileOnly project(':platformNative') // for NativeBinary
+	implementation project(':languageNative') // for UTType of each language
 
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
