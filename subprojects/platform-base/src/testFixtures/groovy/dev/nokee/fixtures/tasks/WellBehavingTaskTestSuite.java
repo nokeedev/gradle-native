@@ -1,4 +1,4 @@
-package dev.nokee.platform.ios.tasks.fixtures;
+package dev.nokee.fixtures.tasks;
 
 import com.google.common.collect.ImmutableList;
 import lombok.Value;

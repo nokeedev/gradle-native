@@ -1,4 +1,4 @@
-package dev.nokee.platform.ios.tasks.fixtures;
+package dev.nokee.fixtures.tasks;
 
 public interface WellBehavingTaskTransform {
 	default String getDescription() {

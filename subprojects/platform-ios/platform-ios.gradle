@@ -35,6 +35,7 @@ dependencies {
 	}
 	testImplementation(testFixtures(project(':platformNative')))
 
+	functionalTestImplementation testFixtures(project(':platformBase'))
 	functionalTestImplementation testFixtures(project(':platformNative'))
 	functionalTestImplementation testFixtures(project(':languageNative'))
 }

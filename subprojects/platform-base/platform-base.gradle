@@ -2,6 +2,7 @@ plugins {
 	id 'java-library'
 	id 'groovy-base'
 	id 'maven-publish'
+	id 'java-test-fixtures'
 }
 
 repositories {
@@ -21,6 +22,15 @@ dependencies {
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+
+	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+	testFixturesCompileOnly "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	testFixturesImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {
+		capabilities {
+			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
+		}
+	}
 }
 
 // TODO(toolbox): Expose the APIs allowing to query the compatibility based on Gradle version

@@ -1,4 +1,4 @@
-package dev.nokee.platform.ios.tasks.fixtures;
+package dev.nokee.fixtures.tasks;
 
 import lombok.NonNull;
 import org.gradle.api.Task;

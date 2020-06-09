@@ -1,22 +1,34 @@
-package dev.nokee.platform.ios.tasks
+package dev.nokee.fixtures.tasks
 
-import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
+import com.google.common.collect.ImmutableList
+import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceFile
-import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskProperty
-import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskPropertyBuilder
-import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskSpec
-import dev.nokee.platform.ios.tasks.fixtures.WellBehavingTaskTransform
 import org.gradle.api.Task
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Classpath
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.OutputDirectories
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.OutputFiles
+import org.hamcrest.Matchers
 import spock.lang.Unroll
 
 import javax.inject.Inject
 import java.lang.annotation.Annotation
 import java.lang.reflect.Modifier
 
-abstract class WellBehavingTaskTest extends AbstractFunctionalSpec implements WellBehavingTaskSpec {
+import static org.junit.Assume.assumeThat
+import static org.junit.Assume.assumeTrue
+
+abstract class WellBehavingTaskTest extends AbstractGradleSpecification implements WellBehavingTaskSpec {
 	protected abstract Class<? extends Task> getTaskType();
 
 	//region WellBehavingTaskSpec
@@ -37,7 +49,7 @@ abstract class WellBehavingTaskTest extends AbstractFunctionalSpec implements We
 		given:
 		// TODO: Recursive check for @Nested
 		// TODO: @Internal should probably always have a string to inform why it's internal
-		List<Class<? extends Annotation>> allIncrementalGradleAnnotationTypes = [Input, InputDirectory, InputFiles, InputFile, OutputFile, OutputDirectory, OutputDirectories, Classpath, Nested, Internal]
+		List<Class<? extends Annotation>> allIncrementalGradleAnnotationTypes = [Input, InputDirectory, InputFiles, InputFile, OutputFile, OutputFiles, OutputDirectory, OutputDirectories, Classpath, Nested, Internal]
 		Closure nonPrivateMethods = { (it.modifiers & Modifier.PRIVATE) == 0 }
 		Closure nonStaticMethods = { (it.modifiers & Modifier.STATIC) == 0 }
 		Closure nonInjectAnnotatedMethods = { !it.declaredAnnotations*.annotationType().contains(Inject) }
@@ -95,7 +107,7 @@ abstract class WellBehavingTaskTest extends AbstractFunctionalSpec implements We
 
 		when:
 		testCase.applyChanges(this)
-		succeeds('taskUnderTest')
+		succeeds('taskUnderTest', '-i')
 		then: 'expecting task to be out-of-date'
 		testCase.assertState(this)
 
@@ -104,7 +116,9 @@ abstract class WellBehavingTaskTest extends AbstractFunctionalSpec implements We
 	}
 
 	@Unroll("can restore outputs from cache when #testCase.description")
-	def "can restore outputs from cache"() {
+	def "can restore outputs from cache"(testCase) {
+		assumeThat(testCase, Matchers.not(Matchers.isA(WellBehavingTaskTestCase.SkippingTestCase)))
+
 		given:
 		makeSingleProject()
 		executer = executer.requireOwnGradleUserHomeDirectory().withBuildCacheEnabled()
@@ -126,7 +140,14 @@ abstract class WellBehavingTaskTest extends AbstractFunctionalSpec implements We
 		testCase.assertState(this)
 
 		where:
-		testCase << getInputTestCases()*.cachingChecks*.testCases.flatten()
+		testCase << getAllCachingTestCases()
+	}
+
+	protected List<WellBehavingTaskTestCase> getAllCachingTestCases() {
+		if (!taskType.declaredAnnotations.contains(CacheableTask)) {
+			return ImmutableList.of(WellBehavingTaskTestCase.ignore())
+		}
+		return getInputTestCases()*.cachingChecks*.testCases.flatten()
 	}
 
 	protected void makeSingleProject() {
@@ -141,6 +162,10 @@ abstract class WellBehavingTaskTest extends AbstractFunctionalSpec implements We
 
 	protected final String getTaskUnderTestDsl() {
 		return "tasks.named('taskUnderTest', ${taskType.simpleName})"
+	}
+
+	protected final String getTaskUnderTestName() {
+		return 'taskUnderTest'
 	}
 
 	protected String configureInitialValues() {
@@ -170,6 +195,11 @@ abstract class WellBehavingTaskTest extends AbstractFunctionalSpec implements We
 
 	protected static WellBehavingTaskTransform deleteFile(String path) {
 		return new WellBehavingTaskTransform() {
+			@Override
+			String getDescription() {
+				return "delete file '${path}'"
+			}
+
 			@Override
 			void applyChanges(WellBehavingTaskSpec context) {
 				context.file(path).assertIsFile()
@@ -221,6 +251,11 @@ abstract class WellBehavingTaskTest extends AbstractFunctionalSpec implements We
 	protected static WellBehavingTaskTransform addFile(String path) {
 		return new WellBehavingTaskTransform() {
 			@Override
+			String getDescription() {
+				return "add file '${path}'"
+			}
+
+			@Override
 			void applyChanges(WellBehavingTaskSpec context) {
 				context.file(path).assertDoesNotExist()
 				context.file(path).text = 'foo'
@@ -234,7 +269,7 @@ abstract class WellBehavingTaskTest extends AbstractFunctionalSpec implements We
 
 		return new FileTransform() {
 			@Override
-			public void applyChangesToProject(TestFile projectDir) {
+			void applyChangesToProject(TestFile projectDir) {
 				for (SourceFile beforeFile : beforeFiles) {
 					TestFile file = projectDir.file(beforeFile.withPath("src/" + sourceSetName));
 					file.assertExists();

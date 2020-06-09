@@ -1,4 +1,4 @@
-package dev.nokee.platform.ios.tasks.fixtures;
+package dev.nokee.fixtures.tasks;
 
 import dev.gradleplugins.test.fixtures.file.TestFile;
 import dev.gradleplugins.test.fixtures.gradle.executer.ExecutionResult;

@@ -1,8 +1,10 @@
-package dev.nokee.platform.ios.tasks.fixtures;
+package dev.nokee.fixtures.tasks;
 
 import lombok.Value;
+import lombok.experimental.NonFinal;
 
 @Value
+@NonFinal// TODO: correctly ignore when no test case
 public class WellBehavingTaskTestCase {
 	String propertyName;
 	WellBehavingTaskTransform transform;
@@ -18,5 +20,15 @@ public class WellBehavingTaskTestCase {
 
 	public void assertState(WellBehavingTaskSpec context) {
 		assertion.assertState(context);
+	}
+
+	public static WellBehavingTaskTestCase ignore() {
+		return new SkippingTestCase(null, null, null);
+	}
+
+	public static class SkippingTestCase extends WellBehavingTaskTestCase {
+		public SkippingTestCase(String propertyName, WellBehavingTaskTransform transform, WellBehavingTaskAssertion assertion) {
+			super(propertyName, transform, assertion);
+		}
 	}
 }
