@@ -1,20 +1,22 @@
 package dev.nokee.ide.xcode.internal.tasks;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.FileSystemLocation;
-import org.gradle.api.file.FileSystemOperations;
+import org.gradle.api.file.*;
+import org.gradle.api.internal.tasks.TaskExecutionOutcome;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.OutputFiles;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
+import org.gradle.work.Incremental;
+import org.gradle.work.InputChanges;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
 
 public abstract class SyncXcodeIdeProduct extends DefaultTask {
 	@InputFiles
@@ -45,13 +47,27 @@ public abstract class SyncXcodeIdeProduct extends DefaultTask {
 		// TODO: Investigate using APFS Clone Copy when syncing the product to Xcode built product directory.
 		//       See https://eclecticlight.co/2020/04/14/copy-move-and-clone-files-in-apfs-a-primer/
 		File productLocation = getProductLocation().get().getAsFile();
+		File destinationLocation = getDestinationLocation().get().getAsFile();
+
+		if (!productLocation.exists()) {
+			if (destinationLocation.isDirectory()) {
+				FileUtils.deleteDirectory(destinationLocation);
+			} else if (destinationLocation.isFile()) {
+				destinationLocation.delete();
+			}
+			return;
+		}
+
 		if (productLocation.isDirectory()) {
 			getFileOperations().sync(spec -> {
 				spec.from(getProductLocation());
-				spec.into(getDestinationLocation());
+				spec.into(destinationLocation);
 			});
 		} else {
-			FileUtils.copyFile(productLocation, getDestinationLocation().get().getAsFile());
+			ignore(destinationLocation.delete());
+			Files.copy(productLocation.toPath(), destinationLocation.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
 		}
 	}
+
+	private static void ignore(Object o) {}
 }
