@@ -1,6 +1,7 @@
 package dev.nokee.ide.xcode.internal.tasks;
 
 import com.dd.plist.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.Version;
@@ -614,6 +615,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 
 		@Value
 		public static class LaunchAction {
+			@JsonInclude(JsonInclude.Include.NON_NULL)
 			@JacksonXmlProperty(localName = "BuildableProductRunnable")
 			BuildableProductRunnable buildableProductRunnable;
 
