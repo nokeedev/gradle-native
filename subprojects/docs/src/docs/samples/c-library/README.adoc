@@ -43,10 +43,10 @@ BUILD SUCCESSFUL
 
 The native library produced inside `./build/libs/main` directory:
 
-[listing.terminal,only-if='macos,subs=attributes+]
+[listing.terminal,only-if='macos']
 ----
-$ ls ./build/libs/main/
-./build/libs/lib{plugin-language-id}-library.dylib
+$ ls ./build/libs/main/*
+./build/libs/main/libc-library.dylib
 ----
 
 For more information, see <<../../manual/{plugin-langauge-id}-library-plugin.adoc.adoc#,{plugin-language} Library Plugin>> reference chapter and <<../../manual/building-native-projects.adoc.adoc#,Building Native Projects>> chapter.

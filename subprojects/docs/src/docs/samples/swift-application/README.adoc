@@ -43,9 +43,9 @@ BUILD SUCCESSFUL
 
 The application produced inside `./build/exes/main` directory:
 
-[listing.terminal,subs=attributes+,only-if='macos']
+[listing.terminal,only-if='macos']
 ----
-$ ./build/exes/main/{plugin-language-id}-application
+$ ./build/exes/main/swift-application
 Bonjour, Alice!
 ----
 
