@@ -62,8 +62,10 @@ subprojects {
 subprojects {
 	pluginManager.withPlugin('dev.gradleplugins.java-gradle-plugin') {
 		gradlePlugin {
-			extra {
+			compatibility {
 				minimumGradleVersion = project.minimumGradleVersion
+			}
+			java {
 				withJavadocJar()
 				withSourcesJar()
 			}
