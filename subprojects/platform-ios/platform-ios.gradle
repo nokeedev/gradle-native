@@ -6,7 +6,7 @@ plugins {
 repositories {
 	jcenter()
 	mavenCentral()
-	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+	gradlePluginDevelopment()
 }
 
 dependencies {
@@ -27,7 +27,7 @@ dependencies {
 
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
-	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {
 		capabilities {
 			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')

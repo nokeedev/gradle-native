@@ -3,20 +3,22 @@ plugins {
 	id 'java-library'
 }
 
+import static dev.gradleplugins.GradleRuntimeCompatibility.*
+
 group = 'dev.nokee'
 version = '0.1'
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
+	sourceCompatibility = minimumJavaVersionFor(minimumGradleVersion)
+	targetCompatibility = minimumJavaVersionFor(minimumGradleVersion)
 }
 
 repositories {
 	jcenter()
-	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+	gradlePluginDevelopment()
 }
 
 dependencies {
 	implementation localGroovy()
-	api 'dev.gradleplugins:gradle-fixtures:latest.integration'
+	api gradleFixtures()
 }

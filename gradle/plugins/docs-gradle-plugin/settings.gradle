@@ -13,4 +13,8 @@ pluginManagement {
 	}
 }
 
+plugins {
+	id 'dev.gradleplugins.gradle-plugin-development'
+}
+
 rootProject.name = 'docs-gradle-plugin'

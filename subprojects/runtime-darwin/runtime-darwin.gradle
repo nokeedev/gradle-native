@@ -6,7 +6,7 @@ plugins {
 
 repositories {
 	jcenter()
-	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+	gradlePluginDevelopment()
 }
 
 dependencies {
@@ -26,5 +26,5 @@ dependencies {
 
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
-	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}" // for VersionNumber
+	testImplementation gradleApi(minimumGradleVersion) // for VersionNumber
 }

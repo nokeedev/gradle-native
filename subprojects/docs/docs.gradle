@@ -40,7 +40,7 @@ dependencies {
 			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
 		}
 	}
-	docsTestImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}" // Is this really needed?
+	docsTestImplementation gradleApi(minimumGradleVersion) // Is this really needed?
 
 	docsTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 	docsTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
@@ -65,7 +65,7 @@ afterEvaluate {
 compileGroovy.dependsOn(generateDocsTestGrammarSource)
 
 repositories {
-	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+	gradlePluginDevelopment()
 }
 
 documentation {

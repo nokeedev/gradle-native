@@ -6,7 +6,7 @@ plugins {
 repositories {
 	jcenter()
 	mavenCentral()
-	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+	gradlePluginDevelopment()
 }
 
 dependencies {
@@ -25,7 +25,7 @@ dependencies {
 
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
-	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation 'org.hamcrest:hamcrest:2.2'
 	testImplementation testFixtures(project(':platformNative'))
 	testRuntimeOnly 'net.bytebuddy:byte-buddy:1.10.10' // Because NamingScheme is not an interface

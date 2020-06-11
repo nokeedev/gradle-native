@@ -12,6 +12,9 @@ pluginManagement {
 		}
 	}
 }
+plugins {
+	id 'dev.gradleplugins.gradle-plugin-development'
+}
 
 rootProject.name = 'gradle-native'
 

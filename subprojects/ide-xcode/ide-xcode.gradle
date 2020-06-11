@@ -28,7 +28,7 @@ dependencies {
 
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
-	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation "org.codehaus.groovy:groovy-all:2.5.8"
 
 	functionalTestImplementation testFixtures(project(':languageNative'))

@@ -4,14 +4,16 @@ plugins {
 	id 'groovy-base'
 }
 
+import static dev.gradleplugins.GradleRuntimeCompatibility.*
+
 repositories {
 	jcenter()
-	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+	gradlePluginDevelopment()
 }
 
 dependencies {
 	implementation "org.apache.commons:commons-exec:${commonsExecVersion}"
-	compileOnly "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	compileOnly gradleApi(minimumGradleVersion)
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 
@@ -22,10 +24,9 @@ dependencies {
 	testImplementation 'org.spockframework:spock-core'
 }
 
-// TODO(toolbox): Expose the APIs allowing to query the compatibility based on Gradle version
 java {
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
+	sourceCompatibility = minimumJavaVersionFor(minimumGradleVersion)
+	targetCompatibility = minimumJavaVersionFor(minimumGradleVersion)
 }
 
 publishing {

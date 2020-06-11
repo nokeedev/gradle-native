@@ -14,48 +14,46 @@ gradlePlugin {
 		}
 	}
 	compatibility {
-		minimumGradleVersion = '6.2.1'
+		minimumGradleVersion = project.minimumGradleVersion
 	}
 }
 
 repositories {
 	mavenCentral()
 	jcenter()
-	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+	gradlePluginDevelopment()
 }
 
 dependencies {
 	compileOnly 'org.asciidoctor:asciidoctorj-api:2.2.0'
 	compileOnly 'org.asciidoctor:asciidoctorj:2.2.0'
-	implementation 'dev.gradleplugins:gradle-plugin-development:0.0.70'
-	implementation 'dev.gradleplugins:gradle-fixtures:0.0.70'
-	implementation 'org.apache.commons:commons-exec:1.3'
-	implementation 'commons-io:commons-io:2.6'
+	implementation "dev.gradleplugins:gradle-plugin-development:${toolboxVersion}"
+	implementation "dev.gradleplugins:gradle-fixtures:${toolboxVersion}"
+	implementation "org.apache.commons:commons-exec:${commonsExecVersion}"
+	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation 'org.jbake:jbake-gradle-plugin:5.0.0'
-	implementation 'com.google.guava:guava:28.2-jre'
-	implementation 'org.apache.commons:commons-lang3:3.9'
+	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation 'com.github.javaparser:javaparser-core:3.15.18'
-	implementation 'org.codehaus.groovy:groovy-all:2.5.10'
+	implementation "org.codehaus.groovy:groovy-all:${groovyVersion}"
 
-	def lombokVersion = '1.18.12'
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
 	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-	testFixturesImplementation 'com.google.guava:guava:28.2-jre'
+	testFixturesImplementation "com.google.guava:guava:${guavaVersion}"
 	testFixturesImplementation 'org.hamcrest:hamcrest:2.2'
-	testFixturesImplementation 'commons-io:commons-io:2.6'
+	testFixturesImplementation "commons-io:commons-io:${commonsIoVersion}"
 	testFixturesImplementation 'net.sourceforge.nekohtml:nekohtml:1.9.21'
 	testFixturesImplementation 'io.github.http-builder-ng:http-builder-ng-core:1.0.4'
 	testFixturesImplementation 'junit:junit:4.13'
-	testFixturesImplementation 'org.apache.commons:commons-lang3:3.9'
-	testFixturesCompileOnly 'org.codehaus.groovy:groovy-xml:2.5.10'
+	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	testFixturesCompileOnly "org.codehaus.groovy:groovy-xml:${groovyVersion}"
 
-	def spockVersion = '1.2-groovy-2.5'
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
-	testImplementation 'dev.gradleplugins:gradle-api:6.2.1'
+	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation 'net.bytebuddy:byte-buddy:1.10.9'
-	testImplementation("org.objenesis:objenesis:3.1")
+	testImplementation "org.objenesis:objenesis:3.1"
 }

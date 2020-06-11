@@ -5,27 +5,29 @@ plugins {
 	id 'java-test-fixtures'
 }
 
+import static dev.gradleplugins.GradleRuntimeCompatibility.*
+
 repositories {
 	jcenter()
-	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+	gradlePluginDevelopment()
 }
 
 dependencies {
 	implementation project(':runtimeBase')
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	compileOnly "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	compileOnly gradleApi(minimumGradleVersion)
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
-	testImplementation "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	testImplementation gradleApi(minimumGradleVersion)
 
 	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-	testFixturesCompileOnly "dev.gradleplugins:gradle-api:${minimumGradleVersion}"
+	testFixturesCompileOnly gradleApi(minimumGradleVersion)
 	testFixturesImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {
 		capabilities {
 			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
@@ -33,10 +35,9 @@ dependencies {
 	}
 }
 
-// TODO(toolbox): Expose the APIs allowing to query the compatibility based on Gradle version
 java {
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
+	sourceCompatibility = minimumJavaVersionFor(minimumGradleVersion)
+	targetCompatibility = minimumJavaVersionFor(minimumGradleVersion)
 }
 
 publishing {
