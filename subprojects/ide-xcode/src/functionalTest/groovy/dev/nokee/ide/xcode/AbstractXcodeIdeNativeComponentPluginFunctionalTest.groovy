@@ -21,6 +21,10 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 
 	protected abstract List<String> getAllTasksForBuildAction()
 
+	protected List<String> getAllTasksToXcode() {
+		return [":${projectName}XcodeProject", ':xcodeWorkspace', ':xcode']
+	}
+
 	@Requires({ SystemUtils.IS_OS_MAC })
 	def "can build from Xcode IDE"() {
 		useXcodebuildTool()
@@ -34,15 +38,10 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		succeeds('xcode')
 
 		then:
-		result.assertTasksExecutedAndNotSkipped(":${projectName}XcodeProject", ':xcodeWorkspace', ':xcode')
+		result.assertTasksExecuted(allTasksToXcode)
 
 		and:
 		def result = xcodebuild.withWorkspace(xcodeWorkspace(workspaceName)).withScheme(schemeName).succeeds()
 		result.assertTasksExecuted(allTasksForBuildAction, ":_xcode___${projectName}_${schemeName}_Default")
-
-		and:
-		if (!componentUnderTest.files.empty) {
-			result.assertTasksNotSkipped(allTasksForBuildAction, ":_xcode___${projectName}_${schemeName}_Default")
-		}
 	}
 }

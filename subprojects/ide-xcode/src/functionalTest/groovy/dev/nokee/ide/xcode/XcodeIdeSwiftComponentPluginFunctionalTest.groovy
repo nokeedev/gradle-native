@@ -103,6 +103,11 @@ class XcodeIdeSwiftLibraryFunctionalTest extends AbstractXcodeIdeNativeComponent
 	protected List<String> getAllTasksForBuildAction() {
 		return tasks.allToLink
 	}
+
+	@Override
+	protected List<String> getAllTasksToXcode() {
+		return super.getAllTasksToXcode() + [tasks.compile]
+	}
 }
 
 class XcodeIdeSwiftLibraryWithoutSourceFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements SwiftTaskNames {
@@ -134,5 +139,10 @@ class XcodeIdeSwiftLibraryWithoutSourceFunctionalTest extends AbstractXcodeIdeNa
 	@Override
 	protected List<String> getAllTasksForBuildAction() {
 		return tasks.allToLink
+	}
+
+	@Override
+	protected List<String> getAllTasksToXcode() {
+		return super.getAllTasksToXcode() + [tasks.compile]
 	}
 }

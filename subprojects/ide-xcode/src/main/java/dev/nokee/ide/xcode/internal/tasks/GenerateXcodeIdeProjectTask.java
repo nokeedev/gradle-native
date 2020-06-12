@@ -19,10 +19,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import dev.nokee.ide.xcode.*;
+import dev.nokee.ide.xcode.internal.DefaultXcodeIdeBuildSettings;
 import dev.nokee.ide.xcode.internal.XcodeIdePropertyAdapter;
 import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
 import dev.nokee.ide.xcode.internal.xcodeproj.*;
-import dev.nokee.language.base.internal.UTTypeSourceCode;
 import dev.nokee.language.c.internal.UTTypeCSource;
 import dev.nokee.language.cpp.internal.UTTypeCppSource;
 import dev.nokee.language.objectivec.internal.UTTypeObjectiveCSource;
@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -76,6 +77,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 	@Inject
 	public GenerateXcodeIdeProjectTask(XcodeIdeProject xcodeProject) {
 		this.xcodeProject = xcodeProject;
+		this.dependsOn((Callable)() -> xcodeProject.getTargets().stream().flatMap(it -> it.getBuildConfigurations().stream()).map(it -> ((DefaultXcodeIdeBuildSettings)it.getBuildSettings()).getProviders()).collect(Collectors.toList()));
 	}
 
 	@Inject
