@@ -3,8 +3,8 @@ package dev.nokee.platform.cpp
 import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
 import dev.nokee.language.cpp.CppTaskNames
+import dev.nokee.platform.jni.fixtures.elements.CppGreeter
 import dev.nokee.platform.nativebase.fixtures.CppGreeterApp
-import dev.nokee.platform.nativebase.fixtures.CppGreeterLib
 
 class CppApplicationNativeLanguageCompilationFunctionalTest extends AbstractNativeLanguageCompilationFunctionalTest implements CppTaskNames {
 	@Override
@@ -44,7 +44,7 @@ class CppLibraryNativeLanguageCompilationFunctionalTest extends AbstractNativeLa
 
 	@Override
 	protected NativeSourceElement getComponentUnderTest() {
-		return new CppGreeterLib()
+		return new CppGreeter()
 	}
 
 	@Override

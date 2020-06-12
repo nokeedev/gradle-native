@@ -5,8 +5,8 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
 import dev.nokee.language.swift.SwiftTaskNames
+import dev.nokee.platform.jni.fixtures.elements.SwiftGreeter
 import dev.nokee.platform.nativebase.fixtures.SwiftGreeterApp
-import dev.nokee.platform.nativebase.fixtures.SwiftGreeterLib
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
 class SwiftApplicationLanguageCompilationFunctionalTest extends AbstractNativeLanguageCompilationFunctionalTest implements SwiftTaskNames {
@@ -50,7 +50,7 @@ class SwiftLibraryNativeLanguageCompilationFunctionalTest extends AbstractNative
 
 	@Override
 	protected SourceElement getComponentUnderTest() {
-		return new SwiftGreeterLib()
+		return new SwiftGreeter()
 	}
 
 	@Override

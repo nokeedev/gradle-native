@@ -5,8 +5,8 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
 import dev.nokee.language.objectivecpp.ObjectiveCppTaskNames
+import dev.nokee.platform.jni.fixtures.ObjectiveCppGreeter
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCppGreeterApp
-import dev.nokee.platform.nativebase.fixtures.ObjectiveCppGreeterLib
 import spock.lang.Requires
 import spock.util.environment.OperatingSystem
 
@@ -60,7 +60,7 @@ class ObjectiveCppLibraryNativeLanguageCompilationFunctionalTest extends Abstrac
 
 	@Override
 	protected NativeSourceElement getComponentUnderTest() {
-		return new ObjectiveCppGreeterLib()
+		return new ObjectiveCppGreeter()
 	}
 
 	@Override

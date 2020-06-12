@@ -5,6 +5,7 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
 import dev.nokee.language.objectivec.ObjectiveCTaskNames
+import dev.nokee.platform.jni.fixtures.ObjectiveCGreeter
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCGreeterApp
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCGreeterLib
 import spock.lang.Requires
@@ -60,7 +61,7 @@ class ObjectiveCLibraryNativeLanguageCompilationFunctionalTest extends AbstractN
 
 	@Override
 	protected NativeSourceElement getComponentUnderTest() {
-		return new ObjectiveCGreeterLib()
+		return new ObjectiveCGreeter()
 	}
 
 	@Override
