@@ -1,87 +1,150 @@
 package dev.nokee.docs;
 
-import com.google.common.collect.ImmutableSet;
+import lombok.*;
+import org.gradle.api.tasks.Input;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
-import java.util.HashSet;
-import java.util.Set;
-
-import static java.util.Collections.emptySet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public abstract class PluginManagementBlock {
-	protected final Set<String> repositoryUris = new HashSet<>();
+	public abstract KotlinDslPluginManagementBlock asKotlinDsl();
 
-	private PluginManagementBlock(Set<String> repositoryUris) {
-		this.repositoryUris.addAll(repositoryUris);
+	public abstract GroovyDslPluginManagementBlock asGroovyDsl();
+
+	public PluginManagementBlock withRepository(String repository) {
+		throw new UnsupportedOperationException();
 	}
 
-	public static PluginManagementBlock asKotlinDsl() {
-		return new PluginManagementBlockWithoutVersion(emptySet()) {
+	public static PluginManagementBlockBuilder builder() {
+		return new PluginManagementBlockBuilder();
+	}
+
+	public static PluginManagementBlock none() {
+		return new PluginManagementBlock() {
 			@Override
-			public PluginManagementBlock withVersion(String version) {
-				return new KotlinDslPluginManagementBlock(version, emptySet());
+			public KotlinDslPluginManagementBlock asKotlinDsl() {
+				return new KotlinDslPluginManagementBlock() {
+					@Override
+					public KotlinDslPluginManagementBlock configureFromInitScript() {
+						return this;
+					}
+
+					@Override
+					public String toString() {
+						return "";
+					}
+				};
+			}
+
+			@Override
+			public GroovyDslPluginManagementBlock asGroovyDsl() {
+				return new GroovyDslPluginManagementBlock() {
+					@Override
+					public GroovyDslPluginManagementBlock configureFromInitScript() {
+						return this;
+					}
+
+					@Override
+					public String toString() {
+						return "";
+					}
+				};
 			}
 		};
 	}
 
-	public static PluginManagementBlock asGroovyDsl() {
-		return new PluginManagementBlockWithoutVersion(emptySet()) {
-			@Override
-			public PluginManagementBlock withVersion(String version) {
-				return new GroovyDslPluginManagementBlock(version, emptySet());
-			}
-		};
+	public static PluginManagementBlock nokee(String version) {
+		return builder()
+			.withPluginNamespace("dev.nokee")
+			.withVersion(version)
+			.withRepository("https://dl.bintray.com/nokeedev/distributions")
+			.withRepository("https://dl.bintray.com/nokeedev/distributions-snapshots")
+			.withVersionVariableName("nokeeVersion")
+			.build();
 	}
 
-	public abstract PluginManagementBlock withVersion(String version);
+	@AllArgsConstructor
+	public static class PluginManagementBlockBuilder {
+		@With private List<String> repositories;
+		@With private final String pluginNamespace;
+		@With private final String versionVariableName;
+		@With private final String version;
 
-	public abstract PluginManagementBlock withRepository(String uri);
-
-	public String configureFromInitScript() {
-		return "settingsEvaluated { settings ->\nsettings." + this.toString() + "\n}\n";
-	}
-
-	private static abstract class PluginManagementBlockWithoutVersion extends PluginManagementBlock {
-		PluginManagementBlockWithoutVersion(Set<String> repositoryUris) {
-			super(repositoryUris);
+		public PluginManagementBlockBuilder() {
+			this(Collections.emptyList(), null, null, null);
 		}
 
+		public PluginManagementBlockBuilder withRepository(String repository) {
+			List<String> result = new ArrayList<>();
+			result.addAll(repositories);
+			result.add(repository);
+			return withRepositories(result);
+		}
+
+		public PluginManagementBlock build() {
+			return new DefaultPluginManagementBlock(repositories, pluginNamespace, versionVariableName, version);
+		}
+	}
+
+	@ToString
+	@AllArgsConstructor
+	private static class DefaultPluginManagementBlock extends PluginManagementBlock {
+		@Getter(onMethod_={@Input}) @With private final List<String> repositories;
+		@Getter(onMethod_={@Input}) private final String pluginNamespace;
+		@Getter(onMethod_={@Input}) private final String versionVariableName;
+		@Getter(onMethod_={@Input}) private final String version;
+
+		public DefaultPluginManagementBlock withRepository(String repository) {
+			List<String> result = new ArrayList<>();
+			result.addAll(repositories);
+			result.add(repository);
+			return withRepositories(result);
+		}
+
+		public KotlinDslPluginManagementBlock asKotlinDsl() {
+			return new DefaultKotlinDslPluginManagementBlock(this);
+		}
+
+		public GroovyDslPluginManagementBlock asGroovyDsl() {
+			return new DefaultGroovyDslPluginManagementBlock(this);
+		}
+	}
+
+	public interface KotlinDslPluginManagementBlock {
+		KotlinDslPluginManagementBlock configureFromInitScript();
+	}
+
+	public interface GroovyDslPluginManagementBlock {
+		GroovyDslPluginManagementBlock configureFromInitScript();
+	}
+
+	@RequiredArgsConstructor
+	private static class DefaultKotlinDslPluginManagementBlock implements KotlinDslPluginManagementBlock {
+		private final DefaultPluginManagementBlock self;
+
 		@Override
-		public PluginManagementBlock withRepository(String uri) {
-			PluginManagementBlock delegate = this;
-			return new PluginManagementBlockWithoutVersion(ImmutableSet.<String>builder().addAll(repositoryUris).add(uri).build()) {
+		public KotlinDslPluginManagementBlock configureFromInitScript() {
+			return new KotlinDslPluginManagementBlock() {
 				@Override
-				public PluginManagementBlock withVersion(String version) {
-					// TODO: Support multiple repository
-					assert repositoryUris.size() == 1;
-					return delegate.withVersion(version).withRepository(uri);
+				public KotlinDslPluginManagementBlock configureFromInitScript() {
+					return this;
+				}
+
+				@Override
+				public String toString() {
+					ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+					PrintWriter out = new PrintWriter(outStream);
+					out.println("settingsEvaluated { settings ->");
+					out.println("	settings." + DefaultKotlinDslPluginManagementBlock.this.toString());
+					out.println("}");
+					out.println();
+					out.flush();;
+					return outStream.toString();
 				}
 			};
-		}
-
-		@Override
-		public String toString() {
-			throw new IllegalStateException("A version is needed");
-		}
-	}
-
-	private static class KotlinDslPluginManagementBlock extends PluginManagementBlock {
-		private final String version;
-
-		public KotlinDslPluginManagementBlock(String version, Set<String> repositoryUris) {
-			super(repositoryUris);
-			this.version = version;
-		}
-
-		@Override
-		public PluginManagementBlock withRepository(String uri) {
-			return new KotlinDslPluginManagementBlock(version, ImmutableSet.<String>builder().addAll(repositoryUris).add(uri).build());
-		}
-
-		@Override
-		public PluginManagementBlock withVersion(String version) {
-			return new KotlinDslPluginManagementBlock(version, repositoryUris);
 		}
 
 		@Override
@@ -89,17 +152,17 @@ public abstract class PluginManagementBlock {
 			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 			PrintWriter out = new PrintWriter(outStream);
 			out.println("pluginManagement {");
-			out.println("	repositories {");
-			out.println("		gradlePluginPortal()");
-			out.println("		" + maven("https://dl.bintray.com/nokeedev/distributions"));
-			out.println("		" + maven("https://dl.bintray.com/nokeedev/distributions-snapshots"));
-			repositoryUris.stream().map(KotlinDslPluginManagementBlock::maven).forEach(out::println);
-			out.println("	}");
-			out.println("	val nokeeVersion = \"" + version + "\"");
+			if (!self.repositories.isEmpty()) {
+				out.println("	repositories {");
+				out.println("		gradlePluginPortal()");
+				self.repositories.stream().map(DefaultKotlinDslPluginManagementBlock::maven).map(it -> "\t\t" + it).forEach(out::println);
+				out.println("	}");
+			}
+			out.println("	val " + self.versionVariableName + " = \"" + self.version + "\"");
 			out.println("	resolutionStrategy {");
 			out.println("		eachPlugin {");
-			out.println("			if (requested.id.id.startsWith(\"dev.nokee.\")) {");
-			out.println("				useModule(\"${requested.id.id}:${requested.id.id}.gradle.plugin:${nokeeVersion}\")");
+			out.println("			if (requested.id.id.startsWith(\"" + self.pluginNamespace + ".\")) {");
+			out.println("				useModule(\"${requested.id.id}:${requested.id.id}.gradle.plugin:${" + self.versionVariableName + "}\")");
 			out.println("			}");
 			out.println("		}");
 			out.println("	}");
@@ -114,22 +177,30 @@ public abstract class PluginManagementBlock {
 		}
 	}
 
-	private static class GroovyDslPluginManagementBlock extends PluginManagementBlock {
-		private final String version;
-
-		public GroovyDslPluginManagementBlock(String version, Set<String> repositoryUris) {
-			super(repositoryUris);
-			this.version = version;
-		}
+	@RequiredArgsConstructor
+	private static class DefaultGroovyDslPluginManagementBlock implements GroovyDslPluginManagementBlock {
+		private final DefaultPluginManagementBlock self;
 
 		@Override
-		public PluginManagementBlock withRepository(String uri) {
-			return new GroovyDslPluginManagementBlock(version, ImmutableSet.<String>builder().addAll(repositoryUris).add(uri).build());
-		}
+		public GroovyDslPluginManagementBlock configureFromInitScript() {
+			return new GroovyDslPluginManagementBlock() {
+				@Override
+				public GroovyDslPluginManagementBlock configureFromInitScript() {
+					return this;
+				}
 
-		@Override
-		public PluginManagementBlock withVersion(String version) {
-			return new GroovyDslPluginManagementBlock(version, repositoryUris);
+				@Override
+				public String toString() {
+					ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+					PrintWriter out = new PrintWriter(outStream);
+					out.println("settingsEvaluated { settings ->");
+					out.println("	settings." + DefaultGroovyDslPluginManagementBlock.this.toString());
+					out.println("}");
+					out.println();
+					out.flush();
+					return outStream.toString();
+				}
+			};
 		}
 
 		@Override
@@ -137,17 +208,17 @@ public abstract class PluginManagementBlock {
 			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 			PrintWriter out = new PrintWriter(outStream);
 			out.println("pluginManagement {");
-			out.println("	repositories {");
-			out.println("		gradlePluginPortal()");
-			out.println("		" + maven("https://dl.bintray.com/nokeedev/distributions"));
-			out.println("		" + maven("https://dl.bintray.com/nokeedev/distributions-snapshots"));
-			repositoryUris.stream().map(GroovyDslPluginManagementBlock::maven).forEach(out::println);
-			out.println("	}");
-			out.println("	def nokeeVersion = \"" + version + "\"");
+			if (!self.repositories.isEmpty()) {
+				out.println("	repositories {");
+				out.println("		gradlePluginPortal()");
+				self.repositories.stream().map(DefaultGroovyDslPluginManagementBlock::maven).map(it -> "\t\t" + it).forEach(out::println);
+				out.println("	}");
+			}
+			out.println("	def " + self.versionVariableName + " = \"" + self.version + "\"");
 			out.println("	resolutionStrategy {");
 			out.println("		eachPlugin {");
-			out.println("			if (requested.id.id.startsWith('dev.nokee.')) {");
-			out.println("				useModule(\"${requested.id.id}:${requested.id.id}.gradle.plugin:${nokeeVersion}\")");
+			out.println("			if (requested.id.id.startsWith('" + self.pluginNamespace + ".')) {");
+			out.println("				useModule(\"${requested.id.id}:${requested.id.id}.gradle.plugin:${" + self.versionVariableName + "}\")");
 			out.println("			}");
 			out.println("		}");
 			out.println("	}");

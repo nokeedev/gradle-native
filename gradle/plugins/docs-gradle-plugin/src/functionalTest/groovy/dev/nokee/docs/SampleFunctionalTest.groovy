@@ -16,7 +16,7 @@ class SampleFunctionalTest extends AbstractDocumentationFunctionalSpec implement
 		result.assertTasksExecutedAndNotSkipped(tasks.withSample('foo-bar').allToAssembleSamples)
 
 		and:
-		def indexDotAdoc = file('build/tmp/processFooBarSamplesAsciidoctorsMetadata/outputs/index.adoc')
+		def indexDotAdoc = file('build/tmp/stageFooBarSample/index.adoc')
 		indexDotAdoc.assertExists()
 		indexDotAdoc.text == ''':jbake-version: 4.2
 :toc:
@@ -60,7 +60,8 @@ BUILD SUCCESSFUL
 		succeeds('stageBake')
 		then:
 		result.assertTasksExecuted(tasks.withSample('foo-bar').allToStageBake)
-		file('build/staging').assertHasDescendants('assets/js/foo.js', 'content/docs/4.2/samples/foo-bar/index.adoc',
+		file('build/staging').assertHasDescendants('assets/js/foo.js',
+			'content/docs/4.2/samples/foo-bar/index.adoc', 'content/docs/4.2/samples/foo-bar/FooBar-4.2-groovy-dsl.zip', 'content/docs/4.2/samples/foo-bar/FooBar-4.2-kotlin-dsl.zip',
 			'content/docs/4.2/samples/foo-bar/groovy-dsl/.jbakeignore', 'content/docs/4.2/samples/foo-bar/groovy-dsl/build.gradle', 'content/docs/4.2/samples/foo-bar/groovy-dsl/settings.gradle', 'content/docs/4.2/samples/foo-bar/groovy-dsl/gradlew', 'content/docs/4.2/samples/foo-bar/groovy-dsl/gradlew.bat', 'content/docs/4.2/samples/foo-bar/groovy-dsl/gradle/wrapper/gradle-wrapper.jar', 'content/docs/4.2/samples/foo-bar/groovy-dsl/gradle/wrapper/gradle-wrapper.properties', 'content/docs/4.2/samples/foo-bar/groovy-dsl/src/main/java/com/example/Foo.java',
 			'content/docs/4.2/samples/foo-bar/kotlin-dsl/.jbakeignore', 'content/docs/4.2/samples/foo-bar/kotlin-dsl/build.gradle.kts', 'content/docs/4.2/samples/foo-bar/kotlin-dsl/settings.gradle.kts', 'content/docs/4.2/samples/foo-bar/kotlin-dsl/gradlew', 'content/docs/4.2/samples/foo-bar/kotlin-dsl/gradlew.bat', 'content/docs/4.2/samples/foo-bar/kotlin-dsl/gradle/wrapper/gradle-wrapper.jar', 'content/docs/4.2/samples/foo-bar/kotlin-dsl/gradle/wrapper/gradle-wrapper.properties', 'content/docs/4.2/samples/foo-bar/kotlin-dsl/src/main/java/com/example/Foo.java',
 			'content/page.adoc', 'jbake.properties', 'templates/index.gsp', 'templates/page.gsp')
@@ -71,6 +72,7 @@ BUILD SUCCESSFUL
 		makeSingleProject()
 		writeComponentUnderTest()
 		executer = executer.withBuildCacheEnabled().requireOwnGradleUserHomeDirectory()
+		executer = executer.withoutDeprecationChecks() // because of :bake task
 
 		when:
 		succeeds('assembleSamples')
@@ -89,6 +91,7 @@ BUILD SUCCESSFUL
 		makeSingleProject()
 		writeComponentUnderTest()
 		executer = executer.withBuildCacheEnabled().requireOwnGradleUserHomeDirectory()
+		executer = executer.withoutDeprecationChecks() // because of :bake task
 
 		when:
 		succeeds('assembleDocumentation')
@@ -106,6 +109,7 @@ BUILD SUCCESSFUL
 		given:
 		makeSingleProject()
 		writeComponentUnderTest()
+		executer = executer.withoutDeprecationChecks() // because of :bake task
 
 		when:
 		succeeds('assembleDocumentation')
@@ -124,7 +128,9 @@ Some more content
 		succeeds('assembleDocumentation', '-i')
 		then:
 		result.assertTasksExecuted(tasks.withSample('foo-bar').allToAssembleDocumentation)
-		result.assertTasksNotSkipped(':processFooBarSampleAsciidoctors', ':processFooBarSamplesAsciidoctorsMetadata', ':stageSamples', ':stageBake', ':bake', ':stageDocumentation', ':assembleDocumentation')
+		result.assertTasksNotSkipped(':processFooBarSampleAsciidoctor', ':stageFooBarSample', ':stageSamples', ':stageBake', ':bake',
+			':generateFooBarSampleAsciinema', ':compileFooBarSampleAsciicast',
+			':stageDocumentation', ':assembleDocumentation')
 	}
 
 	def "detects change to asciidoctor content"() {
@@ -149,7 +155,7 @@ Some more content
 		succeeds('assembleSamples')
 		then:
 		result.assertTasksExecuted(tasks.withSample('foo-bar').allToAssembleSamples)
-		result.assertTasksNotSkipped(':processFooBarSampleAsciidoctors', ':processFooBarSamplesAsciidoctorsMetadata', ':stageSamples',
+		result.assertTasksNotSkipped(':processFooBarSampleAsciidoctor', ':stageFooBarSample', ':stageSamples',
 			':assembleSamples')
 	}
 
@@ -175,7 +181,7 @@ Some more content
 		succeeds('assembleSamples')
 		then:
 		result.assertTasksExecuted(tasks.withSample('foo-bar').allToAssembleSamples)
-		result.assertTasksNotSkipped(':processFooBarGroovyDslSettingsFile', ':assembleFooBarGroovyDsl', ':zipFooBarGroovyDslSample', ':stageSamples', ':assembleSamples')
+		result.assertTasksNotSkipped(':zipFooBarSampleGroovyDsl', ':stageFooBarSample', ':stageSamples', ':assembleSamples')
 	}
 
 	def "detects change to Kotlin DSL content"() {
@@ -200,7 +206,7 @@ Some more content
 		succeeds('assembleSamples')
 		then:
 		result.assertTasksExecuted(tasks.withSample('foo-bar').allToAssembleSamples)
-		result.assertTasksNotSkipped(':processFooBarKotlinDslSettingsFile', ':assembleFooBarKotlinDsl', ':zipFooBarKotlinDslSample', ':stageSamples', ':assembleSamples')
+		result.assertTasksNotSkipped(':zipFooBarSampleKotlinDsl', ':stageFooBarSample', ':stageSamples', ':assembleSamples')
 	}
 
 	def "detects changes to project version"() {
@@ -219,7 +225,7 @@ Some more content
 		'''
 		succeeds('assembleSamples')
 		then:
-		result.assertTasksSkipped(':assembleFooBarGroovyDsl', ':assembleFooBarKotlinDsl', ':generateSamplesGradleWrapper', ':generateFooBarSampleContent', ':processFooBarSampleAsciidoctors')
+		result.assertTasksSkipped(':generateFooBarSampleGradleWrapper', ':generateFooBarSampleContent')
 		result.assertTasksExecuted(tasks.withSample('foo-bar').allToAssembleSamples)
 	}
 
@@ -259,10 +265,10 @@ Some more content
 		'''
 		succeeds('assembleSamples')
 		then:
-		result.assertTasksSkipped(':generateSamplesGradleWrapper',
+		result.assertTasksSkipped(':generateFooBarSampleGradleWrapper',
 			':configureGroovyDslSettingsConfiguration', ':processFooBarGroovyDslSettingsFile',
 			':configureKotlinDslSettingsConfiguration', ':processFooBarKotlinDslSettingsFile',
-			':processFooBarSampleAsciidoctors', ':processFooBarSamplesAsciidoctorsMetadata')
+			':processFooBarSampleAsciidoctor')
 		result.assertTasksExecuted(tasks.withSample('foo-bar').allToAssembleSamples)
 	}
 
@@ -275,15 +281,79 @@ Some more content
 		succeeds(tasks.withSample('foo-bar').zipKotlinDsl)
 		then:
 		result.assertTasksExecuted(tasks.withSample('foo-bar').allToZipKotlinDsl)
-		zip("build/tmp/zipFooBarKotlinDslSample/FooBar-4.2-kotlin-dsl.zip").hasDescendants('build.gradle.kts', 'settings.gradle.kts', 'gradlew', 'gradlew.bat', 'gradle/wrapper/gradle-wrapper.jar', 'gradle/wrapper/gradle-wrapper.properties', 'src/main/java/com/example/Foo.java')
+		zip("build/tmp/zipFooBarSampleKotlinDsl/FooBar-4.2-kotlin-dsl.zip").hasDescendants('build.gradle.kts', 'settings.gradle.kts', 'gradlew', 'gradlew.bat', 'gradle/wrapper/gradle-wrapper.jar', 'gradle/wrapper/gradle-wrapper.properties', 'src/main/java/com/example/Foo.java')
 
 		when:
 		succeeds(tasks.withSample('foo-bar').zipGroovyDsl)
 		then:
 		result.assertTasksExecuted(tasks.withSample('foo-bar').allToZipGroovyDsl)
-		zip("build/tmp/zipFooBarGroovyDslSample/FooBar-4.2-groovy-dsl.zip").hasDescendants('build.gradle', 'settings.gradle', 'gradlew', 'gradlew.bat', 'gradle/wrapper/gradle-wrapper.jar', 'gradle/wrapper/gradle-wrapper.properties', 'src/main/java/com/example/Foo.java')
+		zip("build/tmp/zipFooBarSampleGroovyDsl/FooBar-4.2-groovy-dsl.zip").hasDescendants('build.gradle', 'settings.gradle', 'gradlew', 'gradlew.bat', 'gradle/wrapper/gradle-wrapper.jar', 'gradle/wrapper/gradle-wrapper.properties', 'src/main/java/com/example/Foo.java')
 	}
 
+	def "can include png files"() {
+		given:
+		makeSingleProject()
+		writeComponentUnderTest()
+		file('src/docs/samples/foo-bar/image.png') << 'some-image-data'
+
+		when:
+		succeeds('assembleSamples')
+
+		then:
+		file('build/tmp/stageFooBarSample/image.png').assertExists()
+	}
+
+	def "can include gif files"() {
+		given:
+		makeSingleProject()
+		writeComponentUnderTest()
+		file('src/docs/samples/foo-bar/image.gif') << 'some-image-data'
+
+		when:
+		succeeds('assembleSamples')
+
+		then:
+		file('build/tmp/stageFooBarSample/image.gif').assertExists()
+	}
+
+	def "can specify another wrapper version"() {
+		given:
+		makeSingleProject()
+		writeComponentUnderTest()
+		buildFile << """
+			documentation.samples.'foo-bar'.minimumGradleVersion = '6.4'
+		"""
+
+		when:
+		succeeds('assembleSamples')
+
+		then:
+		file('build/tmp/stageFooBarSample/groovy-dsl/gradle/wrapper/gradle-wrapper.properties').text.contains('-6.4-')
+		file('build/tmp/stageFooBarSample/kotlin-dsl/gradle/wrapper/gradle-wrapper.properties').text.contains('-6.4-')
+	}
+
+	def "can generate samples with dot files"() {
+		given:
+		makeSingleProject()
+		writeComponentUnderTest()
+		file('src/docs/samples/foo-bar/foo.dot') << '''
+digraph G {
+a -> b
+}
+		'''
+		file('src/docs/samples/foo-bar/potato/bar.dot') << '''
+digraph G {
+a -> b
+}
+		'''
+
+		when:
+		succeeds('assembleSamples')
+
+		then:
+		file('build/tmp/stageFooBarSample/foo.png').assertExists()
+		file('build/tmp/stageFooBarSample/potato/bar.png').assertExists()
+	}
 
 	protected void makeSingleProject() {
 		buildFile << """

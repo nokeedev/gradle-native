@@ -34,15 +34,19 @@ trait DocumentationTaskNames {
 			}
 
 			String getGradleWrapper() {
-				return withProject('generateSamplesGradleWrapper')
+				return withProject("generate${toCamelCase(sampleName)}SampleGradleWrapper")
+			}
+
+			List<String> getAllToAssembleContent() {
+				return [withProject("generate${toCamelCase(sampleName)}SampleContent"), withProject("process${toCamelCase(sampleName)}SampleAsciidoctor")]
 			}
 
 			List<String> getAllToAssembleGroovyDsl() {
-				return [gradleWrapper, withProject("generate${toCamelCase(sampleName)}SampleContent"), withProject('configureGroovyDslSettingsConfiguration'), withProject("process${toCamelCase(sampleName)}GroovyDslSettingsFile"), withProject("assemble${toCamelCase(sampleName)}GroovyDsl")]
+				return [gradleWrapper, withProject("generate${toCamelCase(sampleName)}SampleContent"), withProject('configureGroovyDslSettingsConfiguration'), withProject("process${toCamelCase(sampleName)}GroovyDslSettingsFile")]
 			}
 
 			String getZipGroovyDsl() {
-				return withProject("zip${toCamelCase(sampleName)}GroovyDslSample")
+				return withProject("zip${toCamelCase(sampleName)}SampleGroovyDsl")
 			}
 
 			List<String> getAllToZipGroovyDsl() {
@@ -50,34 +54,40 @@ trait DocumentationTaskNames {
 			}
 
 			List<String> getAllToAssembleKotlinDsl() {
-				return [gradleWrapper, withProject("generate${toCamelCase(sampleName)}SampleContent"), withProject('configureKotlinDslSettingsConfiguration'), withProject("process${toCamelCase(sampleName)}KotlinDslSettingsFile"), withProject("assemble${toCamelCase(sampleName)}KotlinDsl")]
+				return [gradleWrapper, withProject("generate${toCamelCase(sampleName)}SampleContent"), withProject('configureKotlinDslSettingsConfiguration'), withProject("process${toCamelCase(sampleName)}KotlinDslSettingsFile")]
 			}
 
 			String getZipKotlinDsl() {
-				return withProject("zip${toCamelCase(sampleName)}KotlinDslSample")
+				return withProject("zip${toCamelCase(sampleName)}SampleKotlinDsl")
 			}
 
 			List<String> getAllToZipKotlinDsl() {
 				return allToAssembleKotlinDsl + [zipKotlinDsl]
 			}
 
+			List<String> getAllToStageSample() {
+				return allToAssembleGroovyDsl + allToAssembleKotlinDsl + allToAssembleContent + allToZipGroovyDsl + allToZipKotlinDsl + [withProject("stage${toCamelCase(sampleName)}Sample")]
+			}
+
 			List<String> getAllToStageSamples() {
-				return allToAssembleGroovyDsl + allToAssembleKotlinDsl +
-				 [withProject("process${toCamelCase(sampleName)}SampleAsciidoctors"), withProject("process${toCamelCase(sampleName)}SamplesAsciidoctorsMetadata"), withProject('stageSamples')]
+				return allToStageSample + [withProject('stageSamples')]
 			}
 
 			List<String> getAllToAssembleSamples() {
-				return allToStageSamples + [withProject('assembleSamples')] + allToZipGroovyDsl + allToZipKotlinDsl
+				return allToStageSample + [withProject('stageSamples'), withProject('assembleSamples')]
 			}
 
 			List<String> getAllToStageBake() {
 				return allToStageSamples + [withProject('assembleDsl'), withProject('dslMetaData'), withProject('processDocsAsciidoctors'), withProject('stageBake')]
 			}
 
+			List<String> getAllToSocial() {
+				// Missing some tasks here, but that is fine for now.
+				return [withProject("compile${toCamelCase(sampleName)}SampleAsciicast"), withProject("generate${toCamelCase(sampleName)}SampleAsciinema"), withProject("compile${toCamelCase(sampleName)}SampleGif"), withProject("extract${toCamelCase(sampleName)}SampleScreenshot"), withProject("create${toCamelCase(sampleName)}SampleEmbeddedPlayer")]
+			}
+
 			List<String> getAllToStageDocumentation() {
-				return allToStageSamples + allToZipGroovyDsl + allToZipKotlinDsl + [
-					withProject("generateSamplesAsciinema${toCamelCase(sampleName)}"),
-					withProject('assembleAsciicast'), withProject('compileDocsAsciicast'), withProject('extractDocsScreenshot'), withProject('compileDocsGif'), withProject('createDocsPlayer'),
+				return allToStageSamples + allToSocial + [
 					withProject('compileDocsDot'), withProject('processDocsAsciidoctors'),
 					withProject('assembleDsl'), withProject('dslMetaData'),
 					withProject('stageBake'), withProject('bake'),

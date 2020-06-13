@@ -1,7 +1,7 @@
 package dev.nokee.docs
 
-import dev.gradleplugins.integtests.fixtures.AbstractFunctionalSpec
+import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 
-class AbstractDocumentationFunctionalSpec extends AbstractFunctionalSpec implements DocumentationTaskNames, DocumentationPluginFixture {
+abstract class AbstractDocumentationFunctionalSpec extends AbstractGradleSpecification implements DocumentationTaskNames, DocumentationPluginFixture {
 
 }

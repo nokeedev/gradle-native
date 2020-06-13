@@ -5,7 +5,7 @@ import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceFile
 
 trait DocumentationPluginFixture {
-	abstract TestFile file(String path)
+	abstract TestFile file(Object... path)
 
 	String getPluginId() {
 		return 'dev.nokeebuild.documentation'

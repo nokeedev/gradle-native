@@ -7,13 +7,14 @@ class DocumentationPublishingFunctionalTest extends AbstractDocumentationFunctio
 		given:
 		makeSingleProject()
 		writeDocumentationUnderTest()
+		executer = executer.withoutDeprecationChecks()
 
 		when:
 		succeeds('publish')
 
 		then:
 		result.assertTasksExecuted(tasks.withSample('foo-bar').allToPublish)
-		zip('repo/com/example/baked/4.2/baked-4.2-baked.zip').hasDescendants('docs/4.2/samples/foo-bar/all-commands.embed.html', 'docs/4.2/samples/foo-bar/all-commands.gif', 'docs/4.2/samples/foo-bar/all-commands.mp4', 'docs/4.2/samples/foo-bar/all-commands.png', 'docs/4.2/samples/foo-bar/FooBar-4.2-groovy-dsl.zip', 'docs/4.2/samples/foo-bar/FooBar-4.2-kotlin-dsl.zip', 'docs/4.2/samples/foo-bar/index.html', 'index.html', 'page.html', 'js/foo.js')
+		zip('repo/com/example/baked/4.2/baked-4.2-baked.zip').hasDescendants('docs/4.2/samples/foo-bar/all-commands.embed.html', 'docs/4.2/samples/foo-bar/all-commands.gif', 'docs/4.2/samples/foo-bar/all-commands.mp4', 'docs/4.2/samples/foo-bar/all-commands.png', 'docs/4.2/samples/foo-bar/all-commands.cast', 'docs/4.2/samples/foo-bar/FooBar-4.2-groovy-dsl.zip', 'docs/4.2/samples/foo-bar/FooBar-4.2-kotlin-dsl.zip', 'docs/4.2/samples/foo-bar/index.html', 'index.html', 'page.html', 'js/foo.js')
 		zip('repo/com/example/jbake/4.2/jbake-4.2-templates.zip').hasDescendants('index.gsp', 'page.gsp')
 		file('repo/com/example/jbake/4.2/jbake-4.2.properties').text == jbakePropertiesContent
 	}

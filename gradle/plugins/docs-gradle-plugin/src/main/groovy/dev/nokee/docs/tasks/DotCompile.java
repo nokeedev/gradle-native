@@ -19,9 +19,6 @@ public abstract class DotCompile extends ProcessorTask {
 	@InputFiles
 	public abstract ConfigurableFileTree getSource();
 
-	@Input
-	public abstract Property<String> getRelativePath();
-
 	@TaskAction
 	private void doCompile(InputChanges inputChanges) {
 		if (!inputChanges.isIncremental()) {
@@ -58,6 +55,6 @@ public abstract class DotCompile extends ProcessorTask {
 
 	private File outputFileFor(File file) {
 		String relativePathFromSourceDirectory = getSource().getDir().toURI().relativize(file.toURI()).getPath().replace(".dot", ".png");
-		return getOutputDirectory().file(getRelativePath().get() + "/" + relativePathFromSourceDirectory).get().getAsFile();
+		return getOutputDirectory().file(relativePathFromSourceDirectory).get().getAsFile();
 	}
 }

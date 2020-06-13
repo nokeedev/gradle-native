@@ -7,7 +7,7 @@ import org.asciidoctor.ast.Block;
 import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.StructuralNode;
 import org.asciidoctor.jruby.ast.impl.ListImpl;
-import org.gradle.api.Action;
+import org.gradle.api.DefaultTask;
 import org.gradle.api.file.*;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -21,55 +21,101 @@ import javax.inject.Inject;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.*;
 import java.util.Optional;
+import java.util.*;
 
 import static org.asciidoctor.OptionsBuilder.options;
 import static org.codehaus.groovy.runtime.InvokerHelper.asList;
 
 @CacheableTask
-public abstract class CreateAsciinema extends ProcessorTask {
-	private final List<Sample> samples = new ArrayList<>();
+public abstract class CreateAsciinema extends DefaultTask {
+	@InputFile // TODO: We could extract the step for the fingerprinting
+	@PathSensitive(PathSensitivity.RELATIVE)
+	public abstract RegularFileProperty getContentFile();
 
-	public void sample(Action<? super Sample> action) {
-		Sample result = getObjectFactory().newInstance(Sample.class);
-		action.execute(result);
-		samples.add(result);
+	@InputFiles
+	@PathSensitive(PathSensitivity.RELATIVE)
+	public abstract ConfigurableFileCollection getSource();
+
+	@Classpath
+	public abstract ConfigurableFileCollection getClasspath();
+
+	@Input
+	public abstract Property<String> getVersion();
+
+	@Nested
+	public abstract Property<PluginManagementBlock> getPluginManagementBlock();
+
+	@Internal
+	public abstract DirectoryProperty getLocalRepository();
+
+	@OutputFile
+	public abstract RegularFileProperty getAsciicastFile();
+
+	@InputFiles
+	@PathSensitive(PathSensitivity.RELATIVE)
+	@org.gradle.api.tasks.Optional
+	protected Set<File> getLocalRepositoryIfNeeded() {
+		if (!getLocalRepository().isPresent()) {
+			return null;
+		}
+		File value = getLocalRepository().get().getAsFile();
+		if (!value.exists()) {
+			return null;
+		}
+		ConfigurableFileTree result = getObjectFactory().fileTree().setDir(value);
+		result.include("**/*.jar");
+		return result.getFiles();
 	}
+
+	@Inject
+	public CreateAsciinema() {
+		getAsciicastFile().value(getLayout().getBuildDirectory().file("tmp/" + getName() + "/all-commands.cast")).disallowChanges();
+	}
+
+	@Inject
+	protected abstract FileSystemOperations getFileOperations();
+
+	@Inject
+	protected abstract WorkerExecutor getWorkerExecutor();
+
+	@Inject
+	protected abstract ObjectFactory getObjectFactory();
+
+	@Inject
+	protected abstract ProjectLayout getLayout();
 
 	@TaskAction
 	private void doCreate() {
-		samples.forEach(sample -> {
-			getWorkerExecutor().processIsolation(it -> {
-				it.getClasspath().from(getClasspath());
-				it.forkOptions(fork -> {
-					fork.setEnvironment(System.getenv());
-				});
-			}).submit(CreateAsciinemaAction.class, it -> {
-				it.getContentFile().set(sample.getContentFile());
-				it.getOutputFile().set(getOutputDirectory().file(getRelativePath().get() + "/" + sample.getPermalink().get() + "/all-commands.cast"));
-				it.getLogFile().set(new File(getTemporaryDir(), "logs/" + getRelativePath().get() + "/" + sample.getPermalink().get() + "/all-commands.txt"));
-
-				try {
-					File workingDirectory = Files.createTempDirectory("").toFile();
-					it.getSource().set(workingDirectory);
-					getFileOperations().sync(spec -> {
-						spec.from(sample.getSource().get().getAsFile());
-						spec.into(workingDirectory);
-					});
-
-					File homeDirectory = Files.createTempDirectory("").toFile();
-					File gradleUserHomeDirectory = new File(homeDirectory, ".gradle");
-					File initScript = new File(gradleUserHomeDirectory, "init.d/init.gradle");
-					initScript.getParentFile().mkdirs();
-					FileUtils.write(initScript, PluginManagementBlock.asGroovyDsl().withVersion(getVersion().get()).withRepository(getLocalRepository().get().getAsFile().getAbsolutePath()).configureFromInitScript(), Charset.defaultCharset());
-					Files.createSymbolicLink(new File(gradleUserHomeDirectory, "wrapper").toPath(), new File(System.getProperty("user.home") + "/.gradle/wrapper").toPath());
-					it.getGradleUserHomeDirectory().set(gradleUserHomeDirectory);
-					it.getHomeDirectory().set(homeDirectory);
-				} catch (IOException e) {
-					throw new UncheckedIOException(e);
-				}
+		getWorkerExecutor().processIsolation(it -> {
+			it.getClasspath().from(getClasspath());
+			it.forkOptions(fork -> {
+				fork.setEnvironment(System.getenv());
 			});
+		}).submit(CreateAsciinemaAction.class, it -> {
+			it.getContentFile().set(getContentFile());
+			it.getOutputFile().set(getAsciicastFile());
+			it.getLogFile().set(new File(getTemporaryDir(), "all-commands.txt"));
+
+			try {
+				File workingDirectory = Files.createTempDirectory("").toFile();
+				it.getSource().set(workingDirectory);
+				getFileOperations().sync(spec -> {
+					spec.from(getSource());
+					spec.into(workingDirectory);
+				});
+
+				File homeDirectory = Files.createTempDirectory("").toFile();
+				File gradleUserHomeDirectory = new File(homeDirectory, ".gradle");
+				File initScript = new File(gradleUserHomeDirectory, "init.d/init.gradle");
+				initScript.getParentFile().mkdirs();
+				FileUtils.write(initScript, getPluginManagementBlock().get().asGroovyDsl().configureFromInitScript().toString(), Charset.defaultCharset());
+				Files.createSymbolicLink(new File(gradleUserHomeDirectory, "wrapper").toPath(), new File(System.getProperty("user.home") + "/.gradle/wrapper").toPath());
+				it.getGradleUserHomeDirectory().set(gradleUserHomeDirectory);
+				it.getHomeDirectory().set(homeDirectory);
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
 		});
 	}
 
@@ -158,7 +204,7 @@ See http://patorjk.com/software/taag/
  | .` / _ \ / / -_) -_) \__ \/ _` | '  \| '_ \ / -_|_-<
  |_|\_\___/_\_\___\___| |___/\__,_|_|_|_| .__/_\___/__/
                                         |_|
-Painless development for C++ and C.
+Painless development for any native language with Gradle.
 
 Learn more at https://nokee.dev
 			 */
@@ -189,57 +235,6 @@ Learn more at https://nokee.dev
 
 		@Inject
 		protected abstract FileSystemOperations getFileOperations();
-	}
-
-	@Classpath
-	public abstract ConfigurableFileCollection getClasspath();
-
-	@Input
-	public abstract Property<String> getRelativePath();
-
-	@Input
-	public abstract Property<String> getVersion();
-
-	@Internal
-	public abstract DirectoryProperty getLocalRepository();
-
-	@InputFiles
-	@PathSensitive(PathSensitivity.RELATIVE)
-	@org.gradle.api.tasks.Optional
-	protected Set<File> getLocalRepositoryIfNeeded() {
-		if (!getLocalRepository().isPresent()) {
-			return null;
-		}
-		File value = getLocalRepository().get().getAsFile();
-		if (!value.exists()) {
-			return null;
-		}
-		ConfigurableFileTree result = getObjectFactory().fileTree().setDir(value);
-		result.include("**/*.jar");
-		return result.getFiles();
-	}
-
-	@Inject
-	protected abstract FileSystemOperations getFileOperations();
-
-	@Inject
-	protected abstract WorkerExecutor getWorkerExecutor();
-
-	@Inject
-	protected abstract ObjectFactory getObjectFactory();
-
-
-	public interface Sample {
-		@InputFile
-		@PathSensitive(PathSensitivity.RELATIVE)
-		RegularFileProperty getContentFile();
-
-		@Input
-		Property<String> getPermalink();
-
-		@InputDirectory
-		@PathSensitive(PathSensitivity.RELATIVE)
-		DirectoryProperty getSource();
 	}
 
 	public static class CommandLine {

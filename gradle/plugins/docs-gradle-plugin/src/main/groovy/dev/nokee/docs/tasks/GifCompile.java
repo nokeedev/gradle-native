@@ -1,62 +1,44 @@
 package dev.nokee.docs.tasks;
 
-import org.gradle.api.file.ConfigurableFileTree;
-import org.gradle.api.file.FileType;
+import org.apache.commons.io.FilenameUtils;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.*;
 import org.gradle.process.ExecOperations;
-import org.gradle.work.ChangeType;
-import org.gradle.work.FileChange;
-import org.gradle.work.InputChanges;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
 import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.stream.StreamSupport;
 
 @CacheableTask
-public abstract class GifCompile extends ProcessorTask {
+public abstract class GifCompile extends DefaultTask {
+	@InputFile
 	@PathSensitive(PathSensitivity.RELATIVE)
-	@InputFiles
-	public abstract ConfigurableFileTree getSource();
+	public abstract RegularFileProperty getGifVideoFile();
 
-	@TaskAction
-	private void doCompile(InputChanges inputChanges) {
-		if (!inputChanges.isIncremental()) {
-			getSource().forEach(this::submitCompileFile);
-		} else {
-			StreamSupport.stream(inputChanges.getFileChanges(getSource()).spliterator(), false).filter(GifCompile::notDirectoryChanges).forEach(this::processChanges);
-		}
+	@OutputFile
+	public abstract RegularFileProperty getMp4VideoFile();
+
+	@Inject
+	public GifCompile() {
+		getMp4VideoFile().value(getLayout().getBuildDirectory().file(getGifVideoFile().map(it -> "tmp/" + getName() + "/" + FilenameUtils.removeExtension(it.getAsFile().getName()) + ".mp4"))).disallowChanges();
 	}
 
-	private static boolean notDirectoryChanges(FileChange fileChange) {
-		return fileChange.getFileType() != FileType.DIRECTORY;
-	}
-
-	private void processChanges(FileChange fileChange) {
-		File targetFile = getOutputDirectory().file(fileChange.getNormalizedPath()).get().getAsFile();
-		if (fileChange.getChangeType() == ChangeType.REMOVED) {
-			targetFile.delete();
-		} else {
-			submitCompileFile(fileChange.getFile());
-		}
-	}
+	@Inject
+	protected abstract ProjectLayout getLayout();
 
 	@Inject
 	protected abstract WorkerExecutor getWorkerExecutor();
 
-	private void submitCompileFile(File sourceFile) {
+	@TaskAction
+	private void doCompile() {
 		getWorkerExecutor().classLoaderIsolation().submit(CompileAction.class, it -> {
-			it.getInputFile().set(sourceFile);
-			it.getOutputFile().set(outputFileFor(sourceFile));
+			it.getInputFile().set(getGifVideoFile());
+			it.getOutputFile().set(getMp4VideoFile());
 		});
-	}
-
-	private File outputFileFor(File file) {
-		String relativePathFromSourceDirectory = getSource().getDir().toURI().relativize(file.toURI()).getPath().replace(".gif", ".mp4");
-		return getOutputDirectory().file(relativePathFromSourceDirectory).get().getAsFile();
 	}
 
 	public interface CompileParameters extends WorkParameters {
@@ -75,7 +57,7 @@ public abstract class GifCompile extends ProcessorTask {
 			outputFile.getParentFile().mkdirs();
 
 			getExecOperations().exec(spec -> {
-				spec.commandLine("ffmpeg", "-filter_threads", "1", "-loglevel", "fatal", "-f", "gif", "-i", getParameters().getInputFile().get().getAsFile().getAbsolutePath(), outputFile.getAbsolutePath());
+				spec.commandLine("ffmpeg", "-y", "-filter_threads", "1", "-loglevel", "fatal", "-f", "gif", "-i", getParameters().getInputFile().get().getAsFile().getAbsolutePath(), outputFile.getAbsolutePath());
 			});
 		}
 	}
