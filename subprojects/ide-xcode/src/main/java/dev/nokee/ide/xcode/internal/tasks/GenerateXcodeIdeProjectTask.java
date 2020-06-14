@@ -35,6 +35,8 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemLocation;
+import org.gradle.api.internal.tasks.TaskDependencyContainer;
+import org.gradle.api.internal.tasks.TaskDependencyResolveContext;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
@@ -46,7 +48,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -77,7 +78,17 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 	@Inject
 	public GenerateXcodeIdeProjectTask(XcodeIdeProject xcodeProject) {
 		this.xcodeProject = xcodeProject;
-		this.dependsOn((Callable)() -> xcodeProject.getTargets().stream().flatMap(it -> it.getBuildConfigurations().stream()).map(it -> ((DefaultXcodeIdeBuildSettings)it.getBuildSettings()).getProviders()).collect(Collectors.toList()));
+		// Workaround for https://github.com/gradle/gradle/issues/13405, this really sucks...
+		this.dependsOn(new TaskDependencyContainer() {
+			@Override
+			public void visitDependencies(TaskDependencyResolveContext context) {
+				xcodeProject.getTargets().stream().flatMap(it -> it.getBuildConfigurations().stream()).flatMap(it -> ((DefaultXcodeIdeBuildSettings)it.getBuildSettings()).getProviders().stream()).forEach(it -> {
+					if (it instanceof TaskDependencyContainer) {
+						((TaskDependencyContainer) it).visitDependencies(context);
+					}
+				});
+			}
+		});
 	}
 
 	@Inject
