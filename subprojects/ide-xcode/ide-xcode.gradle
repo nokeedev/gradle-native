@@ -25,14 +25,6 @@ dependencies {
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
-	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
-	testImplementation 'org.spockframework:spock-core'
-	testImplementation gradleApi(minimumGradleVersion)
-	testImplementation "org.codehaus.groovy:groovy-all:2.5.8"
-
-	functionalTestImplementation testFixtures(project(':languageNative'))
-	functionalTestImplementation testFixtures(project(':platformBase'))
 }
 
 gradlePlugin {
@@ -44,7 +36,7 @@ gradlePlugin {
 	}
 }
 
-components.functionalTest {
+functionalTest {
 	dependencies {
 		pluginUnderTestMetadata project(':languageNative')
 		pluginUnderTestMetadata project(':platformIos')
@@ -52,5 +44,7 @@ components.functionalTest {
 		implementation project(':platformJni')
 		implementation 'com.googlecode.plist:dd-plist:1.23'
 		implementation 'dev.nokee:templates:latest.integration'
+		implementation testFixtures(project(':languageNative'))
+		implementation testFixtures(project(':platformBase'))
 	}
 }

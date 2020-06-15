@@ -37,11 +37,7 @@ docsTest.dependsOn('assembleSamples')
 dependencies {
 	docsTestImplementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
 	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
-	docsTestImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {
-		capabilities {
-			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
-		}
-	}
+	docsTestImplementation gradleFixtures()
 	docsTestImplementation gradleApi(minimumGradleVersion) // Is this really needed?
 
 	docsTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"

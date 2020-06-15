@@ -1,6 +1,8 @@
 plugins {
 	id 'dev.gradleplugins.groovy-gradle-plugin'
 	id 'java-test-fixtures'
+	id 'dev.gradleplugins.gradle-plugin-functional-test'
+	id 'dev.gradleplugins.gradle-plugin-unit-test'
 }
 
 group = 'dev.nokee.docs'
@@ -28,7 +30,7 @@ dependencies {
 	compileOnly 'org.asciidoctor:asciidoctorj-api:2.2.0'
 	compileOnly 'org.asciidoctor:asciidoctorj:2.2.0'
 	implementation "dev.gradleplugins:gradle-plugin-development:${toolboxVersion}"
-	implementation "dev.gradleplugins:gradle-fixtures:${toolboxVersion}"
+	implementation gradleFixtures()
 	implementation "org.apache.commons:commons-exec:${commonsExecVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation 'org.jbake:jbake-gradle-plugin:5.0.0'
@@ -50,10 +52,21 @@ dependencies {
 	testFixturesImplementation 'junit:junit:4.13'
 	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	testFixturesCompileOnly "org.codehaus.groovy:groovy-xml:${groovyVersion}"
+}
 
-	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
-	testImplementation 'org.spockframework:spock-core'
-	testImplementation gradleApi(minimumGradleVersion)
-	testImplementation 'net.bytebuddy:byte-buddy:1.10.9'
-	testImplementation "org.objenesis:objenesis:3.1"
+test {
+	dependencies {
+		implementation spockFramework()
+		implementation groovy()
+		runtimeOnly 'net.bytebuddy:byte-buddy:1.10.9'
+		runtimeOnly 'org.objenesis:objenesis:3.1'
+	}
+}
+
+functionalTest {
+	dependencies {
+		implementation spockFramework()
+		implementation gradleFixtures()
+		implementation gradleTestKit()
+	}
 }

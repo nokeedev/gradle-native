@@ -22,26 +22,13 @@ dependencies {
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
-	testImplementation 'org.spockframework:spock-core'
-	testImplementation gradleApi(minimumGradleVersion)
-	testRuntimeOnly 'net.bytebuddy:byte-buddy:1.10.10' // Because NamingScheme is not an interface
-	testRuntimeOnly 'org.objenesis:objenesis:3.1' // Because NamingScheme is not an interface
-
 	testFixturesImplementation project(':runtimeNative')
 	testFixturesImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testFixturesImplementation 'org.spockframework:spock-core'
 	testFixturesImplementation gradleApi(minimumGradleVersion)
 	testFixturesImplementation 'org.hamcrest:hamcrest:2.2'
 	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	testFixturesImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {
-		capabilities {
-			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
-		}
-	}
-
-	functionalTestImplementation testFixtures(project(':platformNative'))
-	functionalTestImplementation testFixtures(project(':languageNative'))
+	testFixturesImplementation gradleFixtures()
 }
 
 gradlePlugin {
@@ -89,8 +76,17 @@ gradlePlugin {
 	}
 }
 
-components.functionalTest {
+test {
+	dependencies {
+		runtimeOnly 'net.bytebuddy:byte-buddy:1.10.10' // Because NamingScheme is not an interface
+		runtimeOnly 'org.objenesis:objenesis:3.1' // Because NamingScheme is not an interface
+	}
+}
+
+functionalTest {
 	dependencies {
 		implementation 'dev.nokee:templates:latest.integration'
+		implementation testFixtures(project(':platformNative'))
+		implementation testFixtures(project(':languageNative'))
 	}
 }

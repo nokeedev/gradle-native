@@ -24,20 +24,6 @@ dependencies {
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
-	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
-	testImplementation 'org.spockframework:spock-core'
-	testImplementation gradleApi(minimumGradleVersion)
-	testImplementation("dev.gradleplugins:gradle-fixtures:${toolboxVersion}") {
-		capabilities {
-			requireCapability('dev.gradleplugins:gradle-fixtures-spock-support')
-		}
-	}
-	testImplementation(testFixtures(project(':platformNative')))
-
-	functionalTestImplementation testFixtures(project(':platformBase'))
-	functionalTestImplementation testFixtures(project(':platformNative'))
-	functionalTestImplementation testFixtures(project(':languageNative'))
 }
 
 gradlePlugin {
@@ -53,12 +39,21 @@ gradlePlugin {
 	}
 }
 
-components.functionalTest {
+test {
+	dependencies {
+		implementation testFixtures(project(':platformNative'))
+	}
+}
+
+functionalTest {
 	dependencies {
 		compileOnly "org.projectlombok:lombok:${lombokVersion}"
 		annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation project(':coreExec')
 		pluginUnderTestMetadata project(':coreExec')
+		implementation testFixtures(project(':platformBase'))
+		implementation testFixtures(project(':platformNative'))
+		implementation testFixtures(project(':languageNative'))
 	}
 }

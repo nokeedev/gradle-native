@@ -91,8 +91,27 @@ subprojects {
 // Configure functionalTest
 subprojects {
 	pluginManager.withPlugin('dev.gradleplugins.java-gradle-plugin') {
-		components.functionalTest {
+		apply plugin: 'dev.gradleplugins.gradle-plugin-functional-test'
+		functionalTest {
 			testingStrategies = [strategies.coverageForMinimumVersion, strategies.coverageForLatestGlobalAvailableVersion, strategies.coverageForLatestNightlyVersion]
+			dependencies {
+				implementation spockFramework()
+				implementation gradleFixtures()
+				implementation gradleTestKit()
+			}
+		}
+	}
+}
+
+// Configure test
+subprojects {
+	pluginManager.withPlugin('dev.gradleplugins.java-gradle-plugin') {
+		apply plugin: 'dev.gradleplugins.gradle-plugin-unit-test'
+		functionalTest {
+			dependencies {
+				implementation spockFramework()
+				implementation groovy()
+			}
 		}
 	}
 }
