@@ -95,7 +95,7 @@ class CGreeter extends CLibraryElement {
 
 #include <string.h>
 
-char * EXPORT_FUNC say_hello(const char * name);
+EXPORT_FUNC char * say_hello(const char * name);
 """))
 		source = ofFile(sourceFile('c', 'greeter_impl.c', """
 #include "greeter.h"
