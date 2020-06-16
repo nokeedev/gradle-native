@@ -3,6 +3,7 @@ package dev.nokee.ide.xcode
 import dev.nokee.platform.jni.JvmJarBinary
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
 import dev.nokee.platform.nativebase.SharedLibraryBinary
+import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal
 import org.gradle.internal.os.OperatingSystem
 
 class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalSpec implements JavaObjectiveCJniLibraryXcodeIdeFixture {
@@ -18,6 +19,7 @@ class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalS
 
 			import ${JvmJarBinary.canonicalName}
 			import ${SharedLibraryBinary.canonicalName}
+			import ${SharedLibraryBinaryInternal.canonicalName} // TODO: Remove this requirement
 
 			library {
 				binaries.configureEach(${SharedLibraryBinary.simpleName}) {
