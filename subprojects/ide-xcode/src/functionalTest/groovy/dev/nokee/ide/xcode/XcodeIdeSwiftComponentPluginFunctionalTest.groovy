@@ -38,6 +38,11 @@ class XcodeIdeSwiftApplicationFunctionalTest extends AbstractXcodeIdeNativeCompo
 	protected List<String> getAllTasksForBuildAction() {
 		return tasks.allToLink
 	}
+
+	@Override
+	protected List<String> getAllTasksToXcode() {
+		return super.getAllTasksToXcode() + [tasks.compile]
+	}
 }
 
 class XcodeIdeSwiftApplicationWithoutSourceFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements SwiftTaskNames {
@@ -69,6 +74,11 @@ class XcodeIdeSwiftApplicationWithoutSourceFunctionalTest extends AbstractXcodeI
 	@Override
 	protected List<String> getAllTasksForBuildAction() {
 		return tasks.allToLink
+	}
+
+	@Override
+	protected List<String> getAllTasksToXcode() {
+		return super.getAllTasksToXcode() + [tasks.compile]
 	}
 }
 
