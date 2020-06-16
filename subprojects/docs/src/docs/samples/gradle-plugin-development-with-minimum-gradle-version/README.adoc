@@ -8,7 +8,7 @@
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer], https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
 This sample shows how the minimum Gradle version modelling offered by `dev.gradleplugins.java-gradle-plugin` (and `dev.gradleplugins.groovy-gradle-plugin`) can improve your Gradle plugin development.
-The plugin only has dependencies on the redistributed Gradle API, <<../../gradle-plugin-development.adoc#sec:gradle-dev-redistributed-gradle-api,see this chapter for more information>>.
+The plugin only has dependencies on the redistributed Gradle API, <<../../manual/gradle-plugin-development.adoc#sec:gradle-dev-redistributed-gradle-api,see this chapter for more information>>.
 The build also has a minimal configuration with a vanilla TestKit test.
 
 ====
