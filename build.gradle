@@ -97,7 +97,6 @@ subprojects {
 			dependencies {
 				implementation spockFramework()
 				implementation gradleFixtures()
-				implementation gradleTestKit()
 			}
 		}
 	}
