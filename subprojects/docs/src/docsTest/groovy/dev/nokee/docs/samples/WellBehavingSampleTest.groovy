@@ -235,6 +235,11 @@ abstract class WellBehavingSampleTest extends Specification {
 			def result = executer.run()
 			def expectedResult = OutputScrapingExecutionResult.from(command.expectedOutput.get(), '')
 
+			def asserter = new StartsWithOutputAsserter()
+			if (command.expectedOutput.get().startsWith('...\n') && command.expectedOutput.get().endsWith('\n...')) {
+				asserter = new ContainsOutputAsserter()
+			}
+
 			def stdout = result.getPlainTextOutput()
 			if (SystemUtils.IS_OS_WINDOWS) {
 				stdout = result.getPlainTextOutput().split('\n').drop(2).join('\n')
@@ -244,11 +249,11 @@ abstract class WellBehavingSampleTest extends Specification {
 			//    The second option will need to be verbose (at least log when it's replacing paths)
 			//    Here we did a poor-man per task normalizer but it's simply because we don't detect what "look like a path", we dumbly convert \\ to /
 			if (command.args.contains('outgoingVariants')) {
-				assert OutputScrapingExecutionResult.normalize(LogContent.of(stdout)).replace(' in 0s', '').replace('\\', '/').startsWith(expectedResult.getOutput())
+				asserter.assertOutput(OutputScrapingExecutionResult.normalize(LogContent.of(stdout)).replace(' in 0s', '').replace('\\', '/'), expectedResult.getOutput())
 			} else if (command.args.contains('xcode')) {
-				assert OutputScrapingExecutionResult.normalize(LogContent.of(stdout)).replace(' in 0s', '').replace(new ConsoleRenderer().asClickableFileUrl(testDirectory), 'file://').replace('\\', '/').startsWith(expectedResult.getOutput())
+				asserter.assertOutput(OutputScrapingExecutionResult.normalize(LogContent.of(stdout)).replace(' in 0s', '').replace(new ConsoleRenderer().asClickableFileUrl(testDirectory), 'file://').replace('\\', '/'), expectedResult.getOutput())
 			} else {
-				assert OutputScrapingExecutionResult.normalize(LogContent.of(stdout)).replace(' in 0s', '').startsWith(expectedResult.getOutput())
+				asserter.assertOutput(OutputScrapingExecutionResult.normalize(LogContent.of(stdout)).replace(' in 0s', ''), expectedResult.getOutput())
 			}
 		}
 
@@ -256,6 +261,29 @@ abstract class WellBehavingSampleTest extends Specification {
 		void assertNoTimingInformationOnBuildResult() {
 			command.expectedOutput.ifPresent { output ->
 				assert !BUILD_RESULT_PATTERN.matcher(output).find()
+			}
+		}
+	}
+
+	interface OutputAsserter {
+		void assertOutput(String stdout, String expected)
+	}
+
+	class StartsWithOutputAsserter implements OutputAsserter {
+		@Override
+		void assertOutput(String stdout, String expected) {
+			assert stdout.startsWith(expected)
+		}
+	}
+
+	class ContainsOutputAsserter implements OutputAsserter {
+		@Override
+		void assertOutput(String stdout, String expected) {
+			def tokens = expected.split("\n?\\.\\.\\.\n?")
+			tokens.drop(1) // the first element is empty because of the first ...\n
+			assert tokens.size() > 0
+			tokens.each {
+				assert stdout.contains(it)
 			}
 		}
 	}
