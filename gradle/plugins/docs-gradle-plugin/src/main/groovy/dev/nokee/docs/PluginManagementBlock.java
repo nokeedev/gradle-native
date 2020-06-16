@@ -14,9 +14,7 @@ public abstract class PluginManagementBlock {
 
 	public abstract GroovyDslPluginManagementBlock asGroovyDsl();
 
-	public PluginManagementBlock withRepository(String repository) {
-		throw new UnsupportedOperationException();
-	}
+	public abstract PluginManagementBlock withRepository(String repository);
 
 	public static PluginManagementBlockBuilder builder() {
 		return new PluginManagementBlockBuilder();
@@ -24,6 +22,11 @@ public abstract class PluginManagementBlock {
 
 	public static PluginManagementBlock none() {
 		return new PluginManagementBlock() {
+			@Override
+			public PluginManagementBlock withRepository(String repository) {
+				return this;
+			}
+
 			@Override
 			public KotlinDslPluginManagementBlock asKotlinDsl() {
 				return new KotlinDslPluginManagementBlock() {
