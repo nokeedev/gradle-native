@@ -157,7 +157,7 @@ abstract class WellBehavingSampleTest extends Specification {
 	def "can execute commands successfully"(dsl) {
 		println "Sample under test directory: " + temporaryFolder.testDirectory.absolutePath
 		toolChain = AvailableToolChains.getToolChain(toolChainRequirement)
-		assumeTrue(toolChain.meets(ToolChainRequirement.AVAILABLE))
+		assumeTrue(toolChain != null && toolChain.meets(ToolChainRequirement.AVAILABLE))
 
 		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
 
