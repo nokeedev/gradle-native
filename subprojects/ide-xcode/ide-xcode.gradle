@@ -46,5 +46,6 @@ functionalTest {
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation testFixtures(project(':languageNative'))
 		implementation testFixtures(project(':platformBase'))
+		implementation gradleApi(minimumGradleVersion)
 	}
 }
