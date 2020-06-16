@@ -1,0 +1,108 @@
+= Gradle Runtime Compatibilities
+:jbake-summary: Use the plugin development toolbox to access Gradle runtime compatibility information.
+:jbake-type: sample_chapter
+:jbake-tags: sample, gradle plugin development, gradle
+:jbake-category: Gradle Plugin Development
+:jbake-description: See how the Nokee team is helping the Gradle community develop better plugin by providing Gradle runtime compatibility information.
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer], https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how to use the plugin development toolbox to query Gradle runtime compatibility information to configure non-plugin projects.
+The project is a simple Java library targeting Gradle runtime with project builder tests.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+<1> Query the minimum Java version for the specified Gradle version.
+<2> Configure a Maven repository containing the redistributed Gradle API artifacts with the sources.
+<3> Configure Maven central repository to resolve `groovy-all` and `kotlin-stdlib` runtime dependencies of the Gradle API.
+<4> Add compile only dependency to the specified Gradle API.
+<5> Add compile and runtime dependency to the specified Gradle API.
+
+To build and test the plugin:
+
+[listing.terminal]
+----
+$ ./gradlew test
+
+BUILD SUCCESSFUL
+3 actionable tasks: 3 executed
+----
+
+The plugin builds and executes the test as expected.
+The important point here is the compile vs runtime dependencies:
+
+[listing.terminal]
+----
+$ ./gradlew dependencies
+...
+compileClasspath - Compile classpath for source set 'main'.
+\--- dev.gradleplugins:gradle-api:4.9
+     \--- org.codehaus.groovy:groovy:2.4.12
+...
+testCompileClasspath - Compile classpath for source set 'test'.
++--- dev.gradleplugins:gradle-api:4.9
+|    \--- org.codehaus.groovy:groovy:2.4.12
++--- org.spockframework:spock-bom:1.2-groovy-2.4
+|    \--- org.spockframework:spock-core:1.2-groovy-2.4 (c)
+\--- org.spockframework:spock-core -> 1.2-groovy-2.4
+     +--- org.codehaus.groovy:groovy-all:2.4.15
+     \--- junit:junit:4.12
+          \--- org.hamcrest:hamcrest-core:1.3
+...
+testRuntimeClasspath - Runtime classpath of source set 'test'.
++--- dev.gradleplugins:gradle-api:4.9
+|    +--- org.codehaus.groovy:groovy-all:2.4.12 -> 2.4.15
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.2.41
+|         \--- org.jetbrains:annotations:13.0
++--- org.spockframework:spock-bom:1.2-groovy-2.4
+|    \--- org.spockframework:spock-core:1.2-groovy-2.4 (c)
+\--- org.spockframework:spock-core -> 1.2-groovy-2.4
+     +--- org.codehaus.groovy:groovy-all:2.4.15
+     \--- junit:junit:4.12
+          \--- org.hamcrest:hamcrest-core:1.3
+...
+----
+
+We can see the compile dependencies only pull the `org.codehaus.groovy:groovy` dependencies as required by the Gradle API.
+As for the runtime dependencies, the Gradle API will pull in `org.codehaus.groovy:groovy-all` and `org.jetbrains.kotlin:kotlin-stdlib` dependencies to allow every feature offered by the Gradle API to work as expected.
+Most notably, `ProjectBuilder` requires both Groovy and Kotlin dependencies to be present on the runtime classpath.
+
+The outgoing variants shows the plugin configured the JVM version for Gradle 4.9 API properly:
+
+[listing.terminal]
+----
+$ ./gradlew outgoingVariants
+...
+--------------------------------------------------
+Variant apiElements
+--------------------------------------------------
+Description = API elements for main.
+
+Capabilities
+    - :gradle-plugin-development-runtime-compatibilities:unspecified (default capability)
+Attributes
+    - org.gradle.category            = library
+    - org.gradle.dependency.bundling = external
+    - org.gradle.jvm.version         = 7
+    - org.gradle.libraryelements     = jar
+    - org.gradle.usage               = java-api
+...
+----
+
+For more information, see Gradle Plugin Development <<../../manual/plugin-references.adoc#sec:plugin-reference-gradledev,reference chapters>> and <<../../manual/gradle-plugin-development.adoc#,user manual chapter>>.

@@ -1,0 +1,54 @@
+= Java Gradle Plugin Development Plugin
+:jbake-type: reference_chapter
+:jbake-tags: user manual, gradle plugin reference, java, gradle plugin, gradle, plugin
+:jbake-description: Learn what the Java Gradle Plugin plugin (i.e. dev.gradleplugins.java-gradle-plugin) has to offer for your Gradle build.
+
+Use the Java Gradle Plugin development plugin to assist Gradle plugin development implemented in Java.
+It configures the project to compile Java code, adds the Gradle API dependency to the `compileOnly` configuration and performs validation of plugin metadata.
+It is a drop-in replacement for the Gradle `java-gradle-plugin` core plugin.
+
+[[sec:java-gradle-plugin-usage]]
+== Usage
+
+.Applying the Java Gradle Plugin Development plugin
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+plugins {
+   id 'dev.gradleplugins.java-gradle-plugin' version '0.0.81'
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+plugins {
+   id("dev.gradleplugins.java-gradle-plugin") version("0.0.81")
+}
+----
+=====
+====
+
+== Extensions
+
+The plugin provides the following extensions:
+
+`gradlePluginDevelopment()` on RepositoryHandler::
+Adds the Gradle API redistribution repository to the project, e.g. `https://dl.bintray.com/gradle-plugins/distributions`.
+Reads the <<gradle-plugin-development.adoc#sec:gradle-dev-redistributed-gradle-api,redistributed Gradle API section>> to learn more.
+
+`gradleApi(version)` on DependencyHandler::
+Creates a dependency on the Gradle API of the specified version, i.e. `dev.gradleplugins:gradle-api:2.14.1`.
+Reads the <<gradle-plugin-development.adoc#sec:gradle-dev-redistributed-gradle-api,redistributed Gradle API section>> to learn more.
+
+`compatibility` script block on GradlePluginDevelopmentExtension::
+Configures the Gradle plugin compatibility for the project, e.g. minimum supported Gradle version.
+Reads the <<gradle-plugin-development.adoc#sec:gradle-dev-minimum-gradle-version,minimum Gradle version section>> to learn more.
+
+`java` script block on GradlePluginDevelopmentExtension::
+Configures the additional Javadoc and source JARs for the project.

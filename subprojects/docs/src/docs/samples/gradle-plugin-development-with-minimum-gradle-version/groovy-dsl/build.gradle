@@ -1,0 +1,28 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin' version '0.0.81'
+	id 'groovy-base'
+}
+
+gradlePlugin {
+	compatibility {
+		minimumGradleVersion = '4.9'
+	}
+
+	testSourceSets sourceSets.test
+	plugins {
+		helloWorld {
+			id = 'com.example.hello'
+			implementationClass = 'com.example.BasicPlugin'
+		}
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies { // <1>
+	testImplementation platform('org.spockframework:spock-bom:1.2-groovy-2.5')
+	testImplementation 'org.spockframework:spock-core'
+	testImplementation gradleTestKit()
+}

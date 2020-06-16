@@ -1,0 +1,33 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin' version '0.0.81'
+	id 'dev.gradleplugins.gradle-plugin-unit-test' version '0.0.81'
+	id 'dev.gradleplugins.gradle-plugin-functional-test' version '0.0.81'
+}
+
+gradlePlugin {
+	plugins {
+		helloWorld {
+			id = 'com.example.hello'
+			implementationClass = 'com.example.BasicPlugin'
+		}
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+test {
+	dependencies {
+		implementation spockFramework()
+		implementation groovy()
+	}
+}
+
+functionalTest {
+	dependencies {
+		implementation spockFramework()
+		implementation groovy()
+		implementation gradleTestKit()
+	}
+}

@@ -6,12 +6,14 @@ import dev.nokee.platform.jni.fixtures.*
 import dev.nokee.platform.jni.fixtures.elements.CppGreeter
 import dev.nokee.platform.jni.fixtures.elements.SwiftGreeter
 import dev.nokee.platform.nativebase.fixtures.*
+import dev.gradleplugins.fixtures.sample.JavaBasicGradlePlugin
 
 import java.text.SimpleDateFormat
 
 buildscript {
 	dependencies {
 		classpath 'dev.nokee:templates:latest.integration'
+		classpath testFixtures("dev.gradleplugins:gradle-plugin-development:${toolboxVersion}")
 	}
 }
 
@@ -159,6 +161,27 @@ documentation {
 		}
 		'objective-c-ios-xctest-test-suite' {
 			template = new ObjectiveCIosApp().withUnitTest().withUiTest()
+		}
+
+		'gradle-plugin-development-runtime-compatibilities' {
+			minimumGradleVersion = '6.2.1'
+			pluginManagementBlock = PluginManagementBlock.none()
+			template = new JavaBasicGradlePlugin().withProjectBuilderTest()
+		}
+		'gradle-plugin-development-with-minimum-gradle-version' {
+			minimumGradleVersion = '6.2.1'
+			pluginManagementBlock = PluginManagementBlock.none()
+			template = new JavaBasicGradlePlugin().withTestKitTest()
+		}
+		'gradle-plugin-development-with-test-suites' {
+			minimumGradleVersion = '6.2.1'
+			pluginManagementBlock = PluginManagementBlock.none()
+			template = new JavaBasicGradlePlugin().withProjectBuilderTest().withTestKitFunctionalTest()
+		}
+		'gradle-plugin-development-with-testing-strategies' {
+			minimumGradleVersion = '6.2.1'
+			pluginManagementBlock = PluginManagementBlock.none()
+			template = new JavaBasicGradlePlugin().withFunctionalTest()
 		}
 	}
 }

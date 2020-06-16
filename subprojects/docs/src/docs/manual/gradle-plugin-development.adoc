@@ -1,0 +1,178 @@
+= Gradle plugin development
+:jbake-type: manual_chapter
+:jbake-tags: user manual, gradle plugin development, gradle plugin, gradle
+:jbake-description: Learn how to improve the development of your Gradle plugins.
+
+We recommend having a good understanding of the Gradle plugin development process explained in the core documentation.
+This chapter focuses on plugin development enhancement provided by <<plugin-references.adoc#sec:plugin-reference-gradledev,`dev.gradleplugins.*` plugins>> and maintained by the Nokee team.
+It bridges a fundamental gap in the plugin development experience offered by the Gradle team.
+The plugins offer more modelling to ensure a more enjoyable development experience.
+
+[[sec:gradle-dev-introduction]]
+== Introduction
+
+We offer two Gradle plugin development plugins: <<java-gradle-plugin-plugin.adoc#,`dev.gradleplugins.java-gradle-plugin`>> and <<java-gradle-plugin-plugin.adoc#,`dev.gradleplugins.groovy-gradle-plugin`>>.
+The plugins support Gradle plugin development for the Java and Groovy language respectively footnote:[The `kotlin-dsl` plugin behave differently than any other plugins which prevents from supporting plugins implemented in Kotlin.].
+
+When we require only basic functionality of the development plugins, we recommend applying the <<gradle-plugin-development-plugin.adoc#,`dev.gradleplugins.gradle-plugin-development`>> in the settings script.
+It offers global conveniences to all projects such as creating versioned Gradle API dependencies with source access.
+
+Finally, we also offer two test suite plugins: <<gradle-plugin-unit-test-plugin.adoc#,`dev.gradleplugins.gradle-plugin-unit-test`>> and <<gradle-plugin-functional-test-plugin.adoc#,`dev.gradleplugins.gradle-plugins-functional-test`>>.
+The plugins support unit and functional testing respectively for the Gradle plugin under development.
+
+[[sec:gradle-dev-minimum-gradle-version]]
+== Minimum Gradle version
+
+The plugins extend the familiar `gradlePlugin` extension by adding the nested `compatibility` extension.
+This new extension model the minimum Gradle version supported by the plugins under development.
+By default, it uses the current running Gradle version.
+However, you can set it to any released Gradle distribution.
+
+The plugin uses this new information to automatically configure the Java source and target compatibility to the minimum supported Java version for the target Gradle.
+For example, setting a minimum Gradle version of 5.0 or newer, the Java compatibilities will be set to Java 8.
+Rest assured, we can still configure those values to the plugins under development specifications.
+
+When developing a Gradle plugin implemented in Groovy using `dev.gradleplugins.groovy-gradle-plugin`, the plugin adds a dependency to `groovy-all` based on the minimum Gradle version to the `compileOnly` configuration.
+For example, by setting the minimum Gradle version to 6.2, the Groovy runtime will be set to 2.5.8.
+
+[[sec:gradle-dev-runtime-compatibility-information]]
+== Gradle runtime compatibility information
+
+All the Gradle runtime compatibility knowledge is accessible via the `GradleRuntimeCompatibility` class.
+Developers can query important information for any previously released Gradle distribution:
+
+- Minimum Java version supported by a specific Gradle distribution, and;
+- Groovy, as well as Kotlin, if available, version packaged in a specific Gradle distribution.
+
+This information is particularly useful when developing a library targeting the Gradle distribution.
+For each of the JVM languages, we need to align the runtime to ensure maximum compatibility.
+
+NOTE: We extract the compatibility information for each version manually.
+We welcome any https://gradleplugins.dev[pull request] that would automate this information gathering and/or include newer/older runtime information.
+
+[[sec:gradle-dev-redistributed-gradle-api]]
+== Redistributed Gradle API artifacts
+
+The redistributed Gradle API serves the purpose of targeting a different Gradle version than the currently running Gradle.
+We host every redistributed Gradle API artifacts under the `dev.gradleplugins:gradle-api` coordinate.
+Each artifact includes a source JAR for improved IDE experience.
+
+A developer can depend on `dev.gradleplugins:gradle-api:4.9` to target Gradle API 4.9 while running its build using a newer (or older) Gradle distribution.
+The <<gradle-plugin-development-plugin.adoc#,`dev.gradleplugins.gradle-plugin-development` settings plugin>> adds the `gradleApi(version)` extension method to the `DependencyHandler` instance of each project:
+
+.Adding specific Gradle API dependency
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+dependencies {
+   compileOnly gradleApi('4.9')
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+dependencies {
+   compileOnly(gradleApi("4.9"))
+}
+----
+=====
+====
+
+CAUTION: Always declare Gradle API dependency as compile only dependencies.
+If not, when executing the plugin inside Gradle, it will unecessarily pull an entire copy of the Gradle classes.
+You should only every declare a runtime dependency on the Gradle API if you need to execute against Gradle such as using ProjectBuilder as for unit testing.
+See the unit testing section to learn more.
+
+NOTE: We only redistribute the Gradle API artifact for Gradle 2.14 and newer.
+If you need access to older Gradle API artifacts, please link:https://github.com/gradle-plugins/toolbox[open an issue on the GitHub project].
+
+[[sec:gradle-dev-testing]]
+== Gradle plugin testing
+
+We offer two plugins for testing Gradle plugins: <<gradle-plugin-unit-test-plugin.adoc#,`dev.gradleplugins.gradle-plugin-unit-test`>> and <<gradle-plugin-functional-test-plugin.adoc#,`dev.gradleplugin.gradle-plugin-functional-test`>>.
+Both plugins have similar functionalities, and differ in their testing goal.
+
+We can select the testing framework for each test suites by adding a dependency.
+We recommend using the `dependencies` script block of each test suites.
+The test suite dependency block offers convenient method to quickly add common dependencies.
+For example, we can use `spockFramework()` method to create a dependency on the link:http://spockframework.org/[Spock Framework].
+To specify a specific version for the Spock dependency, we can use `spockFramework(version)` method.
+By selecting the Spock Framework, the plugin automatically apply the `groovy-base` plugin to enable Groovy compilation.
+
+[[sec:gradle-dev-unit-testing]]
+=== Unit testing (e.g. `dev.gradleplugins.gradle-plugin-unit-test`)
+
+Unit test for Gradle plugins focus on the individual classes.
+It validates the configurations of the plugin.
+We usually use the `ProjectBuilder` for this validation.
+The unit test suite will automatically add an implementation dependency to the Gradle API.
+The test suite is configurable via the `test` extension on the project.
+We can execute the test suite via the `Test` task named `test`.
+
+[[sec:gradle-dev-functional-testing]]
+=== Functional testing (e.g. `dev.gradleplugins.gradle-plugin-functional-test`)
+
+Functional test for Gradle plugins focus on the execution behaviors.
+It validates how the tasks behave during execution among other things.
+We usually use the Gradle TestKit for this validation.
+The test suite is configurable via the `functionalTest` extension on the project.
+We can execute the test suite via the `Test` task named `functionalTest`.
+
+[[sec:gradle-dev-testing-strategies]]
+=== Testing strategies
+
+We configure the testing coverage of Gradle plugins regarding Gradle distribution through the testing strategies.
+The test suite plugins configure distinct `Test` tasks for each testing coverage.
+The plugin pass the selected Gradle distribution information to test against via the `dev.gradleplugins.defaultGradleVersion` system property.
+The value is a string representing a Gradle distribution version, i.e. 6.2.1.
+
+There are three strategies available via the `strategies` factory method in each test suite extension:
+
+- *Minimum Gradle version* (e.g. `coverageForMinimumVersion`): The minimum Gradle version supported by the plugins as link:#sec:gradle-dev-minimum-gradle-version[configured on the `compatibility` extension].
+- *Latest global available version* (e.g. `coverageForLatestGlobalAvailableVersion`): The latest released Gradle version as declared by the link:https://services.gradle.org/versions/current[services.gradle.org end point].
+- *Latest nightly version* (e.g. `coverageForLatestNightlyVersion`): The latest published Gradle nightly version from master as declared by the link:https://services.gradle.org/versions/nightly[services.gradle.org end point].
+
+At runtime, it's up to the testing fixtures to honor the selected Gradle distribution under test as declared via the `dev.gradleplugins.defaultGradleVersion` system property.
+The Nokee team maintain testing strategies aware Gradle fixtures which automatically honor the distribution under test system property.
+We can add a dependency on the Gradle fixtures using `gradleFixtures()` method from inside the test suite `dependencies` script block.
+Other test fixtures such as the plain Gradle TestKit requires manual configurations of the distribution under test.
+
+CAUTION: In the absence of testing strategies, the `dev.gradleplugins.defaultGradleVersion` system property is unset thus defaulting to the test fixtures default distribution under test.
+
+When we configure multiple testing strategies, the `Test` task names will include a suffix differentiating each strategies.
+It allows quick and easy execution, even from the IDE:
+
+image::img/gradle-plugin-development-idea-annotated.png[Testing strategies task naming inside IntelliJ.]
+
+[[sec:gradle-dev-gradle-fixtures]]
+=== Gradle test fixtures
+
+The Gradle fixtures maintained by the Nokee team is a set of commonly needed APIs for testing Gradle plugins.
+It supports multiple executer type (i.e. Gradle wrapper, TestKit Gradle runner) and provides better assertion for Gradle results such as asserting executed and skipped tasks as well as asserting failures.
+It provides better assertion for common artifacts produced by Gradle such as files, archives, and Maven repositories.
+It includes source elements for composing samples to use during testing.
+It also provides fixtures for asserting native binaries produced by Gradle.
+
+CAUTION: The fixtures are in beta and may not be forward binary compatible.
+
+[[sec:gradle-dev-whats-next]]
+== What's next?
+
+You should now have a grasp on the improvement offered by the `dev.gradleplugins.*` plugins.
+Head over the link:../samples/index.html#sec:samples-gradle-dev[Gradle plugin development samples] to see a demonstration of the plugins for common scenarios.
+You can learn more on <<plugin-references.adoc#sec:plugin-reference-gradledev,each specific Gradle plugin development plugins>> in the plugin reference chapters.
+
+[[sec:gradle-dev-help-improve-chapter]]
+== Help improve this chapter
+
+Have feedback or a question?
+Found a typo?
+Is something unclear?
+Help is just a GitHub issue away.
+Please link:https://github.com/nokeedev/gradle-native/issues[open an issue] or link:https://github.com/nokeedev/gradle-native[create a pull request], and we'll get back to you.

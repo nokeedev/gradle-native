@@ -71,3 +71,21 @@ Provides support for compiling Objective-{cpp} language.
 
 <<xcode-ide-plugin.adoc#,Xcode IDE>>::
 Generates Xcode workspace and project files for the build that can be opened by the IDE.
+
+[[sec:plugin-reference-gradledev]]
+== Gradle Plugin Development
+
+<<gradle-plugin-development-plugin.adoc#,Gradle Plugin Development Plugin>>::
+Provides additional support for developing Gradle plugin.
+
+<<java-gradle-plugin-plugin.adoc#,Java Gradle Plugin Development Plugin>>::
+Provides support for developing Gradle plugins implemented in Java.
+
+<<groovy-gradle-plugin-plugin.adoc#,Groovy Gradle Plugin Development Plugin>>::
+Provides support for developing Gradle plugins implemented in Groovy.
+
+<<gradle-plugin-unit-test-plugin.adoc#,Gradle Plugin Unit Test Plugin>>::
+Provides support for unit testing Gradle plugins.
+
+<<gradle-plugin-functional-test-plugin.adoc#,Gradle Plugin Functional Test Plugin>>::
+Provides support for functional testing Gradle plugins.
