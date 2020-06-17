@@ -12,6 +12,12 @@ class BrokenLinksTest extends Specification {
 		def report = new HtmlLinkTester(HtmlLinkTester.validEmails("hello@nokee.dev"), new HtmlLinkTester.BlackList() {
 			@Override
 			boolean isBlackListed(URI uri) {
+				if (uri.toString().contains("/blog.gradle.org/")) {
+					return false
+				}
+				if (uri.toString().contains("/docs.gradle.org/")) {
+					return false
+				}
 				return uri.toString().contains("/blog") || uri.toString().contains('/current/') || uri.toString().endsWith("/baked/index.html") || uri.toString().contains('/api/javax/annotation/Nonnull.html')
 			}
 		}).reportBrokenLinks(new File(System.getProperty('bakedContentDirectory')))

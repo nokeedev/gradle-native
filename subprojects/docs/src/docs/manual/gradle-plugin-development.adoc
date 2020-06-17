@@ -113,7 +113,7 @@ It validates the configurations of the plugin.
 We usually use the link:{gradle-api-reference}/org/gradle/testfixtures/ProjectBuilder.html[`ProjectBuilder`] for this validation.
 The unit test suite will automatically add an implementation dependency to the Gradle API.
 The test suite is configurable via the `test` extension on the project.
-We can execute the test suite via the link:{gradle-dsl-reference}/org.gradle.api.tasks.testing.Test.html[`Test`] task named `test`.
+We can execute the test suite via the link:{gradle-language-reference}/org.gradle.api.tasks.testing.Test.html[`Test`] task named `test`.
 
 [[sec:gradle-dev-functional-testing]]
 === Functional testing (e.g. `dev.gradleplugins.gradle-plugin-functional-test`)
@@ -122,7 +122,7 @@ Functional tests for Gradle plugins focus on execution behaviours.
 It validates how the tasks behave during execution, among other runtime checks.
 We usually use the Gradle TestKit for this validation.
 The test suite is configurable via the `functionalTest` extension on the project.
-We can execute the test suite via the link:{gradle-dsl-reference}/org.gradle.api.tasks.testing.Test.html[`Test`] task named `functionalTest`.
+We can execute the test suite via the link:{gradle-language-reference}/org.gradle.api.tasks.testing.Test.html[`Test`] task named `functionalTest`.
 
 [[sec:gradle-dev-testing-strategies]]
 === Testing strategies

@@ -54,6 +54,7 @@ public abstract class UriService {
 				Map<String, CharSequence> headers = new HashMap<>();
 				headers.put("User-Agent", "nokee-labs/0.0.0.1");
 				config.getRequest().setHeaders(headers);
+				config.getResponse().when(404, (a,b) -> { throw new RuntimeException(); });
 			});
 			try {
 				client.head();
