@@ -1,3 +1,4 @@
+import dev.nokee.docs.tasks.AsciicastCompile
 import dev.nokee.docs.tasks.CreateAsciinema
 import dev.nokee.docs.tasks.ExtractScreenshot
 import dev.nokee.docs.PluginManagementBlock
@@ -232,12 +233,7 @@ private String resolveProperty(Project project, String envVarKey, String project
 }
 
 afterEvaluate {
-	tasks.withType(CreateAsciinema).configureEach {
-		onlyIf {
-			return !project.hasProperty('skipAllAsciinemaTasks')
-		}
-	}
-	[ExtractScreenshot, CreateAsciinema].each { type ->
+	[ExtractScreenshot, CreateAsciinema, AsciicastCompile].each { type ->
 		tasks.withType(type).configureEach {
 			onlyIf {
 				return !project.hasProperty('skipAllAsciinemaTasks')
