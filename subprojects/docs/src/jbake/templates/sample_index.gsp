@@ -10,7 +10,7 @@ def categories = sample_chapters.collectEntries {
 		case 'Native Development':
 			return ['sec:samples-native': it.category]
 		case 'Gradle Plugin Development':
-			return ['sec:samples-gradledev': it.category]
+			return ['sec:samples-gradle-dev': it.category]
 		default:
 			throw new IllegalArgumentException("Unknown category ${it.category}, please specify the id in 'sample_index.gsp'")
 	}
