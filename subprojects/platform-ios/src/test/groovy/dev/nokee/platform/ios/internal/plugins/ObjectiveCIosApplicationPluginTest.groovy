@@ -1,7 +1,5 @@
 package dev.nokee.platform.ios.internal.plugins
 
-import dev.gradleplugins.spock.lang.CleanupTestDirectory
-import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
 import dev.nokee.fixtures.AbstractBinaryPluginTest
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTaskPluginTest
@@ -18,9 +16,7 @@ import dev.nokee.platform.ios.tasks.internal.StoryboardLinkTask
 import dev.nokee.platform.nativebase.ExecutableBinary
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project
-import org.gradle.nativeplatform.NativeExecutable
 import org.gradle.testfixtures.ProjectBuilder
-import org.junit.Rule
 import spock.lang.Requires
 import spock.lang.Specification
 import spock.lang.Subject
@@ -81,12 +77,8 @@ class ObjectiveCIosApplicationTaskPluginTest extends AbstractTaskPluginTest impl
 
 @Requires({SystemUtils.IS_OS_MAC})
 @Subject(ObjectiveCIosApplicationPlugin)
-@CleanupTestDirectory
 class ObjectiveCIosApplicationPluginTest extends Specification {
-	@Rule
-	private final TestNameTestDirectoryProvider temporaryFolder = new TestNameTestDirectoryProvider(getClass())
-
-	def project = ProjectBuilder.builder().withProjectDir(temporaryFolder.testDirectory).build()
+	def project = ProjectBuilder.builder().build()
 
 	def "applies the lifecycle-base plugin"() {
 		when:

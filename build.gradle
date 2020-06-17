@@ -106,7 +106,7 @@ subprojects {
 subprojects {
 	pluginManager.withPlugin('dev.gradleplugins.java-gradle-plugin') {
 		apply plugin: 'dev.gradleplugins.gradle-plugin-unit-test'
-		functionalTest {
+		test {
 			dependencies {
 				implementation spockFramework()
 				implementation groovy()
