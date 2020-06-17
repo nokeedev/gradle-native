@@ -54,6 +54,7 @@
 	def hasBuildingJniLibrary = !content.uri.contains('0.1.0') && !content.uri.contains('0.2.0')
 	def hasAnatomyNokeePlugins = !content.uri.contains('0.1.0') && !content.uri.contains('0.2.0')
 	def hasBuildingNativeProjects = !content.uri.contains('0.1.0') && !content.uri.contains('0.2.0') && !content.uri.contains('0.3.0')
+	def hasGradlePluginDevelopment = !content.uri.contains('0.1.0') && !content.uri.contains('0.2.0') && !content.uri.contains('0.3.0')
 %>
 <nav class="docs-navigation">
 	<div class="breadcrumbs">${formatCrumbs(getBreadcrumbs())}</div>
@@ -74,6 +75,7 @@
 			<% if (hasBuildingJniLibrary) {%><li><a ${anchorOf('manual/building-jni-projects.html')}>Building JNI Projects</a></li><%}%>
 			<% if (hasBuildingNativeProjects) {%><li><a ${anchorOf('manual/building-native-projects.html')}>Building Native Projects</a></li><%}%>
 			<% if (hasXcodeIde) {%><li><a ${anchorOf('manual/developing-with-xcode-ide.html')}>Developing with Xcode IDE</a></li><%}%>
+			<% if (hasGradlePluginDevelopment) {%><li><a ${anchorOf('manual/gradle-plugin-development.html')}>Gradle Plugin Development</a></li><%}%>
 			<li><a ${anchorOf('manual/terminology.html')}>Terminology</a></li>
 		</ul>
 		<h3 id="reference">Reference</h3>
