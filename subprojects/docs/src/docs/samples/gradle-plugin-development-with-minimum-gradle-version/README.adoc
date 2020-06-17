@@ -29,7 +29,7 @@ include::kotlin-dsl/build.gradle.kts[]
 ----
 =====
 ====
-<1> See Gradle plugin test suites section of the user manual, and the test suites sample.
+<1> See the <<../../manual/gradle-plugin-development.adoc#sec:gradle-dev-testing#,Gradle plugin development section on test suites>> in the user manual, and the link:../gradle-plugin-development-with-test-suites[test suites sample].
 
 To build and test the plugin:
 

@@ -1,5 +1,5 @@
 = Gradle Plugin Test Suites
-:jbake-summary: Unit and funtional test Gradle plugins.
+:jbake-summary: Unit and functional test Gradle plugins.
 :jbake-type: sample_chapter
 :jbake-tags: sample, gradle plugin development, gradle
 :jbake-category: Gradle Plugin Development
@@ -39,7 +39,7 @@ BUILD SUCCESSFUL
 9 actionable tasks: 9 executed
 ----
 
-Gradle executes both test suites, that is unit test and functional test, as expected.
+Gradle executes both test suites, which is a unit test and a functional test, as expected.
 The reports are available at their conventional location:
 
 [listing.terminal]

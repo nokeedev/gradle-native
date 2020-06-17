@@ -7,7 +7,7 @@
 
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer], https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
-This sample shows how expand the testing coverage of a Gradle plugin to multiple Gradle distribution.
+This sample shows how to expand the testing coverage of a Gradle plugin to multiple Gradle distributions.
 The project is a simple Gradle plugin implemented in Java with a functional test using Gradle fixtures maintained by the Nokee team.
 
 ====
@@ -28,8 +28,8 @@ include::kotlin-dsl/build.gradle.kts[]
 ----
 =====
 ====
-<1> The Nokee team maintain the Gradle fixtures which cover common testing scenarios and are testing strategy aware.
-The Gradle executer will honor the selected testing strategy for the `Test` task.
+<1> The Nokee team maintains the Gradle fixtures which cover common testing scenarios and are testing strategy aware.
+The Gradle executer will honour the selected testing strategy for the `Test` task.
 Read the <<../../manual/gradle-plugin-development.adoc#sec:gradle-dev-testing-strategies,testing strategy section>> to learn more.
 
 To build and test the plugin:
@@ -42,7 +42,7 @@ BUILD SUCCESSFUL
 9 actionable tasks: 9 executed
 ----
 
-Gradle executes the test suites for all testing coverage, that is minimum supported Gradle, latest released Gradle, and latest nightly.
+Gradle executes the test suites for all testing coverage, which is minimum supported Gradle, latest released Gradle and latest nightly.
 The reports are available at their conventional location:
 
 [listing.terminal]
