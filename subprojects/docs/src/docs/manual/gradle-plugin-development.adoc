@@ -28,6 +28,34 @@ This new extension model the minimum Gradle version supported by the plugins und
 By default, it uses the current running Gradle version.
 However, you can set it to any globally available Gradle distribution after and including 2.14.
 
+.Configuring minimum supported Gradle
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+gradlePlugin {
+	compatibility {
+		minimumGradleVersion = '4.9'
+	}
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+gradlePlugin {
+	compatibility {
+		minimumGradleVersion.set("4.9")
+	}
+}
+----
+=====
+====
+
 The plugin uses this new information to automatically configure the Java source and target compatibility to the minimum supported Java version for the target Gradle.
 For example, setting a minimum Gradle version of 5.0 or newer, the plugin will configure the Java compatibilities to Java 8.
 Rest assured, the plugins honours any override to the Java compatibilities.

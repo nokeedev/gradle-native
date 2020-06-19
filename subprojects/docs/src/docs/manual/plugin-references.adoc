@@ -76,7 +76,7 @@ Generates Xcode workspace and project files for the build that can be opened by 
 == Gradle Plugin Development
 
 <<gradle-plugin-development-plugin.adoc#,Gradle Plugin Development Plugin>>::
-Provides additional support for developing Gradle plugin.
+Provides additional support for developing Gradle plugin-related projects.
 
 <<java-gradle-plugin-plugin.adoc#,Java Gradle Plugin Development Plugin>>::
 Provides support for developing Gradle plugins implemented in Java.
