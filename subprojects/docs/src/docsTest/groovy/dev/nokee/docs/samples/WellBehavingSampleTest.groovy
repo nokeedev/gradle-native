@@ -45,6 +45,7 @@ abstract class WellBehavingSampleTest extends Specification {
 			settingsEvaluated { settings ->
 				settings.pluginManagement {
 					repositories {
+						gradlePluginPortal()
 						maven {
 							name = 'docs'
 							url = '${new File(System.getProperty("dev.nokee.docsRepository")).toURI().toString()}'
