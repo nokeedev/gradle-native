@@ -24,6 +24,36 @@ The plugin generates Xcode projects depending on the other plugins applied:
 | <<objective-c-ios-application-plugin.adoc#,Objective-C iOS Application>>
 | Adds a target representing the iOS application implemented in Objective-C to a Xcode project.
 
+| <<c-application-plugin.adoc#, C Application>>
+| Adds a tool target representing the application implemented in C to a Xcode project.
+
+| <<c-library-plugin.adoc#,C Library>>
+| Adds a dynamic library target representing the library implemented in C to a Xcode project.
+
+| <<cpp-application-plugin.adoc#,{cpp} Application>>
+| Adds a tool target representing the application implemented in {cpp} to a Xcode project.
+
+| <<cpp-library-plugin.adoc#,{cpp} Library>>
+| Adds a dynamic library target representing the library implemented in {cpp} to a Xcode project.
+
+| <<objective-c-application-plugin.adoc#,Objective-C Application>>
+| Adds a tool target representing the application implemented in Objective-C to a Xcode project.
+
+| <<objective-c-library-plugin.adoc#,Objective-C Library>>
+| Adds a dynamic library target representing the library implemented in Objective-C to a Xcode project.
+
+| <<objective-cpp-application-plugin.adoc#,Objective-{cpp} Application>>
+| Adds a tool target representing the application implemented in Objective-{cpp} to a Xcode project.
+
+| <<objective-cpp-library-plugin.adoc#,Objective-{cpp} Library>>
+| Adds a dynamic library target representing the library implemented in Objective-{cpp} to a Xcode project.
+
+| <<swift-application-plugin.adoc#,Swift Application>>
+| Adds a tool target representing the application implemented in Swift to a Xcode project.
+
+| <<swift-library-plugin.adoc#,Swift Library>>
+| Adds a dynamic library target representing the library implemented in Swift to a Xcode project.
+
 | None of the above
 | Does not generate any project.
 It is possible to compose your own Xcode project(s) using the link:#sec:xcode-ide-build-language[build language].
