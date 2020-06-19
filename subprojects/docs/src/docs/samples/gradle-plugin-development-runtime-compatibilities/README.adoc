@@ -13,6 +13,11 @@ The project is a simple Java library targeting, in this example, Gradle runtime 
 ====
 [.multi-language-sample]
 =====
+.settings.gradle
+[source,groovy]
+----
+include::groovy-dsl/settings.gradle[]
+----
 .build.gradle
 [source,groovy]
 ----
@@ -21,6 +26,11 @@ include::groovy-dsl/build.gradle[]
 =====
 [.multi-language-sample]
 =====
+.settings.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/settings.gradle.kts[]
+----
 .build.gradle.kts
 [source,kotlin]
 ----
