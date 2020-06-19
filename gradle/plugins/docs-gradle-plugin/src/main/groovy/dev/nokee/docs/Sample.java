@@ -152,55 +152,47 @@ public abstract class Sample implements Named {
 	}
 
 	Provider<FileSystemLocation> kotlinDslSettingsConfiguration(Provider<String> projectVersion) {
-		String taskName = "configureKotlinDslSettingsConfiguration";
+		String taskName = getTaskName("configure", "KotlinDslSettingsConfiguration");
 		Provider<RegularFile> outputFile = getLayout().getBuildDirectory().file("tmp/" + taskName + "/" + Dsl.KOTLIN_DSL.getSettingsFileName());
-		TaskProvider<Task> generateKotlinDslNightlySettingsTask = null;
-		if (getTasks().getNames().contains(taskName)) {
-			generateKotlinDslNightlySettingsTask = getTasks().named(taskName);
-		} else {
-			generateKotlinDslNightlySettingsTask = getTasks().register(taskName, task -> {
-				task.getInputs().property("version", projectVersion);
-				task.getOutputs().cacheIf(Specs.satisfyAll());
-				task.getOutputs().file(outputFile);
-				task.doLast(new Action<Task>() {
-					@Override
-					public void execute(Task task) {
-						try {
-							FileUtils.write(outputFile.get().getAsFile(), getPluginManagementBlock().get().asKotlinDsl().toString(), Charset.defaultCharset());
-						} catch (IOException e) {
-							throw new UncheckedIOException(e);
-						}
+		TaskProvider<Task> generateKotlinDslNightlySettingsTask = getTasks().register(taskName, task -> {
+			task.getInputs().property("version", projectVersion);
+			task.getInputs().property("content", getPluginManagementBlock().map(it -> it.asKotlinDsl().toString()));
+			task.getOutputs().cacheIf(Specs.satisfyAll());
+			task.getOutputs().file(outputFile);
+			task.doLast(new Action<Task>() {
+				@Override
+				public void execute(Task task) {
+					try {
+						FileUtils.write(outputFile.get().getAsFile(), getPluginManagementBlock().get().asKotlinDsl().toString(), Charset.defaultCharset());
+					} catch (IOException e) {
+						throw new UncheckedIOException(e);
 					}
-				});
+				}
 			});
-		}
+		});
 		return getObjects().fileCollection().from(outputFile).builtBy(generateKotlinDslNightlySettingsTask).getElements().map(it -> it.iterator().next());
 	}
 
 	private Provider<FileSystemLocation> groovyDslSettingsConfiguration(Provider<String> projectVersion) {
-		String taskName = "configureGroovyDslSettingsConfiguration";
+		String taskName = getTaskName("configure", "GroovyDslSettingsConfiguration");
 		Provider<RegularFile> outputFile = getLayout().getBuildDirectory().file("tmp/" + taskName + "/" + Dsl.GROOVY_DSL.getSettingsFileName());
-		TaskProvider<Task> generateGroovyDslNightlySettingsTask = null;
-		if (getTasks().getNames().contains(taskName)) {
-			generateGroovyDslNightlySettingsTask = getTasks().named(taskName);
-		} else {
-			generateGroovyDslNightlySettingsTask = getTasks().register(taskName, task -> {
-				task.getInputs().property("blockClass", getPluginManagementBlock().get().getClass().getCanonicalName());
-				task.getInputs().property("version", projectVersion);
-				task.getOutputs().cacheIf(Specs.satisfyAll());
-				task.getOutputs().file(outputFile);
-				task.doLast(new Action<Task>() {
-					@Override
-					public void execute(Task task) {
-						try {
-							FileUtils.write(outputFile.get().getAsFile(), getPluginManagementBlock().get().asGroovyDsl().toString(), Charset.defaultCharset());
-						} catch (IOException e) {
-							throw new UncheckedIOException(e);
-						}
+		TaskProvider<Task> generateGroovyDslNightlySettingsTask = getTasks().register(taskName, task -> {
+			task.getInputs().property("blockClass", getPluginManagementBlock().get().getClass().getCanonicalName());
+			task.getInputs().property("version", projectVersion);
+			task.getInputs().property("content", getPluginManagementBlock().map(it -> it.asGroovyDsl().toString()));
+			task.getOutputs().cacheIf(Specs.satisfyAll());
+			task.getOutputs().file(outputFile);
+			task.doLast(new Action<Task>() {
+				@Override
+				public void execute(Task task) {
+					try {
+						FileUtils.write(outputFile.get().getAsFile(), getPluginManagementBlock().get().asGroovyDsl().toString(), Charset.defaultCharset());
+					} catch (IOException e) {
+						throw new UncheckedIOException(e);
 					}
-				});
+				}
 			});
-		}
+		});
 		return getObjects().fileCollection().from(outputFile).builtBy(generateGroovyDslNightlySettingsTask).getElements().map(it -> it.iterator().next());
 	}
 

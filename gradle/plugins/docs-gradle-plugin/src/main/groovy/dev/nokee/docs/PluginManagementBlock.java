@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class PluginManagementBlock {
+	private static final PluginManagementBlock NONE = new NonePluginManagementBlock();
+
 	public abstract KotlinDslPluginManagementBlock asKotlinDsl();
 
 	public abstract GroovyDslPluginManagementBlock asGroovyDsl();
@@ -21,42 +23,7 @@ public abstract class PluginManagementBlock {
 	}
 
 	public static PluginManagementBlock none() {
-		return new PluginManagementBlock() {
-			@Override
-			public PluginManagementBlock withRepository(String repository) {
-				return this;
-			}
-
-			@Override
-			public KotlinDslPluginManagementBlock asKotlinDsl() {
-				return new KotlinDslPluginManagementBlock() {
-					@Override
-					public KotlinDslPluginManagementBlock configureFromInitScript() {
-						return this;
-					}
-
-					@Override
-					public String toString() {
-						return "";
-					}
-				};
-			}
-
-			@Override
-			public GroovyDslPluginManagementBlock asGroovyDsl() {
-				return new GroovyDslPluginManagementBlock() {
-					@Override
-					public GroovyDslPluginManagementBlock configureFromInitScript() {
-						return this;
-					}
-
-					@Override
-					public String toString() {
-						return "";
-					}
-				};
-			}
-		};
+		return NONE;
 	}
 
 	public static PluginManagementBlock nokee(String version) {
@@ -92,8 +59,47 @@ public abstract class PluginManagementBlock {
 		}
 	}
 
+	@EqualsAndHashCode(callSuper = false)
+	private static class NonePluginManagementBlock extends PluginManagementBlock {
+		@Override
+		public PluginManagementBlock withRepository(String repository) {
+			return this;
+		}
+
+		@Override
+		public KotlinDslPluginManagementBlock asKotlinDsl() {
+			return new KotlinDslPluginManagementBlock() {
+				@Override
+				public KotlinDslPluginManagementBlock configureFromInitScript() {
+					return this;
+				}
+
+				@Override
+				public String toString() {
+					return "";
+				}
+			};
+		}
+
+		@Override
+		public GroovyDslPluginManagementBlock asGroovyDsl() {
+			return new GroovyDslPluginManagementBlock() {
+				@Override
+				public GroovyDslPluginManagementBlock configureFromInitScript() {
+					return this;
+				}
+
+				@Override
+				public String toString() {
+					return "";
+				}
+			};
+		}
+	}
+
 	@ToString
 	@AllArgsConstructor
+	@EqualsAndHashCode(callSuper = false)
 	private static class DefaultPluginManagementBlock extends PluginManagementBlock {
 		@Getter(onMethod_={@Input}) @With private final List<String> repositories;
 		@Getter(onMethod_={@Input}) private final String pluginNamespace;
@@ -125,6 +131,7 @@ public abstract class PluginManagementBlock {
 	}
 
 	@RequiredArgsConstructor
+	@EqualsAndHashCode
 	private static class DefaultKotlinDslPluginManagementBlock implements KotlinDslPluginManagementBlock {
 		private final DefaultPluginManagementBlock self;
 
@@ -181,6 +188,7 @@ public abstract class PluginManagementBlock {
 	}
 
 	@RequiredArgsConstructor
+	@EqualsAndHashCode
 	private static class DefaultGroovyDslPluginManagementBlock implements GroovyDslPluginManagementBlock {
 		private final DefaultPluginManagementBlock self;
 
