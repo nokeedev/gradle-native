@@ -22,3 +22,13 @@ dependencies {
 	testImplementation(platform("org.spockframework:spock-bom:1.2-groovy-2.4"))
 	testImplementation("org.spockframework:spock-core")
 }
+
+tasks.register("gradleCompatibility") {
+	val gradleVersion = "4.9"
+	doLast {
+		println("=== Gradle ${gradleVersion} Compatibility Information ===")
+		println("Minimum Java version: ${minimumJavaVersionFor(gradleVersion)}")
+		println("Groovy version: ${groovyVersionOf(gradleVersion)}")
+		println("Kotlin version: ${kotlinVersionOf(gradleVersion).orElse("N/A")}")
+	}
+}

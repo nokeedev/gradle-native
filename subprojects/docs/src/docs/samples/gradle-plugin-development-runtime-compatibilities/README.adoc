@@ -34,7 +34,23 @@ include::kotlin-dsl/build.gradle.kts[]
 <4> Add compile only dependency to the specified Gradle API.
 <5> Add compile and runtime dependency to the specified Gradle API.
 
-To build and test the plugin:
+To query the information about Gradle 4.9:
+
+[listing.terminal]
+----
+$ ./gradlew gradleCompatibility
+
+> Task :gradleCompatibility
+=== Gradle 4.9 Compatibility Information ===
+Minimum Java version: 1.7
+Groovy version: 2.4.12
+Kotlin version: 1.2.41
+
+BUILD SUCCESSFUL
+1 actionable task: 1 executed
+----
+
+To build and test the library:
 
 [listing.terminal]
 ----
