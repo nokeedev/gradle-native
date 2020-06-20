@@ -13,6 +13,9 @@ import dev.gradleplugins.fixtures.sample.JavaBasicGradlePlugin
 import java.text.SimpleDateFormat
 
 buildscript {
+	repositories {
+		maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+	}
 	dependencies {
 		classpath 'dev.nokee:templates:latest.integration'
 		classpath testFixtures("dev.gradleplugins:gradle-plugin-development:${toolboxVersion}")

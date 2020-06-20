@@ -1,19 +1,5 @@
-pluginManagement {
-	repositories {
-		gradlePluginPortal()
-		maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
-	}
-	def gradlePluginVersion = "0.0.82"
-	resolutionStrategy {
-		eachPlugin {
-			if (requested.id.id.startsWith('dev.gradleplugins.')) {
-				useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:${gradlePluginVersion}")
-			}
-		}
-	}
-}
 plugins {
-	id 'dev.gradleplugins.gradle-plugin-development'
+	id 'dev.gradleplugins.gradle-plugin-development' version '1.0'
 }
 
 rootProject.name = 'gradle-native'
