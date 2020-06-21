@@ -4,6 +4,7 @@ import dev.gradleplugins.test.fixtures.file.TestFile;
 import dev.gradleplugins.test.fixtures.sources.NativeSourceElement;
 import dev.gradleplugins.test.fixtures.sources.SourceElement;
 import dev.gradleplugins.test.fixtures.sources.SourceFile;
+import dev.gradleplugins.test.fixtures.sources.SourceFileElement;
 
 import java.util.List;
 
@@ -32,5 +33,28 @@ public abstract class JniLibraryElement extends SourceElement {
 
 	public static NativeSourceElement ofNativeElements(NativeSourceElement... elements) {
 		return NativeSourceElement.ofNativeElements(elements);
+	}
+
+	protected SourceFileElement newResourceElement() {
+		return new SourceFileElement() {
+			@Override
+			public SourceFile getSourceFile() {
+				return sourceFile("resources", "foo.txt", "");
+			}
+		};
+	}
+
+	public JniLibraryElement withResources() {
+		return new JniLibraryElement() {
+			@Override
+			public SourceElement getJvmSources() {
+				return ofElements(JniLibraryElement.this.getJvmSources(), JniLibraryElement.this.newResourceElement());
+			}
+
+			@Override
+			public NativeSourceElement getNativeSources() {
+				return JniLibraryElement.this.getNativeSources();
+			}
+		};
 	}
 }
