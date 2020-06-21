@@ -32,11 +32,6 @@ class ObjectiveCppApplicationNativeLanguageCompilationFunctionTest extends Abstr
 	}
 
 	@Override
-	protected String getExpectedCompilationFailureCause() {
-		return 'Objective-C++ compiler failed while compiling broken.m'
-	}
-
-	@Override
 	protected String getBinaryLifecycleTaskName() {
 		return 'executable'
 	}
@@ -61,11 +56,6 @@ class ObjectiveCppLibraryNativeLanguageCompilationFunctionalTest extends Abstrac
 	@Override
 	protected NativeSourceElement getComponentUnderTest() {
 		return new ObjectiveCppGreeter()
-	}
-
-	@Override
-	protected String getExpectedCompilationFailureCause() {
-		return 'Objective-C++ compiler failed while compiling broken.m'
 	}
 
 	@Override

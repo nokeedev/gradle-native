@@ -26,11 +26,6 @@ class SwiftApplicationLanguageCompilationFunctionalTest extends AbstractNativeLa
 	}
 
 	@Override
-	protected String getExpectedCompilationFailureCause() {
-		return 'Swift compiler failed while compiling swift file(s)'
-	}
-
-	@Override
 	protected String getBinaryLifecycleTaskName() {
 		return 'executable'
 	}
@@ -51,11 +46,6 @@ class SwiftLibraryNativeLanguageCompilationFunctionalTest extends AbstractNative
 	@Override
 	protected SourceElement getComponentUnderTest() {
 		return new SwiftGreeter()
-	}
-
-	@Override
-	protected String getExpectedCompilationFailureCause() {
-		return 'Swift compiler failed while compiling swift file(s)'
 	}
 
 	@Override

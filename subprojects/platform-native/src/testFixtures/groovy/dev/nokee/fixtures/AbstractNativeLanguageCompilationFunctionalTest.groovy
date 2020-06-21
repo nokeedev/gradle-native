@@ -70,7 +70,21 @@ abstract class AbstractNativeLanguageCompilationFunctionalTest extends AbstractI
 
 	protected abstract String getBinaryLifecycleTaskName()
 
-	protected abstract String getExpectedCompilationFailureCause()
+	protected String getExpectedCompilationFailureCause() {
+		String className = this.getClass().simpleName
+		if (className.contains('ObjectiveCLanguage')) {
+			return 'Objective-C compiler failed while compiling broken.m'
+		} else if (className.contains('ObjectiveCppLanguage')) {
+			return 'Objective-C++ compiler failed while compiling broken.mm'
+		} else if (className.contains('CLanguage')) {
+			return 'C compiler failed while compiling broken.c'
+		} else if (className.contains('CppLanguage')) {
+			return 'C++ compiler failed while compiling broken.cpp'
+		} else if (className.contains('SwiftLanguage')) {
+			return 'Swift compiler failed while compiling swift file(s)'
+		}
+		throw new IllegalArgumentException('Unable to figure out expected compilation failure cause')
+	}
 
 	protected String getComponentUnderTestDsl() {
 		if (this.getClass().simpleName.contains("Library")) {

@@ -21,11 +21,6 @@ class CApplicationNativeLanguageCompilationFunctionalTest extends AbstractNative
 	}
 
 	@Override
-	protected String getExpectedCompilationFailureCause() {
-		return 'C compiler failed while compiling broken.c'
-	}
-
-	@Override
 	protected String getBinaryLifecycleTaskName() {
 		return 'executable'
 	}
@@ -44,11 +39,6 @@ class CLibraryNativeLanguageCompilationFunctionalTest extends AbstractNativeLang
 	@Override
 	protected NativeSourceElement getComponentUnderTest() {
 		return new CGreeterApp()
-	}
-
-	@Override
-	protected String getExpectedCompilationFailureCause() {
-		return 'C compiler failed while compiling broken.c'
 	}
 
 	@Override

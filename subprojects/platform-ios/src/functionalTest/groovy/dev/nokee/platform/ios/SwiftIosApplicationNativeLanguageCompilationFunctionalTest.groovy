@@ -26,11 +26,6 @@ class SwiftIosApplicationNativeLanguageCompilationFunctionalTest extends Abstrac
 	}
 
 	@Override
-	protected String getExpectedCompilationFailureCause() {
-		return 'Swift compiler failed while compiling swift file(s)'
-	}
-
-	@Override
 	protected String getBinaryLifecycleTaskName() {
 		return 'bundle'
 	}

@@ -25,11 +25,6 @@ class ObjectiveCIosApplicationNativeLanguageCompilationFunctionalTest extends Ab
 	}
 
 	@Override
-	protected String getExpectedCompilationFailureCause() {
-		return 'Objective-C compiler failed while compiling broken.m'
-	}
-
-	@Override
 	protected String getBinaryLifecycleTaskName() {
 		return 'bundle'
 	}

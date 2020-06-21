@@ -22,11 +22,6 @@ class CppApplicationNativeLanguageCompilationFunctionalTest extends AbstractNati
 	}
 
 	@Override
-	protected String getExpectedCompilationFailureCause() {
-		return 'C++ compiler failed while compiling broken.cpp'
-	}
-
-	@Override
 	protected String getBinaryLifecycleTaskName() {
 		return 'executable'
 	}
@@ -45,11 +40,6 @@ class CppLibraryNativeLanguageCompilationFunctionalTest extends AbstractNativeLa
 	@Override
 	protected NativeSourceElement getComponentUnderTest() {
 		return new CppGreeter()
-	}
-
-	@Override
-	protected String getExpectedCompilationFailureCause() {
-		return 'C++ compiler failed while compiling broken.cpp'
 	}
 
 	@Override
