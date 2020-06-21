@@ -43,16 +43,16 @@ class XcodeIdeWorkspaceFunctionalTest extends AbstractXcodeIdeFunctionalSpec {
 		succeeds('xcode')
 
 		then:
-		testDirectory.listFiles(exceptHiddenFiles())*.name as Set == ['build.gradle', 'settings.gradle', 'app.xcworkspace'] as Set
+		testDirectory.listFiles(exceptHiddenFilesAndMavenLocalRepository())*.name as Set == ['build.gradle', 'settings.gradle', 'app.xcworkspace'] as Set
 	}
 
 	// TODO: can remap projects included in the workspace (exclude projects)
 
-	private static FilenameFilter exceptHiddenFiles() {
+	private FilenameFilter exceptHiddenFilesAndMavenLocalRepository() {
 		return new FilenameFilter() {
 			@Override
 			boolean accept(File dir, String name) {
-				return !name.startsWith('.')
+				return !name.startsWith('.') && !name.equals('m2-home-should-not-be-filled')
 			}
 		}
 	}
