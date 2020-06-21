@@ -49,6 +49,14 @@ trait NativeLanguageTaskNames implements NativeProjectTaskNames {
 			project + ":" + t
 		}
 
+		String withVariant(String prefix) {
+			return "${prefix}${variant.capitalize()}"
+		}
+
+		String withVariant(String prefix, String suffix) {
+			return "${prefix}${variant.capitalize()}${suffix.capitalize()}"
+		}
+
 		ProjectTasks withOperatingSystemFamily(String operatingSystemFamily) {
 			return new ProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType)
 		}
@@ -65,27 +73,27 @@ trait NativeLanguageTaskNames implements NativeProjectTaskNames {
 		}
 
 		String getCompile() {
-			return withProject("compile${buildType}${variant}${languageTaskSuffix}")
+			return withProject(withVariant("compile${buildType}", languageTaskSuffix))
 		}
 
 		String getObjects() {
-			return withProject("objects${buildType}${variant}")
+			return withProject(withVariant("objects${buildType}"))
 		}
 
 		String getLink() {
-			return withProject("link${buildType}${variant}")
+			return withProject(withVariant("link${buildType}"))
 		}
 
 		String getCreate() {
-			return withProject("create${buildType}${variant}")
+			return withProject(withVariant("create${buildType}"))
 		}
 
 		String getInstall() {
-			return withProject("install${buildType}${variant}")
+			return withProject(withVariant("install${buildType}"))
 		}
 
 		String getAssemble() {
-			return withProject("assemble${buildType}${variant}")
+			return withProject(withVariant("assemble${buildType}"))
 		}
 
 		List<String> getAllToObjects() {
