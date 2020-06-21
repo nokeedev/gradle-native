@@ -11,34 +11,38 @@ trait NativeLanguageTaskNames implements NativeProjectTaskNames {
 	 * Returns the tasks for the project with the given path.
 	 */
 	NativeProjectTasks tasks(String project) {
-		return new ProjectTasks(project, languageTaskSuffix, softwareModelLanguageTaskSuffix)
+		return new ProjectTasks(project, languageTaskSuffix)
 	}
 
 	/**
 	 * Returns the tasks for the root project.
 	 */
 	NativeProjectTasks getTasks() {
-		return new ProjectTasks('', languageTaskSuffix, softwareModelLanguageTaskSuffix)
+		return new ProjectTasks('', languageTaskSuffix)
 	}
 
 	static class ProjectTasks implements NativeProjectTasks {
 		private final String project
 		private final String languageTaskSuffix
-		private final String softwareModelLanguageTaskSuffix
-		private String architecture = null
-		private String operatingSystemFamily = null
+		private final String architecture
+		private final String operatingSystemFamily
 		private final String buildType = ''
-		private String binaryType = ''
+		private final String binaryType
 
-		ProjectTasks(String project, String languageTaskSuffix, String softwareModelLanguageTaskSuffix) {
+		ProjectTasks(String project, String languageTaskSuffix) {
+			this(project, languageTaskSuffix, null, null, '')
+		}
+
+		ProjectTasks(String project, String languageTaskSuffix, String architecture, String operatingSystemFamily, String binaryType) {
 			this.project = project
+			this.operatingSystemFamily = operatingSystemFamily
+			this.architecture = architecture
 			this.languageTaskSuffix = languageTaskSuffix
-			this.softwareModelLanguageTaskSuffix = softwareModelLanguageTaskSuffix
+			this.binaryType = binaryType
 		}
 
 		ProjectTasks withArchitecture(String architecture) {
-			this.architecture = architecture
-			return this
+			return new ProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType)
 		}
 
 		String withProject(String t) {
@@ -46,14 +50,12 @@ trait NativeLanguageTaskNames implements NativeProjectTaskNames {
 		}
 
 		ProjectTasks withOperatingSystemFamily(String operatingSystemFamily) {
-			this.operatingSystemFamily = operatingSystemFamily
-			return this
+			return new ProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType)
 		}
 
 		// TODO: Return a specialized type for shared library binary
 		ProjectTasks getForSharedLibrary() {
-			this.binaryType = 'sharedLibrary'
-			return this
+			return new ProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType)
 		}
 		String getBinary() {
 			return withProject("${binaryType}${buildType}${variant}")
