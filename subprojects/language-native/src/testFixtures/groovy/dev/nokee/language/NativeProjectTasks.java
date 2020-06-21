@@ -30,4 +30,6 @@ public interface NativeProjectTasks {
 	List<String> getAllToAssemble();
 
 	List<String> getAllToAssembleWithInstall();
+
+	NativeProjectTasks withOperatingSystemFamily(String operatingSystemFamily);
 }
