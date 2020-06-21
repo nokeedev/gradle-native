@@ -2,6 +2,7 @@ package dev.nokee.runtime.base.internal.repositories;
 
 import dev.nokee.runtime.base.internal.tools.CommandLineToolLocator;
 import dev.nokee.runtime.base.internal.tools.ToolRepository;
+import lombok.SneakyThrows;
 import org.eclipse.jetty.server.Server;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.SetProperty;
@@ -72,8 +73,10 @@ public abstract class NokeeServerService implements BuildService<NokeeServerServ
 	@Inject
 	protected abstract ObjectFactory getObjects();
 
+	@SneakyThrows
 	public URI getUri() {
-		return server.getURI();
+		URI uri = server.getURI();
+		return new URI(uri.getScheme(), uri.getUserInfo(), "127.0.0.1", uri.getPort(), uri.getPath(), uri.getFragment(), uri.getQuery());
 	}
 
 	// TODO: Maybe registerIfAbsent(Class...)
