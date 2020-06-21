@@ -9,8 +9,8 @@ abstract class AbstractNativeLanguageIncrementalCompilationFunctionalTest extend
 
 		expect:
 		succeeds "assemble"
-		result.assertTasksExecuted(tasks.allToAssemble, ":assemble")
-		result.assertTasksSkipped(tasks.allToAssemble, ":assemble")
+		result.assertTasksExecuted(tasks.allToAssemble)
+		result.assertTasksSkipped(allSkippedTasksToAssemble)
 	}
 
 	def "skip objects tasks when no source"() {
@@ -19,11 +19,15 @@ abstract class AbstractNativeLanguageIncrementalCompilationFunctionalTest extend
 
 		expect:
 		succeeds "objects"
-		result.assertTasksExecuted(tasks.allToObjects, ":objects")
-		result.assertTasksSkipped(tasks.allToObjects, ":objects")
+		result.assertTasksExecuted(tasks.allToObjects)
+		result.assertTasksSkipped(tasks.allToObjects)
 	}
 
 	protected abstract void makeSingleProject()
 
 	protected abstract String getBinaryLifecycleTaskName()
+
+	protected List<String> getAllSkippedTasksToAssemble() {
+		return tasks.allToAssemble
+	}
 }
