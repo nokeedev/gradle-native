@@ -63,10 +63,10 @@ trait NativeLanguageTaskNames implements NativeProjectTaskNames {
 
 		// TODO: Return a specialized type for shared library binary
 		ProjectTasks getForSharedLibrary() {
-			return new ProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType)
+			return new ProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, 'sharedLibrary')
 		}
 		String getBinary() {
-			return withProject("${binaryType}${buildType}${variant}")
+			return withProject(withVariant("${binaryType}${buildType}"))
 		}
 		List<String> getAllToBinary() {
 			return allToLink + [binary]
