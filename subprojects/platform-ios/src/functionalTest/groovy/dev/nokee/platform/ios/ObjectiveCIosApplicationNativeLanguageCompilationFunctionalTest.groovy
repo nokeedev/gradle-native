@@ -33,4 +33,9 @@ class ObjectiveCIosApplicationNativeLanguageCompilationFunctionalTest extends Ab
 	protected String getBinaryLifecycleTaskName() {
 		return 'bundle'
 	}
+
+	@Override
+	protected boolean isTargetMachineAwareConfiguration() {
+		return false
+	}
 }

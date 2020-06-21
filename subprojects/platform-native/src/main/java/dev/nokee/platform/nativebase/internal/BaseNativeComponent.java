@@ -151,6 +151,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 
 			if (getBuildVariants().get().size() > 1) {
 				getTasks().register(names.getTaskName(LifecycleBasePlugin.ASSEMBLE_TASK_NAME), task -> {
+					task.dependsOn(variant.flatMap(Variant::getDevelopmentBinary));
 					task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 				});
 			}

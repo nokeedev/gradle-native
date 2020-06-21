@@ -5,6 +5,8 @@ import dev.gradleplugins.test.fixtures.sources.SourceElement
 import org.hamcrest.Matchers
 import spock.lang.Unroll
 
+import static org.junit.Assume.assumeTrue
+
 abstract class AbstractNativeLanguageCompilationFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	@Unroll
 	def "build fails when compilation fails"(taskUnderTest) {
@@ -40,6 +42,28 @@ abstract class AbstractNativeLanguageCompilationFunctionalTest extends AbstractI
 		assertTasksExecutedAndNotSkipped(*tasks.allToAssemble)
 	}
 
+	// TODO: Variant-aware configuration
+	def "can assemble variant component"() {
+		assumeTrue(isTargetMachineAwareConfiguration())
+
+		given:
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+
+		and:
+		buildFile << """
+			${componentUnderTestDsl} {
+				targetMachines = [machines.macOS, machines.linux, machines.windows]
+			}
+		"""
+
+		when:
+		succeeds(tasks.withOperatingSystemFamily(currentOsFamilyName).assemble)
+
+		then:
+		assertTasksExecutedAndNotSkipped(*tasks.withOperatingSystemFamily(currentOsFamilyName).allToAssemble)
+	}
+
 	protected abstract void makeSingleProject()
 
 	protected abstract SourceElement getComponentUnderTest()
@@ -47,4 +71,17 @@ abstract class AbstractNativeLanguageCompilationFunctionalTest extends AbstractI
 	protected abstract String getBinaryLifecycleTaskName()
 
 	protected abstract String getExpectedCompilationFailureCause()
+
+	protected String getComponentUnderTestDsl() {
+		if (this.getClass().simpleName.contains("Library")) {
+			return 'library'
+		} else if (this.getClass().simpleName.contains("Application")) {
+			return 'application'
+		}
+		throw new IllegalArgumentException('Unable to figure out component under test DSL name')
+	}
+
+	protected boolean isTargetMachineAwareConfiguration() {
+		return true
+	}
 }

@@ -34,4 +34,9 @@ class SwiftIosApplicationNativeLanguageCompilationFunctionalTest extends Abstrac
 	protected String getBinaryLifecycleTaskName() {
 		return 'bundle'
 	}
+
+	@Override
+	protected boolean isTargetMachineAwareConfiguration() {
+		return false
+	}
 }

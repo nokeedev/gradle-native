@@ -1,6 +1,7 @@
 package dev.nokee.fixtures
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
+import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily
 
 abstract class AbstractNativeComponentDependenciesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	protected String getLibraryProjectName() {
@@ -11,12 +12,12 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 		given:
 		makeComponentWithLibrary()
 		buildFile << """
-            ${componentUnderTestDsl} {
-                dependencies {
-                    implementation ${dependencyNotation}
-                }
-            }
-        """
+			${componentUnderTestDsl} {
+				dependencies {
+					implementation ${dependencyNotation}
+				}
+			}
+		"""
 
 		when:
 		run(tasks.assemble)
@@ -29,20 +30,50 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 		given:
 		makeComponentWithLibrary()
 		buildFile << """
-            ${componentUnderTestDsl} {
-                variants.configureEach { b ->
-                    dependencies {
-                        implementation ${dependencyNotation}
-                    }
-                }
-            }
-        """
+			${componentUnderTestDsl} {
+				variants.configureEach { b ->
+					dependencies {
+						implementation ${dependencyNotation}
+					}
+				}
+			}
+		"""
 
 		when:
 		run(tasks.assemble)
 
 		then:
 		result.assertTasksExecuted(libraryTasks, tasks.allToAssemble)
+	}
+
+	// TODO: Variant-aware configuration
+	def "can define implementation dependencies single variant"() {
+		given:
+		makeComponentWithLibrary()
+		buildFile << """
+			import ${DefaultOperatingSystemFamily.canonicalName}
+
+			${componentUnderTestDsl} {
+				targetMachines = [machines.macOS, machines.windows]
+				variants.configureEach({it.buildVariant.getAxisValue(${DefaultOperatingSystemFamily.simpleName}.DIMENSION_TYPE).macOS}) {
+					dependencies {
+						implementation ${dependencyNotation}
+					}
+				}
+			}
+		"""
+
+		when:
+		run(tasks.withOperatingSystemFamily('macos').assemble, '--dry-run')
+		then:
+		// TODO: https://github.com/gradle-plugins/toolbox/issues/15
+		(libraryTasks + tasks.withOperatingSystemFamily('macos').allToAssemble).each { result.assertOutputContains(it) }
+
+		when:
+		run(tasks.withOperatingSystemFamily('windows').assemble, '--dry-run')
+		then:
+		// TODO: https://github.com/gradle-plugins/toolbox/issues/15
+		tasks.withOperatingSystemFamily('windows').allToAssemble.each { result.assertOutputContains(it) }
 	}
 
 	// TODO: Add test for source dependencies
