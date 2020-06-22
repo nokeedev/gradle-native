@@ -3,6 +3,8 @@ package dev.nokee.fixtures
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily
 
+import static org.junit.Assume.assumeTrue
+
 abstract class AbstractNativeComponentDependenciesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	protected String getLibraryProjectName() {
 		return 'library'
@@ -27,6 +29,8 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 	}
 
 	def "can define implementation dependencies on each variant"() {
+		assumeTrue(canDefineDependencyOnVariants())
+
 		given:
 		makeComponentWithLibrary()
 		buildFile << """
@@ -47,7 +51,9 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 	}
 
 	// TODO: Variant-aware configuration
-	def "can define implementation dependencies single variant"() {
+	def "can define implementation dependencies on single variant"() {
+		assumeTrue(canDefineDependencyOnVariants())
+
 		given:
 		makeComponentWithLibrary()
 		buildFile << """
@@ -117,6 +123,10 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 
 	protected String getImplementationBucketNameUnderTest() {
 		return 'implementation'
+	}
+
+	protected boolean canDefineDependencyOnVariants() {
+		return true
 	}
 }
 
