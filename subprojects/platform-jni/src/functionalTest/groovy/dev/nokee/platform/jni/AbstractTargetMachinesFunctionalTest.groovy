@@ -45,6 +45,26 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 		taskName << [taskNameToAssembleDevelopmentBinary, 'build']
 	}
 
+	@Unroll
+	def "#taskName shows warning when current operating system family is excluded only once"(taskName) {
+		given:
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+
+		and:
+		buildFile << configureToolChainSupport('some-other-family', currentArchitecture)
+		buildFile << configureTargetMachines("machines.os('some-other-family')")
+
+		expect:
+		succeeds taskNameToAssembleDevelopmentBinary
+
+		and:
+		result.output.count("'${componentName}' component in project ':' cannot build on this machine.") == 1
+
+		where:
+		taskName << [taskNameToAssembleDevelopmentBinary, 'jar']
+	}
+
 	def "fails when target machine is unknown by the configured tool chains"() {
 		given:
 		makeSingleProject()

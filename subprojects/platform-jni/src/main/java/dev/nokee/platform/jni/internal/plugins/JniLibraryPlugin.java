@@ -23,6 +23,7 @@ import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.RequiredArgsConstructor;
 import org.gradle.api.*;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -31,6 +32,7 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Provider;
@@ -127,6 +129,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			project.getPluginManager().apply(DarwinFrameworkResolutionSupportPlugin.class);
 		});
 
+		PreparedLogger unbuildableMainComponentLogger = new OneTimeLogger(new WarnUnbuildableLogger(project.getPath()));
 		project.afterEvaluate(proj -> {
 			// Create source set on extension
 			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
@@ -206,7 +209,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 						getTasks().named("jar", Jar.class, task -> {
 							task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 							task.setDescription("Assembles a jar archive containing the main classes and shared library.");
-							configureJarTaskUsing(library).execute(task);
+							configureJarTaskUsing(library, unbuildableMainComponentLogger).execute(task);
 						});
 
 						// NOTE: We don't need to attach the JNI JAR to runtimeElements as the `java` plugin take cares of this.
@@ -214,7 +217,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 						TaskProvider<Jar> jarTask = getTasks().register(JavaPlugin.JAR_TASK_NAME, Jar.class, task -> {
 							task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 							task.setDescription("Assembles a jar archive containing the shared library.");
-							configureJarTaskUsing(library).execute(task);
+							configureJarTaskUsing(library, unbuildableMainComponentLogger).execute(task);
 						});
 
 						// Attach JNI Jar to runtimeElements
@@ -225,7 +228,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 					}
 				} else {
 					TaskProvider<Jar> jarTask = getTasks().register(names.getTaskName("jar"), Jar.class, task -> {
-						configureJarTaskUsing(library).execute(task);
+						configureJarTaskUsing(library, unbuildableMainComponentLogger).execute(task);
 						task.getArchiveBaseName().set(names.getBaseName().withKababDimensions());
 					});
 
@@ -292,7 +295,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			task.dependsOn((Callable) () -> {
 				boolean targetsCurrentMachine = extension.getTargetMachines().get().stream().anyMatch(toolChainSelector::canBuild);
 				if (!targetsCurrentMachine) {
-					task.getLogger().warn("'main' component in project '" + project.getPath() + "' cannot build on this machine.");
+					unbuildableMainComponentLogger.log();
 				}
 				return Collections.emptyList();
 			});
@@ -339,7 +342,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		}
 	}
 
-	private Action<Jar> configureJarTaskUsing(VariantProvider<JniLibraryInternal> library) {
+	private Action<Jar> configureJarTaskUsing(VariantProvider<JniLibraryInternal> library, PreparedLogger unbuildableMainComponentLogger) {
 		return task -> {
 			MissingFileDiagnostic diagnostic = new MissingFileDiagnostic();
 			task.doFirst(new Action<Task>() {
@@ -376,7 +379,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 					if (it.getTargetMachine().getOperatingSystemFamily().equals(DefaultOperatingSystemFamily.HOST)) {
 						return it.getNativeRuntimeFiles();
 					} else {
-						task.getLogger().warn("'main' component in project '" + task.getProject().getPath() + "' cannot build on this machine.");
+						unbuildableMainComponentLogger.log();
 						return emptyList();
 					}
 				}
@@ -497,6 +500,35 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				}
 			});
 		});
+	}
+
+	private interface PreparedLogger {
+		void log();
+	}
+
+	@RequiredArgsConstructor
+	private static class WarnUnbuildableLogger implements PreparedLogger {
+		private static final Logger LOGGER = Logging.getLogger(WarnUnbuildableLogger.class);
+		private final String projectPath;
+
+		@Override
+		public void log() {
+			LOGGER.warn("'main' component in project '" + projectPath + "' cannot build on this machine.");
+		}
+	}
+
+	@RequiredArgsConstructor
+	private static class OneTimeLogger implements PreparedLogger {
+		private final PreparedLogger delegate;
+		private boolean messageAlreadyLogged = false;
+
+		@Override
+		public void log() {
+			if (!messageAlreadyLogged) {
+				delegate.log();
+				messageAlreadyLogged = true;
+			}
+		}
 	}
 
 	/**
