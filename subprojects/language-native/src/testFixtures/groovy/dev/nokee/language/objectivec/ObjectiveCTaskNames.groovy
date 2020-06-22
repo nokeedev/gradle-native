@@ -8,9 +8,4 @@ trait ObjectiveCTaskNames implements NativeLanguageTaskNames, NativeProjectTaskN
 	String getLanguageTaskSuffix() {
 		return 'ObjectiveC'
 	}
-
-	@Override
-	String getSoftwareModelLanguageTaskSuffix() {
-		return 'Objc'
-	}
 }

@@ -7,9 +7,4 @@ trait ObjectiveCppTaskNames implements NativeLanguageTaskNames {
 	String getLanguageTaskSuffix() {
 		return 'ObjectiveCpp'
 	}
-
-	@Override
-	String getSoftwareModelLanguageTaskSuffix() {
-		return 'Objcpp'
-	}
 }

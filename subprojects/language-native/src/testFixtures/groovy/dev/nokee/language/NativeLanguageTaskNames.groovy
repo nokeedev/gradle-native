@@ -3,10 +3,6 @@ package dev.nokee.language
 trait NativeLanguageTaskNames implements NativeProjectTaskNames {
 	abstract String getLanguageTaskSuffix()
 
-	String getSoftwareModelLanguageTaskSuffix() {
-		return getLanguageTaskSuffix()
-	}
-
 	/**
 	 * Returns the tasks for the project with the given path.
 	 */
