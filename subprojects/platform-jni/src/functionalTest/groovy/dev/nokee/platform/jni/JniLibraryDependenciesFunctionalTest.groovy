@@ -1,6 +1,5 @@
 package dev.nokee.platform.jni
 
-
 import dev.nokee.fixtures.AbstractNativeComponentIncludedBuildDependenciesFunctionalTest
 import dev.nokee.fixtures.AbstractNativeComponentProjectDependenciesFunctionalTest
 import dev.nokee.language.DefaultJavaProjectTasks
@@ -118,9 +117,7 @@ class JniLibraryNativeIncludedDependenciesFunctionalTest extends AbstractJniLibr
 			plugins {
 				id 'dev.nokee.cpp-library'
 			}
-
-			${configureLibraryProject()}
-		"""
+		""" << configureLibraryProject()
 
 		def fixture = new JavaJniCppGreeterLib('jni-greeter')
 		fixture.withoutNativeImplementation().writeToProject(testDirectory)
@@ -158,9 +155,7 @@ class JniLibraryJvmIncludedDependenciesFunctionalTest extends AbstractJniLibrary
 			plugins {
 				id 'java'
 			}
-
-			${configureLibraryProject()}
-		"""
+		""" << configureLibraryProject()
 
 		def fixture = new JavaJniCppGreeterLib('jni-greeter')
 		fixture.withoutJvmImplementation().writeToProject(testDirectory)
