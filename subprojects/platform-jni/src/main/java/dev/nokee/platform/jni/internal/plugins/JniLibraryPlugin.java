@@ -24,6 +24,7 @@ import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.gradle.api.*;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -489,7 +490,13 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 
 		project.getTasks().named("test", Test.class, task -> {
 			Provider<List<? extends FileCollection>> files = library.getVariants().map(JniLibrary::getNativeRuntimeFiles);
-			task.dependsOn(files);
+			task.dependsOn((Callable<Iterable<File>>)() -> {
+				val variant = library.getComponent().getDevelopmentVariant().getOrNull();
+				if (variant == null) {
+					return emptyList();
+				}
+				return variant.getNativeRuntimeFiles();
+			});
 
 			// TODO: notify when no native library exists
 			task.getJvmArgumentProviders().add(new CommandLineArgumentProvider() {

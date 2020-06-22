@@ -7,6 +7,7 @@ import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture
 import org.gradle.nativeplatform.OperatingSystemFamily
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin
 import spock.lang.Unroll
 
 import static org.hamcrest.CoreMatchers.containsString
@@ -26,7 +27,7 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 	}
 
 	@Unroll
-	def "#taskName task warns when current operating system family is excluded"() {
+	def "#taskName task warns when current operating system family is excluded"(taskName) {
 		given:
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)
@@ -36,7 +37,7 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 		buildFile << configureTargetMachines("machines.os('some-other-family')")
 
 		expect:
-		succeeds taskNameToAssembleDevelopmentBinary
+		succeeds taskName
 
 		and:
 		outputContains("'${componentName}' component in project ':' cannot build on this machine.")
@@ -239,13 +240,16 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 				@Finalize
 				void addToolChain(NativeToolChainRegistry toolChains) {
 					toolChains.create("toolChainFor${operatingSystem.capitalize()}${architecture.capitalize()}", Gcc) {
-                        path "/not/found"
-                        target("${operatingSystem}${architecture}") // It needs to be the same as NativePlatformFactory#platformNameFor
+						path "/not/found"
+						target("${operatingSystem}${architecture}") // It needs to be the same as NativePlatformFactory#platformNameFor
 					}
 				}
 			}
-			// TODO: Applies after the Stardard tool chain plugin
-			apply plugin: ${className}
+			import ${StandardToolChainsPlugin.canonicalName}
+			plugins.withType(StandardToolChainsPlugin) {
+				// TODO: Applies after the Stardard tool chain plugin
+				plugins.apply(${className})
+			}
 		"""
 
 		// The following replace the tool chains
