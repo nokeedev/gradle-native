@@ -85,32 +85,6 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 
 	// TODO: Add test for source dependencies
 
-//	def "can define different implementation dependencies on each variant"() {
-//		given:
-//		makeComponentWithLibrary()
-//		buildFile << """
-//            ${componentUnderTestDsl} {
-//                binaries.getByName('mainDebug').configure {
-//                    dependencies {
-//                        implementation project(':${libraryProjectName}')
-//                    }
-//                }
-//            }
-//        """
-//
-//		when:
-//		run(':assembleDebug')
-//
-//		then:
-//		result.assertTasksExecuted(libDebugTasks, assembleDebugTasks, ':assembleDebug')
-//
-//		when:
-//		run(':assembleRelease')
-//
-//		then:
-//		result.assertTasksExecuted(assembleReleaseTasks, ':assembleRelease')
-//	}
-
 	/**
 	 * Creates a build with the component under test in the root project and a library in the 'lib' project.
 	 */
