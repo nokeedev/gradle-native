@@ -1,22 +1,23 @@
 package dev.nokee.platform.jni.fixtures
 
+import dev.nokee.language.DefaultNativeProjectTasks
 import dev.nokee.language.NativeLanguageTaskNames
 import dev.nokee.language.NativeProjectTaskNames
 import dev.nokee.language.NativeProjectTasks
 
 trait JavaJniTaskNames implements NativeProjectTaskNames {
-	static ProjectTasks forJni(NativeLanguageTaskNames.ProjectTasks tasks) {
+	static ProjectTasks forJni(DefaultNativeProjectTasks tasks) {
 		return new ProjectTasks(tasks)
 	}
 
 	NativeProjectTasks getTasks() {
-		return forJni((NativeLanguageTaskNames.ProjectTasks)super.getTasks())
+		return forJni((DefaultNativeProjectTasks)super.getTasks())
 	}
 
 	static class ProjectTasks implements NativeProjectTasks {
-		@Delegate private final NativeLanguageTaskNames.ProjectTasks delegate
+		@Delegate private final DefaultNativeProjectTasks delegate
 
-		ProjectTasks(NativeLanguageTaskNames.ProjectTasks delegate) {
+		ProjectTasks(DefaultNativeProjectTasks delegate) {
 			this.delegate = delegate
 		}
 
@@ -46,7 +47,7 @@ trait JavaJniTaskNames implements NativeProjectTaskNames {
 
 		@Override
 		NativeProjectTasks withOperatingSystemFamily(String operatingSystemFamily) {
-			return new ProjectTasks((NativeLanguageTaskNames.ProjectTasks)delegate.withOperatingSystemFamily(operatingSystemFamily))
+			return new ProjectTasks((DefaultNativeProjectTasks)delegate.withOperatingSystemFamily(operatingSystemFamily))
 		}
 	}
 }

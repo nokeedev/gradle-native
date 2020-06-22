@@ -3,6 +3,7 @@ package dev.nokee.platform.jni
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
+import dev.nokee.language.DefaultNativeProjectTasks
 import dev.nokee.language.NativeLanguageTaskNames
 import dev.nokee.language.c.CTaskNames
 import dev.nokee.language.cpp.CppTaskNames
@@ -64,7 +65,7 @@ abstract class AbstractNativeLinkingAwareComponentFunctionalTest extends Abstrac
 
 	protected abstract JniLibraryElement getComponentUnderTest()
 
-	protected abstract NativeLanguageTaskNames.ProjectTasks getTaskNames()
+	protected abstract DefaultNativeProjectTasks getTaskNames()
 
 	protected abstract List<String> getAdditionalCompileTasks()
 
@@ -120,7 +121,7 @@ class NativeLinkingJavaCppJniLibraryFunctionalTest extends AbstractNativeLinking
 	}
 
 	@Override
-	protected ProjectTasks getTaskNames() {
+	protected DefaultNativeProjectTasks getTaskNames() {
 		return tasks.forSharedLibrary
 	}
 
@@ -147,7 +148,7 @@ class NativeLinkingJavaCJniLibraryFunctionalTest extends AbstractNativeLinkingAw
 	}
 
 	@Override
-	protected ProjectTasks getTaskNames() {
+	protected DefaultNativeProjectTasks getTaskNames() {
 		return tasks.forSharedLibrary
 	}
 
@@ -182,7 +183,7 @@ class NativeLinkingJavaObjectiveCJniLibraryFunctionalTest extends AbstractNative
 	}
 
 	@Override
-	protected ProjectTasks getTaskNames() {
+	protected DefaultNativeProjectTasks getTaskNames() {
 		return tasks.forSharedLibrary
 	}
 
@@ -217,7 +218,7 @@ class NativeLinkingJavaObjectiveCppJniLibraryFunctionalTest extends AbstractNati
 	}
 
 	@Override
-	protected ProjectTasks getTaskNames() {
+	protected DefaultNativeProjectTasks getTaskNames() {
 		return tasks.forSharedLibrary
 	}
 
@@ -280,7 +281,7 @@ class NativeLinkingKotlinCppJniLibraryFunctionalTest extends AbstractNativeLinki
 	}
 
 	@Override
-	protected ProjectTasks getTaskNames() {
+	protected DefaultNativeProjectTasks getTaskNames() {
 		return tasks.forSharedLibrary
 	}
 
