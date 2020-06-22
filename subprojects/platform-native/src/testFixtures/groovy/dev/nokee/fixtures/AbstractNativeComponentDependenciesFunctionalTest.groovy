@@ -80,6 +80,7 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 		then:
 		// TODO: https://github.com/gradle-plugins/toolbox/issues/15
 		tasks.withOperatingSystemFamily('windows').allToAssemble.each { result.assertOutputContains(it) }
+		libraryTasks.each { result.assertNotOutput(it) }
 	}
 
 	// TODO: Add test for source dependencies
