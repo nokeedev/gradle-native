@@ -14,7 +14,7 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 		buildFile << """
 			${componentUnderTestDsl} {
 				dependencies {
-					implementation ${dependencyNotation}
+					${implementationBucketNameUnderTest} ${dependencyNotation}
 				}
 			}
 		"""
@@ -33,7 +33,7 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 			${componentUnderTestDsl} {
 				variants.configureEach { b ->
 					dependencies {
-						implementation ${dependencyNotation}
+						${implementationBucketNameUnderTest} ${dependencyNotation}
 					}
 				}
 			}
@@ -57,7 +57,7 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 				targetMachines = [machines.macOS, machines.windows]
 				variants.configureEach({it.buildVariant.getAxisValue(${DefaultOperatingSystemFamily.simpleName}.DIMENSION_TYPE).macOS}) {
 					dependencies {
-						implementation ${dependencyNotation}
+						${implementationBucketNameUnderTest} ${dependencyNotation}
 					}
 				}
 			}
@@ -114,6 +114,10 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 	protected abstract List<String> getLibraryTasks()
 
 	protected abstract String getDependencyNotation()
+
+	protected String getImplementationBucketNameUnderTest() {
+		return 'implementation'
+	}
 }
 
 
