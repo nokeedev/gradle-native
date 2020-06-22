@@ -2,6 +2,9 @@ package dev.nokee.fixtures
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily
+import org.gradle.nativeplatform.OperatingSystemFamily
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin
 
 import static org.junit.Assume.assumeTrue
 
@@ -56,12 +59,12 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 
 		given:
 		makeComponentWithLibrary()
-		buildFile << """
+		buildFile << configureToolChainSupport('foo') << """
 			import ${DefaultOperatingSystemFamily.canonicalName}
 
 			${componentUnderTestDsl} {
-				targetMachines = [machines.macOS, machines.windows]
-				variants.configureEach({it.buildVariant.getAxisValue(${DefaultOperatingSystemFamily.simpleName}.DIMENSION_TYPE).macOS}) {
+				targetMachines = [machines.${currentHostOperatingSystemFamilyDsl}, machines.os('foo')]
+				variants.configureEach({it.buildVariant.getAxisValue(${DefaultOperatingSystemFamily.simpleName}.DIMENSION_TYPE).${currentHostOperatingSystemFamilyDsl}}) {
 					dependencies {
 						${implementationBucketNameUnderTest} ${dependencyNotation}
 					}
@@ -70,16 +73,16 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 		"""
 
 		when:
-		run(tasks.withOperatingSystemFamily('macos').assemble, '--dry-run')
+		run(tasks.withOperatingSystemFamily(currentOsFamilyName).assemble, '--dry-run')
 		then:
 		// TODO: https://github.com/gradle-plugins/toolbox/issues/15
-		(libraryTasks + tasks.withOperatingSystemFamily('macos').allToAssemble).each { result.assertOutputContains(it) }
+		(libraryTasks + tasks.withOperatingSystemFamily(currentOsFamilyName).allToAssemble).each { result.assertOutputContains(it) }
 
 		when:
-		run(tasks.withOperatingSystemFamily('windows').assemble, '--dry-run')
+		run(tasks.withOperatingSystemFamily('foo').assemble, '--dry-run')
 		then:
 		// TODO: https://github.com/gradle-plugins/toolbox/issues/15
-		tasks.withOperatingSystemFamily('windows').allToAssemble.each { result.assertOutputContains(it) }
+		tasks.withOperatingSystemFamily('foo').allToAssemble.each { result.assertOutputContains(it) }
 		libraryTasks.each { result.assertNotOutput(it) }
 	}
 
@@ -102,6 +105,35 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 
 	protected boolean canDefineDependencyOnVariants() {
 		return true
+	}
+
+	protected String configureToolChainSupport(String operatingSystem, String architecture = currentArchitecture) {
+		String className = "ToolChainFor${operatingSystem.capitalize()}${architecture.capitalize()}Rules".replace('-', '')
+		return """
+			class ${className} extends RuleSource {
+				@Finalize
+				void addToolChain(NativeToolChainRegistry toolChains) {
+					toolChains.create("toolChainFor${operatingSystem.capitalize()}${architecture.capitalize()}", Gcc) {
+						path "/not/found"
+						target("${operatingSystem}${architecture}") // It needs to be the same as NativePlatformFactory#platformNameFor
+					}
+				}
+			}
+			import ${StandardToolChainsPlugin.canonicalName}
+			plugins.withType(StandardToolChainsPlugin) {
+				// TODO: Applies after the Stardard tool chain plugin
+				plugins.apply(${className})
+			}
+		"""
+	}
+
+	protected String getCurrentHostOperatingSystemFamilyDsl() {
+		String osFamily = DefaultNativePlatform.getCurrentOperatingSystem().toFamilyName()
+		if (osFamily == OperatingSystemFamily.MACOS) {
+			return "macOS"
+		} else {
+			return osFamily
+		}
 	}
 }
 
