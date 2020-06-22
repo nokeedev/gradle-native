@@ -92,7 +92,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			incomingSwiftDependencies = getObjects().newInstance(DefaultSwiftModuleIncomingDependencies.class, names, variantDependencies);
 			incomingHeaderDependencies = getObjects().newInstance(NoHeaderIncomingDependencies.class);
 		} else if (hasHeader) {
-			incomingHeaderDependencies = getObjects().newInstance(DefaultHeaderIncomingDependencies.class, names, variantDependencies);
+			incomingHeaderDependencies = getObjects().newInstance(DefaultHeaderIncomingDependencies.class, names, variantDependencies, buildVariant);
 			incomingSwiftDependencies = getObjects().newInstance(NoSwiftModuleIncomingDependencies.class);
 		} else {
 			incomingHeaderDependencies = getObjects().newInstance(NoHeaderIncomingDependencies.class);

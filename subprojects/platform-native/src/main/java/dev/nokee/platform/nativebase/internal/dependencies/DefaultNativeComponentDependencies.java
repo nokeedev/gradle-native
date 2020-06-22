@@ -33,7 +33,7 @@ public abstract class DefaultNativeComponentDependencies extends AbstractNativeC
 			incomingSwiftDependencies = getObjects().newInstance(DefaultSwiftModuleIncomingDependencies.class, names, this);
 			incomingHeaderDependencies = getObjects().newInstance(NoHeaderIncomingDependencies.class);
 		} else {
-			incomingHeaderDependencies = getObjects().newInstance(DefaultHeaderIncomingDependencies.class, names, this);
+			incomingHeaderDependencies = getObjects().newInstance(DefaultHeaderIncomingDependencies.class, names, this, buildVariant);
 			incomingSwiftDependencies = getObjects().newInstance(NoSwiftModuleIncomingDependencies.class);
 		}
 

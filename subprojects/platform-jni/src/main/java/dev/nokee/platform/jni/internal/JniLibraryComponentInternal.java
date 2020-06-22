@@ -9,6 +9,7 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryDependencies;
+import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
@@ -19,6 +20,7 @@ import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
@@ -26,6 +28,8 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static dev.nokee.platform.nativebase.internal.BaseNativeComponent.one;
 
 public abstract class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JniLibraryDependencies>, BinaryAwareComponent {
 	private final JniLibraryDependenciesInternal dependencies;
@@ -45,6 +49,9 @@ public abstract class JniLibraryComponentInternal extends BaseComponent<JniLibra
 		getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
 		getBuildVariants().finalizeValueOnRead();
 		getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
+
+		getDevelopmentVariant().convention(getDefaultVariant());
+		getDevelopmentVariant().disallowChanges();
 	}
 
 	@Inject
@@ -61,6 +68,24 @@ public abstract class JniLibraryComponentInternal extends BaseComponent<JniLibra
 	}
 
 	//region Variant-awareness
+	protected Provider<JniLibraryInternal> getDefaultVariant() {
+		return getProviders().provider(() -> {
+			List<JniLibraryInternal> variants = getVariantCollection().get().stream().filter(it -> {
+				DefaultOperatingSystemFamily osFamily = it.getBuildVariant().getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE);
+				DefaultMachineArchitecture architecture = it.getBuildVariant().getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE);
+				if (DefaultOperatingSystemFamily.HOST.equals(osFamily) && DefaultMachineArchitecture.HOST.equals(architecture)) {
+					return true;
+				}
+				return false;
+			}).collect(Collectors.toList());
+
+			if (variants.isEmpty()) {
+				return null;
+			}
+			return one(variants);
+		});
+	}
+
 	public VariantView<JniLibrary> getVariants() {
 		return getVariantCollection().getAsView(JniLibrary.class);
 	}

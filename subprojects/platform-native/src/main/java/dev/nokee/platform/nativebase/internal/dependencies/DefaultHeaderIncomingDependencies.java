@@ -1,7 +1,11 @@
 package dev.nokee.platform.nativebase.internal.dependencies;
 
+import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
+import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
+import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.Value;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -23,14 +27,15 @@ public abstract class DefaultHeaderIncomingDependencies implements HeaderIncomin
 	private final Configuration headerSearchPathsConfiguration;
 
 	@Inject
-	public DefaultHeaderIncomingDependencies(NamingScheme names, AbstractNativeComponentDependencies buckets) {
+	public DefaultHeaderIncomingDependencies(NamingScheme names, AbstractNativeComponentDependencies buckets, BuildVariant buildVariant) {
 		ConfigurationUtils configurationUtils = getObjects().newInstance(ConfigurationUtils.class);
+		DefaultTargetMachine targetMachine = new DefaultTargetMachine(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE), buildVariant.getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE));
 
 		String name = names.getConfigurationNameWithoutPrefix("headerSearchPaths");
 		if (buckets.getCompileOnlyDependencies() == null) {
-			headerSearchPathsConfiguration = getConfigurations().create(name, configurationUtils.asIncomingHeaderSearchPathFrom(buckets.getImplementationDependencies()).withDescription(names.getConfigurationDescription("Header search paths for %s.")));
+			headerSearchPathsConfiguration = getConfigurations().create(name, configurationUtils.asIncomingHeaderSearchPathFrom(buckets.getImplementationDependencies()).forTargetMachine(targetMachine).withDescription(names.getConfigurationDescription("Header search paths for %s.")));
 		} else {
-			headerSearchPathsConfiguration = getConfigurations().create(name, configurationUtils.asIncomingHeaderSearchPathFrom(buckets.getImplementationDependencies(), buckets.getCompileOnlyDependencies()).withDescription(names.getConfigurationDescription("Header search paths for %s.")));
+			headerSearchPathsConfiguration = getConfigurations().create(name, configurationUtils.asIncomingHeaderSearchPathFrom(buckets.getImplementationDependencies(), buckets.getCompileOnlyDependencies()).forTargetMachine(targetMachine).withDescription(names.getConfigurationDescription("Header search paths for %s.")));
 		}
 
 		configureNativeCompilerInputs();

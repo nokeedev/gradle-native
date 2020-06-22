@@ -54,7 +54,7 @@ public abstract class DefaultNativeLibraryDependencies extends AbstractNativeCom
 			incomingSwiftDependencies = getObjects().newInstance(DefaultSwiftModuleIncomingDependencies.class, names, this);
 			incomingHeaderDependencies = getObjects().newInstance(NoHeaderIncomingDependencies.class);
 		} else {
-			incomingHeaderDependencies = getObjects().newInstance(DefaultHeaderIncomingDependencies.class, names, this);
+			incomingHeaderDependencies = getObjects().newInstance(DefaultHeaderIncomingDependencies.class, names, this, buildVariant);
 			incomingSwiftDependencies = getObjects().newInstance(NoSwiftModuleIncomingDependencies.class);
 		}
 
