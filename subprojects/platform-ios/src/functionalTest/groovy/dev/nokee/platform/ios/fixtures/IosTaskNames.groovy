@@ -1,22 +1,22 @@
 package dev.nokee.platform.ios.fixtures
 
-import dev.nokee.language.NativeLanguageTaskNames
+import dev.nokee.language.DefaultNativeProjectTasks
 import dev.nokee.language.NativeProjectTaskNames
 import dev.nokee.language.NativeProjectTasks
 
 trait IosTaskNames implements NativeProjectTaskNames {
-	ProjectTasks forIos(NativeLanguageTaskNames.ProjectTasks tasks) {
+	ProjectTasks forIos(DefaultNativeProjectTasks tasks) {
 		return new ProjectTasks(tasks)
 	}
 
 	NativeProjectTasks getTasks() {
-		return forIos((NativeLanguageTaskNames.ProjectTasks)super.getTasks())
+		return forIos((DefaultNativeProjectTasks)super.getTasks())
 	}
 
 	static class ProjectTasks implements NativeProjectTasks {
-		@Delegate private final NativeLanguageTaskNames.ProjectTasks delegate
+		@Delegate private final DefaultNativeProjectTasks delegate
 
-		ProjectTasks(NativeLanguageTaskNames.ProjectTasks delegate) {
+		ProjectTasks(DefaultNativeProjectTasks delegate) {
 			this.delegate = delegate
 		}
 

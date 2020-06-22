@@ -72,15 +72,15 @@ abstract class AbstractNativeLanguageCompilationFunctionalTest extends AbstractI
 
 	protected String getExpectedCompilationFailureCause() {
 		String className = this.getClass().simpleName
-		if (className.contains('ObjectiveCLanguage')) {
-			return 'Objective-C compiler failed while compiling broken.m'
-		} else if (className.contains('ObjectiveCppLanguage')) {
+		if (className.contains('ObjectiveCppLanguage') || className.startsWith('ObjectiveCpp')) {
 			return 'Objective-C++ compiler failed while compiling broken.mm'
-		} else if (className.contains('CLanguage')) {
-			return 'C compiler failed while compiling broken.c'
-		} else if (className.contains('CppLanguage')) {
+		} else if (className.contains('ObjectiveCLanguage') || className.startsWith('ObjectiveC')) {
+			return 'Objective-C compiler failed while compiling broken.m'
+		} else if (className.contains('CppLanguage') || className.startsWith('Cpp')) {
 			return 'C++ compiler failed while compiling broken.cpp'
-		} else if (className.contains('SwiftLanguage')) {
+		} else if (className.contains('CLanguage') || className.startsWith('C')) {
+			return 'C compiler failed while compiling broken.c'
+		} else if (className.contains('SwiftLanguage') || className.startsWith('Swift')) {
 			return 'Swift compiler failed while compiling swift file(s)'
 		}
 		throw new IllegalArgumentException('Unable to figure out expected compilation failure cause')
