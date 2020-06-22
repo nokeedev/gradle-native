@@ -64,6 +64,20 @@ class JavaJniCppGreeterLib extends JniLibraryElement {
 		}
 	}
 
+	JniLibraryElement withoutJvmImplementation() {
+		return new JniLibraryElement() {
+			@Override
+			SourceElement getJvmSources() {
+				return ofElements(JavaJniCppGreeterLib.this.jvmBindings)
+			}
+
+			@Override
+			NativeSourceElement getNativeSources() {
+				return ofNativeElements(nativeBindings, nativeImplementation)
+			}
+		}
+	}
+
 	JniLibraryElement withImplementationAsSubprojects() {
 		return new JniLibraryElement() {
 			@Override
