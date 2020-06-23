@@ -15,6 +15,7 @@ import dev.nokee.platform.base.internal.VariantProvider;
 import dev.nokee.platform.nativebase.*;
 import dev.nokee.platform.nativebase.internal.dependencies.AbstractBinaryAwareNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.AbstractNativeComponentDependencies;
+import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
@@ -127,6 +128,12 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 						TaskProvider<LinkSharedLibraryTask> linkTask = getTasks().register(names.getTaskName("link"), LinkSharedLibraryTask.class);
 
 						SharedLibraryBinaryInternal binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
+						variantInternal.getBinaryCollection().add(binary);
+						binary.getBaseName().convention(project.getName());
+					} else if (linkage.equals(DefaultBinaryLinkage.BUNDLE)) {
+						TaskProvider<LinkBundleTask> linkTask = getTasks().register(names.getTaskName("link"), LinkBundleTask.class);
+
+						BundleBinaryInternal binary = getObjects().newInstance(BundleBinaryInternal.class, names, targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
 						variantInternal.getBinaryCollection().add(binary);
 						binary.getBaseName().convention(project.getName());
 //					} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
