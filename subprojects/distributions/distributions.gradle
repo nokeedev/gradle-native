@@ -31,7 +31,9 @@ def allPluginProjectPaths = [
 	':testingXctest'
 ]
 
-def publishToStaging = tasks.register('publishToStaging')
+def publishToStaging = tasks.register('publishToStaging') {
+	group = 'verification'
+}
 
 // TODO: Add distribution test that ensure gradle-api is not inside any pom (or any dev.gradleplugins artifacts)
 
