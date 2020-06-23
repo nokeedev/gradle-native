@@ -218,7 +218,7 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 				task.getCodeSignatureTool().set(codeSignatureTool);
 			});
 
-			application.getBinaryCollection().add(getObjects().newInstance(SignedIosApplicationBundleInternal.class));
+			application.getBinaryCollection().add(getObjects().newInstance(SignedIosApplicationBundleInternal.class, signApplicationBundleTask));
 		});
 
 		TaskProvider<Task> bundle = getTasks().register("bundle", task -> {
