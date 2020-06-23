@@ -26,8 +26,8 @@ public abstract class ComponentCollection<T extends Component> {
 	}
 
 	public <S extends T> ComponentProvider<S> register(Class<S> type, NamingScheme names) {
-		componentCreationArguments.put("main", new ComponentCreationArguments<>(type, names));
-		return Cast.uncheckedCast("of type erasure", getObjects().newInstance(ComponentProvider.class, collection.register("main")));
+		componentCreationArguments.put(names.getComponentName(), new ComponentCreationArguments<>(type, names));
+		return Cast.uncheckedCast("of type erasure", getObjects().newInstance(ComponentProvider.class, collection.register(names.getComponentName())));
 	}
 
 	public <S extends T> void configureEach(Class<S> type, Action<? super S> action) {
