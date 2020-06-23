@@ -101,7 +101,7 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 			incomingSwiftDependencies = getObjects().newInstance(DefaultSwiftModuleIncomingDependencies.class, names, variantDependencies);
 			incomingHeaderDependencies = getObjects().newInstance(NoHeaderIncomingDependencies.class);
 		} else {
-			incomingHeaderDependencies = getObjects().newInstance(DefaultHeaderIncomingDependencies.class, names, variantDependencies);
+			incomingHeaderDependencies = getObjects().newInstance(DefaultHeaderIncomingDependencies.class, names, variantDependencies, buildVariant);
 			incomingSwiftDependencies = getObjects().newInstance(NoSwiftModuleIncomingDependencies.class);
 		}
 
