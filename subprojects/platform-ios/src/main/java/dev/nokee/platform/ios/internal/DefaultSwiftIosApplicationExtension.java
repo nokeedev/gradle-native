@@ -14,8 +14,8 @@ import javax.inject.Inject;
 
 public abstract class DefaultSwiftIosApplicationExtension extends BaseIosExtension<DefaultIosApplicationComponent> implements SwiftIosApplicationExtension {
 	@Inject
-	public DefaultSwiftIosApplicationExtension(NamingScheme names, GroupId groupId) {
-		super(names, groupId, DefaultIosApplicationComponent.class);
+	public DefaultSwiftIosApplicationExtension(DefaultIosApplicationComponent component) {
+		super(component);
 		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class).srcDir("src/main/swift"));
 	}
 

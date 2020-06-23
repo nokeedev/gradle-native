@@ -5,8 +5,6 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
@@ -19,8 +17,8 @@ import javax.inject.Inject;
 public abstract class BaseIosExtension<T extends BaseNativeComponent<?>> {
 	private final T component;
 
-	public BaseIosExtension(NamingScheme names, GroupId groupId, Class<T> componentType) {
-		this.component = getObjects().newInstance(componentType, names.withComponentDisplayName("main iOS application"), groupId);
+	public BaseIosExtension(T component) {
+		this.component = component;
 
 		component.getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
 		component.getBuildVariants().finalizeValueOnRead();
@@ -39,7 +37,7 @@ public abstract class BaseIosExtension<T extends BaseNativeComponent<?>> {
 		return ImmutableList.of(DefaultBuildVariant.of(DefaultOperatingSystemFamily.forName("ios"), DefaultMachineArchitecture.X86_64, DefaultBinaryLinkage.EXECUTABLE));
 	}
 
-	protected T getComponent() {
+	public T getComponent() {
 		return component;
 	}
 

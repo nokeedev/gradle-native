@@ -11,11 +11,7 @@ import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.internal.BuildVariant;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.VariantProvider;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.ios.tasks.internal.*;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -30,6 +26,7 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.RegularFile;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.toolchain.Swiftc;
@@ -43,17 +40,17 @@ import java.util.stream.Collectors;
 
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
-public abstract class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent {
+public abstract class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, Component {
 	private final DefaultNativeComponentDependencies dependencies;
-	private final GroupId groupId;
 
 	@Inject
-	public DefaultIosApplicationComponent(NamingScheme names, GroupId groupId) {
+	public DefaultIosApplicationComponent(NamingScheme names) {
 		super(names, DefaultIosApplicationVariant.class);
-		this.groupId = groupId;
 		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, names);
 		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, DefaultBinaryLinkage.DIMENSION_TYPE));
 	}
+
+	public abstract Property<GroupId> getGroupId();
 
 	@Override
 	public DefaultNativeComponentDependencies getDependencies() {
@@ -160,7 +157,7 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 			Provider<CommandLineTool> codeSignatureTool = getProviders().provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
 
 			String moduleName = names.getBaseName().getAsCamelCase();
-			Provider<String> identifier = getProviders().provider(() -> groupId.get().map(it -> it + "." + moduleName).orElse(moduleName));
+			Provider<String> identifier = getProviders().provider(() -> getGroupId().get().get().map(it -> it + "." + moduleName).orElse(moduleName));
 
 			TaskProvider<StoryboardCompileTask> compileStoryboardTask = getTasks().register("compileStoryboard", StoryboardCompileTask.class, task -> {
 				task.getDestinationDirectory().set(getLayout().getBuildDirectory().dir("ios/storyboards/compiled/main"));

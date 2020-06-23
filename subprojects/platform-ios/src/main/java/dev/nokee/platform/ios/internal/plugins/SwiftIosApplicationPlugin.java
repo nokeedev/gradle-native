@@ -1,8 +1,12 @@
 package dev.nokee.platform.ios.internal.plugins;
 
+import dev.nokee.internal.Cast;
+import dev.nokee.platform.base.internal.Component;
+import dev.nokee.platform.base.internal.ComponentCollection;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.ios.SwiftIosApplicationExtension;
+import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.DefaultSwiftIosApplicationExtension;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
@@ -28,8 +32,11 @@ public abstract class SwiftIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 		project.getPluginManager().apply(DarwinRuntimePlugin.class);
 
-		NamingScheme names = NamingScheme.asMainComponent(project.getName());
-		DefaultSwiftIosApplicationExtension extension = getObjects().newInstance(DefaultSwiftIosApplicationExtension.class, names, GroupId.of(project::getGroup));
+		NamingScheme names = NamingScheme.asMainComponent(project.getName()).withComponentDisplayName("main iOS application");
+		ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", project.getExtensions().create("components", ComponentCollection.class));
+		DefaultIosApplicationComponent component = components.register(DefaultIosApplicationComponent.class, names).get();
+		component.getGroupId().set(GroupId.of(project::getGroup));
+		DefaultSwiftIosApplicationExtension extension = getObjects().newInstance(DefaultSwiftIosApplicationExtension.class, component);
 
 		project.afterEvaluate(extension::finalizeExtension);
 

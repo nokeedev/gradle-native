@@ -2,8 +2,6 @@ package dev.nokee.platform.ios.internal;
 
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -14,8 +12,8 @@ import javax.inject.Inject;
 
 public abstract class DefaultObjectiveCIosApplicationExtension extends BaseIosExtension<DefaultIosApplicationComponent> implements ObjectiveCIosApplicationExtension {
 	@Inject
-	public DefaultObjectiveCIosApplicationExtension(NamingScheme names, GroupId groupId) {
-		super(names, groupId, DefaultIosApplicationComponent.class);
+	public DefaultObjectiveCIosApplicationExtension(DefaultIosApplicationComponent component) {
+		super(component);
 		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class).srcDir("src/main/objc"));
 	}
 
