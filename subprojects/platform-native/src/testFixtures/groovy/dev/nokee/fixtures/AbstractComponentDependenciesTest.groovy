@@ -23,14 +23,11 @@ abstract class AbstractComponentDependenciesTest extends Specification {
 	def project = ProjectBuilder.builder().build()
 
 	protected NamingScheme newNamingScheme(String variant = '') {
-		return Mock(NamingScheme) {
-			getConfigurationName(_) >> { args ->
-				if (variant.empty) {
-					return args[0]
-				}
-				return "${variant}${args[0].toString().capitalize()}"
-			}
+		def dimensions = NamingScheme.Dimensions.empty()
+		if (!variant.empty) {
+			dimensions = dimensions.add(variant)
 		}
+		return new NamingScheme('baseName', NamingScheme.ComponentName.ofMain(), NamingScheme.ComponentDisplayName.of('test component'), NamingScheme.ConfigurationPrefix.none(), dimensions)
 	}
 
 	protected newDependencies(String variant = '') {
@@ -262,9 +259,7 @@ abstract class AbstractComponentDependenciesTest extends Specification {
  */
 abstract class AbstractLocalDarwinFrameworkDependenciesTest extends Specification {
 	def project = ProjectBuilder.builder().build()
-	def names = Mock(NamingScheme) {
-		getConfigurationName(_) >> { args -> args[0]}
-	}
+	def names = new NamingScheme('baseName', NamingScheme.ComponentName.ofMain(), NamingScheme.ComponentDisplayName.of('test component'), NamingScheme.ConfigurationPrefix.none(), NamingScheme.Dimensions.empty())
 	def dependencies = newDependencies(names)
 
 	protected newDependencies(NamingScheme names) {}
@@ -417,9 +412,7 @@ abstract class AbstractLocalDarwinFrameworkDependenciesTest extends Specificatio
 
 abstract class AbstractLibraryDependenciesTest extends Specification {
 	def project = ProjectBuilder.builder().build()
-	def names = Mock(NamingScheme) {
-		getConfigurationName(_) >> { args -> args[0]}
-	}
+	def names = new NamingScheme('baseName', NamingScheme.ComponentName.ofMain(), NamingScheme.ComponentDisplayName.of('test component'), NamingScheme.ConfigurationPrefix.none(), NamingScheme.Dimensions.empty())
 	def dependencies = newDependencies(names)
 
 	protected newDependencies(NamingScheme names) {}

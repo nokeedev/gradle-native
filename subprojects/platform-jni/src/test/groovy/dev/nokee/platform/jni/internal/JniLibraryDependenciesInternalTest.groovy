@@ -28,9 +28,7 @@ class JniLibraryDependenciesInternalTest extends AbstractComponentDependenciesTe
 class JniLibraryLocalDarwinFrameworkDependenciesTest extends AbstractLocalDarwinFrameworkDependenciesTest {
 	@Override
 	protected newDependencies(NamingScheme names) {
-		def nativeNames = Mock(NamingScheme) {
-			getConfigurationName(_) >> { args -> "native${args[0].capitalize()}" }
-		}
+		def nativeNames = names.withConfigurationNamePrefix('native')
 		def buckets = project.objects.newInstance(DefaultNativeComponentDependencies, nativeNames)
 		return project.objects.newInstance(JniLibraryDependenciesInternal, names, buckets)
 	}
@@ -46,9 +44,7 @@ class JniLibraryLocalDarwinFrameworkDependenciesTest extends AbstractLocalDarwin
 class JniLibraryLibraryDependenciesTest extends AbstractLibraryDependenciesTest {
 	@Override
 	protected newDependencies(NamingScheme names) {
-		def nativeNames = Mock(NamingScheme) {
-			getConfigurationName(_) >> { args -> "native${args[0].capitalize()}" }
-		}
+		def nativeNames = names.withConfigurationNamePrefix('native')
 		def buckets = project.objects.newInstance(DefaultNativeComponentDependencies, nativeNames)
 		return project.objects.newInstance(JniLibraryDependenciesInternal, names, buckets)
 	}
