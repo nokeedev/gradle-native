@@ -5,6 +5,11 @@ import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
+/**
+ * A executable built from 1 or more native language.
+ *
+ * @since 0.4
+ */
 public interface ExecutableBinary extends NativeBinary {
 	/**
 	 * Returns a view of all the compile tasks that participate to compiling all the object files for this binary.
