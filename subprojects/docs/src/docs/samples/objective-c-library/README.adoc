@@ -1,7 +1,7 @@
 = Objective-C Library
 :jbake-summary: Library implemented in Objective-C.
 :jbake-type: sample_chapter
-:jbake-tags: sample, library, objective-c, native, gradle
+:jbake-tags: sample, library, objective c, native, gradle
 :jbake-category: Native Development
 :jbake-description: See how the Nokee Gradle plugins are used for building a native library implemented in Objective-C.
 :plugin-language: Objective-C

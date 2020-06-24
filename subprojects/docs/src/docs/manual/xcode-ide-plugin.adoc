@@ -1,7 +1,7 @@
 [[chapter:xcode-ide]]
 = Xcode IDE
 :jbake-type: reference_chapter
-:jbake-tags: user manual, gradle plugin reference, xcode ide, ide, gradle, native, objective-c, objc, ios
+:jbake-tags: user manual, gradle plugin reference, xcode ide, ide, gradle, native, objective c, objc, ios
 :imagesdir: ./img
 :jbake-description: Learn what the Xcode IDE plugin (i.e. dev.nokee.xcode-ide) has to offer to your Gradle build.
 
