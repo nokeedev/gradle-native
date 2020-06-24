@@ -47,14 +47,6 @@
 	def formatCrumbs = { List<Map> breadcrumbs ->
 		return "<ul>${breadcrumbs.collect({ '<li><a href="' + it.href + '">' + it.title + '</a></li>' }).join('')}</ul>"
 	}
-
-	def hasDsl = !content.uri.contains('0.1.0') && !content.uri.contains('0.2.0')
-	def hasXcodeIde = !content.uri.contains('0.1.0') && !content.uri.contains('0.2.0')
-	def hasObjCIosApplicationPlugin = !content.uri.contains('0.1.0') && !content.uri.contains('0.2.0')
-	def hasBuildingJniLibrary = !content.uri.contains('0.1.0') && !content.uri.contains('0.2.0')
-	def hasAnatomyNokeePlugins = !content.uri.contains('0.1.0') && !content.uri.contains('0.2.0')
-	def hasBuildingNativeProjects = !content.uri.contains('0.1.0') && !content.uri.contains('0.2.0') && !content.uri.contains('0.3.0')
-	def hasGradlePluginDevelopment = !content.uri.contains('0.1.0') && !content.uri.contains('0.2.0') && !content.uri.contains('0.3.0')
 %>
 <nav class="docs-navigation">
 	<div class="breadcrumbs">${formatCrumbs(getBreadcrumbs())}</div>
@@ -65,30 +57,28 @@
 			<li><a ${anchorOf('manual/user-manual.html')}>Docs Home</a></li>
 			<li><a ${anchorOf('samples/')}>Samples</a></li>
 			<li><a ${anchorOf('release-notes.html')}>Release Notes</a></li>
-			<% if (!content.uri.contains('0.1.0')) {%><li><a ${anchorOf('javadoc/index.html')}>Nokee Javadoc API</a></li><%}%>
-			<% if (hasDsl) {%><li><a ${anchorOf('dsl/index.html')}>Nokee DSL Reference</a></li><%}%>
+			<li><a ${anchorOf('javadoc/index.html')}>Nokee Javadoc API</a></li>
+			<li><a ${anchorOf('dsl/index.html')}>Nokee DSL Reference</a></li>
 		</ul>
 		<h3 id="user-manual">User Manual </h3>
 		<ul>
 			<li><a ${anchorOf('manual/getting-started.html')}>Getting Started</a></li>
-			<% if (hasAnatomyNokeePlugins) {%><li><a ${anchorOf('manual/plugin-anatomy.html')}>Anatomy of a Nokee Plugin</a></li><%}%>
-			<% if (hasBuildingJniLibrary) {%><li><a ${anchorOf('manual/building-jni-projects.html')}>Building JNI Projects</a></li><%}%>
-			<% if (hasBuildingNativeProjects) {%><li><a ${anchorOf('manual/building-native-projects.html')}>Building Native Projects</a></li><%}%>
-			<% if (hasXcodeIde) {%><li><a ${anchorOf('manual/developing-with-xcode-ide.html')}>Developing with Xcode IDE</a></li><%}%>
-			<% if (hasGradlePluginDevelopment) {%><li><a ${anchorOf('manual/gradle-plugin-development.html')}>Gradle Plugin Development</a></li><%}%>
+			<li><a ${anchorOf('manual/plugin-anatomy.html')}>Anatomy of a Nokee Plugin</a></li>
+			<li><a ${anchorOf('manual/building-jni-projects.html')}>Building JNI Projects</a></li>
+			<li><a ${anchorOf('manual/building-native-projects.html')}>Building Native Projects</a></li>
+			<li><a ${anchorOf('manual/developing-with-xcode-ide.html')}>Developing with Xcode IDE</a></li>
+			<li><a ${anchorOf('manual/gradle-plugin-development.html')}>Gradle Plugin Development</a></li>
 			<li><a ${anchorOf('manual/terminology.html')}>Terminology</a></li>
 		</ul>
 		<h3 id="reference">Reference</h3>
 		<ul>
 			<li><a ${anchorOf('manual/plugin-references.html')}>Nokee Plugins</a></li>
 			<ul>
-				<li><a ${anchorOf('manual/jni-library-plugin.html')}>JNI Library</a></li>
-				<li><a ${anchorOf('manual/cpp-language-plugin.html')}>C++ Language</a></li>
-				<li><a ${anchorOf('manual/c-language-plugin.html')}>C Language</a></li>
-				<% if (!content.uri.contains('0.1.0')) {%><li><a ${anchorOf('manual/objective-c-language-plugin.html')}>Objective-C Language</a></li><%}%>
-				<% if (!content.uri.contains('0.1.0')) {%><li><a ${anchorOf('manual/objective-cpp-language-plugin.html')}>Objective-C++ Language</a></li><%}%>
-				<% if (hasObjCIosApplicationPlugin) {%><li><a ${anchorOf('manual/objective-c-ios-application-plugin.html')}>Objective-C iOS Application</a></li><%}%>
-				<% if (hasXcodeIde) {%><li><a ${anchorOf('manual/xcode-ide-plugin.html')}>Xcode IDE</a></li><%}%>
+				<li><a ${anchorOf('manual/plugin-references.html#sec:plugin-reference-native-development')}>Native Development</a></li>
+				<li><a ${anchorOf('manual/plugin-references.html#sec:plugin-reference-ios')}>iOS Development</a></li>
+				<li><a ${anchorOf('manual/plugin-references.html#sec:plugin-reference-jvm')}>JNI Development</a></li>
+				<li><a ${anchorOf('manual/xcode-ide-plugin.html')}>Xcode IDE</a></li>
+				<li><a ${anchorOf('manual/plugin-references.html#sec:plugin-reference-gradledev')}>Gradle Plugin Development</a></li>
 			</ul>
 		</ul>
 	</div>
