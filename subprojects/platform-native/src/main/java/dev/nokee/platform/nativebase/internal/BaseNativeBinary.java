@@ -25,6 +25,8 @@ import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDepende
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.Getter;
+import lombok.val;
+import lombok.var;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -51,6 +53,7 @@ import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -88,6 +91,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
 		return getObjects().fileCollection()
 			.from("src/main/headers")
+			.from(getCompileTasks().withType(AbstractNativeSourceCompileTask.class).map(it -> it.getIncludes()))
 			.from(getDependencies().getHeaderSearchPaths())
 			.from(getCompileTasks().withType(AbstractNativeSourceCompileTask.class).map(it -> it.getSystemIncludes()))
 			.getElements();
@@ -101,7 +105,25 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	}
 
 	public Provider<Set<FileSystemLocation>> getFrameworkSearchPaths() {
-		return getObjects().fileCollection().from(getDependencies().getFrameworkSearchPaths()).from(getDependencies().getLinkFrameworks().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList()))).getElements();
+		return getObjects().fileCollection()
+			.from(getDependencies().getFrameworkSearchPaths())
+			.from(getDependencies().getLinkFrameworks().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList())))
+			.from(getCompileTasks().withType(AbstractNativeSourceCompileTask.class).map(it -> extractFrameworkSearchPaths(it.getCompilerArgs().get())))
+			.getElements();
+	}
+
+	private static List<File> extractFrameworkSearchPaths(List<String> args) {
+		val result = new ArrayList<File>();
+		var nextArgIsFrameworkSearchPath = false;
+		for (String arg : args) {
+			if (nextArgIsFrameworkSearchPath) {
+				result.add(new File(arg));
+				nextArgIsFrameworkSearchPath = false;
+			} else if (arg.equals("-F")) {
+				nextArgIsFrameworkSearchPath = true;
+			}
+		}
+		return result;
 	}
 
 	private void configureNativeSourceCompileTask(AbstractNativeCompileTask task) {

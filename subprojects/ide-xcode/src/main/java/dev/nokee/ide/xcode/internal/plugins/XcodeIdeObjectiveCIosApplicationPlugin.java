@@ -6,8 +6,12 @@ import dev.nokee.ide.xcode.XcodeIdeTarget;
 import dev.nokee.ide.xcode.internal.XcodeIdePropertyAdapter;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
+import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
+import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
+import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
+import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -15,7 +19,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.*;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.language.objectivec.tasks.ObjectiveCCompile;
@@ -33,6 +39,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,7 +57,7 @@ import java.util.stream.Stream;
 public abstract class XcodeIdeObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
-		ObjectiveCIosApplicationExtension application = project.getExtensions().getByType(ObjectiveCIosApplicationExtension.class);
+		DefaultIosApplicationComponent application = ((DefaultObjectiveCIosApplicationExtension) project.getExtensions().getByType(ObjectiveCIosApplicationExtension.class)).getComponent();
 		String moduleName = GUtil.toCamelCase(project.getName());
 		project.getExtensions().getByType(XcodeIdeProjectExtension.class).getProjects().register(project.getName(), xcodeProject -> {
 
@@ -62,6 +69,8 @@ public abstract class XcodeIdeObjectiveCIosApplicationPlugin implements Plugin<P
 				xcodeTarget.getProductType().set(XcodeIdeProductTypes.APPLICATION);
 
 				xcodeTarget.getBuildConfigurations().register("Default", xcodeConfiguration -> {
+					Provider<ExecutableBinaryInternal> binary = application.getDevelopmentVariant().flatMap(it -> it.getBinaries().withType(ExecutableBinaryInternal.class).getElements().map(b -> b.iterator().next()));
+
 					xcodeConfiguration.getProductLocation().set(application.getVariants().getElements().flatMap(it -> it.iterator().next().getBinaries().withType(SignedIosApplicationBundleInternal.class).get().iterator().next().getApplicationBundleLocation()));
 					xcodeConfiguration.getBuildSettings()
 						.put("BUNDLE_LOADER", "$(TEST_HOST)")
@@ -72,8 +81,8 @@ public abstract class XcodeIdeObjectiveCIosApplicationPlugin implements Plugin<P
 						.put("PRODUCT_NAME", "$(TARGET_NAME)")
 						.put("TARGETED_DEVICE_FAMILY", "1,2")
 						.put("SDKROOT", "iphoneos")
-						.put("USER_HEADER_SEARCH_PATHS", getProviders().provider(this::getHeaderSearchPaths))
-						.put("FRAMEWORK_SEARCH_PATHS", getProviders().provider(this::getFrameworkPaths))
+						.put("USER_HEADER_SEARCH_PATHS", binary.flatMap(BaseNativeBinary::getHeaderSearchPaths).map(this::toSpaceSeparatedList))
+						.put("FRAMEWORK_SEARCH_PATHS", binary.flatMap(BaseNativeBinary::getFrameworkSearchPaths).map(this::toSpaceSeparatedList))
 
 						// Oh boy, talk about hacking Xcode! Let's capture some important information here.
 						// The indexing is taken care by SourceKit, started in background by Xcode.
@@ -324,5 +333,9 @@ public abstract class XcodeIdeObjectiveCIosApplicationPlugin implements Plugin<P
 		} catch (InterruptedException | IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private String toSpaceSeparatedList(Set<FileSystemLocation> paths) {
+		return paths.stream().map(location -> location.getAsFile().getAbsolutePath()).collect(Collectors.joining(" "));
 	}
 }
