@@ -1,0 +1,83 @@
+= Swift iOS Application
+:jbake-summary: iOS application implemented in Swift built by Gradle.
+:jbake-type: sample_chapter
+:jbake-tags: sample, swift, native, gradle
+:jbake-category: iOS
+:jbake-description: See how to use the Nokee Gradle plugins for building an iOS application implemented in Swift.
+
+CAUTION: The following sample shows a plugin in very early development.
+Don't hesitate to try it out.
+If you encounter any problems, please link:https://github.com/nokeedev/gradle-native/issues[open an issue on GitHub].
+
+NOTE: You can open this sample inside the Xcode IDE using the link:../../manual/xcode-ide-plugin.html[Xcode IDE plugin].
+
+This sample shows how to build an iOS application implemented in Swift with Gradle.
+The application has no dependencies and targets only the iPhone Simulator with a minimum iOS version of 13.2.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+
+To build the application:
+
+[listing]
+----
+$ ./gradlew assemble
+
+BUILD SUCCESSFUL
+8 actionable tasks: 8 executed
+----
+
+The build produce the iOS application inside `./build/ios/products/main` directory:
+
+[listing]
+----
+$ ls ./build/ios/products/main/
+SwiftIosApplication-unsigned.app
+SwiftIosApplication.app
+----
+
+The application bundles produces represent the signed and unsigned bundles:
+
+[listing]
+----
+$ ls ./build/ios/products/main/SwiftIosApplication.app/
+Base.lproj
+Info.plist
+SwiftIosApplication
+PkgInfo
+_CodeSignature
+----
+
+To open the application in Xcode and launch them in a simulator:
+
+[listing]
+----
+$ ./gradlew openXcode
+
+> Task :xcode
+Generated Xcode workspace at file://swift-ios-application.xcworkspace/
+
+BUILD SUCCESSFUL
+4 actionable tasks: 4 executed
+----
+
+image::xcode-ide-ios-launch-action.gif[Launch iOS application inside simulator from Xcode IDE,align=center]
+
+For more information, see <<../../manual/swift-ios-application-plugin.adoc#,Swift iOS Application Plugin>> and <<../../manual/xcode-ide-plugin.adoc#,Xcode IDE Plugin>> reference chapters.
+We discuss the <<../../manual/developing-with-xcode-ide.adoc#,Xcode IDE integration in a separated chapter>>.
