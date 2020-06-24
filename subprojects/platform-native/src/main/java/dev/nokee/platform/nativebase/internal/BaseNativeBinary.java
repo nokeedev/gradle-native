@@ -28,6 +28,7 @@ import lombok.Getter;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFile;
@@ -36,6 +37,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
+import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.swift.SwiftSharedLibrary;
 import org.gradle.language.swift.SwiftStaticLibrary;
 import org.gradle.language.swift.SwiftVersion;
@@ -51,6 +53,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -80,6 +83,25 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 			task.getModules().from(dependencies.getSwiftModules());
 			task.getCompilerArgs().addAll(getProviders().provider(() -> dependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(this::toFrameworkSearchPathFlags).collect(Collectors.toList())));
 		});
+	}
+
+	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
+		return getObjects().fileCollection()
+			.from("src/main/headers")
+			.from(getDependencies().getHeaderSearchPaths())
+			.from(getCompileTasks().withType(AbstractNativeSourceCompileTask.class).map(it -> it.getSystemIncludes()))
+			.getElements();
+	}
+
+	public Provider<Set<FileSystemLocation>> getImportSearchPaths() {
+		return getObjects().fileCollection()
+			.from(getCompileTasks().withType(SwiftCompileTask.class).getElements().map(tasks -> tasks.stream().map(task -> task.getModuleFile().map(it -> it.getAsFile().getParentFile())).collect(Collectors.toList())))
+			.from(getDependencies().getSwiftModules().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList())))
+			.getElements();
+	}
+
+	public Provider<Set<FileSystemLocation>> getFrameworkSearchPaths() {
+		return getObjects().fileCollection().from(getDependencies().getFrameworkSearchPaths()).from(getDependencies().getLinkFrameworks().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList()))).getElements();
 	}
 
 	private void configureNativeSourceCompileTask(AbstractNativeCompileTask task) {

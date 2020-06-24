@@ -10,7 +10,6 @@ import dev.nokee.language.nativebase.HeaderSearchPath;
 import dev.nokee.language.nativebase.internal.DefaultHeaderSearchPath;
 import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
-import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
@@ -36,7 +35,6 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.jvm.Jvm;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
-import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.nativeplatform.toolchain.Swiftc;
@@ -114,25 +112,6 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 
 	@Inject
 	protected abstract ObjectFactory getObjects();
-
-	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
-		return getObjects().fileCollection()
-			.from("src/main/headers")
-			.from(getDependencies().getHeaderSearchPaths())
-			.from(getCompileTasks().withType(AbstractNativeSourceCompileTask.class).map(it -> it.getSystemIncludes()))
-			.getElements();
-	}
-
-	public Provider<Set<FileSystemLocation>> getImportSearchPaths() {
-		return getObjects().fileCollection()
-			.from(getCompileTasks().withType(SwiftCompileTask.class).getElements().map(tasks -> tasks.stream().map(task -> task.getModuleFile().map(it -> it.getAsFile().getParentFile())).collect(Collectors.toList())))
-			.from(getDependencies().getSwiftModules().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList())))
-			.getElements();
-	}
-
-	public Provider<Set<FileSystemLocation>> getFrameworkSearchPaths() {
-		return getObjects().fileCollection().from(getDependencies().getFrameworkSearchPaths()).from(getDependencies().getLinkFrameworks().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList()))).getElements();
-	}
 
 	private void configureSharedLibraryTask(LinkSharedLibraryTask task) {
 		task.setDescription("Links the shared library.");

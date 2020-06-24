@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
-import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
@@ -16,18 +15,15 @@ import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
-import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,25 +46,6 @@ public abstract class ExecutableBinaryInternal extends BaseNativeBinary implemen
 				return ImmutableList.of();
 			}));
 		});
-	}
-
-	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
-		return getObjects().fileCollection()
-			.from("src/main/headers")
-			.from(getDependencies().getHeaderSearchPaths())
-			.from(getCompileTasks().withType(AbstractNativeSourceCompileTask.class).map(it -> it.getSystemIncludes()))
-			.getElements();
-	}
-
-	public Provider<Set<FileSystemLocation>> getImportSearchPaths() {
-		return getObjects().fileCollection()
-			.from(getCompileTasks().withType(SwiftCompileTask.class).getElements().map(tasks -> tasks.stream().map(SwiftCompileTask::getModuleFile).collect(Collectors.toList())))
-			.from(getDependencies().getSwiftModules().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList())))
-			.getElements();
-	}
-
-	public Provider<Set<FileSystemLocation>> getFrameworkSearchPaths() {
-		return getObjects().fileCollection().from(getDependencies().getFrameworkSearchPaths()).from(getDependencies().getLinkFrameworks().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList()))).getElements();
 	}
 
 	private Stream<String> toFrameworkFlags(File it) {
