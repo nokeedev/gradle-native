@@ -13,6 +13,7 @@ Nokee manages this through the concepts of _dimensions_ and _variants_.
 A dimension is simply a category, where each category is orthogonal to the rest.
 For example, the "build type" dimension is a category that includes debug and release.
 The "architecture" dimension covers processor architectures like x86-64 and PowerPC.
+The "linkage" dimension covers executable, shared, static, and bundle.
 
 A variant is a combination of values for these dimensions, consisting of exactly one value for each dimension.
 You might have a "debug x86-64" or a "release PowerPC" variant.
@@ -66,4 +67,28 @@ This comes with several benefits:
 [[sec:supported-toolchain]]
 == Supported Toolchains
 
-Support for MSVC 2017, 2019, clang 9, Gcc 9
+Nokee has general support for the three major tool chains on major operating system: Clang footnote:[Installed with Xcode on macOS], GCC footnote:[Installed through Cygwin and MinGW for 32- and 64-bits architecture on Windows] and Visual {cpp} footnote:[Installed with Visual Studio 2010 to 2019] (Windows-only).
+GCC and Clang installed using Macports and Homebrew have been reported to work fine, but this isn’t tested continuously.
+
+=== Windows
+
+To build on Windows, install a compatible version of Visual Studio.
+The native plugins will discover the Visual Studio installations and select the latest version.
+There is no need to mess around with environment variables or batch scripts.
+It works fine from a Cygwin shell or the Windows command-line.
+
+Alternatively, we can install Cygwin or MinGW with GCC.
+Clang isn't supported currently.
+
+=== macOS
+
+To build on macOS, install Xcode.
+The native plugins will discover the Xcode installation using the system PATH.
+
+The native plugins also work with GCC and Clang installed with Macports or Homebrew footnote:[Macports and Homebrew installation of GCC and Clang is not officially supported].
+To use one of the Macports or Homebrew, you will need to add Macports/Homebrew to the system PATH.
+
+=== Linux
+
+To build on Linux, install a compatible version of GCC or Clang.
+The native plugins will discover GCC or Clang using the system PATH.
