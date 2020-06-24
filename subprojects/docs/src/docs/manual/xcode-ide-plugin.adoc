@@ -103,7 +103,7 @@ Aggregates tasks that generate the Xcode IDE workspace and projects.
 In a multi-project build, only the root project will generate an Xcode IDE workspace.
 
 `cleanXcode` — link:{gradle-language-reference}/org.gradle.api.tasks.Delete.html[Delete]::
-Removes all generated Xcode IDE workspace and projects.
+Removes all generated Xcode IDE workspace and projects as well as the Xcode derived data folder for the workspace.
 
 `openXcode` - link:{gradle-language-reference}/org.gradle.api.Task.html[Task]::
 _Depends on_: `xcode`
