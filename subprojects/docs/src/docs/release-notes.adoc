@@ -1,14 +1,23 @@
 = Nokee Release Notes
 :jbake-type: release_notes
-:jbake-tags: {jbake-version}, jvm, jni, objective c, objective cpp
+:jbake-tags: {jbake-version}, jvm, jni, objective c, objective cpp, c, swift
 :jbake-description: See what version {jbake-version} of the Gradle Nokee plugins has to offer!
 
-Coming soon...
+The Nokee team is pleased to announce an important milestone in native development with Gradle.
+
+This release focuses on link:#sec:native-plugins[adding plugins for building applications and libraries in C, {cpp}, Objective-C, Objective-{cpp}, and Swift].
+The link:#sec:swift-ios-application-plugin[experimental iOS application building plugin implemented in Swift] joins the Nokee plugin family.
+The link:#sec:xcode-ide[Xcode IDE plugin supports all the new native plugins].
+link:#sec:jni-library-improvements[Additional conveniences made its way into the Java Native Interface (JNI) Library plugin].
+Finally, we released the link:#sec:gradle-toolbox[first version of the Gradle Toolbox plugins], allowing Nokee to develop high-quality Gradle plugins.
+
+As part of this version, the Nokee plugins could free themselves from its software model strand.
+Read the link:../../blog/release-0.4-announcement/[announcement blog] to learn more.
 
 [[sec:getting-started]]
 == Getting Started
 
-To use the Nokee plugins in Gradle, simply copy the following code to the settings script of your project, then apply any of the <<manual/plugin-references.adoc#,Nokee plugins>> to your build using the link:{gradle-user-manual}/plugins.html#sec:plugins_block[plugins DSL block]:
+To use the Nokee plugins in Gradle, copy the following code to the settings script of your project, then apply any of the <<manual/plugin-references.adoc#,Nokee plugins>> to your build using the link:{gradle-user-manual}/plugins.html#sec:plugins_block[plugins DSL block]:
 
 .Configuring Gradle plugin resolution
 ====
@@ -60,21 +69,52 @@ pluginManagement {
 =====
 ====
 
-== Native plugins
+[[sec:native-plugins]]
+== Building native applications/libraries plugins
 
-Support for application and library implemented in {cpp}, C, Objective-C, Objective-{cpp} and Swift.
+<<manual/plugin-references.adoc#sec:plugin-reference-native-development,Ten new native plugins>> join the Nokee distribution to support building native application and native library implemented in C, {cpp}, Objective-C, Objective-{cpp}, and Swift.
+These new plugins are similar in features, and we will improve them over the next releases.
 
-== Swift support for JNI library
+[[sec:swift-ios-application-plugin]]
+== Experimental iOS application plugin for Swift
 
+Support for <<manual/swift-ios-application-plugin.adoc#,building iOS application implemented in Swift>> is available as an experimental plugin.
+It offers the same feature as its counter-part for building iOS applications implemented in Objective-C.
+The iOS plugins are still severely limited in features due to the strategic goal for this release.
+The following releases will start addressing some of the production features needed by iOS developers.
+
+[[sec:xcode-ide]]
 == Xcode IDE support for all new plugins
 
+With these new plugins, we made sure our Xcode IDE plugin support each one of them.
+Code editing, compilation, debugging, code completion, and jump to symbol features are available when applying the Xcode IDE plugin with any native plugins.
+
+[[sec:jni-library-improvements]]
 == New APIs for JNI library
 
-Native runtime file collection allows such use case like pre-built binary support.
+Starting with this release, the plugin registers all JNI library variants regardless of whether they are buildable.
+This improves the user experience for all use cases and can potentially break your build.
 
-== iOS application/library in ObjC/Swift
+We introduced new APIs for handling pre-built native binaries scenarios.
+It is now possible to link:samples/jni-library-composing-from-pre-built-binaries[always use pre-built binaries], link:samples/jni-library-with-pre-built-binaries[conditionally build from the source when pre-built binaries are not available], or even link:https://github.com/weisJ/darklaf/blob/9e59b6254781a534f2d7ded1dec80c9c5dfc0f67/buildSrc/src/main/groovy/UsePrebuiltBinariesWhenUnbuildablePlugin.groovy#L38-L63[download pre-built binaries when the native source isn't buildable on the local machine].
 
-Dependencies between application and libraries.
+[[sec:gradle-toolbox]]
+== Gradle Toolbox plugins
+
+We link:/blog/introducing-gradle-toolbox[released five plugins to enhance the Gradle plugin development process]:
+
+<<manual/java-gradle-plugin-plugin.adoc#,`dev.gradleplugins.java-gradle-plugin`>>::
+Provides support for developing Gradle plugin implemented in Java.
+<<manual/groovy-gradle-plugin-plugin.adoc#,`dev.gradleplugins.groovy-gradle-plugin`>>::
+Provides support for developing Gradle plugin implemented in Groovy.
+<<manual/gradle-plugin-development-plugin.adoc#,`dev.gradleplugins.gradle-plugin-development`>>::
+Provides additional support for developing Gradle plugin-related projects.
+<<manual/gradle-plugin-unit-test-plugin.adoc#,`dev.gradleplugins.gradle-plugin-unit-test`>>::
+Provides support for unit testing Gradle plugins.
+<<manual/gradle-plugin-functional-test-plugin.adoc#,`dev.gradleplugins.gradle-plugin-functional-test`>>::
+Provides support for functional testing Gradle plugins.
+
+As a companion to the plugins, we wrote a <<manual/gradle-plugin-development.adoc#,dedicated chapter>>, link:samples/#sec:samples-gradle-dev[samples], and <<manual/plugin-references.adoc#sec:plugin-reference-gradledev,plugin references>> to help plugin authors get started.
 
 [[sec:reporting-problems]]
 == Reporting Problems
