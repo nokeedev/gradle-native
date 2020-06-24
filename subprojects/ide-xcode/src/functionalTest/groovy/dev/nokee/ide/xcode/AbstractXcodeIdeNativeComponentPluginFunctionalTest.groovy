@@ -44,4 +44,39 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		def result = xcodebuild.withWorkspace(xcodeWorkspace(workspaceName)).withScheme(schemeName).succeeds()
 		result.assertTasksExecuted(allTasksForBuildAction, ":_xcode___${projectName}_${schemeName}_Default")
 	}
+
+	@Requires({ SystemUtils.IS_OS_MAC })
+	def "can clean relocated xcode derived data relative to workspace"() {
+		useXcodebuildTool()
+		settingsFile << configurePluginClasspathAsBuildScriptDependencies() << """
+			rootProject.name = '${projectName}'
+		"""
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+
+		when: 'can generate relocated Xcode derived data workspace'
+		succeeds('xcode')
+		then:
+		result.assertTasksExecuted(allTasksToXcode)
+		and:
+		xcodeWorkspace(workspaceName).assertDerivedDataLocationRelativeToWorkspace('.gradle/XcodeDerivedData')
+		and:
+		file('.gradle/XcodeDerivedData').assertDoesNotExist()
+
+		when: 'Xcode build inside relocated derived data'
+		xcodebuild.withWorkspace(xcodeWorkspace(workspaceName)).withScheme(schemeName).succeeds()
+		then:
+		file('.gradle/XcodeDerivedData').assertIsDirectory()
+
+		when: 'clean keeps Xcode derived data'
+		succeeds('clean')
+		then:
+		file('.gradle/XcodeDerivedData').assertIsDirectory()
+
+		when: 'clean Xcode deletes derived data'
+		succeeds('cleanXcode')
+		then:
+		file('.gradle/XcodeDerivedData').assertDoesNotExist()
+		file('.gradle').assertExists()
+	}
 }

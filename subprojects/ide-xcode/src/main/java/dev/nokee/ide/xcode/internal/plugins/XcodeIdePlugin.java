@@ -5,6 +5,7 @@ import dev.nokee.ide.xcode.*;
 import dev.nokee.ide.xcode.internal.*;
 import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
 import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeProjectTask;
+import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeWorkspaceTask;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +63,7 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 			extension.getWorkspace().getGeneratorTask().configure(task -> {
 				task.getWorkspaceLocation().set(getLayout().getProjectDirectory().dir(project.getName() + ".xcworkspace"));
 				task.getProjectLocations().set(getArtifactRegistry().getIdeProjectFiles(XcodeIdeProjectMetadata.class).getElements());
+				task.getDerivedDataLocation().set(".gradle/XcodeDerivedData");
 			});
 
 			xcodeTask.configure(task -> {
@@ -99,12 +101,14 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 		//  See https://pewpewthespells.com/blog/xcode_deriveddata_hashes.html
 		//  The reason for cleaning the derived data is mainly because Xcode sometimes gets into a bad states.
 		//  Cleaning that directory also deletes indexing data.
+		//  We should probably delete the DerivedData when cleaning Xcode anyway
 		TaskProvider<Delete> cleanXcodeTask = getTasks().register("cleanXcode", Delete.class, task -> {
 			task.setGroup(IDE_GROUP_NAME);
 			task.setDescription("Cleans Xcode IDE configuration");
 			task.delete(getProviders().provider(() -> projectExtension.getProjects().stream().map(XcodeIdeProject::getLocation).collect(Collectors.toList())));
 			workspaceExtension.ifPresent(extension -> {
 				task.delete(extension.getWorkspace().getLocation());
+				task.delete(extension.getWorkspace().getGeneratorTask().flatMap(GenerateXcodeIdeWorkspaceTask::getDerivedDataLocation));
 			});
 		});
 		getTasks().withType(GenerateXcodeIdeProjectTask.class).configureEach(task -> task.shouldRunAfter(cleanXcodeTask));

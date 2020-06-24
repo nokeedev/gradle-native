@@ -11,6 +11,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
@@ -25,6 +26,9 @@ import java.util.stream.Collectors;
 public abstract class GenerateXcodeIdeWorkspaceTask extends DefaultTask {
 	@InputFiles
 	public abstract SetProperty<FileSystemLocation> getProjectLocations();
+
+	@Input
+	public abstract Property<String> getDerivedDataLocation();
 
 	@OutputDirectory
 	public abstract Property<FileSystemLocation> getWorkspaceLocation();
@@ -62,7 +66,7 @@ public abstract class GenerateXcodeIdeWorkspaceTask extends DefaultTask {
 			"\t<key>CustomBuildLocationType</key>\n" +
 			"\t<string>RelativeToDerivedData</string>\n" +
 			"\t<key>DerivedDataCustomLocation</key>\n" +
-			"\t<string>build/DerivedData</string>\n" +
+			"\t<string>" + getDerivedDataLocation().get() + "</string>\n" +
 			"\t<key>DerivedDataLocationStyle</key>\n" +
 			"\t<string>WorkspaceRelativePath</string>\n" +
 			"\t<key>IssueFilterStyle</key>\n" +
