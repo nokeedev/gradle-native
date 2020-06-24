@@ -53,7 +53,7 @@ class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalS
 		succeeds('xcode')
 
 		then:
-		result.assertTasksExecutedAndNotSkipped(':jni-greeterXcodeProject', ':xcodeWorkspace', ':xcode')
+		result.assertTasksExecutedAndNotSkipped(':compileJava', ':jni-greeterXcodeProject', ':xcodeWorkspace', ':xcode')
 		xcodeWorkspace('jni-greeter').assertHasProjects('jni-greeter.xcodeproj')
 		xcodeProject('jni-greeter').assertHasTarget('JniGreeter')
 		xcodeProject('jni-greeter').assertHasTarget('JniSharedLibrary')
@@ -78,7 +78,7 @@ class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalS
 		succeeds('xcode')
 
 		then:
-		result.assertTasksExecutedAndNotSkipped(':jni-greeterXcodeProject', ':xcodeWorkspace', ':xcode')
+		result.assertTasksExecutedAndNotSkipped(':compileJava', ':jni-greeterXcodeProject', ':xcodeWorkspace', ':xcode')
 		xcodeProject('jni-greeter').assertHasTargets('JniGreeter', 'JniSharedLibrary', '__indexer_JniSharedLibrary')
 	}
 
@@ -101,7 +101,7 @@ class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalS
 		succeeds('xcode')
 
 		then:
-		result.assertTasksExecutedAndNotSkipped(':jni-greeterXcodeProject', ':jni-shared-libraryXcodeProject', ':xcodeWorkspace', ':xcode')
+		result.assertTasksExecutedAndNotSkipped(':compileJava', ':jni-greeterXcodeProject', ':jni-shared-libraryXcodeProject', ':xcodeWorkspace', ':xcode')
 		xcodeWorkspace('jni-greeter').assertHasProjects('jni-greeter.xcodeproj', 'jni-shared-library.xcodeproj')
 
 		and:
@@ -134,7 +134,7 @@ class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalS
 		succeeds('xcode')
 
 		then:
-		result.assertTasksExecutedAndNotSkipped(':jni-greeterXcodeProject', ':jni-shared-libraryXcodeProject', ':xcodeWorkspace', ':xcode')
+		result.assertTasksExecutedAndNotSkipped(':compileJava', ':jni-greeterXcodeProject', ':jni-shared-libraryXcodeProject', ':xcodeWorkspace', ':xcode')
 		xcodeProject('jni-greeter').assertHasTargets('JniGreeter')
 		xcodeProject('jni-shared-library').assertHasTargets('JniSharedLibrary', '__indexer_JniSharedLibrary')
 	}
