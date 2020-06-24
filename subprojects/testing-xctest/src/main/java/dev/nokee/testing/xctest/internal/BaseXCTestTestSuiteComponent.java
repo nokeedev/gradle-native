@@ -147,7 +147,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 						}
 						return ImmutableList.of("-isysroot", getSdkPath());
 					}));
-					task.getLinkerArgs().addAll(
+					task.getLinkerArgs().addAll(getProviders().provider(() -> ImmutableList.of(
 						"-Xlinker", "-rpath", "-Xlinker", "@executable_path/Frameworks",
 						"-Xlinker", "-rpath", "-Xlinker", "@loader_path/Frameworks",
 						"-Xlinker", "-export_dynamic",
@@ -156,7 +156,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 //					"-Xlinker", "-sectcreate", "-Xlinker", "__TEXT", "-Xlinker", "__entitlements", "-Xlinker", createEntitlementTask.get().outputFile.get().asFile.absolutePath
 						"-fobjc-arc", "-fobjc-link-runtime",
 						"-bundle_loader", getLayout().getBuildDirectory().file("exes/main/" + moduleName.get()).get().getAsFile().getAbsolutePath(),
-						"-L" + getSdkPlatformPath() + "/Developer/usr/lib", "-F" + getSdkPlatformPath() + "/Developer/Library/Frameworks", "-framework", "XCTest");
+						"-L" + getSdkPlatformPath() + "/Developer/usr/lib", "-F" + getSdkPlatformPath() + "/Developer/Library/Frameworks", "-framework", "XCTest")));
 					// TODO: -lobjc should probably only be present for binary compiling/linking objc binaries
 				});
 			});
