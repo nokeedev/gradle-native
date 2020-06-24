@@ -46,6 +46,18 @@ class XcodeIdeWorkspaceFunctionalTest extends AbstractXcodeIdeFunctionalSpec {
 		testDirectory.listFiles(exceptHiddenFilesAndMavenLocalRepository())*.name as Set == ['build.gradle', 'settings.gradle', 'app.xcworkspace'] as Set
 	}
 
+	def "relocates Xcode derived data into root project's build folder"() {
+		given:
+		settingsFile << "rootProject.name = 'app'"
+		buildFile << applyXcodeIdePlugin()
+
+		when:
+		succeeds('xcode')
+
+		then:
+		xcodeWorkspace('app').assertDerivedDataLocationRelativeToWorkspace('build/DerivedData')
+	}
+
 	// TODO: can remap projects included in the workspace (exclude projects)
 
 	private FilenameFilter exceptHiddenFilesAndMavenLocalRepository() {

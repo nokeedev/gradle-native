@@ -1,5 +1,8 @@
 package dev.nokee.ide.xcode.fixtures
 
+import com.dd.plist.NSDictionary
+import com.dd.plist.NSObject
+import com.dd.plist.PropertyListParser
 import dev.gradleplugins.test.fixtures.file.TestFile
 
 class XcodeIdeWorkspaceFixture {
@@ -21,6 +24,18 @@ class XcodeIdeWorkspaceFixture {
 		assert contentFile.projectLocationPaths.contains(projectFile.absolutePath)
 	}
 
+	void assertDerivedDataLocationRelativeToWorkspace(String path) {
+		def settings = WorkspaceSettingsFile.user(dir)
+		settings.derivedDataCustomLocation.with {
+			assert it.present
+			assert it.get() == path
+		}
+		settings.derivedDataLocationStyle.with {
+			assert it.present
+			assert it.get() == 'WorkspaceRelativePath'
+		}
+	}
+
 	List<XcodeIdeProjectFixture> getProjects() {
 		return contentFile.projectLocationPaths.collect { new XcodeIdeProjectFixture(it) }
 	}
@@ -39,6 +54,37 @@ class XcodeIdeWorkspaceFixture {
 
 		Set<String> getProjectLocationPaths() {
 			return contentXml.FileRef*.@location*.replaceAll('absolute:', '') as Set
+		}
+	}
+
+	static class WorkspaceSettingsFile {
+		final TestFile file
+		final NSDictionary content
+
+		WorkspaceSettingsFile(TestFile workspaceSettingsFile) {
+			workspaceSettingsFile.assertIsFile()
+			file = workspaceSettingsFile
+			content = (NSDictionary)PropertyListParser.parse(file)
+		}
+
+		Optional<String> getDerivedDataCustomLocation() {
+			return Optional.ofNullable(content.get('DerivedDataCustomLocation')).map { asString(it) }
+		}
+
+		Optional<String> getDerivedDataLocationStyle() {
+			return Optional.ofNullable(content.get('DerivedDataLocationStyle')).map { asString(it) }
+		}
+
+		private static String asString(NSObject obj) {
+			return obj.toJavaObject(String)
+		}
+
+		static WorkspaceSettingsFile shared(TestFile workspaceLocation) {
+			return new WorkspaceSettingsFile(workspaceLocation.file('xcshareddata/WorkspaceSettings.xcsettings'))
+		}
+
+		static WorkspaceSettingsFile user(TestFile workspaceLocation) {
+			return new WorkspaceSettingsFile(workspaceLocation.file("xcuserdata/${System.getProperty('user.name')}.xcuserdatad/WorkspaceSettings.xcsettings"))
 		}
 	}
 }

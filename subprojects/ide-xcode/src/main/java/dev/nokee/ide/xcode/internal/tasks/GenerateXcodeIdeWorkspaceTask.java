@@ -40,14 +40,37 @@ public abstract class GenerateXcodeIdeWorkspaceTask extends DefaultTask {
 		xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
 		xmlMapper.writeValue(new File(workspaceDirectory, "contents.xcworkspacedata"), new Workspace(fileReferences));
 
-		File workspaceSettingsFile = new File(workspaceDirectory, "xcshareddata/WorkspaceSettings.xcsettings");
-		workspaceSettingsFile.getParentFile().mkdirs();
-		FileUtils.writeStringToFile(workspaceSettingsFile, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+		File sharedWorkspaceSettingsFile = new File(workspaceDirectory, "xcshareddata/WorkspaceSettings.xcsettings");
+		sharedWorkspaceSettingsFile.getParentFile().mkdirs();
+		FileUtils.writeStringToFile(sharedWorkspaceSettingsFile, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
 			"<plist version=\"1.0\">\n" +
 			"<dict>\n" +
 			"\t<key>IDEWorkspaceSharedSettings_AutocreateContextsIfNeeded</key>\n" +
 			"\t<false/>\n" +
+			"</dict>\n" +
+			"</plist>", Charset.defaultCharset());
+
+		File userWorkspaceSettingsFile = new File(workspaceDirectory, "xcuserdata/" + System.getProperty("user.name") + ".xcuserdatad/WorkspaceSettings.xcsettings");
+		userWorkspaceSettingsFile.getParentFile().mkdirs();
+		FileUtils.writeStringToFile(userWorkspaceSettingsFile, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
+			"<plist version=\"1.0\">\n" +
+			"<dict>\n" +
+			"\t<key>BuildLocationStyle</key>\n" +
+			"\t<string>UseAppPreferences</string>\n" +
+			"\t<key>CustomBuildLocationType</key>\n" +
+			"\t<string>RelativeToDerivedData</string>\n" +
+			"\t<key>DerivedDataCustomLocation</key>\n" +
+			"\t<string>build/DerivedData</string>\n" +
+			"\t<key>DerivedDataLocationStyle</key>\n" +
+			"\t<string>WorkspaceRelativePath</string>\n" +
+			"\t<key>IssueFilterStyle</key>\n" +
+			"\t<string>ShowActiveSchemeOnly</string>\n" +
+			"\t<key>LiveSourceIssuesEnabled</key>\n" +
+			"\t<true/>\n" +
+			"\t<key>ShowSharedSchemesAutomaticallyEnabled</key>\n" +
+			"\t<true/>\n" +
 			"</dict>\n" +
 			"</plist>", Charset.defaultCharset());
 	}
