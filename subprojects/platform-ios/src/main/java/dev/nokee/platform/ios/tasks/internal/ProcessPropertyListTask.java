@@ -93,7 +93,9 @@ public abstract class ProcessPropertyListTask extends DefaultTask {
 			}
 		});
 
-		String data = FileUtils.readFileToString(xmlPlist, Charset.defaultCharset()).replace("$(PRODUCT_NAME)", getModule().get()).replace("$(EXECUTABLE_NAME)", getModule().get()).replace("$(PRODUCT_BUNDLE_IDENTIFIER)", getIdentifier().get()).replace("$(DEVELOPMENT_LANGUAGE)", "en").replace("$(PRODUCT_BUNDLE_PACKAGE_TYPE)", "APPL");
+		// Ex: Product name: objective-c-ios-app
+		// Ex: Product module name: objective_c_ios_app
+		String data = FileUtils.readFileToString(xmlPlist, Charset.defaultCharset()).replace("$(PRODUCT_NAME)", getModule().get()).replace("$(EXECUTABLE_NAME)", getModule().get()).replace("$(PRODUCT_BUNDLE_IDENTIFIER)", getIdentifier().get()).replace("$(DEVELOPMENT_LANGUAGE)", "en").replace("$(PRODUCT_BUNDLE_PACKAGE_TYPE)", "APPL").replace("$(PRODUCT_MODULE_NAME)", getModule().get());
 		FileUtils.write(xmlPlist, data, Charset.defaultCharset());
 
 		getExecOperations().exec(spec -> {

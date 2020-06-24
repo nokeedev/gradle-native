@@ -4,6 +4,12 @@ import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceFile
 
 class NokeeAppBaseLanguage extends SourceElement {
+	private final NokeeAppMainStoryboard mainStoryboard
+
+	NokeeAppBaseLanguage(boolean useCustomModuleProvider = false) {
+		this.mainStoryboard = new NokeeAppMainStoryboard(useCustomModuleProvider)
+	}
+
 	@Override
 	List<SourceFile> getFiles() {
 		return [sourceFile('resources/Base.lproj', 'LaunchScreen.storyboard', '''<?xml version="1.0" encoding="UTF-8"?>
@@ -41,8 +47,20 @@ class NokeeAppBaseLanguage extends SourceElement {
         <image name="full-green" width="200" height="50"/>
     </resources>
 </document>
-'''),
-		sourceFile('resources/Base.lproj', 'Main.storyboard', '''<?xml version="1.0" encoding="UTF-8"?>
+''')] + mainStoryboard.getFiles()
+	}
+}
+
+class NokeeAppMainStoryboard extends SourceElement {
+	private final boolean useCustomModuleProvider
+
+	NokeeAppMainStoryboard(boolean useCustomModuleProvider) {
+		this.useCustomModuleProvider = useCustomModuleProvider
+	}
+
+	@Override
+	List<SourceFile> getFiles() {
+		return [sourceFile('resources/Base.lproj', 'Main.storyboard', """<?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
@@ -54,7 +72,7 @@ class NokeeAppBaseLanguage extends SourceElement {
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" ${customModuleProvider} sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -84,6 +102,13 @@ class NokeeAppBaseLanguage extends SourceElement {
         <image name="full-green" width="200" height="50"/>
     </resources>
 </document>
-''')]
+""")]
+	}
+
+	private String getCustomModuleProvider() {
+		if (useCustomModuleProvider) {
+			return 'customModuleProvider="target"'
+		}
+		return ''
 	}
 }

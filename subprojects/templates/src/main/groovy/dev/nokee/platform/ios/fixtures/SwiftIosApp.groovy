@@ -11,7 +11,7 @@ import dev.nokee.platform.ios.fixtures.elements.NokeeAppInfoPlist
 class SwiftIosApp extends SourceElement {
 	final SourceElement main = ofElements(
 		new SwiftAppDelegate(), new SwiftSceneDelegate(), new SwiftViewController(),
-		new NokeeAppBaseLanguage(), new NokeeAppInfoPlist(), new NokeeAppAssets()
+		new NokeeAppBaseLanguage(true), new NokeeAppInfoPlist(true), new NokeeAppAssets()
 	)
 
 	@Override
