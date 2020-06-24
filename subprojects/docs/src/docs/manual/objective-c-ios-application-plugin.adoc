@@ -14,7 +14,7 @@ It provides an entry point (application), runtime (iOS) and implementation langu
 [[sec:jni_library_usage]]
 == Usage
 
-.Applying the JNI Library Plugin
+.Applying the Objective-C iOS Application Plugin
 ====
 [.multi-language-sample]
 =====
