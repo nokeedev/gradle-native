@@ -55,7 +55,7 @@ class XcodeIdeWorkspaceFunctionalTest extends AbstractXcodeIdeFunctionalSpec {
 		succeeds('xcode')
 
 		then:
-		xcodeWorkspace('app').assertDerivedDataLocationRelativeToWorkspace('.gradle/xcodeDerivedData')
+		xcodeWorkspace('app').assertDerivedDataLocationRelativeToWorkspace('.gradle/XcodeDerivedData')
 	}
 
 	// TODO: can remap projects included in the workspace (exclude projects)
