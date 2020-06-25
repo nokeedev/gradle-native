@@ -31,7 +31,9 @@ class Version {
 	private String loadQualifier() {
 		def process = "git rev-parse --short HEAD".execute(null, projectLayout.projectDirectory.asFile)
 		process.waitFor()
-		return process.in.text.trim()
+		def result = process.in.text.trim()
+		assert result.size() == 8 // CI macOS is using a version that prompt a shorter value by 1 char... Tabar...
+		return result
 	}
 }
 
