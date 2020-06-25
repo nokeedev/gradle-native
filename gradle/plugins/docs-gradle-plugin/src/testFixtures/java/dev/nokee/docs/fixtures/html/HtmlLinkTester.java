@@ -172,6 +172,9 @@ public class HtmlLinkTester {
 
 		@Override
 		public void validate(FailureReporter visitor) {
+			if (blackList.isBlackListed(resource.getFixture().getUri())) {
+				return;
+			}
 			resource.validate(visitor);
 
 			if (resource.getFixture().findAll(HtmlTag.ANCHOR).stream().noneMatch(it -> it.getIdOrName().equals(anchor))) {
