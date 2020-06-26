@@ -50,4 +50,4 @@ Look at link:https://nokee.dev/docs/{jbake-version}/samples[all the samples demo
 * Get familiar with the link:https://nokee.dev/current/manual/user-manual.html[Nokee User Manual]
 * Ask on the link:https://discuss.gradle.org/tag/native[native forum]
 * Have a look at the link:https://nokee.dev/current/samples[Samples]
-* Join the link:https://gradl.es/slack-invite-2019[#native Slack Channel]
+* Join the link:https://gradle.com/slack-invite[#native Slack Channel]
