@@ -5,7 +5,7 @@
 <html lang="en" prefix="og: https://ogp.me/ns#">
 <head>
 	<% include "fragment-docs-header.gsp" %>
-	<link href="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>css/docs-samples.css" rel="stylesheet">
+	<link href="/css/docs-samples.css" rel="stylesheet">
 	<%
 		// Twitter player card doesn't exists for version 0.1.0
 		if (!content.uri.contains('0.1.0')) {%>

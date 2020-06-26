@@ -10,6 +10,6 @@
 	<!-- Le javascript
 	================================================== -->
 	<!-- Placed at the end of the document so the pages load faster -->
-	<script src="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>js/prettify.js"></script>
-	<script src="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>js/multi-language-sample.js"></script>
-	<script src="<%if (content.rootpath) {%>${content.rootpath}<% } else { %><% }%>js/active-link.js"></script>
+	<script src="/js/prettify.js"></script>
+	<script src="/js/multi-language-sample.js"></script>
+	<script src="/js/active-link.js"></script>
