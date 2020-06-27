@@ -1,5 +1,5 @@
 plugins {
-	kotlin("jvm") version "1.3.72"
+	id("org.jetbrains.kotlin.jvm") version "1.3.72"
 	id("dev.nokee.jni-library")
 	id("dev.nokee.cpp-language")
 }
