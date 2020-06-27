@@ -49,6 +49,7 @@
 			case 'blog_post': return [kBlogCrumb, kContentCrumb]
 			case 'landing_page':
 			case 'page':
+			case 'documentation_index': // Inside docs.nokee.dev
 				return []
 			default:
 				throw new UnsupportedOperationException("[fragment-meta-generic.gsp] Unknown content type (${content.type})")
