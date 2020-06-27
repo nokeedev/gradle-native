@@ -175,21 +175,25 @@ documentation {
 		}
 
 		'gradle-plugin-development-runtime-compatibilities' {
+			productVersion = project.toolboxVersion
 			minimumGradleVersion = '6.2.1'
 			pluginManagementBlock = PluginManagementBlock.none()
 			template = new JavaBasicGradlePlugin().withProjectBuilderTest()
 		}
 		'gradle-plugin-development-with-minimum-gradle-version' {
+			productVersion = project.toolboxVersion
 			minimumGradleVersion = '6.2.1'
 			pluginManagementBlock = PluginManagementBlock.none()
 			template = new JavaBasicGradlePlugin().withTestKitTest()
 		}
 		'gradle-plugin-development-with-test-suites' {
+			productVersion = project.toolboxVersion
 			minimumGradleVersion = '6.2.1'
 			pluginManagementBlock = PluginManagementBlock.none()
 			template = new JavaBasicGradlePlugin().withProjectBuilderTest().withTestKitFunctionalTest()
 		}
 		'gradle-plugin-development-with-testing-strategies' {
+			productVersion = project.toolboxVersion
 			minimumGradleVersion = '6.2.1'
 			pluginManagementBlock = PluginManagementBlock.none()
 			template = new JavaBasicGradlePlugin().withFunctionalTest()
