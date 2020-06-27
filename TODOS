@@ -1,9 +1,0 @@
-- Check wildcard for all public return type
-
-- Add Xcode support for all native plugins
-- Add support for Swift JNI library
-
-- Formalize the split between View / Collection / Container
-  - DomainObjectView (read-only, cannot add or register)
-  - DomainObjectCollection (collection, can add but not register)
-  - DomainObjectContainer (lifecycle, can register but not add)
