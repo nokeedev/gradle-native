@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
+import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.c.tasks.CCompile;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
@@ -40,8 +41,6 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
-import org.gradle.language.swift.SwiftSharedLibrary;
-import org.gradle.language.swift.SwiftStaticLibrary;
 import org.gradle.language.swift.SwiftVersion;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
@@ -64,7 +63,7 @@ import java.util.stream.Stream;
 public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	private final ToolChainSelectorInternal toolChainSelector = getObjects().newInstance(ToolChainSelectorInternal.class);
 	@Getter private final NamingScheme names;
-	@Getter private final TaskView<Task> compileTasks;
+	protected final TaskView<Task> compileTasks; // Until the compile tasks is clean up
 	private final DomainObjectSet<GeneratedSourceSet> objectSourceSets;
 	@Getter private final DefaultTargetMachine targetMachine;
 	@Getter private final NativeIncomingDependencies dependencies;
@@ -76,13 +75,13 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 		this.targetMachine = targetMachine;
 		this.dependencies = dependencies;
 
-		getCompileTasks().configureEach(AbstractNativeCompileTask.class, this::configureNativeSourceCompileTask);
-		getCompileTasks().configureEach(AbstractNativeCompileTask.class, task -> {
+		compileTasks.configureEach(AbstractNativeCompileTask.class, this::configureNativeSourceCompileTask);
+		compileTasks.configureEach(AbstractNativeCompileTask.class, task -> {
 			task.getIncludes().from(dependencies.getHeaderSearchPaths());
 			task.getCompilerArgs().addAll(getProviders().provider(() -> dependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(this::toFrameworkSearchPathFlags).collect(Collectors.toList())));
 		});
-		getCompileTasks().configureEach(SwiftCompileTask.class, this::configureSwiftCompileTask);
-		getCompileTasks().configureEach(SwiftCompileTask.class, task -> {
+		compileTasks.configureEach(SwiftCompileTask.class, this::configureSwiftCompileTask);
+		compileTasks.configureEach(SwiftCompileTask.class, task -> {
 			task.getModules().from(dependencies.getSwiftModules());
 			task.getCompilerArgs().addAll(getProviders().provider(() -> dependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(this::toFrameworkSearchPathFlags).collect(Collectors.toList())));
 		});
@@ -91,9 +90,9 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
 		return getObjects().fileCollection()
 			.from("src/main/headers")
-			.from(getCompileTasks().withType(AbstractNativeSourceCompileTask.class).map(it -> it.getIncludes()))
+			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> it.getIncludes()))
 			.from(getDependencies().getHeaderSearchPaths())
-			.from(getCompileTasks().withType(AbstractNativeSourceCompileTask.class).map(it -> it.getSystemIncludes()))
+			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> it.getSystemIncludes()))
 			.getElements();
 	}
 
@@ -108,7 +107,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 		return getObjects().fileCollection()
 			.from(getDependencies().getFrameworkSearchPaths())
 			.from(getDependencies().getLinkFrameworks().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList())))
-			.from(getCompileTasks().withType(AbstractNativeSourceCompileTask.class).map(it -> extractFrameworkSearchPaths(it.getCompilerArgs().get())))
+			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> extractFrameworkSearchPaths(it.getCompilerArgs().get())))
 			.getElements();
 	}
 
@@ -283,5 +282,10 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 
 	private Stream<String> toFrameworkSearchPathFlags(File it) {
 		return ImmutableList.of("-F", it.getAbsolutePath()).stream();
+	}
+
+	@Override
+	public TaskView<SourceCompile> getCompileTasks() {
+		return compileTasks.withType(SourceCompile.class);
 	}
 }

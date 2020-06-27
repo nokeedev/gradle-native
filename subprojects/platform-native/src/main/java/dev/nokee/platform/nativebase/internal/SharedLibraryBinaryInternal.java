@@ -65,7 +65,7 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 		parentSources.all(it -> sources.add(it));
 
 		// configure includes using the native incoming compile configuration
-		getCompileTasks().configureEach(AbstractNativeCompileTask.class, task -> {
+		compileTasks.configureEach(AbstractNativeCompileTask.class, task -> {
 			AbstractNativeCompileTask softwareModelTaskInternal = (AbstractNativeCompileTask) task;
 			NativeSourceCompileTask taskInternal = (NativeSourceCompileTask) task;
 			taskInternal.getHeaderSearchPaths().addAll(softwareModelTaskInternal.getIncludes().getElements().map(SharedLibraryBinaryInternal::toHeaderSearchPaths));

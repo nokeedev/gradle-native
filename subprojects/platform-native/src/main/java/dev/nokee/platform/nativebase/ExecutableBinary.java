@@ -1,8 +1,8 @@
 package dev.nokee.platform.nativebase;
 
+import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
-import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
 /**
@@ -14,9 +14,9 @@ public interface ExecutableBinary extends NativeBinary {
 	/**
 	 * Returns a view of all the compile tasks that participate to compiling all the object files for this binary.
 	 *
-	 * @return a view of {@link Task} tasks, never null.
+	 * @return a view of {@link SourceCompile} tasks, never null.
 	 */
-	TaskView<Task> getCompileTasks();
+	TaskView<SourceCompile> getCompileTasks();
 
 	/**
 	 * Returns a provider for the task that links the object files into this binary.
