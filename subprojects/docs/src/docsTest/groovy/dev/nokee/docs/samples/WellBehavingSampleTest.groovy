@@ -14,6 +14,12 @@ import dev.gradleplugins.test.fixtures.gradle.logging.ConsoleOutput
 import dev.nokee.docs.fixtures.*
 import dev.nokee.docs.fixtures.html.HtmlTag
 import dev.nokee.docs.tags.Baked
+import dev.nokee.language.c.internal.UTTypeCSource
+import dev.nokee.language.cpp.internal.UTTypeCppSource
+import dev.nokee.language.objectivec.internal.UTTypeObjectiveCSource
+import dev.nokee.language.objectivecpp.internal.UTTypeObjectiveCppSource
+import dev.nokee.language.swift.internal.UTTypeSwiftSource
+import groovy.io.FileType
 import groovy.transform.ToString
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.SystemUtils
@@ -28,6 +34,7 @@ import spock.lang.Unroll
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
+import static org.apache.commons.io.FilenameUtils.getExtension
 import static org.hamcrest.Matchers.greaterThan
 import static org.junit.Assume.assumeThat
 import static org.junit.Assume.assumeTrue
@@ -103,6 +110,63 @@ abstract class WellBehavingSampleTest extends Specification {
 		expect:
 		fixture.summary != null
 		fixture.summary.endsWith('.')
+	}
+
+	List<String> getExpectedAdditionalExtensions() {
+		return []
+	}
+
+	@Unroll
+	def "ensure sample source files matches source layout"(dsl) {
+		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
+
+		def pluginIdsToExtensions = [
+			'dev.nokee.c': UTTypeCSource.INSTANCE.filenameExtensions,
+			'dev.nokee.cpp': UTTypeCppSource.INSTANCE.filenameExtensions,
+			'dev.nokee.objective-c': UTTypeObjectiveCSource.INSTANCE.filenameExtensions,
+			'dev.nokee.objective-cpp': UTTypeObjectiveCppSource.INSTANCE.filenameExtensions,
+			'dev.nokee.swift': UTTypeSwiftSource.INSTANCE.filenameExtensions,
+			'dev.gradleplugins.java': ['java'],
+			'dev.gradleplugins.groovy': ['groovy'],
+			'java': ['java'],
+			'groovy': ['groovy'],
+			'org.jetbrains.kotlin.jvm': ['kt']
+		]
+		def languageExtensions = pluginIdsToExtensions.values().flatten()
+		def allBuildFiles = []
+		def allFilesByExtensions = [:].withDefault { [] }
+		testDirectory.eachFileRecurse(FileType.FILES) {
+			if (GradleScriptDsl.values()*.buildFileName.contains(it.name)) {
+				allBuildFiles.add(it)
+			} else if (languageExtensions.contains(getExtension(it.name))) {
+				allFilesByExtensions.get(getExtension(it.name)).add(it)
+			}
+		}
+
+		def allAppliedPlugins = allBuildFiles.collect {
+			def m = (it.text =~ /id[( ]["'](.+?)['"]\)?/)
+			def result = []
+			for (i in 0..<m.count) {
+				result.add(m[i][1])
+			}
+			return result
+		}.flatten()
+
+		println "Found files: ${allFilesByExtensions}"
+		println "Found applied plugins: ${allAppliedPlugins}"
+
+		pluginIdsToExtensions.retainAll { k, v -> allAppliedPlugins.any { it.startsWith(k) } }
+		def effectiveLanguageExtensions = pluginIdsToExtensions.values().flatten() + expectedAdditionalExtensions
+		println "Effective language extensions: ${effectiveLanguageExtensions}"
+
+		allFilesByExtensions.removeAll { k, v -> effectiveLanguageExtensions.contains(k) }
+		println "Left over files: ${allFilesByExtensions}"
+
+		expect:
+		allFilesByExtensions.isEmpty()
+
+		where:
+		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]
 	}
 
 	/**

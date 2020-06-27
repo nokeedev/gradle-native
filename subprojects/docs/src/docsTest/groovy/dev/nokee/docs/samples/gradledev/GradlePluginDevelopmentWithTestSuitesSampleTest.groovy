@@ -7,4 +7,8 @@ class GradlePluginDevelopmentWithTestSuitesSampleTest extends WellBehavingSample
 	protected String getSampleName() {
 		return 'gradle-plugin-development-with-test-suites'
 	}
+
+	List<String> getExpectedAdditionalExtensions() {
+		return ['groovy'] // for spock tests
+	}
 }

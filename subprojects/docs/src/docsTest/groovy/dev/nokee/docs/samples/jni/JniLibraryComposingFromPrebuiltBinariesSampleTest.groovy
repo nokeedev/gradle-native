@@ -7,4 +7,8 @@ class JniLibraryComposingFromPrebuiltBinariesSampleTest extends WellBehavingSamp
 	protected String getSampleName() {
 		return 'jni-library-composing-from-pre-built-binaries'
 	}
+
+	List<String> getExpectedAdditionalExtensions() {
+		return ['cpp'] // We include the source that produce the pre-built binaries
+	}
 }
