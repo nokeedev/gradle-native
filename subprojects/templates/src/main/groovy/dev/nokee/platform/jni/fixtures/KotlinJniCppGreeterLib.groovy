@@ -174,7 +174,7 @@ class KotlinGreeterJUnitTest extends JavaSourceFileElement {
 	}
 
 	KotlinGreeterJUnitTest(JavaPackage javaPackage) {
-		source = ofFile(sourceFile("kotlin/${javaPackage.directoryLayout}", 'GreeterTest.java', """
+		source = ofFile(sourceFile("kotlin/${javaPackage.directoryLayout}", 'GreeterTest.kt', """
 package ${javaPackage.name}
 
 import org.hamcrest.CoreMatchers.equalTo
