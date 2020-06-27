@@ -130,7 +130,8 @@ abstract class WellBehavingSampleTest extends Specification {
 			'dev.gradleplugins.groovy': ['groovy'],
 			'java': ['java'],
 			'groovy': ['groovy'],
-			'org.jetbrains.kotlin.jvm': ['kt']
+			'org.jetbrains.kotlin.jvm': ['kt'],
+			'cpp': ['cpp']
 		]
 		def languageExtensions = pluginIdsToExtensions.values().flatten()
 		def allBuildFiles = []
