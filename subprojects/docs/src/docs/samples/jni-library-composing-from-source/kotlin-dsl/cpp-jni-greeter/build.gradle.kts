@@ -1,7 +1,7 @@
 import org.gradle.internal.jvm.Jvm
 
 plugins {
-	id("cpp-library")
+	id("dev.nokee.cpp-library")
 }
 
 description = "The JNI shared library, also known as the native bindings."

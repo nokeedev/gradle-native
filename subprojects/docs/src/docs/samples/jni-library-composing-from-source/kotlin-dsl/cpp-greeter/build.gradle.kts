@@ -1,5 +1,5 @@
 plugins {
-	id("cpp-library")
+	id("dev.nokee.cpp-library")
 }
 
 description = "The C++ implementation, has no knowledge of the JVM."
