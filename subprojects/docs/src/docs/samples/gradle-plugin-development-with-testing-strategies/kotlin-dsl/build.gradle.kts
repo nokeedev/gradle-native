@@ -1,6 +1,6 @@
 plugins {
-	id("dev.gradleplugins.java-gradle-plugin") version("1.0")
-	id("dev.gradleplugins.gradle-plugin-functional-test") version("1.0")
+	id("dev.gradleplugins.java-gradle-plugin") version("1.1")
+	id("dev.gradleplugins.gradle-plugin-functional-test") version("1.1")
 }
 
 gradlePlugin {

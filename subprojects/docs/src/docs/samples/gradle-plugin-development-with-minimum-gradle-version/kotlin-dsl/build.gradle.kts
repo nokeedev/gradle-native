@@ -1,5 +1,5 @@
 plugins {
-	id("dev.gradleplugins.java-gradle-plugin") version("1.0")
+	id("dev.gradleplugins.java-gradle-plugin") version("1.1")
 	id("groovy-base") // for Spock testing
 }
 
