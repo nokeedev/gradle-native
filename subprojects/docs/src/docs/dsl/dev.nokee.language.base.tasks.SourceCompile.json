@@ -1,0 +1,5 @@
+{
+	"category": "Native types",
+	"properties": ["toolChain", "compilerArgs"],
+	"methods": []
+}
