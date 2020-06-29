@@ -14,5 +14,5 @@ public interface BundleBinary extends NativeBinary {
 	 *
 	 * @return a provider of {@link LinkBundle} task, never null.
 	 */
-	TaskProvider<? extends LinkBundle> getLinkTask(); // TODO
+	TaskProvider<LinkBundle> getLinkTask();
 }

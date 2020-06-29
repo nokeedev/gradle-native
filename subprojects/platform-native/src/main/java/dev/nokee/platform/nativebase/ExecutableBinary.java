@@ -23,7 +23,7 @@ public interface ExecutableBinary extends NativeBinary {
 	 *
 	 * @return a provider of {@link LinkExecutable} task, never null.
 	 */
-	TaskProvider<? extends LinkExecutable> getLinkTask();
+	TaskProvider<LinkExecutable> getLinkTask();
 
 	/**
 	 * Returns whether or not this binary can be built in the current environment.

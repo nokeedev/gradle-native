@@ -23,7 +23,7 @@ public interface SharedLibraryBinary extends NativeBinary {
 	 *
 	 * @return a provider of {@link LinkSharedLibrary} task, never null.
 	 */
-	TaskProvider<? extends LinkSharedLibrary> getLinkTask();
+	TaskProvider<LinkSharedLibrary> getLinkTask();
 
 	/**
 	 * Returns whether or not this binary can be built in the current environment.

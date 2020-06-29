@@ -30,6 +30,7 @@ import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.jvm.Jvm;
@@ -163,12 +164,15 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 		}));
 	}
 
-	public TaskProvider<? extends LinkSharedLibrary> getLinkTask() {
-		return linkTask;
+	public TaskProvider<LinkSharedLibrary> getLinkTask() {
+		return getTasks().named(linkTask.getName(), LinkSharedLibrary.class);
 	}
 
 	@Inject
 	protected abstract ProviderFactory getProviderFactory();
+
+	@Inject
+	protected abstract TaskContainer getTasks();
 
 	public abstract RegularFileProperty getLinkedFile();
 

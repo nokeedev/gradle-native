@@ -14,5 +14,5 @@ public interface StaticLibraryBinary extends NativeBinary {
 	 *
 	 * @return a provider of {@link CreateStaticLibrary} task, never null.
 	 */
-	TaskProvider<? extends CreateStaticLibrary> getCreateTask();
+	TaskProvider<CreateStaticLibrary> getCreateTask();
 }

@@ -28,10 +28,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class ExecutableBinaryInternal extends BaseNativeBinary implements ExecutableBinary, Buildable {
+	private final TaskProvider<LinkExecutableTask> linkTask;
 
 	@Inject
 	public ExecutableBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeIncomingDependencies dependencies) {
 		super(names, objectSourceSets, targetMachine, dependencies);
+		this.linkTask = linkTask;
 
 		linkTask.configure(this::configureExecutableTask);
 		linkTask.configure(task -> {
@@ -83,8 +85,8 @@ public abstract class ExecutableBinaryInternal extends BaseNativeBinary implemen
 	protected abstract TaskContainer getTasks();
 
 	@Override
-	public TaskProvider<? extends LinkExecutable> getLinkTask() {
-		return getTasks().named(getNames().getTaskName("link"), LinkExecutable.class);
+	public TaskProvider<LinkExecutable> getLinkTask() {
+		return getTasks().named(linkTask.getName(), LinkExecutable.class);
 	}
 
 	@Override
