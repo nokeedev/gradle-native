@@ -9,6 +9,7 @@
 :plugin-language-id: c
 :plugin-language-suffix: C
 :language-java-package: dev.nokee.language.c
+:plugin-configuration-style: native
 
 The {plugin-display-name} Plugin provides the tasks, configurations and conventions for a building {plugin-language} application.
 
