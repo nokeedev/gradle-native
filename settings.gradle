@@ -5,7 +5,7 @@ plugins {
 rootProject.name = 'gradle-native'
 
 // Use local repository if available
-if (file('../docs-gradle-plugins')) {
+if (file('../docs-gradle-plugins').exists()) {
 	includeBuild '../docs-gradle-plugins'
 } else {
 	sourceControl {
