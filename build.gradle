@@ -1,3 +1,14 @@
+buildscript {
+	repositories {
+		gradlePluginPortal()
+		maven { url = 'https://repo.eclipse.org/content/groups/releases/' }
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'dev.nokee.docs:docs-gradle-plugins:latest.integration'
+	}
+}
+
 import org.gradle.util.VersionNumber
 
 class Version {

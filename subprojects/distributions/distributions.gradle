@@ -13,6 +13,8 @@ plugins {
 
 import dev.nokee.core.exec.CommandLine
 import dev.nokee.core.exec.GradleWorkerExecutorEngine
+import dev.nokee.docs.JavadocDependencyLock
+import dev.nokee.docs.tasks.GenerateJavadocClasspathLock
 import groovy.json.JsonOutput
 
 def allPluginProjectPaths = [
@@ -140,8 +142,20 @@ private String resolveProperty(Project project, String envVarKey, String project
 }
 
 def allJavadocProjectPaths = allPluginProjectPaths - [':distributions:all', ':distributions:bom']
-tasks.register('javadoc', Javadoc) {
-	source(allJavadocProjectPaths.collect { evaluationDependsOn(it).sourceSets.main.allJava })
-	destinationDir = layout.buildDirectory.dir('javadoc').get().asFile
-	classpath = files(allJavadocProjectPaths.collect { evaluationDependsOn(it).sourceSets.main.compileClasspath })
+
+apply plugin: 'dev.nokee.documentation.javadoc'
+allJavadocProjectPaths.each { projectPath ->
+	project(projectPath) {
+		apply plugin: 'dev.nokee.documentation.javadoc'
+	}
+	dependencies {
+		javadocClasspathLock project(projectPath)
+		javadocSource project(projectPath)
+		javadocClasspath project(':distributions:all')
+	}
+}
+
+tasks.named('generateJavadocClasspathLock', GenerateJavadocClasspathLock) {
+	it.dependencies.add(new JavadocDependencyLock.Dependency('dev.nokee', 'nokee-gradle-plugins', version.toString()))
+	it.repositories.add(new JavadocDependencyLock.Repository(uri('https://dl.bintray.com/nokeedev/distributions/')))
 }

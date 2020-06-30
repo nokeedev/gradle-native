@@ -4,6 +4,17 @@ plugins {
 
 rootProject.name = 'gradle-native'
 
+// Use local repository if available
+if (file('../docs-gradle-plugins')) {
+	includeBuild '../docs-gradle-plugins'
+} else {
+	sourceControl {
+		gitRepository(uri('https://github.com/nokeedev/docs-gradle-plugins')) {
+			producesModule('dev.nokee.docs:docs-gradle-plugins')
+		}
+	}
+}
+
 includeBuild 'subprojects/templates'
 includeBuild 'gradle/plugins/docs-gradle-plugin'
 
