@@ -1,10 +1,11 @@
 package dev.nokee.ide.xcode.internal;
 
+import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
 import dev.nokee.ide.xcode.XcodeIdeWorkspaceExtension;
 
 import javax.inject.Inject;
 
-public abstract class DefaultXcodeIdeWorkspaceExtension extends DefaultXcodeIdeProjectExtension implements XcodeIdeWorkspaceExtension {
+public abstract class DefaultXcodeIdeWorkspaceExtension extends DefaultXcodeIdeProjectExtension implements XcodeIdeWorkspaceExtension, IdeWorkspaceExtension {
 	private final DefaultXcodeIdeWorkspace workspace;
 
 	@Inject

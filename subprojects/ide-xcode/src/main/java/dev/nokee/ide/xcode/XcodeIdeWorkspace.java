@@ -1,5 +1,6 @@
 package dev.nokee.ide.xcode;
 
+import dev.nokee.ide.base.IdeWorkspace;
 import org.gradle.api.Describable;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
@@ -20,7 +21,7 @@ import org.gradle.api.provider.SetProperty;
  * @since 0.3
  * @see <a href="https://developer.apple.com/library/content/featuredarticles/XcodeConcepts/Concept-Workspace.html">Xcode Workspace Concept</a>
  */
-public interface XcodeIdeWorkspace extends Describable {
+public interface XcodeIdeWorkspace extends IdeWorkspace {
 	/**
 	 * Returns Xcode projects to include in the workspace.
 	 *

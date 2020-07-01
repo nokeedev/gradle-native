@@ -1,6 +1,8 @@
 package dev.nokee.ide.xcode.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.ide.base.internal.IdeProjectExtension;
+import dev.nokee.ide.base.internal.IdeProjectInternal;
 import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.xcode.*;
 import dev.nokee.ide.xcode.internal.*;
@@ -19,6 +21,7 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.internal.Actions;
 import org.gradle.plugins.ide.internal.IdeArtifactRegistry;
+import org.gradle.plugins.ide.internal.IdeProjectMetadata;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -83,15 +86,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 				task.getSources().from(getBuildFiles(project));
 			});
 		});
-		// Since all Xcode components are expected to be registered lazily, we can't register the IDE project inside the configuration action above.
-		// Instead, we rely on the schema after the project is evaluated and register metadata using the provider.
-		// For better laziness, we should disallow all eager method from the containers (aka using a custom container).
-		// We should also disallow any modification after we read the collection schema.
-		project.afterEvaluate(proj -> {
-			projectExtension.getProjects().getCollectionSchema().getElements().forEach(element -> {
-				getArtifactRegistry().registerIdeProject(new XcodeIdeProjectMetadata(projectExtension.getProjects().named(element.getName()).map(DefaultXcodeIdeProject.class::cast)));
-			});
-		});
+		addProjectExtension(projectExtension);
 
 		project.getTasks().addRule(getObjects().newInstance(XcodeIdeBridge.class, projectExtension.getProjects(), project));
 
@@ -142,6 +137,11 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 	@Override
 	protected String getIdeDisplayName() {
 		return "Xcode";
+	}
+
+	@Override
+	protected IdeProjectMetadata newIdeProjectMetadata(Provider<IdeProjectInternal> ideProject) {
+		return new XcodeIdeProjectMetadata(ideProject.map(DefaultXcodeIdeProject.class::cast));
 	}
 
 	// TODO: Implicit init script should probably also be added to make the user realize those are affecting your build.

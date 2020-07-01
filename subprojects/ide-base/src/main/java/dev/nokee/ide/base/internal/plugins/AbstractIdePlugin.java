@@ -1,15 +1,22 @@
 package dev.nokee.ide.base.internal.plugins;
 
-import dev.nokee.ide.base.internal.IdeWorkspace;
+import dev.nokee.ide.base.internal.BaseIdeProjectMetadata;
+import dev.nokee.ide.base.internal.IdeProjectExtension;
+import dev.nokee.ide.base.internal.IdeProjectInternal;
+import dev.nokee.ide.base.internal.IdeWorkspaceInternal;
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.*;
 import org.gradle.api.invocation.Gradle;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.logging.ConsoleRenderer;
+import org.gradle.plugins.ide.internal.IdeArtifactRegistry;
+import org.gradle.plugins.ide.internal.IdeProjectMetadata;
 import org.gradle.process.ExecOperations;
 
 import javax.inject.Inject;
@@ -22,14 +29,10 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 	@Getter private TaskProvider<Delete> cleanTask;
 	@Getter private TaskProvider<Task> lifecycleTask;
 
-	@Inject
-	protected abstract TaskContainer getTasks();
-
-	@Inject
-	protected abstract ExecOperations getExecOperations();
-
 	@Override
 	public final void apply(Project project) {
+		this.project = project;
+
 		cleanTask = getTasks().register(getTaskName("clean"), Delete.class, task -> {
 			task.setGroup(IDE_GROUP_NAME);
 			task.setDescription("Cleans " + getIdeDisplayName() + " IDE configuration");
@@ -44,7 +47,33 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 		doApply(project);
 	}
 
-	protected void addWorkspace(IdeWorkspace workspace) {
+	@Inject
+	protected abstract TaskContainer getTasks();
+
+	@Inject
+	protected abstract ExecOperations getExecOperations();
+
+	@Inject
+	protected abstract IdeArtifactRegistry getArtifactRegistry();
+
+	@Getter(AccessLevel.PROTECTED)
+	private Project project;
+
+	protected void addProjectExtension(IdeProjectExtension extension) {
+		// Since all Xcode components are expected to be registered lazily, we can't register the IDE project inside the configuration action above.
+		// Instead, we rely on the schema after the project is evaluated and register metadata using the provider.
+		// For better laziness, we should disallow all eager method from the containers (aka using a custom container).
+		// We should also disallow any modification after we read the collection schema.
+		project.afterEvaluate(proj -> {
+			extension.getProjects().getCollectionSchema().getElements().forEach(element -> {
+				getArtifactRegistry().registerIdeProject(newIdeProjectMetadata(extension.getProjects().named(element.getName()).map(IdeProjectInternal.class::cast)));
+			});
+		});
+	}
+
+	protected abstract IdeProjectMetadata newIdeProjectMetadata(Provider<IdeProjectInternal> ideProject);
+
+	protected void addWorkspace(IdeWorkspaceInternal workspace) {
 		// Lifecycle configuration
 		getLifecycleTask().configure(task -> {
 			task.dependsOn(workspace.getGeneratorTask());
