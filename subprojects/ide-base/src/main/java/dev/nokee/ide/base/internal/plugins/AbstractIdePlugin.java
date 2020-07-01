@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -13,7 +14,8 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractIdePlugin implements Plugin<Project> {
 	public static final String IDE_GROUP_NAME = "IDE";
-	@Getter  private TaskProvider<Delete> cleanTask;
+	@Getter private TaskProvider<Delete> cleanTask;
+	@Getter private TaskProvider<Task> lifecycleTask;
 
 	@Inject
 	protected abstract TaskContainer getTasks();
@@ -23,6 +25,11 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 		cleanTask = getTasks().register(getTaskName("clean"), Delete.class, task -> {
 			task.setGroup(IDE_GROUP_NAME);
 			task.setDescription("Cleans " + getIdeDisplayName() + " IDE configuration");
+		});
+
+		lifecycleTask = getTasks().register(getLifecycleTaskName(), task -> {
+			task.setGroup(IDE_GROUP_NAME);
+			task.setDescription("Generates " + getIdeDisplayName() + " IDE configuration");
 		});
 
 		doApply(project);

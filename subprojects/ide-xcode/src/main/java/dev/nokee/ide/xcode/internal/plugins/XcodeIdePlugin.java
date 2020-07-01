@@ -20,7 +20,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
-import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.Actions;
 import org.gradle.internal.logging.ConsoleRenderer;
 import org.gradle.plugins.ide.internal.IdeArtifactRegistry;
@@ -46,14 +45,11 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 		DefaultXcodeIdeProjectExtension projectExtension = registerExtension(project);
 		Optional<DefaultXcodeIdeWorkspaceExtension> workspaceExtension = asWorkspaceExtensionIfAvailable(projectExtension);
 
-		TaskProvider<Task> xcodeTask = getTasks().register("xcode", task -> {
+		getLifecycleTask().configure(task -> {
 			task.dependsOn(projectExtension.getProjects());
 			workspaceExtension.ifPresent(extension -> {
 				task.dependsOn(extension.getWorkspace().getGeneratorTask());
 			});
-
-			task.setGroup(IDE_GROUP_NAME);
-			task.setDescription("Generates Xcode IDE configuration");
 		});
 
 		workspaceExtension.ifPresent(extension -> {
@@ -65,7 +61,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 				task.getDerivedDataLocation().set(".gradle/XcodeDerivedData");
 			});
 
-			xcodeTask.configure(task -> {
+			getLifecycleTask().configure(task -> {
 				task.doLast(new Action<Task>() {
 					@Override
 					public void execute(Task task) {
@@ -74,8 +70,8 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 				});
 			});
 
-			project.getTasks().register("open" + StringUtils.capitalize(xcodeTask.getName()), task -> {
-				task.dependsOn(xcodeTask);
+			project.getTasks().register("open" + StringUtils.capitalize(getLifecycleTask().getName()), task -> {
+				task.dependsOn(getLifecycleTask());
 				task.setGroup(IDE_GROUP_NAME);
 				task.setDescription("Opens the " + extension.getWorkspace().getDisplayName());
 				task.doLast(new Action<Task>() {
@@ -109,7 +105,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 			});
 		});
 		getTasks().withType(GenerateXcodeIdeProjectTask.class).configureEach(task -> task.shouldRunAfter(getCleanTask()));
-		xcodeTask.configure(task -> task.shouldRunAfter(getCleanTask()));
+		getLifecycleTask().configure(task -> task.shouldRunAfter(getCleanTask()));
 		workspaceExtension.ifPresent(extension -> {
 			extension.getWorkspace().getGeneratorTask().configure(task -> task.shouldRunAfter(getCleanTask()));
 		});
