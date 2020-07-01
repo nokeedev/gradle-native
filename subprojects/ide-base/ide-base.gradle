@@ -15,6 +15,7 @@ dependencies {
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 	compileOnly gradleApi(minimumGradleVersion)
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 }
 
 java {

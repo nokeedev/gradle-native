@@ -19,7 +19,6 @@ import org.gradle.api.invocation.Gradle;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.Actions;
@@ -102,19 +101,17 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 		//  The reason for cleaning the derived data is mainly because Xcode sometimes gets into a bad states.
 		//  Cleaning that directory also deletes indexing data.
 		//  We should probably delete the DerivedData when cleaning Xcode anyway
-		TaskProvider<Delete> cleanXcodeTask = getTasks().register("cleanXcode", Delete.class, task -> {
-			task.setGroup(IDE_GROUP_NAME);
-			task.setDescription("Cleans Xcode IDE configuration");
+		getCleanTask().configure(task -> {
 			task.delete(getProviders().provider(() -> projectExtension.getProjects().stream().map(XcodeIdeProject::getLocation).collect(Collectors.toList())));
 			workspaceExtension.ifPresent(extension -> {
 				task.delete(extension.getWorkspace().getLocation());
 				task.delete(extension.getWorkspace().getGeneratorTask().flatMap(GenerateXcodeIdeWorkspaceTask::getDerivedDataLocation));
 			});
 		});
-		getTasks().withType(GenerateXcodeIdeProjectTask.class).configureEach(task -> task.shouldRunAfter(cleanXcodeTask));
-		xcodeTask.configure(task -> task.shouldRunAfter(cleanXcodeTask));
+		getTasks().withType(GenerateXcodeIdeProjectTask.class).configureEach(task -> task.shouldRunAfter(getCleanTask()));
+		xcodeTask.configure(task -> task.shouldRunAfter(getCleanTask()));
 		workspaceExtension.ifPresent(extension -> {
-			extension.getWorkspace().getGeneratorTask().configure(task -> task.shouldRunAfter(cleanXcodeTask));
+			extension.getWorkspace().getGeneratorTask().configure(task -> task.shouldRunAfter(getCleanTask()));
 		});
 
 		Provider<XcodeIdeGidGeneratorService> xcodeIdeGidGeneratorService = project.getGradle().getSharedServices().registerIfAbsent("xcodeIdeGidGeneratorService", XcodeIdeGidGeneratorService.class, Actions.doNothing());
@@ -184,6 +181,11 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 	@Override
 	protected String getLifecycleTaskName() {
 		return XCODE_EXTENSION_NAME;
+	}
+
+	@Override
+	protected String getIdeDisplayName() {
+		return "Xcode";
 	}
 
 	// TODO: Implicit init script should probably also be added to make the user realize those are affecting your build.
