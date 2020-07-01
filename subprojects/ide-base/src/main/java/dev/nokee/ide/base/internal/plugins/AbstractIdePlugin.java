@@ -5,6 +5,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.*;
+import org.gradle.api.invocation.Gradle;
 import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -13,8 +14,8 @@ import org.gradle.process.ExecOperations;
 
 import javax.inject.Inject;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
-import java.util.stream.Collectors;
 
 public abstract class AbstractIdePlugin implements Plugin<Project> {
 	public static final String IDE_GROUP_NAME = "IDE";
@@ -89,4 +90,33 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 	protected abstract String getLifecycleTaskName();
 
 	protected abstract String getIdeDisplayName();
+
+	/**
+	 * Returns the path to the correct Gradle distribution to use.
+	 * The wrapper of the generating project will be used only if the execution context of the currently running Gradle is in the Gradle home (typical of a wrapper execution context).
+	 * If this isn't the case, we try to use the current Gradle home, if available, as the distribution.
+	 * Finally, if nothing matches, we default to the system-wide Gradle distribution.
+	 *
+	 * @param gradle the {@link Gradle} instance of the build generating the the IDE files
+	 * @return path to Gradle entry script to use within the generated IDE files
+	 */
+	public static String toGradleCommand(Gradle gradle) {
+		java.util.Optional<String> gradleWrapperPath = java.util.Optional.empty();
+
+		Project rootProject = gradle.getRootProject();
+		String gradlewExtension = SystemUtils.IS_OS_WINDOWS ? ".bat" : "";
+		File gradlewFile = rootProject.file("gradlew" + gradlewExtension);
+		if (gradlewFile.exists()) {
+			gradleWrapperPath = java.util.Optional.of(gradlewFile.getAbsolutePath());
+		}
+
+		if (gradle.getGradleHomeDir() != null) {
+			if (gradleWrapperPath.isPresent() && gradle.getGradleHomeDir().getAbsolutePath().startsWith(gradle.getGradleUserHomeDir().getAbsolutePath())) {
+				return gradleWrapperPath.get();
+			}
+			return gradle.getGradleHomeDir().getAbsolutePath() + "/bin/gradle";
+		}
+
+		return gradleWrapperPath.orElse("gradle");
+	}
 }
