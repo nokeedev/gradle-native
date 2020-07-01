@@ -9,7 +9,6 @@ import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeProjectTask;
 import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeWorkspaceTask;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import lombok.Value;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.*;
 import org.gradle.api.file.Directory;
@@ -21,13 +20,10 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.internal.Actions;
-import org.gradle.internal.logging.ConsoleRenderer;
 import org.gradle.plugins.ide.internal.IdeArtifactRegistry;
 
 import javax.inject.Inject;
-import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -47,9 +43,6 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 
 		getLifecycleTask().configure(task -> {
 			task.dependsOn(projectExtension.getProjects());
-			workspaceExtension.ifPresent(extension -> {
-				task.dependsOn(extension.getWorkspace().getGeneratorTask());
-			});
 		});
 
 		workspaceExtension.ifPresent(extension -> {
@@ -61,34 +54,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 				task.getDerivedDataLocation().set(".gradle/XcodeDerivedData");
 			});
 
-			getLifecycleTask().configure(task -> {
-				task.doLast(new Action<Task>() {
-					@Override
-					public void execute(Task task) {
-						task.getLogger().lifecycle(String.format("Generated %s at %s", extension.getWorkspace().getDisplayName(), new ConsoleRenderer().asClickableFileUrl(extension.getWorkspace().getLocation().get().getAsFile())));
-					}
-				});
-			});
-
-			project.getTasks().register("open" + StringUtils.capitalize(getLifecycleTask().getName()), task -> {
-				task.dependsOn(getLifecycleTask());
-				task.setGroup(IDE_GROUP_NAME);
-				task.setDescription("Opens the " + extension.getWorkspace().getDisplayName());
-				task.doLast(new Action<Task>() {
-					@Override
-					public void execute(Task task) {
-						if (SystemUtils.IS_OS_MAC) {
-							project.exec(spec -> spec.commandLine("open", extension.getWorkspace().getLocation().get()));
-						} else {
-							try {
-								Desktop.getDesktop().open(extension.getWorkspace().getLocation().get().getAsFile());
-							} catch (IOException e) {
-								throw new UncheckedIOException(e);
-							}
-						}
-					}
-				});
-			});
+			addWorkspace(extension.getWorkspace());
 		});
 
 		// TODO: Add a task for cleaning the Xcode derived data for the workspace/project.
@@ -105,9 +71,6 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 			});
 		});
 		getTasks().withType(GenerateXcodeIdeProjectTask.class).configureEach(task -> task.shouldRunAfter(getCleanTask()));
-		workspaceExtension.ifPresent(extension -> {
-			extension.getWorkspace().getGeneratorTask().configure(task -> task.shouldRunAfter(getCleanTask()));
-		});
 
 		Provider<XcodeIdeGidGeneratorService> xcodeIdeGidGeneratorService = project.getGradle().getSharedServices().registerIfAbsent("xcodeIdeGidGeneratorService", XcodeIdeGidGeneratorService.class, Actions.doNothing());
 		projectExtension.getProjects().withType(DefaultXcodeIdeProject.class).configureEach(xcodeProject -> {

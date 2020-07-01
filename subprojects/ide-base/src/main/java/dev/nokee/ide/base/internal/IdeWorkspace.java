@@ -9,4 +9,6 @@ public interface IdeWorkspace {
 	Provider<FileSystemLocation> getLocation();
 
 	TaskProvider<? extends Task> getGeneratorTask();
+
+	String getDisplayName();
 }
