@@ -1,0 +1,31 @@
+plugins {
+	id 'java-library'
+	id 'maven-publish'
+	id 'groovy-base'
+}
+
+import static dev.gradleplugins.GradleRuntimeCompatibility.*
+
+repositories {
+	jcenter()
+	gradlePluginDevelopment()
+}
+
+dependencies {
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+	compileOnly gradleApi(minimumGradleVersion)
+}
+
+java {
+	sourceCompatibility = minimumJavaVersionFor(minimumGradleVersion)
+	targetCompatibility = minimumJavaVersionFor(minimumGradleVersion)
+}
+
+publishing {
+	publications {
+		library(MavenPublication) {
+			from components.java
+		}
+	}
+}

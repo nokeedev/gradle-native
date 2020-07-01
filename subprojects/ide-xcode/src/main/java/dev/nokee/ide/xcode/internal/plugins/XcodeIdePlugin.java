@@ -1,6 +1,7 @@
 package dev.nokee.ide.xcode.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.xcode.*;
 import dev.nokee.ide.xcode.internal.*;
 import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
@@ -38,12 +39,11 @@ import java.util.stream.Collectors;
 import static dev.nokee.internal.ProjectUtils.getPrefixableProjectPath;
 import static dev.nokee.internal.ProjectUtils.isRootProject;
 
-public abstract class XcodeIdePlugin implements Plugin<Project> {
-	public static final String IDE_GROUP_NAME = "IDE";
+public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 	public static final String XCODE_EXTENSION_NAME = "xcode";
 
 	@Override
-	public void apply(Project project) {
+	public void doApply(Project project) {
 		DefaultXcodeIdeProjectExtension projectExtension = registerExtension(project);
 		Optional<DefaultXcodeIdeWorkspaceExtension> workspaceExtension = asWorkspaceExtensionIfAvailable(projectExtension);
 
