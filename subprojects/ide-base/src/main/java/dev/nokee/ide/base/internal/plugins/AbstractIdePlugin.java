@@ -1,5 +1,6 @@
 package dev.nokee.ide.base.internal.plugins;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.ide.base.internal.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,6 +25,7 @@ import javax.inject.Inject;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import static dev.nokee.internal.ProjectUtils.isRootProject;
@@ -197,5 +199,33 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 		}
 
 		return gradleWrapperPath.orElse("gradle");
+	}
+
+	// TODO: Implicit init script should probably also be added to make the user realize those are affecting your build.
+	// TODO: Implicit gradle.properties should probably also be added to the build
+	// NOTE: For the implicit files, we have to ensure it's obvious the files are not part of the build but part of the machine but affecting the build
+	// CAUTION: The implicit gradle.properties is often use for storing credentials, we should be careful with that file.
+	protected List<File> getBuildFiles() {
+		ImmutableList.Builder<File> result = ImmutableList.builder();
+		if (project.getBuildFile().exists()) {
+			result.add(project.getBuildFile());
+		}
+
+		if (isRootProject(project)) {
+			if (project.getGradle().getStartParameter().getSettingsFile() != null) {
+				result.add(project.getGradle().getStartParameter().getSettingsFile());
+			} else if (project.file("settings.gradle").exists()) {
+				result.add(project.file("settings.gradle"));
+			} else if (project.file("settings.gradle.kts").exists()) {
+				result.add(project.file("settings.gradle.kts"));
+			}
+
+			if (project.file("gradle.properties").exists()) {
+				result.add(project.file("gradle.properties"));
+			}
+
+			project.getGradle().getStartParameter().getInitScripts().forEach(result::add);
+		}
+		return result.build();
 	}
 }

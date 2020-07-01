@@ -67,7 +67,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 				task.getGradleCommand().set(toGradleCommand(getProject().getGradle()));
 				task.getBridgeTaskPath().set(toBridgeTaskPath(getProject()));
 				task.getAdditionalGradleArguments().set(getAdditionalBuildArguments(getProject()));
-				task.getSources().from(getBuildFiles(getProject()));
+				task.getSources().from(getBuildFiles());
 			});
 		});
 		addProjectExtension(projectExtension);
@@ -162,34 +162,6 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 	@Override
 	protected IdeProjectExtension newIdeProjectExtension() {
 		return getObjects().newInstance(DefaultXcodeIdeProjectExtension.class);
-	}
-
-	// TODO: Implicit init script should probably also be added to make the user realize those are affecting your build.
-	// TODO: Implicit gradle.properties should probably also be added to the build
-	// NOTE: For the implicit files, we have to ensure it's obvious the files are not part of the build but part of the machine but affecting the build
-	// CAUTION: The implicit gradle.properties is often use for storing credentials, we should be careful with that file.
-	private List<File> getBuildFiles(Project project) {
-		ImmutableList.Builder<File> result = ImmutableList.builder();
-		if (project.getBuildFile().exists()) {
-			result.add(project.getBuildFile());
-		}
-
-		if (isRootProject(project)) {
-			if (project.getGradle().getStartParameter().getSettingsFile() != null) {
-				result.add(project.getGradle().getStartParameter().getSettingsFile());
-			} else if (project.file("settings.gradle").exists()) {
-				result.add(project.file("settings.gradle"));
-			} else if (project.file("settings.gradle.kts").exists()) {
-				result.add(project.file("settings.gradle.kts"));
-			}
-
-			if (project.file("gradle.properties").exists()) {
-				result.add(project.file("gradle.properties"));
-			}
-
-			project.getGradle().getStartParameter().getInitScripts().forEach(result::add);
-		}
-		return result.build();
 	}
 
 	private List<String> getAdditionalBuildArguments(Project project) {
