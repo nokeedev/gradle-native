@@ -22,6 +22,7 @@ import org.gradle.internal.logging.ConsoleRenderer;
 import org.gradle.plugins.ide.internal.IdeArtifactRegistry;
 import org.gradle.plugins.ide.internal.IdeProjectMetadata;
 import org.gradle.process.ExecOperations;
+import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -29,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static dev.nokee.internal.ProjectUtils.isRootProject;
 
@@ -40,29 +42,65 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 	@Override
 	public final void apply(Project project) {
 		this.project = project;
+		val projectExtension = registerExtension(project);
+		val workspaceExtension = asWorkspaceExtensionIfAvailable(projectExtension);
 
+		// Configure clean task
 		cleanTask = getTasks().register(getTaskName("clean"), Delete.class, task -> {
 			task.setGroup(IDE_GROUP_NAME);
 			task.setDescription("Cleans " + getDisplayName() + " IDE configuration");
+			task.delete(getProviders().provider(() -> projectExtension.getProjects().stream().map(IdeProject::getLocation).collect(Collectors.toList())));
+			workspaceExtension.ifPresent(extension -> {
+				task.delete(extension.getWorkspace().getLocation());
+			});
 		});
+		projectExtension.getProjects().configureEach(ideProject -> {
+			((IdeProjectInternal)ideProject).getGeneratorTask().configure(task -> task.shouldRunAfter(cleanTask));
+		});
+		workspaceExtension.ifPresent(extension -> extension.getWorkspace().getGeneratorTask().configure(task -> task.shouldRunAfter(cleanTask)));
 
 		lifecycleTask = getTasks().register(getLifecycleTaskName(), task -> {
 			task.setGroup(IDE_GROUP_NAME);
 			task.setDescription("Generates " + getDisplayName() + " IDE configuration");
+			task.dependsOn(projectExtension.getProjects());
 			task.shouldRunAfter(cleanTask);
+			workspaceExtension.ifPresent(extension -> {
+				task.dependsOn(extension.getWorkspace().getGeneratorTask());
+				task.doLast(new Action<Task>() {
+					@Override
+					public void execute(Task task) {
+						task.getLogger().lifecycle(String.format("Generated %s at %s", extension.getWorkspace().getDisplayName(), new ConsoleRenderer().asClickableFileUrl(extension.getWorkspace().getLocation().get().getAsFile())));
+					}
+				});
+			});
 		});
 
-		val projectExtension = registerExtension(project);
-		doProjectApply(projectExtension);
-
-		val workspaceExtension = asWorkspaceExtensionIfAvailable(projectExtension);
 		workspaceExtension.ifPresent(extension -> {
 			extension.getWorkspace().getProjects().set(extension.getProjects());
 
-			cleanTask.configure(task -> {
-				task.delete(extension.getWorkspace().getLocation());
+			// Open configuration
+			getTasks().register(getTaskName("open"), task -> {
+				task.dependsOn(getLifecycleTask());
+				task.setGroup(IDE_GROUP_NAME);
+				task.setDescription("Opens the " + extension.getWorkspace().getDisplayName());
+				task.doLast(new Action<Task>() {
+					@Override
+					public void execute(Task task) {
+						if (SystemUtils.IS_OS_MAC) {
+							getExecOperations().exec(spec -> spec.commandLine("open", extension.getWorkspace().getLocation().get()));
+						} else {
+							try {
+								Desktop.getDesktop().open(extension.getWorkspace().getLocation().get().getAsFile());
+							} catch (IOException e) {
+								throw new UncheckedIOException(e);
+							}
+						}
+					}
+				});
 			});
 		});
+
+		doProjectApply(projectExtension);
 		workspaceExtension.ifPresent(this::doWorkspaceApply);
 	}
 
@@ -139,50 +177,19 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 
 	protected abstract IdeProjectMetadata newIdeProjectMetadata(Provider<IdeProjectInternal> ideProject);
 
-	protected void addWorkspace(IdeWorkspaceInternal<T> workspace) {
-		// Lifecycle configuration
-		getLifecycleTask().configure(task -> {
-			task.dependsOn(workspace.getGeneratorTask());
-			task.doLast(new Action<Task>() {
-				@Override
-				public void execute(Task task) {
-					task.getLogger().lifecycle(String.format("Generated %s at %s", workspace.getDisplayName(), new ConsoleRenderer().asClickableFileUrl(workspace.getLocation().get().getAsFile())));
-				}
-			});
-		});
-
-		// Clean configuration
-		workspace.getGeneratorTask().configure(task -> task.shouldRunAfter(getCleanTask()));
-
-		// Open configuration
-		getTasks().register(getTaskName("open"), task -> {
-			task.dependsOn(getLifecycleTask());
-			task.setGroup(IDE_GROUP_NAME);
-			task.setDescription("Opens the " + workspace.getDisplayName());
-			task.doLast(new Action<Task>() {
-				@Override
-				public void execute(Task task) {
-					if (SystemUtils.IS_OS_MAC) {
-						getExecOperations().exec(spec -> spec.commandLine("open", workspace.getLocation().get()));
-					} else {
-						try {
-							Desktop.getDesktop().open(workspace.getLocation().get().getAsFile());
-						} catch (IOException e) {
-							throw new UncheckedIOException(e);
-						}
-					}
-				}
-			});
-		});
-	}
-
 	private String getTaskName(String verb) {
 		return verb + StringUtils.capitalize(getLifecycleTaskName());
 	}
 
-	protected abstract String getLifecycleTaskName();
+	protected abstract String getExtensionName();
 
-	protected abstract String getDisplayName();
+	protected String getLifecycleTaskName() {
+		return getExtensionName();
+	}
+
+	protected String getDisplayName() {
+		return GUtil.toWords(StringUtils.capitalize(getExtensionName()));
+	}
 
 	/**
 	 * Returns the path to the correct Gradle distribution to use.

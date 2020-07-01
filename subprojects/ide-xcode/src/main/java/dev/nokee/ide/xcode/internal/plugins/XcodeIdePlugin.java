@@ -9,7 +9,6 @@ import dev.nokee.ide.xcode.XcodeIdeProject;
 import dev.nokee.ide.xcode.XcodeIdeTarget;
 import dev.nokee.ide.xcode.internal.*;
 import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
-import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeProjectTask;
 import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeWorkspaceTask;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import lombok.Value;
@@ -30,7 +29,6 @@ import java.io.File;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static dev.nokee.internal.ProjectUtils.getPrefixableProjectPath;
 
@@ -40,21 +38,6 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 	@Override
 	public void doProjectApply(IdeProjectExtension<XcodeIdeProject> extension) {
 		DefaultXcodeIdeProjectExtension projectExtension = (DefaultXcodeIdeProjectExtension) extension;
-
-		getLifecycleTask().configure(task -> {
-			task.dependsOn(projectExtension.getProjects());
-		});
-
-		// TODO: Add a task for cleaning the Xcode derived data for the workspace/project.
-		//  It could be something like cleanXcodeDerivedData or just the same cleanXcode task.
-		//  See https://pewpewthespells.com/blog/xcode_deriveddata_hashes.html
-		//  The reason for cleaning the derived data is mainly because Xcode sometimes gets into a bad states.
-		//  Cleaning that directory also deletes indexing data.
-		//  We should probably delete the DerivedData when cleaning Xcode anyway
-		getCleanTask().configure(task -> {
-			task.delete(getProviders().provider(() -> projectExtension.getProjects().stream().map(XcodeIdeProject::getLocation).collect(Collectors.toList())));
-		});
-		getTasks().withType(GenerateXcodeIdeProjectTask.class).configureEach(task -> task.shouldRunAfter(getCleanTask()));
 
 		Provider<XcodeIdeGidGeneratorService> xcodeIdeGidGeneratorService = getProject().getGradle().getSharedServices().registerIfAbsent("xcodeIdeGidGeneratorService", XcodeIdeGidGeneratorService.class, Actions.doNothing());
 		projectExtension.getProjects().withType(DefaultXcodeIdeProject.class).configureEach(xcodeProject -> {
@@ -116,15 +99,11 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 	public void doWorkspaceApply(IdeWorkspaceExtension<XcodeIdeProject> extension) {
 		DefaultXcodeIdeWorkspaceExtension workspaceExtension = (DefaultXcodeIdeWorkspaceExtension) extension;
 
-		workspaceExtension.getWorkspace().getProjects().set(workspaceExtension.getProjects());
-
 		workspaceExtension.getWorkspace().getGeneratorTask().configure(task -> {
 			task.getWorkspaceLocation().set(getLayout().getProjectDirectory().dir(getProject().getName() + ".xcworkspace"));
 			task.getProjectLocations().set(getArtifactRegistry().getIdeProjectFiles(XcodeIdeProjectMetadata.class).getElements());
 			task.getDerivedDataLocation().set(".gradle/XcodeDerivedData");
 		});
-
-		addWorkspace(workspaceExtension.getWorkspace());
 
 		getCleanTask().configure(task -> {
 			task.delete(workspaceExtension.getWorkspace().getGeneratorTask().flatMap(GenerateXcodeIdeWorkspaceTask::getDerivedDataLocation));
@@ -132,13 +111,8 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 	}
 
 	@Override
-	protected String getLifecycleTaskName() {
+	protected String getExtensionName() {
 		return XCODE_EXTENSION_NAME;
-	}
-
-	@Override
-	protected String getDisplayName() {
-		return "Xcode";
 	}
 
 	@Override
