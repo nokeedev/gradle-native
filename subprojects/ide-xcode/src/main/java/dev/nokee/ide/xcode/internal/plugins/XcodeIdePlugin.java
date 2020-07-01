@@ -52,7 +52,6 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 				task.getSources().from(getBuildFiles());
 			});
 		});
-		addProjectExtension(projectExtension);
 
 		getProject().getTasks().addRule(getObjects().newInstance(XcodeIdeBridge.class, projectExtension.getProjects(), getProject()));
 
@@ -131,19 +130,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 	}
 
 	@Inject
-	protected abstract ObjectFactory getObjects();
-
-	@Inject
-	protected abstract TaskContainer getTasks();
-
-	@Inject
 	protected abstract ProjectLayout getLayout();
-
-	@Inject
-	protected abstract ProviderFactory getProviders();
-
-	@Inject
-	protected abstract IdeArtifactRegistry getArtifactRegistry();
 
 	/**
 	 * Returns the task name format to use inside Xcode legacy target when delegating to Gradle.
