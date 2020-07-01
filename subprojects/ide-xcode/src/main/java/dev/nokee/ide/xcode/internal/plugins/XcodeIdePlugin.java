@@ -105,7 +105,6 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 			});
 		});
 		getTasks().withType(GenerateXcodeIdeProjectTask.class).configureEach(task -> task.shouldRunAfter(getCleanTask()));
-		getLifecycleTask().configure(task -> task.shouldRunAfter(getCleanTask()));
 		workspaceExtension.ifPresent(extension -> {
 			extension.getWorkspace().getGeneratorTask().configure(task -> task.shouldRunAfter(getCleanTask()));
 		});

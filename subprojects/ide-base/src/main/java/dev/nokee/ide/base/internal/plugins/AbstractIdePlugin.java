@@ -30,6 +30,7 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 		lifecycleTask = getTasks().register(getLifecycleTaskName(), task -> {
 			task.setGroup(IDE_GROUP_NAME);
 			task.setDescription("Generates " + getIdeDisplayName() + " IDE configuration");
+			task.shouldRunAfter(cleanTask);
 		});
 
 		doApply(project);

@@ -1,6 +1,7 @@
 package dev.nokee.ide.xcode.internal;
 
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.ide.base.internal.IdeProject;
 import dev.nokee.ide.xcode.XcodeIdeProject;
 import dev.nokee.ide.xcode.XcodeIdeTarget;
 import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeProjectTask;
@@ -20,7 +21,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.Set;
 
-public abstract class DefaultXcodeIdeProject implements XcodeIdeProject, Buildable {
+public abstract class DefaultXcodeIdeProject implements XcodeIdeProject, IdeProject, Buildable {
 	@Getter private final String name;
 	@Getter private final TaskProvider<GenerateXcodeIdeProjectTask> generatorTask;
 	@Getter private final NamedDomainObjectContainer<XcodeIdeTarget> targets;
@@ -38,6 +39,7 @@ public abstract class DefaultXcodeIdeProject implements XcodeIdeProject, Buildab
 	@Inject
 	protected abstract ObjectFactory getObjects();
 
+	@Override
 	public Provider<FileSystemLocation> getLocation() {
 		return generatorTask.flatMap(GenerateXcodeIdeProjectTask::getProjectLocation);
 	}
