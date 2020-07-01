@@ -38,6 +38,10 @@ include 'ideBase'
 project(':ideBase').projectDir = file('subprojects/ide-base')
 project(':ideBase').buildFileName = 'ide-base.gradle'
 
+include 'ideVisualStudio'
+project(':ideVisualStudio').projectDir = file('subprojects/ide-visual-studio')
+project(':ideVisualStudio').buildFileName = 'ide-visual-studio.gradle'
+
 include 'ideXcode'
 project(':ideXcode').projectDir = file('subprojects/ide-xcode')
 project(':ideXcode').buildFileName = 'ide-xcode.gradle'

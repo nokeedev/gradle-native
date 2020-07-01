@@ -1,0 +1,40 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'maven-publish'
+}
+
+repositories {
+	mavenCentral()
+	jcenter()
+}
+
+dependencies {
+	api project(':ideBase')
+	implementation project(':languageNative')
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.8'
+	implementation 'org.simpleframework:simple-xml:2.7.1'
+	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "commons-io:commons-io:${commonsIoVersion}"
+	implementation project(':platformNative') // for NativeBinary
+
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+}
+
+gradlePlugin {
+	plugins {
+		visualStudioIde {
+			id = 'dev.nokee.visual-studio-ide'
+			implementationClass = 'dev.nokee.ide.visualstudio.internal.plugins.VisualStudioIdePlugin'
+		}
+	}
+}
+
+functionalTest {
+	dependencies {
+		pluginUnderTestMetadata project(':platformNative')
+		implementation 'dev.nokee:templates:latest.integration'
+		implementation testFixtures(project(':languageNative'))
+		implementation testFixtures(project(':platformBase'))
+	}
+}
