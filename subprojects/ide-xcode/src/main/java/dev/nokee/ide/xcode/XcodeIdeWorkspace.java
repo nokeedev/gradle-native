@@ -21,7 +21,7 @@ import org.gradle.api.provider.SetProperty;
  * @since 0.3
  * @see <a href="https://developer.apple.com/library/content/featuredarticles/XcodeConcepts/Concept-Workspace.html">Xcode Workspace Concept</a>
  */
-public interface XcodeIdeWorkspace extends IdeWorkspace {
+public interface XcodeIdeWorkspace extends IdeWorkspace<XcodeIdeProject> {
 	/**
 	 * Returns Xcode projects to include in the workspace.
 	 *

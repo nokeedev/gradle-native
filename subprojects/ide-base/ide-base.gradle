@@ -20,6 +20,7 @@ dependencies {
 
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
+	testImplementation gradleApi(minimumGradleVersion)
 }
 
 java {

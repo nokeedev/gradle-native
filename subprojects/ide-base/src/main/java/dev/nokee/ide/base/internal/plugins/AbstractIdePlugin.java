@@ -1,6 +1,7 @@
 package dev.nokee.ide.base.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.ide.base.IdeProject;
 import dev.nokee.ide.base.internal.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.*;
 import org.gradle.api.invocation.Gradle;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.Delete;
@@ -30,7 +32,7 @@ import java.util.Optional;
 
 import static dev.nokee.internal.ProjectUtils.isRootProject;
 
-public abstract class AbstractIdePlugin implements Plugin<Project> {
+public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<Project> {
 	public static final String IDE_GROUP_NAME = "IDE";
 	@Getter private TaskProvider<Delete> cleanTask;
 	@Getter private TaskProvider<Task> lifecycleTask;
@@ -54,12 +56,19 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 		doProjectApply(projectExtension);
 
 		val workspaceExtension = asWorkspaceExtensionIfAvailable(projectExtension);
+		workspaceExtension.ifPresent(extension -> {
+			extension.getWorkspace().getProjects().set(extension.getProjects());
+
+			cleanTask.configure(task -> {
+				task.delete(extension.getWorkspace().getLocation());
+			});
+		});
 		workspaceExtension.ifPresent(this::doWorkspaceApply);
 	}
 
-	protected abstract void doProjectApply(IdeProjectExtension extension);
+	protected abstract void doProjectApply(IdeProjectExtension<T> extension);
 
-	protected abstract void doWorkspaceApply(IdeWorkspaceExtension extension);
+	protected abstract void doWorkspaceApply(IdeWorkspaceExtension<T> extension);
 
 	@Inject
 	protected abstract TaskContainer getTasks();
@@ -73,29 +82,32 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 	@Getter(AccessLevel.PROTECTED)
 	private Project project;
 
+	@Inject
+	protected abstract ProviderFactory getProviders();
+
 	//region Xcode IDE extension registration
-	private IdeProjectExtension registerExtension(Project project) {
+	private IdeProjectExtension<T> registerExtension(Project project) {
 		if (isRootProject(project)) {
 			return registerWorkspaceExtension(project);
 		}
 		return registerProjectExtension(project);
 	}
 
-	private IdeWorkspaceExtension registerWorkspaceExtension(Project project) {
-		IdeWorkspaceExtension extension = newIdeWorkspaceExtension();
+	private IdeWorkspaceExtension<T> registerWorkspaceExtension(Project project) {
+		IdeWorkspaceExtension<T> extension = newIdeWorkspaceExtension();
 		project.getExtensions().add(publicTypeOf(extension), getLifecycleTaskName(), extension);
 		return extension;
 	}
 
-	protected abstract IdeWorkspaceExtension newIdeWorkspaceExtension();
+	protected abstract IdeWorkspaceExtension<T> newIdeWorkspaceExtension();
 
-	private IdeProjectExtension registerProjectExtension(Project project) {
-		IdeProjectExtension extension = newIdeProjectExtension();
+	private IdeProjectExtension<T> registerProjectExtension(Project project) {
+		IdeProjectExtension<T> extension = newIdeProjectExtension();
 		project.getExtensions().add(publicTypeOf(extension), getLifecycleTaskName(), extension);
 		return extension;
 	}
 
-	protected abstract IdeProjectExtension newIdeProjectExtension();
+	protected abstract IdeProjectExtension<T> newIdeProjectExtension();
 
 	private static TypeOf<Object> publicTypeOf(Object extension) {
 		if (extension instanceof HasPublicType) {
@@ -105,15 +117,15 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 		return TypeOf.<Object>typeOf(extension.getClass());
 	}
 
-	private static Optional<IdeWorkspaceExtension> asWorkspaceExtensionIfAvailable(IdeProjectExtension projectExtension) {
+	private static <T extends IdeProject> Optional<IdeWorkspaceExtension<T>> asWorkspaceExtensionIfAvailable(IdeProjectExtension<T> projectExtension) {
 		if (projectExtension instanceof IdeWorkspaceExtension) {
-			return Optional.of((IdeWorkspaceExtension) projectExtension);
+			return Optional.of((IdeWorkspaceExtension<T>) projectExtension);
 		}
 		return Optional.empty();
 	}
 	//endregion
 
-	protected void addProjectExtension(IdeProjectExtension extension) {
+	protected void addProjectExtension(IdeProjectExtension<T> extension) {
 		// Since all Xcode components are expected to be registered lazily, we can't register the IDE project inside the configuration action above.
 		// Instead, we rely on the schema after the project is evaluated and register metadata using the provider.
 		// For better laziness, we should disallow all eager method from the containers (aka using a custom container).
@@ -127,7 +139,7 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 
 	protected abstract IdeProjectMetadata newIdeProjectMetadata(Provider<IdeProjectInternal> ideProject);
 
-	protected void addWorkspace(IdeWorkspaceInternal workspace) {
+	protected void addWorkspace(IdeWorkspaceInternal<T> workspace) {
 		// Lifecycle configuration
 		getLifecycleTask().configure(task -> {
 			task.dependsOn(workspace.getGeneratorTask());

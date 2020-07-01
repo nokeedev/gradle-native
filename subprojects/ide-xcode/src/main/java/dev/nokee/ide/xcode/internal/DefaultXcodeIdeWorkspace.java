@@ -1,6 +1,7 @@
 package dev.nokee.ide.xcode.internal;
 
 import dev.nokee.ide.base.internal.IdeWorkspaceInternal;
+import dev.nokee.ide.xcode.XcodeIdeProject;
 import dev.nokee.ide.xcode.XcodeIdeWorkspace;
 import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeWorkspaceTask;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-public abstract class DefaultXcodeIdeWorkspace implements XcodeIdeWorkspace, IdeWorkspaceInternal {
+public abstract class DefaultXcodeIdeWorkspace implements XcodeIdeWorkspace, IdeWorkspaceInternal<XcodeIdeProject> {
 	@Getter private final TaskProvider<GenerateXcodeIdeWorkspaceTask> generatorTask;
 
 	@Inject

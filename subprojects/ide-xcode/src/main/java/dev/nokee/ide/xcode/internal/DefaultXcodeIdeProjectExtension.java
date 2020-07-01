@@ -1,5 +1,6 @@
 package dev.nokee.ide.xcode.internal;
 
+import dev.nokee.ide.base.IdeProject;
 import dev.nokee.ide.base.internal.IdeProjectExtension;
 import dev.nokee.ide.xcode.XcodeIdeProductTypes;
 import dev.nokee.ide.xcode.XcodeIdeProject;
@@ -13,7 +14,7 @@ import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
 
-public abstract class DefaultXcodeIdeProjectExtension implements XcodeIdeProjectExtension, IdeProjectExtension, HasPublicType {
+public abstract class DefaultXcodeIdeProjectExtension implements XcodeIdeProjectExtension, IdeProjectExtension<XcodeIdeProject>, HasPublicType {
 	private static final XcodeIdeProductTypes PRODUCT_TYPES_FACTORY = new XcodeIdeProductTypes() {};
 	@Getter private final NamedDomainObjectContainer<XcodeIdeProject> projects;
 
