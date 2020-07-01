@@ -12,4 +12,6 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 	}
 
 	protected abstract void doApply(Project project);
+
+	protected abstract String getLifecycleTaskName();
 }

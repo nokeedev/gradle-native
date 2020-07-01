@@ -181,6 +181,11 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 		});
 	}
 
+	@Override
+	protected String getLifecycleTaskName() {
+		return XCODE_EXTENSION_NAME;
+	}
+
 	// TODO: Implicit init script should probably also be added to make the user realize those are affecting your build.
 	// TODO: Implicit gradle.properties should probably also be added to the build
 	// NOTE: For the implicit files, we have to ensure it's obvious the files are not part of the build but part of the machine but affecting the build
