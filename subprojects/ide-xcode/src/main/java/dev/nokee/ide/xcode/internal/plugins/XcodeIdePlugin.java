@@ -3,6 +3,7 @@ package dev.nokee.ide.xcode.internal.plugins;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.ide.base.internal.IdeProjectExtension;
 import dev.nokee.ide.base.internal.IdeProjectInternal;
+import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
 import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.xcode.*;
 import dev.nokee.ide.xcode.internal.*;
@@ -38,24 +39,11 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 	public static final String XCODE_EXTENSION_NAME = "xcode";
 
 	@Override
-	public void doApply(Project project) {
-		DefaultXcodeIdeProjectExtension projectExtension = registerExtension(project);
-		Optional<DefaultXcodeIdeWorkspaceExtension> workspaceExtension = asWorkspaceExtensionIfAvailable(projectExtension);
+	public void doProjectApply(IdeProjectExtension extension) {
+		DefaultXcodeIdeProjectExtension projectExtension = (DefaultXcodeIdeProjectExtension) extension;
 
 		getLifecycleTask().configure(task -> {
 			task.dependsOn(projectExtension.getProjects());
-		});
-
-		workspaceExtension.ifPresent(extension -> {
-			extension.getWorkspace().getProjects().set(extension.getProjects());
-
-			extension.getWorkspace().getGeneratorTask().configure(task -> {
-				task.getWorkspaceLocation().set(getLayout().getProjectDirectory().dir(project.getName() + ".xcworkspace"));
-				task.getProjectLocations().set(getArtifactRegistry().getIdeProjectFiles(XcodeIdeProjectMetadata.class).getElements());
-				task.getDerivedDataLocation().set(".gradle/XcodeDerivedData");
-			});
-
-			addWorkspace(extension.getWorkspace());
 		});
 
 		// TODO: Add a task for cleaning the Xcode derived data for the workspace/project.
@@ -66,66 +54,88 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 		//  We should probably delete the DerivedData when cleaning Xcode anyway
 		getCleanTask().configure(task -> {
 			task.delete(getProviders().provider(() -> projectExtension.getProjects().stream().map(XcodeIdeProject::getLocation).collect(Collectors.toList())));
-			workspaceExtension.ifPresent(extension -> {
-				task.delete(extension.getWorkspace().getLocation());
-				task.delete(extension.getWorkspace().getGeneratorTask().flatMap(GenerateXcodeIdeWorkspaceTask::getDerivedDataLocation));
-			});
 		});
 		getTasks().withType(GenerateXcodeIdeProjectTask.class).configureEach(task -> task.shouldRunAfter(getCleanTask()));
 
-		Provider<XcodeIdeGidGeneratorService> xcodeIdeGidGeneratorService = project.getGradle().getSharedServices().registerIfAbsent("xcodeIdeGidGeneratorService", XcodeIdeGidGeneratorService.class, Actions.doNothing());
+		Provider<XcodeIdeGidGeneratorService> xcodeIdeGidGeneratorService = getProject().getGradle().getSharedServices().registerIfAbsent("xcodeIdeGidGeneratorService", XcodeIdeGidGeneratorService.class, Actions.doNothing());
 		projectExtension.getProjects().withType(DefaultXcodeIdeProject.class).configureEach(xcodeProject -> {
 			xcodeProject.getGeneratorTask().configure( task -> {
 				FileSystemLocation projectLocation = getLayout().getProjectDirectory().dir(xcodeProject.getName() + ".xcodeproj");
 				task.getProjectLocation().set(projectLocation);
 				task.usesService(xcodeIdeGidGeneratorService);
 				task.getGidGenerator().set(xcodeIdeGidGeneratorService);
-				task.getGradleCommand().set(toGradleCommand(project.getGradle()));
-				task.getBridgeTaskPath().set(toBridgeTaskPath(project));
-				task.getAdditionalGradleArguments().set(getAdditionalBuildArguments(project));
-				task.getSources().from(getBuildFiles(project));
+				task.getGradleCommand().set(toGradleCommand(getProject().getGradle()));
+				task.getBridgeTaskPath().set(toBridgeTaskPath(getProject()));
+				task.getAdditionalGradleArguments().set(getAdditionalBuildArguments(getProject()));
+				task.getSources().from(getBuildFiles(getProject()));
 			});
 		});
 		addProjectExtension(projectExtension);
 
-		project.getTasks().addRule(getObjects().newInstance(XcodeIdeBridge.class, projectExtension.getProjects(), project));
+		getProject().getTasks().addRule(getObjects().newInstance(XcodeIdeBridge.class, projectExtension.getProjects(), getProject()));
 
-		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
-			project.getPluginManager().apply(XcodeIdeObjectiveCIosApplicationPlugin.class);
+		getProject().getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
+			getProject().getPluginManager().apply(XcodeIdeObjectiveCIosApplicationPlugin.class);
 		});
-		project.getPluginManager().withPlugin("dev.nokee.swift-ios-application", appliedPlugin -> {
-			project.getPluginManager().apply(XcodeIdeSwiftIosApplicationPlugin.class);
+		getProject().getPluginManager().withPlugin("dev.nokee.swift-ios-application", appliedPlugin -> {
+			getProject().getPluginManager().apply(XcodeIdeSwiftIosApplicationPlugin.class);
 		});
 
-		project.getPluginManager().withPlugin("dev.nokee.c-application", appliedPlugin -> {
-			project.getPluginManager().apply(XcodeIdeNativeApplicationPlugin.class);
+		getProject().getPluginManager().withPlugin("dev.nokee.c-application", appliedPlugin -> {
+			getProject().getPluginManager().apply(XcodeIdeNativeApplicationPlugin.class);
 		});
-		project.getPluginManager().withPlugin("dev.nokee.cpp-application", appliedPlugin -> {
-			project.getPluginManager().apply(XcodeIdeNativeApplicationPlugin.class);
+		getProject().getPluginManager().withPlugin("dev.nokee.cpp-application", appliedPlugin -> {
+			getProject().getPluginManager().apply(XcodeIdeNativeApplicationPlugin.class);
 		});
-		project.getPluginManager().withPlugin("dev.nokee.objective-c-application", appliedPlugin -> {
-			project.getPluginManager().apply(XcodeIdeNativeApplicationPlugin.class);
+		getProject().getPluginManager().withPlugin("dev.nokee.objective-c-application", appliedPlugin -> {
+			getProject().getPluginManager().apply(XcodeIdeNativeApplicationPlugin.class);
 		});
-		project.getPluginManager().withPlugin("dev.nokee.objective-cpp-application", appliedPlugin -> {
-			project.getPluginManager().apply(XcodeIdeNativeApplicationPlugin.class);
+		getProject().getPluginManager().withPlugin("dev.nokee.objective-cpp-application", appliedPlugin -> {
+			getProject().getPluginManager().apply(XcodeIdeNativeApplicationPlugin.class);
 		});
-		project.getPluginManager().withPlugin("dev.nokee.swift-application", appliedPlugin -> {
-			project.getPluginManager().apply(XcodeIdeSwiftApplicationPlugin.class);
+		getProject().getPluginManager().withPlugin("dev.nokee.swift-application", appliedPlugin -> {
+			getProject().getPluginManager().apply(XcodeIdeSwiftApplicationPlugin.class);
 		});
-		project.getPluginManager().withPlugin("dev.nokee.c-library", appliedPlugin -> {
-			project.getPluginManager().apply(XcodeIdeNativeLibraryPlugin.class);
+		getProject().getPluginManager().withPlugin("dev.nokee.c-library", appliedPlugin -> {
+			getProject().getPluginManager().apply(XcodeIdeNativeLibraryPlugin.class);
 		});
-		project.getPluginManager().withPlugin("dev.nokee.cpp-library", appliedPlugin -> {
-			project.getPluginManager().apply(XcodeIdeNativeLibraryPlugin.class);
+		getProject().getPluginManager().withPlugin("dev.nokee.cpp-library", appliedPlugin -> {
+			getProject().getPluginManager().apply(XcodeIdeNativeLibraryPlugin.class);
 		});
-		project.getPluginManager().withPlugin("dev.nokee.objective-c-library", appliedPlugin -> {
-			project.getPluginManager().apply(XcodeIdeNativeLibraryPlugin.class);
+		getProject().getPluginManager().withPlugin("dev.nokee.objective-c-library", appliedPlugin -> {
+			getProject().getPluginManager().apply(XcodeIdeNativeLibraryPlugin.class);
 		});
-		project.getPluginManager().withPlugin("dev.nokee.objective-cpp-library", appliedPlugin -> {
-			project.getPluginManager().apply(XcodeIdeNativeLibraryPlugin.class);
+		getProject().getPluginManager().withPlugin("dev.nokee.objective-cpp-library", appliedPlugin -> {
+			getProject().getPluginManager().apply(XcodeIdeNativeLibraryPlugin.class);
 		});
-		project.getPluginManager().withPlugin("dev.nokee.swift-library", appliedPlugin -> {
-			project.getPluginManager().apply(XcodeIdeSwiftLibraryPlugin.class);
+		getProject().getPluginManager().withPlugin("dev.nokee.swift-library", appliedPlugin -> {
+			getProject().getPluginManager().apply(XcodeIdeSwiftLibraryPlugin.class);
+		});
+	}
+
+	@Override
+	public void doWorkspaceApply(IdeWorkspaceExtension extension) {
+		DefaultXcodeIdeWorkspaceExtension workspaceExtension = (DefaultXcodeIdeWorkspaceExtension) extension;
+
+		workspaceExtension.getWorkspace().getProjects().set(workspaceExtension.getProjects());
+
+		workspaceExtension.getWorkspace().getGeneratorTask().configure(task -> {
+			task.getWorkspaceLocation().set(getLayout().getProjectDirectory().dir(getProject().getName() + ".xcworkspace"));
+			task.getProjectLocations().set(getArtifactRegistry().getIdeProjectFiles(XcodeIdeProjectMetadata.class).getElements());
+			task.getDerivedDataLocation().set(".gradle/XcodeDerivedData");
+		});
+
+		addWorkspace(workspaceExtension.getWorkspace());
+
+		// TODO: Add a task for cleaning the Xcode derived data for the workspace/project.
+		//  It could be something like cleanXcodeDerivedData or just the same cleanXcode task.
+		//  See https://pewpewthespells.com/blog/xcode_deriveddata_hashes.html
+		//  The reason for cleaning the derived data is mainly because Xcode sometimes gets into a bad states.
+		//  Cleaning that directory also deletes indexing data.
+		//  We should probably delete the DerivedData when cleaning Xcode anyway
+		getCleanTask().configure(task -> {
+			task.delete(workspaceExtension.getWorkspace().getLocation());
+			task.delete(workspaceExtension.getWorkspace().getGeneratorTask().flatMap(GenerateXcodeIdeWorkspaceTask::getDerivedDataLocation));
 		});
 	}
 
@@ -135,13 +145,23 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 	}
 
 	@Override
-	protected String getIdeDisplayName() {
+	protected String getDisplayName() {
 		return "Xcode";
 	}
 
 	@Override
 	protected IdeProjectMetadata newIdeProjectMetadata(Provider<IdeProjectInternal> ideProject) {
 		return new XcodeIdeProjectMetadata(ideProject.map(DefaultXcodeIdeProject.class::cast));
+	}
+
+	@Override
+	protected IdeWorkspaceExtension newIdeWorkspaceExtension() {
+		return getObjects().newInstance(DefaultXcodeIdeWorkspaceExtension.class);
+	}
+
+	@Override
+	protected IdeProjectExtension newIdeProjectExtension() {
+		return getObjects().newInstance(DefaultXcodeIdeProjectExtension.class);
 	}
 
 	// TODO: Implicit init script should probably also be added to make the user realize those are affecting your build.
@@ -183,34 +203,6 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 	private static String quote(String value) {
 		return "\"" + value + "\"";
 	}
-
-	//region Xcode IDE extension registration
-	private DefaultXcodeIdeProjectExtension registerExtension(Project project) {
-		if (isRootProject(project)) {
-			return registerWorkspaceExtension(project);
-		}
-		return registerProjectExtension(project);
-	}
-
-	private DefaultXcodeIdeWorkspaceExtension registerWorkspaceExtension(Project project) {
-		DefaultXcodeIdeWorkspaceExtension extension = getObjects().newInstance(DefaultXcodeIdeWorkspaceExtension.class);
-		project.getExtensions().add(XcodeIdeWorkspaceExtension.class, XCODE_EXTENSION_NAME, extension);
-		return extension;
-	}
-
-	private DefaultXcodeIdeProjectExtension registerProjectExtension(Project project) {
-		DefaultXcodeIdeProjectExtension extension = getObjects().newInstance(DefaultXcodeIdeProjectExtension.class);
-		project.getExtensions().add(XcodeIdeProjectExtension.class, XCODE_EXTENSION_NAME, extension);
-		return extension;
-	}
-
-	private static Optional<DefaultXcodeIdeWorkspaceExtension> asWorkspaceExtensionIfAvailable(DefaultXcodeIdeProjectExtension projectExtension) {
-		if (projectExtension instanceof XcodeIdeWorkspaceExtension) {
-			return Optional.of((DefaultXcodeIdeWorkspaceExtension) projectExtension);
-		}
-		return Optional.empty();
-	}
-	//endregion
 
 	@Inject
 	protected abstract ObjectFactory getObjects();

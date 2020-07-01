@@ -1,19 +1,20 @@
 package dev.nokee.ide.base.internal.plugins;
 
-import dev.nokee.ide.base.internal.BaseIdeProjectMetadata;
-import dev.nokee.ide.base.internal.IdeProjectExtension;
-import dev.nokee.ide.base.internal.IdeProjectInternal;
-import dev.nokee.ide.base.internal.IdeWorkspaceInternal;
+import dev.nokee.ide.base.internal.*;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.*;
 import org.gradle.api.invocation.Gradle;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.internal.Cast;
 import org.gradle.internal.logging.ConsoleRenderer;
 import org.gradle.plugins.ide.internal.IdeArtifactRegistry;
 import org.gradle.plugins.ide.internal.IdeProjectMetadata;
@@ -23,6 +24,9 @@ import javax.inject.Inject;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
+
+import static dev.nokee.internal.ProjectUtils.isRootProject;
 
 public abstract class AbstractIdePlugin implements Plugin<Project> {
 	public static final String IDE_GROUP_NAME = "IDE";
@@ -35,17 +39,25 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 
 		cleanTask = getTasks().register(getTaskName("clean"), Delete.class, task -> {
 			task.setGroup(IDE_GROUP_NAME);
-			task.setDescription("Cleans " + getIdeDisplayName() + " IDE configuration");
+			task.setDescription("Cleans " + getDisplayName() + " IDE configuration");
 		});
 
 		lifecycleTask = getTasks().register(getLifecycleTaskName(), task -> {
 			task.setGroup(IDE_GROUP_NAME);
-			task.setDescription("Generates " + getIdeDisplayName() + " IDE configuration");
+			task.setDescription("Generates " + getDisplayName() + " IDE configuration");
 			task.shouldRunAfter(cleanTask);
 		});
 
-		doApply(project);
+		val projectExtension = registerExtension(project);
+		doProjectApply(projectExtension);
+
+		val workspaceExtension = asWorkspaceExtensionIfAvailable(projectExtension);
+		workspaceExtension.ifPresent(this::doWorkspaceApply);
 	}
+
+	protected abstract void doProjectApply(IdeProjectExtension extension);
+
+	protected abstract void doWorkspaceApply(IdeWorkspaceExtension extension);
 
 	@Inject
 	protected abstract TaskContainer getTasks();
@@ -58,6 +70,46 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 
 	@Getter(AccessLevel.PROTECTED)
 	private Project project;
+
+	//region Xcode IDE extension registration
+	private IdeProjectExtension registerExtension(Project project) {
+		if (isRootProject(project)) {
+			return registerWorkspaceExtension(project);
+		}
+		return registerProjectExtension(project);
+	}
+
+	private IdeWorkspaceExtension registerWorkspaceExtension(Project project) {
+		IdeWorkspaceExtension extension = newIdeWorkspaceExtension();
+		project.getExtensions().add(publicTypeOf(extension), getLifecycleTaskName(), extension);
+		return extension;
+	}
+
+	protected abstract IdeWorkspaceExtension newIdeWorkspaceExtension();
+
+	private IdeProjectExtension registerProjectExtension(Project project) {
+		IdeProjectExtension extension = newIdeProjectExtension();
+		project.getExtensions().add(publicTypeOf(extension), getLifecycleTaskName(), extension);
+		return extension;
+	}
+
+	protected abstract IdeProjectExtension newIdeProjectExtension();
+
+	private static TypeOf<Object> publicTypeOf(Object extension) {
+		if (extension instanceof HasPublicType) {
+			// TODO: Use nokee cast
+			return Cast.uncheckedCast(((HasPublicType) extension).getPublicType());
+		}
+		return TypeOf.<Object>typeOf(extension.getClass());
+	}
+
+	private static Optional<IdeWorkspaceExtension> asWorkspaceExtensionIfAvailable(IdeProjectExtension projectExtension) {
+		if (projectExtension instanceof IdeWorkspaceExtension) {
+			return Optional.of((IdeWorkspaceExtension) projectExtension);
+		}
+		return Optional.empty();
+	}
+	//endregion
 
 	protected void addProjectExtension(IdeProjectExtension extension) {
 		// Since all Xcode components are expected to be registered lazily, we can't register the IDE project inside the configuration action above.
@@ -114,11 +166,9 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 		return verb + StringUtils.capitalize(getLifecycleTaskName());
 	}
 
-	protected abstract void doApply(Project project);
-
 	protected abstract String getLifecycleTaskName();
 
-	protected abstract String getIdeDisplayName();
+	protected abstract String getDisplayName();
 
 	/**
 	 * Returns the path to the correct Gradle distribution to use.

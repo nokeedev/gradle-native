@@ -8,10 +8,12 @@ import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
 
-public abstract class DefaultXcodeIdeProjectExtension implements XcodeIdeProjectExtension, IdeProjectExtension {
+public abstract class DefaultXcodeIdeProjectExtension implements XcodeIdeProjectExtension, IdeProjectExtension, HasPublicType {
 	private static final XcodeIdeProductTypes PRODUCT_TYPES_FACTORY = new XcodeIdeProductTypes() {};
 	@Getter private final NamedDomainObjectContainer<XcodeIdeProject> projects;
 
@@ -35,5 +37,10 @@ public abstract class DefaultXcodeIdeProjectExtension implements XcodeIdeProject
 	@Override
 	public XcodeIdeProductTypes getProductTypes() {
 		return PRODUCT_TYPES_FACTORY;
+	}
+
+	@Override
+	public TypeOf<?> getPublicType() {
+		return TypeOf.typeOf(XcodeIdeProjectExtension.class);
 	}
 }
