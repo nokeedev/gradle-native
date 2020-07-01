@@ -228,4 +228,16 @@ public abstract class AbstractIdePlugin implements Plugin<Project> {
 		}
 		return result.build();
 	}
+
+	protected List<String> getAdditionalBuildArguments() {
+		ImmutableList.Builder<String> result = ImmutableList.builder();
+		project.getGradle().getStartParameter().getInitScripts().forEach(initScriptFile -> {
+			result.add("--init-script", quote(initScriptFile.getAbsolutePath()));
+		});
+		return result.build();
+	}
+
+	private static String quote(String value) {
+		return "\"" + value + "\"";
+	}
 }

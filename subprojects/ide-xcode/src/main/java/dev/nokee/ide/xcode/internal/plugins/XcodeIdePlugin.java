@@ -66,7 +66,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 				task.getGidGenerator().set(xcodeIdeGidGeneratorService);
 				task.getGradleCommand().set(toGradleCommand(getProject().getGradle()));
 				task.getBridgeTaskPath().set(toBridgeTaskPath(getProject()));
-				task.getAdditionalGradleArguments().set(getAdditionalBuildArguments(getProject()));
+				task.getAdditionalGradleArguments().set(getAdditionalBuildArguments());
 				task.getSources().from(getBuildFiles());
 			});
 		});
@@ -162,18 +162,6 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin {
 	@Override
 	protected IdeProjectExtension newIdeProjectExtension() {
 		return getObjects().newInstance(DefaultXcodeIdeProjectExtension.class);
-	}
-
-	private List<String> getAdditionalBuildArguments(Project project) {
-		ImmutableList.Builder<String> result = ImmutableList.builder();
-		project.getGradle().getStartParameter().getInitScripts().forEach(initScriptFile -> {
-			result.add("--init-script", quote(initScriptFile.getAbsolutePath()));
-		});
-		return result.build();
-	}
-
-	private static String quote(String value) {
-		return "\"" + value + "\"";
 	}
 
 	@Inject
