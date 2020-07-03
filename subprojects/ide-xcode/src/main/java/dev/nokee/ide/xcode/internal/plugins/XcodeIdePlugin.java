@@ -1,5 +1,6 @@
 package dev.nokee.ide.xcode.internal.plugins;
 
+import dev.nokee.ide.base.internal.IdeBridgeRule;
 import dev.nokee.ide.base.internal.IdeProjectExtension;
 import dev.nokee.ide.base.internal.IdeProjectInternal;
 import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
@@ -53,7 +54,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 			});
 		});
 
-		getProject().getTasks().addRule(getObjects().newInstance(XcodeIdeBridge.class, projectExtension.getProjects(), getProject()));
+		getProject().getTasks().addRule(getObjects().newInstance(XcodeIdeBridge.class, this, projectExtension.getProjects(), getProject()));
 
 		getProject().getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
 			getProject().getPluginManager().apply(XcodeIdeObjectiveCIosApplicationPlugin.class);
@@ -146,13 +147,14 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 	/**
 	 * Task rule for bridging Xcode IDE with Gradle.
 	 */
-	protected static abstract class XcodeIdeBridge implements Rule {
+	protected static abstract class XcodeIdeBridge extends IdeBridgeRule {
 		private final NamedDomainObjectSet<XcodeIdeProject> xcodeProjects;
 		private final Project project;
 		private final XcodeIdePropertyAdapter xcodePropertyAdapter;
 
 		@Inject
-		public XcodeIdeBridge(NamedDomainObjectSet<XcodeIdeProject> xcodeProjects, Project project) {
+		public XcodeIdeBridge(Describable ide, NamedDomainObjectSet<XcodeIdeProject> xcodeProjects, Project project) {
+			super(ide);
 			this.xcodeProjects = xcodeProjects;
 			this.project = project;
 			this.xcodePropertyAdapter = new XcodeIdePropertyAdapter(project);
