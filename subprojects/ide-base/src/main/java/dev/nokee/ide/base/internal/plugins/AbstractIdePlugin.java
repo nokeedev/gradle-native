@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 import static dev.nokee.internal.ProjectUtils.isRootProject;
 
-public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<Project> {
+public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<Project>, Describable {
 	public static final String IDE_GROUP_NAME = "IDE";
 	@Getter private TaskProvider<Delete> cleanTask;
 	@Getter private TaskProvider<Task> lifecycleTask;
@@ -52,7 +52,7 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 		// Configure clean task
 		cleanTask = getTasks().register(getTaskName("clean"), Delete.class, task -> {
 			task.setGroup(IDE_GROUP_NAME);
-			task.setDescription("Cleans " + getDisplayName() + " IDE configuration");
+			task.setDescription("Cleans " + getDisplayName() + " configuration");
 			task.delete(getProviders().provider(() -> projectExtension.getProjects().stream().map(IdeProject::getLocation).collect(Collectors.toList())));
 			workspaceExtension.ifPresent(extension -> {
 				task.delete(extension.getWorkspace().getLocation());
@@ -65,7 +65,7 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 
 		lifecycleTask = getTasks().register(getLifecycleTaskName(), task -> {
 			task.setGroup(IDE_GROUP_NAME);
-			task.setDescription("Generates " + getDisplayName() + " IDE configuration");
+			task.setDescription("Generates " + getDisplayName() + " configuration");
 			task.dependsOn(projectExtension.getProjects());
 			task.shouldRunAfter(cleanTask);
 			workspaceExtension.ifPresent(extension -> {
@@ -195,8 +195,9 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 		return getExtensionName();
 	}
 
-	protected String getDisplayName() {
-		return GUtil.toWords(StringUtils.capitalize(getExtensionName()));
+	@Override
+	public String getDisplayName() {
+		return GUtil.toWords(StringUtils.capitalize(getExtensionName())) + " IDE";
 	}
 
 	/**
