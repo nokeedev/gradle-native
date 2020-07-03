@@ -19,7 +19,9 @@ public abstract class IdeBridgeRule implements Rule {
 
 	@Override
 	public void apply(String taskName) {
-
+		if (taskName.startsWith(getLifecycleTaskNamePrefix())) {
+			doApply(taskName);
+		}
 	}
 
 	protected abstract void doApply(String taskName);

@@ -170,20 +170,18 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 		}
 
 		@Override
-		public void apply(String taskName) {
-			if (taskName.startsWith("_xcode")) {
-				XcodeIdeRequest request = XcodeIdeRequest.of(taskName);
-				String action = request.getAction();
-				if (action.equals("clean")) {
-					Task bridgeTask = getTasks().create(taskName);
-					bridgeTask.dependsOn("clean");
-				} else if ("".equals(action) || "build".equals(action)) {
-					final XcodeIdeTarget target = findXcodeTarget(request);
-					SyncXcodeIdeProduct bridgeTask = getTasks().create(taskName, SyncXcodeIdeProduct.class);
-					bridgeProductBuild(bridgeTask, target, request);
-				} else {
-					throw new GradleException("Unrecognized bridge action from Xcode '" + action + "'");
-				}
+		public void doApply(String taskName) {
+			XcodeIdeRequest request = XcodeIdeRequest.of(taskName);
+			String action = request.getAction();
+			if (action.equals("clean")) {
+				Task bridgeTask = getTasks().create(taskName);
+				bridgeTask.dependsOn("clean");
+			} else if ("".equals(action) || "build".equals(action)) {
+				final XcodeIdeTarget target = findXcodeTarget(request);
+				SyncXcodeIdeProduct bridgeTask = getTasks().create(taskName, SyncXcodeIdeProduct.class);
+				bridgeProductBuild(bridgeTask, target, request);
+			} else {
+				throw new GradleException("Unrecognized bridge action from Xcode '" + action + "'");
 			}
 		}
 
