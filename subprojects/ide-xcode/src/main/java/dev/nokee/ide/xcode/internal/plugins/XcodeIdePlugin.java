@@ -1,9 +1,6 @@
 package dev.nokee.ide.xcode.internal.plugins;
 
-import dev.nokee.ide.base.internal.IdeBridgeRule;
-import dev.nokee.ide.base.internal.IdeProjectExtension;
-import dev.nokee.ide.base.internal.IdeProjectInternal;
-import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
+import dev.nokee.ide.base.internal.*;
 import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.xcode.XcodeIdeBuildConfiguration;
 import dev.nokee.ide.xcode.XcodeIdeProject;
@@ -145,7 +142,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 	/**
 	 * Task rule for bridging Xcode IDE with Gradle.
 	 */
-	protected static abstract class XcodeIdeBridge extends IdeBridgeRule {
+	protected static abstract class XcodeIdeBridge extends IdeBridgeRule<XcodeIdeRequest> {
 		private final NamedDomainObjectSet<XcodeIdeProject> xcodeProjects;
 		private final Project project;
 		private final XcodeIdePropertyAdapter xcodePropertyAdapter;
@@ -159,9 +156,6 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 		}
 
 		@Inject
-		protected abstract TaskContainer getTasks();
-
-		@Inject
 		protected abstract ObjectFactory getObjects();
 
 		@Override
@@ -170,19 +164,15 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 		}
 
 		@Override
-		public void doApply(String taskName) {
-			XcodeIdeRequest request = XcodeIdeRequest.of(taskName);
-			String action = request.getAction();
-			if (action.equals("clean")) {
-				Task bridgeTask = getTasks().create(taskName);
-				bridgeTask.dependsOn("clean");
-			} else if ("".equals(action) || "build".equals(action)) {
-				final XcodeIdeTarget target = findXcodeTarget(request);
-				SyncXcodeIdeProduct bridgeTask = getTasks().create(taskName, SyncXcodeIdeProduct.class);
-				bridgeProductBuild(bridgeTask, target, request);
-			} else {
-				throw new GradleException("Unrecognized bridge action from Xcode '" + action + "'");
-			}
+		public void doApply(XcodeIdeRequest request) {
+			final XcodeIdeTarget target = findXcodeTarget(request);
+			SyncXcodeIdeProduct bridgeTask = getTasks().create(request.getTaskName(), SyncXcodeIdeProduct.class);
+			bridgeProductBuild(bridgeTask, target, request);
+		}
+
+		@Override
+		public XcodeIdeRequest newRequest(String taskName) {
+			return XcodeIdeRequest.of(taskName);
 		}
 
 		private XcodeIdeTarget findXcodeTarget(XcodeIdeRequest request) {
@@ -224,9 +214,10 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 	//  It would make the bridge task more dummy and open for further customization of the Xcode delegation by allowing configuring the bridge task.
 	// TODO: XcodeIdeRequest should convert the action string/null to an XcodeIdeAction enum
 	@Value
-	public static class XcodeIdeRequest {
+	public static class XcodeIdeRequest implements IdeRequest {
 		private static final Pattern LIFECYCLE_TASK_PATTERN = Pattern.compile("_xcode__(?<action>build|clean)?_(?<project>[a-zA-Z\\-_]+)_(?<target>[a-zA-Z\\-_]+)_(?<configuration>[a-zA-Z\\-_]+)");
-		String action;
+		String taskName;
+		IdeRequestAction action;
 		String projectName;
 		String targetName;
 		String configuration;
@@ -234,7 +225,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 		public static XcodeIdeRequest of(String taskName) {
 			Matcher m = LIFECYCLE_TASK_PATTERN.matcher(taskName);
 			if (m.matches()) {
-				return new XcodeIdeRequest(Optional.ofNullable(m.group("action")).orElse("build"), m.group("project"), m.group("target"), m.group("configuration"));
+				return new XcodeIdeRequest(taskName, IdeRequestAction.valueOf(Optional.ofNullable(m.group("action")).orElse("build")), m.group("project"), m.group("target"), m.group("configuration"));
 			}
 			throw new GradleException(String.format("Unable to match the lifecycle task name '%s', it is most likely a bug. Please report it at https://github.com/nokeedev/gradle-native/issues.", taskName));
 		}

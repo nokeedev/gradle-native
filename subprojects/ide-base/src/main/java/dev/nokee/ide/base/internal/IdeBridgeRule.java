@@ -2,13 +2,21 @@ package dev.nokee.ide.base.internal;
 
 import org.gradle.api.Describable;
 import org.gradle.api.Rule;
+import org.gradle.api.Task;
+import org.gradle.api.tasks.TaskContainer;
+import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
-public abstract class IdeBridgeRule implements Rule {
+import javax.inject.Inject;
+
+public abstract class IdeBridgeRule<T extends IdeRequest> implements Rule {
 	private final Describable ide;
 
 	public IdeBridgeRule(Describable ide) {
 		this.ide = ide;
 	}
+
+	@Inject
+	protected abstract TaskContainer getTasks();
 
 	@Override
 	public String getDescription() {
@@ -20,9 +28,19 @@ public abstract class IdeBridgeRule implements Rule {
 	@Override
 	public void apply(String taskName) {
 		if (taskName.startsWith(getLifecycleTaskNamePrefix())) {
-			doApply(taskName);
+			T request = newRequest(taskName);
+			if (request.getAction().equals(IdeRequestAction.CLEAN)) {
+				Task bridgeTask = getTasks().create(request.getTaskName());
+				bridgeTask.dependsOn(LifecycleBasePlugin.CLEAN_TASK_NAME);
+			} else if (request.getAction().equals(IdeRequestAction.BUILD)) {
+				doApply(request);
+			} else {
+				doApply(request);
+			}
 		}
 	}
 
-	protected abstract void doApply(String taskName);
+	public abstract T newRequest(String taskName);
+
+	protected abstract void doApply(T request);
 }
