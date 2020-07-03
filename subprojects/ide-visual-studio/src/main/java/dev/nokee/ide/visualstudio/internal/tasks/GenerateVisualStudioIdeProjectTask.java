@@ -26,6 +26,7 @@ import org.simpleframework.xml.stream.*;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -119,7 +120,7 @@ public abstract class GenerateVisualStudioIdeProjectTask extends DefaultTask {
 
 	private List<VCXItemDefinitionGroup> getItemDefinitionGroupConfiguration() {
 		return visualStudioProject.getTargets().stream().map(target -> {
-			val names = target.getItemProperties().getNames();
+			val names = new HashSet<String>(target.getItemProperties().getNames());
 			names.removeAll(ImmutableSet.of("ClCompile", "Link"));
 			if (!names.isEmpty()) {
 				throw new UnsupportedOperationException();

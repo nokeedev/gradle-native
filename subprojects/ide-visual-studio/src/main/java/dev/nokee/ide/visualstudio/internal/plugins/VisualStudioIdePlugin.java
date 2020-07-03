@@ -11,8 +11,11 @@ import dev.nokee.internal.Cast;
 import dev.nokee.platform.base.internal.Component;
 import dev.nokee.platform.base.internal.ComponentCollection;
 import dev.nokee.platform.nativebase.ExecutableBinary;
+import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import lombok.Value;
 import lombok.val;
 import org.gradle.api.*;
@@ -57,10 +60,11 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 
 		getProject().getTasks().addRule(getObjects().newInstance(VisualStudioIdeBridge.class, extension.getProjects(), getProject()));
 
-		getProject().getPluginManager().withPlugin("dev.nokee.cpp-application", this::registerNativeProjects);
+		getProject().getPluginManager().withPlugin("dev.nokee.cpp-application", this::registerNativeApplicationProjects);
+		getProject().getPluginManager().withPlugin("dev.nokee.cpp-library", this::registerNativeLibraryProjects);
 	}
 
-	private void registerNativeProjects(AppliedPlugin appliedPlugin) {
+	private void registerNativeApplicationProjects(AppliedPlugin appliedPlugin) {
 		getProject().getExtensions().getByType(VisualStudioIdeProjectExtension.class).getProjects().register(getProject().getName(), visualStudioProject -> {
 			ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", getProject().getExtensions().getByType(ComponentCollection.class));
 			components.configureEach(DefaultNativeApplicationComponent.class, application -> {
@@ -87,8 +91,36 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 		});
 	}
 
+	private void registerNativeLibraryProjects(AppliedPlugin appliedPlugin) {
+		getProject().getExtensions().getByType(VisualStudioIdeProjectExtension.class).getProjects().register(getProject().getName(), visualStudioProject -> {
+			ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", getProject().getExtensions().getByType(ComponentCollection.class));
+			components.configureEach(DefaultNativeLibraryComponent.class, library -> {
+				val visualStudioProjectInternal = (DefaultVisualStudioIdeProject)visualStudioProject;
+
+				library.getSourceCollection().forEach(sourceSet -> {
+					visualStudioProjectInternal.getSourceFiles().from(sourceSet.getAsFileTree());
+				});
+				visualStudioProjectInternal.getHeaderFiles().from(getProject().fileTree("src/main/headers", it -> it.include("*")));
+				visualStudioProjectInternal.getHeaderFiles().from(getProject().fileTree("src/main/public", it -> it.include("*")));
+				visualStudioProjectInternal.getBuildFiles().from(getBuildFiles());
+
+				visualStudioProject.target(VisualStudioIdeProjectConfiguration.of(VisualStudioIdeConfiguration.of("Default"), VisualStudioIdePlatforms.X64), target -> {
+					Provider<SharedLibraryBinary> binary = library.getDevelopmentVariant().flatMap(it -> it.getBinaries().withType(SharedLibraryBinary.class).getElements().map(b -> b.iterator().next()));
+
+					target.getProductLocation().set(binary.flatMap(it -> it.getLinkTask().get().getLinkedFile()));
+					target.getProperties().put("ConfigurationType", "DynamicLibrary");
+					target.getProperties().put("UseDebugLibraries", true);
+					target.getProperties().put("PlatformToolset", "v142");
+					target.getProperties().put("CharacterSet", "Unicode");
+					target.getProperties().put("LinkIncremental", true);
+					target.getItemProperties().maybeCreate("ClCompile").put("AdditionalIncludeDirectories", binary.flatMap(it -> ((SharedLibraryBinaryInternal) it).getHeaderSearchPaths().map(this::toSemiColonSeperatedPaths)));
+				});
+			});
+		});
+	}
+
 	private String toSemiColonSeperatedPaths(Iterable<? extends FileSystemLocation> it) {
-		return StreamSupport.stream(it.spliterator(), false).map(a -> a.getAsFile().getAbsolutePath()).collect(Collectors.joining(";"));
+		return StreamSupport.stream(it.spliterator(), false).map(a -> "\"" + a.getAsFile().getAbsolutePath() + "\"").collect(Collectors.joining(";"));
 	}
 
 	@Override
@@ -184,7 +216,8 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 			}
 
 			String targetName = request.getTargetName();
-			DefaultVisualStudioIdeTarget target = null;//project.getTargets().findByName(targetName);
+			val projectConfiguration = VisualStudioIdeProjectConfiguration.of(VisualStudioIdeConfiguration.of(request.getConfiguration()), VisualStudioIdePlatform.of(request.getPlatformName()));
+			DefaultVisualStudioIdeTarget target = project.getTargets().stream().filter(it -> it.getProjectConfiguration().equals(projectConfiguration)).findFirst().orElse(null);
 			if (target == null) {
 				throw new GradleException(String.format("Unknown Xcode IDE target '%s', try re-generating the Xcode IDE configuration using '%s:xcode' task.", targetName, getPrefixableProjectPath(this.project)));
 			}

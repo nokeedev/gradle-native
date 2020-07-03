@@ -2,6 +2,9 @@ package dev.nokee.ide.visualstudio
 
 import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.platform.jni.fixtures.elements.CppGreeter
+import dev.nokee.platform.nativebase.fixtures.CppGreeterApp
+import dev.nokee.platform.nativebase.fixtures.CppMainUsesGreeter
 
 abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractGradleSpecification/*AbstractXcodeIdeFunctionalSpec*/ {
 	protected abstract void makeSingleProject();
@@ -37,6 +40,66 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 
 		then:
 		result.assertTasksExecuted(allTasksToXcode)
+	}
+
+	def "can generate multiple Visual Studio IDE files"() {
+		println testDirectory
+		settingsFile << """
+			rootProject.name = '${projectName}'
+			include 'library'
+		"""
+		makeSingleProject()
+		buildFile << '''
+			application {
+				dependencies {
+					implementation project(':library')
+				}
+			}
+		'''
+		file('library', buildFileName) << '''
+			plugins {
+				id 'dev.nokee.cpp-library'
+				id 'dev.nokee.visual-studio-ide'
+			}
+		'''
+		new CppMainUsesGreeter().writeToProject(testDirectory)
+		new CppGreeter().asLib().writeToProject(testDirectory.file('library'))
+
+		when:
+		succeeds(':visualStudio')
+
+		then:
+		result.assertTasksExecuted(':appVisualStudioProject', ':library:libraryVisualStudioProject', ':visualStudioSolution', ':visualStudio')
+	}
+
+	def "can call from ide"() {
+		println testDirectory
+		settingsFile << """
+			rootProject.name = '${projectName}'
+			include 'library'
+		"""
+		makeSingleProject()
+		buildFile << '''
+			application {
+				dependencies {
+					implementation project(':library')
+				}
+			}
+		'''
+		file('library', buildFileName) << '''
+			plugins {
+				id 'dev.nokee.cpp-library'
+				id 'dev.nokee.visual-studio-ide'
+			}
+		'''
+		new CppMainUsesGreeter().writeToProject(testDirectory)
+		new CppGreeter().asLib().writeToProject(testDirectory.file('library'))
+
+		when:
+		succeeds(':_visualStudio__build_app_Default_x64')
+
+		then:
+		result.assertTasksExecuted(':appVisualStudioProject', ':library:libraryVisualStudioProject', ':visualStudioSolution', ':visualStudio')
 	}
 
 //

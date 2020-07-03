@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.Set;
 import java.util.UUID;
 
+// TODO: Rename to ProjectReference and unpack the metadata
 public class VisualStudioIdeProjectInformation implements TaskDependency {
 	private final VisualStudioIdeProjectMetadata metadata;
 

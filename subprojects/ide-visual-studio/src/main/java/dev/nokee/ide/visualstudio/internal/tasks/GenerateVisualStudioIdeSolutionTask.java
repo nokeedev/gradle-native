@@ -9,6 +9,7 @@ import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
+import javax.inject.Inject;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.UUID;
@@ -19,6 +20,11 @@ public abstract class GenerateVisualStudioIdeSolutionTask extends DefaultTask {
 
 	@OutputFile
 	public abstract RegularFileProperty getSolutionLocation();
+
+	@Inject
+	public GenerateVisualStudioIdeSolutionTask() {
+		dependsOn(getProjectInformations());
+	}
 
 	@TaskAction
 	private void doGenerate() throws FileNotFoundException {
