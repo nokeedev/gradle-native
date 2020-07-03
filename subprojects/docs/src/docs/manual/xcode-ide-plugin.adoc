@@ -131,7 +131,7 @@ The extended extension offers the added capability of configuring a link:../dsl/
 
 |===
 
-The plugin register both types of extensions under the name `xcode` on the `Project` object.
+The plugin register both types of extensions under the name `xcode` on the `VCXProject` object.
 It can be configure just like any other Gradle extension:
 
 .Configuring the Xcode IDE extensions

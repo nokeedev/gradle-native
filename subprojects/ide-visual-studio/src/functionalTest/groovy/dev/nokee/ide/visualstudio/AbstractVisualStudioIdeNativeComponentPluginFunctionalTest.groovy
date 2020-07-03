@@ -21,7 +21,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 	protected abstract List<String> getAllTasksForBuildAction()
 
 	protected List<String> getAllTasksToXcode() {
-		return [":${projectName}VisualStudioProject", ':visualStudioSolution', ':visualStudioz']
+		return [":${projectName}VisualStudioProject", ':visualStudioSolution', ':visualStudio']
 	}
 
 	def "can generate Visual Studio IDE files"() {

@@ -1,6 +1,8 @@
 package dev.nokee.ide.visualstudio;
 
 import dev.nokee.ide.base.IdeProject;
+import org.gradle.api.Action;
+import org.gradle.api.DomainObjectCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
 
@@ -15,4 +17,6 @@ public interface VisualStudioIdeProject extends IdeProject {
 	 * @return a provider to the location of the generated project.
 	 */
 	Provider<FileSystemLocation> getLocation();
+
+	void target(VisualStudioIdeProjectConfiguration projectConfiguration, Action<? super VisualStudioIdeTarget> action);
 }

@@ -1,4 +1,4 @@
 package dev.nokee.ide.visualstudio.internal.vcxproj;
 
-public class VcxprojSerializer {
+public interface VCXTask {
 }

@@ -21,6 +21,8 @@ def allPluginProjectPaths = [
 	':coreExec',
 	':distributions:all',
 	':distributions:bom',
+	':ideBase',
+	':ideVisualStudio',
 	':ideXcode',
 	':languageNative',
 	':platformBase',

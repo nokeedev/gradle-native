@@ -133,7 +133,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 	protected abstract ProjectLayout getLayout();
 
 	/**
-	 * Returns the task name format to use inside Xcode legacy target when delegating to Gradle.
+	 * Returns the task name format to uses when delegating to Gradle.
 	 * When Gradle is invoked with tasks following the name format, it is delegated to {@link XcodeIdeBridge} via {@link TaskContainer#addRule(Rule)}.
 	 *
 	 * @param project the {@link Project} instance the task belongs to
