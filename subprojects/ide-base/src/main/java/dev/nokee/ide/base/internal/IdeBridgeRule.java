@@ -12,8 +12,10 @@ public abstract class IdeBridgeRule implements Rule {
 
 	@Override
 	public String getDescription() {
-		return String.format("%s IDE bridge tasks begin with %s. Do not call these directly.", ide.getDisplayName(), "_xcode");
+		return String.format("%s IDE bridge tasks begin with %s. Do not call these directly.", ide.getDisplayName(), getLifecycleTaskNamePrefix());
 	}
+
+	protected abstract String getLifecycleTaskNamePrefix();
 
 	@Override
 	public void apply(String taskName) {

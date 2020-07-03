@@ -165,8 +165,8 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 		protected abstract ObjectFactory getObjects();
 
 		@Override
-		public String getDescription() {
-			return "Xcode IDE bridge tasks begin with _xcode. Do not call these directly.";
+		protected String getLifecycleTaskNamePrefix() {
+			return "_xcode";
 		}
 
 		@Override
