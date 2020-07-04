@@ -43,7 +43,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 				task.usesService(xcodeIdeGidGeneratorService);
 				task.getGidGenerator().set(xcodeIdeGidGeneratorService);
 				task.getGradleCommand().set(toGradleCommand(getProject().getGradle()));
-				task.getBridgeTaskPath().set(toBridgeTaskPath(getProject()));
+				task.getBridgeTaskPath().set(getBridgeTaskPath());
 				task.getAdditionalGradleArguments().set(getAdditionalBuildArguments());
 				task.getSources().from(getBuildFiles());
 			});
@@ -132,17 +132,17 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 	 * Returns the task name format to uses when delegating to Gradle.
 	 * When Gradle is invoked with tasks following the name format, it is delegated to {@link XcodeIdeBridge} via {@link TaskContainer#addRule(Rule)}.
 	 *
-	 * @param project the {@link Project} instance the task belongs to
 	 * @return a fully qualified task path format for the {@literal PBXLegacyTarget} target type to realize using the build settings from within Xcode IDE.
 	 */
-	private static String toBridgeTaskPath(Project project) {
-		return getPrefixableProjectPath(project) + ":_xcode__${ACTION}_${PROJECT_NAME}_${TARGET_NAME}_${CONFIGURATION}";
+	private String getBridgeTaskPath() {
+		return getPrefixableProjectPath(getProject()) + ":" + XcodeIdeBridge.BRIDGE_TASK_NAME;
 	}
 
 	/**
 	 * Task rule for bridging Xcode IDE with Gradle.
 	 */
 	protected static abstract class XcodeIdeBridge extends IdeBridgeRule<XcodeIdeRequest> {
+		public static final String BRIDGE_TASK_NAME = "_xcode__${ACTION}_${PROJECT_NAME}_${TARGET_NAME}_${CONFIGURATION}";
 		private final NamedDomainObjectSet<XcodeIdeProject> xcodeProjects;
 		private final Project project;
 		private final XcodeIdePropertyAdapter xcodePropertyAdapter;
