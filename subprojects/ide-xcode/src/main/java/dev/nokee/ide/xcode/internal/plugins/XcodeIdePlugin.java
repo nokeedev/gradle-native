@@ -145,14 +145,12 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 		public static final String BRIDGE_TASK_NAME = "_xcode__${ACTION}_${PROJECT_NAME}_${TARGET_NAME}_${CONFIGURATION}";
 		private final NamedDomainObjectSet<XcodeIdeProject> xcodeProjects;
 		private final Project project;
-		private final XcodeIdePropertyAdapter xcodePropertyAdapter;
 
 		@Inject
 		public XcodeIdeBridge(Describable ide, NamedDomainObjectSet<XcodeIdeProject> xcodeProjects, Project project) {
 			super(ide);
 			this.xcodeProjects = xcodeProjects;
 			this.project = project;
-			this.xcodePropertyAdapter = new XcodeIdePropertyAdapter(project);
 		}
 
 		@Inject
@@ -172,7 +170,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 
 		@Override
 		public XcodeIdeRequest newRequest(String taskName) {
-			return XcodeIdeRequest.of(taskName);
+			return getObjects().newInstance(XcodeIdeRequest.class, taskName);
 		}
 
 		private XcodeIdeTarget findXcodeTarget(XcodeIdeRequest request) {
@@ -203,7 +201,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 			// However, XCTest target are a bit more troublesome and it doesn't seem to play by the same rules as the legacy target.
 			// To simplify the configuration, let's always copy the product where Xcode expect it to be.
 			// It remove complexity and fragility on the Gradle side.
-			final Directory builtProductsPath = getObjects().directoryProperty().fileValue(new File(xcodePropertyAdapter.getBuiltProductsDir())).get();
+			final Directory builtProductsPath = request.getBuiltProductsDirectory();
 			bridgeTask.getProductLocation().convention(configuration.getProductLocation());
 			bridgeTask.getDestinationLocation().convention(builtProductsPath.file(target.getProductReference().get()));
 		}
@@ -213,21 +211,41 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 	//  Specifically for XcodeIdeBridge, we may want to attach the product sync task directly to the XcodeIde* model an convert the lifecycle task type to Task.
 	//  It would make the bridge task more dummy and open for further customization of the Xcode delegation by allowing configuring the bridge task.
 	// TODO: XcodeIdeRequest should convert the action string/null to an XcodeIdeAction enum
-	@Value
-	public static class XcodeIdeRequest implements IdeRequest {
+	public static abstract class XcodeIdeRequest implements IdeRequest {
 		private static final Pattern LIFECYCLE_TASK_PATTERN = Pattern.compile("_xcode__(?<action>build|clean)?_(?<project>[a-zA-Z\\-_]+)_(?<target>[a-zA-Z\\-_]+)_(?<configuration>[a-zA-Z\\-_]+)");
-		String taskName;
-		IdeRequestAction action;
-		String projectName;
-		String targetName;
-		String configuration;
+		private final XcodeIdePropertyAdapter properties;
+		private final String taskName;
 
-		public static XcodeIdeRequest of(String taskName) {
-			Matcher m = LIFECYCLE_TASK_PATTERN.matcher(taskName);
-			if (m.matches()) {
-				return new XcodeIdeRequest(taskName, IdeRequestAction.valueOf(Optional.ofNullable(m.group("action")).orElse("build")), m.group("project"), m.group("target"), m.group("configuration"));
-			}
-			throw new GradleException(String.format("Unable to match the lifecycle task name '%s', it is most likely a bug. Please report it at https://github.com/nokeedev/gradle-native/issues.", taskName));
+		public XcodeIdeRequest(String taskName) {
+			this.taskName = taskName;
+			this.properties = getObjects().newInstance(XcodeIdePropertyAdapter.class);
+		}
+
+		@Inject
+		protected abstract ObjectFactory getObjects();
+
+		public String getTaskName() {
+			return taskName;
+		}
+
+		public IdeRequestAction getAction() {
+			return IdeRequestAction.valueOf(properties.getAction());
+		}
+
+		public String getProjectName() {
+			return properties.getProjectName();
+		}
+
+		public String getTargetName() {
+			return properties.getTargetName();
+		}
+
+		public String getConfiguration() {
+			return properties.getConfiguration();
+		}
+
+		public Directory getBuiltProductsDirectory() {
+			return getObjects().directoryProperty().fileValue(new File(properties.getBuiltProductsDir())).get();
 		}
 	}
 }

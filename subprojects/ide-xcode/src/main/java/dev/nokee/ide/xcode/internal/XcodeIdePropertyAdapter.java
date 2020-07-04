@@ -1,44 +1,42 @@
 package dev.nokee.ide.xcode.internal;
 
-import org.gradle.api.Project;
-import org.gradle.util.GUtil;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-public class XcodeIdePropertyAdapter {
-    private final Project project;
-
-    public XcodeIdePropertyAdapter(Project project) {
-        this.project = project;
-    }
+public abstract class XcodeIdePropertyAdapter {
+    @Inject
+	protected abstract ProviderFactory getProviders();
 
     public String getAction() {
-        return getXcodeProperty("ACTION");
+        return getXcodeProperty("ACTION").get();
     }
 
     public String getProductName() {
-        return getXcodeProperty("PRODUCT_NAME");
+        return getXcodeProperty("PRODUCT_NAME").get();
     }
 
     public String getConfiguration() {
-        return getXcodeProperty("CONFIGURATION");
+        return getXcodeProperty("CONFIGURATION").get();
     }
 
     public String getBuiltProductsDir() {
-        return getXcodeProperty("BUILT_PRODUCTS_DIR");
+        return getXcodeProperty("BUILT_PRODUCTS_DIR").get();
     }
 
     public String getProjectName() {
-    	return getXcodeProperty("PROJECT_NAME");
+    	return getXcodeProperty("PROJECT_NAME").get();
 	}
 
 	public String getTargetName() {
-    	return getXcodeProperty("TARGET_NAME");
+    	return getXcodeProperty("TARGET_NAME").get();
 	}
 
-    private String getXcodeProperty(String name) {
-        return String.valueOf(GUtil.elvis(project.findProperty(prefixName(name)), ""));
+    private Provider<String> getXcodeProperty(String name) {
+    	return getProviders().gradleProperty(prefixName(name)).orElse("");
     }
 
     public static List<String> getAdapterCommandLine() {
