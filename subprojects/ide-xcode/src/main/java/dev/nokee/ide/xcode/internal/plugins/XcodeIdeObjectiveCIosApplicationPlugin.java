@@ -4,6 +4,7 @@ import dev.nokee.ide.xcode.XcodeIdeProductTypes;
 import dev.nokee.ide.xcode.XcodeIdeProjectExtension;
 import dev.nokee.ide.xcode.XcodeIdeTarget;
 import dev.nokee.ide.xcode.internal.XcodeIdePropertyAdapter;
+import dev.nokee.ide.xcode.internal.XcodeIdeRequest;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
@@ -277,7 +278,7 @@ public abstract class XcodeIdeObjectiveCIosApplicationPlugin implements Plugin<P
 					task.doLast(new Action<Task>() {
 						@Override
 						public void execute(Task task) {
-							XcodeIdePlugin.XcodeIdeRequest request = XcodeIdePlugin.XcodeIdeRequest.of(task.getName());
+							XcodeIdeRequest request = getObjects().newInstance(XcodeIdeRequest.class, task.getName());
 							FileCollection sources = project.getExtensions().getByType(XcodeIdeProjectExtension.class).getProjects().getByName(request.getProjectName()).getTargets().getByName(request.getTargetName()).getSources();
 							for (String arch : StringUtils.split(System.getenv("ARCHS"), ' ')) {
 								String objectFileDir = System.getenv("OBJECT_FILE_DIR");

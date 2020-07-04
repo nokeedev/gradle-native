@@ -7,7 +7,6 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.regex.Pattern;
 
 // TODO: Converge XcodeIdeRequest, XcodeIdeBridge and XcodeIdePropertyAdapter. All three have overlapping responsibilities.
 //  Specifically for XcodeIdeBridge, we may want to attach the product sync task directly to the XcodeIde* model an convert the lifecycle task type to Task.
@@ -17,6 +16,7 @@ public abstract class XcodeIdeRequest implements IdeRequest {
 	private final XcodeIdePropertyAdapter properties;
 	private final String taskName;
 
+	@Inject
 	public XcodeIdeRequest(String taskName) {
 		this.taskName = taskName;
 		this.properties = getObjects().newInstance(XcodeIdePropertyAdapter.class);
