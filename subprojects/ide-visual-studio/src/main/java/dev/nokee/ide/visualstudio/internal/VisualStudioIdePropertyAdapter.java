@@ -1,44 +1,38 @@
 package dev.nokee.ide.visualstudio.internal;
 
-import org.gradle.api.Project;
-import org.gradle.util.GUtil;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-public class VisualStudioIdePropertyAdapter {
-    private final Project project;
+public abstract class VisualStudioIdePropertyAdapter {
+    @Inject
+	protected abstract ProviderFactory getProviders();
 
-    public VisualStudioIdePropertyAdapter(Project project) {
-        this.project = project;
-    }
+    public Provider<String> getAction() {
+    	return getXcodeProperty("Action");
+	}
 
-    public String getConfiguration() {
+    public Provider<String> getConfiguration() {
         return getXcodeProperty("Configuration");
     }
 
-    public String getPlatformName() {
+    public Provider<String> getPlatformName() {
     	return getXcodeProperty("PlatformName");
 	}
 
-    public String getBuiltProductsDir() {
-        return getXcodeProperty("BUILT_PRODUCTS_DIR");
-    }
-
-    public String getProjectName() {
+    public Provider<String> getProjectName() {
     	return getXcodeProperty("ProjectName");
 	}
 
-	public String getTargetName() {
-    	return getXcodeProperty("TARGET_NAME");
-	}
-
-	public String getIntermediateDirectory() {
+	public Provider<String> getOutputDirectory() {
     	return getXcodeProperty("OutDir");
 	}
 
-    private String getXcodeProperty(String name) {
-        return String.valueOf(GUtil.elvis(project.findProperty(prefixName(name)), ""));
+    private Provider<String> getXcodeProperty(String name) {
+        return getProviders().gradleProperty(prefixName(name));
     }
 
     public static List<String> getAdapterCommandLine() {

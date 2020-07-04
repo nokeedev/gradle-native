@@ -5,6 +5,7 @@ import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.platform.jni.fixtures.elements.CppGreeter
 import dev.nokee.platform.nativebase.fixtures.CppGreeterApp
 import dev.nokee.platform.nativebase.fixtures.CppMainUsesGreeter
+import spock.lang.Ignore
 
 abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractGradleSpecification/*AbstractXcodeIdeFunctionalSpec*/ {
 	protected abstract void makeSingleProject();
@@ -72,6 +73,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		result.assertTasksExecuted(':appVisualStudioProject', ':library:libraryVisualStudioProject', ':visualStudioSolution', ':visualStudio')
 	}
 
+	@Ignore
 	def "can call from ide"() {
 		println testDirectory
 		settingsFile << """
