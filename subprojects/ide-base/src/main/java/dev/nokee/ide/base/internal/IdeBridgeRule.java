@@ -32,15 +32,13 @@ public abstract class IdeBridgeRule<T extends IdeRequest> implements Rule {
 			if (request.getAction().equals(IdeRequestAction.CLEAN)) {
 				Task bridgeTask = getTasks().create(request.getTaskName());
 				bridgeTask.dependsOn(LifecycleBasePlugin.CLEAN_TASK_NAME);
-			} else if (request.getAction().equals(IdeRequestAction.BUILD)) {
-				doApply(request);
 			} else {
-				doApply(request);
+				doHandle(request);
 			}
 		}
 	}
 
 	public abstract T newRequest(String taskName);
 
-	protected abstract void doApply(T request);
+	protected abstract void doHandle(T request);
 }

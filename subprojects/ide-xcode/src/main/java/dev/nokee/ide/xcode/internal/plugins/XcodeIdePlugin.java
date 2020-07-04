@@ -164,7 +164,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 		}
 
 		@Override
-		public void doApply(XcodeIdeRequest request) {
+		public void doHandle(XcodeIdeRequest request) {
 			final XcodeIdeTarget target = findXcodeTarget(request);
 			SyncXcodeIdeProduct bridgeTask = getTasks().create(request.getTaskName(), SyncXcodeIdeProduct.class);
 			bridgeProductBuild(bridgeTask, target, request);
