@@ -13,6 +13,7 @@ import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
+import lombok.val;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -252,7 +253,8 @@ public abstract class XcodeIdeObjectiveCIosApplicationPlugin implements Plugin<P
 				//  However, it would be convenient for the users that need to hack things together.
 				//  It should also be possible to achieve similar integration in term of complexity only via public APIs.
 				//  It will need to be evaluated in the bigger context.
-				task.getDestinationLocation().set(getObjects().directoryProperty().fileValue(new File(new XcodeIdePropertyAdapter(project).getBuiltProductsDir())).file(moduleName + "UiTest-Runner.app"));
+				val properties = getObjects().newInstance(XcodeIdePropertyAdapter.class);
+				task.getDestinationLocation().set(getObjects().directoryProperty().fileProvider(properties.getBuiltProductsDir().map(File::new)).file(moduleName + "UiTest-Runner.app"));
 			});
 
 			getTasks().withType(SyncXcodeIdeProduct.class).configureEach(task -> {

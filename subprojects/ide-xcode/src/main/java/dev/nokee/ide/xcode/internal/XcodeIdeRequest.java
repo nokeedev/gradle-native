@@ -30,22 +30,27 @@ public abstract class XcodeIdeRequest implements IdeRequest {
 	}
 
 	public IdeRequestAction getAction() {
-		return IdeRequestAction.valueOf(properties.getAction());
+		return properties.getAction().map(it -> {
+			if (it.isEmpty()) {
+				return IdeRequestAction.BUILD;
+			}
+			return IdeRequestAction.valueOf(it);
+		}).get();
 	}
 
 	public String getProjectName() {
-		return properties.getProjectName();
+		return properties.getProjectName().get();
 	}
 
 	public String getTargetName() {
-		return properties.getTargetName();
+		return properties.getTargetName().get();
 	}
 
 	public String getConfiguration() {
-		return properties.getConfiguration();
+		return properties.getConfiguration().get();
 	}
 
 	public Directory getBuiltProductsDirectory() {
-		return getObjects().directoryProperty().fileValue(new File(properties.getBuiltProductsDir())).get();
+		return getObjects().directoryProperty().fileValue(new File(properties.getBuiltProductsDir().get())).get();
 	}
 }

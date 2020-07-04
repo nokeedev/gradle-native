@@ -11,32 +11,32 @@ public abstract class XcodeIdePropertyAdapter {
 	@Inject
 	protected abstract ProviderFactory getProviders();
 
-	public String getAction() {
-		return getXcodeProperty("ACTION").get();
+	public Provider<String> getAction() {
+		return getXcodeProperty("ACTION");
 	}
 
-	public String getProductName() {
-		return getXcodeProperty("PRODUCT_NAME").get();
+	public Provider<String> getProductName() {
+		return getXcodeProperty("PRODUCT_NAME");
 	}
 
-	public String getConfiguration() {
-		return getXcodeProperty("CONFIGURATION").get();
+	public Provider<String> getConfiguration() {
+		return getXcodeProperty("CONFIGURATION");
 	}
 
-	public String getBuiltProductsDir() {
-		return getXcodeProperty("BUILT_PRODUCTS_DIR").get();
+	public Provider<String> getBuiltProductsDir() {
+		return getXcodeProperty("BUILT_PRODUCTS_DIR");
 	}
 
-	public String getProjectName() {
-		return getXcodeProperty("PROJECT_NAME").get();
+	public Provider<String> getProjectName() {
+		return getXcodeProperty("PROJECT_NAME");
 	}
 
-	public String getTargetName() {
-		return getXcodeProperty("TARGET_NAME").get();
+	public Provider<String> getTargetName() {
+		return getXcodeProperty("TARGET_NAME");
 	}
 
 	private Provider<String> getXcodeProperty(String name) {
-		return getProviders().gradleProperty(prefixName(name)).orElse("");
+		return getProviders().gradleProperty(prefixName(name));
 	}
 
 	public static List<String> getAdapterCommandLine() {
