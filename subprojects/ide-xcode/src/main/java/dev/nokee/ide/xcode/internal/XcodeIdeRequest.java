@@ -1,0 +1,51 @@
+package dev.nokee.ide.xcode.internal;
+
+import dev.nokee.ide.base.internal.IdeRequest;
+import dev.nokee.ide.base.internal.IdeRequestAction;
+import org.gradle.api.file.Directory;
+import org.gradle.api.model.ObjectFactory;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.util.regex.Pattern;
+
+// TODO: Converge XcodeIdeRequest, XcodeIdeBridge and XcodeIdePropertyAdapter. All three have overlapping responsibilities.
+//  Specifically for XcodeIdeBridge, we may want to attach the product sync task directly to the XcodeIde* model an convert the lifecycle task type to Task.
+//  It would make the bridge task more dummy and open for further customization of the Xcode delegation by allowing configuring the bridge task.
+// TODO: XcodeIdeRequest should convert the action string/null to an XcodeIdeAction enum
+public abstract class XcodeIdeRequest implements IdeRequest {
+	private final XcodeIdePropertyAdapter properties;
+	private final String taskName;
+
+	public XcodeIdeRequest(String taskName) {
+		this.taskName = taskName;
+		this.properties = getObjects().newInstance(XcodeIdePropertyAdapter.class);
+	}
+
+	@Inject
+	protected abstract ObjectFactory getObjects();
+
+	public String getTaskName() {
+		return taskName;
+	}
+
+	public IdeRequestAction getAction() {
+		return IdeRequestAction.valueOf(properties.getAction());
+	}
+
+	public String getProjectName() {
+		return properties.getProjectName();
+	}
+
+	public String getTargetName() {
+		return properties.getTargetName();
+	}
+
+	public String getConfiguration() {
+		return properties.getConfiguration();
+	}
+
+	public Directory getBuiltProductsDirectory() {
+		return getObjects().directoryProperty().fileValue(new File(properties.getBuiltProductsDir())).get();
+	}
+}
