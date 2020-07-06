@@ -43,42 +43,6 @@ class XcodeIdeObjectiveCApplicationFunctionalTest extends AbstractXcodeIdeNative
 	}
 }
 
-class XcodeIdeObjectiveCApplicationWithoutSourceFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements ObjectiveCTaskNames {
-	@Override
-	protected void makeSingleProject() {
-		buildFile << """
-			plugins {
-				id 'dev.nokee.objective-c-application'
-				id 'dev.nokee.xcode-ide'
-			}
-
-			import ${ExecutableBinary.canonicalName}
-			application.variants.configureEach {
-				binaries.configureEach(ExecutableBinary) {
-					linkTask.configure {
-						linkerArgs.add('-lobjc')
-					}
-				}
-			}
-		"""
-	}
-
-	@Override
-	protected SourceElement getComponentUnderTest() {
-		return SourceElement.empty()
-	}
-
-	@Override
-	protected String getProjectName() {
-		return "app"
-	}
-
-	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return tasks.allToLink
-	}
-}
-
 class XcodeIdeObjectiveCLibraryFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements ObjectiveCTaskNames {
 	@Override
 	protected void makeSingleProject() {
@@ -102,42 +66,6 @@ class XcodeIdeObjectiveCLibraryFunctionalTest extends AbstractXcodeIdeNativeComp
 	@Override
 	protected SourceElement getComponentUnderTest() {
 		return new ObjectiveCGreeter().asLib()
-	}
-
-	@Override
-	protected String getProjectName() {
-		return "lib"
-	}
-
-	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return tasks.allToLink
-	}
-}
-
-class XcodeIdeObjectiveCLibraryWithoutSourceFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements ObjectiveCTaskNames {
-	@Override
-	protected void makeSingleProject() {
-		buildFile << """
-			plugins {
-				id 'dev.nokee.objective-c-library'
-				id 'dev.nokee.xcode-ide'
-			}
-
-			import ${SharedLibraryBinary.canonicalName}
-			library.variants.configureEach {
-				binaries.configureEach(SharedLibraryBinary) {
-					linkTask.configure {
-						linkerArgs.add('-lobjc')
-					}
-				}
-			}
-		"""
-	}
-
-	@Override
-	protected SourceElement getComponentUnderTest() {
-		return SourceElement.empty()
 	}
 
 	@Override

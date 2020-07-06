@@ -46,6 +46,26 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 	}
 
 	@Requires({ SystemUtils.IS_OS_MAC })
+	def "can build from Xcode IDE without source"() {
+		useXcodebuildTool()
+		settingsFile << configurePluginClasspathAsBuildScriptDependencies() << """
+			rootProject.name = '${projectName}'
+		"""
+		makeSingleProject()
+
+		when:
+		succeeds('xcode')
+
+		then:
+		result.assertTasksExecuted(allTasksToXcode)
+
+		and:
+		def result = xcodebuild.withWorkspace(xcodeWorkspace(workspaceName)).withScheme(schemeName).succeeds()
+		// TODO: Bridge task should be skipped with no source
+		result.assertTasksExecuted(allTasksForBuildAction, ":_xcode___${projectName}_${schemeName}_Default")
+	}
+
+	@Requires({ SystemUtils.IS_OS_MAC })
 	def "can clean relocated xcode derived data relative to workspace"() {
 		useXcodebuildTool()
 		settingsFile << configurePluginClasspathAsBuildScriptDependencies() << """
