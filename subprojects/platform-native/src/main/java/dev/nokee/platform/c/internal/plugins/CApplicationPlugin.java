@@ -28,6 +28,7 @@ public abstract class CApplicationPlugin implements Plugin<Project> {
 		NamingScheme names = NamingScheme.asMainComponent(project.getName()).withComponentDisplayName("main native component");
 		ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", project.getExtensions().create("components", ComponentCollection.class));
 		DefaultNativeApplicationComponent component = components.register(DefaultNativeApplicationComponent.class, names).get();
+		component.getBaseName().convention(project.getName());
 		DefaultCApplicationExtension extension = getObjects().newInstance(DefaultCApplicationExtension.class, component);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));

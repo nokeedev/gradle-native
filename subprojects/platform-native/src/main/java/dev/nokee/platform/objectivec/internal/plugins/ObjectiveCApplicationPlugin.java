@@ -28,6 +28,7 @@ public abstract class ObjectiveCApplicationPlugin implements Plugin<Project> {
 		NamingScheme names = NamingScheme.asMainComponent(project.getName()).withComponentDisplayName("main native component");
 		ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", project.getExtensions().create("components", ComponentCollection.class));
 		DefaultNativeApplicationComponent component = components.register(DefaultNativeApplicationComponent.class, names).get();
+		component.getBaseName().convention(project.getName());
 		DefaultObjectiveCApplicationExtension extension = getObjects().newInstance(DefaultObjectiveCApplicationExtension.class, component);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
