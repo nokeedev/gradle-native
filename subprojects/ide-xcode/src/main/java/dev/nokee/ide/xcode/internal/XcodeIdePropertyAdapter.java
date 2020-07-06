@@ -1,7 +1,11 @@
 package dev.nokee.ide.xcode.internal;
 
+import dev.nokee.internal.Cast;
+import lombok.SneakyThrows;
+import lombok.val;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.util.GradleVersion;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -35,7 +39,13 @@ public abstract class XcodeIdePropertyAdapter {
 		return getXcodeProperty("TARGET_NAME");
 	}
 
+	@SneakyThrows
 	private Provider<String> getXcodeProperty(String name) {
+		if (GradleVersion.current().compareTo(GradleVersion.version("6.5")) >= 0) {
+			Provider<String> result = getProviders().gradleProperty(prefixName(name));
+			val method = Provider.class.getMethod("forUseAtConfigurationTime");
+			return Cast.uncheckedCast("using reflection to support newer Gradle", method.invoke(result));
+		}
 		return getProviders().gradleProperty(prefixName(name));
 	}
 
