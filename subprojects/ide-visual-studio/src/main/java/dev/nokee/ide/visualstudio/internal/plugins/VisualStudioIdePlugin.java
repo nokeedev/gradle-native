@@ -48,7 +48,9 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 
 		getProject().getTasks().addRule(getObjects().newInstance(VisualStudioIdeBridge.class, this, extension.getProjects(), getProject()));
 
+		getProject().getPluginManager().withPlugin("dev.nokee.c-application", this::registerNativeComponentProjects);
 		getProject().getPluginManager().withPlugin("dev.nokee.cpp-application", this::registerNativeComponentProjects);
+		getProject().getPluginManager().withPlugin("dev.nokee.c-library", this::registerNativeComponentProjects);
 		getProject().getPluginManager().withPlugin("dev.nokee.cpp-library", this::registerNativeComponentProjects);
 	}
 
