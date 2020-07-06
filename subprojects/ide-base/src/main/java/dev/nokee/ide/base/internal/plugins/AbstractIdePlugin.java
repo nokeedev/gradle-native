@@ -32,6 +32,7 @@ import javax.inject.Inject;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -197,7 +198,7 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 
 	@Override
 	public String getDisplayName() {
-		return GUtil.toWords(StringUtils.capitalize(getExtensionName())) + " IDE";
+		return Arrays.stream(GUtil.toWords(getExtensionName()).split(" ")).map(StringUtils::capitalize).collect(Collectors.joining(" ")) + " IDE";
 	}
 
 	/**
