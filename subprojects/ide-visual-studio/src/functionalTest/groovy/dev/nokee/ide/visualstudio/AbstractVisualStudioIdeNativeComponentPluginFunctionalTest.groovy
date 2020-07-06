@@ -45,6 +45,14 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		project.getTargetByName('Clean').assertTargetDelegateToGradle()
 	}
 
+	// TODO: Check ConfigurationType
+	// TODO: Configure language standard
+	// TODO: Execute solution with MSBuild
+	// TODO: Test cleanVisualStudio
+	// TODO: Build component copy the product in the right location
+	// TODO: For library with both linkage, we can change the configuration type to static/shared and build change accordingly
+	// TODO: For library with both linkage, default to configuration type of DynamicLibrary (what the development variant points to)
+
 //	def "can generate Visual Studio IDE files"() {
 //		println testDirectory
 //		settingsFile << """
