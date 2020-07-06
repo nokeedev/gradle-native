@@ -35,8 +35,9 @@ public abstract class VisualStudioIdePropertyAdapter {
 		return getProviders().gradleProperty(prefixName(name));
 	}
 
-	public static List<String> getAdapterCommandLine() {
+	public static List<String> getAdapterCommandLine(String action) {
 		return Arrays.asList(
+			toGradleProperty("Action", action),
 			toGradleProperty("OutDir"),
 			toGradleProperty("PlatformName"),
 			toGradleProperty("Configuration"),
@@ -46,6 +47,10 @@ public abstract class VisualStudioIdePropertyAdapter {
 
 	private static String toGradleProperty(String source) {
 		return "-P" + prefixName(source) + "=$(" + source + ")";
+	}
+
+	private static String toGradleProperty(String name, String value) {
+		return "-P" + prefixName(name) + "=" + value;
 	}
 
 	private static String prefixName(String source) {
