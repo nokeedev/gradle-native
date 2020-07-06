@@ -7,10 +7,13 @@ import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.visualstudio.*;
 import dev.nokee.ide.visualstudio.internal.*;
 import dev.nokee.internal.Cast;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.Component;
 import dev.nokee.platform.base.internal.ComponentCollection;
 import dev.nokee.platform.nativebase.ExecutableBinary;
+import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
+import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
@@ -97,7 +100,7 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 					Provider<SharedLibraryBinary> binary = library.getDevelopmentVariant().flatMap(it -> it.getBinaries().withType(SharedLibraryBinary.class).getElements().map(b -> b.iterator().next()));
 
 					target.getProductLocation().set(binary.flatMap(it -> it.getLinkTask().get().getLinkedFile()));
-					target.getProperties().put("ConfigurationType", "DynamicLibrary");
+					target.getProperties().put("ConfigurationType", library.getDevelopmentVariant().flatMap(NativeLibrary::getDevelopmentBinary).map(this::toConfigurationType));
 					target.getProperties().put("UseDebugLibraries", true);
 					target.getProperties().put("PlatformToolset", "v142");
 					target.getProperties().put("CharacterSet", "Unicode");
@@ -106,6 +109,17 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 				});
 			});
 		});
+	}
+
+	private String toConfigurationType(Binary binary) {
+		if (binary instanceof SharedLibraryBinary) {
+			return "DynamicLibrary";
+		} else if (binary instanceof StaticLibraryBinary) {
+			return "StaticLibrary";
+		} else if (binary instanceof ExecutableBinary) {
+			return "Application";
+		}
+		throw new IllegalArgumentException(String.format("Unknown binary type '%s'.", binary.getClass().getSimpleName()));
 	}
 
 	private String toSemiColonSeperatedPaths(Iterable<? extends FileSystemLocation> it) {
