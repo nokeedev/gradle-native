@@ -5,6 +5,7 @@ import dev.nokee.platform.base.internal.Component;
 import dev.nokee.platform.base.internal.ComponentCollection;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
+import dev.nokee.platform.nativebase.internal.TargetLinkageRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.objectivec.ObjectiveCLibraryExtension;
 import dev.nokee.platform.objectivec.internal.DefaultObjectiveCLibraryExtension;
@@ -31,6 +32,7 @@ public abstract class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		DefaultObjectiveCLibraryExtension extension = getObjects().newInstance(DefaultObjectiveCLibraryExtension.class, component);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
+		project.afterEvaluate(getObjects().newInstance(TargetLinkageRule.class, extension.getTargetLinkages(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(ObjectiveCLibraryExtension.class, EXTENSION_NAME, extension);

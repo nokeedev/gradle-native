@@ -2,11 +2,12 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import dev.nokee.runtime.nativebase.internal.ArtifactTypes;
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
-import dev.nokee.runtime.nativebase.internal.LibraryElements;
+import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.VariantAwareBinaryView;
+import dev.nokee.runtime.nativebase.internal.*;
 import lombok.Value;
 import lombok.With;
+import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Attribute;
@@ -188,6 +189,24 @@ public abstract class ConfigurationUtils {
 
 		@Inject
 		protected abstract ObjectFactory getObjects();
+
+		public VariantAwareOutgoingConfigurationAction withVariant(BuildVariant variant) {
+			val attributes = ImmutableMap.<Attribute<?>, Object>builder().putAll(spec.attributes);
+
+			variant.getDimensions().forEach(it -> {
+				if (it instanceof DefaultOperatingSystemFamily) {
+					attributes.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, getObjects().named(OperatingSystemFamily.class, ((DefaultOperatingSystemFamily) it).getName()));
+				} else if (it instanceof DefaultMachineArchitecture) {
+					attributes.put(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, getObjects().named(MachineArchitecture.class, ((DefaultMachineArchitecture) it).getName()));
+				} else if (it instanceof DefaultBinaryLinkage) {
+					attributes.put(DefaultBinaryLinkage.LINKAGE_ATTRIBUTE, ((DefaultBinaryLinkage) it).getName());
+				} else {
+					throw new IllegalArgumentException(String.format("Unknown dimension variant '%s'", it.toString()));
+				}
+			});
+
+			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class, spec.withAttributes(attributes.build()));
+		}
 
 		public VariantAwareOutgoingConfigurationAction withStaticLinkage() {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,

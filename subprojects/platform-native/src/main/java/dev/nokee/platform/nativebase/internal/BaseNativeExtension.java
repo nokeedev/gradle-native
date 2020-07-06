@@ -5,11 +5,13 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.runtime.base.internal.Dimension;
+import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.val;
 import org.gradle.api.GradleException;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
@@ -50,8 +52,18 @@ public abstract class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 					dimensionBuilder.add(DefaultBinaryLinkage.EXECUTABLE);
 					buildVariantBuilder.add(DefaultBuildVariant.of(dimensionBuilder.build()));
 				} else if (component instanceof DefaultNativeLibraryComponent) {
-					dimensionBuilder.add(DefaultBinaryLinkage.SHARED);
-					buildVariantBuilder.add(DefaultBuildVariant.of(dimensionBuilder.build()));
+					if (this instanceof TargetLinkageAwareComponent) {
+						Set<TargetLinkage> targetLinkages = ((TargetLinkageAwareComponent) this).getTargetLinkages().get();
+						for (TargetLinkage targetLinkage : targetLinkages) {
+							DefaultBinaryLinkage linkageInternal = (DefaultBinaryLinkage) targetLinkage;
+							val libraryDimensionBuilder = ImmutableList.<Dimension>builder().addAll(dimensionBuilder.build());
+							libraryDimensionBuilder.add(linkageInternal);
+							buildVariantBuilder.add(DefaultBuildVariant.of(libraryDimensionBuilder.build()));
+						}
+					} else {
+						dimensionBuilder.add(DefaultBinaryLinkage.SHARED);
+						buildVariantBuilder.add(DefaultBuildVariant.of(dimensionBuilder.build()));
+					}
 				} else {
 					buildVariantBuilder.add(DefaultBuildVariant.of(dimensionBuilder.build()));
 				}
@@ -68,6 +80,10 @@ public abstract class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 
 	public DefaultTargetMachineFactory getMachines() {
 		return DefaultTargetMachineFactory.INSTANCE;
+	}
+
+	public DefaultTargetLinkageFactory getLinkages() {
+		return DefaultTargetLinkageFactory.INSTANCE;
 	}
 
 	public BinaryView<Binary> getBinaries() {

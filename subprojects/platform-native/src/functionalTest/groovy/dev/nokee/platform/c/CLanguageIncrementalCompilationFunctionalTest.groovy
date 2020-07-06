@@ -2,6 +2,7 @@ package dev.nokee.platform.c
 
 
 import dev.nokee.fixtures.AbstractNativeLanguageIncrementalCompilationFunctionalTest
+import dev.nokee.language.NativeProjectTasks
 import dev.nokee.language.c.CTaskNames
 
 class CApplicationNativeLanguageIncrementalCompilationFunctionalTest extends AbstractNativeLanguageIncrementalCompilationFunctionalTest implements CTaskNames {
@@ -33,6 +34,31 @@ class CLibraryNativeLanguageIncrementalCompilationFunctionalTest extends Abstrac
 	@Override
 	protected String getBinaryLifecycleTaskName() {
 		return 'sharedLibrary'
+	}
+}
+
+class CStaticLibraryNativeLanguageIncrementalCompilationFunctionalTest extends AbstractNativeLanguageIncrementalCompilationFunctionalTest implements CTaskNames {
+	@Override
+	protected void makeSingleProject() {
+		buildFile << '''
+			plugins {
+				id 'dev.nokee.c-library'
+			}
+
+			library {
+				targetLinkages = [linkages.static]
+			}
+		'''
+	}
+
+	@Override
+	protected String getBinaryLifecycleTaskName() {
+		return 'staticLibrary'
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.forStaticLibrary
 	}
 }
 

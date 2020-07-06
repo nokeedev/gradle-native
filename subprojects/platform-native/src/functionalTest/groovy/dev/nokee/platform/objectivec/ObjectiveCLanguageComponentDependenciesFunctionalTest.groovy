@@ -51,6 +51,58 @@ class ObjectiveCApplicationComponentProjectDependenciesFunctionalTest extends Ab
 
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
+class ObjectiveCApplicationComponentProjectDependenciesWithStaticLinkageFunctionalTest extends ObjectiveCApplicationComponentProjectDependenciesFunctionalTest {
+	@Override
+	protected void makeComponentWithLibrary() {
+		super.makeComponentWithLibrary()
+		file(libraryProjectName, buildFileName) << """
+			library {
+				targetLinkages = [linkages.static]
+			}
+		"""
+	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(":${libraryProjectName}").forStaticLibrary.allToLinkOrCreate
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class ObjectiveCApplicationComponentProjectDependenciesWithSharedLinkageFunctionalTest extends ObjectiveCApplicationComponentProjectDependenciesFunctionalTest {
+	@Override
+	protected void makeComponentWithLibrary() {
+		super.makeComponentWithLibrary()
+		file(libraryProjectName, buildFileName) << """
+			library {
+				targetLinkages = [linkages.shared]
+			}
+		"""
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class ObjectiveCApplicationComponentProjectDependenciesWithBothLinkageFunctionalTest extends ObjectiveCApplicationComponentProjectDependenciesFunctionalTest {
+	@Override
+	protected void makeComponentWithLibrary() {
+		super.makeComponentWithLibrary()
+		file(libraryProjectName, buildFileName) << """
+			library {
+				targetLinkages = [linkages.static, linkages.shared]
+			}
+		"""
+	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(":${libraryProjectName}").withLinkage('shared').allToLink
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
 class ObjectiveCApplicationComponentIncludedBuildDependenciesFunctionalTest extends AbstractNativeComponentIncludedBuildDependenciesFunctionalTest implements ObjectiveCTaskNames {
 	@Override
 	protected void makeComponentWithLibrary() {
@@ -90,3 +142,58 @@ class ObjectiveCApplicationComponentIncludedBuildDependenciesFunctionalTest exte
 		return tasks(":${libraryProjectName}").allToLink
 	}
 }
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class ObjectiveCApplicationComponentIncludedBuildDependenciesWithStaticLinkageFunctionalTest extends ObjectiveCApplicationComponentIncludedBuildDependenciesFunctionalTest {
+	@Override
+	protected void makeComponentWithLibrary() {
+		super.makeComponentWithLibrary()
+		file(libraryProjectName, buildFileName) << """
+			library {
+				targetLinkages = [linkages.static]
+			}
+		"""
+	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(":${libraryProjectName}").forStaticLibrary.allToLinkOrCreate
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class ObjectiveCApplicationComponentIncludedBuildDependenciesWithSharedLinkageFunctionalTest extends ObjectiveCApplicationComponentIncludedBuildDependenciesFunctionalTest {
+	@Override
+	protected void makeComponentWithLibrary() {
+		super.makeComponentWithLibrary()
+		file(libraryProjectName, buildFileName) << """
+			library {
+				targetLinkages = [linkages.shared]
+			}
+		"""
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class ObjectiveCApplicationComponentIncludedBuildDependenciesWithBothLinkageFunctionalTest extends ObjectiveCApplicationComponentIncludedBuildDependenciesFunctionalTest {
+	@Override
+	protected void makeComponentWithLibrary() {
+		super.makeComponentWithLibrary()
+		file(libraryProjectName, buildFileName) << """
+			library {
+				targetLinkages = [linkages.static, linkages.shared]
+			}
+		"""
+	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(":${libraryProjectName}").withLinkage('shared').allToLink
+	}
+}
+
+// TODO: Add library to library dependencies
+// TODO: Add shared library to static library dependencies

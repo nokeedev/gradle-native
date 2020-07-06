@@ -21,18 +21,10 @@ import org.gradle.api.provider.Provider;
 import javax.inject.Inject;
 
 public abstract class NativeApplicationOutgoingDependencies implements NativeOutgoingDependencies {
-	private final NamingScheme names;
-	private final BuildVariant buildVariant;
-
 	@Inject
 	public NativeApplicationOutgoingDependencies(NamingScheme names, BuildVariant buildVariant, DefaultNativeComponentDependencies dependencies) {
-		this.names = names;
-		this.buildVariant = buildVariant;
-
 		ConfigurationUtils builder = getObjects().newInstance(ConfigurationUtils.class);
-		DefaultTargetMachine targetMachine = new DefaultTargetMachine(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE), buildVariant.getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE));
-
-		Configuration runtimeElements = getConfigurations().create(names.getConfigurationName("runtimeElements"), builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementationDependencies(), dependencies.getRuntimeOnlyDependencies()).withSharedLinkage().forTargetMachine(targetMachine).withDescription(names.getConfigurationDescription("Runtime elements for %s.")));
+		Configuration runtimeElements = getConfigurations().create(names.getConfigurationName("runtimeElements"), builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementationDependencies(), dependencies.getRuntimeOnlyDependencies()).withVariant(buildVariant).withDescription(names.getConfigurationDescription("Runtime elements for %s.")));
 
 		runtimeElements.getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary));
 	}

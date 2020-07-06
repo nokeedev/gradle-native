@@ -32,4 +32,8 @@ public interface NativeProjectTasks {
 	List<String> getAllToAssembleWithInstall();
 
 	NativeProjectTasks withOperatingSystemFamily(String operatingSystemFamily);
+
+	NativeProjectTasks withLinkage(String linkage);
+
+	NativeProjectTasks getForStaticLibrary();
 }

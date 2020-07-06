@@ -5,6 +5,7 @@ import dev.nokee.platform.base.internal.Component;
 import dev.nokee.platform.base.internal.ComponentCollection;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
+import dev.nokee.platform.nativebase.internal.TargetLinkageRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibraryExtension;
 import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppLibraryExtension;
@@ -31,6 +32,7 @@ public abstract class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		DefaultObjectiveCppLibraryExtension extension = getObjects().newInstance(DefaultObjectiveCppLibraryExtension.class, component);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
+		project.afterEvaluate(getObjects().newInstance(TargetLinkageRule.class, extension.getTargetLinkages(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(ObjectiveCppLibraryExtension.class, EXTENSION_NAME, extension);

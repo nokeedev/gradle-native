@@ -7,6 +7,7 @@ import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.c.CLibraryExtension;
 import dev.nokee.platform.c.internal.DefaultCLibraryExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
+import dev.nokee.platform.nativebase.internal.TargetLinkageRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -31,6 +32,7 @@ public abstract class CLibraryPlugin implements Plugin<Project> {
 		DefaultCLibraryExtension extension = getObjects().newInstance(DefaultCLibraryExtension.class, component);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
+		project.afterEvaluate(getObjects().newInstance(TargetLinkageRule.class, extension.getTargetLinkages(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(CLibraryExtension.class, EXTENSION_NAME, extension);

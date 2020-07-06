@@ -49,5 +49,10 @@ trait JavaJniTaskNames implements NativeProjectTaskNames {
 		NativeProjectTasks withOperatingSystemFamily(String operatingSystemFamily) {
 			return new ProjectTasks((DefaultNativeProjectTasks)delegate.withOperatingSystemFamily(operatingSystemFamily))
 		}
+
+		@Override
+		NativeProjectTasks withLinkage(String linkage) {
+			return new ProjectTasks((DefaultNativeProjectTasks)delegate.withLinkage(linkage))
+		}
 	}
 }

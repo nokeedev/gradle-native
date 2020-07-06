@@ -35,6 +35,52 @@ class CppApplicationComponentProjectDependenciesFunctionalTest extends AbstractN
 	}
 }
 
+class CppApplicationComponentProjectDependenciesWithStaticLinkageFunctionalTest extends CppApplicationComponentProjectDependenciesFunctionalTest {
+	@Override
+	protected void makeComponentWithLibrary() {
+		super.makeComponentWithLibrary()
+		file(libraryProjectName, buildFileName) << """
+			library {
+				targetLinkages = [linkages.static]
+			}
+		"""
+	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(":${libraryProjectName}").forStaticLibrary.allToLinkOrCreate
+	}
+}
+
+class CppApplicationComponentProjectDependenciesWithSharedLinkageFunctionalTest extends CppApplicationComponentProjectDependenciesFunctionalTest {
+	@Override
+	protected void makeComponentWithLibrary() {
+		super.makeComponentWithLibrary()
+		file(libraryProjectName, buildFileName) << """
+			library {
+				targetLinkages = [linkages.shared]
+			}
+		"""
+	}
+}
+
+class CppApplicationComponentProjectDependenciesWithBothLinkageFunctionalTest extends CppApplicationComponentProjectDependenciesFunctionalTest {
+	@Override
+	protected void makeComponentWithLibrary() {
+		super.makeComponentWithLibrary()
+		file(libraryProjectName, buildFileName) << """
+			library {
+				targetLinkages = [linkages.static, linkages.shared]
+			}
+		"""
+	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(":${libraryProjectName}").withLinkage('shared').allToLink
+	}
+}
+
 class CppApplicationComponentIncludedBuildDependenciesFunctionalTest extends AbstractNativeComponentIncludedBuildDependenciesFunctionalTest implements CppTaskNames {
 	@Override
 	protected void makeComponentWithLibrary() {
@@ -66,3 +112,52 @@ class CppApplicationComponentIncludedBuildDependenciesFunctionalTest extends Abs
 		return tasks(":${libraryProjectName}").allToLink
 	}
 }
+
+class CppApplicationComponentIncludedBuildDependenciesToStaticLinkageFunctionalTest extends CppApplicationComponentIncludedBuildDependenciesFunctionalTest {
+	@Override
+	protected void makeComponentWithLibrary() {
+		super.makeComponentWithLibrary()
+		file(libraryProjectName, buildFileName) << """
+			library {
+				targetLinkages = [linkages.static]
+			}
+		"""
+	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(":${libraryProjectName}").forStaticLibrary.allToLinkOrCreate
+	}
+}
+
+class CppApplicationComponentIncludedBuildDependenciesToSharedLinkageFunctionalTest extends CppApplicationComponentIncludedBuildDependenciesFunctionalTest {
+	@Override
+	protected void makeComponentWithLibrary() {
+		super.makeComponentWithLibrary()
+		file(libraryProjectName, buildFileName) << """
+			library {
+				targetLinkages = [linkages.shared]
+			}
+		"""
+	}
+}
+
+class CppApplicationComponentIncludedBuildDependenciesToBothLinkageFunctionalTest extends CppApplicationComponentIncludedBuildDependenciesFunctionalTest {
+	@Override
+	protected void makeComponentWithLibrary() {
+		super.makeComponentWithLibrary()
+		file(libraryProjectName, buildFileName) << """
+			library {
+				targetLinkages = [linkages.static, linkages.shared]
+			}
+		"""
+	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(":${libraryProjectName}").withLinkage('shared').allToLink
+	}
+}
+
+// TODO: Add library to library dependencies
+// TODO: Add shared library to static library dependencies

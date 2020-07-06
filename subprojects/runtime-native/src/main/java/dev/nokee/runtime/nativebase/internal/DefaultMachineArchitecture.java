@@ -4,16 +4,14 @@ import dev.nokee.runtime.base.internal.DefaultDimensionType;
 import dev.nokee.runtime.base.internal.Dimension;
 import dev.nokee.runtime.base.internal.DimensionType;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.*;
 import org.gradle.api.Named;
 
 import javax.annotation.Nonnull;
 
 import static java.util.Arrays.asList;
 
+@ToString
 @EqualsAndHashCode
 @AllArgsConstructor(access = AccessLevel.PACKAGE) /** Use {@link DefaultMachineArchitecture#forName(String)} instead */
 public abstract class DefaultMachineArchitecture implements MachineArchitecture, Named, Dimension {

@@ -4,6 +4,7 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
+import dev.nokee.language.NativeProjectTasks
 import dev.nokee.language.objectivecpp.ObjectiveCppTaskNames
 import dev.nokee.platform.jni.fixtures.ObjectiveCppGreeter
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCppGreeterApp
@@ -64,6 +65,37 @@ class ObjectiveCppLibraryNativeLanguageCompilationFunctionalTest extends Abstrac
 	}
 }
 
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class ObjectiveCppStaticLibraryNativeLanguageCompilationFunctionalTest extends AbstractNativeLanguageCompilationFunctionalTest implements ObjectiveCppTaskNames {
+	@Override
+	protected void makeSingleProject() {
+		buildFile << '''
+			plugins {
+				id 'dev.nokee.objective-cpp-library'
+			}
+
+			library {
+				targetLinkages = [linkages.static]
+			}
+		'''
+	}
+
+	@Override
+	protected NativeSourceElement getComponentUnderTest() {
+		return new ObjectiveCppGreeter()
+	}
+
+	@Override
+	protected String getBinaryLifecycleTaskName() {
+		return 'staticLibrary'
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.forStaticLibrary
+	}
+}
+
 // TODO: explicit shared linkage
-// TODO: explicit static linkage
 // TODO: explicit both linkage

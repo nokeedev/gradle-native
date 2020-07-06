@@ -2,6 +2,7 @@ package dev.nokee.platform.cpp
 
 
 import dev.nokee.fixtures.AbstractNativeLanguageIncrementalCompilationFunctionalTest
+import dev.nokee.language.NativeProjectTasks
 import dev.nokee.language.cpp.CppTaskNames
 
 class CppApplicationNativeLanguageIncrementalCompilationFunctionalTest extends AbstractNativeLanguageIncrementalCompilationFunctionalTest implements CppTaskNames {
@@ -36,6 +37,30 @@ class CppLibraryNativeLanguageIncrementalCompilationFunctionalTest extends Abstr
 	}
 }
 
+class CppStaticLibraryNativeLanguageIncrementalCompilationFunctionalTest extends AbstractNativeLanguageIncrementalCompilationFunctionalTest implements CppTaskNames {
+	@Override
+	protected void makeSingleProject() {
+		buildFile << '''
+			plugins {
+				id 'dev.nokee.cpp-library'
+			}
+
+			library {
+				targetLinkages = [linkages.static]
+			}
+		'''
+	}
+
+	@Override
+	protected String getBinaryLifecycleTaskName() {
+		return 'staticLibrary'
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.forStaticLibrary
+	}
+}
+
 // TODO: explicit shared linkage
-// TODO: explicit static linkage
 // TODO: explicit both linkage

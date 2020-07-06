@@ -29,6 +29,7 @@ dependencies {
 	testFixturesImplementation 'org.hamcrest:hamcrest:2.2'
 	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	testFixturesImplementation gradleFixtures()
+	testFixturesImplementation testFixtures(project(':languageNative'))
 }
 
 gradlePlugin {
@@ -85,6 +86,7 @@ test {
 
 functionalTest {
 	dependencies {
+		implementation project(':runtimeNative')
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation testFixtures(project(':platformNative'))
 		implementation testFixtures(project(':languageNative'))

@@ -6,9 +6,6 @@ import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependencies;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.DirectoryProperty;
@@ -25,9 +22,7 @@ public abstract class IosApplicationOutgoingDependencies implements NativeOutgoi
 	public IosApplicationOutgoingDependencies(NamingScheme names, BuildVariant buildVariant, DefaultNativeComponentDependencies dependencies) {
 
 		ConfigurationUtils builder = getObjects().newInstance(ConfigurationUtils.class);
-		DefaultTargetMachine targetMachine = new DefaultTargetMachine(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE), buildVariant.getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE));
-
-		Configuration runtimeElements = getConfigurations().create(names.getConfigurationName("runtimeElements"), builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementationDependencies(), dependencies.getRuntimeOnlyDependencies()).withSharedLinkage().forTargetMachine(targetMachine));
+		Configuration runtimeElements = getConfigurations().create(names.getConfigurationName("runtimeElements"), builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementationDependencies(), dependencies.getRuntimeOnlyDependencies()).withVariant(buildVariant));
 
 		runtimeElements.getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary));
 	}

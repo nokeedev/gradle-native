@@ -2,7 +2,11 @@ package dev.nokee.platform.c
 
 import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
+import dev.nokee.language.NativeProjectTasks
 import dev.nokee.language.c.CTaskNames
+import dev.nokee.language.cpp.CppTaskNames
+import dev.nokee.platform.jni.fixtures.CGreeter
+import dev.nokee.platform.jni.fixtures.elements.CppGreeter
 import dev.nokee.platform.nativebase.fixtures.CGreeterApp
 
 class CApplicationNativeLanguageCompilationFunctionalTest extends AbstractNativeLanguageCompilationFunctionalTest implements CTaskNames {
@@ -47,6 +51,35 @@ class CLibraryNativeLanguageCompilationFunctionalTest extends AbstractNativeLang
 	}
 }
 
+class CStaticLinkageLibraryNativeLanguageCompilationFunctionalTest extends AbstractNativeLanguageCompilationFunctionalTest implements CTaskNames {
+	@Override
+	protected void makeSingleProject() {
+		buildFile << """
+			plugins {
+				id 'dev.nokee.c-library'
+			}
+
+			library {
+				targetLinkages = [linkages.static]
+			}
+		"""
+	}
+
+	@Override
+	protected NativeSourceElement getComponentUnderTest() {
+		return new CGreeter()
+	}
+
+	@Override
+	protected String getBinaryLifecycleTaskName() {
+		return 'staticLibrary'
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.forStaticLibrary
+	}
+}
+
 // TODO: explicit shared linkage
-// TODO: explicit static linkage
 // TODO: explicit both linkage

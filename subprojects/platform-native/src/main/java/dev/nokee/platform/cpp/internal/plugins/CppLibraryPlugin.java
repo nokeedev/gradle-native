@@ -6,7 +6,7 @@ import dev.nokee.platform.base.internal.ComponentCollection;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.cpp.CppLibraryExtension;
 import dev.nokee.platform.cpp.internal.DefaultCppLibraryExtension;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.TargetLinkageRule;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import org.gradle.api.Plugin;
@@ -32,6 +32,7 @@ public abstract class CppLibraryPlugin implements Plugin<Project> {
 		DefaultCppLibraryExtension extension = getObjects().newInstance(DefaultCppLibraryExtension.class, component);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
+		project.afterEvaluate(getObjects().newInstance(TargetLinkageRule.class, extension.getTargetLinkages(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(CppLibraryExtension.class, EXTENSION_NAME, extension);

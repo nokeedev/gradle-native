@@ -4,6 +4,7 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
+import dev.nokee.language.NativeProjectTasks
 import dev.nokee.language.swift.SwiftTaskNames
 import dev.nokee.platform.jni.fixtures.elements.SwiftGreeter
 import dev.nokee.platform.nativebase.fixtures.SwiftGreeterApp
@@ -51,6 +52,38 @@ class SwiftLibraryNativeLanguageCompilationFunctionalTest extends AbstractNative
 	@Override
 	protected String getBinaryLifecycleTaskName() {
 		return 'sharedLibrary'
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
+class SwiftStaticLibraryNativeLanguageCompilationFunctionalTest extends AbstractNativeLanguageCompilationFunctionalTest implements SwiftTaskNames {
+	@Override
+	protected void makeSingleProject() {
+		settingsFile << "rootProject.name = 'lib'"
+		buildFile << '''
+			plugins {
+				id 'dev.nokee.swift-library'
+			}
+
+			library {
+				targetLinkages = [linkages.static]
+			}
+		'''
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new SwiftGreeter()
+	}
+
+	@Override
+	protected String getBinaryLifecycleTaskName() {
+		return 'staticLibrary'
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.forStaticLibrary
 	}
 }
 

@@ -1,6 +1,7 @@
 package dev.nokee.fixtures
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
+import dev.nokee.language.NativeProjectTasks
 
 abstract class AbstractNativeLanguageIncrementalCompilationFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "skip assemble tasks when no source"() {
@@ -9,7 +10,7 @@ abstract class AbstractNativeLanguageIncrementalCompilationFunctionalTest extend
 
 		expect:
 		succeeds "assemble"
-		result.assertTasksExecuted(tasks.allToAssemble)
+		result.assertTasksExecuted(taskNamesUnderTest.allToAssemble)
 		result.assertTasksSkipped(allSkippedTasksToAssemble)
 	}
 
@@ -19,8 +20,8 @@ abstract class AbstractNativeLanguageIncrementalCompilationFunctionalTest extend
 
 		expect:
 		succeeds "objects"
-		result.assertTasksExecuted(tasks.allToObjects)
-		result.assertTasksSkipped(tasks.allToObjects)
+		result.assertTasksExecuted(taskNamesUnderTest.allToObjects)
+		result.assertTasksSkipped(taskNamesUnderTest.allToObjects)
 	}
 
 	protected abstract void makeSingleProject()
@@ -28,6 +29,10 @@ abstract class AbstractNativeLanguageIncrementalCompilationFunctionalTest extend
 	protected abstract String getBinaryLifecycleTaskName()
 
 	protected List<String> getAllSkippedTasksToAssemble() {
-		return tasks.allToAssemble
+		return taskNamesUnderTest.allToAssemble
+	}
+
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks
 	}
 }

@@ -15,12 +15,14 @@ import dev.nokee.platform.base.internal.VariantProvider;
 import dev.nokee.platform.nativebase.*;
 import dev.nokee.platform.nativebase.internal.dependencies.AbstractBinaryAwareNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.AbstractNativeComponentDependencies;
+import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.val;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -136,8 +138,12 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 						BundleBinaryInternal binary = getObjects().newInstance(BundleBinaryInternal.class, names, targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
 						variantInternal.getBinaryCollection().add(binary);
 						binary.getBaseName().convention(project.getName());
-//					} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
-//						variantInternal.getBinaryCollection().add(getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets));
+					} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
+						TaskProvider<CreateStaticLibraryTask> createTask = getTasks().register(names.getTaskName("create"), CreateStaticLibraryTask.class);
+
+						val binary = getObjects().newInstance(StaticLibraryBinaryInternal.class, names, objectSourceSets, targetMachineInternal, createTask, dependencies.getIncoming());
+						variantInternal.getBinaryCollection().add(binary);
+						binary.getBaseName().convention(project.getName());
 					}
 				}
 

@@ -2,6 +2,7 @@ package dev.nokee.fixtures
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.language.NativeProjectTasks
 import org.hamcrest.Matchers
 import spock.lang.Unroll
 
@@ -22,7 +23,7 @@ abstract class AbstractNativeLanguageCompilationFunctionalTest extends AbstractI
 
 		expect:
 		fails taskUnderTest
-		failure.assertHasDescription("Execution failed for task '${tasks.compile}'.")
+		failure.assertHasDescription("Execution failed for task '${taskNamesUnderTest.compile}'.")
 		failure.assertHasCause("A build operation failed.")
 		failure.assertThatCause(Matchers.containsString(expectedCompilationFailureCause))
 
@@ -39,7 +40,7 @@ abstract class AbstractNativeLanguageCompilationFunctionalTest extends AbstractI
 		succeeds('assemble')
 
 		then:
-		assertTasksExecutedAndNotSkipped(*tasks.allToAssemble)
+		assertTasksExecutedAndNotSkipped(*taskNamesUnderTest.allToAssemble)
 	}
 
 	// TODO: Variant-aware configuration
@@ -58,10 +59,10 @@ abstract class AbstractNativeLanguageCompilationFunctionalTest extends AbstractI
 		"""
 
 		when:
-		succeeds(tasks.withOperatingSystemFamily(currentOsFamilyName).assemble)
+		succeeds(taskNamesUnderTest.withOperatingSystemFamily(currentOsFamilyName).assemble)
 
 		then:
-		assertTasksExecutedAndNotSkipped(*tasks.withOperatingSystemFamily(currentOsFamilyName).allToAssemble)
+		assertTasksExecutedAndNotSkipped(*taskNamesUnderTest.withOperatingSystemFamily(currentOsFamilyName).allToAssemble)
 	}
 
 	protected abstract void makeSingleProject()
@@ -97,5 +98,9 @@ abstract class AbstractNativeLanguageCompilationFunctionalTest extends AbstractI
 
 	protected boolean isTargetMachineAwareConfiguration() {
 		return true
+	}
+
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks
 	}
 }

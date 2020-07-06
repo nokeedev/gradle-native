@@ -14,7 +14,7 @@ public abstract class SwiftLibraryOutgoingDependencies extends AbstractNativeLib
 	public SwiftLibraryOutgoingDependencies(NamingScheme names, BuildVariant buildVariant, DefaultNativeLibraryDependencies dependencies) {
 		super(names, buildVariant, dependencies);
 
-		Configuration apiElements = getConfigurations().create(names.getConfigurationName("apiElements"), builder.asOutgoingSwiftModuleFrom(dependencies.getApiDependencies(), dependencies.getCompileOnlyDependencies()).withDescription(names.getConfigurationDescription("API elements for %s.")));
+		Configuration apiElements = getConfigurations().create(names.getConfigurationName("apiElements"), builder.asOutgoingSwiftModuleFrom(dependencies.getApiDependencies(), dependencies.getCompileOnlyDependencies()).withVariant(buildVariant).withDescription(names.getConfigurationDescription("API elements for %s.")));
 
 		apiElements.getOutgoing().artifact(getExportedSwiftModule());
 	}
