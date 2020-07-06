@@ -6,7 +6,7 @@ build:
   artifacts:
     when: on_failure
     paths:
-      - subprojects/docs/build/
+      - subprojects/*/build/
 
 test (macos):
   stage: test
@@ -19,8 +19,7 @@ test (macos):
   artifacts:
     when: on_failure
     paths:
-      - subprojects/platform-jni/build
-      - subprojects/docs/build
+      - subprojects/*/build
 
 test (linux):
   stage: test
@@ -31,8 +30,7 @@ test (linux):
   artifacts:
     when: on_failure
     paths:
-      - subprojects/platform-jni/build
-      - subprojects/docs/build
+      - subprojects/*/build
 
 test (windows):
   stage: test
@@ -46,8 +44,7 @@ test (windows):
   artifacts:
     when: on_failure
     paths:
-      - subprojects/platform-jni/build
-      - subprojects/docs/build
+      - subprojects/*/build
 
 deploy:
   stage: build
