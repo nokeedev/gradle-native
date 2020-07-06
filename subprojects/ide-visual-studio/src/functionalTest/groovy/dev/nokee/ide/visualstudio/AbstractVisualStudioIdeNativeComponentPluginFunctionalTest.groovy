@@ -1,10 +1,6 @@
 package dev.nokee.ide.visualstudio
 
-
 import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.nokee.platform.jni.fixtures.elements.CppGreeter
-import dev.nokee.platform.nativebase.fixtures.CppMainUsesGreeter
-import spock.lang.Ignore
 
 abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractVisualStudioIdeFunctionalSpec {
 	protected abstract void makeSingleProject();

@@ -34,6 +34,7 @@ functionalTest {
 	dependencies {
 		pluginUnderTestMetadata project(':platformNative')
 		implementation 'dev.nokee:templates:latest.integration'
+		implementation project(':platformNative')
 		implementation testFixtures(project(':languageNative'))
 		implementation testFixtures(project(':platformBase'))
 	}

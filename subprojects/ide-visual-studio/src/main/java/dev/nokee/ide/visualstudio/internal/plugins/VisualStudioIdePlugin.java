@@ -7,6 +7,7 @@ import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.visualstudio.*;
 import dev.nokee.ide.visualstudio.internal.*;
 import dev.nokee.internal.Cast;
+import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -91,12 +92,30 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 						target.getProperties().put("PlatformToolset", "v142");
 						target.getProperties().put("CharacterSet", "Unicode");
 						target.getProperties().put("LinkIncremental", true);
-						target.getItemProperties().maybeCreate("ClCompile").put("AdditionalIncludeDirectories", binary.flatMap(it -> {
-							if (it instanceof BaseNativeBinary) {
-								return ((BaseNativeBinary) it).getHeaderSearchPaths().map(this::toSemiColonSeperatedPaths);
-							}
-							throw unsupportedBinaryType(it);
-						}));
+						target.getItemProperties().maybeCreate("ClCompile")
+							.put("AdditionalIncludeDirectories", binary.flatMap(it -> {
+								if (it instanceof BaseNativeBinary) {
+									return ((BaseNativeBinary) it).getHeaderSearchPaths().map(this::toSemiColonSeperatedPaths);
+								}
+								throw unsupportedBinaryType(it);
+							}))
+							.put("LanguageStandard", binary.flatMap(it -> {
+								if (it instanceof BaseNativeBinary) {
+									return ((BaseNativeBinary) it).getCompileTasks().withType(CppCompile.class).getElements().get().iterator().next().getCompilerArgs().map(args -> {
+										return args.stream().filter(arg -> arg.matches("^[-/]std:c++.+")).findFirst().map(a -> {
+											if (a.endsWith("c++14")) {
+												return "stdcpp14";
+											} else if (a.endsWith("c++17")) {
+												return "stdcpp17";
+											} else if (a.endsWith("c++latest")) {
+												return "stdcpplatest";
+											}
+											return "Default";
+										}).orElse("Default");
+									});
+								}
+								throw unsupportedBinaryType(it);
+							}));
 					});
 				});
 			}

@@ -2,6 +2,8 @@ package dev.nokee.ide.visualstudio.fixtures
 
 import dev.gradleplugins.test.fixtures.file.TestFile
 
+import javax.annotation.Nullable
+
 class VisualStudioIdeProjectFixture {
 	final TestFile project
 	final TestFile filters
@@ -35,6 +37,10 @@ class VisualStudioIdeProjectFixture {
 	VisualStudioIdeProjectFixture assertHasTargets(String... targetNames) {
 		assert projectFile.targets*.name as Set == targetNames as Set
 		return this
+	}
+
+	List<ProjectFixture.ProjectConfigurationFixture> getProjectConfigurations() {
+		return projectFile.projectConfigurations
 	}
 
 //	VisualStudioIdeProjectFixture assertHasBuildConfigurations(String... buildConfigurationNames) {
@@ -83,6 +89,16 @@ class VisualStudioIdeProjectFixture {
 			return content.Target.collect { new TargetFixture(it) }
 		}
 
+		List<ProjectConfigurationFixture> getProjectConfigurations() {
+			return itemGroup("ProjectConfigurations").collect {
+				new ProjectConfigurationFixture(it.Configuration[0].text(), it.Platform[0].text())
+			}
+		}
+
+		private Node itemGroup(String label) {
+			return content.ItemGroup.find({it.'@Label' == label}) as Node
+		}
+
 		class TargetFixture {
 			final Node content
 
@@ -121,6 +137,29 @@ class VisualStudioIdeProjectFixture {
 					assert it =~ /:_visualStudio__(build|clean)_\$\(ProjectName\)_\$\(Configuration\)_\$\(Platform\)/
 				}
 				return this
+			}
+		}
+
+		class ProjectConfigurationFixture {
+			String configurationName
+			String platformName
+
+			ProjectConfigurationFixture(String configurationName, String platformName) {
+				this.configurationName = configurationName
+				this.platformName = platformName
+			}
+
+			@Nullable
+			String getLanguageStandard() {
+				def itemDefinitionGroupNode = content.ItemDefinitionGroup.find({ it.'@Condition' == condition }) as Node
+				if (itemDefinitionGroupNode == null) {
+					return null
+				}
+				return itemDefinitionGroupNode.ClCompile[0].LanguageStandard[0]?.text()
+			}
+
+			private String getCondition() {
+				"'\$(Configuration)|\$(Platform)'=='${configurationName}|${platformName}'"
 			}
 		}
 	}
