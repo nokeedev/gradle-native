@@ -82,3 +82,62 @@ class XcodeIdeSwiftLibraryFunctionalTest extends AbstractXcodeIdeNativeComponent
 		return super.getAllTasksToXcode() + [tasks.compile]
 	}
 }
+
+@RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
+class XcodeIdeSwiftLibraryWithStaticLinkageFunctionalTest extends XcodeIdeSwiftLibraryFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << """
+			library {
+				targetLinkages = [linkages.static]
+			}
+		"""
+	}
+
+	@Override
+	protected List<String> getAllTasksForBuildAction() {
+		return tasks.forStaticLibrary.allToCreate
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
+class XcodeIdeSwiftLibraryWithSharedLinkageFunctionalTest extends XcodeIdeSwiftLibraryFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << """
+			library {
+				targetLinkages = [linkages.shared]
+			}
+		"""
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
+class XcodeIdeSwiftLibraryWithBothLinkageFunctionalTest extends XcodeIdeSwiftLibraryFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << """
+			library {
+				targetLinkages = [linkages.static, linkages.shared]
+			}
+		"""
+	}
+
+	@Override
+	protected List<String> getAllTasksForBuildAction() {
+		return tasks.withLinkage('shared').allToLink
+	}
+
+	@Override
+	protected String getSchemeName() {
+		return "${super.getSchemeName()}Shared"
+	}
+
+	@Override
+	protected List<String> getAllTasksToXcode() {
+		return super.getAllTasksToXcode() - [tasks.compile] + [tasks.withLinkage('shared').compile, tasks.withLinkage('static').compile]
+	}
+}

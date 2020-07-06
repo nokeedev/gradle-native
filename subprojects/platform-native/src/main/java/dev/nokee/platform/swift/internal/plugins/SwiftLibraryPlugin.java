@@ -13,6 +13,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
+import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
@@ -29,6 +30,7 @@ public abstract class SwiftLibraryPlugin implements Plugin<Project> {
 		NamingScheme names = NamingScheme.asMainComponent(project.getName()).withComponentDisplayName("main native component");
 		ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", project.getExtensions().create("components", ComponentCollection.class));
 		DefaultNativeLibraryComponent component = components.register(DefaultNativeLibraryComponent.class, names).get();
+		component.getBaseName().convention(GUtil.toCamelCase(project.getName()));
 		DefaultSwiftLibraryExtension extension = getObjects().newInstance(DefaultSwiftLibraryExtension.class, component);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));

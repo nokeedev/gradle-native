@@ -78,7 +78,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 			getProject().getPluginManager().apply(XcodeIdeNativeLibraryPlugin.class);
 		});
 		getProject().getPluginManager().withPlugin("dev.nokee.swift-library", appliedPlugin -> {
-			getProject().getPluginManager().apply(XcodeIdeSwiftLibraryPlugin.class);
+			getProject().getPluginManager().apply(XcodeIdeNativeLibraryPlugin.class);
 		});
 	}
 

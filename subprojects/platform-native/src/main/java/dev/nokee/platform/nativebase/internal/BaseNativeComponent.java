@@ -84,8 +84,26 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 			if (variants.isEmpty()) {
 				return null;
 			}
+
+			if (getDimensions().get().contains(DefaultBinaryLinkage.DIMENSION_TYPE)) {
+				variants.sort(this::preferSharedLinkage);
+				return (T)variants.iterator().next();
+			}
 			return (T)one(variants);
 		});
+	}
+
+	private int preferSharedLinkage(BaseNativeVariant a, BaseNativeVariant b) {
+		val aLinkage = a.getBuildVariant().getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
+		val bLinkage = b.getBuildVariant().getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
+		if (aLinkage.isShared() && bLinkage.isShared()) {
+			return 0;
+		} else if (aLinkage.isShared()) {
+			return -1;
+		} else if (bLinkage.isShared()) {
+			return 1;
+		}
+		return 0;
 	}
 
 	public static <T> T one(Iterable<T> c) {

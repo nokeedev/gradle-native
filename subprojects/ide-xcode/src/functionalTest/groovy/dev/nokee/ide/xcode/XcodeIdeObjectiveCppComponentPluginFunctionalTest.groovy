@@ -78,3 +78,54 @@ class XcodeIdeObjectiveCppLibraryFunctionalTest extends AbstractXcodeIdeNativeCo
 		return tasks.allToLink
 	}
 }
+
+class XcodeIdeObjectiveCppLibraryWithStaticLinkageFunctionalTest extends XcodeIdeObjectiveCppLibraryFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << """
+			library {
+				targetLinkages = [linkages.static]
+			}
+		"""
+	}
+
+	@Override
+	protected List<String> getAllTasksForBuildAction() {
+		return tasks.forStaticLibrary.allToCreate
+	}
+}
+
+class XcodeIdeObjectiveCppLibraryWithSharedLinkageFunctionalTest extends XcodeIdeObjectiveCppLibraryFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << """
+			library {
+				targetLinkages = [linkages.shared]
+			}
+		"""
+	}
+}
+
+class XcodeIdeObjectiveCppLibraryWithBothLinkageFunctionalTest extends XcodeIdeObjectiveCppLibraryFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << """
+			library {
+				targetLinkages = [linkages.static, linkages.shared]
+			}
+		"""
+	}
+
+	@Override
+	protected List<String> getAllTasksForBuildAction() {
+		return tasks.withLinkage('shared').allToLink
+	}
+
+	@Override
+	protected String getSchemeName() {
+		return "${super.getSchemeName()}Shared"
+	}
+}

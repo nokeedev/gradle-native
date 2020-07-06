@@ -45,4 +45,6 @@ public abstract class BaseComponent<T extends Variant> {
 	public abstract SetProperty<BuildVariant> getBuildVariants();
 
 	public abstract Property<T> getDevelopmentVariant();
+
+	public abstract Property<String> getBaseName();
 }

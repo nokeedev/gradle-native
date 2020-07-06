@@ -18,6 +18,14 @@ public class DefaultBinaryLinkage implements TargetLinkage, Named, Dimension {
 	public static final DefaultBinaryLinkage BUNDLE = new DefaultBinaryLinkage("bundle");
 	String name;
 
+	public boolean isShared() {
+		return equals(SHARED);
+	}
+
+	public boolean isStatic() {
+		return equals(STATIC);
+	}
+
 	@Override
 	public DimensionType getType() {
 		return DIMENSION_TYPE;
