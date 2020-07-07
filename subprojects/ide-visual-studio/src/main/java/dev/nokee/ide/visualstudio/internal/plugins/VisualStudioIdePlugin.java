@@ -64,7 +64,7 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 				BaseComponent<?> componentInternal = (BaseComponent<?>) component;
 				// TODO: baseName could change between now and when it's finalized...
 				extension.getProjects().register(componentInternal.getBaseName().get(), visualStudioProject -> {
-					val visualStudioProjectInternal = (DefaultVisualStudioIdeProject)visualStudioProject;
+					val visualStudioProjectInternal = (DefaultVisualStudioIdeProject) visualStudioProject;
 					componentInternal.getSourceCollection().forEach(sourceSet -> {
 						visualStudioProjectInternal.getSourceFiles().from(sourceSet.getAsFileTree());
 					});
@@ -99,10 +99,12 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 								}
 								throw unsupportedBinaryType(it);
 							}))
-							.put("LanguageStandard", binary.flatMap(it -> {
-								if (it instanceof BaseNativeBinary) {
-									return ((BaseNativeBinary) it).getCompileTasks().withType(CppCompile.class).getElements().get().iterator().next().getCompilerArgs().map(args -> {
-										return args.stream().filter(arg -> arg.matches("^[-/]std:c++.+")).findFirst().map(a -> {
+							.put("LanguageStandard", getProviders().provider(() -> {
+								if (binary.get() instanceof BaseNativeBinary) {
+									val it = ((BaseNativeBinary) binary.get()).getCompileTasks().withType(CppCompile.class).getElements().get().iterator();
+									if (it.hasNext()) {
+										val compileTask = it.next();
+										return compileTask.getCompilerArgs().get().stream().filter(arg -> arg.matches("^[-/]std:c++.+")).findFirst().map(a -> {
 											if (a.endsWith("c++14")) {
 												return "stdcpp14";
 											} else if (a.endsWith("c++17")) {
@@ -112,9 +114,10 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 											}
 											return "Default";
 										}).orElse("Default");
-									});
+									}
+									return null;
 								}
-								throw unsupportedBinaryType(it);
+								throw unsupportedBinaryType(binary.get());
 							}));
 					});
 				});
