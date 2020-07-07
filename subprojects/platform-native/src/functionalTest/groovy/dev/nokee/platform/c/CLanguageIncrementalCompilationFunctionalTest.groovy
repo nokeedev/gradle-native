@@ -37,14 +37,11 @@ class CLibraryNativeLanguageIncrementalCompilationFunctionalTest extends Abstrac
 	}
 }
 
-class CStaticLibraryNativeLanguageIncrementalCompilationFunctionalTest extends AbstractNativeLanguageIncrementalCompilationFunctionalTest implements CTaskNames {
+class CLibraryWithStaticLinkageNativeLanguageIncrementalCompilationFunctionalTest extends CLibraryNativeLanguageIncrementalCompilationFunctionalTest {
 	@Override
 	protected void makeSingleProject() {
+		super.makeSingleProject()
 		buildFile << '''
-			plugins {
-				id 'dev.nokee.c-library'
-			}
-
 			library {
 				targetLinkages = [linkages.static]
 			}
@@ -62,6 +59,31 @@ class CStaticLibraryNativeLanguageIncrementalCompilationFunctionalTest extends A
 	}
 }
 
-// TODO: explicit shared linkage
-// TODO: explicit static linkage
-// TODO: explicit both linkage
+class CLibraryWithSharedLinkageNativeLanguageIncrementalCompilationFunctionalTest extends CLibraryNativeLanguageIncrementalCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << '''
+			library {
+				targetLinkages = [linkages.shared]
+			}
+		'''
+	}
+}
+
+class CLibraryWithBothLinkageNativeLanguageIncrementalCompilationFunctionalTest extends CLibraryNativeLanguageIncrementalCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << '''
+			library {
+				targetLinkages = [linkages.static, linkages.shared]
+			}
+		'''
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.withLinkage('shared')
+	}
+}

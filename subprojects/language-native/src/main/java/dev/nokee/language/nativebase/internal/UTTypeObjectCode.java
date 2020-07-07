@@ -5,6 +5,8 @@ import lombok.Value;
 
 @Value
 public class UTTypeObjectCode implements UTType {
+	public static final UTTypeObjectCode INSTANCE = new UTTypeObjectCode();
+
 	String identifier = "public.object-code";
 
 	@Override

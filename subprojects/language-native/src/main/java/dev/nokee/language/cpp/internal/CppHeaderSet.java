@@ -5,9 +5,9 @@ import dev.nokee.language.nativebase.internal.HeaderExportingSourceSet;
 
 import javax.inject.Inject;
 
-public abstract class CppSourceSet extends BaseSourceSet implements HeaderExportingSourceSet {
+public abstract class CppHeaderSet extends BaseSourceSet implements HeaderExportingSourceSet {
 	@Inject
-	public CppSourceSet(String name) {
-		super(name, UTTypeCppSource.INSTANCE);
+	public CppHeaderSet(String name) {
+		super(name, UTTypeCppHeader.INSTANCE);
 	}
 }

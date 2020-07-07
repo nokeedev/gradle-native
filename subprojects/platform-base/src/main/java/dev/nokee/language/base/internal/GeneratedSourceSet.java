@@ -17,12 +17,14 @@ public abstract class GeneratedSourceSet implements SourceSet {
 	private final Provider<Directory> sourceDirectory;
 	private final TaskProvider<? extends Task> generatedByTask;
 	private final ConfigurableFileTree fileTree = getObjects().fileTree();
+	private final String name;
 
 	@Inject
 	protected abstract ObjectFactory getObjects();
 
 	@Inject
-	public GeneratedSourceSet(UTType type, Provider<Directory> sourceDirectory, TaskProvider<? extends Task> generatedByTask) {
+	public GeneratedSourceSet(String name, UTType type, Provider<Directory> sourceDirectory, TaskProvider<? extends Task> generatedByTask) {
+		this.name = name;
 		this.type = type;
 		this.sourceDirectory = sourceDirectory;
 		this.generatedByTask = generatedByTask;
@@ -31,6 +33,11 @@ public abstract class GeneratedSourceSet implements SourceSet {
 
 	public TaskProvider<? extends Task> getGeneratedByTask() {
 		return generatedByTask;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	@Override

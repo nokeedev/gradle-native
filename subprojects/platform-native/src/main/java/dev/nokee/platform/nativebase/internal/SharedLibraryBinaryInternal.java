@@ -54,7 +54,6 @@ import java.util.stream.Stream;
 public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary, Buildable {
 	private final TaskProvider<LinkSharedLibraryTask> linkTask;
 	private final NativeIncomingDependencies dependencies;
-	private final DomainObjectSet<? super LanguageSourceSetInternal> sources;
 
 	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
@@ -62,21 +61,11 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 		super(names, objectSourceSets, targetMachine, dependencies);
 		this.linkTask = linkTask;
 		this.dependencies = dependencies;
-		sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
-		parentSources.all(it -> sources.add(it));
 
 		// configure includes using the native incoming compile configuration
 		compileTasks.configureEach(AbstractNativeCompileTask.class, task -> {
-			AbstractNativeCompileTask softwareModelTaskInternal = (AbstractNativeCompileTask) task;
 			NativeSourceCompileTask taskInternal = (NativeSourceCompileTask) task;
-			taskInternal.getHeaderSearchPaths().addAll(softwareModelTaskInternal.getIncludes().getElements().map(SharedLibraryBinaryInternal::toHeaderSearchPaths));
-
-			sources.withType(HeaderExportingSourceSetInternal.class, sourceSet -> softwareModelTaskInternal.getIncludes().from(sourceSet.getSource()));
-
-			task.getIncludes().from("src/main/public");
-
-			// TODO: Move this to JNI Library configuration
-			softwareModelTaskInternal.getIncludes().from(getJvmIncludes());
+			taskInternal.getHeaderSearchPaths().addAll(task.getIncludes().getElements().map(SharedLibraryBinaryInternal::toHeaderSearchPaths));
 		});
 
 		linkTask.configure(task -> {
@@ -188,22 +177,6 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 
 	private static List<HeaderSearchPath> toHeaderSearchPaths(Set<FileSystemLocation> paths) {
 		return paths.stream().map(FileSystemLocation::getAsFile).map(DefaultHeaderSearchPath::new).collect(Collectors.toList());
-	}
-
-	private Provider<List<File>> getJvmIncludes() {
-		return getProviderFactory().provider(() -> {
-			List<File> result = new ArrayList<>();
-			result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include"));
-
-			if (OperatingSystem.current().isMacOsX()) {
-				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/darwin"));
-			} else if (OperatingSystem.current().isLinux()) {
-				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/linux"));
-			} else if (OperatingSystem.current().isWindows()) {
-				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/win32"));
-			}
-			return result;
-		});
 	}
 
 	private Stream<String> toFrameworkFlags(File it) {

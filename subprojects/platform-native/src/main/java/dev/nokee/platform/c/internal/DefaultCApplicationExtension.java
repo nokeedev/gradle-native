@@ -1,8 +1,8 @@
 package dev.nokee.platform.c.internal;
 
+import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.c.internal.CSourceSet;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.c.CApplicationExtension;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -17,7 +17,8 @@ public abstract class DefaultCApplicationExtension extends BaseNativeExtension<D
 	@Inject
 	public DefaultCApplicationExtension(DefaultNativeApplicationComponent component) {
 		super(component);
-		getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class).srcDir("src/main/c"));
+		getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").from(getSources().getElements().map(toIfEmpty("src/main/c"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
 	}
 
 	@Override

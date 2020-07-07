@@ -56,24 +56,15 @@ class SwiftLibraryNativeLanguageCompilationFunctionalTest extends AbstractNative
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
-class SwiftStaticLibraryNativeLanguageCompilationFunctionalTest extends AbstractNativeLanguageCompilationFunctionalTest implements SwiftTaskNames {
+class SwiftLibraryWithStaticLinkageNativeLanguageCompilationFunctionalTest extends SwiftLibraryNativeLanguageCompilationFunctionalTest {
 	@Override
 	protected void makeSingleProject() {
-		settingsFile << "rootProject.name = 'lib'"
+		super.makeSingleProject()
 		buildFile << '''
-			plugins {
-				id 'dev.nokee.swift-library'
-			}
-
 			library {
 				targetLinkages = [linkages.static]
 			}
 		'''
-	}
-
-	@Override
-	protected SourceElement getComponentUnderTest() {
-		return new SwiftGreeter()
 	}
 
 	@Override
@@ -87,6 +78,33 @@ class SwiftStaticLibraryNativeLanguageCompilationFunctionalTest extends Abstract
 	}
 }
 
-// TODO: explicit shared linkage
-// TODO: explicit static linkage
-// TODO: explicit both linkage
+@RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
+class SwiftLibraryWithSharedLinkageNativeLanguageCompilationFunctionalTest extends SwiftLibraryNativeLanguageCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << '''
+			library {
+				targetLinkages = [linkages.shared]
+			}
+		'''
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
+class SwiftLibraryWithBothLinkageNativeLanguageCompilationFunctionalTest extends SwiftLibraryNativeLanguageCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << '''
+			library {
+				targetLinkages = [linkages.static, linkages.shared]
+			}
+		'''
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.withLinkage('shared')
+	}
+}

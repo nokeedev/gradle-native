@@ -34,5 +34,10 @@ trait IosTaskNames implements NativeProjectTaskNames {
 		List<String> getAllToAssemble() {
 			return delegate.allToAssemble + [withProject('compileAssetCatalog'), withProject('createApplicationBundle'), withProject('compileStoryboard'), withProject('linkStoryboard'), withProject('processPropertyList'), withProject('signApplicationBundle')]
 		}
+
+		@Override
+		List<String> getAllToLifecycleAssemble() {
+			return delegate.allToAssemble + [withProject('compileAssetCatalog'), withProject('createApplicationBundle'), withProject('compileStoryboard'), withProject('linkStoryboard'), withProject('processPropertyList'), withProject('signApplicationBundle')]
+		}
 	}
 }

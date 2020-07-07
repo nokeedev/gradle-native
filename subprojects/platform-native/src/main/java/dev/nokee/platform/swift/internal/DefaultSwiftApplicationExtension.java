@@ -2,7 +2,6 @@ package dev.nokee.platform.swift.internal;
 
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
@@ -17,7 +16,7 @@ public abstract class DefaultSwiftApplicationExtension extends BaseNativeExtensi
 	@Inject
 	public DefaultSwiftApplicationExtension(DefaultNativeApplicationComponent component) {
 		super(component);
-		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class).srcDir("src/main/swift"));
+		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").from(getSources().getElements().map(toIfEmpty("src/main/swift"))));
 	}
 
 	@Override

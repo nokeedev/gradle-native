@@ -4,7 +4,7 @@ import javax.inject.Inject;
 
 public abstract class DefaultSourceSet extends BaseSourceSet {
 	@Inject
-	public DefaultSourceSet(UTType type) {
-		super(type);
+	public DefaultSourceSet(String name, UTType type) {
+		super(name, type);
 	}
 }

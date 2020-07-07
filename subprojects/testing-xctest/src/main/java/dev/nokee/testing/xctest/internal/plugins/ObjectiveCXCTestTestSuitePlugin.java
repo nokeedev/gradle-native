@@ -59,7 +59,7 @@ public abstract class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project>
 
 			val unitTestNames = new NamingSchemeFactory(project.getName()).forMainComponent("unitTest").withComponentDisplayName("iOS unit test XCTest test suite");
 			DefaultUnitTestXCTestTestSuiteComponent unitTestComponent = components.register(DefaultUnitTestXCTestTestSuiteComponent.class, unitTestNames).get();
-			unitTestComponent.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class).srcDir("src/unitTest/objc"));
+			unitTestComponent.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/unitTest/objc"));
 			unitTestComponent.getTestedComponent().value(application).disallowChanges();
 			unitTestComponent.getGroupId().set(GroupId.of(project::getGroup));
 			unitTestComponent.finalizeExtension(project);
@@ -67,7 +67,7 @@ public abstract class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project>
 
 			val uiTestNames = new NamingSchemeFactory(project.getName()).forMainComponent("uiTest").withComponentDisplayName("iOS UI test XCTest test suite");
 			DefaultUiTestXCTestTestSuiteComponent uiTestComponent = components.register(DefaultUiTestXCTestTestSuiteComponent.class, uiTestNames).get();
-			uiTestComponent.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class).srcDir("src/uiTest/objc"));
+			uiTestComponent.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/uiTest/objc"));
 			uiTestComponent.getTestedComponent().value(application).disallowChanges();
 			uiTestComponent.getGroupId().set(GroupId.of(project::getGroup));
 			uiTestComponent.finalizeExtension(project);

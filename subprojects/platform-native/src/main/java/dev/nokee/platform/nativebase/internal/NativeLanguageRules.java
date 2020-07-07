@@ -78,10 +78,10 @@ public abstract class NativeLanguageRules {
 	}
 
 	private <T extends AbstractNativeCompileTask> GeneratedSourceSet newObjectSourceSetFromNativeCompileTask(TaskProvider<T> task) {
-		return getObjects().newInstance(GeneratedSourceSet.class, new UTTypeObjectCode(), task.flatMap(AbstractNativeCompileTask::getObjectFileDir), task);
+		return getObjects().newInstance(GeneratedSourceSet.class, task.getName(), UTTypeObjectCode.INSTANCE, task.flatMap(AbstractNativeCompileTask::getObjectFileDir), task);
 	}
 
 	private GeneratedSourceSet newObjectSourceSetFromSwiftCompileTask(TaskProvider<SwiftCompileTask> task) {
-		return getObjects().newInstance(GeneratedSourceSet.class, new UTTypeObjectCode(), task.flatMap(SwiftCompileTask::getObjectFileDir), task);
+		return getObjects().newInstance(GeneratedSourceSet.class, task.getName(), UTTypeObjectCode.INSTANCE, task.flatMap(SwiftCompileTask::getObjectFileDir), task);
 	}
 }

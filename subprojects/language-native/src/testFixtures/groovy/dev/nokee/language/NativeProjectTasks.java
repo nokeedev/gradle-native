@@ -21,11 +21,17 @@ public interface NativeProjectTasks {
 
 	List<String> getAllToObjects();
 
+	List<String> getAllToLifecycleObjects();
+
 	List<String> getAllToCreate();
 
 	List<String> getAllToLink();
 
+	List<String> getAllToLinkOrCreate();
+
 	List<String> getAllToInstall();
+
+	List<String> getAllToLifecycleAssemble();
 
 	List<String> getAllToAssemble();
 

@@ -42,14 +42,11 @@ class SwiftLibraryNativeLanguageIncrementalCompilationFunctionalTest extends Abs
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
-class SwiftStaticLibraryNativeLanguageIncrementalCompilationFunctionalTest extends AbstractNativeLanguageIncrementalCompilationFunctionalTest implements SwiftTaskNames {
+class SwiftLibraryWithStaticLinkageNativeLanguageIncrementalCompilationFunctionalTest extends SwiftLibraryNativeLanguageIncrementalCompilationFunctionalTest {
 	@Override
 	protected void makeSingleProject() {
+		super.makeSingleProject()
 		buildFile << '''
-			plugins {
-				id 'dev.nokee.swift-library'
-			}
-
 			library {
 				targetLinkages = [linkages.static]
 			}
@@ -67,6 +64,33 @@ class SwiftStaticLibraryNativeLanguageIncrementalCompilationFunctionalTest exten
 	}
 }
 
-// TODO: explicit shared linkage
-// TODO: explicit static linkage
-// TODO: explicit both linkage
+@RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
+class SwiftLibraryWithSharedLinkageNativeLanguageIncrementalCompilationFunctionalTest extends SwiftLibraryNativeLanguageIncrementalCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << '''
+			library {
+				targetLinkages = [linkages.shared]
+			}
+		'''
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
+class SwiftLibraryWithBothLinkageNativeLanguageIncrementalCompilationFunctionalTest extends SwiftLibraryNativeLanguageIncrementalCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << '''
+			library {
+				targetLinkages = [linkages.static, linkages.shared]
+			}
+		'''
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.withLinkage('shared')
+	}
+}

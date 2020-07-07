@@ -1,8 +1,8 @@
 package dev.nokee.platform.objectivecpp.internal;
 
+import dev.nokee.language.cpp.internal.CppHeaderSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
@@ -17,7 +17,9 @@ public abstract class DefaultObjectiveCppLibraryExtension extends BaseNativeExte
 	@Inject
 	public DefaultObjectiveCppLibraryExtension(DefaultNativeLibraryComponent component) {
 		super(component);
-		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class).srcDir("src/main/objcpp"));
+		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").from(getSources().getElements().map(toIfEmpty("src/main/objcpp"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "public").srcDir(getPublicHeaders().getElements().map(toIfEmpty("src/main/public"))));
 	}
 
 	@Override

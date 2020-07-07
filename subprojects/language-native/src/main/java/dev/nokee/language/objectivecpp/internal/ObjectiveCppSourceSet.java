@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 public abstract class ObjectiveCppSourceSet extends BaseSourceSet implements HeaderExportingSourceSet {
 	@Inject
-	public ObjectiveCppSourceSet() {
-		super(UTTypeObjectiveCppSource.INSTANCE);
+	public ObjectiveCppSourceSet(String name) {
+		super(name, UTTypeObjectiveCppSource.INSTANCE);
 	}
 }

@@ -67,23 +67,15 @@ class ObjectiveCLibraryNativeLanguageCompilationFunctionalTest extends AbstractN
 
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
-class ObjectiveCStaticLibraryNativeLanguageCompilationFunctionalTest extends AbstractNativeLanguageCompilationFunctionalTest implements ObjectiveCTaskNames {
+class ObjectiveCLibraryWithStaticLinkageNativeLanguageCompilationFunctionalTest extends ObjectiveCLibraryNativeLanguageCompilationFunctionalTest {
 	@Override
 	protected void makeSingleProject() {
+		super.makeSingleProject()
 		buildFile << '''
-			plugins {
-				id 'dev.nokee.objective-c-library'
-			}
-
 			library {
 				targetLinkages = [linkages.static]
 			}
 		'''
-	}
-
-	@Override
-	protected NativeSourceElement getComponentUnderTest() {
-		return new ObjectiveCGreeter()
 	}
 
 	@Override
@@ -97,5 +89,35 @@ class ObjectiveCStaticLibraryNativeLanguageCompilationFunctionalTest extends Abs
 	}
 }
 
-// TODO: explicit shared linkage
-// TODO: explicit both linkage
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class ObjectiveCLibraryWithSharedLinkageNativeLanguageCompilationFunctionalTest extends ObjectiveCLibraryNativeLanguageCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << '''
+			library {
+				targetLinkages = [linkages.shared]
+			}
+		'''
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class ObjectiveCLibraryWithBothLinkageNativeLanguageCompilationFunctionalTest extends ObjectiveCLibraryNativeLanguageCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << '''
+			library {
+				targetLinkages = [linkages.static, linkages.shared]
+			}
+		'''
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.withLinkage('shared')
+	}
+}

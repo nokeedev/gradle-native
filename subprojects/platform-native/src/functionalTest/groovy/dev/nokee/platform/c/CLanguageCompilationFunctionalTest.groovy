@@ -51,23 +51,15 @@ class CLibraryNativeLanguageCompilationFunctionalTest extends AbstractNativeLang
 	}
 }
 
-class CStaticLinkageLibraryNativeLanguageCompilationFunctionalTest extends AbstractNativeLanguageCompilationFunctionalTest implements CTaskNames {
+class CLibraryWithStaticLinkageNativeLanguageCompilationFunctionalTest extends CLibraryNativeLanguageCompilationFunctionalTest {
 	@Override
 	protected void makeSingleProject() {
+		super.makeSingleProject()
 		buildFile << """
-			plugins {
-				id 'dev.nokee.c-library'
-			}
-
 			library {
 				targetLinkages = [linkages.static]
 			}
 		"""
-	}
-
-	@Override
-	protected NativeSourceElement getComponentUnderTest() {
-		return new CGreeter()
 	}
 
 	@Override
@@ -81,5 +73,31 @@ class CStaticLinkageLibraryNativeLanguageCompilationFunctionalTest extends Abstr
 	}
 }
 
-// TODO: explicit shared linkage
-// TODO: explicit both linkage
+class CLibraryWithSharedLinkageNativeLanguageCompilationFunctionalTest extends CLibraryNativeLanguageCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << """
+			library {
+				targetLinkages = [linkages.shared]
+			}
+		"""
+	}
+}
+
+class CLibraryWithBothLinkageNativeLanguageCompilationFunctionalTest extends CLibraryNativeLanguageCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << """
+			library {
+				targetLinkages = [linkages.static, linkages.shared]
+			}
+		"""
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.withLinkage('shared')
+	}
+}

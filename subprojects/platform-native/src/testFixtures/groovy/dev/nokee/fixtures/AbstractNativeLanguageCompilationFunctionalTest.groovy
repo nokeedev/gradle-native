@@ -40,7 +40,7 @@ abstract class AbstractNativeLanguageCompilationFunctionalTest extends AbstractI
 		succeeds('assemble')
 
 		then:
-		assertTasksExecutedAndNotSkipped(*taskNamesUnderTest.allToAssemble)
+		assertTasksExecutedAndNotSkipped(*taskNamesUnderTest.allToLifecycleAssemble)
 	}
 
 	// TODO: Variant-aware configuration
