@@ -18,6 +18,15 @@ class VisualStudioIdeProjectFixture {
 		filtersFile = new FiltersFixture(filters)
 	}
 
+	VisualStudioIdeProjectFixture assertHasSourceLayout(String... files) {
+		return assertHasSourceLayout(Arrays.asList(files))
+	}
+
+	VisualStudioIdeProjectFixture assertHasSourceLayout(Iterable<String> files) {
+		assert filtersFile.getSourceLayout() == files as Set
+		return this
+	}
+
 	VisualStudioIdeProjectFixture assertHasSourceFiles(String... files) {
 		return assertHasSourceFiles(Arrays.asList(files))
 	}
@@ -193,6 +202,22 @@ class VisualStudioIdeProjectFixture {
 		FiltersFixture(TestFile file) {
 			this.file = file
 			this.content = new XmlParser().parse(file)
+		}
+
+		Set<String> getSourceLayout() {
+			Map<String, List<String>> filesByGroup = [:].withDefault { [] }
+			content.ItemGroup*.children().flatten().findAll { it.name().localPart != 'Filter' }.each {
+				filesByGroup[it.Filter.text()].add(FilenameUtils.getName(it.'@Include'))
+			}
+
+			def allGroups = content.ItemGroup*.children().flatten().findAll { it.name().localPart == 'Filter' }*.'@Include' as Set
+			assert allGroups.containsAll(filesByGroup.keySet() - [''])
+			return filesByGroup.collect { k, v -> v.collect {
+					if (k.empty) {
+						return it
+					}
+					return "$k/$it".toString()
+				}}.flatten()
 		}
 
 		Set<String> getFilesWithFilter(String filter) {

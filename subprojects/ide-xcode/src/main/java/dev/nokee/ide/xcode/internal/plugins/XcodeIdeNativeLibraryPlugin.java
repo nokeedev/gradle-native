@@ -5,6 +5,9 @@ import dev.nokee.ide.xcode.XcodeIdeProductTypes;
 import dev.nokee.ide.xcode.XcodeIdeProjectExtension;
 import dev.nokee.ide.xcode.XcodeIdeTarget;
 import dev.nokee.internal.Cast;
+import dev.nokee.language.base.internal.SourceSet;
+import dev.nokee.language.c.internal.CHeaderSet;
+import dev.nokee.language.cpp.internal.CppHeaderSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.internal.Component;
 import dev.nokee.platform.base.internal.ComponentCollection;
@@ -107,12 +110,8 @@ public abstract class XcodeIdeNativeLibraryPlugin implements Plugin<Project> {
 				throw unsupportedLinkage(linkage);
 			}
 
-			val headerSources = getObjects().fileTree().setDir("src/main/headers");
-			headerSources.include("*");
-			xcodeTarget.getSources().from(headerSources);
-			library.getSourceCollection().forEach(sourceSet -> {
-				xcodeTarget.getSources().from(sourceSet.getAsFileTree());
-			});
+
+			xcodeTarget.getSources().from(getProviders().provider(() -> library.getSourceCollection().stream().map(SourceSet::getAsFileTree).collect(Collectors.toList())));
 		};
 	}
 

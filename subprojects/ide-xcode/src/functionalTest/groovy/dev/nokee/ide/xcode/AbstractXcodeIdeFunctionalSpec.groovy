@@ -25,6 +25,10 @@ class AbstractXcodeIdeFunctionalSpec extends AbstractGradleSpecification impleme
 		return new XcodeIdeProjectFixture(file(path))
 	}
 
+	protected XcodeIdeProjectFixture getXcodeProject() {
+		return xcodeProject(testDirectory.name)
+	}
+
 	protected XcodebuildExecutor getXcodebuild() {
 		// TODO: Ensure the following
 //		// Gradle needs to be isolated so the xcodebuild does not leave behind daemons

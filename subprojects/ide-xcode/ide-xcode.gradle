@@ -48,5 +48,6 @@ functionalTest {
 		implementation testFixtures(project(':languageNative'))
 		implementation testFixtures(project(':platformBase'))
 		implementation gradleApi(minimumGradleVersion)
+		implementation project(':platformNative')
 	}
 }

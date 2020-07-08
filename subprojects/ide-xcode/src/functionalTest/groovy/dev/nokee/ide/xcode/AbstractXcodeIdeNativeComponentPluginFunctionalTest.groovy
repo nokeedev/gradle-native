@@ -1,6 +1,7 @@
 package dev.nokee.ide.xcode
 
 import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.platform.nativebase.internal.OperatingSystemOperations
 import org.apache.commons.lang3.SystemUtils
 import spock.lang.Requires
 
@@ -8,6 +9,67 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 	protected abstract void makeSingleProject();
 
 	protected abstract SourceElement getComponentUnderTest();
+
+	protected String configureCustomSourceLayout() {
+		def componentUnderTestDsl = 'application'
+		if (this.class.simpleName.contains('Library')) {
+			componentUnderTestDsl = 'library'
+		}
+
+		def result = """
+			${componentUnderTestDsl} {
+				sources.from('srcs')
+			}
+		"""
+
+		if (!this.class.simpleName.startsWith("XcodeIdeSwift")) {
+			result = result + """
+				${componentUnderTestDsl} {
+					privateHeaders.from('hdrs')
+				}
+			"""
+		}
+
+		return result
+	}
+
+	protected List<String> getProductNames() {
+		def className = this.class.simpleName
+
+		def productName = projectName
+		if (className.startsWith('XcodeIdeSwift')) {
+			productName = productName.capitalize()
+		}
+
+		def osOperations = OperatingSystemOperations.ofHost()
+		if (className.contains('Application')) {
+			return [osOperations.getExecutableName(productName)]
+		} else if (className.contains('Library')) {
+			if (className.contains('WithStaticLinkage')) {
+				return [osOperations.getStaticLibraryName(productName)]
+			} else if (className.contains('WithBothLinkage')) {
+				return [osOperations.getSharedLibraryName(productName), osOperations.getStaticLibraryName(productName)]
+			}
+			return [osOperations.getSharedLibraryName(productName)]
+		}
+		throw new IllegalArgumentException()
+	}
+
+	protected List<String> getComponentUnderTestSourceLayout() {
+		def className = this.class.simpleName
+
+		def groupNamePrefix = projectName
+		if (className.startsWith('XcodeIdeSwift')) {
+			groupNamePrefix = groupNamePrefix.capitalize()
+		}
+
+		if (className.contains('WithBothLinkage')) {
+			return componentUnderTest.files.collect { file ->
+				return ['Static', 'Shared'].collect { "${groupNamePrefix}${it}/${file.name}".toString() }
+			}.flatten()
+		}
+		return componentUnderTest.files.collect { "${groupNamePrefix}/${it.name}".toString() }
+	}
 
 	protected abstract String getProjectName();
 
@@ -23,6 +85,36 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 
 	protected List<String> getAllTasksToXcode() {
 		return [":${projectName}XcodeProject", ':xcodeWorkspace', ':xcode']
+	}
+
+	def "includes sources in the project"() {
+		settingsFile << "rootProject.name = '${projectName}'"
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+
+		when:
+		succeeds('xcode')
+
+		then:
+		xcodeProject(projectName).assertHasSourceLayout(componentUnderTestSourceLayout + productNames.collect { "Products/$it".toString() } + ['build.gradle', 'settings.gradle'])
+	}
+
+	def "include sources in project with custom layout"() {
+		settingsFile << "rootProject.name = '${projectName}'"
+		makeSingleProject()
+		if (this.class.simpleName.startsWith('XcodeIdeSwift')) {
+			componentUnderTest.writeToSourceDir(file('srcs'))
+		} else {
+			componentUnderTest.sources.writeToSourceDir(file('srcs'))
+			componentUnderTest.headers.writeToSourceDir(file('hdrs'))
+		}
+		buildFile << configureCustomSourceLayout()
+
+		when:
+		succeeds('xcode')
+
+		then:
+		xcodeProject(projectName).assertHasSourceLayout(componentUnderTestSourceLayout + productNames.collect { "Products/$it".toString() } + ['build.gradle', 'settings.gradle'])
 	}
 
 	@Requires({ SystemUtils.IS_OS_MAC })

@@ -1,6 +1,7 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
+import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import org.gradle.internal.os.OperatingSystem;
 
 public class OperatingSystemOperations {
@@ -9,6 +10,11 @@ public class OperatingSystemOperations {
 	public OperatingSystemOperations(OperatingSystem osInternal) {
 		this.osInternal = osInternal;
 	}
+
+	public static OperatingSystemOperations ofHost() {
+		return of(DefaultOperatingSystemFamily.HOST);
+	}
+
 	public static OperatingSystemOperations of(OperatingSystemFamily osFamily) {
 		if (osFamily.isWindows()) {
 			return new OperatingSystemOperations(OperatingSystem.WINDOWS);

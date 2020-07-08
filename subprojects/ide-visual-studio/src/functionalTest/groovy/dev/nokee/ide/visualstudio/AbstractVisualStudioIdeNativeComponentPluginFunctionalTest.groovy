@@ -52,9 +52,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		succeeds('visualStudio')
 
 		then:
-		visualStudioProject.assertHasSourceFiles(componentUnderTest.sources.files.collect { file("src/main/${it.path}/${it.name}").absolutePath })
-		visualStudioProject.assertHasHeaderFiles(componentUnderTest.headers.files.collect { file("src/main/${it.path}/${it.name}").absolutePath })
-		visualStudioProject.assertHasResourceFiles()
+		visualStudioProject.assertHasSourceLayout(componentUnderTest.sources.files.collect { "Source Files/${it.name}".toString() } + componentUnderTest.headers.files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
 	}
 
 	def "include sources in project with custom layout"() {
@@ -67,9 +65,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		succeeds('visualStudio')
 
 		then:
-		visualStudioProject.assertHasSourceFiles(componentUnderTest.sources.files.collect { file("srcs/${it.name}").absolutePath })
-		visualStudioProject.assertHasHeaderFiles(componentUnderTest.headers.files.collect { file("hdrs/${it.name}").absolutePath })
-		visualStudioProject.assertHasResourceFiles()
+		visualStudioProject.assertHasSourceLayout(componentUnderTest.sources.files.collect { "Source Files/${it.name}".toString() } + componentUnderTest.headers.files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
 	}
 
 	// TODO: Check ConfigurationType

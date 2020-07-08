@@ -30,6 +30,10 @@ class XcodeIdeProjectFixture {
 	}
 
 	XcodeIdeProjectFixture assertHasSourceLayout(String... layout) {
+		return assertHasSourceLayout(Arrays.asList(layout))
+	}
+
+	XcodeIdeProjectFixture assertHasSourceLayout(Iterable<String> layout) {
 		assert listSource(projectFile.mainGroup) as Set == layout as Set
 		return this
 	}
