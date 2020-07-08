@@ -22,7 +22,7 @@ public abstract class DefaultNativeLibraryComponent extends BaseNativeComponent<
 	public DefaultNativeLibraryComponent(NamingScheme names) {
 		super(names, DefaultNativeLibraryVariant.class);
 		this.dependencies = getObjects().newInstance(DefaultNativeLibraryDependencies.class, getNames());
-		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, DefaultBinaryLinkage.DIMENSION_TYPE));
+		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 	}
 
 	@Override

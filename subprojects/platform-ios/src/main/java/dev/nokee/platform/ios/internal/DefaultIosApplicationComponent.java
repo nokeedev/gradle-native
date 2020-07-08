@@ -47,7 +47,7 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 	public DefaultIosApplicationComponent(NamingScheme names) {
 		super(names, DefaultIosApplicationVariant.class);
 		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, names);
-		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, DefaultBinaryLinkage.DIMENSION_TYPE));
+		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 	}
 
 	public abstract Property<GroupId> getGroupId();

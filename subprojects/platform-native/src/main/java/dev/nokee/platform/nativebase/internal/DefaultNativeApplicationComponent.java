@@ -22,7 +22,7 @@ public abstract class DefaultNativeApplicationComponent extends BaseNativeCompon
 	public DefaultNativeApplicationComponent(NamingScheme names) {
 		super(names, DefaultNativeApplicationVariant.class);
 		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, getNames());
-		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, DefaultBinaryLinkage.DIMENSION_TYPE));
+		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 	}
 
 	@Override

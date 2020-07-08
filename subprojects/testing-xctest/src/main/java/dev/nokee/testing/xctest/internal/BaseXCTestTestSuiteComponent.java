@@ -41,7 +41,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	public BaseXCTestTestSuiteComponent(NamingScheme names) {
 		super(names, DefaultXCTestTestSuiteVariant.class);
 		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, names);
-		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, DefaultBinaryLinkage.DIMENSION_TYPE));
+		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 
 		// TODO: Move to extension
 		getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
@@ -56,7 +56,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	public abstract Property<BaseNativeComponent<?>> getTestedComponent();
 
 	private Iterable<BuildVariant> createBuildVariants() {
-		return ImmutableList.of(DefaultBuildVariant.of(DefaultOperatingSystemFamily.forName("ios"), DefaultMachineArchitecture.X86_64, DefaultBinaryLinkage.BUNDLE));
+		return ImmutableList.of(DefaultBuildVariant.of(DefaultBinaryLinkage.BUNDLE, DefaultOperatingSystemFamily.forName("ios"), DefaultMachineArchitecture.X86_64));
 	}
 
 	@Override

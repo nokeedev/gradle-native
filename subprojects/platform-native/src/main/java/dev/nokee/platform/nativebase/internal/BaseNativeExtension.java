@@ -69,7 +69,7 @@ public abstract class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 
 				if (component instanceof DefaultNativeApplicationComponent) {
 					dimensionBuilder.add(DefaultBinaryLinkage.EXECUTABLE);
-					buildVariantBuilder.add(DefaultBuildVariant.of(dimensionBuilder.build()));
+					buildVariantBuilder.add(DefaultBuildVariant.of(sort(dimensionBuilder.build())));
 				} else if (component instanceof DefaultNativeLibraryComponent) {
 					if (this instanceof TargetLinkageAwareComponent) {
 						Set<TargetLinkage> targetLinkages = ((TargetLinkageAwareComponent) this).getTargetLinkages().get();
@@ -77,20 +77,28 @@ public abstract class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 							DefaultBinaryLinkage linkageInternal = (DefaultBinaryLinkage) targetLinkage;
 							val libraryDimensionBuilder = ImmutableList.<Dimension>builder().addAll(dimensionBuilder.build());
 							libraryDimensionBuilder.add(linkageInternal);
-							buildVariantBuilder.add(DefaultBuildVariant.of(libraryDimensionBuilder.build()));
+							buildVariantBuilder.add(DefaultBuildVariant.of(sort(libraryDimensionBuilder.build())));
 						}
 					} else {
 						dimensionBuilder.add(DefaultBinaryLinkage.SHARED);
-						buildVariantBuilder.add(DefaultBuildVariant.of(dimensionBuilder.build()));
+						buildVariantBuilder.add(DefaultBuildVariant.of(sort(dimensionBuilder.build())));
 					}
 				} else {
-					buildVariantBuilder.add(DefaultBuildVariant.of(dimensionBuilder.build()));
+					buildVariantBuilder.add(DefaultBuildVariant.of(sort(dimensionBuilder.build())));
 				}
 			}
 
 			return buildVariantBuilder.build();
 		}
 		throw new GradleException("Not able to create the default build variants");
+	}
+
+	private Iterable<Dimension> sort(Collection<Dimension> dimensionsToOrder) {
+		val result = ImmutableList.<Dimension>builder();
+		for (val type : component.getDimensions().get()) {
+			result.add(dimensionsToOrder.stream().filter(it -> it.getType().equals(type)).findFirst().orElseThrow(() -> new IllegalArgumentException("Missing dimension")));
+		}
+		return result.build();
 	}
 
 	protected T getComponent() {
