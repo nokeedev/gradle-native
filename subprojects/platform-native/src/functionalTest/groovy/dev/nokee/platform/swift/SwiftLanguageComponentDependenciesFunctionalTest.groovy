@@ -4,8 +4,10 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.fixtures.AbstractNativeComponentIncludedBuildDependenciesFunctionalTest
 import dev.nokee.fixtures.AbstractNativeComponentProjectDependenciesFunctionalTest
+import dev.nokee.language.NativeProjectTasks
 import dev.nokee.language.swift.SwiftTaskNames
 import dev.nokee.platform.nativebase.fixtures.SwiftGreeterApp
+import dev.nokee.platform.nativebase.fixtures.SwiftGreeterLib
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
 class SwiftApplicationComponentProjectDependenciesFunctionalTest extends AbstractNativeComponentProjectDependenciesFunctionalTest implements SwiftTaskNames {
@@ -37,11 +39,41 @@ class SwiftApplicationComponentProjectDependenciesFunctionalTest extends Abstrac
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
-class SwiftApplicationComponentProjectDependenciesWithStaticLinkageFunctionalTest extends SwiftApplicationComponentProjectDependenciesFunctionalTest {
+class SwiftLibraryComponentProjectDependenciesFunctionalTest extends AbstractNativeComponentProjectDependenciesFunctionalTest implements SwiftTaskNames {
+	@Override
+	protected void makeComponentWithLibrary() {
+		settingsFile << "rootProject.name = 'root'"
+		settingsFile << configureMultiProjectBuild()
+		buildFile << """
+			plugins {
+				id 'dev.nokee.swift-library'
+			}
+		"""
+		file(libraryProjectName, buildFileName) << """
+			plugins {
+				id 'dev.nokee.swift-library'
+			}
+		"""
+		new SwiftGreeterLib().withImplementationAsSubproject(libraryProjectName).writeToProject(testDirectory)
+	}
+
+	@Override
+	protected String getComponentUnderTestDsl() {
+		return 'library'
+	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(":${libraryProjectName}").allToLink
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
+class SwiftLibraryComponentWithStaticLinkageProjectDependenciesFunctionalTest extends SwiftLibraryComponentProjectDependenciesFunctionalTest {
 	@Override
 	protected void makeComponentWithLibrary() {
 		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
+		buildFile << """
 			library {
 				targetLinkages = [linkages.static]
 			}
@@ -50,16 +82,21 @@ class SwiftApplicationComponentProjectDependenciesWithStaticLinkageFunctionalTes
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").forStaticLibrary.allToLinkOrCreate
+		return [tasks(":${libraryProjectName}").compile]
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.forStaticLibrary
 	}
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
-class SwiftApplicationComponentProjectDependenciesWithSharedLinkageFunctionalTest extends SwiftApplicationComponentProjectDependenciesFunctionalTest {
+class SwiftLibraryComponentWithSharedLinkageProjectDependenciesFunctionalTest extends SwiftLibraryComponentProjectDependenciesFunctionalTest {
 	@Override
 	protected void makeComponentWithLibrary() {
 		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
+		buildFile << """
 			library {
 				targetLinkages = [linkages.shared]
 			}
@@ -68,11 +105,11 @@ class SwiftApplicationComponentProjectDependenciesWithSharedLinkageFunctionalTes
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
-class SwiftApplicationComponentProjectDependenciesWithBothLinkageFunctionalTest extends SwiftApplicationComponentProjectDependenciesFunctionalTest {
+class SwiftLibraryComponentWithBothLinkageProjectDependenciesFunctionalTest extends SwiftLibraryComponentProjectDependenciesFunctionalTest {
 	@Override
 	protected void makeComponentWithLibrary() {
 		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
+		buildFile << """
 			library {
 				targetLinkages = [linkages.static, linkages.shared]
 			}
@@ -80,8 +117,8 @@ class SwiftApplicationComponentProjectDependenciesWithBothLinkageFunctionalTest 
 	}
 
 	@Override
-	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").withLinkage('shared').allToLink
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.withLinkage('shared')
 	}
 }
 
@@ -118,11 +155,44 @@ class SwiftApplicationComponentIncludedBuildDependenciesFunctionalTest extends A
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
-class SwiftApplicationComponentIncludedBuildDependenciesWithStaticLinkageFunctionalTest extends SwiftApplicationComponentIncludedBuildDependenciesFunctionalTest {
+class SwiftLibraryComponentIncludedBuildDependenciesFunctionalTest extends AbstractNativeComponentIncludedBuildDependenciesFunctionalTest implements SwiftTaskNames {
+	@Override
+	protected void makeComponentWithLibrary() {
+		settingsFile << "rootProject.name = 'root'"
+		settingsFile << configureMultiProjectBuild()
+		buildFile << """
+			plugins {
+				id 'dev.nokee.swift-library'
+			}
+		"""
+		file(libraryProjectName, settingsFileName) << """
+			rootProject.name = '${libraryProjectName}'
+		"""
+		file(libraryProjectName, buildFileName) << """
+			plugins {
+				id 'dev.nokee.swift-library'
+			}
+		""" << configureLibraryProject()
+		new SwiftGreeterLib().withImplementationAsSubproject(libraryProjectName).writeToProject(testDirectory)
+	}
+
+	@Override
+	protected String getComponentUnderTestDsl() {
+		return 'library'
+	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(":${libraryProjectName}").allToLink
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
+class SwiftLibraryComponentWithStaticLinkageIncludedBuildDependenciesFunctionalTest extends SwiftLibraryComponentIncludedBuildDependenciesFunctionalTest {
 	@Override
 	protected void makeComponentWithLibrary() {
 		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
+		buildFile << """
 			library {
 				targetLinkages = [linkages.static]
 			}
@@ -131,16 +201,21 @@ class SwiftApplicationComponentIncludedBuildDependenciesWithStaticLinkageFunctio
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").forStaticLibrary.allToLinkOrCreate
+		return [tasks(":${libraryProjectName}").compile]
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.forStaticLibrary
 	}
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
-class SwiftApplicationComponentIncludedBuildDependenciesWithSharedLinkageFunctionalTest extends SwiftApplicationComponentIncludedBuildDependenciesFunctionalTest {
+class SwiftLibraryComponentWithSharedLinkageIncludedBuildDependenciesFunctionalTest extends SwiftLibraryComponentIncludedBuildDependenciesFunctionalTest {
 	@Override
 	protected void makeComponentWithLibrary() {
 		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
+		buildFile << """
 			library {
 				targetLinkages = [linkages.shared]
 			}
@@ -149,11 +224,11 @@ class SwiftApplicationComponentIncludedBuildDependenciesWithSharedLinkageFunctio
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
-class SwiftApplicationComponentIncludedBuildDependenciesWithBothLinkageFunctionalTest extends SwiftApplicationComponentIncludedBuildDependenciesFunctionalTest {
+class SwiftLibraryComponentWithBothLinkageIncludedBuildDependenciesFunctionalTest extends SwiftLibraryComponentIncludedBuildDependenciesFunctionalTest {
 	@Override
 	protected void makeComponentWithLibrary() {
 		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
+		buildFile << """
 			library {
 				targetLinkages = [linkages.static, linkages.shared]
 			}
@@ -161,11 +236,7 @@ class SwiftApplicationComponentIncludedBuildDependenciesWithBothLinkageFunctiona
 	}
 
 	@Override
-	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").withLinkage('shared').allToLink
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.withLinkage('shared')
 	}
 }
-
-// TODO: Add library to library dependencies
-// TODO: Add shared library to static library dependencies
-// TODO: Add app to static library dependencies

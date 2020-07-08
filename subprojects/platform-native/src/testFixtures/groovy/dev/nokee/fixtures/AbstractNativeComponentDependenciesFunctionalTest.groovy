@@ -1,11 +1,15 @@
 package dev.nokee.fixtures
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
+import dev.nokee.language.NativeProjectTasks
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily
 import org.gradle.nativeplatform.OperatingSystemFamily
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin
+import org.hamcrest.CoreMatchers
+import spock.lang.Unroll
 
+import static org.junit.Assume.assumeThat
 import static org.junit.Assume.assumeTrue
 
 abstract class AbstractNativeComponentDependenciesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
@@ -13,7 +17,7 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 		return 'library'
 	}
 
-	def "can define implementation dependencies on component"() {
+	def "can declare implementation dependencies on component"() {
 		given:
 		makeComponentWithLibrary()
 		buildFile << """
@@ -25,10 +29,10 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 		"""
 
 		when:
-		run(tasks.assemble)
+		run(':assemble')
 
 		then:
-		result.assertTasksExecuted(libraryTasks, tasks.allToAssemble)
+		result.assertTasksExecuted(libraryTasks, taskNamesUnderTest.allToLifecycleAssemble)
 	}
 
 	def "can define implementation dependencies on each variant"() {
@@ -47,10 +51,10 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 		"""
 
 		when:
-		run(tasks.assemble)
+		run(':assemble')
 
 		then:
-		result.assertTasksExecuted(libraryTasks, tasks.allToAssemble)
+		result.assertTasksExecuted(libraryTasks, taskNamesUnderTest.allToLifecycleAssemble)
 	}
 
 	// TODO: Variant-aware configuration
@@ -73,17 +77,75 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 		"""
 
 		when:
-		run(tasks.withOperatingSystemFamily(currentOsFamilyName).assemble, '--dry-run')
+		run(taskNamesUnderTest.withOperatingSystemFamily(currentOsFamilyName).assemble, '--dry-run')
 		then:
 		// TODO: https://github.com/gradle-plugins/toolbox/issues/15
-		(libraryTasks + tasks.withOperatingSystemFamily(currentOsFamilyName).allToAssemble).each { result.assertOutputContains(it) }
+		(libraryTasks + taskNamesUnderTest.withOperatingSystemFamily(currentOsFamilyName).allToAssemble).each { result.assertOutputContains(it) }
 
 		when:
-		run(tasks.withOperatingSystemFamily('foo').assemble, '--dry-run')
+		run(taskNamesUnderTest.withOperatingSystemFamily('foo').assemble, '--dry-run')
 		then:
 		// TODO: https://github.com/gradle-plugins/toolbox/issues/15
-		tasks.withOperatingSystemFamily('foo').allToAssemble.each { result.assertOutputContains(it) }
-		libraryTasks.each { result.assertNotOutput(it) }
+		taskNamesUnderTest.withOperatingSystemFamily('foo').allToAssemble.each { result.assertOutputContains(it) }
+		if (!libraryTasks.empty) {
+			libraryTasks.each { result.assertNotOutput(it) }
+		}
+	}
+
+	@Unroll
+	def "can declare implementation dependencies on component with different linkages"(linkages) {
+		given:
+		makeComponentWithLibrary()
+		assumeThat("library project is a native project", file(libraryProjectName, buildFileName).text, CoreMatchers.containsString("id 'dev.nokee."))
+
+		and:
+		buildFile << """
+			${componentUnderTestDsl} {
+				dependencies {
+					${implementationBucketNameUnderTest} ${dependencyNotation}
+				}
+			}
+		"""
+
+		and:
+		file(libraryProjectName, buildFileName) << """
+			library {
+				targetLinkages = [${linkages}]
+			}
+		"""
+
+		when:
+		run(':assemble')
+
+		then:
+		result.assertTasksExecuted(allTasksToLinkLibrary, taskNamesUnderTest.allToLifecycleAssemble)
+
+		where:
+		linkages << ['linkages.static', 'linkages.shared', 'linkages.static, linkages.shared']
+	}
+
+	protected List<String> getAllTasksToLinkLibrary() {
+		def libraryBuildFile = file(libraryProjectName, buildFileName)
+
+		def libraryTasks = tasks(":${libraryProjectName}")
+		if (libraryBuildFile.text.contains('[linkages.static, linkages.shared]')) {
+			libraryTasks = libraryTasks.withLinkage('shared')
+		}
+
+		def result = libraryTasks.allToLink
+		if (libraryBuildFile.text.contains('[linkages.static]')) {
+			result = libraryTasks.allToCreate
+		}
+
+		if (this.class.name.contains('WithStaticLinkage')) {
+			if (this.class.simpleName.startsWith('Swift')) {
+				result = [libraryTasks.compile]
+			} else {
+				result = []
+			}
+		}
+
+		return result
 	}
 
 	// TODO: Add test for source dependencies
@@ -92,6 +154,10 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 	 * Creates a build with the component under test in the root project and a library in the 'lib' project.
 	 */
 	protected abstract void makeComponentWithLibrary()
+
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		tasks
+	}
 
 	protected abstract String getComponentUnderTestDsl()
 

@@ -135,52 +135,6 @@ class JniLibraryNativeIncludedDependenciesFunctionalTest extends AbstractJniLibr
 	}
 }
 
-class JniLibraryNativeIncludedDependenciesWithStaticLinkageFunctionalTest extends JniLibraryNativeIncludedDependenciesFunctionalTest {
-	@Override
-	protected void makeComponentWithLibrary() {
-		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
-			library {
-				targetLinkages = [linkages.static]
-			}
-		"""
-	}
-
-	@Override
-	protected List<String> getLibraryTasks() {
-		return new DefaultNativeProjectTasks(":${libraryProjectName}", 'Cpp').forStaticLibrary.allToCreate
-	}
-}
-
-class JniLibraryNativeIncludedDependenciesWithSharedLinkageFunctionalTest extends JniLibraryNativeIncludedDependenciesFunctionalTest {
-	@Override
-	protected void makeComponentWithLibrary() {
-		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
-			library {
-				targetLinkages = [linkages.shared]
-			}
-		"""
-	}
-}
-
-class JniLibraryNativeIncludedDependenciesWithBothLinkageFunctionalTest extends JniLibraryNativeIncludedDependenciesFunctionalTest {
-	@Override
-	protected void makeComponentWithLibrary() {
-		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
-			library {
-				targetLinkages = [linkages.static, linkages.shared]
-			}
-		"""
-	}
-
-	@Override
-	protected List<String> getLibraryTasks() {
-		return new DefaultNativeProjectTasks(":${libraryProjectName}", 'Cpp').withLinkage('shared').allToLink
-	}
-}
-
 class JniLibraryJvmIncludedDependenciesFunctionalTest extends AbstractJniLibraryIncludedDependenciesFunctionalTest implements CppTaskNames, JavaJniTaskNames {
 	@Override
 	protected void makeComponentWithLibrary() {

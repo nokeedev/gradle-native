@@ -4,8 +4,10 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.fixtures.AbstractNativeComponentIncludedBuildDependenciesFunctionalTest
 import dev.nokee.fixtures.AbstractNativeComponentProjectDependenciesFunctionalTest
+import dev.nokee.language.NativeProjectTasks
 import dev.nokee.language.objectivec.ObjectiveCTaskNames
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCGreeterApp
+import dev.nokee.platform.nativebase.fixtures.ObjectiveCGreeterLib
 import spock.lang.Requires
 import spock.util.environment.OperatingSystem
 
@@ -49,11 +51,49 @@ class ObjectiveCApplicationComponentProjectDependenciesFunctionalTest extends Ab
 
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
-class ObjectiveCApplicationComponentProjectDependenciesWithStaticLinkageFunctionalTest extends ObjectiveCApplicationComponentProjectDependenciesFunctionalTest {
+class ObjectiveCLibraryComponentProjectDependenciesFunctionalTest extends AbstractNativeComponentProjectDependenciesFunctionalTest implements ObjectiveCTaskNames {
+	@Override
+	protected void makeComponentWithLibrary() {
+		settingsFile << configureMultiProjectBuild()
+		buildFile << """
+			plugins {
+				id 'dev.nokee.objective-c-library'
+			}
+
+			tasks.withType(LinkSharedLibrary).configureEach {
+				linkerArgs.add('-lobjc')
+			}
+		"""
+		file(libraryProjectName, buildFileName) << """
+			plugins {
+				id 'dev.nokee.objective-c-library'
+			}
+
+			tasks.withType(LinkSharedLibrary).configureEach {
+				linkerArgs.add('-lobjc')
+			}
+		"""
+		new ObjectiveCGreeterLib().withImplementationAsSubproject(libraryProjectName).writeToProject(testDirectory)
+	}
+
+	@Override
+	protected String getComponentUnderTestDsl() {
+		return 'library'
+	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(":${libraryProjectName}").allToLink
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class ObjectiveCLibraryComponentWithStaticLinkageProjectDependenciesFunctionalTest extends ObjectiveCLibraryComponentProjectDependenciesFunctionalTest {
 	@Override
 	protected void makeComponentWithLibrary() {
 		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
+		buildFile << """
 			library {
 				targetLinkages = [linkages.static]
 			}
@@ -62,17 +102,22 @@ class ObjectiveCApplicationComponentProjectDependenciesWithStaticLinkageFunction
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").forStaticLibrary.allToLinkOrCreate
+		return []
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.forStaticLibrary
 	}
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
-class ObjectiveCApplicationComponentProjectDependenciesWithSharedLinkageFunctionalTest extends ObjectiveCApplicationComponentProjectDependenciesFunctionalTest {
+class ObjectiveCLibraryComponentWithSharedLinkageProjectDependenciesFunctionalTest extends ObjectiveCLibraryComponentProjectDependenciesFunctionalTest {
 	@Override
 	protected void makeComponentWithLibrary() {
 		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
+		buildFile << """
 			library {
 				targetLinkages = [linkages.shared]
 			}
@@ -82,11 +127,11 @@ class ObjectiveCApplicationComponentProjectDependenciesWithSharedLinkageFunction
 
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
-class ObjectiveCApplicationComponentProjectDependenciesWithBothLinkageFunctionalTest extends ObjectiveCApplicationComponentProjectDependenciesFunctionalTest {
+class ObjectiveCLibraryComponentWithBothLinkageProjectDependenciesFunctionalTest extends ObjectiveCLibraryComponentProjectDependenciesFunctionalTest {
 	@Override
 	protected void makeComponentWithLibrary() {
 		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
+		buildFile << """
 			library {
 				targetLinkages = [linkages.static, linkages.shared]
 			}
@@ -94,8 +139,8 @@ class ObjectiveCApplicationComponentProjectDependenciesWithBothLinkageFunctional
 	}
 
 	@Override
-	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").withLinkage('shared').allToLink
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.withLinkage('shared')
 	}
 }
 
@@ -142,11 +187,52 @@ class ObjectiveCApplicationComponentIncludedBuildDependenciesFunctionalTest exte
 
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
-class ObjectiveCApplicationComponentIncludedBuildDependenciesWithStaticLinkageFunctionalTest extends ObjectiveCApplicationComponentIncludedBuildDependenciesFunctionalTest {
+class ObjectiveCLibraryComponentIncludedBuildDependenciesFunctionalTest extends AbstractNativeComponentIncludedBuildDependenciesFunctionalTest implements ObjectiveCTaskNames {
+	@Override
+	protected void makeComponentWithLibrary() {
+		settingsFile << configureMultiProjectBuild()
+		buildFile << """
+			plugins {
+				id 'dev.nokee.objective-c-library'
+			}
+
+			tasks.withType(LinkSharedLibrary).configureEach {
+				linkerArgs.add('-lobjc')
+			}
+		"""
+		file(libraryProjectName, settingsFileName) << """
+			rootProject.name = '${libraryProjectName}'
+		"""
+		file(libraryProjectName, buildFileName) << """
+			plugins {
+				id 'dev.nokee.objective-c-library'
+			}
+
+			tasks.withType(LinkSharedLibrary).configureEach {
+				linkerArgs.add('-lobjc')
+			}
+		""" << configureLibraryProject()
+		new ObjectiveCGreeterLib().withImplementationAsSubproject(libraryProjectName).writeToProject(testDirectory)
+	}
+
+	@Override
+	protected String getComponentUnderTestDsl() {
+		return 'library'
+	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(":${libraryProjectName}").allToLink
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class ObjectiveCLibraryComponentWithStaticLinkageIncludedBuildDependenciesFunctionalTest extends ObjectiveCLibraryComponentIncludedBuildDependenciesFunctionalTest {
 	@Override
 	protected void makeComponentWithLibrary() {
 		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
+		buildFile << """
 			library {
 				targetLinkages = [linkages.static]
 			}
@@ -155,17 +241,22 @@ class ObjectiveCApplicationComponentIncludedBuildDependenciesWithStaticLinkageFu
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").forStaticLibrary.allToLinkOrCreate
+		return []
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.forStaticLibrary
 	}
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
-class ObjectiveCApplicationComponentIncludedBuildDependenciesWithSharedLinkageFunctionalTest extends ObjectiveCApplicationComponentIncludedBuildDependenciesFunctionalTest {
+class ObjectiveCLibraryComponentWithSharedLinkageIncludedBuildDependenciesFunctionalTest extends ObjectiveCLibraryComponentIncludedBuildDependenciesFunctionalTest {
 	@Override
 	protected void makeComponentWithLibrary() {
 		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
+		buildFile << """
 			library {
 				targetLinkages = [linkages.shared]
 			}
@@ -175,11 +266,11 @@ class ObjectiveCApplicationComponentIncludedBuildDependenciesWithSharedLinkageFu
 
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
-class ObjectiveCApplicationComponentIncludedBuildDependenciesWithBothLinkageFunctionalTest extends ObjectiveCApplicationComponentIncludedBuildDependenciesFunctionalTest {
+class ObjectiveCLibraryComponentWithBothLinkageIncludedBuildDependenciesFunctionalTest extends ObjectiveCLibraryComponentIncludedBuildDependenciesFunctionalTest {
 	@Override
 	protected void makeComponentWithLibrary() {
 		super.makeComponentWithLibrary()
-		file(libraryProjectName, buildFileName) << """
+		buildFile << """
 			library {
 				targetLinkages = [linkages.static, linkages.shared]
 			}
@@ -187,10 +278,7 @@ class ObjectiveCApplicationComponentIncludedBuildDependenciesWithBothLinkageFunc
 	}
 
 	@Override
-	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").withLinkage('shared').allToLink
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.withLinkage('shared')
 	}
 }
-
-// TODO: Add library to library dependencies
-// TODO: Add shared library to static library dependencies
