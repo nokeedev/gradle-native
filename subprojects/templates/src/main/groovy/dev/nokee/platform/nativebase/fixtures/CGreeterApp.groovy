@@ -1,14 +1,24 @@
 package dev.nokee.platform.nativebase.fixtures
 
-
+import dev.gradleplugins.test.fixtures.sources.NativeLibraryElement
+import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.gradleplugins.test.fixtures.sources.c.CSourceElement
 import dev.nokee.platform.jni.fixtures.CGreeter
+import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 
-class CGreeterApp extends CSourceElement {
-	@Override
-	SourceElement getSources() {
-		return ofElements(new CMainUsesGreeter(), new CGreeter())
+import static dev.gradleplugins.test.fixtures.sources.NativeSourceElement.ofNativeElements
+
+class CGreeterApp extends GreeterImplementationAwareSourceElement<CGreeter> {
+	@Delegate final NativeSourceElement delegate
+
+	CGreeterApp() {
+		super(new CMainUsesGreeter(), new CGreeter())
+		delegate = ofNativeElements(elementUsingGreeter, greeter)
+	}
+
+	GreeterImplementationAwareSourceElement<NativeLibraryElement> withImplementationAsSubproject(String subprojectName) {
+		return ofImplementationAsSubproject(elementUsingGreeter, asSubproject(subprojectName, greeter.asLib()))
 	}
 }
 
