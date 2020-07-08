@@ -5,8 +5,7 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.fixtures.AbstractNativeComponentIncludedBuildDependenciesFunctionalTest
 import dev.nokee.fixtures.AbstractNativeComponentProjectDependenciesFunctionalTest
 import dev.nokee.language.objectivec.ObjectiveCTaskNames
-import dev.nokee.platform.jni.fixtures.ObjectiveCGreeter
-import dev.nokee.platform.nativebase.fixtures.ObjectiveCMainUsesGreeter
+import dev.nokee.platform.nativebase.fixtures.ObjectiveCGreeterApp
 import spock.lang.Requires
 import spock.util.environment.OperatingSystem
 
@@ -34,8 +33,7 @@ class ObjectiveCApplicationComponentProjectDependenciesFunctionalTest extends Ab
 				linkerArgs.add('-lobjc')
 			}
 		"""
-		new ObjectiveCMainUsesGreeter().writeToProject(testDirectory)
-		new ObjectiveCGreeter().asLib().writeToProject(testDirectory.file(libraryProjectName))
+		new ObjectiveCGreeterApp().withImplementationAsSubproject(libraryProjectName).writeToProject(testDirectory)
 	}
 
 	@Override
@@ -128,8 +126,7 @@ class ObjectiveCApplicationComponentIncludedBuildDependenciesFunctionalTest exte
 				linkerArgs.add('-lobjc')
 			}
 		""" << configureLibraryProject()
-		new ObjectiveCMainUsesGreeter().writeToProject(testDirectory)
-		new ObjectiveCGreeter().asLib().writeToProject(testDirectory.file(libraryProjectName))
+		new ObjectiveCGreeterApp().withImplementationAsSubproject(libraryProjectName).writeToProject(testDirectory)
 	}
 
 	@Override

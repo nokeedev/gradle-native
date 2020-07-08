@@ -5,9 +5,7 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.fixtures.AbstractNativeComponentIncludedBuildDependenciesFunctionalTest
 import dev.nokee.fixtures.AbstractNativeComponentProjectDependenciesFunctionalTest
 import dev.nokee.language.swift.SwiftTaskNames
-import dev.nokee.platform.jni.fixtures.elements.SwiftGreeter
 import dev.nokee.platform.nativebase.fixtures.SwiftGreeterApp
-import dev.nokee.platform.nativebase.fixtures.SwiftMainUsesGreeter
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
 class SwiftApplicationComponentProjectDependenciesFunctionalTest extends AbstractNativeComponentProjectDependenciesFunctionalTest implements SwiftTaskNames {

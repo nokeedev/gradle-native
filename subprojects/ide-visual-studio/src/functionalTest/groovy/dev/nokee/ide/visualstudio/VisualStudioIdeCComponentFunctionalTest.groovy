@@ -18,7 +18,7 @@ class VisualStudioIdeCApplicationFunctionalTest extends AbstractVisualStudioIdeN
 	}
 
 	@Override
-	protected NativeSourceElement getComponentUnderTest() {
+	protected SourceElement getComponentUnderTest() {
 		return new CGreeterApp()
 	}
 
@@ -55,7 +55,7 @@ class VisualStudioIdeCLibraryFunctionalTest extends AbstractVisualStudioIdeNativ
 	}
 
 	@Override
-	protected NativeSourceElement getComponentUnderTest() {
+	protected SourceElement getComponentUnderTest() {
 		return new CGreeter().asLib()
 	}
 

@@ -3,8 +3,7 @@ package dev.nokee.platform.cpp
 import dev.nokee.fixtures.AbstractNativeComponentIncludedBuildDependenciesFunctionalTest
 import dev.nokee.fixtures.AbstractNativeComponentProjectDependenciesFunctionalTest
 import dev.nokee.language.cpp.CppTaskNames
-import dev.nokee.platform.jni.fixtures.elements.CppGreeter
-import dev.nokee.platform.nativebase.fixtures.CppMainUsesGreeter
+import dev.nokee.platform.nativebase.fixtures.CppGreeterApp
 
 class CppApplicationComponentProjectDependenciesFunctionalTest extends AbstractNativeComponentProjectDependenciesFunctionalTest implements CppTaskNames {
 	@Override
@@ -20,8 +19,7 @@ class CppApplicationComponentProjectDependenciesFunctionalTest extends AbstractN
 				id 'dev.nokee.cpp-library'
 			}
 		"""
-		new CppMainUsesGreeter().writeToProject(testDirectory)
-		new CppGreeter().asLib().writeToProject(testDirectory.file(libraryProjectName))
+		new CppGreeterApp().withImplementationAsSubproject(libraryProjectName).writeToProject(testDirectory)
 	}
 
 	@Override
@@ -98,8 +96,7 @@ class CppApplicationComponentIncludedBuildDependenciesFunctionalTest extends Abs
 				id 'dev.nokee.cpp-library'
 			}
 		""" << configureLibraryProject()
-		new CppMainUsesGreeter().writeToProject(testDirectory)
-		new CppGreeter().asLib().writeToProject(testDirectory.file(libraryProjectName))
+		new CppGreeterApp().withImplementationAsSubproject(libraryProjectName).writeToProject(testDirectory)
 	}
 
 	@Override

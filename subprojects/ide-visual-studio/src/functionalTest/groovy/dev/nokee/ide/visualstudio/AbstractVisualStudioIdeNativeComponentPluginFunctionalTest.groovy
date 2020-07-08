@@ -1,11 +1,12 @@
 package dev.nokee.ide.visualstudio
 
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
+
+import dev.gradleplugins.test.fixtures.sources.SourceElement
 
 abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractVisualStudioIdeFunctionalSpec {
 	protected abstract void makeSingleProject()
 
-	protected abstract NativeSourceElement getComponentUnderTest()
+	protected abstract SourceElement getComponentUnderTest()
 
 	protected abstract String configureCustomSourceLayout()
 

@@ -1,11 +1,9 @@
 package dev.nokee.platform.c
 
-
 import dev.nokee.fixtures.AbstractNativeComponentIncludedBuildDependenciesFunctionalTest
 import dev.nokee.fixtures.AbstractNativeComponentProjectDependenciesFunctionalTest
 import dev.nokee.language.c.CTaskNames
-import dev.nokee.platform.jni.fixtures.CGreeter
-import dev.nokee.platform.nativebase.fixtures.CMainUsesGreeter
+import dev.nokee.platform.nativebase.fixtures.CGreeterApp
 
 class CApplicationComponentProjectDependenciesFunctionalTest extends AbstractNativeComponentProjectDependenciesFunctionalTest implements CTaskNames {
 	@Override
@@ -21,8 +19,7 @@ class CApplicationComponentProjectDependenciesFunctionalTest extends AbstractNat
 				id 'dev.nokee.c-library'
 			}
 		"""
-		new CMainUsesGreeter().writeToProject(testDirectory)
-		new CGreeter().asLib().writeToProject(testDirectory.file(libraryProjectName))
+		new CGreeterApp().withImplementationAsSubproject(libraryProjectName).writeToProject(testDirectory)
 	}
 
 	@Override
@@ -99,8 +96,7 @@ class CApplicationComponentIncludedBuildDependenciesFunctionalTest extends Abstr
 				id 'dev.nokee.c-library'
 			}
 		""" << configureLibraryProject()
-		new CMainUsesGreeter().writeToProject(testDirectory)
-		new CGreeter().asLib().writeToProject(testDirectory.file(libraryProjectName))
+		new CGreeterApp().withImplementationAsSubproject(libraryProjectName).writeToProject(testDirectory)
 	}
 
 	@Override

@@ -2,12 +2,12 @@ package dev.nokee.platform.objectivec
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
+import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
 import dev.nokee.language.NativeProjectTasks
 import dev.nokee.language.objectivec.ObjectiveCTaskNames
-import dev.nokee.platform.jni.fixtures.ObjectiveCGreeter
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCGreeterApp
+import dev.nokee.platform.nativebase.fixtures.ObjectiveCGreeterLib
 import spock.lang.Requires
 import spock.util.environment.OperatingSystem
 
@@ -28,7 +28,7 @@ class ObjectiveCApplicationNativeLanguageCompilationFunctionalTest extends Abstr
 	}
 
 	@Override
-	protected NativeSourceElement getComponentUnderTest() {
+	protected SourceElement getComponentUnderTest() {
 		return new ObjectiveCGreeterApp()
 	}
 
@@ -55,8 +55,8 @@ class ObjectiveCLibraryNativeLanguageCompilationFunctionalTest extends AbstractN
 	}
 
 	@Override
-	protected NativeSourceElement getComponentUnderTest() {
-		return new ObjectiveCGreeter()
+	protected SourceElement getComponentUnderTest() {
+		return new ObjectiveCGreeterLib()
 	}
 
 	@Override

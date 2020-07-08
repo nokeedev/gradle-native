@@ -1,13 +1,11 @@
 package dev.nokee.platform.c
 
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
+import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
 import dev.nokee.language.NativeProjectTasks
 import dev.nokee.language.c.CTaskNames
-import dev.nokee.language.cpp.CppTaskNames
-import dev.nokee.platform.jni.fixtures.CGreeter
-import dev.nokee.platform.jni.fixtures.elements.CppGreeter
 import dev.nokee.platform.nativebase.fixtures.CGreeterApp
+import dev.nokee.platform.nativebase.fixtures.CGreeterLib
 
 class CApplicationNativeLanguageCompilationFunctionalTest extends AbstractNativeLanguageCompilationFunctionalTest implements CTaskNames {
 	@Override
@@ -20,7 +18,7 @@ class CApplicationNativeLanguageCompilationFunctionalTest extends AbstractNative
 	}
 
 	@Override
-	protected NativeSourceElement getComponentUnderTest() {
+	protected SourceElement getComponentUnderTest() {
 		return new CGreeterApp()
 	}
 
@@ -41,8 +39,8 @@ class CLibraryNativeLanguageCompilationFunctionalTest extends AbstractNativeLang
 	}
 
 	@Override
-	protected NativeSourceElement getComponentUnderTest() {
-		return new CGreeterApp()
+	protected SourceElement getComponentUnderTest() {
+		return new CGreeterLib()
 	}
 
 	@Override

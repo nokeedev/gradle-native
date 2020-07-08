@@ -1,6 +1,7 @@
 package dev.nokee.ide.visualstudio
 
 import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
+import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.language.cpp.CppTaskNames
 import dev.nokee.language.cpp.tasks.CppCompile
 import dev.nokee.platform.jni.fixtures.elements.CppGreeter
@@ -20,7 +21,7 @@ class VisualStudioIdeCppApplicationFunctionalTest extends AbstractVisualStudioId
 	}
 
 	@Override
-	protected NativeSourceElement getComponentUnderTest() {
+	protected SourceElement getComponentUnderTest() {
 		return new CppGreeterApp()
 	}
 
@@ -92,7 +93,7 @@ class VisualStudioIdeCppLibraryFunctionalTest extends AbstractVisualStudioIdeNat
 	}
 
 	@Override
-	protected NativeSourceElement getComponentUnderTest() {
+	protected SourceElement getComponentUnderTest() {
 		return new CppGreeter().asLib()
 	}
 
