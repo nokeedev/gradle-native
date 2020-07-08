@@ -30,6 +30,10 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType, linkage)
 	}
 
+	DefaultNativeProjectTasks withProjectPath(String project) {
+		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType, linkage)
+	}
+
 	// TODO: This is part of the public API but shouldn't really... used when composing
 	String withProject(String t) {
 		project + ":" + t

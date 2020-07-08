@@ -41,5 +41,7 @@ public interface NativeProjectTasks {
 
 	NativeProjectTasks withLinkage(String linkage);
 
+	NativeProjectTasks withProjectPath(String projectPath);
+
 	NativeProjectTasks getForStaticLibrary();
 }
