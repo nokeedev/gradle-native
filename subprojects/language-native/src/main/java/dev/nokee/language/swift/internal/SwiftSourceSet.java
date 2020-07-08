@@ -6,7 +6,7 @@ import javax.inject.Inject;
 
 public abstract class SwiftSourceSet extends BaseSourceSet {
 	@Inject
-	public SwiftSourceSet() {
-		super(UTTypeSwiftSource.INSTANCE);
+	public SwiftSourceSet(String name) {
+		super(name, UTTypeSwiftSource.INSTANCE);
 	}
 }

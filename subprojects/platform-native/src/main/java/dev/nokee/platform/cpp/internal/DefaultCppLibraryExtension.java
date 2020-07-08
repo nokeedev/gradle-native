@@ -1,5 +1,6 @@
 package dev.nokee.platform.cpp.internal;
 
+import dev.nokee.language.cpp.internal.CppHeaderSet;
 import dev.nokee.language.cpp.internal.CppSourceSet;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.cpp.CppLibraryExtension;
@@ -16,7 +17,9 @@ public abstract class DefaultCppLibraryExtension extends BaseNativeExtension<Def
 	@Inject
 	public DefaultCppLibraryExtension(DefaultNativeLibraryComponent component) {
 		super(component);
-		getComponent().getSourceCollection().add(getObjects().newInstance(CppSourceSet.class).srcDir("src/main/cpp"));
+		getComponent().getSourceCollection().add(getObjects().newInstance(CppSourceSet.class, "cpp").from(getSources().getElements().map(toIfEmpty("src/main/cpp"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "public").srcDir(getPublicHeaders().getElements().map(toIfEmpty("src/main/public"))));
 	}
 
 	@Override

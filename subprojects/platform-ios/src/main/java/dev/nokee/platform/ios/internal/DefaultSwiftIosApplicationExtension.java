@@ -1,5 +1,7 @@
 package dev.nokee.platform.ios.internal;
 
+import dev.nokee.language.c.internal.CHeaderSet;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.GroupId;
@@ -16,7 +18,7 @@ public abstract class DefaultSwiftIosApplicationExtension extends BaseIosExtensi
 	@Inject
 	public DefaultSwiftIosApplicationExtension(DefaultIosApplicationComponent component) {
 		super(component);
-		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class).srcDir("src/main/swift"));
+		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").srcDir("src/main/swift"));
 	}
 
 	@Override

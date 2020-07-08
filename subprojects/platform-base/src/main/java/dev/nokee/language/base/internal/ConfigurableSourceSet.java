@@ -7,4 +7,6 @@ package dev.nokee.language.base.internal;
  */
 public interface ConfigurableSourceSet extends SourceSet {
 	ConfigurableSourceSet srcDir(Object srcPath);
+
+	ConfigurableSourceSet from(Object files);
 }

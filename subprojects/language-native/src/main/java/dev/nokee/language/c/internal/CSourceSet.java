@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 public abstract class CSourceSet extends BaseSourceSet implements HeaderExportingSourceSet {
 	@Inject
-	public CSourceSet() {
-		super(UTTypeCSource.INSTANCE);
+	public CSourceSet(String name) {
+		super(name, UTTypeCSource.INSTANCE);
 	}
 }

@@ -31,10 +31,6 @@ public abstract class StaticLibraryBinaryInternal extends BaseNativeBinary imple
 		super(names, objectSourceSets, targetMachine, dependencies);
 		this.createTask = createTask;
 
-		compileTasks.configureEach(AbstractNativeCompileTask.class, task -> {
-			task.getIncludes().from("src/main/public");
-		});
-
 		createTask.configure(this::configureStaticLibraryTask);
 	}
 

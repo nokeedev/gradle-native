@@ -1,5 +1,6 @@
 package dev.nokee.platform.ios.internal;
 
+import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.ios.IosApplication;
@@ -14,7 +15,8 @@ public abstract class DefaultObjectiveCIosApplicationExtension extends BaseIosEx
 	@Inject
 	public DefaultObjectiveCIosApplicationExtension(DefaultIosApplicationComponent component) {
 		super(component);
-		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class).srcDir("src/main/objc"));
+		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/main/objc"));
+		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir("src/main/headers"));
 	}
 
 	@Override

@@ -10,6 +10,8 @@ import org.gradle.api.file.FileTree;
 public interface SourceSet {
 	FileTree getAsFileTree();
 
+	String getName();
+
 	UTType getType();
 
 	default SourceSet transform(SourceSetTransform transformer) {

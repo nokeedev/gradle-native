@@ -3,11 +3,12 @@ package dev.nokee.platform.jni.internal.plugins;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
+import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.c.internal.CSourceSet;
+import dev.nokee.language.cpp.internal.CppHeaderSet;
 import dev.nokee.language.cpp.internal.CppSourceSet;
-import dev.nokee.language.nativebase.internal.HeaderExportingSourceSet;
-import dev.nokee.language.nativebase.internal.HeaderExportingSourceSetInternal;
 import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
+import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
@@ -15,7 +16,10 @@ import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
-import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
+import dev.nokee.platform.nativebase.internal.NativeLanguageRules;
+import dev.nokee.platform.nativebase.internal.TargetMachineRule;
+import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
@@ -43,9 +47,12 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
+import org.gradle.internal.jvm.Jvm;
+import org.gradle.internal.os.OperatingSystem;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.language.nativeplatform.internal.toolchains.ToolChainSelector;
+import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.plugins.NativeBasePlugin;
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
 import org.gradle.process.CommandLineArgumentProvider;
@@ -86,7 +93,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		}
 
 		boolean hasSwift = !component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
-		boolean hasHeader = !component.getSourceCollection().matching(it -> it instanceof HeaderExportingSourceSet).isEmpty();
+		boolean hasHeader = !component.getSourceCollection().matching(it -> it instanceof CSourceSet || it instanceof CppSourceSet || it instanceof ObjectiveCSourceSet || it instanceof ObjectiveCppSourceSet).isEmpty();
 		SwiftModuleIncomingDependencies incomingSwiftDependencies = null;
 		HeaderIncomingDependencies incomingHeaderDependencies = null;
 		if (hasSwift) {
@@ -126,6 +133,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
 		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJniHeaderSourceSet(project, extension));
+		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJvmHeaderSourceSet(extension));
 		project.getPlugins().withType(NativePlatformCapabilitiesMarkerPlugin.class, appliedPlugin -> {
 			project.getPluginManager().apply(DarwinFrameworkResolutionSupportPlugin.class);
 		});
@@ -134,16 +142,19 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(proj -> {
 			// Create source set on extension
 			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
-				extension.getComponent().getSourceCollection().add(getObjects().newInstance(CppSourceSet.class).srcDir("src/main/cpp"));
+				extension.getComponent().getSourceCollection().add(getObjects().newInstance(CppSourceSet.class, "cpp").srcDir("src/main/cpp"));
 			}
 			if (proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
-				extension.getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class).srcDir("src/main/c"));
+				extension.getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").srcDir("src/main/c"));
 			}
 			if (proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
-				extension.getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class).srcDir("src/main/objcpp"));
+				extension.getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").srcDir("src/main/objcpp"));
 			}
 			if (proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-				extension.getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class).srcDir("src/main/objc"));
+				extension.getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/main/objc"));
+			}
+			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language") || proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language") || proj.getPluginManager().hasPlugin("dev.nokee.c-language") || proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
+				extension.getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir("src/main/headers"));
 			}
 
 			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
@@ -164,6 +175,16 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 
 					TaskProvider<LinkSharedLibraryTask> linkTask = getTasks().register(names.getTaskName("link"), LinkSharedLibraryTask.class);
 					it.registerSharedLibraryBinary(objectSourceSets, linkTask, targetMachines.size() > 1, dependencies.getIncoming());
+
+					it.getSharedLibrary().getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
+						val taskInternal = (AbstractNativeCompileTask) task;
+						extension.getComponent().getSourceCollection().withType(CHeaderSet.class, sourceSet -> {
+							taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
+						});
+						extension.getComponent().getSourceCollection().withType(CppHeaderSet.class, sourceSet -> {
+							taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
+						});
+					});
 
 					if (jvmJarBinary.isPresent() && targetMachines.size() == 1) {
 						it.addJniJarBinary(jvmJarBinary.get());
@@ -461,7 +482,27 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		return GradleVersion.current().compareTo(GradleVersion.version("6.3")) >= 0;
 	}
 
-	private void registerJniHeaderSourceSet(Project project, JniLibraryExtensionInternal library) {
+	private void registerJvmHeaderSourceSet(JniLibraryExtensionInternal extension) {
+		extension.getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "jvm").srcDir(getJvmIncludes()));
+	}
+
+	private Provider<List<File>> getJvmIncludes() {
+		return getProviders().provider(() -> {
+			List<File> result = new ArrayList<>();
+			result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include"));
+
+			if (OperatingSystem.current().isMacOsX()) {
+				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/darwin"));
+			} else if (OperatingSystem.current().isLinux()) {
+				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/linux"));
+			} else if (OperatingSystem.current().isWindows()) {
+				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/win32"));
+			}
+			return result;
+		});
+	}
+
+	private void registerJniHeaderSourceSet(Project project, JniLibraryExtensionInternal extension) {
 		SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
 		org.gradle.api.tasks.SourceSet main = sourceSets.getByName("main");
 
@@ -479,9 +520,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 			// See https://github.com/gradle/gradle/issues/12084.
 			task.getOptions().setIncremental(isGradleVersionGreaterOrEqualsTo6Dot3());
 		});
-		HeaderExportingSourceSetInternal jniHeaderSourceSet = project.getObjects().newInstance(HeaderExportingSourceSetInternal.class);
-		jniHeaderSourceSet.getSource().from(compileTask.flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
-		library.getSources().add(jniHeaderSourceSet);
+		extension.getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "jni").srcDir(compileTask.flatMap(it -> it.getOptions().getHeaderOutputDirectory())));
 	}
 
 	private void configureJavaJniRuntime(Project project, JniLibraryExtensionInternal library) {

@@ -1,8 +1,8 @@
 package dev.nokee.platform.objectivec.internal;
 
+import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
@@ -17,7 +17,8 @@ public abstract class DefaultObjectiveCApplicationExtension extends BaseNativeEx
 	@Inject
 	public DefaultObjectiveCApplicationExtension(DefaultNativeApplicationComponent component) {
 		super(component);
-		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class).srcDir("src/main/objc"));
+		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").from(getSources().getElements().map(toIfEmpty("src/main/objc"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
 	}
 
 	@Override

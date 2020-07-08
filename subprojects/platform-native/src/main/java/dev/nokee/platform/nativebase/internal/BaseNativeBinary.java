@@ -89,7 +89,6 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
 		return getObjects().fileCollection()
-			.from("src/main/headers")
 			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> it.getIncludes()))
 			.from(getDependencies().getHeaderSearchPaths())
 			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> it.getSystemIncludes()))
@@ -140,8 +139,6 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 		task.getToolChain().set(selectNativeToolChain(targetMachine));
 		task.getToolChain().finalizeValueOnRead();
 		task.getToolChain().disallowChanges();
-
-		task.getIncludes().from("src/main/headers");
 
 		task.getSystemIncludes().from(getSystemIncludes(task));
 	}

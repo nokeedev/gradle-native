@@ -3,7 +3,9 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.base.Preconditions;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
-import dev.nokee.language.nativebase.internal.HeaderExportingSourceSet;
+import dev.nokee.language.c.internal.CHeaderSet;
+import dev.nokee.language.cpp.internal.CppHeaderSet;
+import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.Variant;
@@ -33,11 +35,15 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
+import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
 
 public abstract class BaseNativeComponent<T extends Variant> extends BaseComponent<T> {
 	private final Class<T> variantType;
@@ -164,6 +170,17 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 						binary.getBaseName().convention(project.getName());
 					}
 				}
+				it.getBinaries().configureEach(NativeBinary.class, binary -> {
+					binary.getCompileTasks().configureEach(NativeSourceCompile.class, task -> {
+						val taskInternal = (AbstractNativeCompileTask) task;
+						getSourceCollection().withType(CHeaderSet.class).configureEach(sourceSet -> {
+							taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
+						});
+						getSourceCollection().withType(CppHeaderSet.class).configureEach(sourceSet -> {
+							taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
+						});
+					});
+				});
 
 				return it;
 			});
@@ -192,6 +209,19 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 			task.dependsOn(getDevelopmentVariant().flatMap(Variant::getDevelopmentBinary));
 		});
 
+		if (!getTasks().getNames().contains("objects") && getNames().getComponentName().equals("main")) {
+			getTasks().register("objects", task -> {
+				task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
+				task.setDescription("Assembles main objects.");
+				task.dependsOn(getDevelopmentVariant().flatMap(it -> {
+					if (it.getDevelopmentBinary().get() instanceof NativeBinary) {
+						return ((NativeBinary) it.getDevelopmentBinary().get()).getCompileTasks().getElements();
+					}
+					return getProviders().provider(() -> emptyList());
+				}));
+			});
+		}
+
 		// TODO: This may need to be moved somewhere else.
 		// finalize the variantCollection
 		getVariantCollection().disallowChanges();
@@ -208,9 +238,17 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					return one(result);
 				}));
 			}
-			if (!getSourceCollection().matching(it -> it instanceof HeaderExportingSourceSet).isEmpty()) {
-				dependencies.getOutgoing().getExportedHeaders().convention(getLayout().getProjectDirectory().dir("src/main/public"));
-			}
+			getSourceCollection().matching(it -> (it instanceof CHeaderSet || it instanceof CppHeaderSet) && it.getName().equals("public")).configureEach(sourceSet -> {
+				// TODO: Allow to export more than one folder
+				File directory = null;
+				if (sourceSet instanceof CHeaderSet) {
+					directory = ((CHeaderSet) sourceSet).getHeaderDirectory();
+				} else if (sourceSet instanceof CppHeaderSet) {
+					directory = ((CppHeaderSet) sourceSet).getHeaderDirectory();
+				}
+
+				dependencies.getOutgoing().getExportedHeaders().fileValue(directory);
+			});
 		}
 		dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
 	}

@@ -2,6 +2,7 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
+import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BuildVariant;
@@ -16,6 +17,7 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
@@ -24,6 +26,7 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.jvm.tasks.Jar;
+import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
