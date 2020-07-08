@@ -54,14 +54,11 @@ class ObjectiveCLibraryNativeLanguageIncrementalCompilationFunctionalTest extend
 
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
-class ObjectiveCStaticLibraryNativeLanguageIncrementalCompilationFunctionalTest extends AbstractNativeLanguageIncrementalCompilationFunctionalTest implements ObjectiveCTaskNames {
+class ObjectiveCLibraryWithStaticLinkageNativeLanguageIncrementalCompilationFunctionalTest extends ObjectiveCLibraryNativeLanguageIncrementalCompilationFunctionalTest {
 	@Override
 	protected void makeSingleProject() {
+		super.makeSingleProject()
 		buildFile << '''
-			plugins {
-				id 'dev.nokee.objective-c-library'
-			}
-
 			library {
 				targetLinkages = [linkages.static]
 			}
@@ -79,5 +76,35 @@ class ObjectiveCStaticLibraryNativeLanguageIncrementalCompilationFunctionalTest 
 	}
 }
 
-// TODO: explicit shared linkage
-// TODO: explicit both linkage
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class ObjectiveCLibraryWithSharedLinkageNativeLanguageIncrementalCompilationFunctionalTest extends ObjectiveCLibraryNativeLanguageIncrementalCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << '''
+			library {
+				targetLinkages = [linkages.shared]
+			}
+		'''
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class ObjectiveCLibraryWithBothLinkageNativeLanguageIncrementalCompilationFunctionalTest extends ObjectiveCLibraryNativeLanguageIncrementalCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << '''
+			library {
+				targetLinkages = [linkages.static, linkages.shared]
+			}
+		'''
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.withLinkage('shared')
+	}
+}

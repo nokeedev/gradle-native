@@ -67,23 +67,15 @@ class ObjectiveCppLibraryNativeLanguageCompilationFunctionalTest extends Abstrac
 
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
-class ObjectiveCppStaticLibraryNativeLanguageCompilationFunctionalTest extends AbstractNativeLanguageCompilationFunctionalTest implements ObjectiveCppTaskNames {
+class ObjectiveCppLibraryWithStaticLinkageNativeLanguageCompilationFunctionalTest extends ObjectiveCppLibraryNativeLanguageCompilationFunctionalTest {
 	@Override
 	protected void makeSingleProject() {
+		super.makeSingleProject()
 		buildFile << '''
-			plugins {
-				id 'dev.nokee.objective-cpp-library'
-			}
-
 			library {
 				targetLinkages = [linkages.static]
 			}
 		'''
-	}
-
-	@Override
-	protected NativeSourceElement getComponentUnderTest() {
-		return new ObjectiveCppGreeter()
 	}
 
 	@Override
@@ -97,5 +89,35 @@ class ObjectiveCppStaticLibraryNativeLanguageCompilationFunctionalTest extends A
 	}
 }
 
-// TODO: explicit shared linkage
-// TODO: explicit both linkage
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class ObjectiveCppLibraryWithSharedLinkageNativeLanguageCompilationFunctionalTest extends ObjectiveCppLibraryNativeLanguageCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << '''
+			library {
+				targetLinkages = [linkages.shared]
+			}
+		'''
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
+@Requires({!OperatingSystem.current.windows})
+class ObjectiveCppLibraryWithBothLinkageNativeLanguageCompilationFunctionalTest extends ObjectiveCppLibraryNativeLanguageCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << '''
+			library {
+				targetLinkages = [linkages.static, linkages.shared]
+			}
+		'''
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.withLinkage('shared')
+	}
+}

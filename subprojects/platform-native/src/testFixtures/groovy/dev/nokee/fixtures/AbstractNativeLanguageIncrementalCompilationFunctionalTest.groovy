@@ -10,7 +10,7 @@ abstract class AbstractNativeLanguageIncrementalCompilationFunctionalTest extend
 
 		expect:
 		succeeds "assemble"
-		result.assertTasksExecuted(taskNamesUnderTest.allToAssemble)
+		result.assertTasksExecuted(taskNamesUnderTest.allToLifecycleAssemble)
 		result.assertTasksSkipped(allSkippedTasksToAssemble)
 	}
 
@@ -20,8 +20,8 @@ abstract class AbstractNativeLanguageIncrementalCompilationFunctionalTest extend
 
 		expect:
 		succeeds "objects"
-		result.assertTasksExecuted(taskNamesUnderTest.allToObjects)
-		result.assertTasksSkipped(taskNamesUnderTest.allToObjects)
+		result.assertTasksExecuted(taskNamesUnderTest.allToLifecycleObjects)
+		result.assertTasksSkipped(taskNamesUnderTest.allToLifecycleObjects)
 	}
 
 	protected abstract void makeSingleProject()
@@ -29,7 +29,7 @@ abstract class AbstractNativeLanguageIncrementalCompilationFunctionalTest extend
 	protected abstract String getBinaryLifecycleTaskName()
 
 	protected List<String> getAllSkippedTasksToAssemble() {
-		return taskNamesUnderTest.allToAssemble
+		return taskNamesUnderTest.allToLifecycleAssemble
 	}
 
 	protected NativeProjectTasks getTaskNamesUnderTest() {

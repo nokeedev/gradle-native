@@ -37,8 +37,22 @@ trait JavaJniTaskNames implements NativeProjectTaskNames {
 		}
 
 		@Override
+		List<String> getAllToLifecycleObjects() {
+			return delegate.allToLifecycleObjects + [withProject('compileJava')]
+		}
+
+		@Override
 		List<String> getAllToAssemble() {
-			def result = delegate.allToAssemble + [withProject('jar'), withProject('processResources'), withProject('classes'), withProject('compileJava')]
+			return addAdditionalAssembleTasks(delegate.allToAssemble)
+		}
+
+		@Override
+		List<String> getAllToLifecycleAssemble() {
+			return addAdditionalAssembleTasks(delegate.allToLifecycleAssemble)
+		}
+
+		private List<String> addAdditionalAssembleTasks(List<String> allToAssembleTasks) {
+			def result = allToAssembleTasks + [withProject('jar'), withProject('processResources'), withProject('classes'), withProject('compileJava')]
 			if (!withVariant('jar').equals('jar')) {
 				result += [withProject(withVariant('jar'))]
 			}

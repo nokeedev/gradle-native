@@ -98,6 +98,10 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 		return [compile, objects]
 	}
 
+	List<String> getAllToLifecycleObjects() {
+		return [compile, withProject('objects')]
+	}
+
 	List<String> getAllToCreate() {
 		return [compile, create]
 	}
@@ -112,6 +116,10 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 
 	List<String> getAllToInstall() {
 		return allToLink + [install]
+	}
+
+	List<String> getAllToLifecycleAssemble() {
+		return allToLinkOrCreate + [withProject('assemble')]
 	}
 
 	List<String> getAllToAssemble() {

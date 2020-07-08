@@ -37,14 +37,11 @@ class CppLibraryNativeLanguageIncrementalCompilationFunctionalTest extends Abstr
 	}
 }
 
-class CppStaticLibraryNativeLanguageIncrementalCompilationFunctionalTest extends AbstractNativeLanguageIncrementalCompilationFunctionalTest implements CppTaskNames {
+class CppLibraryWithStaticLinkageNativeLanguageIncrementalCompilationFunctionalTest extends CppLibraryNativeLanguageIncrementalCompilationFunctionalTest {
 	@Override
 	protected void makeSingleProject() {
+		super.makeSingleProject()
 		buildFile << '''
-			plugins {
-				id 'dev.nokee.cpp-library'
-			}
-
 			library {
 				targetLinkages = [linkages.static]
 			}
@@ -62,5 +59,31 @@ class CppStaticLibraryNativeLanguageIncrementalCompilationFunctionalTest extends
 	}
 }
 
-// TODO: explicit shared linkage
-// TODO: explicit both linkage
+class CppLibraryWithSharedLinkageNativeLanguageIncrementalCompilationFunctionalTest extends CppLibraryNativeLanguageIncrementalCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << '''
+			library {
+				targetLinkages = [linkages.shared]
+			}
+		'''
+	}
+}
+
+class CppLibraryWithBothLinkageNativeLanguageIncrementalCompilationFunctionalTest extends CppLibraryNativeLanguageIncrementalCompilationFunctionalTest {
+	@Override
+	protected void makeSingleProject() {
+		super.makeSingleProject()
+		buildFile << '''
+			library {
+				targetLinkages = [linkages.static, linkages.shared]
+			}
+		'''
+	}
+
+	@Override
+	protected NativeProjectTasks getTaskNamesUnderTest() {
+		return tasks.withLinkage('shared')
+	}
+}
