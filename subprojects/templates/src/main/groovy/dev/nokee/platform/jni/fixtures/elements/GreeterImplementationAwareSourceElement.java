@@ -34,6 +34,11 @@ public abstract class GreeterImplementationAwareSourceElement<T extends SourceEl
 		return greeter;
 	}
 
+	@Override
+	public void writeToProject(TestFile projectDir) {
+		ofElements(elementUsingGreeter, greeter).writeToProject(projectDir);
+	}
+
 	public abstract GreeterImplementationAwareSourceElement<T> withImplementationAsSubproject(String subprojectPath);
 
 	protected <U extends SourceElement> GreeterImplementationAwareSourceElement<U> ofImplementationAsSubproject(SourceElement elementUsingGreeter, U greeter) {
@@ -74,6 +79,11 @@ public abstract class GreeterImplementationAwareSourceElement<T extends SourceEl
 			@Override
 			public SourceElement getSources() {
 				return asSubproject(subprojectPath, delegate.getSources());
+			}
+
+			@Override
+			public void writeToProject(TestFile projectDir) {
+				delegate.writeToProject(projectDir.file(subprojectPath));
 			}
 		};
 	}
