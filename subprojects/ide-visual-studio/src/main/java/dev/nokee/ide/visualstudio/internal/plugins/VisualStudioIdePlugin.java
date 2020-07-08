@@ -7,6 +7,9 @@ import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.visualstudio.*;
 import dev.nokee.ide.visualstudio.internal.*;
 import dev.nokee.internal.Cast;
+import dev.nokee.language.base.internal.SourceSet;
+import dev.nokee.language.c.internal.CHeaderSet;
+import dev.nokee.language.cpp.internal.CppHeaderSet;
 import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
@@ -65,13 +68,9 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 				// TODO: baseName could change between now and when it's finalized...
 				extension.getProjects().register(componentInternal.getBaseName().get(), visualStudioProject -> {
 					val visualStudioProjectInternal = (DefaultVisualStudioIdeProject) visualStudioProject;
-					componentInternal.getSourceCollection().forEach(sourceSet -> {
-						visualStudioProjectInternal.getSourceFiles().from(sourceSet.getAsFileTree());
-					});
-					visualStudioProjectInternal.getHeaderFiles().from(getProject().fileTree("src/main/headers", it -> it.include("*")));
-					if (component instanceof DefaultNativeLibraryComponent) {
-						visualStudioProjectInternal.getHeaderFiles().from(getProject().fileTree("src/main/public", it -> it.include("*")));
-					}
+					visualStudioProjectInternal.getSourceFiles().from(getProviders().provider(() -> componentInternal.getSourceCollection().stream().filter(it -> !(it instanceof CHeaderSet || it instanceof CppHeaderSet)).map(SourceSet::getAsFileTree).collect(Collectors.toList())));
+
+					visualStudioProjectInternal.getHeaderFiles().from(getProviders().provider(() -> componentInternal.getSourceCollection().stream().filter(it -> it instanceof CHeaderSet || it instanceof CppHeaderSet).map(SourceSet::getAsFileTree).collect(Collectors.toList())));
 					visualStudioProjectInternal.getBuildFiles().from(getBuildFiles());
 
 					visualStudioProject.target(VisualStudioIdeProjectConfiguration.of(VisualStudioIdeConfiguration.of("Default"), VisualStudioIdePlatforms.X64), target -> {

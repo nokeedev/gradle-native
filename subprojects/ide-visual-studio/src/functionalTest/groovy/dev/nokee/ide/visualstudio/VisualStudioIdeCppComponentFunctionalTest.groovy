@@ -1,6 +1,6 @@
 package dev.nokee.ide.visualstudio
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 import dev.nokee.language.cpp.CppTaskNames
 import dev.nokee.language.cpp.tasks.CppCompile
 import dev.nokee.platform.jni.fixtures.elements.CppGreeter
@@ -20,8 +20,18 @@ class VisualStudioIdeCppApplicationFunctionalTest extends AbstractVisualStudioId
 	}
 
 	@Override
-	protected SourceElement getComponentUnderTest() {
+	protected NativeSourceElement getComponentUnderTest() {
 		return new CppGreeterApp()
+	}
+
+	@Override
+	protected String configureCustomSourceLayout() {
+		return '''
+			application {
+				sources.from('srcs')
+				privateHeaders.from('hdrs')
+			}
+		'''
 	}
 
 	@Override
@@ -82,8 +92,18 @@ class VisualStudioIdeCppLibraryFunctionalTest extends AbstractVisualStudioIdeNat
 	}
 
 	@Override
-	protected SourceElement getComponentUnderTest() {
+	protected NativeSourceElement getComponentUnderTest() {
 		return new CppGreeter().asLib()
+	}
+
+	@Override
+	protected String configureCustomSourceLayout() {
+		return '''
+			library {
+				sources.from('srcs')
+				publicHeaders.from('hdrs')
+			}
+		'''
 	}
 
 	@Override

@@ -1,13 +1,15 @@
 package dev.nokee.ide.visualstudio
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 
 abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractVisualStudioIdeFunctionalSpec {
-	protected abstract void makeSingleProject();
+	protected abstract void makeSingleProject()
 
-	protected abstract SourceElement getComponentUnderTest();
+	protected abstract NativeSourceElement getComponentUnderTest()
 
-	protected abstract String getProjectName();
+	protected abstract String configureCustomSourceLayout()
+
+	protected abstract String getProjectName()
 
 	protected String getSchemeName() {
 		return projectName
@@ -39,6 +41,34 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		and:
 		project.assertHasTarget('Clean')
 		project.getTargetByName('Clean').assertTargetDelegateToGradle()
+	}
+
+	def "includes sources in the project"() {
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+
+		when:
+		succeeds('visualStudio')
+
+		then:
+		visualStudioProject.assertHasSourceFiles(componentUnderTest.sources.files.collect { file("src/main/${it.path}/${it.name}").absolutePath })
+		visualStudioProject.assertHasHeaderFiles(componentUnderTest.headers.files.collect { file("src/main/${it.path}/${it.name}").absolutePath })
+		visualStudioProject.assertHasResourceFiles()
+	}
+
+	def "include sources in project with custom layout"() {
+		makeSingleProject()
+		componentUnderTest.sources.writeToSourceDir(file('srcs'))
+		componentUnderTest.headers.writeToSourceDir(file('hdrs'))
+		buildFile << configureCustomSourceLayout()
+
+		when:
+		succeeds('visualStudio')
+
+		then:
+		visualStudioProject.assertHasSourceFiles(componentUnderTest.sources.files.collect { file("srcs/${it.name}").absolutePath })
+		visualStudioProject.assertHasHeaderFiles(componentUnderTest.headers.files.collect { file("hdrs/${it.name}").absolutePath })
+		visualStudioProject.assertHasResourceFiles()
 	}
 
 	// TODO: Check ConfigurationType

@@ -141,15 +141,15 @@ public abstract class GenerateVisualStudioIdeProjectTask extends DefaultTask {
 	}
 
 	private VCXItemGroup getItemGroupSourceFiles() {
-		return VCXItemGroup.of(visualStudioProject.getSourceFiles().getFiles().stream().map(it -> VCXClCompile.Item.of(it.getAbsolutePath())).collect(Collectors.toList()));
+		return VCXItemGroup.of(visualStudioProject.getSourceFiles().getFiles().stream().map(it -> VCXClCompile.Item.of(it.getAbsolutePath())).collect(Collectors.toList())).withLabel("Sources");
 	}
 
 	private VCXItemGroup getItemGroupHeaderFiles() {
-		return VCXItemGroup.of(visualStudioProject.getHeaderFiles().getFiles().stream().map(it -> VCXClInclude.Item.of(it.getAbsolutePath())).collect(Collectors.toList()));
+		return VCXItemGroup.of(visualStudioProject.getHeaderFiles().getFiles().stream().map(it -> VCXClInclude.Item.of(it.getAbsolutePath())).collect(Collectors.toList())).withLabel("Headers");
 	}
 
 	private VCXItemGroup getItemGroupBuildFiles() {
-		return VCXItemGroup.of(visualStudioProject.getBuildFiles().getFiles().stream().map(it -> new VCXNone(it.getAbsolutePath())).collect(Collectors.toList()));
+		return VCXItemGroup.of(visualStudioProject.getBuildFiles().getFiles().stream().map(it -> new VCXNone(it.getAbsolutePath())).collect(Collectors.toList())).withLabel("Builds");
 	}
 
 	private VCXTarget getBuildTarget() {
