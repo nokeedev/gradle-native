@@ -32,7 +32,7 @@ pluginManagement {
 
 == Usage
 
-Apply link:https://nokee.dev/docs/{jbake-version}/plugin-references.html[any of the Nokee plugins] to your build just like any other Gradle plugin:
+Apply link:https://nokee.dev/docs/{jbake-version}/manual/plugin-references.html[any of the Nokee plugins] to your build just like any other Gradle plugin:
 
 [source,groovy]
 ----
@@ -47,7 +47,7 @@ Look at link:https://nokee.dev/docs/{jbake-version}/samples[all the samples demo
 
 == Need Help?
 
-* Get familiar with the link:https://nokee.dev/current/manual/user-manual.html[Nokee User Manual]
+* Get familiar with the link:https://nokee.dev/docs/current/manual/user-manual.html[Nokee User Manual]
 * Ask on the link:https://discuss.gradle.org/tag/native[native forum]
-* Have a look at the link:https://nokee.dev/current/samples[Samples]
+* Have a look at the link:https://nokee.dev/docs/current/samples[Samples]
 * Join the link:https://gradle.com/slack-invite[#native Slack Channel]
