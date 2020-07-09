@@ -3,3 +3,13 @@ plugins {
 }
 
 rootProject.name = 'docs-gradle-plugin'
+
+gradle.rootProject {
+	def properties = new Properties()
+	file('../../../gradle.properties').withInputStream {
+		properties.load(it)
+	}
+	properties.each { key, value ->
+		project.ext."$key" = value
+	}
+}
