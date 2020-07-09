@@ -11,7 +11,8 @@ It allows compilation of languages such C, {cpp}, Objective-C and Objective-{cpp
 
 Copy the following inside your `settings.gradle[.kts]`:
 
-[source,groovy,subs=attributes+]
+.settings.gradle[.kts]
+[source,groovy,subs=attributes+,file=settings]
 ----
 pluginManagement {
    repositories {
@@ -34,7 +35,8 @@ pluginManagement {
 
 Apply link:https://nokee.dev/docs/{jbake-version}/manual/plugin-references.html[any of the Nokee plugins] to your build just like any other Gradle plugin:
 
-[source,groovy]
+.build.gradle[.kts]
+[source,groovy,file=build]
 ----
 plugins {
     id("dev.nokee.objective-c-ios-application")
