@@ -228,7 +228,7 @@ Searched in the following locations:
   - http://127.0.0.1:\\d+/dev/nokee/framework/NonExistantFramework/${sdkVersion}/NonExistantFramework-${sdkVersion}.module
 .+""", MULTILINE | DOTALL)))
 
-		failure.assertOutputContains("The requested framework 'NonExistantFramework' wasn't found at in '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${sdkFolderVersion}.sdk/System/Library/Frameworks/'.")
+		failure.assertThatOutput(matchesPattern(compile(".+The requested framework 'NonExistantFramework' wasn't found at in '/Applications/Xcode[_.0-9]*.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${sdkFolderVersion}.sdk/System/Library/Frameworks/'..+", DOTALL)))
 	}
 
 	def "fails to resolve framework for bad SDK version"() {
@@ -304,7 +304,7 @@ Searched in the following locations:
 					def f = configurations.framework.singleFile
 					assert Files.exists(f.toPath())
 					assert Files.isSymbolicLink(f.toPath())
-					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${sdkFolderVersion}.sdk/System/Library/Frameworks/Foundation.framework'
+					assert Files.readSymbolicLink(f.toPath()).toString().endsWith('/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${sdkFolderVersion}.sdk/System/Library/Frameworks/Foundation.framework')
 				}
 			}
 		"""
@@ -343,7 +343,7 @@ Searched in the following locations:
 					assert f.name == 'Foundation.framework'
 					assert Files.exists(f.toPath())
 					assert Files.isSymbolicLink(f.toPath())
-					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${sdkFolderVersion}.sdk/System/Library/Frameworks/Foundation.framework'
+					assert Files.readSymbolicLink(f.toPath()).toString().endsWith('/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${sdkFolderVersion}.sdk/System/Library/Frameworks/Foundation.framework')
 				}
 			}
 		"""
@@ -383,7 +383,7 @@ Searched in the following locations:
 					assert f.name == 'Foundation.framework'
 					assert Files.exists(f.toPath())
 					assert Files.isSymbolicLink(f.toPath())
-					assert Files.readSymbolicLink(f.toPath()).toString() == '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${sdkFolderVersion}.sdk/System/Library/Frameworks/Foundation.framework'
+					assert Files.readSymbolicLink(f.toPath()).toString().endsWith('/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${sdkFolderVersion}.sdk/System/Library/Frameworks/Foundation.framework')
 				}
 			}
 		"""
