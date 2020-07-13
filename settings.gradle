@@ -106,6 +106,16 @@ include 'docs'
 project(':docs').projectDir = file('subprojects/docs')
 project(':docs').buildFileName = 'docs.gradle'
 
+buildCache {
+	remote(HttpBuildCache) {
+		url = 'https://gradle-build-cache.nokee.dev/cache/'
+		credentials {
+			username = System.getProperty('dev.nokee.gradle.cache.remote.username')
+			password = System.getProperty('dev.nokee.gradle.cache.remote.password')
+		}
+	}
+}
+
 plugins.withId('com.gradle.enterprise') {
 	gradleEnterprise {
 		buildScan {
