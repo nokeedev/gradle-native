@@ -6,18 +6,26 @@ import dev.nokee.internal.Cast;
 import dev.nokee.platform.base.internal.Component;
 import dev.nokee.platform.base.internal.ComponentCollection;
 import dev.nokee.platform.nativebase.ExecutableBinary;
+import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.OperatingSystemOperations;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
+import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 
+import javax.inject.Inject;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class XcodeIdeNativeApplicationPlugin implements Plugin<Project> {
+	@Inject
+	protected abstract ProviderFactory getProviders();
+
 	@Override
 	public void apply(Project project) {
 		project.getExtensions().getByType(XcodeIdeProjectExtension.class).getProjects().register(project.getName(), xcodeProject -> {
@@ -25,7 +33,10 @@ public abstract class XcodeIdeNativeApplicationPlugin implements Plugin<Project>
 			components.configureEach(DefaultNativeApplicationComponent.class, application -> {
 				xcodeProject.getTargets().register(project.getName(), xcodeTarget -> {
 					xcodeTarget.getProductName().set(project.getName());
-					xcodeTarget.getProductReference().set(project.getName());
+					xcodeTarget.getProductReference().set(getProviders().provider(() -> {
+						val osOperations = OperatingSystemOperations.of(application.getDevelopmentVariant().flatMap(it -> it.getBinaries().withType(BaseNativeBinary.class).getElements().map(b -> b.iterator().next())).get().getTargetMachine().getOperatingSystemFamily());
+						return osOperations.getExecutableName(application.getBaseName().get());
+					}));
 					xcodeTarget.getProductType().set(XcodeIdeProductTypes.TOOL);
 
 					xcodeTarget.getBuildConfigurations().register("Default", xcodeConfiguration -> {
