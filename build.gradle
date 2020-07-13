@@ -1,11 +1,24 @@
 buildscript {
 	repositories {
+		if (!file('../docs-gradle-plugins').exists()) {
+			maven {
+				name = "GitHubPackages"
+				url = "https://maven.pkg.github.com/nokeedev/docs-gradle-plugins"
+				credentials {
+					username = System.getenv("GITHUB_ACTOR")
+					password = System.getenv("GITHUB_TOKEN")
+				}
+				mavenContent {
+					includeModule('dev.nokee.docs', 'docs-gradle-plugins')
+				}
+			}
+		}
 		gradlePluginPortal()
 		maven { url = 'https://repo.eclipse.org/content/groups/releases/' }
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'dev.nokee.docs:docs-gradle-plugins:latest.integration'
+		classpath 'dev.nokee.docs:docs-gradle-plugins:latest.release'
 	}
 }
 

@@ -1,3 +1,29 @@
+pluginManagement {
+	repositories {
+		if (!file('../docs-gradle-plugins').exists()) {
+			maven {
+				name = "GitHubPackages"
+				url = "https://maven.pkg.github.com/nokeedev/docs-gradle-plugins"
+				credentials {
+					username = System.getenv("GITHUB_ACTOR")
+					password = System.getenv("GITHUB_TOKEN")
+				}
+				mavenContent {
+					includeModule('dev.nokee.docs', 'docs-gradle-plugins')
+				}
+			}
+		}
+		gradlePluginPortal()
+	}
+	resolutionStrategy {
+		eachPlugin {
+			if (requested.id.id.startsWith('dev.nokee.documentation.')) {
+				useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:latest.release")
+			}
+		}
+	}
+}
+
 plugins {
 	id 'dev.gradleplugins.gradle-plugin-development' version '1.1'
 }
@@ -7,12 +33,6 @@ rootProject.name = 'gradle-native'
 // Use local repository if available
 if (file('../docs-gradle-plugins').exists()) {
 	includeBuild '../docs-gradle-plugins'
-} else {
-	sourceControl {
-		gitRepository(uri('https://github.com/nokeedev/docs-gradle-plugins')) {
-			producesModule('dev.nokee.docs:docs-gradle-plugins')
-		}
-	}
 }
 
 includeBuild 'subprojects/templates'
