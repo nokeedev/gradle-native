@@ -6,7 +6,6 @@ import groovy.util.slurpersupport.GPathResult;
 import groovy.util.slurpersupport.NodeChild;
 import lombok.NonNull;
 import lombok.Value;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cyberneko.html.parsers.SAXParser;
 import org.xml.sax.SAXException;

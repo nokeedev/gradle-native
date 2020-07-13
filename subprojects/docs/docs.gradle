@@ -34,6 +34,10 @@ tasks.withType(CreateAsciinema).configureEach {
 	dependsOn({ project(':distributions').tasks.named('publishToStaging')})
 }
 
+def readMeFile = rootProject.file('readme.adoc')
+docsTest.inputs.file(readMeFile)
+docsTest.systemProperty('dev.nokee.docs.readme.location', readMeFile.absolutePath)
+
 // The following inputs cause the task to never be up-to-date.
 // The solution would be to correctly declare the input/output for `publishToStaging` so it doesn't republish when nothing has changed (and dependencies)
 // For now, it's ok, let's solve this when it becomes a real problem.
@@ -47,6 +51,7 @@ dependencies {
 	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
 	docsTestImplementation gradleFixtures()
 	docsTestImplementation gradleApi(minimumGradleVersion) // Is this really needed?
+	docsTestImplementation gradleTestKit() // needed for readme tests
 
 	docsTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 	docsTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
