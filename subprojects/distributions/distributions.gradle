@@ -17,23 +17,7 @@ import dev.nokee.docs.JavadocDependencyLock
 import dev.nokee.docs.tasks.GenerateJavadocClasspathLock
 import groovy.json.JsonOutput
 
-def allPluginProjectPaths = [
-	':coreExec',
-	':distributions:all',
-	':distributions:bom',
-	':ideBase',
-	':ideVisualStudio',
-	':ideXcode',
-	':languageNative',
-	':platformBase',
-	':platformIos',
-	':platformJni',
-	':platformNative',
-	':runtimeBase',
-	':runtimeNative',
-	':runtimeDarwin',
-	':testingXctest'
-]
+def allPluginProjectPaths = (rootProject.allprojects - [project(':docs'), project(':distributions')])*.path
 
 def publishToStaging = tasks.register('publishToStaging') {
 	group = 'verification'
