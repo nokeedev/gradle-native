@@ -12,13 +12,13 @@ class ObjectiveCppGreeterLib extends GreeterImplementationAwareSourceElement<Obj
 	@Delegate final NativeLibraryElement delegate
 
 	ObjectiveCppGreeterLib() {
-		super(new ObjectiveCppGreetUsesGreeter(), new ObjectiveCppGreeter())
+		super(new ObjectiveCppGreetUsesGreeter().asLib(), new ObjectiveCppGreeter().asLib())
 		delegate = ofNativeLibraryElements(elementUsingGreeter, greeter)
 	}
 
 	@Override
 	GreeterImplementationAwareSourceElement<NativeLibraryElement> withImplementationAsSubproject(String subprojectPath) {
-		return ofImplementationAsSubproject(elementUsingGreeter, asSubproject(subprojectPath, greeter.asLib()))
+		return ofImplementationAsSubproject(elementUsingGreeter, asSubproject(subprojectPath, greeter))
 	}
 }
 
