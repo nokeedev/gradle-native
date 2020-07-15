@@ -84,7 +84,7 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 
 		components.add(objects.newInstance(GroovySpockFrameworkTestSuite.class, "docsTest", project.getExtensions().getByType(SourceSetContainer.class).create("docsTest")));
 
-		DocumentationExtension extension = project.getExtensions().create("documentation", DocumentationExtension.class, documentationVersion, projectVersion);
+		LegacyDocumentationExtension extension = project.getExtensions().create("documentation", LegacyDocumentationExtension.class, documentationVersion, projectVersion);
 
 		// Staging for all documentation
 		TaskProvider<Sync> stageDocumentationTask = tasks.register("stageDocumentation", Sync.class, task -> {

@@ -14,11 +14,11 @@ import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
-public abstract class DocumentationExtension {
+public abstract class LegacyDocumentationExtension {
 	private final NamedDomainObjectContainer<Sample> samples;
 
 	@Inject
-	public DocumentationExtension(ObjectFactory objects, TaskContainer tasks, Provider<String> documentationVersion, Provider<String> projectVersion) {
+	public LegacyDocumentationExtension(ObjectFactory objects, TaskContainer tasks, Provider<String> documentationVersion, Provider<String> projectVersion) {
 		getMinimumGradleVersion().convention("6.2.1");
 		this.samples = objects.domainObjectContainer(Sample.class, name -> objects.newInstance(Sample.class, name));
 
