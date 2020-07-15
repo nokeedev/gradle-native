@@ -20,10 +20,12 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 			Process process = processBuilder.start();
 			if (invocation.isCapturingStandardOutput()) {
 				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-				PumpStreamHandler streamHandler = new PumpStreamHandler(outStream);
+				ByteArrayOutputStream errStream = new ByteArrayOutputStream();
+				PumpStreamHandler streamHandler = new PumpStreamHandler(outStream, errStream);
 				streamHandler.setProcessOutputStream(process.getInputStream());
+				streamHandler.setProcessErrorStream(process.getErrorStream());
 				streamHandler.start();
-				return new Handle(process, streamHandler, outStream::toString, () -> String.join(" ", processBuilder.command()));
+				return new Handle(process, streamHandler, outStream::toString, errStream::toString, () -> String.join(" ", processBuilder.command()));
 			}
 			throw new RuntimeException("Nop");
 		} catch (IOException e) {
@@ -36,13 +38,14 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 		private final Process process;
 		private final PumpStreamHandler streamHandler;
 		private final Supplier<String> standardOutput;
+		private final Supplier<String> errorOutput;
 		private final Supplier<String> displayName;
 
 		public CommandLineToolExecutionResult waitFor() {
 			try {
 				process.waitFor();
 				streamHandler.stop();
-				return new DefaultCommandLineToolExecutionResult(process.exitValue(), standardOutput.get(), displayName);
+				return new DefaultCommandLineToolExecutionResult(process.exitValue(), standardOutput.get(), errorOutput.get(), displayName);
 			} catch (InterruptedException | IOException e) {
 				throw new RuntimeException(e);
 			}

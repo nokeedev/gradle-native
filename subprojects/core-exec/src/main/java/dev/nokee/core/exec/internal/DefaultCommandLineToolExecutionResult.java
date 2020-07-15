@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 public class DefaultCommandLineToolExecutionResult implements CommandLineToolExecutionResult {
 	@Getter private final int exitValue;
 	private final String output;
+	private final String error;
 	private final Supplier<String> displayName;
 
 	@Override
@@ -31,7 +32,7 @@ public class DefaultCommandLineToolExecutionResult implements CommandLineToolExe
 	@Override
 	public CommandLineToolExecutionResult assertNormalExitValue() throws ExecException {
 		if (this.exitValue != 0) {
-			throw new ExecException(String.format("Process '%s' finished with non-zero exit value %d", displayName.get(), exitValue));
+			throw new ExecException(String.format("Process '%s' finished with non-zero exit value %d\n%s", displayName.get(), exitValue, error));
 		} else {
 			return this;
 		}
