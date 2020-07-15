@@ -13,6 +13,7 @@ import dev.nokee.runtime.base.internal.DimensionType;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.Getter;
 import lombok.val;
 import org.gradle.api.GradleException;
 import org.gradle.api.Transformer;
@@ -27,7 +28,7 @@ import java.util.Collection;
 import java.util.Set;
 
 public abstract class BaseNativeExtension<T extends BaseNativeComponent<?>> {
-	private final T component;
+	@Getter private final T component;
 
 	public BaseNativeExtension(T component) {
 		this.component = component;
@@ -99,10 +100,6 @@ public abstract class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 			result.add(dimensionsToOrder.stream().filter(it -> it.getType().equals(type)).findFirst().orElseThrow(() -> new IllegalArgumentException("Missing dimension")));
 		}
 		return result.build();
-	}
-
-	protected T getComponent() {
-		return component;
 	}
 
 	public DefaultTargetMachineFactory getMachines() {

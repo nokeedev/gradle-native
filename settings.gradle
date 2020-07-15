@@ -38,6 +38,10 @@ if (file('../docs-gradle-plugins').exists()) {
 includeBuild 'subprojects/templates'
 includeBuild 'gradle/plugins/docs-gradle-plugin'
 
+include 'buildAdapterCmake'
+project(':buildAdapterCmake').projectDir = file('subprojects/build-adapter-cmake')
+project(':buildAdapterCmake').buildFileName = 'build-adapter-cmake.gradle'
+
 include 'coreExec'
 project(':coreExec').projectDir = file('subprojects/core-exec')
 project(':coreExec').buildFileName = 'core-exec.gradle'
@@ -97,6 +101,14 @@ project(':runtimeNative').buildFileName = 'runtime-native.gradle'
 include 'runtimeDarwin'
 project(':runtimeDarwin').projectDir = file('subprojects/runtime-darwin')
 project(':runtimeDarwin').buildFileName = 'runtime-darwin.gradle'
+
+include 'testingBase'
+project(':testingBase').projectDir = file('subprojects/testing-base')
+project(':testingBase').buildFileName = 'testing-base.gradle'
+
+include 'testingNative'
+project(':testingNative').projectDir = file('subprojects/testing-native')
+project(':testingNative').buildFileName = 'testing-native.gradle'
 
 include 'testingXctest'
 project(':testingXctest').projectDir = file('subprojects/testing-xctest')

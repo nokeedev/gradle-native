@@ -20,6 +20,10 @@ class CGreeterApp extends GreeterImplementationAwareSourceElement<CGreeter> {
 	GreeterImplementationAwareSourceElement<NativeLibraryElement> withImplementationAsSubproject(String subprojectName) {
 		return ofImplementationAsSubproject(elementUsingGreeter, asSubproject(subprojectName, greeter.asLib()))
 	}
+
+	SourceElement withGenericTestSuite() {
+		return ofElements(this, new CGreeterTest())
+	}
 }
 
 class CMainUsesGreeter extends CSourceElement {

@@ -1,0 +1,38 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'maven-publish'
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+	api project(':testingBase')
+
+	implementation project(':platformNative')
+	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation project(':languageNative')
+}
+
+gradlePlugin {
+	plugins {
+		nativeUnitTesting {
+			id = 'dev.nokee.native-unit-testing'
+			implementationClass = 'dev.nokee.testing.nativebase.internal.plugins.NativeUnitTestingPlugin'
+		}
+	}
+}
+
+functionalTest {
+	dependencies {
+		pluginUnderTestMetadata project(':platformNative')
+		pluginUnderTestMetadata project(':buildAdapterCmake')
+		implementation project(':platformNative')
+		implementation project(':testingBase')
+		implementation 'dev.nokee:templates:latest.integration'
+		implementation testFixtures(project(':languageNative'))
+	}
+}

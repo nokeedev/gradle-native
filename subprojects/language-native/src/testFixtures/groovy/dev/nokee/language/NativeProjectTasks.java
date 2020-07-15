@@ -37,6 +37,9 @@ public interface NativeProjectTasks {
 
 	List<String> getAllToAssembleWithInstall();
 
+	// TODO: split to another interface for test suites
+	List<String> getAllToTest();
+
 	NativeProjectTasks withOperatingSystemFamily(String operatingSystemFamily);
 
 	NativeProjectTasks withLinkage(String linkage);

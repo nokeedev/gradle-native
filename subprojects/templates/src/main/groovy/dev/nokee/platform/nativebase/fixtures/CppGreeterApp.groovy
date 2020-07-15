@@ -20,6 +20,10 @@ class CppGreeterApp extends GreeterImplementationAwareSourceElement<CppGreeter> 
 	GreeterImplementationAwareSourceElement<NativeLibraryElement> withImplementationAsSubproject(String subprojectPath) {
 		return ofImplementationAsSubproject(elementUsingGreeter, asSubproject(subprojectPath, greeter.asLib()))
 	}
+
+	SourceElement withGenericTestSuite() {
+		return ofElements(this, new CppGreeterTest())
+	}
 }
 
 class CppMainUsesGreeter extends CppSourceElement {

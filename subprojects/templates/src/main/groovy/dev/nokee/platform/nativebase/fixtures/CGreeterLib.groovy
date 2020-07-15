@@ -19,6 +19,10 @@ class CGreeterLib extends GreeterImplementationAwareSourceElement<CGreeter> {
 	GreeterImplementationAwareSourceElement<NativeLibraryElement> withImplementationAsSubproject(String subprojectPath) {
 		return ofImplementationAsSubproject(elementUsingGreeter, asSubproject(subprojectPath, greeter))
 	}
+
+	SourceElement withGenericTestSuite() {
+		return ofElements(this, new CGreeterTest())
+	}
 }
 
 class CGreetUsingGreeter extends CLibraryElement {
