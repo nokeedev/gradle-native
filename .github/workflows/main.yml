@@ -92,8 +92,8 @@ jobs:
             -   uses: actions/setup-java@v1
                 with:
                     java-version: '8'
-            -   name: Install gobjc-8 and gobjc++-8
-                run: sudo apt-get update && sudo apt-get -y install gobjc-8 gobjc++-8 gcc-8-multilib g++-8-multilib
+            -   name: Install gobjc-8, gobjc++-8 and pthread
+                run: sudo apt-get update && sudo apt-get -y install gobjc-8 gobjc++-8 gcc-8-multilib g++-8-multilib libpthread-stubs0-dev
             -   name: Run all tests
                 uses: eskatos/gradle-command-action@v1
                 with:
