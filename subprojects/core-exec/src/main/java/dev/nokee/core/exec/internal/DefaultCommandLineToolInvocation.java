@@ -17,6 +17,7 @@ public class DefaultCommandLineToolInvocation implements CommandLineToolInvocati
 	@EqualsAndHashCode.Include private final CommandLine commandLine;
 	@Getter private final boolean capturingStandardOutput;
 	private final File standardStreamFile;
+	private final File workingDirectory;
 
 	@Override
 	public CommandLineTool getTool() {
@@ -31,5 +32,10 @@ public class DefaultCommandLineToolInvocation implements CommandLineToolInvocati
 	@Override
 	public Optional<File> getStandardStreamFile() {
 		return Optional.ofNullable(standardStreamFile);
+	}
+
+	@Override
+	public Optional<File> getWorkingDirectory() {
+		return Optional.ofNullable(workingDirectory);
 	}
 }

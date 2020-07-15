@@ -15,6 +15,7 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.command().add(invocation.getTool().getExecutable());
 		processBuilder.command().addAll(invocation.getArguments().get());
+		invocation.getWorkingDirectory().ifPresent(processBuilder::directory);
 		try {
 			Process process = processBuilder.start();
 			if (invocation.isCapturingStandardOutput()) {

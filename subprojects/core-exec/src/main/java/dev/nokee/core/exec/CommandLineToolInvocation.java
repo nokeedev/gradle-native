@@ -16,4 +16,6 @@ public interface CommandLineToolInvocation {
 	boolean isCapturingStandardOutput();
 
 	Optional<File> getStandardStreamFile();
+
+	Optional<File> getWorkingDirectory();
 }

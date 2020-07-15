@@ -10,6 +10,10 @@ import java.io.File;
 public interface CommandLineToolInvocationBuilder {
 	CommandLineToolInvocationBuilder captureStandardOutput();
 
+	// TODO: Support Provider
+	// TODO: Support Directory
+	CommandLineToolInvocationBuilder workingDirectory(File workingDirectory);
+
 	CommandLineToolInvocation build();
 
 	<T extends CommandLineToolExecutionHandle> T buildAndSubmit(CommandLineToolExecutionEngine<T> engine);
