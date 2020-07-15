@@ -73,7 +73,8 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 							val targetModel = new Gson().fromJson(FileUtils.readFileToString(new File(cmakeFileApiReplyDirectory, target.getJsonFile()), Charset.defaultCharset()), CodemodelTarget.class);
 							val configurationUtils = project.getObjects().newInstance(ConfigurationUtils.class);
 							if (!targetModel.getType().equals("STATIC_LIBRARY")) {
-								throw new IllegalArgumentException(String.format("Unsupported target type of '%s', supported target type is 'STATIC_LIBRARY'.", targetModel.getType()));
+								project.getLogger().error(String.format("Unsupported target type of '%s' on project '%s', supported target type is 'STATIC_LIBRARY'.", targetModel.getType(), project.getPath()));
+								return;
 							}
 
 							var compileAction = configurationUtils.asOutgoingHeaderSearchPathFrom();
