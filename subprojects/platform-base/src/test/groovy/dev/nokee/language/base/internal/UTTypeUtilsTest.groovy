@@ -11,8 +11,8 @@ class UTTypeUtilsTest extends Specification {
 		def typeWithNoExtension = UTTypes.of('foo.bar', [] as String[])
 
 		expect:
-		UTTypeUtils.onlyIf(typeWithNoExtension) == []
-		UTTypeUtils.onlyIf(typeWithOneExtension) == ['**/*.foo']
-		UTTypeUtils.onlyIf(typeWithMultipleExtensions) == ['**/*.foo', '**/*.bar']
+		UTTypeUtils.onlyIf(typeWithNoExtension).includes == [] as Set
+		UTTypeUtils.onlyIf(typeWithOneExtension).includes == ['**/*.foo'] as Set
+		UTTypeUtils.onlyIf(typeWithMultipleExtensions).includes == ['**/*.foo', '**/*.bar'] as Set
 	}
 }

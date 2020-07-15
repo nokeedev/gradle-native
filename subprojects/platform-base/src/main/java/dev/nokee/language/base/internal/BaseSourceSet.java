@@ -23,7 +23,7 @@ public abstract class BaseSourceSet implements ConfigurableSourceSet {
 	protected BaseSourceSet(String name, UTType type) {
 		this.name = name;
 		this.type = type;
-		sourceDirectorySet.getFilter().include(onlyIf(type));
+		sourceDirectorySet.getFilter().include(onlyIf(type).getIncludes());
 		sources.from(sourceDirectorySet.getAsFileTree());
 	}
 

@@ -28,7 +28,7 @@ public abstract class GeneratedSourceSet implements SourceSet {
 		this.type = type;
 		this.sourceDirectory = sourceDirectory;
 		this.generatedByTask = generatedByTask;
-		fileTree.setDir(sourceDirectory).builtBy(generatedByTask).include(onlyIf(type));
+		fileTree.setDir(sourceDirectory).builtBy(generatedByTask).include(onlyIf(type).getIncludes());
 	}
 
 	public TaskProvider<? extends Task> getGeneratedByTask() {
