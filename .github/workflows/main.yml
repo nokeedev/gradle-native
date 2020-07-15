@@ -20,6 +20,24 @@ jobs:
                     dependencies-cache-enabled: true
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    deploy:
+        needs: assemble
+        runs-on: ubuntu-latest
+        if: github.ref == 'refs/heads/master'
+        steps:
+            -   uses: actions/checkout@v2
+            -   uses: action/setup-java@v1
+                with:
+                    java-version: '8'
+            -   name: Deploy to snapshot
+                uses: eskatos/gradle-command-action@v1
+                with:
+                    arguments: :distributions:publishToBintray --scan --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
+                    wrapper-cache-enabled: true
+                    dependencies-cache-enabled: true
+                env:
+                    BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+                    BINTRAY_KEY: ${{ secrets.BINTRAY_KEY }}
     windows:
         needs: assemble
         runs-on: windows-latest
