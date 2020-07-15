@@ -43,5 +43,7 @@ public interface NativeProjectTasks {
 
 	NativeProjectTasks withProjectPath(String projectPath);
 
+	NativeProjectTasks withComponentName(String componentName);
+
 	NativeProjectTasks getForStaticLibrary();
 }
