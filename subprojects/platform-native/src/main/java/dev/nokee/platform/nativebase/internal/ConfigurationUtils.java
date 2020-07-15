@@ -3,7 +3,6 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.platform.base.internal.BuildVariant;
-import dev.nokee.platform.base.internal.VariantAwareBinaryView;
 import dev.nokee.runtime.nativebase.internal.*;
 import lombok.Value;
 import lombok.With;
@@ -26,6 +25,7 @@ import java.util.function.Consumer;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static dev.nokee.platform.nativebase.internal.ConfigurationUtils.ConfigurationSpec.Type.*;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
 public abstract class ConfigurationUtils {
@@ -244,7 +244,10 @@ public abstract class ConfigurationUtils {
 
 		public VariantAwareOutgoingConfigurationAction frameworkArtifact(Object notation) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
-				spec.withArtifact(new OutgoingArtifact(ArtifactTypes.FRAMEWORK_TYPE, notation))
+				spec.withArtifacts(ImmutableList.<OutgoingArtifact>builder().
+					addAll(spec.artifacts)
+					.add(new OutgoingArtifact(ArtifactTypes.FRAMEWORK_TYPE, notation))
+					.build())
 					.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 						.putAll(spec.attributes)
 						.put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.FRAMEWORK_BUNDLE))
@@ -253,23 +256,41 @@ public abstract class ConfigurationUtils {
 
 		public VariantAwareOutgoingConfigurationAction headerDirectoryArtifact(Object notation) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
-				spec.withArtifact(new OutgoingArtifact(ArtifactTypes.DIRECTORY_TYPE, notation))
+				spec.withArtifacts(ImmutableList.<OutgoingArtifact>builder().
+					addAll(spec.artifacts)
+					.add(new OutgoingArtifact(ArtifactTypes.DIRECTORY_TYPE, notation))
+					.build())
 					.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 						.putAll(spec.attributes).put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.HEADERS_CPLUSPLUS))
 						.build()));
 		}
 
+		public VariantAwareOutgoingConfigurationAction headerDirectoryArtifacts(Iterable<Object> notations) {
+			val artifacts = ImmutableList.<OutgoingArtifact>builder().addAll(spec.artifacts);
+			notations.forEach(notation -> artifacts.add(new OutgoingArtifact(ArtifactTypes.DIRECTORY_TYPE, notation)));
+
+			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class, spec.withArtifacts(artifacts.build())
+				.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
+					.putAll(spec.attributes).put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.HEADERS_CPLUSPLUS))
+					.build()));
+		}
+
 		public VariantAwareOutgoingConfigurationAction sharedLibraryArtifact(Object notation) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
-				spec.withArtifact(new OutgoingArtifact(null, notation))
-					.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
+				spec.withArtifacts(ImmutableList.<OutgoingArtifact>builder().
+					addAll(spec.artifacts)
+					.add(new OutgoingArtifact(null, notation))
+					.build()).withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 						.putAll(spec.attributes).put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.DYNAMIC_LIB))
 						.build()));
 		}
 
 		public VariantAwareOutgoingConfigurationAction staticLibraryArtifact(Object notation) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
-				spec.withArtifact(new OutgoingArtifact(null, notation))
+				spec.withArtifacts(ImmutableList.<OutgoingArtifact>builder().
+					addAll(spec.artifacts)
+					.add(new OutgoingArtifact(null, notation))
+					.build())
 					.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 						.putAll(spec.attributes).put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.LINK_ARCHIVE))
 						.build()));
@@ -277,7 +298,10 @@ public abstract class ConfigurationUtils {
 
 		public VariantAwareOutgoingConfigurationAction importLibraryArtifact(Object notation) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
-				spec.withArtifact(new OutgoingArtifact(null, notation))
+				spec.withArtifacts(ImmutableList.<OutgoingArtifact>builder().
+					addAll(spec.artifacts)
+					.add(new OutgoingArtifact(null, notation))
+					.build())
 					.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 						.putAll(spec.attributes).put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.IMPORT_LIB))
 						.build()));
@@ -313,7 +337,7 @@ public abstract class ConfigurationUtils {
 		Type type;
 		List<Configuration> fromBuckets;
 		@With Map<Attribute<?>, Object> attributes;
-		@With OutgoingArtifact artifact;
+		@With List<OutgoingArtifact> artifacts;
 		@With Action<Configuration> additionalAction;
 		@With String description;
 
@@ -332,23 +356,23 @@ public abstract class ConfigurationUtils {
 		}
 
 		static ConfigurationSpec asBucket() {
-			return new ConfigurationSpec(BUCKET, ImmutableList.of(), emptyMap(), null, it -> {}, null);
+			return new ConfigurationSpec(BUCKET, ImmutableList.of(), emptyMap(), emptyList(), it -> {}, null);
 		}
 
 		static ConfigurationSpec asBucket(Configuration fromBucket) {
-			return new ConfigurationSpec(BUCKET, ImmutableList.of(fromBucket), emptyMap(), null, it -> {}, null);
+			return new ConfigurationSpec(BUCKET, ImmutableList.of(fromBucket), emptyMap(), emptyList(), it -> {}, null);
 		}
 
 		static ConfigurationSpec asOutgoing(Configuration... fromBuckets) {
-			return new ConfigurationSpec(OUTGOING, ImmutableList.copyOf(fromBuckets), emptyMap(), null, it -> {}, null);
+			return new ConfigurationSpec(OUTGOING, ImmutableList.copyOf(fromBuckets), emptyMap(), emptyList(), it -> {}, null);
 		}
 
 		static ConfigurationSpec asIncoming() {
-			return new ConfigurationSpec(INCOMING, ImmutableList.of(), emptyMap(),null, it -> {}, null);
+			return new ConfigurationSpec(INCOMING, ImmutableList.of(), emptyMap(),emptyList(), it -> {}, null);
 		}
 
 		static ConfigurationSpec asIncoming(Configuration... fromBucket) {
-			return new ConfigurationSpec(INCOMING, ImmutableList.copyOf(fromBucket), emptyMap(), null, it -> {}, null);
+			return new ConfigurationSpec(INCOMING, ImmutableList.copyOf(fromBucket), emptyMap(), emptyList(), it -> {}, null);
 		}
 
 		@Override
@@ -363,7 +387,7 @@ public abstract class ConfigurationUtils {
 			attributes.forEach((key, value) -> configuration.getAttributes().attribute(Cast.uncheckedNonnullCast(key), Cast.uncheckedNonnullCast(value)));
 
 			// TODO: Remove these ifs with better modeling
-			if (artifact != null) {
+			for (OutgoingArtifact artifact : artifacts) {
 				configuration.getOutgoing().artifact(artifact.notation, it -> {
 					if (artifact.type != null) {
 						it.setType(artifact.type);
