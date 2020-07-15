@@ -26,7 +26,31 @@ gradlePlugin {
 			id = 'dev.nokee.cmake-build-adapter'
 			implementationClass = 'dev.nokee.buildadapter.cmake.internal.plugins.CmakeBuildAdapterPlugin'
 		}
+		patcher {
+			id = 'dev.nokee.injectable-source-dependency-plugins'
+			implementationClass = 'dev.nokee.buildadapter.cmake.internal.plugins.PatchSourceDependenciesInjectablePluginsPlugin'
+		}
 	}
+}
+
+abstract class WriteVersionTask extends DefaultTask {
+	@Input
+	abstract Property<String> getVersion()
+
+	@OutputFile
+	abstract RegularFileProperty getOutputFile()
+
+	@TaskAction
+	private void create() {
+		outputFile.get().asFile.text = version.get()
+	}
+}
+def versionTask = tasks.register('writeVersion', WriteVersionTask) {
+	outputFile = layout.buildDirectory.file('version.txt')
+	version = provider { project.version.toString() }
+}
+tasks.named('processResources', ProcessResources) {
+	it.from(versionTask.flatMap { it.outputFile })
 }
 
 functionalTest {
