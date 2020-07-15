@@ -50,12 +50,16 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 
 		CommandLine.of("cmake", ".").newInvocation().workingDirectory(settings.getSettingsDir()).buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine())).waitFor().assertNormalExitValue();
 
-		val iter = Files.newDirectoryStream(cmakeFileApiReplyDirectory.toPath(), this::findCodemodelReplyFile).iterator();
-		if (!iter.hasNext()) {
-			throw new IllegalStateException("No response from cmake");
+		File replyFile = null;
+		try (val stream = Files.newDirectoryStream(cmakeFileApiReplyDirectory.toPath(), this::findCodemodelReplyFile)) {
+			val iter = stream.iterator();
+			if (!iter.hasNext()) {
+				throw new IllegalStateException("No response from cmake");
+			}
+
+			replyFile = iter.next().toFile();
 		}
 
-		val replyFile = iter.next().toFile();
 		val codemodel = new Gson().fromJson(FileUtils.readFileToString(replyFile, Charset.defaultCharset()), CodemodelV2.class);
 
 		codemodel.getConfigurations().forEach(configuration -> {
