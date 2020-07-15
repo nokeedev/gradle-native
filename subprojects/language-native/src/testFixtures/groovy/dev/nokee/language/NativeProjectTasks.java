@@ -39,6 +39,7 @@ public interface NativeProjectTasks {
 
 	// TODO: split to another interface for test suites
 	List<String> getAllToTest();
+	List<String> getAllToCheck();
 
 	NativeProjectTasks withOperatingSystemFamily(String operatingSystemFamily);
 

@@ -143,6 +143,10 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 		return allToLink + [withProject('relocateMainSymbolForTest'), withProject('test')]
 	}
 
+	List<String> getAllToCheck() {
+		return allToTest + [withProject('check')]
+	}
+
 	protected String getVariant() {
 		String result = "${buildType.capitalize()}"
 		if (linkage != null) {

@@ -13,6 +13,7 @@ import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
+import lombok.val;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -25,6 +26,7 @@ import javax.inject.Inject;
 public abstract class NativeUnitTestingPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
+		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(TestingBasePlugin.class);
 
 		ExtensiblePolymorphicDomainObjectContainer<TestSuiteComponent> extension = (ExtensiblePolymorphicDomainObjectContainer<TestSuiteComponent>) project.getExtensions().getByName("testSuites");
@@ -47,7 +49,7 @@ public abstract class NativeUnitTestingPlugin implements Plugin<Project> {
 			if (project.getPluginManager().hasPlugin("dev.nokee.swift-language")) {
 				testSuite.getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").from(testSuite.getNames().getSourceSetPath("swift")));
 			}
-			getTasks().register(testSuite.getName(), RunTestExecutable.class, task -> {
+			val testTask = getTasks().register(testSuite.getName(), RunTestExecutable.class, task -> {
 				task.setOutputDir(task.getTemporaryDir());
 				task.dependsOn(testSuite.getDevelopmentVariant().flatMap(Variant::getDevelopmentBinary));
 				task.commandLine(new Object() {
@@ -56,6 +58,9 @@ public abstract class NativeUnitTestingPlugin implements Plugin<Project> {
 						return testSuite.getDevelopmentVariant().flatMap(it -> ((ExecutableBinaryInternal)it.getDevelopmentBinary().get()).getLinkTask().flatMap(LinkExecutable::getLinkedFile)).get().getAsFile().getAbsolutePath();
 					}
 				});
+			});
+			getTasks().named("check", task -> {
+				task.dependsOn(testTask);
 			});
 		});
 
