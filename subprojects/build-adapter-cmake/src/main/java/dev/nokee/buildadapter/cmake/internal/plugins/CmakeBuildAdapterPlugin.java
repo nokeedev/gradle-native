@@ -48,6 +48,8 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 		cmakeFileApiQueryCodemodelFile.getParentFile().mkdirs();
 		cmakeFileApiQueryCodemodelFile.createNewFile();
 
+		// TODO: Check cmake tool can be found
+		// TODO: Check version supports File API: starting with cmake 3.14 before the feature doesn't exists
 		CommandLine.of("cmake", ".").newInvocation().workingDirectory(settings.getSettingsDir()).buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine())).waitFor().assertNormalExitValue();
 
 		File replyFile = null;
