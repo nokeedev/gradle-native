@@ -1,7 +1,9 @@
 package dev.nokee.buildadapter.cmake.internal.plugins;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import dev.nokee.buildadapter.cmake.internal.GitBasedGroupIdSupplier;
+import dev.nokee.buildadapter.cmake.internal.tasks.CMakeMSBuildAdapterTask;
 import dev.nokee.buildadapter.cmake.internal.tasks.CMakeMakeAdapterTask;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.LoggingEngine;
@@ -16,13 +18,16 @@ import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.initialization.Settings;
+import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static dev.nokee.buildadapter.cmake.internal.DeferUtils.asToStringObject;
 
@@ -75,6 +80,7 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 			}
 		}
 
+		val configurationName = configuration.getName();
 		configuration.getTargets().forEach(target -> {
 			settings.include(target.getName());
 			settings.getGradle().rootProject(rootProject -> {
@@ -95,13 +101,31 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 
 						project.getConfigurations().create("compileElements", compileAction);
 
-						val makeTask = project.getTasks().register("make", CMakeMakeAdapterTask.class, task -> {
-							task.getTargetName().set(targetModel.getName());
-							task.getBuiltFile().set(rootProject.file(targetModel.getArtifacts().iterator().next().getPath()));
-							task.getWorkingDirectory().set(rootProject.getLayout().getProjectDirectory());
-						});
+						if (OperatingSystem.current().isWindows()) {
+							val makeTask = project.getTasks().register("make", CMakeMSBuildAdapterTask.class, task -> {
+								task.getTargetName().set(targetModel.getName());
+								task.getConfigurationName().set(configurationName);
 
-						project.getConfigurations().create("linkElements", configurationUtils.asOutgoingLinkLibrariesFrom().staticLibraryArtifact(makeTask.flatMap(CMakeMakeAdapterTask::getBuiltFile)));
+								val tokens = ImmutableList.copyOf(targetModel.getArtifacts().iterator().next().getPath().split("/"));
+								val iter = tokens.iterator();
+								val pathSegment = new ArrayList<String>();
+								pathSegment.add(iter.next());
+								pathSegment.add(configurationName);
+								iter.forEachRemaining(pathSegment::add);
+								task.getBuiltFile().set(rootProject.file(String.join("/", pathSegment)));
+								task.getWorkingDirectory().set(rootProject.getLayout().getProjectDirectory());
+							});
+							project.getConfigurations().create("linkElements", configurationUtils.asOutgoingLinkLibrariesFrom().staticLibraryArtifact(makeTask.flatMap(CMakeMSBuildAdapterTask::getBuiltFile)));
+						} else {
+							val makeTask = project.getTasks().register("make", CMakeMakeAdapterTask.class, task -> {
+								task.getTargetName().set(targetModel.getName());
+								task.getBuiltFile().set(rootProject.file(targetModel.getArtifacts().iterator().next().getPath()));
+								task.getWorkingDirectory().set(rootProject.getLayout().getProjectDirectory());
+							});
+							project.getConfigurations().create("linkElements", configurationUtils.asOutgoingLinkLibrariesFrom().staticLibraryArtifact(makeTask.flatMap(CMakeMakeAdapterTask::getBuiltFile)));
+						}
+
+
 						project.getConfigurations().create("runtimeElements", configurationUtils.asOutgoingRuntimeLibrariesFrom());
 					}
 				});
