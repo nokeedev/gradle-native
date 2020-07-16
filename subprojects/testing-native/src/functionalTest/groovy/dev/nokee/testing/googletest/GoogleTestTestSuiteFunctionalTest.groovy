@@ -40,7 +40,20 @@ class GoogleTestTestSuiteFunctionalTest extends AbstractInstalledToolChainIntegr
 					}
 					binaries.configureEach(${ExecutableBinary.simpleName}) {
 						compileTasks.configureEach {
-							compilerArgs.add('-std=c++17')
+							compilerArgs.addAll(toolChain.map {
+								if (it in Gcc || it in Clang) {
+									return ['-std=c++17']
+								}
+								return []
+							})
+						}
+						linkTask.configure {
+							linkerArgs.addAll(targetPlatform.map {
+								if (it.operatingSystem.linux) {
+									return ['-lpthread']
+								}
+								return []
+							})
 						}
 					}
 				}
