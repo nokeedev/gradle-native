@@ -1,7 +1,6 @@
 package dev.nokee.buildadapter.cmake.internal.plugins;
 
 import com.google.gson.Gson;
-import dev.nokee.buildadapter.cmake.internal.DeferUtils;
 import dev.nokee.buildadapter.cmake.internal.GitBasedGroupIdSupplier;
 import dev.nokee.buildadapter.cmake.internal.tasks.CMakeMakeAdapterTask;
 import dev.nokee.core.exec.CommandLine;
@@ -64,37 +63,47 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 
 		val codemodel = new Gson().fromJson(FileUtils.readFileToString(replyFile, Charset.defaultCharset()), CodemodelV2.class);
 
-		codemodel.getConfigurations().forEach(configuration -> {
-			configuration.getTargets().forEach(target -> {
-				settings.include(target.getName());
-				settings.getGradle().rootProject(rootProject -> {
-					rootProject.project(target.getName(), new Action<Project>() {
-						@SneakyThrows
-						@Override
-						public void execute(Project project) {
-							val targetModel = new Gson().fromJson(FileUtils.readFileToString(new File(cmakeFileApiReplyDirectory, target.getJsonFile()), Charset.defaultCharset()), CodemodelTarget.class);
-							val configurationUtils = project.getObjects().newInstance(ConfigurationUtils.class);
-							if (!targetModel.getType().equals("STATIC_LIBRARY")) {
-								project.getLogger().error(String.format("Unsupported target type of '%s' on project '%s', supported target type is 'STATIC_LIBRARY'.", targetModel.getType(), project.getPath()));
-								return;
-							}
+		CodemodelV2.Configuration configuration = null;
+		if (codemodel.getConfigurations().isEmpty()) {
+			System.err.println("No CMake configuration found!");
+		} else if (codemodel.getConfigurations().size() == 1) {
+			configuration = codemodel.getConfigurations().iterator().next();
+		} else {
+			configuration = codemodel.getConfigurations().stream().filter(it -> it.getName().toLowerCase().equals("release")).findFirst().orElse(null);
+			if (configuration == null) {
+				System.err.println(String.format("No CMake release configuration found, possible choices was: '%s'.", codemodel.getConfigurations().stream().map(CodemodelV2.Configuration::getName).collect(Collectors.joining("','"))));
+			}
+		}
 
-							var compileAction = configurationUtils.asOutgoingHeaderSearchPathFrom();
-							val compileGroup = targetModel.getCompileGroups().iterator().next(); // Assuming only one
-							compileAction = compileAction.headerDirectoryArtifacts(compileGroup.getIncludes().stream().map(CodemodelTarget.CompileGroup.Include::getPath).map(rootProject::file).collect(Collectors.toList()));
-
-							project.getConfigurations().create("compileElements", compileAction);
-
-							val makeTask = project.getTasks().register("make", CMakeMakeAdapterTask.class, task -> {
-								task.getTargetName().set(targetModel.getName());
-								task.getBuiltFile().set(rootProject.file(targetModel.getArtifacts().iterator().next().getPath()));
-								task.getWorkingDirectory().set(rootProject.getLayout().getProjectDirectory());
-							});
-
-							project.getConfigurations().create("linkElements", configurationUtils.asOutgoingLinkLibrariesFrom().staticLibraryArtifact(makeTask.flatMap(CMakeMakeAdapterTask::getBuiltFile)));
-							project.getConfigurations().create("runtimeElements", configurationUtils.asOutgoingRuntimeLibrariesFrom());
+		configuration.getTargets().forEach(target -> {
+			settings.include(target.getName());
+			settings.getGradle().rootProject(rootProject -> {
+				rootProject.project(target.getName(), new Action<Project>() {
+					@SneakyThrows
+					@Override
+					public void execute(Project project) {
+						val targetModel = new Gson().fromJson(FileUtils.readFileToString(new File(cmakeFileApiReplyDirectory, target.getJsonFile()), Charset.defaultCharset()), CodemodelTarget.class);
+						val configurationUtils = project.getObjects().newInstance(ConfigurationUtils.class);
+						if (!targetModel.getType().equals("STATIC_LIBRARY")) {
+							project.getLogger().error(String.format("Unsupported target type of '%s' on project '%s', supported target type is 'STATIC_LIBRARY'.", targetModel.getType(), project.getPath()));
+							return;
 						}
-					});
+
+						var compileAction = configurationUtils.asOutgoingHeaderSearchPathFrom();
+						val compileGroup = targetModel.getCompileGroups().iterator().next(); // Assuming only one
+						compileAction = compileAction.headerDirectoryArtifacts(compileGroup.getIncludes().stream().map(CodemodelTarget.CompileGroup.Include::getPath).map(rootProject::file).collect(Collectors.toList()));
+
+						project.getConfigurations().create("compileElements", compileAction);
+
+						val makeTask = project.getTasks().register("make", CMakeMakeAdapterTask.class, task -> {
+							task.getTargetName().set(targetModel.getName());
+							task.getBuiltFile().set(rootProject.file(targetModel.getArtifacts().iterator().next().getPath()));
+							task.getWorkingDirectory().set(rootProject.getLayout().getProjectDirectory());
+						});
+
+						project.getConfigurations().create("linkElements", configurationUtils.asOutgoingLinkLibrariesFrom().staticLibraryArtifact(makeTask.flatMap(CMakeMakeAdapterTask::getBuiltFile)));
+						project.getConfigurations().create("runtimeElements", configurationUtils.asOutgoingRuntimeLibrariesFrom());
+					}
 				});
 			});
 		});
@@ -116,6 +125,7 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 
 		@Value
 		public static class Configuration {
+			String name;
 			List<Target> targets;
 
 			@Value
