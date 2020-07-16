@@ -105,14 +105,7 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 							val makeTask = project.getTasks().register("make", CMakeMSBuildAdapterTask.class, task -> {
 								task.getTargetName().set(targetModel.getName());
 								task.getConfigurationName().set(configurationName);
-
-								val tokens = ImmutableList.copyOf(targetModel.getArtifacts().iterator().next().getPath().split("/"));
-								val iter = tokens.iterator();
-								val pathSegment = new ArrayList<String>();
-								pathSegment.add(iter.next());
-								pathSegment.add(configurationName);
-								iter.forEachRemaining(pathSegment::add);
-								task.getBuiltFile().set(rootProject.file(String.join("/", pathSegment)));
+								task.getBuiltFile().set(rootProject.file(targetModel.getArtifacts().iterator().next().getPath()));
 								task.getWorkingDirectory().set(rootProject.getLayout().getProjectDirectory());
 							});
 							project.getConfigurations().create("linkElements", configurationUtils.asOutgoingLinkLibrariesFrom().staticLibraryArtifact(makeTask.flatMap(CMakeMSBuildAdapterTask::getBuiltFile)));
