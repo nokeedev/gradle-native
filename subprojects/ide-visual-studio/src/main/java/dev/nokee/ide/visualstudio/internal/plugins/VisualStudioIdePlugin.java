@@ -1,6 +1,7 @@
 package dev.nokee.ide.visualstudio.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
+import com.sun.xml.internal.ws.util.StringUtils;
 import dev.nokee.ide.base.internal.IdeProjectExtension;
 import dev.nokee.ide.base.internal.IdeProjectInternal;
 import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
@@ -137,6 +138,14 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 					}
 					throw unsupportedBinaryType(binary.get());
 				}));
+			target.getItemProperties().maybeCreate("Link").put("SubSystem", getProviders().provider(() -> {
+				if (binary.get() instanceof ExecutableBinary) {
+					return ((ExecutableBinary) binary.get()).getLinkTask().get().getLinkerArgs().get().stream().filter(arg -> arg.matches("^[-/]SUBSYSTEM:.+")).findFirst().map(a -> {
+						return StringUtils.capitalize(a.substring(11).toLowerCase());
+					}).orElse(null);
+				}
+				return null;
+			}));
 		});
 
 		return visualStudioProject;
