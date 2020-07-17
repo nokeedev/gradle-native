@@ -13,6 +13,7 @@ jobs:
             -   name: Install documentation dependencies
                 run: sudo apt-get update && sudo apt-get -y install graphviz asciinema imagemagick gifsicle ffmpeg tree && sudo npm --global install asciicast2gif giflossy --unsafe-perm
             -   name: Build all code
+                id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
                     arguments: assemble --scan --continue --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
@@ -21,6 +22,18 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     CI: true
+            -   name: Attach build scan to commit
+                if: ${{ always() }}
+                run: |
+                    curl --request POST \
+                    --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+                    --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                    --header "Accept: application/vnd.github.v3+json" \
+                    --data '{
+                        "state":"${{ steps.gradle.outcome }}",
+                        "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
+                        "context": "assemble"
+                    }'
     deploy:
         needs: assemble
         runs-on: ubuntu-latest
@@ -31,6 +44,7 @@ jobs:
                 with:
                     java-version: '8'
             -   name: Deploy to snapshot
+                id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
                     arguments: :distributions:publishToBintray --scan --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
@@ -40,6 +54,18 @@ jobs:
                     BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
                     BINTRAY_KEY: ${{ secrets.BINTRAY_KEY }}
                     CI: true
+            -   name: Attach build scan to commit
+                if: ${{ always() }}
+                run: |
+                    curl --request POST \
+                    --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+                    --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                    --header "Accept: application/vnd.github.v3+json" \
+                    --data '{
+                        "state":"${{ steps.gradle.outcome }}",
+                        "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
+                        "context": ":distributions:publishToBintray"
+                    }'
     windows:
         needs: assemble
         runs-on: windows-latest
@@ -53,6 +79,7 @@ jobs:
                 with:
                     java-version: '8'
             -   name: Run all tests
+                id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
                     arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
@@ -61,6 +88,18 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     CI: true
+            -   name: Attach build scan to commit
+                if: ${{ always() }}
+                run: |
+                    curl --request POST \
+                    --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+                    --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                    --header "Accept: application/vnd.github.v3+json" \
+                    --data '{
+                        "state":"${{ steps.gradle.outcome }}",
+                        "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
+                        "context": "${{ matrix.checkTask }}"
+                    }'
 
     macos:
         needs: assemble
@@ -75,6 +114,7 @@ jobs:
                 with:
                     java-version: '8'
             -   name: Run all tests
+                id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
                     arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
@@ -83,6 +123,18 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     CI: true
+            -   name: Attach build scan to commit
+                if: ${{ always() }}
+                run: |
+                    curl --request POST \
+                    --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+                    --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                    --header "Accept: application/vnd.github.v3+json" \
+                    --data '{
+                        "state":"${{ steps.gradle.outcome }}",
+                        "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
+                        "context": "${{ matrix.checkTask }}"
+                    }'
 
     linux:
         needs: assemble
@@ -99,6 +151,7 @@ jobs:
             -   name: Install gobjc-8, gobjc++-8 and pthread
                 run: sudo apt-get update && sudo apt-get -y install gobjc-8 gobjc++-8 gcc-8-multilib g++-8-multilib libpthread-stubs0-dev
             -   name: Run all tests
+                id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
                     arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
@@ -107,3 +160,15 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     CI: true
+            -   name: Attach build scan to commit
+                if: ${{ always() }}
+                run: |
+                    curl --request POST \
+                    --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+                    --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                    --header "Accept: application/vnd.github.v3+json" \
+                    --data '{
+                        "state":"${{ steps.gradle.outcome }}",
+                        "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
+                        "context": "${{ matrix.checkTask }}"
+                    }'
