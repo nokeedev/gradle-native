@@ -43,6 +43,7 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 
 		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, getNames());
 		this.getDimensions().convention(ImmutableList.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultBinaryLinkage.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
+		this.getBaseName().convention(names.getBaseName().getAsString());
 
 		this.getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
 		this.getBuildVariants().finalizeValueOnRead();
@@ -112,6 +113,9 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 		getTestedComponent().disallowChanges();
 		if (getTestedComponent().isPresent()) {
 			val component = getTestedComponent().get();
+
+			getBaseName().convention(component.getBaseName().map(it -> it + "-test"));
+
 			component.getSourceCollection().withType(BaseSourceSet.class).configureEach(sourceSet -> {
 				if (getSourceCollection().withType(sourceSet.getClass()).isEmpty()) {
 					getSourceCollection().add(getObjects().newInstance(sourceSet.getClass(), sourceSet.getName()).from(getNames().getSourceSetPath(sourceSet.getName())));

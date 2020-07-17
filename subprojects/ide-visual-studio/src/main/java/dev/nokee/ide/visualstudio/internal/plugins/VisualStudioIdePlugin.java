@@ -1,7 +1,6 @@
 package dev.nokee.ide.visualstudio.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
-import com.sun.xml.internal.ws.util.StringUtils;
 import dev.nokee.ide.base.internal.IdeProjectExtension;
 import dev.nokee.ide.base.internal.IdeProjectInternal;
 import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
@@ -23,6 +22,7 @@ import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Rule;
 import org.gradle.api.Transformer;
 import org.gradle.api.file.FileSystemLocation;

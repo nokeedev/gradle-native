@@ -16,6 +16,8 @@ dependencies {
 	implementation 'org.simpleframework:simple-xml:2.7.1'
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+
 	implementation project(':platformNative') // for NativeBinary
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
