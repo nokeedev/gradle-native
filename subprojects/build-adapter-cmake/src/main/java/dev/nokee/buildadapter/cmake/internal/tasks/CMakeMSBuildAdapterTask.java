@@ -31,7 +31,11 @@ public abstract class CMakeMSBuildAdapterTask extends DefaultTask {
 
 	@TaskAction
 	private void doExec() throws IOException {
-		CommandLineTool.of(new File("C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe")).withArguments("/p:Configuration=" + getConfigurationName().get(), findVcxproj()).newInvocation().workingDirectory(getWorkingDirectory().get().getAsFile()).buildAndSubmit(new ProcessBuilderEngine()).waitFor().assertNormalExitValue();
+		File msbuild = new File("C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe");
+		if (!msbuild.exists()) {
+			msbuild = new File("C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe");
+		}
+		CommandLineTool.of(msbuild).withArguments("/p:Configuration=" + getConfigurationName().get(), findVcxproj()).newInvocation().workingDirectory(getWorkingDirectory().get().getAsFile()).buildAndSubmit(new ProcessBuilderEngine()).waitFor().assertNormalExitValue();
 	}
 
 	private String findVcxproj() throws IOException {
