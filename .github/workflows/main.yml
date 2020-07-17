@@ -20,6 +20,7 @@ jobs:
                     dependencies-cache-enabled: true
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    CI: true
     deploy:
         needs: assemble
         runs-on: ubuntu-latest
@@ -38,6 +39,7 @@ jobs:
                 env:
                     BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
                     BINTRAY_KEY: ${{ secrets.BINTRAY_KEY }}
+                    CI: true
     windows:
         needs: assemble
         runs-on: windows-latest
@@ -58,6 +60,7 @@ jobs:
                     dependencies-cache-enabled: true
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    CI: true
 
     macos:
         needs: assemble
@@ -79,6 +82,7 @@ jobs:
                     dependencies-cache-enabled: true
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    CI: true
 
     linux:
         needs: assemble
@@ -102,3 +106,4 @@ jobs:
                     dependencies-cache-enabled: true
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    CI: true

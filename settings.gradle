@@ -125,6 +125,8 @@ buildCache {
 			username = System.getProperty('dev.nokee.gradle.cache.remote.username')
 			password = System.getProperty('dev.nokee.gradle.cache.remote.password')
 		}
+		enabled = true
+		push = System.getenv().containsKey('CI')
 	}
 }
 
