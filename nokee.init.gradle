@@ -1,25 +1,71 @@
-gradle.addBuildListener(new BuildListener() {
-	@Override
-	void buildStarted(Gradle gradle) {}
+/**
+ * This initscript improve the user experience for Nokee's snapshot versions.
+ * The snapshot versions are published outside of the plugin portal as they may be unstable.
+ * Unfortunately, Gradle doesn't handle well plugins published outside of the plugin portal.
+ * This script tries to put some sanity in the configuration required and provide a vanilla experience.
+ */
+import groovy.json.JsonSlurper
+import org.gradle.util.VersionNumber
 
-	@Override
-	void settingsEvaluated(Settings settings) {}
-
-	@Override
-	void projectsLoaded(Gradle gradle) {}
-
-	@Override
-	void projectsEvaluated(Gradle gradle) {}
-
-	@Override
-	void buildFinished(BuildResult buildResult) {}
-
+gradle.addBuildListener(new BuildAdapter() {
 	@Override
 	void beforeSettings(Settings settings) {
-		settings.pluginManagement {
-			repositories {
-				mavenLocal()
+		def nokeeVersionFile = new File(settings.settingsDir, '.gradle/using-nokee-version.txt')
+		VersionNumber nokeeVersion = null
+
+		String nokee = System.getProperties().get('nokee')
+		if (nokee == null) {
+			if (nokeeVersionFile.exists()) {
+				nokeeVersion = VersionNumber.parse(nokeeVersionFile.text)
+			}
+		} else if (nokee == 'latest') {
+			nokeeVersion = getLatestSnapshotVersion()
+		} else if (nokee == 'current') {
+			nokeeVersion = getLatestReleasedVersion()
+		} else {
+			nokeeVersion = VersionNumber.parse(nokee)
+		}
+
+		if (nokeeVersion != null) {
+			println "Using Nokee version: ${nokeeVersion.toString()}"
+			nokeeVersionFile.text = nokeeVersion.toString()
+			settings.pluginManagement {
+				repositories {
+					// TODO: Check if the version is in the repositories, then add the local repo if not found. The local repo can be configured via gradle.properties
+					String nokeeLocalRepository = System.getProperty('NOKEE_LOCAL_REPOSITORY', System.getenv('NOKEE_LOCAL_REPOSITORY'))
+					if (nokeeLocalRepository != null) {
+						maven { url = nokeeLocalRepository }
+					}
+					gradlePluginPortal()
+					if (nokeeVersion.qualifier != null) {
+						maven { url = uri('https://dl.bintray.com/nokeedev/distributions-snapshots') }
+					}
+				}
+				resolutionStrategy {
+					eachPlugin {
+						if (requested.id.id.startsWith("dev.nokee.")) {
+							useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:${nokeeVersion.toString()}")
+						}
+					}
+				}
 			}
 		}
 	}
 })
+
+gradle.rootProject {
+	tasks.register("setupNokee") {
+		description = "Install Nokee's global init script on this machine. To uninstall, use `rm -rf ~/.gradle/init.d/nokee.init.gradle`."
+		doLast {
+			new File(gradle.gradleUserHomeDir, 'init.d/nokee.init.gradle').text = new URL('https://raw.githubusercontent.com/nokeedev/gradle-native/master/nokee.init.gradle').text
+		}
+	}
+}
+
+VersionNumber getLatestSnapshotVersion() {
+	return VersionNumber.parse(new JsonSlurper().parse(new URL('https://services.nokee.dev/versions/snapshot')).version)
+}
+
+VersionNumber getLatestReleasedVersion() {
+	return VersionNumber.parse(new JsonSlurper().parse(new URL('https://services.nokee.dev/versions/current')).version)
+}
