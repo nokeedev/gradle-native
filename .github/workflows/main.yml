@@ -34,7 +34,7 @@ jobs:
                         --data '{
                             "state":"${{ steps.gradle.outcome }}",
                             "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
-                            "context": "assemble"
+                            "context": "SCAN / assemble"
                         }'
     deploy:
         needs: assemble
@@ -68,7 +68,7 @@ jobs:
                         --data '{
                             "state":"${{ steps.gradle.outcome }}",
                             "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
-                            "context": ":distributions:publishToBintray"
+                            "context": "SCAN / :distributions:publishToBintray"
                         }'
     windows:
         needs: assemble
@@ -104,7 +104,7 @@ jobs:
                         --data '{
                             "state":"${{ steps.gradle.outcome }}",
                             "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
-                            "context": "${{ matrix.checkTask }}"
+                            "context": "SCAN / ${{ runner.os }} (${{ matrix.checkTask }})"
                         }'
 
     macos:
@@ -141,7 +141,7 @@ jobs:
                         --data '{
                             "state":"${{ steps.gradle.outcome }}",
                             "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
-                            "context": "${{ matrix.checkTask }}"
+                            "context": "SCAN / ${{ runner.os }} (${{ matrix.checkTask }})"
                         }'
 
     linux:
