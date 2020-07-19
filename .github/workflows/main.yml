@@ -27,11 +27,7 @@ jobs:
                 if: ${{ always() }}
                 with:
                     args: |
-                        --request POST \
-                        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                        --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                        --header "Accept: application/vnd.github.v3+json" \
-                        --data '{
+                        --request POST --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github.v3+json" --data '{
                             "state":"${{ steps.gradle.outcome }}",
                             "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
                             "context": "SCAN / assemble"
@@ -61,11 +57,7 @@ jobs:
                 if: ${{ always() }}
                 with:
                     args: |
-                        --request POST \
-                        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                        --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                        --header "Accept: application/vnd.github.v3+json" \
-                        --data '{
+                        --request POST --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github.v3+json" --data '{
                             "state":"${{ steps.gradle.outcome }}",
                             "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
                             "context": "SCAN / :distributions:publishToBintray"
@@ -97,11 +89,7 @@ jobs:
                 if: ${{ always() }}
                 with:
                     args: |
-                        --request POST \
-                        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                        --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                        --header "Accept: application/vnd.github.v3+json" \
-                        --data '{
+                        --request POST --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github.v3+json" --data '{
                             "state":"${{ steps.gradle.outcome }}",
                             "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
                             "context": "SCAN / ${{ runner.os }} (${{ matrix.checkTask }})"
@@ -134,11 +122,7 @@ jobs:
                 if: ${{ always() }}
                 with:
                     args: |
-                        --request POST \
-                        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                        --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                        --header "Accept: application/vnd.github.v3+json" \
-                        --data '{
+                        --request POST --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github.v3+json" --data '{
                             "state":"${{ steps.gradle.outcome }}",
                             "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
                             "context": "SCAN / ${{ runner.os }} (${{ matrix.checkTask }})"
@@ -173,11 +157,7 @@ jobs:
                 if: ${{ always() }}
                 with:
                     args: |
-                        --request POST \
-                        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                        --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                        --header "Accept: application/vnd.github.v3+json" \
-                        --data '{
+                        --request POST --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github.v3+json" --data '{
                             "state":"${{ steps.gradle.outcome }}",
                             "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
                             "context": "SCAN / ${{ runner.os }} (${{ matrix.checkTask }})"
