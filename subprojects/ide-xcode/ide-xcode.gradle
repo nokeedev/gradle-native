@@ -9,6 +9,7 @@ repositories {
 }
 
 dependencies {
+	implementation project(':coreUtils')
 	implementation project(':ideBase')
 	compileOnly "org.codehaus.groovy:groovy-templates:${groovyVersion}"
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.8'
