@@ -1,7 +1,9 @@
 package dev.nokee.ide.visualstudio
 
-
+import com.sun.scenario.effect.Merge
 import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture
+import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeSolutionFixture
 
 abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractVisualStudioIdeFunctionalSpec {
 	protected abstract void makeSingleProject()
@@ -12,12 +14,16 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 
 	protected abstract String getProjectName()
 
-	protected String getSchemeName() {
+	protected String getSolutionName() {
 		return projectName
 	}
 
-	protected String getSolutionName() {
-		return projectName
+	protected VisualStudioIdeProjectFixture getVisualStudioProjectUnderTest() {
+		return visualStudioProject(projectName)
+	}
+
+	protected VisualStudioIdeSolutionFixture getVisualStudioSolutionUnderTest() {
+		return visualStudioSolution(solutionName)
 	}
 
 	protected abstract List<String> getAllTasksForBuildAction()
@@ -28,6 +34,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 
 	def "creates Visual Studio project delegating to Gradle"() {
 		given:
+		settingsFile << "rootProject.name = '${projectName}'"
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)
 
@@ -35,7 +42,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		succeeds('visualStudio')
 
 		then:
-		def project = visualStudioProject
+		def project = visualStudioProjectUnderTest
 		project.assertHasTarget('Build')
 		project.getTargetByName('Build').assertTargetDelegateToGradle()
 
@@ -45,6 +52,8 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 	}
 
 	def "includes sources in the project"() {
+		given:
+		settingsFile << "rootProject.name = '${projectName}'"
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)
 
@@ -52,10 +61,12 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		succeeds('visualStudio')
 
 		then:
-		visualStudioProject.assertHasSourceLayout(componentUnderTest.sources.files.collect { "Source Files/${it.name}".toString() } + componentUnderTest.headers.files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
+		visualStudioProjectUnderTest.assertHasSourceLayout(componentUnderTest.sources.files.collect { "Source Files/${it.name}".toString() } + componentUnderTest.headers.files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
 	}
 
 	def "include sources in project with custom layout"() {
+		given:
+		settingsFile << "rootProject.name = '${projectName}'"
 		makeSingleProject()
 		componentUnderTest.sources.writeToSourceDir(file('srcs'))
 		componentUnderTest.headers.writeToSourceDir(file('hdrs'))
@@ -65,7 +76,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		succeeds('visualStudio')
 
 		then:
-		visualStudioProject.assertHasSourceLayout(componentUnderTest.sources.files.collect { "Source Files/${it.name}".toString() } + componentUnderTest.headers.files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
+		visualStudioProjectUnderTest.assertHasSourceLayout(componentUnderTest.sources.files.collect { "Source Files/${it.name}".toString() } + componentUnderTest.headers.files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
 	}
 
 	// TODO: Check ConfigurationType

@@ -53,7 +53,8 @@ public abstract class XcodeIdeBridge extends IdeBridgeRule<XcodeIdeRequest> {
 	}
 
 	private XcodeIdeTarget findXcodeTarget(XcodeIdeRequest request) {
-		String projectName = request.getProjectName();
+		String projectName = request.getGradleIdeProjectName();
+		realize(xcodeProjects);
 		XcodeIdeProject project = xcodeProjects.findByName(projectName);
 		if (project == null) {
 			throw new GradleException(String.format("Unknown Xcode IDE project '%s', try re-generating the Xcode IDE configuration using '%s:xcode' task.", projectName, getPrefixableProjectPath(this.project)));

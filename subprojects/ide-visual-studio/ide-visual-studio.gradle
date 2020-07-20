@@ -34,10 +34,12 @@ gradlePlugin {
 functionalTest {
 	dependencies {
 		pluginUnderTestMetadata project(':platformNative')
+		pluginUnderTestMetadata project(':testingNative')
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation project(':platformNative')
 		implementation testFixtures(project(':languageNative'))
 		implementation testFixtures(project(':platformBase'))
+		implementation project(':testingNative')
 		implementation "commons-io:commons-io:${commonsIoVersion}"
 	}
 }

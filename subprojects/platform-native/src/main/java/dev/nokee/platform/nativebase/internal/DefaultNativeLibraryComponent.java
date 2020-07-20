@@ -3,15 +3,14 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.internal.BuildVariant;
-import dev.nokee.platform.base.internal.Component;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.nativebase.NativeLibraryDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.AbstractBinaryAwareNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryDependencies;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import org.gradle.api.Action;
+import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
@@ -40,5 +39,30 @@ public abstract class DefaultNativeLibraryComponent extends BaseNativeComponent<
 
 		DefaultNativeLibraryVariant result = getObjects().newInstance(DefaultNativeLibraryVariant.class, name, names, buildVariant, variantDependencies);
 		return result;
+	}
+
+	public static DomainObjectFactory<DefaultNativeLibraryComponent> newMain(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
+		return new DomainObjectFactory<DefaultNativeLibraryComponent>() {
+			@Override
+			public DefaultNativeLibraryComponent create() {
+				NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main native component");
+				return objects.newInstance(DefaultNativeLibraryComponent.class, names);
+			}
+
+			@Override
+			public Class<DefaultNativeLibraryComponent> getType() {
+				return DefaultNativeLibraryComponent.class;
+			}
+
+			@Override
+			public Class<? extends DefaultNativeLibraryComponent> getImplementationType() {
+				return DefaultNativeLibraryComponent.class;
+			}
+
+			@Override
+			public DomainObjectIdentity getIdentity() {
+				return DomainObjectIdentity.named("main");
+			}
+		};
 	}
 }

@@ -53,4 +53,8 @@ public abstract class XcodeIdeRequest implements IdeRequest {
 	public Directory getBuiltProductsDirectory() {
 		return getObjects().directoryProperty().fileProvider(properties.getBuiltProductsDir().map(File::new)).get();
 	}
+
+	public String getGradleIdeProjectName() {
+		return properties.getGradleIdeProjectName().get();
+	}
 }

@@ -1,5 +1,6 @@
 package dev.nokee.ide.visualstudio.internal.plugins;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.ide.base.internal.IdeProjectExtension;
 import dev.nokee.ide.base.internal.IdeProjectInternal;
 import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
@@ -13,18 +14,18 @@ import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.Component;
-import dev.nokee.platform.base.internal.ComponentCollection;
+import dev.nokee.platform.base.internal.DomainObjectStore;
+import dev.nokee.platform.base.internal.NamedDomainObjectIdentity;
+import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
-import dev.nokee.utils.Cast;
 import lombok.val;
 import org.gradle.api.Rule;
+import org.gradle.api.Transformer;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.RegularFile;
-import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.plugins.ide.internal.IdeProjectMetadata;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static dev.nokee.utils.ProjectUtils.getPrefixableProjectPath;
+import static java.util.Collections.emptyList;
 
 public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStudioIdeProject> {
 	public static final String VISUAL_STUDIO_EXTENSION_NAME = "visualStudio";
@@ -42,7 +44,7 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 		extension.getProjects().withType(DefaultVisualStudioIdeProject.class).configureEach(xcodeProject -> {
 			xcodeProject.getGeneratorTask().configure( task -> {
 				RegularFile projectLocation = getLayout().getProjectDirectory().file(xcodeProject.getName() + ".vcxproj");
-				task.getProjectLocation().set(projectLocation);
+				task.getProjectLocation().convention(projectLocation);
 				task.getGradleCommand().set(toGradleCommand(getProject().getGradle()));
 				task.getBridgeTaskPath().set(getBridgeTaskPath());
 				task.getAdditionalGradleArguments().set(getAdditionalBuildArguments());
@@ -50,77 +52,94 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 		});
 
 		getProject().getTasks().addRule(getObjects().newInstance(VisualStudioIdeBridge.class, this, extension.getProjects(), getProject()));
-
-		getProject().getPluginManager().withPlugin("dev.nokee.c-application", this::registerNativeComponentProjects);
-		getProject().getPluginManager().withPlugin("dev.nokee.cpp-application", this::registerNativeComponentProjects);
-		getProject().getPluginManager().withPlugin("dev.nokee.c-library", this::registerNativeComponentProjects);
-		getProject().getPluginManager().withPlugin("dev.nokee.cpp-library", this::registerNativeComponentProjects);
+		registerNativeComponentProjects();
 	}
 
-	private void registerNativeComponentProjects(AppliedPlugin appliedPlugin) {
-		ComponentCollection<Component> components = Cast.uncheckedCastBecauseOfTypeErasure(getProject().getExtensions().getByType(ComponentCollection.class));
+	private void registerNativeComponentProjects() {
+		getProject().getPluginManager().apply(ProjectStorePlugin.class);
+		val store = getProject().getExtensions().getByType(DomainObjectStore.class);
 		val extension = getProject().getExtensions().getByType(VisualStudioIdeProjectExtension.class);
 
-		components.configureEach(Component.class, component -> {
-			if (component instanceof BaseComponent) {
-				BaseComponent<?> componentInternal = (BaseComponent<?>) component;
-				// TODO: baseName could change between now and when it's finalized...
-				extension.getProjects().register(componentInternal.getBaseName().get(), visualStudioProject -> {
-					val visualStudioProjectInternal = (DefaultVisualStudioIdeProject) visualStudioProject;
-					visualStudioProjectInternal.getSourceFiles().from(getProviders().provider(() -> componentInternal.getSourceCollection().stream().filter(it -> !(it instanceof CHeaderSet || it instanceof CppHeaderSet)).map(SourceSet::getAsFileTree).collect(Collectors.toList())));
-
-					visualStudioProjectInternal.getHeaderFiles().from(getProviders().provider(() -> componentInternal.getSourceCollection().stream().filter(it -> it instanceof CHeaderSet || it instanceof CppHeaderSet).map(SourceSet::getAsFileTree).collect(Collectors.toList())));
-					visualStudioProjectInternal.getBuildFiles().from(getBuildFiles());
-
-					visualStudioProject.target(VisualStudioIdeProjectConfiguration.of(VisualStudioIdeConfiguration.of("Default"), VisualStudioIdePlatforms.X64), target -> {
-						Provider<Binary> binary = componentInternal.getDevelopmentVariant().flatMap(Variant::getDevelopmentBinary);
-
-						target.getProductLocation().set(binary.flatMap(it -> {
-							if (it instanceof ExecutableBinary) {
-								return ((ExecutableBinary) it).getLinkTask().get().getLinkedFile();
-							} else if (it instanceof SharedLibraryBinary) {
-								return ((SharedLibraryBinary) it).getLinkTask().get().getLinkedFile();
-							} else if (it instanceof StaticLibraryBinary) {
-								return ((StaticLibraryBinary) it).getCreateTask().get().getOutputFile();
-							}
-							throw unsupportedBinaryType(it);
-						}));
-						target.getProperties().put("ConfigurationType", binary.map(this::toConfigurationType));
-						target.getProperties().put("UseDebugLibraries", true);
-						target.getProperties().put("PlatformToolset", "v142");
-						target.getProperties().put("CharacterSet", "Unicode");
-						target.getProperties().put("LinkIncremental", true);
-						target.getItemProperties().maybeCreate("ClCompile")
-							.put("AdditionalIncludeDirectories", binary.flatMap(it -> {
-								if (it instanceof BaseNativeBinary) {
-									return ((BaseNativeBinary) it).getHeaderSearchPaths().map(this::toSemiColonSeperatedPaths);
-								}
-								throw unsupportedBinaryType(it);
-							}))
-							.put("LanguageStandard", getProviders().provider(() -> {
-								if (binary.get() instanceof BaseNativeBinary) {
-									val it = ((BaseNativeBinary) binary.get()).getCompileTasks().withType(CppCompile.class).getElements().get().iterator();
-									if (it.hasNext()) {
-										val compileTask = it.next();
-										return compileTask.getCompilerArgs().get().stream().filter(arg -> arg.matches("^[-/]std:c++.+")).findFirst().map(a -> {
-											if (a.endsWith("c++14")) {
-												return "stdcpp14";
-											} else if (a.endsWith("c++17")) {
-												return "stdcpp17";
-											} else if (a.endsWith("c++latest")) {
-												return "stdcpplatest";
-											}
-											return "Default";
-										}).orElse("Default");
-									}
-									return null;
-								}
-								throw unsupportedBinaryType(binary.get());
-							}));
-					});
-				});
+		val v = getObjects().listProperty(VisualStudioIdeProject.class);
+		v.value(store.flatMap(new Transformer<Iterable<? extends VisualStudioIdeProject>, Object>() {
+			@Override
+			public Iterable<? extends VisualStudioIdeProject> transform(Object it) {
+				if (BaseComponent.class.isAssignableFrom(it.getClass())) {
+					return ImmutableList.of(createVisualStudioIdeProject((BaseComponent<?>) it));
+				}
+				return emptyList();
 			}
+		}));
+		v.disallowChanges();
+		v.finalizeValueOnRead();
+		extension.getProjects().addAllLater(v);
+
+		store.whenElementKnown(BaseComponent.class, it -> {
+			registerIdeProject(((NamedDomainObjectIdentity)it.getIdentity()).getName());
 		});
+	}
+
+	private VisualStudioIdeProject createVisualStudioIdeProject(BaseComponent<?> component) {
+		val visualStudioProject = getObjects().newInstance(DefaultVisualStudioIdeProject.class, component.getName());
+
+		visualStudioProject.getGeneratorTask().configure(task -> {
+			Provider<RegularFile> projectLocation = getLayout().getProjectDirectory().file(component.getBaseName().map(it -> it + ".vcxproj"));
+			task.getProjectLocation().set(projectLocation);
+		});
+
+		visualStudioProject.getSourceFiles().from(getProviders().provider(() -> component.getSourceCollection().stream().filter(it -> !(it instanceof CHeaderSet || it instanceof CppHeaderSet)).map(SourceSet::getAsFileTree).collect(Collectors.toList())));
+
+		visualStudioProject.getHeaderFiles().from(getProviders().provider(() -> component.getSourceCollection().stream().filter(it -> it instanceof CHeaderSet || it instanceof CppHeaderSet).map(SourceSet::getAsFileTree).collect(Collectors.toList())));
+		visualStudioProject.getBuildFiles().from(getBuildFiles());
+
+		visualStudioProject.target(VisualStudioIdeProjectConfiguration.of(VisualStudioIdeConfiguration.of("Default"), VisualStudioIdePlatforms.X64), target -> {
+			Provider<Binary> binary = component.getDevelopmentVariant().flatMap(Variant::getDevelopmentBinary);
+
+			target.getProductLocation().set(binary.flatMap(it -> {
+				if (it instanceof ExecutableBinary) {
+					return ((ExecutableBinary) it).getLinkTask().get().getLinkedFile();
+				} else if (it instanceof SharedLibraryBinary) {
+					return ((SharedLibraryBinary) it).getLinkTask().get().getLinkedFile();
+				} else if (it instanceof StaticLibraryBinary) {
+					return ((StaticLibraryBinary) it).getCreateTask().get().getOutputFile();
+				}
+				throw unsupportedBinaryType(it);
+			}));
+			target.getProperties().put("ConfigurationType", binary.map(this::toConfigurationType));
+			target.getProperties().put("UseDebugLibraries", true);
+			target.getProperties().put("PlatformToolset", "v142");
+			target.getProperties().put("CharacterSet", "Unicode");
+			target.getProperties().put("LinkIncremental", true);
+			target.getItemProperties().maybeCreate("ClCompile")
+				.put("AdditionalIncludeDirectories", binary.flatMap(it -> {
+					if (it instanceof BaseNativeBinary) {
+						return ((BaseNativeBinary) it).getHeaderSearchPaths().map(this::toSemiColonSeperatedPaths);
+					}
+					throw unsupportedBinaryType(it);
+				}))
+				.put("LanguageStandard", getProviders().provider(() -> {
+					if (binary.get() instanceof BaseNativeBinary) {
+						val it = ((BaseNativeBinary) binary.get()).getCompileTasks().withType(CppCompile.class).getElements().get().iterator();
+						if (it.hasNext()) {
+							val compileTask = it.next();
+							return compileTask.getCompilerArgs().get().stream().filter(arg -> arg.matches("^[-/]std:c++.+")).findFirst().map(a -> {
+								if (a.endsWith("c++14")) {
+									return "stdcpp14";
+								} else if (a.endsWith("c++17")) {
+									return "stdcpp17";
+								} else if (a.endsWith("c++latest")) {
+									return "stdcpplatest";
+								}
+								return "Default";
+							}).orElse("Default");
+						}
+						return null;
+					}
+					throw unsupportedBinaryType(binary.get());
+				}));
+		});
+
+		return visualStudioProject;
 	}
 
 	private static IllegalArgumentException unsupportedBinaryType(Binary binary) {

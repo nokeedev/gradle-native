@@ -454,7 +454,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		return result;
 	}
 	private String getGradleBuildArgumentsString() {
-		return String.join(" ", Iterables.concat(XcodeIdePropertyAdapter.getAdapterCommandLine(), getAdditionalGradleArguments().get())) + " " + getBridgeTaskPath().get();
+		return String.join(" ", Iterables.concat(XcodeIdePropertyAdapter.getAdapterCommandLine(), getAdditionalGradleArguments().get())) + " " + XcodeIdePropertyAdapter.adapt("GRADLE_IDE_PROJECT_NAME", xcodeProject.getName()) + " " + getBridgeTaskPath().get();
 	}
 
 	private static class XcodeIdeBooleanSerializer extends JsonSerializer<Boolean> {

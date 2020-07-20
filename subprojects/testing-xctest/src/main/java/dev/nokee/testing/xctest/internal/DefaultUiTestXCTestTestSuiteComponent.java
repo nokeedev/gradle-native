@@ -3,10 +3,7 @@ package dev.nokee.testing.xctest.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
-import dev.nokee.platform.base.internal.BuildVariant;
-import dev.nokee.platform.base.internal.Component;
-import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.VariantProvider;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.ios.tasks.internal.ProcessPropertyListTask;
@@ -17,6 +14,7 @@ import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Task;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -116,5 +114,30 @@ public abstract class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTe
 		return getProviders().provider(() -> {
 			return new File(getSdkPlatformPath(), "Developer/Library/Xcode/Agents/XCTRunner.app/XCTRunner");
 		});
+	}
+
+	public static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTest(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
+		return new DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent>() {
+			@Override
+			public DefaultUiTestXCTestTestSuiteComponent create() {
+				NamingScheme names = namingSchemeFactory.forMainComponent("uiTest").withComponentDisplayName("iOS UI test XCTest test suite");
+				return objects.newInstance(DefaultUiTestXCTestTestSuiteComponent.class, names);
+			}
+
+			@Override
+			public Class<DefaultUiTestXCTestTestSuiteComponent> getType() {
+				return DefaultUiTestXCTestTestSuiteComponent.class;
+			}
+
+			@Override
+			public Class<? extends DefaultUiTestXCTestTestSuiteComponent> getImplementationType() {
+				return DefaultUiTestXCTestTestSuiteComponent.class;
+			}
+
+			@Override
+			public DomainObjectIdentity getIdentity() {
+				return DomainObjectIdentity.named("uiTest");
+			}
+		};
 	}
 }

@@ -1,17 +1,16 @@
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.utils.Cast;
-import dev.nokee.platform.base.internal.Component;
-import dev.nokee.platform.base.internal.ComponentCollection;
+import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.NamingSchemeFactory;
+import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.ProjectLayout;
@@ -51,12 +50,12 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 		project.getPluginManager().apply(ToolChainMetadataRules.class);
 		project.getPluginManager().apply(DarwinRuntimePlugin.class);
+		project.getPluginManager().apply(ProjectStorePlugin.class);
 
-		NamingScheme names = NamingScheme.asMainComponent(project.getName()).withComponentDisplayName("main iOS application");
-		ComponentCollection<Component> components = Cast.uncheckedCastBecauseOfTypeErasure(project.getExtensions().create("components", ComponentCollection.class));
-		DefaultIosApplicationComponent component = components.register(DefaultIosApplicationComponent.class, names).get();
-		component.getGroupId().set(GroupId.of(project::getGroup));
-		DefaultObjectiveCIosApplicationExtension extension = getObjects().newInstance(DefaultObjectiveCIosApplicationExtension.class, component);
+		val store = project.getExtensions().getByType(DomainObjectStore.class);
+		val component = store.register(DefaultIosApplicationComponent.newMain(getObjects(), new NamingSchemeFactory(project.getName())));
+		component.configure(it -> it.getGroupId().set(GroupId.of(project::getGroup)));
+		val extension = getObjects().newInstance(DefaultObjectiveCIosApplicationExtension.class, component.get());
 
 		project.afterEvaluate(extension::finalizeExtension);
 

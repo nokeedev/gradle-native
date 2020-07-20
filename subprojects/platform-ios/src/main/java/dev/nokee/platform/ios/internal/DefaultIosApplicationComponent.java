@@ -26,6 +26,7 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.RegularFile;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskProvider;
@@ -234,5 +235,30 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 			});
 		});
 		super.finalizeExtension(project);
+	}
+
+	public static DomainObjectFactory<DefaultIosApplicationComponent> newMain(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
+		return new DomainObjectFactory<DefaultIosApplicationComponent>() {
+			@Override
+			public DefaultIosApplicationComponent create() {
+				NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main iOS application");
+				return objects.newInstance(DefaultIosApplicationComponent.class, names);
+			}
+
+			@Override
+			public Class<DefaultIosApplicationComponent> getType() {
+				return DefaultIosApplicationComponent.class;
+			}
+
+			@Override
+			public Class<? extends DefaultIosApplicationComponent> getImplementationType() {
+				return DefaultIosApplicationComponent.class;
+			}
+
+			@Override
+			public DomainObjectIdentity getIdentity() {
+				return DomainObjectIdentity.named("main");
+			}
+		};
 	}
 }

@@ -2,6 +2,7 @@ package dev.nokee.ide.visualstudio
 
 import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture
 import dev.nokee.language.cpp.CppTaskNames
 import dev.nokee.language.cpp.tasks.CppCompile
 import dev.nokee.platform.jni.fixtures.elements.CppGreeter
@@ -45,6 +46,11 @@ class VisualStudioIdeCppApplicationFunctionalTest extends AbstractVisualStudioId
 		return tasks.allToLink
 	}
 
+	@Override
+	protected VisualStudioIdeProjectFixture getVisualStudioProjectUnderTest() {
+		return visualStudioProject('main')
+	}
+
 	@Unroll
 	def "configures C++ language support in generated projects"(compilerFlag, expectedLanguageStandard, uniqueIndex) {
 		given:
@@ -66,7 +72,7 @@ class VisualStudioIdeCppApplicationFunctionalTest extends AbstractVisualStudioId
 		succeeds('visualStudio')
 
 		then:
-		visualStudioProject.projectConfigurations*.languageStandard.every { it == expectedLanguageStandard }
+		visualStudioProject('main').projectConfigurations*.languageStandard.every { it == expectedLanguageStandard }
 
 		where:
 		// UniqueIndex: // uniqueIndex: https://github.com/gradle/gradle/issues/8787
@@ -117,6 +123,11 @@ class VisualStudioIdeCppLibraryFunctionalTest extends AbstractVisualStudioIdeNat
 		return tasks.allToLink
 	}
 
+	@Override
+	protected VisualStudioIdeProjectFixture getVisualStudioProjectUnderTest() {
+		return visualStudioProject('main')
+	}
+
 	@Unroll
 	def "configures C++ language support in generated projects"(compilerFlag, expectedLanguageStandard, uniqueIndex) {
 		given:
@@ -138,7 +149,7 @@ class VisualStudioIdeCppLibraryFunctionalTest extends AbstractVisualStudioIdeNat
 		succeeds('visualStudio')
 
 		then:
-		visualStudioProject.projectConfigurations*.languageStandard.every { it == expectedLanguageStandard }
+		visualStudioProject('main').projectConfigurations*.languageStandard.every { it == expectedLanguageStandard }
 
 		where:
 		// UniqueIndex: // uniqueIndex: https://github.com/gradle/gradle/issues/8787

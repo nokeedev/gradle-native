@@ -26,7 +26,7 @@ class XcodeIdeSwiftApplicationFunctionalTest extends AbstractXcodeIdeNativeCompo
 
 	@Override
 	protected String getProjectName() {
-		return "app"
+		return "App"
 	}
 
 	@Override
@@ -64,7 +64,7 @@ class XcodeIdeSwiftLibraryFunctionalTest extends AbstractXcodeIdeNativeComponent
 
 	@Override
 	protected String getProjectName() {
-		return "lib"
+		return "Lib"
 	}
 
 	@Override

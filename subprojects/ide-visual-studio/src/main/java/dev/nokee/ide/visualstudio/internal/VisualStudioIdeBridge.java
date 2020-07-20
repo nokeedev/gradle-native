@@ -60,6 +60,7 @@ public abstract class VisualStudioIdeBridge extends IdeBridgeRule<VisualStudioId
 
 	private DefaultVisualStudioIdeTarget findVisualStudioTarget(VisualStudioIdeRequest request) {
 		String projectName = request.getProjectName();
+		realize(visualStudioProjects);
 		DefaultVisualStudioIdeProject project = (DefaultVisualStudioIdeProject) visualStudioProjects.findByName(projectName);
 		if (project == null) {
 			throw new GradleException(String.format("Unknown Xcode IDE project '%s', try re-generating the Xcode IDE configuration using '%s:xcode' task.", projectName, getPrefixableProjectPath(this.project)));

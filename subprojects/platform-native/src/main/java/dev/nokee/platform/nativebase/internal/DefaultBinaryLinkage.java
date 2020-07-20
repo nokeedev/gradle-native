@@ -26,6 +26,10 @@ public class DefaultBinaryLinkage implements TargetLinkage, Named, Dimension {
 		return equals(STATIC);
 	}
 
+	public boolean isExecutable() {
+		return equals(EXECUTABLE);
+	}
+
 	@Override
 	public DimensionType getType() {
 		return DIMENSION_TYPE;

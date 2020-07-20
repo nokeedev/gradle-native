@@ -1,6 +1,5 @@
 package dev.nokee.testing.nativebase
 
-import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.language.cpp.CppTaskNames
 import dev.nokee.platform.nativebase.ExecutableBinary

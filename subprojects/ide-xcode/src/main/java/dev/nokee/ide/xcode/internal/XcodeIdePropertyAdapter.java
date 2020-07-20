@@ -39,6 +39,10 @@ public abstract class XcodeIdePropertyAdapter {
 		return getXcodeProperty("TARGET_NAME");
 	}
 
+	public Provider<String> getGradleIdeProjectName() {
+		return getXcodeProperty("GRADLE_IDE_PROJECT_NAME");
+	}
+
 	@SneakyThrows
 	private Provider<String> getXcodeProperty(String name) {
 		if (GradleVersion.current().compareTo(GradleVersion.version("6.5")) >= 0) {
@@ -66,5 +70,9 @@ public abstract class XcodeIdePropertyAdapter {
 
 	private static String prefixName(String source) {
 		return "dev.nokee.internal.xcode.bridge." + source;
+	}
+
+	public static String adapt(String source, String value) {
+		return "-P" + prefixName(source) + "=\"" + value + "\"";
 	}
 }

@@ -32,11 +32,11 @@ import javax.inject.Inject;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static dev.nokee.utils.DeferredUtils.realize;
 import static dev.nokee.utils.ProjectUtils.isRootProject;
 
 public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<Project>, Describable {
@@ -86,7 +86,8 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 		// We should also disallow any modification after we read the collection schema.
 		project.afterEvaluate(proj -> {
 			projectExtension.getProjects().getCollectionSchema().getElements().forEach(element -> {
-				getArtifactRegistry().registerIdeProject(newIdeProjectMetadata(projectExtension.getProjects().named(element.getName()).map(IdeProjectInternal.class::cast)));
+				maybeRegisterIdeProject(element.getName());
+//				getArtifactRegistry().registerIdeProject(newIdeProjectMetadata(projectExtension.getProjects().named(element.getName()).map(IdeProjectInternal.class::cast)));
 			});
 		});
 
@@ -143,6 +144,25 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 
 	@Inject
 	protected abstract ProjectLayout getLayout();
+
+	private final Set<String> registeredIdeProjects = new HashSet<>();
+	protected void registerIdeProject(String name) {
+		getArtifactRegistry().registerIdeProject(newIdeProjectMetadata(getProviders().provider(() -> {
+			realize(getProjectExtension().getProjects());
+			return (IdeProjectInternal) getProjectExtension().getProjects().getByName(name);
+		})));
+		registeredIdeProjects.add(name);
+	}
+
+	private void maybeRegisterIdeProject(String name) {
+		if (!registeredIdeProjects.contains(name)) {
+			registerIdeProject(name);
+		}
+	}
+
+	private IdeProjectExtension<T> getProjectExtension() {
+		return (IdeProjectExtension<T>) getProject().getExtensions().getByName(getExtensionName());
+	}
 
 	//region Xcode IDE extension registration
 	private IdeProjectExtension<T> registerExtension(Project project) {

@@ -1,6 +1,8 @@
 package dev.nokee.ide.xcode
 
 import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.ide.xcode.fixtures.XcodeIdeProjectFixture
+import dev.nokee.ide.xcode.fixtures.XcodeIdeWorkspaceFixture
 import dev.nokee.platform.nativebase.internal.OperatingSystemOperations
 import org.apache.commons.lang3.SystemUtils
 import spock.lang.Requires
@@ -81,10 +83,18 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		return projectName
 	}
 
+	protected XcodeIdeProjectFixture getXcodeProjectUnderTest() {
+		return xcodeProject(projectName)
+	}
+
+	protected XcodeIdeWorkspaceFixture getXcodeWorkspaceUnderTest() {
+		return xcodeWorkspace(workspaceName)
+	}
+
 	protected abstract List<String> getAllTasksForBuildAction()
 
 	protected List<String> getAllTasksToXcode() {
-		return [":${projectName}XcodeProject", ':xcodeWorkspace', ':xcode']
+		return [":mainXcodeProject", ':xcodeWorkspace', ':xcode']
 	}
 
 	def "includes sources in the project"() {
@@ -96,7 +106,7 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		succeeds('xcode')
 
 		then:
-		xcodeProject(projectName).assertHasSourceLayout(componentUnderTestSourceLayout + productNames.collect { "Products/$it".toString() } + ['build.gradle', 'settings.gradle'])
+		xcodeProjectUnderTest.assertHasSourceLayout(componentUnderTestSourceLayout + productNames.collect { "Products/$it".toString() } + ['build.gradle', 'settings.gradle'])
 	}
 
 	def "include sources in project with custom layout"() {
@@ -114,7 +124,7 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		succeeds('xcode')
 
 		then:
-		xcodeProject(projectName).assertHasSourceLayout(componentUnderTestSourceLayout + productNames.collect { "Products/$it".toString() } + ['build.gradle', 'settings.gradle'])
+		xcodeProjectUnderTest.assertHasSourceLayout(componentUnderTestSourceLayout + productNames.collect { "Products/$it".toString() } + ['build.gradle', 'settings.gradle'])
 	}
 
 	@Requires({ SystemUtils.IS_OS_MAC })
@@ -133,7 +143,7 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		result.assertTasksExecuted(allTasksToXcode)
 
 		and:
-		def result = xcodebuild.withWorkspace(xcodeWorkspace(workspaceName)).withScheme(schemeName).succeeds()
+		def result = xcodebuild.withWorkspace(xcodeWorkspaceUnderTest).withScheme(schemeName).succeeds()
 		result.assertTasksExecuted(allTasksForBuildAction, ":_xcode___${projectName}_${schemeName}_Default")
 	}
 
@@ -152,7 +162,7 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		result.assertTasksExecuted(allTasksToXcode)
 
 		and:
-		def result = xcodebuild.withWorkspace(xcodeWorkspace(workspaceName)).withScheme(schemeName).succeeds()
+		def result = xcodebuild.withWorkspace(xcodeWorkspaceUnderTest).withScheme(schemeName).succeeds()
 		// TODO: Bridge task should be skipped with no source
 		result.assertTasksExecuted(allTasksForBuildAction, ":_xcode___${projectName}_${schemeName}_Default")
 	}

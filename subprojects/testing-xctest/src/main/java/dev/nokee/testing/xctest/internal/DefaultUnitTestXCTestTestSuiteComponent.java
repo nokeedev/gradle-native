@@ -3,10 +3,7 @@ package dev.nokee.testing.xctest.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
-import dev.nokee.platform.base.internal.BuildVariant;
-import dev.nokee.platform.base.internal.Component;
-import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.VariantProvider;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
@@ -14,10 +11,12 @@ import dev.nokee.platform.ios.tasks.internal.ProcessPropertyListTask;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Task;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -112,5 +111,30 @@ public abstract class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTest
 		} catch (InterruptedException | IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTest(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
+		return new DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent>() {
+			@Override
+			public DefaultUnitTestXCTestTestSuiteComponent create() {
+				NamingScheme names = namingSchemeFactory.forMainComponent("unitTest").withComponentDisplayName("iOS unit test XCTest test suite");
+				return objects.newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, names);
+			}
+
+			@Override
+			public Class<DefaultUnitTestXCTestTestSuiteComponent> getType() {
+				return DefaultUnitTestXCTestTestSuiteComponent.class;
+			}
+
+			@Override
+			public Class<? extends DefaultUnitTestXCTestTestSuiteComponent> getImplementationType() {
+				return DefaultUnitTestXCTestTestSuiteComponent.class;
+			}
+
+			@Override
+			public DomainObjectIdentity getIdentity() {
+				return DomainObjectIdentity.named("unitTest");
+			}
+		};
 	}
 }

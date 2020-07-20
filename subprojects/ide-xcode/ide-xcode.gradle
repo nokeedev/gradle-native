@@ -18,7 +18,7 @@ dependencies {
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	compileOnly project(':platformIos')
+	implementation project(':platformIos') // only as implementation because iOS types are used inside the main Xcode plugin
 	compileOnly project(':testingXctest')
 	compileOnly project(':platformNative') // for NativeBinary
 	implementation project(':languageNative') // for UTType of each language
@@ -43,6 +43,7 @@ functionalTest {
 		pluginUnderTestMetadata project(':languageNative')
 		pluginUnderTestMetadata project(':platformIos')
 		pluginUnderTestMetadata project(':platformJni')
+		pluginUnderTestMetadata project(':testingXctest')
 		implementation project(':platformJni')
 		implementation 'com.googlecode.plist:dd-plist:1.23'
 		implementation 'dev.nokee:templates:latest.integration'

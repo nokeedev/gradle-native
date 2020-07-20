@@ -1,7 +1,7 @@
 package dev.nokee.ide.visualstudio
 
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture
 import dev.nokee.language.c.CTaskNames
 import dev.nokee.platform.jni.fixtures.CGreeter
 import dev.nokee.platform.nativebase.fixtures.CGreeterApp
@@ -41,6 +41,11 @@ class VisualStudioIdeCApplicationFunctionalTest extends AbstractVisualStudioIdeN
 	protected List<String> getAllTasksForBuildAction() {
 		return tasks.allToLink
 	}
+
+	@Override
+	protected VisualStudioIdeProjectFixture getVisualStudioProjectUnderTest() {
+		return visualStudioProject('main')
+	}
 }
 
 class VisualStudioIdeCLibraryFunctionalTest extends AbstractVisualStudioIdeNativeComponentPluginFunctionalTest implements CTaskNames {
@@ -77,6 +82,11 @@ class VisualStudioIdeCLibraryFunctionalTest extends AbstractVisualStudioIdeNativ
 	@Override
 	protected List<String> getAllTasksForBuildAction() {
 		return tasks.allToLink
+	}
+
+	@Override
+	protected VisualStudioIdeProjectFixture getVisualStudioProjectUnderTest() {
+		return visualStudioProject('main')
 	}
 }
 

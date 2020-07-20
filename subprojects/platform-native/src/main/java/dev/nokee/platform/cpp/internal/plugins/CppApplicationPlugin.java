@@ -1,13 +1,13 @@
 package dev.nokee.platform.cpp.internal.plugins;
 
-import dev.nokee.utils.Cast;
-import dev.nokee.platform.base.internal.Component;
-import dev.nokee.platform.base.internal.ComponentCollection;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.DomainObjectStore;
+import dev.nokee.platform.base.internal.NamingSchemeFactory;
+import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.cpp.CppApplicationExtension;
 import dev.nokee.platform.cpp.internal.DefaultCppApplicationExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
+import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
@@ -24,12 +24,12 @@ public abstract class CppApplicationPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
+		project.getPluginManager().apply(ProjectStorePlugin.class);
 
-		NamingScheme names = NamingScheme.asMainComponent(project.getName()).withComponentDisplayName("main native component");
-		ComponentCollection<Component> components = Cast.uncheckedCastBecauseOfTypeErasure(project.getExtensions().create("components", ComponentCollection.class));
-		DefaultNativeApplicationComponent component = components.register(DefaultNativeApplicationComponent.class, names).get();
-		component.getBaseName().convention(project.getName());
-		DefaultCppApplicationExtension extension = getObjects().newInstance(DefaultCppApplicationExtension.class, component);
+		val store = project.getExtensions().getByType(DomainObjectStore.class);
+		val component = store.register(DefaultNativeApplicationComponent.newMain(getObjects(), new NamingSchemeFactory(project.getName())));
+		component.configure(it -> it.getBaseName().convention(project.getName()));
+		DefaultCppApplicationExtension extension = getObjects().newInstance(DefaultCppApplicationExtension.class, component.get());
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);
