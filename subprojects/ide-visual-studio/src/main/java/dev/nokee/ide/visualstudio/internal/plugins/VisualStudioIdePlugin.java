@@ -6,7 +6,7 @@ import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
 import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.visualstudio.*;
 import dev.nokee.ide.visualstudio.internal.*;
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.cpp.internal.CppHeaderSet;
@@ -59,7 +59,7 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 	}
 
 	private void registerNativeComponentProjects(AppliedPlugin appliedPlugin) {
-		ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", getProject().getExtensions().getByType(ComponentCollection.class));
+		ComponentCollection<Component> components = Cast.uncheckedCastBecauseOfTypeErasure(getProject().getExtensions().getByType(ComponentCollection.class));
 		val extension = getProject().getExtensions().getByType(VisualStudioIdeProjectExtension.class);
 
 		components.configureEach(Component.class, component -> {

@@ -1,8 +1,9 @@
 package dev.nokee.platform.base.internal;
 
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.utils.Cast;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.gradle.api.DomainObjectSet;
@@ -23,7 +24,7 @@ public abstract class BaseVariant implements Named {
 	protected abstract ObjectFactory getObjects();
 
 	public BinaryView<Binary> getBinaries() {
-		return Cast.uncheckedCast("of type erasure", getObjects().newInstance(DefaultBinaryView.class, Binary.class, binaryCollection, Realizable.IDENTITY));
+		return Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(DefaultBinaryView.class, Binary.class, binaryCollection, Realizable.IDENTITY));
 	}
 
 	public abstract Property<Binary> getDevelopmentBinary();

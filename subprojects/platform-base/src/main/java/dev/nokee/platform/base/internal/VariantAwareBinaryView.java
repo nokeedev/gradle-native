@@ -2,7 +2,7 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Variant;
@@ -39,7 +39,7 @@ public abstract class VariantAwareBinaryView<T extends Binary> extends AbstractV
 		if (binaryType.equals(type)) {
 			return Cast.uncheckedCast("view types are the same", this);
 		}
-		return Cast.uncheckedCast("of type erasure", getObjects().newInstance(VariantAwareBinaryView.class, type, variants));
+		return Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(VariantAwareBinaryView.class, type, variants));
 	}
 
 	@Override

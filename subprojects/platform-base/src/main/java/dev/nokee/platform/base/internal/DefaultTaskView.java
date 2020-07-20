@@ -1,7 +1,7 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.base.Preconditions;
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.View;
 import org.gradle.api.Action;
@@ -73,7 +73,7 @@ public abstract class DefaultTaskView<T extends Task> extends AbstractView<T> im
 		if (elementType.equals(type)) {
 			return Cast.uncheckedCast("view types are the same", this);
 		}
-		return Cast.uncheckedCast("of type erasure", getObjects().newInstance(DefaultTaskView.class, type, delegate.stream().filter(it -> type.isAssignableFrom(typeOf(it))).collect(Collectors.toList()), realizeTrigger));
+		return Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(DefaultTaskView.class, type, delegate.stream().filter(it -> type.isAssignableFrom(typeOf(it))).collect(Collectors.toList()), realizeTrigger));
 	}
 
 	// We cheat a bit here and cast to ProviderInternal to get the type.

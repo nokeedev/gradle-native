@@ -4,7 +4,7 @@ import dev.nokee.ide.xcode.XcodeIdeProductType;
 import dev.nokee.ide.xcode.XcodeIdeProductTypes;
 import dev.nokee.ide.xcode.XcodeIdeProjectExtension;
 import dev.nokee.ide.xcode.XcodeIdeTarget;
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.cpp.internal.CppHeaderSet;
@@ -34,7 +34,7 @@ public abstract class XcodeIdeNativeLibraryPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getExtensions().getByType(XcodeIdeProjectExtension.class).getProjects().register(project.getName(), xcodeProject -> {
-			ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", project.getExtensions().getByType(ComponentCollection.class));
+			ComponentCollection<Component> components = Cast.uncheckedCastBecauseOfTypeErasure(project.getExtensions().getByType(ComponentCollection.class));
 			components.configureEach(DefaultNativeLibraryComponent.class, library -> {
 
 				val linkages = library.getBuildVariants().get().stream().map(b -> b.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)).collect(Collectors.toSet()); // TODO Maybe use linkedhashset to keep the ordering

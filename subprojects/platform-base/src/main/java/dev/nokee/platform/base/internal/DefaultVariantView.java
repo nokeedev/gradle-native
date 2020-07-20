@@ -2,7 +2,7 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
@@ -57,7 +57,7 @@ public abstract class DefaultVariantView<T extends Variant> extends AbstractView
 		if (elementType.equals(type)) {
 			return Cast.uncheckedCast("view types are the same", this);
 		}
-		return Cast.uncheckedCast("of type erasure", getObjects().newInstance(DefaultVariantView.class, type, delegate.withType(type), variants));
+		return Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(DefaultVariantView.class, type, delegate.withType(type), variants));
 	}
 
 	@Override

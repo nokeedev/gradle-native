@@ -1,11 +1,12 @@
 package dev.nokee.platform.base.internal;
 
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.runtime.base.internal.DimensionType;
+import dev.nokee.utils.Cast;
 import lombok.Getter;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.model.ObjectFactory;
@@ -23,8 +24,8 @@ public abstract class BaseComponent<T extends Variant> {
 
 	protected BaseComponent(NamingScheme names, Class<T> variantType) {
 		this.names = names;
-		this.variantCollection = Cast.uncheckedCast("of type erasure", getObjects().newInstance(VariantCollection.class, variantType));
-		this.binaries = Cast.uncheckedCast("of type erasure", getObjects().newInstance(VariantAwareBinaryView.class, Binary.class, variantCollection.getAsView(variantType)));
+		this.variantCollection = Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(VariantCollection.class, variantType));
+		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(VariantAwareBinaryView.class, Binary.class, variantCollection.getAsView(variantType)));
 		this.binaryCollection = getObjects().domainObjectSet(Binary.class);
 		this.sourceCollection = getObjects().domainObjectSet(SourceSet.class);
 

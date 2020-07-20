@@ -1,6 +1,6 @@
 package dev.nokee.platform.cpp.internal.plugins;
 
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import dev.nokee.platform.base.internal.Component;
 import dev.nokee.platform.base.internal.ComponentCollection;
 import dev.nokee.platform.base.internal.NamingScheme;
@@ -27,7 +27,7 @@ public abstract class CppLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
 		NamingScheme names = NamingScheme.asMainComponent(project.getName()).withComponentDisplayName("main native component");
-		ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", project.getExtensions().create("components", ComponentCollection.class));
+		ComponentCollection<Component> components = Cast.uncheckedCastBecauseOfTypeErasure(project.getExtensions().create("components", ComponentCollection.class));
 		DefaultNativeLibraryComponent component = components.register(DefaultNativeLibraryComponent.class, names).get();
 		component.getBaseName().convention(project.getName());
 		DefaultCppLibraryExtension extension = getObjects().newInstance(DefaultCppLibraryExtension.class, component);

@@ -2,7 +2,7 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import org.gradle.api.Action;
@@ -55,7 +55,7 @@ public abstract class DefaultBinaryView<T extends Binary> extends AbstractView<T
 		if (elementType.equals(type)) {
 			return Cast.uncheckedCast("view types are the same", this);
 		}
-		return Cast.uncheckedCast("of type erasure", getObjects().newInstance(DefaultBinaryView.class, type, delegate.withType(type), variants));
+		return Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(DefaultBinaryView.class, type, delegate.withType(type), variants));
 	}
 
 	@Override

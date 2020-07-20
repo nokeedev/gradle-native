@@ -1,7 +1,7 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.base.Preconditions;
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.runtime.base.internal.Dimension;
@@ -24,7 +24,7 @@ public abstract class VariantCollection<T extends Variant> implements Realizable
 	private final Class<T> elementType;
 	private final NamedDomainObjectContainer<T> collection;
 	private boolean disallowChanges = false;
-	private final DomainObjectSet<KnownVariant<T>> knownVariants = Cast.uncheckedCast("of type erasure", getObjects().domainObjectSet(KnownVariant.class));
+	private final DomainObjectSet<KnownVariant<T>> knownVariants = Cast.uncheckedCastBecauseOfTypeErasure(getObjects().domainObjectSet(KnownVariant.class));
 
 	@Inject
 	protected abstract ObjectFactory getObjects();
@@ -49,7 +49,7 @@ public abstract class VariantCollection<T extends Variant> implements Realizable
 		}
 		String variantName = StringUtils.uncapitalize(buildVariant.getDimensions().stream().map(this::determineName).map(StringUtils::capitalize).collect(Collectors.joining()));
 		variantCreationArguments.put(variantName, new VariantCreationArguments<T>(buildVariant, factory));
-		return Cast.uncheckedCast("of type erasure", getObjects().newInstance(VariantProvider.class, buildVariant, elementType, collection.register(variantName)));
+		return Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(VariantProvider.class, buildVariant, elementType, collection.register(variantName)));
 	}
 
 	private String determineName(Dimension dimension) {
@@ -62,7 +62,7 @@ public abstract class VariantCollection<T extends Variant> implements Realizable
 	// TODO: I don't like that we have to pass in the viewElementType
 	public <S extends Variant> VariantView<S> getAsView(Class<S> viewElementType) {
 		Preconditions.checkArgument(viewElementType.isAssignableFrom(elementType), "element type of the view needs to be the same type or a supertype of the element of this collection");
-		return Cast.uncheckedCast("of type erasure", getObjects().newInstance(DefaultVariantView.class, viewElementType, collection, this));
+		return Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(DefaultVariantView.class, viewElementType, collection, this));
 	}
 
 	public void realize() {

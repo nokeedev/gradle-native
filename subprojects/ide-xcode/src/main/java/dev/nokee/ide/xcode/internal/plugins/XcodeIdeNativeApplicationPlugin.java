@@ -2,7 +2,7 @@ package dev.nokee.ide.xcode.internal.plugins;
 
 import dev.nokee.ide.xcode.XcodeIdeProductTypes;
 import dev.nokee.ide.xcode.XcodeIdeProjectExtension;
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import dev.nokee.platform.base.internal.Component;
 import dev.nokee.platform.base.internal.ComponentCollection;
 import dev.nokee.platform.nativebase.ExecutableBinary;
@@ -29,7 +29,7 @@ public abstract class XcodeIdeNativeApplicationPlugin implements Plugin<Project>
 	@Override
 	public void apply(Project project) {
 		project.getExtensions().getByType(XcodeIdeProjectExtension.class).getProjects().register(project.getName(), xcodeProject -> {
-			ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", project.getExtensions().getByType(ComponentCollection.class));
+			ComponentCollection<Component> components = Cast.uncheckedCastBecauseOfTypeErasure(project.getExtensions().getByType(ComponentCollection.class));
 			components.configureEach(DefaultNativeApplicationComponent.class, application -> {
 				xcodeProject.getTargets().register(project.getName(), xcodeTarget -> {
 					xcodeTarget.getProductName().set(project.getName());

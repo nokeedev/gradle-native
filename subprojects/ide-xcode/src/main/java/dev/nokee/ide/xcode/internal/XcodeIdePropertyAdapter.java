@@ -1,6 +1,6 @@
 package dev.nokee.ide.xcode.internal;
 
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.gradle.api.provider.Provider;

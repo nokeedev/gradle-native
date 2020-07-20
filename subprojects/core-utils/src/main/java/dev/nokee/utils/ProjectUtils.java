@@ -1,4 +1,4 @@
-package dev.nokee.internal;
+package dev.nokee.utils;
 
 import org.gradle.api.Project;
 

@@ -1,6 +1,6 @@
 package dev.nokee.platform.objectivecpp.internal.plugins;
 
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import dev.nokee.platform.base.internal.Component;
 import dev.nokee.platform.base.internal.ComponentCollection;
 import dev.nokee.platform.base.internal.NamingScheme;
@@ -26,7 +26,7 @@ public abstract class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
 		NamingScheme names = NamingScheme.asMainComponent(project.getName()).withComponentDisplayName("main native component");
-		ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", project.getExtensions().create("components", ComponentCollection.class));
+		ComponentCollection<Component> components = Cast.uncheckedCastBecauseOfTypeErasure(project.getExtensions().create("components", ComponentCollection.class));
 		DefaultNativeApplicationComponent component = components.register(DefaultNativeApplicationComponent.class, names).get();
 		component.getBaseName().convention(project.getName());
 		DefaultObjectiveCppApplicationExtension extension = getObjects().newInstance(DefaultObjectiveCppApplicationExtension.class, component);

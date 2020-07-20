@@ -12,6 +12,7 @@ repositories {
 }
 
 dependencies {
+	implementation project(':coreUtils')
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 	compileOnly gradleApi(minimumGradleVersion)

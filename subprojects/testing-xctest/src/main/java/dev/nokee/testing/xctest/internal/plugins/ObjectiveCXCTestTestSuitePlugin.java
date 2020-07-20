@@ -1,7 +1,7 @@
 package dev.nokee.testing.xctest.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.platform.base.internal.Component;
 import dev.nokee.platform.base.internal.ComponentCollection;
@@ -55,7 +55,7 @@ public abstract class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project>
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
 			BaseNativeComponent<?> application = ((DefaultObjectiveCIosApplicationExtension) project.getExtensions().getByType(ObjectiveCIosApplicationExtension.class)).getComponent();
 
-			ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", project.getExtensions().getByName("components"));
+			ComponentCollection<Component> components = Cast.uncheckedCastBecauseOfTypeErasure(project.getExtensions().getByName("components"));
 
 			val unitTestNames = new NamingSchemeFactory(project.getName()).forMainComponent("unitTest").withComponentDisplayName("iOS unit test XCTest test suite");
 			DefaultUnitTestXCTestTestSuiteComponent unitTestComponent = components.register(DefaultUnitTestXCTestTestSuiteComponent.class, unitTestNames).get();

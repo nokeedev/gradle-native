@@ -1,6 +1,6 @@
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.internal.Cast;
+import dev.nokee.utils.Cast;
 import dev.nokee.platform.base.internal.Component;
 import dev.nokee.platform.base.internal.ComponentCollection;
 import dev.nokee.platform.base.internal.GroupId;
@@ -53,7 +53,7 @@ public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> 
 		project.getPluginManager().apply(DarwinRuntimePlugin.class);
 
 		NamingScheme names = NamingScheme.asMainComponent(project.getName()).withComponentDisplayName("main iOS application");
-		ComponentCollection<Component> components = Cast.uncheckedCast("of type erasure", project.getExtensions().create("components", ComponentCollection.class));
+		ComponentCollection<Component> components = Cast.uncheckedCastBecauseOfTypeErasure(project.getExtensions().create("components", ComponentCollection.class));
 		DefaultIosApplicationComponent component = components.register(DefaultIosApplicationComponent.class, names).get();
 		component.getGroupId().set(GroupId.of(project::getGroup));
 		DefaultObjectiveCIosApplicationExtension extension = getObjects().newInstance(DefaultObjectiveCIosApplicationExtension.class, component);
