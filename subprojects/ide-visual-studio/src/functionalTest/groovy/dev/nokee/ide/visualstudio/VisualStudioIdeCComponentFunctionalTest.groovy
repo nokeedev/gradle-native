@@ -48,6 +48,60 @@ class VisualStudioIdeCApplicationFunctionalTest extends AbstractVisualStudioIdeN
 	}
 }
 
+// TODO: Renable after fixing the tested component header file leak
+//class VisualStudioIdeCApplicationWithNativeTestSuiteFunctionalTest extends AbstractVisualStudioIdeNativeComponentPluginFunctionalTest implements CTaskNames {
+//	@Override
+//	protected void makeSingleProject() {
+//		buildFile << """
+//			plugins {
+//				id 'dev.nokee.c-application'
+//				id 'dev.nokee.visual-studio-ide'
+//				id 'dev.nokee.native-unit-testing'
+//			}
+//
+//			import ${NativeTestSuite.canonicalName}
+//
+//			testSuites {
+//				test(${NativeTestSuite.simpleName}) {
+//					testedComponent application
+//				}
+//			}
+//		"""
+//		new CGreeterApp().writeToProject(testDirectory)
+//	}
+//
+//	@Override
+//	protected SourceElement getComponentUnderTest() {
+//		return new CGreeterTest()
+//	}
+//
+//	@Override
+//	protected String configureCustomSourceLayout() {
+//		Assume.assumeFalse(false)
+//		return '''
+//			application {
+//				sources.from('srcs')
+//				privateHeaders.from('hdrs')
+//			}
+//		'''
+//	}
+//
+//	@Override
+//	protected String getProjectName() {
+//		return "app"
+//	}
+//
+//	@Override
+//	protected List<String> getAllTasksForBuildAction() {
+//		return tasks.allToLink
+//	}
+//
+//	@Override
+//	protected VisualStudioIdeProjectFixture getVisualStudioProjectUnderTest() {
+//		return visualStudioProject('test')
+//	}
+//}
+
 class VisualStudioIdeCLibraryFunctionalTest extends AbstractVisualStudioIdeNativeComponentPluginFunctionalTest implements CTaskNames {
 	@Override
 	protected void makeSingleProject() {
