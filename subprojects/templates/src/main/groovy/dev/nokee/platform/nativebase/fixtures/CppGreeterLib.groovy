@@ -6,6 +6,7 @@ import dev.gradleplugins.test.fixtures.sources.cpp.CppLibraryElement
 import dev.nokee.platform.jni.fixtures.elements.CppGreeter
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 
+import static dev.gradleplugins.test.fixtures.sources.NativeSourceElement.ofNativeElements
 import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
 
 class CppGreeterLib extends GreeterImplementationAwareSourceElement<CppGreeter> {
@@ -22,7 +23,7 @@ class CppGreeterLib extends GreeterImplementationAwareSourceElement<CppGreeter> 
 	}
 
 	SourceElement withGenericTestSuite() {
-		return ofElements(this, new CppGreeterTest())
+		return ofNativeLibraryElements(delegate, new CppGreeterTest())
 	}
 }
 

@@ -22,7 +22,7 @@ class CppGreeterApp extends GreeterImplementationAwareSourceElement<CppGreeter> 
 	}
 
 	SourceElement withGenericTestSuite() {
-		return ofElements(this, new CppGreeterTest())
+		return ofNativeElements(delegate, new CppGreeterTest())
 	}
 }
 

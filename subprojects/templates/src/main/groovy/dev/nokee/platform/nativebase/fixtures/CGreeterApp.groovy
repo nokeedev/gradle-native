@@ -22,7 +22,7 @@ class CGreeterApp extends GreeterImplementationAwareSourceElement<CGreeter> {
 	}
 
 	SourceElement withGenericTestSuite() {
-		return ofElements(this, new CGreeterTest())
+		return ofNativeElements(delegate, new CGreeterTest())
 	}
 }
 
