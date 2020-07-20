@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static dev.nokee.internal.ProjectUtils.isRootProject;
+import static dev.nokee.utils.ProjectUtils.isRootProject;
 
 public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<Project>, Describable {
 	public static final String IDE_GROUP_NAME = "IDE";
