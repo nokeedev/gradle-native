@@ -9,6 +9,7 @@ repositories {
 }
 
 dependencies {
+	implementation project(':coreUtils')
 	api project(':ideBase')
 	implementation project(':languageNative')
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.8'

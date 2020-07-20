@@ -6,7 +6,6 @@ import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
 import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.visualstudio.*;
 import dev.nokee.ide.visualstudio.internal.*;
-import dev.nokee.utils.Cast;
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.cpp.internal.CppHeaderSet;
@@ -20,7 +19,7 @@ import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
+import dev.nokee.utils.Cast;
 import lombok.val;
 import org.gradle.api.Rule;
 import org.gradle.api.file.FileSystemLocation;
@@ -33,7 +32,7 @@ import org.gradle.plugins.ide.internal.IdeProjectMetadata;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static dev.nokee.internal.ProjectUtils.getPrefixableProjectPath;
+import static dev.nokee.utils.ProjectUtils.getPrefixableProjectPath;
 
 public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStudioIdeProject> {
 	public static final String VISUAL_STUDIO_EXTENSION_NAME = "visualStudio";
