@@ -1,6 +1,5 @@
 package dev.nokee.ide.visualstudio
 
-import com.sun.scenario.effect.Merge
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeSolutionFixture

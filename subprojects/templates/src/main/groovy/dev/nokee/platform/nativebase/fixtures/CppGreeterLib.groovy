@@ -23,7 +23,7 @@ class CppGreeterLib extends GreeterImplementationAwareSourceElement<CppGreeter> 
 	}
 
 	SourceElement withGenericTestSuite() {
-		return ofNativeLibraryElements(delegate, new CppGreeterTest())
+		return ofNativeElements(delegate, new CppGreeterTest())
 	}
 }
 

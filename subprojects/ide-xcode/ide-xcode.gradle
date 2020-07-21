@@ -19,7 +19,7 @@ dependencies {
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation project(':platformIos') // only as implementation because iOS types are used inside the main Xcode plugin
-	compileOnly project(':testingXctest')
+	implementation project(':testingXctest') // needed since we started to include the XCTest rules inside the main plugins... should not do that
 	compileOnly project(':platformNative') // for NativeBinary
 	implementation project(':languageNative') // for UTType of each language
 	compileOnly project(':runtimeNative') // for TargetMachine && OperatingSystemFamily
