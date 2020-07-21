@@ -41,11 +41,6 @@ class VisualStudioIdeCApplicationFunctionalTest extends AbstractVisualStudioIdeN
 	protected List<String> getAllTasksForBuildAction() {
 		return tasks.allToLink
 	}
-
-	@Override
-	protected VisualStudioIdeProjectFixture getVisualStudioProjectUnderTest() {
-		return visualStudioProject('main')
-	}
 }
 
 // TODO: Renable after fixing the tested component header file leak
@@ -136,11 +131,6 @@ class VisualStudioIdeCLibraryFunctionalTest extends AbstractVisualStudioIdeNativ
 	@Override
 	protected List<String> getAllTasksForBuildAction() {
 		return tasks.allToLink
-	}
-
-	@Override
-	protected VisualStudioIdeProjectFixture getVisualStudioProjectUnderTest() {
-		return visualStudioProject('main')
 	}
 }
 
