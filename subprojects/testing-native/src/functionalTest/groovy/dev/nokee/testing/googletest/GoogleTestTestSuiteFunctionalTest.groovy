@@ -51,6 +51,8 @@ class GoogleTestTestSuiteFunctionalTest extends AbstractInstalledToolChainIntegr
 							linkerArgs.addAll(targetPlatform.map {
 								if (it.operatingSystem.linux) {
 									return ['-lpthread']
+								} else if (it.operatingSystem.windows) {
+									return ['/SUBSYSTEM:CONSOLE']
 								}
 								return []
 							})
