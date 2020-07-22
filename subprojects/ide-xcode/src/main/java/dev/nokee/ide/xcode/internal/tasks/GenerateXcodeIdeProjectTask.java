@@ -72,9 +72,6 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 	@Internal
 	public abstract ListProperty<String> getAdditionalGradleArguments();
 
-	@Internal
-	public abstract ConfigurableFileCollection getSources();
-
 	@Inject
 	public GenerateXcodeIdeProjectTask(XcodeIdeProject xcodeProject) {
 		this.xcodeProject = xcodeProject;
@@ -107,12 +104,12 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		project.getTargets().addAll(xcodeProject.getTargets().stream().map(this::toTarget).collect(Collectors.toList()));
 
 		// Configure sources
-		getSources().forEach(file -> {
+		xcodeProject.getSources().forEach(file -> {
 			project.getMainGroup().getChildren().add(toAbsoluteFileReference(file));
 		});
-		xcodeProject.getTargets().forEach(target -> {
-			List<PBXReference> fileReferences = project.getMainGroup().getOrCreateChildGroupByName(target.getName()).getChildren();
-			target.getSources().forEach(file -> fileReferences.add(toAbsoluteFileReference(file)));
+		xcodeProject.getGroups().forEach(group -> {
+			List<PBXReference> fileReferences = project.getMainGroup().getOrCreateChildGroupByName(group.getName()).getChildren();
+			group.getSources().forEach(file -> fileReferences.add(toAbsoluteFileReference(file)));
 		});
 
 		// Add all target product reference to Products source group

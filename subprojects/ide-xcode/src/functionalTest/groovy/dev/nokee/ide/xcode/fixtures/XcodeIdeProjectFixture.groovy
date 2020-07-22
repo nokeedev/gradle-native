@@ -34,17 +34,8 @@ class XcodeIdeProjectFixture {
 	}
 
 	XcodeIdeProjectFixture assertHasSourceLayout(Iterable<String> layout) {
-		assert listSource(projectFile.mainGroup) as Set == layout as Set
+		projectFile.mainGroup.assertHasSourceLayout(layout)
 		return this
-	}
-
-	private List<String> listSource(ProjectFixture.PBXGroupFixture group) {
-		return group.children.collect { child ->
-			if (child instanceof ProjectFixture.PBXGroupFixture) {
-				return listSource(child).collect { "${child.name}/${it}" }
-			}
-			return child.name
-		}.flatten()
 	}
 
     XcodeIdeProjectFixture assertHasTargets(String... targetNames) {
@@ -70,6 +61,18 @@ class XcodeIdeProjectFixture {
 	XcodeIdeProjectFixture assertHasTarget(String targetName) {
 		assert projectFile.targets*.name.contains(targetName)
 		return this
+	}
+
+	ProjectFixture.PBXGroupFixture getGroupByName(String groupName) {
+		return projectFile.mainGroup.getGroupByName(groupName)
+	}
+
+	ProjectFixture.PBXGroupFixture getProductsGroup() {
+		return projectFile.mainGroup.getGroupByName('Products')
+	}
+
+	ProjectFixture.PBXGroupFixture getMainGroup() {
+		return projectFile.mainGroup
 	}
 
 	static class SchemeFixture {
@@ -230,6 +233,25 @@ class XcodeIdeProjectFixture {
 				return getObject('children')
 			}
 
+			PBXGroupFixture getGroupByName(String groupName) {
+				def group = (PBXGroupFixture) getObject('children').find { it instanceof PBXGroupFixture && it.name == groupName }
+				assert group != null
+				return group
+			}
+
+			PBXGroupFixture assertHasSourceLayout(String... layout) {
+				return assertHasSourceLayout(Arrays.asList(layout))
+			}
+
+			PBXGroupFixture assertHasSourceLayout(Iterable<String> layout) {
+				assert listSource(this) as Set == layout as Set
+				return this
+			}
+
+			Set<String> getFiles() {
+				return getObject('children').findAll { !(it instanceof PBXGroupFixture) }*.name as Set
+			}
+
 			def assertHasChildren(List<String> entries) {
 				def children = getObject('children')
 				assert children.size() == entries.size()
@@ -344,9 +366,18 @@ class XcodeIdeProjectFixture {
 					assert it.contains('-Pdev.nokee.internal.xcode.bridge.TARGET_NAME="${TARGET_NAME}"')
 					assert it.contains(':_xcode__${ACTION}_${PROJECT_NAME}_${TARGET_NAME}_${CONFIGURATION}')
 				}
-				assert getProperty('passBuildSettingsInEnvironment').toString() == '0'
+				assert getObject('passBuildSettingsInEnvironment').toString() == '0'
 				return this
 			}
 		}
+	}
+
+	private static List<String> listSource(ProjectFixture.PBXGroupFixture group) {
+		return group.children.collect { child ->
+			if (child instanceof ProjectFixture.PBXGroupFixture) {
+				return listSource(child).collect { "${child.name}/${it}" }
+			}
+			return child.name
+		}.flatten()
 	}
 }

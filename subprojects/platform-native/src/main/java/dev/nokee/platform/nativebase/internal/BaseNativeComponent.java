@@ -149,25 +149,25 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 						TaskProvider<LinkExecutableTask> linkTask = getTasks().register(names.getTaskName("link"), LinkExecutableTask.class);
 						ExecutableBinaryInternal binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets, targetMachineInternal, linkTask, dependencies.getIncoming());
 						variantInternal.getBinaryCollection().add(binary);
-						binary.getBaseName().convention(project.getName());
+						binary.getBaseName().convention(getBaseName());
 					} else if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
 						TaskProvider<LinkSharedLibraryTask> linkTask = getTasks().register(names.getTaskName("link"), LinkSharedLibraryTask.class);
 
 						SharedLibraryBinaryInternal binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
 						variantInternal.getBinaryCollection().add(binary);
-						binary.getBaseName().convention(project.getName());
+						binary.getBaseName().convention(getBaseName());
 					} else if (linkage.equals(DefaultBinaryLinkage.BUNDLE)) {
 						TaskProvider<LinkBundleTask> linkTask = getTasks().register(names.getTaskName("link"), LinkBundleTask.class);
 
 						BundleBinaryInternal binary = getObjects().newInstance(BundleBinaryInternal.class, names, targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
 						variantInternal.getBinaryCollection().add(binary);
-						binary.getBaseName().convention(project.getName());
+						binary.getBaseName().convention(getBaseName());
 					} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
 						TaskProvider<CreateStaticLibraryTask> createTask = getTasks().register(names.getTaskName("create"), CreateStaticLibraryTask.class);
 
 						val binary = getObjects().newInstance(StaticLibraryBinaryInternal.class, names, objectSourceSets, targetMachineInternal, createTask, dependencies.getIncoming());
 						variantInternal.getBinaryCollection().add(binary);
-						binary.getBaseName().convention(project.getName());
+						binary.getBaseName().convention(getBaseName());
 					}
 				}
 				it.getBinaries().configureEach(NativeBinary.class, binary -> {

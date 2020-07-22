@@ -139,8 +139,12 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 		return allToInstall + [assemble]
 	}
 
+	String getRelocateMainSymbol() {
+		return withProject("relocateMainSymbolFor${buildType.capitalize()}")
+	}
+
 	List<String> getAllToTest() {
-		return allToLink + [withProject('relocateMainSymbolForTest'), withProject('test')]
+		return allToLink + [relocateMainSymbol, withProject('test')]
 	}
 
 	List<String> getAllToCheck() {

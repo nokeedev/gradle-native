@@ -1,10 +1,12 @@
 package dev.nokee.ide.visualstudio
 
 import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture
 import dev.nokee.language.c.CTaskNames
-import dev.nokee.platform.jni.fixtures.CGreeter
 import dev.nokee.platform.nativebase.fixtures.CGreeterApp
+import dev.nokee.platform.nativebase.fixtures.CGreeterLib
+import dev.nokee.platform.nativebase.fixtures.CGreeterTest
+import dev.nokee.testing.nativebase.NativeTestSuite
+import org.junit.Assume
 
 class VisualStudioIdeCApplicationFunctionalTest extends AbstractVisualStudioIdeNativeComponentPluginFunctionalTest implements CTaskNames {
 	@Override
@@ -43,59 +45,53 @@ class VisualStudioIdeCApplicationFunctionalTest extends AbstractVisualStudioIdeN
 	}
 }
 
-// TODO: Renable after fixing the tested component header file leak
-//class VisualStudioIdeCApplicationWithNativeTestSuiteFunctionalTest extends AbstractVisualStudioIdeNativeComponentPluginFunctionalTest implements CTaskNames {
-//	@Override
-//	protected void makeSingleProject() {
-//		buildFile << """
-//			plugins {
-//				id 'dev.nokee.c-application'
-//				id 'dev.nokee.visual-studio-ide'
-//				id 'dev.nokee.native-unit-testing'
-//			}
-//
-//			import ${NativeTestSuite.canonicalName}
-//
-//			testSuites {
-//				test(${NativeTestSuite.simpleName}) {
-//					testedComponent application
-//				}
-//			}
-//		"""
-//		new CGreeterApp().writeToProject(testDirectory)
-//	}
-//
-//	@Override
-//	protected SourceElement getComponentUnderTest() {
-//		return new CGreeterTest()
-//	}
-//
-//	@Override
-//	protected String configureCustomSourceLayout() {
-//		Assume.assumeFalse(false)
-//		return '''
-//			application {
-//				sources.from('srcs')
-//				privateHeaders.from('hdrs')
-//			}
-//		'''
-//	}
-//
-//	@Override
-//	protected String getProjectName() {
-//		return "app"
-//	}
-//
-//	@Override
-//	protected List<String> getAllTasksForBuildAction() {
-//		return tasks.allToLink
-//	}
-//
-//	@Override
-//	protected VisualStudioIdeProjectFixture getVisualStudioProjectUnderTest() {
-//		return visualStudioProject('test')
-//	}
-//}
+class VisualStudioIdeCApplicationWithNativeTestSuiteFunctionalTest extends AbstractVisualStudioIdeNativeComponentPluginFunctionalTest implements CTaskNames {
+	@Override
+	protected void makeSingleProject() {
+		buildFile << """
+			plugins {
+				id 'dev.nokee.c-application'
+				id 'dev.nokee.visual-studio-ide'
+				id 'dev.nokee.native-unit-testing'
+			}
+
+			import ${NativeTestSuite.canonicalName}
+
+			testSuites {
+				test(${NativeTestSuite.simpleName}) {
+					testedComponent application
+				}
+			}
+		"""
+		new CGreeterApp().writeToProject(testDirectory)
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new CGreeterTest()
+	}
+
+	@Override
+	protected String configureCustomSourceLayout() {
+		Assume.assumeTrue(false)
+		return '''
+			application {
+				sources.from('srcs')
+				privateHeaders.from('hdrs')
+			}
+		'''
+	}
+
+	@Override
+	protected String getProjectName() {
+		return "app-test"
+	}
+
+	@Override
+	protected List<String> getAllTasksForBuildAction() {
+		return tasks.allToCompile + tasks.withComponentName('test').allToLink
+	}
+}
 
 class VisualStudioIdeCLibraryFunctionalTest extends AbstractVisualStudioIdeNativeComponentPluginFunctionalTest implements CTaskNames {
 	@Override
@@ -110,7 +106,7 @@ class VisualStudioIdeCLibraryFunctionalTest extends AbstractVisualStudioIdeNativ
 
 	@Override
 	protected SourceElement getComponentUnderTest() {
-		return new CGreeter().asLib()
+		return new CGreeterLib()
 	}
 
 	@Override
@@ -131,6 +127,55 @@ class VisualStudioIdeCLibraryFunctionalTest extends AbstractVisualStudioIdeNativ
 	@Override
 	protected List<String> getAllTasksForBuildAction() {
 		return tasks.allToLink
+	}
+}
+
+class VisualStudioIdeCLibraryWithNativeTestSuiteFunctionalTest extends AbstractVisualStudioIdeNativeComponentPluginFunctionalTest implements CTaskNames {
+	@Override
+	protected void makeSingleProject() {
+		buildFile << """
+			plugins {
+				id 'dev.nokee.c-library'
+				id 'dev.nokee.visual-studio-ide'
+				id 'dev.nokee.native-unit-testing'
+			}
+
+			import ${NativeTestSuite.canonicalName}
+
+			testSuites {
+				test(${NativeTestSuite.simpleName}) {
+					testedComponent library
+				}
+			}
+		"""
+
+		new CGreeterLib().writeToProject(testDirectory)
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new CGreeterTest()
+	}
+
+	@Override
+	protected String configureCustomSourceLayout() {
+		Assume.assumeTrue(false)
+		return '''
+			library {
+				sources.from('srcs')
+				publicHeaders.from('hdrs')
+			}
+		'''
+	}
+
+	@Override
+	protected String getProjectName() {
+		return "lib-test"
+	}
+
+	@Override
+	protected List<String> getAllTasksForBuildAction() {
+		return tasks.allToCompile + tasks.withComponentName('test').allToLink
 	}
 }
 

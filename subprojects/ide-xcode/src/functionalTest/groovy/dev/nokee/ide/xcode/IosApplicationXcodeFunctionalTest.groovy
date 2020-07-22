@@ -17,7 +17,7 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 		succeeds('xcode')
 
 		then:
-		xcodeWorkspace('app').assertHasProjects('main.xcodeproj')
+		xcodeWorkspace('app').assertHasProjects('app.xcodeproj')
 	}
 
 	def "can create Xcode project with sources"() {
@@ -28,7 +28,7 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 		succeeds('xcode')
 
 		then:
-		xcodeProject('main').assertHasSourceLayout(*expectedSourceLayoutOfComponentUnderTest, 'build.gradle', 'settings.gradle')
+		xcodeProject('app').assertHasSourceLayout(*expectedSourceLayoutOfComponentUnderTest, 'build.gradle', 'settings.gradle')
 	}
 
 	def "creates Xcode project with a scheme matching the target"() {
@@ -39,8 +39,8 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 		succeeds('xcode')
 
 		then:
-		xcodeProject('main').assertHasTarget('App')
-		xcodeProject('main').assertHasSchemes('App')
+		xcodeProject('app').assertHasTarget('App')
+		xcodeProject('app').assertHasSchemes('App')
 	}
 
 	def "creates Xcode project with default build configuration"() {
@@ -52,7 +52,7 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 		succeeds('xcode')
 
 		then:
-		xcodeProject('main').assertHasBuildConfigurations('Default')
+		xcodeProject('app').assertHasBuildConfigurations('Default')
 	}
 
 	def "creates Xcode project with iOS application target delegating to Gradle"() {
@@ -64,7 +64,7 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 		succeeds('xcode')
 
 		then:
-		def xcodeProject = xcodeProject('main')
+		def xcodeProject = xcodeProject('app')
 		xcodeProject.assertHasTarget('App')
 		xcodeProject.getTargetByName('App').productReference.name == 'App.app'
 		xcodeProject.getTargetByName('App').productType == 'com.apple.product-type.application'
@@ -82,7 +82,7 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 		succeeds('xcode')
 
 		then:
-		def xcodeProject = xcodeProject('main')
+		def xcodeProject = xcodeProject('app')
 		xcodeProject.assertHasTarget('__indexer_App')
 		xcodeProject.getTargetByName('__indexer_App').productReference.name == 'App.app'
 		xcodeProject.getTargetByName('__indexer_App').productType == 'dev.nokee.product-type.indexer'
@@ -120,11 +120,11 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 		succeeds('xcode')
 
 		then:
-		result.assertTasksExecutedAndNotSkipped(':mainXcodeProject', ':xcodeWorkspace', ':xcode')
+		result.assertTasksExecutedAndNotSkipped(':appXcodeProject', ':xcodeWorkspace', ':xcode')
 
 		and:
 		def result = xcodebuild.withWorkspace(xcodeWorkspace('app.xcworkspace')).withScheme("App").succeeds()
-		result.assertTasksExecutedAndNotSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileObjectiveC', ':link', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___main_App_Default')
+		result.assertTasksExecutedAndNotSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileObjectiveC', ':link', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___app_App_Default')
 	}
 
 	@Requires({ SystemUtils.IS_OS_MAC })
@@ -140,12 +140,12 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 		when:
 		def xcodeResult1 = xcodebuild.withWorkspace(xcodeWorkspace('app.xcworkspace')).withScheme("App").succeeds()
 		then:
-		xcodeResult1.assertTasksExecutedAndNotSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileObjectiveC', ':link', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___main_App_Default')
+		xcodeResult1.assertTasksExecutedAndNotSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileObjectiveC', ':link', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___app_App_Default')
 
 		when:
 		def xcodeResult2 = xcodebuild.withWorkspace(xcodeWorkspace('app.xcworkspace')).withScheme("App").succeeds()
 		then:
-		xcodeResult2.assertTasksSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileObjectiveC', ':link', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___main_App_Default')
+		xcodeResult2.assertTasksSkipped(':compileAssetCatalog', ':compileStoryboard', ':linkStoryboard', ':processPropertyList', ':compileObjectiveC', ':link', ':createApplicationBundle', ':signApplicationBundle', ':_xcode___app_App_Default')
 	}
 
 	protected abstract List<String> getExpectedSourceLayoutOfComponentUnderTest();

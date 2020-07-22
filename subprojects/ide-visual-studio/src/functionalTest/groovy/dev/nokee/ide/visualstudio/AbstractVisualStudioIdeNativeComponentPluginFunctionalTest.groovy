@@ -5,6 +5,16 @@ import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeSolutionFixture
 
 abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractVisualStudioIdeFunctionalSpec {
+	protected String configureProjectName() {
+		String projectName = 'app'
+		if (this.class.simpleName.contains('Library')) {
+			projectName = 'lib'
+		}
+		settingsFile << """
+			rootProject.name = '${projectName}'
+		"""
+	}
+
 	protected abstract void makeSingleProject()
 
 	protected abstract SourceElement getComponentUnderTest()
@@ -33,7 +43,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 
 	def "creates Visual Studio project delegating to Gradle"() {
 		given:
-		settingsFile << "rootProject.name = '${projectName}'"
+		settingsFile << configureProjectName()
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)
 
@@ -52,7 +62,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 
 	def "includes sources in the project"() {
 		given:
-		settingsFile << "rootProject.name = '${projectName}'"
+		settingsFile << configureProjectName()
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)
 
@@ -65,7 +75,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 
 	def "include sources in project with custom layout"() {
 		given:
-		settingsFile << "rootProject.name = '${projectName}'"
+		settingsFile << configureProjectName()
 		makeSingleProject()
 		componentUnderTest.sources.writeToSourceDir(file('srcs'))
 		componentUnderTest.headers.writeToSourceDir(file('hdrs'))

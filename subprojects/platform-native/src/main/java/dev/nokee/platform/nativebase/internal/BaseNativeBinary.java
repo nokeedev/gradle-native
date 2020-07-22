@@ -175,6 +175,9 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 		task.getToolChain().finalizeValueOnRead();
 		task.getToolChain().disallowChanges();
 
+		task.doFirst(t -> {
+			System.out.println("TASK " + task.getName() + " - " + getBaseName().get());
+		});
 		task.getModuleName().convention(getBaseName().map(this::toModuleName));
 		task.getModuleFile().convention(task.getModuleName().flatMap(this::toSwiftModuleFile));
 

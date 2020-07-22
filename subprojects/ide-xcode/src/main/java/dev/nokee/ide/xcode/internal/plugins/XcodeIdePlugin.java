@@ -12,6 +12,7 @@ import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeWorkspaceTask;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.platform.base.KnownDomainObject;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
@@ -23,6 +24,7 @@ import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
+import dev.nokee.testing.nativebase.NativeTestSuite;
 import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
@@ -70,6 +72,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 
 		Provider<XcodeIdeGidGeneratorService> xcodeIdeGidGeneratorService = getProject().getGradle().getSharedServices().registerIfAbsent("xcodeIdeGidGeneratorService", XcodeIdeGidGeneratorService.class, Actions.doNothing());
 		projectExtension.getProjects().withType(DefaultXcodeIdeProject.class).configureEach(xcodeProject -> {
+			xcodeProject.getSources().from(getBuildFiles());
 			xcodeProject.getGeneratorTask().configure( task -> {
 				FileSystemLocation projectLocation = getLayout().getProjectDirectory().dir(xcodeProject.getName() + ".xcodeproj");
 				task.getProjectLocation().convention(projectLocation);
@@ -78,7 +81,6 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 				task.getGradleCommand().set(toGradleCommand(getProject().getGradle()));
 				task.getBridgeTaskPath().set(getBridgeTaskPath());
 				task.getAdditionalGradleArguments().set(getAdditionalBuildArguments());
-				task.getSources().from(getBuildFiles());
 			});
 		});
 
@@ -95,12 +97,17 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 
 		val v = getObjects().listProperty(XcodeIdeProject.class);
 		v.value(store.flatMap(new Transformer<Iterable<? extends XcodeIdeProject>, Object>() {
+			private DefaultXcodeIdeProject xcodeProject = null;
 			@Override
 			public Iterable<? extends XcodeIdeProject> transform(Object it) {
-				if (it instanceof DefaultNativeApplicationComponent || it instanceof DefaultNativeLibraryComponent) {
-					return ImmutableList.of(createXcodeIdeProject((BaseComponent<?>) it));
+				if (xcodeProject == null) {
+					xcodeProject = getObjects().newInstance(DefaultXcodeIdeProject.class, getProject().getName());
+				}
+
+				if (it instanceof DefaultNativeApplicationComponent || it instanceof DefaultNativeLibraryComponent || it instanceof NativeTestSuite) {
+					return ImmutableList.of(configureXcodeIdeProject(xcodeProject, (BaseComponent<?>) it));
 				} else if (it instanceof DefaultIosApplicationComponent) {
-					return ImmutableList.of(createIosXcodeIdeProject((DefaultIosApplicationComponent) it));
+					return ImmutableList.of(configureIosXcodeIdeProject(xcodeProject, (DefaultIosApplicationComponent) it));
 				}
 				return emptyList();
 			}
@@ -109,8 +116,16 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 		v.finalizeValueOnRead();
 		extension.getProjects().addAllLater(v);
 
-		store.whenElementKnown(BaseComponent.class, it -> {
-			registerIdeProject(((NamedDomainObjectIdentity)it.getIdentity()).getName());
+		store.whenElementKnown(BaseComponent.class, new Action<KnownDomainObject<? extends BaseComponent>>() {
+			private boolean hasNativeComponent = false;
+
+			@Override
+			public void execute(KnownDomainObject<? extends BaseComponent> knownDomainObject) {
+				if (!hasNativeComponent) {
+					registerIdeProject(getProject().getName());
+					hasNativeComponent = true;
+				}
+			}
 		});
 
 
@@ -176,14 +191,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 		});
 	}
 
-	private XcodeIdeProject createXcodeIdeProject(BaseComponent<?> component) {
-		val xcodeProject = getObjects().newInstance(DefaultXcodeIdeProject.class, component.getName());
-
-		xcodeProject.getGeneratorTask().configure(task -> {
-			Provider<? extends FileSystemLocation> projectLocation = getLayout().getProjectDirectory().dir(component.getBaseName().map(it -> it + ".xcodeproj"));
-			task.getProjectLocation().set(projectLocation);
-		});
-
+	private XcodeIdeProject configureXcodeIdeProject(DefaultXcodeIdeProject xcodeProject, BaseComponent<?> component) {
 		val linkages = component.getBuildVariants().get().stream().map(b -> b.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)).collect(Collectors.toSet()); // TODO Maybe use linkedhashset to keep the ordering
 		if (linkages.size() > 1) {
 			linkages.forEach(linkage -> {
@@ -193,6 +201,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 			val linkage = linkages.iterator().next();
 			xcodeProject.getTargets().register(component.getBaseName().get(), configureTargetForLinkage(component, linkage));
 		}
+		xcodeProject.getGroups().create(component.getBaseName().get()).getSources().from(getProviders().provider(() -> component.getSourceCollection().stream().map(SourceSet::getAsFileTree).collect(Collectors.toList())));
 		return xcodeProject;
 	}
 
@@ -270,7 +279,6 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 				throw unsupportedLinkage(linkage);
 			}
 
-
 			xcodeTarget.getSources().from(getProviders().provider(() -> component.getSourceCollection().stream().map(SourceSet::getAsFileTree).collect(Collectors.toList())));
 		};
 	}
@@ -294,8 +302,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 		return new IllegalArgumentException(String.format("Unsupported linkage '%s'.", linkage));
 	}
 
-	private XcodeIdeProject createIosXcodeIdeProject(DefaultIosApplicationComponent component) {
-		val xcodeProject = getObjects().newInstance(DefaultXcodeIdeProject.class, component.getName());
+	private XcodeIdeProject configureIosXcodeIdeProject(DefaultXcodeIdeProject xcodeProject, DefaultIosApplicationComponent component) {
 		val moduleName = GUtil.toCamelCase(getProject().getName());
 
 		// TODO: Lock properties to avoid breaking the assumption
@@ -370,6 +377,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 					.put("USE_HEADERMAP", "NO");
 			});
 
+			xcodeProject.getGroups().create(moduleName).getSources().from(xcodeTarget.getSources());
 			xcodeTarget.getSources().from(getProviders().provider(() -> component.getSourceCollection().stream().map(SourceSet::getAsFileTree).collect(Collectors.toList())));
 			xcodeTarget.getSources().from(getProviders().provider(() -> {
 				try {
@@ -446,6 +454,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 				});
 				xcodeTarget.getSources().from(getProviders().provider(() -> unitTest.getSourceCollection().stream().map(SourceSet::getAsFileTree).collect(Collectors.toList())));
 				xcodeTarget.getSources().from(getProject().fileTree("src/unitTest/resources", it -> it.include("*")));
+				xcodeProject.getGroups().create(moduleName + "UnitTest").getSources().from(xcodeTarget.getSources());
 			});
 		}
 
@@ -476,6 +485,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 				});
 				xcodeTarget.getSources().from(getProviders().provider(() -> uiTest.getSourceCollection().stream().map(SourceSet::getAsFileTree).collect(Collectors.toList())));
 				xcodeTarget.getSources().from(getProject().fileTree("src/uiTest/resources", it -> it.include("*")));
+				xcodeProject.getGroups().create(moduleName + "UiTest").getSources().from(xcodeTarget.getSources());
 			});
 		}
 

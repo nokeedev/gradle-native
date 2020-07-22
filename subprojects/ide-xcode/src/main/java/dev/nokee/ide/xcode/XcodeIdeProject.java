@@ -4,6 +4,7 @@ import dev.nokee.ide.base.IdeProject;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
 
@@ -49,4 +50,34 @@ public interface XcodeIdeProject extends IdeProject, Named {
 	 * @throws NullPointerException if the action is null
 	 */
 	void targets(Action<? super NamedDomainObjectContainer<XcodeIdeTarget>> action);
+
+	/**
+	 * Returns the source groups for this project.
+	 *
+	 * @return a container of {@link XcodeIdeGroup} to configure the group, never null.
+	 */
+	NamedDomainObjectContainer<XcodeIdeGroup> getGroups();
+
+	/**
+	 * Configures the group container with the specified action.
+	 *
+	 * @param action a configuration action for the container of {@link XcodeIdeGroup} instances.
+	 * @throws NullPointerException if the action is null
+	 */
+	void groups(Action<? super NamedDomainObjectContainer<XcodeIdeGroup>> action);
+
+	/**
+	 * Returns the sources to include in the main group of this project.
+	 *
+	 * @return a file collection to configure the sources for main group of this project, never null.
+	 */
+	ConfigurableFileCollection getSources();
+
+	/**
+	 * Returns this Xcode project instance.
+	 * This method is offered for convenience when configuring Xcode IDE via the build DSL.
+	 *
+	 * @return this {@link XcodeIdeProject} instance, never null.
+	 */
+	XcodeIdeProject getIdeProject();
 }

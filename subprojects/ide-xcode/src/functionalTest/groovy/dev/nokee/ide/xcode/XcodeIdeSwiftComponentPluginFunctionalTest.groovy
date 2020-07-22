@@ -6,6 +6,10 @@ import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.language.swift.SwiftTaskNames
 import dev.nokee.platform.jni.fixtures.elements.SwiftGreeter
 import dev.nokee.platform.nativebase.fixtures.SwiftGreeterApp
+import dev.nokee.platform.nativebase.fixtures.SwiftGreeterLib
+import dev.nokee.platform.nativebase.fixtures.SwiftGreeterTest
+import dev.nokee.testing.nativebase.NativeTestSuite
+import org.junit.Assume
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
 class XcodeIdeSwiftApplicationFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements SwiftTaskNames {
@@ -46,6 +50,70 @@ class XcodeIdeSwiftApplicationFunctionalTest extends AbstractXcodeIdeNativeCompo
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
+class XcodeIdeSwiftApplicationWithNativeTestSuiteFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements SwiftTaskNames {
+	@Override
+	protected void makeSingleProject() {
+		makeSingleProjectWithoutSources()
+		new SwiftGreeterApp().writeToProject(testDirectory)
+	}
+
+	@Override
+	protected void makeSingleProjectWithoutSources() {
+		buildFile << """
+			plugins {
+				id 'dev.nokee.swift-application'
+				id 'dev.nokee.xcode-ide'
+				id 'dev.nokee.native-unit-testing'
+			}
+
+			import ${NativeTestSuite.canonicalName}
+
+			testSuites {
+				test(${NativeTestSuite.simpleName}) {
+					testedComponent application
+				}
+			}
+		"""
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new SwiftGreeterTest('App')
+	}
+
+	@Override
+	protected String configureCustomSourceLayout() {
+		Assume.assumeTrue(false)
+		return super.configureCustomSourceLayout()
+	}
+
+	@Override
+	protected String getProjectName() {
+		return 'App'
+	}
+
+	@Override
+	protected String getSchemeName() {
+		return 'AppTest'
+	}
+
+	@Override
+	protected String getGroupName() {
+		return 'AppTest'
+	}
+
+	@Override
+	protected List<String> getAllTasksForBuildAction() {
+		return [tasks.compile] + tasks.withComponentName('test').allToLink + [tasks.withComponentName('test').relocateMainSymbol]
+	}
+
+	@Override
+	protected List<String> getAllTasksToXcode() {
+		return super.getAllTasksToXcode() + [tasks.compile, tasks.withComponentName('test').compile]
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
 class XcodeIdeSwiftLibraryFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements SwiftTaskNames {
 	@Override
 	protected void makeSingleProject() {
@@ -80,6 +148,70 @@ class XcodeIdeSwiftLibraryFunctionalTest extends AbstractXcodeIdeNativeComponent
 	@Override
 	protected List<String> getAllTasksToXcode() {
 		return super.getAllTasksToXcode() + [tasks.compile]
+	}
+}
+
+@RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
+class XcodeIdeSwiftLibraryWithNativeTestSuiteFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements SwiftTaskNames {
+	@Override
+	protected void makeSingleProject() {
+		makeSingleProjectWithoutSources()
+		new SwiftGreeterLib().writeToProject(testDirectory)
+	}
+
+	@Override
+	protected void makeSingleProjectWithoutSources() {
+		buildFile << """
+			plugins {
+				id 'dev.nokee.swift-library'
+				id 'dev.nokee.xcode-ide'
+				id 'dev.nokee.native-unit-testing'
+			}
+
+			import ${NativeTestSuite.canonicalName}
+
+			testSuites {
+				test(${NativeTestSuite.simpleName}) {
+					testedComponent library
+				}
+			}
+		"""
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new SwiftGreeterTest('Lib')
+	}
+
+	@Override
+	protected String configureCustomSourceLayout() {
+		Assume.assumeTrue(false)
+		return super.configureCustomSourceLayout()
+	}
+
+	@Override
+	protected String getProjectName() {
+		return 'Lib'
+	}
+
+	@Override
+	protected String getSchemeName() {
+		return 'LibTest'
+	}
+
+	@Override
+	protected String getGroupName() {
+		return 'LibTest'
+	}
+
+	@Override
+	protected List<String> getAllTasksForBuildAction() {
+		return [tasks.compile] + tasks.withComponentName('test').allToLink
+	}
+
+	@Override
+	protected List<String> getAllTasksToXcode() {
+		return super.getAllTasksToXcode() + [tasks.compile, tasks.withComponentName('test').compile]
 	}
 }
 

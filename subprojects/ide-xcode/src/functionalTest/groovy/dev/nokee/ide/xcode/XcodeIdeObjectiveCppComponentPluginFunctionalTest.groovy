@@ -6,6 +6,10 @@ import dev.nokee.platform.jni.fixtures.ObjectiveCppGreeter
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.SharedLibraryBinary
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCppGreeterApp
+import dev.nokee.platform.nativebase.fixtures.ObjectiveCppGreeterLib
+import dev.nokee.platform.nativebase.fixtures.ObjectiveCppGreeterTest
+import dev.nokee.testing.nativebase.NativeTestSuite
+import org.junit.Assume
 
 class XcodeIdeObjectiveCppApplicationFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements ObjectiveCppTaskNames {
 	@Override
@@ -43,6 +47,73 @@ class XcodeIdeObjectiveCppApplicationFunctionalTest extends AbstractXcodeIdeNati
 	}
 }
 
+class XcodeIdeObjectiveCppApplicationWithNativeTestSuiteFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements ObjectiveCppTaskNames {
+	@Override
+	protected void makeSingleProject() {
+		makeSingleProjectWithoutSources()
+		new ObjectiveCppGreeterApp().writeToProject(testDirectory)
+	}
+
+	@Override
+	protected void makeSingleProjectWithoutSources() {
+		buildFile << """
+			plugins {
+				id 'dev.nokee.objective-cpp-application'
+				id 'dev.nokee.xcode-ide'
+				id 'dev.nokee.native-unit-testing'
+			}
+
+			import ${ExecutableBinary.canonicalName}
+			application.variants.configureEach {
+				binaries.configureEach(ExecutableBinary) {
+					linkTask.configure {
+						linkerArgs.add('-lobjc')
+					}
+				}
+			}
+
+			import ${NativeTestSuite.canonicalName}
+
+			testSuites {
+				test(${NativeTestSuite.simpleName}) {
+					testedComponent application
+					binaries.configureEach(${ExecutableBinary.simpleName}) {
+						linkTask.configure {
+							linkerArgs.add('-lobjc')
+						}
+					}
+				}
+			}
+		"""
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new ObjectiveCppGreeterTest()
+	}
+
+	@Override
+	protected String configureCustomSourceLayout() {
+		Assume.assumeTrue(false)
+		return super.configureCustomSourceLayout()
+	}
+
+	@Override
+	protected String getProjectName() {
+		return 'app'
+	}
+
+	@Override
+	protected String getGroupName() {
+		return 'app-test'
+	}
+
+	@Override
+	protected List<String> getAllTasksForBuildAction() {
+		return [tasks.compile] + tasks.withComponentName('test').allToLink + [tasks.withComponentName('test').relocateMainSymbol]
+	}
+}
+
 class XcodeIdeObjectiveCppLibraryFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements ObjectiveCppTaskNames {
 	@Override
 	protected void makeSingleProject() {
@@ -76,6 +147,74 @@ class XcodeIdeObjectiveCppLibraryFunctionalTest extends AbstractXcodeIdeNativeCo
 	@Override
 	protected List<String> getAllTasksForBuildAction() {
 		return tasks.allToLink
+	}
+}
+
+class XcodeIdeObjectiveCppLibraryWithNativeTestSuiteFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements ObjectiveCppTaskNames {
+	@Override
+	protected void makeSingleProject() {
+		makeSingleProjectWithoutSources()
+		new ObjectiveCppGreeterLib().writeToProject(testDirectory)
+	}
+
+	@Override
+	protected void makeSingleProjectWithoutSources() {
+		buildFile << """
+			plugins {
+				id 'dev.nokee.objective-cpp-library'
+				id 'dev.nokee.xcode-ide'
+				id 'dev.nokee.native-unit-testing'
+			}
+
+			import ${SharedLibraryBinary.canonicalName}
+			library.variants.configureEach {
+				binaries.configureEach(SharedLibraryBinary) {
+					linkTask.configure {
+						linkerArgs.add('-lobjc')
+					}
+				}
+			}
+
+			import ${NativeTestSuite.canonicalName}
+			import ${ExecutableBinary.canonicalName}
+
+			testSuites {
+				test(${NativeTestSuite.simpleName}) {
+					testedComponent library
+					binaries.configureEach(${ExecutableBinary.simpleName}) {
+						linkTask.configure {
+							linkerArgs.add('-lobjc')
+						}
+					}
+				}
+			}
+		"""
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new ObjectiveCppGreeterTest()
+	}
+
+	@Override
+	protected String configureCustomSourceLayout() {
+		Assume.assumeTrue(false)
+		return super.configureCustomSourceLayout()
+	}
+
+	@Override
+	protected String getProjectName() {
+		return 'lib'
+	}
+
+	@Override
+	protected String getGroupName() {
+		return 'lib-test'
+	}
+
+	@Override
+	protected List<String> getAllTasksForBuildAction() {
+		return [tasks.compile] + tasks.withComponentName('test').allToLink
 	}
 }
 

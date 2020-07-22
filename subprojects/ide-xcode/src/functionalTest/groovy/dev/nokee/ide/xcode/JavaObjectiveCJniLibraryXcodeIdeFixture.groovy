@@ -16,6 +16,9 @@ trait JavaObjectiveCJniLibraryXcodeIdeFixture {
 					buildSettings.put('PRODUCT_NAME', ideTarget.productName)
 				}
 				sources.from(fileTree('src/main/java') { include('**/*.java') })
+				ideProject.groups.register('JniGreeter') {
+					sources.from(fileTree('src/main/java') { include('**/*.java') })
+				}
 			}
 		"""
 	}
@@ -32,6 +35,10 @@ trait JavaObjectiveCJniLibraryXcodeIdeFixture {
 				}
 				sources.from(fileTree('src/main/objc') { include('**/*.m') })
 				sources.from(fileTree('src/main/headers') { include('**/*.h') })
+				ideProject.groups.register('JniSharedLibrary') {
+					sources.from(fileTree('src/main/objc') { include('**/*.m') })
+					sources.from(fileTree('src/main/headers') { include('**/*.h') })
+				}
 			}
 		"""
 	}

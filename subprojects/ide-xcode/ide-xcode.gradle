@@ -19,6 +19,7 @@ dependencies {
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation project(':platformIos') // only as implementation because iOS types are used inside the main Xcode plugin
+	implementation project(':testingNative') // needed since Native test suites types are in the main plugin... should not do that
 	implementation project(':testingXctest') // needed since we started to include the XCTest rules inside the main plugins... should not do that
 	compileOnly project(':platformNative') // for NativeBinary
 	implementation project(':languageNative') // for UTType of each language
@@ -51,5 +52,6 @@ functionalTest {
 		implementation testFixtures(project(':platformBase'))
 		implementation gradleApi(minimumGradleVersion)
 		implementation project(':platformNative')
+		implementation project(':testingNative')
 	}
 }

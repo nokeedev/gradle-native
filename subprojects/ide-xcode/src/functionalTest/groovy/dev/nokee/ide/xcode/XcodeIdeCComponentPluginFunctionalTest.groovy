@@ -4,6 +4,10 @@ import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.language.c.CTaskNames
 import dev.nokee.platform.jni.fixtures.CGreeter
 import dev.nokee.platform.nativebase.fixtures.CGreeterApp
+import dev.nokee.platform.nativebase.fixtures.CGreeterLib
+import dev.nokee.platform.nativebase.fixtures.CGreeterTest
+import dev.nokee.testing.nativebase.NativeTestSuite
+import org.junit.Assume
 
 class XcodeIdeCApplicationFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements CTaskNames {
 	@Override
@@ -32,6 +36,58 @@ class XcodeIdeCApplicationFunctionalTest extends AbstractXcodeIdeNativeComponent
 	}
 }
 
+class XcodeIdeCApplicationWithNativeTestSuiteFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements CTaskNames {
+	@Override
+	protected void makeSingleProject() {
+		makeSingleProjectWithoutSources()
+		new CGreeterApp().writeToProject(testDirectory)
+	}
+
+	@Override
+	protected void makeSingleProjectWithoutSources() {
+		buildFile << """
+			plugins {
+				id 'dev.nokee.c-application'
+				id 'dev.nokee.xcode-ide'
+				id 'dev.nokee.native-unit-testing'
+			}
+
+			import ${NativeTestSuite.canonicalName}
+
+			testSuites {
+				test(${NativeTestSuite.simpleName}) {
+					testedComponent application
+				}
+			}
+		"""
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new CGreeterTest()
+	}
+
+	@Override
+	protected String configureCustomSourceLayout() {
+		Assume.assumeTrue(false)
+		return super.configureCustomSourceLayout()
+	}
+
+	@Override
+	protected String getProjectName() {
+		return "app"
+	}
+
+	protected String getGroupName() {
+		return "app-test"
+	}
+
+	@Override
+	protected List<String> getAllTasksForBuildAction() {
+		return [tasks.compile] + tasks.withComponentName('test').allToLink + [tasks.withComponentName('test').relocateMainSymbol]
+	}
+}
+
 class XcodeIdeCLibraryFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements CTaskNames {
 	@Override
 	protected void makeSingleProject() {
@@ -56,6 +112,58 @@ class XcodeIdeCLibraryFunctionalTest extends AbstractXcodeIdeNativeComponentPlug
 	@Override
 	protected List<String> getAllTasksForBuildAction() {
 		return tasks.allToLink
+	}
+}
+
+class XcodeIdeCLibraryWithNativeTestSuiteFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements CTaskNames {
+	@Override
+	protected void makeSingleProject() {
+		makeSingleProjectWithoutSources()
+		new CGreeterLib().writeToProject(testDirectory)
+	}
+
+	@Override
+	protected void makeSingleProjectWithoutSources() {
+		buildFile << """
+			plugins {
+				id 'dev.nokee.c-library'
+				id 'dev.nokee.xcode-ide'
+				id 'dev.nokee.native-unit-testing'
+			}
+
+			import ${NativeTestSuite.canonicalName}
+
+			testSuites {
+				test(${NativeTestSuite.simpleName}) {
+					testedComponent library
+				}
+			}
+		"""
+	}
+
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new CGreeterTest()
+	}
+
+	@Override
+	protected String configureCustomSourceLayout() {
+		Assume.assumeTrue(false)
+		return super.configureCustomSourceLayout()
+	}
+
+	@Override
+	protected String getProjectName() {
+		return 'lib'
+	}
+
+	protected String getGroupName() {
+		return 'lib-test'
+	}
+
+	@Override
+	protected List<String> getAllTasksForBuildAction() {
+		return [tasks.compile] + tasks.withComponentName('test').allToLink
 	}
 }
 
