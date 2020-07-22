@@ -15,10 +15,10 @@ class XcodeIdeProjectFixture {
 	XcodeIdeProjectFixture(TestFile projectLocation) {
 		projectLocation.assertIsDirectory()
 		dir = projectLocation
-		projectFile = new ProjectFixture(projectLocation.file("project.pbxproj"))
+		projectFile = new ProjectFixture(projectLocation.file('project.pbxproj'))
 		workspaceSettingsFile = dir.file('project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings')
 
-		def xcschemesDir = dir.file("xcshareddata/xcschemes")
+		def xcschemesDir = dir.file('xcshareddata/xcschemes')
 		if (xcschemesDir.exists()) {
 			xcschemesDir.eachFileMatch ~/.*\.xcscheme/, { schemes << new SchemeFixture(TestFile.of(it)) }
 		}
@@ -80,7 +80,7 @@ class XcodeIdeProjectFixture {
 		SchemeFixture(TestFile schemeFile) {
 			schemeFile.assertIsFile()
 			file = schemeFile
-			name = file.name.replace(".xcscheme", "")
+			name = file.name.replace('.xcscheme', '')
 			schemeXml = new XmlParser().parse(file)
 		}
 	}
@@ -95,8 +95,8 @@ class XcodeIdeProjectFixture {
 			pbxProjectFile.assertIsFile()
 			file = pbxProjectFile
 			content = PropertyListParser.parse(file)
-			objects = ((NSDictionary)content.get("objects")).getHashMap()
-			rootObject = toPbxObject(toNSString(content.get("rootObject")).getContent())
+			objects = ((NSDictionary)content.get('objects')).getHashMap()
+			rootObject = toPbxObject(toNSString(content.get('rootObject')).getContent())
 		}
 
 		protected Map<String, NSObject> getObjects() {
@@ -104,32 +104,34 @@ class XcodeIdeProjectFixture {
 		}
 
 		List<XCBuildConfigurationFixture> getBuildConfigurations() {
-			return rootObject.getProperty("buildConfigurationList").buildConfigurations
+			return rootObject.getObject('buildConfigurationList').getObject('buildConfigurations')
 		}
 
 		PBXObjectFixture getBuildConfigurationList() {
-			return rootObject.getProperty("buildConfigurationList")
+			return rootObject.getObject('buildConfigurationList')
 		}
 
 		List<PBXTargetFixture> getTargets() {
-			return rootObject.getProperty("targets")
+			return rootObject.getObject('targets')
 		}
 
 		PBXGroupFixture getMainGroup() {
-			return rootObject.getProperty("mainGroup")
+			return rootObject.getObject('mainGroup')
 		}
 
 		private <T extends PBXObjectFixture> T toPbxObject(String id) {
 			NSDictionary object = (NSDictionary)getObjects().get(id)
 
-			if (object.isa.toJavaObject() == "PBXGroup") {
+			if (object.isa.toJavaObject() == 'PBXGroup') {
 				return new PBXGroupFixture(id, object)
-			} else if (object.isa.toJavaObject() == "PBXLegacyTarget") {
+			} else if (object.isa.toJavaObject() == 'PBXLegacyTarget') {
 				return new PBXLegacyTargetFixture(id, object)
-			} else if (object.isa.toJavaObject() == "PBXNativeTarget") {
+			} else if (object.isa.toJavaObject() == 'PBXNativeTarget') {
 				return new PBXNativeTargetFixture(id, object)
-			} else if (object.isa.toJavaObject() == "XCBuildConfiguration") {
+			} else if (object.isa.toJavaObject() == 'XCBuildConfiguration') {
 				return new XCBuildConfigurationFixture(id, object)
+			} else if (object.isa.toJavaObject() == 'PBXFileReference') {
+				return new PBXFileReferenceFixture(id, object)
 			} else {
 				return new PBXObjectFixture(id, object)
 			}
@@ -149,7 +151,7 @@ class XcodeIdeProjectFixture {
 			}
 
 			@Nullable
-			def getProperty(String name) {
+			def getObject(String name) {
 				def value = object.get(name)
 				if (value == null) {
 					return null
@@ -182,8 +184,18 @@ class XcodeIdeProjectFixture {
 			@Override
 			String toString() {
 				MoreObjects.toStringHelper(this)
-					.add('isa', getProperty("isa"))
+					.add('isa', getObject('isa'))
 					.toString()
+			}
+		}
+
+		class PBXFileReferenceFixture extends PBXObjectFixture {
+			PBXFileReferenceFixture(String id, NSDictionary object) {
+				super(id, object)
+			}
+
+			String getName() {
+				return getObject('name')
 			}
 		}
 
@@ -192,9 +204,13 @@ class XcodeIdeProjectFixture {
 				super(id, object)
 			}
 
+			String getName() {
+				return getObject('name')
+			}
+
 			Map<String, String> getBuildSettings() {
 				def map = [:]
-				getProperty("buildSettings").entrySet().each {
+				getObject('buildSettings').entrySet().each {
 					map.put(it.key, toNSString(it.value).getContent())
 				}
 				return map
@@ -207,15 +223,15 @@ class XcodeIdeProjectFixture {
 			}
 
 			String getName() {
-				return getProperty("name")
+				return getObject('name')
 			}
 
 			List<PBXObjectFixture> getChildren() {
-				return getProperty("children")
+				return getObject('children')
 			}
 
 			def assertHasChildren(List<String> entries) {
-				def children = getProperty("children")
+				def children = getObject('children')
 				assert children.size() == entries.size()
 				assert children*.name.containsAll(entries)
 				return true
@@ -235,20 +251,20 @@ class XcodeIdeProjectFixture {
 			}
 
 			String getName() {
-				return getProperty("name")
+				return getObject('name')
 			}
 
 			String getProductName() {
-				return getProperty("productName")
+				return getObject('productName')
 			}
 
 			@Nullable
 			PBXObjectFixture getProductReference() {
-				return getProperty("productReference")
+				return getObject('productReference')
 			}
 
 			String getProductType() {
-				return getProperty("productType")
+				return getObject('productType')
 			}
 
 			List<XCBuildConfigurationFixture> getBuildConfigurations() {
@@ -271,7 +287,7 @@ class XcodeIdeProjectFixture {
 			}
 
 			PBXTargetFixture assertTargetDelegateToGradle() {
-				throw new AssertionError((Object)String.format("The target of type %s is not delegating to Gradle.", getProperty('isa')))
+				throw new AssertionError((Object)String.format("The target of type %s is not delegating to Gradle.", getObject('isa')))
 			}
 		}
 
@@ -291,11 +307,11 @@ class XcodeIdeProjectFixture {
 			}
 
 			String getBuildToolPath() {
-				return getProperty('buildToolPath')
+				return getObject('buildToolPath')
 			}
 
 			String getBuildArgumentsString() {
-				return getProperty('buildArgumentsString').toString()
+				return getObject('buildArgumentsString').toString()
 			}
 
 			List<String> getBuildArguments() {
