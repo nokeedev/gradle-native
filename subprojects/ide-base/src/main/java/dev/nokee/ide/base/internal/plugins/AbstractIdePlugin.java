@@ -87,7 +87,6 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 		project.afterEvaluate(proj -> {
 			projectExtension.getProjects().getCollectionSchema().getElements().forEach(element -> {
 				maybeRegisterIdeProject(element.getName());
-//				getArtifactRegistry().registerIdeProject(newIdeProjectMetadata(projectExtension.getProjects().named(element.getName()).map(IdeProjectInternal.class::cast)));
 			});
 		});
 
