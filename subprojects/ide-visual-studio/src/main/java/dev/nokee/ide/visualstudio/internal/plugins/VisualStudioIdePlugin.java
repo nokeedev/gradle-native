@@ -42,9 +42,10 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 
 	@Override
 	protected void doProjectApply(IdeProjectExtension<VisualStudioIdeProject> extension) {
-		extension.getProjects().withType(DefaultVisualStudioIdeProject.class).configureEach(xcodeProject -> {
-			xcodeProject.getGeneratorTask().configure( task -> {
-				RegularFile projectLocation = getLayout().getProjectDirectory().file(xcodeProject.getName() + ".vcxproj");
+		extension.getProjects().withType(DefaultVisualStudioIdeProject.class).configureEach(visualStudioProject -> {
+			visualStudioProject.getBuildFiles().from(getBuildFiles());
+			visualStudioProject.getGeneratorTask().configure( task -> {
+				RegularFile projectLocation = getLayout().getProjectDirectory().file(visualStudioProject.getName() + ".vcxproj");
 				task.getProjectLocation().convention(projectLocation);
 				task.getGradleCommand().set(toGradleCommand(getProject().getGradle()));
 				task.getBridgeTaskPath().set(getBridgeTaskPath());
@@ -91,7 +92,6 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 		visualStudioProject.getSourceFiles().from(getProviders().provider(() -> component.getSourceCollection().stream().filter(it -> !(it instanceof CHeaderSet || it instanceof CppHeaderSet)).map(SourceSet::getAsFileTree).collect(Collectors.toList())));
 
 		visualStudioProject.getHeaderFiles().from(getProviders().provider(() -> component.getSourceCollection().stream().filter(it -> it instanceof CHeaderSet || it instanceof CppHeaderSet).map(SourceSet::getAsFileTree).collect(Collectors.toList())));
-		visualStudioProject.getBuildFiles().from(getBuildFiles());
 
 		visualStudioProject.target(VisualStudioIdeProjectConfiguration.of(VisualStudioIdeConfiguration.of("Default"), VisualStudioIdePlatforms.X64), target -> {
 			Provider<Binary> binary = component.getDevelopmentVariant().flatMap(Variant::getDevelopmentBinary);

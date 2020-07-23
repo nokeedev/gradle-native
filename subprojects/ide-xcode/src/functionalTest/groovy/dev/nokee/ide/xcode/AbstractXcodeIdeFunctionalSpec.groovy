@@ -8,10 +8,7 @@ import dev.nokee.ide.xcode.fixtures.XcodebuildExecutor
 
 class AbstractXcodeIdeFunctionalSpec extends AbstractGradleSpecification implements XcodeIdeFixture {
 	protected XcodeIdeWorkspaceFixture xcodeWorkspace(String path) {
-		if (!path.endsWith('.xcworkspace')) {
-			path = path + '.xcworkspace'
-		}
-		return new XcodeIdeWorkspaceFixture(file(path))
+		return XcodeIdeWorkspaceFixture.of(file(path))
 	}
 
 	protected XcodeIdeWorkspaceFixture getXcodeWorkspace() {
@@ -19,10 +16,7 @@ class AbstractXcodeIdeFunctionalSpec extends AbstractGradleSpecification impleme
 	}
 
 	protected XcodeIdeProjectFixture xcodeProject(String path) {
-		if (!path.endsWith('.xcodeproj')) {
-			path = path + '.xcodeproj'
-		}
-		return new XcodeIdeProjectFixture(file(path))
+		return XcodeIdeProjectFixture.of(file(path))
 	}
 
 	protected XcodeIdeProjectFixture getXcodeProject() {

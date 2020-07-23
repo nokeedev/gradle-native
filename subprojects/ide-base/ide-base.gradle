@@ -2,6 +2,7 @@ plugins {
 	id 'java-library'
 	id 'maven-publish'
 	id 'groovy-base'
+	id 'java-test-fixtures'
 }
 
 import static dev.gradleplugins.GradleRuntimeCompatibility.*
@@ -22,6 +23,11 @@ dependencies {
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation gradleApi(minimumGradleVersion)
+
+	testFixturesImplementation platform("org.spockframework:spock-bom:${spockVersion}")
+	testFixturesImplementation 'org.spockframework:spock-core'
+	testFixturesImplementation gradleApi(minimumGradleVersion)
+	testFixturesImplementation gradleFixtures()
 }
 
 java {

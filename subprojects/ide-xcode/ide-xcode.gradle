@@ -53,5 +53,6 @@ functionalTest {
 		implementation gradleApi(minimumGradleVersion)
 		implementation project(':platformNative')
 		implementation project(':testingNative')
+		implementation testFixtures(project(':ideBase'))
 	}
 }

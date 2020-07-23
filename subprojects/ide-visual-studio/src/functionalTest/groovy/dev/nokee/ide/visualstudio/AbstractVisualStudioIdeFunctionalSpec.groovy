@@ -6,10 +6,7 @@ import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeSolutionFixture
 
 class AbstractVisualStudioIdeFunctionalSpec extends AbstractGradleSpecification {
 	protected VisualStudioIdeSolutionFixture visualStudioSolution(String path) {
-		if (!path.endsWith('.sln')) {
-			path = path + '.sln'
-		}
-		return new VisualStudioIdeSolutionFixture(file(path))
+		return VisualStudioIdeSolutionFixture.of(file(path))
 	}
 
 	protected VisualStudioIdeSolutionFixture getVisualStudioSolution() {
@@ -17,10 +14,7 @@ class AbstractVisualStudioIdeFunctionalSpec extends AbstractGradleSpecification 
 	}
 
 	protected VisualStudioIdeProjectFixture visualStudioProject(String path) {
-		if (!path.endsWith('.vcxproj')) {
-			path = path + '.vcxproj'
-		}
-		return new VisualStudioIdeProjectFixture(file(path))
+		return VisualStudioIdeProjectFixture.of(file(path))
 	}
 
 	protected VisualStudioIdeProjectFixture getVisualStudioProject() {

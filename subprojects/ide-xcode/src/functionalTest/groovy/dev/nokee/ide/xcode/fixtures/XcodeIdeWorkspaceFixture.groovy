@@ -15,6 +15,17 @@ class XcodeIdeWorkspaceFixture {
 		contentFile = new WorkspaceFile(workspaceLocation.file("contents.xcworkspacedata"))
 	}
 
+	static XcodeIdeWorkspaceFixture of(Object path) {
+		if (path instanceof File) {
+			path = path.absolutePath
+		}
+		assert path instanceof String
+		if (!path.endsWith('.xcworkspace')) {
+			path = path + '.xcworkspace'
+		}
+		return new XcodeIdeWorkspaceFixture(TestFile.of(new File(path.toString())))
+	}
+
 	void assertHasProjects(String... paths) {
 		assert contentFile.projectLocationPaths.size() == paths.length
 		assert contentFile.projectLocationPaths == paths.collect { dir.parentFile.file(it).absolutePath } as Set

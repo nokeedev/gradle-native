@@ -1,11 +1,12 @@
 package dev.nokee.ide.visualstudio.fixtures
 
 import dev.gradleplugins.test.fixtures.file.TestFile
+import dev.nokee.ide.fixtures.IdeProjectFixture
 import org.apache.commons.io.FilenameUtils
 
 import javax.annotation.Nullable
 
-class VisualStudioIdeProjectFixture {
+class VisualStudioIdeProjectFixture implements IdeProjectFixture {
 	final TestFile project
 	final TestFile filters
 	final ProjectFixture projectFile
@@ -16,6 +17,17 @@ class VisualStudioIdeProjectFixture {
 		filters = projectLocation.parentFile.file(projectLocation.name + ".filters").assertIsFile()
 		projectFile = new ProjectFixture(project)
 		filtersFile = new FiltersFixture(filters)
+	}
+
+	static VisualStudioIdeProjectFixture of(Object path) {
+		if (path instanceof File) {
+			path = path.absolutePath
+		}
+		assert path instanceof String
+		if (!path.endsWith('.vcxproj')) {
+			path = path + '.vcxproj'
+		}
+		return new VisualStudioIdeProjectFixture(TestFile.of(new File(path.toString())))
 	}
 
 	VisualStudioIdeProjectFixture assertHasSourceLayout(String... files) {
@@ -57,14 +69,15 @@ class VisualStudioIdeProjectFixture {
 		return this
 	}
 
-	VisualStudioIdeProjectFixture assertHasBuildFiles(String... files) {
-		return assertHasBuildFiles(Arrays.asList(files))
+	@Override
+	VisualStudioIdeProjectFixture assertHasBuildFiles(Iterable<String> files) {
+		assert projectFile.buildFiles.collect { relativePathToIdeProject(it) } as Set == files as Set
+		assert filtersFile.filesWithoutFilter.collect { relativePathToIdeProject(it) } as Set == files as Set
+		return this
 	}
 
-	VisualStudioIdeProjectFixture assertHasBuildFiles(Iterable<String> files) {
-		assert projectFile.buildFiles == files as Set
-		assert filtersFile.filesWithoutFilter == files as Set
-		return this
+	private String relativePathToIdeProject(String path) {
+		return path.replace(projectFile.file.parentFile.absolutePath, '').substring(1)
 	}
 
 	VisualStudioIdeProjectFixture assertHasTargets(String... targetNames) {
@@ -226,7 +239,7 @@ class VisualStudioIdeProjectFixture {
 		}
 
 		Set<String> getFilesWithoutFilter() {
-			def paths = content.ItemGroup*.children().flatten().findAll { it.name().localPart != 'Filter' && it.Filter == null }
+			def paths = content.ItemGroup*.children().flatten().findAll { it.name().localPart != 'Filter' && it.Filter.isEmpty() }
 			return normalise(paths*.'@Include')
 		}
 	}

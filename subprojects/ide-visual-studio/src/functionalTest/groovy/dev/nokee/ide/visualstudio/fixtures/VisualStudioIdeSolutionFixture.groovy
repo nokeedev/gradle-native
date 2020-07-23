@@ -18,6 +18,17 @@ class VisualStudioIdeSolutionFixture {
 		})
 	}
 
+	static VisualStudioIdeSolutionFixture of(Object path) {
+		if (path instanceof File) {
+			path = path.absolutePath
+		}
+		assert path instanceof String
+		if (!path.endsWith('.sln')) {
+			path = path + '.sln'
+		}
+		return new VisualStudioIdeSolutionFixture(TestFile.of(new File(path.toString())))
+	}
+
 	void assertHasProjects(String... names) {
 		assert projects.keySet() == names as Set
 	}

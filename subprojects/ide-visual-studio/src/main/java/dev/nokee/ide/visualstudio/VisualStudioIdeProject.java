@@ -2,7 +2,6 @@ package dev.nokee.ide.visualstudio;
 
 import dev.nokee.ide.base.IdeProject;
 import org.gradle.api.Action;
-import org.gradle.api.DomainObjectCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
 

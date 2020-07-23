@@ -43,5 +43,6 @@ functionalTest {
 		implementation testFixtures(project(':platformBase'))
 		implementation project(':testingNative')
 		implementation "commons-io:commons-io:${commonsIoVersion}"
+		implementation testFixtures(project(':ideBase'))
 	}
 }

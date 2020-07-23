@@ -3,10 +3,11 @@ package dev.nokee.ide.xcode.fixtures
 import com.dd.plist.*
 import com.google.common.base.MoreObjects
 import dev.gradleplugins.test.fixtures.file.TestFile
+import dev.nokee.ide.fixtures.IdeProjectFixture
 
 import javax.annotation.Nullable
 
-class XcodeIdeProjectFixture {
+class XcodeIdeProjectFixture implements IdeProjectFixture {
 	final TestFile dir
 	final TestFile workspaceSettingsFile
 	final ProjectFixture projectFile
@@ -24,6 +25,17 @@ class XcodeIdeProjectFixture {
 		}
 	}
 
+	static XcodeIdeProjectFixture of(Object path) {
+		if (path instanceof File) {
+			path = path.absolutePath
+		}
+		assert path instanceof String
+		if (!path.endsWith('.xcodeproj')) {
+			path = path + '.xcodeproj'
+		}
+		return new XcodeIdeProjectFixture(TestFile.of(new File(path.toString())))
+	}
+
 	XcodeIdeProjectFixture assertHasSchemes(String... schemeNames) {
 		assert schemes*.name as Set == schemeNames as Set
 		return this
@@ -38,7 +50,13 @@ class XcodeIdeProjectFixture {
 		return this
 	}
 
-    XcodeIdeProjectFixture assertHasTargets(String... targetNames) {
+	@Override
+	XcodeIdeProjectFixture assertHasBuildFiles(Iterable<String> files) {
+		projectFile.mainGroup.files == files as Set
+		return this
+	}
+
+	XcodeIdeProjectFixture assertHasTargets(String... targetNames) {
 		assert projectFile.targets*.name as Set == targetNames as Set
 		return this
 	}
