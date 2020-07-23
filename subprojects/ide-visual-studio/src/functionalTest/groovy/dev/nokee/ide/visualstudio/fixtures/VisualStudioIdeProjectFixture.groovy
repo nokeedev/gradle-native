@@ -77,7 +77,7 @@ class VisualStudioIdeProjectFixture implements IdeProjectFixture {
 	}
 
 	private String relativePathToIdeProject(String path) {
-		return path.replace(projectFile.file.parentFile.absolutePath, '').substring(1)
+		return FilenameUtils.separatorsToUnix(path).replace(FilenameUtils.separatorsToUnix(projectFile.file.parentFile.absolutePath), '').substring(1)
 	}
 
 	VisualStudioIdeProjectFixture assertHasTargets(String... targetNames) {
