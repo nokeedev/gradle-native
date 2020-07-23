@@ -2,6 +2,7 @@ package dev.nokee.testing.nativebase
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.language.NativeProjectTasks
 
 abstract class AbstractTestSuiteComponentFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "can test generic executable-based test suite"() {
@@ -12,7 +13,7 @@ abstract class AbstractTestSuiteComponentFunctionalTest extends AbstractInstalle
 		succeeds('test')
 
 		then:
-		result.assertTasksExecuted(tasks.compile, tasks.withComponentName('test').allToTest)
+		result.assertTasksExecuted(tasks.compile, tasksUnderTest.allToTest)
 	}
 
 	def "can execute tests using check task"() {
@@ -23,7 +24,11 @@ abstract class AbstractTestSuiteComponentFunctionalTest extends AbstractInstalle
 		succeeds('check')
 
 		then:
-		result.assertTasksExecuted(tasks.compile, tasks.withComponentName('test').allToCheck)
+		result.assertTasksExecuted(tasks.compile, tasksUnderTest.allToCheck)
+	}
+
+	protected NativeProjectTasks getTasksUnderTest() {
+		return tasks.withComponentName('test')
 	}
 
 	// TODO: Test failing test suite

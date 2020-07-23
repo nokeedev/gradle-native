@@ -71,7 +71,7 @@ class GoogleTestTestSuiteFunctionalTest extends AbstractInstalledToolChainIntegr
 		succeeds('test')
 
 		then:
-		result.assertTasksExecuted(tasks.compile, tasks.withComponentName('test').allToTest, ':googletest:gtest:make', ':googletest:gtest_main:make')
+		result.assertTasksExecuted(tasks.compile, tasks.withComponentName('test').forSharedLibrary.allToTest, ':googletest:gtest:make', ':googletest:gtest_main:make')
 	}
 
 	// TODO: Test failing test suite

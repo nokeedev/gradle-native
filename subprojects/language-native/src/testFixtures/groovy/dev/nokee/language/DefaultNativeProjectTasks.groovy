@@ -144,6 +144,9 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 	}
 
 	List<String> getAllToTest() {
+		if (binaryType == 'staticLibrary' || binaryType == 'sharedLibrary') {
+			return allToLink + [withProject('test')]
+		}
 		return allToLink + [relocateMainSymbol, withProject('test')]
 	}
 

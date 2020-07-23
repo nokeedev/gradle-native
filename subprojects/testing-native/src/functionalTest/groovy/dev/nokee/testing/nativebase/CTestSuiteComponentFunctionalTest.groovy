@@ -1,6 +1,7 @@
 package dev.nokee.testing.nativebase
 
 import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.language.NativeProjectTasks
 import dev.nokee.language.c.CTaskNames
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.fixtures.CGreeterApp
@@ -29,6 +30,11 @@ class CTestSuiteLibraryFunctionalTest extends AbstractTestSuiteComponentFunction
 	@Override
 	protected SourceElement getComponentUnderTest() {
 		return new CGreeterLib().withGenericTestSuite()
+	}
+
+	@Override
+	protected NativeProjectTasks getTasksUnderTest() {
+		return tasks.withComponentName('test').forSharedLibrary
 	}
 }
 
