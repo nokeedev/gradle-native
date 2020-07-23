@@ -1,6 +1,7 @@
 package dev.nokee.buildadapter.cmake.internal.tasks;
 
 import dev.nokee.core.exec.CommandLine;
+import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
@@ -16,6 +17,9 @@ public abstract class CMakeMakeAdapterTask extends DefaultTask {
 	public abstract Property<String> getTargetName();
 
 	@Internal
+	public abstract Property<CommandLineTool> getMakeTool();
+
+	@Internal
 	public abstract DirectoryProperty getWorkingDirectory();
 
 	@OutputFile
@@ -23,6 +27,6 @@ public abstract class CMakeMakeAdapterTask extends DefaultTask {
 
 	@TaskAction
 	private void doExec() {
-		CommandLine.of("make", getTargetName().get()).newInvocation().workingDirectory(getWorkingDirectory().get().getAsFile()).buildAndSubmit(new ProcessBuilderEngine()).waitFor().assertNormalExitValue();
+		getMakeTool().get().withArguments(getTargetName().get()).newInvocation().workingDirectory(getWorkingDirectory().get().getAsFile()).buildAndSubmit(new ProcessBuilderEngine()).waitFor().assertNormalExitValue();
 	}
 }

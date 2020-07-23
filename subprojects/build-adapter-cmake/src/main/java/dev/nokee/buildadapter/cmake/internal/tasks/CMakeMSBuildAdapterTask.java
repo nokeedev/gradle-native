@@ -6,10 +6,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +21,9 @@ public abstract class CMakeMSBuildAdapterTask extends DefaultTask {
 	public abstract Property<String> getConfigurationName();
 
 	@Internal
+	public abstract Property<CommandLineTool> getMsbuildTool();
+
+	@Internal
 	public abstract DirectoryProperty getWorkingDirectory();
 
 	@OutputFile
@@ -31,11 +31,7 @@ public abstract class CMakeMSBuildAdapterTask extends DefaultTask {
 
 	@TaskAction
 	private void doExec() throws IOException {
-		File msbuild = new File("C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe");
-		if (!msbuild.exists()) {
-			msbuild = new File("C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe");
-		}
-		CommandLineTool.of(msbuild).withArguments("/p:Configuration=" + getConfigurationName().get(), findVcxproj()).newInvocation().workingDirectory(getWorkingDirectory().get().getAsFile()).buildAndSubmit(new ProcessBuilderEngine()).waitFor().assertNormalExitValue();
+		getMsbuildTool().get().withArguments("/p:Configuration=" + getConfigurationName().get(), findVcxproj()).newInvocation().workingDirectory(getWorkingDirectory().get().getAsFile()).buildAndSubmit(new ProcessBuilderEngine()).waitFor().assertNormalExitValue();
 	}
 
 	private String findVcxproj() throws IOException {

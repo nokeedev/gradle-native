@@ -1,14 +1,19 @@
 package dev.nokee.buildadapter.cmake.internal.plugins;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import dev.nokee.buildadapter.cmake.internal.GitBasedGroupIdSupplier;
+import dev.nokee.buildadapter.cmake.internal.plugins.locators.CmakeLocator;
+import dev.nokee.buildadapter.cmake.internal.plugins.locators.MakeLocator;
+import dev.nokee.buildadapter.cmake.internal.plugins.locators.MsbuildLocator;
+import dev.nokee.buildadapter.cmake.internal.plugins.locators.VswhereLocator;
 import dev.nokee.buildadapter.cmake.internal.tasks.CMakeMSBuildAdapterTask;
 import dev.nokee.buildadapter.cmake.internal.tasks.CMakeMakeAdapterTask;
 import dev.nokee.core.exec.CommandLine;
+import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.LoggingEngine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
+import dev.nokee.runtime.base.internal.tools.ToolRepository;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.val;
@@ -18,16 +23,16 @@ import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.initialization.Settings;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.internal.os.OperatingSystem;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static dev.nokee.buildadapter.cmake.internal.DeferUtils.asToStringObject;
 
@@ -35,6 +40,12 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 	@SneakyThrows
 	@Override
 	public void apply(Settings settings) {
+		val repository = new ToolRepository();
+		repository.register("cmake", new CmakeLocator());
+		repository.register("make", new MakeLocator());
+		repository.register("msbuild", new MsbuildLocator(() -> CommandLineTool.of(repository.findAll("vswhere").iterator().next().getPath())));
+		repository.register("vswhere", new VswhereLocator());
+
 		settings.getGradle().allprojects(this::configureProjectGroup);
 
 		// Query CMake using file API
@@ -54,7 +65,7 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 
 		// TODO: Check cmake tool can be found
 		// TODO: Check version supports File API: starting with cmake 3.14 before the feature doesn't exists
-		CommandLine.of("cmake", ".").newInvocation().workingDirectory(settings.getSettingsDir()).buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine())).waitFor().assertNormalExitValue();
+		CommandLineTool.of(repository.findAll("cmake").iterator().next().getPath()).withArguments(".").newInvocation().workingDirectory(settings.getSettingsDir()).buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine())).waitFor().assertNormalExitValue();
 
 		File replyFile = null;
 		try (val stream = Files.newDirectoryStream(cmakeFileApiReplyDirectory.toPath(), this::findCodemodelReplyFile)) {
@@ -107,6 +118,7 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 								task.getConfigurationName().set(configurationName);
 								task.getBuiltFile().set(rootProject.file(targetModel.getArtifacts().iterator().next().getPath()));
 								task.getWorkingDirectory().set(rootProject.getLayout().getProjectDirectory());
+								task.getMsbuildTool().set(getProviders().provider(() -> CommandLineTool.of(repository.findAll("msbuild").iterator().next().getPath())));
 							});
 							project.getConfigurations().create("linkElements", configurationUtils.asOutgoingLinkLibrariesFrom().staticLibraryArtifact(makeTask.flatMap(CMakeMSBuildAdapterTask::getBuiltFile)));
 						} else {
@@ -114,6 +126,7 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 								task.getTargetName().set(targetModel.getName());
 								task.getBuiltFile().set(rootProject.file(targetModel.getArtifacts().iterator().next().getPath()));
 								task.getWorkingDirectory().set(rootProject.getLayout().getProjectDirectory());
+								task.getMakeTool().set(getProviders().provider(() -> CommandLineTool.of(repository.findAll("make").iterator().next().getPath())));
 							});
 							project.getConfigurations().create("linkElements", configurationUtils.asOutgoingLinkLibrariesFrom().staticLibraryArtifact(makeTask.flatMap(CMakeMakeAdapterTask::getBuiltFile)));
 						}
@@ -125,6 +138,9 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 			});
 		});
 	}
+
+	@Inject
+	protected abstract ProviderFactory getProviders();
 
 	private boolean findCodemodelReplyFile(Path entry) {
 		// Skipping directly to codemodel reply file.
