@@ -10,7 +10,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		if (this.class.simpleName.contains('Library')) {
 			projectName = 'lib'
 		}
-		settingsFile << """
+		return """
 			rootProject.name = '${projectName}'
 		"""
 	}
