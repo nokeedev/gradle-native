@@ -1,9 +1,6 @@
 package dev.nokee.core.exec.internal;
 
-import dev.nokee.core.exec.CommandLine;
-import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.core.exec.CommandLineToolArguments;
-import dev.nokee.core.exec.CommandLineToolInvocation;
+import dev.nokee.core.exec.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +12,10 @@ import java.util.Optional;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class DefaultCommandLineToolInvocation implements CommandLineToolInvocation {
 	@EqualsAndHashCode.Include private final CommandLine commandLine;
-	@Getter private final boolean capturingStandardOutput;
-	private final File standardStreamFile;
+	@Getter private final CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect;
+	@Getter private final CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect;
 	private final File workingDirectory;
+	@Getter @EqualsAndHashCode.Include private final CommandLineToolInvocationEnvironmentVariables environmentVariables;
 
 	@Override
 	public CommandLineTool getTool() {
@@ -27,11 +25,6 @@ public class DefaultCommandLineToolInvocation implements CommandLineToolInvocati
 	@Override
 	public CommandLineToolArguments getArguments() {
 		return commandLine.getArguments();
-	}
-
-	@Override
-	public Optional<File> getStandardStreamFile() {
-		return Optional.ofNullable(standardStreamFile);
 	}
 
 	@Override

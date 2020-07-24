@@ -1,7 +1,11 @@
 package dev.nokee.core.exec;
 
+import dev.nokee.core.exec.internal.CommandLineToolInvocationOutputRedirectInternal;
+import dev.nokee.core.exec.internal.CommandLineToolOutputStreams;
 import dev.nokee.core.exec.internal.DefaultCommandLineToolExecutionResult;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
+import lombok.var;
 import org.apache.commons.exec.PumpStreamHandler;
 
 import java.io.ByteArrayOutputStream;
@@ -16,18 +20,25 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 		processBuilder.command().add(invocation.getTool().getExecutable());
 		processBuilder.command().addAll(invocation.getArguments().get());
 		invocation.getWorkingDirectory().ifPresent(processBuilder::directory);
+		processBuilder.environment().putAll(invocation.getEnvironmentVariables().getAsMap());
 		try {
 			Process process = processBuilder.start();
-			if (invocation.isCapturingStandardOutput()) {
-				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-				ByteArrayOutputStream errStream = new ByteArrayOutputStream();
-				PumpStreamHandler streamHandler = new PumpStreamHandler(outStream, errStream);
-				streamHandler.setProcessOutputStream(process.getInputStream());
-				streamHandler.setProcessErrorStream(process.getErrorStream());
-				streamHandler.start();
-				return new Handle(process, streamHandler, outStream::toString, errStream::toString, () -> String.join(" ", processBuilder.command()));
+			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+			ByteArrayOutputStream errStream = new ByteArrayOutputStream();
+
+			var streams = new CommandLineToolOutputStreams(outStream, errStream);
+			if (invocation.getStandardOutputRedirect() instanceof CommandLineToolInvocationOutputRedirectInternal) {
+				streams = ((CommandLineToolInvocationOutputRedirectInternal) invocation.getStandardOutputRedirect()).redirect(streams);
 			}
-			throw new RuntimeException("Nop");
+			if (invocation.getErrorOutputRedirect() instanceof CommandLineToolInvocationOutputRedirectInternal) {
+				streams = ((CommandLineToolInvocationOutputRedirectInternal) invocation.getErrorOutputRedirect()).redirect(streams);
+			}
+
+			PumpStreamHandler streamHandler = new PumpStreamHandler(streams.getStandardOutput(), streams.getErrorOutput());
+			streamHandler.setProcessOutputStream(process.getInputStream());
+			streamHandler.setProcessErrorStream(process.getErrorStream());
+			streamHandler.start();
+			return new Handle(process, streamHandler, outStream::toString, errStream::toString, () -> String.join(" ", processBuilder.command()));
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}

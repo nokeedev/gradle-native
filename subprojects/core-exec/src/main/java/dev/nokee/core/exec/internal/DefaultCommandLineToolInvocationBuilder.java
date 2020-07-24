@@ -6,18 +6,13 @@ import java.io.File;
 
 public class DefaultCommandLineToolInvocationBuilder implements CommandLineToolInvocationBuilder {
 	private final CommandLine commandLine;
-	private boolean capturingStandardOutput = true;
-	private File standardStreamFile = null;
 	private File workingDirectory = null;
+	private CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect = new InheritCommandLineToolInvocationOutputRedirect();
+	private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = new InheritCommandLineToolInvocationOutputRedirect();
+	private CommandLineToolInvocationEnvironmentVariables environmentVariables = new InheritCommandLineToolInvocationEnvironmentVariables();
 
 	public DefaultCommandLineToolInvocationBuilder(CommandLine commandLine) {
 		this.commandLine = commandLine;
-	}
-
-	@Override
-	public CommandLineToolInvocationBuilder captureStandardOutput() {
-		capturingStandardOutput = true;
-		return this;
 	}
 
 	@Override
@@ -27,14 +22,32 @@ public class DefaultCommandLineToolInvocationBuilder implements CommandLineToolI
 	}
 
 	@Override
+	public CommandLineToolInvocationBuilder withEnvironmentVariables(CommandLineToolInvocationEnvironmentVariables environmentVariables) {
+		this.environmentVariables = environmentVariables;
+		return this;
+	}
+
+	@Override
 	public CommandLineToolInvocationBuilder appendStandardStreamToFile(File file) {
-		standardStreamFile = file;
+		standardOutputRedirect = new AppendStandardStreamToFileCommandLineToolInvocationOutputRedirect(file);
+		return this;
+	}
+
+	@Override
+	public CommandLineToolInvocationBuilder redirectStandardOutput(CommandLineToolInvocationStandardOutputRedirect redirect) {
+		standardOutputRedirect = redirect;
+		return this;
+	}
+
+	@Override
+	public CommandLineToolInvocationBuilder redirectErrorOutput(CommandLineToolInvocationErrorOutputRedirect redirect) {
+		errorOutputRedirect = redirect;
 		return this;
 	}
 
 	@Override
 	public CommandLineToolInvocation build() {
-		return new DefaultCommandLineToolInvocation(commandLine, capturingStandardOutput, standardStreamFile, workingDirectory);
+		return new DefaultCommandLineToolInvocation(commandLine, standardOutputRedirect, errorOutputRedirect, workingDirectory, environmentVariables);
 	}
 
 	@Override

@@ -13,9 +13,29 @@ public interface CommandLineToolInvocation {
 
 	CommandLineToolArguments getArguments();
 
-	boolean isCapturingStandardOutput();
+	/**
+	 * Returns the environment variables to use for this command line tool invocation.
+	 *
+	 * @return a {@link CommandLineToolInvocationEnvironmentVariables} instance representing the invocation's environment variable, never null.
+	 * @since 0.5
+	 */
+	CommandLineToolInvocationEnvironmentVariables getEnvironmentVariables();
 
-	Optional<File> getStandardStreamFile();
+	/**
+	 * Returns the environment variables to use for this command line tool invocation.
+	 *
+	 * @return a {@link CommandLineToolInvocationErrorOutputRedirect} instance representing how to redirect the invocation's error output, never null.
+	 * @since 0.5
+	 */
+	CommandLineToolInvocationErrorOutputRedirect getErrorOutputRedirect();
+
+	/**
+	 * Returns the environment variables to use for this command line tool invocation.
+	 *
+	 * @return a {@link CommandLineToolInvocationStandardOutputRedirect} instance representing how to redirect the invocation's standard output, never null.
+	 * @since 0.5
+	 */
+	CommandLineToolInvocationStandardOutputRedirect getStandardOutputRedirect();
 
 	Optional<File> getWorkingDirectory();
 }

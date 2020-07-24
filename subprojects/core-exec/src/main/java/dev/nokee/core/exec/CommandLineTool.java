@@ -28,7 +28,22 @@ public interface CommandLineTool {
 	@Internal
 	String getExecutable();
 
+	/**
+	 * Creates a command line from this tool and the specified arguments.
+	 *
+	 * @param arguments the arguments forming a {@link CommandLine} with this tool.
+	 * @return a {@link CommandLine} instance of this tool with the specified arguments, never null.
+	 */
 	CommandLine withArguments(Object... arguments);
+
+	/**
+	 * Creates a command line from this tool and the specified arguments.
+	 *
+	 * @param arguments the arguments forming a {@link CommandLine} with this tool.
+	 * @return a {@link CommandLine} instance of this tool with the specified arguments, never null.
+	 * @since 0.5
+	 */
+	CommandLine withArguments(Iterable<?> arguments);
 
 	// TODO: Model the requirements of a command line tool
 	//  Requirements are the runtime (host, java, python, bash, batch, etc.)

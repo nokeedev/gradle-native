@@ -21,6 +21,11 @@ public class DefaultCommandLineToolExecutionResult implements CommandLineToolExe
 	}
 
 	@Override
+	public CommandLineToolLogContent getErrorOutput() {
+		return new DefaultCommandLineToolLogContent(error);
+	}
+
+	@Override
 	public CommandLineToolExecutionResult assertExitValueEquals(int expectedExitValue) throws ExecException {
 		if (this.exitValue != expectedExitValue) {
 			throw new ExecException(String.format("Process '%s' finished with unexpected exit value %d, was expecting %d", displayName.get(), exitValue, expectedExitValue));

@@ -7,7 +7,20 @@ package dev.nokee.core.exec;
  * @since 0.4
  */
 public interface CommandLineToolExecutionResult {
+	/**
+	 * Returns the log content of the command line tool execution's standard output.
+	 *
+	 * @return a {@link CommandLineToolLogContent} instance of the command line tool execution's standard output, never null.
+	 */
 	CommandLineToolLogContent getStandardOutput();
+
+	/**
+	 * Returns the log content of the command line tool execution's error output.
+	 *
+	 * @return a {@link CommandLineToolLogContent} instance of the command line tool execution's error output, never null.
+	 * @since 0.5
+	 */
+	CommandLineToolLogContent getErrorOutput();
 
 	/**
 	 * Returns the exit value of the process.

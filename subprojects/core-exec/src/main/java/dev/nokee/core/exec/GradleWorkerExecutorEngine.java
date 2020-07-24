@@ -1,10 +1,12 @@
 package dev.nokee.core.exec;
 
+import dev.nokee.core.exec.internal.CommandLineToolInvocationOutputRedirectInternal;
+import dev.nokee.core.exec.internal.CommandLineToolOutputStreams;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.io.output.TeeOutputStream;
+import lombok.var;
 import org.gradle.api.GradleException;
-import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
@@ -24,7 +26,9 @@ public abstract class GradleWorkerExecutorEngine implements CommandLineToolExecu
 		workQueue.submit(GradleWorkerExecutorEngineWorkAction.class, it -> {
 			it.getCommandLine().add(invocation.getTool().getExecutable());
 			it.getCommandLine().addAll(invocation.getArguments().get());
-			it.getStandardStreamFile().set(invocation.getStandardStreamFile().orElse(null));
+			it.getStandardOutputRedirect().set(invocation.getStandardOutputRedirect());
+			it.getErrorOutputRedirect().set(invocation.getErrorOutputRedirect());
+			it.getEnvironmentVariables().set(invocation.getEnvironmentVariables());
 		});
 		return new Handle(workQueue);
 	}
@@ -40,7 +44,9 @@ public abstract class GradleWorkerExecutorEngine implements CommandLineToolExecu
 
 	public interface GradleWorkerExecutorEngineWorkParameters extends WorkParameters {
 		ListProperty<String> getCommandLine();
-		RegularFileProperty getStandardStreamFile();
+		Property<CommandLineToolInvocationStandardOutputRedirect> getStandardOutputRedirect();
+		Property<CommandLineToolInvocationErrorOutputRedirect> getErrorOutputRedirect();
+		Property<CommandLineToolInvocationEnvironmentVariables> getEnvironmentVariables();
 	}
 
 	public static abstract class GradleWorkerExecutorEngineWorkAction implements WorkAction<GradleWorkerExecutorEngineWorkParameters> {
@@ -54,16 +60,16 @@ public abstract class GradleWorkerExecutorEngine implements CommandLineToolExecu
 				getExecOperations().exec(spec -> {
 					spec.commandLine(getParameters().getCommandLine().get());
 
-					OutputStream outStream = logs;
-					if (getParameters().getStandardStreamFile().isPresent()) {
-						try {
-							outStream = new TeeOutputStream(new FileOutputStream(getParameters().getStandardStreamFile().get().getAsFile(), true), outStream);
-						} catch (FileNotFoundException e) {
-							throw new UncheckedIOException(e);
-						}
+					var streams = new CommandLineToolOutputStreams(logs, logs);
+					if (getParameters().getStandardOutputRedirect().get() instanceof CommandLineToolInvocationOutputRedirectInternal) {
+						streams = ((CommandLineToolInvocationOutputRedirectInternal) getParameters().getStandardOutputRedirect().get()).redirect(streams);
 					}
-					spec.setStandardOutput(outStream);
-					spec.setErrorOutput(outStream);
+					if (getParameters().getErrorOutputRedirect().get() instanceof CommandLineToolInvocationOutputRedirectInternal) {
+						streams = ((CommandLineToolInvocationOutputRedirectInternal) getParameters().getErrorOutputRedirect().get()).redirect(streams);
+					}
+					spec.setStandardOutput(streams.getStandardOutput());
+					spec.setErrorOutput(streams.getErrorOutput());
+					spec.setEnvironment(getParameters().getEnvironmentVariables().get().getAsMap());
 				});
 			} catch (GradleException e) {
 				throw new ExecException("An error happen while executing command, here is the output:\n" + logs.toString());

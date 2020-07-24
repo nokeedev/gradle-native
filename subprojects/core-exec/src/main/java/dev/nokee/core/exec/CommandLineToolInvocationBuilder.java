@@ -8,15 +8,19 @@ import java.io.File;
  * @since 0.4
  */
 public interface CommandLineToolInvocationBuilder {
-	CommandLineToolInvocationBuilder captureStandardOutput();
-
 	// TODO: Support Provider
 	// TODO: Support Directory
 	CommandLineToolInvocationBuilder workingDirectory(File workingDirectory);
+
+	CommandLineToolInvocationBuilder withEnvironmentVariables(CommandLineToolInvocationEnvironmentVariables environmentVariables);
 
 	CommandLineToolInvocation build();
 
 	<T extends CommandLineToolExecutionHandle> T buildAndSubmit(CommandLineToolExecutionEngine<T> engine);
 
 	CommandLineToolInvocationBuilder appendStandardStreamToFile(File file);
+
+	CommandLineToolInvocationBuilder redirectStandardOutput(CommandLineToolInvocationStandardOutputRedirect redirect);
+
+	CommandLineToolInvocationBuilder redirectErrorOutput(CommandLineToolInvocationErrorOutputRedirect redirect);
 }
