@@ -1,0 +1,173 @@
+[[chapter:visual-studio-dev]]
+= Developing with Visual Studio IDE
+:jbake-type: manual_chapter
+:jbake-tags: user manual, visual studio, ide, gradle
+:jbake-description: Learn the concept for integrating Visual Studio IDE with the Nokee plugins in Gradle.
+
+Microsoft does not provide seamless integration with the Gradle build tool for its Visual Studio IDE.
+The Nokee plugins provide the <<visual-studio-ide-plugin.adoc#, Visual Studio IDE Plugin>> for this purpose.
+This chapter will discuss how Nokee integrates with the Visual Studio IDE.
+See the <<visual-studio-ide-plugin.adoc#,plugin reference chapter>> for a more technical reference.
+
+[[sec:visual-studio-dev-introduction]]
+== Introduction
+
+We will refer to Visual Studio as the Integrated Development Environment (IDE) for developing source code.
+Every other aspect of Visual Studio is outside the scope of this chapter.
+The plugin focuses heavily on keeping the developer experience within the IDE as close as possible to the _vanilla experience_ to ensure happiness among developers.
+// TODO: Add link to Test Explorer
+// TODO: Add links to code navigation
+// TODO: Add links to Object Browser
+For example, accessing test from Test Explorer, navigation (Go To Document, Go To Definition, Peak Definition, etc.), browser symbols via Object Browser are all considered and work as expected.
+We will discuss the background of the choices made by the plugin.
+
+[[sec:xcode-dev-assumption]]
+== Assumption made by the plugin
+
+The Visual Studio IDE plugin assumes a unidirectional transfer of the build knowledge, from Gradle to Visual Studio.
+In this case, Gradle is the single source of truth, and it converts only the required information into a Visual Studio-compatible model.
+Whenever possible, the generated Visual Studio IDE will delegate to Gradle.
+Gradle being the most flexible it allows for complex wiring of tasks and dependencies.
+
+The developer must generate Visual Studio IDE files.
+The files shouldn't be committed to source control.
+
+NOTE: If your team or organization needs to submit the generated Visual Studio IDE files to source control, please link:https://github.com/nokeedev/gradle-native/issues/30[comment on this poll issue] with your use cases.
+
+The plugin also assumes a single workspace per Gradle multi-project build.
+Each Gradle project can contribute more than one Visual Studio project to the solution if required.
+For this reason, the plugin registers an extension on the root Gradle project to provide the additional capability for generating a solution.
+
+[[sec:visual-studio-dev-projects]]
+== Visual Studio projects
+
+By default, the Visual Studio IDE plugin considers a one-to-one mapping of the Gradle component to the Visual Studio project.
+Gradle projects producing multiple components such as native test suite will generate multiple Visual Studio projects.
+Despite this mapping, it is possible to register additional Visual Studio project via the link:../dsl/dev.nokee.ide.xcode.VisualStudioIdeProjectExtension.html#dev.nokee.ide.xcode.VisualStudioIdeProjectExtension:projects[container available on the extension].
+The plugin includes the source code to the project matching a group named after the target it's associated.
+The plugin disregards the on-disk layout of the sources when adding them to the project groups.
+
+// TODO: produce same image for Visual Studio
+//image::img/xcode-ide-source-layout.png[Xcode target and source group layout,align="center"]
+
+[[sec:visual-studio-dev-build-files]]
+== Editing Gradle build files from the IDE
+
+The Gradle build configurations are easily accessible from the IDE.
+Despite Visual Studio having no support for Gradle file type, the Visual Studio IDE plugin includes them at the root of the generated Visual Studio project as shown in the picture below.
+The plugin also includes the `gradle.properties` files, if available, as well as any explicit initialization scripts passed on the command line.
+It also considers changes to the setting and build file locations.
+
+// TODO: Create equivalent picture
+//image::img/xcode-ide-build-files.png[Xcode project with Gradle build files,align="center"]
+
+// TODO: Not done yet
+//[[sec:visual-studio-dev-project-configuration]]
+//== Visual Studio project configurations
+//
+//The plugins consider a one-to-one mapping between the Gradle project components to Xcode targets.
+//Each target registered to an Xcode project will delegate to Gradle.
+//By default, the plugin infers the product type from the Gradle component type.
+//For ad-hoc Xcode projects, it is possible to choose product types that can be unknown to Xcode.
+//The external build target offers less constraint than native Xcode targets allowing better integration with Gradle.
+//
+//image::img/xcode-ide-delegate-target.png[Xcode target delegating to Gradle,align="center"]
+//
+//NOTE: Head over to the <<sec:xcode-dev-appendix-how-xcode-delegate-to-gradle, appendix of this chapter to learn more how the plugin delegate to Gradle>>.
+
+[[sec:visual-studio-dev-intellisense]]
+== Visual Studio Intellisense
+
+// TODO: Explain how Nokee integrates with it
+// TODO: Explain the issue when the intellisense fails (upon regenerating the solution)
+// TODO: Mention how to debug Intellisense failures with TRACEDESIGNTIME=true
+//   Add the same mention in Xcode IDE chapter
+
+//Xcode IDE has a process to understand the sources to provide code assistance features such as syntax highlighting, code completion, and search for definitions and references.
+//The plugin will create an additional indexer target identified by the `\__indexer_` prefix for each product type it known as indexable.
+//Those targets are configured by the plugin to ensure the code is appropriately indexed.
+//In general, the plugin will source the indexer's build settings from the original target.
+//Some indexable product type requires special attention to play well with Xcode.
+//The plugin may have specialized logic to ensure the generated indexer target works with Xcode's indexer.
+//You should never use any of those targets while developing inside the Xcode IDE.
+//
+//image::img/xcode-ide-indexer-target.png[Implicit indexer target for Xcode code-completion]
+
+// TODO: Map target machines/variants to projects/solution
+//[[sec:xcode-dev-build-configurations]]
+//== Xcode build configurations
+//
+//A build configuration is analogous to a build type in Gradle, typically known as Debug and Release variant.
+//When no build type is configured for a native component, the plugin creates a default build configuration named `Default`.
+//When a component does not build on the host machine due to missing toolchain, for example, the plugin creates a default build configuration named `Unbuildable` instead.
+
+// TODO: Explain configuration ...
+//[[sec:xcode-dev-build-settings]]
+//== Xcode build settings
+//
+//In a _vanilla Xcode experience_, developers would use the build settings to configure a particular aspect of a product's build process.
+//With the Xcode IDE plugin, developers configure the product's build process using the Gradle build language.
+//Modifying the build settings inside Xcode is discourage and is unlikely to have the desired effect.
+//
+//image::img/xcode-ide-build-settings.png[Xcode build settings configuration,align="center"]
+
+// TODO: Also add this section in Xcode IDE chapter
+== Customizing Gradle invocation from the IDE
+
+Any explicit init script pass from the command lines when generating the IDE project and solution are automatically added to the Gradle command line invocation inside VS.
+For example, `gradlew visualStudio --init-script init.gradle` will generate a project that will always include `--init-script init.gradle` to any Gradle invocation from the IDE.
+
+Similarly, if you need to customize any environment variable, we suggest setting them in the prompt and opening Visual Studio through Gradle via `openVisualStudio` tasks.
+The Visual Studio process will take the environment variable from the shell.
+For example:
+```
+> set PATH=C:\mingw\bin;%PATH% <1>
+> gradle openVisualStudio
+```
+<1> The `C:\mingw\bin` path will be part of the `PATH` variable inside Visual Studio and any Gradle invocation made from the opened Visual Studio.
+
+// TODO: Also add this section in Xcode IDE chapter (mention XCTest tight integration and executable base test suite)
+== Launching tests from the IDE
+
+You can launch tests
+
+[[sec:visual-studio-dev-whats-next]]
+== What's next?
+
+You should now have a grasp on the concept used by <<visual-studio-ide-plugin.adoc#,Visual Studio IDE Plugin>>.
+Head over the link:../samples/index.html#sec:samples-ide[IDE samples] to see a demonstration of the plugins for common scenarios.
+Bookmark the relevant <<plugin-references.adoc#,plugin chapters>> for future reference.
+
+[[sec:visual-studio-dev-help-improve-chapter]]
+== Help improve this chapter
+
+Have feedback or a question?
+Found a typo?
+Is something unclear?
+Help is just a GitHub issue away.
+Please link:https://github.com/nokeedev/gradle-native/issues[open an issue] or link:https://github.com/nokeedev/gradle-native[create a pull request], and we'll get back to you.
+
+[[sec:visual-studio-dev-appendix]]
+== Appendix
+
+[[sec:visual-studio-dev-appendix-how-xcode-delegate-to-gradle]]
+=== How Nokee configure Visual Studio IDE to delegate to Gradle
+
+The Visual Studio IDE plugin registers a bridging task rule that matches any tasks that starts with `\__visualStudio_`.
+Only Visual Studio projects should be invoking those tasks directly.
+
+// TODO: create new picture for vs
+image::img/xcode-ide-bridge-tasks.png[Gradle tasks showing the registered Xcode bridging task rule,align="center"]
+
+//The bridging task works in tandem with a set of properties used to transfer the requested Xcode IDE action to Gradle.
+//The plugin uses the project properties to search the Xcode project registry for the matching build configuration.
+//Once identified, the bridging task will copy the configured product location to the Xcode built product directory.
+//Thanks to the implicit task dependencies on the Provider API, the bridging task will automatically depend on the necessary tasks and execute the build as a typical command-line invocation would.
+//The command-line used when delegating to Gradle is also modified to include all explicitly defined initialization script.
+//
+//image::img/xcode-ide-bridging-task.png[Xcode build log showing the bridging tasks]
+//
+//When Xcode IDE requests a clean action, the bridging task will depend on the clean lifecycle task for the project.
+
+Nokee generates a vanilla Visual Studio project that rewrite the default build and clean tasks.
+It offers a superior integration compared to the alternative NMake project as more and more features aren't well-behave with such projects.

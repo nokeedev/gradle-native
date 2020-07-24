@@ -22,7 +22,7 @@ We will discuss the background of the choices made by the plugin.
 == Assumption made by the plugin
 
 The Xcode IDE plugin assumes a unidirectional transfer of the build knowledge, from Gradle to Xcode.
-In this case, Gradle is the single source of truth, and it convert only the required information into an Xcode-compatible model.
+In this case, Gradle is the single source of truth, and it converts only the required information into an Xcode-compatible model.
 Whenever possible, the generated Xcode IDE will delegate to Gradle.
 Gradle being the most flexible it allows for complex wiring of tasks and dependencies.
 
@@ -33,7 +33,7 @@ NOTE: If your team or organization needs to submit the generated Xcode IDE files
 
 The plugin also assumes a single workspace per Gradle multi-project build.
 Each Gradle project can contribute more than one Xcode project to the workspace if required.
-For this reason, the plugin registers an extended extension on the root Gradle project to provide the additional capability for generating a workspace.
+For this reason, the plugin registers an extension on the root Gradle project to provide the additional capability for generating a workspace.
 
 [[sec:xcode-dev-projects]]
 == Xcode projects
@@ -48,7 +48,7 @@ image::img/xcode-ide-source-layout.png[Xcode target and source group layout,alig
 [[sec:xcode-dev-build-files]]
 == Editing Gradle build files from the IDE
 
-The Gradle build configuration is easily accessible from the IDE.
+The Gradle build configurations are easily accessible from the IDE.
 Despite Xcode having no support for Gradle file type, the Xcode IDE plugin includes them in the main group of the generated Xcode project as shown in the picture below.
 The plugin also includes the `gradle.properties` files, if available, as well as any explicit initialization scripts passed on the command line.
 It also considers changes to the setting and build file locations.
