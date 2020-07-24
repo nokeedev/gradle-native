@@ -1,12 +1,12 @@
-package dev.nokee.ide.xcode.fixtures
+package dev.nokee.ide.fixtures
 
 import dev.gradleplugins.test.fixtures.file.TestFile
 import groovy.transform.CompileStatic
 import org.gradle.util.GUtil
 
 @CompileStatic
-abstract class IdeCommandLineUtil {
-	private IdeCommandLineUtil() {}
+abstract class IdeCommandLineUtils {
+	private IdeCommandLineUtils() {}
 
 	static String generateGradleProbeInitFile(String ideTaskName, String ideCommandLineTool) {
 		return """

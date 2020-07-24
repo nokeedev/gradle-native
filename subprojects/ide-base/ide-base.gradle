@@ -24,12 +24,17 @@ dependencies {
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation gradleApi(minimumGradleVersion)
 
+
+	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 	testFixturesImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testFixturesImplementation 'org.spockframework:spock-core'
 	testFixturesImplementation gradleApi(minimumGradleVersion)
 	testFixturesImplementation gradleFixtures()
 	testFixturesImplementation "commons-io:commons-io:${commonsIoVersion}"
 	testFixturesImplementation project(':coreUtils')
+	testFixturesImplementation project(':coreExec')
+	testFixturesApi project(':runtimeBase')
 }
 
 java {

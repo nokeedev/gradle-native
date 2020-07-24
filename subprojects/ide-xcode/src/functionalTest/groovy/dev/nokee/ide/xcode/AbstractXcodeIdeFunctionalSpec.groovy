@@ -1,7 +1,7 @@
 package dev.nokee.ide.xcode
 
 import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
-import dev.nokee.ide.xcode.fixtures.IdeCommandLineUtil
+import dev.nokee.ide.fixtures.IdeCommandLineUtils
 import dev.nokee.ide.xcode.fixtures.XcodeIdeProjectFixture
 import dev.nokee.ide.xcode.fixtures.XcodeIdeWorkspaceFixture
 import dev.nokee.ide.xcode.fixtures.XcodebuildExecutor
@@ -36,7 +36,7 @@ class AbstractXcodeIdeFunctionalSpec extends AbstractGradleSpecification impleme
 //		executer.requireIsolatedDaemons()
 
 		def initScript = file("init.gradle")
-		initScript << IdeCommandLineUtil.generateGradleProbeInitFile('xcode', 'xcodebuild')
+		initScript << IdeCommandLineUtils.generateGradleProbeInitFile('xcode', 'xcodebuild')
 		executer = executer.usingInitScript(initScript)
 	}
 }
