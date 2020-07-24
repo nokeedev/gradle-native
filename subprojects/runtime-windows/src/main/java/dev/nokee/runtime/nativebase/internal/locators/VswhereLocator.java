@@ -20,7 +20,7 @@ public class VswhereLocator implements CommandLineToolLocator {
 	public Set<CommandLineToolDescriptor> findAll(String toolName) {
 		val tool = new File(getProgramFileX86() + "/Microsoft Visual Studio/Installer/vswhere.exe");
 		if (tool.exists()) {
-			VersionNumber version = CommandLineTool.of(tool).withArguments("--version").execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().parse(asVswhereVersion());
+			VersionNumber version = CommandLineTool.of(tool).execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().parse(asVswhereVersion());
 			return Collections.singleton(new DefaultCommandLineToolDescriptor(tool, version.toString()));
 		}
 		return Collections.emptySet();

@@ -35,4 +35,20 @@ public interface CommandLineTool {
 	//  Minimum version of the runtime (JDK 8, Python 2.7, bash 4.0, etc.)
 
 	// TODO: Convenience shortcut could be provided to execute and create a newInvocation()
+	/**
+	 * Prepares a new invocation via the {@link CommandLineToolInvocationBuilder}.
+	 * The invocation is responsible for configuring the working directory, environment variables, standard stream manipulation, etc.
+	 *
+	 * @return a {@link CommandLineToolInvocationBuilder} instance, never null.
+	 * @since 0.5
+	 */
+	CommandLineToolInvocationBuilder newInvocation();
+
+	/**
+	 * Convenience for {@code newInvocation().build().submit(engine)}.
+	 * @param engine the executing engine to use, cannot be null
+	 * @return a {@link CommandLineToolExecutionHandle} representing the execution in progress, never null.
+	 * @since 0.5
+	 */
+	<T extends CommandLineToolExecutionHandle> T execute(CommandLineToolExecutionEngine<T> engine);
 }

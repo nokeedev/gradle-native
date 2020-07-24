@@ -17,7 +17,7 @@ public class DefaultCommandLine implements CommandLine {
 	}
 
 	@Override
-	public CommandLineToolExecutionHandle execute(CommandLineToolExecutionEngine engine) {
+	public <T extends CommandLineToolExecutionHandle> T execute(CommandLineToolExecutionEngine<T> engine) {
 		return newInvocation().buildAndSubmit(engine);
 	}
 }
