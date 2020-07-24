@@ -106,6 +106,10 @@ include 'runtimeDarwin'
 project(':runtimeDarwin').projectDir = file('subprojects/runtime-darwin')
 project(':runtimeDarwin').buildFileName = 'runtime-darwin.gradle'
 
+include 'runtimeWindows'
+project(':runtimeWindows').projectDir = file('subprojects/runtime-windows')
+project(':runtimeWindows').buildFileName = 'runtime-windows.gradle'
+
 include 'testingBase'
 project(':testingBase').projectDir = file('subprojects/testing-base')
 project(':testingBase').buildFileName = 'testing-base.gradle'

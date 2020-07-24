@@ -2,18 +2,17 @@ package dev.nokee.buildadapter.cmake.internal.plugins;
 
 import com.google.gson.Gson;
 import dev.nokee.buildadapter.cmake.internal.GitBasedGroupIdSupplier;
-import dev.nokee.buildadapter.cmake.internal.plugins.locators.CmakeLocator;
-import dev.nokee.buildadapter.cmake.internal.plugins.locators.MakeLocator;
-import dev.nokee.buildadapter.cmake.internal.plugins.locators.MsbuildLocator;
-import dev.nokee.buildadapter.cmake.internal.plugins.locators.VswhereLocator;
 import dev.nokee.buildadapter.cmake.internal.tasks.CMakeMSBuildAdapterTask;
 import dev.nokee.buildadapter.cmake.internal.tasks.CMakeMakeAdapterTask;
-import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.LoggingEngine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.runtime.base.internal.tools.ToolRepository;
+import dev.nokee.runtime.nativebase.internal.locators.CmakeLocator;
+import dev.nokee.runtime.nativebase.internal.locators.MakeLocator;
+import dev.nokee.runtime.nativebase.internal.locators.MSBuildLocator;
+import dev.nokee.runtime.nativebase.internal.locators.VswhereLocator;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.val;
@@ -43,7 +42,7 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 		val repository = new ToolRepository();
 		repository.register("cmake", new CmakeLocator());
 		repository.register("make", new MakeLocator());
-		repository.register("msbuild", new MsbuildLocator(() -> CommandLineTool.of(repository.findAll("vswhere").iterator().next().getPath())));
+		repository.register("msbuild", new MSBuildLocator(() -> CommandLineTool.of(repository.findAll("vswhere").iterator().next().getPath())));
 		repository.register("vswhere", new VswhereLocator());
 
 		settings.getGradle().allprojects(this::configureProjectGroup);

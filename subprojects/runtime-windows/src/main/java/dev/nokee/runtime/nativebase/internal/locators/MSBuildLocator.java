@@ -1,4 +1,4 @@
-package dev.nokee.buildadapter.cmake.internal.plugins.locators;
+package dev.nokee.runtime.nativebase.internal.locators;
 
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolOutputParser;
@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
-public class MsbuildLocator implements CommandLineToolLocator {
+public class MSBuildLocator implements CommandLineToolLocator {
 	private final Supplier<CommandLineTool> vswhere;
 
 	@Override

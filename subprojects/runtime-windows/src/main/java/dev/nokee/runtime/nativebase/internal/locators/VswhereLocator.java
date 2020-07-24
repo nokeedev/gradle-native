@@ -1,4 +1,4 @@
-package dev.nokee.buildadapter.cmake.internal.plugins.locators;
+package dev.nokee.runtime.nativebase.internal.locators;
 
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolOutputParser;
