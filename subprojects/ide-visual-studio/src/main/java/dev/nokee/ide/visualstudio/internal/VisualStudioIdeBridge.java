@@ -59,17 +59,17 @@ public abstract class VisualStudioIdeBridge extends IdeBridgeRule<VisualStudioId
 	}
 
 	private DefaultVisualStudioIdeTarget findVisualStudioTarget(VisualStudioIdeRequest request) {
-		String projectName = request.getProjectName();
+		String projectName = request.getGradleIdeProjectName();
 		realize(visualStudioProjects);
 		DefaultVisualStudioIdeProject project = (DefaultVisualStudioIdeProject) visualStudioProjects.findByName(projectName);
 		if (project == null) {
-			throw new GradleException(String.format("Unknown Xcode IDE project '%s', try re-generating the Xcode IDE configuration using '%s:xcode' task.", projectName, getPrefixableProjectPath(this.project)));
+			throw new GradleException(String.format("Unknown Visual Studio IDE project '%s', try re-generating the Visual Studio IDE configuration using '%s:visualStudio' task.", projectName, getPrefixableProjectPath(this.project)));
 		}
 
 		val projectConfiguration = VisualStudioIdeProjectConfiguration.of(VisualStudioIdeConfiguration.of(request.getConfiguration()), VisualStudioIdePlatform.of(request.getPlatformName()));
 		DefaultVisualStudioIdeTarget target = project.getTargets().stream().filter(it -> it.getProjectConfiguration().equals(projectConfiguration)).findFirst().orElse(null);
 		if (target == null) {
-			throw new GradleException(String.format("Unknown Xcode IDE target '%s', try re-generating the Xcode IDE configuration using '%s:xcode' task.", projectConfiguration, getPrefixableProjectPath(this.project)));
+			throw new GradleException(String.format("Unknown Visual Studio IDE target '%s', try re-generating the Visual Studio IDE configuration using '%s:visualStudio' task.", projectConfiguration, getPrefixableProjectPath(this.project)));
 		}
 		return target;
 	}

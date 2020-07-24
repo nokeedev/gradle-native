@@ -55,4 +55,8 @@ public abstract class VisualStudioIdeRequest implements IdeRequest {
 	public Directory getOutputDirectory() {
 		return getObjects().directoryProperty().fileProvider(properties.getOutputDirectory().map(File::new)).get();
 	}
+
+	public String getGradleIdeProjectName() {
+		return properties.getGradleIdeProjectName().get();
+	}
 }

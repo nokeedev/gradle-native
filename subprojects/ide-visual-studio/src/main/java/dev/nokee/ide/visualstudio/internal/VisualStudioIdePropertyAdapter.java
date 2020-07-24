@@ -35,6 +35,10 @@ public abstract class VisualStudioIdePropertyAdapter {
 		return getXcodeProperty("OutDir");
 	}
 
+	public Provider<String> getGradleIdeProjectName() {
+		return getXcodeProperty("GRADLE_IDE_PROJECT_NAME");
+	}
+
 	@SneakyThrows
 	private Provider<String> getXcodeProperty(String name) {
 		if (GradleVersion.current().compareTo(GradleVersion.version("6.5")) >= 0) {
@@ -65,5 +69,9 @@ public abstract class VisualStudioIdePropertyAdapter {
 
 	private static String prefixName(String source) {
 		return "dev.nokee.internal.visualStudio.bridge." + source;
+	}
+
+	public static String adapt(String source, String value) {
+		return "-P" + prefixName(source) + "=\"" + value + "\"";
 	}
 }

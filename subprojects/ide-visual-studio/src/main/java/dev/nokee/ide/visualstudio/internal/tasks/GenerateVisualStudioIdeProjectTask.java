@@ -161,7 +161,7 @@ public abstract class GenerateVisualStudioIdeProjectTask extends DefaultTask {
 	}
 
 	private String getGradleBuildArgumentsString(String action) {
-		return String.join(" ", Iterables.concat(VisualStudioIdePropertyAdapter.getAdapterCommandLine(action), getAdditionalGradleArguments().get())) + " " + String.format(getBridgeTaskPath().get(), action);
+		return String.join(" ", Iterables.concat(VisualStudioIdePropertyAdapter.getAdapterCommandLine(action), getAdditionalGradleArguments().get())) + " " + VisualStudioIdePropertyAdapter.adapt("GRADLE_IDE_PROJECT_NAME", visualStudioProject.getName()) + " " + String.format(getBridgeTaskPath().get(), action);
 	}
 
 	private VCXProject getVcxFilters() {
