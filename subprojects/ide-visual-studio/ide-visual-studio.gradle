@@ -44,5 +44,7 @@ functionalTest {
 		implementation project(':testingNative')
 		implementation "commons-io:commons-io:${commonsIoVersion}"
 		implementation testFixtures(project(':ideBase'))
+		implementation project(':runtimeWindows')
+		implementation project(':coreExec')
 	}
 }

@@ -35,7 +35,7 @@ class VisualStudioIdeCApplicationFunctionalTest extends AbstractVisualStudioIdeN
 	}
 
 	@Override
-	protected String getProjectName() {
+	protected String getVisualStudioProjectName() {
 		return "app"
 	}
 
@@ -83,7 +83,7 @@ class VisualStudioIdeCApplicationWithNativeTestSuiteFunctionalTest extends Abstr
 	}
 
 	@Override
-	protected String getProjectName() {
+	protected String getVisualStudioProjectName() {
 		return "app-test"
 	}
 
@@ -120,7 +120,7 @@ class VisualStudioIdeCLibraryFunctionalTest extends AbstractVisualStudioIdeNativ
 	}
 
 	@Override
-	protected String getProjectName() {
+	protected String getVisualStudioProjectName() {
 		return "lib"
 	}
 
@@ -169,7 +169,7 @@ class VisualStudioIdeCLibraryWithNativeTestSuiteFunctionalTest extends AbstractV
 	}
 
 	@Override
-	protected String getProjectName() {
+	protected String getVisualStudioProjectName() {
 		return "lib-test"
 	}
 

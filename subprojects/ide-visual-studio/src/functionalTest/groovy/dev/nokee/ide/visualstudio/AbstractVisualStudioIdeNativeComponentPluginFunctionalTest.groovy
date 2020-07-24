@@ -3,6 +3,8 @@ package dev.nokee.ide.visualstudio
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeSolutionFixture
+import org.apache.commons.lang3.SystemUtils
+import spock.lang.Requires
 
 abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractVisualStudioIdeFunctionalSpec {
 	protected String configureProjectName() {
@@ -21,14 +23,14 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 
 	protected abstract String configureCustomSourceLayout()
 
-	protected abstract String getProjectName()
+	protected abstract String getVisualStudioProjectName()
 
 	protected String getSolutionName() {
-		return projectName
+		return visualStudioProjectName
 	}
 
 	protected VisualStudioIdeProjectFixture getVisualStudioProjectUnderTest() {
-		return visualStudioProject(projectName)
+		return visualStudioProject(visualStudioProjectName)
 	}
 
 	protected VisualStudioIdeSolutionFixture getVisualStudioSolutionUnderTest() {
@@ -38,7 +40,11 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 	protected abstract List<String> getAllTasksForBuildAction()
 
 	protected List<String> getAllTasksToXcode() {
-		return [":${projectName}VisualStudioProject", ':visualStudioSolution', ':visualStudio']
+		return [":${visualStudioProjectName}VisualStudioProject", ':visualStudioSolution', ':visualStudio']
+	}
+
+	protected String getVisualStudioIdeBridge() {
+		return ":_visualStudio__build_${visualStudioProject.toLowerCase()}_Default_x64"
 	}
 
 	def "creates Visual Studio project delegating to Gradle"() {
@@ -86,6 +92,28 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 
 		then:
 		visualStudioProjectUnderTest.assertHasSourceLayout(componentUnderTest.sources.files.collect { "Source Files/${it.name}".toString() } + componentUnderTest.headers.files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
+	}
+
+	@Requires({SystemUtils.IS_OS_WINDOWS})
+	def "build generated visual studio solution with multiple target machines"() {
+		useMSBuildTool()
+
+		given:
+		componentUnderTest.writeToProject(testDirectory)
+		makeSingleProject()
+		run "visualStudio"
+
+		when:
+		def result = msbuild
+			.withWorkingDir(testDirectory)
+			.withSolution(visualStudioSolutionUnderTest)
+			.withConfiguration("Default")
+			.withProject(visualStudioProjectName)
+			.succeeds()
+
+		then:
+		result.assertTasksExecuted(allTasksForBuildAction, visualStudioIdeBridge)
+//		file(getBuildFile(VariantContext.of(buildType: 'debug', architecture: 'x86'))).assertIsFile()
 	}
 
 	// TODO: Check ConfigurationType
