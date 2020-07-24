@@ -69,3 +69,7 @@ VersionNumber getLatestSnapshotVersion() {
 VersionNumber getLatestReleasedVersion() {
 	return VersionNumber.parse(new JsonSlurper().parse(new URL('https://services.nokee.dev/versions/current')).version)
 }
+
+// TODO: Attach Gradle on failure hook and verify if any failures are coming from Nokee
+//   Or contains dev.nokee namespace for plugins
+// TODO: Once every x, check if we need to update the init script and warn the user
