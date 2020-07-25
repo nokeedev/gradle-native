@@ -68,17 +68,13 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 			((IdeProjectInternal)ideProject).getGeneratorTask().configure(task -> task.shouldRunAfter(cleanTask));
 		});
 		workspaceExtension.ifPresent(extension -> extension.getWorkspace().getGeneratorTask().configure(task -> task.shouldRunAfter(cleanTask)));
-		System.out.println("??? " + project.getGradle().getIncludedBuilds() + " - " + project.getGradle().getParent());
 		if (isCompositeBuild(project.getGradle())) { // Only register the workaround if included builds are present
-			System.out.println("HAS INCLUDED BUILDS " + project.getGradle().getParent());
 			if (isRootProject(project) && isHostBuild(project.getGradle())) {
-				System.out.println("ROOT OF ROOT");
 				// NOTE: We don't register clean metadata for this project because we would get an circular task dependency
 				cleanTask.configure(task -> {
 					task.dependsOn((Callable<List<Task>>) this::cleanTasksFromIncludedBuildsOnlyIfCleaningRecursively);
 				});
 			} else if (!isHostBuild(project.getGradle())) { // Only register clean metadata for included builds
-				System.out.println("OUIN");
 				getArtifactRegistry().registerIdeProject(newIdeCleanMetadata(cleanTask));
 			}
 		}
