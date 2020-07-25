@@ -52,12 +52,8 @@ class VisualStudioIdeCleanTaskFunctionalTest extends AbstractIdeCleanTaskFunctio
 		and:
 		run(tasks.ideLifecycle)
 
-		and: 'create .vs directory'
-		def dotvsDirectory = file('.vs').createDirectory()
-
-		and: 'simulate .vs directory is not empty'
-		file('.vs/foo').createFile()
-		file('.vs/bar').createFile()
+		and:
+		def dotvsDirectory = visualStudioSolution('foo').dotvsDirectory
 
 		when:
 		succeeds(tasks.ideClean)
@@ -73,17 +69,9 @@ class VisualStudioIdeCleanTaskFunctionalTest extends AbstractIdeCleanTaskFunctio
 		and:
 		run(tasks.ideLifecycle)
 
-		and: 'create .vs directory'
-		def dotvsDirectory = file('.vs').createDirectory()
-
-		and: 'simulate .vs directory is not empty'
-		file('.vs/first').createFile()
-		file('.vs/last').createFile()
-
-		and: 'lock one file'
-		def inStream = new RandomAccessFile(file('.vs/last'), 'rw')
-		def fileChannel = inStream.getChannel()
-		def lock = fileChannel.lock()
+		and:
+		def dotvsDirectory = visualStudioSolution('foo').dotvsDirectory
+		def lock = dotvsDirectory.simulateVisualStudioIdeLock()
 
 		when:
 		def failure = fails(tasks.ideClean)
@@ -94,12 +82,8 @@ class VisualStudioIdeCleanTaskFunctionalTest extends AbstractIdeCleanTaskFunctio
 
 		and:
 		dotvsDirectory.assertExists()
-		file('.vs/first').assertExists()
-		file('.vs/last').assertExists()
 
 		cleanup:
 		lock?.release()
-		fileChannel?.close()
-		inStream?.close()
 	}
 }
