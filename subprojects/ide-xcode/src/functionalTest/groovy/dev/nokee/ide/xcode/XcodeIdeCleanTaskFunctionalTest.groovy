@@ -9,7 +9,7 @@ import static dev.nokee.ide.xcode.fixtures.XcodeIdeWorkspaceFixture.workspaceNam
 class XcodeIdeCleanTaskFunctionalTest extends AbstractIdeCleanTaskFunctionalTest implements XcodeIdeTaskNames, XcodeIdeFixture {
 	@Override
 	protected String getIdePluginId() {
-		return 'dev.nokee.xcode-ide'
+		return xcodeIdePluginId
 	}
 
 	@Override

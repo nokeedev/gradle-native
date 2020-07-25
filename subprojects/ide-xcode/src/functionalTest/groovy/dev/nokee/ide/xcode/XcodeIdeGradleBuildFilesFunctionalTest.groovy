@@ -8,7 +8,7 @@ import dev.nokee.ide.xcode.fixtures.XcodeIdeTaskNames
 class XcodeIdeGradleBuildFilesFunctionalTest extends AbstractIdeGradleBuildFilesFunctionalTest implements XcodeIdeTaskNames, XcodeIdeFixture {
 	@Override
 	protected String getIdePluginId() {
-		return 'dev.nokee.xcode-ide'
+		return xcodeIdePluginId
 	}
 
 	@Override

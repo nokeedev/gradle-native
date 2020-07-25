@@ -7,21 +7,15 @@ import static dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture.
 import static dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture.projectName
 import static dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeSolutionFixture.solutionName
 
-class VisualStudioIdeCleanTaskFunctionalTest extends AbstractIdeCleanTaskFunctionalTest implements VisualStudioIdeTaskNames {
+class VisualStudioIdeCleanTaskFunctionalTest extends AbstractIdeCleanTaskFunctionalTest implements VisualStudioIdeTaskNames, VisualStudioIdeFixture {
 	@Override
 	protected String getIdePluginId() {
-		return 'dev.nokee.visual-studio-ide'
+		return visualStudioIdePluginId
 	}
 
 	@Override
 	protected String configureIdeProject(String name) {
-		return """
-			visualStudio {
-				projects.register("${name}") {
-					target(${VisualStudioIdeProjectConfiguration.canonicalName}.of(${VisualStudioIdeConfiguration.canonicalName}.of("Default"), ${VisualStudioIdePlatforms.canonicalName}.X64)) {}
-				}
-			}
-		"""
+		return configureVisualStudioIdeProject(name)
 	}
 
 	@Override

@@ -1,11 +1,15 @@
 package dev.nokee.ide.xcode
 
 trait XcodeIdeFixture {
+	String getXcodeIdePluginId() {
+		return 'dev.nokee.xcode-ide'
+	}
+
 	// Must be kotlin dsl compatible
 	String applyXcodeIdePlugin() {
 		return """
 			plugins {
-				id("dev.nokee.xcode-ide")
+				id("${xcodeIdePluginId}")
 			}
 		"""
 	}

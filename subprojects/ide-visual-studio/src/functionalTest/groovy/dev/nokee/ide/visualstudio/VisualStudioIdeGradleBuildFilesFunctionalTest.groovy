@@ -5,22 +5,15 @@ import dev.nokee.ide.fixtures.IdeProjectFixture
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeTaskNames
 
-class VisualStudioIdeGradleBuildFilesFunctionalTest extends AbstractIdeGradleBuildFilesFunctionalTest implements VisualStudioIdeTaskNames {
+class VisualStudioIdeGradleBuildFilesFunctionalTest extends AbstractIdeGradleBuildFilesFunctionalTest implements VisualStudioIdeTaskNames, VisualStudioIdeFixture {
 	@Override
 	protected String getIdePluginId() {
-		return 'dev.nokee.visual-studio-ide'
+		return visualStudioIdePluginId
 	}
 
 	@Override
 	protected String configureIdeProject(String name) {
-		// Needs to be DSL-agnostic
-		return """
-			visualStudio {
-				projects.register("${name}") {
-					target(${VisualStudioIdeProjectConfiguration.canonicalName}.of(${VisualStudioIdeConfiguration.canonicalName}.of("Default"), ${VisualStudioIdePlatforms.canonicalName}.X64)) {}
-				}
-			}
-		"""
+		return configureVisualStudioIdeProject(name)
 	}
 
 	@Override
