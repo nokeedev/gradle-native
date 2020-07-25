@@ -200,6 +200,27 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 				}
 			});
 		});
+
+		// Warn users when Visual Studio IDE holds a lock on the generated solution
+		getLifecycleTask().configure(task -> {
+			task.doLast(new Action<Task>() {
+				@Override
+				public void execute(Task task) {
+					val solutionFile = extension.getWorkspace().getLocation().get().getAsFile();
+					if (VisualStudioIdeUtils.isSolutionCurrentlyOpened(solutionFile)) {
+						val message = "\n"
+							+ "============\n"
+							+ String.format("Visual Studio is currently holding the solution '%s' open.\n", getProject().relativePath(solutionFile.getAbsolutePath()))
+							+ "This may impact features such as code navigation and code editing.\n"
+							+ "We recommend manually triggering a solution rescan from the Visual Studio via Project > Rescan Solution.\n"
+							+ "In the future, try closing your solution before executing the visualStudio task.\n"
+							+ "To learn more about this issue, visit https://docs.nokee.dev/intellisense-reconcilation\n"
+							+ "============\n";
+						task.getLogger().warn(message);
+					}
+				}
+			});
+		});
 	}
 
 	@Override
