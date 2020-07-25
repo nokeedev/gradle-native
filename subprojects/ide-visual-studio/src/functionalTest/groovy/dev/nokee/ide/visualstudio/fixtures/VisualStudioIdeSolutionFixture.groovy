@@ -1,6 +1,7 @@
 package dev.nokee.ide.visualstudio.fixtures
 
 import dev.gradleplugins.test.fixtures.file.TestFile
+import dev.nokee.ide.fixtures.IdePathUtils
 import org.gradle.util.TextUtil
 
 class VisualStudioIdeSolutionFixture {
@@ -19,14 +20,11 @@ class VisualStudioIdeSolutionFixture {
 	}
 
 	static VisualStudioIdeSolutionFixture of(Object path) {
-		if (path instanceof File) {
-			path = path.absolutePath
-		}
-		assert path instanceof String
-		if (!path.endsWith('.sln')) {
-			path = path + '.sln'
-		}
-		return new VisualStudioIdeSolutionFixture(TestFile.of(new File(path.toString())))
+		return new VisualStudioIdeSolutionFixture(TestFile.of(new File(solutionName(path))))
+	}
+
+	static String solutionName(Object path) {
+		return IdePathUtils.addExtensionIfAbsent(path, 'sln')
 	}
 
 	void assertHasProjects(String... names) {

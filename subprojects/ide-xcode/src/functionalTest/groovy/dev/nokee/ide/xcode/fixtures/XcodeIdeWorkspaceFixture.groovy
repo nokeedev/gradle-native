@@ -4,6 +4,7 @@ import com.dd.plist.NSDictionary
 import com.dd.plist.NSObject
 import com.dd.plist.PropertyListParser
 import dev.gradleplugins.test.fixtures.file.TestFile
+import dev.nokee.ide.fixtures.IdePathUtils
 
 class XcodeIdeWorkspaceFixture {
 	final TestFile dir
@@ -16,14 +17,11 @@ class XcodeIdeWorkspaceFixture {
 	}
 
 	static XcodeIdeWorkspaceFixture of(Object path) {
-		if (path instanceof File) {
-			path = path.absolutePath
-		}
-		assert path instanceof String
-		if (!path.endsWith('.xcworkspace')) {
-			path = path + '.xcworkspace'
-		}
-		return new XcodeIdeWorkspaceFixture(TestFile.of(new File(path.toString())))
+		return new XcodeIdeWorkspaceFixture(TestFile.of(new File(workspaceName(path))))
+	}
+
+	static String workspaceName(Object path) {
+		return IdePathUtils.addExtensionIfAbsent(path, 'xcworkspace')
 	}
 
 	void assertHasProjects(String... paths) {

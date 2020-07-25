@@ -3,6 +3,7 @@ package dev.nokee.ide.xcode.fixtures
 import com.dd.plist.*
 import com.google.common.base.MoreObjects
 import dev.gradleplugins.test.fixtures.file.TestFile
+import dev.nokee.ide.fixtures.IdePathUtils
 import dev.nokee.ide.fixtures.IdeProjectFixture
 
 import javax.annotation.Nullable
@@ -26,14 +27,11 @@ class XcodeIdeProjectFixture implements IdeProjectFixture {
 	}
 
 	static XcodeIdeProjectFixture of(Object path) {
-		if (path instanceof File) {
-			path = path.absolutePath
-		}
-		assert path instanceof String
-		if (!path.endsWith('.xcodeproj')) {
-			path = path + '.xcodeproj'
-		}
-		return new XcodeIdeProjectFixture(TestFile.of(new File(path.toString())))
+		return new XcodeIdeProjectFixture(TestFile.of(new File(projectName(path))))
+	}
+
+	static String projectName(Object path) {
+		return IdePathUtils.addExtensionIfAbsent(path, 'xcodeproj')
 	}
 
 	XcodeIdeProjectFixture assertHasSchemes(String... schemeNames) {

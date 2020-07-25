@@ -1,6 +1,7 @@
 package dev.nokee.ide.visualstudio.fixtures
 
 import dev.gradleplugins.test.fixtures.file.TestFile
+import dev.nokee.ide.fixtures.IdePathUtils
 import dev.nokee.ide.fixtures.IdeProjectFixture
 import org.apache.commons.io.FilenameUtils
 
@@ -20,14 +21,15 @@ class VisualStudioIdeProjectFixture implements IdeProjectFixture {
 	}
 
 	static VisualStudioIdeProjectFixture of(Object path) {
-		if (path instanceof File) {
-			path = path.absolutePath
-		}
-		assert path instanceof String
-		if (!path.endsWith('.vcxproj')) {
-			path = path + '.vcxproj'
-		}
-		return new VisualStudioIdeProjectFixture(TestFile.of(new File(path.toString())))
+		return new VisualStudioIdeProjectFixture(TestFile.of(new File(projectName(path))))
+	}
+
+	static String projectName(Object path) {
+		return IdePathUtils.addExtensionIfAbsent(path, 'vcxproj')
+	}
+
+	static String filtersName(Object path) {
+		return IdePathUtils.addExtensionIfAbsent(path, 'vcxproj.filters')
 	}
 
 	VisualStudioIdeProjectFixture assertHasSourceLayout(String... files) {
