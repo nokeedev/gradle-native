@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static dev.nokee.utils.DeferredUtils.realize;
-import static dev.nokee.utils.GradleUtils.isHostBuild;
+import static dev.nokee.utils.GradleUtils.*;
 import static dev.nokee.utils.ProjectUtils.isRootProject;
 import static dev.nokee.utils.TaskNameUtils.getShortestName;
 
@@ -68,24 +68,19 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 			((IdeProjectInternal)ideProject).getGeneratorTask().configure(task -> task.shouldRunAfter(cleanTask));
 		});
 		workspaceExtension.ifPresent(extension -> extension.getWorkspace().getGeneratorTask().configure(task -> task.shouldRunAfter(cleanTask)));
-		if (isRootProject(project) && isHostBuild(project.getGradle())) {
-			// Create clean all task
-			// NOTE: We don't register clean metadata because we would get an circular task dependency
-			val cleanAllTask = getTasks().register(getTaskName("cleanAll"), task -> {
-				task.dependsOn(getArtifactRegistry().getIdeProjects(getIdeCleanMetadataType()).stream().flatMap(it -> it.get().getGeneratorTasks().stream()).collect(Collectors.toList()));
-			});
-			cleanTask.configure(task -> {
-				task.dependsOn((Callable)() -> {
-					val shortestCleanTaskName = getShortestName(cleanTask.getName());
-					if (project.getGradle().getStartParameter().getTaskNames().stream().anyMatch(it -> it.equals(cleanTask.getName()) || getShortestName(it).equals(shortestCleanTaskName))) {
-						return ImmutableList.of(cleanAllTask);
-					}
-					return ImmutableList.of();
+		System.out.println("??? " + project.getGradle().getIncludedBuilds() + " - " + project.getGradle().getParent());
+		if (isCompositeBuild(project.getGradle())) { // Only register the workaround if included builds are present
+			System.out.println("HAS INCLUDED BUILDS " + project.getGradle().getParent());
+			if (isRootProject(project) && isHostBuild(project.getGradle())) {
+				System.out.println("ROOT OF ROOT");
+				// NOTE: We don't register clean metadata for this project because we would get an circular task dependency
+				cleanTask.configure(task -> {
+					task.dependsOn((Callable<List<Task>>) this::cleanTasksFromIncludedBuildsOnlyIfCleaningRecursively);
 				});
-			});
-		} else {
-			// Register clean metadata
-			getArtifactRegistry().registerIdeProject(newIdeCleanMetadata(cleanTask));
+			} else if (!isHostBuild(project.getGradle())) { // Only register clean metadata for included builds
+				System.out.println("OUIN");
+				getArtifactRegistry().registerIdeProject(newIdeCleanMetadata(cleanTask));
+			}
 		}
 
 		lifecycleTask = getTasks().register(getLifecycleTaskName(), task -> {
@@ -224,6 +219,16 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 			return Optional.of((IdeWorkspaceExtension<T>) projectExtension);
 		}
 		return Optional.empty();
+	}
+	//endregion
+
+	//region IDE cleaning
+	private List<Task> cleanTasksFromIncludedBuildsOnlyIfCleaningRecursively() {
+		val shortestCleanTaskName = getShortestName(cleanTask.getName());
+		if (project.getGradle().getStartParameter().getTaskNames().stream().anyMatch(it -> it.equals(cleanTask.getName()) || getShortestName(it).equals(shortestCleanTaskName))) {
+			return getArtifactRegistry().getIdeProjects(getIdeCleanMetadataType()).stream().flatMap(it -> it.get().getGeneratorTasks().stream()).collect(Collectors.toList());
+		}
+		return ImmutableList.of();
 	}
 	//endregion
 
