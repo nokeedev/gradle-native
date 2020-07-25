@@ -100,7 +100,7 @@ abstract class AbstractIdeCleanTaskFunctionalTest extends AbstractGradleSpecific
 		ideProjectFiles('foo/foo').assertDoesNotExist()
 	}
 
-	def "can clean generated IDE files from included builds using task abbriviation"() {
+	def "can clean generated IDE files from included builds using task abbreviation"() {
 		given:
 		settingsFile << '''
 			rootProject.name = 'root'
