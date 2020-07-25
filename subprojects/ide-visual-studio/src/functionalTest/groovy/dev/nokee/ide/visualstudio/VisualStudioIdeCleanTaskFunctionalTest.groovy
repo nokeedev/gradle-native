@@ -47,6 +47,7 @@ class VisualStudioIdeCleanTaskFunctionalTest extends AbstractIdeCleanTaskFunctio
 
 	def "cleans .vs directory when present"() {
 		given:
+		settingsFile << "rootProject.name = 'foo'"
 		buildFile << applyIdePlugin() << configureIdeProject('foo')
 
 		and:
@@ -64,6 +65,7 @@ class VisualStudioIdeCleanTaskFunctionalTest extends AbstractIdeCleanTaskFunctio
 
 	def "warns what to do when any files inside .vs directory is locked"() {
 		given:
+		settingsFile << "rootProject.name = 'foo'"
 		buildFile << applyIdePlugin() << configureIdeProject('foo')
 
 		and:
@@ -84,6 +86,6 @@ class VisualStudioIdeCleanTaskFunctionalTest extends AbstractIdeCleanTaskFunctio
 		dotvsDirectory.assertExists()
 
 		cleanup:
-		lock?.release()
+		lock?.close()
 	}
 }
