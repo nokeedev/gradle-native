@@ -32,6 +32,11 @@ trait XcodeIdeTaskNames implements IdeTaskNames {
 		}
 
 		@Override
+		String getIdeClean() {
+			return withProject('cleanXcode')
+		}
+
+		@Override
 		String ideProject(String name) {
 			return withProject("${name}XcodeProject")
 		}

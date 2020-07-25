@@ -32,6 +32,11 @@ trait VisualStudioIdeTaskNames implements IdeTaskNames {
 		}
 
 		@Override
+		String getIdeClean() {
+			return withProject('cleanVisualStudio')
+		}
+
+		@Override
 		String ideProject(String name) {
 			return withProject("${name}VisualStudioProject")
 		}
