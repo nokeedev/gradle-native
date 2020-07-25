@@ -1,6 +1,7 @@
 package dev.nokee.ide.xcode.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.ide.base.internal.BaseIdeCleanMetadata;
 import dev.nokee.ide.base.internal.IdeProjectExtension;
 import dev.nokee.ide.base.internal.IdeProjectInternal;
 import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
@@ -545,6 +546,16 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 	@Override
 	protected IdeProjectMetadata newIdeProjectMetadata(Provider<IdeProjectInternal> ideProject) {
 		return new XcodeIdeProjectMetadata(ideProject.map(DefaultXcodeIdeProject.class::cast));
+	}
+
+	@Override
+	protected IdeProjectMetadata newIdeCleanMetadata(Provider<? extends Task> cleanTask) {
+		return new XcodeIdeCleanMetadata(cleanTask);
+	}
+
+	@Override
+	protected Class<? extends BaseIdeCleanMetadata> getIdeCleanMetadataType() {
+		return XcodeIdeCleanMetadata.class;
 	}
 
 	@Override

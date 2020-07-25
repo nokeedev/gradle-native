@@ -1,6 +1,7 @@
 package dev.nokee.ide.visualstudio.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.ide.base.internal.BaseIdeCleanMetadata;
 import dev.nokee.ide.base.internal.IdeProjectExtension;
 import dev.nokee.ide.base.internal.IdeProjectInternal;
 import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
@@ -23,7 +24,9 @@ import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
+import org.gradle.api.Action;
 import org.gradle.api.Rule;
+import org.gradle.api.Task;
 import org.gradle.api.Transformer;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.RegularFile;
@@ -32,6 +35,7 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.plugins.ide.internal.IdeProjectMetadata;
 
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static dev.nokee.utils.ProjectUtils.getPrefixableProjectPath;
@@ -51,6 +55,11 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 				task.getBridgeTaskPath().set(getBridgeTaskPath());
 				task.getAdditionalGradleArguments().set(getAdditionalBuildArguments());
 			});
+		});
+
+		// Clean *.vcxproj.filters and *.vcxproj.user files
+		getCleanTask().configure(task -> {
+			task.delete(getProviders().provider(() -> extension.getProjects().stream().map(it -> it.getLocation().get().getAsFile().getAbsolutePath()).flatMap(it -> Stream.of(it + ".filters", it + ".user")).collect(Collectors.toList())));
 		});
 
 		getProject().getTasks().addRule(getObjects().newInstance(VisualStudioIdeBridge.class, this, extension.getProjects(), getProject()));
@@ -178,6 +187,19 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 			task.getSolutionLocation().set(getLayout().getProjectDirectory().file(getProject().getName() + ".sln"));
 			task.getProjectInformations().set(getArtifactRegistry().getIdeProjects(VisualStudioIdeProjectMetadata.class).stream().map(it -> new VisualStudioIdeProjectInformation(it.get())).collect(Collectors.toList()));
 		});
+
+		// Clean .vs directory and warn user if solution is locked
+		getCleanTask().configure(task -> {
+			task.delete(".vs");
+			task.doFirst(new Action<Task>() {
+				@Override
+				public void execute(Task task) {
+					if (VisualStudioIdeUtils.isSolutionCurrentlyOpened(extension.getWorkspace().getLocation().get().getAsFile())) {
+						throw new IllegalStateException(String.format("Please close your Visual Studio IDE before executing '%s'.", task.getName()));
+					}
+				}
+			});
+		});
 	}
 
 	@Override
@@ -193,6 +215,16 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 	@Override
 	protected IdeProjectMetadata newIdeProjectMetadata(Provider<IdeProjectInternal> ideProject) {
 		return new VisualStudioIdeProjectMetadata(ideProject);
+	}
+
+	@Override
+	protected IdeProjectMetadata newIdeCleanMetadata(Provider<? extends Task> cleanTask) {
+		return new VisualStudioIdeCleanMetadata(cleanTask);
+	}
+
+	@Override
+	protected Class<? extends BaseIdeCleanMetadata> getIdeCleanMetadataType() {
+		return VisualStudioIdeCleanMetadata.class;
 	}
 
 	@Override

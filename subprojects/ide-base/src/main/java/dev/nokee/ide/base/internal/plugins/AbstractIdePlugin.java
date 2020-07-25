@@ -2,6 +2,7 @@ package dev.nokee.ide.base.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.ide.base.IdeProject;
+import dev.nokee.ide.base.internal.BaseIdeCleanMetadata;
 import dev.nokee.ide.base.internal.IdeProjectExtension;
 import dev.nokee.ide.base.internal.IdeProjectInternal;
 import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
@@ -34,10 +35,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static dev.nokee.utils.DeferredUtils.realize;
+import static dev.nokee.utils.GradleUtils.isHostBuild;
 import static dev.nokee.utils.ProjectUtils.isRootProject;
+import static dev.nokee.utils.TaskNameUtils.getShortestName;
 
 public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<Project>, Describable {
 	public static final String IDE_GROUP_NAME = "IDE";
@@ -63,6 +68,25 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 			((IdeProjectInternal)ideProject).getGeneratorTask().configure(task -> task.shouldRunAfter(cleanTask));
 		});
 		workspaceExtension.ifPresent(extension -> extension.getWorkspace().getGeneratorTask().configure(task -> task.shouldRunAfter(cleanTask)));
+		if (isRootProject(project) && isHostBuild(project.getGradle())) {
+			// Create clean all task
+			// NOTE: We don't register clean metadata because we would get an circular task dependency
+			val cleanAllTask = getTasks().register(getTaskName("cleanAll"), task -> {
+				task.dependsOn(getArtifactRegistry().getIdeProjects(getIdeCleanMetadataType()).stream().flatMap(it -> it.get().getGeneratorTasks().stream()).collect(Collectors.toList()));
+			});
+			cleanTask.configure(task -> {
+				task.dependsOn((Callable)() -> {
+					val shortestCleanTaskName = getShortestName(cleanTask.getName());
+					if (project.getGradle().getStartParameter().getTaskNames().stream().anyMatch(it -> it.equals(cleanTask.getName()) || getShortestName(it).equals(shortestCleanTaskName))) {
+						return ImmutableList.of(cleanAllTask);
+					}
+					return ImmutableList.of();
+				});
+			});
+		} else {
+			// Register clean metadata
+			getArtifactRegistry().registerIdeProject(newIdeCleanMetadata(cleanTask));
+		}
 
 		lifecycleTask = getTasks().register(getLifecycleTaskName(), task -> {
 			task.setGroup(IDE_GROUP_NAME);
@@ -204,6 +228,10 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 	//endregion
 
 	protected abstract IdeProjectMetadata newIdeProjectMetadata(Provider<IdeProjectInternal> ideProject);
+
+	protected abstract IdeProjectMetadata newIdeCleanMetadata(Provider<? extends Task> cleanTask);
+
+	protected abstract Class<? extends BaseIdeCleanMetadata> getIdeCleanMetadataType();
 
 	private String getTaskName(String verb) {
 		return verb + StringUtils.capitalize(getLifecycleTaskName());

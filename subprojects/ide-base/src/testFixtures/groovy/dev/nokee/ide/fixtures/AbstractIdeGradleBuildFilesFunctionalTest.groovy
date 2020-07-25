@@ -168,5 +168,5 @@ abstract class AbstractIdeGradleBuildFilesFunctionalTest extends AbstractGradleS
 	// Needs to be DSL-agnostic
 	protected abstract String configureIdeProject(String name)
 
-	protected abstract IdeProjectFixture ideProject(String name);
+	protected abstract IdeProjectFixture ideProject(String name)
 }

@@ -28,6 +28,8 @@ dependencies {
 	testFixturesImplementation 'org.spockframework:spock-core'
 	testFixturesImplementation gradleApi(minimumGradleVersion)
 	testFixturesImplementation gradleFixtures()
+	testFixturesImplementation "commons-io:commons-io:${commonsIoVersion}"
+	testFixturesImplementation project(':coreUtils')
 }
 
 java {

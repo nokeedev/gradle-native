@@ -175,7 +175,7 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 	}
 
 	@Requires({ SystemUtils.IS_OS_MAC })
-	def "can clean relocated xcode derived data relative to workspace"() {
+	def "relocates xcode derived data relative to workspace"() {
 		useXcodebuildTool()
 		settingsFile << configurePluginClasspathAsBuildScriptDependencies() << configureProjectName()
 		makeSingleProject()
@@ -194,16 +194,5 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		xcodebuild.withWorkspace(xcodeWorkspace(workspaceName)).withScheme(schemeName).succeeds()
 		then:
 		file('.gradle/XcodeDerivedData').assertIsDirectory()
-
-		when: 'clean keeps Xcode derived data'
-		succeeds('clean')
-		then:
-		file('.gradle/XcodeDerivedData').assertIsDirectory()
-
-		when: 'clean Xcode deletes derived data'
-		succeeds('cleanXcode')
-		then:
-		file('.gradle/XcodeDerivedData').assertDoesNotExist()
-		file('.gradle').assertExists()
 	}
 }
