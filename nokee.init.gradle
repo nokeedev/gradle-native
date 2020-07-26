@@ -28,6 +28,7 @@ gradle.addBuildListener(new BuildAdapter() {
 
 		if (nokeeVersion != null) {
 			println "Using Nokee version: ${nokeeVersion.toString()}"
+			nokeeVersionFile.parentFile.mkdirs()
 			nokeeVersionFile.text = nokeeVersion.toString()
 			settings.pluginManagement {
 				repositories {
