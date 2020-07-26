@@ -24,8 +24,12 @@ public class SupplierCommandLineToolProvider implements CommandLineToolProvider 
 
 	@Override
 	public boolean isAvailable() {
-		resolveTool();
-		return true;
+		try {
+			resolveTool();
+			return toolSupplier != null;
+		} catch (Throwable ex) {
+			return false;
+		}
 	}
 
 	private void resolveTool() {

@@ -33,8 +33,12 @@ public class MSBuildExecutor extends AbstractIdeExecutor<MSBuildExecutor> {
     private String projectName;
 
     public MSBuildExecutor(TestFile workingDirectory) {
-    	super(workingDirectory, MSBuildExecutor.class, CommandLineToolProvider.from(() -> CommandLineTool.of(new MSBuildLocator(() -> CommandLineTool.of(new VswhereLocator().findAll("vswhere").iterator().next().getPath())).findAll("msbuild").iterator().next().getPath())));
+    	super(workingDirectory, MSBuildExecutor.class, getMsbuildProvider());
     }
+
+    public static CommandLineToolProvider getMsbuildProvider() {
+		return CommandLineToolProvider.from(() -> CommandLineTool.of(new MSBuildLocator(() -> CommandLineTool.of(new VswhereLocator().findAll("vswhere").iterator().next().getPath())).findAll("msbuild").iterator().next().getPath()));
+	}
 
 	protected IdeAction getDefaultIdeAction() {
 		return MSBuildAction.BUILD;
