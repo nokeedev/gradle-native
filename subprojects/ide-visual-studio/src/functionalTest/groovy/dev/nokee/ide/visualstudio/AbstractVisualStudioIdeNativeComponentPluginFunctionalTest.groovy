@@ -95,7 +95,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 	}
 
 	@Requires({SystemUtils.IS_OS_WINDOWS})
-	def "build generated visual studio solution with multiple target machines"() {
+	def "build generated visual studio solution"() {
 		useMSBuildTool()
 
 		given:
@@ -105,7 +105,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 
 		when:
 		def result = msbuild
-			.withWorkingDir(testDirectory)
+			.withWorkingDirectory(testDirectory)
 			.withSolution(visualStudioSolutionUnderTest)
 			.withConfiguration("Default")
 			.withProject(visualStudioProjectName)
