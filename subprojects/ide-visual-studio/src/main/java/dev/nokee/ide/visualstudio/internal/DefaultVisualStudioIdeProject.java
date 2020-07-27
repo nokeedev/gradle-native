@@ -19,7 +19,6 @@ import org.gradle.api.tasks.TaskProvider;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public abstract class DefaultVisualStudioIdeProject implements VisualStudioIdeProject, IdeProjectInternal {
 	@Getter private final String name;
@@ -49,8 +48,8 @@ public abstract class DefaultVisualStudioIdeProject implements VisualStudioIdePr
 
 	public abstract ConfigurableFileCollection getBuildFiles();
 
-	public Provider<UUID> getProjectGuid() {
-		return getLocation().map(it -> UUID.nameUUIDFromBytes(it.getAsFile().getAbsolutePath().getBytes()));
+	public Provider<VisualStudioIdeGuid> getProjectGuid() {
+		return getLocation().map(it -> VisualStudioIdeGuid.stableGuidFrom(it.getAsFile()));
 	}
 
 	@Override

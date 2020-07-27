@@ -1,5 +1,6 @@
 package dev.nokee.ide.visualstudio.internal.tasks;
 
+import dev.nokee.ide.visualstudio.internal.VisualStudioIdeGuid;
 import dev.nokee.ide.visualstudio.internal.VisualStudioIdeProjectInformation;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.DefaultTask;
@@ -12,7 +13,6 @@ import org.gradle.api.tasks.TaskAction;
 import javax.inject.Inject;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.UUID;
 
 public abstract class GenerateVisualStudioIdeSolutionTask extends DefaultTask {
 	@Nested
@@ -52,7 +52,7 @@ public abstract class GenerateVisualStudioIdeSolutionTask extends DefaultTask {
 			out.println("		HideSolutionNode = FALSE");
 			out.println("	EndGlobalSection");
 			out.println("	GlobalSection(ExtensibilityGlobals) = postSolution");
-			out.println(String.format("		SolutionGuid = {%s}", UUID.nameUUIDFromBytes(getSolutionLocation().get().getAsFile().getAbsolutePath().getBytes())));
+			out.println(String.format("		SolutionGuid = %s", VisualStudioIdeGuid.stableGuidFrom(getSolutionLocation()).getAsString()));
 			out.println("	EndGlobalSection");
 			out.println("EndGlobal");
 		}

@@ -4,8 +4,6 @@ import dev.nokee.ide.base.internal.BaseIdeProjectMetadata;
 import dev.nokee.ide.base.internal.IdeProjectInternal;
 import org.gradle.api.provider.Provider;
 
-import java.util.UUID;
-
 public class VisualStudioIdeProjectMetadata extends BaseIdeProjectMetadata {
 	private final Provider<DefaultVisualStudioIdeProject> ideProject;
 
@@ -14,7 +12,7 @@ public class VisualStudioIdeProjectMetadata extends BaseIdeProjectMetadata {
 		this.ideProject = ideProject.map(DefaultVisualStudioIdeProject.class::cast);
 	}
 
-	public UUID getProjectGuid() {
+	public VisualStudioIdeGuid getProjectGuid() {
 		return ideProject.get().getProjectGuid().get();
 	}
 }

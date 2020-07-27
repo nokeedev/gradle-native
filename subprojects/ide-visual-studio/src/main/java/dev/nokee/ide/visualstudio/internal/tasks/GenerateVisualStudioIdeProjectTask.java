@@ -94,9 +94,9 @@ public abstract class GenerateVisualStudioIdeProjectTask extends DefaultTask {
 		return VCXPropertyGroup.of(
 			VCXProperty.of("VCProjectVersion", "16.0"),
 			VCXProperty.of("Keyword", "Win32Proj"),
-			VCXProperty.of("ProjectGuid", "{" + visualStudioProject.getProjectGuid().get().toString() + "}"),
-			VCXProperty.of("RootNamespace", "ConsoleApplication1"),
-			VCXProperty.of("WindowsTargetPlatformVersion", "10.0")
+			VCXProperty.of("ProjectGuid", visualStudioProject.getProjectGuid().get().getAsString()),
+			VCXProperty.of("WindowsTargetPlatformVersion", "10.0"),
+			VCXProperty.of("NokeeUniqueIdentifier", visualStudioProject.getProjectGuid().get().getAsBase64())
 		).withLabel("Globals");
 	}
 
