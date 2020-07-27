@@ -8,7 +8,7 @@ import dev.nokee.ide.visualstudio.internal.tasks.GenerateVisualStudioIdeProjectT
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.DomainObjectSet;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
@@ -17,13 +17,10 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class DefaultVisualStudioIdeProject implements VisualStudioIdeProject, IdeProjectInternal {
 	@Getter private final String name;
 	@Getter private final TaskProvider<GenerateVisualStudioIdeProjectTask> generatorTask;
-	@Getter private final List<DefaultVisualStudioIdeTarget> targets = new ArrayList<>();
 
 	@Inject
 	public DefaultVisualStudioIdeProject(String name) {
@@ -52,15 +49,17 @@ public abstract class DefaultVisualStudioIdeProject implements VisualStudioIdePr
 		return getLocation().map(it -> VisualStudioIdeGuid.stableGuidFrom(it.getAsFile()));
 	}
 
+	public abstract DomainObjectSet<VisualStudioIdeTarget> getTargets();
+
 	@Override
 	public void target(VisualStudioIdeProjectConfiguration projectConfiguration, Action<? super VisualStudioIdeTarget> action) {
-		val target = targets.stream().filter(it -> it.getProjectConfiguration().equals(projectConfiguration)).findAny().orElseGet(() -> newTarget(projectConfiguration));
+		val target = getTargets().stream().filter(it -> it.getProjectConfiguration().equals(projectConfiguration)).findAny().orElseGet(() -> newTarget(projectConfiguration));
 		action.execute(target);
 	}
 
 	private DefaultVisualStudioIdeTarget newTarget(VisualStudioIdeProjectConfiguration projectConfiguration) {
 		val result = getObjects().newInstance(DefaultVisualStudioIdeTarget.class, projectConfiguration);
-		targets.add(result);
+		getTargets().add(result);
 		return result;
 	}
 

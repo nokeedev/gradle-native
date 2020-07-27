@@ -47,6 +47,10 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 	@Override
 	protected void doProjectApply(IdeProjectExtension<VisualStudioIdeProject> extension) {
 		extension.getProjects().withType(DefaultVisualStudioIdeProject.class).configureEach(visualStudioProject -> {
+			visualStudioProject.getTargets().configureEach(it -> {
+				it.getProperties().put("OutDir", ".vs\\derived-data\\$(ProjectName)-$(NokeeUniqueIdentifier)\\$(PlatformName)\\$(Configuration)\\");
+				it.getItemProperties().maybeCreate("BuildLog").put("Path", ".vs\\derived-data\\$(ProjectName)-$(NokeeUniqueIdentifier)\\$(IntDir)$(MSBuildProjectName).log");
+			});
 			visualStudioProject.getBuildFiles().from(getBuildFiles());
 			visualStudioProject.getGeneratorTask().configure( task -> {
 				RegularFile projectLocation = getLayout().getProjectDirectory().file(visualStudioProject.getName() + ".vcxproj");

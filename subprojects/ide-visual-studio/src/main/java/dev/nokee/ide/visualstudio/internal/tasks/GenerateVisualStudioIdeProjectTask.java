@@ -121,7 +121,7 @@ public abstract class GenerateVisualStudioIdeProjectTask extends DefaultTask {
 	private List<VCXItemDefinitionGroup> getItemDefinitionGroupConfiguration() {
 		return visualStudioProject.getTargets().stream().map(target -> {
 			val names = new HashSet<String>(target.getItemProperties().getNames());
-			names.removeAll(ImmutableSet.of("ClCompile", "Link"));
+			names.removeAll(ImmutableSet.of("ClCompile", "Link", "BuildLog"));
 			if (!names.isEmpty()) {
 				throw new UnsupportedOperationException();
 			}
@@ -136,6 +136,12 @@ public abstract class GenerateVisualStudioIdeProjectTask extends DefaultTask {
 			if (link != null) {
 				definitions.add(VCXLink.Definition.of(link.getElements().get().entrySet().stream().map(it -> VCXProperty.of(it.getKey(), it.getValue().toString())).collect(Collectors.toList())));
 			}
+
+			val buildLog = target.getItemProperties().findByName("BuildLog");
+			if (buildLog != null && buildLog.getElements().get().containsKey("Path")) {
+				definitions.add(new VCXBuildLog.Definition(buildLog.getElements().get().get("Path").toString()));
+			}
+
 			return VCXItemDefinitionGroup.of(definitions).withCondition(conditionOf(target.getProjectConfiguration()));
 		}).collect(Collectors.toList());
 	}
