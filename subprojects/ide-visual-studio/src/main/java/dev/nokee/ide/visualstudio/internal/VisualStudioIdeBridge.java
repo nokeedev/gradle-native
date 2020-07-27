@@ -67,7 +67,7 @@ public abstract class VisualStudioIdeBridge extends IdeBridgeRule<VisualStudioId
 		}
 
 		val projectConfiguration = VisualStudioIdeProjectConfiguration.of(VisualStudioIdeConfiguration.of(request.getConfiguration()), VisualStudioIdePlatform.of(request.getPlatformName()));
-		DefaultVisualStudioIdeTarget target = project.getTargets().stream().filter(it -> it.getProjectConfiguration().equals(projectConfiguration)).findFirst().orElse(null);
+		DefaultVisualStudioIdeTarget target = project.getTargets().withType(DefaultVisualStudioIdeTarget.class).stream().filter(it -> it.getProjectConfiguration().equals(projectConfiguration)).findFirst().orElse(null);
 		if (target == null) {
 			throw new GradleException(String.format("Unknown Visual Studio IDE target '%s', try re-generating the Visual Studio IDE configuration using '%s:visualStudio' task.", projectConfiguration, getPrefixableProjectPath(this.project)));
 		}
