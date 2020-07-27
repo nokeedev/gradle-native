@@ -99,8 +99,9 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		useMSBuildTool()
 
 		given:
-		componentUnderTest.writeToProject(testDirectory)
+		settingsFile << configureProjectName()
 		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
 		run "visualStudio"
 
 		when:
