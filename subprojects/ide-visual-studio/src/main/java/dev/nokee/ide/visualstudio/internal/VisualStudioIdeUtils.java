@@ -1,5 +1,6 @@
 package dev.nokee.ide.visualstudio.internal;
 
+import dev.nokee.ide.visualstudio.VisualStudioIdeProjectConfiguration;
 import lombok.val;
 import org.gradle.api.logging.LogLevel;
 import org.gradle.api.logging.Logger;
@@ -58,5 +59,9 @@ public final class VisualStudioIdeUtils {
 		} catch (Exception ex) {
 			return true;
 		}
+	}
+
+	public static String asName(VisualStudioIdeProjectConfiguration projectConfiguration) {
+		return projectConfiguration.getConfiguration().getIdentifier() + "_" + projectConfiguration.getPlatform().getIdentifier();
 	}
 }

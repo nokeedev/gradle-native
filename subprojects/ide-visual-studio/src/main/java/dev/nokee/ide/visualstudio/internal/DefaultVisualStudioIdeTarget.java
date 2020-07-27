@@ -24,7 +24,7 @@ public abstract class DefaultVisualStudioIdeTarget implements VisualStudioIdeTar
 
 	@Override
 	public String getName() {
-		return projectConfiguration.getConfiguration().getIdentifier() + "_" + projectConfiguration.getPlatform().getIdentifier();
+		return VisualStudioIdeUtils.asName(projectConfiguration);
 	}
 
 	@Inject
