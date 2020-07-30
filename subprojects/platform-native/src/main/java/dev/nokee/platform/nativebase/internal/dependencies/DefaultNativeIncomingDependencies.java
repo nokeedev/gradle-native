@@ -2,7 +2,7 @@ package dev.nokee.platform.nativebase.internal.dependencies;
 
 import dev.nokee.ChainingAction;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ComponentDependenciesInternal;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.runtime.nativebase.internal.LibraryElements;
@@ -121,7 +121,7 @@ public abstract class DefaultNativeIncomingDependencies implements NativeIncomin
 		private final NativeComponentDependencies dependencies;
 		private boolean hasIncomingHeaders = false;
 		private boolean hasIncomingSwiftModules = false;
-		private BuildVariant buildVariant;
+		private BuildVariantInternal buildVariant;
 
 		private Builder(NativeComponentDependencies dependencies) {
 			this.dependencies = dependencies;
@@ -137,7 +137,7 @@ public abstract class DefaultNativeIncomingDependencies implements NativeIncomin
 			return this;
 		}
 
-		public Builder withVariant(BuildVariant buildVariant) {
+		public Builder withVariant(BuildVariantInternal buildVariant) {
 			this.buildVariant = buildVariant;
 			return this;
 		}

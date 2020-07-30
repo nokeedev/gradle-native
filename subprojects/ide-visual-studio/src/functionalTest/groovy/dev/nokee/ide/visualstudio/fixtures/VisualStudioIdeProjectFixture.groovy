@@ -91,6 +91,17 @@ class VisualStudioIdeProjectFixture implements IdeProjectFixture {
 		return projectFile.projectConfigurations
 	}
 
+	VisualStudioIdeProjectFixture assertHasProjectConfigurations(String... projectConfigurations) {
+		assert projectFile.projectConfigurations*.name as Set == projectConfigurations as Set
+		return this
+	}
+
+	@Override
+	IdeProjectFixture assertHasBuildTypes(Iterable<String> buildTypes) {
+		assert projectFile.projectConfigurations*.configurationName as Set == buildTypes as Set
+		return this
+	}
+
 	ProjectFixture.TargetFixture getTargetByName(String targetName) {
 		def target = projectFile.targets.find { it.name == targetName }
 		assert target != null
@@ -187,12 +198,16 @@ class VisualStudioIdeProjectFixture implements IdeProjectFixture {
 		}
 
 		class ProjectConfigurationFixture {
-			String configurationName
-			String platformName
+			final String configurationName
+			final String platformName
 
 			ProjectConfigurationFixture(String configurationName, String platformName) {
 				this.configurationName = configurationName
 				this.platformName = platformName
+			}
+
+			String getName() {
+				return "${configurationName}|${platformName}"
 			}
 
 			@Nullable

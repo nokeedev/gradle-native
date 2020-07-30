@@ -7,6 +7,7 @@ import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkBundle;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
+import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import org.gradle.api.Buildable;
@@ -71,5 +72,10 @@ public abstract class BundleBinaryInternal extends BaseNativeBinary implements B
 	@Override
 	public TaskProvider<LinkBundle> getLinkTask() {
 		return getTasks().named(linkTask.getName(), LinkBundle.class);
+	}
+
+	@Override
+	public TaskProvider<ObjectFilesToBinaryTask> getCreateOrLinkTask() {
+		return getTasks().named(linkTask.getName(), ObjectFilesToBinaryTask.class);
 	}
 }

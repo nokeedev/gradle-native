@@ -25,4 +25,12 @@ public interface Variant extends BinaryAwareComponent {
 	 * @since 0.4
 	 */
 	Provider<Binary> getDevelopmentBinary();
+
+	/**
+	 * Returns the build variant information of this variant.
+	 *
+	 * @return a {@link BuildVariant} instance representing this variant axis value across all the dimension, never null.
+	 * @since 0.5
+	 */
+	BuildVariant getBuildVariant();
 }

@@ -8,5 +8,5 @@ import dev.nokee.platform.base.Variant;
  * @param <T> The type of objects which this factory creates.
  */
 public interface VariantFactory<T extends Variant> {
-	T create(String name, BuildVariant buildVariant);
+	T create(String name, BuildVariantInternal buildVariant);
 }

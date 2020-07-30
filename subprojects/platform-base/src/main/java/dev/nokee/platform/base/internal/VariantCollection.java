@@ -9,9 +9,12 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.utils.Cast;
 import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.specs.Spec;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Set;
 
 public abstract class VariantCollection<T extends Variant> implements Realizable {
@@ -22,6 +25,9 @@ public abstract class VariantCollection<T extends Variant> implements Realizable
 	@Inject
 	protected abstract ObjectFactory getObjects();
 
+	@Inject
+	protected abstract ProviderFactory getProviders();
+
 	// TODO: Make the distinction between public and implementation type
 	@Inject
 	public VariantCollection(Class<T> elementType, ProviderFactory providers) {
@@ -29,7 +35,7 @@ public abstract class VariantCollection<T extends Variant> implements Realizable
 		delegate = new DefaultDomainObjectCollection<>(elementType, getObjects(), providers);
 	}
 
-	public VariantProvider<T> registerVariant(BuildVariant buildVariant, VariantFactory<T> factory) {
+	public VariantProvider<T> registerVariant(BuildVariantInternal buildVariant, VariantFactory<T> factory) {
 		BuildVariantDomainObjectIdentity identity = new BuildVariantDomainObjectIdentity(buildVariant);
 		delegate.add(new DomainObjectElement<T>() {
 			@Override
@@ -55,6 +61,10 @@ public abstract class VariantCollection<T extends Variant> implements Realizable
 	public <S extends Variant> VariantView<S> getAsView(Class<S> viewElementType) {
 		Preconditions.checkArgument(viewElementType.isAssignableFrom(elementType), "element type of the view needs to be the same type or a supertype of the element of this collection");
 		return getObjects().newInstance(DefaultVariantView.class, delegate.withType(Cast.uncheckedCast("", viewElementType)));
+	}
+
+	public Provider<List<? extends T>> filter(Spec<? super T> spec) {
+		return delegate.filter(spec);
 	}
 
 	public void realize() {

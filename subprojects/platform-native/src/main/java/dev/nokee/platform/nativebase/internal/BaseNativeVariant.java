@@ -3,7 +3,7 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.base.Preconditions;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BaseVariant;
-import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.NamingScheme;
 import lombok.Getter;
 import org.gradle.api.Task;
@@ -18,7 +18,7 @@ import java.util.Iterator;
 public abstract class BaseNativeVariant extends BaseVariant {
 	@Getter private final NamingScheme names;
 
-	public BaseNativeVariant(String name, NamingScheme names, BuildVariant buildVariant) {
+	public BaseNativeVariant(String name, NamingScheme names, BuildVariantInternal buildVariant) {
 		super(name, buildVariant);
 		this.names = names;
 

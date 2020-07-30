@@ -1,6 +1,6 @@
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
@@ -16,7 +16,7 @@ public abstract class DefaultNativeLibraryVariant extends BaseNativeVariant impl
 	@Getter private final DefaultNativeLibraryComponentDependencies dependencies;
 
 	@Inject
-	public DefaultNativeLibraryVariant(String name, NamingScheme names, BuildVariant buildVariant, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> dependencies) {
+	public DefaultNativeLibraryVariant(String name, NamingScheme names, BuildVariantInternal buildVariant, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> dependencies) {
 		super(name, names, buildVariant);
 		this.dependencies = dependencies.getDependencies();
 	}

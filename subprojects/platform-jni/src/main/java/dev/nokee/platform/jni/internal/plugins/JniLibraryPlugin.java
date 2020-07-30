@@ -92,7 +92,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 	@Inject
 	protected abstract ProjectLayout getLayout();
 
-	private VariantComponentDependencies newDependencies(NamingScheme names, BuildVariant buildVariant, JniLibraryComponentInternal component) {
+	private VariantComponentDependencies newDependencies(NamingScheme names, BuildVariantInternal buildVariant, JniLibraryComponentInternal component) {
 		DefaultJavaNativeInterfaceNativeComponentDependencies variantDependencies = component.getDependencies();
 		if (component.getBuildVariants().get().size() > 1) {
 			val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, "JNI shared library", new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler())));

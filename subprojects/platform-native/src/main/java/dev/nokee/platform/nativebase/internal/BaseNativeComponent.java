@@ -11,7 +11,7 @@ import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.VariantProvider;
 import dev.nokee.platform.nativebase.*;
@@ -111,6 +111,19 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 		return 0;
 	}
 
+//	private int preferDebug(BaseNativeVariant a, BaseNativeVariant b) {
+//		val aLinkage = a.getBuildVariant().getAxisValue(BaseTargetBuildType.DIMENSION_TYPE);
+//		val bLinkage = b.getBuildVariant().getAxisValue(BaseTargetBuildType.DIMENSION_TYPE);
+//		if (aLinkage.isShared() && bLinkage.isShared()) {
+//			return 0;
+//		} else if (aLinkage.isShared()) {
+//			return -1;
+//		} else if (bLinkage.isShared()) {
+//			return 1;
+//		}
+//		return 0;
+//	}
+
 	public static <T> T one(Iterable<T> c) {
 		Iterator<T> iterator = c.iterator();
 		Preconditions.checkArgument(iterator.hasNext(), "collection needs to have one element, was empty");
@@ -119,9 +132,9 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 		return result;
 	}
 
-	protected abstract T createVariant(String name, BuildVariant buildVariant, VariantComponentDependencies<?> dependencies);
+	protected abstract T createVariant(String name, BuildVariantInternal buildVariant, VariantComponentDependencies<?> dependencies);
 
-	protected abstract VariantComponentDependencies<?> newDependencies(NamingScheme names, BuildVariant buildVariant);
+	protected abstract VariantComponentDependencies<?> newDependencies(NamingScheme names, BuildVariantInternal buildVariant);
 
 	public void finalizeExtension(Project project) {
 		// TODO: Assert build variant matches dimensions
@@ -246,7 +259,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 	}
 
 	// TODO: BuildVariant and NamedDomainObjectProvider from VariantCollection should be together.
-	protected void onEachVariant(BuildVariant buildVariant, VariantProvider<T> variant, NamingScheme names) {
+	protected void onEachVariant(BuildVariantInternal buildVariant, VariantProvider<T> variant, NamingScheme names) {
 		// TODO: This is dependent per component, for example, iOS will have different target.
 		//  It should be moved lower to the "general" native component
 		if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {

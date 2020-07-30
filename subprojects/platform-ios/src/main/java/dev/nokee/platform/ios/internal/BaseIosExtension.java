@@ -3,7 +3,7 @@ package dev.nokee.platform.ios.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
@@ -33,7 +33,7 @@ public abstract class BaseIosExtension<T extends BaseNativeComponent<?>> {
 	@Inject
 	protected abstract ProviderFactory getProviders();
 
-	protected Iterable<BuildVariant> createBuildVariants() {
+	protected Iterable<BuildVariantInternal> createBuildVariants() {
 		return ImmutableList.of(DefaultBuildVariant.of(DefaultOperatingSystemFamily.forName("ios"), DefaultMachineArchitecture.X86_64, DefaultBinaryLinkage.EXECUTABLE));
 	}
 

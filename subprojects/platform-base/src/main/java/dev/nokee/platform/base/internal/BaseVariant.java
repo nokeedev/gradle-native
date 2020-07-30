@@ -3,7 +3,6 @@ package dev.nokee.platform.base.internal;
 import dev.nokee.utils.Cast;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
-import dev.nokee.utils.Cast;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.gradle.api.DomainObjectSet;
@@ -18,7 +17,7 @@ import javax.inject.Inject;
 public abstract class BaseVariant implements Named {
 	@Getter private final DomainObjectSet<Binary> binaryCollection = getObjects().domainObjectSet(Binary.class);
 	@Getter private final String name;
-	@Getter private final BuildVariant buildVariant;
+	@Getter private final BuildVariantInternal buildVariant;
 
 	@Inject
 	protected abstract ObjectFactory getObjects();

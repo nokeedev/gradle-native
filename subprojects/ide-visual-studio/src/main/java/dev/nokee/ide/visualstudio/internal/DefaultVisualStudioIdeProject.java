@@ -14,10 +14,14 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class DefaultVisualStudioIdeProject implements VisualStudioIdeProject, IdeProjectInternal {
 	@Getter private final String name;
@@ -34,6 +38,9 @@ public abstract class DefaultVisualStudioIdeProject implements VisualStudioIdePr
 
 	@Inject
 	protected abstract ObjectFactory getObjects();
+
+	@Inject
+	protected abstract ProviderFactory getProviders();
 
 	@Override
 	public Provider<FileSystemLocation> getLocation() {
@@ -72,5 +79,10 @@ public abstract class DefaultVisualStudioIdeProject implements VisualStudioIdePr
 	@Override
 	public String getDisplayName() {
 		return "Visual Studio project";
+	}
+
+	@Override
+	public Provider<Set<VisualStudioIdeProjectConfiguration>> getProjectConfigurations() {
+		return getProviders().provider(() -> getTargets().stream().map(VisualStudioIdeTarget::getProjectConfiguration).collect(Collectors.toCollection(LinkedHashSet::new)));
 	}
 }

@@ -12,7 +12,7 @@ trait XcodeIdeTaskNames implements IdeTaskNames {
 
 	@Override
 	IdeWorkspaceTasks getTasks() {
-		return new XcodeIdeSolutionTasks()
+		return new XcodeIdeWorkspaceTasks()
 	}
 
 	static class XcodeIdeProjectTasks implements IdeProjectTasks {
@@ -42,8 +42,8 @@ trait XcodeIdeTaskNames implements IdeTaskNames {
 		}
 	}
 
-	static class XcodeIdeSolutionTasks extends XcodeIdeProjectTasks implements IdeWorkspaceTasks {
-		XcodeIdeSolutionTasks() {
+	static class XcodeIdeWorkspaceTasks extends XcodeIdeProjectTasks implements IdeWorkspaceTasks {
+		XcodeIdeWorkspaceTasks() {
 			super('')
 		}
 

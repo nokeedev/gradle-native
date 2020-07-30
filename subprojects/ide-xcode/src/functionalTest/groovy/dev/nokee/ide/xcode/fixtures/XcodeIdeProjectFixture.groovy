@@ -64,6 +64,12 @@ class XcodeIdeProjectFixture implements IdeProjectFixture {
 		return this
 	}
 
+	@Override
+	IdeProjectFixture assertHasBuildTypes(Iterable<String> buildTypes) {
+		assert projectFile.buildConfigurations*.name as Set == buildTypes as Set
+		return this
+	}
+
 	List<ProjectFixture.PBXTargetFixture> getTargets() {
 		return projectFile.targets
 	}

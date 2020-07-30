@@ -37,16 +37,6 @@ class XcodeIdeSwiftApplicationFunctionalTest extends AbstractXcodeIdeNativeCompo
 	protected String getSchemeName() {
 		return "App"
 	}
-
-	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return tasks.allToLink
-	}
-
-	@Override
-	protected List<String> getAllTasksToXcode() {
-		return super.getAllTasksToXcode() + [tasks.compile]
-	}
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
@@ -101,16 +91,6 @@ class XcodeIdeSwiftApplicationWithNativeTestSuiteFunctionalTest extends Abstract
 	protected String getGroupName() {
 		return 'AppTest'
 	}
-
-	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return [tasks.compile] + tasks.withComponentName('test').allToLink + [tasks.withComponentName('test').relocateMainSymbol]
-	}
-
-	@Override
-	protected List<String> getAllTasksToXcode() {
-		return super.getAllTasksToXcode() + [tasks.compile, tasks.withComponentName('test').compile]
-	}
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
@@ -138,16 +118,6 @@ class XcodeIdeSwiftLibraryFunctionalTest extends AbstractXcodeIdeNativeComponent
 	@Override
 	protected String getSchemeName() {
 		return "Lib"
-	}
-
-	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return tasks.allToLink
-	}
-
-	@Override
-	protected List<String> getAllTasksToXcode() {
-		return super.getAllTasksToXcode() + [tasks.compile]
 	}
 }
 
@@ -203,16 +173,6 @@ class XcodeIdeSwiftLibraryWithNativeTestSuiteFunctionalTest extends AbstractXcod
 	protected String getGroupName() {
 		return 'LibTest'
 	}
-
-	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return [tasks.compile] + tasks.withComponentName('test').allToLink
-	}
-
-	@Override
-	protected List<String> getAllTasksToXcode() {
-		return super.getAllTasksToXcode() + [tasks.compile, tasks.withComponentName('test').compile]
-	}
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
@@ -225,11 +185,6 @@ class XcodeIdeSwiftLibraryWithStaticLinkageFunctionalTest extends XcodeIdeSwiftL
 				targetLinkages = [linkages.static]
 			}
 		"""
-	}
-
-	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return tasks.forStaticLibrary.allToCreate
 	}
 }
 
@@ -259,17 +214,7 @@ class XcodeIdeSwiftLibraryWithBothLinkageFunctionalTest extends XcodeIdeSwiftLib
 	}
 
 	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return tasks.withLinkage('shared').allToLink
-	}
-
-	@Override
 	protected String getSchemeName() {
 		return "${super.getSchemeName()}Shared"
-	}
-
-	@Override
-	protected List<String> getAllTasksToXcode() {
-		return super.getAllTasksToXcode() - [tasks.compile] + [tasks.withLinkage('shared').compile, tasks.withLinkage('static').compile]
 	}
 }

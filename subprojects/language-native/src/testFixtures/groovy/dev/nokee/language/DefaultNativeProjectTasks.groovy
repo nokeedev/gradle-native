@@ -6,14 +6,15 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 	private final String architecture
 	private final String operatingSystemFamily
 	private final String buildType
+	private final String componentName
 	private final String binaryType
 	private final String linkage
 
 	DefaultNativeProjectTasks(String project, String languageTaskSuffix) {
-		this(project, languageTaskSuffix, null, null, '', null, '')
+		this(project, languageTaskSuffix, null, null, '', null, '', '')
 	}
 
-	DefaultNativeProjectTasks(String project, String languageTaskSuffix, String architecture, String operatingSystemFamily, String binaryType, String linkage, String buildType) {
+	DefaultNativeProjectTasks(String project, String languageTaskSuffix, String architecture, String operatingSystemFamily, String binaryType, String linkage, String buildType, String componentName) {
 		this.project = project
 		this.operatingSystemFamily = operatingSystemFamily
 		this.architecture = architecture
@@ -21,22 +22,27 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 		this.binaryType = binaryType
 		this.linkage = linkage
 		this.buildType = buildType
+		this.componentName = componentName
 	}
 
 	DefaultNativeProjectTasks withArchitecture(String architecture) {
-		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType, linkage, buildType)
+		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType, linkage, buildType, componentName)
 	}
 
 	DefaultNativeProjectTasks withLinkage(String linkage) {
-		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType, linkage, buildType)
+		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType, linkage, buildType, componentName)
 	}
 
 	DefaultNativeProjectTasks withProjectPath(String project) {
-		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType, linkage, buildType)
+		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType, linkage, buildType, componentName)
 	}
 
 	DefaultNativeProjectTasks withComponentName(String componentName) {
-		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType, linkage, componentName)
+		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType, linkage, buildType, componentName)
+	}
+
+	DefaultNativeProjectTasks withBuildType(String buildType) {
+		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType, linkage, buildType, componentName)
 	}
 
 	// TODO: This is part of the public API but shouldn't really... used when composing
@@ -55,15 +61,15 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 	}
 
 	DefaultNativeProjectTasks withOperatingSystemFamily(String operatingSystemFamily) {
-		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType, linkage, buildType)
+		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, binaryType, linkage, buildType, componentName)
 	}
 
 	// TODO: Return a specialized type for shared library binary
 	DefaultNativeProjectTasks getForSharedLibrary() {
-		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, 'sharedLibrary', linkage, buildType)
+		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, 'sharedLibrary', linkage, buildType, componentName)
 	}
 	DefaultNativeProjectTasks getForStaticLibrary() {
-		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, 'staticLibrary', linkage, buildType)
+		return new DefaultNativeProjectTasks(project, languageTaskSuffix, architecture, operatingSystemFamily, 'staticLibrary', linkage, buildType, componentName)
 	}
 	String getBinary() {
 		return withProject(withVariant("${binaryType}${buildType.capitalize()}"))
@@ -140,7 +146,7 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 	}
 
 	String getRelocateMainSymbol() {
-		return withProject("relocateMainSymbolFor${buildType.capitalize()}")
+		return withProject("relocateMainSymbolFor${componentName.capitalize()}${buildType.capitalize()}")
 	}
 
 	List<String> getAllToTest() {
@@ -155,10 +161,11 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 	}
 
 	protected String getVariant() {
-		String result = "${buildType.capitalize()}"
+		String result = "${componentName.capitalize()}"
 		if (linkage != null) {
 			result += linkage.toLowerCase().capitalize()
 		}
+		result += buildType.capitalize()
 		if (operatingSystemFamily != null) {
 			result += operatingSystemFamily.toLowerCase().capitalize()
 		}

@@ -55,7 +55,7 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 		super(names, DefaultIosApplicationVariant.class);
 		val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
 		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
-		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
+		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE));
 	}
 
 	public abstract Property<GroupId> getGroupId();
@@ -88,7 +88,7 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 	}
 
 	@Override
-	protected DefaultIosApplicationVariant createVariant(String name, BuildVariant buildVariant, VariantComponentDependencies<?> variantDependencies) {
+	protected DefaultIosApplicationVariant createVariant(String name, BuildVariantInternal buildVariant, VariantComponentDependencies<?> variantDependencies) {
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
 		DefaultIosApplicationVariant result = getObjects().newInstance(DefaultIosApplicationVariant.class, name, names, buildVariant, variantDependencies);
@@ -96,7 +96,7 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 	}
 
 	@Override
-	protected VariantComponentDependencies<NativeComponentDependencies> newDependencies(NamingScheme names, BuildVariant buildVariant) {
+	protected VariantComponentDependencies<NativeComponentDependencies> newDependencies(NamingScheme names, BuildVariantInternal buildVariant) {
 		var variantDependencies = getDependencies();
 		if (getBuildVariants().get().size() > 1) {
 			val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler())));
@@ -126,7 +126,7 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 	protected abstract DependencyHandler getDependencyHandler();
 
 	@Override
-	protected void onEachVariant(BuildVariant buildVariant, VariantProvider<DefaultIosApplicationVariant> variant, NamingScheme names) {
+	protected void onEachVariant(BuildVariantInternal buildVariant, VariantProvider<DefaultIosApplicationVariant> variant, NamingScheme names) {
 		variant.configure(application -> {
 			application.getBinaries().configureEach(ExecutableBinary.class, binary -> {
 				binary.getCompileTasks().configureEach(SourceCompile.class, task -> {

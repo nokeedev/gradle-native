@@ -12,17 +12,15 @@ import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.KnownDomainObject;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
-import dev.nokee.platform.nativebase.ExecutableBinary;
-import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.*;
-import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
-import dev.nokee.platform.nativebase.tasks.LinkExecutable;
-import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
+import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
+import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
@@ -43,7 +41,6 @@ import org.gradle.plugins.ide.internal.IdeProjectMetadata;
 import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -220,62 +217,25 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 			}));
 			xcodeTarget.getProductType().set(toProductType(linkage));
 
-			if (linkage.isShared()) {
-				xcodeTarget.getBuildConfigurations().register("Default", xcodeConfiguration -> {
-					Provider<SharedLibraryBinaryInternal> binary = component.getDevelopmentVariant().flatMap(it -> it.getBinaries().withType(SharedLibraryBinaryInternal.class).getElements().map(b -> b.iterator().next()));
+			val buildTypes = component.getBuildVariants().get().stream().map(b -> b.getAxisValue(BaseTargetBuildType.DIMENSION_TYPE)).collect(Collectors.toSet()); // TODO Maybe use linkedhashset to keep the ordering
+			for (TargetBuildType buildType : buildTypes) {
+				xcodeTarget.getBuildConfigurations().register(((Named)buildType).getName(), xcodeConfiguration -> {
+					Provider<BaseNativeBinary> binary = component.getVariantCollection().filter(it -> it.getBuildVariant().hasAxisOf(buildType)).flatMap(it -> it.iterator().next().getBinaries().withType(BaseNativeBinary.class).getElements().map(b -> b.iterator().next()));
 
-					xcodeConfiguration.getProductLocation().set(binary.flatMap(SharedLibraryBinary::getLinkTask).flatMap(LinkSharedLibrary::getLinkedFile));
+					xcodeConfiguration.getProductLocation().set(binary.flatMap(BaseNativeBinary::getCreateOrLinkTask).flatMap(ObjectFilesToBinaryTask::getBinaryFile));
 					xcodeConfiguration.getBuildSettings()
 						.put("PRODUCT_NAME", "$(TARGET_NAME)")
-						.put("HEADER_SEARCH_PATHS", binary.flatMap(SharedLibraryBinaryInternal::getHeaderSearchPaths).map(this::toSpaceSeparatedList))
-						.put("FRAMEWORK_SEARCH_PATHS", binary.flatMap(SharedLibraryBinaryInternal::getFrameworkSearchPaths).map(this::toSpaceSeparatedList))
+						.put("HEADER_SEARCH_PATHS", binary.flatMap(BaseNativeBinary::getHeaderSearchPaths).map(this::toSpaceSeparatedList))
+						.put("FRAMEWORK_SEARCH_PATHS", binary.flatMap(BaseNativeBinary::getFrameworkSearchPaths).map(this::toSpaceSeparatedList))
 						.put("COMPILER_INDEX_STORE_ENABLE", "YES")
 						.put("USE_HEADERMAP", "NO");
 
 					if (!component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty()) {
 						xcodeConfiguration.getBuildSettings()
 							.put("SWIFT_VERSION", "5.2")
-							.put("SWIFT_INCLUDE_PATHS", binary.flatMap(SharedLibraryBinaryInternal::getImportSearchPaths).map(this::toSpaceSeparatedList));
+							.put("SWIFT_INCLUDE_PATHS", binary.flatMap(BaseNativeBinary::getImportSearchPaths).map(this::toSpaceSeparatedList));
 					}
 				});
-			} else if (linkage.isStatic()) {
-				xcodeTarget.getBuildConfigurations().register("Default", xcodeConfiguration -> {
-					Provider<StaticLibraryBinaryInternal> binary = component.getBinaries().withType(StaticLibraryBinaryInternal.class).filter(it -> it.isBuildable()).map(it -> it.iterator().next());
-
-					xcodeConfiguration.getProductLocation().set(binary.flatMap(StaticLibraryBinaryInternal::getCreateTask).flatMap(CreateStaticLibrary::getOutputFile));
-					xcodeConfiguration.getBuildSettings()
-						.put("PRODUCT_NAME", "$(TARGET_NAME)")
-						.put("HEADER_SEARCH_PATHS", binary.flatMap(StaticLibraryBinaryInternal::getHeaderSearchPaths).map(this::toSpaceSeparatedList))
-						.put("FRAMEWORK_SEARCH_PATHS", binary.flatMap(StaticLibraryBinaryInternal::getFrameworkSearchPaths).map(this::toSpaceSeparatedList))
-						.put("COMPILER_INDEX_STORE_ENABLE", "YES")
-						.put("USE_HEADERMAP", "NO");
-
-					if (!component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty()) {
-						xcodeConfiguration.getBuildSettings()
-							.put("SWIFT_VERSION", "5.2")
-							.put("SWIFT_INCLUDE_PATHS", binary.flatMap(StaticLibraryBinaryInternal::getImportSearchPaths).map(this::toSpaceSeparatedList));
-					}
-				});
-			} else if (linkage.isExecutable()) {
-				xcodeTarget.getBuildConfigurations().register("Default", xcodeConfiguration -> {
-					Provider<ExecutableBinaryInternal> binary = component.getDevelopmentVariant().flatMap(it -> it.getBinaries().withType(ExecutableBinaryInternal.class).getElements().map(b -> b.iterator().next()));
-
-					xcodeConfiguration.getProductLocation().set(binary.flatMap(ExecutableBinary::getLinkTask).flatMap(LinkExecutable::getLinkedFile));
-					xcodeConfiguration.getBuildSettings()
-						.put("PRODUCT_NAME", "$(TARGET_NAME)")
-						.put("HEADER_SEARCH_PATHS", binary.flatMap(ExecutableBinaryInternal::getHeaderSearchPaths).map(this::toSpaceSeparatedList))
-						.put("FRAMEWORK_SEARCH_PATHS", binary.flatMap(ExecutableBinaryInternal::getFrameworkSearchPaths).map(this::toSpaceSeparatedList))
-						.put("COMPILER_INDEX_STORE_ENABLE", "YES")
-						.put("USE_HEADERMAP", "NO");
-
-					if (!component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty()) {
-						xcodeConfiguration.getBuildSettings()
-							.put("SWIFT_VERSION", "5.2")
-							.put("SWIFT_INCLUDE_PATHS", binary.flatMap(ExecutableBinaryInternal::getImportSearchPaths).map(this::toSpaceSeparatedList));
-					}
-				});
-			} else {
-				throw unsupportedLinkage(linkage);
 			}
 
 			xcodeTarget.getSources().from(getProviders().provider(() -> component.getSourceCollection().stream().map(SourceSet::getAsFileTree).collect(Collectors.toList())));
@@ -310,6 +270,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 			xcodeTarget.getProductReference().set(moduleName + ".app");
 			xcodeTarget.getProductType().set(XcodeIdeProductTypes.APPLICATION);
 
+			// TODO: Support build types
 			xcodeTarget.getBuildConfigurations().register("Default", xcodeConfiguration -> {
 				Provider<ExecutableBinaryInternal> binary = component.getDevelopmentVariant().flatMap(it -> it.getBinaries().withType(ExecutableBinaryInternal.class).getElements().map(b -> b.iterator().next()));
 
@@ -432,6 +393,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 				xcodeTarget.getProductReference().set(moduleName + "UnitTest.xctest");
 				xcodeTarget.getProductType().set(XcodeIdeProductTypes.UNIT_TEST);
 
+				// TODO: Support build types
 				xcodeTarget.getBuildConfigurations().register("Default", xcodeConfiguration -> {
 					// Use the unsigned bundle as Xcode will perform the signing
 					xcodeConfiguration.getProductLocation().set(getTasks().named("createUnitTestXCTestBundle", CreateIosXCTestBundleTask.class).flatMap(CreateIosXCTestBundleTask::getXCTestBundle));
@@ -465,6 +427,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 				xcodeTarget.getProductReference().set(moduleName + "UiTest.xctest");
 				xcodeTarget.getProductType().set(XcodeIdeProductTypes.UI_TEST);
 
+				// TODO: Support build types
 				xcodeTarget.getBuildConfigurations().register("Default", xcodeConfiguration -> {
 					xcodeConfiguration.getProductLocation().set(getTasks().named("createUiTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class).flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
 					xcodeConfiguration.getBuildSettings()

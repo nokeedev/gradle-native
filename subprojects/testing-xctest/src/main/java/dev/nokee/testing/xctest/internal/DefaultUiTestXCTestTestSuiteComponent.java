@@ -32,7 +32,7 @@ public abstract class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTe
 	}
 
 	@Override
-	protected void onEachVariant(BuildVariant buildVariant, VariantProvider<DefaultXCTestTestSuiteVariant> variant, NamingScheme names) {
+	protected void onEachVariant(BuildVariantInternal buildVariant, VariantProvider<DefaultXCTestTestSuiteVariant> variant, NamingScheme names) {
 		super.onEachVariant(buildVariant, variant, names);
 
 		variant.configure(testSuite -> {

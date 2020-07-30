@@ -10,17 +10,14 @@ import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
-import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
-import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
@@ -40,6 +37,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
 import org.gradle.language.swift.tasks.SwiftCompile;
+import org.gradle.launcher.daemon.protocol.Build;
 
 import javax.inject.Inject;
 import java.util.LinkedHashSet;
@@ -55,7 +53,7 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 
 		val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
 		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
-		this.getDimensions().convention(ImmutableList.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultBinaryLinkage.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
+		this.getDimensions().convention(ImmutableList.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultBinaryLinkage.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE));
 		this.getBaseName().convention(names.getBaseName().getAsString());
 
 		this.getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
@@ -73,9 +71,9 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 		return getNames().getComponentName();
 	}
 
-	protected Iterable<BuildVariant> createBuildVariants() {
+	protected Iterable<BuildVariantInternal> createBuildVariants() {
 		if (getTestedComponent().isPresent()) {
-			val buildVariantBuilder = new LinkedHashSet<BuildVariant>();
+			val buildVariantBuilder = new LinkedHashSet<BuildVariantInternal>();
 			for (val buildVariant : getTestedComponent().get().getBuildVariants().get()) {
 				val dimensionValues = buildVariant.getDimensions().stream().map(it -> {
 					if (it instanceof DefaultBinaryLinkage) {
@@ -102,7 +100,7 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 	}
 
 	@Override
-	protected VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(NamingScheme names, BuildVariant buildVariant) {
+	protected VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(NamingScheme names, BuildVariantInternal buildVariant) {
 		var variantDependencies = getDependencies();
 		if (getBuildVariants().get().size() > 1) {
 			val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler())));
@@ -129,7 +127,7 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 	}
 
 	@Override
-	protected DefaultNativeTestSuiteVariant createVariant(String name, BuildVariant buildVariant, VariantComponentDependencies<?> variantDependencies) {
+	protected DefaultNativeTestSuiteVariant createVariant(String name, BuildVariantInternal buildVariant, VariantComponentDependencies<?> variantDependencies) {
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
 		val result = getObjects().newInstance(DefaultNativeTestSuiteVariant.class, name, names, buildVariant, variantDependencies);
@@ -157,6 +155,7 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 		if (getTestedComponent().isPresent()) {
 			val component = getTestedComponent().get();
 
+			// TODO: Map name to something close to what is expected
 			getBaseName().convention(component.getBaseName().map(it -> {
 				if (component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty()) {
 					return it + "-" + getName();
@@ -175,36 +174,55 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 				getDependencies().getLinkOnly().getAsConfiguration().extendsFrom(testedComponentDependencies.getLinkOnly().getAsConfiguration());
 				getDependencies().getRuntimeOnly().getAsConfiguration().extendsFrom(testedComponentDependencies.getRuntimeOnly().getAsConfiguration());
 			}
-			getBinaries().configureEach(ExecutableBinary.class, binary -> {
-				Provider<List<? extends FileTree>> componentObjects = component.getBinaries().withType(NativeBinary.class).flatMap(it -> {
-					ImmutableList.Builder<FileTree> result = ImmutableList.builder();
-					result.addAll(it.getCompileTasks().withType(NativeSourceCompileTask.class).getElements().map(t -> {
-						return t.stream().map(a -> {
-							return ((AbstractNativeSourceCompileTask) a).getObjectFileDir().getAsFileTree().matching(UTTypeUtils.onlyIf(UTTypeObjectCode.INSTANCE));
-						}).collect(Collectors.toList());
-					}).get());
+			getVariants().configureEach(variant -> {
+				variant.getBinaries().configureEach(ExecutableBinary.class, binary -> {
+					Provider<List<? extends FileTree>> componentObjects = component.getVariantCollection().filter(it -> ((BuildVariantInternal)it.getBuildVariant()).withoutDimension(DefaultBinaryLinkage.DIMENSION_TYPE).equals(variant.getBuildVariant().withoutDimension(DefaultBinaryLinkage.DIMENSION_TYPE))).map(it -> {
+						ImmutableList.Builder<FileTree> result = ImmutableList.builder();
+						it.stream().flatMap(v -> v.getBinaries().withType(NativeBinary.class).get().stream()).forEach(testedBinary -> {
+							result.addAll(testedBinary.getCompileTasks().withType(NativeSourceCompileTask.class).getElements().map(t -> {
+								return t.stream().map(a -> {
+									return ((AbstractNativeSourceCompileTask) a).getObjectFileDir().getAsFileTree().matching(UTTypeUtils.onlyIf(UTTypeObjectCode.INSTANCE));
+								}).collect(Collectors.toList());
+							}).get());
 
-					result.addAll(it.getCompileTasks().withType(SwiftCompileTask.class).getElements().map(t -> {
-						return t.stream().map(a -> {
-							return ((SwiftCompileTask) a).getObjectFileDir().getAsFileTree().matching(UTTypeUtils.onlyIf(UTTypeObjectCode.INSTANCE));
-						}).collect(Collectors.toList());
-					}).get());
-
-					return result.build();
-				});
-
-				ConfigurableFileCollection objects = getObjects().fileCollection();
-				objects.from(componentObjects);
-				if (component instanceof DefaultNativeApplicationComponent) {
-					val relocateTask = getTasks().register(getNames().getTaskName("relocateMainSymbolFor"), UnexportMainSymbol.class, task -> {
-						task.getObjects().from(componentObjects);
-						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("objs/for-test/" + getNames().getComponentName()));
+							result.addAll(testedBinary.getCompileTasks().withType(SwiftCompileTask.class).getElements().map(t -> {
+								return t.stream().map(a -> {
+									return ((SwiftCompileTask) a).getObjectFileDir().getAsFileTree().matching(UTTypeUtils.onlyIf(UTTypeObjectCode.INSTANCE));
+								}).collect(Collectors.toList());
+							}).get());
+						});
+						return result.build();
 					});
-					objects.setFrom(relocateTask.map(UnexportMainSymbol::getRelocatedObjects));
-				}
-				binary.getLinkTask().configure(task -> {
-					val taskInternal = (LinkExecutableTask)task;
-					taskInternal.source(objects);
+//					Provider<List<? extends FileTree>> componentObjects = component.getBinaries().withType(NativeBinary.class).flatMap(it -> {
+//						ImmutableList.Builder<FileTree> result = ImmutableList.builder();
+//						result.addAll(it.getCompileTasks().withType(NativeSourceCompileTask.class).getElements().map(t -> {
+//							return t.stream().map(a -> {
+//								return ((AbstractNativeSourceCompileTask) a).getObjectFileDir().getAsFileTree().matching(UTTypeUtils.onlyIf(UTTypeObjectCode.INSTANCE));
+//							}).collect(Collectors.toList());
+//						}).get());
+//
+//						result.addAll(it.getCompileTasks().withType(SwiftCompileTask.class).getElements().map(t -> {
+//							return t.stream().map(a -> {
+//								return ((SwiftCompileTask) a).getObjectFileDir().getAsFileTree().matching(UTTypeUtils.onlyIf(UTTypeObjectCode.INSTANCE));
+//							}).collect(Collectors.toList());
+//						}).get());
+//
+//						return result.build();
+//					});
+
+					ConfigurableFileCollection objects = getObjects().fileCollection();
+					objects.from(componentObjects);
+					if (component instanceof DefaultNativeApplicationComponent) {
+						val relocateTask = getTasks().register(variant.getNames().getTaskName("relocateMainSymbolFor"), UnexportMainSymbol.class, task -> {
+							task.getObjects().from(componentObjects);
+							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(variant.getNames().getOutputDirectoryBase("objs/for-test")));
+						});
+						objects.setFrom(relocateTask.map(UnexportMainSymbol::getRelocatedObjects));
+					}
+					binary.getLinkTask().configure(task -> {
+						val taskInternal = (LinkExecutableTask) task;
+						taskInternal.source(objects);
+					});
 				});
 			});
 

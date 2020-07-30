@@ -1,23 +1,30 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.language.c.internal.CSourceSet;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
+import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
+import dev.nokee.runtime.base.internal.DefaultDimensionType;
 import dev.nokee.runtime.base.internal.Dimension;
 import dev.nokee.runtime.base.internal.DimensionType;
+import dev.nokee.runtime.nativebase.MachineArchitecture;
+import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
+import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.gradle.api.GradleException;
 import org.gradle.api.Transformer;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
@@ -26,6 +33,7 @@ import org.gradle.api.provider.ProviderFactory;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 	@Getter private final T component;
@@ -58,40 +66,59 @@ public abstract class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 		};
 	}
 
-	protected Iterable<BuildVariant> createBuildVariants() {
-		if (this instanceof TargetMachineAwareComponent) {
-			Set<TargetMachine> targetMachines = ((TargetMachineAwareComponent) this).getTargetMachines().get();
 
-			ImmutableList.Builder<BuildVariant> buildVariantBuilder = ImmutableList.builder();
-			for (TargetMachine targetMachine : targetMachines) {
-				DefaultTargetMachine targetMachineInternal = (DefaultTargetMachine) targetMachine;
-				ImmutableList.Builder<Dimension> dimensionBuilder = ImmutableList.builder();
-				dimensionBuilder.add(targetMachineInternal.getOperatingSystemFamily(), targetMachineInternal.getArchitecture());
+	@RequiredArgsConstructor
+	private static final class TargetMachineDimension implements Dimension {
+		private static final DimensionType<?> DIMENSION_TYPE = new DefaultDimensionType<>(TargetMachineDimension.class);
+		public final DefaultTargetMachine targetMachine;
 
-				if (component instanceof DefaultNativeApplicationComponent) {
-					dimensionBuilder.add(DefaultBinaryLinkage.EXECUTABLE);
-					buildVariantBuilder.add(DefaultBuildVariant.of(sort(dimensionBuilder.build())));
-				} else if (component instanceof DefaultNativeLibraryComponent) {
-					if (this instanceof TargetLinkageAwareComponent) {
-						Set<TargetLinkage> targetLinkages = ((TargetLinkageAwareComponent) this).getTargetLinkages().get();
-						for (TargetLinkage targetLinkage : targetLinkages) {
-							DefaultBinaryLinkage linkageInternal = (DefaultBinaryLinkage) targetLinkage;
-							val libraryDimensionBuilder = ImmutableList.<Dimension>builder().addAll(dimensionBuilder.build());
-							libraryDimensionBuilder.add(linkageInternal);
-							buildVariantBuilder.add(DefaultBuildVariant.of(sort(libraryDimensionBuilder.build())));
-						}
-					} else {
-						dimensionBuilder.add(DefaultBinaryLinkage.SHARED);
-						buildVariantBuilder.add(DefaultBuildVariant.of(sort(dimensionBuilder.build())));
-					}
-				} else {
-					buildVariantBuilder.add(DefaultBuildVariant.of(sort(dimensionBuilder.build())));
-				}
-			}
-
-			return buildVariantBuilder.build();
+		@Override
+		public DimensionType getType() {
+			return DIMENSION_TYPE;
 		}
-		throw new GradleException("Not able to create the default build variants");
+	}
+
+	protected Iterable<BuildVariantInternal> createBuildVariants() {
+		ImmutableList.Builder<BuildVariantInternal> buildVariantBuilder = ImmutableList.builder();
+
+		ImmutableList.Builder<Set<Dimension>> builder = ImmutableList.builder();
+
+		// Handle operating system family and machine architecture dimension
+		if (this instanceof TargetMachineAwareComponent) {
+			builder.add(((TargetMachineAwareComponent) this).getTargetMachines().get().stream().map(it -> new TargetMachineDimension((DefaultTargetMachine)it)).collect(ImmutableSet.toImmutableSet()));
+		}
+
+		// Handle linkage dimension
+		if (this instanceof TargetLinkageAwareComponent) {
+			Set<TargetLinkage> targetLinkages = ((TargetLinkageAwareComponent) this).getTargetLinkages().get();
+			builder.add(targetLinkages.stream().map(DefaultBinaryLinkage.class::cast).collect(Collectors.toSet()));
+		} else if (component instanceof DefaultNativeApplicationComponent) {
+			builder.add(ImmutableSet.of(DefaultBinaryLinkage.EXECUTABLE));
+		} else if (component instanceof DefaultNativeLibraryComponent) {
+			builder.add(ImmutableSet.of(DefaultBinaryLinkage.SHARED));
+		}
+
+		// Handle build type dimension
+		if (this instanceof TargetBuildTypeAwareComponent) {
+			Set<TargetBuildType> targetBuildTypes = ((TargetBuildTypeAwareComponent) this).getTargetBuildTypes().get();
+			builder.add(targetBuildTypes.stream().map(BaseTargetBuildType.class::cast).collect(ImmutableSet.toImmutableSet()));
+		} else {
+			builder.add(ImmutableSet.of(DefaultTargetBuildTypeFactory.DEFAULT));
+		}
+
+		Sets.cartesianProduct(builder.build()).forEach(dimensions -> {
+			ImmutableList.Builder<Dimension> dimensionBuilder = ImmutableList.builder();
+			dimensions.forEach(dimension -> {
+				if (dimension instanceof TargetMachineDimension) {
+					dimensionBuilder.add(((TargetMachineDimension) dimension).targetMachine.getOperatingSystemFamily());
+					dimensionBuilder.add(((TargetMachineDimension) dimension).targetMachine.getArchitecture());
+				} else {
+					dimensionBuilder.add(dimension);
+				}
+			});
+			buildVariantBuilder.add(DefaultBuildVariant.of(sort(dimensionBuilder.build())));
+		});
+		return buildVariantBuilder.build();
 	}
 
 	private Iterable<Dimension> sort(Collection<Dimension> dimensionsToOrder) {
@@ -108,6 +135,10 @@ public abstract class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 
 	public DefaultTargetLinkageFactory getLinkages() {
 		return DefaultTargetLinkageFactory.INSTANCE;
+	}
+
+	public DefaultTargetBuildTypeFactory getBuildTypes() {
+		return DefaultTargetBuildTypeFactory.INSTANCE;
 	}
 
 	public BinaryView<Binary> getBinaries() {

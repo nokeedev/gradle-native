@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.utils.Cast;
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.platform.base.Binary;
@@ -42,7 +43,7 @@ public abstract class BaseComponent<T extends Variant> {
 	public abstract SetProperty<DimensionType> getDimensions();
 
 	// TODO: We may want to model this as a BuildVariantRegistry for more richness than a plain set
-	public abstract SetProperty<BuildVariant> getBuildVariants();
+	public abstract SetProperty<BuildVariantInternal> getBuildVariants();
 
 	public abstract Property<T> getDevelopmentVariant();
 

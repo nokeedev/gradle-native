@@ -2,7 +2,7 @@ package dev.nokee.platform.nativebase.internal.dependencies;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
@@ -29,7 +29,7 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 	private final ConfigurationUtils builder = getObjects().newInstance(ConfigurationUtils.class);
 
 	@Inject
-	public AbstractNativeLibraryOutgoingDependencies(NamingScheme names, BuildVariant buildVariant, DefaultNativeLibraryComponentDependencies dependencies) {
+	public AbstractNativeLibraryOutgoingDependencies(NamingScheme names, BuildVariantInternal buildVariant, DefaultNativeLibraryComponentDependencies dependencies) {
 
 		Configuration linkElements = getConfigurations().create(names.getConfigurationName("linkElements"), builder.asOutgoingLinkLibrariesFrom(dependencies.getApi().getAsConfiguration(), dependencies.getLinkOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(names.getConfigurationDescription("Link elements for %s.")));
 		Configuration runtimeElements = getConfigurations().create(names.getConfigurationName("runtimeElements"), builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getRuntimeOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(names.getConfigurationDescription("Runtime elements for %s.")));
