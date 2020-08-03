@@ -55,7 +55,9 @@ Actual: \${actual[key]}
                             throw new GradleException("could not determine if $ideCommandLineTool is using the correct environment, did $ideTaskName task run?")
                         } else {
                             def expectedEnvironment = new Properties()
-                            expectedEnvironment.load(gradleEnvironment.newInputStream())
+                            gradleEnvironment.withInputStream { inStream ->
+                            	expectedEnvironment.load(inStream)
+                            }
 
                             def actualEnvironment = gatherEnvironment()
 
