@@ -311,6 +311,9 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 		project.getGradle().getStartParameter().getInitScripts().forEach(initScriptFile -> {
 			result.add("--init-script", quote(initScriptFile.getAbsolutePath()));
 		});
+		project.getGradle().getStartParameter().getSystemPropertiesArgs().forEach((key, value) -> {
+			result.add(quote("-D" + key + "=" + value));
+		});
 		return result.build();
 	}
 
