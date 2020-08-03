@@ -38,6 +38,7 @@ void subproject(String path, Closure closure = {}) {
 }
 
 subproject('build-adapter-cmake')
+subproject('build-adapter-xcode')
 subproject('core-exec')
 subproject('core-model')
 subproject('core-model')

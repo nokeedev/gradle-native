@@ -1,0 +1,46 @@
+plugins {
+	id 'nokeebuild.java-gradle-plugin'
+	id 'nokeebuild.gradle-plugin-unit-test'
+	id 'nokeebuild.gradle-plugin-functional-test'
+	id 'nokeebuild.gradle-plugin-integration-test'
+	id 'maven-publish'
+}
+
+dependencies {
+	implementation project(':coreExec') // for build adapter
+	implementation project(':platformNative')
+	implementation project(':runtimeBase')
+	implementation project(':runtimeNative')
+	implementation project(':runtimeDarwin')
+	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "commons-io:commons-io:${commonsIoVersion}"
+	implementation 'com.google.code.gson:gson:2.8.6'
+	implementation 'org.simpleframework:simple-xml:2.7.1'
+	implementation "com.googlecode.plist:dd-plist:${ddPlist}"
+
+	implementation 'org.eclipse.jgit:org.eclipse.jgit:5.8.0.202006091008-r'
+}
+
+gradlePlugin {
+	plugins {
+		xcodeBuildAdapter {
+			id = 'dev.nokee.xcode-build-adapter'
+			implementationClass = 'dev.nokee.buildadapter.xcode.internal.plugins.XcodeBuildAdapterPlugin'
+		}
+	}
+}
+
+integrationTest {
+	dependencies {
+		implementation 'dev.nokee:templates'
+	}
+}
+
+functionalTest {
+	dependencies {
+		pluginUnderTestMetadata project(':platformNative')
+		implementation project(':platformNative')
+		implementation project(':testingBase')
+		implementation 'dev.nokee:templates:latest.integration'
+	}
+}
