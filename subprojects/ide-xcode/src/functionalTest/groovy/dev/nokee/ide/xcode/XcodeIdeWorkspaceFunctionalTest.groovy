@@ -31,7 +31,7 @@ class XcodeIdeWorkspaceFunctionalTest extends AbstractXcodeIdeFunctionalSpec {
 
 		then:
 		def result = xcodebuild.withWorkspace(xcodeWorkspace('app')).withArgument('-list').execute()
-		result.out.contains('There are no schemes in workspace "app".')
+		result.standardOutput.asString.contains('There are no schemes in workspace "app".')
 	}
 
 	def "uses root project name as Xcode workspace filename"() {

@@ -72,6 +72,11 @@ public abstract class AbstractIdeExecutor<T extends AbstractIdeExecutor<T>> {
 		return builder;
 	}
 
+	public CommandLineToolExecutionResult execute() {
+		withArgument(asArgument(getDefaultIdeAction()));
+		return doExecute();
+	}
+
 	public ExecutionResult run() {
 		return run(getDefaultIdeAction());
 	}
