@@ -17,7 +17,7 @@ class VisualStudioIdeSolutionFixture {
 //		assert TextUtil.convertLineSeparators(solutionFile.text, TextUtil.windowsLineSeparator) == solutionFile.text : "Solution file contains non-windows line separators"
 
 		content = TextUtil.normaliseLineSeparators(solutionFile.text)
-		content.findAll(~/(?m)^Project\(\"\{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942\}\"\) = \"(\w+)\", \"([^\"]*)\", \"\{([\w\-]+)\}\"$/, {
+		content.findAll(~/(?m)^Project\(\"\{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942\}\"\) = \"([\w\-]+)\", \"([^\"]*)\", \"\{([\w\-]+)\}\"$/, {
 			projects.put(it[1], new ProjectReference(it[1], it[2], it[3]))
 		})
 	}
@@ -31,6 +31,10 @@ class VisualStudioIdeSolutionFixture {
 	}
 
 	void assertHasProjects(String... names) {
+		assert projects.keySet() == names as Set
+	}
+
+	void assertHasProjects(Iterable<String> names) {
 		assert projects.keySet() == names as Set
 	}
 //

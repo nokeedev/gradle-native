@@ -43,6 +43,23 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		return [":${visualStudioProjectName}VisualStudioProject", ':visualStudioSolution', ':visualStudio']
 	}
 
+	protected List<String> getExpectedProjectNames() {
+		def className = this.class.simpleName
+		def result = []
+		if (className.contains('Application')) {
+			result.add('app')
+		} else if (className.contains('Library')) {
+			result.add('lib')
+		} else {
+			throw new UnsupportedOperationException()
+		}
+
+		if (className.contains('WithNativeTestSuite')) {
+			result.addAll(result.collect { "${it}-test" })
+		}
+		return result
+	}
+
 	protected String getVisualStudioIdeBridge() {
 		return ":_visualStudio__build_${visualStudioProject.toLowerCase()}_Default_x64"
 	}
@@ -92,6 +109,19 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 
 		then:
 		visualStudioProjectUnderTest.assertHasSourceLayout(componentUnderTest.sources.files.collect { "Source Files/${it.name}".toString() } + componentUnderTest.headers.files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
+	}
+
+	def "all projects appears in solution"() {
+		given:
+		settingsFile << configureProjectName()
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+
+		when:
+		succeeds('visualStudio')
+
+		then:
+		visualStudioSolutionUnderTest.assertHasProjects(expectedProjectNames)
 	}
 
 	@Requires({SystemUtils.IS_OS_WINDOWS})
