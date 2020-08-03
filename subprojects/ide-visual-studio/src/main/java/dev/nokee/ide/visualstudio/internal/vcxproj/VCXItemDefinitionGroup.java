@@ -21,7 +21,8 @@ public class VCXItemDefinitionGroup {
 
 	@ElementListUnion({
 		@ElementList(inline = true, type = VCXClCompile.Definition.class),
-		@ElementList(inline = true, type = VCXLink.Definition.class)
+		@ElementList(inline = true, type = VCXLink.Definition.class),
+		@ElementList(inline = true, type = VCXBuildLog.Definition.class)
 	})
 	List<? extends VCXItemDefinition> definitions;
 
