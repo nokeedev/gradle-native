@@ -10,16 +10,16 @@ abstract class IdeCommandLineUtils {
 
 	static String generateGradleProbeInitFile(String ideTaskName, String ideCommandLineTool) {
 		return """
-            gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS_FULL
-            Properties gatherEnvironment() {
-                Properties properties = new Properties()
-                properties.JAVA_HOME = String.valueOf(System.getenv('JAVA_HOME'))
-                properties.GRADLE_USER_HOME = String.valueOf(gradle.gradleUserHomeDir.absolutePath)
-                properties.GRADLE_OPTS = String.valueOf(System.getenv().getOrDefault('GRADLE_OPTS', ''))
-                return properties
-            }
+			gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS_FULL
+			Properties gatherEnvironment() {
+				Properties properties = new Properties()
+				properties.JAVA_HOME = String.valueOf(System.getenv('JAVA_HOME'))
+				properties.GRADLE_USER_HOME = String.valueOf(gradle.gradleUserHomeDir.absolutePath)
+				properties.GRADLE_OPTS = String.valueOf(System.getenv().getOrDefault('GRADLE_OPTS', ''))
+				return properties
+			}
 
-            void assertEquals(key, expected, actual) {
+			void assertEquals(key, expected, actual) {
 				String actualValue = actual[key]
 				if (key == 'GRADLE_OPTS') {
 					// macOS adds Xdock properties in a funky way.
@@ -30,45 +30,45 @@ abstract class IdeCommandLineUtils {
 						actualValue = actualValue.substring(0, lastIndex - 1)
 					}
 				}
-                assert expected[key] == actualValue
-                if (expected[key] != actualValue) {
-                    throw new GradleException(""\"
+				assert expected[key] == actualValue
+				if (expected[key] != actualValue) {
+					throw new GradleException(""\"
 Environment's \$key did not match!
 Expected: \${expected[key]}
 Actual: \${actual[key]}
 ""\")
-                }
-            }
+				}
+			}
 
-            rootProject {
-                def gradleEnvironment = file("gradle-environment")
-                tasks.matching { it.name == '$ideTaskName' }.all { ideTask ->
-                    ideTask.doLast {
-                        def writer = gradleEnvironment.newOutputStream()
-                        gatherEnvironment().store(writer, null)
-                        writer.close()
-                    }
-                }
-                gradle.taskGraph.whenReady { taskGraph ->
-                    taskGraph.allTasks.last().doLast {
-                        if (!gradleEnvironment.exists()) {
-                            throw new GradleException("could not determine if $ideCommandLineTool is using the correct environment, did $ideTaskName task run?")
-                        } else {
-                            def expectedEnvironment = new Properties()
-                            gradleEnvironment.withInputStream { inStream ->
-                            	expectedEnvironment.load(inStream)
-                            }
+			rootProject {
+				def gradleEnvironment = file("gradle-environment")
+				tasks.matching { it.name == '$ideTaskName' }.all { ideTask ->
+					ideTask.doLast {
+						def writer = gradleEnvironment.newOutputStream()
+						gatherEnvironment().store(writer, null)
+						writer.close()
+					}
+				}
+				gradle.taskGraph.whenReady { taskGraph ->
+					taskGraph.allTasks.last().doLast {
+						if (!gradleEnvironment.exists()) {
+							throw new GradleException("could not determine if $ideCommandLineTool is using the correct environment, did $ideTaskName task run?")
+						} else {
+							def expectedEnvironment = new Properties()
+							gradleEnvironment.withInputStream { inStream ->
+								expectedEnvironment.load(inStream)
+							}
 
-                            def actualEnvironment = gatherEnvironment()
+							def actualEnvironment = gatherEnvironment()
 
-                            assertEquals('JAVA_HOME', expectedEnvironment, actualEnvironment)
-                            assertEquals('GRADLE_USER_HOME', expectedEnvironment, actualEnvironment)
-                            assertEquals('GRADLE_OPTS', expectedEnvironment, actualEnvironment)
-                        }
-                    }
-                }
-            }
-        """
+							assertEquals('JAVA_HOME', expectedEnvironment, actualEnvironment)
+							assertEquals('GRADLE_USER_HOME', expectedEnvironment, actualEnvironment)
+							assertEquals('GRADLE_OPTS', expectedEnvironment, actualEnvironment)
+						}
+					}
+				}
+			}
+		"""
 	}
 
 	static List<String> buildEnvironment(TestFile testDirectory) {
