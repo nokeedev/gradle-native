@@ -89,7 +89,7 @@ class VisualStudioIdeCApplicationWithNativeTestSuiteFunctionalTest extends Abstr
 
 	@Override
 	protected List<String> getAllTasksForBuildAction() {
-		return tasks.allToCompile + tasks.withComponentName('test').allToLink
+		return [tasks.compile] + tasks.withComponentName('test').allToLink + [tasks.withComponentName('test').relocateMainSymbol]
 	}
 }
 
@@ -175,7 +175,7 @@ class VisualStudioIdeCLibraryWithNativeTestSuiteFunctionalTest extends AbstractV
 
 	@Override
 	protected List<String> getAllTasksForBuildAction() {
-		return tasks.allToCompile + tasks.withComponentName('test').allToLink
+		return [tasks.compile] + tasks.withComponentName('test').allToLink
 	}
 }
 

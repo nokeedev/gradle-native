@@ -25,15 +25,16 @@ class AbstractVisualStudioIdeFunctionalSpec extends AbstractGradleSpecification 
 
 	protected MSBuildExecutor getMsbuild() {
 		// TODO: Ensure the following
-//		// Gradle needs to be isolated so the xcodebuild does not leave behind daemons
-//		assert executer.isRequiresGradleDistribution()
-//		assert !executer.usesSharedDaemons()
+		// Gradle needs to be isolated so the xcodebuild does not leave behind daemons
+		assert executer.usesGradleDistribution()
+		assert !executer.usesSharedDaemons()
+		assert executer.usesDaemon()
 		return new MSBuildExecutor(testDirectory)
 	}
 
 	void useMSBuildTool() {
 		// TODO: Ensure the following
-//		executer.requireIsolatedDaemons()
+		executer = executer.requireIsolatedDaemons().requireGradleDistribution().requireDaemon()
 
 		def initScript = file("init.gradle")
 		initScript << IdeCommandLineUtils.generateGradleProbeInitFile('visualStudio', 'msbuild')

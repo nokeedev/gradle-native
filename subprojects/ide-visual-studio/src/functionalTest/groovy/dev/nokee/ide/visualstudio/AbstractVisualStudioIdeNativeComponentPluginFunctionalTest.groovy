@@ -8,12 +8,8 @@ import spock.lang.Requires
 
 abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractVisualStudioIdeFunctionalSpec {
 	protected String configureProjectName() {
-		String projectName = 'app'
-		if (this.class.simpleName.contains('Library')) {
-			projectName = 'lib'
-		}
 		return """
-			rootProject.name = '${projectName}'
+			rootProject.name = '${solutionName}'
 		"""
 	}
 
@@ -26,7 +22,11 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 	protected abstract String getVisualStudioProjectName()
 
 	protected String getSolutionName() {
-		return visualStudioProjectName
+		String solutionName = 'app'
+		if (this.class.simpleName.contains('Library')) {
+			solutionName = 'lib'
+		}
+		return solutionName
 	}
 
 	protected VisualStudioIdeProjectFixture getVisualStudioProjectUnderTest() {
@@ -61,7 +61,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 	}
 
 	protected String getVisualStudioIdeBridge() {
-		return ":_visualStudio__build_${visualStudioProject.toLowerCase()}_Default_x64"
+		return ":_visualStudio__build_${visualStudioProjectName.toLowerCase()}_Default_x64"
 	}
 
 	def "creates Visual Studio project delegating to Gradle"() {
@@ -129,7 +129,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		useMSBuildTool()
 
 		given:
-		settingsFile << configureProjectName()
+		settingsFile << configurePluginClasspathAsBuildScriptDependencies() << configureProjectName()
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)
 		run "visualStudio"

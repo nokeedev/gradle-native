@@ -91,7 +91,7 @@ class VisualStudioIdeCppApplicationWithNativeTestSuiteFunctionalTest extends Abs
 
 	@Override
 	protected List<String> getAllTasksForBuildAction() {
-		return tasks.allToCompile + tasks.withComponentName('test').allToLink
+		return [tasks.compile] + tasks.withComponentName('test').allToLink + [tasks.withComponentName('test').relocateMainSymbol]
 	}
 }
 
@@ -177,7 +177,7 @@ class VisualStudioIdeCppLibraryWithNativeTestSuiteFunctionalTest extends Abstrac
 
 	@Override
 	protected List<String> getAllTasksForBuildAction() {
-		return tasks.allToCompile + tasks.withComponentName('test').allToLink
+		return [tasks.compile] + tasks.withComponentName('test').allToLink
 	}
 }
 
