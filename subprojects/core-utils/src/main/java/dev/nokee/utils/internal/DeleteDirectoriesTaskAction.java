@@ -25,9 +25,7 @@ public class DeleteDirectoriesTaskAction implements Action<Task> {
 
 	@SneakyThrows
 	private void deleteDirectory(File directory) {
-		System.out.println("HEY " + directory);
 		FileUtils.deleteDirectory(directory);
-		System.out.println("B " + directory.exists());
 	}
 
 	private Object unpackToFile(Object obj) {
