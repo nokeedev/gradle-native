@@ -1,11 +1,13 @@
 package dev.nokee.utils;
 
+import dev.nokee.utils.internal.AssertingTaskAction;
 import dev.nokee.utils.internal.DeleteDirectoriesTaskAction;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 /**
  * Utilities for Gradle {@link Task} {@link Action}.
@@ -33,5 +35,18 @@ public class TaskActionUtils {
 	 */
 	public static Action<Task> deleteDirectories(Iterable<Object> directories) {
 		return new DeleteDirectoriesTaskAction(directories);
+	}
+
+	/**
+	 * Assert the supplied expression is true as a Task action.
+	 * The expression will be evaluated only once when the task action will be executed.
+	 *
+	 * @param expression expression to assert true
+	 * @param errorMessage error message to include in the exception
+	 * @return an action that assert the specified expression is true or else it will throw an {@link IllegalArgumentException}.
+	 * @throws IllegalArgumentException if the expression is {@code false}.
+	 */
+	public static Action<Task> assertTrue(Supplier<Boolean> expression, Object errorMessage) {
+		return new AssertingTaskAction(expression, errorMessage);
 	}
 }

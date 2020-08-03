@@ -1,11 +1,14 @@
 package dev.nokee.utils
 
+import dev.nokee.utils.internal.AssertingTaskAction
 import org.gradle.api.Task
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 import spock.lang.Subject
+
+import java.util.function.Supplier
 
 @Subject(TaskActionUtils)
 class TaskActionUtilsTest extends Specification {
@@ -35,5 +38,17 @@ class TaskActionUtilsTest extends Specification {
 		!a.exists()
 		!b.exists()
 		c.exists()
+	}
+
+	def "can create asserting task action"() {
+		given:
+		def expression = Mock(Supplier)
+		def errorMessage  = 'error!'
+
+		when:
+		def action = TaskActionUtils.assertTrue(expression, errorMessage)
+
+		then:
+		action instanceof AssertingTaskAction
 	}
 }
