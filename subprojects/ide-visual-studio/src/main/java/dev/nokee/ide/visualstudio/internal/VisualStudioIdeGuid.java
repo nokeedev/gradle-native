@@ -29,7 +29,7 @@ public class VisualStudioIdeGuid {
 	 * @return the GUID wrapped in curly braces, never null.
 	 */
 	public String getAsString() {
-		return "{" + uuid.toString() + "}";
+		return "{" + uuid.toString().toUpperCase() + "}";
 	}
 
 	/**
