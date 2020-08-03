@@ -35,17 +35,17 @@ public abstract class GenerateVisualStudioIdeSolutionTask extends DefaultTask {
 			out.println("VisualStudioVersion = 16.0.30225.117");
 			out.println("MinimumVisualStudioVersion = 10.0.40219.1");
 			getProjectInformations().get().forEach(info -> {
-				out.println("Project(\"{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}\") = \"" + FilenameUtils.removeExtension(info.getProjectLocation().getName()) + "\", \"" + info.getProjectLocation().getAbsolutePath() + "\", \"{" + info.getProjectGuid().toString() + "}\"");
+				out.println("Project(\"{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}\") = \"" + FilenameUtils.removeExtension(info.getProjectLocation().getName()) + "\", \"" + info.getProjectLocation().getAbsolutePath() + "\", \"" + info.getProjectGuid().getAsString() + "\"");
+				out.println("EndProject");
 			});
-			out.println("EndProject");
 			out.println("Global");
 			out.println("	GlobalSection(SolutionConfigurationPlatforms) = preSolution");
 			out.println("		Default|x64 = Default|x64");
 			out.println("	EndGlobalSection");
 			out.println("	GlobalSection(ProjectConfigurationPlatforms) = postSolution");
 			getProjectInformations().get().forEach(info -> {
-				out.println(String.format("		{%s}.Default|x64.ActiveCfg = Default|x64", info.getProjectGuid().toString()));
-				out.println(String.format("		{%s}.Default|x64.Build.0 = Default|x64", info.getProjectGuid().toString()));
+				out.println(String.format("		%s.Default|x64.ActiveCfg = Default|x64", info.getProjectGuid().getAsString()));
+				out.println(String.format("		%s.Default|x64.Build.0 = Default|x64", info.getProjectGuid().getAsString()));
 			});
 			out.println("	EndGlobalSection");
 			out.println("	GlobalSection(SolutionProperties) = preSolution");
