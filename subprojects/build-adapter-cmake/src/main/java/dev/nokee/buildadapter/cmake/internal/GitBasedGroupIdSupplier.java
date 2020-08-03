@@ -38,8 +38,8 @@ public class GitBasedGroupIdSupplier implements Supplier<String> {
 	}
 
 	private static String computeGroupIdFromGitRepository(File gitRepositoryDirectory) {
-		try {
-			val remotes = Git.open(gitRepositoryDirectory).remoteList().call();
+		try (val git = Git.open(gitRepositoryDirectory)) {
+			val remotes = git.remoteList().call();
 			if (remotes.isEmpty()) {
 				throw new RuntimeException(String.format("Unable to compute group ID from Git repository '%s' because no remotes are available.", gitRepositoryDirectory.getAbsolutePath()));
 			}
