@@ -189,7 +189,7 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 
 		workspaceExtension.getWorkspace().getGeneratorTask().configure(task -> {
 			task.getSolutionLocation().set(getLayout().getProjectDirectory().file(getProject().getName() + ".sln"));
-			task.getProjectInformations().set(getArtifactRegistry().getIdeProjects(VisualStudioIdeProjectMetadata.class).stream().map(it -> new VisualStudioIdeProjectInformation(it.get())).collect(Collectors.toList()));
+			task.getProjectInformations().set(getProviders().provider(() -> getArtifactRegistry().getIdeProjects(VisualStudioIdeProjectMetadata.class).stream().map(it -> new VisualStudioIdeProjectInformation(it.get())).collect(Collectors.toList())));
 		});
 
 		// Clean .vs directory and warn user if solution is locked
