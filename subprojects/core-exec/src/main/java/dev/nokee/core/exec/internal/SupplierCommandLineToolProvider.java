@@ -16,17 +16,25 @@ public class SupplierCommandLineToolProvider implements CommandLineToolProvider 
 
 	@Override
 	public CommandLineTool get() {
-		if (isAvailable()) {
-			return suppliedTool;
+		try {
+			if (isAvailableAndPassAlongExceptions()) {
+				return suppliedTool;
+			}
+			throw new IllegalArgumentException("Don't know how to provide this tool.");
+		} catch (Throwable ex) {
+			throw new IllegalArgumentException("Don't know how to provide this tool.", ex);
 		}
-		throw new IllegalArgumentException("Don't know how to provide this tool.");
+	}
+
+	private boolean isAvailableAndPassAlongExceptions() {
+		resolveTool();
+		return suppliedTool != null;
 	}
 
 	@Override
 	public boolean isAvailable() {
 		try {
-			resolveTool();
-			return toolSupplier != null;
+			return isAvailableAndPassAlongExceptions();
 		} catch (Throwable ex) {
 			return false;
 		}
