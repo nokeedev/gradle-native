@@ -102,7 +102,7 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 
 		then:
 		def result = xcodebuild.withWorkspace(xcodeWorkspace('app.xcworkspace')).withArgument('-list').execute()
-		result.out.contains('''Information about workspace "app":
+		result.standardOutput.asString.contains('''Information about workspace "app":
 			|    Schemes:
 			|        App'''.stripMargin())
 	}
