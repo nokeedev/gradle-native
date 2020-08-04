@@ -1,12 +1,13 @@
 package dev.nokee.ide.visualstudio
 
+import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeSolutionFixture
 import org.apache.commons.lang3.SystemUtils
 import spock.lang.Requires
 
-abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractVisualStudioIdeFunctionalSpec {
+abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractGradleSpecification implements VisualStudioIdeFixture {
 	protected String configureProjectName() {
 		return """
 			rootProject.name = '${solutionName}'
@@ -126,7 +127,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 
 	@Requires({SystemUtils.IS_OS_WINDOWS})
 	def "build generated visual studio solution"() {
-		useMSBuildTool()
+		using msbuildTool
 
 		given:
 		settingsFile << configurePluginClasspathAsBuildScriptDependencies() << configureProjectName()

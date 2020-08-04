@@ -1,12 +1,13 @@
 package dev.nokee.ide.xcode
 
+import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.nokee.platform.jni.JvmJarBinary
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
 import dev.nokee.platform.nativebase.SharedLibraryBinary
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal
 import org.gradle.internal.os.OperatingSystem
 
-class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalSpec implements JavaObjectiveCJniLibraryXcodeIdeFixture {
+class JniLibraryComposingXcodeFunctionalTest extends AbstractGradleSpecification implements JavaObjectiveCJniLibraryXcodeIdeFixture, XcodeIdeFixture {
 	protected void makeSingleProject() {
 		settingsFile << "rootProject.name = 'jni-greeter'"
 		buildFile << """

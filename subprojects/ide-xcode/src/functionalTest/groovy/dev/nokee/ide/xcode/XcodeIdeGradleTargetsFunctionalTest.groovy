@@ -1,8 +1,9 @@
 package dev.nokee.ide.xcode
 
+import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import spock.lang.Unroll
 
-class XcodeIdeGradleTargetsFunctionalTest extends AbstractXcodeIdeFunctionalSpec {
+class XcodeIdeGradleTargetsFunctionalTest extends AbstractGradleSpecification implements XcodeIdeFixture {
 	protected void makeProjectWithSubproject() {
 		settingsFile << """
 			rootProject.name = 'foo'

@@ -1,5 +1,6 @@
 package dev.nokee.ide.xcode
 
+import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.ide.xcode.fixtures.XcodeIdeProjectFixture
 import dev.nokee.ide.xcode.fixtures.XcodeIdeWorkspaceFixture
@@ -7,7 +8,7 @@ import dev.nokee.platform.nativebase.internal.OperatingSystemOperations
 import org.apache.commons.lang3.SystemUtils
 import spock.lang.Requires
 
-abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends AbstractXcodeIdeFunctionalSpec {
+abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends AbstractGradleSpecification implements XcodeIdeFixture {
 	protected String configureProjectName() {
 		String projectName = 'app'
 		if (this.class.simpleName.contains('Library')) {
@@ -140,7 +141,7 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 
 	@Requires({ SystemUtils.IS_OS_MAC })
 	def "can build from Xcode IDE"() {
-		useXcodebuildTool()
+		using xcodebuildTool
 		settingsFile << configurePluginClasspathAsBuildScriptDependencies() << configureProjectName()
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)
@@ -158,7 +159,7 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 
 	@Requires({ SystemUtils.IS_OS_MAC })
 	def "can build from Xcode IDE without source"() {
-		useXcodebuildTool()
+		using xcodebuildTool
 		settingsFile << configurePluginClasspathAsBuildScriptDependencies() << configureProjectName()
 		makeSingleProjectWithoutSources()
 
@@ -176,7 +177,7 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 
 	@Requires({ SystemUtils.IS_OS_MAC })
 	def "relocates xcode derived data relative to workspace"() {
-		useXcodebuildTool()
+		using xcodebuildTool
 		settingsFile << configurePluginClasspathAsBuildScriptDependencies() << configureProjectName()
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)

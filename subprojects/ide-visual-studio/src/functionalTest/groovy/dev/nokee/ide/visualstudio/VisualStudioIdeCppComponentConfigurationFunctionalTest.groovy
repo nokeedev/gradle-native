@@ -1,5 +1,6 @@
 package dev.nokee.ide.visualstudio
 
+import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.nokee.language.cpp.CppTaskNames
 import dev.nokee.language.cpp.tasks.CppCompile
@@ -8,7 +9,7 @@ import dev.nokee.platform.nativebase.fixtures.CppGreeterApp
 import dev.nokee.platform.nativebase.fixtures.CppGreeterLib
 import spock.lang.Unroll
 
-abstract class AbstractVisualStudioIdeCppComponentConfigurationFunctionalTest extends AbstractVisualStudioIdeFunctionalSpec implements CppTaskNames {
+abstract class AbstractVisualStudioIdeCppComponentConfigurationFunctionalTest extends AbstractGradleSpecification implements VisualStudioIdeFixture, CppTaskNames {
 	@Unroll
 	def "configures C++ language support in generated projects"(compilerFlag, expectedLanguageStandard, uniqueIndex) {
 		given:

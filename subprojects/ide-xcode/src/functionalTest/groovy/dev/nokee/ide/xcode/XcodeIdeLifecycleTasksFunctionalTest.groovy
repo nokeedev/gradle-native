@@ -1,8 +1,9 @@
 package dev.nokee.ide.xcode
 
+import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import org.gradle.internal.logging.ConsoleRenderer
 
-class XcodeIdeLifecycleTasksFunctionalTest extends AbstractXcodeIdeFunctionalSpec {
+class XcodeIdeLifecycleTasksFunctionalTest extends AbstractGradleSpecification implements XcodeIdeFixture {
 	def "lifecycle task generate the project's ide files only"() {
 		given:
 		settingsFile << "include 'bar'"

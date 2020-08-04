@@ -1,5 +1,7 @@
 package dev.nokee.ide.xcode
 
+import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
+import dev.gradleplugins.test.fixtures.gradle.executer.internal.AbstractGradleDistribution
 import dev.gradleplugins.test.fixtures.sources.SourceElement
 import dev.gradleplugins.test.fixtures.sources.SourceFile
 import dev.nokee.platform.ios.fixtures.ObjectiveCIosApp
@@ -8,7 +10,7 @@ import spock.lang.Requires
 
 import static org.junit.Assume.assumeTrue
 
-abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctionalSpec {
+abstract class IosApplicationXcodeFunctionalTest extends AbstractGradleSpecification implements XcodeIdeFixture {
 	def "adds the Xcode project to the workspace"() {
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)
@@ -92,7 +94,7 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 	}
 
 	def "xcodebuild sees the scheme of the target"() {
-		useXcodebuildTool()
+		using xcodebuildTool
 		settingsFile << configurePluginClasspathAsBuildScriptDependencies()
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)
@@ -111,7 +113,7 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 	def "can build iOS application from Xcode IDE"() {
 		assumeTrue('iOS application does not support no source', hasSourcesToBuild())
 
-		useXcodebuildTool()
+		using xcodebuildTool
 		settingsFile << configurePluginClasspathAsBuildScriptDependencies()
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)
@@ -131,7 +133,7 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 	def "can build iOS application from Xcode IDE multiple time"() {
 		assumeTrue('iOS application does not support no source', hasSourcesToBuild())
 
-		useXcodebuildTool()
+		using xcodebuildTool
 		settingsFile << configurePluginClasspathAsBuildScriptDependencies()
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)

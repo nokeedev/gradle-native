@@ -1,8 +1,9 @@
 package dev.nokee.ide.xcode
 
+import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import spock.lang.Unroll
 
-class XcodeIdeIndexerTargetsFunctionalTest extends AbstractXcodeIdeFunctionalSpec {
+class XcodeIdeIndexerTargetsFunctionalTest extends AbstractGradleSpecification implements XcodeIdeFixture {
 	@Unroll
 	def "creates an indexer target for known product types (e.g. #productType)"(productType) {
 		given:

@@ -1,5 +1,14 @@
 package dev.nokee.ide.xcode
 
+
+import dev.gradleplugins.test.fixtures.gradle.executer.GradleExecuter
+import dev.nokee.ide.fixtures.IdeCommandLineUtils
+import dev.nokee.ide.xcode.fixtures.XcodeIdeProjectFixture
+import dev.nokee.ide.xcode.fixtures.XcodeIdeWorkspaceFixture
+import dev.nokee.ide.xcode.fixtures.XcodebuildExecutor
+
+import java.util.function.UnaryOperator
+
 trait XcodeIdeFixture {
 	String getXcodeIdePluginId() {
 		return 'dev.nokee.xcode-ide'
@@ -30,5 +39,33 @@ trait XcodeIdeFixture {
 				}
 			}
 		"""
+	}
+
+	XcodeIdeWorkspaceFixture xcodeWorkspace(String path) {
+		return XcodeIdeWorkspaceFixture.of(file(path))
+	}
+
+	XcodeIdeProjectFixture xcodeProject(String path) {
+		return XcodeIdeProjectFixture.of(file(path))
+	}
+
+	XcodebuildExecutor getXcodebuild() {
+		// Gradle needs to be isolated so the xcodebuild does not leave behind daemons
+		assert executer.usesGradleDistribution()
+		assert !executer.usesSharedDaemons()
+		assert executer.usesDaemon()
+		return new XcodebuildExecutor(testDirectory)
+	}
+
+	UnaryOperator<GradleExecuter> getXcodebuildTool() {
+		return { executer ->
+			def initScript = file('init.gradle')
+			initScript << IdeCommandLineUtils.generateGradleProbeInitFile('xcode', 'xcodebuild')
+			return executer
+				.requireIsolatedDaemons()
+				.requireGradleDistribution()
+				.requireDaemon()
+				.usingInitScript(initScript)
+		}
 	}
 }

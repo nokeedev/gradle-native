@@ -1,8 +1,9 @@
 package dev.nokee.ide.visualstudio
 
+import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeTaskNames
 
-class VisualStudioIdeLifecycleTaskFunctionalTest extends AbstractVisualStudioIdeFunctionalSpec implements VisualStudioIdeTaskNames, VisualStudioIdeFixture {
+class VisualStudioIdeLifecycleTaskFunctionalTest extends AbstractGradleSpecification implements VisualStudioIdeTaskNames, VisualStudioIdeFixture {
 	def "warns users they will need to force a solution rescan"() {
 		given:
 		settingsFile << '''
