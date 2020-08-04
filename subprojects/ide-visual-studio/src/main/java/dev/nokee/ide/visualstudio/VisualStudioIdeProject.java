@@ -6,6 +6,8 @@ import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
 
 /**
+ * Represent a Visual Studio IDE project.
+ *
  * @since 0.5
  */
 public interface VisualStudioIdeProject extends IdeProject, VisualStudioIdeProjectReference {
