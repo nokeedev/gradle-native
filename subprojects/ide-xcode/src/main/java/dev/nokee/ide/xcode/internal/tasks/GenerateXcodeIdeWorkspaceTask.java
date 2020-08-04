@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.*;
 
@@ -23,8 +24,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class GenerateXcodeIdeWorkspaceTask extends DefaultTask {
-	@Nested
+	@Internal
 	public abstract SetProperty<XcodeIdeProjectReference> getProjectReferences();
+
+	@InputFiles
+	protected Provider<List<FileSystemLocation>> getInputFiles() {
+		return getProjectReferences().map(it -> it.stream().map(XcodeIdeProjectReference::getLocation).map(Provider::get).collect(Collectors.toList()));
+	}
 
 	@Input
 	public abstract Property<String> getDerivedDataLocation();

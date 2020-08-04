@@ -4,19 +4,29 @@ import dev.nokee.ide.visualstudio.VisualStudioIdeProjectReference;
 import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeGuid;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
-import org.gradle.api.tasks.Nested;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class GenerateVisualStudioIdeSolutionTask extends DefaultTask {
-	@Nested
+	@Internal
 	public abstract SetProperty<VisualStudioIdeProjectReference> getProjectReferences();
+
+	@InputFiles
+	protected Provider<List<FileSystemLocation>> getInputFiles() {
+		return getProjectReferences().map(it -> it.stream().map(VisualStudioIdeProjectReference::getProjectLocation).map(Provider::get).collect(Collectors.toList()));
+	}
 
 	@OutputFile
 	public abstract RegularFileProperty getSolutionLocation();

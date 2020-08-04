@@ -14,16 +14,14 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
 public abstract class DefaultVisualStudioIdeProject implements VisualStudioIdeProject, IdeProjectInternal {
-	@Getter(onMethod_={@Internal}) private final String name;
-	@Getter(onMethod_={@Internal}) private final TaskProvider<GenerateVisualStudioIdeProjectTask> generatorTask;
+	@Getter private final String name;
+	@Getter private final TaskProvider<GenerateVisualStudioIdeProjectTask> generatorTask;
 
 	@Inject
 	public DefaultVisualStudioIdeProject(String name) {
@@ -37,33 +35,26 @@ public abstract class DefaultVisualStudioIdeProject implements VisualStudioIdePr
 	@Inject
 	protected abstract ObjectFactory getObjects();
 
-	@Internal
 	@Override
 	public Provider<FileSystemLocation> getLocation() {
 		return generatorTask.flatMap(GenerateVisualStudioIdeProjectTask::getProjectLocation);
 	}
 
-	@InputFile
 	@Override
 	public Provider<FileSystemLocation> getProjectLocation() {
 		return getLocation();
 	}
 
-	@Internal
 	public abstract ConfigurableFileCollection getSourceFiles();
 
-	@Internal
 	public abstract ConfigurableFileCollection getHeaderFiles();
 
-	@Internal
 	public abstract ConfigurableFileCollection getBuildFiles();
 
-	@Internal
 	public Provider<VisualStudioIdeGuid> getProjectGuid() {
 		return getLocation().map(it -> DefaultVisualStudioIdeGuid.stableGuidFrom(it.getAsFile()));
 	}
 
-	@Internal
 	public abstract DomainObjectSet<VisualStudioIdeTarget> getTargets();
 
 	@Override
@@ -78,7 +69,6 @@ public abstract class DefaultVisualStudioIdeProject implements VisualStudioIdePr
 		return result;
 	}
 
-	@Internal
 	@Override
 	public String getDisplayName() {
 		return "Visual Studio project";
