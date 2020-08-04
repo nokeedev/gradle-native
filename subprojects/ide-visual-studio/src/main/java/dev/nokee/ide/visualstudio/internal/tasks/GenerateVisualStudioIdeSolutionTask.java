@@ -44,8 +44,8 @@ public abstract class GenerateVisualStudioIdeSolutionTask extends DefaultTask {
 			out.println("	EndGlobalSection");
 			out.println("	GlobalSection(ProjectConfigurationPlatforms) = postSolution");
 			getProjectReferences().get().forEach(info -> {
-				out.println(String.format("		%s.Default|x64.ActiveCfg = Default|x64", info.getProjectGuid().toString()));
-				out.println(String.format("		%s.Default|x64.Build.0 = Default|x64", info.getProjectGuid().toString()));
+				out.println(String.format("		%s.Default|x64.ActiveCfg = Default|x64", info.getProjectGuid().get().toString()));
+				out.println(String.format("		%s.Default|x64.Build.0 = Default|x64", info.getProjectGuid().get().toString()));
 			});
 			out.println("	EndGlobalSection");
 			out.println("	GlobalSection(SolutionProperties) = preSolution");

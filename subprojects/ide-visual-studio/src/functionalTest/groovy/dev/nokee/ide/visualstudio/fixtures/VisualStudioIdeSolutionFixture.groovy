@@ -9,18 +9,11 @@ import java.nio.channels.FileChannel
 import java.nio.channels.FileLock
 
 class VisualStudioIdeSolutionFixture implements IdeWorkspaceFixture {
-	final TestFile solutionFile
-	final String content
-	Map<String, ProjectReference> projects = [:]
+	final SolutionFile solutionFile
 
 	VisualStudioIdeSolutionFixture(TestFile solutionFile) {
-		this.solutionFile = solutionFile.assertIsFile()
+		this.solutionFile = new SolutionFile(solutionFile)
 //		assert TextUtil.convertLineSeparators(solutionFile.text, TextUtil.windowsLineSeparator) == solutionFile.text : "Solution file contains non-windows line separators"
-
-		content = TextUtil.normaliseLineSeparators(solutionFile.text)
-		content.findAll(~/(?m)^Project\(\"\{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942\}\"\) = \"([\w\-]+)\", \"([^\"]*)\", \"\{([\w\-]+)\}\"$/, {
-			projects.put(it[1], new ProjectReference(it[1], it[2], it[3]))
-		})
 	}
 
 	static VisualStudioIdeSolutionFixture of(Object path) {
@@ -32,7 +25,7 @@ class VisualStudioIdeSolutionFixture implements IdeWorkspaceFixture {
 	}
 
 	VisualStudioIdeSolutionFixture assertHasProjects(Iterable<String> names) {
-		assert projects.keySet() == names as Set
+		assert solutionFile.projects.keySet() == names as Set
 		return this
 	}
 //
@@ -55,6 +48,79 @@ class VisualStudioIdeSolutionFixture implements IdeWorkspaceFixture {
 //	List<XcodeIdeProjectFixture> getProjects() {
 //		return contentFile.projectLocationPaths.collect { new XcodeIdeProjectFixture(it) }
 //	}
+
+	static class SolutionFile {
+		final TestFile file
+		final String content
+		final Map<String, ProjectReference> projects = [:]
+
+		SolutionFile(TestFile solutionFile) {
+			solutionFile.assertIsFile()
+			file = solutionFile
+			content = TextUtil.normaliseLineSeparators(solutionFile.text)
+			content.findAll(~/(?m)^Project\(\"\{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942\}\"\) = \"([\w\-]+)\", \"([^\"]*)\", \"\{([\w\-]+)\}\"$/, {
+				projects.put(it[1], new ProjectReference(it[1], it[2], it[3]))
+			})
+
+			visitGlobalSection(new GlobalSectionVisitor() {
+				@Override
+				void visitSolutionConfigurationPlatform(String configurationName, String platformName) {
+
+				}
+
+				@Override
+				void visitProjectConfigurationPlatform(String guid) {
+					assert projects.any { name, reference -> reference.guid == guid }
+				}
+			})
+		}
+
+		private void visitGlobalSection(GlobalSectionVisitor visitor) {
+			def iter = content.readLines().iterator()
+			while (iter.hasNext()) {
+				def line = iter.next()
+				if (line.trim().startsWith('GlobalSection')) {
+					if (line.contains('(SolutionConfigurationPlatforms)')) {
+						visitingSolutionConfigurationPlatforms(iter, visitor)
+					} else if (line.contains('(ProjectConfigurationPlatforms)')) {
+						visitingProjectConfigurationPlatforms(iter, visitor)
+					} else {
+						// ignore section
+					}
+				}
+			}
+		}
+
+		private void visitingSolutionConfigurationPlatforms(Iterator<String> iter, GlobalSectionVisitor visitor) {
+			while (iter.hasNext()) {
+				def line = iter.next()
+				if (line.trim().startsWith('EndGlobalSection')) {
+					return // normal exit condition
+				}
+				def tokens = line.split('=')[0].trim().split('\\|')
+				visitor.visitSolutionConfigurationPlatform(tokens[0], tokens[1])
+			}
+			throw new IllegalArgumentException("Corrupted solution file at '${file.absolutePath}'.")
+		}
+
+		private void visitingProjectConfigurationPlatforms(Iterator<String> iter, GlobalSectionVisitor visitor) {
+			while (iter.hasNext()) {
+				def line = iter.next()
+				if (line.trim().startsWith('EndGlobalSection')) {
+					return // normal exit condition
+				}
+				def (String left, String right) = line.split('=')
+				def (uuid, projectConfigurationPlatform, tag) = left.trim().split('\\.')
+				visitor.visitProjectConfigurationPlatform(uuid)
+			}
+			throw new IllegalArgumentException("Corrupted solution file at '${file.absolutePath}'.")
+		}
+	}
+
+	interface GlobalSectionVisitor {
+		void visitSolutionConfigurationPlatform(String configurationName, String platformName)
+		void visitProjectConfigurationPlatform(String guid)
+	}
 
 	static class ProjectReference {
 		final String name

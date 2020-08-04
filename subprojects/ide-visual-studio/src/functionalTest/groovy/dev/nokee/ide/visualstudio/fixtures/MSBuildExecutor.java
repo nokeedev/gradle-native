@@ -45,7 +45,7 @@ public class MSBuildExecutor extends AbstractIdeExecutor<MSBuildExecutor> {
 	}
 
 	public MSBuildExecutor withSolution(VisualStudioIdeSolutionFixture visualStudioSolution) {
-		addArguments(visualStudioSolution.getSolutionFile().getAbsolutePath());
+		addArguments(visualStudioSolution.getSolutionFile().getFile().getAbsolutePath());
 		return this;
 	}
 
