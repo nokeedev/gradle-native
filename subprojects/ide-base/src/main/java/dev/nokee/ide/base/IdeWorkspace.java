@@ -5,7 +5,7 @@ import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 
-public interface IdeWorkspace<T extends IdeProject> extends Describable {
+public interface IdeWorkspace<T extends IdeProjectReference> extends Describable {
 	Provider<FileSystemLocation> getLocation();
 	SetProperty<T> getProjects();
 }

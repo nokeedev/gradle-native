@@ -1,13 +1,11 @@
 package dev.nokee.ide.xcode.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.ide.base.internal.BaseIdeCleanMetadata;
-import dev.nokee.ide.base.internal.IdeProjectExtension;
-import dev.nokee.ide.base.internal.IdeProjectInternal;
-import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
+import dev.nokee.ide.base.internal.*;
 import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.xcode.*;
 import dev.nokee.ide.xcode.internal.*;
+import dev.nokee.ide.xcode.internal.DefaultXcodeIdeProjectReference;
 import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
 import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeWorkspaceTask;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
@@ -529,7 +527,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 
 		workspaceExtension.getWorkspace().getGeneratorTask().configure(task -> {
 			task.getWorkspaceLocation().set(getLayout().getProjectDirectory().dir(getProject().getName() + ".xcworkspace"));
-			task.getProjectLocations().set(getArtifactRegistry().getIdeProjectFiles(XcodeIdeProjectMetadata.class).getElements());
+			task.getProjectReferences().set(workspaceExtension.getWorkspace().getProjects());
 			task.getDerivedDataLocation().set(".gradle/XcodeDerivedData");
 		});
 
@@ -545,7 +543,12 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 
 	@Override
 	protected IdeProjectMetadata newIdeProjectMetadata(Provider<IdeProjectInternal> ideProject) {
-		return new XcodeIdeProjectMetadata(ideProject.map(DefaultXcodeIdeProject.class::cast));
+		return new DefaultXcodeIdeProjectReference(ideProject.map(DefaultXcodeIdeProject.class::cast));
+	}
+
+	@Override
+	protected Class<? extends BaseIdeProjectReference> getIdeProjectReferenceType() {
+		return DefaultXcodeIdeProjectReference.class;
 	}
 
 	@Override

@@ -10,13 +10,13 @@ import org.gradle.api.provider.SetProperty;
  *
  * @since 0.5
  */
-public interface VisualStudioIdeSolution extends IdeWorkspace<VisualStudioIdeProject> {
+public interface VisualStudioIdeSolution extends IdeWorkspace<VisualStudioIdeProjectReference> {
 	/**
 	 * Returns Visual Studio projects to include in the solution.
 	 *
 	 * @return a property to configure the projects to include in the solution.
 	 */
-	SetProperty<VisualStudioIdeProject> getProjects();
+	SetProperty<VisualStudioIdeProjectReference> getProjects();
 
 	/**
 	 * Returns the location of the generated solution.

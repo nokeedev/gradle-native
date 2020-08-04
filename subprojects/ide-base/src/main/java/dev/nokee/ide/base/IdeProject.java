@@ -4,7 +4,7 @@ import org.gradle.api.Named;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
 
-public interface IdeProject extends Named {
+public interface IdeProject extends Named, IdeProjectReference {
 	Provider<FileSystemLocation> getLocation();
 
 }

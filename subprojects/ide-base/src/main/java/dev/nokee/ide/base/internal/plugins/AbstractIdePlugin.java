@@ -2,10 +2,8 @@ package dev.nokee.ide.base.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.ide.base.IdeProject;
-import dev.nokee.ide.base.internal.BaseIdeCleanMetadata;
-import dev.nokee.ide.base.internal.IdeProjectExtension;
-import dev.nokee.ide.base.internal.IdeProjectInternal;
-import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
+import dev.nokee.ide.base.IdeProjectReference;
+import dev.nokee.ide.base.internal.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -37,7 +35,6 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static dev.nokee.utils.DeferredUtils.realize;
 import static dev.nokee.utils.GradleUtils.*;
@@ -106,7 +103,11 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 		});
 
 		workspaceExtension.ifPresent(extension -> {
-			extension.getWorkspace().getProjects().set(extension.getProjects());
+			Provider<List<IdeProjectReference>> ideProjectReferenceProvider = getProviders().provider(() -> {
+				List<IdeProjectReference> result = getArtifactRegistry().getIdeProjects(getIdeProjectReferenceType()).stream().map(IdeArtifactRegistry.Reference::get).collect(Collectors.toList());
+				return result;
+			});
+			extension.getWorkspace().getProjects().convention(Cast.cast(Provider.class, ideProjectReferenceProvider));
 
 			// Open configuration
 			getTasks().register(getTaskName("open"), task -> {
@@ -233,6 +234,8 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 	protected abstract IdeProjectMetadata newIdeCleanMetadata(Provider<? extends Task> cleanTask);
 
 	protected abstract Class<? extends BaseIdeCleanMetadata> getIdeCleanMetadataType();
+
+	protected abstract Class<? extends BaseIdeProjectReference> getIdeProjectReferenceType();
 
 	private String getTaskName(String verb) {
 		return verb + StringUtils.capitalize(getLifecycleTaskName());

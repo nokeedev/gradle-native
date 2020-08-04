@@ -1,6 +1,7 @@
 package dev.nokee.ide.xcode;
 
 import dev.nokee.ide.base.IdeProject;
+import dev.nokee.ide.base.IdeProjectReference;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -27,7 +28,7 @@ import org.gradle.api.provider.Provider;
  * @since 0.3
  * @see <a href="https://developer.apple.com/library/content/featuredarticles/XcodeConcepts/Concept-Projects.html">Xcode Projects Concept</a>
  */
-public interface XcodeIdeProject extends IdeProject, Named {
+public interface XcodeIdeProject extends IdeProject, Named, XcodeIdeProjectReference {
 	/**
 	 * Returns the location of the generated project.
 	 * It defaults to <pre>${project.projectDir}/${project.name}.xcodeproj</pre>.

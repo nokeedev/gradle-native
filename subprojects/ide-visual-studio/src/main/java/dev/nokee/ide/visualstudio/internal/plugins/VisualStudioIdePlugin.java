@@ -1,10 +1,7 @@
 package dev.nokee.ide.visualstudio.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.ide.base.internal.BaseIdeCleanMetadata;
-import dev.nokee.ide.base.internal.IdeProjectExtension;
-import dev.nokee.ide.base.internal.IdeProjectInternal;
-import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
+import dev.nokee.ide.base.internal.*;
 import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.visualstudio.*;
 import dev.nokee.ide.visualstudio.internal.*;
@@ -189,7 +186,7 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 
 		workspaceExtension.getWorkspace().getGeneratorTask().configure(task -> {
 			task.getSolutionLocation().set(getLayout().getProjectDirectory().file(getProject().getName() + ".sln"));
-			task.getProjectInformations().set(getProviders().provider(() -> getArtifactRegistry().getIdeProjects(VisualStudioIdeProjectMetadata.class).stream().map(it -> new VisualStudioIdeProjectInformation(it.get())).collect(Collectors.toList())));
+			task.getProjectReferences().set(workspaceExtension.getSolution().getProjects());
 		});
 
 		// Clean .vs directory and warn user if solution is locked
@@ -239,7 +236,12 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 
 	@Override
 	protected IdeProjectMetadata newIdeProjectMetadata(Provider<IdeProjectInternal> ideProject) {
-		return new VisualStudioIdeProjectMetadata(ideProject);
+		return new DefaultVisualStudioIdeProjectReference(ideProject.map(DefaultVisualStudioIdeProject.class::cast));
+	}
+
+	@Override
+	protected Class<? extends BaseIdeProjectReference> getIdeProjectReferenceType() {
+		return DefaultVisualStudioIdeProjectReference.class;
 	}
 
 	@Override

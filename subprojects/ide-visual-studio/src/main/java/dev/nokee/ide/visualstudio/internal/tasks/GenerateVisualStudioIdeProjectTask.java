@@ -6,6 +6,7 @@ import com.google.common.collect.Iterables;
 import dev.nokee.ide.visualstudio.VisualStudioIdeProject;
 import dev.nokee.ide.visualstudio.VisualStudioIdeProjectConfiguration;
 import dev.nokee.ide.visualstudio.VisualStudioIdeTarget;
+import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeGuid;
 import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeProject;
 import dev.nokee.ide.visualstudio.internal.VisualStudioIdePropertyAdapter;
 import dev.nokee.ide.visualstudio.internal.vcxproj.*;
@@ -94,9 +95,9 @@ public abstract class GenerateVisualStudioIdeProjectTask extends DefaultTask {
 		return VCXPropertyGroup.of(
 			VCXProperty.of("VCProjectVersion", "16.0"),
 			VCXProperty.of("Keyword", "Win32Proj"),
-			VCXProperty.of("ProjectGuid", visualStudioProject.getProjectGuid().get().getAsString()),
+			VCXProperty.of("ProjectGuid", visualStudioProject.getProjectGuid().get().toString()),
 			VCXProperty.of("WindowsTargetPlatformVersion", "10.0"),
-			VCXProperty.of("NokeeUniqueIdentifier", visualStudioProject.getProjectGuid().get().getAsBase64())
+			VCXProperty.of("NokeeUniqueIdentifier", ((DefaultVisualStudioIdeGuid)visualStudioProject.getProjectGuid().get()).getAsBase64())
 		).withLabel("Globals");
 	}
 

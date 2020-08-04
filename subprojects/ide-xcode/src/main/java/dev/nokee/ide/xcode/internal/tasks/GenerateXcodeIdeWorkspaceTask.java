@@ -4,6 +4,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
+import dev.nokee.ide.xcode.XcodeIdeProjectReference;
 import lombok.NonNull;
 import lombok.Value;
 import org.apache.commons.io.FileUtils;
@@ -11,11 +12,9 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -24,8 +23,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class GenerateXcodeIdeWorkspaceTask extends DefaultTask {
-	@InputFiles
-	public abstract SetProperty<FileSystemLocation> getProjectLocations();
+	@Nested
+	public abstract SetProperty<XcodeIdeProjectReference> getProjectReferences();
 
 	@Input
 	public abstract Property<String> getDerivedDataLocation();
@@ -33,13 +32,18 @@ public abstract class GenerateXcodeIdeWorkspaceTask extends DefaultTask {
 	@OutputDirectory
 	public abstract Property<FileSystemLocation> getWorkspaceLocation();
 
+	@Inject
+	public GenerateXcodeIdeWorkspaceTask() {
+		dependsOn(getProjectReferences());
+	}
+
 	@TaskAction
 	private void generate() throws IOException {
 		File workspaceDirectory = getWorkspaceLocation().get().getAsFile();
 		FileUtils.deleteDirectory(workspaceDirectory);
 		workspaceDirectory.mkdirs();
 
-		List<Workspace.FileRef> fileReferences = getProjectLocations().get().stream().map(it -> new Workspace.FileRef(it.getAsFile().getAbsolutePath())).collect(Collectors.toList());
+		List<Workspace.FileRef> fileReferences = getProjectReferences().get().stream().map(it -> new Workspace.FileRef(it.getLocation().get().getAsFile().getAbsolutePath())).collect(Collectors.toList());
 		XmlMapper xmlMapper = new XmlMapper();
 		xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
 		xmlMapper.writeValue(new File(workspaceDirectory, "contents.xcworkspacedata"), new Workspace(fileReferences));

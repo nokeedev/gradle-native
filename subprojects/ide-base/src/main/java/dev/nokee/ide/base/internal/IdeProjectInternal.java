@@ -5,6 +5,7 @@ import dev.nokee.ide.base.IdeProject;
 import org.gradle.api.Buildable;
 import org.gradle.api.Describable;
 import org.gradle.api.Task;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -14,6 +15,7 @@ import java.util.Set;
 public interface IdeProjectInternal extends IdeProject, Describable, Buildable {
 	TaskProvider<? extends Task> getGeneratorTask();
 
+	@Internal
 	@Override
 	default TaskDependency getBuildDependencies() {
 		return new TaskDependency() {

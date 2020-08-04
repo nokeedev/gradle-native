@@ -8,7 +8,7 @@ import org.gradle.api.provider.Provider;
 /**
  * @since 0.5
  */
-public interface VisualStudioIdeProject extends IdeProject {
+public interface VisualStudioIdeProject extends IdeProject, VisualStudioIdeProjectReference {
 	/**
 	 * Returns the location of the generated project.
 	 * It defaults to <pre>${project.projectDir}/${project.name}.xcodeproj</pre>.

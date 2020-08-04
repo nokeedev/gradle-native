@@ -8,19 +8,19 @@ import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeProjectTask;
 import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.TaskContainer;
-import org.gradle.api.tasks.TaskProvider;
+import org.gradle.api.tasks.*;
 
 import javax.inject.Inject;
 
 public abstract class DefaultXcodeIdeProject implements XcodeIdeProject, IdeProjectInternal {
-	@Getter private final String name;
-	@Getter private final TaskProvider<GenerateXcodeIdeProjectTask> generatorTask;
-	@Getter private final NamedDomainObjectContainer<XcodeIdeTarget> targets;
-	@Getter private final NamedDomainObjectContainer<XcodeIdeGroup> groups;
+	@Getter(onMethod_={@Internal}) private final String name;
+	@Getter(onMethod_={@Internal}) private final TaskProvider<GenerateXcodeIdeProjectTask> generatorTask;
+	@Getter(onMethod_={@Internal}) private final NamedDomainObjectContainer<XcodeIdeTarget> targets;
+	@Getter(onMethod_={@Internal}) private final NamedDomainObjectContainer<XcodeIdeGroup> groups;
 
 	@Inject
 	public DefaultXcodeIdeProject(String name) {
@@ -36,6 +36,7 @@ public abstract class DefaultXcodeIdeProject implements XcodeIdeProject, IdeProj
 	@Inject
 	protected abstract ObjectFactory getObjects();
 
+	@InputDirectory
 	@Override
 	public Provider<FileSystemLocation> getLocation() {
 		return generatorTask.flatMap(GenerateXcodeIdeProjectTask::getProjectLocation);
@@ -58,13 +59,18 @@ public abstract class DefaultXcodeIdeProject implements XcodeIdeProject, IdeProj
 		return getObjects().newInstance(DefaultXcodeIdeGroup.class, name);
 	}
 
+	@Internal
 	@Override
 	public XcodeIdeProject getIdeProject() {
 		return this;
 	}
 
+	@Internal
 	@Override
 	public String getDisplayName() {
 		return "Xcode project";
 	}
+
+	@Internal
+	public abstract ConfigurableFileCollection getSources();
 }

@@ -1,5 +1,6 @@
 package dev.nokee.ide.visualstudio.internal;
 
+import dev.nokee.ide.visualstudio.VisualStudioIdeGuid;
 import lombok.NonNull;
 import lombok.Value;
 import org.gradle.api.file.FileSystemLocation;
@@ -11,7 +12,7 @@ import java.util.Base64;
 import java.util.UUID;
 
 @Value
-public class VisualStudioIdeGuid {
+public class DefaultVisualStudioIdeGuid implements VisualStudioIdeGuid {
 	@NonNull UUID uuid;
 
 	/**
@@ -53,11 +54,16 @@ public class VisualStudioIdeGuid {
 		return result.array();
 	}
 
-	public static VisualStudioIdeGuid stableGuidFrom(File file) {
-		return new VisualStudioIdeGuid(UUID.nameUUIDFromBytes(file.getAbsolutePath().getBytes()));
+	@Override
+	public String toString() {
+		return getAsString();
 	}
 
-	public static VisualStudioIdeGuid stableGuidFrom(Provider<? extends FileSystemLocation> provider) {
+	public static DefaultVisualStudioIdeGuid stableGuidFrom(File file) {
+		return new DefaultVisualStudioIdeGuid(UUID.nameUUIDFromBytes(file.getAbsolutePath().getBytes()));
+	}
+
+	public static DefaultVisualStudioIdeGuid stableGuidFrom(Provider<? extends FileSystemLocation> provider) {
 		return stableGuidFrom(provider.get().getAsFile());
 	}
 }
