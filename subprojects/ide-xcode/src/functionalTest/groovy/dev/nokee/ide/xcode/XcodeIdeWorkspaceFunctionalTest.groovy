@@ -1,49 +1,26 @@
 package dev.nokee.ide.xcode
 
+import dev.nokee.ide.fixtures.AbstractIdeWorkspaceFunctionalTest
+import dev.nokee.ide.xcode.fixtures.XcodeIdeTaskNames
+import dev.nokee.ide.xcode.fixtures.XcodeIdeWorkspaceFixture
 import org.apache.commons.lang3.SystemUtils
 import spock.lang.Requires
 
-class XcodeIdeWorkspaceFunctionalTest extends AbstractXcodeIdeFunctionalSpec {
-	def "generates empty workspace on non-configured Xcode IDE plugin"() {
-		given:
-		settingsFile << "rootProject.name = 'app'"
-		buildFile << applyXcodeIdePlugin()
-
-		when:
-		succeeds('xcode')
-
-		then:
-		result.assertTasksExecutedAndNotSkipped(':xcodeWorkspace', ':xcode')
-
-		and:
-		xcodeWorkspace('app').assertHasProjects()
-	}
-
+class XcodeIdeWorkspaceFunctionalTest extends AbstractIdeWorkspaceFunctionalTest implements XcodeIdeFixture, XcodeIdeTaskNames {
 	@Requires({ SystemUtils.IS_OS_MAC })
 	def "xcodebuild sees no schemes inside empty workspace"() {
-		useXcodebuildTool()
+		using xcodebuildTool
+
 		given:
 		settingsFile << "rootProject.name = 'app'"
 		buildFile << applyXcodeIdePlugin()
 
 		when:
-		succeeds('xcode')
+		succeeds(tasks.ideWorkspace)
 
 		then:
 		def result = xcodebuild.withWorkspace(xcodeWorkspace('app')).withArgument('-list').execute()
 		result.standardOutput.asString.contains('There are no schemes in workspace "app".')
-	}
-
-	def "uses root project name as Xcode workspace filename"() {
-		given:
-		settingsFile << "rootProject.name = 'app'"
-		buildFile << applyXcodeIdePlugin()
-
-		when:
-		succeeds('xcode')
-
-		then:
-		testDirectory.listFiles(exceptHiddenFilesAndMavenLocalRepository())*.name as Set == ['build.gradle', 'settings.gradle', 'app.xcworkspace'] as Set
 	}
 
 	def "relocates Xcode derived data into root project's build folder"() {
@@ -52,20 +29,36 @@ class XcodeIdeWorkspaceFunctionalTest extends AbstractXcodeIdeFunctionalSpec {
 		buildFile << applyXcodeIdePlugin()
 
 		when:
-		succeeds('xcode')
+		succeeds(tasks.ideWorkspace)
 
 		then:
 		xcodeWorkspace('app').assertDerivedDataLocationRelativeToWorkspace('.gradle/XcodeDerivedData')
 	}
 
-	// TODO: can remap projects included in the workspace (exclude projects)
+	// TODO: Can build non-empty IDE workspace with xcodebuild
 
-	private FilenameFilter exceptHiddenFilesAndMavenLocalRepository() {
-		return new FilenameFilter() {
-			@Override
-			boolean accept(File dir, String name) {
-				return !name.startsWith('.') && !name.equals('m2-home-should-not-be-filled')
-			}
-		}
+	@Override
+	protected String configureIdeProject(String name) {
+		return configureXcodeIdeProject(name)
+	}
+
+	@Override
+	protected String getIdeUnderTestDsl() {
+		return 'xcode'
+	}
+
+	@Override
+	protected String workspaceName(String name) {
+		return XcodeIdeWorkspaceFixture.workspaceName(name)
+	}
+
+	@Override
+	protected XcodeIdeWorkspaceFixture getIdeWorkspaceUnderTest() {
+		return xcodeWorkspace(rootProjectName)
+	}
+
+	@Override
+	protected String getIdePluginId() {
+		return xcodeIdePluginId
 	}
 }
