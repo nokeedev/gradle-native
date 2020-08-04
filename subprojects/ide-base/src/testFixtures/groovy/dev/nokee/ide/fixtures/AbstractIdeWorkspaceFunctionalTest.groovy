@@ -161,6 +161,7 @@ abstract class AbstractIdeWorkspaceFunctionalTest extends AbstractGradleSpecific
 	}
 
 	// TODO: Test duplicated name
+	// TODO: Remove stale workspace file when project change name
 
 	protected abstract String configureIdeProject(String name)
 
