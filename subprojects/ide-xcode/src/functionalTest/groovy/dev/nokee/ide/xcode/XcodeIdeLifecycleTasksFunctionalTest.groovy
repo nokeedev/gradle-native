@@ -1,45 +1,32 @@
 package dev.nokee.ide.xcode
 
-import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
-import org.gradle.internal.logging.ConsoleRenderer
+import dev.nokee.ide.fixtures.AbstractIdeLifecycleTasksFunctionalTest
+import dev.nokee.ide.xcode.fixtures.XcodeIdeTaskNames
+import dev.nokee.ide.xcode.fixtures.XcodeIdeWorkspaceFixture
 
-class XcodeIdeLifecycleTasksFunctionalTest extends AbstractGradleSpecification implements XcodeIdeFixture {
-	def "lifecycle task generate the project's ide files only"() {
-		given:
-		settingsFile << "include 'bar'"
-		buildFile << applyXcodeIdePlugin() << configureXcodeIdeProject('foo')
-		file('bar/build.gradle') << applyXcodeIdePlugin() << configureXcodeIdeProject('bar')
-
-		when:
-		succeeds(':bar:xcode')
-		then:
-		result.assertTasksExecutedAndNotSkipped(':bar:barXcodeProject', ':bar:xcode')
-
-		when:
-		succeeds(':xcode')
-		then:
-		result.assertTasksExecutedAndNotSkipped(':bar:barXcodeProject', ':fooXcodeProject', ':xcodeWorkspace', ':xcode')
+class XcodeIdeLifecycleTasksFunctionalTest extends AbstractIdeLifecycleTasksFunctionalTest implements XcodeIdeFixture, XcodeIdeTaskNames {
+	@Override
+	protected String getIdeWorkspaceDisplayNameUnderTest() {
+		return 'Xcode workspace'
 	}
 
-	def "shows message where to find generated workspace only from the root lifecycle task"() {
-		given:
-		settingsFile << """
-			rootProject.name = 'root'
-			include 'bar'
-		"""
-		buildFile << applyXcodeIdePlugin() << configureXcodeIdeProject('foo')
-		file('bar/build.gradle') << applyXcodeIdePlugin() << configureXcodeIdeProject('bar')
-
-		when:
-		succeeds(':bar:xcode')
-		then:
-		result.assertNotOutput("Generated Xcode workspace at ${new ConsoleRenderer().asClickableFileUrl(file('root.xcworkspace'))}")
-
-		when:
-		succeeds(':xcode')
-		then:
-		result.assertOutputContains("Generated Xcode workspace at ${new ConsoleRenderer().asClickableFileUrl(file('root.xcworkspace'))}")
+	@Override
+	protected String workspaceName(String name) {
+		return XcodeIdeWorkspaceFixture.workspaceName(name)
 	}
 
-	// TODO: Remove stale generated Xcode IDE files
+	@Override
+	protected String getIdeUnderTestDsl() {
+		return 'xcode'
+	}
+
+	@Override
+	protected String configureIdeProject(String name) {
+		return configureXcodeIdeProject(name)
+	}
+
+	@Override
+	protected String getIdePluginId() {
+		return xcodeIdePluginId
+	}
 }

@@ -1,9 +1,10 @@
 package dev.nokee.ide.visualstudio
 
-import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
+import dev.nokee.ide.fixtures.AbstractIdeLifecycleTasksFunctionalTest
+import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeSolutionFixture
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeTaskNames
 
-class VisualStudioIdeLifecycleTaskFunctionalTest extends AbstractGradleSpecification implements VisualStudioIdeTaskNames, VisualStudioIdeFixture {
+class VisualStudioIdeLifecycleTasksFunctionalTest extends AbstractIdeLifecycleTasksFunctionalTest implements VisualStudioIdeTaskNames, VisualStudioIdeFixture {
 	def "warns users they will need to force a solution rescan"() {
 		given:
 		settingsFile << '''
@@ -32,5 +33,30 @@ class VisualStudioIdeLifecycleTaskFunctionalTest extends AbstractGradleSpecifica
 
 		cleanup:
 		lock?.close()
+	}
+
+	@Override
+	protected String getIdeWorkspaceDisplayNameUnderTest() {
+		return 'Visual Studio solution'
+	}
+
+	@Override
+	protected String workspaceName(String name) {
+		return VisualStudioIdeSolutionFixture.solutionName(name)
+	}
+
+	@Override
+	protected String getIdeUnderTestDsl() {
+		return 'visualStudio'
+	}
+
+	@Override
+	protected String configureIdeProject(String name) {
+		return configureVisualStudioIdeProject(name)
+	}
+
+	@Override
+	protected String getIdePluginId() {
+		return visualStudioIdePluginId
 	}
 }
