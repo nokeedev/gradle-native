@@ -51,19 +51,17 @@ trait XcodeIdeFixture {
 
 	XcodebuildExecutor getXcodebuild() {
 		// Gradle needs to be isolated so the xcodebuild does not leave behind daemons
-		assert executer.usesGradleDistribution()
 		assert !executer.usesSharedDaemons()
 		assert executer.usesDaemon()
 		return new XcodebuildExecutor(testDirectory)
 	}
 
-	UnaryOperator<GradleExecuter> getXcodebuildTool() {
+	UnaryOperator<GradleExecuter> getXcodebuildTool(ideTaskName = 'xcode') {
 		return { executer ->
 			def initScript = file('init.gradle')
-			initScript << IdeCommandLineUtils.generateGradleProbeInitFile('xcode', 'xcodebuild')
+			initScript << IdeCommandLineUtils.generateGradleProbeInitFile(ideTaskName, 'xcodebuild')
 			return executer
 				.requireIsolatedDaemons()
-				.requireGradleDistribution()
 				.requireDaemon()
 				.usingInitScript(initScript)
 		}

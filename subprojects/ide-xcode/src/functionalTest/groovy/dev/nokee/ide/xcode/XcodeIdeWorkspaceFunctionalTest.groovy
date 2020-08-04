@@ -9,10 +9,10 @@ import spock.lang.Requires
 class XcodeIdeWorkspaceFunctionalTest extends AbstractIdeWorkspaceFunctionalTest implements XcodeIdeFixture, XcodeIdeTaskNames {
 	@Requires({ SystemUtils.IS_OS_MAC })
 	def "xcodebuild sees no schemes inside empty workspace"() {
-		using xcodebuildTool
+		using getXcodebuildTool('xcodeWorkspace')
 
 		given:
-		settingsFile << "rootProject.name = 'app'"
+		settingsFile << configurePluginClasspathAsBuildScriptDependencies() << "rootProject.name = 'app'"
 		buildFile << applyXcodeIdePlugin()
 
 		when:

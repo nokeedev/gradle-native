@@ -44,9 +44,9 @@ Actual: \${actual[key]}
 				def gradleEnvironment = file("gradle-environment")
 				tasks.matching { it.name == '$ideTaskName' }.all { ideTask ->
 					ideTask.doLast {
-						def writer = gradleEnvironment.newOutputStream()
-						gatherEnvironment().store(writer, null)
-						writer.close()
+						gradleEnvironment.withOutputStream { writer ->
+							gatherEnvironment().store(writer, null)
+						}
 					}
 				}
 				gradle.taskGraph.whenReady { taskGraph ->
