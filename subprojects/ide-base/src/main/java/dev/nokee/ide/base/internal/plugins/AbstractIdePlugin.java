@@ -111,7 +111,7 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 
 			// Open configuration
 			getTasks().register(getTaskName("open"), task -> {
-				task.dependsOn(getLifecycleTask());
+				task.dependsOn(extension.getWorkspace().getGeneratorTask());
 				task.setGroup(IDE_GROUP_NAME);
 				task.setDescription("Opens the " + extension.getWorkspace().getDisplayName());
 				task.doLast(new Action<Task>() {
