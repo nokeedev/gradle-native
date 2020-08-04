@@ -48,11 +48,6 @@ trait XcodeIdeTaskNames implements IdeTaskNames {
 		}
 
 		@Override
-		List<String> getAllToIde() {
-			return [ideLifecycle, ideWorkspace]
-		}
-
-		@Override
 		String getIdeWorkspace() {
 			return withProject('xcodeWorkspace')
 		}
