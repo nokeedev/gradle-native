@@ -5,8 +5,12 @@ import com.dd.plist.NSObject
 import com.dd.plist.PropertyListParser
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.ide.fixtures.IdePathUtils
+import dev.nokee.ide.fixtures.IdeWorkspaceFixture
 
-class XcodeIdeWorkspaceFixture {
+import static org.apache.commons.io.FilenameUtils.getName
+import static org.apache.commons.io.FilenameUtils.removeExtension
+
+class XcodeIdeWorkspaceFixture implements IdeWorkspaceFixture {
 	final TestFile dir
 	final WorkspaceFile contentFile
 
@@ -24,9 +28,10 @@ class XcodeIdeWorkspaceFixture {
 		return IdePathUtils.addExtensionIfAbsent(path, 'xcworkspace')
 	}
 
-	void assertHasProjects(String... paths) {
-		assert contentFile.projectLocationPaths.size() == paths.length
-		assert contentFile.projectLocationPaths == paths.collect { dir.parentFile.file(it).absolutePath } as Set
+	XcodeIdeWorkspaceFixture assertHasProjects(Iterable<String> paths) {
+		assert contentFile.projectLocationPaths.size() == paths.size()
+		assert contentFile.projectLocationPaths.collect { removeExtension(getName(it)) } as Set == paths as Set
+		return this
 	}
 
 	void assertHasProject(File projectFile) {

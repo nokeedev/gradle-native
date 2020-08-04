@@ -17,7 +17,7 @@ abstract class IosApplicationXcodeFunctionalTest extends AbstractXcodeIdeFunctio
 		succeeds('xcode')
 
 		then:
-		xcodeWorkspace('app').assertHasProjects('app.xcodeproj')
+		xcodeWorkspace('app').assertHasProjects('app')
 	}
 
 	def "can create Xcode project with sources"() {

@@ -56,5 +56,6 @@ functionalTest {
 		implementation testFixtures(project(':ideBase'))
 		implementation project(':runtimeDarwin')
 		implementation project(':coreExec')
+		implementation "commons-io:commons-io:${commonsIoVersion}"
 	}
 }

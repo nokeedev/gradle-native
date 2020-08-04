@@ -54,7 +54,7 @@ class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalS
 
 		then:
 		result.assertTasksExecutedAndNotSkipped(':compileJava', ':jni-greeterXcodeProject', ':xcodeWorkspace', ':xcode')
-		xcodeWorkspace('jni-greeter').assertHasProjects('jni-greeter.xcodeproj')
+		xcodeWorkspace('jni-greeter').assertHasProjects('jni-greeter')
 		xcodeProject('jni-greeter').assertHasTarget('JniGreeter')
 		xcodeProject('jni-greeter').assertHasTarget('JniSharedLibrary')
 		xcodeProject('jni-greeter').assertHasSchemes('JniGreeter', 'JniSharedLibrary')
@@ -102,7 +102,7 @@ class JniLibraryComposingXcodeFunctionalTest extends AbstractXcodeIdeFunctionalS
 
 		then:
 		result.assertTasksExecutedAndNotSkipped(':compileJava', ':jni-greeterXcodeProject', ':jni-shared-libraryXcodeProject', ':xcodeWorkspace', ':xcode')
-		xcodeWorkspace('jni-greeter').assertHasProjects('jni-greeter.xcodeproj', 'jni-shared-library.xcodeproj')
+		xcodeWorkspace('jni-greeter').assertHasProjects('jni-greeter', 'jni-shared-library')
 
 		and:
 		xcodeProject('jni-greeter').assertHasTarget('JniGreeter')

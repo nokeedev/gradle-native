@@ -2,12 +2,13 @@ package dev.nokee.ide.visualstudio.fixtures
 
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.ide.fixtures.IdePathUtils
+import dev.nokee.ide.fixtures.IdeWorkspaceFixture
 import org.gradle.util.TextUtil
 
 import java.nio.channels.FileChannel
 import java.nio.channels.FileLock
 
-class VisualStudioIdeSolutionFixture {
+class VisualStudioIdeSolutionFixture implements IdeWorkspaceFixture {
 	final TestFile solutionFile
 	final String content
 	Map<String, ProjectReference> projects = [:]
@@ -30,12 +31,9 @@ class VisualStudioIdeSolutionFixture {
 		return IdePathUtils.addExtensionIfAbsent(path, 'sln')
 	}
 
-	void assertHasProjects(String... names) {
+	VisualStudioIdeSolutionFixture assertHasProjects(Iterable<String> names) {
 		assert projects.keySet() == names as Set
-	}
-
-	void assertHasProjects(Iterable<String> names) {
-		assert projects.keySet() == names as Set
+		return this
 	}
 //
 //	void assertHasProject(File projectFile) {
