@@ -140,7 +140,7 @@ class VisualStudioIdeSolutionFixture implements IdeWorkspaceFixture {
 
 	//region .vs Directory
 	DotvsDirectory getDotvsDirectory() {
-		return new DotvsDirectory(solutionFile.parentFile.createDirectory('.vs'))
+		return new DotvsDirectory(solutionFile.file.parentFile.createDirectory('.vs'))
 	}
 
 	static class DotvsDirectory {
