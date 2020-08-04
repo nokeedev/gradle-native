@@ -26,10 +26,14 @@ public class XcodebuildExecutor extends AbstractIdeExecutor<XcodebuildExecutor> 
 	}
 
 	private XcodebuildExecutor(TestFile testDirectory, File derivedData) {
-		super(testDirectory, XcodebuildExecutor.class, CommandLineToolProvider.from(() -> CommandLineTool.of(new XcodebuildLocator().findAll("xcodebuild").iterator().next().getPath())));
+		super(testDirectory, XcodebuildExecutor.class, getXcodebuildProvider());
 		// TODO: Restore this feature
 //		addArguments("-derivedDataPath", derivedData.getAbsolutePath());
 		this.testDirectory = testDirectory;
+	}
+
+	public static CommandLineToolProvider getXcodebuildProvider() {
+		return CommandLineToolProvider.from(() -> CommandLineTool.of(new XcodebuildLocator().findAll("xcodebuild").iterator().next().getPath()));
 	}
 
 	protected IdeAction getDefaultIdeAction() {
