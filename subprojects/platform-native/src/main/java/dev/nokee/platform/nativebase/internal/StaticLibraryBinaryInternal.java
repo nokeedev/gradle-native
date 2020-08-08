@@ -17,7 +17,6 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;

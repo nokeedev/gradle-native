@@ -1,6 +1,7 @@
 package dev.nokee.platform.nativebase;
 
 import dev.nokee.platform.base.ComponentDependencies;
+import dev.nokee.platform.base.DependencyBucket;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.ModuleDependency;
@@ -79,4 +80,32 @@ public interface NativeComponentDependencies extends ComponentDependencies {
 	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
 	void runtimeOnly(Object notation, Action<? super ModuleDependency> action);
+
+	/**
+	 * Returns the implementation bucket of dependencies for this component.
+	 *
+	 * @return a {@link DependencyBucket} representing the implementation bucket of dependencies, never null.
+	 */
+	DependencyBucket getImplementation();
+
+	/**
+	 * Returns the runtime only bucket of dependencies for this component.
+	 *
+	 * @return a {@link DependencyBucket} representing the runtime only bucket of dependencies, never null.
+	 */
+	DependencyBucket getRuntimeOnly();
+
+	/**
+	 * Returns the compile only bucket of dependencies for this component.
+	 *
+	 * @return a {@link DependencyBucket} representing the compile only bucket of dependencies, never null.
+	 */
+	DependencyBucket getCompileOnly();
+
+	/**
+	 * Returns the link only bucket of dependencies for this component.
+	 *
+	 * @return a {@link DependencyBucket} representing the link only bucket of dependencies, never null.
+	 */
+	DependencyBucket getLinkOnly();
 }

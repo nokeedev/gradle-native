@@ -7,6 +7,7 @@ import dev.nokee.fixtures.AbstractVariantPluginTest
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.ios.IosApplication
 import dev.nokee.platform.ios.SwiftIosApplicationExtension
+import dev.nokee.platform.nativebase.NativeComponentDependencies
 import org.apache.commons.lang3.SystemUtils
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal
@@ -34,6 +35,10 @@ trait SwiftIosApplicationPluginTestFixture {
 
 	Class getExtensionType() {
 		return SwiftIosApplicationExtension
+	}
+
+	Class getDependenciesType() {
+		return NativeComponentDependencies
 	}
 
 	Class getVariantType() {

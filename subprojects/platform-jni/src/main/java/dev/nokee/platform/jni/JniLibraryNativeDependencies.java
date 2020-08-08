@@ -11,7 +11,9 @@ import org.gradle.api.artifacts.ProjectDependency;
  * It also allows native link only and runtime only dependencies of a JNI library to be specified.
  *
  * @since 0.4
+ * @deprecated Use {@link JavaNativeInterfaceNativeComponentDependencies} instead.
  */
+@Deprecated
 public interface JniLibraryNativeDependencies extends ComponentDependencies {
 	/**
 	 * Adds an native implementation dependency to this component.

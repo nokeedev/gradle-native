@@ -8,11 +8,11 @@ import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniLibrary;
-import dev.nokee.platform.jni.JniLibraryNativeDependencies;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
-import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
+import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
@@ -33,7 +33,7 @@ import javax.inject.Inject;
 
 public abstract class JniLibraryInternal extends BaseVariant implements JniLibrary {
 	private final NamingScheme names;
-	private final JniLibraryNativeDependenciesInternal dependencies;
+	private final DefaultJavaNativeInterfaceNativeComponentDependencies dependencies;
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
 	private final DefaultTargetMachine targetMachine;
 	private final GroupId groupId;
@@ -41,10 +41,10 @@ public abstract class JniLibraryInternal extends BaseVariant implements JniLibra
 	private SharedLibraryBinaryInternal sharedLibraryBinary;
 
 	@Inject
-	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, BuildVariant buildVariant, GroupId groupId, DomainObjectSet<Binary> parentBinaries, JniLibraryNativeDependenciesInternal dependencies) {
+	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, BuildVariant buildVariant, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies) {
 		super(name, buildVariant);
 		this.names = names;
-		this.dependencies = dependencies;
+		this.dependencies = dependencies.getDependencies();
 		this.sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
 		this.targetMachine = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
 		this.groupId = groupId;
@@ -113,12 +113,12 @@ public abstract class JniLibraryInternal extends BaseVariant implements JniLibra
 	}
 
 	@Override
-	public JniLibraryNativeDependencies getDependencies() {
+	public DefaultJavaNativeInterfaceNativeComponentDependencies getDependencies() {
 		return dependencies;
 	}
 
 	@Override
-	public void dependencies(Action<? super JniLibraryNativeDependencies> action) {
+	public void dependencies(Action<? super JavaNativeInterfaceNativeComponentDependencies> action) {
 		action.execute(dependencies);
 	}
 }

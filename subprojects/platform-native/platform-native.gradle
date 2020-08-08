@@ -82,6 +82,7 @@ test {
 	dependencies {
 		runtimeOnly 'net.bytebuddy:byte-buddy:1.10.10' // Because NamingScheme is not an interface
 		runtimeOnly 'org.objenesis:objenesis:3.1' // Because NamingScheme is not an interface
+		implementation testFixtures(project(':platformBase'))
 	}
 }
 

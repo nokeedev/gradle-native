@@ -6,7 +6,6 @@ import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.NamedDomainObjectIdentity;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;

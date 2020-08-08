@@ -37,6 +37,7 @@ test {
 	dependencies {
 		implementation 'org.hamcrest:hamcrest:2.2'
 		implementation testFixtures(project(':platformNative'))
+		implementation testFixtures(project(':platformBase'))
 		runtimeOnly 'net.bytebuddy:byte-buddy:1.10.10' // Because NamingScheme is not an interface
 		runtimeOnly 'org.objenesis:objenesis:3.1' // Because NamingScheme is not an interface
 	}

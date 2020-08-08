@@ -8,8 +8,8 @@ import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.VariantCollection;
+import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JniLibrary;
-import dev.nokee.platform.jni.JniLibraryDependencies;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory;
@@ -76,12 +76,12 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 	}
 
 	@Override
-	public JniLibraryDependenciesInternal getDependencies() {
+	public DefaultJavaNativeInterfaceLibraryComponentDependencies getDependencies() {
 		return component.getDependencies();
 	}
 
 	@Override
-	public void dependencies(Action<? super JniLibraryDependencies> action) {
+	public void dependencies(Action<? super JavaNativeInterfaceLibraryComponentDependencies> action) {
 		component.dependencies(action);
 	}
 

@@ -15,8 +15,7 @@ import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.VariantProvider;
 import dev.nokee.platform.nativebase.*;
-import dev.nokee.platform.nativebase.internal.dependencies.AbstractBinaryAwareNativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.AbstractNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
@@ -67,7 +66,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 		getDevelopmentVariant().convention(getDefaultVariant());
 	}
 
-	public abstract AbstractNativeComponentDependencies getDependencies();
+	public abstract NativeComponentDependencies getDependencies();
 
 	public VariantView<T> getVariants() {
 		return getVariantCollection().getAsView(variantType);
@@ -120,16 +119,9 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 		return result;
 	}
 
-	protected abstract T createVariant(String name, BuildVariant buildVariant, AbstractBinaryAwareNativeComponentDependencies dependencies);
+	protected abstract T createVariant(String name, BuildVariant buildVariant, VariantComponentDependencies<?> dependencies);
 
-	protected AbstractBinaryAwareNativeComponentDependencies newDependencies(NamingScheme names, BuildVariant buildVariant) {
-		AbstractNativeComponentDependencies variantDependencies = getDependencies();
-		if (getBuildVariants().get().size() > 1) {
-			variantDependencies = variantDependencies.extendsWith(names);
-		}
-
-		return variantDependencies.newVariantDependency(names, buildVariant, !getSourceCollection().withType(SwiftSourceSet.class).isEmpty());
-	}
+	protected abstract VariantComponentDependencies<?> newDependencies(NamingScheme names, BuildVariant buildVariant);
 
 	public void finalizeExtension(Project project) {
 		// TODO: Assert build variant matches dimensions
@@ -137,7 +129,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 			final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE), buildVariant.getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE));
 			final NamingScheme names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-			AbstractBinaryAwareNativeComponentDependencies dependencies = newDependencies(names.withComponentDisplayName("main native component"), buildVariant);
+			val dependencies = newDependencies(names.withComponentDisplayName("main native component"), buildVariant);
 			VariantProvider<T> variant = getVariantCollection().registerVariant(buildVariant, (name, bv) -> {
 				T it = createVariant(name, bv, dependencies);
 
@@ -227,7 +219,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 		getVariantCollection().disallowChanges();
 	}
 
-	protected void onEachVariantDependencies(VariantProvider<T> variant, AbstractBinaryAwareNativeComponentDependencies dependencies) {
+	protected void onEachVariantDependencies(VariantProvider<T> variant, VariantComponentDependencies<?> dependencies) {
 		if (NativeLibrary.class.isAssignableFrom(variantType)) {
 			if (!getSourceCollection().withType(SwiftSourceSet.class).isEmpty()) {
 				dependencies.getOutgoing().getExportedSwiftModule().convention(variant.flatMap(it -> {

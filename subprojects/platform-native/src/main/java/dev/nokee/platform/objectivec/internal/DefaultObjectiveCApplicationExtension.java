@@ -4,7 +4,7 @@ import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.nativebase.NativeApplication;
-import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.objectivec.ObjectiveCApplicationExtension;
@@ -22,12 +22,12 @@ public abstract class DefaultObjectiveCApplicationExtension extends BaseNativeEx
 	}
 
 	@Override
-	public NativeComponentDependencies getDependencies() {
+	public NativeApplicationComponentDependencies getDependencies() {
 		return getComponent().getDependencies();
 	}
 
 	@Override
-	public void dependencies(Action<? super NativeComponentDependencies> action) {
+	public void dependencies(Action<? super NativeApplicationComponentDependencies> action) {
 		getComponent().dependencies(action);
 	}
 

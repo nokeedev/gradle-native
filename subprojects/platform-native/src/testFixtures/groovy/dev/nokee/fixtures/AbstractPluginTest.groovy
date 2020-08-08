@@ -1,13 +1,8 @@
 package dev.nokee.fixtures
 
-import dev.nokee.platform.base.BinaryAwareComponent
-import dev.nokee.platform.base.BinaryView
-import dev.nokee.platform.base.DependencyAwareComponent
-import dev.nokee.platform.base.Variant
-import dev.nokee.platform.base.VariantAwareComponent
-import dev.nokee.platform.base.VariantView
-import dev.nokee.platform.nativebase.NativeComponentDependencies
-import dev.nokee.platform.nativebase.NativeLibraryDependencies
+import dev.nokee.platform.base.*
+import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies
+import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent
 import dev.nokee.platform.nativebase.TargetMachineFactory
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory
@@ -15,7 +10,6 @@ import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
 import org.gradle.testfixtures.ProjectBuilder
-import spock.lang.Ignore
 import spock.lang.Specification
 
 abstract class AbstractPluginTest extends Specification implements ProjectTestFixture {
@@ -39,9 +33,9 @@ abstract class AbstractPluginTest extends Specification implements ProjectTestFi
 
 	Class getDependenciesType() {
 		if (pluginIdUnderTest.endsWith('library')) {
-			return NativeLibraryDependencies
+			return NativeLibraryComponentDependencies
 		}
-		return NativeComponentDependencies
+		return NativeApplicationComponentDependencies
 	}
 
 	Class getVariantDependenciesType() {

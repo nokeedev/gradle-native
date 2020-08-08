@@ -29,10 +29,10 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 	private final ConfigurationUtils builder = getObjects().newInstance(ConfigurationUtils.class);
 
 	@Inject
-	public AbstractNativeLibraryOutgoingDependencies(NamingScheme names, BuildVariant buildVariant, DefaultNativeLibraryDependencies dependencies) {
+	public AbstractNativeLibraryOutgoingDependencies(NamingScheme names, BuildVariant buildVariant, DefaultNativeLibraryComponentDependencies dependencies) {
 
-		Configuration linkElements = getConfigurations().create(names.getConfigurationName("linkElements"), builder.asOutgoingLinkLibrariesFrom(dependencies.getApiDependencies(), dependencies.getLinkOnlyDependencies()).withVariant(buildVariant).withDescription(names.getConfigurationDescription("Link elements for %s.")));
-		Configuration runtimeElements = getConfigurations().create(names.getConfigurationName("runtimeElements"), builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementationDependencies(), dependencies.getRuntimeOnlyDependencies()).withVariant(buildVariant).withDescription(names.getConfigurationDescription("Runtime elements for %s.")));
+		Configuration linkElements = getConfigurations().create(names.getConfigurationName("linkElements"), builder.asOutgoingLinkLibrariesFrom(dependencies.getApi().getAsConfiguration(), dependencies.getLinkOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(names.getConfigurationDescription("Link elements for %s.")));
+		Configuration runtimeElements = getConfigurations().create(names.getConfigurationName("runtimeElements"), builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getRuntimeOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(names.getConfigurationDescription("Runtime elements for %s.")));
 
 		linkElements.getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingLinkLibrary));
 

@@ -5,7 +5,7 @@ import dev.nokee.language.c.internal.CSourceSet;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.c.CLibraryExtension;
 import dev.nokee.platform.nativebase.NativeLibrary;
-import dev.nokee.platform.nativebase.NativeLibraryDependencies;
+import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import org.gradle.api.Action;
@@ -23,12 +23,12 @@ public abstract class DefaultCLibraryExtension extends BaseNativeExtension<Defau
 	}
 
 	@Override
-	public NativeLibraryDependencies getDependencies() {
+	public NativeLibraryComponentDependencies getDependencies() {
 		return getComponent().getDependencies();
 	}
 
 	@Override
-	public void dependencies(Action<? super NativeLibraryDependencies> action) {
+	public void dependencies(Action<? super NativeLibraryComponentDependencies> action) {
 		getComponent().dependencies(action);
 	}
 

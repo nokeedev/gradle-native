@@ -1,53 +1,94 @@
 package dev.nokee.platform.nativebase.internal.dependencies;
 
-import dev.nokee.platform.base.internal.BuildVariant;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.ComponentDependencies;
+import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.internal.dependencies.BaseComponentDependencies;
+import dev.nokee.platform.base.internal.dependencies.ComponentDependenciesInternal;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import lombok.Getter;
+import org.gradle.api.Action;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ModuleDependency;
 
 import javax.inject.Inject;
 
-public abstract class DefaultNativeComponentDependencies extends AbstractNativeComponentDependencies implements NativeComponentDependencies {
+import static dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx.configureAsBucket;
+
+public class DefaultNativeComponentDependencies extends BaseComponentDependencies implements NativeComponentDependencies, ComponentDependencies {
+	@Getter private final DependencyBucket implementation;
+	@Getter private final DependencyBucket compileOnly;
+	@Getter private final DependencyBucket linkOnly;
+	@Getter private final DependencyBucket runtimeOnly;
+
 	@Inject
-	public DefaultNativeComponentDependencies(NamingScheme names) {
-		super(names);
+	public DefaultNativeComponentDependencies(ComponentDependenciesInternal delegate) {
+		super(delegate);
+		this.implementation = delegate.create("implementation", this::configureImplementationConfiguration);
+		this.compileOnly = delegate.create("compileOnly", this::configureCompileOnlyConfiguration);
+		this.linkOnly = delegate.create("linkOnly", this::configureLinkOnlyConfiguration);
+		this.runtimeOnly = delegate.create("runtimeOnly", this::configureRuntimeOnlyConfiguration);
+	}
+
+	private void configureImplementationConfiguration(Configuration configuration) {
+		configureAsBucket(configuration);
+		configuration.setDescription(String.format("Implementation only dependencies for %s.", getComponentDisplayName()));
+	}
+
+	private void configureCompileOnlyConfiguration(Configuration configuration) {
+		configureAsBucket(configuration);
+		configuration.extendsFrom(implementation.getAsConfiguration());
+		configuration.setDescription(String.format("Compile only dependencies for %s.", getComponentDisplayName()));
+	}
+
+	private void configureLinkOnlyConfiguration(Configuration configuration) {
+		configureAsBucket(configuration);
+		configuration.extendsFrom(implementation.getAsConfiguration());
+		configuration.setDescription(String.format("Link only dependencies for %s.", getComponentDisplayName()));
+	}
+
+	private void configureRuntimeOnlyConfiguration(Configuration configuration) {
+		configureAsBucket(configuration);
+		configuration.extendsFrom(implementation.getAsConfiguration());
+		configuration.setDescription(String.format("Runtime only dependencies for %s.", getComponentDisplayName()));
 	}
 
 	@Override
-	public DefaultNativeComponentDependencies extendsWith(NamingScheme names) {
-		DefaultNativeComponentDependencies result = getObjects().newInstance(DefaultNativeComponentDependencies.class, names);
-		result.getImplementationDependencies().extendsFrom(getImplementationDependencies());
-		// HACK: For JNI, fix this
-		if (getCompileOnlyDependencies() != null && result.getCompileOnlyDependencies() != null) {
-			result.getCompileOnlyDependencies().extendsFrom(getCompileOnlyDependencies());
-		}
-		result.getLinkOnlyDependencies().extendsFrom(getLinkOnlyDependencies());
-		result.getRuntimeOnlyDependencies().extendsFrom(getRuntimeOnlyDependencies());
-		return result;
+	public void implementation(Object notation) {
+		getImplementation().addDependency(notation);
 	}
 
 	@Override
-	public AbstractBinaryAwareNativeComponentDependencies newVariantDependency(NamingScheme names, BuildVariant buildVariant, boolean hasSwift) {
-		SwiftModuleIncomingDependencies incomingSwiftDependencies = null;
-		HeaderIncomingDependencies incomingHeaderDependencies = null;
-		if (hasSwift) {
-			incomingSwiftDependencies = getObjects().newInstance(DefaultSwiftModuleIncomingDependencies.class, names, this);
-			incomingHeaderDependencies = getObjects().newInstance(NoHeaderIncomingDependencies.class);
-		} else {
-			incomingHeaderDependencies = getObjects().newInstance(DefaultHeaderIncomingDependencies.class, names, this, buildVariant);
-			incomingSwiftDependencies = getObjects().newInstance(NoSwiftModuleIncomingDependencies.class);
-		}
-
-		NativeIncomingDependencies incoming = getObjects().newInstance(NativeIncomingDependencies.class, names, buildVariant, this, incomingSwiftDependencies, incomingHeaderDependencies);
-		NativeOutgoingDependencies outgoing = getObjects().newInstance(NativeApplicationOutgoingDependencies.class, names, buildVariant, this);
-
-		return getObjects().newInstance(BinaryAwareNativeComponentDependencies.class, this, incoming, outgoing);
+	public void implementation(Object notation, Action<? super ModuleDependency> action) {
+		getImplementation().addDependency(notation, action);
 	}
 
-	public DefaultNativeComponentDependencies extendsFrom(DefaultNativeComponentDependencies dependencies) {
-		getImplementationDependencies().extendsFrom(dependencies.getImplementationDependencies());
-		getCompileOnlyDependencies().extendsFrom(dependencies.getCompileOnlyDependencies());
-		getLinkOnlyDependencies().extendsFrom(dependencies.getLinkOnlyDependencies());
-		getRuntimeOnlyDependencies().extendsFrom(dependencies.getRuntimeOnlyDependencies());
-		return this;
+	@Override
+	public void compileOnly(Object notation) {
+		getCompileOnly().addDependency(notation);
+	}
+
+	@Override
+	public void compileOnly(Object notation, Action<? super ModuleDependency> action) {
+		getCompileOnly().addDependency(notation, action);
+	}
+
+	@Override
+	public void linkOnly(Object notation) {
+		getLinkOnly().addDependency(notation);
+	}
+
+	@Override
+	public void linkOnly(Object notation, Action<? super ModuleDependency> action) {
+		getLinkOnly().addDependency(notation, action);
+	}
+
+	@Override
+	public void runtimeOnly(Object notation) {
+		getRuntimeOnly().addDependency(notation);
+	}
+
+	@Override
+	public void runtimeOnly(Object notation, Action<? super ModuleDependency> action) {
+		getRuntimeOnly().addDependency(notation, action);
 	}
 }

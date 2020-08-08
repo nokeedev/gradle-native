@@ -9,6 +9,7 @@ import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -19,6 +20,8 @@ import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import lombok.val;
+import lombok.var;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -40,7 +43,8 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	@Inject
 	public BaseXCTestTestSuiteComponent(NamingScheme names) {
 		super(names, DefaultXCTestTestSuiteVariant.class);
-		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, names);
+		val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
+		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 
 		// TODO: Move to extension
@@ -87,7 +91,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	}
 
 	@Override
-	protected DefaultXCTestTestSuiteVariant createVariant(String name, BuildVariant buildVariant, AbstractBinaryAwareNativeComponentDependencies variantDependencies) {
+	protected DefaultXCTestTestSuiteVariant createVariant(String name, BuildVariant buildVariant, VariantComponentDependencies<?> variantDependencies) {
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
 		DefaultXCTestTestSuiteVariant result = getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, name, names, buildVariant, variantDependencies);
@@ -95,27 +99,30 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	}
 
 	@Override
-	protected AbstractBinaryAwareNativeComponentDependencies newDependencies(NamingScheme names, BuildVariant buildVariant) {
-		AbstractNativeComponentDependencies variantDependencies = getDependencies();
+	protected VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(NamingScheme names, BuildVariant buildVariant) {
+		var variantDependencies = getDependencies();
 		if (getBuildVariants().get().size() > 1) {
-			variantDependencies = variantDependencies.extendsWith(names);
+			val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler())));
+			variantDependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
+			variantDependencies.configureEach(variantBucket -> {
+				getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
+					variantBucket.getAsConfiguration().extendsFrom(componentBucket.getAsConfiguration());
+				});
+			});
 		}
 
-		SwiftModuleIncomingDependencies incomingSwiftDependencies = null;
-		HeaderIncomingDependencies incomingHeaderDependencies = null;
+		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
 		boolean hasSwift = !getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
 		if (hasSwift) {
-			incomingSwiftDependencies = getObjects().newInstance(DefaultSwiftModuleIncomingDependencies.class, names, variantDependencies);
-			incomingHeaderDependencies = getObjects().newInstance(NoHeaderIncomingDependencies.class);
+			incomingDependenciesBuilder.withIncomingSwiftModules();
 		} else {
-			incomingHeaderDependencies = getObjects().newInstance(DefaultHeaderIncomingDependencies.class, names, variantDependencies, buildVariant);
-			incomingSwiftDependencies = getObjects().newInstance(NoSwiftModuleIncomingDependencies.class);
+			incomingDependenciesBuilder.withIncomingHeaders();
 		}
 
-		NativeIncomingDependencies incoming = getObjects().newInstance(NativeIncomingDependencies.class, names, buildVariant, variantDependencies, incomingSwiftDependencies, incomingHeaderDependencies);
+		NativeIncomingDependencies incoming = incomingDependenciesBuilder.buildUsing(getObjects());
 		NativeOutgoingDependencies outgoing = getObjects().newInstance(IosApplicationOutgoingDependencies.class, names, buildVariant, variantDependencies);
 
-		return getObjects().newInstance(BinaryAwareNativeComponentDependencies.class, variantDependencies, incoming, outgoing);
+		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
 	}
 
 	@Inject

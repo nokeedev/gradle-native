@@ -866,11 +866,11 @@ abstract class AbstractJniLibraryPluginConfigurationsTest extends AbstractJniLib
 		resolveAllVariants('plugin creates configurations on demand')
 
 		expect:
-		project.configurations.nativeImplementation.description == 'Implementation only dependencies for JNI shared library.'
-		project.configurations.nativeLinkOnly.description == 'Link only dependencies for JNI shared library.'
-		project.configurations.nativeRuntimeOnly.description == 'Runtime only dependencies for JNI shared library.'
-		project.configurations.nativeLinkLibraries.description == 'Link libraries for JNI shared library.'
-		project.configurations.nativeRuntimeLibraries.description == 'Runtime libraries for JNI shared library.'
+		project.configurations.nativeImplementation.description == 'Implementation only dependencies for JNI library.'
+		project.configurations.nativeLinkOnly.description == 'Link only dependencies for JNI library.'
+		project.configurations.nativeRuntimeOnly.description == 'Runtime only dependencies for JNI library.'
+		project.configurations.nativeLinkLibraries.description == 'Link libraries for JNI library.'
+		project.configurations.nativeRuntimeLibraries.description == 'Runtime libraries for JNI library.'
 	}
 }
 

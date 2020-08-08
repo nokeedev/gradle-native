@@ -14,7 +14,7 @@ import org.gradle.api.provider.Property;
  *
  * @since 0.2
  */
-public interface JniLibrary extends Variant, DependencyAwareComponent<JniLibraryNativeDependencies>, BinaryAwareComponent {
+public interface JniLibrary extends Variant, DependencyAwareComponent<JavaNativeInterfaceNativeComponentDependencies>, BinaryAwareComponent {
 	/**
 	 * Specifies the resource path where the native components of the JNI library will be located within the JAR.
 	 *

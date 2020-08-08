@@ -13,6 +13,10 @@ import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
+import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
+import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
+import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
@@ -20,7 +24,8 @@ import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.platform.nativebase.internal.NativeLanguageRules;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
-import dev.nokee.platform.nativebase.internal.dependencies.*;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeIncomingDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -32,6 +37,7 @@ import lombok.val;
 import org.gradle.api.*;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.FileCollection;
@@ -86,31 +92,34 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 	@Inject
 	protected abstract ProjectLayout getLayout();
 
-	private JniLibraryNativeDependenciesInternal newDependencies(NamingScheme names, BuildVariant buildVariant, JniLibraryComponentInternal component) {
-		DefaultNativeComponentDependencies variantDependencies = component.getDependencies().getNativeDelegate();
+	private VariantComponentDependencies newDependencies(NamingScheme names, BuildVariant buildVariant, JniLibraryComponentInternal component) {
+		DefaultJavaNativeInterfaceNativeComponentDependencies variantDependencies = component.getDependencies();
 		if (component.getBuildVariants().get().size() > 1) {
-			variantDependencies = variantDependencies.extendsWith(names.withConfigurationNamePrefix("native"));
+			val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, "JNI shared library", new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler())));
+			variantDependencies = getObjects().newInstance(DefaultJavaNativeInterfaceNativeComponentDependencies.class, dependencyContainer);
+			variantDependencies.configureEach(variantBucket -> {
+				component.getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
+					variantBucket.getAsConfiguration().extendsFrom(componentBucket.getAsConfiguration());
+				});
+			});
 		}
 
+		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(new NativeComponentDependenciesJavaNativeInterfaceAdapter(variantDependencies)).withVariant(buildVariant);
 		boolean hasSwift = !component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
 		boolean hasHeader = !component.getSourceCollection().matching(it -> it instanceof CSourceSet || it instanceof CppSourceSet || it instanceof ObjectiveCSourceSet || it instanceof ObjectiveCppSourceSet).isEmpty();
-		SwiftModuleIncomingDependencies incomingSwiftDependencies = null;
-		HeaderIncomingDependencies incomingHeaderDependencies = null;
 		if (hasSwift) {
-			incomingSwiftDependencies = getObjects().newInstance(DefaultSwiftModuleIncomingDependencies.class, names, variantDependencies);
-			incomingHeaderDependencies = getObjects().newInstance(NoHeaderIncomingDependencies.class);
+			incomingDependenciesBuilder.withIncomingSwiftModules();
 		} else if (hasHeader) {
-			incomingHeaderDependencies = getObjects().newInstance(DefaultHeaderIncomingDependencies.class, names, variantDependencies, buildVariant);
-			incomingSwiftDependencies = getObjects().newInstance(NoSwiftModuleIncomingDependencies.class);
-		} else {
-			incomingHeaderDependencies = getObjects().newInstance(NoHeaderIncomingDependencies.class);
-			incomingSwiftDependencies = getObjects().newInstance(NoSwiftModuleIncomingDependencies.class);
+			incomingDependenciesBuilder.withIncomingHeaders();
 		}
 
-		NativeIncomingDependencies incoming = getObjects().newInstance(NativeIncomingDependencies.class, names.withConfigurationNamePrefix("native"), buildVariant, variantDependencies, incomingSwiftDependencies, incomingHeaderDependencies);
+		NativeIncomingDependencies incoming = incomingDependenciesBuilder.buildUsing(getObjects());
 
-		return getObjects().newInstance(JniLibraryNativeDependenciesInternal.class, variantDependencies, incoming);
+		return new VariantComponentDependencies(variantDependencies, incoming);
 	}
+
+	@Inject
+	protected abstract DependencyHandler getDependencyHandler();
 
 	@Override
 	public void apply(Project project) {
@@ -126,7 +135,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
 		NamingSchemeFactory namingSchemeFactory = new NamingSchemeFactory(project.getName());
-		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent();
+		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent().withComponentDisplayName("JNI library");
 		JniLibraryExtensionInternal extension = registerExtension(project, mainComponentNames);
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 
@@ -163,7 +172,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
 				final NamingScheme names = mainComponentNames.forBuildVariant(buildVariant, extension.getBuildVariants().get());
 
-				JniLibraryNativeDependenciesInternal dependencies = newDependencies(names.withComponentDisplayName("JNI shared library"), buildVariant, extension.getComponent());
+				val dependencies = newDependencies(names.withComponentDisplayName("JNI shared library"), buildVariant, extension.getComponent());
 				final VariantProvider<JniLibraryInternal> library = extension.getVariantCollection().registerVariant(buildVariant, (name, bv) -> {
 					JniLibraryInternal it = extension.getComponent().createVariant(name, bv, dependencies);
 
@@ -443,7 +452,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 	private JniLibraryExtensionInternal registerExtension(Project project, NamingScheme names) {
 		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, GroupId.of(project::getGroup), names);
 
-		JniLibraryDependenciesInternal dependencies = library.getDependencies();
+		val dependencies = library.getDependencies();
 
 		Configuration jvmApiElements = Optional.ofNullable(project.getConfigurations().findByName("apiElements")).orElseGet(() -> {
 			return project.getConfigurations().create("apiElements", configuration -> {
@@ -455,7 +464,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				});
 			});
 		});
-		jvmApiElements.extendsFrom(dependencies.getApiDependencies());
+		jvmApiElements.extendsFrom(dependencies.getApi().getAsConfiguration());
 
 
 		Configuration jvmRuntimeElements = Optional.ofNullable(project.getConfigurations().findByName("runtimeElements")).orElseGet(() -> {
@@ -468,10 +477,10 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				});
 			});
 		});
-		jvmRuntimeElements.extendsFrom(dependencies.getApiDependencies());
+		jvmRuntimeElements.extendsFrom(dependencies.getApi().getAsConfiguration());
 
 		project.getPluginManager().withPlugin("java", appliedPlugin -> {
-			getConfigurations().getByName("runtimeOnly").extendsFrom(dependencies.getJvmRuntimeOnlyDependencies());
+			getConfigurations().getByName("runtimeOnly").extendsFrom(dependencies.getJvmRuntimeOnly().getAsConfiguration());
 		});
 
 		project.getExtensions().add(JniLibraryExtension.class, "library", library);

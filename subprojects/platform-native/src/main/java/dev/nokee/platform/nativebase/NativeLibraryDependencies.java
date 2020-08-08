@@ -11,6 +11,7 @@ import org.gradle.api.artifacts.ProjectDependency;
  *
  * @since 0.4
  */
+@Deprecated
 public interface NativeLibraryDependencies extends NativeComponentDependencies, ComponentDependencies {
     /**
      * Adds an API dependency to this library. An API dependency is made visible to consumers that are compiled against this component.

@@ -11,10 +11,10 @@ public abstract class SwiftLibraryOutgoingDependencies extends AbstractNativeLib
 	private final ConfigurationUtils builder = getObjects().newInstance(ConfigurationUtils.class);
 
 	@Inject
-	public SwiftLibraryOutgoingDependencies(NamingScheme names, BuildVariant buildVariant, DefaultNativeLibraryDependencies dependencies) {
+	public SwiftLibraryOutgoingDependencies(NamingScheme names, BuildVariant buildVariant, DefaultNativeLibraryComponentDependencies dependencies) {
 		super(names, buildVariant, dependencies);
 
-		Configuration apiElements = getConfigurations().create(names.getConfigurationName("apiElements"), builder.asOutgoingSwiftModuleFrom(dependencies.getApiDependencies(), dependencies.getCompileOnlyDependencies()).withVariant(buildVariant).withDescription(names.getConfigurationDescription("API elements for %s.")));
+		Configuration apiElements = getConfigurations().create(names.getConfigurationName("apiElements"), builder.asOutgoingSwiftModuleFrom(dependencies.getApi().getAsConfiguration(), dependencies.getCompileOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(names.getConfigurationDescription("API elements for %s.")));
 
 		apiElements.getOutgoing().artifact(getExportedSwiftModule());
 	}

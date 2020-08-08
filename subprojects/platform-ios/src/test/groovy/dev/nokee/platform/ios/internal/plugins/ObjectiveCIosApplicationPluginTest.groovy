@@ -14,6 +14,7 @@ import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask
 import dev.nokee.platform.ios.tasks.internal.StoryboardCompileTask
 import dev.nokee.platform.ios.tasks.internal.StoryboardLinkTask
 import dev.nokee.platform.nativebase.ExecutableBinary
+import dev.nokee.platform.nativebase.NativeComponentDependencies
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -40,6 +41,10 @@ trait ObjectiveCIosApplicationPluginTestFixture {
 
 	Class getExtensionType() {
 		return ObjectiveCIosApplicationExtension
+	}
+
+	Class getDependenciesType() {
+		return NativeComponentDependencies
 	}
 
 	Class getVariantType() {

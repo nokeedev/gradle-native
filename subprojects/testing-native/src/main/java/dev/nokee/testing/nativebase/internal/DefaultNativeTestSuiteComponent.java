@@ -13,6 +13,7 @@ import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BuildVariant;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -20,17 +21,18 @@ import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
-import dev.nokee.platform.nativebase.internal.dependencies.AbstractBinaryAwareNativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import lombok.val;
+import lombok.var;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.provider.Property;
@@ -51,7 +53,8 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 	public DefaultNativeTestSuiteComponent(NamingScheme names) {
 		super(names, DefaultNativeTestSuiteVariant.class);
 
-		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, getNames());
+		val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
+		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.getDimensions().convention(ImmutableList.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultBinaryLinkage.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 		this.getBaseName().convention(names.getBaseName().getAsString());
 
@@ -61,6 +64,9 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 
 		this.getDimensions().disallowChanges(); // Let's disallow changing them for now.
 	}
+
+	@Inject
+	protected abstract DependencyHandler getDependencyHandler();
 
 	@Override
 	public String getName() {
@@ -96,7 +102,34 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 	}
 
 	@Override
-	protected DefaultNativeTestSuiteVariant createVariant(String name, BuildVariant buildVariant, AbstractBinaryAwareNativeComponentDependencies variantDependencies) {
+	protected VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(NamingScheme names, BuildVariant buildVariant) {
+		var variantDependencies = getDependencies();
+		if (getBuildVariants().get().size() > 1) {
+			val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler())));
+			variantDependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
+			variantDependencies.configureEach(variantBucket -> {
+				getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
+					variantBucket.getAsConfiguration().extendsFrom(componentBucket.getAsConfiguration());
+				});
+			});
+		}
+
+		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
+		boolean hasSwift = !getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
+		if (hasSwift) {
+			incomingDependenciesBuilder.withIncomingSwiftModules();
+		} else {
+			incomingDependenciesBuilder.withIncomingHeaders();
+		}
+
+		NativeIncomingDependencies incoming = incomingDependenciesBuilder.buildUsing(getObjects());
+		NativeOutgoingDependencies outgoing = getObjects().newInstance(NativeApplicationOutgoingDependencies.class, names, buildVariant, variantDependencies);
+
+		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
+	}
+
+	@Override
+	protected DefaultNativeTestSuiteVariant createVariant(String name, BuildVariant buildVariant, VariantComponentDependencies<?> variantDependencies) {
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
 		val result = getObjects().newInstance(DefaultNativeTestSuiteVariant.class, name, names, buildVariant, variantDependencies);
@@ -137,7 +170,10 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 				}
 			});
 			if (component instanceof BaseNativeComponent) {
-				getDependencies().getImplementationDependencies().extendsFrom(((BaseNativeComponent<?>) component).getDependencies().getImplementationDependencies());
+				val testedComponentDependencies = ((BaseNativeComponent<?>) component).getDependencies();
+				getDependencies().getImplementation().getAsConfiguration().extendsFrom(testedComponentDependencies.getImplementation().getAsConfiguration());
+				getDependencies().getLinkOnly().getAsConfiguration().extendsFrom(testedComponentDependencies.getLinkOnly().getAsConfiguration());
+				getDependencies().getRuntimeOnly().getAsConfiguration().extendsFrom(testedComponentDependencies.getRuntimeOnly().getAsConfiguration());
 			}
 			getBinaries().configureEach(ExecutableBinary.class, binary -> {
 				Provider<List<? extends FileTree>> componentObjects = component.getBinaries().withType(NativeBinary.class).flatMap(it -> {

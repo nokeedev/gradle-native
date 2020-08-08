@@ -11,10 +11,10 @@ public abstract class NativeLibraryOutgoingDependencies extends AbstractNativeLi
 	private final ConfigurationUtils builder = getObjects().newInstance(ConfigurationUtils.class);
 
 	@Inject
-	public NativeLibraryOutgoingDependencies(NamingScheme names, BuildVariant buildVariant, DefaultNativeLibraryDependencies dependencies) {
+	public NativeLibraryOutgoingDependencies(NamingScheme names, BuildVariant buildVariant, DefaultNativeLibraryComponentDependencies dependencies) {
 		super(names, buildVariant, dependencies);
 
-		Configuration apiElements = getConfigurations().create(names.getConfigurationName("apiElements"), builder.asOutgoingHeaderSearchPathFrom(dependencies.getApiDependencies(), dependencies.getCompileOnlyDependencies()).withVariant(buildVariant).withDescription("API elements for %s."));
+		Configuration apiElements = getConfigurations().create(names.getConfigurationName("apiElements"), builder.asOutgoingHeaderSearchPathFrom(dependencies.getApi().getAsConfiguration(), dependencies.getCompileOnly().getAsConfiguration()).withVariant(buildVariant).withDescription("API elements for %s."));
 
 		apiElements.getOutgoing().artifact(getExportedHeaders());
 	}
