@@ -150,7 +150,7 @@ public abstract class DefaultNativeIncomingDependencies implements NativeIncomin
 				val bucket = dependenciesInternal.create("headerSearchPaths",
 					ChainingAction.of(ConfigurationUtilsEx.asIncomingHeaderSearchPathFrom(dependencies.getImplementation()))
 						.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
-						.andThen(ConfigurationUtilsEx.withAttributes(buildVariant, objects))
+						.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
 						.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
 						.andThen(it -> it.setDescription(String.format("Header search paths for %s.", dependenciesInternal.getComponentDisplayName()))));
 				incomingHeaders = objects.newInstance(DefaultIncomingHeaders.class, bucket);
@@ -163,7 +163,7 @@ public abstract class DefaultNativeIncomingDependencies implements NativeIncomin
 				val bucket = dependenciesInternal.create("importSwiftModules",
 					ChainingAction.of(ConfigurationUtilsEx.asIncomingSwiftModuleFrom(dependencies.getImplementation()))
 						.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
-						.andThen(ConfigurationUtilsEx.withAttributes(buildVariant, objects))
+						.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
 						.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
 						.andThen(it -> it.setDescription(String.format("Import Swift modules for %s.", dependenciesInternal.getComponentDisplayName()))));
 				incomingSwiftModules = objects.newInstance(DefaultIncomingSwiftModules.class, bucket);
@@ -173,12 +173,12 @@ public abstract class DefaultNativeIncomingDependencies implements NativeIncomin
 
 			val linkLibrariesBucket = dependenciesInternal.create("linkLibraries",
 				ChainingAction.of(ConfigurationUtilsEx.asIncomingLinkLibrariesFrom(dependencies.getImplementation(), dependencies.getLinkOnly()))
-					.andThen(ConfigurationUtilsEx.withAttributes(buildVariant, objects))
+					.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
 					.andThen(it -> it.setDescription(String.format("Link libraries for %s.", dependenciesInternal.getComponentDisplayName()))));
 			val runtimeLibrariesBucket = dependenciesInternal.create("runtimeLibraries",
 				ChainingAction.of(ConfigurationUtilsEx.asIncomingRuntimeLibrariesFrom(dependencies.getImplementation(), dependencies.getRuntimeOnly()))
-					.andThen(ConfigurationUtilsEx.withAttributes(buildVariant, objects))
+					.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
 					.andThen(it -> it.setDescription(String.format("Runtime libraries for %s.", dependenciesInternal.getComponentDisplayName()))));
 

@@ -70,7 +70,7 @@ public class ConfigurationUtilsEx {
 		return Arrays.stream(buckets).map(DependencyBucket::getAsConfiguration).collect(Collectors.toList());
 	}
 
-	public static Action<Configuration> withAttributes(BuildVariant variant, ObjectFactory objects) {
+	public static Action<Configuration> configureIncomingAttributes(BuildVariant variant, ObjectFactory objects) {
 		return configuration -> {
 			val attributes = configuration.getAttributes();
 			variant.getDimensions().forEach(it -> {
@@ -79,7 +79,7 @@ public class ConfigurationUtilsEx {
 				} else if (it instanceof DefaultMachineArchitecture) {
 					attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture.class, ((DefaultMachineArchitecture) it).getName()));
 				} else if (it instanceof DefaultBinaryLinkage) {
-					attributes.attribute(DefaultBinaryLinkage.LINKAGE_ATTRIBUTE, ((DefaultBinaryLinkage) it).getName());
+					// Do not configure this dimension for incoming dependencies
 				} else {
 					throw new IllegalArgumentException(String.format("Unknown dimension variant '%s'", it.toString()));
 				}
