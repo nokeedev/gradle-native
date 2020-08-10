@@ -5,11 +5,13 @@ import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.VariantView
 import groovy.transform.ToString
 import org.gradle.api.provider.Provider
+import spock.lang.Ignore
 import spock.lang.Subject
 
 import javax.inject.Inject
 
 @Subject(VariantAwareBinaryView)
+@Ignore
 class VariantAwareBinaryViewTest extends AbstractViewTest<Binary> {
 	final TestVariant variant = objects.newInstance(TestVariant)
 	final def variantCollection = objects.domainObjectSet(TestVariant)
