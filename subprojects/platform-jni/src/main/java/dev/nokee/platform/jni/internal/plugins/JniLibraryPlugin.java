@@ -228,7 +228,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 				if (targetMachines.size() > 1) {
 					getTasks().register(names.getTaskName(LifecycleBasePlugin.ASSEMBLE_TASK_NAME), task -> {
 						task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
-						task.setDescription(String.format("Assembles the '%s' outputs of this project.", library.getDelegate().getName()));
+						task.setDescription(String.format("Assembles the '%s' outputs of this project.", BuildVariantNamer.INSTANCE.determineName(library.getBuildVariant())));
 						task.dependsOn(library.map(it -> it.getJar().getJarTask()));
 						task.dependsOn(jvmJarBinary.map(it -> ImmutableList.of(it.getJarTask())).orElse(ImmutableList.of()));
 					});
