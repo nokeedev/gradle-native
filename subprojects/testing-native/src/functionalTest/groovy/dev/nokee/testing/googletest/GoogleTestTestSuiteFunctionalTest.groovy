@@ -1,7 +1,6 @@
 package dev.nokee.testing.googletest
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
-import dev.gradleplugins.test.fixtures.scan.GradleEnterpriseBuildScan
 import dev.nokee.language.cpp.CppTaskNames
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.fixtures.CppGreeterLib
@@ -67,7 +66,7 @@ class GoogleTestTestSuiteFunctionalTest extends AbstractInstalledToolChainIntegr
 
 		when:
 		// Because of https://github.com/gradle/gradle/issues/13793
-		executer = executer.withoutDeprecationChecks()
+		executer = executer.withoutDeprecationChecks().requireIsolatedDaemons()
 		succeeds('test')
 
 		then:
