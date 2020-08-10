@@ -1,116 +1,83 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.base.Preconditions;
-import dev.nokee.utils.Cast;
+import com.google.common.collect.ImmutableSet;
+import dev.nokee.platform.base.DomainObjectCollection;
+import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.runtime.base.internal.Dimension;
-import lombok.Value;
-import org.apache.commons.lang3.StringUtils;
+import dev.nokee.utils.Cast;
 import org.gradle.api.Action;
-import org.gradle.api.DomainObjectSet;
-import org.gradle.api.Named;
-import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public abstract class VariantCollection<T extends Variant> implements Realizable {
-	private final Map<String, VariantCreationArguments<T>> variantCreationArguments = new HashMap<>();
+	private final DomainObjectCollection<T> delegate;
 	private final Class<T> elementType;
-	private final NamedDomainObjectContainer<T> collection;
 	private boolean disallowChanges = false;
-	private final DomainObjectSet<KnownVariant<T>> knownVariants = Cast.uncheckedCastBecauseOfTypeErasure(getObjects().domainObjectSet(KnownVariant.class));
 
 	@Inject
 	protected abstract ObjectFactory getObjects();
 
 	// TODO: Make the distinction between public and implementation type
 	@Inject
-	public VariantCollection(Class<T> elementType) {
-		Preconditions.checkArgument(Named.class.isAssignableFrom(elementType), "element type of the collection needs to implement Named");
+	public VariantCollection(Class<T> elementType, ProviderFactory providers) {
 		this.elementType = elementType;
-		this.collection = getObjects().domainObjectContainer(elementType, this::create);
-	}
-
-	private T create(String name) {
-		VariantCreationArguments<T> args = variantCreationArguments.remove(name);
-		T result = args.factory.create(name, args.buildVariant);
-		return result;
+		delegate = new DefaultDomainObjectCollection<>(elementType, getObjects(), providers);
 	}
 
 	public VariantProvider<T> registerVariant(BuildVariant buildVariant, VariantFactory<T> factory) {
-		if (disallowChanges) {
-			throw new IllegalStateException("The value cannot be changed any further.");
-		}
-		String variantName = StringUtils.uncapitalize(buildVariant.getDimensions().stream().map(this::determineName).map(StringUtils::capitalize).collect(Collectors.joining()));
-		variantCreationArguments.put(variantName, new VariantCreationArguments<T>(buildVariant, factory));
-		return Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(VariantProvider.class, buildVariant, elementType, collection.register(variantName)));
-	}
+		BuildVariantDomainObjectIdentity identity = new BuildVariantDomainObjectIdentity(buildVariant);
+		delegate.add(new DomainObjectElement<T>() {
+			@Override
+			public T get() {
+				return factory.create(identity.getName(), buildVariant);
+			}
 
-	private String determineName(Dimension dimension) {
-		if (dimension instanceof Named) {
-			return ((Named) dimension).getName();
-		}
-		throw new IllegalArgumentException("Can't determine name");
+			@Override
+			public Class<T> getType() {
+				return elementType;
+			}
+
+			@Override
+			public DomainObjectIdentity getIdentity() {
+				return identity;
+			}
+		});
+
+		return Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(VariantProvider.class, buildVariant, delegate.get(identity)));
 	}
 
 	// TODO: I don't like that we have to pass in the viewElementType
 	public <S extends Variant> VariantView<S> getAsView(Class<S> viewElementType) {
 		Preconditions.checkArgument(viewElementType.isAssignableFrom(elementType), "element type of the view needs to be the same type or a supertype of the element of this collection");
-		return Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(DefaultVariantView.class, viewElementType, collection, this));
+		return getObjects().newInstance(DefaultVariantView.class, delegate.withType(Cast.uncheckedCast("", viewElementType)));
 	}
 
 	public void realize() {
 		if (!disallowChanges) {
 			throw new IllegalStateException("Please disallow changes before realizing the variants.");
 		}
-		// TODO: Account for no variant, is that even possible?
-		collection.iterator().next();
+		delegate.getElements(); // Crappy way to realize
 	}
 
 	public VariantCollection<T> disallowChanges() {
 		disallowChanges = true;
+		delegate.disallowChanges();
 		return this;
 	}
 
 	// TODO: This may not be needed, the only place it's used should probably use public API
 	public Set<T> get() {
-		return collection;
+		return ImmutableSet.copyOf(delegate.getElements().get());
 	}
 
-	public void whenElementKnown(Action<? super KnownVariant<T>> action) {
-		knownVariants.all(action);
+	public void whenElementKnown(Action<KnownVariant<? extends T>> action) {
+		delegate.whenElementKnown(it -> {
+			action.execute(getObjects().newInstance(KnownVariant.class, it));
+		});
 	}
-
-//	public <S> void whenElementKnown(Class<S> type, Action<? super KnownVariant<S>> action) {
-//		knownVariants.all(new TypeFilteringAction<>(type, action));
-//	}
-
-	@Value
-	private static class VariantCreationArguments<T extends Variant> {
-		BuildVariant buildVariant;
-		VariantFactory<T> factory;
-	}
-
-//	private static class TypeFilteringAction<T extends Variant, S> implements Action<T> {
-//		private final Class<S> type;
-//		private final Action<? super KnownVariant<S>> action;
-//
-//		TypeFilteringAction(Class<S> type, Action<? super KnownVariant<S>> action) {
-//			this.type = type;
-//			this.action = action;
-//		}
-//
-//		@Override
-//		public void execute(T t) {
-//			if (type.isInstance(t)) {
-//				action.execute(type.cast(t));
-//			}
-//		}
-//	}
 }

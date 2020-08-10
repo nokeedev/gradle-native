@@ -1,9 +1,9 @@
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.platform.base.DomainObjectProvider;
 import dev.nokee.platform.base.Variant;
 import lombok.Getter;
 import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
@@ -12,12 +12,12 @@ import javax.inject.Inject;
 public class VariantProvider<T extends Variant> {
 	@Getter private final BuildVariant buildVariant;
 	@Getter private final Class<T> type;
-	@Getter private final NamedDomainObjectProvider<T> delegate; // TODO: Do not expose this field in public API
+	@Getter private final DomainObjectProvider<T> delegate; // TODO: Do not expose this field in public API
 
 	@Inject
-	public VariantProvider(BuildVariant buildVariant, Class<T> type, NamedDomainObjectProvider<T> delegate) {
+	public VariantProvider(BuildVariant buildVariant, DomainObjectProvider<T> delegate) {
 		this.buildVariant = buildVariant;
-		this.type = type;
+		this.type = delegate.getType();
 		this.delegate = delegate;
 	}
 

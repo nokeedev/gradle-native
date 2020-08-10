@@ -1,80 +1,123 @@
 package dev.nokee.platform.base.internal
 
 import dev.nokee.platform.base.Variant
-import groovy.transform.ToString
-import org.gradle.api.provider.Provider
+import dev.nokee.platform.base.View
+import org.gradle.api.Action
+import org.gradle.api.Transformer
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.specs.Spec
+import spock.lang.Specification
 import spock.lang.Subject
 
-import javax.inject.Inject
-
 @Subject(DefaultVariantView)
-class DefaultVariantViewTest extends AbstractViewTest<Variant> {
-	final def backingCollection = objects.domainObjectSet(TestVariant)
+class DefaultVariantViewTest extends Specification {
+	def objects = Mock(ObjectFactory)
+	def delegate = Mock(View)
+	def subject = new DefaultVariantView(delegate, objects)
 
-	@Override
-	def getBackingCollection() {
-		return backingCollection
+	def "forwards configureEach(Action) to delegate"() {
+		given:
+		def action = Mock(Action)
+
+		when:
+		subject.configureEach(action)
+
+		then:
+		1 * delegate.configureEach(action)
+		0 * _
 	}
 
-	@Override
-	void realizeBackingCollection() {
-		backingCollection.iterator().next()
+	def "forwards configureEach(Class, Action) to delegate"() {
+		given:
+		def type = Variant.class
+		def action = Mock(Action)
+
+		when:
+		subject.configureEach(type, action)
+
+		then:
+		1 * delegate.configureEach(type, action)
+		0 * _
 	}
 
-	def createView() {
-		return objects.newInstance(DefaultVariantView, Variant, backingCollection, realizeTrigger)
+	def "forwards configureEach(Spec, Action) to delegate"() {
+		given:
+		def spec = Mock(Spec)
+		def action = Mock(Action)
+
+		when:
+		subject.configureEach(spec, action)
+
+		then:
+		1 * delegate.configureEach(spec, action)
+		0 * _
 	}
 
-	@Override
-	void addToBackingCollection(Provider<Variant> v) {
-		backingCollection.addLater(v)
+	def "forwards withType(Class) to delegate"() {
+		given:
+		def type = Variant.class
+		def subView = Mock(View)
+
+		when:
+		subject.withType(type)
+
+		then:
+		1 * delegate.withType(type) >> subView
+		1 * objects.newInstance(DefaultVariantView, subView)
+		0 * _
 	}
 
-	@Override
-	Provider<Variant> getA() {
-		return providers.provider { objects.newInstance(TestVariant, 'a') }
+	def "forwards getElements() to delegate"() {
+		when:
+		subject.getElements()
+
+		then:
+		1 * delegate.getElements()
+		0 * _
 	}
 
-	@Override
-	Provider<Variant> getB() {
-		return providers.provider { objects.newInstance(TestVariant, 'b') }
+	def "forwards get() to delegate"() {
+		when:
+		subject.get()
+
+		then:
+		1 * delegate.get()
+		0 * _
 	}
 
-	@Override
-	Provider<Variant> getC() {
-		return providers.provider { objects.newInstance(TestChildVariant, 'c') }
+	def "forwards map(Transformer) to delegate"() {
+		given:
+		def transformer = Mock(Transformer)
+
+		when:
+		subject.map(transformer)
+
+		then:
+		1 * delegate.map(transformer)
+		0 * _
 	}
 
-	@Override
-	Class<TestVariant> getType() {
-		return TestVariant
+	def "forwards flatMap(Transformer) to delegate"() {
+		given:
+		def transformer = Mock(Transformer)
+
+		when:
+		subject.flatMap(transformer)
+
+		then:
+		1 * delegate.flatMap(transformer)
+		0 * _
 	}
 
-	@Override
-	Class<TestChildVariant> getOtherType() {
-		return TestChildVariant
-	}
+	def "forwards filter(Spec) to delegate"() {
+		given:
+		def spec = Mock(Spec)
 
-	@ToString
-	static abstract class TestVariant extends BaseVariant implements Variant, AbstractViewTest.Identifiable {
-		private final String identification
+		when:
+		subject.filter(spec)
 
-		@Inject
-		TestVariant(String identification) {
-			super('test', DefaultBuildVariant.of())
-			this.identification = identification
-		}
-
-		@Override
-		String getIdentification() {
-			return identification
-		}
-	}
-
-	static abstract class TestChildVariant extends TestVariant {
-		@Inject
-		TestChildVariant(String identification) {
-			super(identification)
-		}
+		then:
+		1 * delegate.filter(spec)
+		0 * _
 	}
 }
