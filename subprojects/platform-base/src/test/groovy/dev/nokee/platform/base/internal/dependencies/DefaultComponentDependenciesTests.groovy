@@ -61,7 +61,7 @@ class DefaultComponentDependenciesTest extends Specification {
 	def "can create dependencies from dependencies bucket"() {
 		given:
 		def childFactory = Mock(DependencyBucketFactory)
-		def childDependencies = project.objects.newInstance(DefaultComponentDependencies, childFactory)
+		def childDependencies = project.objects.newInstance(DefaultComponentDependencies, 'child test component', childFactory)
 
 		and:
 		factory.create(_) >> { String name ->
@@ -91,7 +91,7 @@ class DefaultComponentDependenciesTest extends Specification {
 	def "can extends matching dependencies between buckets"() {
 		given:
 		def childFactory = Mock(DependencyBucketFactory)
-		def childDependencies = project.objects.newInstance(DefaultComponentDependencies, childFactory)
+		def childDependencies = project.objects.newInstance(DefaultComponentDependencies, 'child test component', childFactory)
 
 		and:
 		def childConfigurations = [implementation: Mock(Configuration), compileOnly: Mock(Configuration), runtimeOnly: Mock(Configuration), foo: Mock(Configuration)]
