@@ -147,7 +147,12 @@ public abstract class DefaultNativeIncomingDependencies implements NativeIncomin
 			val compileOnlyBucket = dependenciesInternal.findByName("compileOnly"); // As we reuse this code in JNI
 			IncomingHeaders incomingHeaders = null;
 			if (hasIncomingHeaders) {
-				val bucket = dependenciesInternal.create("headerSearchPaths", ChainingAction.of(ConfigurationUtilsEx.asIncomingHeaderSearchPathFrom(dependencies.getImplementation())).andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing())).andThen(ConfigurationUtilsEx.withAttributes(buildVariant, objects)).andThen(it -> it.setDescription(String.format("Header search paths for %s.", dependenciesInternal.getComponentDisplayName()))));
+				val bucket = dependenciesInternal.create("headerSearchPaths",
+					ChainingAction.of(ConfigurationUtilsEx.asIncomingHeaderSearchPathFrom(dependencies.getImplementation()))
+						.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
+						.andThen(ConfigurationUtilsEx.withAttributes(buildVariant, objects))
+						.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
+						.andThen(it -> it.setDescription(String.format("Header search paths for %s.", dependenciesInternal.getComponentDisplayName()))));
 				incomingHeaders = objects.newInstance(DefaultIncomingHeaders.class, bucket);
 			} else {
 				incomingHeaders = new AbsentIncomingHeaders(objects);
@@ -155,14 +160,27 @@ public abstract class DefaultNativeIncomingDependencies implements NativeIncomin
 
 			IncomingSwiftModules incomingSwiftModules = null;
 			if (hasIncomingSwiftModules) {
-				val bucket = dependenciesInternal.create("importSwiftModules", ChainingAction.of(ConfigurationUtilsEx.asIncomingSwiftModuleFrom(dependencies.getImplementation())).andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing())).andThen(ConfigurationUtilsEx.withAttributes(buildVariant, objects)).andThen(it -> it.setDescription(String.format("Import Swift modules for %s.", dependenciesInternal.getComponentDisplayName()))));
+				val bucket = dependenciesInternal.create("importSwiftModules",
+					ChainingAction.of(ConfigurationUtilsEx.asIncomingSwiftModuleFrom(dependencies.getImplementation()))
+						.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
+						.andThen(ConfigurationUtilsEx.withAttributes(buildVariant, objects))
+						.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
+						.andThen(it -> it.setDescription(String.format("Import Swift modules for %s.", dependenciesInternal.getComponentDisplayName()))));
 				incomingSwiftModules = objects.newInstance(DefaultIncomingSwiftModules.class, bucket);
 			} else {
 				incomingSwiftModules = new AbsentIncomingSwiftModules(objects);
 			}
 
-			val linkLibrariesBucket = dependenciesInternal.create("linkLibraries", ChainingAction.of(ConfigurationUtilsEx.asIncomingLinkLibrariesFrom(dependencies.getImplementation(), dependencies.getLinkOnly())).andThen(ConfigurationUtilsEx.withAttributes(buildVariant, objects)).andThen(it -> it.setDescription(String.format("Link libraries for %s.", dependenciesInternal.getComponentDisplayName()))));
-			val runtimeLibrariesBucket = dependenciesInternal.create("runtimeLibraries", ChainingAction.of(ConfigurationUtilsEx.asIncomingRuntimeLibrariesFrom(dependencies.getImplementation(), dependencies.getRuntimeOnly())).andThen(ConfigurationUtilsEx.withAttributes(buildVariant, objects)).andThen(it -> it.setDescription(String.format("Runtime libraries for %s.", dependenciesInternal.getComponentDisplayName()))));
+			val linkLibrariesBucket = dependenciesInternal.create("linkLibraries",
+				ChainingAction.of(ConfigurationUtilsEx.asIncomingLinkLibrariesFrom(dependencies.getImplementation(), dependencies.getLinkOnly()))
+					.andThen(ConfigurationUtilsEx.withAttributes(buildVariant, objects))
+					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
+					.andThen(it -> it.setDescription(String.format("Link libraries for %s.", dependenciesInternal.getComponentDisplayName()))));
+			val runtimeLibrariesBucket = dependenciesInternal.create("runtimeLibraries",
+				ChainingAction.of(ConfigurationUtilsEx.asIncomingRuntimeLibrariesFrom(dependencies.getImplementation(), dependencies.getRuntimeOnly()))
+					.andThen(ConfigurationUtilsEx.withAttributes(buildVariant, objects))
+					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
+					.andThen(it -> it.setDescription(String.format("Runtime libraries for %s.", dependenciesInternal.getComponentDisplayName()))));
 
 			return objects.newInstance(DefaultNativeIncomingDependencies.class, incomingHeaders, incomingSwiftModules, linkLibrariesBucket, runtimeLibrariesBucket);
 		}

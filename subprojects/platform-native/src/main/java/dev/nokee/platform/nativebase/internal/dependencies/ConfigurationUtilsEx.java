@@ -11,6 +11,7 @@ import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.language.cpp.CppBinary;
 import org.gradle.nativeplatform.MachineArchitecture;
 import org.gradle.nativeplatform.OperatingSystemFamily;
 
@@ -84,5 +85,12 @@ public class ConfigurationUtilsEx {
 				}
 			});
 		};
+	}
+
+	public static void configureAsGradleDebugCompatible(Configuration configuration) {
+		configuration.attributes(attributes -> {
+			attributes.attribute(CppBinary.DEBUGGABLE_ATTRIBUTE, Boolean.TRUE);
+			attributes.attribute(CppBinary.OPTIMIZED_ATTRIBUTE, Boolean.FALSE);
+		});
 	}
 }
