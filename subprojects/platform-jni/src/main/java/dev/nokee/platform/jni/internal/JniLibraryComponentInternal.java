@@ -45,7 +45,7 @@ public abstract class JniLibraryComponentInternal extends BaseComponent<JniLibra
 	@Inject
 	public JniLibraryComponentInternal(NamingScheme names, GroupId groupId) {
 		super(names, JniLibraryInternal.class);
-		val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
+		val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.MaybeCreating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
 		this.dependencies = getObjects().newInstance(DefaultJavaNativeInterfaceLibraryComponentDependencies.class, dependencyContainer);
 		this.groupId = groupId;
 		this.sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
