@@ -6,11 +6,22 @@
  */
 import groovy.json.JsonSlurper
 import org.gradle.util.VersionNumber
+import org.gradle.api.internal.GradleInternal
 
 gradle.addBuildListener(new BuildAdapter() {
+	private static final Logger LOGGER = Logging.getLogger('Nokee init')
+
 	@Override
 	void beforeSettings(Settings settings) {
-		def nokeeVersionFile = new File(settings.settingsDir, '.gradle/using-nokee-version.txt')
+		def gradle = settings.gradle
+		while (gradle.parent != null) {
+			gradle = gradle.parent
+		}
+		def settingsDir = settings.settingsDir
+		if (gradle != settings.gradle) {
+			settingsDir = ((GradleInternal)gradle).settings.settingsDir
+		}
+		def nokeeVersionFile = new File(settingsDir, '.gradle/using-nokee-version.txt')
 		VersionNumber nokeeVersion = null
 
 		String nokee = System.getProperties().get('nokee')
@@ -27,7 +38,7 @@ gradle.addBuildListener(new BuildAdapter() {
 		}
 
 		if (nokeeVersion != null) {
-			println "Using Nokee version: ${nokeeVersion.toString()}"
+			LOGGER.lifecycle("Build '${((GradleInternal)settings.gradle).identityPath}' use Nokee version '${nokeeVersion.toString()}'.")
 			nokeeVersionFile.parentFile.mkdirs()
 			nokeeVersionFile.text = nokeeVersion.toString()
 			settings.pluginManagement {

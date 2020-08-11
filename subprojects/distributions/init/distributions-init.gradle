@@ -1,0 +1,13 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+repositories {
+	jcenter()
+}
+
+functionalTest {
+	testTasks.configureEach {
+		it.systemProperty('dev.nokee.initScriptUnderTest', rootProject.file('nokee.init.gradle'))
+	}
+}

@@ -62,6 +62,10 @@ include 'distributions:bom'
 project(':distributions:bom').projectDir = file('subprojects/distributions/bom')
 project(':distributions:bom').buildFileName = 'distributions-bom.gradle'
 
+include 'distributions:init'
+project(':distributions:init').projectDir = file('subprojects/distributions/init')
+project(':distributions:init').buildFileName = 'distributions-init.gradle'
+
 include 'ideBase'
 project(':ideBase').projectDir = file('subprojects/ide-base')
 project(':ideBase').buildFileName = 'ide-base.gradle'
