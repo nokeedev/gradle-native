@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 public class DefaultFilteringView<T> implements View<T> {
-
 	private final View<T> delegate;
 	private final Spec<? super T> spec;
 
@@ -34,10 +33,12 @@ public class DefaultFilteringView<T> implements View<T> {
 
 	@Override
 	public <S extends T> void configureEach(Class<S> type, Action<? super S> action) {
-		delegate.configureEach(it -> spec.isSatisfiedBy(it) && type.isAssignableFrom(it.getClass()), new Action<T>() {
+		delegate.configureEach(new Action<T>() {
 			@Override
 			public void execute(T element) {
-				action.execute(type.cast(element));
+				if (spec.isSatisfiedBy(element) && type.isAssignableFrom(element.getClass())) {
+					action.execute(type.cast(element));
+				}
 			}
 		});
 	}

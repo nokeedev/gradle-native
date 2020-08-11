@@ -13,10 +13,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.specs.Spec;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<T> {
 	private final Map<String, DomainObjectElement<T>> nameToElements = new HashMap<>();
@@ -24,7 +21,6 @@ public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<
 	private final ProviderFactory providers;
 	private final NamedDomainObjectContainer<DomainObjectElement<T>> elements;
 	private final DomainObjectElementObserver<T> elementObserver;
-	private final DomainObjectElementConfigurer<T> elementConfigurer;
 	private final View<T> baseView;
 	private final Map<DomainObjectIdentity, DomainObjectProvider<T>> identityToProviders = new HashMap<>();
 	private boolean disallowChanges = false;
@@ -34,8 +30,7 @@ public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<
 		this.providers = providers;
 		this.elements = Cast.uncheckedCastBecauseOfTypeErasure(objects.domainObjectContainer(DomainObjectElement.class, this::createElement));
 		elementObserver = new DefaultDomainObjectElementObserver<>(knownElements);
-		elementConfigurer = new DefaultDomainObjectElementConfigurer<>(elements, DomainObjectElementFilter.none());
-		baseView = new DefaultView<>(elements, DomainObjectElementFilter.none(), providers);
+		baseView = new DefaultView<>(this);
 	}
 
 	private DomainObjectElement<T> createElement(String name) {
@@ -91,22 +86,36 @@ public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<
 
 	@Override
 	public void configureEach(Action<? super T> action) {
-		elementConfigurer.configureEach(action);
+		elements.configureEach(element -> action.execute(element.get()));
 	}
 
 	@Override
 	public <S extends T> void configureEach(Class<S> type, Action<? super S> action) {
-		elementConfigurer.configureEach(type, action);
+		elements.configureEach(element -> {
+			if (type.isAssignableFrom(element.getType())) {
+				action.execute(type.cast(element.get()));
+			}
+		});
 	}
 
 	@Override
 	public <S extends T> void configureEach(Class<S> type, Spec<? super S> spec, Action<? super S> action) {
-		elementConfigurer.configureEach(type, spec, action);
+		elements.configureEach(element -> {
+			if (type.isAssignableFrom(element.getType())) {
+				if (spec.isSatisfiedBy(type.cast(element.get()))) {
+					action.execute(type.cast(element.get()));
+				}
+			}
+		});
 	}
 
 	@Override
 	public void configureEach(Spec<? super T> spec, Action<? super T> action) {
-		elementConfigurer.configureEach(spec, action);
+		elements.configureEach(element -> {
+			if (spec.isSatisfiedBy(element.get())) {
+				action.execute(element.get());
+			}
+		});
 	}
 
 	@Override
@@ -116,24 +125,55 @@ public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<
 
 	@Override
 	public Provider<Collection<? extends T>> getElements() {
-		return providers.provider(() -> elements.stream().map(DomainObjectElement::get).collect(ImmutableList.toImmutableList()));
+		return providers.provider(() -> {
+			if (!disallowChanges) {
+				throw new IllegalStateException("Please disallow changes before realizing this collection.");
+			}
+			return elements.stream().map(DomainObjectElement::get).collect(ImmutableList.toImmutableList());
+		});
 	}
 
 	@Override
 	public <S extends T> View<S> withType(Class<S> type) {
-		return baseView.withType(type);
+		return new DefaultFilteringView<>(Cast.uncheckedCast("", baseView), it -> type.isAssignableFrom(it.getClass()));
 	}
 
 	public <S> Provider<List<? extends S>> map(Transformer<? extends S, ? super T> mapper) {
-		return baseView.map(mapper);
+		return getElements().map(new Transformer<List<? extends S>, Collection<? extends T>>() {
+			@Override
+			public List<? extends S> transform(Collection<? extends T> elements) {
+				ImmutableList.Builder<S> result = ImmutableList.builder();
+				for (T element : elements) {
+					result.add(mapper.transform(element));
+				}
+				return result.build();
+			}
+		});
 	}
 
 	public <S> Provider<List<? extends S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper) {
-		return baseView.flatMap(mapper);
+		return getElements().map(new Transformer<List<? extends S>, Collection<? extends T>>() {
+			@Override
+			public List<? extends S> transform(Collection<? extends T> elements) {
+				ImmutableList.Builder<S> result = ImmutableList.builder();
+				for (T element : elements) {
+					result.addAll(mapper.transform(element));
+				}
+				return result.build();
+			}
+		});
 	}
 
 	public Provider<List<? extends T>> filter(Spec<? super T> spec) {
-		return baseView.filter(spec);
+		return flatMap(new Transformer<Iterable<? extends T>, T>() {
+			@Override
+			public Iterable<? extends T> transform(T t) {
+				if (spec.isSatisfiedBy(t)) {
+					return ImmutableList.of(t);
+				}
+				return ImmutableList.of();
+			}
+		});
 	}
 
 	@Override

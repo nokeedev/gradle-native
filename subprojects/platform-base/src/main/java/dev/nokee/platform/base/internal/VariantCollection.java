@@ -72,6 +72,7 @@ public abstract class VariantCollection<T extends Variant> implements Realizable
 
 	// TODO: This may not be needed, the only place it's used should probably use public API
 	public Set<T> get() {
+		realize();
 		return ImmutableSet.copyOf(delegate.getElements().get());
 	}
 
