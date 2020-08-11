@@ -8,6 +8,7 @@ repositories {
 
 functionalTest {
 	testTasks.configureEach {
+		it.inputs.file(rootProject.file('nokee.init.gradle'))
 		it.systemProperty('dev.nokee.initScriptUnderTest', rootProject.file('nokee.init.gradle'))
 	}
 }
