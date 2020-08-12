@@ -100,4 +100,8 @@ public abstract class DefaultDomainObjectStore implements DomainObjectStore {
 			}
 		});
 	}
+
+	public void disallowChanges() {
+		this.store.disallowChanges();
+	}
 }

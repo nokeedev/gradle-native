@@ -14,6 +14,8 @@ public abstract class ProjectStorePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		val store = getObjects().newInstance(DefaultDomainObjectStore.class);
 		project.getExtensions().add(DomainObjectStore.class, "store", store);
+
+		project.afterEvaluate(proj -> store.disallowChanges());
 	}
 
 	@Inject
