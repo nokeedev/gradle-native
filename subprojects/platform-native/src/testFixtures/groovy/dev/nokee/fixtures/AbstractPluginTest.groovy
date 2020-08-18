@@ -287,7 +287,7 @@ abstract class AbstractVariantPluginTest extends Specification implements Projec
 		extensionUnderTest.variants.elements.get()
 		then:
 		def ex = thrown(IllegalStateException)
-		ex.message == 'Please disallow changes before realizing the variants.'
+		ex.message == 'Please disallow changes before realizing this collection.'
 	}
 
 	def "allow variant view realization after evaluation"() {

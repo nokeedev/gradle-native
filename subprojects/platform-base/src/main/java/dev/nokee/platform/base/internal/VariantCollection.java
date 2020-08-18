@@ -61,7 +61,7 @@ public abstract class VariantCollection<T extends Variant> implements Realizable
 		if (!disallowChanges) {
 			throw new IllegalStateException("Please disallow changes before realizing the variants.");
 		}
-		delegate.getElements(); // Crappy way to realize
+		delegate.getElements().get(); // Crappy way to realize
 	}
 
 	public VariantCollection<T> disallowChanges() {
