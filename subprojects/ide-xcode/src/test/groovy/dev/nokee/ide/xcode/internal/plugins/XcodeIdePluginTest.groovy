@@ -69,6 +69,7 @@ class XcodeIdePluginTest extends Specification {
 	def "registers empty extensions on project"() {
 		when:
 		project.apply plugin: 'dev.nokee.xcode-ide'
+		project.evaluate()
 
 		then:
 		project.xcode.workspace.displayName == 'Xcode workspace'
