@@ -19,6 +19,9 @@ import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
+import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
+import dev.nokee.platform.nativebase.internal.NamedTargetBuildType;
+import dev.nokee.runtime.nativebase.TargetBuildType;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
@@ -103,60 +106,63 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 
 		visualStudioProject.getHeaderFiles().from(getProviders().provider(() -> component.getSourceCollection().stream().filter(it -> it instanceof CHeaderSet || it instanceof CppHeaderSet).map(SourceSet::getAsFileTree).collect(Collectors.toList())));
 
-		visualStudioProject.target(VisualStudioIdeProjectConfiguration.of(VisualStudioIdeConfiguration.of("Default"), VisualStudioIdePlatforms.X64), target -> {
-			Provider<Binary> binary = component.getDevelopmentVariant().flatMap(Variant::getDevelopmentBinary);
+		val buildTypes = component.getBuildVariants().get().stream().map(b -> b.getAxisValue(BaseTargetBuildType.DIMENSION_TYPE)).collect(Collectors.toSet()); // TODO Maybe use linkedhashset to keep the ordering
+		for (TargetBuildType buildType : buildTypes) {
+			visualStudioProject.target(VisualStudioIdeProjectConfiguration.of(VisualStudioIdeConfiguration.of(((NamedTargetBuildType)buildType).getName()), VisualStudioIdePlatforms.X64), target -> {
+				Provider<Binary> binary = component.getDevelopmentVariant().flatMap(Variant::getDevelopmentBinary);
 
-			target.getProductLocation().set(binary.flatMap(it -> {
-				if (it instanceof ExecutableBinary) {
-					return ((ExecutableBinary) it).getLinkTask().get().getLinkedFile();
-				} else if (it instanceof SharedLibraryBinary) {
-					return ((SharedLibraryBinary) it).getLinkTask().get().getLinkedFile();
-				} else if (it instanceof StaticLibraryBinary) {
-					return ((StaticLibraryBinary) it).getCreateTask().get().getOutputFile();
-				}
-				throw unsupportedBinaryType(it);
-			}));
-			target.getProperties().put("ConfigurationType", binary.map(this::toConfigurationType));
-			target.getProperties().put("UseDebugLibraries", true);
-			target.getProperties().put("PlatformToolset", "v142");
-			target.getProperties().put("CharacterSet", "Unicode");
-			target.getProperties().put("LinkIncremental", true);
-			target.getItemProperties().maybeCreate("ClCompile")
-				.put("AdditionalIncludeDirectories", binary.flatMap(it -> {
-					if (it instanceof BaseNativeBinary) {
-						return ((BaseNativeBinary) it).getHeaderSearchPaths().map(this::toSemiColonSeperatedPaths);
+				target.getProductLocation().set(binary.flatMap(it -> {
+					if (it instanceof ExecutableBinary) {
+						return ((ExecutableBinary) it).getLinkTask().get().getLinkedFile();
+					} else if (it instanceof SharedLibraryBinary) {
+						return ((SharedLibraryBinary) it).getLinkTask().get().getLinkedFile();
+					} else if (it instanceof StaticLibraryBinary) {
+						return ((StaticLibraryBinary) it).getCreateTask().get().getOutputFile();
 					}
 					throw unsupportedBinaryType(it);
-				}))
-				.put("LanguageStandard", getProviders().provider(() -> {
-					if (binary.get() instanceof BaseNativeBinary) {
-						val it = ((BaseNativeBinary) binary.get()).getCompileTasks().withType(CppCompile.class).getElements().get().iterator();
-						if (it.hasNext()) {
-							val compileTask = it.next();
-							return compileTask.getCompilerArgs().get().stream().filter(arg -> arg.matches("^[-/]std:c++.+")).findFirst().map(a -> {
-								if (a.endsWith("c++14")) {
-									return "stdcpp14";
-								} else if (a.endsWith("c++17")) {
-									return "stdcpp17";
-								} else if (a.endsWith("c++latest")) {
-									return "stdcpplatest";
-								}
-								return "Default";
-							}).orElse("Default");
-						}
-						return null;
-					}
-					throw unsupportedBinaryType(binary.get());
 				}));
-			target.getItemProperties().maybeCreate("Link").put("SubSystem", getProviders().provider(() -> {
-				if (binary.get() instanceof ExecutableBinary) {
-					return ((ExecutableBinary) binary.get()).getLinkTask().get().getLinkerArgs().get().stream().filter(arg -> arg.matches("^[-/]SUBSYSTEM:.+")).findFirst().map(a -> {
-						return StringUtils.capitalize(a.substring(11).toLowerCase());
-					}).orElse(null);
-				}
-				return null;
-			}));
-		});
+				target.getProperties().put("ConfigurationType", binary.map(this::toConfigurationType));
+				target.getProperties().put("UseDebugLibraries", true);
+				target.getProperties().put("PlatformToolset", "v142");
+				target.getProperties().put("CharacterSet", "Unicode");
+				target.getProperties().put("LinkIncremental", true);
+				target.getItemProperties().maybeCreate("ClCompile")
+					.put("AdditionalIncludeDirectories", binary.flatMap(it -> {
+						if (it instanceof BaseNativeBinary) {
+							return ((BaseNativeBinary) it).getHeaderSearchPaths().map(this::toSemiColonSeperatedPaths);
+						}
+						throw unsupportedBinaryType(it);
+					}))
+					.put("LanguageStandard", getProviders().provider(() -> {
+						if (binary.get() instanceof BaseNativeBinary) {
+							val it = ((BaseNativeBinary) binary.get()).getCompileTasks().withType(CppCompile.class).getElements().get().iterator();
+							if (it.hasNext()) {
+								val compileTask = it.next();
+								return compileTask.getCompilerArgs().get().stream().filter(arg -> arg.matches("^[-/]std:c++.+")).findFirst().map(a -> {
+									if (a.endsWith("c++14")) {
+										return "stdcpp14";
+									} else if (a.endsWith("c++17")) {
+										return "stdcpp17";
+									} else if (a.endsWith("c++latest")) {
+										return "stdcpplatest";
+									}
+									return "Default";
+								}).orElse("Default");
+							}
+							return null;
+						}
+						throw unsupportedBinaryType(binary.get());
+					}));
+				target.getItemProperties().maybeCreate("Link").put("SubSystem", getProviders().provider(() -> {
+					if (binary.get() instanceof ExecutableBinary) {
+						return ((ExecutableBinary) binary.get()).getLinkTask().get().getLinkerArgs().get().stream().filter(arg -> arg.matches("^[-/]SUBSYSTEM:.+")).findFirst().map(a -> {
+							return StringUtils.capitalize(a.substring(11).toLowerCase());
+						}).orElse(null);
+					}
+					return null;
+				}));
+			});
+		}
 
 		return visualStudioProject;
 	}

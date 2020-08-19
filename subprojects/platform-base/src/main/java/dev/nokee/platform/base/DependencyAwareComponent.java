@@ -23,3 +23,4 @@ public interface DependencyAwareComponent<T extends ComponentDependencies> {
 	 */
 	void dependencies(Action<? super T> action);
 }
+

@@ -7,11 +7,11 @@ import org.gradle.api.Namer;
 
 import java.util.stream.Collectors;
 
-public class BuildVariantNamer implements Namer<BuildVariant> {
+public class BuildVariantNamer implements Namer<BuildVariantInternal> {
 	public static final BuildVariantNamer INSTANCE = new BuildVariantNamer();
 
 	@Override
-	public String determineName(BuildVariant buildVariant) {
+	public String determineName(BuildVariantInternal buildVariant) {
 		return StringUtils.uncapitalize(buildVariant.getDimensions().stream().map(this::determineName).map(StringUtils::capitalize).collect(Collectors.joining()));
 	}
 

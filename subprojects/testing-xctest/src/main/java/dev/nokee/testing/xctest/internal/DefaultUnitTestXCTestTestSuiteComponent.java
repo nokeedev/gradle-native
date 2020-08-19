@@ -11,7 +11,6 @@ import dev.nokee.platform.ios.tasks.internal.ProcessPropertyListTask;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
@@ -35,7 +34,7 @@ public abstract class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTest
 	}
 
 	@Override
-	protected void onEachVariant(BuildVariant buildVariant, VariantProvider<DefaultXCTestTestSuiteVariant> variant, NamingScheme names) {
+	protected void onEachVariant(BuildVariantInternal buildVariant, VariantProvider<DefaultXCTestTestSuiteVariant> variant, NamingScheme names) {
 		super.onEachVariant(buildVariant, variant, names);
 
 		variant.configure(testSuite -> {

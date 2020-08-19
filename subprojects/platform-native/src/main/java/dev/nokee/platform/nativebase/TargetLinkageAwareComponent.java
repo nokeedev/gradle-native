@@ -1,7 +1,6 @@
 package dev.nokee.platform.nativebase;
 
 import dev.nokee.runtime.nativebase.TargetLinkage;
-import dev.nokee.runtime.nativebase.TargetMachine;
 import org.gradle.api.provider.SetProperty;
 
 /**
@@ -16,7 +15,7 @@ public interface TargetLinkageAwareComponent {
 	 *
 	 * <p>For example:</p>
 	 * <pre>
-	 * targetLinkage = [linkages.shared, linkages.static]
+	 * targetLinkages = [linkages.shared, linkages.static]
 	 * </pre>
 	 *
 	 * @return a property for configuring the {@link TargetLinkage}, never null.
@@ -24,7 +23,7 @@ public interface TargetLinkageAwareComponent {
 	SetProperty<TargetLinkage> getTargetLinkages();
 
 	/**
-	 * Returns a factory to create target linkages when configuring {@link #getTargetLinkages()} ()}.
+	 * Returns a factory to create target linkages when configuring {@link #getTargetLinkages()}.
 	 *
 	 * @return a {@link TargetLinkageFactory} for creating {@link TargetLinkage} instance, never null.
 	 */

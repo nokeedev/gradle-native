@@ -2,7 +2,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.runtime.nativebase.internal.*;
 import lombok.Value;
 import lombok.With;
@@ -190,7 +190,7 @@ public abstract class ConfigurationUtils {
 		@Inject
 		protected abstract ObjectFactory getObjects();
 
-		public VariantAwareOutgoingConfigurationAction withVariant(BuildVariant variant) {
+		public VariantAwareOutgoingConfigurationAction withVariant(BuildVariantInternal variant) {
 			val attributes = ImmutableMap.<Attribute<?>, Object>builder().putAll(spec.attributes);
 
 			variant.getDimensions().forEach(it -> {
@@ -200,6 +200,8 @@ public abstract class ConfigurationUtils {
 					attributes.put(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, getObjects().named(MachineArchitecture.class, ((DefaultMachineArchitecture) it).getName()));
 				} else if (it instanceof DefaultBinaryLinkage) {
 					attributes.put(DefaultBinaryLinkage.LINKAGE_ATTRIBUTE, ((DefaultBinaryLinkage) it).getName());
+				} else if (it instanceof NamedTargetBuildType) {
+					attributes.put(BaseTargetBuildType.BUILD_TYPE_ATTRIBUTE, ((NamedTargetBuildType) it).getName());
 				} else {
 					throw new IllegalArgumentException(String.format("Unknown dimension variant '%s'", it.toString()));
 				}

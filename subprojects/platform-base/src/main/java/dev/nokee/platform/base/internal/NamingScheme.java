@@ -84,7 +84,7 @@ public class NamingScheme {
 		return new NamingScheme(baseName, componentName, displayName, configurationPrefix, dimensions.add(value.getName()));
 	}
 
-	public NamingScheme forBuildVariant(BuildVariant value, Collection<? extends BuildVariant> allBuildVariants) {
+	public NamingScheme forBuildVariant(BuildVariantInternal value, Collection<? extends BuildVariantInternal> allBuildVariants) {
 		NamingScheme result = this;
 		int index = 0;
 		for (Dimension dimension : value.getDimensions()) {
@@ -100,7 +100,7 @@ public class NamingScheme {
 		return result;
 	}
 
-	private Function<BuildVariant, Named> extractDimensionAtIndex(int index) {
+	private Function<BuildVariantInternal, Named> extractDimensionAtIndex(int index) {
 		return buildVariant -> (Named)buildVariant.getDimensions().get(index);
 	}
 

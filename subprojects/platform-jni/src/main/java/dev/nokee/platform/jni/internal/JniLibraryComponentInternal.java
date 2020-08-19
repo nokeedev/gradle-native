@@ -13,6 +13,7 @@ import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFact
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JniLibrary;
+import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
@@ -50,7 +51,7 @@ public abstract class JniLibraryComponentInternal extends BaseComponent<JniLibra
 		this.groupId = groupId;
 		this.sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
 
-		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
+		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE));
 		getDimensions().disallowChanges(); // Let's disallow changing them for now.
 
 		getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
@@ -103,7 +104,7 @@ public abstract class JniLibraryComponentInternal extends BaseComponent<JniLibra
 		return getVariantCollection().getAsView(JniLibrary.class);
 	}
 
-	public JniLibraryInternal createVariant(String name, BuildVariant buildVariant, VariantComponentDependencies variantDependencies) {
+	public JniLibraryInternal createVariant(String name, BuildVariantInternal buildVariant, VariantComponentDependencies variantDependencies) {
 		Preconditions.checkArgument(buildVariant.getDimensions().size() == 2);
 		Preconditions.checkArgument(buildVariant.getDimensions().get(0) instanceof OperatingSystemFamily);
 		Preconditions.checkArgument(buildVariant.getDimensions().get(1) instanceof MachineArchitecture);
@@ -113,7 +114,7 @@ public abstract class JniLibraryComponentInternal extends BaseComponent<JniLibra
 		return result;
 	}
 
-	private List<BuildVariant> createBuildVariants() {
+	private List<BuildVariantInternal> createBuildVariants() {
 		Set<TargetMachine> targetMachines = getTargetMachines().get();
 		return targetMachines.stream().map(it -> (DefaultTargetMachine)it).map(it -> DefaultBuildVariant.of(it.getOperatingSystemFamily(), it.getArchitecture())).collect(Collectors.toList());
 	}

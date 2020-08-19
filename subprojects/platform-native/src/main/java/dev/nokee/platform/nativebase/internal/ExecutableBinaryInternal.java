@@ -10,6 +10,7 @@ import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
+import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import org.apache.commons.io.FilenameUtils;
@@ -87,6 +88,11 @@ public abstract class ExecutableBinaryInternal extends BaseNativeBinary implemen
 	@Override
 	public TaskProvider<LinkExecutable> getLinkTask() {
 		return getTasks().named(linkTask.getName(), LinkExecutable.class);
+	}
+
+	@Override
+	public TaskProvider<ObjectFilesToBinaryTask> getCreateOrLinkTask() {
+		return getTasks().named(linkTask.getName(), ObjectFilesToBinaryTask.class);
 	}
 
 	@Override

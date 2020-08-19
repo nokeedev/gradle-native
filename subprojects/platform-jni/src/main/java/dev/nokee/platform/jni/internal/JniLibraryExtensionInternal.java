@@ -4,7 +4,7 @@ import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.VariantCollection;
@@ -57,7 +57,7 @@ public abstract class JniLibraryExtensionInternal implements JniLibraryExtension
 		return component.getDimensions();
 	}
 
-	public SetProperty<BuildVariant> getBuildVariants() {
+	public SetProperty<BuildVariantInternal> getBuildVariants() {
 		return component.getBuildVariants();
 	}
 	//endregion

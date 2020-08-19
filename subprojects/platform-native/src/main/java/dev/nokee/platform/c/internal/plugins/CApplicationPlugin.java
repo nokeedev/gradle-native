@@ -6,6 +6,7 @@ import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.c.CApplicationExtension;
 import dev.nokee.platform.c.internal.DefaultCApplicationExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import lombok.val;
 import org.gradle.api.Plugin;
@@ -32,6 +33,7 @@ public abstract class CApplicationPlugin implements Plugin<Project> {
 		DefaultCApplicationExtension extension = getObjects().newInstance(DefaultCApplicationExtension.class, component.get());
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
+		project.afterEvaluate(getObjects().newInstance(TargetBuildTypeRule.class, extension.getTargetBuildTypes(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(CApplicationExtension.class, EXTENSION_NAME, extension);

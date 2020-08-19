@@ -2,7 +2,7 @@ package dev.nokee.platform.ios.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -19,7 +19,7 @@ public abstract class DefaultIosApplicationVariant extends BaseNativeVariant imp
 	private final DefaultNativeComponentDependencies dependencies;
 
 	@Inject
-	public DefaultIosApplicationVariant(String name, NamingScheme names, BuildVariant buildVariant, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies) {
+	public DefaultIosApplicationVariant(String name, NamingScheme names, BuildVariantInternal buildVariant, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies) {
 		super(name, names, buildVariant);
 		this.dependencies = dependencies.getDependencies();
 	}

@@ -8,4 +8,10 @@ public interface IdeProjectFixture {
 	}
 
 	IdeProjectFixture assertHasBuildFiles(Iterable<String> files);
+
+	default IdeProjectFixture assertHasBuildTypes(String... buildTypes) {
+		return assertHasBuildTypes(Arrays.asList(buildTypes));
+	}
+
+	IdeProjectFixture assertHasBuildTypes(Iterable<String> buildTypes);
 }

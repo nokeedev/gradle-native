@@ -1,7 +1,7 @@
 package dev.nokee.platform.ios.internal;
 
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
@@ -19,7 +19,7 @@ import javax.inject.Inject;
 
 public abstract class IosApplicationOutgoingDependencies implements NativeOutgoingDependencies {
 	@Inject
-	public IosApplicationOutgoingDependencies(NamingScheme names, BuildVariant buildVariant, DefaultNativeComponentDependencies dependencies) {
+	public IosApplicationOutgoingDependencies(NamingScheme names, BuildVariantInternal buildVariant, DefaultNativeComponentDependencies dependencies) {
 
 		ConfigurationUtils builder = getObjects().newInstance(ConfigurationUtils.class);
 		Configuration runtimeElements = getConfigurations().create(names.getConfigurationName("runtimeElements"), builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getRuntimeOnly().getAsConfiguration()).withVariant(buildVariant));

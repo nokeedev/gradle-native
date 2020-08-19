@@ -14,6 +14,7 @@ import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
+import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
@@ -149,8 +150,14 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 		}));
 	}
 
+	@Override
 	public TaskProvider<LinkSharedLibrary> getLinkTask() {
 		return getTasks().named(linkTask.getName(), LinkSharedLibrary.class);
+	}
+
+	@Override
+	public TaskProvider<ObjectFilesToBinaryTask> getCreateOrLinkTask() {
+		return getTasks().named(linkTask.getName(), ObjectFilesToBinaryTask.class);
 	}
 
 	@Inject

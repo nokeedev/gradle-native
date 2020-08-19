@@ -52,7 +52,7 @@ public abstract class TargetLinkageRule implements Action<Project> {
 		this.targetLinkages.disallowChanges();
 		this.targetLinkages.finalizeValue();
 		Set<TargetLinkage> targetLinkages = this.targetLinkages.get();
-		assertNonEmpty(targetLinkages, "linkages", componentName);
+		assertNonEmpty(targetLinkages, "target linkages", componentName);
 		assertLinkagesAreSupported(targetLinkages);
 	}
 

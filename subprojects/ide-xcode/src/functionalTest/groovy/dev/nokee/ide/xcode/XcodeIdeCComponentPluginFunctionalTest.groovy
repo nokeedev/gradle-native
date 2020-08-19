@@ -29,11 +29,6 @@ class XcodeIdeCApplicationFunctionalTest extends AbstractXcodeIdeNativeComponent
 	protected String getProjectName() {
 		return "app"
 	}
-
-	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return tasks.allToLink
-	}
 }
 
 class XcodeIdeCApplicationWithNativeTestSuiteFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements CTaskNames {
@@ -81,11 +76,6 @@ class XcodeIdeCApplicationWithNativeTestSuiteFunctionalTest extends AbstractXcod
 	protected String getGroupName() {
 		return "app-test"
 	}
-
-	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return [tasks.compile] + tasks.withComponentName('test').allToLink + [tasks.withComponentName('test').relocateMainSymbol]
-	}
 }
 
 class XcodeIdeCLibraryFunctionalTest extends AbstractXcodeIdeNativeComponentPluginFunctionalTest implements CTaskNames {
@@ -107,11 +97,6 @@ class XcodeIdeCLibraryFunctionalTest extends AbstractXcodeIdeNativeComponentPlug
 	@Override
 	protected String getProjectName() {
 		return "lib"
-	}
-
-	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return tasks.allToLink
 	}
 }
 
@@ -160,11 +145,6 @@ class XcodeIdeCLibraryWithNativeTestSuiteFunctionalTest extends AbstractXcodeIde
 	protected String getGroupName() {
 		return 'lib-test'
 	}
-
-	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return [tasks.compile] + tasks.withComponentName('test').allToLink
-	}
 }
 
 class XcodeIdeCLibraryWithStaticLinkageFunctionalTest extends XcodeIdeCLibraryFunctionalTest {
@@ -176,11 +156,6 @@ class XcodeIdeCLibraryWithStaticLinkageFunctionalTest extends XcodeIdeCLibraryFu
 				targetLinkages = [linkages.static]
 			}
 		"""
-	}
-
-	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return tasks.forStaticLibrary.allToCreate
 	}
 }
 
@@ -210,10 +185,5 @@ class XcodeIdeCLibraryWithBothLinkageFunctionalTest extends XcodeIdeCLibraryFunc
 	@Override
 	protected String getSchemeName() {
 		return "${super.schemeName}Shared"
-	}
-
-	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return tasks.withLinkage('shared').allToLink
 	}
 }

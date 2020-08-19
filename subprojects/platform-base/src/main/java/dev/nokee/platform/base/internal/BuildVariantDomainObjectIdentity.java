@@ -4,9 +4,9 @@ import lombok.Value;
 
 @Value
 public class BuildVariantDomainObjectIdentity implements NamedDomainObjectIdentity {
-	BuildVariant buildVariant;
+	BuildVariantInternal buildVariant;
 
-	public BuildVariantDomainObjectIdentity(BuildVariant buildVariant) {
+	public BuildVariantDomainObjectIdentity(BuildVariantInternal buildVariant) {
 		this.buildVariant = buildVariant;
 	}
 

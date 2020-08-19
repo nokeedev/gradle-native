@@ -3,6 +3,7 @@ package dev.nokee.ide.visualstudio.fixtures
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.ide.fixtures.IdePathUtils
 import dev.nokee.ide.fixtures.IdeWorkspaceFixture
+import groovy.transform.ToString
 import org.gradle.util.TextUtil
 
 import java.nio.channels.FileChannel
@@ -26,6 +27,11 @@ class VisualStudioIdeSolutionFixture implements IdeWorkspaceFixture {
 
 	VisualStudioIdeSolutionFixture assertHasProjects(Iterable<String> names) {
 		assert solutionFile.projects.keySet() == names as Set
+		return this
+	}
+
+	VisualStudioIdeSolutionFixture assertHasProjectConfigurations(String... projectConfigurations) {
+		assert solutionFile.projectConfigurations as Set == projectConfigurations as Set
 		return this
 	}
 //
@@ -53,6 +59,7 @@ class VisualStudioIdeSolutionFixture implements IdeWorkspaceFixture {
 		final TestFile file
 		final String content
 		final Map<String, ProjectReference> projects = [:]
+		final List<String> projectConfigurations = []
 
 		SolutionFile(TestFile solutionFile) {
 			solutionFile.assertIsFile()
@@ -62,10 +69,12 @@ class VisualStudioIdeSolutionFixture implements IdeWorkspaceFixture {
 				projects.put(it[1], new ProjectReference(it[1], it[2], it[3]))
 			})
 
+			println projects
+
 			visitGlobalSection(new GlobalSectionVisitor() {
 				@Override
 				void visitSolutionConfigurationPlatform(String configurationName, String platformName) {
-
+					projectConfigurations.add("${configurationName}|${platformName}")
 				}
 
 				@Override
@@ -122,6 +131,7 @@ class VisualStudioIdeSolutionFixture implements IdeWorkspaceFixture {
 		void visitProjectConfigurationPlatform(String guid)
 	}
 
+	@ToString
 	static class ProjectReference {
 		final String name
 		final String file

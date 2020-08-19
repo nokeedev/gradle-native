@@ -6,7 +6,7 @@ public interface DomainObjectIdentity {
 		return new DefaultNamedDomainObjectIdentity(name);
 	}
 
-	static DomainObjectIdentity of(BuildVariant buildVariant) {
+	static DomainObjectIdentity of(BuildVariantInternal buildVariant) {
 		return new BuildVariantDomainObjectIdentity(buildVariant);
 	}
 }

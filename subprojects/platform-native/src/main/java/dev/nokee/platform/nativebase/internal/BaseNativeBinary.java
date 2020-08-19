@@ -23,6 +23,7 @@ import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
+import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.Getter;
@@ -39,6 +40,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.swift.SwiftVersion;
@@ -285,4 +287,6 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	public TaskView<SourceCompile> getCompileTasks() {
 		return compileTasks.withType(SourceCompile.class);
 	}
+
+	public abstract TaskProvider<ObjectFilesToBinaryTask> getCreateOrLinkTask();
 }

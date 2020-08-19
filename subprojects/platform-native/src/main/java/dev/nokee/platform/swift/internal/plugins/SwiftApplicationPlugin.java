@@ -4,6 +4,7 @@ import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.swift.SwiftApplicationExtension;
 import dev.nokee.platform.swift.internal.DefaultSwiftApplicationExtension;
@@ -33,6 +34,7 @@ public abstract class SwiftApplicationPlugin implements Plugin<Project> {
 		DefaultSwiftApplicationExtension extension = getObjects().newInstance(DefaultSwiftApplicationExtension.class, component.get());
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
+		project.afterEvaluate(getObjects().newInstance(TargetBuildTypeRule.class, extension.getTargetBuildTypes(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(SwiftApplicationExtension.class, EXTENSION_NAME, extension);

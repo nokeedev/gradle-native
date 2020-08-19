@@ -50,6 +50,8 @@ public interface NativeProjectTasks {
 
 	NativeProjectTasks withComponentName(String componentName);
 
+	NativeProjectTasks withBuildType(String buildType);
+
 	NativeProjectTasks getForStaticLibrary();
 
 	NativeProjectTasks getForSharedLibrary();

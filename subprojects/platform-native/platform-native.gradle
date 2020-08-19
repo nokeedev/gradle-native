@@ -31,6 +31,7 @@ dependencies {
 	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	testFixturesImplementation gradleFixtures()
 	testFixturesImplementation testFixtures(project(':languageNative'))
+	testFixturesApi 'dev.nokee:templates:latest.integration'
 }
 
 gradlePlugin {

@@ -4,6 +4,8 @@ import dev.nokee.ide.base.IdeProjectReference;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
 
+import java.util.Set;
+
 /**
  * A reference to an Visual Studio IDE project.
  *
@@ -24,4 +26,11 @@ public interface VisualStudioIdeProjectReference extends IdeProjectReference {
 	 * @return a provider of {@link VisualStudioIdeGuid} of this project reference, never null.
 	 */
 	Provider<VisualStudioIdeGuid> getProjectGuid();
+
+	/**
+	 * Returns the project configuration of this project reference.
+	 *
+	 * @return a provider of {@link VisualStudioIdeProjectConfiguration} of this project reference, never null.
+	 */
+	Provider<Set<VisualStudioIdeProjectConfiguration>> getProjectConfigurations();
 }

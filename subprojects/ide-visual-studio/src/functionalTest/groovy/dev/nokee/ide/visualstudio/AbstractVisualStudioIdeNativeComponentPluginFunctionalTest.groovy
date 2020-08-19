@@ -1,16 +1,22 @@
 package dev.nokee.ide.visualstudio
 
-import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.ide.fixtures.AbstractIdeNativeComponentPluginFunctionalTest
+import dev.nokee.ide.fixtures.IdeProjectFixture
+import dev.nokee.ide.fixtures.IdeWorkspaceFixture
+import dev.nokee.ide.fixtures.IdeWorkspaceTasks
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeSolutionFixture
+import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeTaskNames
 import org.apache.commons.lang3.SystemUtils
 import spock.lang.Requires
 
-abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractGradleSpecification implements VisualStudioIdeFixture {
+import static org.junit.Assume.assumeFalse
+
+abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractIdeNativeComponentPluginFunctionalTest implements VisualStudioIdeFixture {
 	protected String configureProjectName() {
 		return """
-			rootProject.name = '${solutionName}'
+			rootProject.name = '${visualStudioSolutionName}'
 		"""
 	}
 
@@ -22,7 +28,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 
 	protected abstract String getVisualStudioProjectName()
 
-	protected String getSolutionName() {
+	protected String getVisualStudioSolutionName() {
 		String solutionName = 'app'
 		if (this.class.simpleName.contains('Library')) {
 			solutionName = 'lib'
@@ -35,7 +41,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 	}
 
 	protected VisualStudioIdeSolutionFixture getVisualStudioSolutionUnderTest() {
-		return visualStudioSolution(solutionName)
+		return visualStudioSolution(visualStudioSolutionName)
 	}
 
 	protected abstract List<String> getAllTasksForBuildAction()
@@ -61,8 +67,20 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		return result
 	}
 
+	protected String getComponentUnderTestDsl() {
+		def className = this.class.simpleName
+		if (className.contains('WithNativeTestSuite')) {
+			return 'testSuites.configureEach'
+		} else if (className.contains('Application')) {
+			return 'application'
+		} else if (className.contains('Library')) {
+			return 'library'
+		}
+		throw new UnsupportedOperationException()
+	}
+
 	protected String getVisualStudioIdeBridge() {
-		return ":_visualStudio__build_${visualStudioProjectName.toLowerCase()}_Default_x64"
+		return ":_visualStudio__build_${visualStudioProjectName.toLowerCase()}_default_x64"
 	}
 
 	def "creates Visual Studio project delegating to Gradle"() {
@@ -139,13 +157,33 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		def result = msbuild
 			.withWorkingDirectory(testDirectory)
 			.withSolution(visualStudioSolutionUnderTest)
-			.withConfiguration("Default")
+			.withConfiguration("default")
 			.withProject(visualStudioProjectName)
 			.succeeds()
 
 		then:
 		result.assertTasksExecuted(allTasksForBuildAction, visualStudioIdeBridge)
 //		file(getBuildFile(VariantContext.of(buildType: 'debug', architecture: 'x86'))).assertIsFile()
+	}
+
+	def "can generate projects and solution for multiple build types"() {
+		assumeFalse(this.class.simpleName.contains('WithNativeTestSuite'))
+		given:
+		settingsFile << configureProjectName()
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+		buildFile << """
+			${componentUnderTestDsl} {
+				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
+			}
+		"""
+
+		when:
+		succeeds('visualStudio')
+
+		then:
+		visualStudioSolutionUnderTest.assertHasProjectConfigurations('debug|x64', 'release|x64')
+		visualStudioProjectUnderTest.assertHasProjectConfigurations('debug|x64', 'release|x64')
 	}
 
 	// TODO: Check ConfigurationType
@@ -287,4 +325,28 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 //		file('.gradle/XcodeDerivedData').assertDoesNotExist()
 //		file('.gradle').assertExists()
 //	}
+	@Override
+	protected IdeWorkspaceFixture getIdeWorkspaceUnderTest() {
+		return visualStudioSolutionUnderTest
+	}
+
+	@Override
+	protected IdeProjectFixture getIdeProjectUnderTest() {
+		return visualStudioProjectUnderTest
+	}
+
+	@Override
+	protected void makeSingleProjectWithDebugAndReleaseBuildTypes() {
+		makeSingleProject()
+		buildFile << """
+			${componentUnderTestDsl} {
+				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
+			}
+		"""
+	}
+
+	@Override
+	protected IdeWorkspaceTasks getIdeTasks() {
+		return new VisualStudioIdeTaskNames.VisualStudioIdeSolutionTasks()
+	}
 }

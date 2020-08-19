@@ -2,7 +2,6 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.platform.base.KnownDomainObject;
 import dev.nokee.platform.base.Variant;
-import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
@@ -17,7 +16,7 @@ public class KnownVariant<T extends Variant> {
 		this.knownObject = knownObject;
 	}
 
-	public BuildVariant getBuildVariant() {
+	public BuildVariantInternal getBuildVariant() {
 		return ((BuildVariantDomainObjectIdentity)knownObject.getIdentity()).getBuildVariant();
 	}
 

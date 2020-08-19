@@ -1,22 +1,30 @@
 package dev.nokee.ide.xcode
 
-import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.nokee.ide.fixtures.AbstractIdeNativeComponentPluginFunctionalTest
+import dev.nokee.ide.fixtures.IdeProjectFixture
+import dev.nokee.ide.fixtures.IdeWorkspaceFixture
+import dev.nokee.ide.fixtures.IdeWorkspaceTasks
 import dev.nokee.ide.xcode.fixtures.XcodeIdeProjectFixture
+import dev.nokee.ide.xcode.fixtures.XcodeIdeTaskNames
 import dev.nokee.ide.xcode.fixtures.XcodeIdeWorkspaceFixture
 import dev.nokee.platform.nativebase.internal.OperatingSystemOperations
 import org.apache.commons.lang3.SystemUtils
+import org.junit.Assume
 import spock.lang.Requires
 
-abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends AbstractGradleSpecification implements XcodeIdeFixture {
+abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends AbstractIdeNativeComponentPluginFunctionalTest implements XcodeIdeFixture {
 	protected String configureProjectName() {
-		String projectName = 'app'
-		if (this.class.simpleName.contains('Library')) {
-			projectName = 'lib'
-		}
 		return """
-			rootProject.name = '${projectName}'
+			rootProject.name = '${gradleProjectNameUnderTest}'
 		"""
+	}
+
+	protected String getGradleProjectNameUnderTest() {
+		if (this.class.simpleName.contains('Library')) {
+			return 'lib'
+		}
+		return 'app'
 	}
 
 	protected abstract void makeSingleProject();
@@ -48,6 +56,13 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		}
 
 		return result
+	}
+
+	protected String getComponentUnderTestDsl() {
+		if (this.class.simpleName.contains('Application')) {
+			return 'application'
+		}
+		return 'library'
 	}
 
 	protected List<String> getProductNames() {
@@ -82,6 +97,11 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		return projectName
 	}
 
+	@Override
+	protected String getIdeComponentNameUnderTest() {
+		return gradleProjectNameUnderTest
+	}
+
 	protected String getGroupName() {
 		return projectName
 	}
@@ -94,14 +114,71 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		return xcodeWorkspace(workspaceName)
 	}
 
-	protected abstract List<String> getAllTasksForBuildAction()
+	protected List<String> getAllTasksForBuildAction() {
+		allTasksForBuildAction('')
+	}
+
+	protected List<String> allTasksForBuildAction(String buildType) {
+		def className = this.class.simpleName
+		if (className.contains('ApplicationWithNativeTestSuite')) {
+			return [tasks.withBuildType(buildType).compile] + tasks.withComponentName('test').withBuildType(buildType).allToLink + [tasks.withComponentName('test').withBuildType(buildType).relocateMainSymbol]
+		} else if (className.contains('Application')) {
+			return tasks.withBuildType(buildType).allToLink
+		} else if (className.contains('LibraryWithNativeTestSuite')) {
+			return [tasks.withBuildType(buildType).compile] + tasks.withComponentName('test').withBuildType(buildType).allToLink
+		} else if (className.contains('LibraryWithStaticLinkage')) {
+			return tasks.forStaticLibrary.withBuildType(buildType).allToCreate
+		} else if (className.contains('LibraryWithSharedLinkage')) {
+			return tasks.withBuildType(buildType).allToLink
+		} else if (className.contains('LibraryWithBothLinkage')) {
+			return tasks.forSharedLibrary.withLinkage('shared').withBuildType(buildType).allToLink
+		} else if (className.contains('Library')) {
+			return tasks.withBuildType(buildType).allToLink
+		}
+		throw new UnsupportedOperationException()
+	}
 
 	protected List<String> getAllTasksToXcode() {
-		return [":${projectName.toLowerCase()}XcodeProject", ':xcodeWorkspace', ':xcode']
+		return allTasksToIde()
+	}
+
+	protected List<String> allTasksToIde(String... buildTypes) {
+		def result = [":${projectName.toLowerCase()}XcodeProject", ':xcodeWorkspace', ':xcode']
+
+		def className = this.class.simpleName
+		if (className.contains("Swift")) {
+			def withBuildTypes = { tasks ->
+				if (buildTypes.size() == 0) {
+					return [tasks]
+				}
+				return buildTypes.collect { tasks.withBuildType(it) }
+			}
+
+			if (className.contains('ApplicationWithNativeTestSuite') || className.contains('LibraryWithNativeTestSuite')) {
+				result += withBuildTypes(tasks).collect { it.compile }.flatten() + withBuildTypes(tasks.withComponentName('test')).collect { it.compile }.flatten()
+			} else if (className.contains('Application')) {
+				result += withBuildTypes(tasks).collect { it.compile }
+			} else if (className.contains('LibraryWithStaticLinkage')) {
+				result += withBuildTypes(tasks).collect { it.compile }
+			} else if (className.contains('LibraryWithSharedLinkage')) {
+				result += withBuildTypes(tasks).collect { it.compile }
+			} else if (className.contains('LibraryWithBothLinkage')) {
+				result += withBuildTypes(tasks.withLinkage('shared')).collect { it.compile }
+			} else if (className.contains('Library')) {
+				result += withBuildTypes(tasks).collect { it.compile }
+			} else {
+				throw new UnsupportedOperationException()
+			}
+		}
+		return result
 	}
 
 	protected String getXcodeIdeBridge() {
-		return ":_xcode___${projectName.toLowerCase()}_${schemeName}_Default"
+		return xcodeIdeBridge('default')
+	}
+
+	protected String xcodeIdeBridge(String buildType) {
+		return ":_xcode___${projectName.toLowerCase()}_${schemeName}_${buildType}"
 	}
 
 	def "includes sources in the project"() {
@@ -195,5 +272,66 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		xcodebuild.withWorkspace(xcodeWorkspace(workspaceName)).withScheme(schemeName).succeeds()
 		then:
 		file('.gradle/XcodeDerivedData').assertIsDirectory()
+	}
+
+	// TODO: Generated project only has configuration debug / release changed
+
+	@Requires({ SystemUtils.IS_OS_MAC })
+	def "can build specific build types from IDE"() {
+		// FIXME: Reenable this
+		Assume.assumeFalse(this.class.simpleName.contains('SwiftLibraryWithNativeTestSuite'))
+		Assume.assumeFalse(this.class.simpleName.contains('SwiftApplicationWithNativeTestSuite'))
+
+		given:
+		using xcodebuildTool
+		settingsFile << configurePluginClasspathAsBuildScriptDependencies() << configureProjectName()
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+
+		and:
+		buildFile << """
+			${componentUnderTestDsl} {
+				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
+			}
+		"""
+
+		and:
+		succeeds('xcode')
+		result.assertTasksExecuted(allTasksToIde('debug', 'release'))
+
+		when:
+		def resultDebug = xcodebuild.withWorkspace(xcodeWorkspaceUnderTest).withScheme(schemeName).withConfiguration('debug').succeeds()
+		then:
+		resultDebug.assertTasksExecuted(allTasksForBuildAction('debug'), xcodeIdeBridge('debug'))
+
+		when:
+		def resultRelease = xcodebuild.withWorkspace(xcodeWorkspaceUnderTest).withScheme(schemeName).withConfiguration('release').succeeds()
+		then:
+		resultRelease.assertTasksExecuted(allTasksForBuildAction('release'), xcodeIdeBridge('release'))
+	}
+
+	@Override
+	protected IdeWorkspaceFixture getIdeWorkspaceUnderTest() {
+		return xcodeWorkspaceUnderTest
+	}
+
+	@Override
+	protected IdeProjectFixture getIdeProjectUnderTest() {
+		return xcodeProjectUnderTest
+	}
+
+	@Override
+	protected void makeSingleProjectWithDebugAndReleaseBuildTypes() {
+		makeSingleProject()
+		buildFile << """
+			${componentUnderTestDsl} {
+				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
+			}
+		"""
+	}
+
+	@Override
+	protected IdeWorkspaceTasks getIdeTasks() {
+		return new XcodeIdeTaskNames.XcodeIdeWorkspaceTasks()
 	}
 }

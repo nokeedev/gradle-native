@@ -1,8 +1,9 @@
 package dev.nokee.platform.nativebase.internal.dependencies;
 
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
+import dev.nokee.platform.nativebase.internal.NamedTargetBuildType;
 import dev.nokee.runtime.base.internal.DefaultUsage;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
@@ -70,7 +71,7 @@ public class ConfigurationUtilsEx {
 		return Arrays.stream(buckets).map(DependencyBucket::getAsConfiguration).collect(Collectors.toList());
 	}
 
-	public static Action<Configuration> configureIncomingAttributes(BuildVariant variant, ObjectFactory objects) {
+	public static Action<Configuration> configureIncomingAttributes(BuildVariantInternal variant, ObjectFactory objects) {
 		return configuration -> {
 			val attributes = configuration.getAttributes();
 			variant.getDimensions().forEach(it -> {
@@ -79,6 +80,8 @@ public class ConfigurationUtilsEx {
 				} else if (it instanceof DefaultMachineArchitecture) {
 					attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture.class, ((DefaultMachineArchitecture) it).getName()));
 				} else if (it instanceof DefaultBinaryLinkage) {
+					// Do not configure this dimension for incoming dependencies
+				} else if (it instanceof NamedTargetBuildType) {
 					// Do not configure this dimension for incoming dependencies
 				} else {
 					throw new IllegalArgumentException(String.format("Unknown dimension variant '%s'", it.toString()));

@@ -4,13 +4,15 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.runtime.base.internal.Dimension;
 import dev.nokee.runtime.base.internal.DimensionType;
 import lombok.Value;
+import lombok.val;
 import org.gradle.api.GradleException;
 import org.gradle.internal.Cast;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Value
-public class DefaultBuildVariant implements BuildVariant {
+public class DefaultBuildVariant implements BuildVariantInternal {
 	List<Dimension> dimensions;
 
 	public static DefaultBuildVariant of(Dimension... dimensions) {
@@ -30,5 +32,19 @@ public class DefaultBuildVariant implements BuildVariant {
 	@Override
 	public boolean hasAxisValue(DimensionType<? extends Dimension> type) {
 		return dimensions.stream().anyMatch(it -> it.getType().equals(type));
+	}
+
+	@Override
+	public BuildVariantInternal withoutDimension(DimensionType<?> type) {
+		return of(dimensions.stream().filter(it -> !it.getType().equals(type)).collect(Collectors.toList()));
+	}
+
+	@Override
+	public boolean hasAxisOf(Object axisValue) {
+		if (axisValue instanceof Dimension) {
+			val type = ((Dimension) axisValue).getType();
+			return hasAxisValue(type) && getAxisValue(type).equals(axisValue);
+		}
+		return false;
 	}
 }
