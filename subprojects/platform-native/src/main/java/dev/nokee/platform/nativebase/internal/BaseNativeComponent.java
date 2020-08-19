@@ -23,12 +23,15 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.val;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFile;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
@@ -36,7 +39,6 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
@@ -46,21 +48,17 @@ import static java.util.Collections.emptyList;
 
 public abstract class BaseNativeComponent<T extends Variant> extends BaseComponent<T> {
 	private final Class<T> variantType;
+	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
+	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
+	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
+	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 
-	@Inject
-	protected abstract ProviderFactory getProviders();
-
-	@Inject
-	protected abstract TaskContainer getTasks();
-
-	@Inject
-	protected abstract ProjectLayout getLayout();
-
-	@Inject
-	protected abstract ConfigurationContainer getConfigurations();
-
-	public BaseNativeComponent(NamingScheme names, Class<T> variantType) {
-		super(names, variantType);
+	public BaseNativeComponent(NamingScheme names, Class<T> variantType, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations) {
+		super(names, variantType, objects);
+		this.providers = providers;
+		this.tasks = tasks;
+		this.layout = layout;
+		this.configurations = configurations;
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
 		this.variantType = variantType;
 		getDevelopmentVariant().convention(getDefaultVariant());

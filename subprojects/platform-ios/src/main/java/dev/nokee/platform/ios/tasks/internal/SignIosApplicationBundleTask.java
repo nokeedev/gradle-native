@@ -2,6 +2,8 @@ package dev.nokee.platform.ios.tasks.internal;
 
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.GradleWorkerExecutorEngine;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.FileSystemOperations;
@@ -12,22 +14,37 @@ import org.gradle.api.tasks.*;
 import javax.inject.Inject;
 import java.io.File;
 
-public abstract class SignIosApplicationBundleTask extends DefaultTask {
+public class SignIosApplicationBundleTask extends DefaultTask {
+	private final Property<FileSystemLocation> unsignedApplicationBundle;
+	private final Property<FileSystemLocation> signedApplicationBundle;
+	private final Property<CommandLineTool> codeSignatureTool;
+	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final FileSystemOperations fileOperations;
+	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final ObjectFactory objects;
+
 	@SkipWhenEmpty
 	@InputDirectory
-	public abstract Property<FileSystemLocation> getUnsignedApplicationBundle();
+	public Property<FileSystemLocation> getUnsignedApplicationBundle() {
+		return unsignedApplicationBundle;
+	}
 
 	@OutputDirectory
-	public abstract Property<FileSystemLocation> getSignedApplicationBundle();
+	public Property<FileSystemLocation> getSignedApplicationBundle() {
+		return signedApplicationBundle;
+	}
 
 	@Nested
-	public abstract Property<CommandLineTool> getCodeSignatureTool();
+	public Property<CommandLineTool> getCodeSignatureTool() {
+		return codeSignatureTool;
+	}
 
 	@Inject
-	protected abstract FileSystemOperations getFileOperations();
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
+	public SignIosApplicationBundleTask(ObjectFactory objects, FileSystemOperations fileOperations) {
+		this.unsignedApplicationBundle = objects.property(FileSystemLocation.class);
+		this.signedApplicationBundle = objects.property(FileSystemLocation.class);
+		this.codeSignatureTool = objects.property(CommandLineTool.class);
+		this.fileOperations = fileOperations;
+		this.objects = objects;
+	}
 
 	@TaskAction
 	private void sign() {

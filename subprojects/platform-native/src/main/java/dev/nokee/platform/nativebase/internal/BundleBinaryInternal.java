@@ -10,30 +10,35 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
+import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFile;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-public abstract class BundleBinaryInternal extends BaseNativeBinary implements BundleBinary, Buildable {
+public class BundleBinaryInternal extends BaseNativeBinary implements BundleBinary, Buildable {
 	private final TaskProvider<LinkBundleTask> linkTask;
+	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public BundleBinaryInternal(NamingScheme names, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkBundleTask> linkTask, NativeIncomingDependencies dependencies) {
-		super(names, objectSourceSets, targetMachine, dependencies);
+	public BundleBinaryInternal(NamingScheme names, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkBundleTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
+		super(names, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
 
 		this.linkTask = linkTask;
+		this.tasks = tasks;
 
 		linkTask.configure(this::configureBundleTask);
 	}
-
-	@Inject
-	protected abstract TaskContainer getTasks();
 
 	private void configureBundleTask(LinkBundleTask task) {
 		task.setDescription("Links the bundle.");

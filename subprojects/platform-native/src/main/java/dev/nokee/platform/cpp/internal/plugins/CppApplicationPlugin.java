@@ -8,6 +8,8 @@ import dev.nokee.platform.cpp.internal.DefaultCppApplicationExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -16,11 +18,14 @@ import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPl
 
 import javax.inject.Inject;
 
-public abstract class CppApplicationPlugin implements Plugin<Project> {
+public class CppApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 	@Inject
-	protected abstract ObjectFactory getObjects();
+	public CppApplicationPlugin(ObjectFactory objects) {
+		this.objects = objects;
+	}
 
 	@Override
 	public void apply(Project project) {

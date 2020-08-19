@@ -1,23 +1,21 @@
 package dev.nokee.platform.ios.internal;
 
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.SwiftIosApplicationExtension;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
 
-public abstract class DefaultSwiftIosApplicationExtension extends BaseIosExtension<DefaultIosApplicationComponent> implements SwiftIosApplicationExtension {
+public class DefaultSwiftIosApplicationExtension extends BaseIosExtension<DefaultIosApplicationComponent> implements SwiftIosApplicationExtension {
 	@Inject
-	public DefaultSwiftIosApplicationExtension(DefaultIosApplicationComponent component) {
-		super(component);
+	public DefaultSwiftIosApplicationExtension(DefaultIosApplicationComponent component, ObjectFactory objects, ProviderFactory providers) {
+		super(component, objects, providers);
 		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").srcDir("src/main/swift"));
 	}
 

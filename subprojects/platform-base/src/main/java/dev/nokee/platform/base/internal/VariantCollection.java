@@ -7,6 +7,8 @@ import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.utils.Cast;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
@@ -17,21 +19,17 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
 
-public abstract class VariantCollection<T extends Variant> implements Realizable {
+public class VariantCollection<T extends Variant> implements Realizable {
 	private final DomainObjectCollection<T> delegate;
 	private final Class<T> elementType;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	private boolean disallowChanges = false;
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
-
-	@Inject
-	protected abstract ProviderFactory getProviders();
 
 	// TODO: Make the distinction between public and implementation type
 	@Inject
-	public VariantCollection(Class<T> elementType, ProviderFactory providers) {
+	public VariantCollection(Class<T> elementType, ProviderFactory providers, ObjectFactory objects) {
 		this.elementType = elementType;
+		this.objects = objects;
 		delegate = new DefaultDomainObjectCollection<>(elementType, getObjects(), providers);
 	}
 

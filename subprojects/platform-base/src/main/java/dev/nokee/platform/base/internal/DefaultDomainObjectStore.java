@@ -6,6 +6,8 @@ import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.DomainObjectProvider;
 import dev.nokee.platform.base.KnownDomainObject;
 import dev.nokee.utils.Cast;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.model.ObjectFactory;
@@ -17,14 +19,17 @@ import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class DefaultDomainObjectStore implements DomainObjectStore {
-	private final DomainObjectCollection<Object> store = new DefaultDomainObjectCollection<>(Object.class, getObjects(), getProviders());
+public class DefaultDomainObjectStore implements DomainObjectStore {
+	private final DomainObjectCollection<Object> store;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
 	@Inject
-	protected abstract ObjectFactory getObjects();
-
-	@Inject
-	protected abstract ProviderFactory getProviders();
+	public DefaultDomainObjectStore(ObjectFactory objects, ProviderFactory providers) {
+		this.objects = objects;
+		this.providers = providers;
+		this.store = new DefaultDomainObjectCollection<>(Object.class, objects, providers);
+	}
 
 	@Override
 	public <U> DomainObjectProvider<U> register(DomainObjectFactory<U> factory) {

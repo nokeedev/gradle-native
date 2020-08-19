@@ -2,6 +2,8 @@ package dev.nokee.platform.ios.tasks.internal;
 
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.GradleWorkerExecutorEngine;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.DefaultTask;
@@ -22,24 +24,44 @@ import java.io.File;
 import java.io.IOException;
 
 @CacheableTask
-public abstract class StoryboardCompileTask extends DefaultTask {
+public class StoryboardCompileTask extends DefaultTask {
+	private final DirectoryProperty destinationDirectory;
+	private final Property<String> module;
+	private final ConfigurableFileCollection sources;
+	private final Property<CommandLineTool> interfaceBuilderTool;
+	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final ObjectFactory objects;
+
 	@OutputDirectory
-	public abstract DirectoryProperty getDestinationDirectory();
+	public DirectoryProperty getDestinationDirectory() {
+		return destinationDirectory;
+	}
 
 	@Input
-	public abstract Property<String> getModule();
+	public Property<String> getModule() {
+		return module;
+	}
 
 	// TODO: This may need to be richer so we keep the context path
 	@Incremental
 	@InputFiles
 	@PathSensitive(PathSensitivity.RELATIVE)
-	public abstract ConfigurableFileCollection getSources();
+	public ConfigurableFileCollection getSources() {
+		return sources;
+	}
 
 	@Nested
-	public abstract Property<CommandLineTool> getInterfaceBuilderTool();
+	public Property<CommandLineTool> getInterfaceBuilderTool() {
+		return interfaceBuilderTool;
+	}
 
 	@Inject
-	protected abstract ObjectFactory getObjects();
+	public StoryboardCompileTask(ObjectFactory objects) {
+		this.destinationDirectory = objects.directoryProperty();
+		this.module = objects.property(String.class);
+		this.sources = objects.fileCollection();
+		this.interfaceBuilderTool = objects.property(CommandLineTool.class);
+		this.objects = objects;
+	}
 
 	@TaskAction
 	private void compile(InputChanges inputChanges) throws IOException {

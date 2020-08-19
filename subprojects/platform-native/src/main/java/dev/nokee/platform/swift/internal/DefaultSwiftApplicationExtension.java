@@ -7,15 +7,31 @@ import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.swift.SwiftApplicationExtension;
+import dev.nokee.runtime.nativebase.TargetBuildType;
+import dev.nokee.runtime.nativebase.TargetMachine;
+import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
 
-public abstract class DefaultSwiftApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements SwiftApplicationExtension {
+public class DefaultSwiftApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements SwiftApplicationExtension {
+	@Getter private final ConfigurableFileCollection sources;
+	@Getter private final SetProperty<TargetMachine> targetMachines;
+	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
+
 	@Inject
-	public DefaultSwiftApplicationExtension(DefaultNativeApplicationComponent component) {
-		super(component);
+	public DefaultSwiftApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
+		super(component, objects, providers, layout);
+		this.sources = objects.fileCollection();
+		this.targetMachines = objects.setProperty(TargetMachine.class);
+		this.targetBuildTypes = objects.setProperty(TargetBuildType.class);
+
 		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").from(getSources().getElements().map(toIfEmpty("src/main/swift"))));
 	}
 

@@ -8,15 +8,18 @@ import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicat
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import lombok.Getter;
 import org.gradle.api.Action;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
 
-public abstract class DefaultNativeApplicationVariant extends BaseNativeVariant implements NativeApplication {
+public class DefaultNativeApplicationVariant extends BaseNativeVariant implements NativeApplication {
 	@Getter private final DefaultNativeApplicationComponentDependencies dependencies;
 
 	@Inject
-	public DefaultNativeApplicationVariant(String name, NamingScheme names, BuildVariantInternal buildVariant, VariantComponentDependencies<DefaultNativeApplicationComponentDependencies> dependencies) {
-		super(name, names, buildVariant);
+	public DefaultNativeApplicationVariant(String name, NamingScheme names, BuildVariantInternal buildVariant, VariantComponentDependencies<DefaultNativeApplicationComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
+		super(name, names, buildVariant, objects, tasks, providers);
 		this.dependencies = dependencies.getDependencies();
 	}
 

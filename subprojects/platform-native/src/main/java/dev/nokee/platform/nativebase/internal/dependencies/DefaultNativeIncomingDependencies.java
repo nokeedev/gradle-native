@@ -7,6 +7,8 @@ import dev.nokee.platform.base.internal.dependencies.ComponentDependenciesIntern
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import dev.nokee.utils.ActionUtils;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.Value;
 import lombok.val;
 import org.gradle.api.Action;
@@ -26,29 +28,29 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public abstract class DefaultNativeIncomingDependencies implements NativeIncomingDependencies {
+public class DefaultNativeIncomingDependencies implements NativeIncomingDependencies {
 	private static final Logger LOGGER = Logger.getLogger(DefaultNativeIncomingDependencies.class.getCanonicalName());
 	private final IncomingHeaders headers;
 	private final IncomingSwiftModules swiftModules;
 	private final DependencyBucket linkLibrariesBucket;
 	private final DependencyBucket runtimeLibrariesBucket;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
 	@Inject
 	@Deprecated // Use {@link #builder()} instead.
-	public DefaultNativeIncomingDependencies(IncomingHeaders headers, IncomingSwiftModules swiftModules, DependencyBucket linkLibrariesBucket, DependencyBucket runtimeLibrariesBucket) {
+	public DefaultNativeIncomingDependencies(IncomingHeaders headers, IncomingSwiftModules swiftModules, DependencyBucket linkLibrariesBucket, DependencyBucket runtimeLibrariesBucket, ObjectFactory objects, ProviderFactory providers) {
 		this.headers = headers;
 		this.swiftModules = swiftModules;
 		this.linkLibrariesBucket = linkLibrariesBucket;
 		this.runtimeLibrariesBucket = runtimeLibrariesBucket;
+		this.objects = objects;
+		this.providers = providers;
+
+		this.linkerInputs = objects.listProperty(LinkerInput.class);
 
 		configureLinkerInputs();
 	}
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
-
-	@Inject
-	protected abstract ProviderFactory getProviders();
 
 	@Override
 	public FileCollection getSwiftModules() {
@@ -84,7 +86,7 @@ public abstract class DefaultNativeIncomingDependencies implements NativeIncomin
 		return getProviders().provider(() -> linkLibrariesBucket.getAsConfiguration().getIncoming().getArtifacts().getArtifacts().stream().map(LinkerInput::of).collect(Collectors.toList()));
 	}
 
-	public abstract ListProperty<LinkerInput> getLinkerInputs();
+	@Getter private final ListProperty<LinkerInput> linkerInputs;
 
 	private List<File> toLinkLibraries(List<LinkerInput> inputs) {
 		return inputs.stream().filter(it -> !it.isFramework()).map(LinkerInput::getFile).collect(Collectors.toList());
@@ -205,7 +207,7 @@ public abstract class DefaultNativeIncomingDependencies implements NativeIncomin
 	}
 
 	//region incoming headers
-	private interface IncomingHeaders {
+	public interface IncomingHeaders {
 		FileCollection getHeaderSearchPaths();
 		FileCollection getFrameworkSearchPaths();
 	}
@@ -228,20 +230,20 @@ public abstract class DefaultNativeIncomingDependencies implements NativeIncomin
 		}
 	}
 
-	static abstract class DefaultIncomingHeaders implements IncomingHeaders {
+	static class DefaultIncomingHeaders implements IncomingHeaders {
 		private final DependencyBucket headerSearchPathsBucket;
+		@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+		@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
 		@Inject
-		public DefaultIncomingHeaders(DependencyBucket headerSearchPathsBucket) {
+		public DefaultIncomingHeaders(DependencyBucket headerSearchPathsBucket, ObjectFactory objects, ProviderFactory providers) {
 			this.headerSearchPathsBucket = headerSearchPathsBucket;
+			this.objects = objects;
+			this.providers = providers;
+
+			this.nativeCompilerInputs = objects.listProperty(CompilerInput.class);
 			configureNativeCompilerInputs();
 		}
-
-		@Inject
-		protected abstract ObjectFactory getObjects();
-
-		@Inject
-		protected abstract ProviderFactory getProviders();
 
 		@Override
 		public FileCollection getHeaderSearchPaths() {
@@ -259,7 +261,7 @@ public abstract class DefaultNativeIncomingDependencies implements NativeIncomin
 			getNativeCompilerInputs().disallowChanges();
 		}
 
-		protected abstract ListProperty<CompilerInput> getNativeCompilerInputs();
+		@Getter(AccessLevel.PROTECTED) private final ListProperty<CompilerInput> nativeCompilerInputs;
 
 		private Provider<List<CompilerInput>> fromNativeCompileConfiguration() {
 			return getProviders().provider(() -> headerSearchPathsBucket.getAsConfiguration().getIncoming().getArtifacts().getArtifacts().stream().map(CompilerInput::of).collect(Collectors.toList()));
@@ -286,7 +288,7 @@ public abstract class DefaultNativeIncomingDependencies implements NativeIncomin
 	//endregion
 
 	//region incoming Swift modules
-	private interface IncomingSwiftModules {
+	public interface IncomingSwiftModules {
 		FileCollection getSwiftModules();
 		FileCollection getFrameworkSearchPaths();
 	}
@@ -309,20 +311,19 @@ public abstract class DefaultNativeIncomingDependencies implements NativeIncomin
 		}
 	}
 
-	static abstract class DefaultIncomingSwiftModules implements IncomingSwiftModules {
+	static class DefaultIncomingSwiftModules implements IncomingSwiftModules {
 		private final DependencyBucket importSwiftModulesBucket;
+		@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+		@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
 		@Inject
-		public DefaultIncomingSwiftModules(DependencyBucket importSwiftModulesBucket) {
+		public DefaultIncomingSwiftModules(DependencyBucket importSwiftModulesBucket, ObjectFactory objects, ProviderFactory providers) {
 			this.importSwiftModulesBucket = importSwiftModulesBucket;
+			this.swiftCompilerInputs = objects.listProperty(CompilerInput.class);
+			this.objects = objects;
+			this.providers = providers;
 			configureSwiftCompilerInputs();
 		}
-
-		@Inject
-		protected abstract ObjectFactory getObjects();
-
-		@Inject
-		protected abstract ProviderFactory getProviders();
 
 		@Override
 		public FileCollection getSwiftModules() {
@@ -348,7 +349,7 @@ public abstract class DefaultNativeIncomingDependencies implements NativeIncomin
 			getSwiftCompilerInputs().disallowChanges();
 		}
 
-		protected abstract ListProperty<CompilerInput> getSwiftCompilerInputs();
+		@Getter(AccessLevel.PROTECTED) private final ListProperty<CompilerInput> swiftCompilerInputs;
 
 		private Provider<List<CompilerInput>> fromSwiftCompileConfiguration() {
 			return getProviders().provider(() -> importSwiftModulesBucket.getAsConfiguration().getIncoming().getArtifacts().getArtifacts().stream().map(CompilerInput::of).collect(Collectors.toList()));

@@ -9,6 +9,8 @@ import dev.nokee.platform.nativebase.internal.TargetLinkageRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.objectivec.ObjectiveCLibraryExtension;
 import dev.nokee.platform.objectivec.internal.DefaultObjectiveCLibraryExtension;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -17,11 +19,14 @@ import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPl
 
 import javax.inject.Inject;
 
-public abstract class ObjectiveCLibraryPlugin implements Plugin<Project> {
+public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "library";
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 	@Inject
-	protected abstract ObjectFactory getObjects();
+	public ObjectiveCLibraryPlugin(ObjectFactory objects) {
+		this.objects = objects;
+	}
 
 	@Override
 	public void apply(Project project) {

@@ -2,6 +2,8 @@ package dev.nokee.platform.ios.tasks.internal;
 
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.GradleWorkerExecutorEngine;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
@@ -12,22 +14,42 @@ import org.gradle.api.tasks.*;
 import javax.inject.Inject;
 import java.io.File;
 
-public abstract class AssetCatalogCompileTask extends DefaultTask {
+public class AssetCatalogCompileTask extends DefaultTask {
+	private final DirectoryProperty destinationDirectory;
+	private final RegularFileProperty source;
+	private final Property<String> identifier;
+	private final Property<CommandLineTool> assetCompilerTool;
+	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final ObjectFactory objects;
+
 	@OutputDirectory
-	public abstract DirectoryProperty getDestinationDirectory();
+	public DirectoryProperty getDestinationDirectory() {
+		return destinationDirectory;
+	}
 
 	@SkipWhenEmpty
 	@InputDirectory
-	public abstract RegularFileProperty getSource();
+	public RegularFileProperty getSource() {
+		return source;
+	}
 
 	@Input
-	public abstract Property<String> getIdentifier();
+	public Property<String> getIdentifier() {
+		return identifier;
+	}
 
 	@Nested
-	public abstract Property<CommandLineTool> getAssetCompilerTool();
+	public Property<CommandLineTool> getAssetCompilerTool() {
+		return assetCompilerTool;
+	}
 
 	@Inject
-	protected abstract ObjectFactory getObjects();
+	public AssetCatalogCompileTask(ObjectFactory objects) {
+		this.destinationDirectory = objects.directoryProperty();
+		this.source = objects.fileProperty();
+		this.identifier = objects.property(String.class);
+		this.assetCompilerTool = objects.property(CommandLineTool.class);
+		this.objects = objects;
+	}
 
 	@TaskAction
 	private void compile() {

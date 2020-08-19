@@ -1,33 +1,45 @@
 package dev.nokee.platform.base.internal;
 
-import dev.nokee.platform.base.VariantView;
-import dev.nokee.utils.Cast;
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.runtime.base.internal.DimensionType;
+import dev.nokee.utils.Cast;
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
 
-import javax.inject.Inject;
-
-public abstract class BaseComponent<T extends Variant> {
+public class BaseComponent<T extends Variant> {
 	@Getter private final NamingScheme names;
 	@Getter private final VariantCollection<T> variantCollection;
 	@Getter private final DomainObjectSet<Binary> binaryCollection;
 	@Getter private final DomainObjectSet<SourceSet> sourceCollection;
 	@Getter private final BinaryView<Binary> binaries;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
-	protected BaseComponent(NamingScheme names, Class<T> variantType) {
+	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
+	@Getter private final SetProperty<DimensionType> dimensions;
+	// TODO: We may want to model this as a BuildVariantRegistry for more richness than a plain set
+	@Getter private final SetProperty<BuildVariantInternal> buildVariants;
+
+	@Getter private final Property<T> developmentVariant;
+	@Getter private final Property<String> baseName;
+
+	protected BaseComponent(NamingScheme names, Class<T> variantType, ObjectFactory objects) {
 		this.names = names;
-		this.variantCollection = Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(VariantCollection.class, variantType));
-		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(VariantAwareBinaryView.class, new DefaultMappingView<Binary, T>(variantCollection.getAsView(variantType), Variant::getBinaries)));
-		this.binaryCollection = getObjects().domainObjectSet(Binary.class);
-		this.sourceCollection = getObjects().domainObjectSet(SourceSet.class);
+		this.variantCollection = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantCollection.class, variantType));
+		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<Binary, T>(variantCollection.getAsView(variantType), Variant::getBinaries)));
+		this.objects = objects;
+		this.binaryCollection = objects.domainObjectSet(Binary.class);
+		this.sourceCollection = objects.domainObjectSet(SourceSet.class);
+		this.dimensions = objects.setProperty(DimensionType.class);
+		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
+		this.developmentVariant = objects.property(variantType);
+		this.baseName = objects.property(String.class);
 
 		getDimensions().finalizeValueOnRead();
 	}
@@ -35,17 +47,4 @@ public abstract class BaseComponent<T extends Variant> {
 	public String getName() {
 		return "main";
 	}
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
-
-	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
-	public abstract SetProperty<DimensionType> getDimensions();
-
-	// TODO: We may want to model this as a BuildVariantRegistry for more richness than a plain set
-	public abstract SetProperty<BuildVariantInternal> getBuildVariants();
-
-	public abstract Property<T> getDevelopmentVariant();
-
-	public abstract Property<String> getBaseName();
 }

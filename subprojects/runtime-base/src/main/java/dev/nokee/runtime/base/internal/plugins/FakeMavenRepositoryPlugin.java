@@ -9,7 +9,7 @@ import org.gradle.api.provider.Provider;
 
 import static dev.nokee.runtime.base.internal.repositories.NokeeServerService.NOKEE_LOCAL_REPOSITORY_NAME;
 
-public abstract class FakeMavenRepositoryPlugin implements Plugin<Project> {
+public class FakeMavenRepositoryPlugin implements Plugin<Project> {
 	public static final String NOKEE_SERVER_SERVICE_NAME = "nokeeServer";
 
 	@Override

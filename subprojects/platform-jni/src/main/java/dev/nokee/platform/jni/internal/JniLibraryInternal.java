@@ -16,10 +16,15 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -28,23 +33,33 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
 
-public abstract class JniLibraryInternal extends BaseVariant implements JniLibrary {
+public class JniLibraryInternal extends BaseVariant implements JniLibrary {
 	private final NamingScheme names;
 	private final DefaultJavaNativeInterfaceNativeComponentDependencies dependencies;
+	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
+	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
+	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
 	private final DefaultTargetMachine targetMachine;
 	private final GroupId groupId;
 	private AbstractJarBinary jarBinary;
 	private SharedLibraryBinaryInternal sharedLibraryBinary;
+	@Getter private final Property<String> resourcePath;
+	@Getter private final ConfigurableFileCollection nativeRuntimeFiles;
 
 	@Inject
-	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, BuildVariantInternal buildVariant, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies) {
-		super(name, buildVariant);
+	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, BuildVariantInternal buildVariant, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskContainer tasks) {
+		super(name, buildVariant, objects);
 		this.names = names;
 		this.dependencies = dependencies.getDependencies();
-		this.sources = getObjects().domainObjectSet(LanguageSourceSetInternal.class);
+		this.configurations = configurations;
+		this.providers = providers;
+		this.tasks = tasks;
+		this.sources = objects.domainObjectSet(LanguageSourceSetInternal.class);
 		this.targetMachine = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
 		this.groupId = groupId;
+		this.resourcePath = objects.property(String.class);
+		this.nativeRuntimeFiles = objects.fileCollection();
 
 		parentSources.all(sources::add);
 
@@ -55,15 +70,6 @@ public abstract class JniLibraryInternal extends BaseVariant implements JniLibra
 	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
 		return sources;
 	}
-
-	@Inject
-	protected abstract ConfigurationContainer getConfigurations();
-
-	@Inject
-	protected abstract ProviderFactory getProviders();
-
-	@Inject
-	protected abstract TaskContainer getTasks();
 
 	public void registerSharedLibraryBinary(DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants, NativeIncomingDependencies dependencies) {
 		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, targetMachine, objectSourceSets, linkTask, dependencies);

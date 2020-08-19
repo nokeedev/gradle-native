@@ -10,6 +10,8 @@ import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -30,20 +32,21 @@ import java.util.Arrays;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.platform.nativebase.internal.NativePlatformFactory.platformNameFor;
 
-public abstract class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
+public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
+	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
+	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
 	@Inject
-	protected abstract ObjectFactory getObjects();
+	public ObjectiveCIosApplicationPlugin(ObjectFactory objects, ProjectLayout layout, TaskContainer tasks, ProviderFactory providers) {
 
-	@Inject
-	protected abstract ProjectLayout getLayout();
-
-	@Inject
-	protected abstract TaskContainer getTasks();
-
-	@Inject
-	protected abstract ProviderFactory getProviders();
+		this.objects = objects;
+		this.layout = layout;
+		this.tasks = tasks;
+		this.providers = providers;
+	}
 
 	@Override
 	public void apply(Project project) {

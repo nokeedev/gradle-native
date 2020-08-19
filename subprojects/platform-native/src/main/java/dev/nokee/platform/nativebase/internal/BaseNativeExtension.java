@@ -13,33 +13,34 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.runtime.base.internal.DefaultDimensionType;
 import dev.nokee.runtime.base.internal.Dimension;
 import dev.nokee.runtime.base.internal.DimensionType;
-import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetLinkage;
-import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.gradle.api.GradleException;
 import org.gradle.api.Transformer;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 
-import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class BaseNativeExtension<T extends BaseNativeComponent<?>> {
+public class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 	@Getter private final T component;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
+	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
 
-	public BaseNativeExtension(T component) {
+	public BaseNativeExtension(T component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
 		this.component = component;
+		this.objects = objects;
+		this.providers = providers;
+		this.layout = layout;
 
 		component.getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
 		component.getBuildVariants().finalizeValueOnRead();
@@ -47,15 +48,6 @@ public abstract class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 
 		component.getDimensions().disallowChanges(); // Let's disallow changing them for now.
 	}
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
-
-	@Inject
-	protected abstract ProviderFactory getProviders();
-
-	@Inject
-	protected abstract ProjectLayout getLayout();
 
 	protected Transformer<Iterable<FileSystemLocation>, Set<FileSystemLocation>> toIfEmpty(String path) {
 		return sources -> {

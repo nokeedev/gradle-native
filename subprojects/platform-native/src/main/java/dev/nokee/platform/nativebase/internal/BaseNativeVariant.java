@@ -5,31 +5,30 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.NamingScheme;
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Task;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 
-import javax.inject.Inject;
 import java.util.Iterator;
 
-public abstract class BaseNativeVariant extends BaseVariant {
+public class BaseNativeVariant extends BaseVariant {
 	@Getter private final NamingScheme names;
+	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
+	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
-	public BaseNativeVariant(String name, NamingScheme names, BuildVariantInternal buildVariant) {
-		super(name, buildVariant);
+	public BaseNativeVariant(String name, NamingScheme names, BuildVariantInternal buildVariant, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
+		super(name, buildVariant, objects);
 		this.names = names;
+		this.tasks = tasks;
+		this.providers = providers;
 
 		getDevelopmentBinary().convention(getDefaultBinary());
 	}
-
-	@Inject
-	protected abstract TaskContainer getTasks();
-
-	@Inject
-	protected abstract ProviderFactory getProviders();
 
 	public TaskProvider<Task> getAssembleTask() {
 		return getTasks().named(names.getTaskName("assemble"));

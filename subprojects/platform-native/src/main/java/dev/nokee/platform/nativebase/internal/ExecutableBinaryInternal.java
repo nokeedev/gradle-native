@@ -13,11 +13,17 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
+import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFile;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
@@ -28,13 +34,15 @@ import java.io.File;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class ExecutableBinaryInternal extends BaseNativeBinary implements ExecutableBinary, Buildable {
+public class ExecutableBinaryInternal extends BaseNativeBinary implements ExecutableBinary, Buildable {
 	private final TaskProvider<LinkExecutableTask> linkTask;
+	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public ExecutableBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeIncomingDependencies dependencies) {
-		super(names, objectSourceSets, targetMachine, dependencies);
+	public ExecutableBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
+		super(names, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
 		this.linkTask = linkTask;
+		this.tasks = tasks;
 
 		linkTask.configure(this::configureExecutableTask);
 		linkTask.configure(task -> {
@@ -81,9 +89,6 @@ public abstract class ExecutableBinaryInternal extends BaseNativeBinary implemen
 			return osOperations.getExecutableName(getNames().getOutputDirectoryBase("exes") + "/" + it);
 		}));
 	}
-
-	@Inject
-	protected abstract TaskContainer getTasks();
 
 	@Override
 	public TaskProvider<LinkExecutable> getLinkTask() {

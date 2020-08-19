@@ -1,10 +1,13 @@
 package dev.nokee.platform.ios.tasks.internal;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
 import org.gradle.process.ExecOperations;
@@ -13,24 +16,44 @@ import javax.inject.Inject;
 import java.io.*;
 import java.nio.charset.Charset;
 
-public abstract class ProcessPropertyListTask extends DefaultTask {
+public class ProcessPropertyListTask extends DefaultTask {
+	private final ConfigurableFileCollection sources;
+	private final Property<String> module;
+	private final Property<String> identifier;
+	private final RegularFileProperty outputFile;
+	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final ExecOperations execOperations;
+
 	@Optional
 	@SkipWhenEmpty // TODO: Test no source
 	@InputFiles
-	public abstract ConfigurableFileCollection getSources();
+	public ConfigurableFileCollection getSources() {
+		return sources;
+	}
 
 	@Input
-	public abstract Property<String> getModule();
+	public Property<String> getModule() {
+		return module;
+	}
 
 	@Input
-	public abstract Property<String> getIdentifier();
+	public Property<String> getIdentifier() {
+		return identifier;
+	}
 
 	// TODO: Find a better name
 	@OutputFile
-	public abstract RegularFileProperty getOutputFile();
+	public RegularFileProperty getOutputFile() {
+		return outputFile;
+	}
 
 	@Inject
-	protected abstract ExecOperations getExecOperations();
+	public ProcessPropertyListTask(ObjectFactory objects, ExecOperations execOperations) {
+		this.sources = objects.fileCollection();
+		this.module = objects.property(String.class);
+		this.identifier = objects.property(String.class);
+		this.outputFile = objects.fileProperty();
+		this.execOperations = execOperations;
+	}
 
 	@TaskAction
 	private void process() throws IOException {

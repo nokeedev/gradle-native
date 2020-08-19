@@ -5,6 +5,8 @@ import dev.nokee.runtime.base.internal.repositories.NokeeServerService;
 import dev.nokee.runtime.darwin.internal.FrameworkRouteHandler;
 import dev.nokee.runtime.darwin.internal.locators.XcodebuildLocator;
 import dev.nokee.runtime.darwin.internal.locators.XcrunLocator;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.Plugin;
@@ -36,11 +38,14 @@ import static dev.nokee.runtime.nativebase.internal.ArtifactTypes.ARTIFACT_TYPES
 import static dev.nokee.runtime.nativebase.internal.ArtifactTypes.FRAMEWORK_TYPE;
 import static dev.nokee.runtime.nativebase.internal.LibraryElements.FRAMEWORK_BUNDLE;
 
-public abstract class DarwinFrameworkResolutionSupportPlugin implements Plugin<Project> {
+public class DarwinFrameworkResolutionSupportPlugin implements Plugin<Project> {
 	private static final Logger LOGGER = Logging.getLogger(DarwinFrameworkResolutionSupportPlugin.class);
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 	@Inject
-	protected abstract ObjectFactory getObjects();
+	public DarwinFrameworkResolutionSupportPlugin(ObjectFactory objects) {
+		this.objects = objects;
+	}
 
 	@Override
 	public void apply(Project project) {

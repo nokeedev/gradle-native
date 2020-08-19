@@ -12,6 +12,7 @@ import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectFactory;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.internal.metaobject.*;
 import org.gradle.util.ConfigureUtil;
 
@@ -19,13 +20,13 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class DefaultTestSuiteContainer extends AbstractDomainObjectContainer<TestSuiteComponent> implements TestSuiteContainer, MethodMixIn {
+public class DefaultTestSuiteContainer extends AbstractDomainObjectContainer<TestSuiteComponent> implements TestSuiteContainer, MethodMixIn {
 	private final Map<Class<?>, NamedDomainObjectFactory<?>> bindings = new HashMap<>();
 	private final Map<Class<?>, Class<?>> implementationTypes = new HashMap<>();
 
 	@Inject
-	public DefaultTestSuiteContainer(DomainObjectStore store) {
-		super(TestSuiteComponent.class, store);
+	public DefaultTestSuiteContainer(DomainObjectStore store, ObjectFactory objectFactory) {
+		super(TestSuiteComponent.class, store, objectFactory);
 	}
 
 	public <U extends TestSuiteComponent> void registerFactory(Class<U> type, Class<? extends U> implementationType, NamedDomainObjectFactory<U> factory) {

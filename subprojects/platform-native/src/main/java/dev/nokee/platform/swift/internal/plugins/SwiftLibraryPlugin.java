@@ -9,6 +9,8 @@ import dev.nokee.platform.nativebase.internal.TargetLinkageRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.swift.SwiftLibraryExtension;
 import dev.nokee.platform.swift.internal.DefaultSwiftLibraryExtension;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -18,11 +20,14 @@ import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
-public abstract class SwiftLibraryPlugin implements Plugin<Project> {
+public class SwiftLibraryPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "library";
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 	@Inject
-	protected abstract ObjectFactory getObjects();
+	public SwiftLibraryPlugin(ObjectFactory objects) {
+		this.objects = objects;
+	}
 
 	@Override
 	public void apply(Project project) {

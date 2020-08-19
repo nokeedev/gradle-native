@@ -26,6 +26,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDepende
 import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import lombok.var;
@@ -63,19 +64,30 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class BaseNativeBinary implements Binary, NativeBinary {
-	private final ToolChainSelectorInternal toolChainSelector = getObjects().newInstance(ToolChainSelectorInternal.class);
+	private final ToolChainSelectorInternal toolChainSelector;
 	@Getter private final NamingScheme names;
 	protected final TaskView<Task> compileTasks; // Until the compile tasks is clean up
 	private final DomainObjectSet<GeneratedSourceSet> objectSourceSets;
 	@Getter private final DefaultTargetMachine targetMachine;
 	@Getter private final NativeIncomingDependencies dependencies;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
+	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
+	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
+	@Getter private final Property<String> baseName;
 
-	public BaseNativeBinary(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeIncomingDependencies dependencies) {
+	public BaseNativeBinary(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations) {
 		this.names = names;
-		this.compileTasks = getObjects().newInstance(DefaultTaskView.class, Task.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), (Realizable)() -> {});
+		this.compileTasks = objects.newInstance(DefaultTaskView.class, Task.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), (Realizable)() -> {});
 		this.objectSourceSets = objectSourceSets;
 		this.targetMachine = targetMachine;
 		this.dependencies = dependencies;
+		this.objects = objects;
+		this.layout = layout;
+		this.providers = providers;
+		this.configurations = configurations;
+		this.baseName = objects.property(String.class);
+		this.toolChainSelector = objects.newInstance(ToolChainSelectorInternal.class);
 
 		compileTasks.configureEach(AbstractNativeCompileTask.class, this::configureNativeSourceCompileTask);
 		compileTasks.configureEach(AbstractNativeCompileTask.class, task -> {
@@ -234,18 +246,6 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 		};
 	}
 
-	@Inject
-	protected abstract ObjectFactory getObjects();
-
-	@Inject
-	protected abstract ProjectLayout getLayout();
-
-	@Inject
-	protected abstract ProviderFactory getProviders();
-
-	@Inject
-	protected abstract ConfigurationContainer getConfigurations();
-
 	@Override
 	public boolean isBuildable() {
 		if (!compileTasks.withType(AbstractNativeCompileTask.class).get().stream().allMatch(BaseNativeBinary::isBuildable)) {
@@ -271,8 +271,6 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 		PlatformToolProvider toolProvider = toolchainInternal.select(platformInternal);
 		return toolProvider.isAvailable();
 	}
-
-	public abstract Property<String> getBaseName();
 
 	public Object getObjectFiles() {
 		Optional<Object> result = objectSourceSets.stream().map(GeneratedSourceSet::getAsFileTree).reduce(FileTree::plus).map(it -> it);

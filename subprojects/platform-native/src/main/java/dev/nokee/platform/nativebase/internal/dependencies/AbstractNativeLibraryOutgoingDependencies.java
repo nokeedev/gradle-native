@@ -10,6 +10,8 @@ import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.val;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -23,30 +25,32 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
-import javax.inject.Inject;
-
 public abstract class AbstractNativeLibraryOutgoingDependencies {
-	private final ConfigurationUtils builder = getObjects().newInstance(ConfigurationUtils.class);
+	private final ConfigurationUtils builder;
+	@Getter private final DirectoryProperty exportedHeaders;
+	@Getter private final RegularFileProperty exportedSwiftModule;
+	@Getter private final Property<Binary> exportedBinary;
+	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
-	@Inject
-	public AbstractNativeLibraryOutgoingDependencies(NamingScheme names, BuildVariantInternal buildVariant, DefaultNativeLibraryComponentDependencies dependencies) {
+	protected AbstractNativeLibraryOutgoingDependencies(NamingScheme names, BuildVariantInternal buildVariant, DefaultNativeLibraryComponentDependencies dependencies, ConfigurationContainer configurations, ObjectFactory objects) {
+		this.exportedHeaders = objects.directoryProperty();
+		this.exportedSwiftModule = objects.fileProperty();
+		this.exportedBinary = objects.property(Binary.class);
+		this.configurations = configurations;
+		this.objects = objects;
+		this.builder = objects.newInstance(ConfigurationUtils.class);
 
 		Configuration linkElements = getConfigurations().create(names.getConfigurationName("linkElements"), builder.asOutgoingLinkLibrariesFrom(dependencies.getApi().getAsConfiguration(), dependencies.getLinkOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(names.getConfigurationDescription("Link elements for %s.")));
 		Configuration runtimeElements = getConfigurations().create(names.getConfigurationName("runtimeElements"), builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getRuntimeOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(names.getConfigurationDescription("Runtime elements for %s.")));
 
 		linkElements.getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingLinkLibrary));
 
-		val artifacts = getObjects().listProperty(PublishArtifact.class);
+		val artifacts = objects.listProperty(PublishArtifact.class);
 		artifacts.addAll(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary));
 		runtimeElements.getOutgoing().getArtifacts().addAllLater(artifacts);
 //		runtimeElements.getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary));
 	}
-
-	@Inject
-	protected abstract ConfigurationContainer getConfigurations();
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
 
 	private Provider<RegularFile> getOutgoingLinkLibrary(Binary binary) {
 		if (binary instanceof SharedLibraryBinaryInternal) {
@@ -68,8 +72,4 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 		}
 		throw new IllegalArgumentException("Unsupported binary to export");
 	}
-
-	public abstract DirectoryProperty getExportedHeaders();
-	public abstract RegularFileProperty getExportedSwiftModule();
-	public abstract Property<Binary> getExportedBinary();
 }

@@ -4,23 +4,21 @@ import dev.nokee.platform.base.KnownDomainObject;
 import groovy.lang.GroovyObjectSupport;
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.codehaus.groovy.runtime.wrappers.GroovyObjectWrapper;
 import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.specs.Spec;
 
-import javax.inject.Inject;
-
-public abstract class AbstractDomainObjectContainer<T> extends GroovyObjectSupport {
+public class AbstractDomainObjectContainer<T> extends GroovyObjectSupport {
 	private final Class<T> publicType;
 
-	protected AbstractDomainObjectContainer(Class<T> publicType, DomainObjectStore store) {
+	protected AbstractDomainObjectContainer(Class<T> publicType, DomainObjectStore store, ObjectFactory objects) {
 		this.publicType = publicType;
 		this.store = store;
+		this.objects = objects;
 	}
 
-	@Inject
-	protected abstract ObjectFactory getObjects();
+	@Getter(AccessLevel.PROTECTED)
+	private final ObjectFactory objects;
 
 	@Getter(AccessLevel.PROTECTED)
 	private final DomainObjectStore store;

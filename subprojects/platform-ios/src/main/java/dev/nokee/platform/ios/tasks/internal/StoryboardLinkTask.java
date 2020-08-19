@@ -2,6 +2,8 @@ package dev.nokee.platform.ios.tasks.internal;
 
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.GradleWorkerExecutorEngine;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
@@ -16,12 +18,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class StoryboardLinkTask extends DefaultTask {
+public class StoryboardLinkTask extends DefaultTask {
+	private final DirectoryProperty destinationDirectory;
+	private final Property<String> module;
+	private final ConfigurableFileCollection sources;
+	private final Property<CommandLineTool> interfaceBuilderTool;
+	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final ObjectFactory objects;
+
 	@OutputDirectory
-	public abstract DirectoryProperty getDestinationDirectory();
+	public DirectoryProperty getDestinationDirectory() {
+		return destinationDirectory;
+	}
 
 	@Input
-	public abstract Property<String> getModule();
+	public Property<String> getModule() {
+		return module;
+	}
 
 	// TODO: This may need to be richer so we keep the context path
 	@SkipWhenEmpty
@@ -37,17 +49,24 @@ public abstract class StoryboardLinkTask extends DefaultTask {
 	}
 
 	@Internal
-	public abstract ConfigurableFileCollection getSources();
+	public ConfigurableFileCollection getSources() {
+		return sources;
+	}
 
 	@Nested
-	public abstract Property<CommandLineTool> getInterfaceBuilderTool();
-
-	public StoryboardLinkTask() {
-		dependsOn(getSources()); // TODO: Test dependencies are followed via the source
+	public Property<CommandLineTool> getInterfaceBuilderTool() {
+		return interfaceBuilderTool;
 	}
 
 	@Inject
-	protected abstract ObjectFactory getObjects();
+	public StoryboardLinkTask(ObjectFactory objects) {
+		this.destinationDirectory = objects.directoryProperty();
+		this.module = objects.property(String.class);
+		this.sources = objects.fileCollection();
+		this.interfaceBuilderTool = objects.property(CommandLineTool.class);
+		this.objects = objects;
+		dependsOn(getSources()); // TODO: Test dependencies are followed via the source
+	}
 
 	@TaskAction
 	private void doLink() {

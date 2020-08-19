@@ -8,7 +8,7 @@ import spock.lang.Specification
 
 class DefaultTestSuiteContainerTest extends Specification {
 	def objects = ProjectBuilder.builder().build().objects
-	def store = objects.newInstance(DefaultDomainObjectStore)
+	def store = objects.newInstance(DefaultDomainObjectStore, )
 	def containerUnderTest
 
 	def setup() {

@@ -16,17 +16,28 @@ import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
+import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
+import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
+import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.utils.Cast;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.val;
 import lombok.var;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.GUtil;
 
@@ -37,15 +48,21 @@ import java.util.stream.Collectors;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent.getSdkPlatformPath;
 
-public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCTestTestSuiteVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent {
+public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCTestTestSuiteVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent {
 	private final DefaultNativeComponentDependencies dependencies;
+	@Getter private final Property<GroupId> groupId;
+	@Getter private final Property<BaseNativeComponent<?>> testedComponent;
+	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 
 	@Inject
-	public BaseXCTestTestSuiteComponent(NamingScheme names) {
-		super(names, DefaultXCTestTestSuiteVariant.class);
-		val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
-		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
-		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE));
+	public BaseXCTestTestSuiteComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(names, DefaultXCTestTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
+		this.dependencyHandler = dependencyHandler;
+		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
+		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
+		this.groupId = objects.property(GroupId.class);
+		this.testedComponent = Cast.uncheckedCastBecauseOfTypeErasure(objects.property(BaseNativeComponent.class));
+		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 
 		// TODO: Move to extension
 		getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
@@ -54,10 +71,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 
 		getDimensions().disallowChanges(); // Let's disallow changing them for now.
 	}
-
-	public abstract Property<GroupId> getGroupId();
-
-	public abstract Property<BaseNativeComponent<?>> getTestedComponent();
 
 	private Iterable<BuildVariantInternal> createBuildVariants() {
 		return ImmutableList.of(DefaultBuildVariant.of(DefaultBinaryLinkage.BUNDLE, DefaultOperatingSystemFamily.forName("ios"), DefaultMachineArchitecture.X86_64));
@@ -124,9 +137,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 
 		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
 	}
-
-	@Inject
-	protected abstract DependencyHandler getDependencyHandler();
 
 	@Override
 	protected void onEachVariant(BuildVariantInternal buildVariant, VariantProvider<DefaultXCTestTestSuiteVariant> variant, NamingScheme names) {
