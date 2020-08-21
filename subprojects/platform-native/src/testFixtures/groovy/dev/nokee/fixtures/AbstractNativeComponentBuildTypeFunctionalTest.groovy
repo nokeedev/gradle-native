@@ -83,6 +83,30 @@ abstract class AbstractNativeComponentBuildTypeFunctionalTest extends AbstractIn
 		result.assertTasksExecutedAndNotSkipped(tasks.withBuildType('debug').allToLink, tasks(':library').allToLink, tasks.assemble)
 	}
 
+	def "can consume dependencies with matching build types"() {
+		given:
+		makeMultiProject()
+		componentUnderTest.withImplementationAsSubproject('library').writeToProject(testDirectory)
+
+		and:
+		buildFile << """
+			${componentUnderTestDsl} {
+				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
+			}
+		"""
+		file('library', buildFileName) << """
+			library {
+				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
+			}
+		"""
+
+		when:
+		succeeds(':assembleRelease')
+
+		then:
+		result.assertTasksExecutedAndNotSkipped(tasks.withBuildType('release').allToAssemble, tasks(':library').withBuildType('release').allToLink)
+	}
+
 	@Ignore('Default to debug')
 	def "can consume component with build types from component without build types"() {
 		given:
