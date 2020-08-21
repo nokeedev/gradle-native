@@ -36,7 +36,7 @@ class ReadmeTest extends Specification {
 	}
 
 	private static String getCurrentNokeeVersion() {
-		return new JsonSlurper().parse(new URL('https://services.nokee.dev/versions/current/')).version
+		return new JsonSlurper().parse(new URL('https://services.nokee.dev/versions/current.json')).version
 	}
 
 	def "checks for broken links"() {
