@@ -82,7 +82,7 @@ public class ConfigurationUtilsEx {
 				} else if (it instanceof DefaultBinaryLinkage) {
 					// Do not configure this dimension for incoming dependencies
 				} else if (it instanceof NamedTargetBuildType) {
-					// Do not configure this dimension for incoming dependencies
+					attributes.attribute(NamedTargetBuildType.BUILD_TYPE_ATTRIBUTE, ((NamedTargetBuildType) it).getName());
 				} else {
 					throw new IllegalArgumentException(String.format("Unknown dimension variant '%s'", it.toString()));
 				}
