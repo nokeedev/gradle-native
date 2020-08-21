@@ -165,7 +165,13 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 
 			component.getSourceCollection().withType(BaseSourceSet.class).configureEach(sourceSet -> {
 				if (getSourceCollection().withType(sourceSet.getClass()).isEmpty()) {
-					getSourceCollection().add(getObjects().newInstance(sourceSet.getClass(), sourceSet.getName()).from(getNames().getSourceSetPath(sourceSet.getName())));
+					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
+					if (sourceSet instanceof CHeaderSet || sourceSet instanceof CppHeaderSet) {
+						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
+						getSourceCollection().add(getObjects().newInstance(sourceSet.getClass(), "headers").srcDir(getNames().getSourceSetPath("headers")));
+					} else {
+						getSourceCollection().add(getObjects().newInstance(sourceSet.getClass(), sourceSet.getName()).from(getNames().getSourceSetPath(sourceSet.getName())));
+					}
 				}
 			});
 			if (component instanceof BaseNativeComponent) {
