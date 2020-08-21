@@ -104,4 +104,9 @@ public abstract class DefaultDomainObjectStore implements DomainObjectStore {
 	public void disallowChanges() {
 		this.store.disallowChanges();
 	}
+
+	@Override
+	public <T> void forceRealize(Class<T> publicType) {
+		this.store.getElements().get();
+	}
 }
