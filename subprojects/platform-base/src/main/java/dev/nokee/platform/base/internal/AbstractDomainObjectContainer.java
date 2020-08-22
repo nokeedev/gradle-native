@@ -46,6 +46,6 @@ public abstract class AbstractDomainObjectContainer<T> extends GroovyObjectSuppo
 	}
 
 	public void forceRealize() {
-//		store.forceRealize(publicType);
+		store.forceRealize(publicType);
 	}
 }

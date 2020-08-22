@@ -9,19 +9,19 @@ import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.DefaultBuildVariant;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
+import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import lombok.val;
@@ -38,10 +38,12 @@ import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
 import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.launcher.daemon.protocol.Build;
+import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
 
 import javax.inject.Inject;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite {
@@ -151,6 +153,34 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 	@Override
 	public void finalizeExtension(Project project) {
 		super.finalizeExtension(project);
+
+		// HACK: This should really be solve using the variant whenElementKnown API
+		getBuildVariants().get().forEach(buildVariant -> {
+			final NamingScheme names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
+
+			// TODO: The variant should have give access to the testTask
+			val runTask = getTasks().register(names.getTaskName("run"), RunTestExecutable.class, task -> {
+				// TODO: Use a provider of the variant here
+				task.dependsOn((Callable) () -> getVariantCollection().get().stream().filter(it -> it.getBuildVariant().equals(buildVariant)).findFirst().get().getDevelopmentBinary());
+				task.setOutputDir(task.getTemporaryDir());
+				task.commandLine(new Object() {
+					@Override
+					public String toString() {
+						val binary = (ExecutableBinaryInternal) getVariantCollection().get().stream().filter(it -> it.getBuildVariant().equals(buildVariant)).findFirst().get().getDevelopmentBinary().get();
+						return binary.getLinkTask().flatMap(LinkExecutable::getLinkedFile).get().getAsFile().getAbsolutePath();
+					}
+				});
+			});
+			val testTask = getTasks().register(names.getBaseName().withCamelDimensions(), task -> {
+				task.dependsOn(runTask);
+			});
+		});
+
+		getTasks().named("check", task -> {
+			task.dependsOn(getDevelopmentVariant().flatMap(it -> getTasks().named(it.getNames().getBaseName().withCamelDimensions())));
+		});
+
+
 		getTestedComponent().disallowChanges();
 		if (getTestedComponent().isPresent()) {
 			val component = getTestedComponent().get();

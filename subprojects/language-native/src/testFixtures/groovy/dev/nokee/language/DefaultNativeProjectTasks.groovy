@@ -151,9 +151,9 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 
 	List<String> getAllToTest() {
 		if (binaryType == 'staticLibrary' || binaryType == 'sharedLibrary') {
-			return allToLink + [withProject('test')]
+			return allToLink + [withProject(withVariant('run')), withProject(variant)]
 		}
-		return allToLink + [relocateMainSymbol, withProject('test')]
+		return allToLink + [relocateMainSymbol, withProject(withVariant('run')), withProject(variant)]
 	}
 
 	List<String> getAllToCheck() {
@@ -161,7 +161,7 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 	}
 
 	protected String getVariant() {
-		String result = "${componentName.capitalize()}"
+		String result = componentName
 		if (linkage != null) {
 			result += linkage.toLowerCase().capitalize()
 		}

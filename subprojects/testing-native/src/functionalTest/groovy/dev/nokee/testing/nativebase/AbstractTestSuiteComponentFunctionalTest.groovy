@@ -27,6 +27,25 @@ abstract class AbstractTestSuiteComponentFunctionalTest extends AbstractInstalle
 		result.assertTasksExecuted(tasks.compile, tasksUnderTest.allToCheck)
 	}
 
+	def "can execute tests for each build types"() {
+		given:
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+
+		and:
+		buildFile << """
+			${testedComponentDsl} {
+				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
+			}
+		"""
+
+		when:
+		succeeds('testRelease')
+
+		then:
+		result.assertTasksExecuted(tasks.withBuildType('release').compile, tasksUnderTest.withBuildType('release').allToTest)
+	}
+
 	protected NativeProjectTasks getTasksUnderTest() {
 		return tasks.withComponentName('test')
 	}
@@ -35,6 +54,13 @@ abstract class AbstractTestSuiteComponentFunctionalTest extends AbstractInstalle
 	// TODO: Test generic test suite for Objective-C
 	// TODO: Test generic test suite for Objective-C++
 	// TODO: Test generic test suite for Swift
+
+	protected String getTestedComponentDsl() {
+		if (this.class.simpleName.contains('Application')) {
+			return 'application'
+		}
+		return 'library'
+	}
 
 	protected abstract SourceElement getComponentUnderTest()
 

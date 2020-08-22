@@ -23,4 +23,7 @@ public interface DomainObjectStore {
 	<S> Provider<List<? extends S>> flatMap(Transformer<Iterable<? extends S>, ? super Object> mapper);
 
 	<S> Provider<List<? extends S>> select(Spec<? super S> spec);
+
+	// TODO: Should not be here
+	<T> void forceRealize(Class<T> publicType);
 }

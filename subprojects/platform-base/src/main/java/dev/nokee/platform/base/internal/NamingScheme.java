@@ -178,6 +178,13 @@ public class NamingScheme {
 			dimensions.getAsKebab().ifPresent(values::add);
 			return String.join("-", values);
 		}
+
+		public String withCamelDimensions() {
+			List<String> values = new ArrayList<>();
+			values.add(baseName);
+			dimensions.getAsCamel().map(StringUtils::capitalize).ifPresent(values::add);
+			return String.join("", values);
+		}
     }
 
     public interface Prefixer {
@@ -244,6 +251,8 @@ public class NamingScheme {
 
 		Optional<String> getAsKebab();
 
+		Optional<String> getAsCamel();
+
 		static Dimensions empty() {
 			return NoDimensions.INSTANCE;
 		}
@@ -269,6 +278,11 @@ public class NamingScheme {
 
 		@Override
 		public Optional<String> getAsKebab() {
+			return Optional.empty();
+		}
+
+		@Override
+		public Optional<String> getAsCamel() {
 			return Optional.empty();
 		}
 	}
@@ -303,6 +317,11 @@ public class NamingScheme {
 		@Override
 		public Optional<String> getAsKebab() {
 			return Optional.of(String.join("-", dimensions));
+		}
+
+		@Override
+		public Optional<String> getAsCamel() {
+			return get();
 		}
 	}
 	//endregion
