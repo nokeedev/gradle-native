@@ -38,4 +38,39 @@ class HeaderOnlyLibraryFunctionalTest extends AbstractGradleSpecification implem
 		succeeds('assemble')
 		result.assertTasksExecutedAndNotSkipped(tasks.allToAssemble)
 	}
+
+	def "can depend on wil header-only library"() {
+		given:
+		settingsFile << """
+			sourceControl {
+				gitRepository("https://github.com/Microsoft/wil") {
+					producesModule("com.github.Microsoft.wil:wil")
+					plugins {
+						id 'dev.nokee.cmake-build-adapter'
+					}
+				}
+			}
+		"""
+		buildFile << """
+			plugins {
+				id 'dev.nokee.cpp-application'
+			}
+
+			application {
+				dependencies {
+					implementation 'com.github.Microsoft.wil:wil:latest.integration'
+				}
+			}
+		"""
+		file('src/main/cpp/main.cpp') << '''
+			#include <wil/wrl.h>
+			int main() {
+				return 0;
+			}
+		'''
+
+		expect:
+		succeeds('assemble')
+		result.assertTasksExecutedAndNotSkipped(tasks.allToAssemble)
+	}
 }
