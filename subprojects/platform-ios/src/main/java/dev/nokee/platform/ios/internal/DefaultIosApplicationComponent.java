@@ -1,6 +1,5 @@
 package dev.nokee.platform.ios.internal;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.core.exec.CommandLineTool;
@@ -19,7 +18,10 @@ import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
 import dev.nokee.platform.ios.tasks.internal.*;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
+import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
+import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
+import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
@@ -49,7 +51,6 @@ import org.gradle.util.VersionNumber;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
@@ -76,23 +77,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	@Override
 	public void dependencies(Action<? super NativeComponentDependencies> action) {
 		action.execute(dependencies);
-	}
-
-	@Override
-	protected Provider<DefaultIosApplicationVariant> getDefaultVariant() {
-		// By default, we should filter for the variant targeting the simulator
-		// Here we assume only one variant that target the simulator ;-)
-		return getProviders().provider(() -> {
-			List<BaseNativeVariant> variants = getVariants().get().stream().map(it -> {
-				Preconditions.checkArgument(it instanceof BaseNativeVariant);
-				return (BaseNativeVariant) it;
-			}).collect(Collectors.toList());
-
-			if (variants.isEmpty()) {
-				return null;
-			}
-			return (DefaultIosApplicationVariant)one(variants);
-		});
 	}
 
 	@Override

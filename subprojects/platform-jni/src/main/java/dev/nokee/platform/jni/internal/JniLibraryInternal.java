@@ -3,10 +3,7 @@ package dev.nokee.platform.jni.internal;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.internal.BaseVariant;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
@@ -33,7 +30,7 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
 
-public class JniLibraryInternal extends BaseVariant implements JniLibrary {
+public class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal {
 	private final NamingScheme names;
 	private final DefaultJavaNativeInterfaceNativeComponentDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;

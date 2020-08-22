@@ -2,6 +2,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
@@ -16,7 +17,7 @@ import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
 
-public class DefaultNativeLibraryVariant extends BaseNativeVariant implements NativeLibrary {
+public class DefaultNativeLibraryVariant extends BaseNativeVariant implements NativeLibrary, VariantInternal {
 	@Getter private final DefaultNativeLibraryComponentDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
 

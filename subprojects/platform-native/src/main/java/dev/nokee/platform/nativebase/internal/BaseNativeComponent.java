@@ -10,12 +10,10 @@ import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.VariantProvider;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.nativebase.*;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
+import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
@@ -42,11 +40,10 @@ import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
-public abstract class BaseNativeComponent<T extends Variant> extends BaseComponent<T> {
+public abstract class BaseNativeComponent<T extends VariantInternal> extends BaseComponent<T> {
 	private final Class<T> variantType;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
@@ -61,7 +58,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 		this.configurations = configurations;
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
 		this.variantType = variantType;
-		getDevelopmentVariant().convention(getDefaultVariant());
+		getDevelopmentVariant().convention(providers.provider(new DevelopmentVariantConvention<>(getVariantCollection()::get)));
 	}
 
 	public abstract NativeComponentDependencies getDependencies();
@@ -69,58 +66,6 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 	public VariantView<T> getVariants() {
 		return getVariantCollection().getAsView(variantType);
 	}
-
-	protected Provider<T> getDefaultVariant() {
-		return getProviders().provider(() -> {
-			List<BaseNativeVariant> variants = getVariantCollection().get().stream().map(it -> {
-				Preconditions.checkArgument(it instanceof BaseNativeVariant);
-				return (BaseNativeVariant) it;
-			}).filter(it -> {
-				DefaultOperatingSystemFamily osFamily = it.getBuildVariant().getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE);
-				DefaultMachineArchitecture architecture = it.getBuildVariant().getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE);
-				if (DefaultOperatingSystemFamily.HOST.equals(osFamily) && DefaultMachineArchitecture.HOST.equals(architecture)) {
-					return true;
-				}
-				return false;
-			}).collect(Collectors.toList());
-
-			if (variants.isEmpty()) {
-				return null;
-			}
-
-			if (getDimensions().get().contains(DefaultBinaryLinkage.DIMENSION_TYPE)) {
-				variants.sort(this::preferSharedLinkage);
-				return (T)variants.iterator().next();
-			}
-			return (T)one(variants);
-		});
-	}
-
-	private int preferSharedLinkage(BaseNativeVariant a, BaseNativeVariant b) {
-		val aLinkage = a.getBuildVariant().getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
-		val bLinkage = b.getBuildVariant().getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
-		if (aLinkage.isShared() && bLinkage.isShared()) {
-			return 0;
-		} else if (aLinkage.isShared()) {
-			return -1;
-		} else if (bLinkage.isShared()) {
-			return 1;
-		}
-		return 0;
-	}
-
-//	private int preferDebug(BaseNativeVariant a, BaseNativeVariant b) {
-//		val aLinkage = a.getBuildVariant().getAxisValue(BaseTargetBuildType.DIMENSION_TYPE);
-//		val bLinkage = b.getBuildVariant().getAxisValue(BaseTargetBuildType.DIMENSION_TYPE);
-//		if (aLinkage.isShared() && bLinkage.isShared()) {
-//			return 0;
-//		} else if (aLinkage.isShared()) {
-//			return -1;
-//		} else if (bLinkage.isShared()) {
-//			return 1;
-//		}
-//		return 0;
-//	}
 
 	public static <T> T one(Iterable<T> c) {
 		Iterator<T> iterator = c.iterator();
