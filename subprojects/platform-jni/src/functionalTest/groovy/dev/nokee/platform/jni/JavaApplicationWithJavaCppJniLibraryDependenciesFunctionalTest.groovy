@@ -7,7 +7,7 @@ import org.apache.commons.lang3.SystemUtils
 
 import java.util.concurrent.TimeUnit
 
-class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec  {
+class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec implements JavaApplicationFixture {
 	private void makeComponentWithLibrary() {
 		settingsFile << '''
 			rootProject.name = 'application'
@@ -18,11 +18,7 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 				id 'java'
 				id 'application'
 			}
-
-			application {
-				mainClassName = 'com.example.app.Main'
-			}
-		'''
+		''' << configureJavaApplicationMainClassName('com.example.app.Main')
 		file('jni-library/build.gradle') << '''
 			plugins {
 				id 'java'
@@ -46,11 +42,7 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 				id 'java'
 				id 'application'
 			}
-
-			application {
-				mainClassName = 'com.example.app.Main'
-			}
-		'''
+		''' << configureJavaApplicationMainClassName('com.example.app.Main')
 		file('jni-library/build.gradle') << '''
 			plugins {
 				id 'java'
@@ -94,11 +86,7 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 				id 'java'
 				id 'application'
 			}
-
-			application {
-				mainClassName = 'com.example.app.Main'
-			}
-		'''
+		''' << configureJavaApplicationMainClassName('com.example.app.Main')
 
 		file('jni-library/settings.gradle') << "rootProject.name = 'jni-library'"
 		file('jni-library/build.gradle') << '''
@@ -125,11 +113,7 @@ class JavaApplicationWithJavaCppJniLibraryDependenciesFunctionalTest extends Abs
 				id 'java'
 				id 'application'
 			}
-
-			application {
-				mainClassName = 'com.example.app.Main'
-			}
-		'''
+		''' << configureJavaApplicationMainClassName('com.example.app.Main')
 		file('jni-library/settings.gradle') << "rootProject.name = 'jni-library'"
 		file('jni-library/build.gradle') << '''
 			plugins {

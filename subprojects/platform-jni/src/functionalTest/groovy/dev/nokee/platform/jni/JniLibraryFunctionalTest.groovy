@@ -9,7 +9,7 @@ import dev.nokee.platform.jni.fixtures.elements.JavaMainUsesGreeter
 import org.gradle.internal.jvm.Jvm
 import org.gradle.internal.os.OperatingSystem
 
-class JniLibraryFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
+class JniLibraryFunctionalTest extends AbstractInstalledToolChainIntegrationSpec implements JavaApplicationFixture {
 	def "can consume transitive JVM API dependencies from no language JNI library"() {
 		settingsFile << '''
 			include 'consumer', 'jni-library', 'producer'
@@ -19,14 +19,10 @@ class JniLibraryFunctionalTest extends AbstractInstalledToolChainIntegrationSpec
 				id 'application'
 			}
 
-			application {
-				mainClassName = 'com.example.app.Main'
-			}
-
 			dependencies {
 				implementation project(':jni-library')
 			}
-		'''
+		''' << configureJavaApplicationMainClassName('com.example.app.Main')
 		file('jni-library/build.gradle') << '''
 			plugins {
 				id 'dev.nokee.jni-library'
@@ -61,14 +57,10 @@ class JniLibraryFunctionalTest extends AbstractInstalledToolChainIntegrationSpec
 				id 'application'
 			}
 
-			application {
-				mainClassName = 'com.example.app.Main'
-			}
-
 			dependencies {
 				implementation project(':jni-library')
 			}
-		'''
+		''' << configureJavaApplicationMainClassName('com.example.app.Main')
 		file('jni-library/build.gradle') << '''
 			plugins {
 				id 'dev.nokee.jni-library'
@@ -126,14 +118,10 @@ class JniLibraryFunctionalTest extends AbstractInstalledToolChainIntegrationSpec
 				id 'application'
 			}
 
-			application {
-				mainClassName = 'com.example.app.Main'
-			}
-
 			dependencies {
 				implementation project(':jni-library')
 			}
-		'''
+		''' << configureJavaApplicationMainClassName('com.example.app.Main')
 		file('jni-library/build.gradle') << '''
 			plugins {
 				id 'dev.nokee.jni-library'
