@@ -8,7 +8,7 @@ import dev.nokee.platform.jni.fixtures.elements.JavaMainUsesGreeter
 import org.gradle.internal.jvm.Jvm
 import org.gradle.internal.os.OperatingSystem
 
-class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
+class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec implements JavaApplicationFixture {
 	def "can define implementation dependencies on component"() {
 		makeComponentWithLibrary()
 		buildFile << '''
@@ -85,11 +85,7 @@ class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends 
 				id 'java'
 				id 'application'
 			}
-
-			application {
-				mainClassName = 'com.example.app.Main'
-			}
-		'''
+		''' << configureJavaApplicationMainClassName('com.example.app.Main')
 		file('jni-library/build.gradle') << '''
 			plugins {
 				id 'dev.nokee.jni-library'
@@ -110,11 +106,7 @@ class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends 
 				id 'java'
 				id 'application'
 			}
-
-			application {
-				mainClassName = 'com.example.app.Main'
-			}
-		'''
+		''' << configureJavaApplicationMainClassName('com.example.app.Main')
 		file('jni-library/build.gradle') << '''
 			plugins {
 				id 'dev.nokee.jni-library'
@@ -140,11 +132,7 @@ class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends 
 				id 'java'
 				id 'application'
 			}
-
-			application {
-				mainClassName = 'com.example.app.Main'
-			}
-		'''
+		''' << configureJavaApplicationMainClassName('com.example.app.Main')
 		file('jni-library/build.gradle') << '''
 			plugins {
 				id 'dev.nokee.jni-library'
@@ -205,11 +193,7 @@ class JavaApplicationWithNoLanguageJniLibraryDependenciesFunctionalTest extends 
 				id 'java'
 				id 'application'
 			}
-
-			application {
-				mainClassName = 'com.example.app.Main'
-			}
-		'''
+		''' << configureJavaApplicationMainClassName('com.example.app.Main')
 		file('jni-library/settings.gradle') << "rootProject.name = 'jni-library'"
 		file('jni-library/build.gradle') << '''
 			plugins {
