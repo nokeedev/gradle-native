@@ -1,14 +1,9 @@
 package dev.nokee.platform.ios.internal;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.DefaultBuildVariant;
+import dev.nokee.platform.ios.internal.rules.IosBuildVariantConvention;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
-import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.model.ObjectFactory;
@@ -24,15 +19,11 @@ public class BaseIosExtension<T extends BaseNativeComponent<?>> {
 		this.objects = objects;
 		this.providers = providers;
 
-		component.getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
+		component.getBuildVariants().convention(getProviders().provider(new IosBuildVariantConvention()));
 		component.getBuildVariants().finalizeValueOnRead();
 		component.getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
 
 		component.getDimensions().disallowChanges(); // Let's disallow changing them for now.
-	}
-
-	protected Iterable<BuildVariantInternal> createBuildVariants() {
-		return ImmutableList.of(DefaultBuildVariant.of(DefaultOperatingSystemFamily.forName("ios"), DefaultMachineArchitecture.X86_64, DefaultBinaryLinkage.EXECUTABLE));
 	}
 
 	public T getComponent() {

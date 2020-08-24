@@ -10,6 +10,7 @@ import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
+import dev.nokee.platform.nativebase.internal.rules.BuildVariantConvention;
 import dev.nokee.runtime.base.internal.DefaultDimensionType;
 import dev.nokee.runtime.base.internal.Dimension;
 import dev.nokee.runtime.base.internal.DimensionType;
@@ -42,7 +43,7 @@ public class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 		this.providers = providers;
 		this.layout = layout;
 
-		component.getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
+		component.getBuildVariants().convention(providers.provider(new BuildVariantConvention(this, component, component.getDimensions()::get)));
 		component.getBuildVariants().finalizeValueOnRead();
 		component.getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
 
@@ -56,69 +57,6 @@ public class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 			}
 			return sources;
 		};
-	}
-
-
-	@RequiredArgsConstructor
-	private static final class TargetMachineDimension implements Dimension {
-		private static final DimensionType<?> DIMENSION_TYPE = new DefaultDimensionType<>(TargetMachineDimension.class);
-		public final DefaultTargetMachine targetMachine;
-
-		@Override
-		public DimensionType getType() {
-			return DIMENSION_TYPE;
-		}
-	}
-
-	protected Iterable<BuildVariantInternal> createBuildVariants() {
-		ImmutableList.Builder<BuildVariantInternal> buildVariantBuilder = ImmutableList.builder();
-
-		ImmutableList.Builder<Set<Dimension>> builder = ImmutableList.builder();
-
-		// Handle operating system family and machine architecture dimension
-		if (this instanceof TargetMachineAwareComponent) {
-			builder.add(((TargetMachineAwareComponent) this).getTargetMachines().get().stream().map(it -> new TargetMachineDimension((DefaultTargetMachine)it)).collect(ImmutableSet.toImmutableSet()));
-		}
-
-		// Handle linkage dimension
-		if (this instanceof TargetLinkageAwareComponent) {
-			Set<TargetLinkage> targetLinkages = ((TargetLinkageAwareComponent) this).getTargetLinkages().get();
-			builder.add(targetLinkages.stream().map(DefaultBinaryLinkage.class::cast).collect(Collectors.toSet()));
-		} else if (component instanceof DefaultNativeApplicationComponent) {
-			builder.add(ImmutableSet.of(DefaultBinaryLinkage.EXECUTABLE));
-		} else if (component instanceof DefaultNativeLibraryComponent) {
-			builder.add(ImmutableSet.of(DefaultBinaryLinkage.SHARED));
-		}
-
-		// Handle build type dimension
-		if (this instanceof TargetBuildTypeAwareComponent) {
-			Set<TargetBuildType> targetBuildTypes = ((TargetBuildTypeAwareComponent) this).getTargetBuildTypes().get();
-			builder.add(targetBuildTypes.stream().map(BaseTargetBuildType.class::cast).collect(ImmutableSet.toImmutableSet()));
-		} else {
-			builder.add(ImmutableSet.of(DefaultTargetBuildTypeFactory.DEFAULT));
-		}
-
-		Sets.cartesianProduct(builder.build()).forEach(dimensions -> {
-			ImmutableList.Builder<Dimension> dimensionBuilder = ImmutableList.builder();
-			dimensions.forEach(dimension -> {
-				if (dimension instanceof TargetMachineDimension) {
-					dimensionBuilder.add(((TargetMachineDimension) dimension).targetMachine.getOperatingSystemFamily());
-					dimensionBuilder.add(((TargetMachineDimension) dimension).targetMachine.getArchitecture());
-				} else {
-					dimensionBuilder.add(dimension);
-				}
-			});
-			buildVariantBuilder.add(DefaultBuildVariant.of(sort(dimensionBuilder.build())));
-		});
-		return buildVariantBuilder.build();
-	}
-
-	private Iterable<Dimension> sort(Collection<Dimension> dimensionsToOrder) {
-		val result = ImmutableList.<Dimension>builder();
-		for (val type : component.getDimensions().get()) {
-			result.add(dimensionsToOrder.stream().filter(it -> it.getType().equals(type)).findFirst().orElseThrow(() -> new IllegalArgumentException("Missing dimension")));
-		}
-		return result.build();
 	}
 
 	public DefaultTargetMachineFactory getMachines() {
