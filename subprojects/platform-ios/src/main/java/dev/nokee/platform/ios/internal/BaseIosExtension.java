@@ -9,16 +9,20 @@ import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 
-import javax.inject.Inject;
-
-public abstract class BaseIosExtension<T extends BaseNativeComponent<?>> {
+public class BaseIosExtension<T extends BaseNativeComponent<?>> {
 	private final T component;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
-	public BaseIosExtension(T component) {
+	public BaseIosExtension(T component, ObjectFactory objects, ProviderFactory providers) {
 		this.component = component;
+		this.objects = objects;
+		this.providers = providers;
 
 		component.getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
 		component.getBuildVariants().finalizeValueOnRead();
@@ -26,12 +30,6 @@ public abstract class BaseIosExtension<T extends BaseNativeComponent<?>> {
 
 		component.getDimensions().disallowChanges(); // Let's disallow changing them for now.
 	}
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
-
-	@Inject
-	protected abstract ProviderFactory getProviders();
 
 	protected Iterable<BuildVariantInternal> createBuildVariants() {
 		return ImmutableList.of(DefaultBuildVariant.of(DefaultOperatingSystemFamily.forName("ios"), DefaultMachineArchitecture.X86_64, DefaultBinaryLinkage.EXECUTABLE));

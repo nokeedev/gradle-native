@@ -18,15 +18,14 @@ import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.FileSystemLocation;
-import org.gradle.api.file.RegularFile;
-import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.file.*;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -48,16 +47,26 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary, Buildable {
+public class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary, Buildable {
 	private final TaskProvider<LinkSharedLibraryTask> linkTask;
 	private final NativeIncomingDependencies dependencies;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providerFactory;
+	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
+	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
+	@Getter RegularFileProperty linkedFile;
 
 	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
-	public SharedLibraryBinaryInternal(NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeIncomingDependencies dependencies) {
-		super(names, objectSourceSets, targetMachine, dependencies);
+	public SharedLibraryBinaryInternal(NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
+		super(names, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
 		this.linkTask = linkTask;
 		this.dependencies = dependencies;
+		this.objects = objects;
+		this.providerFactory = providers;
+		this.configurations = configurations;
+		this.tasks = tasks;
+		this.linkedFile = objects.fileProperty();
 
 		// configure includes using the native incoming compile configuration
 		compileTasks.configureEach(AbstractNativeCompileTask.class, task -> {
@@ -93,12 +102,6 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 	private String toModuleName(String baseName) {
 		return GUtil.toCamelCase(baseName);
 	}
-
-	@Inject
-	protected abstract ConfigurationContainer getConfigurations();
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
 
 	private void configureSharedLibraryTask(LinkSharedLibraryTask task) {
 		task.setDescription("Links the shared library.");
@@ -159,14 +162,6 @@ public abstract class SharedLibraryBinaryInternal extends BaseNativeBinary imple
 	public TaskProvider<ObjectFilesToBinaryTask> getCreateOrLinkTask() {
 		return getTasks().named(linkTask.getName(), ObjectFilesToBinaryTask.class);
 	}
-
-	@Inject
-	protected abstract ProviderFactory getProviderFactory();
-
-	@Inject
-	protected abstract TaskContainer getTasks();
-
-	public abstract RegularFileProperty getLinkedFile();
 
 	@Override
 	public boolean isBuildable() {

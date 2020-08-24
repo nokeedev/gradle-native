@@ -1,14 +1,16 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.base.Preconditions;
-import dev.nokee.utils.Cast;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.View;
+import dev.nokee.utils.Cast;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.internal.provider.ProviderInternal;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
@@ -20,20 +22,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class DefaultTaskView<T extends Task> extends AbstractView<T> implements TaskView<T>, TaskDependency {
+public class DefaultTaskView<T extends Task> extends AbstractView<T> implements TaskView<T>, TaskDependency {
 	private final Class<T> elementType;
 	private final List<TaskProvider<? extends T>> delegate;
 	private final Realizable realizeTrigger;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 	@Inject
-	public DefaultTaskView(Class<T> elementType, List<TaskProvider<? extends T>> delegate, Realizable realizeTrigger) {
+	public DefaultTaskView(Class<T> elementType, List<TaskProvider<? extends T>> delegate, Realizable realizeTrigger, ProviderFactory providers, ObjectFactory objects) {
+		super(providers);
 		this.elementType = elementType;
 		this.delegate = delegate;
 		this.realizeTrigger = realizeTrigger;
+		this.objects = objects;
 	}
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
 
 	@Override
 	public void configureEach(Action<? super T> action) {

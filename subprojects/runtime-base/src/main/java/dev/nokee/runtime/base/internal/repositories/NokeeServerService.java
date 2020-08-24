@@ -2,6 +2,8 @@ package dev.nokee.runtime.base.internal.repositories;
 
 import dev.nokee.runtime.base.internal.tools.CommandLineToolLocator;
 import dev.nokee.runtime.base.internal.tools.ToolRepository;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import org.eclipse.jetty.server.Server;
 import org.gradle.api.model.ObjectFactory;
@@ -22,9 +24,11 @@ public abstract class NokeeServerService implements BuildService<NokeeServerServ
 	private static final Logger LOGGER = Logger.getLogger(NokeeServerService.class.getName());
 	private final Object lock = new Object();
 	private final Server server;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 	@Inject
-	public NokeeServerService() {
+	public NokeeServerService(ObjectFactory objects) {
+		this.objects = objects;
 		ToolRepository toolRepository = newToolRepository();
 		Map<String, RouteHandler> routeMapping = getParameters().getRouteHandlers().get().stream().map(it -> getObjects().newInstance(toClass(AbstractRouteHandler.class, it), toolRepository)).collect(Collectors.toMap(NokeeServerService::getContextPath, Function.identity()));
 
@@ -69,9 +73,6 @@ public abstract class NokeeServerService implements BuildService<NokeeServerServ
 			throw new RuntimeException(e);
 		}
 	}
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
 
 	@SneakyThrows
 	public URI getUri() {

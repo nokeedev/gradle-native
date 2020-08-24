@@ -2,6 +2,7 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.platform.base.DependencyBucket;
 import groovy.lang.Closure;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Action;
@@ -9,6 +10,7 @@ import org.gradle.api.DomainObjectSet;
 import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.internal.metaobject.*;
 import org.gradle.util.ConfigureUtil;
 
@@ -19,20 +21,20 @@ import java.util.Map;
 import java.util.Optional;
 
 // DO NOT EXTEND THIS CLASS, extends BaseComponentDependencies
-public abstract class DefaultComponentDependencies implements ComponentDependenciesInternal, MethodMixIn, PropertyMixIn {
+public class DefaultComponentDependencies implements ComponentDependenciesInternal, MethodMixIn, PropertyMixIn {
 	private final Map<String, DependencyBucket> bucketIndex = new HashMap<>();
 	private final ContainerElementsDynamicObject elementsDynamicObject = new ContainerElementsDynamicObject();
 	@Getter private final String componentDisplayName;
 	private final DependencyBucketFactory factory;
+	@Getter(AccessLevel.PROTECTED) private final DomainObjectSet<DependencyBucket> buckets;
 
 	@Inject
 	@Deprecated // use ObjectFactory
-	public DefaultComponentDependencies(String componentDisplayName, DependencyBucketFactory factory) {
+	public DefaultComponentDependencies(String componentDisplayName, DependencyBucketFactory factory, ObjectFactory objects) {
 		this.componentDisplayName = componentDisplayName;
 		this.factory = factory;
+		this.buckets = objects.domainObjectSet(DependencyBucket.class);
 	}
-
-	protected abstract DomainObjectSet<DependencyBucket> getBuckets();
 
 	@Override
 	public DependencyBucket create(String name) {

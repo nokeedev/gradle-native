@@ -10,11 +10,17 @@ import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFile;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
@@ -23,19 +29,18 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.Set;
 
-public abstract class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary, Buildable {
+public class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary, Buildable {
 	private final TaskProvider<CreateStaticLibraryTask> createTask;
+	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public StaticLibraryBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<CreateStaticLibraryTask> createTask, NativeIncomingDependencies dependencies) {
-		super(names, objectSourceSets, targetMachine, dependencies);
+	public StaticLibraryBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<CreateStaticLibraryTask> createTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
+		super(names, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
 		this.createTask = createTask;
+		this.tasks = tasks;
 
 		createTask.configure(this::configureStaticLibraryTask);
 	}
-
-	@Inject
-	protected abstract TaskContainer getTasks();
 
 	private void configureStaticLibraryTask(CreateStaticLibraryTask task) {
 		task.setDescription("Creates the static library.");

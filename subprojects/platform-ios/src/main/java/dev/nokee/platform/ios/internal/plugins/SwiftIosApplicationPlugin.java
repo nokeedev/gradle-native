@@ -9,6 +9,8 @@ import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.DefaultSwiftIosApplicationExtension;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -18,14 +20,16 @@ import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
 import javax.inject.Inject;
 
-public abstract class SwiftIosApplicationPlugin implements Plugin<Project> {
+public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	protected abstract ObjectFactory getObjects();
-
-	@Inject
-	protected abstract TaskContainer getTasks();
+	public SwiftIosApplicationPlugin(ObjectFactory objects, TaskContainer tasks) {
+		this.objects = objects;
+		this.tasks = tasks;
+	}
 
 	@Override
 	public void apply(Project project) {

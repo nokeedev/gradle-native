@@ -14,6 +14,7 @@ import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.internal.NamingScheme;
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.model.ObjectFactory;
@@ -24,19 +25,17 @@ import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import javax.inject.Inject;
 import java.util.function.Function;
 
-public abstract class NativeLanguageRules {
+public class NativeLanguageRules {
 	@Getter private final NamingScheme names;
+	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 	@Inject
-	public NativeLanguageRules(NamingScheme names) {
+	public NativeLanguageRules(NamingScheme names, TaskContainer tasks, ObjectFactory objects) {
 		this.names = names;
+		this.tasks = tasks;
+		this.objects = objects;
 	}
-
-	@Inject
-	protected abstract TaskContainer getTasks();
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
 
 	public DomainObjectSet<GeneratedSourceSet> apply(DomainObjectSet<SourceSet> sourceSets) {
 		DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);

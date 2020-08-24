@@ -2,7 +2,10 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.runtime.nativebase.TargetLinkage;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -19,24 +22,22 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.joining;
 
-public abstract class TargetLinkageRule implements Action<Project> {
+public class TargetLinkageRule implements Action<Project> {
 	private final SetProperty<TargetLinkage> targetLinkages;
 	private final String componentName;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencies;
 
 	@Inject
-	public TargetLinkageRule(SetProperty<TargetLinkage> targetLinkages, String componentName) {
+	public TargetLinkageRule(SetProperty<TargetLinkage> targetLinkages, String componentName, ObjectFactory objects, DependencyHandler dependencies) {
 		this.targetLinkages = targetLinkages;
 		this.componentName = componentName;
+		this.objects = objects;
+		this.dependencies = dependencies;
 		targetLinkages.convention(ImmutableList.of(DefaultBinaryLinkage.SHARED));
 
 		getDependencies().getAttributesSchema().attribute(DefaultBinaryLinkage.LINKAGE_ATTRIBUTE).getDisambiguationRules().add(LinkageSelectionRule.class);
 	}
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
-
-	@Inject
-	protected abstract DependencyHandler getDependencies();
 
 	static class LinkageSelectionRule implements AttributeDisambiguationRule<String> {
 		@Override

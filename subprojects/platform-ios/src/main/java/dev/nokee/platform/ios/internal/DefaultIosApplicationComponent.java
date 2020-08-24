@@ -24,17 +24,23 @@ import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.val;
 import lombok.var;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.GUtil;
@@ -47,18 +53,20 @@ import java.util.stream.Collectors;
 
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
-public abstract class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, Component {
+public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, Component {
 	private final DefaultNativeComponentDependencies dependencies;
+	@Getter private final Property<GroupId> groupId;
+	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 
 	@Inject
-	public DefaultIosApplicationComponent(NamingScheme names) {
-		super(names, DefaultIosApplicationVariant.class);
-		val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
-		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
-		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE));
+	public DefaultIosApplicationComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(names, DefaultIosApplicationVariant.class, objects, providers, tasks, layout, configurations);
+		this.dependencyHandler = dependencyHandler;
+		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
+		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
+		this.groupId = objects.property(GroupId.class);
+		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 	}
-
-	public abstract Property<GroupId> getGroupId();
 
 	@Override
 	public DefaultNativeComponentDependencies getDependencies() {
@@ -121,9 +129,6 @@ public abstract class DefaultIosApplicationComponent extends BaseNativeComponent
 
 		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
 	}
-
-	@Inject
-	protected abstract DependencyHandler getDependencyHandler();
 
 	@Override
 	protected void onEachVariant(BuildVariantInternal buildVariant, VariantProvider<DefaultIosApplicationVariant> variant, NamingScheme names) {

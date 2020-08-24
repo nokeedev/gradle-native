@@ -11,6 +11,8 @@ import dev.nokee.testing.base.internal.DefaultTestSuiteContainer;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -19,7 +21,16 @@ import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
 
-public abstract class NativeUnitTestingPlugin implements Plugin<Project> {
+public class NativeUnitTestingPlugin implements Plugin<Project> {
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
+
+	@Inject
+	public NativeUnitTestingPlugin(ObjectFactory objects, TaskContainer tasks) {
+		this.objects = objects;
+		this.tasks = tasks;
+	}
+
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply("lifecycle-base");
@@ -55,12 +66,6 @@ public abstract class NativeUnitTestingPlugin implements Plugin<Project> {
 			extension.forceRealize();
 		});
 	}
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
-
-	@Inject
-	protected abstract TaskContainer getTasks();
 
 	private NativeTestSuite createNativeTestSuite(String name) {
 		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, NamingScheme.asComponent(name, name).withComponentDisplayName("Test Suite"));

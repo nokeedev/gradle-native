@@ -4,6 +4,7 @@ import dev.nokee.platform.base.Binary
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.VariantView
 import groovy.transform.ToString
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import spock.lang.Ignore
 import spock.lang.Subject
@@ -66,10 +67,10 @@ class VariantAwareBinaryViewTest extends AbstractViewTest<Binary> {
 		variant.binaryCollection.addLater(v)
 	}
 
-	static abstract class TestVariant extends BaseVariant implements Variant {
+	static class TestVariant extends BaseVariant implements Variant {
 		@Inject
-		TestVariant() {
-			super('test', DefaultBuildVariant.of())
+		TestVariant(ObjectFactory objects) {
+            super('test', DefaultBuildVariant.of(), objects)
 		}
 	}
 

@@ -5,24 +5,30 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.utils.Cast;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.specs.Spec;
 
 import javax.inject.Inject;
 import java.util.Set;
 
-public abstract class DefaultBinaryView<T extends Binary> extends AbstractView<T> implements BinaryView<T> {
+public class DefaultBinaryView<T extends Binary> extends AbstractView<T> implements BinaryView<T> {
 	private final Class<T> elementType;
 	private final DomainObjectSet<T> delegate;
 	private final Realizable variants;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 	@Inject
-	public DefaultBinaryView(Class<T> elementType, DomainObjectSet<T> delegate, Realizable variants) {
+	public DefaultBinaryView(Class<T> elementType, DomainObjectSet<T> delegate, Realizable variants, ProviderFactory providers, ObjectFactory objects) {
+		super(providers);
 		this.elementType = elementType;
 		this.delegate = delegate;
 		this.variants = variants;
+		this.objects = objects;
 	}
 
 	@Override
@@ -63,9 +69,6 @@ public abstract class DefaultBinaryView<T extends Binary> extends AbstractView<T
 		variants.realize();
 		return ImmutableSet.copyOf(delegate);
 	}
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
 
 	@Override
 	protected String getDisplayName() {

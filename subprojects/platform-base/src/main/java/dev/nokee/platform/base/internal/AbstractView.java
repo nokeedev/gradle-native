@@ -2,18 +2,23 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.specs.Spec;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
 
 public abstract class AbstractView<T> {
-	@Inject
-	protected abstract ProviderFactory getProviders();
+	@Getter(AccessLevel.PROTECTED)
+	private final ProviderFactory providers;
+
+	protected AbstractView(ProviderFactory providers) {
+		this.providers = providers;
+	}
 
 	protected abstract Set<? extends T> get();
 

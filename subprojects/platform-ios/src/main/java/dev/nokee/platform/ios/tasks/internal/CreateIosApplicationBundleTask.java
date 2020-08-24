@@ -2,9 +2,12 @@ package dev.nokee.platform.ios.tasks.internal;
 
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.*;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
 import org.gradle.process.ExecOperations;
@@ -14,18 +17,35 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-public abstract class CreateIosApplicationBundleTask extends DefaultTask {
+public class CreateIosApplicationBundleTask extends DefaultTask {
+	private final Property<FileSystemLocation> applicationBundle;
+	private final RegularFileProperty executable;
+	private final Property<Boolean> swiftSupportRequired;
+	private final ConfigurableFileCollection sources;
+	private final ConfigurableFileCollection plugIns;
+	private final ConfigurableFileCollection frameworks;
+	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final FileSystemOperations fileOperations;
+	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final ExecOperations execOperations;
+
 	@OutputDirectory
-	public abstract Property<FileSystemLocation> getApplicationBundle();
+	public Property<FileSystemLocation> getApplicationBundle() {
+		return applicationBundle;
+	}
 
 	@Internal
-	public abstract RegularFileProperty getExecutable();
+	public RegularFileProperty getExecutable() {
+		return executable;
+	}
 
 	@Input
-	public abstract Property<Boolean> getSwiftSupportRequired();
+	public Property<Boolean> getSwiftSupportRequired() {
+		return swiftSupportRequired;
+	}
 
 	@Internal
-	public abstract ConfigurableFileCollection getSources();
+	public ConfigurableFileCollection getSources() {
+		return sources;
+	}
 
 	@SkipWhenEmpty
 	@InputFiles
@@ -35,16 +55,26 @@ public abstract class CreateIosApplicationBundleTask extends DefaultTask {
 	}
 
 	@InputFiles
-	public abstract ConfigurableFileCollection getPlugIns();
+	public ConfigurableFileCollection getPlugIns() {
+		return plugIns;
+	}
 
 	@InputFiles
-	public abstract ConfigurableFileCollection getFrameworks();
+	public ConfigurableFileCollection getFrameworks() {
+		return frameworks;
+	}
 
 	@Inject
-	protected abstract FileSystemOperations getFileOperations();
-
-	@Inject
-	protected abstract ExecOperations getExecOperations();
+	public CreateIosApplicationBundleTask(ObjectFactory objects, FileSystemOperations fileOperations, ExecOperations execOperations) {
+		this.applicationBundle = objects.property(FileSystemLocation.class);
+		this.executable = objects.fileProperty();
+		this.swiftSupportRequired = objects.property(Boolean.class);
+		this.sources = objects.fileCollection();
+		this.plugIns = objects.fileCollection();
+		this.frameworks = objects.fileCollection();
+		this.fileOperations = fileOperations;
+		this.execOperations = execOperations;
+	}
 
 	@TaskAction
 	private void create() throws IOException {

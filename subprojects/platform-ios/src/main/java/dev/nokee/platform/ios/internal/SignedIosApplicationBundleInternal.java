@@ -3,6 +3,8 @@ package dev.nokee.platform.ios.internal;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.Buildable;
 import org.gradle.api.Task;
 import org.gradle.api.file.FileSystemLocation;
@@ -16,16 +18,15 @@ import javax.inject.Inject;
 // TODO: Not sure about implementing NativeBinary...
 //  BaseNativeVariant#getDevelopmentBinary() assume a NativeBinary...
 //  There should probably be something high level in Variant or BaseNativeVariant shouldn't be used for iOS variant.
-public abstract class SignedIosApplicationBundleInternal implements Binary, Buildable {
+public class SignedIosApplicationBundleInternal implements Binary, Buildable {
 	private final TaskProvider<SignIosApplicationBundleTask> bundleTask;
+	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public SignedIosApplicationBundleInternal(TaskProvider<SignIosApplicationBundleTask> bundleTask) {
+	public SignedIosApplicationBundleInternal(TaskProvider<SignIosApplicationBundleTask> bundleTask, TaskContainer tasks) {
 		this.bundleTask = bundleTask;
+		this.tasks = tasks;
 	}
-
-	@Inject
-	protected abstract TaskContainer getTasks();
 
 	public TaskProvider<? extends Task> getBundleTask() {
 		return bundleTask;

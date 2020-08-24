@@ -9,7 +9,7 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import static dev.nokee.runtime.base.internal.plugins.FakeMavenRepositoryPlugin.NOKEE_SERVER_SERVICE_NAME;
 import static dev.nokee.runtime.base.internal.repositories.NokeeServerService.NOKEE_LOCAL_REPOSITORY_NAME;
 
-public abstract class ToolResolutionBasePlugin implements Plugin<Project> {
+public class ToolResolutionBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(FakeMavenRepositoryPlugin.class);

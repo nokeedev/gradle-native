@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
@@ -17,20 +19,20 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
 
-public abstract class TargetMachineRule implements Action<Project> {
-	private final ToolChainSelectorInternal toolChainSelector = getObjects().newInstance(ToolChainSelectorInternal.class);
+public class TargetMachineRule implements Action<Project> {
+	private final ToolChainSelectorInternal toolChainSelector;
 	private final SetProperty<TargetMachine> targetMachines;
 	private final String componentName;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 	@Inject
-	public TargetMachineRule(SetProperty<TargetMachine> targetMachines, String componentName) {
+	public TargetMachineRule(SetProperty<TargetMachine> targetMachines, String componentName, ObjectFactory objects) {
 		this.targetMachines = targetMachines;
 		this.componentName = componentName;
+		this.objects = objects;
+		this.toolChainSelector = objects.newInstance(ToolChainSelectorInternal.class);
 		targetMachines.convention(ImmutableList.of(DefaultTargetMachineFactory.host()));
 	}
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
 
 	@Override
 	public void execute(Project project) {

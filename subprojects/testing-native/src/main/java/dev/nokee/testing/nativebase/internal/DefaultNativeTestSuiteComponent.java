@@ -9,9 +9,14 @@ import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.dependencies.*;
+import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.DefaultBuildVariant;
+import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
+import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
+import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
+import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -21,23 +26,29 @@ import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.nativebase.NativeTestSuite;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.val;
 import lombok.var;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.TaskContainer;
+import org.gradle.internal.Cast;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
 import org.gradle.language.swift.tasks.SwiftCompile;
-import org.gradle.launcher.daemon.protocol.Build;
 import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
 
 import javax.inject.Inject;
@@ -46,16 +57,20 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite {
+public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite {
 	private final DefaultNativeComponentDependencies dependencies;
+	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
+	@Getter Property<BaseComponent<?>> testedComponent;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(NamingScheme names) {
-		super(names, DefaultNativeTestSuiteVariant.class);
+	public DefaultNativeTestSuiteComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(names, DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
+		this.dependencyHandler = dependencyHandler;
 
-		val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
-		this.dependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
-		this.getDimensions().convention(ImmutableList.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultBinaryLinkage.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE));
+		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
+		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
+		this.testedComponent = Cast.uncheckedCast(getObjects().property(BaseComponent.class));
+		this.getDimensions().convention(ImmutableList.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 		this.getBaseName().convention(names.getBaseName().getAsString());
 
 		this.getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
@@ -64,9 +79,6 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 
 		this.getDimensions().disallowChanges(); // Let's disallow changing them for now.
 	}
-
-	@Inject
-	protected abstract DependencyHandler getDependencyHandler();
 
 	@Override
 	public String getName() {
@@ -135,8 +147,6 @@ public abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponen
 		val result = getObjects().newInstance(DefaultNativeTestSuiteVariant.class, name, names, buildVariant, variantDependencies);
 		return result;
 	}
-
-	public abstract Property<BaseComponent<?>> getTestedComponent();
 
 	@Override
 	public TestSuiteComponent testedComponent(Object component) {

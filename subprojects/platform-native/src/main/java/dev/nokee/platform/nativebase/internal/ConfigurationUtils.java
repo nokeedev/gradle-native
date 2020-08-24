@@ -4,9 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.runtime.nativebase.internal.*;
-import lombok.Value;
-import lombok.With;
-import lombok.val;
+import lombok.*;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Attribute;
@@ -28,7 +26,14 @@ import static dev.nokee.platform.nativebase.internal.ConfigurationUtils.Configur
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
-public abstract class ConfigurationUtils {
+public class ConfigurationUtils {
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+
+	@Inject
+	public ConfigurationUtils(ObjectFactory objects) {
+		this.objects = objects;
+	}
+
 	//region Bucket
 	public DescribableConfigurationAction asBucket() {
 		return new DescribableConfigurationAction(ConfigurationSpec.asBucket());
@@ -118,9 +123,6 @@ public abstract class ConfigurationUtils {
 		configuration.setCanBeResolved(false);
 	}
 
-	@Inject
-	protected abstract ObjectFactory getObjects();
-
 	public static class DescribableConfigurationAction implements Action<Configuration> {
 		protected final ConfigurationSpec spec;
 
@@ -138,14 +140,14 @@ public abstract class ConfigurationUtils {
 		}
 	}
 
-	public static abstract class IncomingConfigurationAction extends DescribableConfigurationAction {
-		@Inject
-		public IncomingConfigurationAction(ConfigurationSpec spec) {
-			super(spec);
-		}
+	public static class IncomingConfigurationAction extends DescribableConfigurationAction {
+		@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 		@Inject
-		protected abstract ObjectFactory getObjects();
+		public IncomingConfigurationAction(ConfigurationSpec spec, ObjectFactory objects) {
+			super(spec);
+			this.objects = objects;
+		}
 
 		public IncomingConfigurationAction asDebug() {
 			return getObjects().newInstance(IncomingConfigurationAction.class,
@@ -180,15 +182,14 @@ public abstract class ConfigurationUtils {
 		}
 	}
 
-	public static abstract class VariantAwareOutgoingConfigurationAction extends DescribableConfigurationAction {
+	public static class VariantAwareOutgoingConfigurationAction extends DescribableConfigurationAction {
+		@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 		@Inject
-		public VariantAwareOutgoingConfigurationAction(ConfigurationSpec spec) {
+		public VariantAwareOutgoingConfigurationAction(ConfigurationSpec spec, ObjectFactory objects) {
 			super(spec);
+			this.objects = objects;
 		}
-
-		@Inject
-		protected abstract ObjectFactory getObjects();
 
 		public VariantAwareOutgoingConfigurationAction withVariant(BuildVariantInternal variant) {
 			val attributes = ImmutableMap.<Attribute<?>, Object>builder().putAll(spec.attributes);

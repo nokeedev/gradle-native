@@ -8,7 +8,7 @@ import org.gradle.api.Project;
 
 import static dev.nokee.runtime.base.internal.plugins.FakeMavenRepositoryPlugin.NOKEE_SERVER_SERVICE_NAME;
 
-public abstract class DarwinToolLocatorSupportPlugin implements Plugin<Project> {
+public class DarwinToolLocatorSupportPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(ToolResolutionBasePlugin.class);

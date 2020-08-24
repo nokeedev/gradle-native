@@ -11,17 +11,20 @@ import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import org.gradle.api.Action;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
 import java.util.List;
 
-public abstract class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements IosApplication {
+public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements IosApplication {
 	private final DefaultNativeComponentDependencies dependencies;
 
 	@Inject
-	public DefaultXCTestTestSuiteVariant(String name, NamingScheme names, BuildVariantInternal buildVariant, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies) {
-		super(name, names, buildVariant);
+	public DefaultXCTestTestSuiteVariant(String name, NamingScheme names, BuildVariantInternal buildVariant, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
+		super(name, names, buildVariant, objects, tasks, providers);
 		this.dependencies = dependencies.getDependencies();
 	}
 

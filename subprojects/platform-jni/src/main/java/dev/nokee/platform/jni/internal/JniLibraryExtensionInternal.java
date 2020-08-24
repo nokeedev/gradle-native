@@ -15,6 +15,7 @@ import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory;
 import dev.nokee.runtime.base.internal.DimensionType;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
@@ -26,22 +27,19 @@ import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
 
-public abstract class JniLibraryExtensionInternal implements JniLibraryExtension {
+public class JniLibraryExtensionInternal implements JniLibraryExtension {
 	@Getter private final JniLibraryComponentInternal component;
+	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
 	@Inject
-	public JniLibraryExtensionInternal(GroupId groupId, NamingScheme names) {
-		this.component = getObjects().newInstance(JniLibraryComponentInternal.class, names, groupId);
+	public JniLibraryExtensionInternal(GroupId groupId, NamingScheme names, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers) {
+		this.configurations = configurations;
+		this.objects = objects;
+		this.providers = providers;
+		this.component = objects.newInstance(JniLibraryComponentInternal.class, names, groupId);
 	}
-
-	@Inject
-	protected abstract ConfigurationContainer getConfigurations();
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
-
-	@Inject
-	protected abstract ProviderFactory getProviders();
 
 	//region Variant-awareness
 	public VariantCollection<JniLibraryInternal> getVariantCollection() {

@@ -32,6 +32,8 @@ import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.gradle.api.*;
@@ -75,22 +77,29 @@ import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.Incompati
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 
-public abstract class JniLibraryPlugin implements Plugin<Project> {
+public class JniLibraryPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "library";
 
-	private final ToolChainSelectorInternal toolChainSelector = getObjects().newInstance(ToolChainSelectorInternal.class);
+	private final ToolChainSelectorInternal toolChainSelectorInternal;
+	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
+	@Getter(AccessLevel.PROTECTED) private final ToolChainSelector toolChainSelector;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
+	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
+	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
+	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
 
 	@Inject
-	protected abstract ProviderFactory getProviders();
-
-	@Inject
-	protected abstract TaskContainer getTasks();
-
-	@Inject
-	protected abstract ConfigurationContainer getConfigurations();
-
-	@Inject
-	protected abstract ProjectLayout getLayout();
+	public JniLibraryPlugin(ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, ProjectLayout layout, DependencyHandler dependencyHandler, ToolChainSelector toolChainSelector) {
+		this.objects = objects;
+		this.providers = providers;
+		this.tasks = tasks;
+		this.configurations = configurations;
+		this.layout = layout;
+		this.toolChainSelectorInternal = objects.newInstance(ToolChainSelectorInternal.class);
+		this.dependencyHandler = dependencyHandler;
+		this.toolChainSelector = toolChainSelector;
+	}
 
 	private VariantComponentDependencies newDependencies(NamingScheme names, BuildVariantInternal buildVariant, JniLibraryComponentInternal component) {
 		DefaultJavaNativeInterfaceNativeComponentDependencies variantDependencies = component.getDependencies();
@@ -117,9 +126,6 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 
 		return new VariantComponentDependencies(variantDependencies, incoming);
 	}
-
-	@Inject
-	protected abstract DependencyHandler getDependencyHandler();
 
 	@Override
 	public void apply(Project project) {
@@ -271,7 +277,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 					//  We should probably attach at least one of the unbuildable variant to give a better error message.
 					// TODO: We should really be testing: toolChainSelector.canBuild(targetMachineInternal)
 					//  However, since we have to differ everything for testing, we have to approximate the API.
-					if (toolChainSelector.canBuild(targetMachineInternal)) {
+					if (toolChainSelectorInternal.canBuild(targetMachineInternal)) {
 						// TODO: We could maybe set the shared library directory as secondary variant.
 						//  However, the shared library would requires the resource path to be taken into consideration...
 						getConfigurations().named("runtimeElements", it -> it.getOutgoing().artifact(jarTask.flatMap(Jar::getArchiveFile)));
@@ -324,7 +330,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		// Warn if component is cannot build on this machine
 		getTasks().named(LifecycleBasePlugin.ASSEMBLE_TASK_NAME, task -> {
 			task.dependsOn((Callable) () -> {
-				boolean targetsCurrentMachine = extension.getTargetMachines().get().stream().anyMatch(toolChainSelector::canBuild);
+				boolean targetsCurrentMachine = extension.getTargetMachines().get().stream().anyMatch(toolChainSelectorInternal::canBuild);
 				if (!targetsCurrentMachine) {
 					unbuildableMainComponentLogger.log();
 				}
@@ -430,12 +436,6 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 		return Optional.empty();
 	}
 
-	@Inject
-	protected abstract ToolChainSelector getToolChainSelector();
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
-
 	private static void assertNonEmpty(Collection<?> values, String propertyName, String componentName) {
 		if (values.isEmpty()) {
 			throw new IllegalArgumentException(String.format("A %s needs to be specified for the %s.", propertyName, componentName));
@@ -443,7 +443,7 @@ public abstract class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private void assertTargetMachinesAreKnown(Collection<TargetMachine> targetMachines) {
-		List<TargetMachine> unknownTargetMachines = targetMachines.stream().filter(it -> !toolChainSelector.isKnown(it)).collect(Collectors.toList());
+		List<TargetMachine> unknownTargetMachines = targetMachines.stream().filter(it -> !toolChainSelectorInternal.isKnown(it)).collect(Collectors.toList());
 		if (!unknownTargetMachines.isEmpty()) {
 			throw new IllegalArgumentException("The following target machines are not know by the defined tool chains:\n" + unknownTargetMachines.stream().map(it -> " * " + ((DefaultOperatingSystemFamily)it.getOperatingSystemFamily()).getName() + " " + ((DefaultMachineArchitecture)it.getArchitecture()).getName()).collect(joining("\n")));
 		}

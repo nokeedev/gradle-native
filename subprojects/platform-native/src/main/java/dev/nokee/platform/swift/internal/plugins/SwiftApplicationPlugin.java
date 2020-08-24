@@ -8,6 +8,8 @@ import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.swift.SwiftApplicationExtension;
 import dev.nokee.platform.swift.internal.DefaultSwiftApplicationExtension;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -17,11 +19,14 @@ import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
-public abstract class SwiftApplicationPlugin implements Plugin<Project> {
+public class SwiftApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 	@Inject
-	protected abstract ObjectFactory getObjects();
+	public SwiftApplicationPlugin(ObjectFactory objects) {
+		this.objects = objects;
+	}
 
 	@Override
 	public void apply(Project project) {

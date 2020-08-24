@@ -10,6 +10,8 @@ import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -20,19 +22,19 @@ import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
 
-public abstract class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
+public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
+	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
+	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
+	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 	@Inject
-	protected abstract TaskContainer getTasks();
-
-	@Inject
-	protected abstract ProjectLayout getLayout();
-
-	@Inject
-	protected abstract ProviderFactory getProviders();
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
+	public ObjectiveCXCTestTestSuitePlugin(TaskContainer tasks, ProjectLayout layout, ProviderFactory providers, ObjectFactory objects) {
+		this.tasks = tasks;
+		this.layout = layout;
+		this.providers = providers;
+		this.objects = objects;
+	}
 
 	@Override
 	public void apply(Project project) {
