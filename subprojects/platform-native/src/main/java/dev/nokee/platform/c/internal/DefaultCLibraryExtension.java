@@ -4,10 +4,8 @@ import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.c.internal.CSourceSet;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.c.CLibraryExtension;
-import dev.nokee.platform.nativebase.NativeLibrary;
-import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
+import dev.nokee.platform.nativebase.*;
+import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -62,5 +60,20 @@ public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeL
 	@Override
 	public VariantView<NativeLibrary> getVariants() {
 		return getComponent().getVariantCollection().getAsView(NativeLibrary.class);
+	}
+
+	@Override
+	public TargetMachineFactory getMachines() {
+		return DefaultTargetMachineFactory.INSTANCE;
+	}
+
+	@Override
+	public TargetLinkageFactory getLinkages() {
+		return DefaultTargetLinkageFactory.INSTANCE;
+	}
+
+	@Override
+	public TargetBuildTypeFactory getBuildTypes() {
+		return DefaultTargetBuildTypeFactory.INSTANCE;
 	}
 }

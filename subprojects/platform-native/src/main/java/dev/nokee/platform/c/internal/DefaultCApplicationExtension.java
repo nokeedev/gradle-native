@@ -6,8 +6,12 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.c.CApplicationExtension;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
+import dev.nokee.platform.nativebase.TargetBuildTypeFactory;
+import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.DefaultTargetBuildTypeFactory;
+import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.Getter;
@@ -55,5 +59,15 @@ public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNat
 	@Override
 	public VariantView<NativeApplication> getVariants() {
 		return getComponent().getVariantCollection().getAsView(NativeApplication.class);
+	}
+
+	@Override
+	public TargetMachineFactory getMachines() {
+		return DefaultTargetMachineFactory.INSTANCE;
+	}
+
+	@Override
+	public TargetBuildTypeFactory getBuildTypes() {
+		return DefaultTargetBuildTypeFactory.INSTANCE;
 	}
 }

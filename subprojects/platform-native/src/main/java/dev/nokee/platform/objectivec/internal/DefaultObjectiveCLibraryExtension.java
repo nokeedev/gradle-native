@@ -3,10 +3,8 @@ package dev.nokee.platform.objectivec.internal;
 import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.nativebase.NativeLibrary;
-import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
+import dev.nokee.platform.nativebase.*;
+import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.objectivec.ObjectiveCLibraryExtension;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetLinkage;
@@ -62,5 +60,20 @@ public class DefaultObjectiveCLibraryExtension extends BaseNativeExtension<Defau
 	@Override
 	public VariantView<NativeLibrary> getVariants() {
 		return getComponent().getVariantCollection().getAsView(NativeLibrary.class);
+	}
+
+	@Override
+	public TargetMachineFactory getMachines() {
+		return DefaultTargetMachineFactory.INSTANCE;
+	}
+
+	@Override
+	public TargetLinkageFactory getLinkages() {
+		return DefaultTargetLinkageFactory.INSTANCE;
+	}
+
+	@Override
+	public TargetBuildTypeFactory getBuildTypes() {
+		return DefaultTargetBuildTypeFactory.INSTANCE;
 	}
 }

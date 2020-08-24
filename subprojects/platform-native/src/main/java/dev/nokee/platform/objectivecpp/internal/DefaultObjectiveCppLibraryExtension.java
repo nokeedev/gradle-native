@@ -3,10 +3,8 @@ package dev.nokee.platform.objectivecpp.internal;
 import dev.nokee.language.cpp.internal.CppHeaderSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.nativebase.NativeLibrary;
-import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
+import dev.nokee.platform.nativebase.*;
+import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibraryExtension;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetLinkage;
@@ -62,5 +60,20 @@ public class DefaultObjectiveCppLibraryExtension extends BaseNativeExtension<Def
 	@Override
 	public VariantView<NativeLibrary> getVariants() {
 		return getComponent().getVariantCollection().getAsView(NativeLibrary.class);
+	}
+
+	@Override
+	public TargetMachineFactory getMachines() {
+		return DefaultTargetMachineFactory.INSTANCE;
+	}
+
+	@Override
+	public TargetLinkageFactory getLinkages() {
+		return DefaultTargetLinkageFactory.INSTANCE;
+	}
+
+	@Override
+	public TargetBuildTypeFactory getBuildTypes() {
+		return DefaultTargetBuildTypeFactory.INSTANCE;
 	}
 }

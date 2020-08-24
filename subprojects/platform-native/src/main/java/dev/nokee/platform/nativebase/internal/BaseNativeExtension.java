@@ -59,18 +59,6 @@ public class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 		};
 	}
 
-	public DefaultTargetMachineFactory getMachines() {
-		return DefaultTargetMachineFactory.INSTANCE;
-	}
-
-	public DefaultTargetLinkageFactory getLinkages() {
-		return DefaultTargetLinkageFactory.INSTANCE;
-	}
-
-	public DefaultTargetBuildTypeFactory getBuildTypes() {
-		return DefaultTargetBuildTypeFactory.INSTANCE;
-	}
-
 	public BinaryView<Binary> getBinaries() {
 		return component.getBinaries();
 	}
