@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * An implementation of the namer interface for objects implementing the {@link LanguageSourceSet} interface.
  */
-public class LanguageSourceSetNamer implements Namer<LanguageSourceSet> {
+public final class LanguageSourceSetNamer implements Namer<LanguageSourceSet> {
 	public static final Namer<LanguageSourceSet> INSTANCE = new LanguageSourceSetNamer();
 	private final static Map<String, String> LANGUAGES = Maps.newHashMap();
 

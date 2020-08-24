@@ -34,9 +34,6 @@ rootProject.name = 'gradle-native'
 if (file('../docs-gradle-plugins').exists()) {
 	includeBuild '../docs-gradle-plugins'
 }
-if (file('../toolbox').exists()) {
-	includeBuild '../toolbox'
-}
 
 includeBuild 'subprojects/templates'
 includeBuild 'gradle/plugins/docs-gradle-plugin'

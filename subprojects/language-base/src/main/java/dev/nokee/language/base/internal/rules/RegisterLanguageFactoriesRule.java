@@ -1,8 +1,8 @@
 package dev.nokee.language.base.internal.rules;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.LanguageSourceSetFactory;
-import dev.nokee.language.base.LanguageSourceSetFactoryRegistry;
+import dev.nokee.language.base.internal.LanguageSourceSetFactory;
+import dev.nokee.language.base.internal.LanguageSourceSetFactoryRegistry;
 
 import javax.inject.Inject;
 import java.util.Map;

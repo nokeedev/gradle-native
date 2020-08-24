@@ -1,10 +1,9 @@
 package dev.nokee.language.c.internal.plugins
 
-import dev.nokee.language.base.LanguageSourceSetFactoryRegistry
-import dev.nokee.language.base.LanguageSourceSetInstantiator
+
+import dev.nokee.language.base.internal.LanguageSourceSetInstantiator
 import dev.nokee.language.c.CHeaderSet
 import dev.nokee.language.c.CSourceSet
-import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin
 import dev.nokee.model.DomainObjectIdentifier
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin
 import org.gradle.testfixtures.ProjectBuilder

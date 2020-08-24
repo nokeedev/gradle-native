@@ -1,9 +1,8 @@
 package dev.nokee.language.cpp.internal.plugins
 
-import dev.nokee.language.base.LanguageSourceSetInstantiator
+import dev.nokee.language.base.internal.LanguageSourceSetInstantiator
 import dev.nokee.language.cpp.CppHeaderSet
 import dev.nokee.language.cpp.CppSourceSet
-import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin
 import dev.nokee.model.DomainObjectIdentifier
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin
 import org.gradle.testfixtures.ProjectBuilder

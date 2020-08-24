@@ -1,6 +1,6 @@
 package dev.nokee.language.objectivec.internal.plugins
 
-import dev.nokee.language.base.LanguageSourceSetInstantiator
+import dev.nokee.language.base.internal.LanguageSourceSetInstantiator
 import dev.nokee.language.c.CHeaderSet
 import dev.nokee.language.objectivec.ObjectiveCSourceSet
 import dev.nokee.model.DomainObjectIdentifier

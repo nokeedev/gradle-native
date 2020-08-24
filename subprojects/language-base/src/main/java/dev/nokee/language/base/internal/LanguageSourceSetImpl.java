@@ -5,56 +5,53 @@ import dev.nokee.model.DomainObjectIdentifier;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.util.PatternFilterable;
-import org.gradle.api.tasks.util.PatternSet;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class AbstractLanguageSourceSet<SELF extends LanguageSourceSet> implements LanguageSourceSet {
-//	private final DomainObjectIdentifier identifier;
+public class LanguageSourceSetImpl implements LanguageSourceSet {
+	//	private final DomainObjectIdentifier identifier;
 //	private final Class<SELF> publicType;
 	private final ConfigurableFileCollection sources;
 	private final ObjectFactory objects;
-//	private final PatternSet patternSet = new PatternSet();
-	private final Set<File> directories = new HashSet<>();
+	//	private final PatternSet patternSet = new PatternSet();
 
-	protected AbstractLanguageSourceSet(DomainObjectIdentifier identifier, Class<SELF> publicType, ObjectFactory objects) {
+	protected LanguageSourceSetImpl(ObjectFactory objects) {
 //		this.identifier = identifier;
 //		this.publicType = publicType;
 		this.sources = objects.fileCollection();
 		this.objects = objects;
 	}
 
-	public SELF from(Object... paths) {
+	@Override
+	public LanguageSourceSet from(Object... paths) {
 		sources.from(paths);
-//		return publicType.cast(this);
-		return null;
+		return this;
 	}
 
+	@Override
 	public FileCollection getSourceDirectories() {
-		return objects.fileCollection().from(new Callable<List<File>>() {
-			@Override
-			public List<File> call() throws Exception {
-				return sources.getFiles().stream().map(this::toDirectory).collect(Collectors.toList());
-			}
+		return objects.fileCollection().from(sources.getElements().map(this::toSourceDirectories));
+	}
 
-			private File toDirectory(File file) {
-				if (file.isDirectory()) {
-					return file;
-				}
-				return file.getParentFile();
-			}
-		});
+	private Iterable<File> toSourceDirectories(Set<FileSystemLocation> files) {
+		return files.stream().map(FileSystemLocation::getAsFile).map(this::toSourceDirectory).collect(Collectors.toList());
+	}
+
+	private File toSourceDirectory(File file) {
+		if (file.isDirectory()) {
+			return file;
+		}
+		return file.getParentFile();
 	}
 
 	// TODO: Maybe merge this into identifier?
@@ -71,7 +68,7 @@ public abstract class AbstractLanguageSourceSet<SELF extends LanguageSourceSet> 
 	}
 
 	@Override
-	public SELF filter(Action<? super PatternFilterable> action) {
+	public LanguageSourceSet filter(Action<? super PatternFilterable> action) {
 //		action.execute(patternSet);
 //		return publicType.cast(this);
 		return null;

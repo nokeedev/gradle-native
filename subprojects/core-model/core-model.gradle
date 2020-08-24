@@ -15,6 +15,8 @@ repositories {
 dependencies {
 	compileOnly "org.projectlombok:lombok:latest.release"
 	annotationProcessor "org.projectlombok:lombok:latest.release"
+
+	implementation gradleApi(minimumGradleVersion)
 }
 
 java {

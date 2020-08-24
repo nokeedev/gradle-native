@@ -1,7 +1,6 @@
 package dev.nokee.platform.swift.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.LanguageSourceSetInstantiator;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.platform.base.SourceView;
 import dev.nokee.platform.base.VariantView;

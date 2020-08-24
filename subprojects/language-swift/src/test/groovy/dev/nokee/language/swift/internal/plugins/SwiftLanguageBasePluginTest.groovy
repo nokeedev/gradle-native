@@ -1,6 +1,6 @@
 package dev.nokee.language.swift.internal.plugins
 
-import dev.nokee.language.base.LanguageSourceSetInstantiator
+import dev.nokee.language.base.internal.LanguageSourceSetInstantiator
 import dev.nokee.language.swift.SwiftSourceSet
 import dev.nokee.model.DomainObjectIdentifier
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin

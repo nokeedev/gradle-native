@@ -1,11 +1,10 @@
 package dev.nokee.language.objectivecpp.internal.plugins
 
-import dev.nokee.language.base.LanguageSourceSetInstantiator
+import dev.nokee.language.base.internal.LanguageSourceSetInstantiator
 import dev.nokee.language.cpp.CppHeaderSet
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet
 import dev.nokee.model.DomainObjectIdentifier
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin
-import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject

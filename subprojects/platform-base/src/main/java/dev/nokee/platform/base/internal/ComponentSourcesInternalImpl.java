@@ -1,9 +1,7 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.LanguageSourceSetInstantiator;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.platform.base.ComponentSources;
+import dev.nokee.language.base.internal.LanguageSourceSetInstantiator;
 import dev.nokee.platform.base.DomainObjectCollection;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.SourceView;

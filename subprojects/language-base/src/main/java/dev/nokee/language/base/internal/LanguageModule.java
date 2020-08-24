@@ -2,8 +2,6 @@ package dev.nokee.language.base.internal;
 
 import dagger.Module;
 import dagger.Provides;
-import dev.nokee.language.base.LanguageSourceSetFactoryRegistry;
-import dev.nokee.language.base.LanguageSourceSetInstantiator;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import org.gradle.api.Project;
 

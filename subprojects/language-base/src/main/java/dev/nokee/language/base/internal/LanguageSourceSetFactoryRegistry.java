@@ -1,6 +1,7 @@
-package dev.nokee.language.base;
+package dev.nokee.language.base.internal;
 
-// TODO: generalize to DomainObjectFactoryRegistry
+import dev.nokee.language.base.LanguageSourceSet;
+
 public interface LanguageSourceSetFactoryRegistry {
 	<U extends LanguageSourceSet> void registerFactory(Class<U> type, LanguageSourceSetFactory<? extends U> factory);
 }

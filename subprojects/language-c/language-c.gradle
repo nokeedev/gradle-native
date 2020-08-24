@@ -40,5 +40,7 @@ gradlePlugin {
 test {
 	dependencies {
 		implementation 'dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.integration'
+		implementation testFixtures(project(':languageBase'))
+		implementation testFixtures(project(':coreGradle'))
 	}
 }

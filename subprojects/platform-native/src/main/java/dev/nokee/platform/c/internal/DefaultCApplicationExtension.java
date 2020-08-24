@@ -1,7 +1,6 @@
 package dev.nokee.platform.c.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.LanguageSourceSetInstantiator;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.platform.base.SourceView;

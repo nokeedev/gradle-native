@@ -1,11 +1,10 @@
 package dev.nokee.language.cpp.internal;
 
-import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.ClassKey;
 import dagger.multibindings.IntoMap;
-import dev.nokee.language.base.LanguageSourceSetFactory;
+import dev.nokee.language.base.internal.LanguageSourceSetFactory;
 import dev.nokee.language.base.internal.LanguageSourceSetFactoryImpl;
 import dev.nokee.language.cpp.CppHeaderSet;
 import org.gradle.api.model.ObjectFactory;

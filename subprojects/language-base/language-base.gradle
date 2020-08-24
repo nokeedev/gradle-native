@@ -21,6 +21,9 @@ dependencies {
 	api project(':coreModel')
 	implementation project(':runtimeNative')
 	implementation "com.google.guava:guava:${guavaVersion}"
+
+	testFixturesApi platform("org.spockframework:spock-bom:${spockVersion}")
+	testFixturesApi 'org.spockframework:spock-core'
 }
 
 gradlePlugin {
