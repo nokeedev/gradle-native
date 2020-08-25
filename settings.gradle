@@ -46,6 +46,10 @@ include 'coreExec'
 project(':coreExec').projectDir = file('subprojects/core-exec')
 project(':coreExec').buildFileName = 'core-exec.gradle'
 
+include 'coreGradle'
+project(':coreGradle').projectDir = file('subprojects/core-gradle')
+project(':coreGradle').buildFileName = 'core-gradle.gradle'
+
 include 'coreUtils'
 project(':coreUtils').projectDir = file('subprojects/core-utils')
 project(':coreUtils').buildFileName = 'core-utils.gradle'

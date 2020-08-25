@@ -1,0 +1,35 @@
+plugins {
+	id 'java-library'
+	id 'groovy-base'
+	id 'maven-publish'
+}
+
+import static dev.gradleplugins.GradleRuntimeCompatibility.*
+
+repositories {
+	jcenter()
+	gradlePluginDevelopment()
+}
+
+dependencies {
+	compileOnly "org.projectlombok:lombok:latest.release"
+	annotationProcessor "org.projectlombok:lombok:latest.release"
+
+	api 'com.google.dagger:dagger:latest.release'
+	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
+
+	compileOnly gradleApi(minimumGradleVersion)
+}
+
+java {
+	sourceCompatibility = minimumJavaVersionFor(minimumGradleVersion)
+	targetCompatibility = minimumJavaVersionFor(minimumGradleVersion)
+}
+
+publishing {
+	publications {
+		library(MavenPublication) {
+			from components.java
+		}
+	}
+}
