@@ -53,6 +53,12 @@ public class DefaultDomainObjectStore implements DomainObjectStore {
 	}
 
 	@Override
+	public <U> DomainObjectProvider<U> add(DomainObjectElement<U> element) {
+		store.add(Cast.uncheckedCastBecauseOfTypeErasure(element));
+		return Cast.uncheckedCastBecauseOfTypeErasure(store.get(element.getIdentity()));
+	}
+
+	@Override
 	public void whenElementKnown(Action<KnownDomainObject<?>> action) {
 		store.whenElementKnown(action);
 	}
