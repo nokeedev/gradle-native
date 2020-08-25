@@ -32,11 +32,10 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 
 	@Inject
-	public DefaultNativeLibraryComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+	public DefaultNativeLibraryComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DefaultNativeLibraryComponentDependencies dependencies) {
 		super(names, DefaultNativeLibraryVariant.class, objects, providers, tasks, layout, configurations);
 		this.dependencyHandler = dependencyHandler;
-		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
-		this.dependencies = objects.newInstance(DefaultNativeLibraryComponentDependencies.class, dependencyContainer);
+		this.dependencies = dependencies;
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 	}
 
@@ -88,30 +87,5 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 		DefaultNativeLibraryVariant result = getObjects().newInstance(DefaultNativeLibraryVariant.class, name, names, buildVariant, variantDependencies);
 		return result;
-	}
-
-	public static DomainObjectFactory<DefaultNativeLibraryComponent> newMain(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
-		return new DomainObjectFactory<DefaultNativeLibraryComponent>() {
-			@Override
-			public DefaultNativeLibraryComponent create() {
-				NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main native component");
-				return objects.newInstance(DefaultNativeLibraryComponent.class, names);
-			}
-
-			@Override
-			public Class<DefaultNativeLibraryComponent> getType() {
-				return DefaultNativeLibraryComponent.class;
-			}
-
-			@Override
-			public Class<? extends DefaultNativeLibraryComponent> getImplementationType() {
-				return DefaultNativeLibraryComponent.class;
-			}
-
-			@Override
-			public DomainObjectIdentity getIdentity() {
-				return DomainObjectIdentity.named("main");
-			}
-		};
 	}
 }

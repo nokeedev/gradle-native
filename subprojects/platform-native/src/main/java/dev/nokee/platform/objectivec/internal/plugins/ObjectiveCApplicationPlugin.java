@@ -1,9 +1,14 @@
 package dev.nokee.platform.objectivec.internal.plugins;
 
+import dagger.BindsInstance;
+import dagger.Component;
+import dev.nokee.gradle.internal.GradleModule;
+import dev.nokee.platform.base.DomainObjectElement;
+import dev.nokee.platform.base.internal.DomainObjectIdentity;
 import dev.nokee.platform.base.internal.DomainObjectStore;
-import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.NativeComponentModule;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.objectivec.ObjectiveCApplicationExtension;
@@ -33,14 +38,40 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ProjectStorePlugin.class);
 
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
-		val component = store.register(DefaultNativeApplicationComponent.newMain(getObjects(), new NamingSchemeFactory(project.getName())));
+		val extension = DaggerObjectiveCApplicationPlugin_ObjectiveCApplicationComponent.factory().create(project).objectiveCApplicationComponent();
+		val component = store.add(new DomainObjectElement<DefaultNativeApplicationComponent>() {
+			@Override
+			public DefaultNativeApplicationComponent get() {
+				return extension.getComponent();
+			}
+
+			@Override
+			public Class<DefaultNativeApplicationComponent> getType() {
+				return DefaultNativeApplicationComponent.class;
+			}
+
+			@Override
+			public DomainObjectIdentity getIdentity() {
+				return DomainObjectIdentity.named("main");
+			}
+		});
 		component.configure(it -> it.getBaseName().convention(project.getName()));
-		DefaultObjectiveCApplicationExtension extension = getObjects().newInstance(DefaultObjectiveCApplicationExtension.class, component.get());
+		component.get(); // force realize... for now.
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 		project.afterEvaluate(getObjects().newInstance(TargetBuildTypeRule.class, extension.getTargetBuildTypes(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(ObjectiveCApplicationExtension.class, EXTENSION_NAME, extension);
+	}
+
+	@Component(modules = {GradleModule.class, NativeComponentModule.class})
+	interface ObjectiveCApplicationComponent {
+		DefaultObjectiveCApplicationExtension objectiveCApplicationComponent();
+
+		@Component.Factory
+		interface Factory {
+			ObjectiveCApplicationComponent create(@BindsInstance Project project);
+		}
 	}
 }

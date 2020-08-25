@@ -32,11 +32,10 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 
 	@Inject
-	public DefaultNativeApplicationComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+	public DefaultNativeApplicationComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DefaultNativeApplicationComponentDependencies dependencies) {
 		super(names, DefaultNativeApplicationVariant.class, objects, providers, tasks, layout, configurations);
 		this.dependencyHandler = dependencyHandler;
-		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
-		this.dependencies = objects.newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
+		this.dependencies = dependencies;
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 	}
 
@@ -83,30 +82,5 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 
 		DefaultNativeApplicationVariant result = getObjects().newInstance(DefaultNativeApplicationVariant.class, name, names, buildVariant, variantDependencies);
 		return result;
-	}
-
-	public static DomainObjectFactory<DefaultNativeApplicationComponent> newMain(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
-		return new DomainObjectFactory<DefaultNativeApplicationComponent>() {
-			@Override
-			public DefaultNativeApplicationComponent create() {
-				NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main native component");
-				return objects.newInstance(DefaultNativeApplicationComponent.class, names);
-			}
-
-			@Override
-			public Class<DefaultNativeApplicationComponent> getType() {
-				return DefaultNativeApplicationComponent.class;
-			}
-
-			@Override
-			public Class<? extends DefaultNativeApplicationComponent> getImplementationType() {
-				return DefaultNativeApplicationComponent.class;
-			}
-
-			@Override
-			public DomainObjectIdentity getIdentity() {
-				return DomainObjectIdentity.named("main");
-			}
-		};
 	}
 }
