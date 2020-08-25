@@ -20,7 +20,7 @@ import groovy.json.JsonOutput
 def allPluginProjectPaths = (rootProject.allprojects - [project(':docs'), project(':distributions')])*.path
 
 def publishToStaging = tasks.register('publishToStaging') {
-	group = 'verification'
+	group = 'publishing'
 	doLast {
 		println "Published version ${project.version}"
 	}
