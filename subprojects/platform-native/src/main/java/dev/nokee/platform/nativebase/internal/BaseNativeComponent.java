@@ -1,19 +1,15 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.base.Preconditions;
-import dev.nokee.language.base.internal.GeneratedSourceSet;
-import dev.nokee.language.base.internal.LanguageSourceSetInternal;
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.cpp.internal.CppHeaderSet;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.nativebase.internal.ObjectSourceSetInternal;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
-import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.VariantProvider;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.nativebase.*;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
@@ -144,7 +140,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 			VariantProvider<T> variant = getVariantCollection().registerVariant(buildVariant, (name, bv) -> {
 				T it = createVariant(name, bv, dependencies);
 
-				DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().newInstance(NativeLanguageRules.class, names).apply(getSourceCollection());
+				DomainObjectSet<ObjectSourceSetInternal> objectSourceSets = getObjects().newInstance(NativeLanguageRules.class, names).apply(getSourceCollection());
 				BaseNativeVariant variantInternal = (BaseNativeVariant)it;
 				if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
 					DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
@@ -156,7 +152,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					} else if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
 						TaskProvider<LinkSharedLibraryTask> linkTask = getTasks().register(names.getTaskName("link"), LinkSharedLibraryTask.class);
 
-						SharedLibraryBinaryInternal binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
+						SharedLibraryBinaryInternal binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
 						variantInternal.getBinaryCollection().add(binary);
 						binary.getBaseName().convention(getBaseName());
 					} else if (linkage.equals(DefaultBinaryLinkage.BUNDLE)) {
@@ -177,10 +173,10 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					binary.getCompileTasks().configureEach(NativeSourceCompile.class, task -> {
 						val taskInternal = (AbstractNativeCompileTask) task;
 						getSourceCollection().withType(CHeaderSet.class).configureEach(sourceSet -> {
-							taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
+							taskInternal.getIncludes().from(sourceSet.getSourceDirectories());
 						});
 						getSourceCollection().withType(CppHeaderSet.class).configureEach(sourceSet -> {
-							taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
+							taskInternal.getIncludes().from(sourceSet.getSourceDirectories());
 						});
 					});
 				});
@@ -241,13 +237,13 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					return one(result);
 				}));
 			}
-			getSourceCollection().matching(it -> (it instanceof CHeaderSet || it instanceof CppHeaderSet) && it.getName().equals("public")).configureEach(sourceSet -> {
+			getSourceCollection().matching(it -> (it instanceof CHeaderSet || it instanceof CppHeaderSet) && ((NamedDomainObjectIdentity)it.getIdentifier()).getName().equals("public")).configureEach(sourceSet -> {
 				// TODO: Allow to export more than one folder
 				File directory = null;
 				if (sourceSet instanceof CHeaderSet) {
-					directory = ((CHeaderSet) sourceSet).getHeaderDirectory();
+					directory = sourceSet.getSourceDirectories().getSingleFile();
 				} else if (sourceSet instanceof CppHeaderSet) {
-					directory = ((CppHeaderSet) sourceSet).getHeaderDirectory();
+					directory = sourceSet.getSourceDirectories().getSingleFile();
 				}
 
 				dependencies.getOutgoing().getExportedHeaders().fileValue(directory);

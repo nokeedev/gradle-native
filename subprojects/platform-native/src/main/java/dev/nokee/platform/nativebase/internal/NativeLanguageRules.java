@@ -1,17 +1,18 @@
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.language.base.internal.GeneratedSourceSet;
-import dev.nokee.language.base.internal.SourceSet;
-import dev.nokee.language.c.internal.CSourceSet;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
-import dev.nokee.language.cpp.internal.CppSourceSet;
+import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
+import dev.nokee.language.nativebase.internal.ObjectSourceSetInternal;
 import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
-import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.internal.NamingScheme;
 import lombok.AccessLevel;
@@ -37,8 +38,8 @@ public class NativeLanguageRules {
 		this.objects = objects;
 	}
 
-	public DomainObjectSet<GeneratedSourceSet> apply(DomainObjectSet<SourceSet> sourceSets) {
-		DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
+	public DomainObjectSet<ObjectSourceSetInternal> apply(DomainObjectSet<LanguageSourceSet> sourceSets) {
+		DomainObjectSet<ObjectSourceSetInternal> objectSourceSets = getObjects().domainObjectSet(ObjectSourceSetInternal.class);
 		sourceSets.withType(CSourceSet.class).stream()
 			.map(createNativeCompileTask("C", CCompileTask.class))
 			.map(this::newObjectSourceSetFromNativeCompileTask)
@@ -62,7 +63,7 @@ public class NativeLanguageRules {
 		return objectSourceSets;
 	}
 
-	private <T extends AbstractNativeCompileTask> Function<SourceSet, TaskProvider<T>> createNativeCompileTask(String languageName, Class<T> type) {
+	private <T extends AbstractNativeCompileTask> Function<LanguageSourceSet, TaskProvider<T>> createNativeCompileTask(String languageName, Class<T> type) {
 		return sourceSet -> {
 			return getTasks().register(getNames().getTaskName("compile", languageName), type, task -> {
 				task.getSource().from(sourceSet.getAsFileTree());
@@ -70,17 +71,17 @@ public class NativeLanguageRules {
 		};
 	}
 
-	private TaskProvider<SwiftCompileTask> createSwiftCompileTask(SourceSet sourceSet) {
+	private TaskProvider<SwiftCompileTask> createSwiftCompileTask(LanguageSourceSet sourceSet) {
 		return getTasks().register(getNames().getTaskName("compile", "Swift"), SwiftCompileTask.class, task -> {
 			task.getSource().from(sourceSet.getAsFileTree());
 		});
 	}
 
-	private <T extends AbstractNativeCompileTask> GeneratedSourceSet newObjectSourceSetFromNativeCompileTask(TaskProvider<T> task) {
-		return getObjects().newInstance(GeneratedSourceSet.class, task.getName(), UTTypeObjectCode.INSTANCE, task.flatMap(AbstractNativeCompileTask::getObjectFileDir), task);
+	private <T extends AbstractNativeCompileTask> ObjectSourceSetInternal newObjectSourceSetFromNativeCompileTask(TaskProvider<T> task) {
+		return new ObjectSourceSetInternal(task.getName(), UTTypeObjectCode.INSTANCE, task.flatMap(AbstractNativeCompileTask::getObjectFileDir), (TaskProvider<? extends SourceCompile>)task);
 	}
 
-	private GeneratedSourceSet newObjectSourceSetFromSwiftCompileTask(TaskProvider<SwiftCompileTask> task) {
-		return getObjects().newInstance(GeneratedSourceSet.class, task.getName(), UTTypeObjectCode.INSTANCE, task.flatMap(SwiftCompileTask::getObjectFileDir), task);
+	private ObjectSourceSetInternal newObjectSourceSetFromSwiftCompileTask(TaskProvider<SwiftCompileTask> task) {
+		return new ObjectSourceSetInternal(task.getName(), UTTypeObjectCode.INSTANCE, task.flatMap(SwiftCompileTask::getObjectFileDir), task);
 	}
 }

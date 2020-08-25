@@ -8,7 +8,7 @@ import org.gradle.api.provider.Provider;
 public interface KnownDomainObject<T> {
 	void configure(Action<? super T> action);
 
-	Class<T> getType();
+	Class<? extends T> getType();
 
 	DomainObjectIdentity getIdentity();
 

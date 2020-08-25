@@ -4,10 +4,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
-import dev.nokee.language.base.internal.GeneratedSourceSet;
-import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.nativebase.HeaderSearchPath;
 import dev.nokee.language.nativebase.internal.DefaultHeaderSearchPath;
+import dev.nokee.language.nativebase.internal.ObjectSourceSetInternal;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
@@ -58,7 +57,7 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 
 	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
-	public SharedLibraryBinaryInternal(NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
+	public SharedLibraryBinaryInternal(NamingScheme names, DefaultTargetMachine targetMachine, DomainObjectSet<ObjectSourceSetInternal> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
 		super(names, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
 		this.linkTask = linkTask;
 		this.dependencies = dependencies;

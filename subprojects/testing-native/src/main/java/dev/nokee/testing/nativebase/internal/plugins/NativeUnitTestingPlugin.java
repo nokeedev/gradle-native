@@ -1,10 +1,11 @@
 package dev.nokee.testing.nativebase.internal.plugins;
 
-import dev.nokee.language.c.internal.CSourceSet;
-import dev.nokee.language.cpp.internal.CppSourceSet;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
-import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.language.base.internal.DaggerLanguageSourceSetInstantiatorComponent;
+import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.cpp.CppSourceSet;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.DefaultTestSuiteContainer;
@@ -20,6 +21,8 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
+
+import static dev.nokee.model.DomainObjectIdentifier.named;
 
 public class NativeUnitTestingPlugin implements Plugin<Project> {
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
@@ -41,21 +44,22 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 		extension.whenElementKnown(DefaultNativeTestSuiteComponent.class, knownTestSuite -> {
 			knownTestSuite.configure(testSuite -> {
+				val sourceSetIntantiator = DaggerLanguageSourceSetInstantiatorComponent.factory().create(project).get();
 				// TODO: Move these generic source set creation to the respective language plugin
 				if (project.getPluginManager().hasPlugin("dev.nokee.c-language")) {
-					testSuite.getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").from(testSuite.getNames().getSourceSetPath("c")));
+					testSuite.getSourceCollection().add(sourceSetIntantiator.create(named("c"), CSourceSet.class).from(testSuite.getNames().getSourceSetPath("c")));
 				}
 				if (project.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
-					testSuite.getSourceCollection().add(getObjects().newInstance(CppSourceSet.class, "cpp").from(testSuite.getNames().getSourceSetPath("cpp")));
+					testSuite.getSourceCollection().add(sourceSetIntantiator.create(named("cpp"), CppSourceSet.class).from(testSuite.getNames().getSourceSetPath("cpp")));
 				}
 				if (project.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-					testSuite.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").from(testSuite.getNames().getSourceSetPath("objc")));
+					testSuite.getSourceCollection().add(sourceSetIntantiator.create(named("objc"), ObjectiveCSourceSet.class).from(testSuite.getNames().getSourceSetPath("objc")));
 				}
 				if (project.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
-					testSuite.getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").from(testSuite.getNames().getSourceSetPath("objcpp")));
+					testSuite.getSourceCollection().add(sourceSetIntantiator.create(named("objcpp"), ObjectiveCppSourceSet.class).from(testSuite.getNames().getSourceSetPath("objcpp")));
 				}
 				if (project.getPluginManager().hasPlugin("dev.nokee.swift-language")) {
-					testSuite.getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").from(testSuite.getNames().getSourceSetPath("swift")));
+					testSuite.getSourceCollection().add(sourceSetIntantiator.create(named("swift"), SwiftSourceSet.class).from(testSuite.getNames().getSourceSetPath("swift")));
 				}
 			});
 		});

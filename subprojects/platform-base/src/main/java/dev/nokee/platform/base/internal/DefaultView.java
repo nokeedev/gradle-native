@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.platform.base.DomainObjectCollection;
 import dev.nokee.platform.base.View;
-import dev.nokee.utils.Cast;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;

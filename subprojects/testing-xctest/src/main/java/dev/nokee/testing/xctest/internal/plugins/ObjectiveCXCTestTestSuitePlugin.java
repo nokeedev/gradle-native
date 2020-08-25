@@ -1,7 +1,8 @@
 package dev.nokee.testing.xctest.internal.plugins;
 
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
+import dev.nokee.language.base.internal.DaggerLanguageSourceSetInstantiatorComponent;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingSchemeFactory;
@@ -21,6 +22,8 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
+
+import static dev.nokee.model.DomainObjectIdentifier.named;
 
 public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
@@ -42,10 +45,12 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			BaseNativeComponent<?> application = ((DefaultObjectiveCIosApplicationExtension) project.getExtensions().getByType(ObjectiveCIosApplicationExtension.class)).getComponent();
 			val store = project.getExtensions().getByType(DomainObjectStore.class);
 
+			val sourceSetInstantiator = DaggerLanguageSourceSetInstantiatorComponent.factory().create(project).get();
+
 			val unitTestComponent = store.register(DefaultUnitTestXCTestTestSuiteComponent.newUnitTest(getObjects(), new NamingSchemeFactory(project.getName())));
 			unitTestComponent.configure(component -> {
-				component.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/unitTest/objc"));
-				component.getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir("src/unitTest/headers"));
+				component.getSourceCollection().add(sourceSetInstantiator.create(named("objc"), ObjectiveCSourceSet.class).from("src/unitTest/objc"));
+				component.getSourceCollection().add(sourceSetInstantiator.create(named("headers"), CHeaderSet.class).from("src/unitTest/headers"));
 				component.getTestedComponent().value(application).disallowChanges();
 				component.getGroupId().set(GroupId.of(project::getGroup));
 				component.finalizeExtension(project);
@@ -55,8 +60,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 			val uiTestComponent = store.register(DefaultUiTestXCTestTestSuiteComponent.newUiTest(getObjects(), new NamingSchemeFactory(project.getName())));
 			uiTestComponent.configure(component -> {
-				component.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/uiTest/objc"));
-				component.getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir("src/uiTest/headers"));
+				component.getSourceCollection().add(sourceSetInstantiator.create(named("objc"), ObjectiveCSourceSet.class).from("src/uiTest/objc"));
+				component.getSourceCollection().add(sourceSetInstantiator.create(named("headers"), CHeaderSet.class).from("src/uiTest/headers"));
 				component.getTestedComponent().value(application).disallowChanges();
 				component.getGroupId().set(GroupId.of(project::getGroup));
 				component.finalizeExtension(project);

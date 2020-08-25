@@ -1,6 +1,7 @@
 package dev.nokee.platform.ios.internal;
 
-import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.language.base.LanguageSourceSetInstantiator;
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.SwiftIosApplicationExtension;
@@ -12,11 +13,13 @@ import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.DomainObjectIdentifier.named;
+
 public class DefaultSwiftIosApplicationExtension extends BaseIosExtension<DefaultIosApplicationComponent> implements SwiftIosApplicationExtension {
 	@Inject
-	public DefaultSwiftIosApplicationExtension(DefaultIosApplicationComponent component, ObjectFactory objects, ProviderFactory providers) {
+	public DefaultSwiftIosApplicationExtension(DefaultIosApplicationComponent component, LanguageSourceSetInstantiator sourceSetInstantiator, ObjectFactory objects, ProviderFactory providers) {
 		super(component, objects, providers);
-		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").srcDir("src/main/swift"));
+		getComponent().getSourceCollection().add(sourceSetInstantiator.create(named("swift"), SwiftSourceSet.class).from("src/main/swift"));
 	}
 
 	@Override

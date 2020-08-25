@@ -1,10 +1,12 @@
 package dev.nokee.platform.c;
 
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.c.CSourceSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.nativebase.*;
-import org.gradle.api.file.ConfigurableFileCollection;
 
 /**
  * Configuration for a library written in C, defining the dependencies that make up the library plus other settings.
@@ -13,7 +15,7 @@ import org.gradle.api.file.ConfigurableFileCollection;
  *
  * @since 0.4
  */
-public interface CLibraryExtension extends DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent {
+public interface CLibraryExtension extends DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent {
 	/**
 	 * Defines the source files or directories of this library.
 	 * You can add files or directories to this collection.
@@ -23,7 +25,7 @@ public interface CLibraryExtension extends DependencyAwareComponent<NativeLibrar
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getSources();
+	CSourceSet getCSources();
 
 	/**
 	 * Defines the private headers search directories of this library.
@@ -32,7 +34,7 @@ public interface CLibraryExtension extends DependencyAwareComponent<NativeLibrar
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getPrivateHeaders();
+	CHeaderSet getPrivateHeaders();
 
 	/**
 	 * Defines the public header file directories of this library.
@@ -41,5 +43,5 @@ public interface CLibraryExtension extends DependencyAwareComponent<NativeLibrar
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getPublicHeaders();
+	CHeaderSet getPublicHeaders();
 }

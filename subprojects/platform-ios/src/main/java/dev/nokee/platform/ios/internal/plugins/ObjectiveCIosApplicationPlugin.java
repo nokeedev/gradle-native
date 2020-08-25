@@ -1,5 +1,6 @@
 package dev.nokee.platform.ios.internal.plugins;
 
+import dev.nokee.language.base.internal.DaggerLanguageSourceSetInstantiatorComponent;
 import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingSchemeFactory;
@@ -55,10 +56,11 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DarwinRuntimePlugin.class);
 		project.getPluginManager().apply(ProjectStorePlugin.class);
 
+		val sourceSetInstantiator = DaggerLanguageSourceSetInstantiatorComponent.factory().create(project).get();
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
 		val component = store.register(DefaultIosApplicationComponent.newMain(getObjects(), new NamingSchemeFactory(project.getName())));
 		component.configure(it -> it.getGroupId().set(GroupId.of(project::getGroup)));
-		val extension = getObjects().newInstance(DefaultObjectiveCIosApplicationExtension.class, component.get());
+		val extension = getObjects().newInstance(DefaultObjectiveCIosApplicationExtension.class, component.get(), sourceSetInstantiator);
 
 		project.afterEvaluate(extension::finalizeExtension);
 

@@ -13,6 +13,7 @@ repositories {
 }
 
 dependencies {
+	implementation project(':languageBase')
 	implementation project(':coreUtils')
 	implementation project(':runtimeBase')
 	implementation "com.google.guava:guava:${guavaVersion}"
@@ -21,6 +22,13 @@ dependencies {
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	api 'com.google.dagger:dagger:latest.release'
+	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
+	compileOnly project(':coreGradle')
+
+	compileOnly 'com.google.auto.factory:auto-factory:latest.release'
+	annotationProcessor 'com.google.auto.factory:auto-factory:latest.release'
 
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'

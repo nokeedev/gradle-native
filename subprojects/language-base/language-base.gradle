@@ -1,0 +1,33 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'java-test-fixtures'
+	id 'maven-publish'
+}
+
+// TODO: These repositories are required because IntelliJ fails again at detecting the repositories
+repositories {
+	jcenter()
+	mavenCentral()
+}
+
+dependencies {
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	api 'com.google.dagger:dagger:latest.release'
+	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
+	compileOnly project(':coreGradle')
+
+	api project(':coreModel')
+	implementation project(':runtimeNative')
+	implementation "com.google.guava:guava:${guavaVersion}"
+}
+
+gradlePlugin {
+	plugins {
+		baseLanguage {
+			id = 'dev.nokee.language-base'
+			implementationClass = 'dev.nokee.language.base.internal.plugins.LanguageBasePlugin'
+		}
+	}
+}

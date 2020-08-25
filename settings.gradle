@@ -34,6 +34,9 @@ rootProject.name = 'gradle-native'
 if (file('../docs-gradle-plugins').exists()) {
 	includeBuild '../docs-gradle-plugins'
 }
+if (file('../toolbox').exists()) {
+	includeBuild '../toolbox'
+}
 
 includeBuild 'subprojects/templates'
 includeBuild 'gradle/plugins/docs-gradle-plugin'
@@ -86,9 +89,33 @@ include 'ideXcode'
 project(':ideXcode').projectDir = file('subprojects/ide-xcode')
 project(':ideXcode').buildFileName = 'ide-xcode.gradle'
 
+include 'languageBase'
+project(':languageBase').projectDir = file('subprojects/language-base')
+project(':languageBase').buildFileName = 'language-base.gradle'
+
+include 'languageC'
+project(':languageC').projectDir = file('subprojects/language-c')
+project(':languageC').buildFileName = 'language-c.gradle'
+
+include 'languageCpp'
+project(':languageCpp').projectDir = file('subprojects/language-cpp')
+project(':languageCpp').buildFileName = 'language-cpp.gradle'
+
 include 'languageNative'
 project(':languageNative').projectDir = file('subprojects/language-native')
 project(':languageNative').buildFileName = 'language-native.gradle'
+
+include 'languageObjectiveC'
+project(':languageObjectiveC').projectDir = file('subprojects/language-objective-c')
+project(':languageObjectiveC').buildFileName = 'language-objective-c.gradle'
+
+include 'languageObjectiveCpp'
+project(':languageObjectiveCpp').projectDir = file('subprojects/language-objective-cpp')
+project(':languageObjectiveCpp').buildFileName = 'language-objective-cpp.gradle'
+
+include 'languageSwift'
+project(':languageSwift').projectDir = file('subprojects/language-swift')
+project(':languageSwift').buildFileName = 'language-swift.gradle'
 
 include 'platformBase'
 project(':platformBase').projectDir = file('subprojects/platform-base')

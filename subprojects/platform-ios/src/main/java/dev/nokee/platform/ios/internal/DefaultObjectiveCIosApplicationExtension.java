@@ -1,7 +1,8 @@
 package dev.nokee.platform.ios.internal;
 
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
+import dev.nokee.language.base.LanguageSourceSetInstantiator;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
@@ -13,12 +14,14 @@ import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.DomainObjectIdentifier.named;
+
 public class DefaultObjectiveCIosApplicationExtension extends BaseIosExtension<DefaultIosApplicationComponent> implements ObjectiveCIosApplicationExtension {
 	@Inject
-	public DefaultObjectiveCIosApplicationExtension(DefaultIosApplicationComponent component, ObjectFactory objects, ProviderFactory providers) {
+	public DefaultObjectiveCIosApplicationExtension(DefaultIosApplicationComponent component, LanguageSourceSetInstantiator sourceSetInstantiator, ObjectFactory objects, ProviderFactory providers) {
 		super(component, objects, providers);
-		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/main/objc"));
-		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir("src/main/headers"));
+		getComponent().getSourceCollection().add(sourceSetInstantiator.create(named("objc"), ObjectiveCSourceSet.class).from("src/main/objc"));
+		getComponent().getSourceCollection().add(sourceSetInstantiator.create(named("headers"), CHeaderSet.class).from("src/main/headers"));
 	}
 
 	@Override

@@ -1,14 +1,15 @@
 package dev.nokee.testing.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.language.base.internal.BaseSourceSet;
+import dev.nokee.language.base.internal.DaggerLanguageSourceSetInstantiatorComponent;
 import dev.nokee.language.base.internal.UTTypeUtils;
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.cpp.internal.CppHeaderSet;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
-import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.internal.NamedDomainObjectIdentifier;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
@@ -56,6 +57,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+
+import static dev.nokee.model.DomainObjectIdentifier.named;
 
 public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite {
 	private final DefaultNativeComponentDependencies dependencies;
@@ -203,14 +206,15 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 				return it + StringUtils.capitalize(getName());
 			}));
 
-			component.getSourceCollection().withType(BaseSourceSet.class).configureEach(sourceSet -> {
+			val sourceSetInstantiator = DaggerLanguageSourceSetInstantiatorComponent.factory().create(project).get();
+			component.getSourceCollection().configureEach(sourceSet -> {
 				if (getSourceCollection().withType(sourceSet.getClass()).isEmpty()) {
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
 					if (sourceSet instanceof CHeaderSet || sourceSet instanceof CppHeaderSet) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
-						getSourceCollection().add(getObjects().newInstance(sourceSet.getClass(), "headers").srcDir(getNames().getSourceSetPath("headers")));
+						getSourceCollection().add(sourceSetInstantiator.create(named("headers"), sourceSet.getClass()).from(getNames().getSourceSetPath("headers")));
 					} else {
-						getSourceCollection().add(getObjects().newInstance(sourceSet.getClass(), sourceSet.getName()).from(getNames().getSourceSetPath(sourceSet.getName())));
+						getSourceCollection().add(sourceSetInstantiator.create(named(((NamedDomainObjectIdentifier)sourceSet.getIdentifier()).getName()), sourceSet.getClass()).from(getNames().getSourceSetPath(((NamedDomainObjectIdentifier)sourceSet.getIdentifier()).getName())));
 					}
 				}
 			});
@@ -277,8 +281,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					task.getModules().from(component.getDevelopmentVariant().map(it -> it.getBinaries().withType(NativeBinary.class).getElements().get().stream().flatMap(b -> b.getCompileTasks().withType(SwiftCompileTask.class).get().stream()).map(SwiftCompile::getModuleFile).collect(Collectors.toList())));
 				});
 				binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
-					((AbstractNativeSourceCompileTask)task).getIncludes().from(getProviders().provider(() -> component.getSourceCollection().withType(CppHeaderSet.class).stream().map(CppHeaderSet::getHeaderDirectory).collect(Collectors.toList())));
-					((AbstractNativeSourceCompileTask)task).getIncludes().from(getProviders().provider(() -> component.getSourceCollection().withType(CHeaderSet.class).stream().map(CHeaderSet::getHeaderDirectory).collect(Collectors.toList())));
+					((AbstractNativeSourceCompileTask)task).getIncludes().from(getProviders().provider(() -> component.getSourceCollection().withType(CppHeaderSet.class).stream().map(CppHeaderSet::getSourceDirectories).collect(Collectors.toList())));
+					((AbstractNativeSourceCompileTask)task).getIncludes().from(getProviders().provider(() -> component.getSourceCollection().withType(CHeaderSet.class).stream().map(CHeaderSet::getSourceDirectories).collect(Collectors.toList())));
 				});
 			});
 		}

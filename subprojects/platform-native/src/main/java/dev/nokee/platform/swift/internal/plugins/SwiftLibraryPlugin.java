@@ -1,5 +1,6 @@
 package dev.nokee.platform.swift.internal.plugins;
 
+import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
@@ -8,6 +9,7 @@ import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetLinkageRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.swift.SwiftLibraryExtension;
+import dev.nokee.platform.swift.internal.DaggerSwiftPlatformComponents;
 import dev.nokee.platform.swift.internal.DefaultSwiftLibraryExtension;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,7 +17,6 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
@@ -31,13 +32,14 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		project.getPluginManager().apply(SwiftCompilerPlugin.class);
+		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		project.getPluginManager().apply(ProjectStorePlugin.class);
 
+		val sources = DaggerSwiftPlatformComponents.factory().create(project).sources();
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
 		val component = store.register(DefaultNativeLibraryComponent.newMain(getObjects(), new NamingSchemeFactory(project.getName())));
 		component.configure(it -> it.getBaseName().convention(GUtil.toCamelCase(project.getName())));
-		DefaultSwiftLibraryExtension extension = getObjects().newInstance(DefaultSwiftLibraryExtension.class, component.get());
+		DefaultSwiftLibraryExtension extension = getObjects().newInstance(DefaultSwiftLibraryExtension.class, component.get(), sources);
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 		project.afterEvaluate(getObjects().newInstance(TargetLinkageRule.class, extension.getTargetLinkages(), EXTENSION_NAME));

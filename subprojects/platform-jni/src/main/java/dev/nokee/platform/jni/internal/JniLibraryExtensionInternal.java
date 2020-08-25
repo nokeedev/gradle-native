@@ -1,13 +1,11 @@
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.language.base.internal.LanguageSourceSetInternal;
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.SourceView;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.VariantCollection;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
@@ -18,7 +16,6 @@ import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Action;
-import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
@@ -34,11 +31,11 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension {
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
 	@Inject
-	public JniLibraryExtensionInternal(GroupId groupId, NamingScheme names, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers) {
+	public JniLibraryExtensionInternal(GroupId groupId, NamingScheme names, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers, ComponentSourcesInternal componentSources) {
 		this.configurations = configurations;
 		this.objects = objects;
 		this.providers = providers;
-		this.component = objects.newInstance(JniLibraryComponentInternal.class, names, groupId);
+		this.component = objects.newInstance(JniLibraryComponentInternal.class, names, groupId, componentSources);
 	}
 
 	//region Variant-awareness
@@ -65,8 +62,8 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension {
 		return component.getBinaries();
 	}
 
-	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
-		return component.getSources();
+	public SourceView<LanguageSourceSet> getSources() {
+		return component.getComponentSources().getAsView();
 	}
 
 	public Configuration getJvmImplementationDependencies() {

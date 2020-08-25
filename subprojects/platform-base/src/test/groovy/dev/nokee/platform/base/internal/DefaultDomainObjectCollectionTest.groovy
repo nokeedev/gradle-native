@@ -31,7 +31,7 @@ class DefaultDomainObjectCollectionTest extends Specification {
 
 	def "can add future element to collection"() {
 		when:
-		subject.add(DomainObjectElement.of(String, new Supplier<String>() {
+		subject.add(DomainObjectElement.fromSupplier(String, new Supplier<String>() {
 			@Override
 			String get() {
 				return 'foo'
@@ -56,7 +56,7 @@ class DefaultDomainObjectCollectionTest extends Specification {
 		1 * action.execute(_)
 
 		when:
-		subject.add(DomainObjectElement.of(String, new Supplier<String>() {
+		subject.add(DomainObjectElement.fromSupplier(String, new Supplier<String>() {
 			@Override
 			String get() {
 				return 'foo'
@@ -77,7 +77,7 @@ class DefaultDomainObjectCollectionTest extends Specification {
 		1 * action.execute(_)
 
 		when:
-		subject.add(DomainObjectElement.of(String, new Supplier<String>() {
+		subject.add(DomainObjectElement.fromSupplier(String, new Supplier<String>() {
 			@Override
 			String get() {
 				return 'foo'

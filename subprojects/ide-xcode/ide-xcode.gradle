@@ -23,6 +23,11 @@ dependencies {
 	implementation project(':testingXctest') // needed since we started to include the XCTest rules inside the main plugins... should not do that
 	compileOnly project(':platformNative') // for NativeBinary
 	implementation project(':languageNative') // for UTType of each language
+	implementation project(':languageSwift') // for Swift source set type & UTType
+	implementation project(':languageC') // for UTType type
+	implementation project(':languageCpp') // for UTType type
+	implementation project(':languageObjectiveC') // for UTType type
+	implementation project(':languageObjectiveCpp') // for UTType type
 	compileOnly project(':runtimeNative') // for TargetMachine && OperatingSystemFamily
 
 
@@ -49,6 +54,11 @@ functionalTest {
 		implementation 'com.googlecode.plist:dd-plist:1.23'
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation testFixtures(project(':languageNative'))
+		implementation testFixtures(project(':languageC'))
+		implementation testFixtures(project(':languageCpp'))
+		implementation testFixtures(project(':languageObjectiveC'))
+		implementation testFixtures(project(':languageObjectiveCpp'))
+		implementation testFixtures(project(':languageSwift'))
 		implementation testFixtures(project(':platformBase'))
 		implementation gradleApi(minimumGradleVersion)
 		implementation project(':platformNative')

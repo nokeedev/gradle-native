@@ -16,7 +16,7 @@ import org.gradle.api.specs.Spec;
 import java.util.*;
 
 public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<T> {
-	private final Map<String, DomainObjectElement<T>> nameToElements = new HashMap<>();
+	private final Map<String, DomainObjectElement<? extends T>> nameToElements = new HashMap<>();
 	private final DomainObjectSet<KnownDomainObject<T>> knownElements;
 	private final ProviderFactory providers;
 	private final NamedDomainObjectContainer<DomainObjectElement<T>> elements;
@@ -44,7 +44,7 @@ public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<
 	}
 
 	@Override
-	public boolean add(DomainObjectElement<T> element) {
+	public boolean add(DomainObjectElement<? extends T> element) {
 		if (disallowChanges) {
 			throw new IllegalStateException("The value cannot be changed any further.");
 		}
@@ -67,6 +67,11 @@ public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<
 	@Override
 	public DomainObjectProvider<T> get(DomainObjectIdentity identity) {
 		return identityToProviders.get(identity);
+	}
+
+	@Override
+	public <U extends T> DomainObjectProvider<U> get(DomainObjectIdentity identity, Class<U> type) {
+		return null;
 	}
 
 	@Override

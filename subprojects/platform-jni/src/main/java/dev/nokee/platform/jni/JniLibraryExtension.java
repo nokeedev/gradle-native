@@ -14,11 +14,11 @@ import org.gradle.api.provider.SetProperty;
  *
  * @since 0.1
  */
-public interface JniLibraryExtension extends DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, VariantAwareComponent<JniLibrary>, BinaryAwareComponent, TargetMachineAwareComponent {
+public interface JniLibraryExtension extends DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, VariantAwareComponent<JniLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, SourceAwareComponent {
 	/**
 	 * Returns the dependencies of this component.
 	 *
-	 * @return a {@link JniLibraryDependencies}, never null.
+	 * @return a {@link JavaNativeInterfaceLibraryComponentDependencies}, never null.
 	 * @since 0.1
 	 */
 	JavaNativeInterfaceLibraryComponentDependencies getDependencies();
@@ -26,7 +26,7 @@ public interface JniLibraryExtension extends DependencyAwareComponent<JavaNative
 	/**
 	 * Configure the dependencies of this component.
 	 *
-	 * @param action configuration action for {@link JniLibraryDependencies}.
+	 * @param action configuration action for {@link JavaNativeInterfaceLibraryComponentDependencies}.
 	 * @since 0.1
 	 */
 	void dependencies(Action<? super JavaNativeInterfaceLibraryComponentDependencies> action);

@@ -1,7 +1,7 @@
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.language.base.internal.GeneratedSourceSet;
-import dev.nokee.language.base.internal.LanguageSourceSetInternal;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.nativebase.internal.ObjectSourceSetInternal;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -39,7 +39,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary {
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
-	private final DomainObjectSet<LanguageSourceSetInternal> sources;
+	private final DomainObjectSet<LanguageSourceSet> sources;
 	private final DefaultTargetMachine targetMachine;
 	private final GroupId groupId;
 	private AbstractJarBinary jarBinary;
@@ -48,14 +48,14 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary {
 	@Getter private final ConfigurableFileCollection nativeRuntimeFiles;
 
 	@Inject
-	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, BuildVariantInternal buildVariant, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskContainer tasks) {
+	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSet> parentSources, BuildVariantInternal buildVariant, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskContainer tasks) {
 		super(name, buildVariant, objects);
 		this.names = names;
 		this.dependencies = dependencies.getDependencies();
 		this.configurations = configurations;
 		this.providers = providers;
 		this.tasks = tasks;
-		this.sources = objects.domainObjectSet(LanguageSourceSetInternal.class);
+		this.sources = objects.domainObjectSet(LanguageSourceSet.class);
 		this.targetMachine = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
 		this.groupId = groupId;
 		this.resourcePath = objects.property(String.class);
@@ -67,11 +67,11 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary {
 		getResourcePath().convention(getProviders().provider(() -> names.getResourcePath(groupId)));
 	}
 
-	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
+	public DomainObjectSet<LanguageSourceSet> getSources() {
 		return sources;
 	}
 
-	public void registerSharedLibraryBinary(DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants, NativeIncomingDependencies dependencies) {
+	public void registerSharedLibraryBinary(DomainObjectSet<ObjectSourceSetInternal> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, boolean multipleVariants, NativeIncomingDependencies dependencies) {
 		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, targetMachine, objectSourceSets, linkTask, dependencies);
 		getNativeRuntimeFiles().from(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
 		getNativeRuntimeFiles().from(sharedLibraryBinary.getRuntimeLibrariesDependencies());

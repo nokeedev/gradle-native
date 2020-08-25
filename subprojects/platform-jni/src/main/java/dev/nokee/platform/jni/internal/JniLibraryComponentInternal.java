@@ -2,7 +2,7 @@ package dev.nokee.platform.jni.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.language.base.internal.LanguageSourceSetInternal;
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.VariantView;
@@ -25,7 +25,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Action;
-import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -44,22 +43,22 @@ import static dev.nokee.platform.nativebase.internal.BaseNativeComponent.one;
 public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, BinaryAwareComponent {
 	private final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies;
 	private final GroupId groupId;
-	private final DomainObjectSet<LanguageSourceSetInternal> sources;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
+	@Getter private final ComponentSourcesInternal componentSources;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 
 	@Inject
-	public JniLibraryComponentInternal(NamingScheme names, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers) {
+	public JniLibraryComponentInternal(NamingScheme names, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers, ComponentSourcesInternal componentSources) {
 		super(names, JniLibraryInternal.class, objects);
 		this.configurations = configurations;
 		this.dependencyHandler = dependencyHandler;
 		this.providers = providers;
+		this.componentSources = componentSources;
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.MaybeCreating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
 		this.dependencies = objects.newInstance(DefaultJavaNativeInterfaceLibraryComponentDependencies.class, dependencyContainer);
 		this.groupId = groupId;
-		this.sources = objects.domainObjectSet(LanguageSourceSetInternal.class);
 		this.targetMachines = objects.setProperty(TargetMachine.class);
 
 		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE));
@@ -111,6 +110,9 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		Preconditions.checkArgument(buildVariant.getDimensions().get(0) instanceof OperatingSystemFamily);
 		Preconditions.checkArgument(buildVariant.getDimensions().get(1) instanceof MachineArchitecture);
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
+		val sources = getObjects().domainObjectSet(LanguageSourceSet.class);
+		componentSources.disallowChanges();
+		sources.addAll(componentSources.getAsView().get());
 
 		JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, name, names, sources, buildVariant, groupId, getBinaryCollection(), variantDependencies);
 		return result;
@@ -124,9 +126,5 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 
 	public Configuration getJvmImplementationDependencies() {
 		return dependencies.getJvmImplementation().getAsConfiguration();
-	}
-
-	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
-		return sources;
 	}
 }

@@ -1,10 +1,15 @@
 package dev.nokee.platform.cpp;
 
+import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.nativebase.*;
-import org.gradle.api.file.ConfigurableFileCollection;
+import dev.nokee.platform.nativebase.NativeApplication;
+import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
+import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
+import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 
 /**
  * Configuration for an application written in C++, defining the dependencies that make up the application plus other settings.
@@ -13,7 +18,7 @@ import org.gradle.api.file.ConfigurableFileCollection;
  *
  * @since 0.4
  */
-public interface CppApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent {
+public interface CppApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent {
 	/**
 	 * Defines the source files or directories of this application.
 	 * You can add files or directories to this collection.
@@ -23,7 +28,7 @@ public interface CppApplicationExtension extends DependencyAwareComponent<Native
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getSources();
+	CppSourceSet getCppSources();
 
 	/**
 	 * Defines the private headers search directories of this application.
@@ -32,5 +37,5 @@ public interface CppApplicationExtension extends DependencyAwareComponent<Native
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getPrivateHeaders();
+	CppHeaderSet getPrivateHeaders();
 }

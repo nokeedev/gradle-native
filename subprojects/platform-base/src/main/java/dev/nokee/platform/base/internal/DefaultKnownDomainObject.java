@@ -26,7 +26,7 @@ public class DefaultKnownDomainObject<T> implements KnownDomainObject<T> {
 	}
 
 	@Override
-	public Class<T> getType() {
+	public Class<? extends T> getType() {
 		return provider.getType();
 	}
 

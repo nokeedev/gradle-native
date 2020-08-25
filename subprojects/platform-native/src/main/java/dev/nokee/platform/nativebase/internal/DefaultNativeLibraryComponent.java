@@ -1,7 +1,7 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.*;

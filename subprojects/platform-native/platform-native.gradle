@@ -14,6 +14,11 @@ dependencies {
 	implementation project(':coreUtils')
 	api project(':platformBase')
 	api project(':runtimeNative')
+	implementation project(':languageC')
+	implementation project(':languageCpp')
+	implementation project(':languageObjectiveC')
+	implementation project(':languageObjectiveCpp')
+	implementation project(':languageSwift')
 	implementation project(':languageNative')
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
@@ -23,6 +28,10 @@ dependencies {
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
+	api 'com.google.dagger:dagger:latest.release'
+	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
+	compileOnly project(':coreGradle')
+
 	testFixturesImplementation project(':runtimeNative')
 	testFixturesImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testFixturesImplementation 'org.spockframework:spock-core'
@@ -30,8 +39,12 @@ dependencies {
 	testFixturesImplementation 'org.hamcrest:hamcrest:2.2'
 	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	testFixturesImplementation gradleFixtures()
-	testFixturesImplementation testFixtures(project(':languageNative'))
 	testFixturesApi 'dev.nokee:templates:latest.integration'
+	testFixturesImplementation testFixtures(project(':languageC'))
+	testFixturesImplementation testFixtures(project(':languageCpp'))
+	testFixturesImplementation testFixtures(project(':languageObjectiveC'))
+	testFixturesImplementation testFixtures(project(':languageObjectiveCpp'))
+	testFixturesImplementation testFixtures(project(':languageSwift'))
 }
 
 gradlePlugin {
@@ -93,5 +106,10 @@ functionalTest {
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation testFixtures(project(':platformNative'))
 		implementation testFixtures(project(':languageNative'))
+		implementation testFixtures(project(':languageC'))
+		implementation testFixtures(project(':languageCpp'))
+		implementation testFixtures(project(':languageObjectiveC'))
+		implementation testFixtures(project(':languageObjectiveCpp'))
+		implementation testFixtures(project(':languageSwift'))
 	}
 }

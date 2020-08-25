@@ -1,0 +1,44 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'java-test-fixtures'
+	id 'maven-publish'
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	api 'com.google.dagger:dagger:latest.release'
+	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
+	compileOnly project(':coreGradle')
+
+	api project(':languageBase')
+	api project(':languageNative')
+	implementation project(':runtimeNative')
+
+	testFixturesApi testFixtures(project(':languageNative'))
+	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
+}
+
+gradlePlugin {
+	plugins {
+		cLanguage {
+			id = 'dev.nokee.c-language'
+			implementationClass = 'dev.nokee.language.c.internal.plugins.CLanguagePlugin'
+		}
+		cLanguageBase {
+			id = 'dev.nokee.c-language-base'
+			implementationClass = 'dev.nokee.language.c.internal.plugins.CLanguageBasePlugin'
+		}
+	}
+}
+
+test {
+	dependencies {
+		implementation 'dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.integration'
+	}
+}

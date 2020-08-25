@@ -1,13 +1,15 @@
 package dev.nokee.platform.c;
 
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.c.CSourceSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
-import org.gradle.api.file.ConfigurableFileCollection;
 
 /**
  * Configuration for an application written in C, defining the dependencies that make up the application plus other settings.
@@ -16,7 +18,7 @@ import org.gradle.api.file.ConfigurableFileCollection;
  *
  * @since 0.4
  */
-public interface CApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent {
+public interface CApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent {
 	/**
 	 * Defines the source files or directories of this application.
 	 * You can add files or directories to this collection.
@@ -26,7 +28,7 @@ public interface CApplicationExtension extends DependencyAwareComponent<NativeAp
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getSources();
+	CSourceSet getCSources();
 
 	/**
 	 * Defines the private headers search directories of this application.
@@ -35,5 +37,5 @@ public interface CApplicationExtension extends DependencyAwareComponent<NativeAp
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getPrivateHeaders();
+	CHeaderSet getPrivateHeaders();
 }

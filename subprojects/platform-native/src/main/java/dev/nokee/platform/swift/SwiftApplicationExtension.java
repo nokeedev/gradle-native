@@ -1,13 +1,14 @@
 package dev.nokee.platform.swift;
 
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
-import org.gradle.api.file.ConfigurableFileCollection;
 
 /**
  * Configuration for an application written in Swift, defining the dependencies that make up the application plus other settings.
@@ -16,7 +17,7 @@ import org.gradle.api.file.ConfigurableFileCollection;
  *
  * @since 0.4
  */
-public interface SwiftApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent {
+public interface SwiftApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent {
 	/**
 	 * Defines the source files or directories of this application.
 	 * You can add files or directories to this collection.
@@ -26,5 +27,5 @@ public interface SwiftApplicationExtension extends DependencyAwareComponent<Nati
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getSources();
+	SwiftSourceSet getSwiftSources();
 }

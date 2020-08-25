@@ -45,7 +45,7 @@ public interface DomainObjectElement<T> {
 		return new DomainObjectElements.Existing<>(type, element);
 	}
 
-	static <T> DomainObjectElement<T> of(Class<T> type, Supplier<T> elementSupplier) {
+	static <T> DomainObjectElement<T> fromSupplier(Class<T> type, Supplier<T> elementSupplier) {
 		return new DomainObjectElements.Memoizing<>(new DomainObjectElements.Supplying<>(type, elementSupplier));
 	}
 }

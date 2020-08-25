@@ -1,6 +1,5 @@
 package dev.nokee.testing.base.internal.plugins;
 
-import dev.nokee.platform.base.internal.DefaultDomainObjectStore;
 import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.testing.base.TestSuiteContainer;

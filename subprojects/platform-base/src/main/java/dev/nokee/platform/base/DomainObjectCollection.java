@@ -9,9 +9,10 @@ import java.util.Collection;
 import java.util.List;
 
 public interface DomainObjectCollection<T> extends DomainObjectElementObserver<T>, DomainObjectElementConfigurer<T> {
-	boolean add(DomainObjectElement<T> element);
+	boolean add(DomainObjectElement<? extends T> element);
 
 	DomainObjectProvider<T> get(DomainObjectIdentity identity);
+	<U extends T> DomainObjectProvider<U> get(DomainObjectIdentity identity, Class<U> type);
 
 	int size();
 

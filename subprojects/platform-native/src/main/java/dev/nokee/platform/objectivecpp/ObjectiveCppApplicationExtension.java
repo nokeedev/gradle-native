@@ -1,13 +1,15 @@
 package dev.nokee.platform.objectivecpp;
 
+import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
-import org.gradle.api.file.ConfigurableFileCollection;
 
 /**
  * Configuration for an application written in Objective-C++, defining the dependencies that make up the application plus other settings.
@@ -16,7 +18,7 @@ import org.gradle.api.file.ConfigurableFileCollection;
  *
  * @since 0.4
  */
-public interface ObjectiveCppApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent {
+public interface ObjectiveCppApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent {
 	/**
 	 * Defines the source files or directories of this application.
 	 * You can add files or directories to this collection.
@@ -26,7 +28,7 @@ public interface ObjectiveCppApplicationExtension extends DependencyAwareCompone
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getSources();
+	ObjectiveCppSourceSet getObjectiveCppSources();
 
 	/**
 	 * Defines the private headers search directories of this application.
@@ -35,5 +37,5 @@ public interface ObjectiveCppApplicationExtension extends DependencyAwareCompone
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getPrivateHeaders();
+	CppHeaderSet getPrivateHeaders();
 }

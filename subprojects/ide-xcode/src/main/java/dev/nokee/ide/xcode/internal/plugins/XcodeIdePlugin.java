@@ -5,12 +5,11 @@ import dev.nokee.ide.base.internal.*;
 import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.xcode.*;
 import dev.nokee.ide.xcode.internal.*;
-import dev.nokee.ide.xcode.internal.DefaultXcodeIdeProjectReference;
 import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
 import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeWorkspaceTask;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
-import dev.nokee.language.base.internal.SourceSet;
-import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.platform.base.KnownDomainObject;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.DomainObjectStore;
@@ -197,7 +196,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 			val linkage = linkages.iterator().next();
 			xcodeProject.getTargets().register(component.getBaseName().get(), configureTargetForLinkage(component, linkage));
 		}
-		xcodeProject.getGroups().create(component.getBaseName().get()).getSources().from(getProviders().provider(() -> component.getSourceCollection().stream().map(SourceSet::getAsFileTree).collect(Collectors.toList())));
+		xcodeProject.getGroups().create(component.getBaseName().get()).getSources().from(getProviders().provider(() -> component.getSourceCollection().stream().map(LanguageSourceSet::getAsFileTree).collect(Collectors.toList())));
 		return xcodeProject;
 	}
 
@@ -238,7 +237,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 				});
 			}
 
-			xcodeTarget.getSources().from(getProviders().provider(() -> component.getSourceCollection().stream().map(SourceSet::getAsFileTree).collect(Collectors.toList())));
+			xcodeTarget.getSources().from(getProviders().provider(() -> component.getSourceCollection().stream().map(LanguageSourceSet::getAsFileTree).collect(Collectors.toList())));
 		};
 	}
 
@@ -338,7 +337,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 			});
 
 			xcodeProject.getGroups().create(moduleName).getSources().from(xcodeTarget.getSources());
-			xcodeTarget.getSources().from(getProviders().provider(() -> component.getSourceCollection().stream().map(SourceSet::getAsFileTree).collect(Collectors.toList())));
+			xcodeTarget.getSources().from(getProviders().provider(() -> component.getSourceCollection().stream().map(LanguageSourceSet::getAsFileTree).collect(Collectors.toList())));
 			xcodeTarget.getSources().from(getProviders().provider(() -> {
 				try {
 					List<Path> result = new ArrayList<>();
@@ -413,7 +412,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 						.put("COMPILER_INDEX_STORE_ENABLE", "YES")
 						.put("USE_HEADERMAP", "NO");
 				});
-				xcodeTarget.getSources().from(getProviders().provider(() -> unitTest.getSourceCollection().stream().map(SourceSet::getAsFileTree).collect(Collectors.toList())));
+				xcodeTarget.getSources().from(getProviders().provider(() -> unitTest.getSourceCollection().stream().map(LanguageSourceSet::getAsFileTree).collect(Collectors.toList())));
 				xcodeTarget.getSources().from(getProject().fileTree("src/unitTest/resources", it -> it.include("*")));
 				xcodeProject.getGroups().create(moduleName + "UnitTest").getSources().from(xcodeTarget.getSources());
 			});
@@ -445,7 +444,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 						.put("USE_HEADERMAP", "NO")
 						.put("TEST_TARGET_NAME", moduleName);
 				});
-				xcodeTarget.getSources().from(getProviders().provider(() -> uiTest.getSourceCollection().stream().map(SourceSet::getAsFileTree).collect(Collectors.toList())));
+				xcodeTarget.getSources().from(getProviders().provider(() -> uiTest.getSourceCollection().stream().map(LanguageSourceSet::getAsFileTree).collect(Collectors.toList())));
 				xcodeTarget.getSources().from(getProject().fileTree("src/uiTest/resources", it -> it.include("*")));
 				xcodeProject.getGroups().create(moduleName + "UiTest").getSources().from(xcodeTarget.getSources());
 			});

@@ -2,16 +2,17 @@ package dev.nokee.platform.jni.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.language.base.internal.GeneratedSourceSet;
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.c.internal.CSourceSet;
-import dev.nokee.language.cpp.internal.CppHeaderSet;
-import dev.nokee.language.cpp.internal.CppSourceSet;
+import dev.nokee.language.base.internal.DaggerLanguageSourceSetInstantiatorComponent;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.cpp.CppSourceSet;
+import dev.nokee.language.nativebase.internal.ObjectSourceSetInternal;
 import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
-import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
@@ -50,6 +51,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -73,6 +75,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.DomainObjectIdentifier.named;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
@@ -156,20 +159,22 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		PreparedLogger unbuildableMainComponentLogger = new OneTimeLogger(new WarnUnbuildableLogger(project.getPath()));
 		project.afterEvaluate(proj -> {
 			// Create source set on extension
+			// TODO: Move to language plugins
+			val sources = extension.getComponent().getComponentSources();
 			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
-				extension.getComponent().getSourceCollection().add(getObjects().newInstance(CppSourceSet.class, "cpp").srcDir("src/main/cpp"));
+				sources.register("cpp", CppSourceSet.class).from("src/main/cpp");
 			}
 			if (proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
-				extension.getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").srcDir("src/main/c"));
+				sources.register("c", CSourceSet.class).from("src/main/c");
 			}
 			if (proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
-				extension.getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").srcDir("src/main/objcpp"));
+				sources.register("objcpp", ObjectiveCppSourceSet.class).from("src/main/objcpp");
 			}
 			if (proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-				extension.getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/main/objc"));
+				sources.register("objc", ObjectiveCSourceSet.class).from("src/main/objc");
 			}
 			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language") || proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language") || proj.getPluginManager().hasPlugin("dev.nokee.c-language") || proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-				extension.getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir("src/main/headers"));
+				sources.register("headers", CHeaderSet.class).from("src/main/headers");
 			}
 
 			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
@@ -183,8 +188,11 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					JniLibraryInternal it = extension.getComponent().createVariant(name, bv, dependencies);
 
 					// Build all language source set
-					DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
+					DomainObjectSet<ObjectSourceSetInternal> objectSourceSets = getObjects().domainObjectSet(ObjectSourceSetInternal.class);
 					if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
+						// Shimming the component sources into the collection... for now
+						sources.disallowChanges();
+						extension.getComponent().getSourceCollection().addAll(sources.getAsView().get());
 						objectSourceSets.addAll(getObjects().newInstance(NativeLanguageRules.class, names).apply(extension.getComponent().getSourceCollection()));
 					}
 
@@ -194,10 +202,10 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					it.getSharedLibrary().getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
 						val taskInternal = (AbstractNativeCompileTask) task;
 						extension.getComponent().getSourceCollection().withType(CHeaderSet.class, sourceSet -> {
-							taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
+							taskInternal.getIncludes().from(sourceSet.getSourceDirectories());
 						});
 						extension.getComponent().getSourceCollection().withType(CppHeaderSet.class, sourceSet -> {
-							taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
+							taskInternal.getIncludes().from(sourceSet.getSourceDirectories());
 						});
 					});
 
@@ -450,7 +458,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private JniLibraryExtensionInternal registerExtension(Project project, NamingScheme names) {
-		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, GroupId.of(project::getGroup), names);
+		val sources = DaggerJavaNativeInterfacePlatformComponents.factory().create(project).sources();
+		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, GroupId.of(project::getGroup), names, sources);
 
 		val dependencies = library.getDependencies();
 
@@ -492,7 +501,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private void registerJvmHeaderSourceSet(JniLibraryExtensionInternal extension) {
-		extension.getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "jvm").srcDir(getJvmIncludes()));
+		extension.getComponent().getComponentSources().register("jvm", CHeaderSet.class).from(getJvmIncludes());
 	}
 
 	private Provider<List<File>> getJvmIncludes() {
@@ -513,7 +522,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 	private void registerJniHeaderSourceSet(Project project, JniLibraryExtensionInternal extension) {
 		SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
-		org.gradle.api.tasks.SourceSet main = sourceSets.getByName("main");
+		SourceSet main = sourceSets.getByName("main");
 
 		TaskProvider<JavaCompile> compileTask = project.getTasks().named(main.getCompileJavaTaskName(), JavaCompile.class, task -> {
 			task.getOptions().getHeaderOutputDirectory().convention(project.getLayout().getBuildDirectory().dir("generated/jni-headers"));
@@ -529,7 +538,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			// See https://github.com/gradle/gradle/issues/12084.
 			task.getOptions().setIncremental(isGradleVersionGreaterOrEqualsTo6Dot3());
 		});
-		extension.getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "jni").srcDir(compileTask.flatMap(it -> it.getOptions().getHeaderOutputDirectory())));
+		extension.getComponent().getComponentSources().register("jni", CHeaderSet.class).from(compileTask.flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
 	}
 
 	private void configureJavaJniRuntime(Project project, JniLibraryExtensionInternal library) {

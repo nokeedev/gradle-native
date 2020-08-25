@@ -12,6 +12,9 @@ repositories {
 dependencies {
 	implementation project(':coreUtils')
 	implementation project(':languageNative')
+	implementation project(':languageSwift')
+	implementation project(':languageObjectiveC')
+	implementation project(':languageC')
 	implementation project(':coreExec')
 	implementation project(':runtimeDarwin')
 	implementation project(':runtimeNative')
@@ -56,5 +59,10 @@ functionalTest {
 		implementation testFixtures(project(':platformBase'))
 		implementation testFixtures(project(':platformNative'))
 		implementation testFixtures(project(':languageNative'))
+		implementation testFixtures(project(':languageC'))
+		implementation testFixtures(project(':languageCpp'))
+		implementation testFixtures(project(':languageObjectiveC'))
+		implementation testFixtures(project(':languageObjectiveCpp'))
+		implementation testFixtures(project(':languageSwift'))
 	}
 }

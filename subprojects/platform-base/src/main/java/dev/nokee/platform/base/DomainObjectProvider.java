@@ -10,7 +10,7 @@ public interface DomainObjectProvider<T> {
 
 	T get();
 
-	Class<T> getType();
+	Class<? extends T> getType();
 
 	DomainObjectIdentity getIdentity();
 

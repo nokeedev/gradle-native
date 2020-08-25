@@ -14,7 +14,12 @@ dependencies {
 	api project(':platformNative')
 	implementation project(':runtimeDarwin')
 	implementation project(':runtimeNative')
+	implementation project(':languageC')
+	implementation project(':languageCpp')
 	implementation project(':languageNative')
+	implementation project(':languageObjectiveC')
+	implementation project(':languageObjectiveCpp')
+	implementation project(':languageSwift')
 
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "com.google.guava:guava:${guavaVersion}"
@@ -22,6 +27,10 @@ dependencies {
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	api 'com.google.dagger:dagger:latest.release'
+	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
+	compileOnly project(':coreGradle')
 }
 
 gradlePlugin {
@@ -55,6 +64,11 @@ functionalTest {
 		implementation "commons-io:commons-io:${commonsIoVersion}"
 		implementation project(':coreExec')
 		implementation testFixtures(project(':languageNative'))
+		implementation testFixtures(project(':languageC'))
+		implementation testFixtures(project(':languageCpp'))
+		implementation testFixtures(project(':languageObjectiveC'))
+		implementation testFixtures(project(':languageObjectiveCpp'))
+		implementation testFixtures(project(':languageSwift'))
 		implementation testFixtures(project(':platformNative'))
 	}
 }

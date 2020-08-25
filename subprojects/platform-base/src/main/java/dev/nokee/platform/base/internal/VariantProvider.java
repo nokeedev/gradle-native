@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 public class VariantProvider<T extends Variant> {
 	@Getter private final BuildVariantInternal buildVariant;
-	@Getter private final Class<T> type;
+	@Getter private final Class<? extends T> type;
 	@Getter private final DomainObjectProvider<T> delegate; // TODO: Do not expose this field in public API
 
 	@Inject

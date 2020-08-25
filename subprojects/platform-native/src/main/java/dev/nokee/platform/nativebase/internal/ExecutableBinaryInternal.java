@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
-import dev.nokee.language.base.internal.GeneratedSourceSet;
+import dev.nokee.language.nativebase.internal.ObjectSourceSetInternal;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
@@ -39,7 +39,7 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public ExecutableBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
+	public ExecutableBinaryInternal(NamingScheme names, DomainObjectSet<ObjectSourceSetInternal> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
 		super(names, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
 		this.linkTask = linkTask;
 		this.tasks = tasks;

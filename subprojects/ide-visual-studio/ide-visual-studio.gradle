@@ -12,6 +12,8 @@ dependencies {
 	implementation project(':coreUtils')
 	api project(':ideBase')
 	implementation project(':languageNative')
+	implementation project(':languageC')
+	implementation project(':languageCpp')
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.8'
 	implementation 'org.simpleframework:simple-xml:2.7.1'
 	implementation "com.google.guava:guava:${guavaVersion}"
@@ -40,6 +42,11 @@ functionalTest {
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation project(':platformNative')
 		implementation testFixtures(project(':languageNative'))
+		implementation testFixtures(project(':languageC'))
+		implementation testFixtures(project(':languageCpp'))
+		implementation testFixtures(project(':languageObjectiveC'))
+		implementation testFixtures(project(':languageObjectiveCpp'))
+		implementation testFixtures(project(':languageSwift'))
 		implementation testFixtures(project(':platformBase'))
 		implementation project(':testingNative')
 		implementation "commons-io:commons-io:${commonsIoVersion}"
