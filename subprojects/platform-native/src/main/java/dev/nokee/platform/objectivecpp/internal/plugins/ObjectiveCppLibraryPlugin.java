@@ -2,6 +2,8 @@ package dev.nokee.platform.objectivecpp.internal.plugins;
 
 import dagger.BindsInstance;
 import dagger.Component;
+import dagger.Module;
+import dagger.Provides;
 import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
@@ -10,6 +12,7 @@ import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibraryExtension;
 import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppLibraryExtension;
+import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppLibraryExtensionFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -63,7 +66,15 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		project.getExtensions().add(ObjectiveCppLibraryExtension.class, EXTENSION_NAME, extension);
 	}
 
-	@Component(modules = {GradleModule.class, NativeComponentModule.class})
+	@Module
+	interface ObjectiveCppModule {
+		@Provides
+		static DefaultObjectiveCppLibraryExtension theExtension(DefaultObjectiveCppLibraryExtensionFactory factory) {
+			return factory.create();
+		}
+	}
+
+	@Component(modules = {GradleModule.class, NativeComponentModule.class, ObjectiveCppModule.class})
 	interface ObjectiveCppLibraryComponent {
 		DefaultObjectiveCppLibraryExtension objectiveCppLibraryComponent();
 

@@ -2,6 +2,8 @@ package dev.nokee.platform.c.internal.plugins;
 
 import dagger.BindsInstance;
 import dagger.Component;
+import dagger.Module;
+import dagger.Provides;
 import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
@@ -9,6 +11,7 @@ import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.c.CLibraryExtension;
 import dev.nokee.platform.c.internal.DefaultCLibraryExtension;
+import dev.nokee.platform.c.internal.DefaultCLibraryExtensionFactory;
 import dev.nokee.platform.nativebase.internal.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -63,7 +66,15 @@ public class CLibraryPlugin implements Plugin<Project> {
 		project.getExtensions().add(CLibraryExtension.class, EXTENSION_NAME, extension);
 	}
 
-	@Component(modules = {GradleModule.class, NativeComponentModule.class})
+	@Module
+	interface CModule {
+		@Provides
+		static DefaultCLibraryExtension theExtension(DefaultCLibraryExtensionFactory factory) {
+			return factory.create();
+		}
+	}
+
+	@Component(modules = {GradleModule.class, NativeComponentModule.class, CModule.class})
 	interface CLibraryComponent {
 		DefaultCLibraryExtension cLibraryComponent();
 

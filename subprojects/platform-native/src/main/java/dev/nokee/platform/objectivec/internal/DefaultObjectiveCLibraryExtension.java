@@ -1,5 +1,7 @@
 package dev.nokee.platform.objectivec.internal;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.platform.base.VariantView;
@@ -20,6 +22,7 @@ import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
 
+@AutoFactory(allowSubclasses = true, extending = DecoratingFactory.class, className = "AutoDefaultObjectiveCLibraryExtensionFactory")
 public class DefaultObjectiveCLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements ObjectiveCLibraryExtension {
 	@Getter private final ConfigurableFileCollection sources;
 	@Getter private final ConfigurableFileCollection privateHeaders;
@@ -29,7 +32,7 @@ public class DefaultObjectiveCLibraryExtension extends BaseNativeExtension<Defau
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
 
 	@Inject
-	public DefaultObjectiveCLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
+	public DefaultObjectiveCLibraryExtension(@Provided DefaultNativeLibraryComponent component, @Provided ObjectFactory objects, @Provided ProviderFactory providers, @Provided ProjectLayout layout) {
 		super(component, objects, providers, layout);
 		this.sources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();

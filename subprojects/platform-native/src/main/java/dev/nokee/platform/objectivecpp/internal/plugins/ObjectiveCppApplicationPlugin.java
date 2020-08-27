@@ -2,6 +2,8 @@ package dev.nokee.platform.objectivecpp.internal.plugins;
 
 import dagger.BindsInstance;
 import dagger.Component;
+import dagger.Module;
+import dagger.Provides;
 import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
@@ -13,6 +15,7 @@ import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplicationExtension;
 import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppApplicationExtension;
+import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppApplicationExtensionFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -65,8 +68,15 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(ObjectiveCppApplicationExtension.class, EXTENSION_NAME, extension);
 	}
 
+	@Module
+	interface ObjectiveCppModule {
+		@Provides
+		static DefaultObjectiveCppApplicationExtension theExtension(DefaultObjectiveCppApplicationExtensionFactory factory) {
+			return factory.create();
+		}
+	}
 
-	@Component(modules = {GradleModule.class, NativeComponentModule.class})
+	@Component(modules = {GradleModule.class, NativeComponentModule.class, ObjectiveCppModule.class})
 	interface ObjectiveCppApplicationComponent {
 		DefaultObjectiveCppApplicationExtension objectiveCppApplicationComponent();
 

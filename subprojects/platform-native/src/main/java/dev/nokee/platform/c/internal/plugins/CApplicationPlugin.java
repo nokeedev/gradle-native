@@ -1,7 +1,6 @@
 package dev.nokee.platform.c.internal.plugins;
 
-import dagger.BindsInstance;
-import dagger.Component;
+import dagger.*;
 import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
@@ -9,10 +8,8 @@ import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.c.CApplicationExtension;
 import dev.nokee.platform.c.internal.DefaultCApplicationExtension;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
-import dev.nokee.platform.nativebase.internal.NativeComponentModule;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
-import dev.nokee.platform.nativebase.internal.TargetMachineRule;
+import dev.nokee.platform.c.internal.DefaultCApplicationExtensionFactory;
+import dev.nokee.platform.nativebase.internal.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -65,7 +62,15 @@ public class CApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(CApplicationExtension.class, EXTENSION_NAME, extension);
 	}
 
-	@Component(modules = {GradleModule.class, NativeComponentModule.class})
+	@Module
+	interface CModule {
+		@Provides
+		static DefaultCApplicationExtension theExtension(DefaultCApplicationExtensionFactory factory) {
+			return factory.create();
+		}
+	}
+
+	@Component(modules = {GradleModule.class, NativeComponentModule.class, CModule.class})
 	interface CApplicationComponent {
 		DefaultCApplicationExtension cApplicationComponent();
 

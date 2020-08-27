@@ -1,5 +1,7 @@
 package dev.nokee.platform.swift.internal;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.nativebase.*;
@@ -19,6 +21,7 @@ import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
 
+@AutoFactory(allowSubclasses = true, extending = DecoratingFactory.class, className = "AutoDefaultSwiftLibraryExtensionFactory")
 public class DefaultSwiftLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements SwiftLibraryExtension {
 	@Getter private final ConfigurableFileCollection sources;
 	@Getter private final SetProperty<TargetLinkage> targetLinkages;
@@ -26,7 +29,7 @@ public class DefaultSwiftLibraryExtension extends BaseNativeExtension<DefaultNat
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
 
 	@Inject
-	public DefaultSwiftLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
+	public DefaultSwiftLibraryExtension(@Provided DefaultNativeLibraryComponent component, @Provided ObjectFactory objects, @Provided ProviderFactory providers, @Provided ProjectLayout layout) {
 		super(component, objects, providers, layout);
 		this.sources = objects.fileCollection();
 		this.targetLinkages = objects.setProperty(TargetLinkage.class);

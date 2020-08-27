@@ -2,6 +2,8 @@ package dev.nokee.platform.swift.internal.plugins;
 
 import dagger.BindsInstance;
 import dagger.Component;
+import dagger.Module;
+import dagger.Provides;
 import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
@@ -13,6 +15,7 @@ import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.swift.SwiftApplicationExtension;
 import dev.nokee.platform.swift.internal.DefaultSwiftApplicationExtension;
+import dev.nokee.platform.swift.internal.DefaultSwiftApplicationExtensionFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -65,8 +68,15 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(SwiftApplicationExtension.class, EXTENSION_NAME, extension);
 	}
 
+	@Module
+	interface SwiftModule {
+		@Provides
+		static DefaultSwiftApplicationExtension theExtension(DefaultSwiftApplicationExtensionFactory factory) {
+			return factory.create();
+		}
+	}
 
-	@Component(modules = {GradleModule.class, NativeComponentModule.class})
+	@Component(modules = {GradleModule.class, NativeComponentModule.class, SwiftModule.class})
 	interface SwiftApplicationComponent {
 		DefaultSwiftApplicationExtension swiftApplicationComponent();
 

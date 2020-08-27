@@ -1,5 +1,7 @@
 package dev.nokee.platform.objectivec.internal;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.platform.base.VariantView;
@@ -7,10 +9,7 @@ import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.TargetBuildTypeFactory;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
-import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
-import dev.nokee.platform.nativebase.internal.DefaultTargetBuildTypeFactory;
-import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory;
+import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.objectivec.ObjectiveCApplicationExtension;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -25,6 +24,7 @@ import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
 
+@AutoFactory(allowSubclasses = true, extending = DecoratingFactory.class, className = "AutoDefaultObjectiveCApplicationExtensionFactory")
 public class DefaultObjectiveCApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCApplicationExtension {
 	@Getter private final ConfigurableFileCollection sources;
 	@Getter private final ConfigurableFileCollection privateHeaders;
@@ -32,7 +32,7 @@ public class DefaultObjectiveCApplicationExtension extends BaseNativeExtension<D
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
 
 	@Inject
-	public DefaultObjectiveCApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
+	public DefaultObjectiveCApplicationExtension(@Provided DefaultNativeApplicationComponent component, @Provided ObjectFactory objects, @Provided ProviderFactory providers, @Provided ProjectLayout layout) {
 		super(component, objects, providers, layout);
 		this.sources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();

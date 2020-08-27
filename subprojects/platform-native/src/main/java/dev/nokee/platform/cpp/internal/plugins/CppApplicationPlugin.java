@@ -2,6 +2,8 @@ package dev.nokee.platform.cpp.internal.plugins;
 
 import dagger.BindsInstance;
 import dagger.Component;
+import dagger.Module;
+import dagger.Provides;
 import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
@@ -9,6 +11,7 @@ import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.cpp.CppApplicationExtension;
 import dev.nokee.platform.cpp.internal.DefaultCppApplicationExtension;
+import dev.nokee.platform.cpp.internal.DefaultCppApplicationExtensionFactory;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeComponentModule;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
@@ -65,7 +68,15 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(CppApplicationExtension.class, EXTENSION_NAME, extension);
 	}
 
-	@Component(modules = {GradleModule.class, NativeComponentModule.class})
+	@Module
+	interface CppModule {
+		@Provides
+		static DefaultCppApplicationExtension theExtension(DefaultCppApplicationExtensionFactory factory) {
+			return factory.create();
+		}
+	}
+
+	@Component(modules = {GradleModule.class, NativeComponentModule.class, CppModule.class})
 	interface CppApplicationComponent {
 		DefaultCppApplicationExtension cppApplicationComponent();
 

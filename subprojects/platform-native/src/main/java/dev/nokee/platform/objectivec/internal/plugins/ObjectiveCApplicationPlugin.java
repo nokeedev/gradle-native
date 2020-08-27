@@ -2,17 +2,24 @@ package dev.nokee.platform.objectivec.internal.plugins;
 
 import dagger.BindsInstance;
 import dagger.Component;
+import dagger.Module;
+import dagger.Provides;
 import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
 import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
+import dev.nokee.platform.c.internal.DefaultCApplicationExtension;
+import dev.nokee.platform.c.internal.DefaultCApplicationExtensionFactory;
+import dev.nokee.platform.cpp.internal.DefaultCppApplicationExtension;
+import dev.nokee.platform.cpp.internal.DefaultCppApplicationExtensionFactory;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeComponentModule;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.objectivec.ObjectiveCApplicationExtension;
 import dev.nokee.platform.objectivec.internal.DefaultObjectiveCApplicationExtension;
+import dev.nokee.platform.objectivec.internal.DefaultObjectiveCApplicationExtensionFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -65,7 +72,15 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(ObjectiveCApplicationExtension.class, EXTENSION_NAME, extension);
 	}
 
-	@Component(modules = {GradleModule.class, NativeComponentModule.class})
+	@Module
+	interface ObjectiveCModule {
+		@Provides
+		static DefaultObjectiveCApplicationExtension theExtension(DefaultObjectiveCApplicationExtensionFactory factory) {
+			return factory.create();
+		}
+	}
+
+	@Component(modules = {GradleModule.class, NativeComponentModule.class, ObjectiveCModule.class})
 	interface ObjectiveCApplicationComponent {
 		DefaultObjectiveCApplicationExtension objectiveCApplicationComponent();
 

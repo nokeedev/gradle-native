@@ -2,6 +2,8 @@ package dev.nokee.platform.swift.internal.plugins;
 
 import dagger.BindsInstance;
 import dagger.Component;
+import dagger.Module;
+import dagger.Provides;
 import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
@@ -10,6 +12,7 @@ import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.swift.SwiftLibraryExtension;
 import dev.nokee.platform.swift.internal.DefaultSwiftLibraryExtension;
+import dev.nokee.platform.swift.internal.DefaultSwiftLibraryExtensionFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -63,7 +66,15 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		project.getExtensions().add(SwiftLibraryExtension.class, EXTENSION_NAME, extension);
 	}
 
-	@Component(modules = {GradleModule.class, NativeComponentModule.class})
+	@Module
+	interface SwiftModule {
+		@Provides
+		static DefaultSwiftLibraryExtension theExtension(DefaultSwiftLibraryExtensionFactory factory) {
+			return factory.create();
+		}
+	}
+
+	@Component(modules = {GradleModule.class, NativeComponentModule.class, SwiftModule.class})
 	interface SwiftLibraryComponent {
 		DefaultSwiftLibraryExtension swiftLibraryComponent();
 

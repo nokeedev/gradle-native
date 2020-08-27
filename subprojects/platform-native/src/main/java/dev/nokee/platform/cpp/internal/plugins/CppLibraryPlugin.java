@@ -2,6 +2,8 @@ package dev.nokee.platform.cpp.internal.plugins;
 
 import dagger.BindsInstance;
 import dagger.Component;
+import dagger.Module;
+import dagger.Provides;
 import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
@@ -9,6 +11,7 @@ import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.cpp.CppLibraryExtension;
 import dev.nokee.platform.cpp.internal.DefaultCppLibraryExtension;
+import dev.nokee.platform.cpp.internal.DefaultCppLibraryExtensionFactory;
 import dev.nokee.platform.nativebase.internal.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -63,7 +66,15 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		project.getExtensions().add(CppLibraryExtension.class, EXTENSION_NAME, extension);
 	}
 
-	@Component(modules = {GradleModule.class, NativeComponentModule.class})
+	@Module
+	interface CppModule {
+		@Provides
+		static DefaultCppLibraryExtension theExtension(DefaultCppLibraryExtensionFactory factory) {
+			return factory.create();
+		}
+	}
+
+	@Component(modules = {GradleModule.class, NativeComponentModule.class, CppModule.class})
 	interface CppLibraryComponent {
 		DefaultCppLibraryExtension cppLibraryComponent();
 
