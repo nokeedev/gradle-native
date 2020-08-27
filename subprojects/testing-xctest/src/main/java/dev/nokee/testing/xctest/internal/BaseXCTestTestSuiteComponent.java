@@ -1,6 +1,5 @@
 package dev.nokee.testing.xctest.internal;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.tasks.SourceCompile;
@@ -18,7 +17,6 @@ import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
-import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
@@ -42,8 +40,6 @@ import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent.getSdkPlatformPath;
@@ -84,23 +80,6 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	@Override
 	public void dependencies(Action<? super NativeComponentDependencies> action) {
 		action.execute(dependencies);
-	}
-
-	@Override
-	protected Provider<DefaultXCTestTestSuiteVariant> getDefaultVariant() {
-		// By default, we should filter for the variant targeting the simulator
-		// Here we assume only one variant that target the simulator ;-)
-		return getProviders().provider(() -> {
-			List<BaseNativeVariant> variants = getVariants().get().stream().map(it -> {
-				Preconditions.checkArgument(it instanceof BaseNativeVariant);
-				return (BaseNativeVariant) it;
-			}).collect(Collectors.toList());
-
-			if (variants.isEmpty()) {
-				return null;
-			}
-			return (DefaultXCTestTestSuiteVariant)one(variants);
-		});
 	}
 
 	@Override

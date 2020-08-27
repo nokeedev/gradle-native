@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
@@ -18,7 +19,7 @@ import org.gradle.api.tasks.TaskContainer;
 import javax.inject.Inject;
 import java.util.List;
 
-public class DefaultIosApplicationVariant extends BaseNativeVariant implements IosApplication {
+public class DefaultIosApplicationVariant extends BaseNativeVariant implements IosApplication, VariantInternal {
 	private final DefaultNativeComponentDependencies dependencies;
 
 	@Inject
