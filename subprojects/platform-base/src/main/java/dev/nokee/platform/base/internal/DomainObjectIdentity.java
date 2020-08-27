@@ -1,6 +1,8 @@
 package dev.nokee.platform.base.internal;
 
-public interface DomainObjectIdentity {
+import dev.nokee.model.DomainObjectIdentifier;
+
+public interface DomainObjectIdentity extends DomainObjectIdentifier {
 
 	static DomainObjectIdentity named(String name) {
 		return new DefaultNamedDomainObjectIdentity(name);

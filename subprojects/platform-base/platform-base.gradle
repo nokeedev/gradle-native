@@ -18,6 +18,7 @@ dependencies {
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	compileOnly gradleApi(minimumGradleVersion)
+	api project(':coreModel')
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
