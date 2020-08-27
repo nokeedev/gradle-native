@@ -94,28 +94,25 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 				if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
 					DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
 					if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
-						TaskProvider<LinkExecutableTask> linkTask = getTasks().register(names.getTaskName("link"), LinkExecutableTask.class);
-						ExecutableBinaryInternal binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets, targetMachineInternal, linkTask, dependencies.getIncoming());
+						val factory = new ExecutableBinaryFactoryImpl(getTasks(), getObjects(), dependencies);
+						val binary = factory.create(names, targetMachineInternal, objectSourceSets);
 						variantInternal.getBinaryCollection().add(binary);
-						binary.getBaseName().convention(getBaseName());
+						((BaseNativeBinary)binary).getBaseName().convention(getBaseName());
 					} else if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
-						TaskProvider<LinkSharedLibraryTask> linkTask = getTasks().register(names.getTaskName("link"), LinkSharedLibraryTask.class);
-
-						SharedLibraryBinaryInternal binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
+						val factory = new SharedLibraryBinaryFactoryImpl(getTasks(), getObjects(), dependencies);
+						val binary = factory.create(names, targetMachineInternal, objectSourceSets);
 						variantInternal.getBinaryCollection().add(binary);
-						binary.getBaseName().convention(getBaseName());
+						((BaseNativeBinary)binary).getBaseName().convention(getBaseName());
 					} else if (linkage.equals(DefaultBinaryLinkage.BUNDLE)) {
-						TaskProvider<LinkBundleTask> linkTask = getTasks().register(names.getTaskName("link"), LinkBundleTask.class);
-
-						BundleBinaryInternal binary = getObjects().newInstance(BundleBinaryInternal.class, names, targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
+						val factory = new BundleBinaryFactoryImpl(getTasks(), getObjects(), dependencies);
+						val binary = factory.create(names, targetMachineInternal, objectSourceSets);
 						variantInternal.getBinaryCollection().add(binary);
-						binary.getBaseName().convention(getBaseName());
+						((BaseNativeBinary)binary).getBaseName().convention(getBaseName());
 					} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
-						TaskProvider<CreateStaticLibraryTask> createTask = getTasks().register(names.getTaskName("create"), CreateStaticLibraryTask.class);
-
-						val binary = getObjects().newInstance(StaticLibraryBinaryInternal.class, names, objectSourceSets, targetMachineInternal, createTask, dependencies.getIncoming());
+						val factory = new StaticLibraryBinaryFactoryImpl(getTasks(), getObjects(), dependencies);
+						val binary = factory.create(names, targetMachineInternal, objectSourceSets);
 						variantInternal.getBinaryCollection().add(binary);
-						binary.getBaseName().convention(getBaseName());
+						((BaseNativeBinary)binary).getBaseName().convention(getBaseName());
 					}
 				}
 				it.getBinaries().configureEach(NativeBinary.class, binary -> {
