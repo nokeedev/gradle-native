@@ -1,5 +1,7 @@
 package dev.nokee.language.base.internal;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.Directory;
@@ -12,20 +14,20 @@ import javax.inject.Inject;
 
 import static dev.nokee.language.base.internal.UTTypeUtils.onlyIf;
 
-public abstract class GeneratedSourceSet implements SourceSet {
+public class GeneratedSourceSet implements SourceSet {
 	private final UTType type;
 	private final Provider<Directory> sourceDirectory;
 	private final TaskProvider<? extends Task> generatedByTask;
-	private final ConfigurableFileTree fileTree = getObjects().fileTree();
+	private final ConfigurableFileTree fileTree;
 	private final String name;
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 	@Inject
-	protected abstract ObjectFactory getObjects();
-
-	@Inject
-	public GeneratedSourceSet(String name, UTType type, Provider<Directory> sourceDirectory, TaskProvider<? extends Task> generatedByTask) {
+	public GeneratedSourceSet(String name, UTType type, Provider<Directory> sourceDirectory, TaskProvider<? extends Task> generatedByTask, ObjectFactory objects) {
 		this.name = name;
 		this.type = type;
+		this.objects = objects;
+		this.fileTree = objects.fileTree();
 		this.sourceDirectory = sourceDirectory;
 		this.generatedByTask = generatedByTask;
 		fileTree.setDir(sourceDirectory).builtBy(generatedByTask).include(onlyIf(type).getIncludes());
