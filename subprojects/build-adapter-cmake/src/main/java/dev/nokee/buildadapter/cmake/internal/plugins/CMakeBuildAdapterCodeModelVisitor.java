@@ -2,10 +2,7 @@ package dev.nokee.buildadapter.cmake.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
-import dev.nokee.buildadapter.cmake.internal.fileapi.CodeModel;
-import dev.nokee.buildadapter.cmake.internal.fileapi.CodeModelReplyFiles;
-import dev.nokee.buildadapter.cmake.internal.fileapi.CodeModelTarget;
-import dev.nokee.buildadapter.cmake.internal.fileapi.Index;
+import dev.nokee.buildadapter.cmake.internal.fileapi.*;
 import dev.nokee.buildadapter.cmake.internal.tasks.CMakeMSBuildAdapterTask;
 import dev.nokee.buildadapter.cmake.internal.tasks.CMakeMakeAdapterTask;
 import dev.nokee.core.exec.CommandLineTool;
@@ -39,7 +36,9 @@ public class CMakeBuildAdapterCodeModelVisitor implements CodeModelReplyFiles.Vi
 	}
 
 	@Override
-	public void visit(CodeModel codemodel) {
+	public void visit(CodeModelReplyFile codemodelFile) {
+		val codemodel = codemodelFile.get();
+
 		// TODO: This should be abstracted out from the codemodel
 		val cmakeFileApiDirectory = new File(settings.getSettingsDir(), ".cmake/api/v1");
 		val cmakeFileApiReplyDirectory = new File(cmakeFileApiDirectory, "reply");
@@ -124,12 +123,12 @@ public class CMakeBuildAdapterCodeModelVisitor implements CodeModelReplyFiles.Vi
 	}
 
 	@Override
-	public void visit(CodeModelTarget codeModelTarget) {
+	public void visit(CodeModelTargetReplyFile codeModelTargetFile) {
 
 	}
 
 	@Override
-	public void visit(Index replyIndex) {
-
+	public void visit(IndexReplyFile replyIndex) {
+		// Do nothing.
 	}
 }

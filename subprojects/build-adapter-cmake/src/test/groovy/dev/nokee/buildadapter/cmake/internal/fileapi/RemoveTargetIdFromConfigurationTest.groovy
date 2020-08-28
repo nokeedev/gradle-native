@@ -29,6 +29,5 @@ class RemoveTargetIdFromConfigurationTest extends Specification {
 		result.targets[0].id == 'bar::@deadbeef'
 		result.targets[0].jsonFile == 'bar-Debug-5555.json'
 		result.targets[0].projectIndex == 0
-
 	}
 }

@@ -16,18 +16,18 @@ class RemoveGeneratedTargetsVisitorAdapterTest extends Specification {
 		def visitedTargets = []
 		subject.visit(new RemoveGeneratedTargetsVisitorAdapter(new CodeModelReplyFiles.Visitor() {
 			@Override
-			void visit(CodeModel codeModel) {
-				visitedCodeModel = codeModel
+			void visit(CodeModelReplyFile codeModel) {
+				visitedCodeModel = codeModel.get()
 			}
 
 			@Override
-			void visit(CodeModelTarget codeModelTarget) {
-				visitedTargets << codeModelTarget
+			void visit(CodeModelTargetReplyFile codeModelTarget) {
+				visitedTargets << codeModelTarget.get()
 			}
 
 			@Override
-			void visit(Index replyIndex) {
-				visitedIndex = replyIndex
+			void visit(IndexReplyFile replyIndex) {
+				visitedIndex = replyIndex.get()
 			}
 		}))
 

@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
  */
 public final class RemoveGeneratedTargetsVisitorAdapter implements CodeModelReplyFiles.Visitor {
 	private final CodeModelReplyFiles.Visitor delegate;
-	private CodeModel visitedCodeModel = null;
-	private List<CodeModelTarget> visitedTargets = new ArrayList<>();
+	private CodeModelReplyFile visitedCodeModel = null;
+	private List<CodeModelTargetReplyFile> visitedTargets = new ArrayList<>();
 	private long targetCount = 0;
 	private final Set<String> removedTargetIds = new HashSet<>();
 
@@ -23,9 +23,9 @@ public final class RemoveGeneratedTargetsVisitorAdapter implements CodeModelRepl
 	}
 
 	@Override
-	public void visit(CodeModel codeModel) {
+	public void visit(CodeModelReplyFile codeModel) {
 		visitedCodeModel = codeModel;
-		targetCount = computeTargetCount(codeModel);
+		targetCount = computeTargetCount(codeModel.get());
 	}
 
 	private long computeTargetCount(CodeModel codeModel) {
@@ -33,7 +33,7 @@ public final class RemoveGeneratedTargetsVisitorAdapter implements CodeModelRepl
 	}
 
 	@Override
-	public void visit(CodeModelTarget codeModelTarget) {
+	public void visit(CodeModelTargetReplyFile codeModelTarget) {
 		visitedTargets.add(codeModelTarget);
 		if (--targetCount == 0) {
 			performFiltering();
@@ -43,18 +43,20 @@ public final class RemoveGeneratedTargetsVisitorAdapter implements CodeModelRepl
 	}
 
 	@Override
-	public void visit(Index replyIndex) {
+	public void visit(IndexReplyFile replyIndex) {
 		delegate.visit(replyIndex);
 	}
 
 	private void performFiltering() {
-		visitedTargets.stream().filter(CodeModelTarget::isGeneratorProvided).forEach(this::filterTarget);
+		visitedTargets.stream().map(CodeModelTargetReplyFile::get).filter(CodeModelTarget::isGeneratorProvided).forEach(this::filterTarget);
 	}
 
 	private void filterTarget(CodeModelTarget target) {
 		if (removedTargetIds.add(target.getId())) {
-			visitedCodeModel = visitedCodeModel.withConfigurations(visitedCodeModel.getConfigurations().stream().map(new RemoveTargetIdFromConfiguration(target.getId())).collect(Collectors.toList()));
-			visitedTargets = visitedTargets.stream().filter(it -> !it.getId().equals(target.getId())).map(new RemoveTargetIdFromDependency(target.getId())).collect(Collectors.toList());
+			visitedCodeModel = visitedCodeModel.withContent(visitedCodeModel.get().withConfigurations(visitedCodeModel.get().getConfigurations().stream().map(new RemoveTargetIdFromConfiguration(target.getId())).collect(Collectors.toList())));
+			visitedTargets = visitedTargets.stream().filter(it -> !it.get().getId().equals(target.getId())).map(targetFile -> {
+				return targetFile.withContent(new RemoveTargetIdFromDependency(target.getId()).apply(targetFile.get()));
+			}).collect(Collectors.toList());
 		}
 	}
 }

@@ -34,18 +34,18 @@ class CodeModelClientImplTest extends Specification {
 		def visitedTargets = []
 		subject.visit(new CodeModelReplyFiles.Visitor() {
 			@Override
-			void visit(CodeModel codeModel) {
-				visitedCodeModel = codeModel
+			void visit(CodeModelReplyFile codeModel) {
+				visitedCodeModel = codeModel.get()
 			}
 
 			@Override
-			void visit(CodeModelTarget codeModelTarget) {
-				visitedTargets << codeModelTarget
+			void visit(CodeModelTargetReplyFile codeModelTarget) {
+				visitedTargets << codeModelTarget.get()
 			}
 
 			@Override
-			void visit(Index replyIndex) {
-				visitedIndex = replyIndex
+			void visit(IndexReplyFile replyIndex) {
+				visitedIndex = replyIndex.get()
 			}
 		})
 
@@ -55,5 +55,11 @@ class CodeModelClientImplTest extends Specification {
 		visitedIndex.objects.size() == 1
 		visitedIndex.objects[0].version.major == 2
 		visitedIndex.objects[0].version.minor == 1
+	}
+
+	private static File getReplyFilesOf(String testSetName) {
+		def replyDirectory = System.getProperty('dev.nokee.cmake-replies')
+		assert replyDirectory != null
+		return new File(replyDirectory, testSetName)
 	}
 }
