@@ -21,6 +21,8 @@ public class CodeModelTarget {
 	// Possible values: STATIC_LIBRARY
 	String type;
 
+	boolean isGeneratorProvided;
+
 	@Nullable
 	List<Artifact> artifacts;
 
@@ -28,12 +30,12 @@ public class CodeModelTarget {
 	List<CompileGroup> compileGroups;
 
 	@Nullable
-	List<Dependency> dependencies;
+	@With List<Dependency> dependencies;
 
 	List<Source> sources;
 
 	public CodeModelTarget(String id, String name, String type) {
-		this(id, name, type, emptyList(), emptyList(), emptyList(), emptyList());
+		this(id, name, type, false, emptyList(), emptyList(), emptyList(), emptyList());
 	}
 
 	public List<Artifact> getArtifacts() {

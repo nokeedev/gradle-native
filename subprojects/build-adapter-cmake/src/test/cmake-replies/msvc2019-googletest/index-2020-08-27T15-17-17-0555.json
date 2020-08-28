@@ -1,0 +1,52 @@
+{
+	"cmake" : 
+	{
+		"generator" : 
+		{
+			"multiConfig" : true,
+			"name" : "Visual Studio 16 2019",
+			"platform" : "x64"
+		},
+		"paths" : 
+		{
+			"cmake" : "C:/Users/Danie/Downloads/cmake-3.18.0-win64-x64/bin/cmake.exe",
+			"cpack" : "C:/Users/Danie/Downloads/cmake-3.18.0-win64-x64/bin/cpack.exe",
+			"ctest" : "C:/Users/Danie/Downloads/cmake-3.18.0-win64-x64/bin/ctest.exe",
+			"root" : "C:/Users/Danie/Downloads/cmake-3.18.0-win64-x64/share/cmake-3.18"
+		},
+		"version" : 
+		{
+			"isDirty" : false,
+			"major" : 3,
+			"minor" : 18,
+			"patch" : 0,
+			"string" : "3.18.0",
+			"suffix" : ""
+		}
+	},
+	"objects" : 
+	[
+		{
+			"jsonFile" : "codemodel-v2-fbec48be0cf2a8325e0b.json",
+			"kind" : "codemodel",
+			"version" : 
+			{
+				"major" : 2,
+				"minor" : 1
+			}
+		}
+	],
+	"reply" : 
+	{
+		"codemodel-v2" : 
+		{
+			"jsonFile" : "codemodel-v2-fbec48be0cf2a8325e0b.json",
+			"kind" : "codemodel",
+			"version" : 
+			{
+				"major" : 2,
+				"minor" : 1
+			}
+		}
+	}
+}

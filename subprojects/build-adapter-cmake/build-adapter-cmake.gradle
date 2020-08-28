@@ -18,6 +18,7 @@ dependencies {
 	implementation project(':runtimeWindows')
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation 'com.google.code.gson:gson:2.8.6'
 
 	implementation 'org.eclipse.jgit:org.eclipse.jgit:5.8.0.202006091008-r'
@@ -29,6 +30,12 @@ gradlePlugin {
 			id = 'dev.nokee.cmake-build-adapter'
 			implementationClass = 'dev.nokee.buildadapter.cmake.internal.plugins.CmakeBuildAdapterPlugin'
 		}
+	}
+}
+
+test {
+	testTasks.configureEach {
+		systemProperty('dev.nokee.cmake-replies', file('src/test/cmake-replies'))
 	}
 }
 
