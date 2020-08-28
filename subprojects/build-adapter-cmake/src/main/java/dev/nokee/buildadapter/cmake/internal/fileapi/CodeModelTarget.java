@@ -71,6 +71,10 @@ public class CodeModelTarget {
 		@Nullable
 		List<Include> includes;
 
+		public List<Include> getIncludes() {
+			return useEmptyListIfNull(includes);
+		}
+
 		@Value
 		public static class Include {
 			String path;
