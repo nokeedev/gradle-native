@@ -11,10 +11,17 @@ public class CodeModel {
 	@Value
 	public static class Configuration {
 		String name;
-		List<Target> targets;
+		List<Project> projects;
+		List<TargetReference> targets;
 
 		@Value
-		public static class Target {
+		public static class Project {
+			String name;
+			List<Integer> targetIndexes;
+		}
+
+		@Value
+		public static class TargetReference {
 			String jsonFile;
 			String name;
 		}
