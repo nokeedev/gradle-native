@@ -21,7 +21,7 @@ public class CodeModel {
 			String name;
 			@With List<Integer> targetIndexes;
 
-			List<TargetReference> getTargets(Configuration configuration) {
+			public List<TargetReference> getTargets(Configuration configuration) {
 				return targetIndexes.stream().map(configuration.targets::get).collect(Collectors.toList());
 			}
 		}
@@ -33,7 +33,7 @@ public class CodeModel {
 			String id;
 			@With Integer projectIndex;
 
-			Project getProject(Configuration configuration) {
+			public Project getProject(Configuration configuration) {
 				return configuration.projects.get(projectIndex);
 			}
 		}
