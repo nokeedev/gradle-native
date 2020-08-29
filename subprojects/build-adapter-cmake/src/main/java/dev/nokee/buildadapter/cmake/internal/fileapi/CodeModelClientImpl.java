@@ -40,7 +40,7 @@ public final class CodeModelClientImpl implements CodeModelClient {
 
 			// TODO: Check cmake tool can be found
 			// TODO: Check version supports File API: starting with cmake 3.14 before the feature doesn't exists
-			cmakeSupplier.get().withArguments(".").newInvocation().workingDirectory(baseDirectory).buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine())).waitFor().assertNormalExitValue();
+			cmakeSupplier.get().withArguments(".", "-Wno-dev").newInvocation().workingDirectory(baseDirectory).buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine())).waitFor().assertNormalExitValue();
 
 			val cmakeFileApiReplyDirectory = new File(cmakeFileApiDirectory, "reply");
 			return CodeModelReplyFiles.of(cmakeFileApiReplyDirectory);
