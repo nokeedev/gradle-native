@@ -854,10 +854,27 @@ abstract class AbstractJniLibraryPluginConfigurationsTest extends AbstractJniLib
 
 		expect:
 		project.configurations.api.description == "API dependencies for JNI library."
-		project.configurations.jvmImplementation.description == "Implementation only dependencies for JNI library."
-		project.configurations.jvmRuntimeOnly.description == "Runtime only dependencies for JNI library."
-		project.configurations.apiElements.description == "API elements for main."
-		project.configurations.runtimeElements.description == "Elements of runtime for main."
+		project.configurations.jvmImplementation.description == "Jvm implementation dependencies for JNI library."
+		project.configurations.jvmRuntimeOnly.description == "Jvm runtime only dependencies for JNI library."
+
+		and:
+		// Conditional comparision of the description is required when the Java or Groovy language plugins are used as Nokee won't overwrite the description already defined.
+		project.configurations.apiElements.description == expectedApiElementsDescription
+		project.configurations.runtimeElements.description == expectedRuntimeElementsDescription
+	}
+
+	protected String getExpectedApiElementsDescription() {
+		if (getClass().simpleName.contains('Java') || getClass().simpleName.contains('Groovy')) {
+			return 'API elements for main.'
+		}
+		return 'API elements for JNI library.'
+	}
+
+	protected String getExpectedRuntimeElementsDescription() {
+		if (getClass().simpleName.contains('Java') || getClass().simpleName.contains('Groovy')) {
+			return 'Elements of runtime for main.'
+		}
+		return 'Runtime elements for JNI library.'
 	}
 
 	def "native configurations has description"() {
@@ -866,11 +883,11 @@ abstract class AbstractJniLibraryPluginConfigurationsTest extends AbstractJniLib
 		resolveAllVariants('plugin creates configurations on demand')
 
 		expect:
-		project.configurations.nativeImplementation.description == 'Implementation only dependencies for JNI library.'
-		project.configurations.nativeLinkOnly.description == 'Link only dependencies for JNI library.'
-		project.configurations.nativeRuntimeOnly.description == 'Runtime only dependencies for JNI library.'
-		project.configurations.nativeLinkLibraries.description == 'Link libraries for JNI library.'
-		project.configurations.nativeRuntimeLibraries.description == 'Runtime libraries for JNI library.'
+		project.configurations.nativeImplementation.description == 'Native implementation dependencies for JNI library.'
+		project.configurations.nativeLinkOnly.description == 'Native link only dependencies for JNI library.'
+		project.configurations.nativeRuntimeOnly.description == 'Native runtime only dependencies for JNI library.'
+		project.configurations.nativeLinkLibraries.description == 'Native link libraries for JNI shared library.'
+		project.configurations.nativeRuntimeLibraries.description == 'Native runtime libraries for JNI shared library.'
 	}
 }
 

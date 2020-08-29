@@ -1,15 +1,16 @@
 package dev.nokee.platform.c.internal.plugins;
 
-import dagger.*;
-import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
 import dev.nokee.platform.base.internal.DomainObjectStore;
+import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.c.CApplicationExtension;
-import dev.nokee.platform.c.internal.DefaultCApplicationExtension;
-import dev.nokee.platform.c.internal.DefaultCApplicationExtensionFactory;
-import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.c.internal.DaggerPlatformCComponents;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
+import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -35,7 +36,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ProjectStorePlugin.class);
 
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
-		val extension = DaggerCApplicationPlugin_CApplicationComponent.factory().create(project).cApplicationComponent();
+		val extension = DaggerPlatformCComponents.factory().create(project).cApplicationFactory().create(new ComponentIdentifier("main", "main native component", ProjectIdentifier.of(project)));
 		val component = store.add(new DomainObjectElement<DefaultNativeApplicationComponent>() {
 			@Override
 			public DefaultNativeApplicationComponent get() {
@@ -60,23 +61,5 @@ public class CApplicationPlugin implements Plugin<Project> {
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(CApplicationExtension.class, EXTENSION_NAME, extension);
-	}
-
-	@Module
-	interface CModule {
-		@Provides
-		static DefaultCApplicationExtension theExtension(DefaultCApplicationExtensionFactory factory) {
-			return factory.create();
-		}
-	}
-
-	@Component(modules = {GradleModule.class, NativeComponentModule.class, CModule.class})
-	interface CApplicationComponent {
-		DefaultCApplicationExtension cApplicationComponent();
-
-		@Component.Factory
-		interface Factory {
-			CApplicationComponent create(@BindsInstance Project project);
-		}
 	}
 }

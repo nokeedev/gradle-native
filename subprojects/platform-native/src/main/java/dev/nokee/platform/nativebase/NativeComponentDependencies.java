@@ -1,7 +1,7 @@
 package dev.nokee.platform.nativebase;
 
 import dev.nokee.platform.base.ComponentDependencies;
-import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.DeclarableDependencyBucket;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.ModuleDependency;
@@ -84,28 +84,28 @@ public interface NativeComponentDependencies extends ComponentDependencies {
 	/**
 	 * Returns the implementation bucket of dependencies for this component.
 	 *
-	 * @return a {@link DependencyBucket} representing the implementation bucket of dependencies, never null.
+	 * @return a {@link DeclarableDependencyBucket} representing the implementation bucket of dependencies, never null.
 	 */
-	DependencyBucket getImplementation();
+	DeclarableDependencyBucket getImplementation();
 
 	/**
 	 * Returns the runtime only bucket of dependencies for this component.
 	 *
-	 * @return a {@link DependencyBucket} representing the runtime only bucket of dependencies, never null.
+	 * @return a {@link DeclarableDependencyBucket} representing the runtime only bucket of dependencies, never null.
 	 */
-	DependencyBucket getRuntimeOnly();
+	DeclarableDependencyBucket getRuntimeOnly();
 
 	/**
 	 * Returns the compile only bucket of dependencies for this component.
 	 *
-	 * @return a {@link DependencyBucket} representing the compile only bucket of dependencies, never null.
+	 * @return a {@link DeclarableDependencyBucket} representing the compile only bucket of dependencies, never null.
 	 */
-	DependencyBucket getCompileOnly();
+	DeclarableDependencyBucket getCompileOnly();
 
 	/**
 	 * Returns the link only bucket of dependencies for this component.
 	 *
-	 * @return a {@link DependencyBucket} representing the link only bucket of dependencies, never null.
+	 * @return a {@link DeclarableDependencyBucket} representing the link only bucket of dependencies, never null.
 	 */
-	DependencyBucket getLinkOnly();
+	DeclarableDependencyBucket getLinkOnly();
 }

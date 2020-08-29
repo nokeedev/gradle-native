@@ -6,15 +6,14 @@ import dagger.Module;
 import dagger.Provides;
 import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
 import dev.nokee.platform.base.internal.DomainObjectStore;
+import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.objectivec.ObjectiveCLibraryExtension;
-import dev.nokee.platform.objectivec.internal.DefaultObjectiveCApplicationExtension;
-import dev.nokee.platform.objectivec.internal.DefaultObjectiveCApplicationExtensionFactory;
-import dev.nokee.platform.objectivec.internal.DefaultObjectiveCLibraryExtension;
-import dev.nokee.platform.objectivec.internal.DefaultObjectiveCLibraryExtensionFactory;
+import dev.nokee.platform.objectivec.internal.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -40,7 +39,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ProjectStorePlugin.class);
 
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
-		val extension = DaggerObjectiveCLibraryPlugin_ObjectiveCLibraryComponent.factory().create(project).objectiveCLibraryComponent();
+		val extension = DaggerPlatformObjectiveCComponents.factory().create(project).objectiveCLibraryFactory().create(new ComponentIdentifier("main", "main native component", ProjectIdentifier.of(project)));
 		val component = store.add(new DomainObjectElement<DefaultNativeLibraryComponent>() {
 			@Override
 			public DefaultNativeLibraryComponent get() {
@@ -66,23 +65,5 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(ObjectiveCLibraryExtension.class, EXTENSION_NAME, extension);
-	}
-
-	@Module
-	interface ObjectiveCModule {
-		@Provides
-		static DefaultObjectiveCLibraryExtension theExtension(DefaultObjectiveCLibraryExtensionFactory factory) {
-			return factory.create();
-		}
-	}
-
-	@Component(modules = {GradleModule.class, NativeComponentModule.class, ObjectiveCModule.class})
-	interface ObjectiveCLibraryComponent {
-		DefaultObjectiveCLibraryExtension objectiveCLibraryComponent();
-
-		@Component.Factory
-		interface Factory {
-			ObjectiveCLibraryComponent create(@BindsInstance Project project);
-		}
 	}
 }

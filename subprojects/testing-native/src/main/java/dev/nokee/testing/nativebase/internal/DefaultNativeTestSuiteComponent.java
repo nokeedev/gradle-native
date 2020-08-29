@@ -1,5 +1,7 @@
 package dev.nokee.testing.nativebase.internal;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.internal.BaseSourceSet;
 import dev.nokee.language.base.internal.UTTypeUtils;
@@ -9,14 +11,7 @@ import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.DefaultBuildVariant;
-import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
-import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -31,7 +26,6 @@ import dev.nokee.testing.nativebase.NativeTestSuite;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import lombok.var;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -57,21 +51,22 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
+@AutoFactory
 public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite {
-	private final DefaultNativeComponentDependencies dependencies;
+	private final NativeComponentDependenciesInternal dependencies;
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
+	private final DefaultNativeDependenciesBuilderFactory dependenciesBuilderFactory;
 	@Getter Property<BaseComponent<?>> testedComponent;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(names, DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
+	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, @Provided ObjectFactory objects, @Provided ProviderFactory providers, @Provided TaskContainer tasks, @Provided ProjectLayout layout, @Provided ConfigurationContainer configurations, @Provided DependencyHandler dependencyHandler, @Provided NativeComponentDependenciesFactory dependenciesFactory, @Provided DefaultNativeDependenciesBuilderFactory dependenciesBuilderFactory) {
+		super(NamingScheme.fromIdentifier(identifier, identifier.getProjectIdentifier().getName()), DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
 		this.dependencyHandler = dependencyHandler;
-
-		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
-		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
+		this.dependenciesBuilderFactory = dependenciesBuilderFactory;
+		this.dependencies = dependenciesFactory.create(identifier);
 		this.testedComponent = Cast.uncheckedCast(getObjects().property(BaseComponent.class));
 		this.getDimensions().convention(ImmutableList.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
-		this.getBaseName().convention(names.getBaseName().getAsString());
+		this.getBaseName().convention(identifier.getProjectIdentifier().getName());
 
 		this.getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
 		this.getBuildVariants().finalizeValueOnRead();
@@ -104,7 +99,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	@Override
-	public DefaultNativeComponentDependencies getDependencies() {
+	public NativeComponentDependenciesInternal getDependencies() {
 		return dependencies;
 	}
 
@@ -114,30 +109,17 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	@Override
-	protected VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(NamingScheme names, BuildVariantInternal buildVariant) {
-		var variantDependencies = getDependencies();
-		if (getBuildVariants().get().size() > 1) {
-			val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler())));
-			variantDependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
-			variantDependencies.configureEach(variantBucket -> {
-				getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
-					variantBucket.getAsConfiguration().extendsFrom(componentBucket.getAsConfiguration());
-				});
-			});
-		}
+	protected VariantComponentDependencies<NativeComponentDependencies> newDependencies(NamingScheme names, BuildVariantInternal buildVariant) {
+		val identifier = new VariantIdentifier(names.getUnambiguousDimensionsAsString(), new ComponentIdentifier(names.getComponentName(), new ProjectIdentifier("")));
+		val builder = dependenciesBuilderFactory.create().withParentDependencies(getDependencies()).withIdentifier(identifier).withVariant(buildVariant);
 
-		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
 		boolean hasSwift = !getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
 		if (hasSwift) {
-			incomingDependenciesBuilder.withIncomingSwiftModules();
+			builder.withSwiftModules();
 		} else {
-			incomingDependenciesBuilder.withIncomingHeaders();
+			builder.withNativeHeaders();
 		}
-
-		NativeIncomingDependencies incoming = incomingDependenciesBuilder.buildUsing(getObjects());
-		NativeOutgoingDependencies outgoing = getObjects().newInstance(NativeApplicationOutgoingDependencies.class, names, buildVariant, variantDependencies);
-
-		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
+		return builder.build();
 	}
 
 	@Override
@@ -216,9 +198,9 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 			});
 			if (component instanceof BaseNativeComponent) {
 				val testedComponentDependencies = ((BaseNativeComponent<?>) component).getDependencies();
-				getDependencies().getImplementation().getAsConfiguration().extendsFrom(testedComponentDependencies.getImplementation().getAsConfiguration());
-				getDependencies().getLinkOnly().getAsConfiguration().extendsFrom(testedComponentDependencies.getLinkOnly().getAsConfiguration());
-				getDependencies().getRuntimeOnly().getAsConfiguration().extendsFrom(testedComponentDependencies.getRuntimeOnly().getAsConfiguration());
+				getDependencies().getImplementation().extendsFrom(testedComponentDependencies.getImplementation());
+				getDependencies().getLinkOnly().extendsFrom(testedComponentDependencies.getLinkOnly());
+				getDependencies().getRuntimeOnly().extendsFrom(testedComponentDependencies.getRuntimeOnly());
 			}
 			getVariants().configureEach(variant -> {
 				variant.getBinaries().configureEach(ExecutableBinary.class, binary -> {

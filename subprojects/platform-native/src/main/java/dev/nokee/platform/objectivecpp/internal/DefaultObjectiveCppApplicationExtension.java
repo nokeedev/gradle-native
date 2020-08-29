@@ -5,6 +5,7 @@ import com.google.auto.factory.Provided;
 import dev.nokee.language.cpp.internal.CppHeaderSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.TargetBuildTypeFactory;
@@ -32,8 +33,8 @@ public class DefaultObjectiveCppApplicationExtension extends BaseNativeExtension
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
 
 	@Inject
-	public DefaultObjectiveCppApplicationExtension(@Provided DefaultNativeApplicationComponent component, @Provided ObjectFactory objects, @Provided ProviderFactory providers, @Provided ProjectLayout layout) {
-		super(component, objects, providers, layout);
+	public DefaultObjectiveCppApplicationExtension(ComponentIdentifier identifier, @Provided ObjectFactory objects, @Provided ProviderFactory providers, @Provided ProjectLayout layout, @Provided DefaultNativeApplicationComponentFactory componentFactory) {
+		super(componentFactory.create(identifier), objects, providers, layout);
 		this.sources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();
 		this.targetMachines = objects.setProperty(TargetMachine.class);

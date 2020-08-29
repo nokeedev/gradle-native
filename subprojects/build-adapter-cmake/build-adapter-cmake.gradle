@@ -11,6 +11,9 @@ dependencies {
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
+	api 'com.google.dagger:dagger:latest.release'
+	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
+
 	implementation project(':coreExec') // for build adapter
 	implementation project(':platformNative')
 	implementation project(':runtimeBase')

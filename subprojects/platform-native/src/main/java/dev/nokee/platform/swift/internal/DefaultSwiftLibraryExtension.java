@@ -4,6 +4,7 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.nativebase.*;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.swift.SwiftLibraryExtension;
@@ -29,8 +30,8 @@ public class DefaultSwiftLibraryExtension extends BaseNativeExtension<DefaultNat
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
 
 	@Inject
-	public DefaultSwiftLibraryExtension(@Provided DefaultNativeLibraryComponent component, @Provided ObjectFactory objects, @Provided ProviderFactory providers, @Provided ProjectLayout layout) {
-		super(component, objects, providers, layout);
+	public DefaultSwiftLibraryExtension(ComponentIdentifier identifier, @Provided ObjectFactory objects, @Provided ProviderFactory providers, @Provided ProjectLayout layout, @Provided DefaultNativeLibraryComponentFactory componentFactory) {
+		super(componentFactory.create(identifier), objects, providers, layout);
 		this.sources = objects.fileCollection();
 		this.targetLinkages = objects.setProperty(TargetLinkage.class);
 		this.targetMachines = objects.setProperty(TargetMachine.class);

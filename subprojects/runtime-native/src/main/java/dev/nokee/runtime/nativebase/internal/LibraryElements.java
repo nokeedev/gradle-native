@@ -14,6 +14,8 @@ public interface LibraryElements extends Named {
 	 */
 	String HEADERS_CPLUSPLUS = org.gradle.api.attributes.LibraryElements.HEADERS_CPLUSPLUS;
 
+	String JAR = org.gradle.api.attributes.LibraryElements.JAR;
+
 	/**
 	 * Framework bundles
 	 */

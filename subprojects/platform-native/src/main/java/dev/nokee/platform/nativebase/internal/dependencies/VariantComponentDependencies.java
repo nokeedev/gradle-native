@@ -5,7 +5,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class VariantComponentDependencies<T extends NativeComponentDependencies> {
+// FIXME: Make this abstract
+public /*abstract*/ class VariantComponentDependencies<T extends NativeComponentDependencies> {
 	@Getter private final T dependencies;
 	@Getter private final NativeIncomingDependencies incoming;
 	@Getter private final NativeOutgoingDependencies outgoing;

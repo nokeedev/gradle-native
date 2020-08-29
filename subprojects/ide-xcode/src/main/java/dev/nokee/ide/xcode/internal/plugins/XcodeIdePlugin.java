@@ -22,7 +22,7 @@ import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.testing.nativebase.NativeTestSuite;
-import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
+import dev.nokee.testing.xctest.internal.UnitTestXCTestTestSuiteComponentImpl;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
 import org.apache.commons.io.FileUtils;
@@ -385,9 +385,9 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 //		});
 
 		val store = getProject().getExtensions().getByType(DomainObjectStore.class);
-		val unitTests = store.select(it -> it instanceof DefaultUnitTestXCTestTestSuiteComponent).get();
+		val unitTests = store.select(it -> it instanceof UnitTestXCTestTestSuiteComponentImpl).get();
 		if (!unitTests.isEmpty()) {
-			val unitTest = (DefaultUnitTestXCTestTestSuiteComponent) unitTests.get(0);
+			val unitTest = (UnitTestXCTestTestSuiteComponentImpl) unitTests.get(0);
 			xcodeProject.getTargets().register(moduleName + "UnitTest", xcodeTarget -> {
 				xcodeTarget.getProductName().set(moduleName + "UnitTest");
 				xcodeTarget.getProductReference().set(moduleName + "UnitTest.xctest");
@@ -399,7 +399,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 					xcodeConfiguration.getProductLocation().set(getTasks().named("createUnitTestXCTestBundle", CreateIosXCTestBundleTask.class).flatMap(CreateIosXCTestBundleTask::getXCTestBundle));
 					xcodeConfiguration.getBuildSettings()
 						.put("BUNDLE_LOADER", "$(TEST_HOST)")
-						// FIXME: The TEST_HOST should be set in theory but doesn't seems to work as expected in practice.
+						// TODO: The TEST_HOST should be set in theory but doesn't seems to work as expected in practice.
 //							.put("TEST_HOST", "$(BUILT_PRODUCTS_DIR)/ObjectiveCIosApplicationUnitTest.app/ObjectiveCIosApplicationUnitTest")
 						// Codesign
 						.put("INFOPLIST_FILE", "src/unitTest/resources/Info.plist")
@@ -419,9 +419,9 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 			});
 		}
 
-		val uiTests = store.select(it -> it instanceof DefaultUnitTestXCTestTestSuiteComponent).get();
+		val uiTests = store.select(it -> it instanceof UnitTestXCTestTestSuiteComponentImpl).get();
 		if (!uiTests.isEmpty()) {
-			val uiTest = (DefaultUnitTestXCTestTestSuiteComponent) uiTests.get(0);
+			val uiTest = (UnitTestXCTestTestSuiteComponentImpl) uiTests.get(0);
 			xcodeProject.getTargets().register(moduleName + "UiTest", xcodeTarget -> {
 				xcodeTarget.getProductName().set(moduleName + "UiTest");
 				xcodeTarget.getProductReference().set(moduleName + "UiTest.xctest");

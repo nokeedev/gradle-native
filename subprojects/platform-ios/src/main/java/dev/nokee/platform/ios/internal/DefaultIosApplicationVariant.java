@@ -8,7 +8,6 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
@@ -20,16 +19,16 @@ import javax.inject.Inject;
 import java.util.List;
 
 public class DefaultIosApplicationVariant extends BaseNativeVariant implements IosApplication, VariantInternal {
-	private final DefaultNativeComponentDependencies dependencies;
+	private final NativeComponentDependencies dependencies;
 
 	@Inject
-	public DefaultIosApplicationVariant(String name, NamingScheme names, BuildVariantInternal buildVariant, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
+	public DefaultIosApplicationVariant(String name, NamingScheme names, BuildVariantInternal buildVariant, VariantComponentDependencies<NativeComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
 		super(name, names, buildVariant, objects, tasks, providers);
 		this.dependencies = dependencies.getDependencies();
 	}
 
 	@Override
-	public DefaultNativeComponentDependencies getDependencies() {
+	public NativeComponentDependencies getDependencies() {
 		return dependencies;
 	}
 

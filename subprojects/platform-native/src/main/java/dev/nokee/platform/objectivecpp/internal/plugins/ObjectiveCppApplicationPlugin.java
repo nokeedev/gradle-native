@@ -6,14 +6,17 @@ import dagger.Module;
 import dagger.Provides;
 import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
 import dev.nokee.platform.base.internal.DomainObjectStore;
+import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeComponentModule;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplicationExtension;
+import dev.nokee.platform.objectivecpp.internal.DaggerPlatformObjectiveCppComponents;
 import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppApplicationExtension;
 import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppApplicationExtensionFactory;
 import lombok.AccessLevel;
@@ -41,7 +44,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ProjectStorePlugin.class);
 
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
-		val extension = DaggerObjectiveCppApplicationPlugin_ObjectiveCppApplicationComponent.factory().create(project).objectiveCppApplicationComponent();
+		val extension = DaggerPlatformObjectiveCppComponents.factory().create(project).objectiveCppApplicationFactory().create(new ComponentIdentifier("main", "main test component", ProjectIdentifier.of(project)));
 		val component = store.add(new DomainObjectElement<DefaultNativeApplicationComponent>() {
 			@Override
 			public DefaultNativeApplicationComponent get() {
@@ -66,23 +69,5 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(ObjectiveCppApplicationExtension.class, EXTENSION_NAME, extension);
-	}
-
-	@Module
-	interface ObjectiveCppModule {
-		@Provides
-		static DefaultObjectiveCppApplicationExtension theExtension(DefaultObjectiveCppApplicationExtensionFactory factory) {
-			return factory.create();
-		}
-	}
-
-	@Component(modules = {GradleModule.class, NativeComponentModule.class, ObjectiveCppModule.class})
-	interface ObjectiveCppApplicationComponent {
-		DefaultObjectiveCppApplicationExtension objectiveCppApplicationComponent();
-
-		@Component.Factory
-		interface Factory {
-			ObjectiveCppApplicationComponent create(@BindsInstance Project project);
-		}
 	}
 }

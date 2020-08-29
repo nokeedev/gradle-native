@@ -316,7 +316,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 			// Assume sources are ARC by default and uses per-file flags to override the default.
 			settings.put("CLANG_ENABLE_OBJC_ARC", "YES");
 
-			// FIXME: We rely on Xcode signing capability.
+			// TODO: We rely on Xcode signing capability.
 			//  When Nokee plugin can replace signing from Xcode, we should prevent Xcode from signing.
 			//  We should also move the delegate build phase after the source compile build phase.
 //			// Disable Xcode's signing as the applications are already signed by Nokee.
@@ -494,7 +494,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 			key -> new PBXFileReference(name, name, PBXReference.SourceTree.BUILT_PRODUCTS_DIR));
 	}
 
-	// FIXME: Multiple group using the same code is only included in one place...
+	// TODO: Multiple group using the same code is only included in one place...
 	private PBXFileReference computeFileReferenceIfAbsent(String key, Function<String, PBXFileReference> provider) {
 		return pathToFileReferenceMapping.computeIfAbsent(key, provider);
 	}

@@ -5,7 +5,6 @@ import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,11 +17,11 @@ import org.gradle.api.tasks.TaskContainer;
 import javax.inject.Inject;
 
 public class DefaultNativeLibraryVariant extends BaseNativeVariant implements NativeLibrary, VariantInternal {
-	@Getter private final DefaultNativeLibraryComponentDependencies dependencies;
+	@Getter private final NativeLibraryComponentDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
 
 	@Inject
-	public DefaultNativeLibraryVariant(String name, NamingScheme names, BuildVariantInternal buildVariant, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers, ProjectLayout layout) {
+	public DefaultNativeLibraryVariant(String name, NamingScheme names, BuildVariantInternal buildVariant, VariantComponentDependencies<NativeLibraryComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers, ProjectLayout layout) {
 		super(name, names, buildVariant, objects, tasks, providers);
 		this.dependencies = dependencies.getDependencies();
 		this.layout = layout;

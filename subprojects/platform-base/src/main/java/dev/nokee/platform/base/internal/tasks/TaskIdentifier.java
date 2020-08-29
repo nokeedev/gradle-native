@@ -16,4 +16,9 @@ class TaskIdentifier<T extends Task> implements DomainObjectIdentifierInternal {
 	public Optional<? extends DomainObjectIdentifierInternal> getParentIdentifier() {
 		return Optional.of(ownerIdentifier);
 	}
+
+	@Override
+	public String getDisplayName() {
+		throw new UnsupportedOperationException(); // for now...
+	}
 }

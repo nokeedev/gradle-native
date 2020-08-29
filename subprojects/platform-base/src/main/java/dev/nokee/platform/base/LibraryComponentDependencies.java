@@ -46,14 +46,14 @@ public interface LibraryComponentDependencies extends ComponentDependencies {
 	/**
 	 * Returns the implementation bucket of dependencies for this component.
 	 *
-	 * @return a {@link DependencyBucket} representing the implementation bucket of dependencies, never null.
+	 * @return a {@link DeclarableDependencyBucket} representing the implementation bucket of dependencies, never null.
 	 */
-	DependencyBucket getImplementation();
+	DeclarableDependencyBucket getImplementation();
 
 	/**
 	 * Returns the api bucket of dependencies for this component.
 	 *
-	 * @return a {@link DependencyBucket} representing the api bucket of dependencies, never null.
+	 * @return a {@link DeclarableDependencyBucket} representing the api bucket of dependencies, never null.
 	 */
-	DependencyBucket getApi();
+	DeclarableDependencyBucket getApi();
 }

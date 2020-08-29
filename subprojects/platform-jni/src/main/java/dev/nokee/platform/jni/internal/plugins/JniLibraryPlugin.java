@@ -13,19 +13,15 @@ import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
-import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
+import dev.nokee.platform.base.internal.dependencies.DependencyBucketUtils;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
-import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.platform.nativebase.internal.NativeLanguageRules;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependenciesImpl;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -37,11 +33,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.gradle.api.*;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.attributes.LibraryElements;
-import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.logging.Logger;
@@ -88,6 +81,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
+	private DefaultJavaNativeInterfaceNativeComponentDependenciesFactory dependenciesFactory;
 
 	@Inject
 	public JniLibraryPlugin(ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, ProjectLayout layout, DependencyHandler dependencyHandler, ToolChainSelector toolChainSelector) {
@@ -102,18 +96,15 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private VariantComponentDependencies newDependencies(NamingScheme names, BuildVariantInternal buildVariant, JniLibraryComponentInternal component) {
-		DefaultJavaNativeInterfaceNativeComponentDependencies variantDependencies = component.getDependencies();
+		val identifier = new VariantIdentifier(names.getUnambiguousDimensionsAsString(), ComponentIdentifier.builder().withName(names.getComponentName()).withProjectIdentifier(new ProjectIdentifier("")).withDisplayName(names.getComponentDisplayName()).build());
+		val variantDependencies = dependenciesFactory.create(identifier);
 		if (component.getBuildVariants().get().size() > 1) {
-			val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, "JNI shared library", new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler())));
-			variantDependencies = getObjects().newInstance(DefaultJavaNativeInterfaceNativeComponentDependencies.class, dependencyContainer);
 			variantDependencies.configureEach(variantBucket -> {
-				component.getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
-					variantBucket.getAsConfiguration().extendsFrom(componentBucket.getAsConfiguration());
-				});
+				component.getDependencies().findByName(variantBucket.getName()).ifPresent(variantBucket::extendsFrom);
 			});
 		}
 
-		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(new NativeComponentDependenciesJavaNativeInterfaceAdapter(variantDependencies)).withVariant(buildVariant);
+		val incomingDependenciesBuilder = NativeIncomingDependenciesImpl.builder(new NativeComponentDependenciesJavaNativeInterfaceAdapter(variantDependencies)).withVariant(buildVariant);
 		boolean hasSwift = !component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
 		boolean hasHeader = !component.getSourceCollection().matching(it -> it instanceof CSourceSet || it instanceof CppSourceSet || it instanceof ObjectiveCSourceSet || it instanceof ObjectiveCppSourceSet).isEmpty();
 		if (hasSwift) {
@@ -139,6 +130,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply("base");
 		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
+
+		dependenciesFactory = DaggerPlatformJniComponents.factory().create(project).nativeComponentDependenciesFactory();
 
 		NamingSchemeFactory namingSchemeFactory = new NamingSchemeFactory(project.getName());
 		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent().withComponentDisplayName("JNI library");
@@ -209,7 +202,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 //					if (proj.getPluginManager().hasPlugin("java")) {
 //						library.getAssembleTask().configure(task -> task.dependsOn(project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class)));
 //					} else {
-//						// FIXME: There is a gap here, if the project doesn't have any JVM plugin applied but specify multiple target machine what is expected?
+//						// TODO: There is a gap here, if the project doesn't have any JVM plugin applied but specify multiple target machine what is expected?
 //						//   Only JNI Jar? or an empty JVM Jar and JNI Jar?... Hmmm....
 //					}
 					}
@@ -261,7 +254,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 						// TODO: We could set the classes directory as secondary variant.
 						// TODO: We could maybe set the shared library directory as secondary variant.
 						//  However, the shared library would requires the resource path to be taken into consideration...
-						getConfigurations().named("runtimeElements", it -> it.getOutgoing().artifact(jarTask.flatMap(Jar::getArchiveFile)));
+						extension.getDependencies().getRuntimeElements().artifact(jarTask.flatMap(Jar::getArchiveFile));
 					}
 				} else {
 					TaskProvider<Jar> jarTask = getTasks().register(names.getTaskName("jar"), Jar.class, task -> {
@@ -280,7 +273,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					if (toolChainSelectorInternal.canBuild(targetMachineInternal)) {
 						// TODO: We could maybe set the shared library directory as secondary variant.
 						//  However, the shared library would requires the resource path to be taken into consideration...
-						getConfigurations().named("runtimeElements", it -> it.getOutgoing().artifact(jarTask.flatMap(Jar::getArchiveFile)));
+						extension.getDependencies().getRuntimeElements().artifact(jarTask.flatMap(Jar::getArchiveFile));
 					}
 				}
 
@@ -450,37 +443,10 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private JniLibraryExtensionInternal registerExtension(Project project, NamingScheme names) {
-		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, GroupId.of(project::getGroup), names);
-
-		val dependencies = library.getDependencies();
-
-		Configuration jvmApiElements = Optional.ofNullable(project.getConfigurations().findByName("apiElements")).orElseGet(() -> {
-			return project.getConfigurations().create("apiElements", configuration -> {
-				ConfigurationUtils.configureAsOutgoing(configuration);
-				configuration.setDescription("API elements for main.");
-				configuration.attributes(attributes -> {
-					attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_API));
-					attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR));
-				});
-			});
-		});
-		jvmApiElements.extendsFrom(dependencies.getApi().getAsConfiguration());
-
-
-		Configuration jvmRuntimeElements = Optional.ofNullable(project.getConfigurations().findByName("runtimeElements")).orElseGet(() -> {
-			return project.getConfigurations().create("runtimeElements", configuration -> {
-				ConfigurationUtils.configureAsOutgoing(configuration);
-				configuration.setDescription("Elements of runtime for main.");
-				configuration.attributes(attributes -> {
-					attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME));
-					attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR));
-				});
-			});
-		});
-		jvmRuntimeElements.extendsFrom(dependencies.getApi().getAsConfiguration());
+		JniLibraryExtensionInternal library = project.getObjects().newInstance(JniLibraryExtensionInternal.class, GroupId.of(project::getGroup), names, DaggerPlatformJniComponents.factory().create(project).libraryComponentDependenciesFactory());
 
 		project.getPluginManager().withPlugin("java", appliedPlugin -> {
-			getConfigurations().getByName("runtimeOnly").extendsFrom(dependencies.getJvmRuntimeOnly().getAsConfiguration());
+			getConfigurations().getByName("runtimeOnly").extendsFrom(DependencyBucketUtils.asConfiguration(library.getDependencies().getJvmRuntimeOnly()));
 		});
 
 		project.getExtensions().add(JniLibraryExtension.class, "library", library);
@@ -534,7 +500,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 	private void configureJavaJniRuntime(Project project, JniLibraryExtensionInternal library) {
 		// Wire JVM to JniLibrary
-		project.getConfigurations().getByName("implementation").extendsFrom(library.getJvmImplementationDependencies());
+		project.getConfigurations().getByName("implementation").extendsFrom(DependencyBucketUtils.asConfiguration(library.getDependencies().getJvmImplementation()));
 
 		project.getTasks().named("test", Test.class, task -> {
 			Provider<List<? extends FileCollection>> files = library.getVariants().map(JniLibrary::getNativeRuntimeFiles);

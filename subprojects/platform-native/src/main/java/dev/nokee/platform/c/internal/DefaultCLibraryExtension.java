@@ -5,6 +5,7 @@ import com.google.auto.factory.Provided;
 import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.c.internal.CSourceSet;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.c.CLibraryExtension;
 import dev.nokee.platform.nativebase.*;
 import dev.nokee.platform.nativebase.internal.*;
@@ -32,8 +33,8 @@ public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeL
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
 
 	@Inject
-	public DefaultCLibraryExtension(@Provided DefaultNativeLibraryComponent component, @Provided ObjectFactory objects, @Provided ProviderFactory providers, @Provided ProjectLayout layout) {
-		super(component, objects, providers, layout);
+	public DefaultCLibraryExtension(ComponentIdentifier identifier, @Provided ObjectFactory objects, @Provided ProviderFactory providers, @Provided ProjectLayout layout, @Provided DefaultNativeLibraryComponentFactory componentFactory) {
+		super(componentFactory.create(identifier), objects, providers, layout);
 		this.sources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();
 		this.publicHeaders = objects.fileCollection();

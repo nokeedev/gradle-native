@@ -1,18 +1,17 @@
 package dev.nokee.platform.c.internal.plugins;
 
-import dagger.BindsInstance;
-import dagger.Component;
-import dagger.Module;
-import dagger.Provides;
-import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
 import dev.nokee.platform.base.internal.DomainObjectStore;
+import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.c.CLibraryExtension;
-import dev.nokee.platform.c.internal.DefaultCLibraryExtension;
-import dev.nokee.platform.c.internal.DefaultCLibraryExtensionFactory;
-import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.c.internal.DaggerPlatformCComponents;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
+import dev.nokee.platform.nativebase.internal.TargetLinkageRule;
+import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -38,7 +37,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ProjectStorePlugin.class);
 
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
-		val extension = DaggerCLibraryPlugin_CLibraryComponent.factory().create(project).cLibraryComponent();
+		val extension = DaggerPlatformCComponents.factory().create(project).cLibraryFactory().create(new ComponentIdentifier("main", "main native component", ProjectIdentifier.of(project)));
 		val component = store.add(new DomainObjectElement<DefaultNativeLibraryComponent>() {
 			@Override
 			public DefaultNativeLibraryComponent get() {
@@ -64,23 +63,5 @@ public class CLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(CLibraryExtension.class, EXTENSION_NAME, extension);
-	}
-
-	@Module
-	interface CModule {
-		@Provides
-		static DefaultCLibraryExtension theExtension(DefaultCLibraryExtensionFactory factory) {
-			return factory.create();
-		}
-	}
-
-	@Component(modules = {GradleModule.class, NativeComponentModule.class, CModule.class})
-	interface CLibraryComponent {
-		DefaultCLibraryExtension cLibraryComponent();
-
-		@Component.Factory
-		interface Factory {
-			CLibraryComponent create(@BindsInstance Project project);
-		}
 	}
 }

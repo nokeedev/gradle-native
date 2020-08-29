@@ -25,6 +25,12 @@ dependencies {
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	compileOnly 'com.google.auto.factory:auto-factory:latest.release'
+	annotationProcessor 'com.google.auto.factory:auto-factory:latest.release'
+
+	implementation 'com.google.dagger:dagger:latest.release'
+	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
 }
 
 gradlePlugin {
