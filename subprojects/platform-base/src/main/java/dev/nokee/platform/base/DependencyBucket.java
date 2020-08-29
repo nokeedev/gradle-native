@@ -1,15 +1,24 @@
 package dev.nokee.platform.base;
 
-import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ModuleDependency;
-
+/**
+ * Represent a bucket of dependencies.
+ * These dependencies can either be declarable, consumable or resolvable.
+ *
+ * @since 0.5
+ */
 public interface DependencyBucket {
-	String getName();
+	/**
+	 * Returns the name of the dependency bucket.
+	 *
+	 * @return an instance of {@link DependencyBucketName}, never null.
+	 */
+	DependencyBucketName getName();
 
-	void addDependency(Object notation);
-
-	void addDependency(Object notation, Action<? super ModuleDependency> action);
-
-	Configuration getAsConfiguration();
+	/**
+	 * Extends the current bucket from the specified buckets.
+	 * The dependencies declared on the specified buckets will be included in this bucket.
+	 *
+	 * @param buckets the dependency buckets to extends from
+	 */
+	void extendsFrom(DependencyBucket... buckets);
 }

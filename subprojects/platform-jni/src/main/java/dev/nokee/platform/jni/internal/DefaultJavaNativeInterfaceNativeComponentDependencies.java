@@ -1,47 +1,36 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.platform.base.ComponentDependencies;
-import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.dependencies.BaseComponentDependencies;
-import dev.nokee.platform.base.internal.dependencies.ComponentDependenciesInternal;
+import dev.nokee.platform.base.DeclarableDependencyBucket;
+import dev.nokee.platform.base.DependencyBucketName;
+import dev.nokee.platform.base.internal.dependencies.BaseComponentDependenciesContainer;
+import dev.nokee.platform.base.internal.dependencies.ComponentDependenciesContainer;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.DeclarableMacOsFrameworkAwareDependencies;
 import lombok.Getter;
 import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 
-import javax.inject.Inject;
+public final class DefaultJavaNativeInterfaceNativeComponentDependencies extends BaseComponentDependenciesContainer implements JavaNativeInterfaceNativeComponentDependencies, ComponentDependencies {
+	@Getter private final DeclarableDependencyBucket nativeImplementation;
+	@Getter private final DeclarableDependencyBucket nativeLinkOnly;
+	@Getter private final DeclarableDependencyBucket nativeRuntimeOnly;
 
-import static dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx.configureAsBucket;
-
-public class DefaultJavaNativeInterfaceNativeComponentDependencies extends BaseComponentDependencies implements JavaNativeInterfaceNativeComponentDependencies, ComponentDependencies {
-	@Getter private final DependencyBucket nativeImplementation;
-	@Getter private final DependencyBucket nativeLinkOnly;
-	@Getter private final DependencyBucket nativeRuntimeOnly;
-
-	@Inject
-	public DefaultJavaNativeInterfaceNativeComponentDependencies(ComponentDependenciesInternal delegate) {
+	public DefaultJavaNativeInterfaceNativeComponentDependencies(ComponentDependenciesContainer delegate) {
 		super(delegate);
-		this.nativeImplementation = delegate.create("nativeImplementation", this::configureImplementationConfiguration);
-		this.nativeLinkOnly = delegate.create("nativeLinkOnly", this::configureLinkOnlyConfiguration);
-		this.nativeRuntimeOnly = delegate.create("nativeRuntimeOnly", this::configureRuntimeOnlyConfiguration);
+		this.nativeImplementation = delegate.register(DependencyBucketName.of("nativeImplementation"), DeclarableMacOsFrameworkAwareDependencies.class, this::configureImplementationBucket);
+		this.nativeLinkOnly = delegate.register(DependencyBucketName.of("nativeLinkOnly"), DeclarableMacOsFrameworkAwareDependencies.class, this::configureLinkOnlyBucket);
+		this.nativeRuntimeOnly = delegate.register(DependencyBucketName.of("nativeRuntimeOnly"), DeclarableMacOsFrameworkAwareDependencies.class, this::configureRuntimeOnlyBucket);
 	}
 
-	private void configureImplementationConfiguration(Configuration configuration) {
-		configureAsBucket(configuration);
-		configuration.setDescription(String.format("Implementation only dependencies for %s.", getComponentDisplayName()));
+	private void configureImplementationBucket(DeclarableMacOsFrameworkAwareDependencies bucket) {}
+
+	private void configureLinkOnlyBucket(DeclarableMacOsFrameworkAwareDependencies bucket) {
+		bucket.extendsFrom(nativeImplementation);
 	}
 
-	private void configureLinkOnlyConfiguration(Configuration configuration) {
-		configureAsBucket(configuration);
-		configuration.extendsFrom(nativeImplementation.getAsConfiguration());
-		configuration.setDescription(String.format("Link only dependencies for %s.", getComponentDisplayName()));
-	}
-
-	private void configureRuntimeOnlyConfiguration(Configuration configuration) {
-		configureAsBucket(configuration);
-		configuration.extendsFrom(nativeImplementation.getAsConfiguration());
-		configuration.setDescription(String.format("Runtime only dependencies for %s.", getComponentDisplayName()));
+	private void configureRuntimeOnlyBucket(DeclarableMacOsFrameworkAwareDependencies bucket) {
+		bucket.extendsFrom(nativeImplementation);
 	}
 
 	@Override

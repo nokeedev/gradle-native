@@ -6,11 +6,14 @@ import dagger.Module;
 import dagger.Provides;
 import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
 import dev.nokee.platform.base.internal.DomainObjectStore;
+import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibraryExtension;
+import dev.nokee.platform.objectivecpp.internal.DaggerPlatformObjectiveCppComponents;
 import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppLibraryExtension;
 import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppLibraryExtensionFactory;
 import lombok.AccessLevel;
@@ -38,7 +41,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ProjectStorePlugin.class);
 
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
-		val extension = DaggerObjectiveCppLibraryPlugin_ObjectiveCppLibraryComponent.factory().create(project).objectiveCppLibraryComponent();
+		val extension = DaggerPlatformObjectiveCppComponents.factory().create(project).objectiveCppLibraryFactory().create(new ComponentIdentifier("main", "main test component", ProjectIdentifier.of(project)));
 		val component = store.add(new DomainObjectElement<DefaultNativeLibraryComponent>() {
 			@Override
 			public DefaultNativeLibraryComponent get() {
@@ -64,23 +67,5 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(ObjectiveCppLibraryExtension.class, EXTENSION_NAME, extension);
-	}
-
-	@Module
-	interface ObjectiveCppModule {
-		@Provides
-		static DefaultObjectiveCppLibraryExtension theExtension(DefaultObjectiveCppLibraryExtensionFactory factory) {
-			return factory.create();
-		}
-	}
-
-	@Component(modules = {GradleModule.class, NativeComponentModule.class, ObjectiveCppModule.class})
-	interface ObjectiveCppLibraryComponent {
-		DefaultObjectiveCppLibraryExtension objectiveCppLibraryComponent();
-
-		@Component.Factory
-		interface Factory {
-			ObjectiveCppLibraryComponent create(@BindsInstance Project project);
-		}
 	}
 }

@@ -25,10 +25,21 @@ dependencies {
 
 	api 'com.google.dagger:dagger:latest.release'
 	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
+	api project(':coreGradle')
+
+	compileOnly 'com.google.auto.factory:auto-factory:latest.release'
+	annotationProcessor 'com.google.auto.factory:auto-factory:latest.release'
 
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation gradleApi(minimumGradleVersion)
+	testImplementation project(':coreGradle')
+	testImplementation testFixtures(project(':coreModel'))
+	testAnnotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
+	testCompileOnly 'com.google.auto.factory:auto-factory:latest.release'
+	testAnnotationProcessor 'com.google.auto.factory:auto-factory:latest.release'
+	testRuntimeOnly 'net.bytebuddy:byte-buddy:1.10.10'
+	testRuntimeOnly 'org.objenesis:objenesis:3.1'
 
 	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"

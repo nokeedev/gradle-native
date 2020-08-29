@@ -2,7 +2,6 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import lombok.AccessLevel;
 import lombok.Getter;

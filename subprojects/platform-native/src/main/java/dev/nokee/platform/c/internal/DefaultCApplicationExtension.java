@@ -4,7 +4,9 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.c.internal.CSourceSet;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.c.CApplicationExtension;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
@@ -32,8 +34,8 @@ public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNat
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
 
 	@Inject
-	public DefaultCApplicationExtension(@Provided DefaultNativeApplicationComponent component, @Provided ObjectFactory objects, @Provided ProviderFactory providers, @Provided ProjectLayout layout) {
-		super(component, objects, providers, layout);
+	public DefaultCApplicationExtension(ComponentIdentifier identifier, @Provided ObjectFactory objects, @Provided ProviderFactory providers, @Provided ProjectLayout layout, @Provided DefaultNativeApplicationComponentFactory componentFactory) {
+		super(componentFactory.create(identifier), objects, providers, layout);
 		this.sources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();
 		this.targetMachines = objects.setProperty(TargetMachine.class);

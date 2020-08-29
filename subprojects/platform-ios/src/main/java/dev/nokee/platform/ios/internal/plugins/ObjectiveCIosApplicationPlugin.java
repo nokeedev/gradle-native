@@ -1,10 +1,10 @@
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.platform.base.internal.DomainObjectStore;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingSchemeFactory;
+import dev.nokee.platform.base.DomainObjectElement;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
+import dev.nokee.platform.ios.internal.DaggerPlatformIosComponents;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
@@ -56,9 +56,26 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ProjectStorePlugin.class);
 
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
-		val component = store.register(DefaultIosApplicationComponent.newMain(getObjects(), new NamingSchemeFactory(project.getName())));
-		component.configure(it -> it.getGroupId().set(GroupId.of(project::getGroup)));
-		val extension = getObjects().newInstance(DefaultObjectiveCIosApplicationExtension.class, component.get());
+		val identifier = ComponentIdentifier.ofMain(ProjectIdentifier.of(project));
+		val component = DaggerPlatformIosComponents.factory().create(project).applicationFactory().create(identifier);
+		store.add(new DomainObjectElement<DefaultIosApplicationComponent>() {
+			  @Override
+			  public DefaultIosApplicationComponent get() {
+				  return component;
+			  }
+
+			  @Override
+			  public Class<DefaultIosApplicationComponent> getType() {
+				  return DefaultIosApplicationComponent.class;
+			  }
+
+			  @Override
+			  public DomainObjectIdentity getIdentity() {
+				  return DomainObjectIdentity.named("main");
+			  }
+		});
+		component.getGroupId().set(GroupId.of(project::getGroup));
+		val extension = getObjects().newInstance(DefaultObjectiveCIosApplicationExtension.class, component);
 
 		project.afterEvaluate(extension::finalizeExtension);
 

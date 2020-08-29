@@ -10,13 +10,7 @@ import javax.inject.Singleton;
 @Module
 public interface ComponentTasksModule {
 	@Provides
-	static ComponentTasksInternal theComponentTasks(DomainObjectIdentifierInternal identifier, TaskContainer taskContainer, KnownTaskIdentifierRegistry identifierRegistry) {
-		return new ComponentTasksAdapter(identifier, taskContainer, identifierRegistry);
-	}
-
-	@Provides
-	@Singleton
-	static KnownTaskIdentifierRegistry theKnownTaskIdentifierRegistry() {
-		return new KnownTaskIdentifierRegistryImpl();
+	static ComponentTasksInternal theComponentTasks(DomainObjectIdentifierInternal identifier, TaskContainer taskContainer) {
+		return new ComponentTasksAdapter(identifier, taskContainer); // TODO: don't receive a identifier here
 	}
 }

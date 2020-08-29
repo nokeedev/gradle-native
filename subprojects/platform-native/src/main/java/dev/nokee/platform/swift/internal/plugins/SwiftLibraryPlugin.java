@@ -6,11 +6,14 @@ import dagger.Module;
 import dagger.Provides;
 import dev.nokee.gradle.internal.GradleModule;
 import dev.nokee.platform.base.DomainObjectElement;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DomainObjectIdentity;
 import dev.nokee.platform.base.internal.DomainObjectStore;
+import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.swift.SwiftLibraryExtension;
+import dev.nokee.platform.swift.internal.DaggerPlatformSwiftComponents;
 import dev.nokee.platform.swift.internal.DefaultSwiftLibraryExtension;
 import dev.nokee.platform.swift.internal.DefaultSwiftLibraryExtensionFactory;
 import lombok.AccessLevel;
@@ -20,6 +23,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
+import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
@@ -38,7 +42,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ProjectStorePlugin.class);
 
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
-		val extension = DaggerSwiftLibraryPlugin_SwiftLibraryComponent.factory().create(project).swiftLibraryComponent();
+		val extension = DaggerPlatformSwiftComponents.factory().create(project).swiftLibraryFactory().create(new ComponentIdentifier("main", "main native component", ProjectIdentifier.of(project)));
 		val component = store.add(new DomainObjectElement<DefaultNativeLibraryComponent>() {
 			@Override
 			public DefaultNativeLibraryComponent get() {
@@ -55,7 +59,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 				return DomainObjectIdentity.named("main");
 			}
 		});
-		component.configure(it -> it.getBaseName().convention(project.getName()));
+		component.configure(it -> it.getBaseName().convention(GUtil.toCamelCase(project.getName())));
 		component.get(); // force realize... for now.
 
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
@@ -64,23 +68,5 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(SwiftLibraryExtension.class, EXTENSION_NAME, extension);
-	}
-
-	@Module
-	interface SwiftModule {
-		@Provides
-		static DefaultSwiftLibraryExtension theExtension(DefaultSwiftLibraryExtensionFactory factory) {
-			return factory.create();
-		}
-	}
-
-	@Component(modules = {GradleModule.class, NativeComponentModule.class, SwiftModule.class})
-	interface SwiftLibraryComponent {
-		DefaultSwiftLibraryExtension swiftLibraryComponent();
-
-		@Component.Factory
-		interface Factory {
-			SwiftLibraryComponent create(@BindsInstance Project project);
-		}
 	}
 }

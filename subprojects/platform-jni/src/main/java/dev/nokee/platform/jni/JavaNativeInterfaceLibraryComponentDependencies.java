@@ -1,7 +1,7 @@
 package dev.nokee.platform.jni;
 
 import dev.nokee.platform.base.ComponentDependencies;
-import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.DeclarableDependencyBucket;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.ModuleDependency;
@@ -65,21 +65,21 @@ public interface JavaNativeInterfaceLibraryComponentDependencies extends JavaNat
 	/**
 	 * Returns the JVM runtime only bucket of dependencies for this component.
 	 *
-	 * @return a {@link DependencyBucket} representing the JVM runtime only implementation bucket of dependencies, never null.
+	 * @return a {@link DeclarableDependencyBucket} representing the JVM runtime only implementation bucket of dependencies, never null.
 	 */
-	DependencyBucket getJvmRuntimeOnly();
+	DeclarableDependencyBucket getJvmRuntimeOnly();
 
 	/**
 	 * Returns the JVM implementation bucket of dependencies for this component.
 	 *
-	 * @return a {@link DependencyBucket} representing the JVM implementation bucket of dependencies, never null.
+	 * @return a {@link DeclarableDependencyBucket} representing the JVM implementation bucket of dependencies, never null.
 	 */
-	DependencyBucket getJvmImplementation();
+	DeclarableDependencyBucket getJvmImplementation();
 
 	/**
 	 * Returns the api bucket of dependencies for this component.
 	 *
-	 * @return a {@link DependencyBucket} representing the api bucket of dependencies, never null.
+	 * @return a {@link DeclarableDependencyBucket} representing the api bucket of dependencies, never null.
 	 */
-	DependencyBucket getApi();
+	DeclarableDependencyBucket getApi();
 }

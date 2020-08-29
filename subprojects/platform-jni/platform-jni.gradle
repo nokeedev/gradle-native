@@ -22,6 +22,12 @@ dependencies {
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	api 'com.google.dagger:dagger:latest.release'
+	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
+
+	compileOnly 'com.google.auto.factory:auto-factory:latest.release'
+	annotationProcessor 'com.google.auto.factory:auto-factory:latest.release'
 }
 
 gradlePlugin {
@@ -40,6 +46,7 @@ test {
 		implementation testFixtures(project(':platformBase'))
 		runtimeOnly 'net.bytebuddy:byte-buddy:1.10.10' // Because NamingScheme is not an interface
 		runtimeOnly 'org.objenesis:objenesis:3.1' // Because NamingScheme is not an interface
+		annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
 	}
 }
 

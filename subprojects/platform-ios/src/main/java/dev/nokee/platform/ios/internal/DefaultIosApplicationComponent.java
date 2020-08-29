@@ -1,5 +1,7 @@
 package dev.nokee.platform.ios.internal;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.core.exec.CommandLineTool;
@@ -11,10 +13,7 @@ import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
-import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
+import dev.nokee.platform.ios.internal.rules.IosDevelopmentVariantConvention;
 import dev.nokee.platform.ios.tasks.internal.*;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -22,14 +21,16 @@ import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
-import dev.nokee.platform.nativebase.internal.dependencies.*;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeDependenciesBuilderFactory;
+import dev.nokee.platform.nativebase.internal.dependencies.NativeComponentDependenciesFactory;
+import dev.nokee.platform.nativebase.internal.dependencies.NativeComponentDependenciesInternal;
+import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import lombok.var;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -48,29 +49,31 @@ import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.GUtil;
 import org.gradle.util.VersionNumber;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.util.List;
 
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
-public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, Component {
-	private final DefaultNativeComponentDependencies dependencies;
+@AutoFactory
+public final class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, Component {
+	private final NativeComponentDependenciesInternal dependencies;
 	@Getter private final Property<GroupId> groupId;
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
+	private final DefaultNativeDependenciesBuilderFactory dependenciesBuilderFactory;
 
-	@Inject
-	public DefaultIosApplicationComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(names, DefaultIosApplicationVariant.class, objects, providers, tasks, layout, configurations);
+	public DefaultIosApplicationComponent(ComponentIdentifier identifier, @Provided ObjectFactory objects, @Provided ProviderFactory providers, @Provided TaskContainer tasks, @Provided ProjectLayout layout, @Provided ConfigurationContainer configurations, @Provided DependencyHandler dependencyHandler, @Provided NativeComponentDependenciesFactory dependenciesFactory, @Provided DefaultNativeDependenciesBuilderFactory dependenciesBuilderFactory) {
+		super(NamingScheme.fromIdentifier(identifier, identifier.getProjectIdentifier().getName()), DefaultIosApplicationVariant.class, objects, providers, tasks, layout, configurations);
 		this.dependencyHandler = dependencyHandler;
-		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
-		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
+		this.dependenciesBuilderFactory = dependenciesBuilderFactory;
+		this.dependencies = dependenciesFactory.create(identifier);
 		this.groupId = objects.property(GroupId.class);
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
+
+		getDevelopmentVariant().convention(providers.provider(new IosDevelopmentVariantConvention<>(getVariantCollection()::get)));
 	}
 
 	@Override
-	public DefaultNativeComponentDependencies getDependencies() {
+	public NativeComponentDependenciesInternal getDependencies() {
 		return dependencies;
 	}
 
@@ -89,29 +92,21 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	@Override
 	protected VariantComponentDependencies<NativeComponentDependencies> newDependencies(NamingScheme names, BuildVariantInternal buildVariant) {
-		var variantDependencies = getDependencies();
-		if (getBuildVariants().get().size() > 1) {
-			val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler())));
-			variantDependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
-			variantDependencies.configureEach(variantBucket -> {
-				getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
-					variantBucket.getAsConfiguration().extendsFrom(componentBucket.getAsConfiguration());
-				});
-			});
-		}
+		val identifier = new VariantIdentifier(names.getUnambiguousDimensionsAsString(), new ComponentIdentifier(names.getComponentName(), new ProjectIdentifier("")));
+		val builder = dependenciesBuilderFactory.create().withParentDependencies(getDependencies()).withIdentifier(identifier).withVariant(buildVariant);
 
-		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
 		boolean hasSwift = !getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
 		if (hasSwift) {
-			incomingDependenciesBuilder.withIncomingSwiftModules();
+			builder.withSwiftModules();
 		} else {
-			incomingDependenciesBuilder.withIncomingHeaders();
+			builder.withNativeHeaders();
 		}
 
-		NativeIncomingDependencies incoming = incomingDependenciesBuilder.buildUsing(getObjects());
-		NativeOutgoingDependencies outgoing = getObjects().newInstance(IosApplicationOutgoingDependencies.class, names, buildVariant, variantDependencies);
+		builder.withOutgoingDependencies(variantDependencies -> {
+			return new IosApplicationOutgoingDependencies(buildVariant, variantDependencies, getObjects());
+		});
 
-		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
+		return builder.build();
 	}
 
 	@Override
@@ -234,30 +229,5 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			});
 		});
 		super.finalizeExtension(project);
-	}
-
-	public static DomainObjectFactory<DefaultIosApplicationComponent> newMain(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
-		return new DomainObjectFactory<DefaultIosApplicationComponent>() {
-			@Override
-			public DefaultIosApplicationComponent create() {
-				NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main iOS application");
-				return objects.newInstance(DefaultIosApplicationComponent.class, names);
-			}
-
-			@Override
-			public Class<DefaultIosApplicationComponent> getType() {
-				return DefaultIosApplicationComponent.class;
-			}
-
-			@Override
-			public Class<? extends DefaultIosApplicationComponent> getImplementationType() {
-				return DefaultIosApplicationComponent.class;
-			}
-
-			@Override
-			public DomainObjectIdentity getIdentity() {
-				return DomainObjectIdentity.named("main");
-			}
-		};
 	}
 }

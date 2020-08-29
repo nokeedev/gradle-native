@@ -8,6 +8,7 @@ import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
@@ -35,16 +36,18 @@ class ComponentTasksAdapterTest extends Specification {
 		def tasks = Mock(TaskContainer)
 		def action = Mock(Action)
 		def subject = create(tasks)
+		def taskProvider = Mock(TaskProvider)
 
 		when:
 		subject.register(of('foo'), DummyTask, action)
 
 		then:
-		1 * tasks.register('foo', DummyTask, action)
+		1 * tasks.register('foo', DummyTask) >> taskProvider
+		1 * taskProvider.configure(action)
 		0 * _
 	}
 
-	def "forwards configure each action to task container as scoped"() {
+	def "forwards configure each action to task container"() {
 		given:
 		def tasks = Mock(TaskContainer)
 		def action = Mock(Action)
@@ -54,7 +57,7 @@ class ComponentTasksAdapterTest extends Specification {
 		subject.configureEach(action)
 
 		then:
-		1 * tasks.configureEach(_ as KnownTaskIdentifierActionAdapter)
+		1 * tasks.configureEach(_)
 		0 * _
 	}
 
@@ -73,7 +76,9 @@ class ComponentTasksAdapterTest extends Specification {
 
 	def "returns provider when registering a task with action"() {
 		given:
-		def tasks = Mock(TaskContainer)
+		def tasks = Mock(TaskContainer) {
+			register(_, _) >> Mock(TaskProvider)
+		}
 		def action = Mock(Action)
 		def subject = create(tasks)
 
@@ -135,6 +140,7 @@ class ComponentTasksAdapterTest extends Specification {
 		def forwardedAction = null
 		def tasks = Mock(TaskContainer) {
 			configureEach(_) >> { args -> forwardedAction = args[0] }
+			register(_, _) >> Mock(TaskProvider)
 		}
 		def subject = create(tasks)
 
@@ -181,12 +187,14 @@ class ComponentTasksAdapterTest extends Specification {
 		def action = Mock(Action)
 		def identifier = new ComponentIdentifier('test', new ProjectIdentifier('root'))
 		def subject = create(tasks, identifier)
+		def taskProvider = Mock(TaskProvider)
 
 		when:
 		def result = subject.register(of('foo'), DummyTask, action)
 
 		then:
-		1 * tasks.register('fooTest', DummyTask, action)
+		1 * tasks.register('fooTest', DummyTask) >> taskProvider
+		1 * taskProvider.configure(action)
 		0 * _
 
 		and:
@@ -257,6 +265,7 @@ class ComponentTasksAdapterTest extends Specification {
 		def forwardedAction = null
 		def tasks = Mock(TaskContainer) {
 			configureEach(_) >> { args -> forwardedAction = args[0] }
+			register(_, _) >> Mock(TaskProvider)
 		}
 		def identifier = new ComponentIdentifier('test', new ProjectIdentifier('root'))
 		def subject = create(tasks, identifier)
@@ -369,7 +378,7 @@ class ComponentTasksAdapterTest extends Specification {
 	}
 
 	ComponentTasksAdapter create(TaskContainer tasks, DomainObjectIdentifierInternal identifier = new ProjectIdentifier('root')) {
-		return new ComponentTasksAdapter(identifier, tasks, new KnownTaskIdentifierRegistryImpl())
+		return new ComponentTasksAdapter(identifier, tasks)
 	}
 
 	static class DummyTask extends DefaultTask {}

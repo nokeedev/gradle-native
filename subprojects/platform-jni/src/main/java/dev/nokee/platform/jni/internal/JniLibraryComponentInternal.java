@@ -7,14 +7,9 @@ import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
-import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
-import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
@@ -27,7 +22,6 @@ import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
@@ -49,13 +43,14 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 
 	@Inject
-	public JniLibraryComponentInternal(NamingScheme names, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers) {
+	public JniLibraryComponentInternal(NamingScheme names, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers, DefaultJavaNativeInterfaceLibraryComponentDependenciesFactory dependenciesFactory) {
 		super(names, JniLibraryInternal.class, objects);
 		this.configurations = configurations;
 		this.dependencyHandler = dependencyHandler;
 		this.providers = providers;
-		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.MaybeCreating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
-		this.dependencies = objects.newInstance(DefaultJavaNativeInterfaceLibraryComponentDependencies.class, dependencyContainer);
+
+		val identifier = ComponentIdentifier.builder().withName(names.getComponentName()).withDisplayName(names.getComponentDisplayName()).withProjectIdentifier(new ProjectIdentifier("")).build();
+		this.dependencies = dependenciesFactory.create(identifier);
 		this.groupId = groupId;
 		this.sources = objects.domainObjectSet(LanguageSourceSetInternal.class);
 		this.targetMachines = objects.setProperty(TargetMachine.class);
@@ -101,10 +96,6 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		return targetMachines.stream().map(it -> (DefaultTargetMachine)it).map(it -> DefaultBuildVariant.of(it.getOperatingSystemFamily(), it.getArchitecture())).collect(Collectors.toList());
 	}
 	//endregion
-
-	public Configuration getJvmImplementationDependencies() {
-		return dependencies.getJvmImplementation().getAsConfiguration();
-	}
 
 	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
 		return sources;

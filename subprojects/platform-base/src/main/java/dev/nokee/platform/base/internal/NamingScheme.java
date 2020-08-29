@@ -40,6 +40,14 @@ public class NamingScheme {
 		return new NamingScheme(baseName, ComponentName.of(name), ComponentDisplayName.missing(), ConfigurationPrefix.none(), Dimensions.empty());
 	}
 
+	// FIXME, use componentidentifier parent to get the project name
+	public static NamingScheme fromIdentifier(ComponentIdentifier identifier, String name) {
+		if (identifier.getName().equals("main")) {
+			return asMainComponent(name).withComponentDisplayName(identifier.getDisplayName());
+		}
+		return asComponent(name, identifier.getName()).withComponentDisplayName(identifier.getDisplayName());
+	}
+
 	/**
 	 * Returns the configuration name for the target using this scheme, i.e. implementation, testImplementation, testWindowsImplementation, testWindowsNativeImplementation, jvmImplementation.
 	 *
@@ -63,6 +71,10 @@ public class NamingScheme {
 
 	public String getComponentName() {
 		return componentName.get();
+	}
+
+	public String getUnambiguousDimensionsAsString() {
+		return dimensions.get().orElse("");
 	}
 
 	public BaseNameNamingScheme getBaseName() {

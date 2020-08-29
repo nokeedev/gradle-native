@@ -1,45 +1,46 @@
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.platform.base.DeclarableDependencyBucket;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.dependencies.BaseComponentDependencies;
-import dev.nokee.platform.base.internal.dependencies.ComponentDependenciesInternal;
+import dev.nokee.platform.base.DependencyBucketName;
+import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 
 import java.util.Optional;
 
-public class NativeComponentDependenciesJavaNativeInterfaceAdapter extends BaseComponentDependencies implements NativeComponentDependencies {
+public final class NativeComponentDependenciesJavaNativeInterfaceAdapter extends BaseComponentDependenciesContainer implements NativeComponentDependencies {
 	private final JavaNativeInterfaceNativeComponentDependencies delegate;
 
 	public NativeComponentDependenciesJavaNativeInterfaceAdapter(JavaNativeInterfaceNativeComponentDependencies delegate) {
-		super((ComponentDependenciesInternal) delegate);
+		super((ComponentDependenciesContainer) delegate);
 		this.delegate = delegate;
 	}
 
 	@Override
-	public DependencyBucket create(String name) {
-		if ("headerSearchPaths".equals(name)) {
-			return super.create(name);
-		}
-		return super.create(prefixWithNative(name));
+	public <T extends DependencyBucket> T register(DependencyBucketName name, Class<T> type) {
+		return super.register(prefixIfNotHeaderSearchPaths(name), type);
 	}
 
 	@Override
-	public DependencyBucket create(String name, Action<Configuration> action) {
-		if ("headerSearchPaths".equals(name)) {
-			return super.create(name, action);
-		}
-		return super.create(prefixWithNative(name), action);
+	public <T extends DependencyBucket> T register(DependencyBucketName name, Class<T> type, Action<? super T> action) {
+		return super.register(prefixIfNotHeaderSearchPaths(name), type, action);
 	}
 
 	@Override
-	public Optional<DependencyBucket> findByName(String name) {
-		return super.findByName(prefixWithNative(name));
+	public Optional<DependencyBucket> findByName(DependencyBucketName name) {
+		return super.findByName(DependencyBucketName.of(prefixWithNative(name.get())));
+	}
+
+	private static DependencyBucketName prefixIfNotHeaderSearchPaths(DependencyBucketName name) {
+		if ("headerSearchPaths".equals(name.get())) {
+			return name;
+		}
+		return DependencyBucketName.of(prefixWithNative(name.get()));
 	}
 
 	private static String prefixWithNative(String target) {
@@ -87,27 +88,28 @@ public class NativeComponentDependenciesJavaNativeInterfaceAdapter extends BaseC
 	}
 
 	@Override
-	public DependencyBucket getImplementation() {
+	public DeclarableDependencyBucket getImplementation() {
 		return delegate.getNativeImplementation();
 	}
 
 	@Override
-	public DependencyBucket getRuntimeOnly() {
+	public DeclarableDependencyBucket getRuntimeOnly() {
 		return delegate.getNativeRuntimeOnly();
 	}
 
 	@Override
-	public DependencyBucket getCompileOnly() {
-		val compileOnly = ((ComponentDependenciesInternal)delegate).findByName("nativeCompileOnly");
+	public DeclarableDependencyBucket getCompileOnly() {
+		// FIXME: findByName(Name, Type)
+		val compileOnly = ((ComponentDependenciesContainer)delegate).findByName(DependencyBucketName.of("nativeCompileOnly"));
 		if (compileOnly.isPresent()) {
-			return compileOnly.get();
+			return (DeclarableDependencyBucket) compileOnly.get();
 		} else {
 			throw new UnsupportedOperationException();
 		}
 	}
 
 	@Override
-	public DependencyBucket getLinkOnly() {
+	public DeclarableDependencyBucket getLinkOnly() {
 		return delegate.getNativeLinkOnly();
 	}
 }

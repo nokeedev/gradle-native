@@ -21,6 +21,12 @@ dependencies {
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+
+	compileOnly 'com.google.auto.factory:auto-factory:latest.release'
+	annotationProcessor 'com.google.auto.factory:auto-factory:latest.release'
+
+	api 'com.google.dagger:dagger:latest.release'
+	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
 }
 
 gradlePlugin {

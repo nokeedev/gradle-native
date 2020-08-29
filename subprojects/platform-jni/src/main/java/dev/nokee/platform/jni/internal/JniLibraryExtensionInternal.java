@@ -34,11 +34,11 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension {
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
 	@Inject
-	public JniLibraryExtensionInternal(GroupId groupId, NamingScheme names, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers) {
+	public JniLibraryExtensionInternal(GroupId groupId, NamingScheme names, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers, DefaultJavaNativeInterfaceLibraryComponentDependenciesFactory dependenciesFactory) {
 		this.configurations = configurations;
 		this.objects = objects;
 		this.providers = providers;
-		this.component = objects.newInstance(JniLibraryComponentInternal.class, names, groupId);
+		this.component = objects.newInstance(JniLibraryComponentInternal.class, names, groupId, dependenciesFactory);
 	}
 
 	//region Variant-awareness
@@ -67,10 +67,6 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension {
 
 	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
 		return component.getSources();
-	}
-
-	public Configuration getJvmImplementationDependencies() {
-		return component.getJvmImplementationDependencies();
 	}
 
 	@Override

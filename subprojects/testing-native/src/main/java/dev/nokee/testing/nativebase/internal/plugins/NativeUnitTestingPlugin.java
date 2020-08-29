@@ -5,12 +5,16 @@ import dev.nokee.language.cpp.internal.CppSourceSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.DefaultTestSuiteContainer;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.nativebase.NativeTestSuite;
+import dev.nokee.testing.nativebase.internal.DaggerTestingNativeBaseComponents;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
+import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponentFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -24,6 +28,8 @@ import javax.inject.Inject;
 public class NativeUnitTestingPlugin implements Plugin<Project> {
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
+	private DefaultNativeTestSuiteComponentFactory componentFactory;
+	private ProjectIdentifier projectIdentifier;
 
 	@Inject
 	public NativeUnitTestingPlugin(ObjectFactory objects, TaskContainer tasks) {
@@ -35,6 +41,9 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(TestingBasePlugin.class);
+
+		componentFactory = DaggerTestingNativeBaseComponents.factory().create(project).testSuiteComponentFactory();
+		projectIdentifier = ProjectIdentifier.of(project);
 
 		val extension = (DefaultTestSuiteContainer)project.getExtensions().getByType(TestSuiteContainer.class);
 		extension.registerFactory(NativeTestSuite.class, DefaultNativeTestSuiteComponent.class, this::createNativeTestSuite);
@@ -68,6 +77,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	}
 
 	private NativeTestSuite createNativeTestSuite(String name) {
-		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, NamingScheme.asComponent(name, name).withComponentDisplayName("Test Suite"));
+		return componentFactory.create(ComponentIdentifier.of(name, projectIdentifier));
 	}
 }

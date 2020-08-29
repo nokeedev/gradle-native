@@ -1,8 +1,9 @@
 package dev.nokee.platform.objectivec.internal;
 
 import dagger.MembersInjector;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.nativebase.internal.DecoratingFactory;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponentFactory;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
@@ -12,23 +13,23 @@ import javax.inject.Provider;
 
 /** @see DecoratingFactory */
 public final class DefaultObjectiveCLibraryExtensionFactory extends AutoDefaultObjectiveCLibraryExtensionFactory {
-	private final Provider<DefaultNativeLibraryComponent> componentProvider;
 	private final Provider<ObjectFactory> objectsProvider;
 	private final Provider<ProviderFactory> providersProvider;
 	private final Provider<ProjectLayout> layoutProvider;
+	private final Provider<DefaultNativeLibraryComponentFactory> componentFactoryProvider;
 
 	@Inject
-	public DefaultObjectiveCLibraryExtensionFactory(Provider<DefaultNativeLibraryComponent> componentProvider, Provider<ObjectFactory> objectsProvider, Provider<ProviderFactory> providersProvider, Provider<ProjectLayout> layoutProvider, MembersInjector<DecoratingFactory> injector) {
-		super(componentProvider, objectsProvider, providersProvider, layoutProvider);
-		this.componentProvider = componentProvider;
+	public DefaultObjectiveCLibraryExtensionFactory(Provider<ObjectFactory> objectsProvider, Provider<ProviderFactory> providersProvider, Provider<ProjectLayout> layoutProvider, Provider<DefaultNativeLibraryComponentFactory> componentFactoryProvider,  MembersInjector<DecoratingFactory> injector) {
+		super(objectsProvider, providersProvider, layoutProvider, componentFactoryProvider);
 		this.objectsProvider = objectsProvider;
 		this.providersProvider = providersProvider;
 		this.layoutProvider = layoutProvider;
+		this.componentFactoryProvider = componentFactoryProvider;
 		injector.injectMembers(this);
 	}
 
 	@Override
-	public DefaultObjectiveCLibraryExtension create() {
-		return newInstance(componentProvider.get(), objectsProvider.get(), providersProvider.get(), layoutProvider.get());
+	public DefaultObjectiveCLibraryExtension create(ComponentIdentifier identifier) {
+		return newInstance(identifier, objectsProvider.get(), providersProvider.get(), layoutProvider.get(), componentFactoryProvider.get());
 	}
 }
