@@ -122,6 +122,9 @@ jobs:
             -   uses: actions/setup-java@v1
                 with:
                     java-version: '8'
+            -   name: Install documentation dependencies
+                if: matrix.os == 'ubuntu-latest'
+                run: sudo apt-get update && sudo apt-get -y install graphviz asciinema imagemagick gifsicle ffmpeg tree && sudo npm --global install asciicast2gif giflossy --unsafe-perm
             -   name: Run all tests
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
