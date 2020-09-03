@@ -34,7 +34,7 @@ tasks.withType(CreateAsciinema).configureEach {
 	dependsOn({ project(':distributions').tasks.named('publishToStaging')})
 }
 
-def readMeFile = rootProject.file('readme.adoc')
+def readMeFile = rootProject.file('README.adoc')
 docsTest.inputs.file(readMeFile)
 docsTest.systemProperty('dev.nokee.docs.readme.location', readMeFile.absolutePath)
 
