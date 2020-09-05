@@ -78,11 +78,6 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	}
 
 	@Override
-	public void dependencies(Action<? super NativeComponentDependencies> action) {
-		action.execute(dependencies);
-	}
-
-	@Override
 	protected DefaultXCTestTestSuiteVariant createVariant(String name, BuildVariantInternal buildVariant, VariantComponentDependencies<?> variantDependencies) {
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 

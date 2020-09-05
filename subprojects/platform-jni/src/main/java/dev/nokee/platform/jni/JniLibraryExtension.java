@@ -18,18 +18,10 @@ public interface JniLibraryExtension extends DependencyAwareComponent<JavaNative
 	/**
 	 * Returns the dependencies of this component.
 	 *
-	 * @return a {@link JniLibraryDependencies}, never null.
+	 * @return a {@link JavaNativeInterfaceLibraryComponentDependencies}, never null.
 	 * @since 0.1
 	 */
 	JavaNativeInterfaceLibraryComponentDependencies getDependencies();
-
-	/**
-	 * Configure the dependencies of this component.
-	 *
-	 * @param action configuration action for {@link JniLibraryDependencies}.
-	 * @since 0.1
-	 */
-	void dependencies(Action<? super JavaNativeInterfaceLibraryComponentDependencies> action);
 
 	/**
 	 * Specifies the target machines this component should be built for.

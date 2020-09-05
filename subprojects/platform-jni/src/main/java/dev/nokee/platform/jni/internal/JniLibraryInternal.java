@@ -116,9 +116,4 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	public DefaultJavaNativeInterfaceNativeComponentDependencies getDependencies() {
 		return dependencies;
 	}
-
-	@Override
-	public void dependencies(Action<? super JavaNativeInterfaceNativeComponentDependencies> action) {
-		action.execute(dependencies);
-	}
 }

@@ -26,11 +26,6 @@ public class DefaultObjectiveCIosApplicationExtension extends BaseIosExtension<D
 		return getComponent().getDependencies();
 	}
 
-	@Override
-	public void dependencies(Action<? super NativeComponentDependencies> action) {
-		getComponent().dependencies(action);
-	}
-
 	public void finalizeExtension(Project project) {
 		getComponent().finalizeExtension(project);
 	}

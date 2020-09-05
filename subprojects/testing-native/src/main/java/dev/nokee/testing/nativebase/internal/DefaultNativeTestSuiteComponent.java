@@ -19,7 +19,6 @@ import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFact
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
-import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
@@ -33,7 +32,6 @@ import lombok.Getter;
 import lombok.val;
 import lombok.var;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -106,11 +104,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	@Override
 	public DefaultNativeComponentDependencies getDependencies() {
 		return dependencies;
-	}
-
-	@Override
-	public void dependencies(Action<? super NativeComponentDependencies> action) {
-		action.execute(dependencies);
 	}
 
 	@Override

@@ -43,11 +43,6 @@ public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNat
 		return getComponent().getDependencies();
 	}
 
-	@Override
-	public void dependencies(Action<? super NativeApplicationComponentDependencies> action) {
-		getComponent().dependencies(action);
-	}
-
 	public void finalizeExtension(Project project) {
 		getComponent().finalizeExtension(project);
 	}

@@ -21,6 +21,8 @@ public interface DependencyAwareComponent<T extends ComponentDependencies> {
 	 *
 	 * @param action configuration action for {@link ComponentDependencies}.
 	 */
-	void dependencies(Action<? super T> action);
+	default void dependencies(Action<? super T> action) {
+		action.execute(getDependencies());
+	}
 }
 

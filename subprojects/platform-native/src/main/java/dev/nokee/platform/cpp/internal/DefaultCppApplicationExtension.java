@@ -44,11 +44,6 @@ public class DefaultCppApplicationExtension extends BaseNativeExtension<DefaultN
 		return getComponent().getDependencies();
 	}
 
-	@Override
-	public void dependencies(Action<? super NativeApplicationComponentDependencies> action) {
-		getComponent().dependencies(action);
-	}
-
 	public void finalizeExtension(Project project) {
 		getComponent().finalizeExtension(project);
 	}
