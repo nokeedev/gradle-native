@@ -4,17 +4,36 @@ import dev.nokee.ChainingAction;
 import dev.nokee.utils.internal.CompositeAction;
 import org.gradle.api.Action;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static dev.nokee.utils.internal.NullAction.DO_NOTHING;
-
 public final class ActionUtils {
+	/**
+	 * Creates an action implementation that simply does nothing.
+	 *
+	 * @return an action object with an empty implementation, never null.
+	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Action<T> doNothing() {
-		return (Action<T>) DO_NOTHING;
+		return (Action<T>) DoNothingAction.INSTANCE;
+	}
+
+	// TODO: ChainingAction is using it, make private
+	public enum DoNothingAction implements ChainingAction<Object>, Action<Object>, Serializable {
+		INSTANCE;
+
+		@Override
+		public void execute(Object o) {
+			// do nothing
+		}
+
+		@Override
+		public String toString() {
+			return "ActionUtils.doNothing()";
+		}
 	}
 
     @SafeVarargs
@@ -36,7 +55,7 @@ public final class ActionUtils {
 	}
 
 	public static boolean doesSomething(Action<?> action) {
-		return action != DO_NOTHING;
+		return action != DoNothingAction.INSTANCE;
 	}
 
     public static <T> ChainingAction<? super T> chain(Action<? super T> action) {

@@ -1,25 +1,23 @@
 package dev.nokee
 
 import dev.nokee.utils.ActionUtils
-import dev.nokee.utils.internal.NullAction
 import org.gradle.api.Action
 import spock.lang.Specification
 import spock.lang.Subject
 
 import static dev.nokee.ChainingAction.doNothing
-import static dev.nokee.utils.internal.NullAction.DO_NOTHING
 
 @Subject(ChainingAction)
 class ChainingActionTest extends Specification {
 	def "can create do nothing chaining action"() {
 		expect:
-		doNothing() == DO_NOTHING
+		doNothing() == ActionUtils.doNothing()
 		doNothing() instanceof ChainingAction
 	}
 
 	def "chaining null action returns the null action"() {
 		expect:
-		doNothing().andThen(ActionUtils.doNothing()) == DO_NOTHING
+		doNothing().andThen(ActionUtils.doNothing()) == ActionUtils.doNothing()
 	}
 
 	def "actions are chained together"() {
