@@ -17,7 +17,7 @@ public class KnownVariant<T extends Variant> {
 	}
 
 	public BuildVariantInternal getBuildVariant() {
-		return ((BuildVariantDomainObjectIdentifier)knownObject.getIdentity()).getBuildVariant();
+		return (BuildVariantInternal)((VariantIdentifier<?>)knownObject.getIdentity()).getBuildVariant();
 	}
 
 	public void configure(Action<? super T> action) {

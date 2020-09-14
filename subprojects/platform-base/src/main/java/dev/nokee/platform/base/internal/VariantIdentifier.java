@@ -1,6 +1,7 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.internal.NamedDomainObjectIdentifier;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.runtime.base.internal.Dimension;
@@ -16,7 +17,7 @@ import static java.util.Objects.requireNonNull;
 
 @ToString
 @EqualsAndHashCode
-public class VariantIdentifier<T extends Variant> implements DomainObjectIdentifierInternal {
+public class VariantIdentifier<T extends Variant> implements DomainObjectIdentifierInternal, NamedDomainObjectIdentifier {
 	@Getter private final String unambiguousName;
 	@Getter private final Class<T> type;
 	@Getter private final ComponentIdentifier<?> componentIdentifier;
@@ -33,6 +34,10 @@ public class VariantIdentifier<T extends Variant> implements DomainObjectIdentif
 
 	public static <T extends Variant> VariantIdentifier<T> of(String unambiguousName, Class<T> type, ComponentIdentifier<?> identifier) {
 		return new VariantIdentifier<>(unambiguousName, type, identifier, Collections.emptyList(), null);
+	}
+
+	public String getName() {
+		return unambiguousName;
 	}
 
 	public BuildVariant getBuildVariant() {
