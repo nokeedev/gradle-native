@@ -11,8 +11,8 @@ import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.runtime.base.internal.tools.ToolRepository;
 import dev.nokee.runtime.nativebase.internal.locators.CmakeLocator;
-import dev.nokee.runtime.nativebase.internal.locators.MakeLocator;
 import dev.nokee.runtime.nativebase.internal.locators.MSBuildLocator;
+import dev.nokee.runtime.nativebase.internal.locators.MakeLocator;
 import dev.nokee.runtime.nativebase.internal.locators.VswhereLocator;
 import lombok.SneakyThrows;
 import lombok.Value;
@@ -33,10 +33,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static dev.nokee.buildadapter.cmake.internal.DeferUtils.asToStringObject;
+import static dev.nokee.utils.DeferUtils.asToStringObject;
 
 public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 	@SneakyThrows
