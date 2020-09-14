@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 /**
  * Utilities for Gradle {@link Task} {@link Action}.
  */
-public class TaskActionUtils {
+public final class TaskActionUtils {
 	/**
 	 * Returns an action that will delete the specified directories.
 	 * The directories can be of type {@link File}, {@link java.nio.file.Path}, {@link org.gradle.api.file.Directory} or any deferred types of previous types.

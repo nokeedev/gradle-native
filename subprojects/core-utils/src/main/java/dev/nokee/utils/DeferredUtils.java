@@ -12,7 +12,7 @@ import java.util.function.*;
 
 import static org.gradle.util.GUtil.uncheckedCall;
 
-public class DeferredUtils {
+public final class DeferredUtils {
 	private static final Optional<Class<?>> KOTLIN_FUNCTION0_CLASS = loadKotlinFunction0Class();
 
 	/**

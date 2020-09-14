@@ -7,7 +7,7 @@ import org.gradle.api.file.ProjectLayout;
 /**
  * Utilities for Gradle {@link Task} instances.
  */
-public class TaskUtils {
+public final class TaskUtils {
 	/**
 	 * Returns the relative path from {@link ProjectLayout#getBuildDirectory()} (or {@link Project#getBuildDir()}) to the specified task temporary directory.
 	 * Calling {@link Task#getTemporaryDir()} creates the directory immediately.
