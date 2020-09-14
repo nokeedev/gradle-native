@@ -2,10 +2,13 @@ package dev.nokee.platform.jni;
 
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyBucket;
+import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.ProjectDependency;
+import org.gradle.util.ConfigureUtil;
 
 /**
  * Allows the API, JVM implementation and native implementation dependencies of a Java Native Interface (JNI) library to be specified.
@@ -30,6 +33,16 @@ public interface JavaNativeInterfaceLibraryComponentDependencies extends JavaNat
 	void api(Object notation, Action<? super ModuleDependency> action);
 
 	/**
+	 * Adds an JVM API dependency to this library. An API dependency is made visible to consumers that are compiled against this component.
+	 *
+	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+	 * @param closure The closure to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
+	 */
+	default void api(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		api(notation, ConfigureUtil.configureUsing(closure));
+	}
+
+	/**
 	 * Adds an JVM implementation dependency to this library. An implementation dependency is not visible to consumers that are compiled against this component.
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
@@ -44,6 +57,17 @@ public interface JavaNativeInterfaceLibraryComponentDependencies extends JavaNat
 	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
 	void jvmImplementation(Object notation, Action<? super ModuleDependency> action);
+
+	/**
+	 * Adds an JVM implementation dependency to this library.
+	 * An implementation dependency is not visible to consumers that are compiled against this component.
+	 *
+	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+	 * @param closure The closure to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
+	 */
+	default void jvmImplementation(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		jvmImplementation(notation, ConfigureUtil.configureUsing(closure));
+	}
 
 	/**
 	 * Adds an JVM runtime only dependency to this library.
@@ -61,6 +85,17 @@ public interface JavaNativeInterfaceLibraryComponentDependencies extends JavaNat
 	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
 	void jvmRuntimeOnly(Object notation, Action<? super ModuleDependency> action);
+
+	/**
+	 * Adds an JVM runtime only dependency to this library.
+	 * An implementation dependency is only visible to consumers that are running against this component.
+	 *
+	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+	 * @param closure The closure to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
+	 */
+	default void jvmRuntimeOnly(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		jvmRuntimeOnly(notation, ConfigureUtil.configureUsing(closure));
+	}
 
 	/**
 	 * Returns the JVM runtime only bucket of dependencies for this component.

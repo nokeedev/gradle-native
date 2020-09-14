@@ -1,9 +1,12 @@
 package dev.nokee.platform.base;
 
+import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
+import org.gradle.util.ConfigureUtil;
 
 import java.util.List;
 import java.util.Set;
@@ -25,6 +28,17 @@ public interface View<T> {
 	void configureEach(Action<? super T> action);
 
 	/**
+	 * Registers a closure to execute to configure each element in the view.
+	 * The action is only executed for those elements that are required.
+	 * Fails if any element has already been finalized.
+	 *
+	 * @param closure The closure to execute on each element for configuration.
+	 */
+	default void configureEach(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		configureEach(ConfigureUtil.configureUsing(closure));
+	}
+
+	/**
 	 * Registers an action to execute to configure each element in the view.
 	 * The action is only executed for those elements that are required.
 	 * Fails if any matching element has already been finalized.
@@ -38,6 +52,21 @@ public interface View<T> {
 	<S extends T> void configureEach(Class<S> type, Action<? super S> action);
 
 	/**
+	 * Registers a closure to execute to configure each element in the view.
+	 * The action is only executed for those elements that are required.
+	 * Fails if any matching element has already been finalized.
+	 *
+	 * This method is equivalent to <code>view.withType(Foo).configureEach { ... }</code>.
+	 *
+	 * @param type the type of binary to select.
+	 * @param <S> the base type of the element to configure.
+	 * @param closure the closure to execute on each element for configuration.
+	 */
+	default <S extends T> void configureEach(Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		configureEach(type, ConfigureUtil.configureUsing(closure));
+	}
+
+	/**
 	 * Registers an action to execute to configure each element in the view matching the given specification.
 	 * The action is only executed for those elements that are required.
 	 * Fails if any element has already been finalized.
@@ -47,6 +76,19 @@ public interface View<T> {
 	 * @since 0.4
 	 */
 	void configureEach(Spec<? super T> spec, Action<? super T> action);
+
+	/**
+	 * Registers a closure to execute to configure each element in the view matching the given specification.
+	 * The action is only executed for those elements that are required.
+	 * Fails if any element has already been finalized.
+	 *
+	 * @param spec a specification to satisfy. The spec is applied to each binary prior to configuration.
+	 * @param closure the closure to execute on each element for configuration.
+	 * @since 0.4
+	 */
+	default void configureEach(Spec<? super T> spec, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		configureEach(spec, ConfigureUtil.configureUsing(closure));
+	}
 
 	/**
 	 * Returns a view containing the objects in this view of the given type.
