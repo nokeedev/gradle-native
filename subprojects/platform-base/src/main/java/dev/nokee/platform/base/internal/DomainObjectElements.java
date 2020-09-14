@@ -1,6 +1,7 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.NamedDomainObjectIdentifier;
 import dev.nokee.platform.base.DomainObjectElement;
 import lombok.Getter;
@@ -29,7 +30,7 @@ public class DomainObjectElements {
 
 		@Override
 		public DomainObjectIdentifier getIdentity() {
-			return DomainObjectIdentifier.named(String.valueOf(System.identityHashCode(value)));
+			return DomainObjectIdentifierUtils.named(String.valueOf(System.identityHashCode(value)));
 		}
 	}
 
@@ -49,7 +50,7 @@ public class DomainObjectElements {
 
 		@Override
 		public DomainObjectIdentifier getIdentity() {
-			return DomainObjectIdentifier.named(String.valueOf(System.identityHashCode(valueSupplier)));
+			return DomainObjectIdentifierUtils.named(String.valueOf(System.identityHashCode(valueSupplier)));
 		}
 	}
 

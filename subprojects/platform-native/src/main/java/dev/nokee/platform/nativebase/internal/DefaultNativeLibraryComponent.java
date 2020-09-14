@@ -3,6 +3,7 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.*;
@@ -106,7 +107,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 			@Override
 			public DomainObjectIdentifier getIdentity() {
-				return DomainObjectIdentifier.named("main");
+				return DomainObjectIdentifierUtils.named("main");
 			}
 		};
 	}
