@@ -15,7 +15,7 @@ import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
-import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
+import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -25,7 +25,6 @@ import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -67,7 +66,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		getBuildVariants().finalizeValueOnRead();
 		getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
 
-		getDevelopmentVariant().convention(providers.provider(new DevelopmentVariantConvention<>(getVariantCollection()::get)));
+		getDevelopmentVariant().convention(providers.provider(new BuildableDevelopmentVariantConvention<>(getVariantCollection()::get)));
 		getDevelopmentVariant().disallowChanges();
 	}
 

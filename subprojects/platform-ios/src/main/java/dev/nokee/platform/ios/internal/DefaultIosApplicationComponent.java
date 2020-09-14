@@ -23,6 +23,7 @@ import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
+import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
@@ -30,7 +31,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import lombok.var;
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
@@ -67,6 +67,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.groupId = objects.property(GroupId.class);
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
+		getDevelopmentVariant().convention(providers.provider(new DevelopmentVariantConvention<>(getVariantCollection()::get)));
 	}
 
 	@Override
