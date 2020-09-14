@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.DomainObjectProvider;
 import dev.nokee.platform.base.KnownDomainObject;
 import lombok.EqualsAndHashCode;

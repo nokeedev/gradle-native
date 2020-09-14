@@ -13,7 +13,7 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.DomainObjectStore;
-import dev.nokee.platform.base.internal.NamedDomainObjectIdentifier;
+import dev.nokee.model.internal.NamedDomainObjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;

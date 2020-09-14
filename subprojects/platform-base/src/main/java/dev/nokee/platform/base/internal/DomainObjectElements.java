@@ -1,5 +1,7 @@
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.NamedDomainObjectIdentifier;
 import dev.nokee.platform.base.DomainObjectElement;
 import lombok.Getter;
 import org.apache.commons.lang3.exception.ExceptionUtils;

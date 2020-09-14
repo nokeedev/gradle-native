@@ -1,7 +1,7 @@
 package dev.nokee.platform.base;
 
 import dev.nokee.platform.base.internal.DomainObjectElements;
-import dev.nokee.platform.base.internal.DomainObjectIdentifier;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.utils.Cast;
 
 import java.util.function.Supplier;

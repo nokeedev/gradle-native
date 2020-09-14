@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.DomainObjectProvider;
 import lombok.Getter;

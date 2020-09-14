@@ -1,4 +1,4 @@
-package dev.nokee.platform.base.internal;
+package dev.nokee.model.internal;
 
 import lombok.Value;
 

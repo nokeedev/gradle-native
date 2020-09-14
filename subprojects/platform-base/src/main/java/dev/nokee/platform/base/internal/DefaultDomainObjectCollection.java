@@ -1,6 +1,8 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.NamedDomainObjectIdentifier;
 import dev.nokee.platform.base.*;
 import dev.nokee.utils.Cast;
 import lombok.val;

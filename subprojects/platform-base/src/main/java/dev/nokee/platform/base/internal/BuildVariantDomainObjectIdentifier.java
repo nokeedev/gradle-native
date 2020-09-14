@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.NamedDomainObjectIdentifier;
 import lombok.Value;
 
 @Value

@@ -1,6 +1,6 @@
 package dev.nokee.platform.base;
 
-import dev.nokee.platform.base.internal.DomainObjectIdentifier;
+import dev.nokee.model.DomainObjectIdentifier;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;

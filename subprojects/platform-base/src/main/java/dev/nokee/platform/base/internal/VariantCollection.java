@@ -2,6 +2,7 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.DomainObjectCollection;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.Variant;

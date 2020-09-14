@@ -1,4 +1,8 @@
-package dev.nokee.platform.base.internal;
+package dev.nokee.model;
+
+import dev.nokee.platform.base.internal.BuildVariantDomainObjectIdentifier;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.model.internal.DefaultNamedDomainObjectIdentifier;
 
 public interface DomainObjectIdentifier {
 
