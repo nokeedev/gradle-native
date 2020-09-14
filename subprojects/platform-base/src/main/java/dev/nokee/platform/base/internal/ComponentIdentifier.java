@@ -51,6 +51,10 @@ public final class ComponentIdentifier<T extends Component> implements DomainObj
 		return new Builder<>();
 	}
 
+    boolean hasCustomDisplayName() {
+		return !defaultDisplayNameFor(name).equals(displayName);
+    }
+
     public static final class Builder<T extends Component> {
 		private ComponentName name;
 		private Class<? extends T> type;
