@@ -75,11 +75,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	@Override
-	public void dependencies(Action<? super NativeComponentDependencies> action) {
-		action.execute(dependencies);
-	}
-
-	@Override
 	protected DefaultIosApplicationVariant createVariant(String name, BuildVariantInternal buildVariant, VariantComponentDependencies<?> variantDependencies) {
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 

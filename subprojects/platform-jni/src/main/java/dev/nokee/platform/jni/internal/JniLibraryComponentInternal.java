@@ -76,11 +76,6 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		return dependencies;
 	}
 
-	@Override
-	public void dependencies(Action<? super JavaNativeInterfaceLibraryComponentDependencies> action) {
-		action.execute(dependencies);
-	}
-
 	//region Variant-awareness
 	public VariantView<JniLibrary> getVariants() {
 		return getVariantCollection().getAsView(JniLibrary.class);

@@ -50,11 +50,6 @@ public class DefaultObjectiveCppLibraryExtension extends BaseNativeExtension<Def
 		return getComponent().getDependencies();
 	}
 
-	@Override
-	public void dependencies(Action<? super NativeLibraryComponentDependencies> action) {
-		getComponent().dependencies(action);
-	}
-
 	public void finalizeExtension(Project project) {
 		getComponent().finalizeExtension(project);
 	}

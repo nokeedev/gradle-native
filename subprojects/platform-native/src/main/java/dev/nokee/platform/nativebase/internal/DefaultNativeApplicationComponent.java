@@ -46,11 +46,6 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	}
 
 	@Override
-	public void dependencies(Action<? super NativeApplicationComponentDependencies> action) {
-		action.execute(dependencies);
-	}
-
-	@Override
 	protected VariantComponentDependencies<NativeApplicationComponentDependencies> newDependencies(NamingScheme names, BuildVariantInternal buildVariant) {
 		var variantDependencies = getDependencies();
 		if (getBuildVariants().get().size() > 1) {

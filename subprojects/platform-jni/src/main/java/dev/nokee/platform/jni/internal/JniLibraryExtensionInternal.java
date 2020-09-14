@@ -8,7 +8,6 @@ import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.VariantCollection;
-import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
@@ -17,7 +16,6 @@ import dev.nokee.runtime.base.internal.DimensionType;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -76,11 +74,6 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension {
 	@Override
 	public DefaultJavaNativeInterfaceLibraryComponentDependencies getDependencies() {
 		return component.getDependencies();
-	}
-
-	@Override
-	public void dependencies(Action<? super JavaNativeInterfaceLibraryComponentDependencies> action) {
-		component.dependencies(action);
 	}
 
 	@Override

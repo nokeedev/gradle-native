@@ -45,10 +45,6 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 		return dependencies;
 	}
 
-	public void dependencies(Action<? super NativeLibraryComponentDependencies> action) {
-		action.execute(dependencies);
-	}
-
 	@Override
 	protected VariantComponentDependencies<NativeLibraryComponentDependencies> newDependencies(NamingScheme names, BuildVariantInternal buildVariant) {
 		var variantDependencies = getDependencies();

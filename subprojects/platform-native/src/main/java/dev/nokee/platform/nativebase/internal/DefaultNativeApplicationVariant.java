@@ -23,9 +23,4 @@ public class DefaultNativeApplicationVariant extends BaseNativeVariant implement
 		super(name, names, buildVariant, objects, tasks, providers);
 		this.dependencies = dependencies.getDependencies();
 	}
-
-	@Override
-	public void dependencies(Action<? super NativeApplicationComponentDependencies> action) {
-		action.execute(dependencies);
-	}
 }

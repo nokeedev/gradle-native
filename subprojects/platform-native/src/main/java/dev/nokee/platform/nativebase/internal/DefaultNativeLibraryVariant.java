@@ -27,9 +27,4 @@ public class DefaultNativeLibraryVariant extends BaseNativeVariant implements Na
 		this.dependencies = dependencies.getDependencies();
 		this.layout = layout;
 	}
-
-	@Override
-	public void dependencies(Action<? super NativeLibraryComponentDependencies> action) {
-		action.execute(dependencies);
-	}
 }

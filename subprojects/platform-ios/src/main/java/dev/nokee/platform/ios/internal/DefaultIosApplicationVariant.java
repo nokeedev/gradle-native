@@ -34,11 +34,6 @@ public class DefaultIosApplicationVariant extends BaseNativeVariant implements I
 	}
 
 	@Override
-	public void dependencies(Action<? super NativeComponentDependencies> action) {
-		action.execute(dependencies);
-	}
-
-	@Override
 	protected Provider<Binary> getDefaultBinary() {
 		return getProviders().provider(() -> {
 			List<? extends SignedIosApplicationBundleInternal> binaries = getBinaries().flatMap(it -> {
