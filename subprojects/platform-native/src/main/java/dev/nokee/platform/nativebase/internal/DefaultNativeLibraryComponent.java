@@ -106,7 +106,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 			}
 
 			@Override
-			public DomainObjectIdentifier getIdentity() {
+			public DomainObjectIdentifier getIdentifier() {
 				return DomainObjectIdentifierUtils.named("main");
 			}
 		};

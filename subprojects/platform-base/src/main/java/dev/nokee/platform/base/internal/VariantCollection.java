@@ -49,7 +49,7 @@ public class VariantCollection<T extends Variant> implements Realizable {
 			}
 
 			@Override
-			public DomainObjectIdentifier getIdentity() {
+			public DomainObjectIdentifier getIdentifier() {
 				return identifier;
 			}
 		});

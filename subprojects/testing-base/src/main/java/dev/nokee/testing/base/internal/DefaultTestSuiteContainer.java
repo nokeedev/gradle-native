@@ -53,7 +53,7 @@ public class DefaultTestSuiteContainer extends AbstractDomainObjectContainer<Tes
 			}
 
 			@Override
-			public DomainObjectIdentifier getIdentity() {
+			public DomainObjectIdentifier getIdentifier() {
 				return DomainObjectIdentifierUtils.named(name);
 			}
 		});

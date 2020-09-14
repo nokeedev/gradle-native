@@ -10,7 +10,7 @@ public interface KnownDomainObject<T> {
 
 	Class<T> getType();
 
-	DomainObjectIdentifier getIdentity();
+	DomainObjectIdentifier getIdentifier();
 
 	<S> Provider<S> map(Transformer<? extends S, ? super T> transformer);
 

@@ -46,11 +46,11 @@ public class DefaultDomainObjectStore implements DomainObjectStore {
 			}
 
 			@Override
-			public DomainObjectIdentifier getIdentity() {
-				return factory.getIdentity();
+			public DomainObjectIdentifier getIdentifier() {
+				return factory.getIdentifier();
 			}
 		});
-		return Cast.uncheckedCastBecauseOfTypeErasure(store.get(factory.getIdentity()));
+		return Cast.uncheckedCastBecauseOfTypeErasure(store.get(factory.getIdentifier()));
 	}
 
 	@Override

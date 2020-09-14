@@ -11,12 +11,12 @@ import org.gradle.api.provider.Provider;
 
 public class KnownDomainObjects {
 	public static final class Existing<T> implements KnownDomainObject<T> {
-		private final DomainObjectIdentifier identity;
+		private final DomainObjectIdentifier identifier;
 		private final Class<T> type;
 		private final T element;
 
-		public Existing(DomainObjectIdentifier identity, Class<T> type, T element) {
-			this.identity = identity;
+		public Existing(DomainObjectIdentifier identifier, Class<T> type, T element) {
+			this.identifier = identifier;
 			this.type = type;
 			this.element = element;
 		}
@@ -32,8 +32,8 @@ public class KnownDomainObjects {
 		}
 
 		@Override
-		public DomainObjectIdentifier getIdentity() {
-			return identity;
+		public DomainObjectIdentifier getIdentifier() {
+			return identifier;
 		}
 
 		@Override
@@ -48,12 +48,12 @@ public class KnownDomainObjects {
 	}
 
 	public static final class Providing<T> implements KnownDomainObject<T> {
-		@Getter private final DomainObjectIdentifier identity;
+		@Getter private final DomainObjectIdentifier identifier;
 		@Getter private final Class<T> type;
 		private final NamedDomainObjectProvider<DomainObjectElement<T>> delegate;
 
-		public Providing(DomainObjectIdentifier identity, Class<T> type, NamedDomainObjectProvider<DomainObjectElement<T>> delegate) {
-			this.identity = identity;
+		public Providing(DomainObjectIdentifier identifier, Class<T> type, NamedDomainObjectProvider<DomainObjectElement<T>> delegate) {
+			this.identifier = identifier;
 			this.type = type;
 			this.delegate = delegate;
 		}

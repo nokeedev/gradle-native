@@ -10,7 +10,7 @@ import org.gradle.api.artifacts.ModuleDependency;
 import java.util.Optional;
 
 public interface ComponentDependenciesInternal {
-	String getComponentDisplayName(); // This should be an model identity that includes the component information
+	String getComponentDisplayName(); // This should be an model identifier that includes the component information
 	DependencyBucket create(String name) throws InvalidUserDataException;
 	DependencyBucket create(String name, Action<Configuration> action) throws InvalidUserDataException;
 	DependencyBucket getByName(String name) throws UnknownDomainObjectException;

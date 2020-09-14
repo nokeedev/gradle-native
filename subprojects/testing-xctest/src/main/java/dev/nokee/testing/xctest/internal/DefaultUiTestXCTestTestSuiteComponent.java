@@ -142,7 +142,7 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 			}
 
 			@Override
-			public DomainObjectIdentifier getIdentity() {
+			public DomainObjectIdentifier getIdentifier() {
 				return DomainObjectIdentifierUtils.named("uiTest");
 			}
 		};

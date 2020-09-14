@@ -90,7 +90,7 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 		extension.getProjects().addAllLater(v);
 
 		store.whenElementKnown(BaseComponent.class, it -> {
-			registerIdeProject(((NamedDomainObjectIdentifier)it.getIdentity()).getName());
+			registerIdeProject(((NamedDomainObjectIdentifier)it.getIdentifier()).getName());
 		});
 	}
 

@@ -14,13 +14,13 @@ import javax.inject.Inject;
 
 @ToString
 public class DefaultDomainObjectProvider<I> implements DomainObjectProvider<I> {
-	@Getter private final DomainObjectIdentifier identity;
+	@Getter private final DomainObjectIdentifier identifier;
 	@Getter private final Class<I> type;
 	private final NamedDomainObjectProvider<DomainObjectElement<I>> delegate;
 
 	@Inject
-	public DefaultDomainObjectProvider(DomainObjectIdentifier identity, Class<I> type, NamedDomainObjectProvider<DomainObjectElement<I>> delegate) {
-		this.identity = identity;
+	public DefaultDomainObjectProvider(DomainObjectIdentifier identifier, Class<I> type, NamedDomainObjectProvider<DomainObjectElement<I>> delegate) {
+		this.identifier = identifier;
 		this.type = type;
 		this.delegate = delegate;
 	}

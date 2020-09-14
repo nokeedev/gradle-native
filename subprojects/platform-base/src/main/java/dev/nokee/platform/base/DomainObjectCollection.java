@@ -11,7 +11,7 @@ import java.util.List;
 public interface DomainObjectCollection<T> extends DomainObjectElementObserver<T>, DomainObjectElementConfigurer<T> {
 	boolean add(DomainObjectElement<T> element);
 
-	DomainObjectProvider<T> get(DomainObjectIdentifier identity);
+	DomainObjectProvider<T> get(DomainObjectIdentifier identifier);
 
 	int size();
 
