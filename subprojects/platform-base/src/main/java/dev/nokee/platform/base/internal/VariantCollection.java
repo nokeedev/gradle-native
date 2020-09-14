@@ -34,7 +34,7 @@ public class VariantCollection<T extends Variant> implements Realizable {
 	}
 
 	public VariantProvider<T> registerVariant(BuildVariantInternal buildVariant, VariantFactory<T> factory) {
-		BuildVariantDomainObjectIdentity identity = new BuildVariantDomainObjectIdentity(buildVariant);
+		BuildVariantDomainObjectIdentifier identity = new BuildVariantDomainObjectIdentifier(buildVariant);
 		delegate.add(new DomainObjectElement<T>() {
 			@Override
 			public T get() {
@@ -47,7 +47,7 @@ public class VariantCollection<T extends Variant> implements Realizable {
 			}
 
 			@Override
-			public DomainObjectIdentity getIdentity() {
+			public DomainObjectIdentifier getIdentity() {
 				return identity;
 			}
 		});

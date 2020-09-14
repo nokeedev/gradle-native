@@ -13,7 +13,7 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.DomainObjectStore;
-import dev.nokee.platform.base.internal.NamedDomainObjectIdentity;
+import dev.nokee.platform.base.internal.NamedDomainObjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
@@ -90,7 +90,7 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 		extension.getProjects().addAllLater(v);
 
 		store.whenElementKnown(BaseComponent.class, it -> {
-			registerIdeProject(((NamedDomainObjectIdentity)it.getIdentity()).getName());
+			registerIdeProject(((NamedDomainObjectIdentifier)it.getIdentity()).getName());
 		});
 	}
 

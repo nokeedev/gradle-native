@@ -26,8 +26,8 @@ public class DomainObjectElements {
 		}
 
 		@Override
-		public DomainObjectIdentity getIdentity() {
-			return DomainObjectIdentity.named(String.valueOf(System.identityHashCode(value)));
+		public DomainObjectIdentifier getIdentity() {
+			return DomainObjectIdentifier.named(String.valueOf(System.identityHashCode(value)));
 		}
 	}
 
@@ -46,14 +46,14 @@ public class DomainObjectElements {
 		}
 
 		@Override
-		public DomainObjectIdentity getIdentity() {
-			return DomainObjectIdentity.named(String.valueOf(System.identityHashCode(valueSupplier)));
+		public DomainObjectIdentifier getIdentity() {
+			return DomainObjectIdentifier.named(String.valueOf(System.identityHashCode(valueSupplier)));
 		}
 	}
 
 	public static final class Memoizing<T> implements DomainObjectElement<T> {
 		@Getter private final Class<T> type;
-		@Getter private final DomainObjectIdentity identity;
+		@Getter private final DomainObjectIdentifier identity;
 		private Supplying<T> elementSupplier;
 		private T value;
 		private Throwable exception;
@@ -83,11 +83,11 @@ public class DomainObjectElements {
 	}
 
 	public static final class Naming<T> implements DomainObjectElement<T>, Named {
-		@Getter private final DomainObjectIdentity identity;
+		@Getter private final DomainObjectIdentifier identity;
 		@Getter private final Class<T> type;
 		private final T value;
 
-		public Naming(DomainObjectIdentity identity, Class<T> type, T value) {
+		public Naming(DomainObjectIdentifier identity, Class<T> type, T value) {
 			this.identity = identity;
 			this.type = type;
 			this.value = value;
@@ -100,7 +100,7 @@ public class DomainObjectElements {
 
 		@Override
 		public String getName() {
-			return ((NamedDomainObjectIdentity)identity).getName();
+			return ((NamedDomainObjectIdentifier)identity).getName();
 		}
 	}
 }

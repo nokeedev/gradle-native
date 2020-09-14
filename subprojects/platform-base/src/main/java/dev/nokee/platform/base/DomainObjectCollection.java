@@ -1,6 +1,6 @@
 package dev.nokee.platform.base;
 
-import dev.nokee.platform.base.internal.DomainObjectIdentity;
+import dev.nokee.platform.base.internal.DomainObjectIdentifier;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
@@ -11,7 +11,7 @@ import java.util.List;
 public interface DomainObjectCollection<T> extends DomainObjectElementObserver<T>, DomainObjectElementConfigurer<T> {
 	boolean add(DomainObjectElement<T> element);
 
-	DomainObjectProvider<T> get(DomainObjectIdentity identity);
+	DomainObjectProvider<T> get(DomainObjectIdentifier identity);
 
 	int size();
 

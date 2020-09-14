@@ -1,7 +1,7 @@
 package dev.nokee.platform.base;
 
 import dev.nokee.platform.base.internal.DomainObjectElements;
-import dev.nokee.platform.base.internal.DomainObjectIdentity;
+import dev.nokee.platform.base.internal.DomainObjectIdentifier;
 import dev.nokee.utils.Cast;
 
 import java.util.function.Supplier;
@@ -33,9 +33,9 @@ public interface DomainObjectElement<T> {
 	/**
 	 * Returns the identity of this element.
 	 *
-	 * @return a {@link DomainObjectIdentity} instance representing this element, never null.
+	 * @return a {@link DomainObjectIdentifier} instance representing this element, never null.
 	 */
-	DomainObjectIdentity getIdentity();
+	DomainObjectIdentifier getIdentity();
 
 	static <T> DomainObjectElement<T> of(T element) {
 		return new DomainObjectElements.Existing<>(Cast.uncheckedCastBecauseOfTypeErasure(element.getClass()), element);

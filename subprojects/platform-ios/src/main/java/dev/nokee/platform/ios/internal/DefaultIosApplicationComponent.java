@@ -251,8 +251,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			}
 
 			@Override
-			public DomainObjectIdentity getIdentity() {
-				return DomainObjectIdentity.named("main");
+			public DomainObjectIdentifier getIdentity() {
+				return DomainObjectIdentifier.named("main");
 			}
 		};
 	}

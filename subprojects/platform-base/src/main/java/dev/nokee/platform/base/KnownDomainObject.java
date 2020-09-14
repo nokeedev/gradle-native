@@ -1,6 +1,6 @@
 package dev.nokee.platform.base;
 
-import dev.nokee.platform.base.internal.DomainObjectIdentity;
+import dev.nokee.platform.base.internal.DomainObjectIdentifier;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
@@ -10,7 +10,7 @@ public interface KnownDomainObject<T> {
 
 	Class<T> getType();
 
-	DomainObjectIdentity getIdentity();
+	DomainObjectIdentifier getIdentity();
 
 	<S> Provider<S> map(Transformer<? extends S, ? super T> transformer);
 

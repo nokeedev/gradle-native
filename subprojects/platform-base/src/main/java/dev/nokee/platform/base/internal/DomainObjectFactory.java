@@ -7,5 +7,5 @@ public interface DomainObjectFactory<T> {
 
 	Class<? extends T> getImplementationType();
 
-	DomainObjectIdentity getIdentity();
+	DomainObjectIdentifier getIdentity();
 }

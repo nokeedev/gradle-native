@@ -135,8 +135,8 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 			}
 
 			@Override
-			public DomainObjectIdentity getIdentity() {
-				return DomainObjectIdentity.named("unitTest");
+			public DomainObjectIdentifier getIdentity() {
+				return DomainObjectIdentifier.named("unitTest");
 			}
 		};
 	}

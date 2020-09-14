@@ -31,7 +31,7 @@ public class DefaultKnownDomainObject<T> implements KnownDomainObject<T> {
 	}
 
 	@Override
-	public DomainObjectIdentity getIdentity() {
+	public DomainObjectIdentifier getIdentity() {
 		return provider.getIdentity();
 	}
 

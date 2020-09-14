@@ -45,7 +45,7 @@ public class DefaultDomainObjectStore implements DomainObjectStore {
 			}
 
 			@Override
-			public DomainObjectIdentity getIdentity() {
+			public DomainObjectIdentifier getIdentity() {
 				return factory.getIdentity();
 			}
 		});

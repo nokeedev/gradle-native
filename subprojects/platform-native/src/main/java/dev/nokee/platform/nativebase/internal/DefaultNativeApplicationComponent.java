@@ -17,7 +17,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import lombok.var;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.ProjectLayout;
@@ -99,8 +98,8 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 			}
 
 			@Override
-			public DomainObjectIdentity getIdentity() {
-				return DomainObjectIdentity.named("main");
+			public DomainObjectIdentifier getIdentity() {
+				return DomainObjectIdentifier.named("main");
 			}
 		};
 	}

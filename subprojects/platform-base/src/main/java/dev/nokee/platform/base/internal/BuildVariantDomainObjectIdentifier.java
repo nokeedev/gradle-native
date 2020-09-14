@@ -3,10 +3,10 @@ package dev.nokee.platform.base.internal;
 import lombok.Value;
 
 @Value
-public class BuildVariantDomainObjectIdentity implements NamedDomainObjectIdentity {
+public class BuildVariantDomainObjectIdentifier implements NamedDomainObjectIdentifier {
 	BuildVariantInternal buildVariant;
 
-	public BuildVariantDomainObjectIdentity(BuildVariantInternal buildVariant) {
+	public BuildVariantDomainObjectIdentifier(BuildVariantInternal buildVariant) {
 		this.buildVariant = buildVariant;
 	}
 

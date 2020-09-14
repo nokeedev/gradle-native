@@ -22,7 +22,7 @@ public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<
 	private final NamedDomainObjectContainer<DomainObjectElement<T>> elements;
 	private final DomainObjectElementObserver<T> elementObserver;
 	private final View<T> baseView;
-	private final Map<DomainObjectIdentity, DomainObjectProvider<T>> identityToProviders = new HashMap<>();
+	private final Map<DomainObjectIdentifier, DomainObjectProvider<T>> identityToProviders = new HashMap<>();
 	private boolean disallowChanges = false;
 
 	public DefaultDomainObjectCollection(Class<T> type, ObjectFactory objects, ProviderFactory providers) {
@@ -39,7 +39,7 @@ public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<
 		return newElement(elementSupplier.getIdentity(), element.getClass(), element);
 	}
 
-	private DomainObjectElement<T> newElement(DomainObjectIdentity identity, Class<?> type, T element) {
+	private DomainObjectElement<T> newElement(DomainObjectIdentifier identity, Class<?> type, T element) {
 		return new DomainObjectElements.Naming<>(identity, Cast.uncheckedCastBecauseOfTypeErasure(type), element);
 	}
 
@@ -49,7 +49,7 @@ public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<
 			throw new IllegalStateException("The value cannot be changed any further.");
 		}
 
-		val elementName = ((NamedDomainObjectIdentity)element.getIdentity()).getName();
+		val elementName = ((NamedDomainObjectIdentifier)element.getIdentity()).getName();
 		if (element instanceof DomainObjectElements.Existing) {
 			knownElements.add(new KnownDomainObjects.Existing<>(element.getIdentity(), element.getType(), element.get()));
 			elements.add(newElement(element.getIdentity(), element.getType(), element.get()));
@@ -65,7 +65,7 @@ public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<
 	}
 
 	@Override
-	public DomainObjectProvider<T> get(DomainObjectIdentity identity) {
+	public DomainObjectProvider<T> get(DomainObjectIdentifier identity) {
 		return identityToProviders.get(identity);
 	}
 
