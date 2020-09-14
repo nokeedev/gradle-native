@@ -3,6 +3,7 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.platform.base.*;
 import dev.nokee.utils.Cast;
+import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
@@ -13,7 +14,10 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.specs.Spec;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<T> {
 	private final Map<String, DomainObjectElement<T>> nameToElements = new HashMap<>();
@@ -139,41 +143,15 @@ public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<
 	}
 
 	public <S> Provider<List<? extends S>> map(Transformer<? extends S, ? super T> mapper) {
-		return getElements().map(new Transformer<List<? extends S>, Collection<? extends T>>() {
-			@Override
-			public List<? extends S> transform(Collection<? extends T> elements) {
-				ImmutableList.Builder<S> result = ImmutableList.builder();
-				for (T element : elements) {
-					result.add(mapper.transform(element));
-				}
-				return result.build();
-			}
-		});
+		return getElements().map(ProviderUtils.map(mapper));
 	}
 
 	public <S> Provider<List<? extends S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper) {
-		return getElements().map(new Transformer<List<? extends S>, Collection<? extends T>>() {
-			@Override
-			public List<? extends S> transform(Collection<? extends T> elements) {
-				ImmutableList.Builder<S> result = ImmutableList.builder();
-				for (T element : elements) {
-					result.addAll(mapper.transform(element));
-				}
-				return result.build();
-			}
-		});
+		return getElements().map(ProviderUtils.flatMap(mapper));
 	}
 
 	public Provider<List<? extends T>> filter(Spec<? super T> spec) {
-		return flatMap(new Transformer<Iterable<? extends T>, T>() {
-			@Override
-			public Iterable<? extends T> transform(T t) {
-				if (spec.isSatisfiedBy(t)) {
-					return ImmutableList.of(t);
-				}
-				return ImmutableList.of();
-			}
-		});
+		return getElements().map(ProviderUtils.filter(spec));
 	}
 
 	@Override
