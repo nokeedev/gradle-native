@@ -4,11 +4,13 @@ import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Transformer;
 import org.gradle.api.internal.provider.DefaultProvider;
+import org.gradle.api.internal.provider.ProviderInternal;
 import org.gradle.api.internal.provider.Providers;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.specs.Specs;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -40,6 +42,22 @@ public final class ProviderUtils {
 	 */
 	public static <T> Provider<T> supplied(Callable<T> callable) {
 		return new DefaultProvider<>(requireNonNull(callable));
+	}
+
+	/**
+	 * Returns the object type provided by the Gradle provider.
+	 *
+	 * @param self the provider to query the provided type.
+	 * @param <T> the type of object provided
+	 * @return a class representing the object type provided by the provider, or null if we can't figure it out.
+	 */
+	@Nullable
+	public static <T> Class<T> getType(Provider<T> self) {
+		requireNonNull(self);
+		if (self instanceof ProviderInternal) {
+			return ((ProviderInternal<T>) self).getType();
+		}
+		return null;
 	}
 
 	/**
