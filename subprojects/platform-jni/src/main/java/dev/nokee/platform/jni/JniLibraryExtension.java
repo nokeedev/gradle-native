@@ -4,7 +4,6 @@ import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import org.gradle.api.Action;
 import org.gradle.api.provider.SetProperty;
 
 /**

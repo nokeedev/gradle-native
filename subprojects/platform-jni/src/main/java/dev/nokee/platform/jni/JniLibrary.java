@@ -5,9 +5,12 @@ import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.Property;
+import org.gradle.util.ConfigureUtil;
 
 /**
  * Configuration for a specific Java Native Interface (JNI) library variant, defining the dependencies that make up the library plus other settings.
@@ -44,6 +47,16 @@ public interface JniLibrary extends Variant, DependencyAwareComponent<JavaNative
 	 * @since 0.3
 	 */
 	void sharedLibrary(Action<? super SharedLibraryBinary> action);
+
+	/**
+	 * Configure the shared library binary for this variant.
+	 *
+	 * @param closure configuration closure for {@link SharedLibraryBinary}.
+	 * @since 0.3
+	 */
+	default void sharedLibrary(@DelegatesTo(value = SharedLibraryBinary.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		sharedLibrary(ConfigureUtil.configureUsing(closure));
+	}
 
 	/**
 	 * Configure the native runtime files to include inside the JNI JAR at the resource path location.

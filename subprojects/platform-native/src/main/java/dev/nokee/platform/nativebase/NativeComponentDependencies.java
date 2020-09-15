@@ -2,10 +2,13 @@ package dev.nokee.platform.nativebase;
 
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyBucket;
+import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.ProjectDependency;
+import org.gradle.util.ConfigureUtil;
 
 /**
  * Allows the implementation dependencies of a native component to be specified.
@@ -31,6 +34,17 @@ public interface NativeComponentDependencies extends ComponentDependencies {
 	void implementation(Object notation, Action<? super ModuleDependency> action);
 
 	/**
+	 * Adds an implementation dependency to this component.
+	 * An implementation dependency is not visible to consumers that are compiled against this component.
+	 *
+	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+	 * @param closure The closure to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
+	 */
+	default void implementation(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		implementation(notation, ConfigureUtil.configureUsing(closure));
+	}
+
+	/**
 	 * Adds an native compile only dependency to this component.
 	 * An compile only dependency is not visible to consumers that are compiled or linked against this component.
 	 *
@@ -46,6 +60,17 @@ public interface NativeComponentDependencies extends ComponentDependencies {
 	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
 	void compileOnly(Object notation, Action<? super ModuleDependency> action);
+
+	/**
+	 * Adds an native compile only dependency to this component.
+	 * An compile only dependency is not visible to consumers that are compiled or linked against this component.
+	 *
+	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+	 * @param closure The closure to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
+	 */
+	default void compileOnly(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		compileOnly(notation, ConfigureUtil.configureUsing(closure));
+	}
 
 	/**
 	 * Adds an native link only dependency to this component.
@@ -65,6 +90,17 @@ public interface NativeComponentDependencies extends ComponentDependencies {
 	void linkOnly(Object notation, Action<? super ModuleDependency> action);
 
 	/**
+	 * Adds an native link only dependency to this component.
+	 * An link only dependency is not visible to consumers that are compiled or linked against this component.
+	 *
+	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+	 * @param closure The closure to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
+	 */
+	default void linkOnly(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		linkOnly(notation, ConfigureUtil.configureUsing(closure));
+	}
+
+	/**
 	 * Adds an native runtime only dependency to this component.
 	 * An runtime only dependency is not visible to consumers that are running against this component.
 	 *
@@ -80,6 +116,17 @@ public interface NativeComponentDependencies extends ComponentDependencies {
 	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
 	void runtimeOnly(Object notation, Action<? super ModuleDependency> action);
+
+	/**
+	 * Adds an native runtime only dependency to this component.
+	 * An runtime only dependency is visible only to consumers that are running against this component.
+	 *
+	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+	 * @param closure The closure to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
+	 */
+	default void runtimeOnly(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		runtimeOnly(notation, ConfigureUtil.configureUsing(closure));
+	}
 
 	/**
 	 * Returns the implementation bucket of dependencies for this component.
