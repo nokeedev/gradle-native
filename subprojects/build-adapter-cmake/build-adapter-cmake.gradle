@@ -12,6 +12,7 @@ dependencies {
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
 	implementation project(':coreExec') // for build adapter
+	implementation project(':coreUtils')
 	implementation project(':platformNative')
 	implementation project(':runtimeBase')
 	implementation project(':runtimeNative')

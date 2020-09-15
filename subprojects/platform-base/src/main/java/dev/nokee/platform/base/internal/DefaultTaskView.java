@@ -2,6 +2,7 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.base.Preconditions;
 import dev.nokee.platform.base.TaskView;
+import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.Cast;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -49,11 +50,7 @@ public class DefaultTaskView<T extends Task> extends AbstractView<T> implements 
 	public <S extends T> void configureEach(Class<S> type, Action<? super S> action) {
 		Preconditions.checkArgument(action != null, "configure each action for task view must not be null");
 		for (TaskProvider<? extends T> task : delegate) {
-			task.configure(element -> {
-				if (type.isAssignableFrom(element.getClass())) {
-					action.execute(type.cast(element));
-				}
-			});
+			task.configure(ActionUtils.onlyIf(type, action));
 		}
 	}
 
@@ -61,11 +58,7 @@ public class DefaultTaskView<T extends Task> extends AbstractView<T> implements 
 	public void configureEach(Spec<? super T> spec, Action<? super T> action) {
 		Preconditions.checkArgument(action != null, "configure each action for task view must not be null");
 		for (TaskProvider<? extends T> task : delegate) {
-			task.configure(element -> {
-				if (spec.isSatisfiedBy(element)) {
-					action.execute(element);
-				}
-			});
+			task.configure(ActionUtils.onlyIf(spec, action));
 		}
 	}
 

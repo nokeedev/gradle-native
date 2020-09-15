@@ -1,6 +1,6 @@
 package dev.nokee.utils;
 
-public class TaskNameUtils {
+public final class TaskNameUtils {
 	public static String getShortestName(String taskName) {
 		return taskName
 			.chars()

@@ -1,7 +1,7 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import dev.nokee.utils.ProviderUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Transformer;
@@ -28,43 +28,17 @@ public abstract class AbstractView<T> {
 
 	public <S> Provider<List<? extends S>> map(Transformer<? extends S, ? super T> mapper) {
 		Preconditions.checkArgument(mapper != null, "map mapper for %s must not be null", getDisplayName());
-		return getElements().map(new Transformer<List<? extends S>, Set<? extends T>>() {
-			@Override
-			public List<? extends S> transform(Set<? extends T> elements) {
-				ImmutableList.Builder<S> result = ImmutableList.builder();
-				for (T element : elements) {
-					result.add(mapper.transform(element));
-				}
-				return result.build();
-			}
-		});
+		return getElements().map(ProviderUtils.map(mapper));
 	}
 
 	public <S> Provider<List<? extends S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper) {
 		Preconditions.checkArgument(mapper != null, "flatMap mapper for %s must not be null", getDisplayName());
-		return getElements().map(new Transformer<List<? extends S>, Set<? extends T>>() {
-			@Override
-			public List<? extends S> transform(Set<? extends T> elements) {
-				ImmutableList.Builder<S> result = ImmutableList.builder();
-				for (T element : elements) {
-					result.addAll(mapper.transform(element));
-				}
-				return result.build();
-			}
-		});
+		return getElements().map(ProviderUtils.flatMap(mapper));
 	}
 
 	public Provider<List<? extends T>> filter(Spec<? super T> spec) {
 		Preconditions.checkArgument(spec != null, "filter spec for %s must not be null", getDisplayName());
-		return flatMap(new Transformer<Iterable<? extends T>, T>() {
-			@Override
-			public Iterable<? extends T> transform(T t) {
-				if (spec.isSatisfiedBy(t)) {
-					return ImmutableList.of(t);
-				}
-				return ImmutableList.of();
-			}
-		});
+		return getElements().map(ProviderUtils.filter(spec));
 	}
 
 	protected abstract String getDisplayName();

@@ -1,4 +1,4 @@
-package dev.nokee.buildadapter.cmake.internal
+package dev.nokee.utils
 
 import spock.lang.Specification
 import spock.lang.Subject
@@ -6,7 +6,7 @@ import spock.lang.Subject
 import java.util.function.Supplier
 
 @Subject(DeferUtils)
-class DeferUtilsTest extends Specification {
+class DeferUtils_AsToStringObjectTest extends Specification {
 	def "can defer through Object#toString()"() {
 		given:
 		def supplier = Mock(Supplier)
@@ -28,6 +28,6 @@ class DeferUtilsTest extends Specification {
 		def supplier = { return expectedData }
 
 		expect:
-		DeferUtils.asToStringObject(supplier).toString() == expectedData
+        DeferUtils.asToStringObject(supplier).toString() == expectedData
 	}
 }
