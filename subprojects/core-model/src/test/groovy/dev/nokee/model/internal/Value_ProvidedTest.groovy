@@ -4,6 +4,7 @@ import dev.nokee.utils.ProviderUtils
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Transformer
+import org.gradle.api.internal.provider.ProviderInternal
 import spock.lang.Subject
 
 @Subject(Value)
@@ -24,7 +25,7 @@ class Value_ProvidedTest extends Value_AbstractTest {
 			}
 			return value;
 		}
-		def result = Stub(NamedDomainObjectProvider) {
+		def result = Stub(TypeAwareNamedDomainObjectProvider) {
 			get() >> { getter() }
 			isPresent() >> { true }
 			configure(_) >> { Action action ->
@@ -34,6 +35,7 @@ class Value_ProvidedTest extends Value_AbstractTest {
 					action.execute(value)
 				}
 			}
+			getType() >> { v.getClass() }
 			getOrNull() >> { getter() }
 			map(_ as Transformer) >> { args -> ProviderUtils.supplied(getter).map(args[0]) }
 			flatMap(_ as Transformer) >> { args -> ProviderUtils.supplied(getter).flatMap(args[0]) }
@@ -65,4 +67,20 @@ class Value_ProvidedTest extends Value_AbstractTest {
 		then:
 		1 * mapper.transform(42)
 	}
+
+	def "querying the type does not resolve the provider"() {
+		given:
+		def provider = Mock(TypeAwareNamedDomainObjectProvider) {
+			getType() >> Object
+		}
+		def subject = Value.provided(provider)
+
+		when:
+		subject.getType()
+
+		then:
+		0 * provider.get()
+	}
+
+	interface TypeAwareNamedDomainObjectProvider<T> extends NamedDomainObjectProvider<T>, ProviderInternal<T> {}
 }

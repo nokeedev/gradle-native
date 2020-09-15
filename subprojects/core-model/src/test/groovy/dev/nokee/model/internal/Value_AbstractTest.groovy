@@ -19,6 +19,14 @@ abstract class Value_AbstractTest extends Specification {
 		newSubject('foo').get() == 'foo'
 	}
 
+	def "can get the type of the value"() {
+		expect:
+		newSubject(42).getType() == Integer
+		newSubject(['a', 'b', 'c']).getType() == ArrayList
+		newSubject('foo').getType() == String
+		newSubject(new Foo(value: 42)).getType() == Foo
+	}
+
 	def "can convert to Gradle provider"() {
 		expect:
 		newSubject(42).toProvider() != null

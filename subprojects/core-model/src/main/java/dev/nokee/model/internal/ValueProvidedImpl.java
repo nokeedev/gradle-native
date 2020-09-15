@@ -1,5 +1,6 @@
 package dev.nokee.model.internal;
 
+import dev.nokee.utils.ProviderUtils;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
@@ -14,6 +15,11 @@ final class ValueProvidedImpl<T> implements Value<T> {
 	@Override
 	public T get() {
 		return provider.get();
+	}
+
+	@Override
+	public Class<T> getType() {
+		return ProviderUtils.getType(provider);
 	}
 
 	@Override

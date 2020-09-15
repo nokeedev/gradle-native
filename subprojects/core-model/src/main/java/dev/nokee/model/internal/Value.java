@@ -22,6 +22,13 @@ public interface Value<T> {
 	T get();
 
 	/**
+	 * Returns the type of this value.
+	 *
+	 * @return the type of this value.
+	 */
+	Class<T> getType();
+
+	/**
 	 * Map the value as a Gradle {@link Provider}.
 	 * The provider is live and will reflect any changes to this value.
 	 *
@@ -82,11 +89,12 @@ public interface Value<T> {
 	/**
 	 * Creates a value supplied by a {@link Supplier}.
 	 *
+	 * @param type the object type supplied.
 	 * @param supplier the supplier of the value.
 	 * @param <T> the type of the value.
 	 * @return a value of the specified supplier, never null.
 	 */
-	static <T> Value<T> supplied(Supplier<T> supplier) {
-		return new ValueSuppliedImpl<>(supplier);
+	static <T> Value<T> supplied(Class<T> type, Supplier<T> supplier) {
+		return new ValueSuppliedImpl<>(type, supplier);
 	}
 }

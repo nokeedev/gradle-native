@@ -8,13 +8,13 @@ import java.util.function.Supplier
 class Value_SuppliedTest extends Value_AbstractTest {
 	@Override
 	def <T> Value<T> newSubject(T value) {
-		return Value.supplied({value})
+		return Value.supplied((Class<T>)value.getClass(), {value})
 	}
 
 	def "memoize the supplied value on get"() {
 		given:
 		def supplier = Mock(Supplier)
-		def subject = Value.supplied(supplier)
+		def subject = Value.supplied(Integer, supplier)
 
 		when:
 		def result1 = subject.get()
@@ -27,5 +27,17 @@ class Value_SuppliedTest extends Value_AbstractTest {
 		then:
 		0 * supplier.get()
 		result2 == 42
+	}
+
+	def "querying the type does not resolve the supplier"() {
+		given:
+		def supplier = Mock(Supplier)
+		def subject = Value.supplied(Object, supplier)
+
+		when:
+		subject.getType()
+
+		then:
+		0 * supplier.get()
 	}
 }

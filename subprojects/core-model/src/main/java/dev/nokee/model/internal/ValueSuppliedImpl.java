@@ -11,11 +11,13 @@ import java.util.function.Supplier;
 
 final class ValueSuppliedImpl<T> implements Value<T> {
 	private final Provider<T> provider;
+	private final Class<T> type;
 	private final Supplier<T> supplier;
 	private final List<Transformer<? extends T, ? super T>> inPlaceMappers = new ArrayList<>();
 	private T value = null;
 
-	public ValueSuppliedImpl(Supplier<T> supplier) {
+	public ValueSuppliedImpl(Class<T> type, Supplier<T> supplier) {
+		this.type = type;
 		this.supplier = supplier;
 		this.provider = ProviderUtils.supplied(this::get);
 	}
@@ -30,6 +32,11 @@ final class ValueSuppliedImpl<T> implements Value<T> {
 			inPlaceMappers.clear();
 		}
 		return value;
+	}
+
+	@Override
+	public Class<T> getType() {
+		return type;
 	}
 
 	@Override

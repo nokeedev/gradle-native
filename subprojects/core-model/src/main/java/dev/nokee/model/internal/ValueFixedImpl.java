@@ -19,6 +19,12 @@ final class ValueFixedImpl<T> implements Value<T> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public Class<T> getType() {
+		return (Class<T>) value.getClass();
+	}
+
+	@Override
 	public <S> Provider<S> map(Transformer<? extends S, ? super T> mapper) {
 		return provider.map(mapper);
 	}
