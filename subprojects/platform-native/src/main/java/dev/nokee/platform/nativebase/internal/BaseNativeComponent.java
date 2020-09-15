@@ -13,7 +13,7 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.nativebase.*;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
-import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
+import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
@@ -58,7 +58,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 		this.configurations = configurations;
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
 		this.variantType = variantType;
-		getDevelopmentVariant().convention(providers.provider(new DevelopmentVariantConvention<>(getVariantCollection()::get)));
+		getDevelopmentVariant().convention(providers.provider(new BuildableDevelopmentVariantConvention<>(getVariantCollection()::get)));
 	}
 
 	public abstract NativeComponentDependencies getDependencies();
