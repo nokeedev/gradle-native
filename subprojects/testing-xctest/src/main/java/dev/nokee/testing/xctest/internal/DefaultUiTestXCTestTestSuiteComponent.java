@@ -3,6 +3,8 @@ package dev.nokee.testing.xctest.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
+import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
@@ -140,8 +142,8 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 			}
 
 			@Override
-			public DomainObjectIdentity getIdentity() {
-				return DomainObjectIdentity.named("uiTest");
+			public DomainObjectIdentifier getIdentifier() {
+				return DomainObjectIdentifierUtils.named("uiTest");
 			}
 		};
 	}

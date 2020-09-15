@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.DomainObjectProvider;
 import dev.nokee.platform.base.KnownDomainObject;
 import lombok.EqualsAndHashCode;
@@ -31,8 +32,8 @@ public class DefaultKnownDomainObject<T> implements KnownDomainObject<T> {
 	}
 
 	@Override
-	public DomainObjectIdentity getIdentity() {
-		return provider.getIdentity();
+	public DomainObjectIdentifier getIdentifier() {
+		return provider.getIdentifier();
 	}
 
 	@Override

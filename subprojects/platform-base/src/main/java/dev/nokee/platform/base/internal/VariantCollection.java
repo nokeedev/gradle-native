@@ -2,6 +2,7 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.DomainObjectCollection;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.Variant;
@@ -9,6 +10,7 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.utils.Cast;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
@@ -34,11 +36,11 @@ public class VariantCollection<T extends Variant> implements Realizable {
 	}
 
 	public VariantProvider<T> registerVariant(BuildVariantInternal buildVariant, VariantFactory<T> factory) {
-		BuildVariantDomainObjectIdentity identity = new BuildVariantDomainObjectIdentity(buildVariant);
+		val identifier = VariantIdentifier.builder().withComponentIdentifier(ComponentIdentifier.ofMain(Component.class, ProjectIdentifier.of("root"))).withUnambiguousNameFromBuildVariant(buildVariant).withType(elementType).build();
 		delegate.add(new DomainObjectElement<T>() {
 			@Override
 			public T get() {
-				return factory.create(identity.getName(), buildVariant);
+				return factory.create(identifier.getUnambiguousName(), buildVariant);
 			}
 
 			@Override
@@ -47,12 +49,12 @@ public class VariantCollection<T extends Variant> implements Realizable {
 			}
 
 			@Override
-			public DomainObjectIdentity getIdentity() {
-				return identity;
+			public DomainObjectIdentifier getIdentifier() {
+				return identifier;
 			}
 		});
 
-		return Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(VariantProvider.class, buildVariant, delegate.get(identity)));
+		return Cast.uncheckedCastBecauseOfTypeErasure(getObjects().newInstance(VariantProvider.class, buildVariant, delegate.get(identifier)));
 	}
 
 	// TODO: I don't like that we have to pass in the viewElementType

@@ -2,6 +2,8 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.*;
@@ -17,7 +19,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import lombok.var;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.ProjectLayout;
@@ -99,8 +100,8 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 			}
 
 			@Override
-			public DomainObjectIdentity getIdentity() {
-				return DomainObjectIdentity.named("main");
+			public DomainObjectIdentifier getIdentifier() {
+				return DomainObjectIdentifierUtils.named("main");
 			}
 		};
 	}

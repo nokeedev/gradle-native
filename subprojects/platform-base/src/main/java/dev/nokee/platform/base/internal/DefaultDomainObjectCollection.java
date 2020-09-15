@@ -1,6 +1,8 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.NamedDomainObjectIdentifier;
 import dev.nokee.platform.base.*;
 import dev.nokee.utils.Cast;
 import dev.nokee.utils.ProviderUtils;
@@ -26,7 +28,7 @@ public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<
 	private final NamedDomainObjectContainer<DomainObjectElement<T>> elements;
 	private final DomainObjectElementObserver<T> elementObserver;
 	private final View<T> baseView;
-	private final Map<DomainObjectIdentity, DomainObjectProvider<T>> identityToProviders = new HashMap<>();
+	private final Map<DomainObjectIdentifier, DomainObjectProvider<T>> identifierToProviders = new HashMap<>();
 	private boolean disallowChanges = false;
 
 	public DefaultDomainObjectCollection(Class<T> type, ObjectFactory objects, ProviderFactory providers) {
@@ -40,11 +42,11 @@ public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<
 	private DomainObjectElement<T> createElement(String name) {
 		val elementSupplier = nameToElements.remove(name);
 		val element = elementSupplier.get();
-		return newElement(elementSupplier.getIdentity(), element.getClass(), element);
+		return newElement(elementSupplier.getIdentifier(), element.getClass(), element);
 	}
 
-	private DomainObjectElement<T> newElement(DomainObjectIdentity identity, Class<?> type, T element) {
-		return new DomainObjectElements.Naming<>(identity, Cast.uncheckedCastBecauseOfTypeErasure(type), element);
+	private DomainObjectElement<T> newElement(DomainObjectIdentifier identifier, Class<?> type, T element) {
+		return new DomainObjectElements.Naming<>(identifier, Cast.uncheckedCastBecauseOfTypeErasure(type), element);
 	}
 
 	@Override
@@ -53,24 +55,24 @@ public class DefaultDomainObjectCollection<T> implements DomainObjectCollection<
 			throw new IllegalStateException("The value cannot be changed any further.");
 		}
 
-		val elementName = ((NamedDomainObjectIdentity)element.getIdentity()).getName();
+		val elementName = ((NamedDomainObjectIdentifier)element.getIdentifier()).getName();
 		if (element instanceof DomainObjectElements.Existing) {
-			knownElements.add(new KnownDomainObjects.Existing<>(element.getIdentity(), element.getType(), element.get()));
-			elements.add(newElement(element.getIdentity(), element.getType(), element.get()));
-			identityToProviders.put(element.getIdentity(), new DefaultDomainObjectProvider<>(element.getIdentity(), element.getType(), elements.named(elementName)));
+			knownElements.add(new KnownDomainObjects.Existing<>(element.getIdentifier(), element.getType(), element.get()));
+			elements.add(newElement(element.getIdentifier(), element.getType(), element.get()));
+			identifierToProviders.put(element.getIdentifier(), new DefaultDomainObjectProvider<>(element.getIdentifier(), element.getType(), elements.named(elementName)));
 			return true;
 		}
 
 		nameToElements.put(elementName, element);
 		val provider = elements.register(elementName);
-		knownElements.add(new KnownDomainObjects.Providing<>(element.getIdentity(), element.getType(), provider));
-		identityToProviders.put(element.getIdentity(), new DefaultDomainObjectProvider<>(element.getIdentity(), element.getType(), provider));
+		knownElements.add(new KnownDomainObjects.Providing<>(element.getIdentifier(), element.getType(), provider));
+		identifierToProviders.put(element.getIdentifier(), new DefaultDomainObjectProvider<>(element.getIdentifier(), element.getType(), provider));
 		return true;
 	}
 
 	@Override
-	public DomainObjectProvider<T> get(DomainObjectIdentity identity) {
-		return identityToProviders.get(identity);
+	public DomainObjectProvider<T> get(DomainObjectIdentifier identifier) {
+		return identifierToProviders.get(identifier);
 	}
 
 	@Override

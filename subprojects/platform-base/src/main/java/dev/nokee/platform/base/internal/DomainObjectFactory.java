@@ -1,5 +1,7 @@
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.DomainObjectIdentifier;
+
 public interface DomainObjectFactory<T> {
 	T create();
 
@@ -7,5 +9,5 @@ public interface DomainObjectFactory<T> {
 
 	Class<? extends T> getImplementationType();
 
-	DomainObjectIdentity getIdentity();
+	DomainObjectIdentifier getIdentifier();
 }

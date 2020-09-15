@@ -13,6 +13,7 @@ repositories {
 }
 
 dependencies {
+	api project(':coreModel')
 	implementation project(':coreUtils')
 	implementation project(':runtimeBase')
 	implementation "com.google.guava:guava:${guavaVersion}"

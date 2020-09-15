@@ -1,6 +1,7 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.DomainObjectCollection;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.DomainObjectProvider;
@@ -45,11 +46,11 @@ public class DefaultDomainObjectStore implements DomainObjectStore {
 			}
 
 			@Override
-			public DomainObjectIdentity getIdentity() {
-				return factory.getIdentity();
+			public DomainObjectIdentifier getIdentifier() {
+				return factory.getIdentifier();
 			}
 		});
-		return Cast.uncheckedCastBecauseOfTypeErasure(store.get(factory.getIdentity()));
+		return Cast.uncheckedCastBecauseOfTypeErasure(store.get(factory.getIdentifier()));
 	}
 
 	@Override

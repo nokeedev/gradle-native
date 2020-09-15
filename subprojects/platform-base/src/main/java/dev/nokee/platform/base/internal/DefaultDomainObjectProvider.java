@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.DomainObjectProvider;
 import lombok.Getter;
@@ -13,13 +14,13 @@ import javax.inject.Inject;
 
 @ToString
 public class DefaultDomainObjectProvider<I> implements DomainObjectProvider<I> {
-	@Getter private final DomainObjectIdentity identity;
+	@Getter private final DomainObjectIdentifier identifier;
 	@Getter private final Class<I> type;
 	private final NamedDomainObjectProvider<DomainObjectElement<I>> delegate;
 
 	@Inject
-	public DefaultDomainObjectProvider(DomainObjectIdentity identity, Class<I> type, NamedDomainObjectProvider<DomainObjectElement<I>> delegate) {
-		this.identity = identity;
+	public DefaultDomainObjectProvider(DomainObjectIdentifier identifier, Class<I> type, NamedDomainObjectProvider<DomainObjectElement<I>> delegate) {
+		this.identifier = identifier;
 		this.type = type;
 		this.delegate = delegate;
 	}

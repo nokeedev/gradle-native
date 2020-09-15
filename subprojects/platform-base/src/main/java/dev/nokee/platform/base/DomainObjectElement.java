@@ -1,7 +1,7 @@
 package dev.nokee.platform.base;
 
 import dev.nokee.platform.base.internal.DomainObjectElements;
-import dev.nokee.platform.base.internal.DomainObjectIdentity;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.utils.Cast;
 
 import java.util.function.Supplier;
@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 /**
  * Represent a domain object element of a view, collection or container.
  * The element can be eagerly or lazily created.
- * It contains the important information about the object, that is the element itself, the type of the element and the identity of the element.
+ * It contains the important information about the object, that is the element itself, the type of the element and the identifier of the element.
  *
  * @param <T> the type of the element held by this class.
  * @since 0.5
@@ -31,11 +31,11 @@ public interface DomainObjectElement<T> {
 	Class<T> getType();
 
 	/**
-	 * Returns the identity of this element.
+	 * Returns the identifier of this element.
 	 *
-	 * @return a {@link DomainObjectIdentity} instance representing this element, never null.
+	 * @return a {@link DomainObjectIdentifier} instance representing this element, never null.
 	 */
-	DomainObjectIdentity getIdentity();
+	DomainObjectIdentifier getIdentifier();
 
 	static <T> DomainObjectElement<T> of(T element) {
 		return new DomainObjectElements.Existing<>(Cast.uncheckedCastBecauseOfTypeErasure(element.getClass()), element);

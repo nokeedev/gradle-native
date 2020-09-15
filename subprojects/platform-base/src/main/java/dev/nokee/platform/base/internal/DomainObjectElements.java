@@ -1,5 +1,8 @@
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.DomainObjectIdentifierUtils;
+import dev.nokee.model.internal.NamedDomainObjectIdentifier;
 import dev.nokee.platform.base.DomainObjectElement;
 import lombok.Getter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -26,8 +29,8 @@ public class DomainObjectElements {
 		}
 
 		@Override
-		public DomainObjectIdentity getIdentity() {
-			return DomainObjectIdentity.named(String.valueOf(System.identityHashCode(value)));
+		public DomainObjectIdentifier getIdentifier() {
+			return DomainObjectIdentifierUtils.named(String.valueOf(System.identityHashCode(value)));
 		}
 	}
 
@@ -46,21 +49,21 @@ public class DomainObjectElements {
 		}
 
 		@Override
-		public DomainObjectIdentity getIdentity() {
-			return DomainObjectIdentity.named(String.valueOf(System.identityHashCode(valueSupplier)));
+		public DomainObjectIdentifier getIdentifier() {
+			return DomainObjectIdentifierUtils.named(String.valueOf(System.identityHashCode(valueSupplier)));
 		}
 	}
 
 	public static final class Memoizing<T> implements DomainObjectElement<T> {
 		@Getter private final Class<T> type;
-		@Getter private final DomainObjectIdentity identity;
+		@Getter private final DomainObjectIdentifier identifier;
 		private Supplying<T> elementSupplier;
 		private T value;
 		private Throwable exception;
 
 		public Memoizing(Supplying<T> elementSupplier) {
 			this.type = elementSupplier.getType();
-			this.identity = elementSupplier.getIdentity();
+			this.identifier = elementSupplier.getIdentifier();
 			this.elementSupplier = elementSupplier;
 		}
 
@@ -83,12 +86,12 @@ public class DomainObjectElements {
 	}
 
 	public static final class Naming<T> implements DomainObjectElement<T>, Named {
-		@Getter private final DomainObjectIdentity identity;
+		@Getter private final DomainObjectIdentifier identifier;
 		@Getter private final Class<T> type;
 		private final T value;
 
-		public Naming(DomainObjectIdentity identity, Class<T> type, T value) {
-			this.identity = identity;
+		public Naming(DomainObjectIdentifier identifier, Class<T> type, T value) {
+			this.identifier = identifier;
 			this.type = type;
 			this.value = value;
 		}
@@ -100,7 +103,7 @@ public class DomainObjectElements {
 
 		@Override
 		public String getName() {
-			return ((NamedDomainObjectIdentity)identity).getName();
+			return ((NamedDomainObjectIdentifier) identifier).getName();
 		}
 	}
 }

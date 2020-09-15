@@ -1,9 +1,8 @@
 package dev.nokee.platform.base.internal;
 
-import com.google.common.reflect.TypeToken;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.DomainObjectElement;
 import dev.nokee.platform.base.KnownDomainObject;
-import dev.nokee.utils.Cast;
 import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -12,12 +11,12 @@ import org.gradle.api.provider.Provider;
 
 public class KnownDomainObjects {
 	public static final class Existing<T> implements KnownDomainObject<T> {
-		private final DomainObjectIdentity identity;
+		private final DomainObjectIdentifier identifier;
 		private final Class<T> type;
 		private final T element;
 
-		public Existing(DomainObjectIdentity identity, Class<T> type, T element) {
-			this.identity = identity;
+		public Existing(DomainObjectIdentifier identifier, Class<T> type, T element) {
+			this.identifier = identifier;
 			this.type = type;
 			this.element = element;
 		}
@@ -33,8 +32,8 @@ public class KnownDomainObjects {
 		}
 
 		@Override
-		public DomainObjectIdentity getIdentity() {
-			return identity;
+		public DomainObjectIdentifier getIdentifier() {
+			return identifier;
 		}
 
 		@Override
@@ -49,12 +48,12 @@ public class KnownDomainObjects {
 	}
 
 	public static final class Providing<T> implements KnownDomainObject<T> {
-		@Getter private final DomainObjectIdentity identity;
+		@Getter private final DomainObjectIdentifier identifier;
 		@Getter private final Class<T> type;
 		private final NamedDomainObjectProvider<DomainObjectElement<T>> delegate;
 
-		public Providing(DomainObjectIdentity identity, Class<T> type, NamedDomainObjectProvider<DomainObjectElement<T>> delegate) {
-			this.identity = identity;
+		public Providing(DomainObjectIdentifier identifier, Class<T> type, NamedDomainObjectProvider<DomainObjectElement<T>> delegate) {
+			this.identifier = identifier;
 			this.type = type;
 			this.delegate = delegate;
 		}

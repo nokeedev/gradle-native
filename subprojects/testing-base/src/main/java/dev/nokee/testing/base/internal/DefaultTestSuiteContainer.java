@@ -1,9 +1,10 @@
 package dev.nokee.testing.base.internal;
 
+import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.platform.base.DomainObjectProvider;
 import dev.nokee.platform.base.internal.AbstractDomainObjectContainer;
 import dev.nokee.platform.base.internal.DomainObjectFactory;
-import dev.nokee.platform.base.internal.DomainObjectIdentity;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.base.TestSuiteContainer;
@@ -52,8 +53,8 @@ public class DefaultTestSuiteContainer extends AbstractDomainObjectContainer<Tes
 			}
 
 			@Override
-			public DomainObjectIdentity getIdentity() {
-				return DomainObjectIdentity.named(name);
+			public DomainObjectIdentifier getIdentifier() {
+				return DomainObjectIdentifierUtils.named(name);
 			}
 		});
 	}
