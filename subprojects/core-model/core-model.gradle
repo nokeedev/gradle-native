@@ -16,6 +16,9 @@ dependencies {
 	compileOnly "org.projectlombok:lombok:latest.release"
 	annotationProcessor "org.projectlombok:lombok:latest.release"
 
+	compileOnly gradleApi(minimumGradleVersion)
+	implementation project(':coreUtils')
+
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation gradleApi(minimumGradleVersion)
