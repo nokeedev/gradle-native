@@ -3,10 +3,14 @@ package dev.nokee.utils;
 import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Transformer;
+import org.gradle.api.internal.provider.DefaultProvider;
+import org.gradle.api.internal.provider.Providers;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.specs.Specs;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import static dev.nokee.utils.TransformerUtils.constant;
 import static dev.nokee.utils.TransformerUtils.toListTransformer;
@@ -15,6 +19,28 @@ import static java.util.Objects.requireNonNull;
 
 public final class ProviderUtils {
 	private ProviderUtils() {}
+
+	/**
+	 * Creates a Gradle {@link Provider} of the specified constant value without a {@link org.gradle.api.provider.ProviderFactory}.
+	 *
+	 * @param value a constant value to provide.
+	 * @param <T> the type of the value.
+	 * @return a {@link Provider} instance of the specified value.
+	 */
+	public static <T> Provider<T> fixed(T value) {
+		return Providers.of(requireNonNull(value));
+	}
+
+	/**
+	 * Creates a Gradle {@link Provider} provided by the specified callable without a {@link org.gradle.api.provider.ProviderFactory}.
+	 *
+	 * @param callable a value provider
+	 * @param <T> the type of the value.
+	 * @return a {@link Provider} instance of the specified callable provider.
+	 */
+	public static <T> Provider<T> supplied(Callable<T> callable) {
+		return new DefaultProvider<>(requireNonNull(callable));
+	}
 
 	/**
 	 * Adapts a collection mapper to a Gradle collection provider transform.
