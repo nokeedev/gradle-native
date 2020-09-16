@@ -2,6 +2,7 @@ package dev.nokee.utils;
 
 import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
+import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 
 import java.util.List;
@@ -69,6 +70,30 @@ public final class TransformerUtils {
 		@Override
 		public String toString() {
 			return "TransformerUtils.constant(" + value + ")";
+		}
+	}
+
+	public static <T> Transformer<T, T> configureInPlace(Action<? super T> action) {
+		return new ConfigureInPlaceTransformer<>(action);
+	}
+
+	@EqualsAndHashCode
+	private static final class ConfigureInPlaceTransformer<T> implements Transformer<T, T> {
+		private final Action<? super T> action;
+
+		public ConfigureInPlaceTransformer(Action<? super T> action) {
+			this.action = action;
+		}
+
+		@Override
+		public T transform(T t) {
+			action.execute(t);
+			return t;
+		}
+
+		@Override
+		public String toString() {
+			return "TransformerUtils.configureInPlace(" + action + ")";
 		}
 	}
 }
