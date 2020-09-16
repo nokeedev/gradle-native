@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @ToString
 @EqualsAndHashCode
-public class ProjectIdentifier implements DomainObjectIdentifierInternal {
+public final class ProjectIdentifier implements DomainObjectIdentifierInternal {
 	private final Path path;
 
 	private ProjectIdentifier(Path path) {

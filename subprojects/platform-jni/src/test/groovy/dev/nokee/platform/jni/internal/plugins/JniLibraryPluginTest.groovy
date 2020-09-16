@@ -220,12 +220,12 @@ class JniLibraryPluginTest extends AbstractJniLibraryPluginSpec implements Proje
 		expect:
 		def variants = project.library.variants.elements.get()
 		variants.size() == 2
-		variants[0].targetMachine.operatingSystemFamily.linux
-		variants[0].targetMachine.architecture.'32Bit'
+		variants[0].targetMachine.operatingSystemFamily.macOS
+		variants[0].targetMachine.architecture.'64Bit'
 
 		and:
-		variants[1].targetMachine.operatingSystemFamily.macOS
-		variants[1].targetMachine.architecture.'64Bit'
+		variants[1].targetMachine.operatingSystemFamily.linux
+		variants[1].targetMachine.architecture.'32Bit'
 	}
 	// TODO: Migrate test about each binaries available on the extension and each variant
 

@@ -1,39 +1,47 @@
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.Value;
 import dev.nokee.platform.base.DomainObjectProvider;
 import dev.nokee.platform.base.Variant;
-import lombok.Getter;
+import dev.nokee.utils.TransformerUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
-import javax.inject.Inject;
+public final class VariantProvider<T extends Variant> {
+	private final VariantIdentifier<T> identifier;
+	private final Value<T> value;
 
-public class VariantProvider<T extends Variant> {
-	@Getter private final BuildVariantInternal buildVariant;
-	@Getter private final Class<T> type;
-	@Getter private final DomainObjectProvider<T> delegate; // TODO: Do not expose this field in public API
+	public VariantProvider(VariantIdentifier<T> identifier, Value<T> value) {
+		this.identifier = identifier;
+		this.value = value;
+	}
 
-	@Inject
-	public VariantProvider(BuildVariantInternal buildVariant, DomainObjectProvider<T> delegate) {
-		this.buildVariant = buildVariant;
-		this.type = delegate.getType();
-		this.delegate = delegate;
+	public BuildVariantInternal getBuildVariant() {
+		return (BuildVariantInternal) identifier.getBuildVariant();
+	}
+
+	public Class<T> getType() {
+		return identifier.getType();
+	}
+
+	public DomainObjectProvider<T> getDelegate() {
+		throw new UnsupportedOperationException(); // TODO: SHould not expose this
 	}
 
 	public T get() {
-		return delegate.get();
+		return value.get();
 	}
 
 	public void configure(Action<? super T> action) {
-		delegate.configure(action);
+		value.mapInPlace(TransformerUtils.configureInPlace(action));
 	}
 
 	public <S> Provider<S> map(Transformer<? extends S, ? super T> mapper) {
-		return delegate.map(mapper);
+		return value.map(mapper);
 	}
 
 	public <S> Provider<S> flatMap(Transformer<? extends Provider<? extends S>, ? super T> mapper) {
-		return delegate.flatMap(mapper);
+		return value.flatMap(mapper);
 	}
 }

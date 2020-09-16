@@ -90,7 +90,7 @@ class DefaultTestSuiteContainerTest extends Specification {
 		provider.get()
 
 		then:
-		c == [':b', ':f', ':c', ':a', ':d', ':e', ':g', ':h']
+		c == [':b', ':f', ':a', ':c', ':d', ':e', ':g', ':h']
 	}
 
 	def "can use Groovy decoration"() {
