@@ -9,14 +9,15 @@ import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.DefaultBuildVariant;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
+import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
+import dev.nokee.platform.base.internal.tasks.TaskName;
+import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.internal.*;
@@ -59,11 +60,14 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final DefaultNativeComponentDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 	@Getter Property<BaseComponent<?>> testedComponent;
+	private final TaskRegistry taskRegistry;
+	private final TaskContainer tasks;
 
 	@Inject
 	public DefaultNativeTestSuiteComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
 		super(names, DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
 		this.dependencyHandler = dependencyHandler;
+		this.tasks = tasks;
 
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
@@ -76,6 +80,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
 
 		this.getDimensions().disallowChanges(); // Let's disallow changing them for now.
+
+		this.taskRegistry = new TaskRegistryImpl(tasks);
 	}
 
 	@Override
@@ -160,9 +166,10 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		// HACK: This should really be solve using the variant whenElementKnown API
 		getBuildVariants().get().forEach(buildVariant -> {
 			final NamingScheme names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
+			val variantIdentifier = VariantIdentifier.builder().withType(DefaultNativeTestSuiteVariant.class).withComponentIdentifier(getIdentifier()).withUnambiguousNameFromBuildVariants(buildVariant, getBuildVariants().get()).build();
 
 			// TODO: The variant should have give access to the testTask
-			val runTask = getTasks().register(names.getTaskName("run"), RunTestExecutable.class, task -> {
+			val runTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("run"), RunTestExecutable.class, variantIdentifier), task -> {
 				// TODO: Use a provider of the variant here
 				task.dependsOn((Callable) () -> getVariantCollection().get().stream().filter(it -> it.getBuildVariant().equals(buildVariant)).findFirst().get().getDevelopmentBinary());
 				task.setOutputDir(task.getTemporaryDir());
@@ -174,13 +181,16 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					}
 				});
 			});
-			val testTask = getTasks().register(names.getBaseName().withCamelDimensions(), task -> {
+			// TODO: The following is a gap is how we declare task, it should be possible to register a lifecycle task for a entity
+			val testTask = taskRegistry.register(names.getBaseName().withCamelDimensions(), task -> {
 				task.dependsOn(runTask);
 			});
 		});
 
-		getTasks().named("check", task -> {
-			task.dependsOn(getDevelopmentVariant().flatMap(it -> getTasks().named(it.getNames().getBaseName().withCamelDimensions())));
+		// Ensure the task is registered before configuring
+		taskRegistry.registerIfAbsent("check").configure(task -> {
+			// TODO: To eliminate access to the TaskContainer, we should have a getter on the variant for the relevant task in question
+			task.dependsOn(getDevelopmentVariant().flatMap(it -> tasks.named(it.getNames().getBaseName().withCamelDimensions())));
 		});
 
 
@@ -252,7 +262,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					ConfigurableFileCollection objects = getObjects().fileCollection();
 					objects.from(componentObjects);
 					if (component instanceof DefaultNativeApplicationComponent) {
-						val relocateTask = getTasks().register(variant.getNames().getTaskName("relocateMainSymbolFor"), UnexportMainSymbol.class, task -> {
+						val relocateTask = tasks.register(variant.getNames().getTaskName("relocateMainSymbolFor"), UnexportMainSymbol.class, task -> {
 							task.getObjects().from(componentObjects);
 							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(variant.getNames().getOutputDirectoryBase("objs/for-test")));
 						});

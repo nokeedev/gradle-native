@@ -14,6 +14,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
 
 public class BaseComponent<T extends Variant> {
+	@Getter private final ComponentIdentifier<?> identifier;
 	@Getter private final NamingScheme names;
 	@Getter private final VariantCollection<T> variantCollection;
 	@Getter private final DomainObjectSet<Binary> binaryCollection;
@@ -30,6 +31,7 @@ public class BaseComponent<T extends Variant> {
 	@Getter private final Property<String> baseName;
 
 	protected BaseComponent(NamingScheme names, Class<T> variantType, ObjectFactory objects) {
+		this.identifier = ComponentIdentifier.builder().withName(ComponentName.of(names.getComponentName())).withType(((Component)this).getClass()).withDisplayName(names.getComponentDisplayName()).withProjectIdentifier(ProjectIdentifier.of(names.getBaseName().getAsString())).build();
 		this.names = names;
 		this.variantCollection = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantCollection.class, variantType));
 		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<Binary, T>(variantCollection.getAsView(variantType), Variant::getBinaries)));

@@ -26,7 +26,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import lombok.var;
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -113,7 +112,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	}
 
 	@Override
-	protected void onEachVariant(BuildVariantInternal buildVariant, VariantProvider<DefaultXCTestTestSuiteVariant> variant, NamingScheme names) {
+	protected void onEachVariant(VariantIdentifier<DefaultXCTestTestSuiteVariant> variantIdentifier, VariantProvider<DefaultXCTestTestSuiteVariant> variant, NamingScheme names) {
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
 				Provider<String> moduleName = getTestedComponent().map(it -> it.getNames().getBaseName().getAsCamelCase());

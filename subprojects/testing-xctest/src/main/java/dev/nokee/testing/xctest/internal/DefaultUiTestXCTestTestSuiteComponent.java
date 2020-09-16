@@ -6,6 +6,8 @@ import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.ios.tasks.internal.ProcessPropertyListTask;
@@ -33,14 +35,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component {
+	private final TaskRegistry taskRegistry;
+
 	@Inject
 	public DefaultUiTestXCTestTestSuiteComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
 		super(names, objects, providers, tasks, layout, configurations, dependencyHandler);
+		this.taskRegistry = new TaskRegistryImpl(tasks);
 	}
 
 	@Override
-	protected void onEachVariant(BuildVariantInternal buildVariant, VariantProvider<DefaultXCTestTestSuiteVariant> variant, NamingScheme names) {
-		super.onEachVariant(buildVariant, variant, names);
+	protected void onEachVariant(VariantIdentifier<DefaultXCTestTestSuiteVariant> variantIdentifier, VariantProvider<DefaultXCTestTestSuiteVariant> variant, NamingScheme names) {
+		super.onEachVariant(variantIdentifier, variant, names);
 
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
@@ -49,28 +54,28 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 			String moduleName = testSuite.getNames().getBaseName().getAsCamelCase();
 
 			// XCTest UI Testing
-			TaskProvider<ProcessPropertyListTask> processUiTestPropertyListTask = getTasks().register("processUiTestPropertyList", ProcessPropertyListTask.class, task -> {
+			val processUiTestPropertyListTask = taskRegistry.register("processUiTestPropertyList", ProcessPropertyListTask.class, task -> {
 				task.getIdentifier().set(getProviders().provider(() -> getGroupId().get().get().get() + "." + moduleName));
 				task.getModule().set(moduleName);
 				task.getSources().from("src/uiTest/resources/Info.plist");
 				task.getOutputFile().set(getLayout().getBuildDirectory().file("ios/uiTest/Info.plist"));
 			});
 
-			TaskProvider<CreateIosXCTestBundleTask> createUiTestXCTestBundle = getTasks().register("createUiTestXCTestBundle", CreateIosXCTestBundleTask.class, task -> {
+			TaskProvider<CreateIosXCTestBundleTask> createUiTestXCTestBundle = taskRegistry.register("createUiTestXCTestBundle", CreateIosXCTestBundleTask.class, task -> {
 				task.getXCTestBundle().set(getLayout().getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.xctest"));
 				task.getSources().from(processUiTestPropertyListTask.flatMap(it -> it.getOutputFile()));
 				task.getSources().from(testSuite.getBinaries().withType(BundleBinary.class).getElements().map(binaries -> binaries.stream().map(binary -> binary.getLinkTask().get().getLinkedFile()).collect(Collectors.toList())));
 			});
 
 			Provider<CommandLineTool> codeSignatureTool = getProviders().provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
-			TaskProvider<SignIosApplicationBundleTask> signUiTestXCTestBundle = getTasks().register("signUiTestXCTestBundle", SignIosApplicationBundleTask.class, task -> {
+			TaskProvider<SignIosApplicationBundleTask> signUiTestXCTestBundle = taskRegistry.register("signUiTestXCTestBundle", SignIosApplicationBundleTask.class, task -> {
 				task.getUnsignedApplicationBundle().set(createUiTestXCTestBundle.flatMap(CreateIosXCTestBundleTask::getXCTestBundle));
 				task.getSignedApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/uiTest/" + moduleName + ".xctest"));
 				task.getCodeSignatureTool().set(codeSignatureTool);
 				task.getCodeSignatureTool().disallowChanges();
 			});
 
-			TaskProvider<CreateIosApplicationBundleTask> createUiTestApplicationBundleTask = getTasks().register("createUiTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
+			TaskProvider<CreateIosApplicationBundleTask> createUiTestApplicationBundleTask = taskRegistry.register("createUiTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
 				task.getApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.app"));
 				task.getSources().from(getXCTRunner());
 				task.getPlugIns().from(signUiTestXCTestBundle.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle));
@@ -78,7 +83,7 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 				task.getSwiftSupportRequired().set(false);
 			});
 
-			val signTask = getTasks().register("signUiTestLauncherApplicationBundle", SignIosApplicationBundleTask.class, task -> {
+			val signTask = taskRegistry.register("signUiTestLauncherApplicationBundle", SignIosApplicationBundleTask.class, task -> {
 				task.getUnsignedApplicationBundle().set(createUiTestApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
 				task.getSignedApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner.app"));
 				task.getCodeSignatureTool().set(codeSignatureTool);
@@ -88,7 +93,7 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 			testSuite.getBinaryCollection().add(getObjects().newInstance(SignedIosApplicationBundleInternal.class, signTask));
 		});
 
-		TaskProvider<Task> bundle = getTasks().register(names.getTaskName("bundle"), task -> {
+		TaskProvider<Task> bundle = taskRegistry.register(names.getTaskName("bundle"), task -> {
 			task.dependsOn(variant.map(it -> it.getBinaries().withType(SignedIosApplicationBundleInternal.class).get()));
 		});
 	}
