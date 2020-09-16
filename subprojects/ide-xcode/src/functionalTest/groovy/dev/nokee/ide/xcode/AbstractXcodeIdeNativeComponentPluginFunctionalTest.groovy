@@ -163,7 +163,7 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 			} else if (className.contains('LibraryWithSharedLinkage')) {
 				result += withBuildTypes(tasks).collect { it.compile }
 			} else if (className.contains('LibraryWithBothLinkage')) {
-				result += withBuildTypes(tasks.withLinkage('shared')).collect { it.compile }
+				result += withBuildTypes(tasks.withLinkage('shared')).collect { it.compile } + withBuildTypes(tasks.withLinkage('static')).collect { it.compile }
 			} else if (className.contains('Library')) {
 				result += withBuildTypes(tasks).collect { it.compile }
 			} else {
