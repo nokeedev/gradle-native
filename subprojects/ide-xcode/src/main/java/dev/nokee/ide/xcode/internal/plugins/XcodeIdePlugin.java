@@ -220,7 +220,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 			val buildTypes = component.getBuildVariants().get().stream().map(b -> b.getAxisValue(BaseTargetBuildType.DIMENSION_TYPE)).collect(Collectors.toSet()); // TODO Maybe use linkedhashset to keep the ordering
 			for (TargetBuildType buildType : buildTypes) {
 				xcodeTarget.getBuildConfigurations().register(((Named)buildType).getName(), xcodeConfiguration -> {
-					Provider<BaseNativeBinary> binary = component.getVariantCollection().filter(it -> it.getBuildVariant().hasAxisOf(buildType)).flatMap(it -> it.iterator().next().getBinaries().withType(BaseNativeBinary.class).getElements().map(b -> b.iterator().next()));
+					Provider<BaseNativeBinary> binary = component.getVariantCollection().filter(it -> it.getBuildVariant().hasAxisOf(buildType) && it.getBuildVariant().hasAxisOf(linkage)).flatMap(it -> it.iterator().next().getBinaries().withType(BaseNativeBinary.class).getElements().map(b -> b.iterator().next()));
 
 					xcodeConfiguration.getProductLocation().set(binary.flatMap(BaseNativeBinary::getCreateOrLinkTask).flatMap(ObjectFilesToBinaryTask::getBinaryFile));
 					xcodeConfiguration.getBuildSettings()

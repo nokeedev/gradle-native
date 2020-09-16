@@ -31,7 +31,7 @@ public class BaseComponent<T extends Variant> {
 
 	protected BaseComponent(NamingScheme names, Class<T> variantType, ObjectFactory objects) {
 		this.names = names;
-		this.variantCollection = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantCollection.class, variantType));
+		this.variantCollection = new VariantCollection<>(variantType, objects);
 		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<Binary, T>(variantCollection.getAsView(variantType), Variant::getBinaries)));
 		this.objects = objects;
 		this.binaryCollection = objects.domainObjectSet(Binary.class);

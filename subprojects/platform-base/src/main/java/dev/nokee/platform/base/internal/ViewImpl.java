@@ -1,10 +1,9 @@
 package dev.nokee.platform.base.internal;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.platform.base.DomainObjectCollection;
+import dev.nokee.model.internal.NokeeCollection;
 import dev.nokee.platform.base.View;
-import dev.nokee.utils.Cast;
+import dev.nokee.utils.ProviderUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
@@ -13,58 +12,58 @@ import org.gradle.api.specs.Spec;
 import java.util.List;
 import java.util.Set;
 
-public class DefaultView<T> implements View<T> {
-	private final DomainObjectCollection<T> delegate;
+import static dev.nokee.utils.ActionUtils.onlyIf;
+import static dev.nokee.utils.SpecUtils.byType;
 
-	public DefaultView(DomainObjectCollection<T> delegate) {
-		this.delegate = delegate;
+public final class ViewImpl<T> implements View<T> {
+	private final NokeeCollection<T> store;
+
+	public ViewImpl(NokeeCollection<T> store) {
+		this.store = store;
 	}
 
 	@Override
 	public void configureEach(Action<? super T> action) {
-		Preconditions.checkArgument(action != null, "configure each action for variant view must not be null");
-		delegate.configureEach(action);
+		store.forEach(action);
 	}
 
 	@Override
 	public <S extends T> void configureEach(Class<S> type, Action<? super S> action) {
-		Preconditions.checkArgument(action != null, "configure each action for variant view must not be null");
-		delegate.configureEach(type, action);
+		store.forEach(onlyIf(type, action));
 	}
 
 	@Override
 	public void configureEach(Spec<? super T> spec, Action<? super T> action) {
-		delegate.configureEach(spec, action);
+		store.forEach(onlyIf(spec, action));
 	}
 
 	@Override
 	public <S extends T> View<S> withType(Class<S> type) {
-		Preconditions.checkArgument(type != null, "variant view subview type must not be null");
-		return delegate.withType(type);
+		return new ViewImpl<>(store.filter(byType(type)));
 	}
 
 	@Override
 	public Provider<Set<? extends T>> getElements() {
-		return delegate.getElements().map(ImmutableSet::copyOf);
+		return ProviderUtils.supplied(this::get);
 	}
 
 	@Override
 	public Set<? extends T> get() {
-		return ImmutableSet.copyOf(delegate.getElements().get());
+		return ImmutableSet.copyOf(store.get());
 	}
 
 	@Override
 	public <S> Provider<List<? extends S>> map(Transformer<? extends S, ? super T> mapper) {
-		return delegate.map(mapper);
+		return getElements().map(ProviderUtils.map(mapper));
 	}
 
 	@Override
 	public <S> Provider<List<? extends S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper) {
-		return delegate.flatMap(mapper);
+		return getElements().map(ProviderUtils.flatMap(mapper));
 	}
 
 	@Override
 	public Provider<List<? extends T>> filter(Spec<? super T> spec) {
-		return delegate.filter(spec);
+		return getElements().map(ProviderUtils.filter(spec));
 	}
 }

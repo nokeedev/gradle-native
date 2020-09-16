@@ -1,48 +1,46 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.platform.base.DomainObjectProvider;
+import dev.nokee.model.internal.Value;
 import dev.nokee.platform.base.KnownDomainObject;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
-import javax.inject.Inject;
+import static dev.nokee.utils.TransformerUtils.configureInPlace;
 
-@ToString
-@EqualsAndHashCode
-public class DefaultKnownDomainObject<T> implements KnownDomainObject<T> {
-	private final DomainObjectProvider<T> provider;
+final class KnownDomainObjectValueAdapter<T> implements KnownDomainObject<T> {
+	private final DomainObjectIdentifier identifier;
+	private final Value<? extends T> value;
 
-	@Inject
-	public DefaultKnownDomainObject(DomainObjectProvider<T> provider) {
-		this.provider = provider;
+	public KnownDomainObjectValueAdapter(DomainObjectIdentifier identifier, Value<? extends T> value) {
+		this.identifier = identifier;
+		this.value = value;
 	}
 
 	@Override
 	public void configure(Action<? super T> action) {
-		provider.configure(action);
+		value.mapInPlace(configureInPlace(action));
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Class<T> getType() {
-		return provider.getType();
+		return (Class<T>) value.getType();
 	}
 
 	@Override
 	public DomainObjectIdentifier getIdentifier() {
-		return provider.getIdentifier();
+		return identifier;
 	}
 
 	@Override
 	public <S> Provider<S> map(Transformer<? extends S, ? super T> transformer) {
-		return provider.map(transformer);
+		return value.map(transformer);
 	}
 
 	@Override
 	public <S> Provider<S> flatMap(Transformer<? extends Provider<? extends S>, ? super T> transformer) {
-		return provider.flatMap(transformer);
+		return value.flatMap(transformer);
 	}
 }
