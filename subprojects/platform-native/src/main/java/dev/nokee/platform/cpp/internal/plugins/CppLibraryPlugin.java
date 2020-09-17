@@ -1,7 +1,6 @@
 package dev.nokee.platform.cpp.internal.plugins;
 
-import dev.nokee.platform.base.internal.DomainObjectStore;
-import dev.nokee.platform.base.internal.NamingSchemeFactory;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.cpp.CppLibraryExtension;
 import dev.nokee.platform.cpp.internal.DefaultCppLibraryExtension;
@@ -19,6 +18,8 @@ import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPl
 
 import javax.inject.Inject;
 
+import static dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent.newFactory;
+
 public class CppLibraryPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "library";
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
@@ -34,7 +35,8 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ProjectStorePlugin.class);
 
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
-		val component = store.register(DefaultNativeLibraryComponent.newMain(getObjects(), new NamingSchemeFactory(project.getName())));
+		val identifier = ComponentIdentifier.builder().withName(ComponentName.of("main")).withProjectIdentifier(ProjectIdentifier.of(project)).withDisplayName("main native component").withType(DefaultNativeLibraryComponent.class).build();
+		val component = store.register(identifier, DefaultNativeLibraryComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
 		component.configure(it -> it.getBaseName().convention(project.getName()));
 		DefaultCppLibraryExtension extension = getObjects().newInstance(DefaultCppLibraryExtension.class, component.get());
 

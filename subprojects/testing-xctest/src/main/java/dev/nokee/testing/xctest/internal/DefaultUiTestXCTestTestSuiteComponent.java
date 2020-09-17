@@ -3,8 +3,7 @@ package dev.nokee.testing.xctest.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
+import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
@@ -128,28 +127,10 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 		});
 	}
 
-	public static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTest(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
-		return new DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent>() {
-			@Override
-			public DefaultUiTestXCTestTestSuiteComponent create() {
-				NamingScheme names = namingSchemeFactory.forMainComponent("uiTest").withComponentDisplayName("iOS UI test XCTest test suite");
-				return objects.newInstance(DefaultUiTestXCTestTestSuiteComponent.class, names);
-			}
-
-			@Override
-			public Class<DefaultUiTestXCTestTestSuiteComponent> getType() {
-				return DefaultUiTestXCTestTestSuiteComponent.class;
-			}
-
-			@Override
-			public Class<? extends DefaultUiTestXCTestTestSuiteComponent> getImplementationType() {
-				return DefaultUiTestXCTestTestSuiteComponent.class;
-			}
-
-			@Override
-			public DomainObjectIdentifier getIdentifier() {
-				return DomainObjectIdentifierUtils.named("uiTest");
-			}
+	public static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
+		return identifier -> {
+			NamingScheme names = namingSchemeFactory.forMainComponent("uiTest").withComponentDisplayName("iOS UI test XCTest test suite");
+			return objects.newInstance(DefaultUiTestXCTestTestSuiteComponent.class, names);
 		};
 	}
 }

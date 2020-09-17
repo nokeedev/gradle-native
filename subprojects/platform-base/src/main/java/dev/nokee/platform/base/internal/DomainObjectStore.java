@@ -1,5 +1,7 @@
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.DomainObjectFactory;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.DomainObjectProvider;
 import dev.nokee.platform.base.KnownDomainObject;
 import org.gradle.api.Action;
@@ -10,7 +12,7 @@ import org.gradle.api.specs.Spec;
 import java.util.List;
 
 public interface DomainObjectStore {
-	<U> DomainObjectProvider<U> register(DomainObjectFactory<U> factory);
+	<U> DomainObjectProvider<U> register(DomainObjectIdentifier identifier, Class<U> type, DomainObjectFactory<U> factory);
 
 	void whenElementKnown(Action<KnownDomainObject<?>> action);
 	<U> void whenElementKnown(Class<U> type, Action<KnownDomainObject<? extends U>> action);

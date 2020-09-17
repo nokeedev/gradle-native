@@ -12,8 +12,8 @@ import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DomainObjectStore;
-import dev.nokee.model.internal.NamedDomainObjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
@@ -90,7 +90,7 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 		extension.getProjects().addAllLater(v);
 
 		store.whenElementKnown(BaseComponent.class, it -> {
-			registerIdeProject(((NamedDomainObjectIdentifier)it.getIdentifier()).getName());
+			registerIdeProject(((ComponentIdentifier<?>)it.getIdentifier()).getName().get());
 		});
 	}
 

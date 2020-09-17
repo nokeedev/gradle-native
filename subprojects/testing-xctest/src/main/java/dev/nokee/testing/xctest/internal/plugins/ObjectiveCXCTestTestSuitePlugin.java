@@ -2,9 +2,7 @@ package dev.nokee.testing.xctest.internal.plugins;
 
 import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
-import dev.nokee.platform.base.internal.DomainObjectStore;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingSchemeFactory;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
@@ -21,6 +19,9 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
+
+import static dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent.newUiTestFactory;
+import static dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent.newUnitTestFactory;
 
 public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
@@ -42,7 +43,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			BaseNativeComponent<?> application = ((DefaultObjectiveCIosApplicationExtension) project.getExtensions().getByType(ObjectiveCIosApplicationExtension.class)).getComponent();
 			val store = project.getExtensions().getByType(DomainObjectStore.class);
 
-			val unitTestComponent = store.register(DefaultUnitTestXCTestTestSuiteComponent.newUnitTest(getObjects(), new NamingSchemeFactory(project.getName())));
+			val unitTestIdentifier = ComponentIdentifier.builder().withName(ComponentName.of("unitTest")).withProjectIdentifier(ProjectIdentifier.of(project)).withType(DefaultUnitTestXCTestTestSuiteComponent.class).withDisplayName("iOS unit test XCTest test suite").build();
+			val unitTestComponent = store.register(unitTestIdentifier, DefaultUnitTestXCTestTestSuiteComponent.class, newUnitTestFactory(getObjects(), new NamingSchemeFactory(project.getName())));
 			unitTestComponent.configure(component -> {
 				component.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/unitTest/objc"));
 				component.getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir("src/unitTest/headers"));
@@ -53,7 +55,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			});
 			unitTestComponent.get();
 
-			val uiTestComponent = store.register(DefaultUiTestXCTestTestSuiteComponent.newUiTest(getObjects(), new NamingSchemeFactory(project.getName())));
+			val uiTestIdentifier = ComponentIdentifier.builder().withName(ComponentName.of("uiTest")).withProjectIdentifier(ProjectIdentifier.of(project)).withType(DefaultUnitTestXCTestTestSuiteComponent.class).withDisplayName("iOS UI test XCTest test suite").build();
+			val uiTestComponent = store.register(uiTestIdentifier, DefaultUiTestXCTestTestSuiteComponent.class, newUiTestFactory(getObjects(), new NamingSchemeFactory(project.getName())));
 			uiTestComponent.configure(component -> {
 				component.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/uiTest/objc"));
 				component.getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir("src/uiTest/headers"));

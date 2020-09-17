@@ -1,14 +1,9 @@
 package dev.nokee.testing.base.internal;
 
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.platform.base.DomainObjectProvider;
-import dev.nokee.platform.base.internal.AbstractDomainObjectContainer;
-import dev.nokee.platform.base.internal.DomainObjectFactory;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.platform.base.internal.DomainObjectStore;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.base.TestSuiteContainer;
-import dev.nokee.utils.Cast;
 import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
@@ -37,25 +32,11 @@ public class DefaultTestSuiteContainer extends AbstractDomainObjectContainer<Tes
 
 	@Override
 	public <T extends TestSuiteComponent> DomainObjectProvider<T> register(String name, Class<T> type) {
-		return getStore().register(new DomainObjectFactory<T>() {
-			@Override
-			public T create() {
-				return type.cast(bindings.get(type).create(name));
-			}
-
-			public Class<? extends T> getImplementationType() {
-				return Cast.uncheckedCastBecauseOfTypeErasure(implementationTypes.get(type));
-			}
-
-			@Override
-			public Class<T> getType() {
-				return type;
-			}
-
-			@Override
-			public DomainObjectIdentifier getIdentifier() {
-				return DomainObjectIdentifierUtils.named(name);
-			}
+		@SuppressWarnings("unchecked")
+		val implementationType = (Class<T>) implementationTypes.get(type);
+		val identifier = ComponentIdentifier.of(ComponentName.of(name), implementationType, ProjectIdentifier.of(""));
+		return getStore().register(identifier, implementationType, id -> {
+			return implementationType.cast(bindings.get(type).create(name));
 		});
 	}
 

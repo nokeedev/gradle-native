@@ -1,8 +1,6 @@
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.platform.base.internal.DomainObjectStore;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingSchemeFactory;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
@@ -29,6 +27,7 @@ import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPl
 import javax.inject.Inject;
 import java.util.Arrays;
 
+import static dev.nokee.platform.ios.internal.DefaultIosApplicationComponent.newFactory;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.platform.nativebase.internal.NativePlatformFactory.platformNameFor;
 
@@ -56,7 +55,8 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ProjectStorePlugin.class);
 
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
-		val component = store.register(DefaultIosApplicationComponent.newMain(getObjects(), new NamingSchemeFactory(project.getName())));
+		val identifier = ComponentIdentifier.builder().withName(ComponentName.of("main")).withProjectIdentifier(ProjectIdentifier.of(project)).withDisplayName("main iOS application").withType(DefaultIosApplicationComponent.class).build();
+		val component = store.register(identifier, DefaultIosApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
 		component.configure(it -> it.getGroupId().set(GroupId.of(project::getGroup)));
 		val extension = getObjects().newInstance(DefaultObjectiveCIosApplicationExtension.class, component.get());
 
