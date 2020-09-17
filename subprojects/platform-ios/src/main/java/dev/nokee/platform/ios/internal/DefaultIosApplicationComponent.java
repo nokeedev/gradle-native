@@ -10,6 +10,7 @@ import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.platform.base.BinaryAwareComponent;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
