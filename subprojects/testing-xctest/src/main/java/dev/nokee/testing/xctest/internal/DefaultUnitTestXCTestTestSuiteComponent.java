@@ -6,6 +6,10 @@ import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
+import dev.nokee.platform.base.internal.tasks.TaskName;
+import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
@@ -16,7 +20,6 @@ import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
-import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.ProjectLayout;
@@ -24,7 +27,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
-import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -34,14 +36,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component {
+	private final TaskRegistry taskRegistry;
+
 	@Inject
 	public DefaultUnitTestXCTestTestSuiteComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
 		super(names, objects, providers, tasks, layout, configurations, dependencyHandler);
+		this.taskRegistry = new TaskRegistryImpl(tasks);
 	}
 
 	@Override
-	protected void onEachVariant(BuildVariantInternal buildVariant, VariantProvider<DefaultXCTestTestSuiteVariant> variant, NamingScheme names) {
-		super.onEachVariant(buildVariant, variant, names);
+	protected void onEachVariant(VariantIdentifier<DefaultXCTestTestSuiteVariant> variantIdentifier, VariantProvider<DefaultXCTestTestSuiteVariant> variant, NamingScheme names) {
+		super.onEachVariant(variantIdentifier, variant, names);
 
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
@@ -50,27 +55,27 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 			String moduleName = testSuite.getNames().getBaseName().getAsCamelCase();
 
 			// XCTest Unit Testing
-			TaskProvider<ProcessPropertyListTask> processUnitTestPropertyListTask = getTasks().register("processUnitTestPropertyList", ProcessPropertyListTask.class, task -> {
+			val processUnitTestPropertyListTask = taskRegistry.register("processUnitTestPropertyList", ProcessPropertyListTask.class, task -> {
 				task.getIdentifier().set(getProviders().provider(() -> getGroupId().get().get().get() + "." + moduleName));
 				task.getModule().set(moduleName);
 				task.getSources().from("src/unitTest/resources/Info.plist");
 				task.getOutputFile().set(getLayout().getBuildDirectory().file("ios/unitTest/Info.plist"));
 			});
 
-			TaskProvider<CreateIosXCTestBundleTask> createUnitTestXCTestBundle = getTasks().register("createUnitTestXCTestBundle", CreateIosXCTestBundleTask.class, task -> {
+			val createUnitTestXCTestBundle = taskRegistry.register("createUnitTestXCTestBundle", CreateIosXCTestBundleTask.class, task -> {
 				task.getXCTestBundle().set(getLayout().getBuildDirectory().file("ios/products/unitTest/" + moduleName + "-unsigned.xctest"));
 				task.getSources().from(processUnitTestPropertyListTask.flatMap(it -> it.getOutputFile()));
 				task.getSources().from(testSuite.getBinaries().withType(BundleBinary.class).getElements().map(binaries -> binaries.stream().map(binary -> binary.getLinkTask().get().getLinkedFile()).collect(Collectors.toList())));
 			});
 			Provider<CommandLineTool> codeSignatureTool = getProviders().provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
-			TaskProvider<SignIosApplicationBundleTask> signUnitTestXCTestBundle = getTasks().register("signUnitTestXCTestBundle", SignIosApplicationBundleTask.class, task -> {
+			val signUnitTestXCTestBundle = taskRegistry.register("signUnitTestXCTestBundle", SignIosApplicationBundleTask.class, task -> {
 				task.getUnsignedApplicationBundle().set(createUnitTestXCTestBundle.flatMap(CreateIosXCTestBundleTask::getXCTestBundle));
 				task.getSignedApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/unitTest/" + moduleName + ".xctest"));
 				task.getCodeSignatureTool().set(codeSignatureTool);
 				task.getCodeSignatureTool().disallowChanges();
 			});
 
-			TaskProvider<CreateIosApplicationBundleTask> createUnitTestApplicationBundleTask = getTasks().register("createUnitTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
+			val createUnitTestApplicationBundleTask = taskRegistry.register("createUnitTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
 				task.getApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getNames().getBaseName().getAsCamelCase() + "-unsigned.app"));
 				task.getSources().from(getTestedComponent().flatMap(c -> c.getVariants().getElements().map(it -> it.iterator().next().getBinaries().withType(IosApplicationBundleInternal.class).get().iterator().next().getBundleTask().map(t -> t.getSources()))));
 				task.getPlugIns().from(signUnitTestXCTestBundle.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle));
@@ -79,7 +84,7 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 				task.getSwiftSupportRequired().set(false);
 			});
 
-			val signTask = getTasks().register("signUnitTestLauncherApplicationBundle", SignIosApplicationBundleTask.class, task -> {
+			val signTask = taskRegistry.register("signUnitTestLauncherApplicationBundle", SignIosApplicationBundleTask.class, task -> {
 				task.getUnsignedApplicationBundle().set(createUnitTestApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
 				task.getSignedApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getNames().getBaseName().getAsCamelCase() + ".app"));
 				task.getCodeSignatureTool().set(codeSignatureTool);
@@ -89,7 +94,7 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 			testSuite.getBinaryCollection().add(getObjects().newInstance(SignedIosApplicationBundleInternal.class, signTask));
 		});
 
-		TaskProvider<Task> bundle = getTasks().register(names.getTaskName("bundle"), task -> {
+		val bundle = taskRegistry.register(TaskIdentifier.of(TaskName.of("bundle"), variantIdentifier), task -> {
 			task.dependsOn(variant.map(it -> it.getBinaries().withType(SignedIosApplicationBundleInternal.class).get()));
 		});
 	}
