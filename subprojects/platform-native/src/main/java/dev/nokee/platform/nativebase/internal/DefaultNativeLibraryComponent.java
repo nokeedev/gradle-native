@@ -2,11 +2,13 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
+import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
@@ -87,28 +89,10 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 		return result;
 	}
 
-	public static DomainObjectFactory<DefaultNativeLibraryComponent> newMain(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
-		return new DomainObjectFactory<DefaultNativeLibraryComponent>() {
-			@Override
-			public DefaultNativeLibraryComponent create() {
-				NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main native component");
-				return objects.newInstance(DefaultNativeLibraryComponent.class, names);
-			}
-
-			@Override
-			public Class<DefaultNativeLibraryComponent> getType() {
-				return DefaultNativeLibraryComponent.class;
-			}
-
-			@Override
-			public Class<? extends DefaultNativeLibraryComponent> getImplementationType() {
-				return DefaultNativeLibraryComponent.class;
-			}
-
-			@Override
-			public DomainObjectIdentifier getIdentifier() {
-				return DomainObjectIdentifierUtils.named("main");
-			}
+	public static DomainObjectFactory<DefaultNativeLibraryComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
+		return identifier -> {
+			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main native component");
+			return objects.newInstance(DefaultNativeLibraryComponent.class, names);
 		};
 	}
 }

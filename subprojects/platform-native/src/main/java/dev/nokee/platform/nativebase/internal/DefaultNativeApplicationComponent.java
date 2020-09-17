@@ -2,11 +2,13 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
+import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
@@ -81,28 +83,10 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 		return result;
 	}
 
-	public static DomainObjectFactory<DefaultNativeApplicationComponent> newMain(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
-		return new DomainObjectFactory<DefaultNativeApplicationComponent>() {
-			@Override
-			public DefaultNativeApplicationComponent create() {
-				NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main native component");
-				return objects.newInstance(DefaultNativeApplicationComponent.class, names);
-			}
-
-			@Override
-			public Class<DefaultNativeApplicationComponent> getType() {
-				return DefaultNativeApplicationComponent.class;
-			}
-
-			@Override
-			public Class<? extends DefaultNativeApplicationComponent> getImplementationType() {
-				return DefaultNativeApplicationComponent.class;
-			}
-
-			@Override
-			public DomainObjectIdentifier getIdentifier() {
-				return DomainObjectIdentifierUtils.named("main");
-			}
+	public static DomainObjectFactory<DefaultNativeApplicationComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
+		return identifier -> {
+			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main native component");
+			return objects.newInstance(DefaultNativeApplicationComponent.class, names);
 		};
 	}
 }

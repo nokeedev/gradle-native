@@ -1,6 +1,7 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.platform.base.Component;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;

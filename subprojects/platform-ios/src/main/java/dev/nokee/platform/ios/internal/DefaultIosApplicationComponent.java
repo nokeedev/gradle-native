@@ -8,9 +8,9 @@ import dev.nokee.core.exec.internal.VersionedCommandLineTool;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
+import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.platform.base.BinaryAwareComponent;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
@@ -236,28 +236,10 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		super.finalizeExtension(project);
 	}
 
-	public static DomainObjectFactory<DefaultIosApplicationComponent> newMain(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
-		return new DomainObjectFactory<DefaultIosApplicationComponent>() {
-			@Override
-			public DefaultIosApplicationComponent create() {
-				NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main iOS application");
-				return objects.newInstance(DefaultIosApplicationComponent.class, names);
-			}
-
-			@Override
-			public Class<DefaultIosApplicationComponent> getType() {
-				return DefaultIosApplicationComponent.class;
-			}
-
-			@Override
-			public Class<? extends DefaultIosApplicationComponent> getImplementationType() {
-				return DefaultIosApplicationComponent.class;
-			}
-
-			@Override
-			public DomainObjectIdentifier getIdentifier() {
-				return DomainObjectIdentifierUtils.named("main");
-			}
+	public static DomainObjectFactory<DefaultIosApplicationComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
+		return identifier -> {
+			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main iOS application");
+			return objects.newInstance(DefaultIosApplicationComponent.class, names);
 		};
 	}
 }

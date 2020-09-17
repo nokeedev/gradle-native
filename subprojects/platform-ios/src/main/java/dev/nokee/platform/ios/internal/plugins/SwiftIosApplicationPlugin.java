@@ -1,8 +1,6 @@
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.platform.base.internal.DomainObjectStore;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingSchemeFactory;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.ios.SwiftIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
@@ -19,6 +17,8 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
 import javax.inject.Inject;
+
+import static dev.nokee.platform.ios.internal.DefaultIosApplicationComponent.newFactory;
 
 public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -38,7 +38,8 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ProjectStorePlugin.class);
 
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
-		val component = store.register(DefaultIosApplicationComponent.newMain(getObjects(), new NamingSchemeFactory(project.getName())));
+		val identifier = ComponentIdentifier.builder().withName(ComponentName.of("main")).withProjectIdentifier(ProjectIdentifier.of(project)).withType(DefaultIosApplicationComponent.class).withDisplayName("main iOS application").build();
+		val component = store.register(identifier, DefaultIosApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
 		component.configure(it -> it.getGroupId().set(GroupId.of(project::getGroup)));
 		DefaultSwiftIosApplicationExtension extension = getObjects().newInstance(DefaultSwiftIosApplicationExtension.class, component.get());
 

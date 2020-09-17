@@ -3,6 +3,7 @@ package dev.nokee.platform.base.internal;
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.runtime.base.internal.DimensionType;
 import dev.nokee.utils.Cast;

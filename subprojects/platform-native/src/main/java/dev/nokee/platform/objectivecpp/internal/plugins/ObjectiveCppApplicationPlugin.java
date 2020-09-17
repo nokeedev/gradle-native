@@ -1,7 +1,6 @@
 package dev.nokee.platform.objectivecpp.internal.plugins;
 
-import dev.nokee.platform.base.internal.DomainObjectStore;
-import dev.nokee.platform.base.internal.NamingSchemeFactory;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
@@ -18,6 +17,8 @@ import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPl
 
 import javax.inject.Inject;
 
+import static dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent.newFactory;
+
 public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
@@ -33,7 +34,8 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ProjectStorePlugin.class);
 
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
-		val component = store.register(DefaultNativeApplicationComponent.newMain(getObjects(), new NamingSchemeFactory(project.getName())));
+		val identifier = ComponentIdentifier.builder().withName(ComponentName.of("main")).withProjectIdentifier(ProjectIdentifier.of(project)).withDisplayName("main native component").withType(DefaultNativeApplicationComponent.class).build();
+		val component = store.register(identifier, DefaultNativeApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
 		component.configure(it -> it.getBaseName().convention(project.getName()));
 		DefaultObjectiveCppApplicationExtension extension = getObjects().newInstance(DefaultObjectiveCppApplicationExtension.class, component.get());
 

@@ -3,8 +3,8 @@ package dev.nokee.testing.xctest.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
+import dev.nokee.model.DomainObjectFactory;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -123,28 +123,10 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 		}
 	}
 
-	public static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTest(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
-		return new DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent>() {
-			@Override
-			public DefaultUnitTestXCTestTestSuiteComponent create() {
-				NamingScheme names = namingSchemeFactory.forMainComponent("unitTest").withComponentDisplayName("iOS unit test XCTest test suite");
-				return objects.newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, names);
-			}
-
-			@Override
-			public Class<DefaultUnitTestXCTestTestSuiteComponent> getType() {
-				return DefaultUnitTestXCTestTestSuiteComponent.class;
-			}
-
-			@Override
-			public Class<? extends DefaultUnitTestXCTestTestSuiteComponent> getImplementationType() {
-				return DefaultUnitTestXCTestTestSuiteComponent.class;
-			}
-
-			@Override
-			public DomainObjectIdentifier getIdentifier() {
-				return DomainObjectIdentifierUtils.named("unitTest");
-			}
+	public static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTestFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
+		return identifier -> {
+			NamingScheme names = namingSchemeFactory.forMainComponent("unitTest").withComponentDisplayName("iOS unit test XCTest test suite");
+			return objects.newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, names);
 		};
 	}
 }

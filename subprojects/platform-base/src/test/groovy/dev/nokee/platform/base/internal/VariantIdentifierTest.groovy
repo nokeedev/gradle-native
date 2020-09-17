@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal
 
+import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.Variant
 import spock.lang.Specification
 

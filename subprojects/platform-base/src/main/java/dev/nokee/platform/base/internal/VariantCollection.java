@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.internal.NokeeMap;
 import dev.nokee.model.internal.NokeeMapImpl;
 import dev.nokee.model.internal.Value;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.utils.Cast;

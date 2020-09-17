@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
 	implementation project(':coreUtils')
+	implementation project(':coreModel')
 	implementation project(':languageNative')
 	implementation project(':coreExec')
 	implementation project(':runtimeDarwin')

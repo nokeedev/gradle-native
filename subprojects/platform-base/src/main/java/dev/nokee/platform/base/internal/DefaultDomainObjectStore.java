@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.NokeeMap;
 import dev.nokee.model.internal.NokeeMapImpl;
@@ -33,10 +34,10 @@ public class DefaultDomainObjectStore implements DomainObjectStore {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <U> DomainObjectProvider<U> register(DomainObjectFactory<U> factory) {
-		val value = Value.supplied((Class<U>)factory.getImplementationType(), factory::create);
-		store.put(factory.getIdentifier(), (Value<Object>) value);
-		return new DomainObjectProviderValueAdapter<>(factory.getIdentifier(), value);
+	public <U> DomainObjectProvider<U> register(DomainObjectIdentifier identifier, Class<U> type, DomainObjectFactory<U> factory) {
+		val value = Value.supplied(type, () -> factory.create(identifier));
+		store.put(identifier, (Value<Object>) value);
+		return new DomainObjectProviderValueAdapter<>(identifier, value);
 	}
 
 	@Override
