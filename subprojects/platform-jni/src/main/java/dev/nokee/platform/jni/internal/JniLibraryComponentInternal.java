@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, BinaryAwareComponent {
+public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, BinaryAwareComponent, Component {
 	private final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies;
 	private final GroupId groupId;
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
