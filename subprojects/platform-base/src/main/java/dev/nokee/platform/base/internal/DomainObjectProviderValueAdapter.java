@@ -8,7 +8,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
-final class DomainObjectProviderValueAdapter<T> implements DomainObjectProvider<T> {
+public final class DomainObjectProviderValueAdapter<T> implements DomainObjectProvider<T> {
 	private final DomainObjectIdentifier identifier;
 	private final Value<? extends T> value;
 
