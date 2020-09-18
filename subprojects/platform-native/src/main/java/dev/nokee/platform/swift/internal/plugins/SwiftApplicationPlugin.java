@@ -1,6 +1,8 @@
 package dev.nokee.platform.swift.internal.plugins;
 
+import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
@@ -32,14 +34,24 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
+
+		// Load the store
 		project.getPluginManager().apply(ProjectStorePlugin.class);
-
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
-		val identifier = ComponentIdentifier.builder().withName(ComponentName.of("main")).withProjectIdentifier(ProjectIdentifier.of(project)).withDisplayName("main native component").withType(DefaultNativeApplicationComponent.class).build();
-		val component = store.register(identifier, DefaultNativeApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
-		component.configure(it -> it.getBaseName().convention(GUtil.toCamelCase(project.getName())));
-		DefaultSwiftApplicationExtension extension = getObjects().newInstance(DefaultSwiftApplicationExtension.class, component.get());
 
+		// Create the component
+		project.getPluginManager().apply(ComponentBasePlugin.class);
+		val components = project.getExtensions().getByType(ComponentContainer.class);
+		components.registerFactory(DefaultSwiftApplicationExtension.class, id -> {
+			val identifier = ComponentIdentifier.builder().withName(((ComponentIdentifier<?>)id).getName()).withProjectIdentifier(ProjectIdentifier.of(project)).withDisplayName("main native component").withType(DefaultNativeApplicationComponent.class).build();
+			val component = store.register(identifier, DefaultNativeApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
+			return getObjects().newInstance(DefaultSwiftApplicationExtension.class, component.get());
+		});
+		val extension = components.register("main", DefaultSwiftApplicationExtension.class, component -> {
+			component.getComponent().getBaseName().convention(GUtil.toCamelCase(project.getName()));
+		}).get();
+
+		// Other configurations
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 		project.afterEvaluate(getObjects().newInstance(TargetBuildTypeRule.class, extension.getTargetBuildTypes(), EXTENSION_NAME));
 		project.afterEvaluate(extension::finalizeExtension);

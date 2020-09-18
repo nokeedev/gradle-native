@@ -2,6 +2,7 @@ package dev.nokee.platform.cpp.internal;
 
 import dev.nokee.language.cpp.internal.CppHeaderSet;
 import dev.nokee.language.cpp.internal.CppSourceSet;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.cpp.CppApplicationExtension;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -11,7 +12,6 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.Getter;
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.ProjectLayout;
@@ -21,7 +21,7 @@ import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
 
-public class DefaultCppApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements CppApplicationExtension {
+public class DefaultCppApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements CppApplicationExtension, Component {
 	@Getter private final ConfigurableFileCollection sources;
 	@Getter private final ConfigurableFileCollection privateHeaders;
 	@Getter private final SetProperty<TargetMachine> targetMachines;

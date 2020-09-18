@@ -1,6 +1,8 @@
 package dev.nokee.platform.ios.internal.plugins;
 
+import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.ios.SwiftIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
@@ -35,14 +37,24 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 		project.getPluginManager().apply(DarwinRuntimePlugin.class);
+
+		// Load the store
 		project.getPluginManager().apply(ProjectStorePlugin.class);
-
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
-		val identifier = ComponentIdentifier.builder().withName(ComponentName.of("main")).withProjectIdentifier(ProjectIdentifier.of(project)).withType(DefaultIosApplicationComponent.class).withDisplayName("main iOS application").build();
-		val component = store.register(identifier, DefaultIosApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
-		component.configure(it -> it.getGroupId().set(GroupId.of(project::getGroup)));
-		DefaultSwiftIosApplicationExtension extension = getObjects().newInstance(DefaultSwiftIosApplicationExtension.class, component.get());
 
+		// Create the component
+		project.getPluginManager().apply(ComponentBasePlugin.class);
+		val components = project.getExtensions().getByType(ComponentContainer.class);
+		components.registerFactory(DefaultSwiftIosApplicationExtension.class, id -> {
+			val identifier = ComponentIdentifier.builder().withName(ComponentName.of("main")).withProjectIdentifier(ProjectIdentifier.of(project)).withDisplayName("main iOS application").withType(DefaultIosApplicationComponent.class).build();
+			val component = store.register(identifier, DefaultIosApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
+			return getObjects().newInstance(DefaultSwiftIosApplicationExtension.class, component.get());
+		});
+		val extension = components.register("main", DefaultSwiftIosApplicationExtension.class, component -> {
+			component.getComponent().getGroupId().set(GroupId.of(project::getGroup));
+		}).get();
+
+		// Other configurations
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(SwiftIosApplicationExtension.class, EXTENSION_NAME, extension);

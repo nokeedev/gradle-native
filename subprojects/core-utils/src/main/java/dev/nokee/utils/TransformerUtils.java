@@ -1,11 +1,13 @@
 package dev.nokee.utils;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 
 import java.util.List;
+import java.util.Set;
 
 public final class TransformerUtils {
 	private TransformerUtils() {}
@@ -46,6 +48,26 @@ public final class TransformerUtils {
 		@Override
 		public String toString() {
 			return "TransformerUtils.toListTransformer()";
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> Transformer<Set<? extends T>, Iterable<? extends T>> toSetTransformer() {
+		return (Transformer<Set<? extends T>, Iterable<? extends T>>) ToSetTransformer.INSTANCE;
+	}
+
+	private enum ToSetTransformer implements Transformer<Set<? extends Object>, Iterable<? extends Object>> {
+		INSTANCE;
+
+		@Override
+		public Set<?> transform(Iterable<?> objects) {
+			return ImmutableSet.copyOf(objects);
+		}
+
+
+		@Override
+		public String toString() {
+			return "TransformerUtils.toSetTransformer()";
 		}
 	}
 
