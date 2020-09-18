@@ -143,7 +143,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
 		NamingSchemeFactory namingSchemeFactory = new NamingSchemeFactory(project.getName());
-		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent().withComponentDisplayName("JNI library");
+		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent().withComponentDisplayName("main component");
 		JniLibraryExtensionInternal extension = registerExtension(project, mainComponentNames);
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 

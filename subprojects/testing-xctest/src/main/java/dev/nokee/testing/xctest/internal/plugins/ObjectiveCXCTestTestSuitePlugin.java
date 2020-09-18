@@ -43,7 +43,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			BaseNativeComponent<?> application = ((DefaultObjectiveCIosApplicationExtension) project.getExtensions().getByType(ObjectiveCIosApplicationExtension.class)).getComponent();
 			val store = project.getExtensions().getByType(DomainObjectStore.class);
 
-			val unitTestIdentifier = ComponentIdentifier.builder().withName(ComponentName.of("unitTest")).withProjectIdentifier(ProjectIdentifier.of(project)).withType(DefaultUnitTestXCTestTestSuiteComponent.class).withDisplayName("iOS unit test XCTest test suite").build();
+			val unitTestIdentifier = ComponentIdentifier.of(ComponentName.of("unitTest"), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
 			val unitTestComponent = store.register(unitTestIdentifier, DefaultUnitTestXCTestTestSuiteComponent.class, newUnitTestFactory(getObjects(), new NamingSchemeFactory(project.getName())));
 			unitTestComponent.configure(component -> {
 				component.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/unitTest/objc"));
@@ -55,7 +55,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			});
 			unitTestComponent.get();
 
-			val uiTestIdentifier = ComponentIdentifier.builder().withName(ComponentName.of("uiTest")).withProjectIdentifier(ProjectIdentifier.of(project)).withType(DefaultUnitTestXCTestTestSuiteComponent.class).withDisplayName("iOS UI test XCTest test suite").build();
+			val uiTestIdentifier = ComponentIdentifier.of(ComponentName.of("uiTest"), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
 			val uiTestComponent = store.register(uiTestIdentifier, DefaultUiTestXCTestTestSuiteComponent.class, newUiTestFactory(getObjects(), new NamingSchemeFactory(project.getName())));
 			uiTestComponent.configure(component -> {
 				component.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/uiTest/objc"));

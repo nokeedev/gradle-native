@@ -238,7 +238,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	public static DomainObjectFactory<DefaultIosApplicationComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
 		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main iOS application");
+			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName(((ComponentIdentifier<?>)identifier).getDisplayName());
 			return objects.newInstance(DefaultIosApplicationComponent.class, identifier, names);
 		};
 	}

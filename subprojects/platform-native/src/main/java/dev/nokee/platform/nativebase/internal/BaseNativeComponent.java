@@ -161,7 +161,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 			final NamingScheme names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			final VariantIdentifier<T> variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, getBuildVariants().get()).withComponentIdentifier(getIdentifier()).withType(variantType).build();
 
-			val dependencies = newDependencies(names.withComponentDisplayName("main native component"), buildVariant);
+			val dependencies = newDependencies(names.withComponentDisplayName(getIdentifier().getDisplayName()), buildVariant);
 			VariantProvider<T> variant = getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> createVariant(name, bv, dependencies));
 
 			onEachVariantDependencies(variant, dependencies);
