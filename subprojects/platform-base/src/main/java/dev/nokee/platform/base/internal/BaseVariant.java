@@ -15,17 +15,19 @@ public class BaseVariant implements Named {
 	@Getter private final VariantIdentifier<?> identifier;
 	@Getter private final DomainObjectSet<Binary> binaryCollection;
 	@Getter private final String name;
-	@Getter private final BuildVariantInternal buildVariant;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter private final Property<Binary> developmentBinary;
 
-	protected BaseVariant(VariantIdentifier<?> identifier, String name, BuildVariantInternal buildVariant, ObjectFactory objects) {
+	protected BaseVariant(VariantIdentifier<?> identifier, String name, ObjectFactory objects) {
 		this.identifier = identifier;
 		this.name = name;
-		this.buildVariant = buildVariant;
 		this.objects = objects;
 		this.binaryCollection = objects.domainObjectSet(Binary.class);
 		this.developmentBinary = objects.property(Binary.class);
+	}
+
+	public BuildVariantInternal getBuildVariant() {
+		return (BuildVariantInternal) identifier.getBuildVariant();
 	}
 
 	public BinaryView<Binary> getBinaries() {

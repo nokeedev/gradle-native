@@ -81,7 +81,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 		return result;
 	}
 
-	protected abstract T createVariant(VariantIdentifier<?> identifier, String name, BuildVariantInternal buildVariant, VariantComponentDependencies<?> dependencies);
+	protected abstract T createVariant(VariantIdentifier<?> identifier, String name, VariantComponentDependencies<?> dependencies);
 
 	protected abstract VariantComponentDependencies<?> newDependencies(NamingScheme names, BuildVariantInternal buildVariant);
 
@@ -162,7 +162,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 			final VariantIdentifier<T> variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, getBuildVariants().get()).withComponentIdentifier(getIdentifier()).withType(variantType).build();
 
 			val dependencies = newDependencies(names.withComponentDisplayName(getIdentifier().getDisplayName()), buildVariant);
-			VariantProvider<T> variant = getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> createVariant(variantIdentifier, name, bv, dependencies));
+			VariantProvider<T> variant = getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> createVariant(variantIdentifier, name, dependencies));
 
 			onEachVariantDependencies(variant, dependencies);
 		});

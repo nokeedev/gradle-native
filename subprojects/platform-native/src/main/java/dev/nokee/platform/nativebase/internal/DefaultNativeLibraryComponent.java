@@ -80,10 +80,11 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	}
 
 	@Override
-	protected DefaultNativeLibraryVariant createVariant(VariantIdentifier<?> identifier, String name, BuildVariantInternal buildVariant, VariantComponentDependencies<?> variantDependencies) {
+	protected DefaultNativeLibraryVariant createVariant(VariantIdentifier<?> identifier, String name, VariantComponentDependencies<?> variantDependencies) {
+		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		DefaultNativeLibraryVariant result = getObjects().newInstance(DefaultNativeLibraryVariant.class, identifier, name, names, buildVariant, variantDependencies);
+		DefaultNativeLibraryVariant result = getObjects().newInstance(DefaultNativeLibraryVariant.class, identifier, name, names, variantDependencies);
 		return result;
 	}
 

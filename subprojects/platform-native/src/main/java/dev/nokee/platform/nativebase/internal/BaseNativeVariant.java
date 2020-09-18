@@ -3,7 +3,6 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.base.Preconditions;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BaseVariant;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.AccessLevel;
@@ -22,8 +21,8 @@ public class BaseNativeVariant extends BaseVariant {
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
-	public BaseNativeVariant(VariantIdentifier<?> identifier, String name, NamingScheme names, BuildVariantInternal buildVariant, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
-		super(identifier, name, buildVariant, objects);
+	public BaseNativeVariant(VariantIdentifier<?> identifier, String name, NamingScheme names, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
+		super(identifier, name, objects);
 		this.names = names;
 		this.tasks = tasks;
 		this.providers = providers;

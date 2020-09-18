@@ -74,10 +74,11 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	}
 
 	@Override
-	protected DefaultNativeApplicationVariant createVariant(VariantIdentifier<?> identifier, String name, BuildVariantInternal buildVariant, VariantComponentDependencies<?> variantDependencies) {
+	protected DefaultNativeApplicationVariant createVariant(VariantIdentifier<?> identifier, String name, VariantComponentDependencies<?> variantDependencies) {
+		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		DefaultNativeApplicationVariant result = getObjects().newInstance(DefaultNativeApplicationVariant.class, identifier, name, names, buildVariant, variantDependencies);
+		DefaultNativeApplicationVariant result = getObjects().newInstance(DefaultNativeApplicationVariant.class, identifier, name, names, variantDependencies);
 		return result;
 	}
 
