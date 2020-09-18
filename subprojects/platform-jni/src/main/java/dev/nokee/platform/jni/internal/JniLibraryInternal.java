@@ -46,8 +46,8 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, BuildVariantInternal buildVariant, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskContainer tasks) {
-		super(name, buildVariant, objects);
+	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, BuildVariantInternal buildVariant, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskContainer tasks) {
+		super(identifier, name, buildVariant, objects);
 		this.names = names;
 		this.dependencies = dependencies.getDependencies();
 		this.configurations = configurations;

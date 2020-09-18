@@ -5,6 +5,7 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Task;
@@ -21,8 +22,8 @@ public class BaseNativeVariant extends BaseVariant {
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
-	public BaseNativeVariant(String name, NamingScheme names, BuildVariantInternal buildVariant, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
-		super(name, buildVariant, objects);
+	public BaseNativeVariant(VariantIdentifier<?> identifier, String name, NamingScheme names, BuildVariantInternal buildVariant, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
+		super(identifier, name, buildVariant, objects);
 		this.names = names;
 		this.tasks = tasks;
 		this.providers = providers;

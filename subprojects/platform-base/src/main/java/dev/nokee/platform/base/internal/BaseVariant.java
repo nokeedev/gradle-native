@@ -12,13 +12,15 @@ import org.gradle.api.provider.Property;
 
 // CAUTION: Never rely on the name of the variant, it isn't exposed on the public type!
 public class BaseVariant implements Named {
+	@Getter private final VariantIdentifier<?> identifier;
 	@Getter private final DomainObjectSet<Binary> binaryCollection;
 	@Getter private final String name;
 	@Getter private final BuildVariantInternal buildVariant;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter private final Property<Binary> developmentBinary;
 
-	protected BaseVariant(String name, BuildVariantInternal buildVariant, ObjectFactory objects) {
+	protected BaseVariant(VariantIdentifier<?> identifier, String name, BuildVariantInternal buildVariant, ObjectFactory objects) {
+		this.identifier = identifier;
 		this.name = name;
 		this.buildVariant = buildVariant;
 		this.objects = objects;

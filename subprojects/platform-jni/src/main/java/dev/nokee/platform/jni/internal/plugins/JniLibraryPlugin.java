@@ -183,7 +183,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 				val dependencies = newDependencies(names.withComponentDisplayName("JNI shared library"), buildVariant, extension.getComponent());
 				final VariantProvider<JniLibraryInternal> library = extension.getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> {
-					JniLibraryInternal it = extension.getComponent().createVariant(name, bv, dependencies);
+					JniLibraryInternal it = extension.getComponent().createVariant(variantIdentifier, name, bv, dependencies);
 
 					// Build all language source set
 					DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
