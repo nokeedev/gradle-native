@@ -56,8 +56,8 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	private final TaskRegistry taskRegistry;
 
-	public BaseNativeComponent(NamingScheme names, Class<T> variantType, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations) {
-		super(names, variantType, objects);
+	public BaseNativeComponent(ComponentIdentifier<?> identifier, NamingScheme names, Class<T> variantType, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations) {
+		super(identifier, names, variantType, objects);
 		this.providers = providers;
 		this.layout = layout;
 		this.configurations = configurations;

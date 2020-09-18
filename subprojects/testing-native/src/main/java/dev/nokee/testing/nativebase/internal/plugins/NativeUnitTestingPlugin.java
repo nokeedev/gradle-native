@@ -5,7 +5,10 @@ import dev.nokee.language.cpp.internal.CppSourceSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.DefaultTestSuiteContainer;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
@@ -37,7 +40,9 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(TestingBasePlugin.class);
 
 		val extension = (DefaultTestSuiteContainer)project.getExtensions().getByType(TestSuiteContainer.class);
-		extension.registerFactory(NativeTestSuite.class, DefaultNativeTestSuiteComponent.class, this::createNativeTestSuite);
+		extension.registerFactory(NativeTestSuite.class, DefaultNativeTestSuiteComponent.class, name -> {
+			return createNativeTestSuite(ComponentIdentifier.of(ComponentName.of(name), DefaultNativeTestSuiteComponent.class, ProjectIdentifier.of(project)));
+		});
 
 		extension.whenElementKnown(DefaultNativeTestSuiteComponent.class, knownTestSuite -> {
 			knownTestSuite.configure(testSuite -> {
@@ -67,7 +72,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		});
 	}
 
-	private NativeTestSuite createNativeTestSuite(String name) {
-		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, NamingScheme.asComponent(name, name).withComponentDisplayName("Test Suite"));
+	private NativeTestSuite createNativeTestSuite(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier) {
+		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, identifier, NamingScheme.asComponent(identifier.getName().get(), identifier.getName().get()).withComponentDisplayName("Test Suite"));
 	}
 }

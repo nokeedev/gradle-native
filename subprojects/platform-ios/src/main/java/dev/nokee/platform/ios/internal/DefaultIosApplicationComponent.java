@@ -63,8 +63,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final TaskRegistry taskRegistry;
 
 	@Inject
-	public DefaultIosApplicationComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(names, DefaultIosApplicationVariant.class, objects, providers, tasks, layout, configurations);
+	public DefaultIosApplicationComponent(ComponentIdentifier<DefaultIosApplicationComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, names, DefaultIosApplicationVariant.class, objects, providers, tasks, layout, configurations);
 		this.dependencyHandler = dependencyHandler;
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
@@ -239,7 +239,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	public static DomainObjectFactory<DefaultIosApplicationComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
 		return identifier -> {
 			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main iOS application");
-			return objects.newInstance(DefaultIosApplicationComponent.class, names);
+			return objects.newInstance(DefaultIosApplicationComponent.class, identifier, names);
 		};
 	}
 }

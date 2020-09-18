@@ -3,7 +3,6 @@ package dev.nokee.platform.base.internal;
 import dev.nokee.language.base.internal.SourceSet;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.runtime.base.internal.DimensionType;
 import dev.nokee.utils.Cast;
@@ -31,8 +30,8 @@ public class BaseComponent<T extends Variant> {
 	@Getter private final Property<T> developmentVariant;
 	@Getter private final Property<String> baseName;
 
-	protected BaseComponent(NamingScheme names, Class<T> variantType, ObjectFactory objects) {
-		this.identifier = ComponentIdentifier.builder().withName(ComponentName.of(names.getComponentName())).withType(((Component)this).getClass()).withDisplayName(names.getComponentDisplayName()).withProjectIdentifier(ProjectIdentifier.of(names.getBaseName().getAsString())).build();
+	protected BaseComponent(ComponentIdentifier<?> identifier, NamingScheme names, Class<T> variantType, ObjectFactory objects) {
+		this.identifier = identifier;
 		this.names = names;
 		this.variantCollection = new VariantCollection<>(variantType, objects);
 		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<Binary, T>(variantCollection.getAsView(variantType), Variant::getBinaries)));

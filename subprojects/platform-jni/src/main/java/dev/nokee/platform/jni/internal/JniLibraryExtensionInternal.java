@@ -5,10 +5,7 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.VariantCollection;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
@@ -33,11 +30,11 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
 	@Inject
-	public JniLibraryExtensionInternal(GroupId groupId, NamingScheme names, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers) {
+	public JniLibraryExtensionInternal(ComponentIdentifier<?> identifier, GroupId groupId, NamingScheme names, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers) {
 		this.configurations = configurations;
 		this.objects = objects;
 		this.providers = providers;
-		this.component = objects.newInstance(JniLibraryComponentInternal.class, names, groupId);
+		this.component = objects.newInstance(JniLibraryComponentInternal.class, identifier, names, groupId);
 	}
 
 	//region Variant-awareness

@@ -49,8 +49,8 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 
 	@Inject
-	public JniLibraryComponentInternal(NamingScheme names, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers) {
-		super(names, JniLibraryInternal.class, objects);
+	public JniLibraryComponentInternal(ComponentIdentifier<JniLibraryComponentInternal> identifier, NamingScheme names, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers) {
+		super(identifier, names, JniLibraryInternal.class, objects);
 		this.configurations = configurations;
 		this.dependencyHandler = dependencyHandler;
 		this.providers = providers;

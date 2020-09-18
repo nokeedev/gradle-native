@@ -7,6 +7,7 @@ import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
@@ -35,8 +36,8 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 
 	@Inject
-	public DefaultNativeApplicationComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(names, DefaultNativeApplicationVariant.class, objects, providers, tasks, layout, configurations);
+	public DefaultNativeApplicationComponent(ComponentIdentifier<DefaultNativeApplicationComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, names, DefaultNativeApplicationVariant.class, objects, providers, tasks, layout, configurations);
 		this.dependencyHandler = dependencyHandler;
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
 		this.dependencies = objects.newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
@@ -86,7 +87,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	public static DomainObjectFactory<DefaultNativeApplicationComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
 		return identifier -> {
 			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main native component");
-			return objects.newInstance(DefaultNativeApplicationComponent.class, names);
+			return objects.newInstance(DefaultNativeApplicationComponent.class, identifier, names);
 		};
 	}
 }

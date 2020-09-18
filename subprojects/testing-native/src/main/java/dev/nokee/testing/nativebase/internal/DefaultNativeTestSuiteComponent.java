@@ -64,8 +64,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final TaskContainer tasks;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(names, DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
+	public DefaultNativeTestSuiteComponent(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, names, DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
 		this.dependencyHandler = dependencyHandler;
 		this.tasks = tasks;
 
