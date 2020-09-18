@@ -65,7 +65,7 @@ public final class VariantCollection<T extends Variant> implements Realizable {
 		return ImmutableSet.copyOf(store.values().get());
 	}
 
-	public void whenElementKnown(Action<KnownVariant<? extends T>> action) {
+	public void whenElementKnown(Action<? super KnownVariant<T>> action) {
 		store.forEach((k, v) -> {
 			action.execute(new KnownVariant<>(k, v));
 		});
