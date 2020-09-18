@@ -18,7 +18,7 @@ import javax.inject.Inject;
 // TODO: Not sure about implementing NativeBinary...
 //  BaseNativeVariant#getDevelopmentBinary() assume a NativeBinary...
 //  There should probably be something high level in Variant or BaseNativeVariant shouldn't be used for iOS variant.
-public class SignedIosApplicationBundleInternal implements Binary, Buildable {
+public class SignedIosApplicationBundleInternal implements SignedIosApplicationBundle, Binary, Buildable {
 	private final TaskProvider<SignIosApplicationBundleTask> bundleTask;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
