@@ -4,7 +4,7 @@ import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
+import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
@@ -43,6 +43,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	private SharedLibraryBinaryInternal sharedLibraryBinary;
 	@Getter private final Property<String> resourcePath;
 	@Getter private final ConfigurableFileCollection nativeRuntimeFiles;
+	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
 	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, BuildVariantInternal buildVariant, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskContainer tasks) {
@@ -57,6 +58,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		this.groupId = groupId;
 		this.resourcePath = objects.property(String.class);
 		this.nativeRuntimeFiles = objects.fileCollection();
+		this.resolvableDependencies = dependencies.getIncoming();
 
 		parentSources.all(sources::add);
 

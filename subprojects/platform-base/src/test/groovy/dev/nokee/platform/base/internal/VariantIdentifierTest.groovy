@@ -68,6 +68,28 @@ class VariantIdentifierTest extends Specification {
 		identifier.componentIdentifier == ownerIdentifier
 	}
 
+	def "can query the full identifier name"() {
+		given:
+		def ownerIdentifier = ComponentIdentifier.ofMain(TestableComponent, ProjectIdentifier.of('root'))
+
+		expect:
+		VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
+			.withType(TestableVariant)
+			.withVariantDimension({'macos'}, [{'macos'}])
+			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
+			.build().fullName == 'macosDebug'
+
+		VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
+			.withType(TestableVariant)
+			.withVariantDimension({'macos'}, [{'macos'}, {'windows'}])
+			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
+			.build().fullName == 'macosDebug'
+
+		VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
+			.withType(TestableVariant)
+			.build().fullName == ''
+	}
+
 	def "can build identifier from only one unambiguous variant dimension using the builder"() {
 		given:
 		def ownerIdentifier = ComponentIdentifier.ofMain(TestableComponent, ProjectIdentifier.of('root'))
