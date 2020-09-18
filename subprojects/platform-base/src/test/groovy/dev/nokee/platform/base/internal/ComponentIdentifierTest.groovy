@@ -4,9 +4,7 @@ import dev.nokee.platform.base.Component
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static dev.nokee.platform.base.internal.ComponentIdentifier.builder
-import static dev.nokee.platform.base.internal.ComponentIdentifier.of
-import static dev.nokee.platform.base.internal.ComponentIdentifier.ofMain
+import static dev.nokee.platform.base.internal.ComponentIdentifier.*
 
 class ComponentIdentifierTest extends Specification {
 	def "can create identifier for main component"() {

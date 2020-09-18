@@ -2,6 +2,7 @@ package dev.nokee.platform.ios.internal;
 
 import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
@@ -13,7 +14,7 @@ import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
 
-public class DefaultObjectiveCIosApplicationExtension extends BaseIosExtension<DefaultIosApplicationComponent> implements ObjectiveCIosApplicationExtension {
+public class DefaultObjectiveCIosApplicationExtension extends BaseIosExtension<DefaultIosApplicationComponent> implements ObjectiveCIosApplicationExtension, Component {
 	@Inject
 	public DefaultObjectiveCIosApplicationExtension(DefaultIosApplicationComponent component, ObjectFactory objects, ProviderFactory providers) {
 		super(component, objects, providers);

@@ -3,6 +3,7 @@ package dev.nokee.platform.jni.internal;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.GroupId;
@@ -25,7 +26,7 @@ import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
 
-public class JniLibraryExtensionInternal implements JniLibraryExtension {
+public class JniLibraryExtensionInternal implements JniLibraryExtension, Component {
 	@Getter private final JniLibraryComponentInternal component;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;

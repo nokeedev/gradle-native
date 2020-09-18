@@ -2,6 +2,7 @@ package dev.nokee.platform.objectivec.internal;
 
 import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
@@ -11,7 +12,6 @@ import dev.nokee.platform.objectivec.ObjectiveCApplicationExtension;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.Getter;
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.ProjectLayout;
@@ -21,7 +21,7 @@ import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
 
-public class DefaultObjectiveCApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCApplicationExtension {
+public class DefaultObjectiveCApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCApplicationExtension, Component {
 	@Getter private final ConfigurableFileCollection sources;
 	@Getter private final ConfigurableFileCollection privateHeaders;
 	@Getter private final SetProperty<TargetMachine> targetMachines;

@@ -1,6 +1,7 @@
 package dev.nokee.platform.swift.internal;
 
 import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
@@ -11,7 +12,6 @@ import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.Getter;
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.ProjectLayout;
@@ -21,7 +21,7 @@ import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
 
-public class DefaultSwiftLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements SwiftLibraryExtension {
+public class DefaultSwiftLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements SwiftLibraryExtension, Component {
 	@Getter private final ConfigurableFileCollection sources;
 	@Getter private final SetProperty<TargetLinkage> targetLinkages;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
