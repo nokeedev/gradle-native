@@ -15,12 +15,13 @@ import java.util.Set;
 
 import static dev.nokee.utils.ActionUtils.onlyIf;
 import static dev.nokee.utils.SpecUtils.byType;
+import static java.util.Objects.requireNonNull;
 
 public final class VariantViewImpl<T extends Variant> implements VariantView<T> {
 	private final NokeeCollection<T> store;
 
 	public VariantViewImpl(NokeeCollection<T> store) {
-		this.store = store;
+		this.store = requireNonNull(store);
 	}
 
 	@Override
