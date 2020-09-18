@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.internal.NokeeMap;
 import dev.nokee.model.internal.NokeeMapImpl;
 import dev.nokee.model.internal.Value;
-import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.utils.Cast;
@@ -31,10 +30,8 @@ public final class VariantCollection<T extends Variant> implements Realizable {
 		this.elementType = elementType;
 	}
 
-	public VariantProvider<T> registerVariant(BuildVariantInternal buildVariant, VariantFactory<T> factory) {
-		val identifier = VariantIdentifier.builder().withComponentIdentifier(ComponentIdentifier.ofMain(Component.class, ProjectIdentifier.of("root"))).withUnambiguousNameFromBuildVariant(buildVariant).withType(elementType).build();
-
-		val value = Value.supplied(elementType, () -> factory.create(identifier.getUnambiguousName(), buildVariant));
+	public VariantProvider<T> registerVariant(VariantIdentifier<T> identifier, VariantFactory<T> factory) {
+		val value = Value.supplied(elementType, () -> factory.create(identifier.getUnambiguousName(), (BuildVariantInternal) identifier.getBuildVariant()));
 		store.put(identifier, value);
 		return new VariantProvider<>(identifier, value);
 	}

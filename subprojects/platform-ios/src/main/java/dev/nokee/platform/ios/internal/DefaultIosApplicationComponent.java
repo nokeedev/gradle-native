@@ -115,7 +115,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	@Override
-	protected void onEachVariant(VariantIdentifier<DefaultIosApplicationVariant> variantIdentifier, VariantProvider<DefaultIosApplicationVariant> variant, NamingScheme names) {
+	protected void onEachVariant(KnownVariant<DefaultIosApplicationVariant> variant) {
 		variant.configure(application -> {
 			application.getBinaries().configureEach(ExecutableBinary.class, binary -> {
 				binary.getCompileTasks().configureEach(SourceCompile.class, task -> {
@@ -156,7 +156,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			Provider<CommandLineTool> assetCompilerTool = getProviders().provider(() -> new VersionedCommandLineTool(new File("/usr/bin/actool"), VersionNumber.parse("11.3.1")));
 			Provider<CommandLineTool> codeSignatureTool = getProviders().provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
 
-			String moduleName = names.getBaseName().getAsCamelCase();
+			String moduleName = getNames().getBaseName().getAsCamelCase();
 			Provider<String> identifier = getProviders().provider(() -> getGroupId().get().get().map(it -> it + "." + moduleName).orElse(moduleName));
 
 			val compileStoryboardTask = taskRegistry.register("compileStoryboard", StoryboardCompileTask.class, task -> {

@@ -112,7 +112,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	}
 
 	@Override
-	protected void onEachVariant(VariantIdentifier<DefaultXCTestTestSuiteVariant> variantIdentifier, VariantProvider<DefaultXCTestTestSuiteVariant> variant, NamingScheme names) {
+	protected void onEachVariant(KnownVariant<DefaultXCTestTestSuiteVariant> variant) {
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
 				Provider<String> moduleName = getTestedComponent().map(it -> it.getNames().getBaseName().getAsCamelCase());
@@ -155,6 +155,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 
 	@Override
 	public void finalizeExtension(Project project) {
+		// TODO: Use component binary view instead once finish cleanup, it remove one level of indirection
 		getVariants().configureEach(variant -> {
 			variant.getBinaries().configureEach(BaseNativeBinary.class, binary -> {
 				binary.getBaseName().convention(GUtil.toCamelCase(project.getName()));

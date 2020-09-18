@@ -28,6 +28,7 @@ import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -83,79 +84,89 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 	protected abstract VariantComponentDependencies<?> newDependencies(NamingScheme names, BuildVariantInternal buildVariant);
 
+	protected Action<T> createBinariesFor(VariantIdentifier<T> variantIdentifier, VariantComponentDependencies<?> dependencies) {
+		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
+		final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE), buildVariant.getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE));
+
+		return it -> {
+			val names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
+			DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().newInstance(NativeLanguageRules.class, names).apply(getSourceCollection());
+			BaseNativeVariant variantInternal = (BaseNativeVariant)it;
+			if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
+				DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
+				if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
+					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkExecutableTask.class, variantIdentifier));
+					ExecutableBinaryInternal binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets, targetMachineInternal, linkTask, dependencies.getIncoming());
+					variantInternal.getBinaryCollection().add(binary);
+					binary.getBaseName().convention(getBaseName());
+				} else if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
+					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variantIdentifier));
+
+					SharedLibraryBinaryInternal binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
+					variantInternal.getBinaryCollection().add(binary);
+					binary.getBaseName().convention(getBaseName());
+				} else if (linkage.equals(DefaultBinaryLinkage.BUNDLE)) {
+					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkBundleTask.class, variantIdentifier));
+
+					BundleBinaryInternal binary = getObjects().newInstance(BundleBinaryInternal.class, names, targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
+					variantInternal.getBinaryCollection().add(binary);
+					binary.getBaseName().convention(getBaseName());
+				} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
+					val createTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("create"), CreateStaticLibraryTask.class, variantIdentifier));
+
+					val binary = getObjects().newInstance(StaticLibraryBinaryInternal.class, names, objectSourceSets, targetMachineInternal, createTask, dependencies.getIncoming());
+					variantInternal.getBinaryCollection().add(binary);
+					binary.getBaseName().convention(getBaseName());
+				}
+			}
+			it.getBinaries().configureEach(NativeBinary.class, binary -> {
+				binary.getCompileTasks().configureEach(NativeSourceCompile.class, task -> {
+					val taskInternal = (AbstractNativeCompileTask) task;
+					getSourceCollection().withType(CHeaderSet.class).configureEach(sourceSet -> {
+						taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
+					});
+					getSourceCollection().withType(CppHeaderSet.class).configureEach(sourceSet -> {
+						taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
+					});
+				});
+			});
+		};
+	}
+
 	public void finalizeExtension(Project project) {
-		// TODO: Assert build variant matches dimensions
+		getVariantCollection().whenElementKnown(knownVariant -> {
+			taskRegistry.register(TaskIdentifier.of(TaskName.of("objects"), knownVariant.getIdentifier()), task -> {
+				task.setGroup(BUILD_GROUP);
+				task.setDescription("Assembles main objects.");
+				task.dependsOn(knownVariant.map(it -> it.getBinaries().withType(ExecutableBinary.class).map(ExecutableBinary::getCompileTasks)));
+				task.dependsOn(knownVariant.map(it -> it.getBinaries().withType(SharedLibraryBinary.class).map(SharedLibraryBinary::getCompileTasks)));
+				task.dependsOn(knownVariant.map(it -> it.getBinaries().withType(StaticLibraryBinary.class).map(StaticLibraryBinary::getCompileTasks)));
+			});
+
+			onEachVariant(knownVariant);
+
+			if (getBuildVariants().get().size() > 1) {
+				taskRegistry.register(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), knownVariant.getIdentifier()), task -> {
+					task.dependsOn(knownVariant.flatMap(Variant::getDevelopmentBinary));
+					task.setGroup(BUILD_GROUP);
+				});
+			}
+		});
+
 		getBuildVariants().get().forEach(buildVariant -> {
-			final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE), buildVariant.getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE));
 			final NamingScheme names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			final VariantIdentifier<T> variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, getBuildVariants().get()).withComponentIdentifier(getIdentifier()).withType(variantType).build();
 
 			val dependencies = newDependencies(names.withComponentDisplayName("main native component"), buildVariant);
-			VariantProvider<T> variant = getVariantCollection().registerVariant(buildVariant, (name, bv) -> {
+			VariantProvider<T> variant = getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> {
 				T it = createVariant(name, bv, dependencies);
 
-				DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().newInstance(NativeLanguageRules.class, names).apply(getSourceCollection());
-				BaseNativeVariant variantInternal = (BaseNativeVariant)it;
-				if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
-					DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
-					if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
-						val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkExecutableTask.class, variantIdentifier));
-						ExecutableBinaryInternal binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets, targetMachineInternal, linkTask, dependencies.getIncoming());
-						variantInternal.getBinaryCollection().add(binary);
-						binary.getBaseName().convention(getBaseName());
-					} else if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
-						val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variantIdentifier));
-
-						SharedLibraryBinaryInternal binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
-						variantInternal.getBinaryCollection().add(binary);
-						binary.getBaseName().convention(getBaseName());
-					} else if (linkage.equals(DefaultBinaryLinkage.BUNDLE)) {
-						val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkBundleTask.class, variantIdentifier));
-
-						BundleBinaryInternal binary = getObjects().newInstance(BundleBinaryInternal.class, names, targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
-						variantInternal.getBinaryCollection().add(binary);
-						binary.getBaseName().convention(getBaseName());
-					} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
-						val createTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("create"), CreateStaticLibraryTask.class, variantIdentifier));
-
-						val binary = getObjects().newInstance(StaticLibraryBinaryInternal.class, names, objectSourceSets, targetMachineInternal, createTask, dependencies.getIncoming());
-						variantInternal.getBinaryCollection().add(binary);
-						binary.getBaseName().convention(getBaseName());
-					}
-				}
-				it.getBinaries().configureEach(NativeBinary.class, binary -> {
-					binary.getCompileTasks().configureEach(NativeSourceCompile.class, task -> {
-						val taskInternal = (AbstractNativeCompileTask) task;
-						getSourceCollection().withType(CHeaderSet.class).configureEach(sourceSet -> {
-							taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
-						});
-						getSourceCollection().withType(CppHeaderSet.class).configureEach(sourceSet -> {
-							taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
-						});
-					});
-				});
+				createBinariesFor(variantIdentifier, dependencies).execute(it);
 
 				return it;
 			});
 
 			onEachVariantDependencies(variant, dependencies);
-
-			taskRegistry.register(TaskIdentifier.of(TaskName.of("objects"), variantIdentifier), task -> {
-				task.setGroup(BUILD_GROUP);
-				task.setDescription("Assembles main objects.");
-				task.dependsOn(variant.map(it -> it.getBinaries().withType(ExecutableBinary.class).map(ExecutableBinary::getCompileTasks)));
-				task.dependsOn(variant.map(it -> it.getBinaries().withType(SharedLibraryBinary.class).map(SharedLibraryBinary::getCompileTasks)));
-				task.dependsOn(variant.map(it -> it.getBinaries().withType(StaticLibraryBinary.class).map(StaticLibraryBinary::getCompileTasks)));
-			});
-
-			onEachVariant(variantIdentifier, variant, names);
-
-			if (getBuildVariants().get().size() > 1) {
-				taskRegistry.register(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier), task -> {
-					task.dependsOn(variant.flatMap(Variant::getDevelopmentBinary));
-					task.setGroup(BUILD_GROUP);
-				});
-			}
 		});
 
 		// Make sure the task exists and configure it!
@@ -208,7 +219,8 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	}
 
 	// TODO: BuildVariant and NamedDomainObjectProvider from VariantCollection should be together.
-	protected void onEachVariant(VariantIdentifier<T> variantIdentifier, VariantProvider<T> variant, NamingScheme names) {
+	protected void onEachVariant(KnownVariant<T> variant) {
+		val variantIdentifier = variant.getIdentifier();
 		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
 		// TODO: This is dependent per component, for example, iOS will have different target.
 		//  It should be moved lower to the "general" native component

@@ -112,14 +112,6 @@ public class VariantIdentifier<T extends Variant> implements DomainObjectIdentif
 			return this;
 		}
 
-		public Builder<T> withUnambiguousNameFromBuildVariant(BuildVariant buildVariant) {
-			val dimensions = ((BuildVariantInternal) buildVariant).getDimensions().stream().map(Named.class::cast).map(Named::getName).collect(Collectors.toList());
-			this.dimensions.addAll(dimensions);
-			this.allDimensions.addAll(dimensions);
-			this.buildVariant = buildVariant;
-			return this;
-		}
-
 		private Function<BuildVariantInternal, Named> extractDimensionAtIndex(int index) {
 			return buildVariant -> (Named)buildVariant.getDimensions().get(index);
 		}

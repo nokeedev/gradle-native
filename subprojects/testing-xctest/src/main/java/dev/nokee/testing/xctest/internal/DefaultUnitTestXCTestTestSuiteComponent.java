@@ -5,10 +5,7 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.NamingSchemeFactory;
-import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.VariantProvider;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -48,12 +45,13 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 	}
 
 	@Override
-	protected void onEachVariant(VariantIdentifier<DefaultXCTestTestSuiteVariant> variantIdentifier, VariantProvider<DefaultXCTestTestSuiteVariant> variant, NamingScheme names) {
-		super.onEachVariant(variantIdentifier, variant, names);
+	protected void onEachVariant(KnownVariant<DefaultXCTestTestSuiteVariant> variant) {
+		super.onEachVariant(variant);
+		val variantIdentifier = variant.getIdentifier();
 
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
-				((BundleBinaryInternal)binary).getBaseName().set(names.getBaseName().getAsCamelCase());
+				((BundleBinaryInternal)binary).getBaseName().set(getNames().getBaseName().getAsCamelCase());
 			});
 			String moduleName = testSuite.getNames().getBaseName().getAsCamelCase();
 

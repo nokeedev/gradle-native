@@ -179,9 +179,10 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			extension.getBuildVariants().get().forEach(buildVariant -> {
 				final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
 				final NamingScheme names = mainComponentNames.forBuildVariant(buildVariant, extension.getBuildVariants().get());
+				final VariantIdentifier<JniLibraryInternal> variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, extension.getBuildVariants().get()).withComponentIdentifier(ComponentIdentifier.ofMain(JniLibraryComponentInternal.class, ProjectIdentifier.of(project))).withType(JniLibraryInternal.class).build();
 
 				val dependencies = newDependencies(names.withComponentDisplayName("JNI shared library"), buildVariant, extension.getComponent());
-				final VariantProvider<JniLibraryInternal> library = extension.getVariantCollection().registerVariant(buildVariant, (name, bv) -> {
+				final VariantProvider<JniLibraryInternal> library = extension.getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> {
 					JniLibraryInternal it = extension.getComponent().createVariant(name, bv, dependencies);
 
 					// Build all language source set
