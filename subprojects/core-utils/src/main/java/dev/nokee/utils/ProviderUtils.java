@@ -45,6 +45,16 @@ public final class ProviderUtils {
 	}
 
 	/**
+	 * Returned an undefined provider.
+	 * It will always return null, throw an exception on get and returns false when querying for presence.
+	 *
+	 * @return a {@link Provider} instance without any value.
+	 */
+	public static <T> Provider<T> notDefined() {
+		return Providers.notDefined();
+	}
+
+	/**
 	 * Returns the object type provided by the Gradle provider.
 	 *
 	 * @param self the provider to query the provided type.
