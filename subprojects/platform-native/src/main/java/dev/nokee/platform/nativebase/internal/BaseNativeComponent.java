@@ -16,6 +16,7 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.nativebase.*;
+import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
@@ -84,11 +85,12 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 	protected abstract VariantComponentDependencies<?> newDependencies(NamingScheme names, BuildVariantInternal buildVariant);
 
-	protected Action<T> createBinariesFor(VariantIdentifier<T> variantIdentifier, VariantComponentDependencies<?> dependencies) {
+	protected Action<T> createBinariesFor(VariantIdentifier<T> variantIdentifier) {
 		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
 		final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE), buildVariant.getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE));
 
 		return it -> {
+			val incomingDependencies = (NativeIncomingDependencies) it.getResolvableDependencies();
 			val names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().newInstance(NativeLanguageRules.class, names).apply(getSourceCollection());
 			BaseNativeVariant variantInternal = (BaseNativeVariant)it;
@@ -96,25 +98,25 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 				DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
 				if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
 					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkExecutableTask.class, variantIdentifier));
-					ExecutableBinaryInternal binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets, targetMachineInternal, linkTask, dependencies.getIncoming());
+					ExecutableBinaryInternal binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets, targetMachineInternal, linkTask, incomingDependencies);
 					variantInternal.getBinaryCollection().add(binary);
 					binary.getBaseName().convention(getBaseName());
 				} else if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
 					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variantIdentifier));
 
-					SharedLibraryBinaryInternal binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
+					SharedLibraryBinaryInternal binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask, incomingDependencies);
 					variantInternal.getBinaryCollection().add(binary);
 					binary.getBaseName().convention(getBaseName());
 				} else if (linkage.equals(DefaultBinaryLinkage.BUNDLE)) {
 					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkBundleTask.class, variantIdentifier));
 
-					BundleBinaryInternal binary = getObjects().newInstance(BundleBinaryInternal.class, names, targetMachineInternal, objectSourceSets, linkTask, dependencies.getIncoming());
+					BundleBinaryInternal binary = getObjects().newInstance(BundleBinaryInternal.class, names, targetMachineInternal, objectSourceSets, linkTask, incomingDependencies);
 					variantInternal.getBinaryCollection().add(binary);
 					binary.getBaseName().convention(getBaseName());
 				} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
 					val createTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("create"), CreateStaticLibraryTask.class, variantIdentifier));
 
-					val binary = getObjects().newInstance(StaticLibraryBinaryInternal.class, names, objectSourceSets, targetMachineInternal, createTask, dependencies.getIncoming());
+					val binary = getObjects().newInstance(StaticLibraryBinaryInternal.class, names, objectSourceSets, targetMachineInternal, createTask, incomingDependencies);
 					variantInternal.getBinaryCollection().add(binary);
 					binary.getBaseName().convention(getBaseName());
 				}
@@ -135,6 +137,8 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 	public void finalizeExtension(Project project) {
 		getVariantCollection().whenElementKnown(knownVariant -> {
+			knownVariant.configure(createBinariesFor(knownVariant.getIdentifier()));
+
 			taskRegistry.register(TaskIdentifier.of(TaskName.of("objects"), knownVariant.getIdentifier()), task -> {
 				task.setGroup(BUILD_GROUP);
 				task.setDescription("Assembles main objects.");
@@ -158,13 +162,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 			final VariantIdentifier<T> variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, getBuildVariants().get()).withComponentIdentifier(getIdentifier()).withType(variantType).build();
 
 			val dependencies = newDependencies(names.withComponentDisplayName("main native component"), buildVariant);
-			VariantProvider<T> variant = getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> {
-				T it = createVariant(name, bv, dependencies);
-
-				createBinariesFor(variantIdentifier, dependencies).execute(it);
-
-				return it;
-			});
+			VariantProvider<T> variant = getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> createVariant(name, bv, dependencies));
 
 			onEachVariantDependencies(variant, dependencies);
 		});
