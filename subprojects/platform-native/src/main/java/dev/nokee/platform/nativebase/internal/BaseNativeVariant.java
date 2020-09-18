@@ -21,8 +21,8 @@ public class BaseNativeVariant extends BaseVariant {
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
-	public BaseNativeVariant(VariantIdentifier<?> identifier, String name, NamingScheme names, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
-		super(identifier, name, objects);
+	public BaseNativeVariant(VariantIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
+		super(identifier, objects);
 		this.names = names;
 		this.tasks = tasks;
 		this.providers = providers;

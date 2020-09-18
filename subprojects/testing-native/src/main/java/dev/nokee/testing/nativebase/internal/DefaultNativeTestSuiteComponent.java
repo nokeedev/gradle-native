@@ -140,11 +140,11 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	@Override
-	protected DefaultNativeTestSuiteVariant createVariant(VariantIdentifier<?> identifier, String name, VariantComponentDependencies<?> variantDependencies) {
+	protected DefaultNativeTestSuiteVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		val result = getObjects().newInstance(DefaultNativeTestSuiteVariant.class, identifier, name, names, variantDependencies);
+		val result = getObjects().newInstance(DefaultNativeTestSuiteVariant.class, identifier, names, variantDependencies);
 		return result;
 	}
 

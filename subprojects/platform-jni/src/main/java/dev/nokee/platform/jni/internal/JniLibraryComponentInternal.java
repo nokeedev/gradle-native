@@ -81,14 +81,14 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		return getVariantCollection().getAsView(JniLibrary.class);
 	}
 
-	public JniLibraryInternal createVariant(VariantIdentifier<JniLibraryInternal> identifier, String name, VariantComponentDependencies variantDependencies) {
+	public JniLibraryInternal createVariant(VariantIdentifier<JniLibraryInternal> identifier, VariantComponentDependencies variantDependencies) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		Preconditions.checkArgument(buildVariant.getDimensions().size() == 2);
 		Preconditions.checkArgument(buildVariant.getDimensions().get(0) instanceof OperatingSystemFamily);
 		Preconditions.checkArgument(buildVariant.getDimensions().get(1) instanceof MachineArchitecture);
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, identifier, name, names, sources, groupId, getBinaryCollection(), variantDependencies);
+		JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, identifier, names, sources, groupId, getBinaryCollection(), variantDependencies);
 		return result;
 	}
 

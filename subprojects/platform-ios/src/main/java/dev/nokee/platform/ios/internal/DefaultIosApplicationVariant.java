@@ -24,8 +24,8 @@ public class DefaultIosApplicationVariant extends BaseNativeVariant implements I
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public DefaultIosApplicationVariant(VariantIdentifier<DefaultIosApplicationVariant> identifier, String name, NamingScheme names, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
-		super(identifier, name, names, objects, tasks, providers);
+	public DefaultIosApplicationVariant(VariantIdentifier<DefaultIosApplicationVariant> identifier, NamingScheme names, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
+		super(identifier, names, objects, tasks, providers);
 		this.dependencies = dependencies.getDependencies();
 		this.resolvableDependencies = dependencies.getIncoming();
 	}

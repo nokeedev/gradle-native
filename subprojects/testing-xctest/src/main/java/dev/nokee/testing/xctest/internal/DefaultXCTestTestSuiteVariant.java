@@ -25,8 +25,8 @@ public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements 
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public DefaultXCTestTestSuiteVariant(VariantIdentifier<DefaultXCTestTestSuiteVariant> identifier, String name, NamingScheme names, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
-		super(identifier, name, names, objects, tasks, providers);
+	public DefaultXCTestTestSuiteVariant(VariantIdentifier<DefaultXCTestTestSuiteVariant> identifier, NamingScheme names, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
+		super(identifier, names, objects, tasks, providers);
 		this.dependencies = dependencies.getDependencies();
 		this.resolvableDependencies = dependencies.getIncoming();
 	}

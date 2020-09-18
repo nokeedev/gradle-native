@@ -22,8 +22,8 @@ public class DefaultNativeLibraryVariant extends BaseNativeVariant implements Na
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public DefaultNativeLibraryVariant(VariantIdentifier<DefaultNativeLibraryVariant> identifier, String name, NamingScheme names, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers, ProjectLayout layout) {
-		super(identifier, name, names, objects, tasks, providers);
+	public DefaultNativeLibraryVariant(VariantIdentifier<DefaultNativeLibraryVariant> identifier, NamingScheme names, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers, ProjectLayout layout) {
+		super(identifier, names, objects, tasks, providers);
 		this.dependencies = dependencies.getDependencies();
 		this.layout = layout;
 		this.resolvableDependencies = dependencies.getIncoming();

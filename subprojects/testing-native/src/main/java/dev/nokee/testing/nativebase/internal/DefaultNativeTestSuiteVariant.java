@@ -18,8 +18,8 @@ public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements 
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public DefaultNativeTestSuiteVariant(VariantIdentifier<DefaultNativeTestSuiteVariant> identifier, String name, NamingScheme names, VariantComponentDependencies<?> variantDependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
-		super(identifier, name, names, objects, tasks, providers);
+	public DefaultNativeTestSuiteVariant(VariantIdentifier<DefaultNativeTestSuiteVariant> identifier, NamingScheme names, VariantComponentDependencies<?> variantDependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
+		super(identifier, names, objects, tasks, providers);
 		this.resolvableDependencies = variantDependencies.getIncoming();
 	}
 }

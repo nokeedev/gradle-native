@@ -19,8 +19,8 @@ public class DefaultNativeApplicationVariant extends BaseNativeVariant implement
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public DefaultNativeApplicationVariant(VariantIdentifier<DefaultNativeApplicationVariant> identifier, String name, NamingScheme names, VariantComponentDependencies<DefaultNativeApplicationComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
-		super(identifier, name, names, objects, tasks, providers);
+	public DefaultNativeApplicationVariant(VariantIdentifier<DefaultNativeApplicationVariant> identifier, NamingScheme names, VariantComponentDependencies<DefaultNativeApplicationComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
+		super(identifier, names, objects, tasks, providers);
 		this.dependencies = dependencies.getDependencies();
 		this.resolvableDependencies = dependencies.getIncoming();
 	}

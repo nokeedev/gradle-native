@@ -80,11 +80,11 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	@Override
-	protected DefaultIosApplicationVariant createVariant(VariantIdentifier<?> identifier, String name, VariantComponentDependencies<?> variantDependencies) {
+	protected DefaultIosApplicationVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		DefaultIosApplicationVariant result = getObjects().newInstance(DefaultIosApplicationVariant.class, identifier, name, names, variantDependencies);
+		DefaultIosApplicationVariant result = getObjects().newInstance(DefaultIosApplicationVariant.class, identifier, names, variantDependencies);
 		return result;
 	}
 
