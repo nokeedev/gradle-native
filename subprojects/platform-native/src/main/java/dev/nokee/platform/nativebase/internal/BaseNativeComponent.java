@@ -56,8 +56,8 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	private final TaskRegistry taskRegistry;
 
-	public BaseNativeComponent(NamingScheme names, Class<T> variantType, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations) {
-		super(names, variantType, objects);
+	public BaseNativeComponent(ComponentIdentifier<?> identifier, NamingScheme names, Class<T> variantType, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations) {
+		super(identifier, names, variantType, objects);
 		this.providers = providers;
 		this.layout = layout;
 		this.configurations = configurations;
@@ -81,7 +81,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 		return result;
 	}
 
-	protected abstract T createVariant(String name, BuildVariantInternal buildVariant, VariantComponentDependencies<?> dependencies);
+	protected abstract T createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> dependencies);
 
 	protected abstract VariantComponentDependencies<?> newDependencies(NamingScheme names, BuildVariantInternal buildVariant);
 
@@ -161,8 +161,8 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 			final NamingScheme names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			final VariantIdentifier<T> variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, getBuildVariants().get()).withComponentIdentifier(getIdentifier()).withType(variantType).build();
 
-			val dependencies = newDependencies(names.withComponentDisplayName("main native component"), buildVariant);
-			VariantProvider<T> variant = getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> createVariant(name, bv, dependencies));
+			val dependencies = newDependencies(names.withComponentDisplayName(getIdentifier().getDisplayName()), buildVariant);
+			VariantProvider<T> variant = getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> createVariant(variantIdentifier, dependencies));
 
 			onEachVariantDependencies(variant, dependencies);
 		});

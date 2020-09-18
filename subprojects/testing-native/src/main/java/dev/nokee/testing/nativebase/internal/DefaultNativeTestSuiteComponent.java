@@ -64,8 +64,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final TaskContainer tasks;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(names, DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
+	public DefaultNativeTestSuiteComponent(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, names, DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
 		this.dependencyHandler = dependencyHandler;
 		this.tasks = tasks;
 
@@ -140,10 +140,11 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	@Override
-	protected DefaultNativeTestSuiteVariant createVariant(String name, BuildVariantInternal buildVariant, VariantComponentDependencies<?> variantDependencies) {
+	protected DefaultNativeTestSuiteVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies) {
+		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		val result = getObjects().newInstance(DefaultNativeTestSuiteVariant.class, name, names, buildVariant, variantDependencies);
+		val result = getObjects().newInstance(DefaultNativeTestSuiteVariant.class, identifier, names, variantDependencies);
 		return result;
 	}
 

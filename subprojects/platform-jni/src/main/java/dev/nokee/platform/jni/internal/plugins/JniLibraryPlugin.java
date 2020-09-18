@@ -143,7 +143,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
 		NamingSchemeFactory namingSchemeFactory = new NamingSchemeFactory(project.getName());
-		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent().withComponentDisplayName("JNI library");
+		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent().withComponentDisplayName("main component");
 		JniLibraryExtensionInternal extension = registerExtension(project, mainComponentNames);
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 
@@ -179,11 +179,11 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			extension.getBuildVariants().get().forEach(buildVariant -> {
 				final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
 				final NamingScheme names = mainComponentNames.forBuildVariant(buildVariant, extension.getBuildVariants().get());
-				final VariantIdentifier<JniLibraryInternal> variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, extension.getBuildVariants().get()).withComponentIdentifier(ComponentIdentifier.ofMain(JniLibraryComponentInternal.class, ProjectIdentifier.of(project))).withType(JniLibraryInternal.class).build();
+				final VariantIdentifier<JniLibraryInternal> variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, extension.getBuildVariants().get()).withComponentIdentifier(extension.getComponent().getIdentifier()).withType(JniLibraryInternal.class).build();
 
 				val dependencies = newDependencies(names.withComponentDisplayName("JNI shared library"), buildVariant, extension.getComponent());
 				final VariantProvider<JniLibraryInternal> library = extension.getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> {
-					JniLibraryInternal it = extension.getComponent().createVariant(name, bv, dependencies);
+					JniLibraryInternal it = extension.getComponent().createVariant(variantIdentifier, dependencies);
 
 					// Build all language source set
 					DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
@@ -457,7 +457,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(JniLibraryExtensionInternal.class, identifier -> {
 			assert ((ComponentIdentifier<?>) identifier).isMainComponent();
-			return project.getObjects().newInstance(JniLibraryExtensionInternal.class, GroupId.of(project::getGroup), names);
+			return project.getObjects().newInstance(JniLibraryExtensionInternal.class, identifier, GroupId.of(project::getGroup), names);
 		});
 		val library = components.register("main", JniLibraryExtensionInternal.class).get();
 

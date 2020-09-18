@@ -853,9 +853,9 @@ abstract class AbstractJniLibraryPluginConfigurationsTest extends AbstractJniLib
 		resolveAllVariants('plugin creates configurations on demand')
 
 		expect:
-		project.configurations.api.description == "API dependencies for JNI library."
-		project.configurations.jvmImplementation.description == "Implementation only dependencies for JNI library."
-		project.configurations.jvmRuntimeOnly.description == "Runtime only dependencies for JNI library."
+		project.configurations.api.description == "API dependencies for main component."
+		project.configurations.jvmImplementation.description == "Implementation only dependencies for main component."
+		project.configurations.jvmRuntimeOnly.description == "Runtime only dependencies for main component."
 		project.configurations.apiElements.description == "API elements for main."
 		project.configurations.runtimeElements.description == "Elements of runtime for main."
 	}
@@ -866,11 +866,11 @@ abstract class AbstractJniLibraryPluginConfigurationsTest extends AbstractJniLib
 		resolveAllVariants('plugin creates configurations on demand')
 
 		expect:
-		project.configurations.nativeImplementation.description == 'Implementation only dependencies for JNI library.'
-		project.configurations.nativeLinkOnly.description == 'Link only dependencies for JNI library.'
-		project.configurations.nativeRuntimeOnly.description == 'Runtime only dependencies for JNI library.'
-		project.configurations.nativeLinkLibraries.description == 'Link libraries for JNI library.'
-		project.configurations.nativeRuntimeLibraries.description == 'Runtime libraries for JNI library.'
+		project.configurations.nativeImplementation.description == 'Implementation only dependencies for main component.'
+		project.configurations.nativeLinkOnly.description == 'Link only dependencies for main component.'
+		project.configurations.nativeRuntimeOnly.description == 'Runtime only dependencies for main component.'
+		project.configurations.nativeLinkLibraries.description == 'Link libraries for main component.'
+		project.configurations.nativeRuntimeLibraries.description == 'Runtime libraries for main component.'
 	}
 }
 

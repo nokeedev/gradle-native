@@ -63,8 +63,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final TaskRegistry taskRegistry;
 
 	@Inject
-	public DefaultIosApplicationComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(names, DefaultIosApplicationVariant.class, objects, providers, tasks, layout, configurations);
+	public DefaultIosApplicationComponent(ComponentIdentifier<DefaultIosApplicationComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, names, DefaultIosApplicationVariant.class, objects, providers, tasks, layout, configurations);
 		this.dependencyHandler = dependencyHandler;
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
@@ -80,10 +80,11 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	@Override
-	protected DefaultIosApplicationVariant createVariant(String name, BuildVariantInternal buildVariant, VariantComponentDependencies<?> variantDependencies) {
+	protected DefaultIosApplicationVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies) {
+		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		DefaultIosApplicationVariant result = getObjects().newInstance(DefaultIosApplicationVariant.class, name, names, buildVariant, variantDependencies);
+		DefaultIosApplicationVariant result = getObjects().newInstance(DefaultIosApplicationVariant.class, identifier, names, variantDependencies);
 		return result;
 	}
 
@@ -238,8 +239,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	public static DomainObjectFactory<DefaultIosApplicationComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
 		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main iOS application");
-			return objects.newInstance(DefaultIosApplicationComponent.class, names);
+			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName(((ComponentIdentifier<?>)identifier).getDisplayName());
+			return objects.newInstance(DefaultIosApplicationComponent.class, identifier, names);
 		};
 	}
 }

@@ -63,7 +63,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(DefaultObjectiveCIosApplicationExtension.class, id -> {
-			val identifier = ComponentIdentifier.builder().withName(ComponentName.of("main")).withProjectIdentifier(ProjectIdentifier.of(project)).withDisplayName("main iOS application").withType(DefaultIosApplicationComponent.class).build();
+			val identifier = ComponentIdentifier.ofMain(DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
 			val component = store.register(identifier, DefaultIosApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
 			return getObjects().newInstance(DefaultObjectiveCIosApplicationExtension.class, component.get());
 		});

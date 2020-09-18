@@ -43,7 +43,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(DefaultObjectiveCppLibraryExtension.class, id -> {
-			val identifier = ComponentIdentifier.builder().withName(((ComponentIdentifier<?>)id).getName()).withProjectIdentifier(ProjectIdentifier.of(project)).withDisplayName("main native component").withType(DefaultNativeLibraryComponent.class).build();
+			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeLibraryComponent.class, ProjectIdentifier.of(project));
 			val component = store.register(identifier, DefaultNativeLibraryComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
 			return getObjects().newInstance(DefaultObjectiveCppLibraryExtension.class, component.get());
 		});

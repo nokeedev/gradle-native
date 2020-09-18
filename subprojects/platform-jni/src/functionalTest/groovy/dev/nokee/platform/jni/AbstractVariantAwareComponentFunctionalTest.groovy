@@ -50,9 +50,9 @@ abstract class AbstractVariantAwareComponentFunctionalTest extends AbstractInsta
 			library {
 				variants.configureEach { variant ->
 					configuredVariants << variant
-					tasks.register("custom${variant.name.capitalize()}") {
+					tasks.register("custom${variant.identifier.fullName.capitalize()}") {
 						group = 'Custom'
-						description = "Custom task for variant '${variant.name}'."
+						description = "Custom task for variant '${variant.identifier.fullName}'."
 					}
 				}
 			}
@@ -83,8 +83,8 @@ customWindows${currentArchitecture.capitalize()} - Custom task for variant 'wind
 			library {
 				variants.configureEach { variant ->
 					configuredVariants << variant
-					configurations.create("custom${variant.name.capitalize()}") {
-						description = "Custom configuration for variant '${variant.name}'."
+					configurations.create("custom${variant.identifier.fullName.capitalize()}") {
+						description = "Custom configuration for variant '${variant.identifier.fullName}'."
 					}
 				}
 			}
@@ -119,11 +119,11 @@ No dependencies
 			library {
 				variants.configureEach { variant ->
 					configuredVariants << variant
-					configurations.create("custom${variant.name.capitalize()}Elements") {
-						description = "Custom configuration for variant '${variant.name}'."
+					configurations.create("custom${variant.identifier.fullName.capitalize()}Elements") {
+						description = "Custom configuration for variant '${variant.identifier.fullName}'."
 						canBeConsumed = true
 						canBeResolved = false
-						outgoing.artifact(file("build/${variant.name}.potato"))
+						outgoing.artifact(file("build/${variant.identifier.fullName}.potato"))
 					}
 				}
 			}
@@ -177,8 +177,8 @@ Artifacts
 			library {
 				variants.configureEach { variant ->
 					configuredVariants << variant
-					configurations.create("custom${variant.name.capitalize()}") {
-						description = "Custom configuration for variant '${variant.name}'."
+					configurations.create("custom${variant.identifier.fullName.capitalize()}") {
+						description = "Custom configuration for variant '${variant.identifier.fullName}'."
 						canBeConsumed = false
 						canBeResolved = true
 						dependencies.add(project.dependencies.create('dev.nokee:platformJni:0.3.0'))

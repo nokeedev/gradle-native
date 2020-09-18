@@ -50,8 +50,8 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 
 	@Inject
-	public BaseXCTestTestSuiteComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(names, DefaultXCTestTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
+	public BaseXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, names, DefaultXCTestTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
 		this.dependencyHandler = dependencyHandler;
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
@@ -77,10 +77,11 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	}
 
 	@Override
-	protected DefaultXCTestTestSuiteVariant createVariant(String name, BuildVariantInternal buildVariant, VariantComponentDependencies<?> variantDependencies) {
+	protected DefaultXCTestTestSuiteVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies) {
+		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		DefaultXCTestTestSuiteVariant result = getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, name, names, buildVariant, variantDependencies);
+		DefaultXCTestTestSuiteVariant result = getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, identifier, names, variantDependencies);
 		return result;
 	}
 

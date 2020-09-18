@@ -46,15 +46,15 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public JniLibraryInternal(String name, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, BuildVariantInternal buildVariant, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskContainer tasks) {
-		super(name, buildVariant, objects);
+	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskContainer tasks) {
+		super(identifier, objects);
 		this.names = names;
 		this.dependencies = dependencies.getDependencies();
 		this.configurations = configurations;
 		this.providers = providers;
 		this.tasks = tasks;
 		this.sources = objects.domainObjectSet(LanguageSourceSetInternal.class);
-		this.targetMachine = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
+		this.targetMachine = new DefaultTargetMachine((DefaultOperatingSystemFamily)getBuildVariant().getDimensions().get(0), (DefaultMachineArchitecture)getBuildVariant().getDimensions().get(1));
 		this.groupId = groupId;
 		this.resourcePath = objects.property(String.class);
 		this.nativeRuntimeFiles = objects.fileCollection();

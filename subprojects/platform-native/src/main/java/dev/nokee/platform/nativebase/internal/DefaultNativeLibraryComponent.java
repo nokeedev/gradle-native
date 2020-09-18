@@ -6,9 +6,7 @@ import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.NamingSchemeFactory;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
@@ -35,8 +33,8 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 
 	@Inject
-	public DefaultNativeLibraryComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(names, DefaultNativeLibraryVariant.class, objects, providers, tasks, layout, configurations);
+	public DefaultNativeLibraryComponent(ComponentIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, names, DefaultNativeLibraryVariant.class, objects, providers, tasks, layout, configurations);
 		this.dependencyHandler = dependencyHandler;
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
 		this.dependencies = objects.newInstance(DefaultNativeLibraryComponentDependencies.class, dependencyContainer);
@@ -82,17 +80,18 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	}
 
 	@Override
-	protected DefaultNativeLibraryVariant createVariant(String name, BuildVariantInternal buildVariant, VariantComponentDependencies<?> variantDependencies) {
+	protected DefaultNativeLibraryVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies) {
+		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		DefaultNativeLibraryVariant result = getObjects().newInstance(DefaultNativeLibraryVariant.class, name, names, buildVariant, variantDependencies);
+		DefaultNativeLibraryVariant result = getObjects().newInstance(DefaultNativeLibraryVariant.class, identifier, names, variantDependencies);
 		return result;
 	}
 
 	public static DomainObjectFactory<DefaultNativeLibraryComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
 		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName("main native component");
-			return objects.newInstance(DefaultNativeLibraryComponent.class, names);
+			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName(((ComponentIdentifier<?>)identifier).getDisplayName());
+			return objects.newInstance(DefaultNativeLibraryComponent.class, identifier, names);
 		};
 	}
 }

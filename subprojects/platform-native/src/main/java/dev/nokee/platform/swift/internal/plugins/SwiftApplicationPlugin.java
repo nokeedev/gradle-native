@@ -43,7 +43,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(DefaultSwiftApplicationExtension.class, id -> {
-			val identifier = ComponentIdentifier.builder().withName(((ComponentIdentifier<?>)id).getName()).withProjectIdentifier(ProjectIdentifier.of(project)).withDisplayName("main native component").withType(DefaultNativeApplicationComponent.class).build();
+			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeApplicationComponent.class, ProjectIdentifier.of(project));
 			val component = store.register(identifier, DefaultNativeApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
 			return getObjects().newInstance(DefaultSwiftApplicationExtension.class, component.get());
 		});

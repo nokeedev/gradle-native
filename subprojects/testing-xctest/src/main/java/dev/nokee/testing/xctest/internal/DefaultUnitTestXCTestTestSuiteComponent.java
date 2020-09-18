@@ -39,8 +39,8 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 	private final TaskRegistry taskRegistry;
 
 	@Inject
-	public DefaultUnitTestXCTestTestSuiteComponent(NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(names, objects, providers, tasks, layout, configurations, dependencyHandler);
+	public DefaultUnitTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUnitTestXCTestTestSuiteComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, names, objects, providers, tasks, layout, configurations, dependencyHandler);
 		this.taskRegistry = new TaskRegistryImpl(tasks);
 	}
 
@@ -126,8 +126,8 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 
 	public static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTestFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
 		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent("unitTest").withComponentDisplayName("iOS unit test XCTest test suite");
-			return objects.newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, names);
+			NamingScheme names = namingSchemeFactory.forMainComponent("unitTest").withComponentDisplayName(((ComponentIdentifier<?>)identifier).getDisplayName());
+			return objects.newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, identifier, names);
 		};
 	}
 }
