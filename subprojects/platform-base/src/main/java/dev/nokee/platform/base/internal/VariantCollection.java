@@ -31,7 +31,7 @@ public final class VariantCollection<T extends Variant> implements Realizable {
 	}
 
 	public VariantProvider<T> registerVariant(VariantIdentifier<T> identifier, VariantFactory<T> factory) {
-		val value = Value.supplied(elementType, () -> factory.create(identifier.getUnambiguousName(), (BuildVariantInternal) identifier.getBuildVariant()));
+		val value = Value.supplied(elementType, () -> factory.create(identifier.getFullName(), (BuildVariantInternal) identifier.getBuildVariant()));
 		store.put(identifier, value);
 		return new VariantProvider<>(identifier, value);
 	}
