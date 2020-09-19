@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.internal.NokeeCollection;
 import dev.nokee.model.internal.NokeeMap;
@@ -77,7 +78,8 @@ public final class VariantViewImpl<T extends Variant> implements VariantViewInte
 		store.whenElementAdded(asKnownVariant(action));
 	}
 
-	public static <T extends Variant> Action<Value<NokeeMap.Entry<VariantIdentifier<T>, T>>> asKnownVariant(Action<? super KnownVariant<T>> action) {
+	@VisibleForTesting
+	static <T extends Variant> Action<Value<NokeeMap.Entry<VariantIdentifier<T>, T>>> asKnownVariant(Action<? super KnownVariant<T>> action) {
 		return new AsKnownVariantAction<>(action);
 	}
 
@@ -100,7 +102,8 @@ public final class VariantViewImpl<T extends Variant> implements VariantViewInte
 		}
 	}
 
-	public static <T extends Variant> Action<NokeeMap.Entry<VariantIdentifier<T>, T>> configureValue(Action<? super T> action) {
+	@VisibleForTesting
+	static <T extends Variant> Action<NokeeMap.Entry<VariantIdentifier<T>, T>> configureValue(Action<? super T> action) {
 		return new ConfigureValueAction<>(action);
 	}
 
@@ -123,7 +126,8 @@ public final class VariantViewImpl<T extends Variant> implements VariantViewInte
 		}
 	}
 
-	public static <T extends Variant> Spec<NokeeMap.Entry<VariantIdentifier<T>, T>> byType(Class<? extends T> type) {
+	@VisibleForTesting
+	static <T extends Variant> Spec<NokeeMap.Entry<VariantIdentifier<T>, T>> byType(Class<? extends T> type) {
 		return new ByTypeSpec<>(type);
 	}
 
