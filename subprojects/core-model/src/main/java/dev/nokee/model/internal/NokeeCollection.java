@@ -56,4 +56,11 @@ public interface NokeeCollection<T> {
 	 * @return a live filtered collection, never null.
 	 */
 	NokeeCollection<T> filter(Spec<? super T> spec);
+
+	/**
+	 * Adds an action to be executed when an element is added to this collection.
+	 *
+	 * @param action The action to be executed
+	 */
+	void whenElementAdded(Action<? super Value<T>> action);
 }

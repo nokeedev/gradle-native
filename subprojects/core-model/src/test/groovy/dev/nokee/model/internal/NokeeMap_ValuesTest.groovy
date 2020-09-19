@@ -26,4 +26,9 @@ class NokeeMap_ValuesTest extends NokeeMap_AbstractCollectionTest {
 	protected asValues(Collection c) {
 		return c
 	}
+
+	@Override
+	protected callbackWithValue(Action action) {
+		return action
+	}
 }

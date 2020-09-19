@@ -144,6 +144,11 @@ public class NokeeMapImpl<K extends DomainObjectIdentifier, V> implements NokeeM
 		public NokeeSet<Entry<K, U>> filter(Spec<? super Entry<K, U>> spec) {
 			return new EntrySet<>((DomainObjectSet<Entry<K, U>>) store.matching(spec), disallowChangesSupplier);
 		}
+
+		@Override
+		public void whenElementAdded(Action<? super Value<Entry<K, U>>> action) {
+			store.all(entry -> action.execute(Value.fixed(entry)));
+		}
 	}
 
 	private final static class ValuesCollection<K extends DomainObjectIdentifier, U> extends AbstractCollection<K, U, U> {
@@ -173,6 +178,11 @@ public class NokeeMapImpl<K extends DomainObjectIdentifier, V> implements NokeeM
 				val filteredStore = store.matching(it -> type.isAssignableFrom(it.getValue().getType()));
 				return new ValuesCollection<>(filteredStore, disallowChangesSupplier);
 			}).orElseThrow(UnsupportedOperationException::new);
+		}
+
+		@Override
+		public void whenElementAdded(Action<? super Value<U>> action) {
+			store.all(entry -> action.execute(entry.getValue()));
 		}
 	}
 }

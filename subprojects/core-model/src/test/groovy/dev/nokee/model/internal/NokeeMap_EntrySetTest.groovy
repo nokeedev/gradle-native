@@ -28,6 +28,11 @@ class NokeeMap_EntrySetTest extends NokeeMap_AbstractCollectionTest {
 		return c.collect { entry -> entry.getValue().get() }
 	}
 
+	@Override
+	protected callbackWithValue(Action action) {
+		return { v -> action.execute(v.get().getValue()) }
+	}
+
 	def "can register for each action on entry set"() {
 		given:
 		def subject = new NokeeMapImpl(String, objectFactory)

@@ -15,6 +15,7 @@ abstract class NokeeMap_AbstractCollectionTest extends Specification {
 	protected abstract def byTypeFilter(Class type)
 	protected abstract def configureValue(Action action)
 	protected abstract def asValues(Collection c)
+	protected abstract def callbackWithValue(Action action)
 
 	def "throws exception when adding new value to collection under test"() {
 		given:
@@ -317,6 +318,66 @@ abstract class NokeeMap_AbstractCollectionTest extends Specification {
 		subject.put(Stub(DomainObjectIdentifier), a)
 		then:
 		filteredCollection.size() == subject.size() - 1
+	}
+
+	def "can register when element added on collection under test for future elements"() {
+		given:
+		def subject = new NokeeMapImpl(A, objectFactory)
+		def collection = collectionUnderTest(subject)
+
+		and:
+		def k1 = Stub(DomainObjectIdentifier)
+		def v1 = Stub(Value)
+
+		and:
+		def k2 = Stub(DomainObjectIdentifier)
+		def v2 = Stub(Value)
+
+		and:
+		def action = Mock(Action)
+
+		when:
+		collection.whenElementAdded(callbackWithValue(action))
+		then:
+		0 * action.execute(_)
+
+		when:
+		subject.put(k1, v1)
+		then:
+		1 * action.execute(v1)
+
+		when:
+		subject.put(k2, v2)
+		then:
+		1 * action.execute(v2)
+	}
+
+	def "calls when element added for previous values on collection under test"() {
+		given:
+		def subject = new NokeeMapImpl(A, objectFactory)
+		def collection = collectionUnderTest(subject)
+
+		and:
+		def k1 = Stub(DomainObjectIdentifier)
+		def v1 = Stub(Value)
+		subject.put(k1, v1)
+
+		and:
+		def k2 = Stub(DomainObjectIdentifier)
+		def v2 = Stub(Value)
+		subject.put(k2, v2)
+
+		and:
+		def action = Mock(Action)
+
+		when:
+		collection.whenElementAdded(callbackWithValue(action))
+
+		then:
+		1 * action.execute(v1)
+
+		and:
+		1 * action.execute(v2)
 	}
 
 	class A {}
