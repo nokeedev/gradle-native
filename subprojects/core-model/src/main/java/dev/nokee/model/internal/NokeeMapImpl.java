@@ -1,6 +1,7 @@
 package dev.nokee.model.internal;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.utils.ProviderUtils;
 import dev.nokee.utils.SpecUtils;
@@ -10,16 +11,16 @@ import org.gradle.api.DomainObjectSet;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
-import org.gradle.internal.Cast;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import static dev.nokee.utils.TransformerUtils.configureInPlace;
 
 public class NokeeMapImpl<K extends DomainObjectIdentifier, V> implements NokeeMap<K, V> {
-	private final DomainObjectSet<Entry<K, ? extends V>> store;
+	private final DomainObjectSet<Entry<K, V>> store;
 	private boolean disallowChanges = false;
 
 	public NokeeMapImpl(Class<V> type, ObjectFactory objectFactory) {
@@ -30,7 +31,6 @@ public class NokeeMapImpl<K extends DomainObjectIdentifier, V> implements NokeeM
 	private <T> T newStore(ObjectFactory objectFactory) {
 		return (T) objectFactory.domainObjectSet(Entry.class);
 	}
-
 
 	@Override
 	public void put(K key, Value<V> value) {
@@ -54,6 +54,10 @@ public class NokeeMapImpl<K extends DomainObjectIdentifier, V> implements NokeeM
 	@Override
 	public int size() {
 		return store.size();
+	}
+
+	public NokeeSet<Entry<K, V>> entrySet() {
+		return new EntrySet<>(store, () -> disallowChanges);
 	}
 
 	@Override
@@ -87,17 +91,17 @@ public class NokeeMapImpl<K extends DomainObjectIdentifier, V> implements NokeeM
 		}
 	}
 
-	private final static class ValuesCollection<K extends DomainObjectIdentifier, U> implements NokeeCollection<U> {
-		private final DomainObjectSet<Entry<K, ? extends U>> store;
-		private final Supplier<Boolean> disallowChangesSupplier;
+	private static abstract class AbstractCollection<K extends DomainObjectIdentifier, U, T> implements NokeeCollection<T> {
+		protected final DomainObjectSet<? extends Entry<K, U>> store;
+		protected final Supplier<Boolean> disallowChangesSupplier;
 
-		public ValuesCollection(DomainObjectSet<Entry<K, ? extends U>> store, Supplier<Boolean> disallowChangesSupplier) {
+		public AbstractCollection(DomainObjectSet<? extends Entry<K, U>> store, Supplier<Boolean> disallowChangesSupplier) {
 			this.store = store;
 			this.disallowChangesSupplier = disallowChangesSupplier;
 		}
 
 		@Override
-		public void add(Value<? extends U> value) {
+		public void add(Value<? extends T> value) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -106,30 +110,68 @@ public class NokeeMapImpl<K extends DomainObjectIdentifier, V> implements NokeeM
 			return store.size();
 		}
 
+		protected void assertDisallowedChanges() {
+			if (!disallowChangesSupplier.get()) {
+				throw new IllegalStateException("Please disallow changes before realizing this collection.");
+			}
+		}
+	}
+
+	private final static class EntrySet<K extends DomainObjectIdentifier, U> extends AbstractCollection<K, U, Entry<K, U>> implements NokeeSet<Entry<K, U>> {
+
+		public EntrySet(DomainObjectSet<Entry<K, U>> store, Supplier<Boolean> disallowChangesSupplier) {
+			super(store, disallowChangesSupplier);
+		}
+
+		@Override
+		public void forEach(Action<? super Entry<K, U>> action) {
+			store.all(action);
+		}
+
+		@Override
+		public Set<Entry<K, U>> get() {
+			assertDisallowedChanges();
+			return ImmutableSet.copyOf(store);
+		}
+
+		@Override
+		public Provider<? extends Set<Entry<K, U>>> getElements() {
+			return ProviderUtils.supplied(this::get);
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public NokeeSet<Entry<K, U>> filter(Spec<? super Entry<K, U>> spec) {
+			return new EntrySet<>((DomainObjectSet<Entry<K, U>>) store.matching(spec), disallowChangesSupplier);
+		}
+	}
+
+	private final static class ValuesCollection<K extends DomainObjectIdentifier, U> extends AbstractCollection<K, U, U> {
+		public ValuesCollection(DomainObjectSet<? extends Entry<K, U>> store, Supplier<Boolean> disallowChangesSupplier) {
+			super(store, disallowChangesSupplier);
+		}
+
 		@Override
 		public void forEach(Action<? super U> action) {
 			store.all(entry -> entry.getValue().mapInPlace(configureInPlace(action)));
 		}
 
 		@Override
-		public Collection<? extends U> get() {
-			if (!disallowChangesSupplier.get()) {
-				throw new IllegalStateException("Please disallow changes before realizing this collection.");
-			}
+		public Collection<U> get() {
+			assertDisallowedChanges();
 			return store.stream().map(Entry::getValue).map(Value::get).collect(ImmutableList.toImmutableList());
 		}
 
 		@Override
-		public Provider<Collection<? extends U>> getElements() {
+		public Provider<? extends Collection<U>> getElements() {
 			return ProviderUtils.supplied(this::get);
 		}
 
 		@Override
-		public <S extends U> NokeeCollection<S> filter(Spec<? super S> spec) {
+		public NokeeCollection<U> filter(Spec<? super U> spec) {
 			return SpecUtils.getTypeFiltered(spec).map(type -> {
 				val filteredStore = store.matching(it -> type.isAssignableFrom(it.getValue().getType()));
-				DomainObjectSet<Entry<K, ? extends S>> castedFilteredStore = Cast.uncheckedCast(filteredStore);
-				return new ValuesCollection<>(castedFilteredStore, disallowChangesSupplier);
+				return new ValuesCollection<>(filteredStore, disallowChangesSupplier);
 			}).orElseThrow(UnsupportedOperationException::new);
 		}
 	}
