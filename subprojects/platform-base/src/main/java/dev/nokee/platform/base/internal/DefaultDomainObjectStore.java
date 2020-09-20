@@ -84,7 +84,7 @@ public class DefaultDomainObjectStore implements DomainObjectStore {
 		store.forEach((k, v) -> v.mapInPlace(configureInPlace(onlyIf(spec, action))));
 	}
 
-	public Provider<Collection<? extends Object>> getElements() {
+	public Provider<? extends Collection<? extends Object>> getElements() {
 		return store.values().getElements();
 	}
 

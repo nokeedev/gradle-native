@@ -39,7 +39,7 @@ public interface NokeeCollection<T> {
 	 *
 	 * @return a collection of values.
 	 */
-	Collection<? extends T> get();
+	Collection<T> get();
 
 	/**
 	 * Returns a Gradle provider of the values in this collection.
@@ -47,14 +47,20 @@ public interface NokeeCollection<T> {
 	 *
 	 * @return a Gradle provider, never null.
 	 */
-	Provider<Collection<? extends T>> getElements();
+	Provider<? extends Collection<T>> getElements();
 
 	/**
 	 * Filter the element of this collection without resolving them.
 	 *
 	 * @param spec a spec for each element to satisfy.
-	 * @param <S> the new type of the element
 	 * @return a live filtered collection, never null.
 	 */
-	<S extends T> NokeeCollection<S> filter(Spec<? super S> spec);
+	NokeeCollection<T> filter(Spec<? super T> spec);
+
+	/**
+	 * Adds an action to be executed when an element is added to this collection.
+	 *
+	 * @param action The action to be executed
+	 */
+	void whenElementAdded(Action<? super Value<T>> action);
 }

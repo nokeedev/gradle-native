@@ -3,11 +3,13 @@ package dev.nokee.platform.base.internal;
 import dev.nokee.model.internal.Value;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.utils.TransformerUtils;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
+@EqualsAndHashCode
 public final class KnownVariant<T extends Variant> {
 	@Getter private final VariantIdentifier<T> identifier;
 	private final Value<? extends T> value;
@@ -15,6 +17,10 @@ public final class KnownVariant<T extends Variant> {
 	public KnownVariant(VariantIdentifier<T> identifier, Value<? extends T> value) {
 		this.identifier = identifier;
 		this.value = value;
+	}
+
+	public static <T extends Variant> KnownVariant<T> of(VariantIdentifier<T> identifier, Value<? extends T> value) {
+		return new KnownVariant<>(identifier, value);
 	}
 
 	public BuildVariantInternal getBuildVariant() {

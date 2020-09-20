@@ -7,7 +7,6 @@ import dev.nokee.model.internal.NokeeMapImpl;
 import dev.nokee.model.internal.Value;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.utils.Cast;
 import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.Action;
@@ -18,7 +17,7 @@ import org.gradle.api.specs.Spec;
 import java.util.List;
 import java.util.Set;
 
-import static dev.nokee.utils.SpecUtils.byType;
+import static dev.nokee.platform.base.internal.VariantViewImpl.byType;
 
 public final class VariantCollection<T extends Variant> implements Realizable {
 	private final NokeeMap<VariantIdentifier<T>, T> store;
@@ -41,7 +40,7 @@ public final class VariantCollection<T extends Variant> implements Realizable {
 		Preconditions.checkArgument(viewElementType.isAssignableFrom(elementType), "element type of the view needs to be the same type or a supertype of the element of this collection");
 		@SuppressWarnings("unchecked")
 		Class<? extends T> type = (Class<? extends T>) viewElementType;
-		return new VariantViewImpl<>(Cast.uncheckedCast("we mess up as some point", store.values().filter(byType(type))));
+		return new VariantViewImpl(store.entrySet().filter(byType(type)));
 	}
 
 	public Provider<List<? extends T>> filter(Spec<? super T> spec) {

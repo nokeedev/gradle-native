@@ -39,8 +39,9 @@ public final class ViewImpl<T> implements View<T> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <S extends T> View<S> withType(Class<S> type) {
-		return new ViewImpl<>(store.filter(byType(type)));
+		return new ViewImpl(store.filter(byType(type)));
 	}
 
 	@Override

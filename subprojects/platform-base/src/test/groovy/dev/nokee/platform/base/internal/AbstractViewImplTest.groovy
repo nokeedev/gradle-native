@@ -8,13 +8,15 @@ import org.gradle.api.specs.Spec
 import spock.lang.Specification
 
 import static dev.nokee.utils.ActionUtils.onlyIf
-import static dev.nokee.utils.SpecUtils.byType
 
 abstract class AbstractViewImplTest extends Specification {
-	protected abstract def newSubject(NokeeCollection<?> collection)
+	protected abstract def newSubject(NokeeCollection collection)
 	protected abstract Class<?> getViewImplementationType()
+	protected abstract def valueOf(String value)
+	protected abstract def values(Action action)
+	protected abstract def byType(Class type)
 
-	def "can create"() {
+	def "can create view"() {
 		when:
 		newSubject(Stub(NokeeCollection))
 
@@ -40,7 +42,7 @@ abstract class AbstractViewImplTest extends Specification {
 		subject.configureEach(action)
 
 		then:
-		1 * collection.forEach(action)
+		1 * collection.forEach(values(action))
 		0 * collection._
 	}
 
@@ -54,7 +56,7 @@ abstract class AbstractViewImplTest extends Specification {
 		subject.configureEach(String, action)
 
 		then:
-		1 * collection.forEach(onlyIf(String, action))
+		1 * collection.forEach(values(onlyIf(String, action)))
 		0 * collection._
 	}
 
@@ -69,7 +71,7 @@ abstract class AbstractViewImplTest extends Specification {
 		subject.configureEach(spec, action)
 
 		then:
-		1 * collection.forEach(onlyIf(spec, action))
+		1 * collection.forEach(values(onlyIf(spec, action)))
 		0 * collection._
 	}
 
@@ -110,9 +112,9 @@ abstract class AbstractViewImplTest extends Specification {
 		subject.withType(String)
 
 		then:
-		1 * filteredCollection.forEach(action)
-		1 * filteredCollection.forEach(onlyIf(String, action))
-		1 * filteredCollection.forEach(onlyIf(spec, action))
+		1 * filteredCollection.forEach(values(action))
+		1 * filteredCollection.forEach(values(onlyIf(String, action)))
+		1 * filteredCollection.forEach(values(onlyIf(spec, action)))
 		1 * filteredCollection.get() >> []
 		1 * filteredCollection.filter(byType(String)) >> Stub(NokeeCollection)
 		0 * collection._
@@ -138,7 +140,7 @@ abstract class AbstractViewImplTest extends Specification {
 	def "returns the values from the collection"() {
 		given:
 		def collection = Stub(NokeeCollection) {
-			get() >> ['a', 'b', 'c']
+			get() >> [valueOf('a'), valueOf('b'), valueOf('c')]
 		}
 		def subject = newSubject(collection)
 
@@ -172,7 +174,7 @@ abstract class AbstractViewImplTest extends Specification {
 	def "element provider returns the values from the collection"() {
 		given:
 		def collection = Stub(NokeeCollection) {
-			get() >> ['a', 'b', 'c']
+			get() >> [valueOf('a'), valueOf('b'), valueOf('c')]
 		}
 		def subject = newSubject(collection)
 
@@ -196,7 +198,7 @@ abstract class AbstractViewImplTest extends Specification {
 		when:
 		def result = provider.get()
 		then:
-		1 * collection.get() >> ['a', 'b', 'c']
+		1 * collection.get() >> [valueOf('a'), valueOf('b'), valueOf('c')]
 		0 * collection._
 		and:
 		result == ['a-suffix', 'b-suffix', 'c-suffix']
@@ -218,7 +220,7 @@ abstract class AbstractViewImplTest extends Specification {
 		when:
 		def result = provider.get()
 		then:
-		1 * collection.get() >> ['a', 'b', 'c']
+		1 * collection.get() >> [valueOf('a'), valueOf('b'), valueOf('c')]
 		0 * collection._
 		and:
 		result == ['a1-suffix', 'a2-suffix', 'b1-suffix', 'b2-suffix', 'c1-suffix', 'c2-suffix']
@@ -240,7 +242,7 @@ abstract class AbstractViewImplTest extends Specification {
 		when:
 		def result = provider.get()
 		then:
-		1 * collection.get() >> ['a', 'b', 'c']
+		1 * collection.get() >> [valueOf('a'), valueOf('b'), valueOf('c')]
 		0 * collection._
 		and:
 		result == ['a', 'c']
