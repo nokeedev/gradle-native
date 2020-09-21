@@ -1,8 +1,14 @@
 package dev.nokee.utils;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import lombok.EqualsAndHashCode;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.ProjectLayout;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Utilities for Gradle {@link Task} instances.
@@ -18,5 +24,34 @@ public final class TaskUtils {
 	 */
 	public static String temporaryDirectoryPath(Task task) {
 		return "tmp/" + task.getName();
+	}
+
+	/**
+	 * Returns an action that configures the {@link Task#setGroup(String)}.
+	 *
+	 * @param group a task group string.
+	 * @return an action that configures the task's group.
+	 */
+	public static Action<Task> configureGroup(String group) {
+		return new ConfigureGroupAction(group);
+	}
+
+	@EqualsAndHashCode
+	private static final class ConfigureGroupAction implements Action<Task> {
+		private final String group;
+
+		public ConfigureGroupAction(String group) {
+			this.group = requireNonNull(group);
+		}
+
+		@Override
+		public void execute(Task task) {
+			task.setGroup(group);
+		}
+
+		@Override
+		public String toString() {
+			return "TaskUtils.configureGroup(" + group + ")";
+		}
 	}
 }
