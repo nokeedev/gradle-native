@@ -49,7 +49,6 @@ import java.util.stream.Stream;
 
 public class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary, Buildable {
 	private final TaskProvider<LinkSharedLibraryTask> linkTask;
-	private final NativeIncomingDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providerFactory;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
@@ -58,10 +57,9 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 
 	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
-	public SharedLibraryBinaryInternal(NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
-		super(names, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
+	public SharedLibraryBinaryInternal(NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
+		super(names, objectSourceSets, targetMachine, objects, layout, providers, configurations);
 		this.linkTask = linkTask;
-		this.dependencies = dependencies;
 		this.objects = objects;
 		this.providerFactory = providers;
 		this.configurations = configurations;
@@ -75,9 +73,6 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 		});
 
 		linkTask.configure(task -> {
-			task.getLibs().from(dependencies.getLinkLibraries());
-			task.getLinkerArgs().addAll(getProviders().provider(() -> dependencies.getLinkFrameworks().getFiles().stream().flatMap(this::toFrameworkFlags).collect(Collectors.toList())));
-
 			task.getLinkerArgs().addAll(task.getToolChain().map(it -> {
 				if (it instanceof Swiftc && targetMachine.getOperatingSystemFamily().isMacOs()) {
 					// TODO: Support DEVELOPER_DIR or request the xcrun tool from backend
@@ -177,7 +172,7 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 		return paths.stream().map(FileSystemLocation::getAsFile).map(DefaultHeaderSearchPath::new).collect(Collectors.toList());
 	}
 
-	private Stream<String> toFrameworkFlags(File it) {
+	public static Stream<String> toFrameworkFlags(File it) {
 		return ImmutableList.of("-F", it.getParent(), "-framework", FilenameUtils.removeExtension(it.getName())).stream();
 	}
 
@@ -187,6 +182,6 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 	}
 
 	public FileCollection getRuntimeLibrariesDependencies() {
-		return dependencies.getRuntimeLibraries();
+		return objects.fileCollection().from(getDependencies().map(NativeIncomingDependencies::getRuntimeLibraries));
 	}
 }

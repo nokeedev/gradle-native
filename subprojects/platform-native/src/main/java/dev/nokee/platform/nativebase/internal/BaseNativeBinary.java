@@ -53,7 +53,6 @@ import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import org.gradle.nativeplatform.toolchain.internal.ToolType;
 import org.gradle.util.GUtil;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,19 +68,19 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	protected final TaskView<Task> compileTasks; // Until the compile tasks is clean up
 	private final DomainObjectSet<GeneratedSourceSet> objectSourceSets;
 	@Getter private final DefaultTargetMachine targetMachine;
-	@Getter private final NativeIncomingDependencies dependencies;
+	private final Property<NativeIncomingDependencies> dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter private final Property<String> baseName;
 
-	public BaseNativeBinary(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations) {
+	public BaseNativeBinary(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations) {
 		this.names = names;
 		this.compileTasks = objects.newInstance(DefaultTaskView.class, Task.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), (Realizable)() -> {});
 		this.objectSourceSets = objectSourceSets;
 		this.targetMachine = targetMachine;
-		this.dependencies = dependencies;
+		this.dependencies = objects.property(NativeIncomingDependencies.class);
 		this.objects = objects;
 		this.layout = layout;
 		this.providers = providers;
@@ -90,21 +89,17 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 		this.toolChainSelector = objects.newInstance(ToolChainSelectorInternal.class);
 
 		compileTasks.configureEach(AbstractNativeCompileTask.class, this::configureNativeSourceCompileTask);
-		compileTasks.configureEach(AbstractNativeCompileTask.class, task -> {
-			task.getIncludes().from(dependencies.getHeaderSearchPaths());
-			task.getCompilerArgs().addAll(getProviders().provider(() -> dependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(this::toFrameworkSearchPathFlags).collect(Collectors.toList())));
-		});
 		compileTasks.configureEach(SwiftCompileTask.class, this::configureSwiftCompileTask);
-		compileTasks.configureEach(SwiftCompileTask.class, task -> {
-			task.getModules().from(dependencies.getSwiftModules());
-			task.getCompilerArgs().addAll(getProviders().provider(() -> dependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(this::toFrameworkSearchPathFlags).collect(Collectors.toList())));
-		});
+	}
+
+	public Property<NativeIncomingDependencies> getDependencies() {
+		return dependencies;
 	}
 
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
 		return getObjects().fileCollection()
 			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> it.getIncludes()))
-			.from(getDependencies().getHeaderSearchPaths())
+			.from(getDependencies().map(NativeIncomingDependencies::getHeaderSearchPaths))
 			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> it.getSystemIncludes()))
 			.getElements();
 	}
@@ -112,14 +107,14 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	public Provider<Set<FileSystemLocation>> getImportSearchPaths() {
 		return getObjects().fileCollection()
 			.from(getCompileTasks().withType(SwiftCompileTask.class).getElements().map(tasks -> tasks.stream().map(task -> task.getModuleFile().map(it -> it.getAsFile().getParentFile())).collect(Collectors.toList())))
-			.from(getDependencies().getSwiftModules().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList())))
+			.from(getDependencies().map(incomingDependencies -> incomingDependencies.getSwiftModules().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList()))))
 			.getElements();
 	}
 
 	public Provider<Set<FileSystemLocation>> getFrameworkSearchPaths() {
 		return getObjects().fileCollection()
-			.from(getDependencies().getFrameworkSearchPaths())
-			.from(getDependencies().getLinkFrameworks().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList())))
+			.from(getDependencies().map(NativeIncomingDependencies::getFrameworkSearchPaths))
+			.from(getDependencies().map(incomingDependencies -> incomingDependencies.getLinkFrameworks().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList()))))
 			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> extractFrameworkSearchPaths(it.getCompilerArgs().get())))
 			.getElements();
 	}
@@ -277,7 +272,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 		return result.orElseGet(() -> ImmutableList.of());
 	}
 
-	private Stream<String> toFrameworkSearchPathFlags(File it) {
+	static Stream<String> toFrameworkSearchPathFlags(File it) {
 		return ImmutableList.of("-F", it.getAbsolutePath()).stream();
 	}
 
