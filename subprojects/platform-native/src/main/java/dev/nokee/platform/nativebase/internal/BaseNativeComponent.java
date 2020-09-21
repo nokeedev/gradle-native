@@ -19,7 +19,7 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
-import dev.nokee.platform.nativebase.internal.rules.*;
+import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
@@ -31,7 +31,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.DomainObjectSet;
-import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFile;
@@ -130,18 +129,6 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 				});
 			});
 		});
-	}
-
-	public void finalizeExtension(Project project) {
-		getVariantCollection().whenElementKnown(this::createBinaries);
-		getVariantCollection().whenElementKnown(new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
-		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
-		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
-		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
-
-		calculateVariants();
-
-		getVariantCollection().disallowChanges();
 	}
 
 	protected void calculateVariants() {

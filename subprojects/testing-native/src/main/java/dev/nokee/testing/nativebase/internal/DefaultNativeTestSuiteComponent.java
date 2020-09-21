@@ -22,6 +22,10 @@ import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentAssembleLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
@@ -160,9 +164,16 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		return this;
 	}
 
-	@Override
 	public void finalizeExtension(Project project) {
-		super.finalizeExtension(project);
+		getVariantCollection().whenElementKnown(this::createBinaries);
+		getVariantCollection().whenElementKnown(new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
+		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
+		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
+		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
+
+		calculateVariants();
+
+		getVariantCollection().disallowChanges();
 
 		// HACK: This should really be solve using the variant whenElementKnown API
 		getBuildVariants().get().forEach(buildVariant -> {

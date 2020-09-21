@@ -15,7 +15,7 @@ import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
-import dev.nokee.platform.nativebase.internal.rules.CreateNativeBinaryLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.*;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import lombok.AccessLevel;
@@ -95,9 +95,16 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 		};
 	}
 
-	@Override
 	public void finalizeExtension(Project project) {
 		getVariantCollection().whenElementKnown(new CreateNativeBinaryLifecycleTaskRule(taskRegistry));
-		super.finalizeExtension(project);
+		getVariantCollection().whenElementKnown(this::createBinaries);
+		getVariantCollection().whenElementKnown(new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
+		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
+		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
+		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
+
+		calculateVariants();
+
+		getVariantCollection().disallowChanges();
 	}
 }
