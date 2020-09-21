@@ -21,14 +21,14 @@ import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 
-public class NativeComponentBinaries {
+public class NativeComponentBinaries implements ComponentBinariesInternal<VariantIdentifier<?>> {
 	private final TaskRegistry taskRegistry;
-	private final BaseNativeComponent<?> component;
+	private final BaseComponent<?> component;
 	private final NokeeMap<BinaryIdentifier<? extends Binary>, Binary> store;
 	private final ObjectFactory objectFactory;
 	private final BinaryView<Binary> binaryView;
 
-	public NativeComponentBinaries(TaskRegistry taskRegistry, BaseNativeComponent<?> component, ObjectFactory objectFactory) {
+	public NativeComponentBinaries(TaskRegistry taskRegistry, BaseComponent<?> component, ObjectFactory objectFactory) {
 		this.taskRegistry = taskRegistry;
 		this.component = component;
 		this.store = new NokeeMapImpl<>(Binary.class, objectFactory);
@@ -36,8 +36,8 @@ public class NativeComponentBinaries {
 		this.binaryView = new BinaryViewImpl<>(store.entrySet());
 	}
 
-	public void createBinaries(KnownVariant<?> knownVariant) {
-		val identifier = knownVariant.getIdentifier();
+	@Override
+	public void createBinaries(VariantIdentifier<?> identifier) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		val targetMachineInternal = new DefaultTargetMachine(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE), buildVariant.getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE));
 		val names = component.getNames().forBuildVariant(buildVariant, component.getBuildVariants().get());
@@ -67,12 +67,28 @@ public class NativeComponentBinaries {
 		}
 	}
 
+	public void createBinaries(KnownVariant<?> knownVariant) {
+		val identifier = knownVariant.getIdentifier();
+		createBinaries(identifier);
+	}
+
+	@Override
 	public BinaryView<Binary> getAsView() {
 		return binaryView;
 	}
 
+	@Override
 	public BinaryView<Binary> getAsViewFor(VariantIdentifier<?> identifier) {
-		return new BinaryViewImpl<>(store.filter(it -> DomainObjectIdentifierUtils.isDescendent()))
+		return new BinaryViewImpl<>(store.entrySet().filter(entry -> DomainObjectIdentifierUtils.isDescendent(entry.getKey(), identifier)));
+	}
 
+	@Override
+	public <T extends Binary> void put(BinaryIdentifier<T> identifier, T binary) {
+		store.put(identifier, Value.fixed(binary));
+	}
+
+	public NativeComponentBinaries disallowChanges() {
+		store.disallowChanges();
+		return this;
 	}
 }

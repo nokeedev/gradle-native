@@ -46,7 +46,7 @@ trait SwiftIosApplicationPluginTestFixture {
 	}
 
 	String[] getExpectedVariantAwareTaskNames() {
-		return ['objects', 'bundle']
+		return ['objects', 'bundle', 'compileAssetCatalog', 'compileStoryboard', 'compileSwift', 'createApplicationBundle', 'linkStoryboard', 'processPropertyList', 'signApplicationBundle', 'link']
 	}
 
 	void configureMultipleVariants() {

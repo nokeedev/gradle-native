@@ -1,5 +1,7 @@
 package dev.nokee.testing.xctest.internal;
 
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
@@ -21,8 +23,8 @@ public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements 
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public DefaultXCTestTestSuiteVariant(VariantIdentifier<DefaultXCTestTestSuiteVariant> identifier, NamingScheme names, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
-		super(identifier, names, objects, tasks, providers);
+	public DefaultXCTestTestSuiteVariant(VariantIdentifier<DefaultXCTestTestSuiteVariant> identifier, NamingScheme names, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers, BinaryView<Binary> binaryView) {
+		super(identifier, names, objects, tasks, providers, binaryView);
 		this.dependencies = dependencies.getDependencies();
 		this.resolvableDependencies = dependencies.getIncoming();
 

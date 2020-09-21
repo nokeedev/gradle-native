@@ -111,6 +111,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 		calculateVariants();
 
+		getComponentBinaries().disallowChanges();
 		getVariantCollection().disallowChanges();
 	}
 }

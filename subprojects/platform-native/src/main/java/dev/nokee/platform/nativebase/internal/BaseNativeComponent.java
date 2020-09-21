@@ -55,6 +55,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 		getDevelopmentVariant().convention(providers.provider(new BuildableDevelopmentVariantConvention<>(getVariantCollection()::get)));
 		this.taskRegistry = new TaskRegistryImpl(tasks);
 		this.componentBinaries = new NativeComponentBinaries(taskRegistry, this, objects);
+		((BinaryViewImpl<?>)getBinaries()).onRealize(() -> getVariantCollection().realize());
 	}
 
 	public abstract NativeComponentDependencies getDependencies();
@@ -63,7 +64,6 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 		return getVariantCollection().getAsView(variantType);
 	}
 
-	@Override
 	public BinaryView<Binary> getBinaries() {
 		return componentBinaries.getAsView();
 	}
@@ -80,10 +80,12 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 	protected abstract VariantComponentDependencies<?> newDependencies(NamingScheme names, BuildVariantInternal buildVariant);
 
+	@Override
+	public NativeComponentBinaries getComponentBinaries() {
+		return componentBinaries;
+	}
+
 	protected void createBinaries(KnownVariant<T> knownVariant) {
-//		val variantIdentifier = knownVariant.getIdentifier();
-//		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
-//		final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE), buildVariant.getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE));
 		componentBinaries.createBinaries(knownVariant);
 
 		knownVariant.configure(it -> {
@@ -122,34 +124,6 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					});
 				});
 			});
-
-
-//			val names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
-//			DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().newInstance(NativeLanguageRules.class, names).apply(getSourceCollection());
-//			BaseNativeVariant variantInternal = (BaseNativeVariant)it;
-//			if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
-//				DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
-//				if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
-//					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkExecutableTask.class, variantIdentifier));
-//					val binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets, targetMachineInternal, linkTask);
-//					variantInternal.getBinaryCollection().add(binary);
-//				} else if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
-//					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variantIdentifier));
-//
-//					val binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask);
-//					variantInternal.getBinaryCollection().add(binary);
-//				} else if (linkage.equals(DefaultBinaryLinkage.BUNDLE)) {
-//					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkBundleTask.class, variantIdentifier));
-//
-//					val binary = getObjects().newInstance(BundleBinaryInternal.class, names, targetMachineInternal, objectSourceSets, linkTask);
-//					variantInternal.getBinaryCollection().add(binary);
-//				} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
-//					val createTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("create"), CreateStaticLibraryTask.class, variantIdentifier));
-//
-//					val binary = getObjects().newInstance(StaticLibraryBinaryInternal.class, names, objectSourceSets, targetMachineInternal, createTask);
-//					variantInternal.getBinaryCollection().add(binary);
-//				}
-//			}
 		});
 	}
 

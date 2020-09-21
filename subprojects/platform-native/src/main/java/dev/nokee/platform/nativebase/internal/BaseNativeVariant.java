@@ -1,5 +1,7 @@
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -17,8 +19,8 @@ public class BaseNativeVariant extends BaseVariant {
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
-	public BaseNativeVariant(VariantIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
-		super(identifier, objects);
+	public BaseNativeVariant(VariantIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers, BinaryView<Binary> binaryView) {
+		super(identifier, objects, binaryView);
 		this.names = names;
 		this.tasks = tasks;
 		this.providers = providers;

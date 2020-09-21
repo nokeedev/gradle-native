@@ -42,7 +42,7 @@ trait ObjectiveCppLibraryPluginTestFixture {
 	}
 
 	String[] getExpectedVariantAwareTaskNames() {
-		return ['objects', 'sharedLibrary']
+		return ['objects', 'sharedLibrary', 'link', 'compileObjectiveCpp']
 	}
 
 	void configureMultipleVariants() {

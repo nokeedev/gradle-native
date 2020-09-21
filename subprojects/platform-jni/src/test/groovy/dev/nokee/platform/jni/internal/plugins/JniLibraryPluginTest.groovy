@@ -81,6 +81,7 @@ class JniLibraryTaskPluginTest extends AbstractTaskPluginTest implements JniLibr
 		return [
 			'jar', /* JVM lifecycle */
 			'sharedLibrary', /* native lifecycle */
+			'link', /* native compilation */
 		]
 	}
 }

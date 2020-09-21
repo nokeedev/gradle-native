@@ -1,16 +1,11 @@
 package dev.nokee.platform.c.internal.plugins
 
-import dev.nokee.fixtures.AbstractBinaryPluginTest
-import dev.nokee.fixtures.AbstractPluginTest
-import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
-import dev.nokee.fixtures.AbstractTaskPluginTest
-import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.fixtures.*
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.c.CApplicationExtension
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.NativeApplication
 import org.gradle.api.Project
-import org.gradle.nativeplatform.NativeExecutable
 import spock.lang.Subject
 
 trait CApplicationPluginTestFixture {
@@ -41,7 +36,7 @@ trait CApplicationPluginTestFixture {
 	}
 
 	String[] getExpectedVariantAwareTaskNames() {
-		return ['objects', 'executable']
+		return ['objects', 'executable', 'link', 'compileC']
 	}
 
 	void configureMultipleVariants() {

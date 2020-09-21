@@ -44,7 +44,7 @@ trait ObjectiveCppApplicationPluginTestFixture {
 	}
 
 	String[] getExpectedVariantAwareTaskNames() {
-		return ['objects', 'executable']
+		return ['objects', 'executable', 'link', 'compileObjectiveCpp']
 	}
 
 	void configureMultipleVariants() {

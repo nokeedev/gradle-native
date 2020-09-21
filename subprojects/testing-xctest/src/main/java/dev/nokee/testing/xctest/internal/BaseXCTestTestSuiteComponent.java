@@ -177,6 +177,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 
 		calculateVariants();
 
+		getComponentBinaries().disallowChanges();
 		getVariantCollection().disallowChanges();
 	}
 }

@@ -93,7 +93,8 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 				task.getCodeSignatureTool().disallowChanges();
 			});
 
-			testSuite.getBinaryCollection().add(getObjects().newInstance(SignedIosApplicationBundleInternal.class, signTask));
+			val binary = getObjects().newInstance(SignedIosApplicationBundleInternal.class, signTask);
+			getComponentBinaries().put(BinaryIdentifier.of(BinaryName.of("signedApplication"), SignedIosApplicationBundleInternal.class, variantIdentifier), binary);
 		});
 
 		TaskProvider<Task> bundle = taskRegistry.register(TaskIdentifier.of(TaskName.of("bundle"), variantIdentifier), task -> {

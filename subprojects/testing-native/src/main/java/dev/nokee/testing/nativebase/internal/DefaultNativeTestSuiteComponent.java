@@ -173,6 +173,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 		calculateVariants();
 
+		getComponentBinaries().disallowChanges();
 		getVariantCollection().disallowChanges();
 
 		// HACK: This should really be solve using the variant whenElementKnown API

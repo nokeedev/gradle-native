@@ -105,6 +105,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 
 		calculateVariants();
 
+		getComponentBinaries().disallowChanges();
 		getVariantCollection().disallowChanges();
 	}
 }

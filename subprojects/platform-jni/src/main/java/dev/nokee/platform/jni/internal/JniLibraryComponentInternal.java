@@ -3,15 +3,13 @@ package dev.nokee.platform.jni.internal;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
-import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
+import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
@@ -31,8 +29,10 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
+import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -47,9 +47,10 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
+	private final JavaNativeInterfaceComponentBinaries componentBinaries;
 
 	@Inject
-	public JniLibraryComponentInternal(ComponentIdentifier<JniLibraryComponentInternal> identifier, NamingScheme names, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers) {
+	public JniLibraryComponentInternal(ComponentIdentifier<JniLibraryComponentInternal> identifier, NamingScheme names, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers, TaskContainer taskContainer, PluginContainer pluginContainer) {
 		super(identifier, names, JniLibraryInternal.class, objects);
 		this.configurations = configurations;
 		this.dependencyHandler = dependencyHandler;
@@ -59,6 +60,8 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		this.groupId = groupId;
 		this.sources = objects.domainObjectSet(LanguageSourceSetInternal.class);
 		this.targetMachines = objects.setProperty(TargetMachine.class);
+		this.componentBinaries = new JavaNativeInterfaceComponentBinaries(new TaskRegistryImpl(taskContainer), this, objects, pluginContainer);
+		((BinaryViewImpl<?>)getBinaries()).onRealize(() -> getVariantCollection().realize());
 
 		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE));
 		getDimensions().disallowChanges(); // Let's disallow changing them for now.
@@ -69,6 +72,11 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 
 		getDevelopmentVariant().convention(providers.provider(new BuildableDevelopmentVariantConvention<>(getVariantCollection()::get)));
 		getDevelopmentVariant().disallowChanges();
+	}
+
+	@Override
+	public JavaNativeInterfaceComponentBinaries getComponentBinaries() {
+		return componentBinaries;
 	}
 
 	@Override
@@ -88,7 +96,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		Preconditions.checkArgument(buildVariant.getDimensions().get(1) instanceof MachineArchitecture);
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, identifier, names, sources, groupId, getBinaryCollection(), variantDependencies);
+		JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, identifier, names, sources, groupId, variantDependencies, componentBinaries.getAsViewFor(identifier));
 		return result;
 	}
 
@@ -104,5 +112,10 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 
 	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
 		return sources;
+	}
+
+	@Override
+	public BinaryView<Binary> getBinaries() {
+		return componentBinaries.getAsView();
 	}
 }

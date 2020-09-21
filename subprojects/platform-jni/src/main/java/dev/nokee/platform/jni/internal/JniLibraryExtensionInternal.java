@@ -18,6 +18,7 @@ import org.gradle.api.DomainObjectSet;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
@@ -30,11 +31,11 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
 	@Inject
-	public JniLibraryExtensionInternal(ComponentIdentifier<?> identifier, GroupId groupId, NamingScheme names, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers) {
+	public JniLibraryExtensionInternal(ComponentIdentifier<?> identifier, GroupId groupId, NamingScheme names, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers, PluginContainer pluginContainer) {
 		this.configurations = configurations;
 		this.objects = objects;
 		this.providers = providers;
-		this.component = objects.newInstance(JniLibraryComponentInternal.class, identifier, names, groupId);
+		this.component = objects.newInstance(JniLibraryComponentInternal.class, identifier, names, groupId, pluginContainer);
 	}
 
 	//region Variant-awareness

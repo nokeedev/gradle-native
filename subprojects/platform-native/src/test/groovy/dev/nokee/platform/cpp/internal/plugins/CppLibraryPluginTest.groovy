@@ -1,13 +1,7 @@
 package dev.nokee.platform.cpp.internal.plugins
 
-import dev.nokee.fixtures.AbstractBinaryPluginTest
-import dev.nokee.fixtures.AbstractPluginTest
-import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
-import dev.nokee.fixtures.AbstractTaskPluginTest
-import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.fixtures.*
 import dev.nokee.platform.base.Variant
-import dev.nokee.platform.c.internal.plugins.CLibraryPlugin
-import dev.nokee.platform.c.internal.plugins.CLibraryPluginTestFixture
 import dev.nokee.platform.cpp.CppLibraryExtension
 import dev.nokee.platform.nativebase.NativeLibrary
 import dev.nokee.platform.nativebase.SharedLibraryBinary
@@ -42,7 +36,7 @@ trait CppLibraryPluginTestFixture {
 	}
 
 	String[] getExpectedVariantAwareTaskNames() {
-		return ['objects', 'sharedLibrary']
+		return ['objects', 'sharedLibrary', 'link', 'compileCpp']
 	}
 
 	void configureMultipleVariants() {

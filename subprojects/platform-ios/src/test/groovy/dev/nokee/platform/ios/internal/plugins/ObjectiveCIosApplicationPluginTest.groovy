@@ -52,7 +52,7 @@ trait ObjectiveCIosApplicationPluginTestFixture {
 	}
 
 	String[] getExpectedVariantAwareTaskNames() {
-		return ['objects', 'bundle']
+		return ['objects', 'bundle', 'compileAssetCatalog', 'compileStoryboard', 'compileObjectiveC', 'createApplicationBundle', 'linkStoryboard', 'processPropertyList', 'signApplicationBundle', 'link']
 	}
 
 	void configureMultipleVariants() {

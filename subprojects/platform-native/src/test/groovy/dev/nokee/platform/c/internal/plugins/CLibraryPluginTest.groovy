@@ -40,7 +40,7 @@ trait CLibraryPluginTestFixture {
 	}
 
 	String[] getExpectedVariantAwareTaskNames() {
-		return ['objects', 'sharedLibrary']
+		return ['objects', 'sharedLibrary', 'link', 'compileC']
 	}
 
 	void configureMultipleVariants() {

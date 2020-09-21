@@ -12,6 +12,7 @@ import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ import static java.util.Objects.requireNonNull;
 
 public final class BinaryViewImpl<T extends Binary> implements BinaryView<T> {
 	private final NokeeCollection<NokeeMap.Entry<BinaryIdentifier<? extends Binary>, T>> store;
+	private final List<Runnable> realizingListener = new ArrayList<>();
 
 	public BinaryViewImpl(NokeeCollection<NokeeMap.Entry<BinaryIdentifier<? extends Binary>, T>> store) {
 		this.store = requireNonNull(store);
@@ -54,6 +56,7 @@ public final class BinaryViewImpl<T extends Binary> implements BinaryView<T> {
 
 	@Override
 	public Set<? extends T> get() {
+		realizingListener.forEach(Runnable::run);
 		return store.get().stream().map(NokeeMap.Entry::getValue).map(Value::get).collect(ImmutableSet.toImmutableSet());
 	}
 
@@ -70,5 +73,9 @@ public final class BinaryViewImpl<T extends Binary> implements BinaryView<T> {
 	@Override
 	public Provider<List<? extends T>> filter(Spec<? super T> spec) {
 		return getElements().map(ProviderUtils.filter(spec));
+	}
+
+	public void onRealize(Runnable runnable) {
+		realizingListener.add(runnable);
 	}
 }

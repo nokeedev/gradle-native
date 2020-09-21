@@ -84,7 +84,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		DefaultIosApplicationVariant result = getObjects().newInstance(DefaultIosApplicationVariant.class, identifier, names, variantDependencies);
+		val result = getObjects().newInstance(DefaultIosApplicationVariant.class, identifier, names, variantDependencies, componentBinaries.getAsViewFor(identifier));
 		return result;
 	}
 
@@ -115,8 +115,82 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
 	}
 
-	protected void onEachVariant(KnownVariant<DefaultIosApplicationVariant> variant) {
-		variant.configure(application -> {
+	protected void onEachVariant(KnownVariant<DefaultIosApplicationVariant> knownVariant) {
+		// Create iOS application specific tasks
+		Configuration interfaceBuilderToolConfiguration = getConfigurations().create("interfaceBuilderTool");
+		interfaceBuilderToolConfiguration.getDependencies().add(getDependencyHandler().create("dev.nokee.tool:ibtool:latest.release"));
+		Provider<CommandLineTool> interfaceBuilderTool = getProviders().provider(() -> new DescriptorCommandLineTool(interfaceBuilderToolConfiguration.getSingleFile()));
+
+		Provider<CommandLineTool> assetCompilerTool = getProviders().provider(() -> new VersionedCommandLineTool(new File("/usr/bin/actool"), VersionNumber.parse("11.3.1")));
+		Provider<CommandLineTool> codeSignatureTool = getProviders().provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
+
+		String moduleName = getNames().getBaseName().getAsCamelCase();
+		Provider<String> identifier = getProviders().provider(() -> getGroupId().get().get().map(it -> it + "." + moduleName).orElse(moduleName));
+
+		val compileStoryboardTask = taskRegistry.register("compileStoryboard", StoryboardCompileTask.class, task -> {
+			task.getDestinationDirectory().set(getLayout().getBuildDirectory().dir("ios/storyboards/compiled/main"));
+			task.getModule().set(moduleName);
+			task.getSources().from(getObjects().fileTree().setDir("src/main/resources").matching(it -> it.include("*.lproj/*.storyboard")));
+			task.getInterfaceBuilderTool().set(interfaceBuilderTool);
+			task.getInterfaceBuilderTool().finalizeValueOnRead();
+		});
+
+		val linkStoryboardTask = taskRegistry.register("linkStoryboard", StoryboardLinkTask.class, task -> {
+			task.getDestinationDirectory().set(getLayout().getBuildDirectory().dir("ios/storyboards/linked/main"));
+			task.getModule().set(moduleName);
+			task.getSources().from(compileStoryboardTask.flatMap(StoryboardCompileTask::getDestinationDirectory));
+			task.getInterfaceBuilderTool().set(interfaceBuilderTool);
+			task.getInterfaceBuilderTool().finalizeValueOnRead();
+		});
+
+		val assetCatalogCompileTaskTask = taskRegistry.register("compileAssetCatalog", AssetCatalogCompileTask.class, task -> {
+			task.getSource().set(getLayout().getProjectDirectory().file("src/main/resources/Assets.xcassets"));
+			task.getIdentifier().set(identifier);
+			task.getDestinationDirectory().set(getLayout().getBuildDirectory().dir("ios/assets/main"));
+			task.getAssetCompilerTool().set(assetCompilerTool);
+		});
+
+		val processPropertyListTask = taskRegistry.register("processPropertyList", ProcessPropertyListTask.class, task -> {
+			task.getIdentifier().set(identifier);
+			task.getModule().set(moduleName);
+			task.getSources().from(getProviders().provider(() -> {
+				// TODO: I'm not sure we should jump through some hoops for a missing Info.plist.
+				//  I'm under the impression that a missing Info.plist file is an error and should be failing in some way.
+				// TODO: Regardless of what we do above, the "skip when empty" should be handled by the task itself
+				File plistFile = getLayout().getProjectDirectory().file("src/main/resources/Info.plist").getAsFile();
+				if (plistFile.exists()) {
+					return ImmutableList.of(plistFile);
+				}
+				return ImmutableList.of();
+			}));
+			task.getOutputFile().set(getLayout().getBuildDirectory().file("ios/Info.plist"));
+		});
+
+		val createApplicationBundleTask = taskRegistry.register("createApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
+			val binaries = (Provider<List<? extends Provider<RegularFile>>>) knownVariant.flatMap(variant -> variant.getBinaries().withType(ExecutableBinaryInternal.class).map(it -> it.getLinkTask().flatMap(LinkExecutable::getLinkedFile)));
+
+			task.getExecutable().set(binaries.flatMap(it -> it.iterator().next())); // TODO: Fix this approximation
+			task.getSwiftSupportRequired().convention(false);
+			task.getApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/main/" + moduleName + "-unsigned.app"));
+			task.getSources().from(linkStoryboardTask.flatMap(StoryboardLinkTask::getDestinationDirectory));
+			// Linked file is configured in IosApplicationRules
+			task.getSources().from(binaries);
+			task.getSources().from(assetCatalogCompileTaskTask.flatMap(AssetCatalogCompileTask::getDestinationDirectory));
+			task.getSources().from(processPropertyListTask.flatMap(ProcessPropertyListTask::getOutputFile));
+		});
+		val applicationBinary = getObjects().newInstance(IosApplicationBundleInternal.class);
+		getComponentBinaries().put(BinaryIdentifier.of(BinaryName.of("application"), IosApplicationBundleInternal.class, knownVariant.getIdentifier()), applicationBinary);
+
+		val signApplicationBundleTask = taskRegistry.register("signApplicationBundle", SignIosApplicationBundleTask.class, task -> {
+			task.getUnsignedApplicationBundle().set(createApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
+			task.getSignedApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/main/" + moduleName + ".app"));
+			task.getCodeSignatureTool().set(codeSignatureTool);
+		});
+
+		val signedApplication = getObjects().newInstance(SignedIosApplicationBundleInternal.class, signApplicationBundleTask);
+		getComponentBinaries().put(BinaryIdentifier.of(BinaryName.of("signedApplication"), SignedIosApplicationBundleInternal.class, knownVariant.getIdentifier()), signedApplication);
+
+		knownVariant.configure(application -> {
 			application.getBinaries().configureEach(ExecutableBinary.class, binary -> {
 				binary.getCompileTasks().configureEach(SourceCompile.class, task -> {
 					task.getCompilerArgs().addAll(getProviders().provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator", "-F", getSdkPath() + "/System/Library/Frameworks")));
@@ -147,82 +221,10 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 					// TODO: -lobjc should probably only be present for binary compiling/linking objc binaries
 				});
 			});
-
-			// Create iOS application specific tasks
-			Configuration interfaceBuilderToolConfiguration = getConfigurations().create("interfaceBuilderTool");
-			interfaceBuilderToolConfiguration.getDependencies().add(getDependencyHandler().create("dev.nokee.tool:ibtool:latest.release"));
-			Provider<CommandLineTool> interfaceBuilderTool = getProviders().provider(() -> new DescriptorCommandLineTool(interfaceBuilderToolConfiguration.getSingleFile()));
-
-			Provider<CommandLineTool> assetCompilerTool = getProviders().provider(() -> new VersionedCommandLineTool(new File("/usr/bin/actool"), VersionNumber.parse("11.3.1")));
-			Provider<CommandLineTool> codeSignatureTool = getProviders().provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
-
-			String moduleName = getNames().getBaseName().getAsCamelCase();
-			Provider<String> identifier = getProviders().provider(() -> getGroupId().get().get().map(it -> it + "." + moduleName).orElse(moduleName));
-
-			val compileStoryboardTask = taskRegistry.register("compileStoryboard", StoryboardCompileTask.class, task -> {
-				task.getDestinationDirectory().set(getLayout().getBuildDirectory().dir("ios/storyboards/compiled/main"));
-				task.getModule().set(moduleName);
-				task.getSources().from(getObjects().fileTree().setDir("src/main/resources").matching(it -> it.include("*.lproj/*.storyboard")));
-				task.getInterfaceBuilderTool().set(interfaceBuilderTool);
-				task.getInterfaceBuilderTool().finalizeValueOnRead();
-			});
-
-			val linkStoryboardTask = taskRegistry.register("linkStoryboard", StoryboardLinkTask.class, task -> {
-				task.getDestinationDirectory().set(getLayout().getBuildDirectory().dir("ios/storyboards/linked/main"));
-				task.getModule().set(moduleName);
-				task.getSources().from(compileStoryboardTask.flatMap(StoryboardCompileTask::getDestinationDirectory));
-				task.getInterfaceBuilderTool().set(interfaceBuilderTool);
-				task.getInterfaceBuilderTool().finalizeValueOnRead();
-			});
-
-			val assetCatalogCompileTaskTask = taskRegistry.register("compileAssetCatalog", AssetCatalogCompileTask.class, task -> {
-				task.getSource().set(getLayout().getProjectDirectory().file("src/main/resources/Assets.xcassets"));
-				task.getIdentifier().set(identifier);
-				task.getDestinationDirectory().set(getLayout().getBuildDirectory().dir("ios/assets/main"));
-				task.getAssetCompilerTool().set(assetCompilerTool);
-			});
-
-			val processPropertyListTask = taskRegistry.register("processPropertyList", ProcessPropertyListTask.class, task -> {
-				task.getIdentifier().set(identifier);
-				task.getModule().set(moduleName);
-				task.getSources().from(getProviders().provider(() -> {
-					// TODO: I'm not sure we should jump through some hoops for a missing Info.plist.
-					//  I'm under the impression that a missing Info.plist file is an error and should be failing in some way.
-					// TODO: Regardless of what we do above, the "skip when empty" should be handled by the task itself
-					File plistFile = getLayout().getProjectDirectory().file("src/main/resources/Info.plist").getAsFile();
-					if (plistFile.exists()) {
-						return ImmutableList.of(plistFile);
-					}
-					return ImmutableList.of();
-				}));
-				task.getOutputFile().set(getLayout().getBuildDirectory().file("ios/Info.plist"));
-			});
-
-			val createApplicationBundleTask = taskRegistry.register("createApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
-				List<? extends Provider<RegularFile>> binaries = application.getBinaries().withType(ExecutableBinaryInternal.class).map(it -> it.getLinkTask().flatMap(LinkExecutable::getLinkedFile)).get();
-
-				task.getExecutable().set(binaries.iterator().next()); // TODO: Fix this approximation
-				task.getSwiftSupportRequired().convention(false);
-				task.getApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/main/" + moduleName + "-unsigned.app"));
-				task.getSources().from(linkStoryboardTask.flatMap(StoryboardLinkTask::getDestinationDirectory));
-				// Linked file is configured in IosApplicationRules
-				task.getSources().from(binaries);
-				task.getSources().from(assetCatalogCompileTaskTask.flatMap(AssetCatalogCompileTask::getDestinationDirectory));
-				task.getSources().from(processPropertyListTask.flatMap(ProcessPropertyListTask::getOutputFile));
-			});
-			application.getBinaryCollection().add(getObjects().newInstance(IosApplicationBundleInternal.class));
-
-			val signApplicationBundleTask = taskRegistry.register("signApplicationBundle", SignIosApplicationBundleTask.class, task -> {
-				task.getUnsignedApplicationBundle().set(createApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
-				task.getSignedApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/main/" + moduleName + ".app"));
-				task.getCodeSignatureTool().set(codeSignatureTool);
-			});
-
-			application.getBinaryCollection().add(getObjects().newInstance(SignedIosApplicationBundleInternal.class, signApplicationBundleTask));
 		});
 
 		val bundle = taskRegistry.register("bundle", task -> {
-			task.dependsOn(variant.map(it -> it.getBinaries().withType(SignedIosApplicationBundleInternal.class).get()));
+			task.dependsOn(knownVariant.map(it -> it.getBinaries().withType(SignedIosApplicationBundleInternal.class).get()));
 		});
 	}
 
@@ -241,6 +243,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 		calculateVariants();
 
+		getComponentBinaries().disallowChanges();
 		getVariantCollection().disallowChanges();
 	}
 

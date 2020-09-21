@@ -2,7 +2,6 @@ package dev.nokee.platform.jni.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.c.internal.CHeaderSet;
 import dev.nokee.language.c.internal.CSourceSet;
 import dev.nokee.language.cpp.internal.CppHeaderSet;
@@ -19,16 +18,16 @@ import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencie
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
+import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
-import dev.nokee.platform.nativebase.internal.NativeLanguageRules;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
-import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
@@ -38,7 +37,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.gradle.api.*;
+import org.gradle.api.Action;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -90,6 +92,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
+	private final TaskRegistry taskRegistry;
 
 	@Inject
 	public JniLibraryPlugin(ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, ProjectLayout layout, DependencyHandler dependencyHandler, ToolChainSelector toolChainSelector) {
@@ -101,6 +104,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		this.toolChainSelectorInternal = objects.newInstance(ToolChainSelectorInternal.class);
 		this.dependencyHandler = dependencyHandler;
 		this.toolChainSelector = toolChainSelector;
+		this.taskRegistry = new TaskRegistryImpl(tasks);
 	}
 
 	private VariantComponentDependencies newDependencies(NamingScheme names, BuildVariantInternal buildVariant, JniLibraryComponentInternal component) {
@@ -147,6 +151,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		JniLibraryExtensionInternal extension = registerExtension(project, mainComponentNames);
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 
+		extension.getComponent().getVariantCollection().whenElementKnown(extension.getComponent().getComponentBinaries()::createBinaries);
+
 		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
 		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJniHeaderSourceSet(project, extension));
@@ -176,6 +182,9 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
 			Optional<DefaultJvmJarBinary> jvmJarBinary = findJvmBinary(proj);
+			jvmJarBinary.ifPresent(binary -> {
+				extension.getComponent().getComponentBinaries().put(BinaryIdentifier.of(BinaryName.of("jar"), DefaultJvmJarBinary.class, extension.getComponent().getIdentifier()), binary);
+			});
 			extension.getBuildVariants().get().forEach(buildVariant -> {
 				final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
 				final NamingScheme names = mainComponentNames.forBuildVariant(buildVariant, extension.getBuildVariants().get());
@@ -185,15 +194,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				final VariantProvider<JniLibraryInternal> library = extension.getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> {
 					JniLibraryInternal it = extension.getComponent().createVariant(variantIdentifier, dependencies);
 
-					// Build all language source set
-					DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
-					if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
-						objectSourceSets.addAll(getObjects().newInstance(NativeLanguageRules.class, names).apply(extension.getComponent().getSourceCollection()));
-					}
-
-					TaskProvider<LinkSharedLibraryTask> linkTask = getTasks().register(names.getTaskName("link"), LinkSharedLibraryTask.class);
-					it.registerSharedLibraryBinary(objectSourceSets, linkTask, targetMachines.size() > 1, dependencies.getIncoming());
-
+					it.getSharedLibrary().getDependencies().set(dependencies.getIncoming());
+					it.getSharedLibrary().getBaseName().convention(it.getNames().getBaseName().getAsString());
 					it.getSharedLibrary().getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
 						val taskInternal = (AbstractNativeCompileTask) task;
 						extension.getComponent().getSourceCollection().withType(CHeaderSet.class, sourceSet -> {
@@ -203,19 +205,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 							taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
 						});
 					});
-
-					if (jvmJarBinary.isPresent() && targetMachines.size() == 1) {
-						it.addJniJarBinary(jvmJarBinary.get());
-					} else {
-						it.registerJniJarBinary();
-						jvmJarBinary.ifPresent(it::addJvmJarBinary);
-//					if (proj.getPluginManager().hasPlugin("java")) {
-//						library.getAssembleTask().configure(task -> task.dependsOn(project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class)));
-//					} else {
-//						// FIXME: There is a gap here, if the project doesn't have any JVM plugin applied but specify multiple target machine what is expected?
-//						//   Only JNI Jar? or an empty JVM Jar and JNI Jar?... Hmmm....
-//					}
-					}
 
 					return it;
 				});
@@ -254,7 +243,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 						// NOTE: We don't need to attach the JNI JAR to runtimeElements as the `java` plugin take cares of this.
 					} else {
-						TaskProvider<Jar> jarTask = getTasks().register(JavaPlugin.JAR_TASK_NAME, Jar.class, task -> {
+						val jarTask = taskRegistry.registerIfAbsent(JavaPlugin.JAR_TASK_NAME, Jar.class);
+						jarTask.configure(task -> {
 							task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 							task.setDescription("Assembles a jar archive containing the shared library.");
 							configureJarTaskUsing(library, unbuildableMainComponentLogger).execute(task);
@@ -267,7 +257,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 						getConfigurations().named("runtimeElements", it -> it.getOutgoing().artifact(jarTask.flatMap(Jar::getArchiveFile)));
 					}
 				} else {
-					TaskProvider<Jar> jarTask = getTasks().register(names.getTaskName("jar"), Jar.class, task -> {
+					val jarTask = taskRegistry.registerIfAbsent(names.getTaskName("jar"), Jar.class);
+					jarTask.configure(task -> {
 						configureJarTaskUsing(library, unbuildableMainComponentLogger).execute(task);
 						task.getArchiveBaseName().set(names.getBaseName().withKababDimensions());
 					});
@@ -297,6 +288,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				}
 			});
 
+			extension.getComponent().getComponentBinaries().disallowChanges();
 			extension.getVariantCollection().disallowChanges();
 		});
 
@@ -457,7 +449,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(JniLibraryExtensionInternal.class, identifier -> {
 			assert ((ComponentIdentifier<?>) identifier).isMainComponent();
-			return project.getObjects().newInstance(JniLibraryExtensionInternal.class, identifier, GroupId.of(project::getGroup), names);
+			return project.getObjects().newInstance(JniLibraryExtensionInternal.class, identifier, GroupId.of(project::getGroup), names, project.getPlugins());
 		});
 		val library = components.register("main", JniLibraryExtensionInternal.class).get();
 
