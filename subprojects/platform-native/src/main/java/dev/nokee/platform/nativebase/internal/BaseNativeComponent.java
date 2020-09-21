@@ -139,6 +139,12 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
+		calculateVariants();
+
+		getVariantCollection().disallowChanges();
+	}
+
+	protected void calculateVariants() {
 		getBuildVariants().get().forEach(buildVariant -> {
 			final NamingScheme names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			final VariantIdentifier<T> variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, getBuildVariants().get()).withComponentIdentifier(getIdentifier()).withType(variantType).build();
@@ -148,10 +154,6 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 			onEachVariantDependencies(variant, dependencies);
 		});
-
-		// TODO: This may need to be moved somewhere else.
-		// finalize the variantCollection
-		getVariantCollection().disallowChanges();
 	}
 
 	protected void onEachVariantDependencies(VariantProvider<T> variant, VariantComponentDependencies<?> dependencies) {
