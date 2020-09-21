@@ -38,6 +38,15 @@ public class VariantIdentifier<T extends Variant> implements DomainObjectIdentif
 		return new VariantIdentifier<>(unambiguousName, type, identifier, Collections.emptyList(), null, unambiguousName);
 	}
 
+	public static <T extends Variant> VariantIdentifier<T> of(BuildVariant buildVariant, Class<T> type, ComponentIdentifier<?> identifier) {
+		String unambiguousName = createUnambiguousName(buildVariant);
+		return new VariantIdentifier<>(unambiguousName, type, identifier, Collections.emptyList(), buildVariant, unambiguousName);
+	}
+
+	private static String createUnambiguousName(BuildVariant buildVariant) {
+		return StringUtils.uncapitalize(((BuildVariantInternal)buildVariant).getDimensions().stream().map(Named.class::cast).map(Named::getName).map(StringUtils::capitalize).collect(Collectors.joining()));
+	}
+
 	public String getName() {
 		return unambiguousName;
 	}

@@ -115,7 +115,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
 	}
 
-	@Override
 	protected void onEachVariant(KnownVariant<DefaultIosApplicationVariant> variant) {
 		variant.configure(application -> {
 			application.getBinaries().configureEach(ExecutableBinary.class, binary -> {
@@ -234,6 +233,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 				binary.getBaseName().convention(GUtil.toCamelCase(project.getName()));
 			});
 		});
+		getVariantCollection().whenElementKnown(this::onEachVariant);
 		super.finalizeExtension(project);
 	}
 

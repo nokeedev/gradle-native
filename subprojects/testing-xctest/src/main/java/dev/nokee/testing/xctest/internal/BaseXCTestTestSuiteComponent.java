@@ -112,7 +112,6 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
 	}
 
-	@Override
 	protected void onEachVariant(KnownVariant<DefaultXCTestTestSuiteVariant> variant) {
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
@@ -162,6 +161,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 				binary.getBaseName().convention(GUtil.toCamelCase(project.getName()));
 			});
 		});
+		getVariantCollection().whenElementKnown(this::onEachVariant);
 		super.finalizeExtension(project);
 	}
 }
