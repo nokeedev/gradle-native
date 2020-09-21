@@ -17,7 +17,7 @@ public class BaseComponent<T extends Variant> {
 	@Getter private final ComponentIdentifier<?> identifier;
 	@Getter private final NamingScheme names;
 	@Getter private final VariantCollection<T> variantCollection;
-	@Getter private final DomainObjectSet<Binary> binaryCollection;
+	private final DomainObjectSet<Binary> binaryCollection;
 	@Getter private final DomainObjectSet<SourceSet> sourceCollection;
 	@Getter private final BinaryView<Binary> binaries;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
@@ -48,5 +48,9 @@ public class BaseComponent<T extends Variant> {
 
 	public String getName() {
 		return "main";
+	}
+
+	public DomainObjectSet<Binary> getBinaryCollection() {
+		return binaryCollection;
 	}
 }

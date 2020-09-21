@@ -1,5 +1,7 @@
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
@@ -9,6 +11,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryC
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.gradle.api.DomainObjectSet;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
@@ -20,12 +23,24 @@ public class DefaultNativeLibraryVariant extends BaseNativeVariant implements Na
 	@Getter private final DefaultNativeLibraryComponentDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
+	private final BinaryView<Binary> binaryView;
 
 	@Inject
-	public DefaultNativeLibraryVariant(VariantIdentifier<DefaultNativeLibraryVariant> identifier, NamingScheme names, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers, ProjectLayout layout) {
+	public DefaultNativeLibraryVariant(VariantIdentifier<DefaultNativeLibraryVariant> identifier, NamingScheme names, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers, ProjectLayout layout, BinaryView<Binary> binaryView) {
 		super(identifier, names, objects, tasks, providers);
 		this.dependencies = dependencies.getDependencies();
 		this.layout = layout;
 		this.resolvableDependencies = dependencies.getIncoming();
+		this.binaryView = binaryView;
+	}
+
+	@Override
+	public BinaryView<Binary> getBinaries() {
+		return binaryView;
+	}
+
+	@Override
+	public DomainObjectSet<Binary> getBinaryCollection() {
+		throw new UnsupportedOperationException();
 	}
 }

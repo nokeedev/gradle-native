@@ -1,10 +1,12 @@
 package dev.nokee.model.internal;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.utils.ProviderUtils;
 import dev.nokee.utils.SpecUtils;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
@@ -183,6 +185,54 @@ public class NokeeMapImpl<K extends DomainObjectIdentifier, V> implements NokeeM
 		@Override
 		public void whenElementAdded(Action<? super Value<U>> action) {
 			store.all(entry -> action.execute(entry.getValue()));
+		}
+	}
+
+	@VisibleForTesting
+	public static <T> Action<NokeeMap.Entry<? extends DomainObjectIdentifier, T>> configureValue(Action<? super T> action) {
+		return new ConfigureValueAction<>(action);
+	}
+
+	@EqualsAndHashCode
+	private static final class ConfigureValueAction<T> implements Action<NokeeMap.Entry<? extends DomainObjectIdentifier, T>> {
+		private final Action<? super T> action;
+
+		public ConfigureValueAction(Action<? super T> action) {
+			this.action = action;
+		}
+
+		@Override
+		public void execute(NokeeMap.Entry<? extends DomainObjectIdentifier, T> t) {
+			t.getValue().mapInPlace(configureInPlace(action));
+		}
+
+		@Override
+		public String toString() {
+			return "NokeeMapImpl.configureValue(" + action + ")";
+		}
+	}
+
+	@VisibleForTesting
+	public static <T> Spec<NokeeMap.Entry<? extends DomainObjectIdentifier, T>> byType(Class<? extends T> type) {
+		return new ByTypeSpec<>(type);
+	}
+
+	@EqualsAndHashCode
+	private static final class ByTypeSpec<T> implements Spec<NokeeMap.Entry<? extends DomainObjectIdentifier, T>> {
+		private final Class<? extends T> type;
+
+		public ByTypeSpec(Class<? extends T> type) {
+			this.type = type;
+		}
+
+		@Override
+		public boolean isSatisfiedBy(NokeeMap.Entry<? extends DomainObjectIdentifier, T> t) {
+			return type.isAssignableFrom(t.getValue().getType());
+		}
+
+		@Override
+		public String toString() {
+			return "NokeeMapImpl.byType(" + type.getSimpleName() + ")";
 		}
 	}
 }

@@ -84,7 +84,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		DefaultNativeApplicationVariant result = getObjects().newInstance(DefaultNativeApplicationVariant.class, identifier, names, variantDependencies);
+		DefaultNativeApplicationVariant result = getObjects().newInstance(DefaultNativeApplicationVariant.class, identifier, names, variantDependencies, componentBinaries.getAsViewFor(identifier));
 		return result;
 	}
 

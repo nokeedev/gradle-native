@@ -90,7 +90,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		DefaultNativeLibraryVariant result = getObjects().newInstance(DefaultNativeLibraryVariant.class, identifier, names, variantDependencies);
+		DefaultNativeLibraryVariant result = getObjects().newInstance(DefaultNativeLibraryVariant.class, identifier, names, variantDependencies, componentBinaries.getAsViewFor(identifier));
 		return result;
 	}
 
