@@ -110,6 +110,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					task.getModules().from(incomingDependencies.getSwiftModules());
 					task.getCompilerArgs().addAll(getProviders().provider(() -> incomingDependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(BaseNativeBinary::toFrameworkSearchPathFlags).collect(Collectors.toList())));
 				});
+				binary.getBaseName().convention(getBaseName());
 			});
 
 
@@ -122,25 +123,21 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkExecutableTask.class, variantIdentifier));
 					val binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets, targetMachineInternal, linkTask);
 					variantInternal.getBinaryCollection().add(binary);
-					binary.getBaseName().convention(getBaseName());
 				} else if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
 					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variantIdentifier));
 
 					val binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask);
 					variantInternal.getBinaryCollection().add(binary);
-					binary.getBaseName().convention(getBaseName());
 				} else if (linkage.equals(DefaultBinaryLinkage.BUNDLE)) {
 					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkBundleTask.class, variantIdentifier));
 
 					val binary = getObjects().newInstance(BundleBinaryInternal.class, names, targetMachineInternal, objectSourceSets, linkTask);
 					variantInternal.getBinaryCollection().add(binary);
-					binary.getBaseName().convention(getBaseName());
 				} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
 					val createTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("create"), CreateStaticLibraryTask.class, variantIdentifier));
 
 					val binary = getObjects().newInstance(StaticLibraryBinaryInternal.class, names, objectSourceSets, targetMachineInternal, createTask);
 					variantInternal.getBinaryCollection().add(binary);
-					binary.getBaseName().convention(getBaseName());
 				}
 			}
 			it.getBinaries().configureEach(NativeBinary.class, binary -> {
