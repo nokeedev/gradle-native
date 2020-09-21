@@ -111,6 +111,15 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					task.getCompilerArgs().addAll(getProviders().provider(() -> incomingDependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(BaseNativeBinary::toFrameworkSearchPathFlags).collect(Collectors.toList())));
 				});
 				binary.getBaseName().convention(getBaseName());
+				binary.getCompileTasks().configureEach(NativeSourceCompile.class, task -> {
+					val taskInternal = (AbstractNativeCompileTask) task;
+					getSourceCollection().withType(CHeaderSet.class).configureEach(sourceSet -> {
+						taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
+					});
+					getSourceCollection().withType(CppHeaderSet.class).configureEach(sourceSet -> {
+						taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
+					});
+				});
 			});
 
 
@@ -140,17 +149,6 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					variantInternal.getBinaryCollection().add(binary);
 				}
 			}
-			it.getBinaries().configureEach(NativeBinary.class, binary -> {
-				binary.getCompileTasks().configureEach(NativeSourceCompile.class, task -> {
-					val taskInternal = (AbstractNativeCompileTask) task;
-					getSourceCollection().withType(CHeaderSet.class).configureEach(sourceSet -> {
-						taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
-					});
-					getSourceCollection().withType(CppHeaderSet.class).configureEach(sourceSet -> {
-						taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
-					});
-				});
-			});
 		});
 	}
 
