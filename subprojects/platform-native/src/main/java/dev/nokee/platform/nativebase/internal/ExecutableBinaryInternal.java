@@ -7,7 +7,6 @@ import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.ExecutableBinary;
-import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
@@ -31,7 +30,6 @@ import org.gradle.nativeplatform.toolchain.Swiftc;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ExecutableBinaryInternal extends BaseNativeBinary implements ExecutableBinary, Buildable {
@@ -39,16 +37,13 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public ExecutableBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
-		super(names, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
+	public ExecutableBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
+		super(names, objectSourceSets, targetMachine, objects, layout, providers, configurations);
 		this.linkTask = linkTask;
 		this.tasks = tasks;
 
 		linkTask.configure(this::configureExecutableTask);
 		linkTask.configure(task -> {
-			task.getLibs().from(dependencies.getLinkLibraries());
-			task.getLinkerArgs().addAll(getProviders().provider(() -> dependencies.getLinkFrameworks().getFiles().stream().flatMap(this::toFrameworkFlags).collect(Collectors.toList())));
-
 			task.getLinkerArgs().addAll(task.getToolChain().map(it -> {
 				if (it instanceof Swiftc && targetMachine.getOperatingSystemFamily().isMacOs()) {
 					// TODO: Support DEVELOPER_DIR or request the xcrun tool from backend
@@ -59,7 +54,7 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 		});
 	}
 
-	private Stream<String> toFrameworkFlags(File it) {
+	static Stream<String> toFrameworkFlags(File it) {
 		return ImmutableList.of("-F", it.getParent(), "-framework", FilenameUtils.removeExtension(it.getName())).stream();
 	}
 

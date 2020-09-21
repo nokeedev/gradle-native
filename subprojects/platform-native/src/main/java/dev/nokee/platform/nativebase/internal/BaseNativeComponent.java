@@ -43,6 +43,7 @@ import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class BaseNativeComponent<T extends VariantInternal> extends BaseComponent<T> implements VariantAwareComponentInternal<T> {
 	private final Class<T> variantType;
@@ -87,6 +88,31 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 		knownVariant.configure(it -> {
 			val incomingDependencies = (NativeIncomingDependencies) it.getResolvableDependencies();
+			getBinaryCollection().withType(ExecutableBinaryInternal.class).configureEach(binary -> {
+				binary.getLinkTask().configure(task -> {
+					((LinkExecutableTask)task).getLibs().from(incomingDependencies.getLinkLibraries());
+					((LinkExecutableTask)task).getLinkerArgs().addAll(getProviders().provider(() -> incomingDependencies.getLinkFrameworks().getFiles().stream().flatMap(ExecutableBinaryInternal::toFrameworkFlags).collect(Collectors.toList())));
+				});
+			});
+			getBinaryCollection().withType(SharedLibraryBinaryInternal.class).configureEach(binary -> {
+				binary.getLinkTask().configure(task -> {
+					((LinkSharedLibraryTask)task).getLibs().from(incomingDependencies.getLinkLibraries());
+					((LinkSharedLibraryTask)task).getLinkerArgs().addAll(getProviders().provider(() -> incomingDependencies.getLinkFrameworks().getFiles().stream().flatMap(SharedLibraryBinaryInternal::toFrameworkFlags).collect(Collectors.toList())));
+				});
+			});
+			getBinaryCollection().withType(BaseNativeBinary.class).configureEach(binary -> {
+				binary.getDependencies().set(incomingDependencies);
+				binary.getCompileTasks().configureEach(AbstractNativeCompileTask.class::isInstance, task -> {
+					((AbstractNativeCompileTask)task).getIncludes().from(incomingDependencies.getHeaderSearchPaths());
+					((AbstractNativeCompileTask)task).getCompilerArgs().addAll(getProviders().provider(() -> incomingDependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(BaseNativeBinary::toFrameworkSearchPathFlags).collect(Collectors.toList())));
+				});
+				binary.getCompileTasks().configureEach(SwiftCompileTask.class, task -> {
+					task.getModules().from(incomingDependencies.getSwiftModules());
+					task.getCompilerArgs().addAll(getProviders().provider(() -> incomingDependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(BaseNativeBinary::toFrameworkSearchPathFlags).collect(Collectors.toList())));
+				});
+			});
+
+
 			val names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().newInstance(NativeLanguageRules.class, names).apply(getSourceCollection());
 			BaseNativeVariant variantInternal = (BaseNativeVariant)it;
@@ -94,25 +120,25 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 				DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
 				if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
 					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkExecutableTask.class, variantIdentifier));
-					ExecutableBinaryInternal binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets, targetMachineInternal, linkTask, incomingDependencies);
+					val binary = getObjects().newInstance(ExecutableBinaryInternal.class, names, objectSourceSets, targetMachineInternal, linkTask);
 					variantInternal.getBinaryCollection().add(binary);
 					binary.getBaseName().convention(getBaseName());
 				} else if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
 					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variantIdentifier));
 
-					SharedLibraryBinaryInternal binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask, incomingDependencies);
+					val binary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, getObjects().domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask);
 					variantInternal.getBinaryCollection().add(binary);
 					binary.getBaseName().convention(getBaseName());
 				} else if (linkage.equals(DefaultBinaryLinkage.BUNDLE)) {
 					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkBundleTask.class, variantIdentifier));
 
-					BundleBinaryInternal binary = getObjects().newInstance(BundleBinaryInternal.class, names, targetMachineInternal, objectSourceSets, linkTask, incomingDependencies);
+					val binary = getObjects().newInstance(BundleBinaryInternal.class, names, targetMachineInternal, objectSourceSets, linkTask);
 					variantInternal.getBinaryCollection().add(binary);
 					binary.getBaseName().convention(getBaseName());
 				} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
 					val createTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("create"), CreateStaticLibraryTask.class, variantIdentifier));
 
-					val binary = getObjects().newInstance(StaticLibraryBinaryInternal.class, names, objectSourceSets, targetMachineInternal, createTask, incomingDependencies);
+					val binary = getObjects().newInstance(StaticLibraryBinaryInternal.class, names, objectSourceSets, targetMachineInternal, createTask);
 					variantInternal.getBinaryCollection().add(binary);
 					binary.getBaseName().convention(getBaseName());
 				}
