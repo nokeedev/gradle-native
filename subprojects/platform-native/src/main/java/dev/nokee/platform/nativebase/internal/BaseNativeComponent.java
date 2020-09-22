@@ -90,19 +90,19 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 		knownVariant.configure(it -> {
 			val incomingDependencies = (NativeIncomingDependencies) it.getResolvableDependencies();
-			getBinaries().withType(ExecutableBinaryInternal.class).configureEach(binary -> {
+			it.getBinaries().configureEach(ExecutableBinaryInternal.class, binary -> {
 				binary.getLinkTask().configure(task -> {
 					((LinkExecutableTask)task).getLibs().from(incomingDependencies.getLinkLibraries());
 					((LinkExecutableTask)task).getLinkerArgs().addAll(getProviders().provider(() -> incomingDependencies.getLinkFrameworks().getFiles().stream().flatMap(ExecutableBinaryInternal::toFrameworkFlags).collect(Collectors.toList())));
 				});
 			});
-			getBinaries().withType(SharedLibraryBinaryInternal.class).configureEach(binary -> {
+			it.getBinaries().configureEach(SharedLibraryBinaryInternal.class, binary -> {
 				binary.getLinkTask().configure(task -> {
 					((LinkSharedLibraryTask)task).getLibs().from(incomingDependencies.getLinkLibraries());
 					((LinkSharedLibraryTask)task).getLinkerArgs().addAll(getProviders().provider(() -> incomingDependencies.getLinkFrameworks().getFiles().stream().flatMap(SharedLibraryBinaryInternal::toFrameworkFlags).collect(Collectors.toList())));
 				});
 			});
-			getBinaries().withType(BaseNativeBinary.class).configureEach(binary -> {
+			it.getBinaries().configureEach(BaseNativeBinary.class, binary -> {
 				binary.getDependencies().set(incomingDependencies);
 				binary.getCompileTasks().configureEach(AbstractNativeCompileTask.class::isInstance, task -> {
 					((AbstractNativeCompileTask)task).getIncludes().from(incomingDependencies.getHeaderSearchPaths());
