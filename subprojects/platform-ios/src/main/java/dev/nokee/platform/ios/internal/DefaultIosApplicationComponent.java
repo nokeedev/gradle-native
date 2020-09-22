@@ -225,11 +225,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	public void finalizeExtension(Project project) {
-		getVariants().configureEach(variant -> {
-			variant.getBinaries().configureEach(BaseNativeBinary.class, binary -> {
-				binary.getBaseName().convention(GUtil.toCamelCase(project.getName()));
-			});
-		});
 		getVariantCollection().whenElementKnown(this::onEachVariant);
 		getVariantCollection().whenElementKnown(this::createBinaries);
 		getVariantCollection().whenElementKnown(new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
