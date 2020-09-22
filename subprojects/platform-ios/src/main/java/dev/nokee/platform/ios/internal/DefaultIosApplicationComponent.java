@@ -22,12 +22,11 @@ import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.ios.tasks.internal.*;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
-import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
+import dev.nokee.platform.nativebase.internal.rules.*;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
@@ -47,7 +46,6 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.Swiftc;
-import org.gradle.util.GUtil;
 import org.gradle.util.VersionNumber;
 
 import javax.inject.Inject;
@@ -115,7 +113,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
 	}
 
-	@Override
 	protected void onEachVariant(KnownVariant<DefaultIosApplicationVariant> variant) {
 		variant.configure(application -> {
 			application.getBinaries().configureEach(ExecutableBinary.class, binary -> {
@@ -200,9 +197,9 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			});
 
 			val createApplicationBundleTask = taskRegistry.register("createApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
-				List<? extends Provider<RegularFile>> binaries = application.getBinaries().withType(ExecutableBinaryInternal.class).map(it -> it.getLinkTask().flatMap(LinkExecutable::getLinkedFile)).get();
+				Provider<List<? extends Provider<RegularFile>>> binaries = application.getBinaries().withType(ExecutableBinaryInternal.class).map(it -> it.getLinkTask().flatMap(LinkExecutable::getLinkedFile));
 
-				task.getExecutable().set(binaries.iterator().next()); // TODO: Fix this approximation
+				task.getExecutable().set(binaries.flatMap(it -> it.iterator().next())); // TODO: Fix this approximation
 				task.getSwiftSupportRequired().convention(false);
 				task.getApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/main/" + moduleName + "-unsigned.app"));
 				task.getSources().from(linkStoryboardTask.flatMap(StoryboardLinkTask::getDestinationDirectory));
@@ -227,14 +224,17 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		});
 	}
 
-	@Override
 	public void finalizeExtension(Project project) {
-		getVariants().configureEach(variant -> {
-			variant.getBinaries().configureEach(BaseNativeBinary.class, binary -> {
-				binary.getBaseName().convention(GUtil.toCamelCase(project.getName()));
-			});
-		});
-		super.finalizeExtension(project);
+		getVariantCollection().whenElementKnown(this::onEachVariant);
+		getVariantCollection().whenElementKnown(this::createBinaries);
+		getVariantCollection().whenElementKnown(new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
+		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
+		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
+		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
+
+		calculateVariants();
+
+		getVariantCollection().disallowChanges();
 	}
 
 	public static DomainObjectFactory<DefaultIosApplicationComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {

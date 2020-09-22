@@ -8,14 +8,15 @@ import dev.nokee.language.cpp.internal.CppHeaderSet;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
-import dev.nokee.platform.nativebase.*;
+import dev.nokee.platform.nativebase.NativeBinary;
+import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
@@ -29,9 +30,7 @@ import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
-import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFile;
@@ -45,11 +44,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
-import static java.util.Collections.emptyList;
-import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
-import static org.gradle.language.base.plugins.LifecycleBasePlugin.BUILD_GROUP;
-
-public abstract class BaseNativeComponent<T extends VariantInternal> extends BaseComponent<T> {
+public abstract class BaseNativeComponent<T extends VariantInternal> extends BaseComponent<T> implements VariantAwareComponentInternal<T> {
 	private final Class<T> variantType;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
@@ -85,11 +80,12 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 	protected abstract VariantComponentDependencies<?> newDependencies(NamingScheme names, BuildVariantInternal buildVariant);
 
-	protected Action<T> createBinariesFor(VariantIdentifier<T> variantIdentifier) {
+	protected void createBinaries(KnownVariant<T> knownVariant) {
+		val variantIdentifier = knownVariant.getIdentifier();
 		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
 		final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE), buildVariant.getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE));
 
-		return it -> {
+		knownVariant.configure(it -> {
 			val incomingDependencies = (NativeIncomingDependencies) it.getResolvableDependencies();
 			val names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().newInstance(NativeLanguageRules.class, names).apply(getSourceCollection());
@@ -132,31 +128,10 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					});
 				});
 			});
-		};
+		});
 	}
 
-	public void finalizeExtension(Project project) {
-		getVariantCollection().whenElementKnown(knownVariant -> {
-			knownVariant.configure(createBinariesFor(knownVariant.getIdentifier()));
-
-			taskRegistry.register(TaskIdentifier.of(TaskName.of("objects"), knownVariant.getIdentifier()), task -> {
-				task.setGroup(BUILD_GROUP);
-				task.setDescription("Assembles main objects.");
-				task.dependsOn(knownVariant.map(it -> it.getBinaries().withType(ExecutableBinary.class).map(ExecutableBinary::getCompileTasks)));
-				task.dependsOn(knownVariant.map(it -> it.getBinaries().withType(SharedLibraryBinary.class).map(SharedLibraryBinary::getCompileTasks)));
-				task.dependsOn(knownVariant.map(it -> it.getBinaries().withType(StaticLibraryBinary.class).map(StaticLibraryBinary::getCompileTasks)));
-			});
-
-			onEachVariant(knownVariant);
-
-			if (getBuildVariants().get().size() > 1) {
-				taskRegistry.register(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), knownVariant.getIdentifier()), task -> {
-					task.dependsOn(knownVariant.flatMap(Variant::getDevelopmentBinary));
-					task.setGroup(BUILD_GROUP);
-				});
-			}
-		});
-
+	protected void calculateVariants() {
 		getBuildVariants().get().forEach(buildVariant -> {
 			final NamingScheme names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			final VariantIdentifier<T> variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, getBuildVariants().get()).withComponentIdentifier(getIdentifier()).withType(variantType).build();
@@ -166,28 +141,6 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 			onEachVariantDependencies(variant, dependencies);
 		});
-
-		// Make sure the task exists and configure it!
-		taskRegistry.registerIfAbsent(ASSEMBLE_TASK_NAME).configure(task -> {
-			task.dependsOn(getDevelopmentVariant().flatMap(Variant::getDevelopmentBinary));
-		});
-
-		if (getIdentifier().isMainComponent()) {
-			taskRegistry.registerIfAbsent("objects", task -> {
-				task.setGroup(BUILD_GROUP);
-				task.setDescription("Assembles main objects.");
-				task.dependsOn(getDevelopmentVariant().flatMap(it -> {
-					if (it.getDevelopmentBinary().get() instanceof NativeBinary) {
-						return ((NativeBinary) it.getDevelopmentBinary().get()).getCompileTasks().getElements();
-					}
-					return getProviders().provider(() -> emptyList());
-				}));
-			});
-		}
-
-		// TODO: This may need to be moved somewhere else.
-		// finalize the variantCollection
-		getVariantCollection().disallowChanges();
 	}
 
 	protected void onEachVariantDependencies(VariantProvider<T> variant, VariantComponentDependencies<?> dependencies) {
@@ -214,35 +167,5 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 			});
 		}
 		dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
-	}
-
-	// TODO: BuildVariant and NamedDomainObjectProvider from VariantCollection should be together.
-	protected void onEachVariant(KnownVariant<T> variant) {
-		val variantIdentifier = variant.getIdentifier();
-		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
-		// TODO: This is dependent per component, for example, iOS will have different target.
-		//  It should be moved lower to the "general" native component
-		if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
-			DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
-			if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
-				taskRegistry.register(TaskIdentifier.of(TaskName.of("sharedLibrary"), variantIdentifier), task -> {
-					task.setGroup(BUILD_GROUP);
-					task.setDescription("Assembles a shared library binary containing the main objects.");
-					task.dependsOn(variant.map(it -> ((SharedLibraryBinary)it.getDevelopmentBinary().get()).getLinkTask()));
-				});
-			} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
-				taskRegistry.register(TaskIdentifier.of(TaskName.of("staticLibrary"), variantIdentifier), task -> {
-					task.setGroup(BUILD_GROUP);
-					task.setDescription("Assembles a static library binary containing the main objects.");
-					task.dependsOn(variant.map(it -> ((StaticLibraryBinary)it.getDevelopmentBinary().get()).getCreateTask()));
-				});
-			} else if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
-				taskRegistry.register(TaskIdentifier.of(TaskName.of("executable"), variantIdentifier), task -> {
-					task.setGroup(BUILD_GROUP);
-					task.setDescription("Assembles a executable binary containing the main objects.");
-					task.dependsOn(variant.map(it -> ((ExecutableBinary)it.getDevelopmentBinary().get()).getLinkTask()));
-				});
-			}
-		}
 	}
 }

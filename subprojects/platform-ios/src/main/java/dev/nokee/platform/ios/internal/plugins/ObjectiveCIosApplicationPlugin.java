@@ -25,6 +25,7 @@ import org.gradle.nativeplatform.toolchain.Clang;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
 import org.gradle.nativeplatform.toolchain.internal.gcc.DefaultGccPlatformToolChain;
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
+import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -68,6 +69,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 			return getObjects().newInstance(DefaultObjectiveCIosApplicationExtension.class, component.get());
 		});
 		val extension = components.register("main", DefaultObjectiveCIosApplicationExtension.class, component -> {
+			component.getComponent().getBaseName().convention(GUtil.toCamelCase(project.getName()));
 			component.getComponent().getGroupId().set(GroupId.of(project::getGroup));
 		}).get();
 

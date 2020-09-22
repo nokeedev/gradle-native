@@ -17,6 +17,7 @@ import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
+import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
@@ -51,6 +52,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 			return getObjects().newInstance(DefaultSwiftIosApplicationExtension.class, component.get());
 		});
 		val extension = components.register("main", DefaultSwiftIosApplicationExtension.class, component -> {
+			component.getComponent().getBaseName().convention(GUtil.toCamelCase(project.getName()));
 			component.getComponent().getGroupId().set(GroupId.of(project::getGroup));
 		}).get();
 
