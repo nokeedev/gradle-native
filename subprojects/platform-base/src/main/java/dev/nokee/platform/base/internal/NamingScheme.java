@@ -50,10 +50,6 @@ public class NamingScheme {
 		return componentName.prefix(dimensions.prefix(configurationPrefix.prefix(target)));
 	}
 
-	public String getComponentName() {
-		return componentName.get();
-	}
-
 	public BaseNameNamingScheme getBaseName() {
 		return new BaseNameNamingScheme();
 	}
