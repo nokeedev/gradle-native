@@ -7,11 +7,8 @@ import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.core.exec.internal.VersionedCommandLineTool;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
-import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.model.DomainObjectFactory;
-import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
@@ -25,15 +22,15 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
-import dev.nokee.platform.nativebase.internal.dependencies.*;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.*;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
-import lombok.AccessLevel;
+import dev.nokee.utils.Cast;
 import lombok.Getter;
 import lombok.val;
-import lombok.var;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -44,6 +41,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.VersionNumber;
@@ -57,18 +55,30 @@ import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdk
 public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, Component {
 	private final DefaultNativeComponentDependencies dependencies;
 	@Getter private final Property<GroupId> groupId;
-	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
+	private final DependencyHandler dependencyHandler;
 	private final TaskRegistry taskRegistry;
+	private final IosComponentVariants componentVariants;
+	private final BinaryView<Binary> binaries;
+	private final ObjectFactory objects;
+	private final ProviderFactory providers;
+	private final ProjectLayout layout;
+	private final ConfigurationContainer configurations;
 
 	@Inject
 	public DefaultIosApplicationComponent(ComponentIdentifier<DefaultIosApplicationComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
 		super(identifier, names, DefaultIosApplicationVariant.class, objects, providers, tasks, layout, configurations);
+		this.objects = objects;
+		this.providers = providers;
+		this.layout = layout;
+		this.configurations = configurations;
+		this.componentVariants = new IosComponentVariants(objects, this, dependencyHandler, configurations);
+		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultIosApplicationVariant.class), Variant::getBinaries)));
 		this.dependencyHandler = dependencyHandler;
-		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
+		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(configurations), names::getConfigurationName), new DefaultDependencyFactory(dependencyHandler))));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.groupId = objects.property(GroupId.class);
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
-		getDevelopmentVariant().convention(providers.provider(new DevelopmentVariantConvention<>(getVariantCollection()::get)));
+		getDevelopmentVariant().convention(providers.provider(new DevelopmentVariantConvention<>(() -> getVariantCollection().get())));
 		this.taskRegistry = new TaskRegistryImpl(tasks);
 	}
 
@@ -78,46 +88,25 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	@Override
-	protected DefaultIosApplicationVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies) {
-		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
-		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
-
-		DefaultIosApplicationVariant result = getObjects().newInstance(DefaultIosApplicationVariant.class, identifier, names, variantDependencies);
-		return result;
+	public SetProperty<BuildVariantInternal> getBuildVariants() {
+		return componentVariants.getBuildVariants();
 	}
 
 	@Override
-	protected VariantComponentDependencies<NativeComponentDependencies> newDependencies(NamingScheme names, BuildVariantInternal buildVariant) {
-		var variantDependencies = getDependencies();
-		if (getBuildVariants().get().size() > 1) {
-			val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler())));
-			variantDependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
-			variantDependencies.configureEach(variantBucket -> {
-				getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
-					variantBucket.getAsConfiguration().extendsFrom(componentBucket.getAsConfiguration());
-				});
-			});
-		}
+	public BinaryView<Binary> getBinaries() {
+		return binaries;
+	}
 
-		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
-		boolean hasSwift = !getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
-		if (hasSwift) {
-			incomingDependenciesBuilder.withIncomingSwiftModules();
-		} else {
-			incomingDependenciesBuilder.withIncomingHeaders();
-		}
-
-		NativeIncomingDependencies incoming = incomingDependenciesBuilder.buildUsing(getObjects());
-		NativeOutgoingDependencies outgoing = getObjects().newInstance(IosApplicationOutgoingDependencies.class, names, buildVariant, variantDependencies);
-
-		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
+	@Override
+	public VariantCollection<DefaultIosApplicationVariant> getVariantCollection() {
+		return componentVariants.getVariantCollection();
 	}
 
 	protected void onEachVariant(KnownVariant<DefaultIosApplicationVariant> variant) {
 		variant.configure(application -> {
 			application.getBinaries().configureEach(ExecutableBinary.class, binary -> {
 				binary.getCompileTasks().configureEach(SourceCompile.class, task -> {
-					task.getCompilerArgs().addAll(getProviders().provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator", "-F", getSdkPath() + "/System/Library/Frameworks")));
+					task.getCompilerArgs().addAll(providers.provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator", "-F", getSdkPath() + "/System/Library/Frameworks")));
 					task.getCompilerArgs().addAll(task.getToolChain().map(toolChain -> {
 						if (toolChain instanceof Swiftc) {
 							return ImmutableList.of("-sdk", getSdkPath());
@@ -129,7 +118,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 					}
 				});
 				binary.getLinkTask().configure(task -> {
-					task.getLinkerArgs().addAll(getProviders().provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator")));
+					task.getLinkerArgs().addAll(providers.provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator")));
 					task.getLinkerArgs().addAll(task.getToolChain().map(toolChain -> {
 						if (toolChain instanceof Swiftc) {
 							return ImmutableList.of("-sdk", getSdkPath());
@@ -147,26 +136,26 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			});
 
 			// Create iOS application specific tasks
-			Configuration interfaceBuilderToolConfiguration = getConfigurations().create("interfaceBuilderTool");
-			interfaceBuilderToolConfiguration.getDependencies().add(getDependencyHandler().create("dev.nokee.tool:ibtool:latest.release"));
-			Provider<CommandLineTool> interfaceBuilderTool = getProviders().provider(() -> new DescriptorCommandLineTool(interfaceBuilderToolConfiguration.getSingleFile()));
+			Configuration interfaceBuilderToolConfiguration = configurations.create("interfaceBuilderTool");
+			interfaceBuilderToolConfiguration.getDependencies().add(dependencyHandler.create("dev.nokee.tool:ibtool:latest.release"));
+			Provider<CommandLineTool> interfaceBuilderTool = providers.provider(() -> new DescriptorCommandLineTool(interfaceBuilderToolConfiguration.getSingleFile()));
 
-			Provider<CommandLineTool> assetCompilerTool = getProviders().provider(() -> new VersionedCommandLineTool(new File("/usr/bin/actool"), VersionNumber.parse("11.3.1")));
-			Provider<CommandLineTool> codeSignatureTool = getProviders().provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
+			Provider<CommandLineTool> assetCompilerTool = providers.provider(() -> new VersionedCommandLineTool(new File("/usr/bin/actool"), VersionNumber.parse("11.3.1")));
+			Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
 
 			String moduleName = getNames().getBaseName().getAsCamelCase();
-			Provider<String> identifier = getProviders().provider(() -> getGroupId().get().get().map(it -> it + "." + moduleName).orElse(moduleName));
+			Provider<String> identifier = providers.provider(() -> getGroupId().get().get().map(it -> it + "." + moduleName).orElse(moduleName));
 
 			val compileStoryboardTask = taskRegistry.register("compileStoryboard", StoryboardCompileTask.class, task -> {
-				task.getDestinationDirectory().set(getLayout().getBuildDirectory().dir("ios/storyboards/compiled/main"));
+				task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/storyboards/compiled/main"));
 				task.getModule().set(moduleName);
-				task.getSources().from(getObjects().fileTree().setDir("src/main/resources").matching(it -> it.include("*.lproj/*.storyboard")));
+				task.getSources().from(objects.fileTree().setDir("src/main/resources").matching(it -> it.include("*.lproj/*.storyboard")));
 				task.getInterfaceBuilderTool().set(interfaceBuilderTool);
 				task.getInterfaceBuilderTool().finalizeValueOnRead();
 			});
 
 			val linkStoryboardTask = taskRegistry.register("linkStoryboard", StoryboardLinkTask.class, task -> {
-				task.getDestinationDirectory().set(getLayout().getBuildDirectory().dir("ios/storyboards/linked/main"));
+				task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/storyboards/linked/main"));
 				task.getModule().set(moduleName);
 				task.getSources().from(compileStoryboardTask.flatMap(StoryboardCompileTask::getDestinationDirectory));
 				task.getInterfaceBuilderTool().set(interfaceBuilderTool);
@@ -174,26 +163,26 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			});
 
 			val assetCatalogCompileTaskTask = taskRegistry.register("compileAssetCatalog", AssetCatalogCompileTask.class, task -> {
-				task.getSource().set(getLayout().getProjectDirectory().file("src/main/resources/Assets.xcassets"));
+				task.getSource().set(layout.getProjectDirectory().file("src/main/resources/Assets.xcassets"));
 				task.getIdentifier().set(identifier);
-				task.getDestinationDirectory().set(getLayout().getBuildDirectory().dir("ios/assets/main"));
+				task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/assets/main"));
 				task.getAssetCompilerTool().set(assetCompilerTool);
 			});
 
 			val processPropertyListTask = taskRegistry.register("processPropertyList", ProcessPropertyListTask.class, task -> {
 				task.getIdentifier().set(identifier);
 				task.getModule().set(moduleName);
-				task.getSources().from(getProviders().provider(() -> {
+				task.getSources().from(providers.provider(() -> {
 					// TODO: I'm not sure we should jump through some hoops for a missing Info.plist.
 					//  I'm under the impression that a missing Info.plist file is an error and should be failing in some way.
 					// TODO: Regardless of what we do above, the "skip when empty" should be handled by the task itself
-					File plistFile = getLayout().getProjectDirectory().file("src/main/resources/Info.plist").getAsFile();
+					File plistFile = layout.getProjectDirectory().file("src/main/resources/Info.plist").getAsFile();
 					if (plistFile.exists()) {
 						return ImmutableList.of(plistFile);
 					}
 					return ImmutableList.of();
 				}));
-				task.getOutputFile().set(getLayout().getBuildDirectory().file("ios/Info.plist"));
+				task.getOutputFile().set(layout.getBuildDirectory().file("ios/Info.plist"));
 			});
 
 			val createApplicationBundleTask = taskRegistry.register("createApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
@@ -201,22 +190,22 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 				task.getExecutable().set(binaries.flatMap(it -> it.iterator().next())); // TODO: Fix this approximation
 				task.getSwiftSupportRequired().convention(false);
-				task.getApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/main/" + moduleName + "-unsigned.app"));
+				task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/main/" + moduleName + "-unsigned.app"));
 				task.getSources().from(linkStoryboardTask.flatMap(StoryboardLinkTask::getDestinationDirectory));
 				// Linked file is configured in IosApplicationRules
 				task.getSources().from(binaries);
 				task.getSources().from(assetCatalogCompileTaskTask.flatMap(AssetCatalogCompileTask::getDestinationDirectory));
 				task.getSources().from(processPropertyListTask.flatMap(ProcessPropertyListTask::getOutputFile));
 			});
-			application.getBinaryCollection().add(getObjects().newInstance(IosApplicationBundleInternal.class));
+			application.getBinaryCollection().add(objects.newInstance(IosApplicationBundleInternal.class));
 
 			val signApplicationBundleTask = taskRegistry.register("signApplicationBundle", SignIosApplicationBundleTask.class, task -> {
 				task.getUnsignedApplicationBundle().set(createApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
-				task.getSignedApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/main/" + moduleName + ".app"));
+				task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/main/" + moduleName + ".app"));
 				task.getCodeSignatureTool().set(codeSignatureTool);
 			});
 
-			application.getBinaryCollection().add(getObjects().newInstance(SignedIosApplicationBundleInternal.class, signApplicationBundleTask));
+			application.getBinaryCollection().add(objects.newInstance(SignedIosApplicationBundleInternal.class, signApplicationBundleTask));
 		});
 
 		val bundle = taskRegistry.register("bundle", task -> {
@@ -232,7 +221,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
-		calculateVariants();
+		componentVariants.calculateVariants();
 
 		getVariantCollection().disallowChanges();
 	}
