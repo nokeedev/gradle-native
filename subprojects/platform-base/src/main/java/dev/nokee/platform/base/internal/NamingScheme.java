@@ -147,10 +147,6 @@ public class NamingScheme {
 		String prefix(String target);
 	}
 
-	public interface Suffixer {
-		String suffix(String target);
-	}
-
 	@RequiredArgsConstructor
 	public static abstract class BaseValueNamingSegment {
 		protected final String value;
@@ -197,7 +193,7 @@ public class NamingScheme {
 	//endregion
 
 	//region Dimensions
-	public interface Dimensions extends Prefixer, Suffixer {
+	public interface Dimensions extends Prefixer {
 		Dimensions add(String dimension);
 
 		// TODO: Replace with the correct naming segment operation
@@ -283,7 +279,7 @@ public class NamingScheme {
 	//endregion
 
 	//region ComponentName
-	public interface ComponentName extends Prefixer, Suffixer {
+	public interface ComponentName extends Prefixer {
 		String get();
 
 		static ComponentName ofMain() {
