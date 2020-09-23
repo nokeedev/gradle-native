@@ -89,27 +89,6 @@ public class NamingScheme {
 		return buildVariant -> (Named)buildVariant.getDimensions().get(index);
 	}
 
-	/**
-	 * Returns the task name for the specified verb, i.e. link, linkWindows.
-	 *
-	 * @param verb a task action prefix, i.e. link
-	 * @return a fully formed task name, never null.
-	 */
-	public String getTaskName(String verb) {
-		return dimensions.suffix(componentName.suffix(verb));
-	}
-
-	/**
-	 * Returns the task name for the specified verb and object, i.e. compileCpp, compileWindowsCpp.
-	 *
-	 * @param verb a task action prefix, i.e. compile
-	 * @param object a task target suffix, i.e. cpp, swift
-	 * @return a fully formed task name, never null.
-	 */
-	public String getTaskName(String verb, String object) {
-		return getTaskName(verb) + StringUtils.capitalize(object);
-	}
-
 	public String getOutputDirectoryBase(String outputType) {
 		return outputType
 			+ prefixWithPathSeparator(componentName.get())

@@ -77,8 +77,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		super(identifier, names, DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
 		this.objects = objects;
 		this.providers = providers;
-		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers);
-		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeTestSuiteVariant.class), Variant::getBinaries)));
 		this.tasks = tasks;
 
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
@@ -94,6 +92,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.getDimensions().disallowChanges(); // Let's disallow changing them for now.
 
 		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry);
+		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeTestSuiteVariant.class), Variant::getBinaries)));
 	}
 
 	protected Iterable<BuildVariantInternal> createBuildVariants() {
@@ -164,7 +164,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 		// HACK: This should really be solve using the variant whenElementKnown API
 		getBuildVariants().get().forEach(buildVariant -> {
-			final NamingScheme names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			val variantIdentifier = VariantIdentifier.builder().withType(DefaultNativeTestSuiteVariant.class).withComponentIdentifier(getIdentifier()).withUnambiguousNameFromBuildVariants(buildVariant, getBuildVariants().get()).build();
 
 			// TODO: The variant should have give access to the testTask
@@ -181,7 +180,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 				});
 			});
 			// TODO: The following is a gap is how we declare task, it should be possible to register a lifecycle task for a entity
-			val testTask = taskRegistry.register(names.getBaseName().withCamelDimensions(), task -> {
+			val testTask = taskRegistry.register(TaskIdentifier.ofLifecycle(variantIdentifier), task -> {
 				task.dependsOn(runTask);
 			});
 		});
@@ -261,7 +260,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					ConfigurableFileCollection objects = this.objects.fileCollection();
 					objects.from(componentObjects);
 					if (component instanceof DefaultNativeApplicationComponent) {
-						val relocateTask = tasks.register(variant.getNames().getTaskName("relocateMainSymbolFor"), UnexportMainSymbol.class, task -> {
+						val relocateTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("relocateMainSymbolFor"), UnexportMainSymbol.class, variant.getIdentifier()), task -> {
 							task.getObjects().from(componentObjects);
 							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(variant.getNames().getOutputDirectoryBase("objs/for-test")));
 						});

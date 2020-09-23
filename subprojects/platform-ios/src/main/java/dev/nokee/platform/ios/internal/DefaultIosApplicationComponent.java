@@ -70,14 +70,14 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		this.providers = providers;
 		this.layout = layout;
 		this.configurations = configurations;
-		this.componentVariants = new IosComponentVariants(objects, this, dependencyHandler, configurations, providers);
-		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultIosApplicationVariant.class), Variant::getBinaries)));
 		this.dependencyHandler = dependencyHandler;
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.groupId = objects.property(GroupId.class);
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.componentVariants = new IosComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry);
+		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultIosApplicationVariant.class), Variant::getBinaries)));
 	}
 
 	@Override

@@ -10,9 +10,11 @@ import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import lombok.Getter;
+import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
@@ -21,8 +23,8 @@ public class DefaultIosApplicationVariant extends BaseNativeVariant implements I
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public DefaultIosApplicationVariant(VariantIdentifier<DefaultIosApplicationVariant> identifier, NamingScheme names, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
-		super(identifier, names, objects, tasks, providers);
+	public DefaultIosApplicationVariant(VariantIdentifier<DefaultIosApplicationVariant> identifier, NamingScheme names, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers, TaskProvider<Task> assembleTask) {
+		super(identifier, names, objects, tasks, providers, assembleTask);
 		this.dependencies = dependencies.getDependencies();
 		this.resolvableDependencies = dependencies.getIncoming();
 

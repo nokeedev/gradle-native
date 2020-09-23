@@ -10,6 +10,9 @@ import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
+import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
+import dev.nokee.platform.base.internal.tasks.TaskName;
+import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
@@ -23,6 +26,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
+import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 public class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<JniLibraryInternal> variantCollection;
@@ -32,8 +36,9 @@ public class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 	private final JniLibraryComponentInternal component;
 	private final ConfigurationContainer configurationContainer;
 	private final DependencyHandler dependencyHandler;
+	private final TaskRegistry taskRegistry;
 
-	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ProviderFactory providerFactory) {
+	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ProviderFactory providerFactory, TaskRegistry taskRegistry) {
 		this.variantCollection = new VariantCollection<>(JniLibraryInternal.class, objectFactory);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(getVariantCollection()::get));
@@ -41,14 +46,14 @@ public class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 		this.component = component;
 		this.configurationContainer = configurationContainer;
 		this.dependencyHandler = dependencyHandler;
+		this.taskRegistry = taskRegistry;
 	}
 
 	public void calculateVariants() {
 		buildVariants.get().forEach(buildVariant -> {
-			val names = component.getNames().forBuildVariant(buildVariant, buildVariants.get());
 			val variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, buildVariants.get()).withComponentIdentifier(component.getIdentifier()).withType(JniLibraryInternal.class).build();
 
-			val dependencies = newDependencies(names.withComponentDisplayName("JNI shared library"), buildVariant, component, variantIdentifier);
+			val dependencies = newDependencies(buildVariant, component, variantIdentifier);
 			variantCollection.registerVariant(variantIdentifier, (name, bv) -> createVariant(variantIdentifier, dependencies));
 		});
 	}
@@ -60,11 +65,16 @@ public class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 		Preconditions.checkArgument(buildVariant.getDimensions().get(1) instanceof MachineArchitecture);
 		NamingScheme names = component.getNames().forBuildVariant(buildVariant, component.getBuildVariants().get());
 
-		JniLibraryInternal result = objectFactory.newInstance(JniLibraryInternal.class, identifier, names, component.getSources(), component.getGroupId(), component.getBinaryCollection(), variantDependencies);
+		val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(LifecycleBasePlugin.ASSEMBLE_TASK_NAME), identifier), task -> {
+			task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
+			task.setDescription(String.format("Assembles the '%s' outputs of this project.", BuildVariantNamer.INSTANCE.determineName((BuildVariantInternal)identifier.getBuildVariant())));
+		});
+
+		JniLibraryInternal result = objectFactory.newInstance(JniLibraryInternal.class, identifier, names, component.getSources(), component.getGroupId(), component.getBinaryCollection(), variantDependencies, assembleTask);
 		return result;
 	}
 
-	private VariantComponentDependencies newDependencies(NamingScheme names, BuildVariantInternal buildVariant, JniLibraryComponentInternal component, VariantIdentifier<JniLibraryInternal> variantIdentifier) {
+	private VariantComponentDependencies newDependencies(BuildVariantInternal buildVariant, JniLibraryComponentInternal component, VariantIdentifier<JniLibraryInternal> variantIdentifier) {
 		DefaultJavaNativeInterfaceNativeComponentDependencies variantDependencies = component.getDependencies();
 		if (component.getBuildVariants().get().size() > 1) {
 			val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
