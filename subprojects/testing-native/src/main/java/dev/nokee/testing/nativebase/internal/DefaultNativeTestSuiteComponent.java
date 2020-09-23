@@ -96,11 +96,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.taskRegistry = new TaskRegistryImpl(tasks);
 	}
 
-	@Override
-	public String getName() {
-		return getNames().getComponentName();
-	}
-
 	protected Iterable<BuildVariantInternal> createBuildVariants() {
 		if (getTestedComponent().isPresent()) {
 			val buildVariantBuilder = new LinkedHashSet<BuildVariantInternal>();
@@ -205,9 +200,9 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 			// TODO: Map name to something close to what is expected
 			getBaseName().convention(component.getBaseName().map(it -> {
 				if (component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty()) {
-					return it + "-" + getName();
+					return it + "-" + getIdentifier().getName().get();
 				}
-				return it + StringUtils.capitalize(getName());
+				return it + StringUtils.capitalize(getIdentifier().getName().get());
 			}));
 
 			component.getSourceCollection().withType(BaseSourceSet.class).configureEach(sourceSet -> {
