@@ -113,10 +113,6 @@ public class NamingScheme {
 		return displayName.get();
 	}
 
-	public String getSourceSetPath(String languageName) {
-		return "src/" + componentName.get() + "/" + languageName;
-	}
-
 	public class BaseNameNamingScheme {
 		private BaseNameNamingScheme() {}
 

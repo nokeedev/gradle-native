@@ -209,9 +209,9 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
 					if (sourceSet instanceof CHeaderSet || sourceSet instanceof CppHeaderSet) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
-						getSourceCollection().add(objects.newInstance(sourceSet.getClass(), "headers").srcDir(getNames().getSourceSetPath("headers")));
+						getSourceCollection().add(objects.newInstance(sourceSet.getClass(), "headers").srcDir("src/" + getIdentifier().getName().get() + "/headers"));
 					} else {
-						getSourceCollection().add(objects.newInstance(sourceSet.getClass(), sourceSet.getName()).from(getNames().getSourceSetPath(sourceSet.getName())));
+						getSourceCollection().add(objects.newInstance(sourceSet.getClass(), sourceSet.getName()).from("src/" + getIdentifier().getName().get() + "/" + sourceSet.getName()));
 					}
 				}
 			});
