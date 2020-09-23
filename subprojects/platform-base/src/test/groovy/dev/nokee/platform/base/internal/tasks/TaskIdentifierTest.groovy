@@ -314,6 +314,116 @@ class TaskIdentifierTest extends Specification {
 		identifier('foo', ownerVariant) != identifier('foo', ownerComponent)
 	}
 
+	def "can create pure lifecycle identifier owned by a variant of main component"() {
+		given:
+		def ownerProject = ProjectIdentifier.of('root')
+		def ownerComponent = ComponentIdentifier.ofMain(TestableComponent, ownerProject)
+		def ownerVariant = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponent)
+
+		when:
+		def result = TaskIdentifier.ofLifecycle(ownerVariant)
+
+		then:
+		result.name == TaskName.empty()
+		result.taskName == 'macosDebug'
+		result.type == Task
+		result.ownerIdentifier == ownerVariant
+		result.parentIdentifier.present
+		result.parentIdentifier.get() == ownerVariant
+	}
+
+	def "can create pure lifecycle identifier owned by a variant of non-main component"() {
+		given:
+		def ownerProject = ProjectIdentifier.of('root')
+		def ownerComponent = ComponentIdentifier.of(ComponentName.of('test'), TestableComponent, ownerProject)
+		def ownerVariant = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponent)
+
+		when:
+		def result = TaskIdentifier.ofLifecycle(ownerVariant)
+
+		then:
+		result.name == TaskName.empty()
+		result.taskName == 'testMacosDebug'
+		result.type == Task
+		result.ownerIdentifier == ownerVariant
+		result.parentIdentifier.present
+		result.parentIdentifier.get() == ownerVariant
+	}
+
+	def "can create pure lifecycle identifier owned by a single-variant of non-main component"() {
+		given:
+		def ownerProject = ProjectIdentifier.of('root')
+		def ownerComponent = ComponentIdentifier.of(ComponentName.of('test'), TestableComponent, ownerProject)
+		def ownerVariant = VariantIdentifier.of('', TestableVariant, ownerComponent)
+
+		when:
+		def result = TaskIdentifier.ofLifecycle(ownerVariant)
+
+		then:
+		result.name == TaskName.empty()
+		result.taskName == 'test'
+		result.type == Task
+		result.ownerIdentifier == ownerVariant
+		result.parentIdentifier.present
+		result.parentIdentifier.get() == ownerVariant
+	}
+
+	def "can create pure lifecycle identifier owned by a non-main component"() {
+		given:
+		def ownerProject = ProjectIdentifier.of('root')
+		def ownerComponent = ComponentIdentifier.of(ComponentName.of('integTest'), TestableComponent, ownerProject)
+
+		when:
+		def result = TaskIdentifier.ofLifecycle(ownerComponent)
+
+		then:
+		result.name == TaskName.empty()
+		result.taskName == 'integTest'
+		result.type == Task
+		result.ownerIdentifier == ownerComponent
+		result.parentIdentifier.present
+		result.parentIdentifier.get() == ownerComponent
+	}
+
+	def "throws exception when creating pure lifecycle identifier owned by a main component"() {
+		given:
+		def ownerProject = ProjectIdentifier.of('root')
+		def ownerComponent = ComponentIdentifier.ofMain(TestableComponent, ownerProject)
+
+		when:
+		TaskIdentifier.ofLifecycle(ownerComponent)
+
+		then:
+		def ex = thrown(IllegalArgumentException)
+		ex.message == 'Cannot construct a lifecycle task identifier for specified owner as it will result into an invalid task name.'
+	}
+
+	def "throws exception when creating pure lifecycle identifier owned by a project"() {
+		given:
+		def ownerProject = ProjectIdentifier.of('root')
+
+		when:
+		TaskIdentifier.ofLifecycle(ownerProject)
+
+		then:
+		def ex = thrown(IllegalArgumentException)
+		ex.message == 'Cannot construct a lifecycle task identifier for specified owner as it will result into an invalid task name.'
+	}
+
+	def "throws exception when creating pure lifecycle identifier owned by a single-variant of a main component"() {
+		given:
+		def ownerProject = ProjectIdentifier.of('root')
+		def ownerComponent = ComponentIdentifier.ofMain(TestableComponent, ownerProject)
+		def ownerVariant = VariantIdentifier.of('', TestableVariant, ownerComponent)
+
+		when:
+		TaskIdentifier.ofLifecycle(ownerVariant)
+
+		then:
+		def ex = thrown(IllegalArgumentException)
+		ex.message == 'Cannot construct a lifecycle task identifier for specified owner as it will result into an invalid task name.'
+	}
+
 	private static TaskIdentifier identifier(String verb, DomainObjectIdentifierInternal owner) {
 		return TaskIdentifier.of(TaskName.of(verb), TaskIdentifierTest.TestableTask, owner)
 	}

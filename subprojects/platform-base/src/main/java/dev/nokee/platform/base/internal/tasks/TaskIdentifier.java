@@ -46,6 +46,25 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 		return new TaskIdentifier<>(name, Task.class, ownerIdentifier);
 	}
 
+	public static TaskIdentifier<Task> ofLifecycle(DomainObjectIdentifierInternal ownerIdentifier) {
+		Preconditions.checkArgument(isValidLifecycleOwner(ownerIdentifier), "Cannot construct a lifecycle task identifier for specified owner as it will result into an invalid task name.");
+		return new TaskIdentifier<>(TaskName.empty(), Task.class, ownerIdentifier);
+	}
+
+	private static boolean isValidLifecycleOwner(DomainObjectIdentifierInternal ownerIdentifier) {
+		if (ownerIdentifier instanceof VariantIdentifier) {
+			val variantIdentifier = (VariantIdentifier<?>) ownerIdentifier;
+			if (variantIdentifier.getUnambiguousName().isEmpty() && variantIdentifier.getComponentIdentifier().isMainComponent()) {
+				return false;
+			}
+		} else if (ownerIdentifier instanceof ComponentIdentifier && ((ComponentIdentifier<?>) ownerIdentifier).isMainComponent()) {
+			return false;
+		} else if (ownerIdentifier instanceof ProjectIdentifier) {
+			return false;
+		}
+		return true;
+	}
+
 	public String getTaskName() {
 		val segments = new ArrayList<String>();
 

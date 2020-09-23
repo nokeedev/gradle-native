@@ -110,4 +110,22 @@ class TaskNameTest extends Specification {
 		then:
 		thrown(IllegalArgumentException)
 	}
+
+	def "can create empty task name"() {
+		expect:
+		TaskName.empty().verb == ''
+		!TaskName.empty().object.present
+	}
+
+	def "can compare task name"() {
+		expect:
+		TaskName.empty() == TaskName.empty()
+		TaskName.of('foo') == TaskName.of('foo')
+		TaskName.of('foo', 'bar') == TaskName.of('foo', 'bar')
+
+		and:
+		TaskName.of('foo') != TaskName.of('bar')
+		TaskName.of('foo') != TaskName.of('foo', 'bar')
+		TaskName.of('foo') != TaskName.empty()
+	}
 }
