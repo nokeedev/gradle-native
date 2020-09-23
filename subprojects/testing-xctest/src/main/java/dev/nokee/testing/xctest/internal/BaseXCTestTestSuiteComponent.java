@@ -4,9 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
-import dev.nokee.language.swift.internal.SwiftSourceSet;
-import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
@@ -14,13 +12,13 @@ import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFact
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
-import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
-import dev.nokee.platform.nativebase.internal.dependencies.*;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
@@ -31,7 +29,6 @@ import dev.nokee.utils.Cast;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import lombok.var;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -40,6 +37,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.GUtil;
@@ -55,10 +53,14 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	@Getter private final Property<BaseNativeComponent<?>> testedComponent;
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 	private final TaskRegistry taskRegistry;
+	private final XCTestTestSuiteComponentVariants componentVariants;
+	private final BinaryView<Binary> binaries;
 
 	@Inject
 	public BaseXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
 		super(identifier, names, DefaultXCTestTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
+		this.componentVariants = new XCTestTestSuiteComponentVariants(objects, this, dependencyHandler, configurations);
+		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultXCTestTestSuiteVariant.class), Variant::getBinaries)));
 		this.taskRegistry = new TaskRegistryImpl(tasks);
 		this.dependencyHandler = dependencyHandler;
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
@@ -85,39 +87,18 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	}
 
 	@Override
-	protected DefaultXCTestTestSuiteVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies) {
-		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
-		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
-
-		DefaultXCTestTestSuiteVariant result = getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, identifier, names, variantDependencies);
-		return result;
+	public SetProperty<BuildVariantInternal> getBuildVariants() {
+		return componentVariants.getBuildVariants();
 	}
 
 	@Override
-	protected VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(NamingScheme names, BuildVariantInternal buildVariant) {
-		var variantDependencies = getDependencies();
-		if (getBuildVariants().get().size() > 1) {
-			val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler())));
-			variantDependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
-			variantDependencies.configureEach(variantBucket -> {
-				getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
-					variantBucket.getAsConfiguration().extendsFrom(componentBucket.getAsConfiguration());
-				});
-			});
-		}
+	public BinaryView<Binary> getBinaries() {
+		return binaries;
+	}
 
-		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
-		boolean hasSwift = !getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
-		if (hasSwift) {
-			incomingDependenciesBuilder.withIncomingSwiftModules();
-		} else {
-			incomingDependenciesBuilder.withIncomingHeaders();
-		}
-
-		NativeIncomingDependencies incoming = incomingDependenciesBuilder.buildUsing(getObjects());
-		NativeOutgoingDependencies outgoing = getObjects().newInstance(IosApplicationOutgoingDependencies.class, names, buildVariant, variantDependencies);
-
-		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
+	@Override
+	public VariantCollection<DefaultXCTestTestSuiteVariant> getVariantCollection() {
+		return componentVariants.getVariantCollection();
 	}
 
 	protected void onEachVariant(KnownVariant<DefaultXCTestTestSuiteVariant> variant) {
@@ -175,7 +156,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
-		calculateVariants();
+		componentVariants.calculateVariants();
 
 		getVariantCollection().disallowChanges();
 	}

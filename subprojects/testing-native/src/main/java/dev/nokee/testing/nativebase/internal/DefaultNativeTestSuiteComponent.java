@@ -9,6 +9,9 @@ import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
@@ -21,7 +24,8 @@ import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.internal.*;
-import dev.nokee.platform.nativebase.internal.dependencies.*;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
@@ -35,7 +39,6 @@ import dev.nokee.testing.nativebase.NativeTestSuite;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import lombok.var;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -47,6 +50,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.internal.Cast;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
@@ -66,10 +70,14 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	@Getter Property<BaseComponent<?>> testedComponent;
 	private final TaskRegistry taskRegistry;
 	private final TaskContainer tasks;
+	private final NativeTestSuiteComponentVariants componentVariants;
+	private final BinaryView<Binary> binaries;
 
 	@Inject
 	public DefaultNativeTestSuiteComponent(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
 		super(identifier, names, DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
+		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations);
+		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeTestSuiteVariant.class), Variant::getBinaries)));
 		this.dependencyHandler = dependencyHandler;
 		this.tasks = tasks;
 
@@ -117,39 +125,18 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	@Override
-	protected VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(NamingScheme names, BuildVariantInternal buildVariant) {
-		var variantDependencies = getDependencies();
-		if (getBuildVariants().get().size() > 1) {
-			val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler())));
-			variantDependencies = getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
-			variantDependencies.configureEach(variantBucket -> {
-				getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
-					variantBucket.getAsConfiguration().extendsFrom(componentBucket.getAsConfiguration());
-				});
-			});
-		}
-
-		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
-		boolean hasSwift = !getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
-		if (hasSwift) {
-			incomingDependenciesBuilder.withIncomingSwiftModules();
-		} else {
-			incomingDependenciesBuilder.withIncomingHeaders();
-		}
-
-		NativeIncomingDependencies incoming = incomingDependenciesBuilder.buildUsing(getObjects());
-		NativeOutgoingDependencies outgoing = getObjects().newInstance(NativeApplicationOutgoingDependencies.class, names, buildVariant, variantDependencies);
-
-		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
+	public SetProperty<BuildVariantInternal> getBuildVariants() {
+		return componentVariants.getBuildVariants();
 	}
 
 	@Override
-	protected DefaultNativeTestSuiteVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies) {
-		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
-		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
+	public BinaryView<Binary> getBinaries() {
+		return binaries;
+	}
 
-		val result = getObjects().newInstance(DefaultNativeTestSuiteVariant.class, identifier, names, variantDependencies);
-		return result;
+	@Override
+	public VariantCollection<DefaultNativeTestSuiteVariant> getVariantCollection() {
+		return componentVariants.getVariantCollection();
 	}
 
 	@Override
@@ -171,7 +158,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
-		calculateVariants();
+		componentVariants.calculateVariants();
 
 		getVariantCollection().disallowChanges();
 
