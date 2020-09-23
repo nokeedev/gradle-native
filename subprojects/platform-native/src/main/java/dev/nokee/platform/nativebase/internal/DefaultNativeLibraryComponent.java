@@ -33,7 +33,6 @@ import javax.inject.Inject;
 
 public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNativeLibraryVariant> implements DependencyAwareComponent<NativeLibraryComponentDependencies>, BinaryAwareComponent, Component {
 	private final DefaultNativeLibraryComponentDependencies dependencies;
-	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 	private final TaskRegistry taskRegistry;
 	private final NativeLibraryComponentVariants componentVariants;
 	private final BinaryView<Binary> binaries;
@@ -43,8 +42,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 		super(identifier, names, DefaultNativeLibraryVariant.class, objects, providers, tasks, layout, configurations);
 		this.componentVariants = new NativeLibraryComponentVariants(objects, this, dependencyHandler, configurations);
 		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeLibraryVariant.class), Variant::getBinaries)));
-		this.dependencyHandler = dependencyHandler;
-		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
+		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(configurations), names::getConfigurationName), new DefaultDependencyFactory(dependencyHandler))));
 		this.dependencies = objects.newInstance(DefaultNativeLibraryComponentDependencies.class, dependencyContainer);
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 		this.taskRegistry = new TaskRegistryImpl(tasks);

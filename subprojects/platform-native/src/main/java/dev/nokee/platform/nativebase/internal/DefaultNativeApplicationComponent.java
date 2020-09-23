@@ -17,8 +17,6 @@ import dev.nokee.platform.nativebase.internal.rules.*;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.utils.Cast;
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -33,7 +31,6 @@ import javax.inject.Inject;
 
 public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent, Component {
 	private final DefaultNativeApplicationComponentDependencies dependencies;
-	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 	private final TaskRegistry taskRegistry;
 	private final NativeApplicationComponentVariants componentVariants;
 	private final BinaryView<Binary> binaries;
@@ -43,8 +40,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 		super(identifier, names, DefaultNativeApplicationVariant.class, objects, providers, tasks, layout, configurations);
 		this.componentVariants = new NativeApplicationComponentVariants(objects, this, dependencyHandler, configurations);
 		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeApplicationVariant.class), Variant::getBinaries)));
-		this.dependencyHandler = dependencyHandler;
-		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
+		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(configurations), names::getConfigurationName), new DefaultDependencyFactory(dependencyHandler))));
 		this.dependencies = objects.newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 		this.taskRegistry = new TaskRegistryImpl(tasks);

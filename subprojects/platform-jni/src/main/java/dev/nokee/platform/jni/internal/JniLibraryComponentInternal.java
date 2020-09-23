@@ -41,6 +41,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	private final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies;
 	private final GroupId groupId;
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
+	private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
@@ -55,6 +56,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		this.variantCollection = new VariantCollection<>(JniLibraryInternal.class, objects);
 		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(variantCollection.getAsView(JniLibraryInternal.class), Variant::getBinaries)));
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
+		this.objects = objects;
 		this.configurations = configurations;
 		this.dependencyHandler = dependencyHandler;
 		this.providers = providers;
@@ -92,7 +94,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		Preconditions.checkArgument(buildVariant.getDimensions().get(1) instanceof MachineArchitecture);
 		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		JniLibraryInternal result = getObjects().newInstance(JniLibraryInternal.class, identifier, names, sources, groupId, getBinaryCollection(), variantDependencies);
+		JniLibraryInternal result = objects.newInstance(JniLibraryInternal.class, identifier, names, sources, groupId, getBinaryCollection(), variantDependencies);
 		return result;
 	}
 

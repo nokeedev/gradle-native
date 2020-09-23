@@ -37,12 +37,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component {
+	private final ObjectFactory objects;
+	private final ProviderFactory providers;
 	private final TaskRegistry taskRegistry;
+	private final ProjectLayout layout;
 
 	@Inject
 	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUiTestXCTestTestSuiteComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
 		super(identifier, names, objects, providers, tasks, layout, configurations, dependencyHandler);
+		this.objects = objects;
+		this.providers = providers;
 		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.layout = layout;
 	}
 
 	@Override
@@ -58,28 +64,28 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 
 			// XCTest UI Testing
 			val processUiTestPropertyListTask = taskRegistry.register("processUiTestPropertyList", ProcessPropertyListTask.class, task -> {
-				task.getIdentifier().set(getProviders().provider(() -> getGroupId().get().get().get() + "." + moduleName));
+				task.getIdentifier().set(providers.provider(() -> getGroupId().get().get().get() + "." + moduleName));
 				task.getModule().set(moduleName);
 				task.getSources().from("src/uiTest/resources/Info.plist");
-				task.getOutputFile().set(getLayout().getBuildDirectory().file("ios/uiTest/Info.plist"));
+				task.getOutputFile().set(layout.getBuildDirectory().file("ios/uiTest/Info.plist"));
 			});
 
 			TaskProvider<CreateIosXCTestBundleTask> createUiTestXCTestBundle = taskRegistry.register("createUiTestXCTestBundle", CreateIosXCTestBundleTask.class, task -> {
-				task.getXCTestBundle().set(getLayout().getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.xctest"));
+				task.getXCTestBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.xctest"));
 				task.getSources().from(processUiTestPropertyListTask.flatMap(it -> it.getOutputFile()));
 				task.getSources().from(testSuite.getBinaries().withType(BundleBinary.class).getElements().map(binaries -> binaries.stream().map(binary -> binary.getLinkTask().get().getLinkedFile()).collect(Collectors.toList())));
 			});
 
-			Provider<CommandLineTool> codeSignatureTool = getProviders().provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
+			Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
 			TaskProvider<SignIosApplicationBundleTask> signUiTestXCTestBundle = taskRegistry.register("signUiTestXCTestBundle", SignIosApplicationBundleTask.class, task -> {
 				task.getUnsignedApplicationBundle().set(createUiTestXCTestBundle.flatMap(CreateIosXCTestBundleTask::getXCTestBundle));
-				task.getSignedApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/uiTest/" + moduleName + ".xctest"));
+				task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + ".xctest"));
 				task.getCodeSignatureTool().set(codeSignatureTool);
 				task.getCodeSignatureTool().disallowChanges();
 			});
 
 			TaskProvider<CreateIosApplicationBundleTask> createUiTestApplicationBundleTask = taskRegistry.register("createUiTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
-				task.getApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.app"));
+				task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.app"));
 				task.getSources().from(getXCTRunner());
 				task.getPlugIns().from(signUiTestXCTestBundle.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle));
 				task.getFrameworks().from(getXCTestFrameworks());
@@ -88,12 +94,12 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 
 			val signTask = taskRegistry.register("signUiTestLauncherApplicationBundle", SignIosApplicationBundleTask.class, task -> {
 				task.getUnsignedApplicationBundle().set(createUiTestApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
-				task.getSignedApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner.app"));
+				task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner.app"));
 				task.getCodeSignatureTool().set(codeSignatureTool);
 				task.getCodeSignatureTool().disallowChanges();
 			});
 
-			testSuite.getBinaryCollection().add(getObjects().newInstance(SignedIosApplicationBundleInternal.class, signTask));
+			testSuite.getBinaryCollection().add(objects.newInstance(SignedIosApplicationBundleInternal.class, signTask));
 		});
 
 		TaskProvider<Task> bundle = taskRegistry.register(TaskIdentifier.of(TaskName.of("bundle"), variantIdentifier), task -> {
@@ -102,11 +108,11 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 	}
 
 	private Provider<File> getXCTestBundleInjectDynamicLibrary() {
-		return getProviders().provider(() -> new File(getSdkPlatformPath(), "Developer/usr/lib/libXCTestBundleInject.dylib"));
+		return providers.provider(() -> new File(getSdkPlatformPath(), "Developer/usr/lib/libXCTestBundleInject.dylib"));
 	}
 
 	private Provider<List<File>> getXCTestFrameworks() {
-		return getProviders().provider(() -> {
+		return providers.provider(() -> {
 			return ImmutableList.<File>builder()
 				.add(new File(getSdkPlatformPath(), "Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework"))
 				.add(new File(getSdkPlatformPath(), "Developer/usr/lib/libXCTestSwiftSupport.dylib"))
@@ -126,7 +132,7 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 	}
 
 	private Provider<File> getXCTRunner() {
-		return getProviders().provider(() -> {
+		return providers.provider(() -> {
 			return new File(getSdkPlatformPath(), "Developer/Library/Xcode/Agents/XCTRunner.app/XCTRunner");
 		});
 	}

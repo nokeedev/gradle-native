@@ -26,7 +26,6 @@ import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycl
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.utils.Cast;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Project;
@@ -51,26 +50,28 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	private final DefaultNativeComponentDependencies dependencies;
 	@Getter private final Property<GroupId> groupId;
 	@Getter private final Property<BaseNativeComponent<?>> testedComponent;
-	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 	private final TaskRegistry taskRegistry;
 	private final XCTestTestSuiteComponentVariants componentVariants;
 	private final BinaryView<Binary> binaries;
+	private final ProviderFactory providers;
+	private final ProjectLayout layout;
 
 	@Inject
 	public BaseXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
 		super(identifier, names, DefaultXCTestTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
+		this.providers = providers;
+		this.layout = layout;
 		this.componentVariants = new XCTestTestSuiteComponentVariants(objects, this, dependencyHandler, configurations);
 		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultXCTestTestSuiteVariant.class), Variant::getBinaries)));
 		this.taskRegistry = new TaskRegistryImpl(tasks);
-		this.dependencyHandler = dependencyHandler;
-		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
+		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(configurations), names::getConfigurationName), new DefaultDependencyFactory(dependencyHandler))));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.groupId = objects.property(GroupId.class);
 		this.testedComponent = Cast.uncheckedCastBecauseOfTypeErasure(objects.property(BaseNativeComponent.class));
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 
 		// TODO: Move to extension
-		getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
+		getBuildVariants().convention(providers.provider(this::createBuildVariants));
 		getBuildVariants().finalizeValueOnRead();
 		getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
 
@@ -106,7 +107,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
 				Provider<String> moduleName = getTestedComponent().map(it -> it.getNames().getBaseName().getAsCamelCase());
 				binary.getCompileTasks().configureEach(SourceCompile.class, task -> {
-					task.getCompilerArgs().addAll(getProviders().provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator", "-F", getSdkPath() + "/System/Library/Frameworks", "-iframework", getSdkPlatformPath() + "/Developer/Library/Frameworks")));
+					task.getCompilerArgs().addAll(providers.provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator", "-F", getSdkPath() + "/System/Library/Frameworks", "-iframework", getSdkPlatformPath() + "/Developer/Library/Frameworks")));
 					task.getCompilerArgs().addAll(task.getToolChain().map(toolChain -> {
 						if (toolChain instanceof Swiftc) {
 							return ImmutableList.of("-sdk", getSdkPath());
@@ -119,14 +120,14 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 				});
 
 				binary.getLinkTask().configure(task -> {
-					task.getLinkerArgs().addAll(getProviders().provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator")));
+					task.getLinkerArgs().addAll(providers.provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator")));
 					task.getLinkerArgs().addAll(task.getToolChain().map(toolChain -> {
 						if (toolChain instanceof Swiftc) {
 							return ImmutableList.of("-sdk", getSdkPath());
 						}
 						return ImmutableList.of("-isysroot", getSdkPath());
 					}));
-					task.getLinkerArgs().addAll(getProviders().provider(() -> ImmutableList.of(
+					task.getLinkerArgs().addAll(providers.provider(() -> ImmutableList.of(
 						"-Xlinker", "-rpath", "-Xlinker", "@executable_path/Frameworks",
 						"-Xlinker", "-rpath", "-Xlinker", "@loader_path/Frameworks",
 						"-Xlinker", "-export_dynamic",
@@ -134,7 +135,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 						"-Xlinker", "-objc_abi_version", "-Xlinker", "2",
 //					"-Xlinker", "-sectcreate", "-Xlinker", "__TEXT", "-Xlinker", "__entitlements", "-Xlinker", createEntitlementTask.get().outputFile.get().asFile.absolutePath
 						"-fobjc-arc", "-fobjc-link-runtime",
-						"-bundle_loader", getLayout().getBuildDirectory().file("exes/main/" + moduleName.get()).get().getAsFile().getAbsolutePath(),
+						"-bundle_loader", layout.getBuildDirectory().file("exes/main/" + moduleName.get()).get().getAsFile().getAbsolutePath(),
 						"-L" + getSdkPlatformPath() + "/Developer/usr/lib", "-F" + getSdkPlatformPath() + "/Developer/Library/Frameworks", "-framework", "XCTest")));
 					// TODO: -lobjc should probably only be present for binary compiling/linking objc binaries
 				});

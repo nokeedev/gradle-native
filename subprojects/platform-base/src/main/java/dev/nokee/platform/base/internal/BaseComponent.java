@@ -5,7 +5,6 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.runtime.base.internal.DimensionType;
-import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.model.ObjectFactory;
@@ -17,7 +16,6 @@ public abstract class BaseComponent<T extends Variant> {
 	@Getter private final NamingScheme names;
 	@Getter private final DomainObjectSet<Binary> binaryCollection;
 	@Getter private final DomainObjectSet<SourceSet> sourceCollection;
-	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
 	@Getter private final SetProperty<DimensionType> dimensions;
@@ -28,7 +26,6 @@ public abstract class BaseComponent<T extends Variant> {
 	protected BaseComponent(ComponentIdentifier<?> identifier, NamingScheme names, Class<T> variantType, ObjectFactory objects) {
 		this.identifier = identifier;
 		this.names = names;
-		this.objects = objects;
 		this.binaryCollection = objects.domainObjectSet(Binary.class);
 		this.sourceCollection = objects.domainObjectSet(SourceSet.class);
 		this.dimensions = objects.setProperty(DimensionType.class);

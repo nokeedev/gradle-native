@@ -36,12 +36,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component {
+	private final ObjectFactory objects;
+	private final ProviderFactory providers;
 	private final TaskRegistry taskRegistry;
+	private final ProjectLayout layout;
 
 	@Inject
 	public DefaultUnitTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUnitTestXCTestTestSuiteComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
 		super(identifier, names, objects, providers, tasks, layout, configurations, dependencyHandler);
+		this.objects = objects;
+		this.providers = providers;
 		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.layout = layout;
 	}
 
 	@Override
@@ -57,27 +63,27 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 
 			// XCTest Unit Testing
 			val processUnitTestPropertyListTask = taskRegistry.register("processUnitTestPropertyList", ProcessPropertyListTask.class, task -> {
-				task.getIdentifier().set(getProviders().provider(() -> getGroupId().get().get().get() + "." + moduleName));
+				task.getIdentifier().set(providers.provider(() -> getGroupId().get().get().get() + "." + moduleName));
 				task.getModule().set(moduleName);
 				task.getSources().from("src/unitTest/resources/Info.plist");
-				task.getOutputFile().set(getLayout().getBuildDirectory().file("ios/unitTest/Info.plist"));
+				task.getOutputFile().set(layout.getBuildDirectory().file("ios/unitTest/Info.plist"));
 			});
 
 			val createUnitTestXCTestBundle = taskRegistry.register("createUnitTestXCTestBundle", CreateIosXCTestBundleTask.class, task -> {
-				task.getXCTestBundle().set(getLayout().getBuildDirectory().file("ios/products/unitTest/" + moduleName + "-unsigned.xctest"));
+				task.getXCTestBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + moduleName + "-unsigned.xctest"));
 				task.getSources().from(processUnitTestPropertyListTask.flatMap(it -> it.getOutputFile()));
 				task.getSources().from(testSuite.getBinaries().withType(BundleBinary.class).getElements().map(binaries -> binaries.stream().map(binary -> binary.getLinkTask().get().getLinkedFile()).collect(Collectors.toList())));
 			});
-			Provider<CommandLineTool> codeSignatureTool = getProviders().provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
+			Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
 			val signUnitTestXCTestBundle = taskRegistry.register("signUnitTestXCTestBundle", SignIosApplicationBundleTask.class, task -> {
 				task.getUnsignedApplicationBundle().set(createUnitTestXCTestBundle.flatMap(CreateIosXCTestBundleTask::getXCTestBundle));
-				task.getSignedApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/unitTest/" + moduleName + ".xctest"));
+				task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + moduleName + ".xctest"));
 				task.getCodeSignatureTool().set(codeSignatureTool);
 				task.getCodeSignatureTool().disallowChanges();
 			});
 
 			val createUnitTestApplicationBundleTask = taskRegistry.register("createUnitTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
-				task.getApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getNames().getBaseName().getAsCamelCase() + "-unsigned.app"));
+				task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getNames().getBaseName().getAsCamelCase() + "-unsigned.app"));
 				task.getSources().from(getTestedComponent().flatMap(c -> c.getVariants().getElements().map(it -> it.iterator().next().getBinaries().withType(IosApplicationBundleInternal.class).get().iterator().next().getBundleTask().map(t -> t.getSources()))));
 				task.getPlugIns().from(signUnitTestXCTestBundle.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle));
 				task.getFrameworks().from(getXCTestBundleInjectDynamicLibrary());
@@ -87,12 +93,12 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 
 			val signTask = taskRegistry.register("signUnitTestLauncherApplicationBundle", SignIosApplicationBundleTask.class, task -> {
 				task.getUnsignedApplicationBundle().set(createUnitTestApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
-				task.getSignedApplicationBundle().set(getLayout().getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getNames().getBaseName().getAsCamelCase() + ".app"));
+				task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getNames().getBaseName().getAsCamelCase() + ".app"));
 				task.getCodeSignatureTool().set(codeSignatureTool);
 				task.getCodeSignatureTool().disallowChanges();
 			});
 
-			testSuite.getBinaryCollection().add(getObjects().newInstance(SignedIosApplicationBundleInternal.class, signTask));
+			testSuite.getBinaryCollection().add(objects.newInstance(SignedIosApplicationBundleInternal.class, signTask));
 		});
 
 		val bundle = taskRegistry.register(TaskIdentifier.of(TaskName.of("bundle"), variantIdentifier), task -> {
@@ -101,11 +107,11 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 	}
 
 	private Provider<File> getXCTestBundleInjectDynamicLibrary() {
-		return getProviders().provider(() -> new File(getSdkPlatformPath(), "Developer/usr/lib/libXCTestBundleInject.dylib"));
+		return providers.provider(() -> new File(getSdkPlatformPath(), "Developer/usr/lib/libXCTestBundleInject.dylib"));
 	}
 
 	private Provider<List<File>> getXCTestFrameworks() {
-		return getProviders().provider(() -> {
+		return providers.provider(() -> {
 			return ImmutableList.<File>builder()
 				.add(new File(getSdkPlatformPath(), "Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework"))
 				.add(new File(getSdkPlatformPath(), "Developer/usr/lib/libXCTestSwiftSupport.dylib"))

@@ -36,7 +36,6 @@ import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.nativebase.NativeTestSuite;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -66,7 +65,8 @@ import java.util.stream.Collectors;
 
 public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite {
 	private final DefaultNativeComponentDependencies dependencies;
-	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
+	private final ObjectFactory objects;
+	private final ProviderFactory providers;
 	@Getter Property<BaseComponent<?>> testedComponent;
 	private final TaskRegistry taskRegistry;
 	private final TaskContainer tasks;
@@ -76,18 +76,19 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	@Inject
 	public DefaultNativeTestSuiteComponent(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
 		super(identifier, names, DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
+		this.objects = objects;
+		this.providers = providers;
 		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations);
 		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeTestSuiteVariant.class), Variant::getBinaries)));
-		this.dependencyHandler = dependencyHandler;
 		this.tasks = tasks;
 
-		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler()))));
+		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(configurations), names::getConfigurationName), new DefaultDependencyFactory(dependencyHandler))));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
-		this.testedComponent = Cast.uncheckedCast(getObjects().property(BaseComponent.class));
+		this.testedComponent = Cast.uncheckedCast(objects.property(BaseComponent.class));
 		this.getDimensions().convention(ImmutableList.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 		this.getBaseName().convention(names.getBaseName().getAsString());
 
-		this.getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
+		this.getBuildVariants().convention(providers.provider(this::createBuildVariants));
 		this.getBuildVariants().finalizeValueOnRead();
 		this.getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
 
@@ -210,9 +211,9 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
 					if (sourceSet instanceof CHeaderSet || sourceSet instanceof CppHeaderSet) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
-						getSourceCollection().add(getObjects().newInstance(sourceSet.getClass(), "headers").srcDir(getNames().getSourceSetPath("headers")));
+						getSourceCollection().add(objects.newInstance(sourceSet.getClass(), "headers").srcDir(getNames().getSourceSetPath("headers")));
 					} else {
-						getSourceCollection().add(getObjects().newInstance(sourceSet.getClass(), sourceSet.getName()).from(getNames().getSourceSetPath(sourceSet.getName())));
+						getSourceCollection().add(objects.newInstance(sourceSet.getClass(), sourceSet.getName()).from(getNames().getSourceSetPath(sourceSet.getName())));
 					}
 				}
 			});
@@ -258,7 +259,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 //						return result.build();
 //					});
 
-					ConfigurableFileCollection objects = getObjects().fileCollection();
+					ConfigurableFileCollection objects = this.objects.fileCollection();
 					objects.from(componentObjects);
 					if (component instanceof DefaultNativeApplicationComponent) {
 						val relocateTask = tasks.register(variant.getNames().getTaskName("relocateMainSymbolFor"), UnexportMainSymbol.class, task -> {
@@ -279,8 +280,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					task.getModules().from(component.getDevelopmentVariant().map(it -> it.getBinaries().withType(NativeBinary.class).getElements().get().stream().flatMap(b -> b.getCompileTasks().withType(SwiftCompileTask.class).get().stream()).map(SwiftCompile::getModuleFile).collect(Collectors.toList())));
 				});
 				binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
-					((AbstractNativeSourceCompileTask)task).getIncludes().from(getProviders().provider(() -> component.getSourceCollection().withType(CppHeaderSet.class).stream().map(CppHeaderSet::getHeaderDirectory).collect(Collectors.toList())));
-					((AbstractNativeSourceCompileTask)task).getIncludes().from(getProviders().provider(() -> component.getSourceCollection().withType(CHeaderSet.class).stream().map(CHeaderSet::getHeaderDirectory).collect(Collectors.toList())));
+					((AbstractNativeSourceCompileTask)task).getIncludes().from(providers.provider(() -> component.getSourceCollection().withType(CppHeaderSet.class).stream().map(CppHeaderSet::getHeaderDirectory).collect(Collectors.toList())));
+					((AbstractNativeSourceCompileTask)task).getIncludes().from(providers.provider(() -> component.getSourceCollection().withType(CHeaderSet.class).stream().map(CHeaderSet::getHeaderDirectory).collect(Collectors.toList())));
 				});
 			});
 		}
