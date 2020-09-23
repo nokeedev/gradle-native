@@ -99,10 +99,6 @@ public class NamingScheme {
 		return "/" + value;
 	}
 
-	public NamingScheme withComponentDisplayName(String componentDisplayName) {
-		return new NamingScheme(baseName, componentName, ComponentDisplayName.of(componentDisplayName), configurationPrefix, dimensions);
-	}
-
 	/**
 	 * Returns completed description with the display name.
 	 * @param format a string format pattern with a '%s' where the display name should be placed.

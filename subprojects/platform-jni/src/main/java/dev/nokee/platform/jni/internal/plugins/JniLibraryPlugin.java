@@ -123,7 +123,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 		TaskRegistry taskRegistry = new TaskRegistryImpl(tasks);
 		NamingSchemeFactory namingSchemeFactory = new NamingSchemeFactory(project.getName());
-		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent().withComponentDisplayName("main component");
+		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent();
 		JniLibraryExtensionInternal extension = registerExtension(project, mainComponentNames);
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 

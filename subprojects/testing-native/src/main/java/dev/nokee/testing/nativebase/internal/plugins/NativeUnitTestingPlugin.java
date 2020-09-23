@@ -73,6 +73,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	}
 
 	private NativeTestSuite createNativeTestSuite(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier) {
-		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, identifier, NamingScheme.asComponent(identifier.getName().get(), identifier.getName().get()).withComponentDisplayName("Test Suite"));
+		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, identifier, NamingScheme.asComponent(identifier.getName().get(), identifier.getName().get()));
 	}
 }

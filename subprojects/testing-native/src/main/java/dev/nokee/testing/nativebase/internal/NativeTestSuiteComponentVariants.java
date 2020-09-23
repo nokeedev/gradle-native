@@ -52,7 +52,7 @@ public final class NativeTestSuiteComponentVariants implements ComponentVariants
 
 			val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier));
 
-			val dependencies = newDependencies(names.withComponentDisplayName(component.getIdentifier().getDisplayName()), buildVariant, variantIdentifier);
+			val dependencies = newDependencies(names, buildVariant, variantIdentifier);
 			val variant = getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> createVariant(variantIdentifier, dependencies, assembleTask));
 
 			onEachVariantDependencies(variant, dependencies);

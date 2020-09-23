@@ -73,7 +73,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 
 	public static DomainObjectFactory<DefaultNativeApplicationComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
 		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName(((ComponentIdentifier<?>)identifier).getDisplayName());
+			NamingScheme names = namingSchemeFactory.forMainComponent();
 			return objects.newInstance(DefaultNativeApplicationComponent.class, identifier, names);
 		};
 	}

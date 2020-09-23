@@ -132,7 +132,7 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 
 	public static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTestFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
 		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent("unitTest").withComponentDisplayName(((ComponentIdentifier<?>)identifier).getDisplayName());
+			NamingScheme names = namingSchemeFactory.forMainComponent("unitTest");
 			return objects.newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, identifier, names);
 		};
 	}

@@ -73,7 +73,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 	public static DomainObjectFactory<DefaultNativeLibraryComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
 		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName(((ComponentIdentifier<?>)identifier).getDisplayName());
+			NamingScheme names = namingSchemeFactory.forMainComponent();
 			return objects.newInstance(DefaultNativeLibraryComponent.class, identifier, names);
 		};
 	}
