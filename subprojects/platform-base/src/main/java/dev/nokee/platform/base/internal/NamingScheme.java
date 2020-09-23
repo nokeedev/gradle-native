@@ -50,17 +50,6 @@ public class NamingScheme {
 		return componentName.prefix(dimensions.prefix(configurationPrefix.prefix(target)));
 	}
 
-	/**
-	 * Returns the configuration name for the target using this scheme without the configuration prefix, i.e. implementation, testImplementation, testWindowsImplementation.
-	 * The configuration prefix is used by JNI to differentiate native and jvm.
-	 *
-	 * @param target a configuration target, i.e. implementation, compileOnly
-	 * @return a fully formed configuration name, never null.
-	 */
-	public final String getConfigurationNameWithoutPrefix(String target) {
-		return componentName.prefix(dimensions.prefix(target));
-	}
-
 	public String getComponentName() {
 		return componentName.get();
 	}
@@ -133,10 +122,6 @@ public class NamingScheme {
 
 	private static String prefixWithPathSeparator(String value) {
 		return "/" + value;
-	}
-
-    public NamingScheme withConfigurationNamePrefix(String configurationNamePrefix) {
-		return new NamingScheme(baseName, componentName, displayName, ConfigurationPrefix.of(configurationNamePrefix), dimensions);
 	}
 
 	public NamingScheme withComponentDisplayName(String componentDisplayName) {
