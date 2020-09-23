@@ -39,6 +39,7 @@ import dev.nokee.testing.nativebase.NativeTestSuite;
 import lombok.Getter;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
+import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -71,6 +72,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final TaskRegistry taskRegistry;
 	private final TaskContainer tasks;
 	private final NativeTestSuiteComponentVariants componentVariants;
+	private final NativeComponentBinaries componentBinaries;
 	private final BinaryView<Binary> binaries;
 
 	@Inject
@@ -95,6 +97,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.getDimensions().disallowChanges(); // Let's disallow changing them for now.
 
 		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.componentBinaries = new NativeComponentBinaries(objects, this, taskRegistry);
 	}
 
 	@Override
@@ -141,6 +144,11 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	@Override
+	public DomainObjectSet<Binary> getBinaryCollection() {
+		return componentBinaries.getBinaryCollection();
+	}
+
+	@Override
 	public TestSuiteComponent testedComponent(Object component) {
 		if (component instanceof BaseNativeExtension) {
 			getTestedComponent().set(((BaseNativeExtension) component).getComponent());
@@ -153,7 +161,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	public void finalizeExtension(Project project) {
-		getVariantCollection().whenElementKnown(this::createBinaries);
+		getVariantCollection().whenElementKnown(componentBinaries::createBinaries);
 		getVariantCollection().whenElementKnown(new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
 		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));

@@ -22,6 +22,7 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeComponentBinaries;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.*;
@@ -31,6 +32,7 @@ import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.utils.Cast;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -58,6 +60,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final DependencyHandler dependencyHandler;
 	private final TaskRegistry taskRegistry;
 	private final IosComponentVariants componentVariants;
+	private final NativeComponentBinaries componentBinaries;
 	private final BinaryView<Binary> binaries;
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
@@ -80,6 +83,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 		getDevelopmentVariant().convention(providers.provider(new DevelopmentVariantConvention<>(() -> getVariantCollection().get())));
 		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.componentBinaries = new NativeComponentBinaries(objects, this, taskRegistry);
 	}
 
 	@Override
@@ -100,6 +104,11 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	@Override
 	public VariantCollection<DefaultIosApplicationVariant> getVariantCollection() {
 		return componentVariants.getVariantCollection();
+	}
+
+	@Override
+	public DomainObjectSet<Binary> getBinaryCollection() {
+		return componentBinaries.getBinaryCollection();
 	}
 
 	protected void onEachVariant(KnownVariant<DefaultIosApplicationVariant> variant) {
@@ -215,7 +224,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	public void finalizeExtension(Project project) {
 		getVariantCollection().whenElementKnown(this::onEachVariant);
-		getVariantCollection().whenElementKnown(this::createBinaries);
+		getVariantCollection().whenElementKnown(componentBinaries::createBinaries);
 		getVariantCollection().whenElementKnown(new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
 		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));

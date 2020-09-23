@@ -14,7 +14,6 @@ import org.gradle.api.provider.SetProperty;
 public abstract class BaseComponent<T extends Variant> {
 	@Getter private final ComponentIdentifier<?> identifier;
 	@Getter private final NamingScheme names;
-	@Getter private final DomainObjectSet<Binary> binaryCollection;
 	@Getter private final DomainObjectSet<SourceSet> sourceCollection;
 
 	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
@@ -26,7 +25,6 @@ public abstract class BaseComponent<T extends Variant> {
 	protected BaseComponent(ComponentIdentifier<?> identifier, NamingScheme names, Class<T> variantType, ObjectFactory objects) {
 		this.identifier = identifier;
 		this.names = names;
-		this.binaryCollection = objects.domainObjectSet(Binary.class);
 		this.sourceCollection = objects.domainObjectSet(SourceSet.class);
 		this.dimensions = objects.setProperty(DimensionType.class);
 		this.developmentVariant = objects.property(variantType);
@@ -38,6 +36,8 @@ public abstract class BaseComponent<T extends Variant> {
 	public abstract BinaryView<Binary> getBinaries();
 
 	public abstract VariantCollection<T> getVariantCollection();
+
+	public abstract DomainObjectSet<Binary> getBinaryCollection();
 
 	// TODO: We may want to model this as a BuildVariantRegistry for more richness than a plain set
 	public abstract SetProperty<BuildVariantInternal> getBuildVariants();

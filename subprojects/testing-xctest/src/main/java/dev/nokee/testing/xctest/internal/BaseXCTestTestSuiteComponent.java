@@ -17,6 +17,7 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
+import dev.nokee.platform.nativebase.internal.NativeComponentBinaries;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
@@ -28,6 +29,7 @@ import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.utils.Cast;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -52,6 +54,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	@Getter private final Property<BaseNativeComponent<?>> testedComponent;
 	private final TaskRegistry taskRegistry;
 	private final XCTestTestSuiteComponentVariants componentVariants;
+	private final NativeComponentBinaries componentBinaries;
 	private final BinaryView<Binary> binaries;
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;
@@ -64,6 +67,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 		this.componentVariants = new XCTestTestSuiteComponentVariants(objects, this, dependencyHandler, configurations);
 		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultXCTestTestSuiteVariant.class), Variant::getBinaries)));
 		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.componentBinaries = new NativeComponentBinaries(objects, this, taskRegistry);
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, names.getComponentDisplayName(), new FrameworkAwareDependencyBucketFactory(new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(configurations), names::getConfigurationName), new DefaultDependencyFactory(dependencyHandler))));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.groupId = objects.property(GroupId.class);
@@ -100,6 +104,11 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	@Override
 	public VariantCollection<DefaultXCTestTestSuiteVariant> getVariantCollection() {
 		return componentVariants.getVariantCollection();
+	}
+
+	@Override
+	public DomainObjectSet<Binary> getBinaryCollection() {
+		return componentBinaries.getBinaryCollection();
 	}
 
 	protected void onEachVariant(KnownVariant<DefaultXCTestTestSuiteVariant> variant) {
@@ -151,7 +160,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 			});
 		});
 		getVariantCollection().whenElementKnown(this::onEachVariant);
-		getVariantCollection().whenElementKnown(this::createBinaries);
+		getVariantCollection().whenElementKnown(componentBinaries::createBinaries);
 		getVariantCollection().whenElementKnown(new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
 		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));

@@ -20,6 +20,7 @@ import dev.nokee.utils.Cast;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -35,6 +36,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	private final DefaultNativeLibraryComponentDependencies dependencies;
 	private final TaskRegistry taskRegistry;
 	private final NativeLibraryComponentVariants componentVariants;
+	private final NativeComponentBinaries componentBinaries;
 	private final BinaryView<Binary> binaries;
 
 	@Inject
@@ -46,6 +48,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 		this.dependencies = objects.newInstance(DefaultNativeLibraryComponentDependencies.class, dependencyContainer);
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.componentBinaries = new NativeComponentBinaries(objects, this, taskRegistry);
 	}
 
 	@Override
@@ -68,6 +71,11 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 		return componentVariants.getVariantCollection();
 	}
 
+	@Override
+	public DomainObjectSet<Binary> getBinaryCollection() {
+		return componentBinaries.getBinaryCollection();
+	}
+
 	public static DomainObjectFactory<DefaultNativeLibraryComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
 		return identifier -> {
 			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName(((ComponentIdentifier<?>)identifier).getDisplayName());
@@ -77,7 +85,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 	public void finalizeExtension(Project project) {
 		getVariantCollection().whenElementKnown(new CreateNativeBinaryLifecycleTaskRule(taskRegistry));
-		getVariantCollection().whenElementKnown(this::createBinaries);
+		getVariantCollection().whenElementKnown(componentBinaries::createBinaries);
 		getVariantCollection().whenElementKnown(new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
 		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));

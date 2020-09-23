@@ -47,6 +47,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	private final VariantCollection<JniLibraryInternal> variantCollection;
+	private final DomainObjectSet<Binary> binaryCollection;
 	private final BinaryView<Binary> binaries;
 	private final SetProperty<BuildVariantInternal> buildVariants;
 
@@ -54,6 +55,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	public JniLibraryComponentInternal(ComponentIdentifier<JniLibraryComponentInternal> identifier, NamingScheme names, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers) {
 		super(identifier, names, JniLibraryInternal.class, objects);
 		this.variantCollection = new VariantCollection<>(JniLibraryInternal.class, objects);
+		this.binaryCollection = objects.domainObjectSet(Binary.class);
 		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(variantCollection.getAsView(JniLibraryInternal.class), Variant::getBinaries)));
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
 		this.objects = objects;
@@ -120,6 +122,11 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	@Override
 	public VariantCollection<JniLibraryInternal> getVariantCollection() {
 		return variantCollection;
+	}
+
+	@Override
+	public DomainObjectSet<Binary> getBinaryCollection() {
+		return binaryCollection;
 	}
 
 	@Override
