@@ -46,7 +46,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		components.registerFactory(DefaultSwiftLibraryExtension.class, id -> {
 			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeLibraryComponent.class, ProjectIdentifier.of(project));
 			val component = store.register(identifier, DefaultNativeLibraryComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
-			return getObjects().newInstance(DefaultSwiftLibraryExtension.class, component.get());
+			return new DefaultSwiftLibraryExtension(component.get(), project.getObjects(), project.getProviders(), project.getLayout());
 		});
 		val extension = components.register("main", DefaultSwiftLibraryExtension.class, component -> {
 			component.getComponent().getBaseName().convention(GUtil.toCamelCase(project.getName()));

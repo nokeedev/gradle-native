@@ -44,7 +44,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 		components.registerFactory(DefaultCApplicationExtension.class, id -> {
 			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeApplicationComponent.class, ProjectIdentifier.of(project));
 			val component = store.register(identifier, DefaultNativeApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
-			return getObjects().newInstance(DefaultCApplicationExtension.class, component.get());
+			return new DefaultCApplicationExtension(component.get(), project.getObjects(), project.getProviders(), project.getLayout());
 		});
 		val extension = components.register("main", DefaultCApplicationExtension.class, component -> {
 			component.getComponent().getBaseName().convention(project.getName());
