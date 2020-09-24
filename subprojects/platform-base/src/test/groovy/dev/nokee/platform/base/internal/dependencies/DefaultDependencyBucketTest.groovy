@@ -4,18 +4,19 @@ import org.gradle.api.Action
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencySet
 import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.artifacts.dsl.DependencyHandler
 import spock.lang.Specification
 import spock.lang.Subject
 
 @Subject(DefaultDependencyBucket)
 class DefaultDependencyBucketTest extends Specification {
 	def dependency = Mock(ModuleDependency)
-	def dependencyFactory = Mock(DependencyFactory)
+	def dependencyHandler = Mock(DependencyHandler)
 	def dependencySet = Mock(DependencySet)
 	def configuration = Mock(Configuration) {
 		getDependencies() >> dependencySet
 	}
-	def subject = new DefaultDependencyBucket('foo', configuration, dependencyFactory)
+	def subject = new DefaultDependencyBucket('foo', configuration, dependencyHandler)
 
 	def "can add dependency"() {
 		given:
@@ -24,13 +25,13 @@ class DefaultDependencyBucketTest extends Specification {
 		when:
 		subject.addDependency(notation)
 		then:
-		1 * dependencyFactory.create(notation) >> dependency
+		1 * dependencyHandler.create(notation) >> dependency
 		1 * dependencySet.add(dependency)
 
 		when:
 		subject.addDependency(notation, Mock(Action))
 		then:
-		1 * dependencyFactory.create(notation) >> dependency
+		1 * dependencyHandler.create(notation) >> dependency
 		1 * dependencySet.add(dependency)
 	}
 
@@ -40,7 +41,7 @@ class DefaultDependencyBucketTest extends Specification {
 		def action = Mock(Action)
 
 		and:
-		dependencyFactory.create(_) >> dependency
+		dependencyHandler.create(_) >> dependency
 
 		when:
 		subject.addDependency(notation, action)

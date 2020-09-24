@@ -45,22 +45,13 @@ class DefaultJavaNativeInterfaceNativeComponentDependenciesTest extends Abstract
 		newSubject(delegate)
 
 		then:
-		1 * configurations.nativeImplementation.setCanBeConsumed(false)
-		1 * configurations.nativeImplementation.setCanBeResolved(false)
-		1 * configurations.nativeImplementation.setDescription("Implementation only dependencies for Testing.")
 		0 * configurations.nativeImplementation._
 
 		and:
-		1 * configurations.nativeLinkOnly.setCanBeConsumed(false)
-		1 * configurations.nativeLinkOnly.setCanBeResolved(false)
-		1 * configurations.nativeLinkOnly.setDescription("Link only dependencies for Testing.")
 		1 * configurations.nativeLinkOnly.extendsFrom(configurations.nativeImplementation)
 		0 * configurations.nativeLinkOnly._
 
 		and:
-		1 * configurations.nativeRuntimeOnly.setCanBeConsumed(false)
-		1 * configurations.nativeRuntimeOnly.setCanBeResolved(false)
-		1 * configurations.nativeRuntimeOnly.setDescription("Runtime only dependencies for Testing.")
 		1 * configurations.nativeRuntimeOnly.extendsFrom(configurations.nativeImplementation)
 		0 * configurations.nativeRuntimeOnly._
 	}

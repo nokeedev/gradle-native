@@ -23,9 +23,6 @@ public class DefaultNativeLibraryComponentDependencies extends DefaultNativeComp
 	}
 
 	private void configureApiConfiguration(Configuration configuration) {
-		configureAsBucket(configuration);
-		configuration.setDescription(String.format("API dependencies for %s.", getComponentDisplayName()));
-
 		// Configure this here to simplify testing, it ends up being the same
 		getImplementation().getAsConfiguration().extendsFrom(configuration);
 	}

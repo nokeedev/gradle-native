@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal.dependencies;
 
+import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.platform.base.DependencyBucket;
 import groovy.lang.Closure;
 import lombok.AccessLevel;
@@ -24,21 +25,22 @@ import java.util.Optional;
 public class DefaultComponentDependencies implements ComponentDependenciesInternal, MethodMixIn, PropertyMixIn {
 	private final Map<String, DependencyBucket> bucketIndex = new HashMap<>();
 	private final ContainerElementsDynamicObject elementsDynamicObject = new ContainerElementsDynamicObject();
-	@Getter private final String componentDisplayName;
+	@Getter private final DomainObjectIdentifierInternal ownerIdentifier;
 	private final DependencyBucketFactory factory;
 	@Getter(AccessLevel.PROTECTED) private final DomainObjectSet<DependencyBucket> buckets;
 
 	@Inject
 	@Deprecated // use ObjectFactory
-	public DefaultComponentDependencies(String componentDisplayName, DependencyBucketFactory factory, ObjectFactory objects) {
-		this.componentDisplayName = componentDisplayName;
+	public DefaultComponentDependencies(DomainObjectIdentifierInternal ownerIdentifier, DependencyBucketFactory factory, ObjectFactory objects) {
+		this.ownerIdentifier = ownerIdentifier;
 		this.factory = factory;
 		this.buckets = objects.domainObjectSet(DependencyBucket.class);
 	}
 
 	@Override
 	public DependencyBucket create(String name) {
-		val bucket = factory.create(name);
+		val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(name), DeclarableDependencyBucket.class, ownerIdentifier);
+		val bucket = factory.create(identifier);
 		bucketIndex.put(name, bucket);
 		getBuckets().add(bucket);
 		return bucket;
@@ -46,7 +48,8 @@ public class DefaultComponentDependencies implements ComponentDependenciesIntern
 
 	@Override
 	public DependencyBucket create(String name, Action<Configuration> action) {
-		val bucket = factory.create(name);
+		val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(name), DeclarableDependencyBucket.class, ownerIdentifier);
+		val bucket = factory.create(identifier);
 		action.execute(bucket.getAsConfiguration());
 		bucketIndex.put(name, bucket);
 		getBuckets().add(bucket);

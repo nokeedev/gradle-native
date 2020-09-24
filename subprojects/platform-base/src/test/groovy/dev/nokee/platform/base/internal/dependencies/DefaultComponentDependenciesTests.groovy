@@ -1,7 +1,9 @@
 package dev.nokee.platform.base.internal.dependencies
 
+
 import dev.nokee.platform.base.AbstractComponentDependenciesGroovyDslTest
 import dev.nokee.platform.base.DependencyBucket
+import dev.nokee.platform.base.internal.ProjectIdentifier
 import org.gradle.api.UnknownDomainObjectException
 import org.gradle.api.artifacts.Configuration
 import org.gradle.testfixtures.ProjectBuilder
@@ -12,14 +14,15 @@ import spock.lang.Subject
 class DefaultComponentDependenciesTest extends Specification {
 	def project = ProjectBuilder.builder().build()
 	def factory = Mock(DependencyBucketFactory)
-	def dependencies = project.objects.newInstance(DefaultComponentDependencies, 'test component', factory)
+	def ownerIdentifier = ProjectIdentifier.of('root')
+	def dependencies = project.objects.newInstance(DefaultComponentDependencies, ownerIdentifier, factory)
 
 	def "can create dependency bucket"() {
 		when:
 		dependencies.create('foo')
 
 		then:
-		1 * factory.create('foo') >> Mock(DependencyBucket)
+		1 * factory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('foo'), DeclarableDependencyBucket, ownerIdentifier)) >> Mock(DependencyBucket)
 		0 * _
 	}
 
@@ -61,10 +64,11 @@ class DefaultComponentDependenciesTest extends Specification {
 	def "can create dependencies from dependencies bucket"() {
 		given:
 		def childFactory = Mock(DependencyBucketFactory)
-		def childDependencies = project.objects.newInstance(DefaultComponentDependencies, 'child test component', childFactory)
+		def childDependencies = project.objects.newInstance(DefaultComponentDependencies, ProjectIdentifier.of('root'), childFactory)
 
 		and:
-		factory.create(_) >> { String name ->
+		factory.create(_) >> { DependencyBucketIdentifier identifier ->
+			def name = identifier.name.get()
 			return Mock(DependencyBucket) {
 				getName() >> name
 			}
@@ -79,23 +83,24 @@ class DefaultComponentDependenciesTest extends Specification {
 			childDependencies.create(it.name)
 		}
 		then:
-		1 * childFactory.create('implementation') >> Mock(DependencyBucket)
-		1 * childFactory.create('compileOnly') >> Mock(DependencyBucket)
+		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), DeclarableDependencyBucket, ProjectIdentifier.of('root'))) >> Mock(DependencyBucket)
+		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('compileOnly'), DeclarableDependencyBucket, ProjectIdentifier.of('root'))) >> Mock(DependencyBucket)
 
 		when:
 		dependencies.create('runtimeOnly')
 		then:
-		1 * childFactory.create('runtimeOnly') >> Mock(DependencyBucket)
+		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('runtimeOnly'), DeclarableDependencyBucket, ProjectIdentifier.of('root'))) >> Mock(DependencyBucket)
 	}
 
 	def "can extends matching dependencies between buckets"() {
 		given:
 		def childFactory = Mock(DependencyBucketFactory)
-		def childDependencies = project.objects.newInstance(DefaultComponentDependencies, 'child test component', childFactory)
+		def childDependencies = project.objects.newInstance(DefaultComponentDependencies, ProjectIdentifier.of('root'), childFactory)
 
 		and:
 		def childConfigurations = [implementation: Mock(Configuration), compileOnly: Mock(Configuration), runtimeOnly: Mock(Configuration), foo: Mock(Configuration)]
-		childFactory.create(_) >> { String name ->
+		childFactory.create(_) >> { DependencyBucketIdentifier identifier ->
+			def name = identifier.name.get()
 			Mock(DependencyBucket) {
 				getName() >> name
 				getAsConfiguration() >> { childConfigurations.get(name) }
@@ -104,7 +109,8 @@ class DefaultComponentDependenciesTest extends Specification {
 
 		and:
 		def parentConfigurations = [implementation: Mock(Configuration), compileOnly: Mock(Configuration), runtimeOnly: Mock(Configuration)]
-		factory.create(_) >> { String name ->
+		factory.create(_) >> { DependencyBucketIdentifier identifier ->
+			def name = identifier.name.get()
 			Mock(DependencyBucket) {
 				getName() >> name
 				getAsConfiguration() >> { parentConfigurations.get(name) }
@@ -145,8 +151,8 @@ class DefaultComponentDependenciesTest extends Specification {
 @Subject(DefaultComponentDependencies)
 class DefaultComponentDependenciesGroovyDslTest extends AbstractComponentDependenciesGroovyDslTest {
 	def project = ProjectBuilder.builder().build()
-	def factory = new DefaultDependencyBucketFactory(new ConfigurationFactories.Creating(project.configurations), new DefaultDependencyFactory(project.dependencies))
-	ComponentDependenciesInternal dependenciesUnderTest = project.objects.newInstance(DefaultComponentDependencies, 'test component', factory)
+	def factory = new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)
+	ComponentDependenciesInternal dependenciesUnderTest = project.objects.newInstance(DefaultComponentDependencies, ProjectIdentifier.of('root'), factory)
 
 
 	def setup() {

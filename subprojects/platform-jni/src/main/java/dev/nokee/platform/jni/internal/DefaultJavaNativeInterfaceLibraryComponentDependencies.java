@@ -11,8 +11,6 @@ import org.gradle.api.artifacts.ModuleDependency;
 
 import javax.inject.Inject;
 
-import static dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx.configureAsBucket;
-
 public class DefaultJavaNativeInterfaceLibraryComponentDependencies extends DefaultJavaNativeInterfaceNativeComponentDependencies implements JavaNativeInterfaceLibraryComponentDependencies, ComponentDependencies {
 	@Getter private final DependencyBucket api;
 	@Getter private final DependencyBucket jvmImplementation;
@@ -27,20 +25,14 @@ public class DefaultJavaNativeInterfaceLibraryComponentDependencies extends Defa
 	}
 
 	private void configureApiConfiguration(Configuration configuration) {
-		configureAsBucket(configuration);
-		configuration.setDescription(String.format("API dependencies for %s.", getComponentDisplayName()));
 	}
 
 	private void configureImplementationConfiguration(Configuration configuration) {
-		configureAsBucket(configuration);
 		configuration.extendsFrom(api.getAsConfiguration());
-		configuration.setDescription(String.format("Implementation only dependencies for %s.", getComponentDisplayName()));
 	}
 
 	private void configureRuntimeOnlyConfiguration(Configuration configuration) {
-		configureAsBucket(configuration);
 		configuration.extendsFrom(jvmImplementation.getAsConfiguration());
-		configuration.setDescription(String.format("Runtime only dependencies for %s.", getComponentDisplayName()));
 	}
 
 	@Override

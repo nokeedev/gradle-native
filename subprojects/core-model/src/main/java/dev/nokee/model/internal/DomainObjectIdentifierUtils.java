@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -28,6 +29,29 @@ public final class DomainObjectIdentifierUtils {
 			return ((DomainObjectIdentifierInternal) self).getParentIdentifier();
 		}
 		return Optional.empty();
+	}
+
+	public static Supplier<String> mapDisplayName(DomainObjectIdentifierInternal identifier) {
+		return new MapDisplayName(identifier);
+	}
+
+	@EqualsAndHashCode
+	private static class MapDisplayName implements Supplier<String> {
+		private final DomainObjectIdentifierInternal identifier;
+
+		public MapDisplayName(DomainObjectIdentifierInternal identifier) {
+			this.identifier = identifier;
+		}
+
+		@Override
+		public String get() {
+			return identifier.getDisplayName();
+		}
+
+		@Override
+		public String toString() {
+			return "DomainObjectIdentifierUtils.mapDisplayName(" + identifier + ")";
+		}
 	}
 
 	public static DomainObjectIdentifier named(String name) {
