@@ -23,7 +23,7 @@ import org.gradle.api.provider.SetProperty;
 import javax.inject.Inject;
 
 public class DefaultObjectiveCppLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements ObjectiveCppLibraryExtension, Component {
-	@Getter private final ConfigurableFileCollection sources;
+	@Getter private final ConfigurableFileCollection objectiveCppSources;
 	@Getter private final ConfigurableFileCollection privateHeaders;
 	@Getter private final ConfigurableFileCollection publicHeaders;
 	@Getter private final SetProperty<TargetLinkage> targetLinkages;
@@ -33,14 +33,14 @@ public class DefaultObjectiveCppLibraryExtension extends BaseNativeExtension<Def
 	@Inject
 	public DefaultObjectiveCppLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
 		super(component, objects, providers, layout);
-		this.sources = objects.fileCollection();
+		this.objectiveCppSources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();
 		this.publicHeaders = objects.fileCollection();
 		this.targetLinkages = objects.setProperty(TargetLinkage.class);
 		this.targetMachines = objects.setProperty(TargetMachine.class);
 		this.targetBuildTypes = objects.setProperty(TargetBuildType.class);
 
-		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").from(getSources().getElements().map(toIfEmpty("src/main/objcpp"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").from(this.getObjectiveCppSources().getElements().map(toIfEmpty("src/main/objcpp"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "public").srcDir(getPublicHeaders().getElements().map(toIfEmpty("src/main/public"))));
 	}

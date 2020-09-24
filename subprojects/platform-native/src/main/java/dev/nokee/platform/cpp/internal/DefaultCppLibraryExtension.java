@@ -23,7 +23,7 @@ import org.gradle.api.provider.SetProperty;
 import javax.inject.Inject;
 
 public class DefaultCppLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements CppLibraryExtension, Component {
-	@Getter private final ConfigurableFileCollection sources;
+	@Getter private final ConfigurableFileCollection cppSources;
 	@Getter private final ConfigurableFileCollection privateHeaders;
 	@Getter private final ConfigurableFileCollection publicHeaders;
 	@Getter private final SetProperty<TargetLinkage> targetLinkages;
@@ -33,14 +33,14 @@ public class DefaultCppLibraryExtension extends BaseNativeExtension<DefaultNativ
 	@Inject
 	public DefaultCppLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
 		super(component, objects, providers, layout);
-		this.sources = objects.fileCollection();
+		this.cppSources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();
 		this.publicHeaders = objects.fileCollection();
 		this.targetLinkages = objects.setProperty(TargetLinkage.class);
 		this.targetMachines = objects.setProperty(TargetMachine.class);
 		this.targetBuildTypes = objects.setProperty(TargetBuildType.class);
 
-		getComponent().getSourceCollection().add(getObjects().newInstance(CppSourceSet.class, "cpp").from(getSources().getElements().map(toIfEmpty("src/main/cpp"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(CppSourceSet.class, "cpp").from(this.getCppSources().getElements().map(toIfEmpty("src/main/cpp"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "public").srcDir(getPublicHeaders().getElements().map(toIfEmpty("src/main/public"))));
 	}

@@ -29,7 +29,7 @@ class VisualStudioIdeCppApplicationFunctionalTest extends AbstractVisualStudioId
 	protected String configureCustomSourceLayout() {
 		return '''
 			application {
-				sources.from('srcs')
+				cppSources.from('srcs')
 				privateHeaders.from('hdrs')
 			}
 		'''
@@ -78,7 +78,7 @@ class VisualStudioIdeCppApplicationWithNativeTestSuiteFunctionalTest extends Abs
 		Assume.assumeTrue(false)
 		return '''
 			application {
-				sources.from('srcs')
+				cppSources.from('srcs')
 				privateHeaders.from('hdrs')
 			}
 		'''
@@ -115,7 +115,7 @@ class VisualStudioIdeCppLibraryFunctionalTest extends AbstractVisualStudioIdeNat
 	protected String configureCustomSourceLayout() {
 		return '''
 			library {
-				sources.from('srcs')
+				cppSources.from('srcs')
 				publicHeaders.from('hdrs')
 			}
 		'''
@@ -164,7 +164,7 @@ class VisualStudioIdeCppLibraryWithNativeTestSuiteFunctionalTest extends Abstrac
 		Assume.assumeTrue(false)
 		return '''
 			library {
-				sources.from('srcs')
+				cppSources.from('srcs')
 				privateHeaders.from('hdrs')
 			}
 		'''

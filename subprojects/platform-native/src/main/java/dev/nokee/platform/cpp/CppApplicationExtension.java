@@ -23,7 +23,7 @@ public interface CppApplicationExtension extends DependencyAwareComponent<Native
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getSources();
+	ConfigurableFileCollection getCppSources();
 
 	/**
 	 * Defines the private headers search directories of this application.

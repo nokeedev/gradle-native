@@ -35,7 +35,7 @@ class CApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNativ
 			}
 
 			application {
-				sources.from('srcs')
+				cSources.from('srcs')
 				dependencies {
 					implementation project(':library')
 				}
@@ -47,7 +47,7 @@ class CApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNativ
 			}
 
 			library {
-				sources.from('srcs')
+				cSources.from('srcs')
 				publicHeaders.from('includes')
 			}
 		'''
@@ -64,7 +64,7 @@ class CApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNativ
 	protected String configureSourcesAsConvention() {
 		return """
 			application {
-				sources.from('srcs')
+				cSources.from('srcs')
 				privateHeaders.from('includes')
 			}
 		"""
@@ -74,7 +74,7 @@ class CApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNativ
 	protected String configureSourcesAsExplicitFiles() {
 		return """
 			application {
-				${componentUnderTest.sources.files.collect { "sources.from('srcs/${it.name}')" }.join('\n')}
+				${componentUnderTest.sources.files.collect { "cSources.from('srcs/${it.name}')" }.join('\n')}
 				privateHeaders.from('includes')
 			}
 		"""
@@ -114,7 +114,7 @@ class CLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLan
 			}
 
 			library {
-				sources.from('srcs')
+				cSources.from('srcs')
 				privateHeaders.from('includes')
 				dependencies {
 					implementation project(':library')
@@ -127,7 +127,7 @@ class CLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLan
 			}
 
 			library {
-				sources.from('srcs')
+				cSources.from('srcs')
 				publicHeaders.from('includes')
 			}
 		'''
@@ -145,7 +145,7 @@ class CLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLan
 	protected String configureSourcesAsConvention() {
 		return """
 			library {
-				sources.from('srcs')
+				cSources.from('srcs')
 				privateHeaders.from('headers')
 				publicHeaders.from('includes')
 			}
@@ -156,7 +156,7 @@ class CLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLan
 	protected String configureSourcesAsExplicitFiles() {
 		return """
 			library {
-				${componentUnderTest.sources.files.collect { "sources.from('srcs/${it.name}')" }.join('\n')}
+				${componentUnderTest.sources.files.collect { "cSources.from('srcs/${it.name}')" }.join('\n')}
 				privateHeaders.from('headers')
 				publicHeaders.from('includes')
 			}

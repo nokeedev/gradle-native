@@ -35,7 +35,7 @@ class CppApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNat
 			}
 
 			application {
-				sources.from('srcs')
+				cppSources.from('srcs')
 				dependencies {
 					implementation project(':library')
 				}
@@ -47,7 +47,7 @@ class CppApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNat
 			}
 
 			library {
-				sources.from('srcs')
+				cppSources.from('srcs')
 				publicHeaders.from('includes')
 			}
 		'''
@@ -64,7 +64,7 @@ class CppApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNat
 	protected String configureSourcesAsConvention() {
 		return """
 			application {
-				sources.from('srcs')
+				cppSources.from('srcs')
 				privateHeaders.from('includes')
 			}
 		"""
@@ -74,7 +74,7 @@ class CppApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNat
 	protected String configureSourcesAsExplicitFiles() {
 		return """
 			application {
-				${componentUnderTest.sources.files.collect { "sources.from('srcs/${it.name}')" }.join('\n')}
+				${componentUnderTest.sources.files.collect { "cppSources.from('srcs/${it.name}')" }.join('\n')}
 				privateHeaders.from('includes')
 			}
 		"""
@@ -114,7 +114,7 @@ class CppLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeL
 			}
 
 			library {
-				sources.from('srcs')
+				cppSources.from('srcs')
 				privateHeaders.from('includes')
 				dependencies {
 					implementation project(':library')
@@ -127,7 +127,7 @@ class CppLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeL
 			}
 
 			library {
-				sources.from('srcs')
+				cppSources.from('srcs')
 				publicHeaders.from('includes')
 			}
 		'''
@@ -145,7 +145,7 @@ class CppLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeL
 	protected String configureSourcesAsConvention() {
 		return """
 			library {
-				sources.from('srcs')
+				cppSources.from('srcs')
 				privateHeaders.from('headers')
 				publicHeaders.from('includes')
 			}
@@ -156,7 +156,7 @@ class CppLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeL
 	protected String configureSourcesAsExplicitFiles() {
 		return """
 			library {
-				${componentUnderTest.sources.files.collect { "sources.from('srcs/${it.name}')" }.join('\n')}
+				${componentUnderTest.sources.files.collect { "cppSources.from('srcs/${it.name}')" }.join('\n')}
 				privateHeaders.from('headers')
 				publicHeaders.from('includes')
 			}

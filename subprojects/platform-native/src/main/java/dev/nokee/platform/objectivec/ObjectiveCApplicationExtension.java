@@ -26,7 +26,7 @@ public interface ObjectiveCApplicationExtension extends DependencyAwareComponent
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getSources();
+	ConfigurableFileCollection getObjectiveCSources();
 
 	/**
 	 * Defines the private headers search directories of this application.

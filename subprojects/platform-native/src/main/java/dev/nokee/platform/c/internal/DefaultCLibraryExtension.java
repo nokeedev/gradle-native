@@ -23,7 +23,7 @@ import org.gradle.api.provider.SetProperty;
 import javax.inject.Inject;
 
 public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements CLibraryExtension, Component {
-	@Getter private final ConfigurableFileCollection sources;
+	@Getter private final ConfigurableFileCollection cSources;
 	@Getter private final ConfigurableFileCollection privateHeaders;
 	@Getter private final ConfigurableFileCollection publicHeaders;
 	@Getter private final SetProperty<TargetLinkage> targetLinkages;
@@ -33,14 +33,14 @@ public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeL
 	@Inject
 	public DefaultCLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
 		super(component, objects, providers, layout);
-		this.sources = objects.fileCollection();
+		this.cSources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();
 		this.publicHeaders = objects.fileCollection();
 		this.targetLinkages = objects.setProperty(TargetLinkage.class);
 		this.targetMachines = objects.setProperty(TargetMachine.class);
 		this.targetBuildTypes = objects.setProperty(TargetBuildType.class);
 
-		getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").from(getSources().getElements().map(toIfEmpty("src/main/c"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").from(getCSources().getElements().map(toIfEmpty("src/main/c"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "public").srcDir(getPublicHeaders().getElements().map(toIfEmpty("src/main/public"))));
 	}

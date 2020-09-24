@@ -22,7 +22,7 @@ import org.gradle.api.provider.SetProperty;
 import javax.inject.Inject;
 
 public class DefaultSwiftLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements SwiftLibraryExtension, Component {
-	@Getter private final ConfigurableFileCollection sources;
+	@Getter private final ConfigurableFileCollection swiftSources;
 	@Getter private final SetProperty<TargetLinkage> targetLinkages;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
@@ -30,12 +30,12 @@ public class DefaultSwiftLibraryExtension extends BaseNativeExtension<DefaultNat
 	@Inject
 	public DefaultSwiftLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
 		super(component, objects, providers, layout);
-		this.sources = objects.fileCollection();
+		this.swiftSources = objects.fileCollection();
 		this.targetLinkages = objects.setProperty(TargetLinkage.class);
 		this.targetMachines = objects.setProperty(TargetMachine.class);
 		this.targetBuildTypes = objects.setProperty(TargetBuildType.class);
 
-		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").from(getSources().getElements().map(toIfEmpty("src/main/swift"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").from(this.getSwiftSources().getElements().map(toIfEmpty("src/main/swift"))));
 	}
 
 	@Override

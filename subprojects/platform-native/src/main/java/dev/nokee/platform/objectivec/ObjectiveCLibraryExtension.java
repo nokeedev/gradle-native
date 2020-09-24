@@ -23,7 +23,7 @@ public interface ObjectiveCLibraryExtension extends DependencyAwareComponent<Nat
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getSources();
+	ConfigurableFileCollection getObjectiveCSources();
 
 	/**
 	 * Defines the private headers search directories of this library.
