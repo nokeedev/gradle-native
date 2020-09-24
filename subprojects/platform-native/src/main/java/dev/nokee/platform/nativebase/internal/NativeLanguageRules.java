@@ -40,19 +40,19 @@ public class NativeLanguageRules {
 	public DomainObjectSet<GeneratedSourceSet> apply(DomainObjectSet<SourceSet> sourceSets) {
 		DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
 		sourceSets.withType(CSourceSet.class).stream()
-			.map(createNativeCompileTask("C", CCompileTask.class))
+			.map(createNativeCompileTask("c", CCompileTask.class))
 			.map(this::newObjectSourceSetFromNativeCompileTask)
 			.forEach(objectSourceSets::add);
 		sourceSets.withType(CppSourceSet.class).stream()
-			.map(createNativeCompileTask("Cpp", CppCompileTask.class))
+			.map(createNativeCompileTask("cpp", CppCompileTask.class))
 			.map(this::newObjectSourceSetFromNativeCompileTask)
 			.forEach(objectSourceSets::add);
 		sourceSets.withType(ObjectiveCSourceSet.class).stream()
-			.map(createNativeCompileTask("ObjectiveC", ObjectiveCCompileTask.class))
+			.map(createNativeCompileTask("objectiveC", ObjectiveCCompileTask.class))
 			.map(this::newObjectSourceSetFromNativeCompileTask)
 			.forEach(objectSourceSets::add);
 		sourceSets.withType(ObjectiveCppSourceSet.class).stream()
-			.map(createNativeCompileTask("ObjectiveCpp", ObjectiveCppCompileTask.class))
+			.map(createNativeCompileTask("objectiveCpp", ObjectiveCppCompileTask.class))
 			.map(this::newObjectSourceSetFromNativeCompileTask)
 			.forEach(objectSourceSets::add);
 		sourceSets.withType(SwiftSourceSet.class).stream()
@@ -71,7 +71,7 @@ public class NativeLanguageRules {
 	}
 
 	private TaskProvider<SwiftCompileTask> createSwiftCompileTask(SourceSet sourceSet) {
-		return taskRegistry.register(TaskIdentifier.of(TaskName.of("compile", "Swift"), SwiftCompileTask.class, ownerIdentifier), task -> {
+		return taskRegistry.register(TaskIdentifier.of(TaskName.of("compile", "swift"), SwiftCompileTask.class, ownerIdentifier), task -> {
 			task.getSource().from(sourceSet.getAsFileTree());
 		});
 	}
