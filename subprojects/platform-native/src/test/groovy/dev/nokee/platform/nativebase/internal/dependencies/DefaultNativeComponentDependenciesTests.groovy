@@ -45,29 +45,17 @@ class DefaultNativeComponentDependenciesTest extends AbstractComponentDependenci
 		newSubject(delegate)
 
 		then:
-		1 * configurations.implementation.setCanBeConsumed(false)
-		1 * configurations.implementation.setCanBeResolved(false)
-		1 * configurations.implementation.setDescription("Implementation only dependencies for Testing.")
 		0 * configurations.implementation._
 
 		and:
-		1 * configurations.compileOnly.setCanBeConsumed(false)
-		1 * configurations.compileOnly.setCanBeResolved(false)
-		1 * configurations.compileOnly.setDescription("Compile only dependencies for Testing.")
 		1 * configurations.compileOnly.extendsFrom(configurations.implementation)
 		0 * configurations.compileOnly._
 
 		and:
-		1 * configurations.linkOnly.setCanBeConsumed(false)
-		1 * configurations.linkOnly.setCanBeResolved(false)
-		1 * configurations.linkOnly.setDescription("Link only dependencies for Testing.")
 		1 * configurations.linkOnly.extendsFrom(configurations.implementation)
 		0 * configurations.linkOnly._
 
 		and:
-		1 * configurations.runtimeOnly.setCanBeConsumed(false)
-		1 * configurations.runtimeOnly.setCanBeResolved(false)
-		1 * configurations.runtimeOnly.setDescription("Runtime only dependencies for Testing.")
 		1 * configurations.runtimeOnly.extendsFrom(configurations.implementation)
 		0 * configurations.runtimeOnly._
 	}

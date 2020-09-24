@@ -14,15 +14,11 @@ import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.dependencies.ConfigurationFactories;
-import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyFactory;
+import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
-import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.platform.nativebase.internal.NativeLanguageRules;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
@@ -103,10 +99,10 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		this.toolChainSelector = toolChainSelector;
 	}
 
-	private VariantComponentDependencies newDependencies(NamingScheme names, BuildVariantInternal buildVariant, JniLibraryComponentInternal component) {
+	private VariantComponentDependencies newDependencies(NamingScheme names, BuildVariantInternal buildVariant, JniLibraryComponentInternal component, VariantIdentifier<JniLibraryInternal> variantIdentifier) {
 		DefaultJavaNativeInterfaceNativeComponentDependencies variantDependencies = component.getDependencies();
 		if (component.getBuildVariants().get().size() > 1) {
-			val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, "JNI shared library", new DefaultDependencyBucketFactory(new ConfigurationFactories.Prefixing(new ConfigurationFactories.Creating(getConfigurations()), names::getConfigurationName), new DefaultDependencyFactory(getDependencyHandler())));
+			val dependencyContainer = getObjects().newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), getDependencyHandler()));
 			variantDependencies = getObjects().newInstance(DefaultJavaNativeInterfaceNativeComponentDependencies.class, dependencyContainer);
 			variantDependencies.configureEach(variantBucket -> {
 				component.getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
@@ -181,7 +177,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				final NamingScheme names = mainComponentNames.forBuildVariant(buildVariant, extension.getBuildVariants().get());
 				final VariantIdentifier<JniLibraryInternal> variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, extension.getBuildVariants().get()).withComponentIdentifier(extension.getComponent().getIdentifier()).withType(JniLibraryInternal.class).build();
 
-				val dependencies = newDependencies(names.withComponentDisplayName("JNI shared library"), buildVariant, extension.getComponent());
+				val dependencies = newDependencies(names.withComponentDisplayName("JNI shared library"), buildVariant, extension.getComponent(), variantIdentifier);
 				final VariantProvider<JniLibraryInternal> library = extension.getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> {
 					JniLibraryInternal it = extension.getComponent().createVariant(variantIdentifier, dependencies);
 
@@ -462,28 +458,24 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		val library = components.register("main", JniLibraryExtensionInternal.class).get();
 
 		val dependencies = library.getDependencies();
+		val configurationRegistry = new ConfigurationBucketRegistryImpl(project.getConfigurations());
 
-		Configuration jvmApiElements = Optional.ofNullable(project.getConfigurations().findByName("apiElements")).orElseGet(() -> {
-			return project.getConfigurations().create("apiElements", configuration -> {
-				ConfigurationUtils.configureAsOutgoing(configuration);
-				configuration.setDescription("API elements for main.");
-				configuration.attributes(attributes -> {
-					attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_API));
-					attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR));
-				});
+		val apiElementsIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of("apiElements"), ConsumableDependencyBucket.class, ComponentIdentifier.ofMain(JniLibraryExtensionInternal.class, ProjectIdentifier.of(project)));
+		Configuration jvmApiElements = configurationRegistry.createIfAbsent("apiElements", ConfigurationBucketType.CONSUMABLE, configuration -> {
+			configuration.setDescription(apiElementsIdentifier.getDisplayName());
+			configuration.attributes(attributes -> {
+				attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_API));
+				attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR));
 			});
 		});
 		jvmApiElements.extendsFrom(dependencies.getApi().getAsConfiguration());
 
-
-		Configuration jvmRuntimeElements = Optional.ofNullable(project.getConfigurations().findByName("runtimeElements")).orElseGet(() -> {
-			return project.getConfigurations().create("runtimeElements", configuration -> {
-				ConfigurationUtils.configureAsOutgoing(configuration);
-				configuration.setDescription("Elements of runtime for main.");
-				configuration.attributes(attributes -> {
-					attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME));
-					attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR));
-				});
+		val runtimeElementsIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of("runtimeElements"), ConsumableDependencyBucket.class, ComponentIdentifier.ofMain(JniLibraryExtensionInternal.class, ProjectIdentifier.of(project)));
+		Configuration jvmRuntimeElements = configurationRegistry.createIfAbsent("runtimeElements", ConfigurationBucketType.CONSUMABLE, configuration -> {
+			configuration.setDescription(runtimeElementsIdentifier.getDisplayName());
+			configuration.attributes(attributes -> {
+				attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME));
+				attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR));
 			});
 		});
 		jvmRuntimeElements.extendsFrom(dependencies.getApi().getAsConfiguration());

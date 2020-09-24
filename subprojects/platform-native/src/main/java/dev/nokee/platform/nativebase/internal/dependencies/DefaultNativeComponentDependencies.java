@@ -12,8 +12,6 @@ import org.gradle.api.artifacts.ModuleDependency;
 
 import javax.inject.Inject;
 
-import static dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx.configureAsBucket;
-
 public class DefaultNativeComponentDependencies extends BaseComponentDependencies implements NativeComponentDependencies, ComponentDependencies {
 	@Getter private final DependencyBucket implementation;
 	@Getter private final DependencyBucket compileOnly;
@@ -30,26 +28,18 @@ public class DefaultNativeComponentDependencies extends BaseComponentDependencie
 	}
 
 	private void configureImplementationConfiguration(Configuration configuration) {
-		configureAsBucket(configuration);
-		configuration.setDescription(String.format("Implementation only dependencies for %s.", getComponentDisplayName()));
 	}
 
 	private void configureCompileOnlyConfiguration(Configuration configuration) {
-		configureAsBucket(configuration);
 		configuration.extendsFrom(implementation.getAsConfiguration());
-		configuration.setDescription(String.format("Compile only dependencies for %s.", getComponentDisplayName()));
 	}
 
 	private void configureLinkOnlyConfiguration(Configuration configuration) {
-		configureAsBucket(configuration);
 		configuration.extendsFrom(implementation.getAsConfiguration());
-		configuration.setDescription(String.format("Link only dependencies for %s.", getComponentDisplayName()));
 	}
 
 	private void configureRuntimeOnlyConfiguration(Configuration configuration) {
-		configureAsBucket(configuration);
 		configuration.extendsFrom(implementation.getAsConfiguration());
-		configuration.setDescription(String.format("Runtime only dependencies for %s.", getComponentDisplayName()));
 	}
 
 	@Override

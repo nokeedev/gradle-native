@@ -45,42 +45,24 @@ class DefaultJavaNativeInterfaceLibraryComponentDependenciesTest extends Abstrac
 		newSubject(delegate)
 
 		then:
-		1 * configurations.api.setCanBeConsumed(false)
-		1 * configurations.api.setCanBeResolved(false)
-		1 * configurations.api.setDescription("API dependencies for Testing.")
 		0 * configurations.api._
 
 		and:
-		1 * configurations.jvmImplementation.setCanBeConsumed(false)
-		1 * configurations.jvmImplementation.setCanBeResolved(false)
-		1 * configurations.jvmImplementation.setDescription("Implementation only dependencies for Testing.")
 		1 * configurations.jvmImplementation.extendsFrom(configurations.api)
 		0 * configurations.jvmImplementation._
 
 		and:
-		1 * configurations.jvmRuntimeOnly.setCanBeConsumed(false)
-		1 * configurations.jvmRuntimeOnly.setCanBeResolved(false)
-		1 * configurations.jvmRuntimeOnly.setDescription("Runtime only dependencies for Testing.")
 		1 * configurations.jvmRuntimeOnly.extendsFrom(configurations.jvmImplementation)
 		0 * configurations.jvmRuntimeOnly._
 
 		and:
-		1 * configurations.nativeImplementation.setCanBeConsumed(false)
-		1 * configurations.nativeImplementation.setCanBeResolved(false)
-		1 * configurations.nativeImplementation.setDescription("Implementation only dependencies for Testing.")
 		0 * configurations.nativeImplementation._
 
 		and:
-		1 * configurations.nativeLinkOnly.setCanBeConsumed(false)
-		1 * configurations.nativeLinkOnly.setCanBeResolved(false)
-		1 * configurations.nativeLinkOnly.setDescription("Link only dependencies for Testing.")
 		1 * configurations.nativeLinkOnly.extendsFrom(configurations.nativeImplementation)
 		0 * configurations.nativeLinkOnly._
 
 		and:
-		1 * configurations.nativeRuntimeOnly.setCanBeConsumed(false)
-		1 * configurations.nativeRuntimeOnly.setCanBeResolved(false)
-		1 * configurations.nativeRuntimeOnly.setDescription("Runtime only dependencies for Testing.")
 		1 * configurations.nativeRuntimeOnly.extendsFrom(configurations.nativeImplementation)
 		0 * configurations.nativeRuntimeOnly._
 	}
