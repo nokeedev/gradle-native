@@ -12,6 +12,7 @@ import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory;
 import dev.nokee.runtime.base.internal.DimensionType;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.utils.ConfigureUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.DomainObjectSet;
@@ -51,8 +52,16 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 		return component.getDimensions();
 	}
 
+	public void setDimensions(Object value) {
+		ConfigureUtils.setPropertyValue(component.getDimensions(), value);
+	}
+
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
 		return component.getBuildVariants();
+	}
+
+	public void setBuildVariants(Object value) {
+		ConfigureUtils.setPropertyValue(component.getBuildVariants(), value);
 	}
 	//endregion
 
@@ -81,5 +90,9 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 
 	public SetProperty<TargetMachine> getTargetMachines() {
 		return component.getTargetMachines();
+	}
+
+	public void setTargetMachines(Object value) {
+		ConfigureUtils.setPropertyValue(component.getTargetMachines(), value);
 	}
 }
