@@ -59,19 +59,18 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 
 	public void calculateVariants() {
 		buildVariants.get().forEach(buildVariant -> {
-			val names = component.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			val variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, getBuildVariants().get()).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeLibraryVariant.class).build();
 
 			val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier));
 
-			val dependencies = newDependencies(names, buildVariant, variantIdentifier);
+			val dependencies = newDependencies(buildVariant, variantIdentifier);
 			val variant = variantCollection.registerVariant(variantIdentifier, (name, bv) -> createVariant(variantIdentifier, dependencies, assembleTask));
 
 			onEachVariantDependencies(variant, dependencies);
 		});
 	}
 
-	private VariantComponentDependencies<NativeLibraryComponentDependencies> newDependencies(NamingScheme names, BuildVariantInternal buildVariant, VariantIdentifier<DefaultNativeLibraryVariant> variantIdentifier) {
+	private VariantComponentDependencies<NativeLibraryComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultNativeLibraryVariant> variantIdentifier) {
 		var variantDependencies = component.getDependencies();
 		if (getBuildVariants().get().size() > 1) {
 			val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
@@ -95,9 +94,9 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 
 		NativeOutgoingDependencies outgoing = null;
 		if (hasSwift) {
-			outgoing = objectFactory.newInstance(SwiftLibraryOutgoingDependencies.class, names, buildVariant, variantDependencies);
+			outgoing = objectFactory.newInstance(SwiftLibraryOutgoingDependencies.class, variantIdentifier, buildVariant, variantDependencies);
 		} else {
-			outgoing = objectFactory.newInstance(NativeLibraryOutgoingDependencies.class, names, buildVariant, variantDependencies);
+			outgoing = objectFactory.newInstance(NativeLibraryOutgoingDependencies.class, variantIdentifier, buildVariant, variantDependencies);
 		}
 
 		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);

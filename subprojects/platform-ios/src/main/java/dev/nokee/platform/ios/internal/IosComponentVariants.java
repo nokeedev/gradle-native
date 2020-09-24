@@ -48,12 +48,11 @@ public final class IosComponentVariants implements ComponentVariants {
 
 	public void calculateVariants() {
 		getBuildVariants().get().forEach(buildVariant -> {
-			val names = component.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			val variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, getBuildVariants().get()).withComponentIdentifier(component.getIdentifier()).withType(DefaultIosApplicationVariant.class).build();
 
 			val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier));
 
-			val dependencies = newDependencies(names, buildVariant, variantIdentifier);
+			val dependencies = newDependencies(buildVariant, variantIdentifier);
 			val variant = getVariantCollection().registerVariant(variantIdentifier, (name, bv) -> createVariant(variantIdentifier, dependencies, assembleTask));
 
 			onEachVariantDependencies(variant, dependencies);
@@ -68,7 +67,7 @@ public final class IosComponentVariants implements ComponentVariants {
 		return result;
 	}
 
-	private VariantComponentDependencies<NativeComponentDependencies> newDependencies(NamingScheme names, BuildVariantInternal buildVariant, VariantIdentifier<DefaultIosApplicationVariant> variantIdentifier) {
+	private VariantComponentDependencies<NativeComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultIosApplicationVariant> variantIdentifier) {
 		var variantDependencies = component.getDependencies();
 		if (getBuildVariants().get().size() > 1) {
 			val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
@@ -89,7 +88,7 @@ public final class IosComponentVariants implements ComponentVariants {
 		}
 
 		NativeIncomingDependencies incoming = incomingDependenciesBuilder.buildUsing(objectFactory);
-		NativeOutgoingDependencies outgoing = objectFactory.newInstance(IosApplicationOutgoingDependencies.class, names, buildVariant, variantDependencies);
+		NativeOutgoingDependencies outgoing = objectFactory.newInstance(IosApplicationOutgoingDependencies.class, variantIdentifier, buildVariant, variantDependencies);
 
 		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
 	}

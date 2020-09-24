@@ -1,6 +1,11 @@
 package dev.nokee.fixtures
 
-import dev.nokee.platform.base.internal.NamingScheme
+import dev.nokee.model.internal.DomainObjectIdentifierInternal
+import dev.nokee.platform.base.Component
+import dev.nokee.platform.base.Variant
+import dev.nokee.platform.base.internal.ComponentIdentifier
+import dev.nokee.platform.base.internal.ProjectIdentifier
+import dev.nokee.platform.base.internal.VariantIdentifier
 import dev.nokee.runtime.nativebase.internal.LibraryElements
 import org.gradle.api.Action
 import org.gradle.api.artifacts.Configuration
@@ -22,21 +27,14 @@ import static org.junit.Assert.assertThat
 abstract class AbstractComponentDependenciesIntegrationTest extends Specification {
 	def project = ProjectBuilder.builder().build()
 
-	protected NamingScheme newNamingScheme(String variant = '') {
-		def dimensions = NamingScheme.Dimensions.empty()
-		if (!variant.empty) {
-			dimensions = dimensions.add(variant)
-		}
-		return new NamingScheme('baseName', NamingScheme.ComponentName.ofMain(), NamingScheme.ComponentDisplayName.of('test component'), NamingScheme.ConfigurationPrefix.none(), dimensions)
+	protected DomainObjectIdentifierInternal newNamingScheme(String variant = '') {
+		return VariantIdentifier.of(variant, Variant, ComponentIdentifier.ofMain(Component, ProjectIdentifier.of(project)))
 	}
 
 	protected newDependencies(String variant = '') {
 		return newDependencies(newNamingScheme(variant))
 	}
-	// TODO:
-	protected newDependencies(NamingScheme names) {}
-
-	protected Class getDependencyType() {}
+	protected abstract newDependencies(DomainObjectIdentifierInternal identifier)
 
 	protected abstract List<String> getBucketsUnderTest()
 
@@ -259,12 +257,10 @@ abstract class AbstractComponentDependenciesIntegrationTest extends Specificatio
  */
 abstract class AbstractLocalDarwinFrameworkDependenciesIntegrationTest extends Specification {
 	def project = ProjectBuilder.builder().build()
-	def names = new NamingScheme('baseName', NamingScheme.ComponentName.ofMain(), NamingScheme.ComponentDisplayName.of('test component'), NamingScheme.ConfigurationPrefix.none(), NamingScheme.Dimensions.empty())
-	def dependencies = newDependencies(names)
+	def identifier = ComponentIdentifier.ofMain(Component, ProjectIdentifier.of(project))
+	def dependencies = newDependencies(identifier)
 
-	protected newDependencies(NamingScheme names) {}
-
-	protected Class getDependencyType() {}
+	protected abstract newDependencies(DomainObjectIdentifierInternal identifier)
 
 	protected abstract List<String> getBucketsUnderTest()
 
@@ -412,12 +408,10 @@ abstract class AbstractLocalDarwinFrameworkDependenciesIntegrationTest extends S
 
 abstract class AbstractLibraryComponentDependenciesIntegrationTest extends Specification {
 	def project = ProjectBuilder.builder().build()
-	def names = new NamingScheme('baseName', NamingScheme.ComponentName.ofMain(), NamingScheme.ComponentDisplayName.of('test component'), NamingScheme.ConfigurationPrefix.none(), NamingScheme.Dimensions.empty())
-	def dependencies = newDependencies(names)
+	def identifier = ComponentIdentifier.ofMain(Component, ProjectIdentifier.of(project))
+	def dependencies = newDependencies(identifier)
 
-	protected newDependencies(NamingScheme names) {}
-
-	protected Class getDependencyType() {}
+	protected abstract newDependencies(DomainObjectIdentifierInternal identifier)
 
 	protected abstract String getApiBucketNameUnderTest()
 

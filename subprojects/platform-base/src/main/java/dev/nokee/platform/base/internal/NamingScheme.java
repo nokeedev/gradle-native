@@ -40,16 +40,6 @@ public class NamingScheme {
 		return new NamingScheme(baseName, ComponentName.of(name), ComponentDisplayName.missing(), ConfigurationPrefix.none(), Dimensions.empty());
 	}
 
-	/**
-	 * Returns the configuration name for the target using this scheme, i.e. implementation, testImplementation, testWindowsImplementation, testWindowsNativeImplementation, jvmImplementation.
-	 *
-	 * @param target a configuration target, i.e. implementation, compileOnly
-	 * @return a fully formed configuration name, never null.
-	 */
-	public final String getConfigurationName(String target) {
-		return componentName.prefix(dimensions.prefix(configurationPrefix.prefix(target)));
-	}
-
 	public BaseNameNamingScheme getBaseName() {
 		return new BaseNameNamingScheme();
 	}
@@ -97,20 +87,6 @@ public class NamingScheme {
 
 	private static String prefixWithPathSeparator(String value) {
 		return "/" + value;
-	}
-
-	/**
-	 * Returns completed description with the display name.
-	 * @param format a string format pattern with a '%s' where the display name should be placed.
-	 * @return a fully formed description, never null.
-	 * @throws IllegalStateException if no component display name were configured on this naming scheme.
-	 */
-	public String getConfigurationDescription(String format) {
-		return String.format(format, displayName.get());
-	}
-
-	public String getComponentDisplayName() {
-		return displayName.get();
 	}
 
 	public class BaseNameNamingScheme {

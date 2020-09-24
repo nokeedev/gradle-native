@@ -1,9 +1,10 @@
 package dev.nokee.platform.nativebase.internal.dependencies;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
@@ -13,7 +14,6 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.file.DirectoryProperty;
@@ -30,19 +30,24 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 	@Getter private final DirectoryProperty exportedHeaders;
 	@Getter private final RegularFileProperty exportedSwiftModule;
 	@Getter private final Property<Binary> exportedBinary;
-	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
-	protected AbstractNativeLibraryOutgoingDependencies(NamingScheme names, BuildVariantInternal buildVariant, DefaultNativeLibraryComponentDependencies dependencies, ConfigurationContainer configurations, ObjectFactory objects) {
+	protected AbstractNativeLibraryOutgoingDependencies(DomainObjectIdentifierInternal ownerIdentifier, BuildVariantInternal buildVariant, DefaultNativeLibraryComponentDependencies dependencies, ConfigurationContainer configurationContainer, ObjectFactory objects) {
 		this.exportedHeaders = objects.directoryProperty();
 		this.exportedSwiftModule = objects.fileProperty();
 		this.exportedBinary = objects.property(Binary.class);
-		this.configurations = configurations;
 		this.objects = objects;
 		this.builder = objects.newInstance(ConfigurationUtils.class);
 
-		Configuration linkElements = getConfigurations().create(names.getConfigurationName("linkElements"), builder.asOutgoingLinkLibrariesFrom(dependencies.getApi().getAsConfiguration(), dependencies.getLinkOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(names.getConfigurationDescription("Link elements for %s.")));
-		Configuration runtimeElements = getConfigurations().create(names.getConfigurationName("runtimeElements"), builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getRuntimeOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(names.getConfigurationDescription("Runtime elements for %s.")));
+		val configurationRegistry = new ConfigurationBucketRegistryImpl(configurationContainer);
+
+		val identifierLinkElements = DependencyBucketIdentifier.of(DependencyBucketName.of("linkElements"),
+			ConsumableDependencyBucket.class, ownerIdentifier);
+		val linkElements = configurationRegistry.createIfAbsent(identifierLinkElements.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingLinkLibrariesFrom(dependencies.getApi().getAsConfiguration(), dependencies.getLinkOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifierLinkElements.getDisplayName()));
+
+		val identifierRuntimeElements = DependencyBucketIdentifier.of(DependencyBucketName.of("runtimeElements"),
+			ConsumableDependencyBucket.class, ownerIdentifier);
+		val runtimeElements = configurationRegistry.createIfAbsent(identifierRuntimeElements.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getRuntimeOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifierRuntimeElements.getDisplayName()));
 
 		linkElements.getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingLinkLibrary));
 
