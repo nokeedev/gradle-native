@@ -22,23 +22,6 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     CI: true
-            -   name: Attach build scan to commit
-                if: ${{ always() }}
-                shell: bash
-                run: |
-                    curl \
-                    --silent \
-                    --show-error \
-                    --fail \
-                    --request POST \
-                    --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                    --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                    --header "Accept: application/vnd.github.v3+json" \
-                    --data '{
-                            "state":"${{ steps.gradle.outcome }}",
-                            "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
-                            "context": "SCAN / assemble"
-                        }'
     deploy:
         needs: assemble
         runs-on: ubuntu-latest
@@ -59,23 +42,6 @@ jobs:
                     BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
                     BINTRAY_KEY: ${{ secrets.BINTRAY_KEY }}
                     CI: true
-            -   name: Attach build scan to commit
-                if: ${{ always() }}
-                shell: bash
-                run: |
-                    curl \
-                    --silent \
-                    --show-error \
-                    --fail \
-                    --request POST \
-                    --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                    --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                    --header "Accept: application/vnd.github.v3+json" \
-                    --data '{
-                            "state":"${{ steps.gradle.outcome }}",
-                            "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
-                            "context": "SCAN / :distributions:publishToBintray"
-                        }'
     windows:
         needs: assemble
         runs-on: windows-latest
@@ -98,23 +64,6 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     CI: true
-            -   name: Attach build scan to commit
-                if: ${{ always() }}
-                shell: bash
-                run: |
-                    curl \
-                    --silent \
-                    --show-error \
-                    --fail \
-                    --request POST \
-                    --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                    --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                    --header "Accept: application/vnd.github.v3+json" \
-                    --data '{
-                            "state":"${{ steps.gradle.outcome }}",
-                            "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
-                            "context": "SCAN / ${{ runner.os }} (${{ matrix.checkTask }})"
-                        }'
 
     macos:
         needs: assemble
@@ -138,23 +87,6 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     CI: true
-            -   name: Attach build scan to commit
-                if: ${{ always() }}
-                shell: bash
-                run: |
-                    curl \
-                    --silent \
-                    --show-error \
-                    --fail \
-                    --request POST \
-                    --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                    --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                    --header "Accept: application/vnd.github.v3+json" \
-                    --data '{
-                            "state":"${{ steps.gradle.outcome }}",
-                            "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
-                            "context": "SCAN / ${{ runner.os }} (${{ matrix.checkTask }})"
-                        }'
 
     linux:
         needs: assemble
@@ -180,20 +112,3 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     CI: true
-            -   name: Attach build scan to commit
-                if: ${{ always() }}
-                shell: bash
-                run: |
-                    curl \
-                    --silent \
-                    --show-error \
-                    --fail \
-                    --request POST \
-                    --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                    --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                    --header "Accept: application/vnd.github.v3+json" \
-                    --data '{
-                            "state":"${{ steps.gradle.outcome }}",
-                            "target_url": "${{ steps.gradle.outputs.build-scan-url }}",
-                            "context": "SCAN / ${{ runner.os }} (${{ matrix.checkTask }})"
-                        }'
