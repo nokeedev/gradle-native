@@ -10,6 +10,7 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.swift.SwiftApplicationExtension;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.utils.ConfigureUtils;
 import lombok.Getter;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -20,6 +21,9 @@ import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
 
+import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
+import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
+
 public class DefaultSwiftApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements SwiftApplicationExtension, Component {
 	@Getter private final ConfigurableFileCollection swiftSources;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
@@ -29,10 +33,18 @@ public class DefaultSwiftApplicationExtension extends BaseNativeExtension<Defaul
 	public DefaultSwiftApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
 		super(component, objects, providers, layout);
 		this.swiftSources = objects.fileCollection();
-		this.targetMachines = objects.setProperty(TargetMachine.class);
-		this.targetBuildTypes = objects.setProperty(TargetBuildType.class);
+		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
+		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
 
 		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").from(this.getSwiftSources().getElements().map(toIfEmpty("src/main/swift"))));
+	}
+
+	public void setTargetMachines(Object value) {
+		ConfigureUtils.setPropertyValue(targetMachines, value);
+	}
+
+	public void setTargetBuildTypes(Object value) {
+		ConfigureUtils.setPropertyValue(targetBuildTypes, value);
 	}
 
 	@Override

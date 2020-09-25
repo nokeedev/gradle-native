@@ -11,6 +11,7 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplicationExtension;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.utils.ConfigureUtils;
 import lombok.Getter;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -20,6 +21,9 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
+
+import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
+import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
 
 public class DefaultObjectiveCppApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCppApplicationExtension, Component {
 	@Getter private final ConfigurableFileCollection objectiveCppSources;
@@ -32,11 +36,19 @@ public class DefaultObjectiveCppApplicationExtension extends BaseNativeExtension
 		super(component, objects, providers, layout);
 		this.objectiveCppSources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();
-		this.targetMachines = objects.setProperty(TargetMachine.class);
-		this.targetBuildTypes = objects.setProperty(TargetBuildType.class);
+		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
+		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
 
 		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").from(this.getObjectiveCppSources().getElements().map(toIfEmpty("src/main/objcpp"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
+	}
+
+	public void setTargetMachines(Object value) {
+		ConfigureUtils.setPropertyValue(targetMachines, value);
+	}
+
+	public void setTargetBuildTypes(Object value) {
+		ConfigureUtils.setPropertyValue(targetBuildTypes, value);
 	}
 
 	@Override

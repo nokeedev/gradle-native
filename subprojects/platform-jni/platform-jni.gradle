@@ -12,6 +12,7 @@ repositories {
 dependencies {
 	api project(':platformBase')
 	api project(':platformNative')
+	implementation project(':coreUtils')
 	implementation project(':runtimeDarwin')
 	implementation project(':runtimeNative')
 	implementation project(':languageNative')

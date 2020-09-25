@@ -12,6 +12,7 @@ import dev.nokee.platform.objectivecpp.ObjectiveCppLibraryExtension;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.utils.ConfigureUtils;
 import lombok.Getter;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -21,6 +22,9 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
+
+import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
+import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
 
 public class DefaultObjectiveCppLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements ObjectiveCppLibraryExtension, Component {
 	@Getter private final ConfigurableFileCollection objectiveCppSources;
@@ -36,13 +40,25 @@ public class DefaultObjectiveCppLibraryExtension extends BaseNativeExtension<Def
 		this.objectiveCppSources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();
 		this.publicHeaders = objects.fileCollection();
-		this.targetLinkages = objects.setProperty(TargetLinkage.class);
-		this.targetMachines = objects.setProperty(TargetMachine.class);
-		this.targetBuildTypes = objects.setProperty(TargetBuildType.class);
+		this.targetLinkages = configureDisplayName(objects.setProperty(TargetLinkage.class), "targetLinkages");
+		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
+		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
 
 		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").from(this.getObjectiveCppSources().getElements().map(toIfEmpty("src/main/objcpp"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "public").srcDir(getPublicHeaders().getElements().map(toIfEmpty("src/main/public"))));
+	}
+
+	public void setTargetMachines(Object value) {
+		ConfigureUtils.setPropertyValue(targetMachines, value);
+	}
+
+	public void setTargetBuildTypes(Object value) {
+		ConfigureUtils.setPropertyValue(targetBuildTypes, value);
+	}
+
+	public void setTargetLinkages(Object value) {
+		ConfigureUtils.setPropertyValue(targetLinkages, value);
 	}
 
 	@Override

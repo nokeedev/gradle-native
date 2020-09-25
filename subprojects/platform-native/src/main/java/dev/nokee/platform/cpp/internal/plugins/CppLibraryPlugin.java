@@ -45,7 +45,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		components.registerFactory(DefaultCppLibraryExtension.class, id -> {
 			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeLibraryComponent.class, ProjectIdentifier.of(project));
 			val component = store.register(identifier, DefaultNativeLibraryComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
-			return getObjects().newInstance(DefaultCppLibraryExtension.class, component.get());
+			return new DefaultCppLibraryExtension(component.get(), project.getObjects(), project.getProviders(), project.getLayout());
 		});
 		val extension = components.register("main", DefaultCppLibraryExtension.class, component -> {
 			component.getComponent().getBaseName().convention(project.getName());

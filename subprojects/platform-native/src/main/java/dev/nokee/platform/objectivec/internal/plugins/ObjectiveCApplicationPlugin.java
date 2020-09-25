@@ -44,7 +44,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 		components.registerFactory(DefaultObjectiveCApplicationExtension.class, id -> {
 			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeApplicationComponent.class, ProjectIdentifier.of(project));
 			val component = store.register(identifier, DefaultNativeApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
-			return getObjects().newInstance(DefaultObjectiveCApplicationExtension.class, component.get());
+			return new DefaultObjectiveCApplicationExtension(component.get(), project.getObjects(), project.getProviders(), project.getLayout());
 		});
 		val extension = components.register("main", DefaultObjectiveCApplicationExtension.class, component -> {
 			component.getComponent().getBaseName().convention(project.getName());
