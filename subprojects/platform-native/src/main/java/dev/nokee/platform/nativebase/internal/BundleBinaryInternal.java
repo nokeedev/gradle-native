@@ -52,7 +52,7 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 		// Until we model the build type
 		task.getDebuggable().set(false);
 
-		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(getNames().getOutputDirectoryBase("libs")));
+		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("libs")));
 		task.getLinkedFile().convention(getBundleLinkedFile());
 
 		task.getLinkerArgs().addAll("-Xlinker", "-bundle"); // Required when not building swift
@@ -66,7 +66,7 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 		return getLayout().getBuildDirectory().file(getBaseName().map(it -> {
 			OperatingSystemFamily osFamily = getTargetMachine().getOperatingSystemFamily();
 			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
-			return osOperations.getExecutableName(getNames().getOutputDirectoryBase("libs") + "/" + it);
+			return osOperations.getExecutableName(identifier.getOutputDirectoryBase("libs") + "/" + it);
 		}));
 	}
 

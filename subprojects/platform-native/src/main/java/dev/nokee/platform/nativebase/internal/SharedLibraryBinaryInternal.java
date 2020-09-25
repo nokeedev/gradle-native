@@ -118,7 +118,7 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 		Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());
 		task.getInstallName().set(installName);
 
-		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(getNames().getOutputDirectoryBase("libs")));
+		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("libs")));
 		task.getLinkedFile().convention(getSharedLibraryLinkedFile());
 
 		// For windows
@@ -140,7 +140,7 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 		return getProviders().provider(() -> {
 			PlatformToolProvider toolProvider = platformToolProvider.get();
 			if (toolProvider.producesImportLibrary()) {
-				return getLayout().getBuildDirectory().file(toolProvider.getImportLibraryName(getNames().getOutputDirectoryBase("libs") + "/" + getBaseName().get())).get();
+				return getLayout().getBuildDirectory().file(toolProvider.getImportLibraryName(identifier.getOutputDirectoryBase("libs") + "/" + getBaseName().get())).get();
 			}
 			return null;
 		});
@@ -150,7 +150,7 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 		return getLayout().getBuildDirectory().file(getBaseName().map(it -> {
 			OperatingSystemFamily osFamily = getTargetMachine().getOperatingSystemFamily();
 			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
-			return osOperations.getSharedLibraryName(getNames().getOutputDirectoryBase("libs") + "/" + it);
+			return osOperations.getSharedLibraryName(identifier.getOutputDirectoryBase("libs") + "/" + it);
 		}));
 	}
 

@@ -75,7 +75,7 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 		// Until we model the build type
 		task.getDebuggable().set(false);
 
-		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(getNames().getOutputDirectoryBase("exes")));
+		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("exes")));
 		task.getLinkedFile().convention(getExecutableLinkedFile());
 
 		task.getToolChain().set(selectNativeToolChain(getTargetMachine()));
@@ -87,7 +87,7 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 		return getLayout().getBuildDirectory().file(getBaseName().map(it -> {
 			OperatingSystemFamily osFamily = getTargetMachine().getOperatingSystemFamily();
 			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
-			return osOperations.getExecutableName(getNames().getOutputDirectoryBase("exes") + "/" + it);
+			return osOperations.getExecutableName(identifier.getOutputDirectoryBase("exes") + "/" + it);
 		}));
 	}
 

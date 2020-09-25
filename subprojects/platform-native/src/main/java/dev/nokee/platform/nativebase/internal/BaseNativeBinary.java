@@ -65,7 +65,7 @@ import java.util.stream.Stream;
 
 public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	private final ToolChainSelectorInternal toolChainSelector;
-	private final BinaryIdentifier<?> identifier;
+	@Getter protected final BinaryIdentifier<?> identifier;
 	@Getter private final NamingScheme names;
 	protected final TaskView<Task> compileTasks; // Until the compile tasks is clean up
 	private final DomainObjectSet<GeneratedSourceSet> objectSourceSets;
@@ -141,7 +141,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	}
 
 	private void configureNativeSourceCompileTask(AbstractNativeCompileTask task) {
-		task.getObjectFileDir().convention(languageNameSuffixFor(task).flatMap(languageNameSuffix -> getLayout().getBuildDirectory().dir(names.getOutputDirectoryBase("objs") + "/main" + languageNameSuffix)));
+		task.getObjectFileDir().convention(languageNameSuffixFor(task).flatMap(languageNameSuffix -> getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("objs") + "/main" + languageNameSuffix)));
 
 		task.getTargetPlatform().set(getTargetPlatform());
 		task.getTargetPlatform().finalizeValueOnRead();
@@ -176,7 +176,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	}
 
 	private void configureSwiftCompileTask(SwiftCompileTask task) {
-		task.getObjectFileDir().convention(getLayout().getBuildDirectory().dir(names.getOutputDirectoryBase("objs") + "/mainSwift"));
+		task.getObjectFileDir().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("objs") + "/mainSwift"));
 
 		// TODO: Select the right value based on the build type dimension, once modeled
 		task.getDebuggable().set(false);

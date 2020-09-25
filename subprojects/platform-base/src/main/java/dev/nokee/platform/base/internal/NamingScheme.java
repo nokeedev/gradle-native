@@ -125,16 +125,6 @@ public class NamingScheme {
 		return getTaskName(verb) + StringUtils.capitalize(object);
 	}
 
-	public String getOutputDirectoryBase(String outputType) {
-		return outputType
-			+ prefixWithPathSeparator(componentName.get())
-			+ dimensions.get().map(NamingScheme::prefixWithPathSeparator).orElse("");
-	}
-
-	private static String prefixWithPathSeparator(String value) {
-		return "/" + value;
-	}
-
     public NamingScheme withConfigurationNamePrefix(String configurationNamePrefix) {
 		return new NamingScheme(baseName, componentName, displayName, ConfigurationPrefix.of(configurationNamePrefix), dimensions);
 	}

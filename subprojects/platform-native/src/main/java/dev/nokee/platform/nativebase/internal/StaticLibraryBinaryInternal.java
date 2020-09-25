@@ -62,7 +62,7 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 		return getLayout().getBuildDirectory().file(getBaseName().map(it -> {
 			OperatingSystemFamily osFamily = getTargetMachine().getOperatingSystemFamily();
 			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
-			return osOperations.getStaticLibraryName(getNames().getOutputDirectoryBase("libs") + "/" + it);
+			return osOperations.getStaticLibraryName(identifier.getOutputDirectoryBase("libs") + "/" + it);
 		}));
 	}
 
