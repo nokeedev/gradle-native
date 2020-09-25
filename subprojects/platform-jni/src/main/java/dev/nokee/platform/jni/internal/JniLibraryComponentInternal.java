@@ -1,6 +1,5 @@
 package dev.nokee.platform.jni.internal;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.*;
@@ -13,8 +12,6 @@ import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
-import dev.nokee.runtime.nativebase.MachineArchitecture;
-import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
@@ -23,6 +20,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.DomainObjectSet;
+import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -38,23 +36,19 @@ import java.util.stream.Collectors;
 
 public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, BinaryAwareComponent, Component {
 	private final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies;
-	private final GroupId groupId;
+	@Getter private final GroupId groupId;
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
 	private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
-	private final VariantCollection<JniLibraryInternal> variantCollection;
 	private final BinaryView<Binary> binaries;
-	private final SetProperty<BuildVariantInternal> buildVariants;
+	private final JavaNativeInterfaceComponentVariants componentVariants;
 
 	@Inject
 	public JniLibraryComponentInternal(ComponentIdentifier<JniLibraryComponentInternal> identifier, NamingScheme names, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers) {
 		super(identifier, names, JniLibraryInternal.class, objects);
-		this.variantCollection = new VariantCollection<>(JniLibraryInternal.class, objects);
-		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(variantCollection.getAsView(JniLibraryInternal.class), Variant::getBinaries)));
-		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
 		this.objects = objects;
 		this.configurations = configurations;
 		this.dependencyHandler = dependencyHandler;
@@ -64,6 +58,8 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		this.groupId = groupId;
 		this.sources = objects.domainObjectSet(LanguageSourceSetInternal.class);
 		this.targetMachines = objects.setProperty(TargetMachine.class);
+		this.componentVariants = new JavaNativeInterfaceComponentVariants(objects, this, configurations, dependencyHandler);
+		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(componentVariants.getVariantCollection().getAsView(JniLibraryInternal.class), Variant::getBinaries)));
 
 		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE));
 		getDimensions().disallowChanges(); // Let's disallow changing them for now.
@@ -84,17 +80,6 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	//region Variant-awareness
 	public VariantView<JniLibrary> getVariants() {
 		return getVariantCollection().getAsView(JniLibrary.class);
-	}
-
-	public JniLibraryInternal createVariant(VariantIdentifier<JniLibraryInternal> identifier, VariantComponentDependencies variantDependencies) {
-		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
-		Preconditions.checkArgument(buildVariant.getDimensions().size() == 2);
-		Preconditions.checkArgument(buildVariant.getDimensions().get(0) instanceof OperatingSystemFamily);
-		Preconditions.checkArgument(buildVariant.getDimensions().get(1) instanceof MachineArchitecture);
-		NamingScheme names = getNames().forBuildVariant(buildVariant, getBuildVariants().get());
-
-		JniLibraryInternal result = objects.newInstance(JniLibraryInternal.class, identifier, names, sources, groupId, getBinaryCollection(), variantDependencies);
-		return result;
 	}
 
 	private List<BuildVariantInternal> createBuildVariants() {
@@ -118,11 +103,15 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 
 	@Override
 	public VariantCollection<JniLibraryInternal> getVariantCollection() {
-		return variantCollection;
+		return componentVariants.getVariantCollection();
 	}
 
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return buildVariants;
+		return componentVariants.getBuildVariants();
+	}
+
+	public void finalizeExtension(Project project) {
+		componentVariants.calculateVariants();
 	}
 }
