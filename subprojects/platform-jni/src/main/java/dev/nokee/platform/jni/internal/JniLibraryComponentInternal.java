@@ -11,7 +11,6 @@ import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
-import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
@@ -25,6 +24,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.internal.Cast;
@@ -58,7 +58,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		this.groupId = groupId;
 		this.sources = objects.domainObjectSet(LanguageSourceSetInternal.class);
 		this.targetMachines = objects.setProperty(TargetMachine.class);
-		this.componentVariants = new JavaNativeInterfaceComponentVariants(objects, this, configurations, dependencyHandler);
+		this.componentVariants = new JavaNativeInterfaceComponentVariants(objects, this, configurations, dependencyHandler, providers);
 		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(componentVariants.getVariantCollection().getAsView(JniLibraryInternal.class), Variant::getBinaries)));
 
 		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE));
@@ -67,9 +67,6 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
 		getBuildVariants().finalizeValueOnRead();
 		getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
-
-		getDevelopmentVariant().convention(providers.provider(new BuildableDevelopmentVariantConvention<>(getVariantCollection()::get)));
-		getDevelopmentVariant().disallowChanges();
 	}
 
 	@Override
@@ -94,6 +91,11 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 
 	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
 		return sources;
+	}
+
+	@Override
+	public Provider<JniLibraryInternal> getDevelopmentVariant() {
+		return componentVariants.getDevelopmentVariant();
 	}
 
 	@Override

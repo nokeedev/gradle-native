@@ -22,6 +22,7 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
@@ -37,7 +38,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	@Inject
 	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
 		super(identifier, names, DefaultNativeApplicationVariant.class, objects, providers, tasks, layout, configurations);
-		this.componentVariants = new NativeApplicationComponentVariants(objects, this, dependencyHandler, configurations);
+		this.componentVariants = new NativeApplicationComponentVariants(objects, this, dependencyHandler, configurations, providers);
 		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeApplicationVariant.class), Variant::getBinaries)));
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
@@ -48,6 +49,11 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	@Override
 	public DefaultNativeApplicationComponentDependencies getDependencies() {
 		return dependencies;
+	}
+
+	@Override
+	public Provider<DefaultNativeApplicationVariant> getDevelopmentVariant() {
+		return componentVariants.getDevelopmentVariant();
 	}
 
 	@Override

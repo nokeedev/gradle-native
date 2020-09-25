@@ -7,25 +7,30 @@ import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencie
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
+import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import lombok.Getter;
 import lombok.val;
 import lombok.var;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
 public final class XCTestTestSuiteComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<DefaultXCTestTestSuiteVariant> variantCollection;
 	@Getter private final SetProperty<BuildVariantInternal> buildVariants;
+	@Getter private final Provider<DefaultXCTestTestSuiteVariant> developmentVariant;
 	private final ObjectFactory objectFactory;
 	private final BaseXCTestTestSuiteComponent component;
 	private final DependencyHandler dependencyHandler;
 	private final ConfigurationContainer configurationContainer;
 
-	public XCTestTestSuiteComponentVariants(ObjectFactory objectFactory, BaseXCTestTestSuiteComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer) {
+	public XCTestTestSuiteComponentVariants(ObjectFactory objectFactory, BaseXCTestTestSuiteComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory) {
 		this.variantCollection = new VariantCollection<>(DefaultXCTestTestSuiteVariant.class, objectFactory);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
+		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get()));
 		this.objectFactory = objectFactory;
 		this.component = component;
 		this.dependencyHandler = dependencyHandler;

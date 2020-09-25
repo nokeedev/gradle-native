@@ -7,25 +7,30 @@ import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencie
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
+import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
 import lombok.Getter;
 import lombok.val;
 import lombok.var;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
 public final class IosComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<DefaultIosApplicationVariant> variantCollection;
 	@Getter private final SetProperty<BuildVariantInternal> buildVariants;
+	@Getter private final Provider<DefaultIosApplicationVariant> developmentVariant;
 	private final ObjectFactory objectFactory;
 	private final DefaultIosApplicationComponent component;
 	private final DependencyHandler dependencyHandler;
 	private final ConfigurationContainer configurationContainer;
 
-	public IosComponentVariants(ObjectFactory objectFactory, DefaultIosApplicationComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer) {
+	public IosComponentVariants(ObjectFactory objectFactory, DefaultIosApplicationComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory) {
 		this.variantCollection = new VariantCollection<>(DefaultIosApplicationVariant.class, objectFactory);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
+		this.developmentVariant = providerFactory.provider(new DevelopmentVariantConvention<>(() -> getVariantCollection().get()));
 		this.objectFactory = objectFactory;
 		this.component = component;
 		this.dependencyHandler = dependencyHandler;
