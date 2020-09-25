@@ -2,6 +2,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
@@ -34,8 +35,8 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public StaticLibraryBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<CreateStaticLibraryTask> createTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
-		super(names, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
+	public StaticLibraryBinaryInternal(BinaryIdentifier<?> identifier, NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<CreateStaticLibraryTask> createTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
+		super(identifier, names, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
 		this.createTask = createTask;
 		this.tasks = tasks;
 

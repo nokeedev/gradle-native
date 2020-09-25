@@ -16,6 +16,7 @@ import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.DefaultTaskView;
 import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.Realizable;
@@ -53,7 +54,6 @@ import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import org.gradle.nativeplatform.toolchain.internal.ToolType;
 import org.gradle.util.GUtil;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +65,7 @@ import java.util.stream.Stream;
 
 public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	private final ToolChainSelectorInternal toolChainSelector;
+	private final BinaryIdentifier<?> identifier;
 	@Getter private final NamingScheme names;
 	protected final TaskView<Task> compileTasks; // Until the compile tasks is clean up
 	private final DomainObjectSet<GeneratedSourceSet> objectSourceSets;
@@ -76,7 +77,8 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter private final Property<String> baseName;
 
-	public BaseNativeBinary(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations) {
+	public BaseNativeBinary(BinaryIdentifier<?> identifier, NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations) {
+		this.identifier = identifier;
 		this.names = names;
 		this.compileTasks = objects.newInstance(DefaultTaskView.class, Task.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), (Realizable)() -> {});
 		this.objectSourceSets = objectSourceSets;
