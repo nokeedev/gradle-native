@@ -19,6 +19,7 @@ import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
@@ -79,7 +80,8 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	}
 
 	public void registerSharedLibraryBinary(DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeIncomingDependencies dependencies) {
-		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, names, sources, targetMachine, objectSourceSets, linkTask, dependencies);
+		val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, getIdentifier());
+		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, sources, targetMachine, objectSourceSets, linkTask, dependencies);
 		getNativeRuntimeFiles().from(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
 		getNativeRuntimeFiles().from(sharedLibraryBinary.getRuntimeLibrariesDependencies());
 		this.sharedLibraryBinary = sharedLibraryBinary;

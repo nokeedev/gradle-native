@@ -16,8 +16,8 @@ import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.DefaultTaskView;
-import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.Realizable;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
@@ -53,7 +53,6 @@ import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import org.gradle.nativeplatform.toolchain.internal.ToolType;
 import org.gradle.util.GUtil;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +64,7 @@ import java.util.stream.Stream;
 
 public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	private final ToolChainSelectorInternal toolChainSelector;
-	@Getter private final NamingScheme names;
+	@Getter protected final BinaryIdentifier<?> identifier;
 	protected final TaskView<Task> compileTasks; // Until the compile tasks is clean up
 	private final DomainObjectSet<GeneratedSourceSet> objectSourceSets;
 	@Getter private final DefaultTargetMachine targetMachine;
@@ -76,8 +75,8 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter private final Property<String> baseName;
 
-	public BaseNativeBinary(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations) {
-		this.names = names;
+	public BaseNativeBinary(BinaryIdentifier<?> identifier, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations) {
+		this.identifier = identifier;
 		this.compileTasks = objects.newInstance(DefaultTaskView.class, Task.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), (Realizable)() -> {});
 		this.objectSourceSets = objectSourceSets;
 		this.targetMachine = targetMachine;
@@ -139,7 +138,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	}
 
 	private void configureNativeSourceCompileTask(AbstractNativeCompileTask task) {
-		task.getObjectFileDir().convention(languageNameSuffixFor(task).flatMap(languageNameSuffix -> getLayout().getBuildDirectory().dir(names.getOutputDirectoryBase("objs") + "/main" + languageNameSuffix)));
+		task.getObjectFileDir().convention(languageNameSuffixFor(task).flatMap(languageNameSuffix -> getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("objs") + "/main" + languageNameSuffix)));
 
 		task.getTargetPlatform().set(getTargetPlatform());
 		task.getTargetPlatform().finalizeValueOnRead();
@@ -174,7 +173,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	}
 
 	private void configureSwiftCompileTask(SwiftCompileTask task) {
-		task.getObjectFileDir().convention(getLayout().getBuildDirectory().dir(names.getOutputDirectoryBase("objs") + "/mainSwift"));
+		task.getObjectFileDir().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("objs") + "/mainSwift"));
 
 		// TODO: Select the right value based on the build type dimension, once modeled
 		task.getDebuggable().set(false);

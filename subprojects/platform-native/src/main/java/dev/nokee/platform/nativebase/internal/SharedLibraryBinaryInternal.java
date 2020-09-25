@@ -9,7 +9,7 @@ import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.nativebase.HeaderSearchPath;
 import dev.nokee.language.nativebase.internal.DefaultHeaderSearchPath;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
@@ -58,8 +58,8 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 
 	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
-	public SharedLibraryBinaryInternal(NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
-		super(names, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
+	public SharedLibraryBinaryInternal(BinaryIdentifier<?> identifier, DomainObjectSet<LanguageSourceSetInternal> parentSources, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
+		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
 		this.linkTask = linkTask;
 		this.dependencies = dependencies;
 		this.objects = objects;
@@ -117,7 +117,7 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 		Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());
 		task.getInstallName().set(installName);
 
-		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(getNames().getOutputDirectoryBase("libs")));
+		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("libs")));
 		task.getLinkedFile().convention(getSharedLibraryLinkedFile());
 
 		// For windows
@@ -139,7 +139,7 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 		return getProviders().provider(() -> {
 			PlatformToolProvider toolProvider = platformToolProvider.get();
 			if (toolProvider.producesImportLibrary()) {
-				return getLayout().getBuildDirectory().file(toolProvider.getImportLibraryName(getNames().getOutputDirectoryBase("libs") + "/" + getBaseName().get())).get();
+				return getLayout().getBuildDirectory().file(toolProvider.getImportLibraryName(identifier.getOutputDirectoryBase("libs") + "/" + getBaseName().get())).get();
 			}
 			return null;
 		});
@@ -149,7 +149,7 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 		return getLayout().getBuildDirectory().file(getBaseName().map(it -> {
 			OperatingSystemFamily osFamily = getTargetMachine().getOperatingSystemFamily();
 			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
-			return osOperations.getSharedLibraryName(getNames().getOutputDirectoryBase("libs") + "/" + it);
+			return osOperations.getSharedLibraryName(identifier.getOutputDirectoryBase("libs") + "/" + it);
 		}));
 	}
 

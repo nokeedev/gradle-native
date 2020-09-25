@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
@@ -39,8 +39,8 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public ExecutableBinaryInternal(NamingScheme names, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
-		super(names, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
+	public ExecutableBinaryInternal(BinaryIdentifier<?> identifier, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
+		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
 		this.linkTask = linkTask;
 		this.tasks = tasks;
 
@@ -74,7 +74,7 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 		// Until we model the build type
 		task.getDebuggable().set(false);
 
-		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(getNames().getOutputDirectoryBase("exes")));
+		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("exes")));
 		task.getLinkedFile().convention(getExecutableLinkedFile());
 
 		task.getToolChain().set(selectNativeToolChain(getTargetMachine()));
@@ -86,7 +86,7 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 		return getLayout().getBuildDirectory().file(getBaseName().map(it -> {
 			OperatingSystemFamily osFamily = getTargetMachine().getOperatingSystemFamily();
 			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
-			return osOperations.getExecutableName(getNames().getOutputDirectoryBase("exes") + "/" + it);
+			return osOperations.getExecutableName(identifier.getOutputDirectoryBase("exes") + "/" + it);
 		}));
 	}
 

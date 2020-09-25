@@ -2,7 +2,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
-import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkBundle;
@@ -31,8 +31,8 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public BundleBinaryInternal(NamingScheme names, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkBundleTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
-		super(names, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
+	public BundleBinaryInternal(BinaryIdentifier<?> identifier, DefaultTargetMachine targetMachine, DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkBundleTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks) {
+		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations);
 
 		this.linkTask = linkTask;
 		this.tasks = tasks;
@@ -51,7 +51,7 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 		// Until we model the build type
 		task.getDebuggable().set(false);
 
-		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(getNames().getOutputDirectoryBase("libs")));
+		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("libs")));
 		task.getLinkedFile().convention(getBundleLinkedFile());
 
 		task.getLinkerArgs().addAll("-Xlinker", "-bundle"); // Required when not building swift
@@ -65,7 +65,7 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 		return getLayout().getBuildDirectory().file(getBaseName().map(it -> {
 			OperatingSystemFamily osFamily = getTargetMachine().getOperatingSystemFamily();
 			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
-			return osOperations.getExecutableName(getNames().getOutputDirectoryBase("libs") + "/" + it);
+			return osOperations.getExecutableName(identifier.getOutputDirectoryBase("libs") + "/" + it);
 		}));
 	}
 

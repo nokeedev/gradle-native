@@ -79,16 +79,6 @@ public class NamingScheme {
 		return buildVariant -> (Named)buildVariant.getDimensions().get(index);
 	}
 
-	public String getOutputDirectoryBase(String outputType) {
-		return outputType
-			+ prefixWithPathSeparator(componentName.get())
-			+ dimensions.get().map(NamingScheme::prefixWithPathSeparator).orElse("");
-	}
-
-	private static String prefixWithPathSeparator(String value) {
-		return "/" + value;
-	}
-
 	public class BaseNameNamingScheme {
 		private BaseNameNamingScheme() {}
 
