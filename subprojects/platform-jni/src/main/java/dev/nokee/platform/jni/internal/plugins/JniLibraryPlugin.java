@@ -141,7 +141,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			// Build all language source set
 			DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
 			if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
-				objectSourceSets.addAll(getObjects().newInstance(NativeLanguageRules.class, names).apply(extension.getComponent().getSourceCollection()));
+				objectSourceSets.addAll(new NativeLanguageRules(taskRegistry, objects, variant.getIdentifier()).apply(extension.getComponent().getSourceCollection()));
 			}
 
 			TaskProvider<LinkSharedLibraryTask> linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variant.getIdentifier()));
