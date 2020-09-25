@@ -85,15 +85,15 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.getDimensions().convention(ImmutableList.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 		this.getBaseName().convention(names.getBaseName().getAsString());
 
+		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry);
+		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeTestSuiteVariant.class), Variant::getBinaries)));
+
 		this.getBuildVariants().convention(providers.provider(this::createBuildVariants));
 		this.getBuildVariants().finalizeValueOnRead();
 		this.getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
 
 		this.getDimensions().disallowChanges(); // Let's disallow changing them for now.
-
-		this.taskRegistry = new TaskRegistryImpl(tasks);
-		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry);
-		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeTestSuiteVariant.class), Variant::getBinaries)));
 	}
 
 	protected Iterable<BuildVariantInternal> createBuildVariants() {
