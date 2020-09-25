@@ -44,7 +44,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		components.registerFactory(DefaultCppApplicationExtension.class, id -> {
 			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeApplicationComponent.class, ProjectIdentifier.of(project));
 			val component = store.register(identifier, DefaultNativeApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
-			return getObjects().newInstance(DefaultCppApplicationExtension.class, component.get());
+			return new DefaultCppApplicationExtension(component.get(), project.getObjects(), project.getProviders(), project.getLayout());
 		});
 		val extension = components.register("main", DefaultCppApplicationExtension.class, component -> {
 			component.getComponent().getBaseName().convention(project.getName());

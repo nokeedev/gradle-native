@@ -49,7 +49,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		components.registerFactory(DefaultSwiftIosApplicationExtension.class, id -> {
 			val identifier = ComponentIdentifier.ofMain(DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
 			val component = store.register(identifier, DefaultIosApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
-			return getObjects().newInstance(DefaultSwiftIosApplicationExtension.class, component.get());
+			return new DefaultSwiftIosApplicationExtension(component.get(), project.getObjects(), project.getProviders());
 		});
 		val extension = components.register("main", DefaultSwiftIosApplicationExtension.class, component -> {
 			component.getComponent().getBaseName().convention(GUtil.toCamelCase(project.getName()));

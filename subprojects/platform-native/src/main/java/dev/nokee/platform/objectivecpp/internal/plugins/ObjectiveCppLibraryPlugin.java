@@ -45,7 +45,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		components.registerFactory(DefaultObjectiveCppLibraryExtension.class, id -> {
 			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeLibraryComponent.class, ProjectIdentifier.of(project));
 			val component = store.register(identifier, DefaultNativeLibraryComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
-			return getObjects().newInstance(DefaultObjectiveCppLibraryExtension.class, component.get());
+			return new DefaultObjectiveCppLibraryExtension(component.get(), project.getObjects(), project.getProviders(), project.getLayout());
 		});
 		val extension = components.register("main", DefaultObjectiveCppLibraryExtension.class, component -> {
 			component.getComponent().getBaseName().convention(project.getName());

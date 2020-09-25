@@ -430,7 +430,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	private Optional<DefaultJvmJarBinary> findJvmBinary(Project project) {
 		if (project.getPluginManager().hasPlugin("java")) {
 			TaskProvider<Jar> jvmJarTask = project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class);
-			return Optional.of(getObjects().newInstance(DefaultJvmJarBinary.class, jvmJarTask));
+			return Optional.of(new DefaultJvmJarBinary(jvmJarTask));
 		}
 		return Optional.empty();
 	}
@@ -453,7 +453,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(JniLibraryExtensionInternal.class, identifier -> {
 			assert ((ComponentIdentifier<?>) identifier).isMainComponent();
-			return project.getObjects().newInstance(JniLibraryExtensionInternal.class, identifier, GroupId.of(project::getGroup), names);
+			return new JniLibraryExtensionInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), names, project.getConfigurations(), project.getObjects(), project.getProviders());
 		});
 		val library = components.register("main", JniLibraryExtensionInternal.class).get();
 

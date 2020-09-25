@@ -45,7 +45,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 		components.registerFactory(DefaultCLibraryExtension.class, id -> {
 			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeLibraryComponent.class, ProjectIdentifier.of(project));
 			val component = store.register(identifier, DefaultNativeLibraryComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
-			return getObjects().newInstance(DefaultCLibraryExtension.class, component.get());
+			return new DefaultCLibraryExtension(component.get(), project.getObjects(), project.getProviders(), project.getLayout());
 		});
 		val extension = components.register("main", DefaultCLibraryExtension.class, component -> {
 			component.getComponent().getBaseName().convention(project.getName());
