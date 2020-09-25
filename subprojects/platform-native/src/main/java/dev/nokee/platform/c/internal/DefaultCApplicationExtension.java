@@ -22,7 +22,7 @@ import org.gradle.api.provider.SetProperty;
 import javax.inject.Inject;
 
 public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements CApplicationExtension, Component {
-	@Getter private final ConfigurableFileCollection cSources;
+	private final ConfigurableFileCollection cSources;
 	@Getter private final ConfigurableFileCollection privateHeaders;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
@@ -34,8 +34,17 @@ public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNat
 		this.privateHeaders = objects.fileCollection();
 		this.targetMachines = objects.setProperty(TargetMachine.class);
 		this.targetBuildTypes = objects.setProperty(TargetBuildType.class);
-		getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").from(getCSources().getElements().map(toIfEmpty("src/main/c"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").from(cSources.getElements().map(toIfEmpty("src/main/c"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
+	}
+
+	@Override
+	public ConfigurableFileCollection getCSources() {
+		return cSources;
+	}
+
+	public ConfigurableFileCollection getcSources() {
+		return cSources;
 	}
 
 	@Override
