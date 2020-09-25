@@ -13,6 +13,7 @@ import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
+import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import lombok.Getter;
 import lombok.val;
 import lombok.var;
@@ -21,6 +22,7 @@ import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
 import java.io.File;
@@ -30,14 +32,16 @@ import java.util.List;
 public final class NativeLibraryComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<DefaultNativeLibraryVariant> variantCollection;
 	@Getter private final SetProperty<BuildVariantInternal> buildVariants;
+	@Getter private final Provider<DefaultNativeLibraryVariant> developmentVariant;
 	private final ObjectFactory objectFactory;
 	private final DefaultNativeLibraryComponent component;
 	private final DependencyHandler dependencyHandler;
 	private final ConfigurationContainer configurationContainer;
 
-	public NativeLibraryComponentVariants(ObjectFactory objectFactory, DefaultNativeLibraryComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer) {
+	public NativeLibraryComponentVariants(ObjectFactory objectFactory, DefaultNativeLibraryComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory) {
 		this.variantCollection = new VariantCollection<>(DefaultNativeLibraryVariant.class, objectFactory);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
+		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get()));
 		this.objectFactory = objectFactory;
 		this.component = component;
 		this.dependencyHandler = dependencyHandler;

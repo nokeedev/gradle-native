@@ -12,6 +12,7 @@ import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencie
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
+import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import lombok.Getter;
@@ -19,19 +20,23 @@ import lombok.val;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
 public class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<JniLibraryInternal> variantCollection;
 	@Getter private final SetProperty<BuildVariantInternal> buildVariants;
+	@Getter private final Provider<JniLibraryInternal> developmentVariant;
 	private final ObjectFactory objectFactory;
 	private final JniLibraryComponentInternal component;
 	private final ConfigurationContainer configurationContainer;
 	private final DependencyHandler dependencyHandler;
 
-	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler) {
+	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ProviderFactory providerFactory) {
 		this.variantCollection = new VariantCollection<>(JniLibraryInternal.class, objectFactory);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
+		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(getVariantCollection()::get));
 		this.objectFactory = objectFactory;
 		this.component = component;
 		this.configurationContainer = configurationContainer;

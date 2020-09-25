@@ -77,7 +77,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		super(identifier, names, DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
 		this.objects = objects;
 		this.providers = providers;
-		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations);
+		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers);
 		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeTestSuiteVariant.class), Variant::getBinaries)));
 		this.tasks = tasks;
 
@@ -127,6 +127,11 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
 		return componentVariants.getBuildVariants();
+	}
+
+	@Override
+	public Provider<DefaultNativeTestSuiteVariant> getDevelopmentVariant() {
+		return componentVariants.getDevelopmentVariant();
 	}
 
 	@Override

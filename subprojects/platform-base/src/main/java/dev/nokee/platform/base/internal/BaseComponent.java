@@ -9,6 +9,7 @@ import lombok.Getter;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 
 public abstract class BaseComponent<T extends Variant> {
@@ -20,7 +21,6 @@ public abstract class BaseComponent<T extends Variant> {
 	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
 	@Getter private final SetProperty<DimensionType> dimensions;
 
-	@Getter private final Property<T> developmentVariant;
 	@Getter private final Property<String> baseName;
 
 	protected BaseComponent(ComponentIdentifier<?> identifier, NamingScheme names, Class<T> variantType, ObjectFactory objects) {
@@ -29,11 +29,12 @@ public abstract class BaseComponent<T extends Variant> {
 		this.binaryCollection = objects.domainObjectSet(Binary.class);
 		this.sourceCollection = objects.domainObjectSet(SourceSet.class);
 		this.dimensions = objects.setProperty(DimensionType.class);
-		this.developmentVariant = objects.property(variantType);
 		this.baseName = objects.property(String.class);
 
 		getDimensions().finalizeValueOnRead();
 	}
+
+	public abstract Provider<T> getDevelopmentVariant();
 
 	public abstract BinaryView<Binary> getBinaries();
 

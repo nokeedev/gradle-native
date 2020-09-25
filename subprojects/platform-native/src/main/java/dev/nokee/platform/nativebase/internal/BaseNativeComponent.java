@@ -15,7 +15,6 @@ import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
-import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
@@ -42,7 +41,6 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 		this.objects = objects;
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
 		this.variantType = variantType;
-		getDevelopmentVariant().convention(providers.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get())));
 		this.taskRegistry = new TaskRegistryImpl(tasks);
 	}
 
