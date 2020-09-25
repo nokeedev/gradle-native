@@ -26,7 +26,7 @@ import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
 
 public class DefaultSwiftLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements SwiftLibraryExtension, Component {
-	@Getter private final ConfigurableFileCollection sources;
+	@Getter private final ConfigurableFileCollection swiftSources;
 	@Getter private final SetProperty<TargetLinkage> targetLinkages;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
@@ -34,12 +34,12 @@ public class DefaultSwiftLibraryExtension extends BaseNativeExtension<DefaultNat
 	@Inject
 	public DefaultSwiftLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
 		super(component, objects, providers, layout);
-		this.sources = objects.fileCollection();
+		this.swiftSources = objects.fileCollection();
 		this.targetLinkages = configureDisplayName(objects.setProperty(TargetLinkage.class), "targetLinkages");
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
 
-		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").from(getSources().getElements().map(toIfEmpty("src/main/swift"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").from(this.getSwiftSources().getElements().map(toIfEmpty("src/main/swift"))));
 	}
 
 	public void setTargetMachines(Object value) {

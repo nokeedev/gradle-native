@@ -45,7 +45,7 @@ class ObjectiveCppApplicationNativeLanguageSourceLayoutFunctionalTest extends Ab
 			}
 
 			application {
-				sources.from('srcs')
+				objectiveCppSources.from('srcs')
 				dependencies {
 					implementation project(':library')
 				}
@@ -61,7 +61,7 @@ class ObjectiveCppApplicationNativeLanguageSourceLayoutFunctionalTest extends Ab
 			}
 
 			library {
-				sources.from('srcs')
+				objectiveCppSources.from('srcs')
 				publicHeaders.from('includes')
 			}
 
@@ -82,7 +82,7 @@ class ObjectiveCppApplicationNativeLanguageSourceLayoutFunctionalTest extends Ab
 	protected String configureSourcesAsConvention() {
 		return """
 			application {
-				sources.from('srcs')
+				objectiveCppSources.from('srcs')
 				privateHeaders.from('includes')
 			}
 		"""
@@ -92,7 +92,7 @@ class ObjectiveCppApplicationNativeLanguageSourceLayoutFunctionalTest extends Ab
 	protected String configureSourcesAsExplicitFiles() {
 		return """
 			application {
-				${componentUnderTest.sources.files.collect { "sources.from('srcs/${it.name}')" }.join('\n')}
+				${componentUnderTest.sources.files.collect { "objectiveCppSources.from('srcs/${it.name}')" }.join('\n')}
 				privateHeaders.from('includes')
 			}
 		"""
@@ -138,7 +138,7 @@ class ObjectiveCppLibraryNativeLanguageSourceLayoutFunctionalTest extends Abstra
 			}
 
 			library {
-				sources.from('srcs')
+				objectiveCppSources.from('srcs')
 				privateHeaders.from('includes')
 				dependencies {
 					implementation project(':library')
@@ -155,7 +155,7 @@ class ObjectiveCppLibraryNativeLanguageSourceLayoutFunctionalTest extends Abstra
 			}
 
 			library {
-				sources.from('srcs')
+				objectiveCppSources.from('srcs')
 				publicHeaders.from('includes')
 			}
 
@@ -177,7 +177,7 @@ class ObjectiveCppLibraryNativeLanguageSourceLayoutFunctionalTest extends Abstra
 	protected String configureSourcesAsConvention() {
 		return """
 			library {
-				sources.from('srcs')
+				objectiveCppSources.from('srcs')
 				privateHeaders.from('headers')
 				publicHeaders.from('includes')
 			}
@@ -188,7 +188,7 @@ class ObjectiveCppLibraryNativeLanguageSourceLayoutFunctionalTest extends Abstra
 	protected String configureSourcesAsExplicitFiles() {
 		return """
 			library {
-				${componentUnderTest.sources.files.collect { "sources.from('srcs/${it.name}')" }.join('\n')}
+				${componentUnderTest.sources.files.collect { "objectiveCppSources.from('srcs/${it.name}')" }.join('\n')}
 				privateHeaders.from('headers')
 				publicHeaders.from('includes')
 			}

@@ -36,14 +36,29 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 	protected abstract SourceElement getComponentUnderTest();
 
 	protected String configureCustomSourceLayout() {
+		def className = this.class.simpleName
+
 		def componentUnderTestDsl = 'application'
-		if (this.class.simpleName.contains('Library')) {
+		if (className.contains('Library')) {
 			componentUnderTestDsl = 'library'
+		}
+
+		def languageName = ''
+		if (className.contains('ObjectiveCpp')) {
+			languageName = 'objectiveCpp'
+		} else if (className.contains('ObjectiveC')) {
+			languageName = 'objectiveC'
+		} else if (className.contains('Cpp')) {
+			languageName = 'cpp'
+		} else if (className.contains('c')) {
+			languageName = 'c'
+		} else if (className.contains('swift')) {
+			languageName = 'swift'
 		}
 
 		def result = """
 			${componentUnderTestDsl} {
-				sources.from('srcs')
+				${languageName}Sources.from('srcs')
 			}
 		"""
 

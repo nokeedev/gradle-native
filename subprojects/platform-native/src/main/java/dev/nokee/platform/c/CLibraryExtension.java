@@ -23,7 +23,7 @@ public interface CLibraryExtension extends DependencyAwareComponent<NativeLibrar
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getSources();
+	ConfigurableFileCollection getCSources();
 
 	/**
 	 * Defines the private headers search directories of this library.

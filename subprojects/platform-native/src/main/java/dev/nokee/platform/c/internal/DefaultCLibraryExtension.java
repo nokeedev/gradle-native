@@ -27,7 +27,7 @@ import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
 
 public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements CLibraryExtension, Component {
-	@Getter private final ConfigurableFileCollection sources;
+	private final ConfigurableFileCollection cSources;
 	@Getter private final ConfigurableFileCollection privateHeaders;
 	@Getter private final ConfigurableFileCollection publicHeaders;
 	@Getter private final SetProperty<TargetLinkage> targetLinkages;
@@ -37,14 +37,14 @@ public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeL
 	@Inject
 	public DefaultCLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
 		super(component, objects, providers, layout);
-		this.sources = objects.fileCollection();
+		this.cSources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();
 		this.publicHeaders = objects.fileCollection();
 		this.targetLinkages = configureDisplayName(objects.setProperty(TargetLinkage.class), "targetLinkages");
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
 
-		getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").from(getSources().getElements().map(toIfEmpty("src/main/c"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").from(cSources.getElements().map(toIfEmpty("src/main/c"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "public").srcDir(getPublicHeaders().getElements().map(toIfEmpty("src/main/public"))));
 	}
@@ -59,6 +59,15 @@ public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeL
 
 	public void setTargetLinkages(Object value) {
 		ConfigureUtils.setPropertyValue(targetLinkages, value);
+	}
+
+	@Override
+	public ConfigurableFileCollection getCSources() {
+		return cSources;
+	}
+
+	public ConfigurableFileCollection getcSources() {
+		return cSources;
 	}
 
 	@Override

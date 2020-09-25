@@ -27,7 +27,7 @@ import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
 
 public class DefaultObjectiveCppLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements ObjectiveCppLibraryExtension, Component {
-	@Getter private final ConfigurableFileCollection sources;
+	@Getter private final ConfigurableFileCollection objectiveCppSources;
 	@Getter private final ConfigurableFileCollection privateHeaders;
 	@Getter private final ConfigurableFileCollection publicHeaders;
 	@Getter private final SetProperty<TargetLinkage> targetLinkages;
@@ -37,14 +37,14 @@ public class DefaultObjectiveCppLibraryExtension extends BaseNativeExtension<Def
 	@Inject
 	public DefaultObjectiveCppLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
 		super(component, objects, providers, layout);
-		this.sources = objects.fileCollection();
+		this.objectiveCppSources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();
 		this.publicHeaders = objects.fileCollection();
 		this.targetLinkages = configureDisplayName(objects.setProperty(TargetLinkage.class), "targetLinkages");
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
 
-		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").from(getSources().getElements().map(toIfEmpty("src/main/objcpp"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").from(this.getObjectiveCppSources().getElements().map(toIfEmpty("src/main/objcpp"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "public").srcDir(getPublicHeaders().getElements().map(toIfEmpty("src/main/public"))));
 	}

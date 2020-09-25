@@ -26,5 +26,5 @@ public interface SwiftApplicationExtension extends DependencyAwareComponent<Nati
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getSources();
+	ConfigurableFileCollection getSwiftSources();
 }

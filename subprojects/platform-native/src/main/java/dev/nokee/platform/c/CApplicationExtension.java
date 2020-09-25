@@ -26,7 +26,7 @@ public interface CApplicationExtension extends DependencyAwareComponent<NativeAp
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getSources();
+	ConfigurableFileCollection getCSources();
 
 	/**
 	 * Defines the private headers search directories of this application.

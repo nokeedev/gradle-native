@@ -26,7 +26,7 @@ import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
 
 public class DefaultObjectiveCApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCApplicationExtension, Component {
-	@Getter private final ConfigurableFileCollection sources;
+	@Getter private final ConfigurableFileCollection objectiveCSources;
 	@Getter private final ConfigurableFileCollection privateHeaders;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
@@ -34,12 +34,12 @@ public class DefaultObjectiveCApplicationExtension extends BaseNativeExtension<D
 	@Inject
 	public DefaultObjectiveCApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
 		super(component, objects, providers, layout);
-		this.sources = objects.fileCollection();
+		this.objectiveCSources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
 
-		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").from(getSources().getElements().map(toIfEmpty("src/main/objc"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").from(this.getObjectiveCSources().getElements().map(toIfEmpty("src/main/objc"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
 	}
 

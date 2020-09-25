@@ -26,7 +26,7 @@ import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
 
 public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements CApplicationExtension, Component {
-	@Getter private final ConfigurableFileCollection sources;
+	private final ConfigurableFileCollection cSources;
 	@Getter private final ConfigurableFileCollection privateHeaders;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
@@ -34,11 +34,11 @@ public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNat
 	@Inject
 	public DefaultCApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
 		super(component, objects, providers, layout);
-		this.sources = objects.fileCollection();
+		this.cSources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
-		getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").from(getSources().getElements().map(toIfEmpty("src/main/c"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").from(cSources.getElements().map(toIfEmpty("src/main/c"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
 	}
 
@@ -48,6 +48,15 @@ public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNat
 
 	public void setTargetBuildTypes(Object value) {
 		ConfigureUtils.setPropertyValue(targetBuildTypes, value);
+	}
+
+	@Override
+	public ConfigurableFileCollection getCSources() {
+		return cSources;
+	}
+
+	public ConfigurableFileCollection getcSources() {
+		return cSources;
 	}
 
 	@Override

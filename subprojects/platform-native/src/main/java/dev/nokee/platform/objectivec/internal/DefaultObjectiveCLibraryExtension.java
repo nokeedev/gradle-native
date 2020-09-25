@@ -27,7 +27,7 @@ import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
 
 public class DefaultObjectiveCLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements ObjectiveCLibraryExtension, Component {
-	@Getter private final ConfigurableFileCollection sources;
+	@Getter private final ConfigurableFileCollection objectiveCSources;
 	@Getter private final ConfigurableFileCollection privateHeaders;
 	@Getter private final ConfigurableFileCollection publicHeaders;
 	@Getter private final SetProperty<TargetLinkage> targetLinkages;
@@ -37,14 +37,14 @@ public class DefaultObjectiveCLibraryExtension extends BaseNativeExtension<Defau
 	@Inject
 	public DefaultObjectiveCLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
 		super(component, objects, providers, layout);
-		this.sources = objects.fileCollection();
+		this.objectiveCSources = objects.fileCollection();
 		this.privateHeaders = objects.fileCollection();
 		this.publicHeaders = objects.fileCollection();
 		this.targetLinkages = configureDisplayName(objects.setProperty(TargetLinkage.class), "targetLinkages");
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
 
-		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").from(getSources().getElements().map(toIfEmpty("src/main/objc"))));
+		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").from(this.getObjectiveCSources().getElements().map(toIfEmpty("src/main/objc"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
 		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "public").srcDir(getPublicHeaders().getElements().map(toIfEmpty("src/main/public"))));
 	}

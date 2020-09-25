@@ -23,7 +23,7 @@ public interface ObjectiveCppLibraryExtension extends DependencyAwareComponent<N
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getSources();
+	ConfigurableFileCollection getObjectiveCppSources();
 
 	/**
 	 * Defines the private headers search directories of this library.

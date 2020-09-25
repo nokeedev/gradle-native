@@ -35,7 +35,7 @@ class SwiftApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractN
 			}
 
 			application {
-				sources.from('srcs')
+				swiftSources.from('srcs')
 				dependencies {
 					implementation project(':library')
 				}
@@ -47,7 +47,7 @@ class SwiftApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractN
 			}
 
 			library {
-				sources.from('srcs')
+				swiftSources.from('srcs')
 			}
 		'''
 		def fixture = componentUnderTest.withImplementationAsSubproject('library')
@@ -62,7 +62,7 @@ class SwiftApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractN
 	protected String configureSourcesAsConvention() {
 		return """
 			application {
-				sources.from('srcs')
+				swiftSources.from('srcs')
 			}
 		"""
 	}
@@ -71,7 +71,7 @@ class SwiftApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractN
 	protected String configureSourcesAsExplicitFiles() {
 		return """
 			application {
-				${componentUnderTest.files.collect { "sources.from('srcs/${it.name}')" }.join('\n')}
+				${componentUnderTest.files.collect { "swiftSources.from('srcs/${it.name}')" }.join('\n')}
 			}
 		"""
 	}
@@ -104,7 +104,7 @@ class SwiftLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativ
 			}
 
 			library {
-				sources.from('srcs')
+				swiftSources.from('srcs')
 				dependencies {
 					implementation project(':library')
 				}
@@ -116,7 +116,7 @@ class SwiftLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativ
 			}
 
 			library {
-				sources.from('srcs')
+				swiftSources.from('srcs')
 			}
 		'''
 		def fixture = componentUnderTest.withImplementationAsSubproject('library')
@@ -131,7 +131,7 @@ class SwiftLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativ
 	protected String configureSourcesAsConvention() {
 		return """
 			library {
-				sources.from('srcs')
+				swiftSources.from('srcs')
 			}
 		"""
 	}
@@ -140,7 +140,7 @@ class SwiftLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativ
 	protected String configureSourcesAsExplicitFiles() {
 		return """
 			library {
-				${componentUnderTest.files.collect { "sources.from('srcs/${it.name}')" }.join('\n')}
+				${componentUnderTest.files.collect { "swiftSources.from('srcs/${it.name}')" }.join('\n')}
 			}
 		"""
 	}

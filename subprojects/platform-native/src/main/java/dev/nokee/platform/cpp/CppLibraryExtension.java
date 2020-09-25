@@ -23,7 +23,7 @@ public interface CppLibraryExtension extends DependencyAwareComponent<NativeLibr
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getSources();
+	ConfigurableFileCollection getCppSources();
 
 	/**
 	 * Defines the private headers search directories of this library.
