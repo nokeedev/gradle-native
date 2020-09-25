@@ -21,30 +21,37 @@ public class VariantIdentifier<T extends Variant> implements DomainObjectIdentif
 	@Getter private final String unambiguousName;
 	@Getter private final Class<T> type;
 	@Getter private final ComponentIdentifier<?> componentIdentifier;
+	@Getter @EqualsAndHashCode.Exclude private final List<String> ambiguousDimensions;
 	private final List<String> dimensions;
 	@EqualsAndHashCode.Exclude private final BuildVariant buildVariant;
 	@EqualsAndHashCode.Exclude private final String fullName;
 
-	public VariantIdentifier(String unambiguousName, Class<T> type, ComponentIdentifier<?> componentIdentifier, List<String> dimensions, BuildVariant buildVariant, String fullName) {
+	public VariantIdentifier(String unambiguousName, Class<T> type, ComponentIdentifier<?> componentIdentifier, List<String> ambiguousDimensions, List<String> dimensions, BuildVariant buildVariant, String fullName) {
 		this.unambiguousName = requireNonNull(unambiguousName);
 		this.type = requireNonNull(type);
 		this.componentIdentifier = requireNonNull(componentIdentifier);
+		this.ambiguousDimensions = ambiguousDimensions;
 		this.dimensions = requireNonNull(dimensions);
 		this.buildVariant = buildVariant;
 		this.fullName = fullName;
 	}
 
 	public static <T extends Variant> VariantIdentifier<T> of(String unambiguousName, Class<T> type, ComponentIdentifier<?> identifier) {
-		return new VariantIdentifier<>(unambiguousName, type, identifier, Collections.emptyList(), null, unambiguousName);
+		return new VariantIdentifier<>(unambiguousName, type, identifier, Collections.emptyList(), Collections.emptyList(), null, unambiguousName);
 	}
 
 	public static <T extends Variant> VariantIdentifier<T> of(BuildVariant buildVariant, Class<T> type, ComponentIdentifier<?> identifier) {
 		String unambiguousName = createUnambiguousName(buildVariant);
-		return new VariantIdentifier<>(unambiguousName, type, identifier, Collections.emptyList(), buildVariant, unambiguousName);
+		List<String> ambiguousDimensions = createAmbiguousDimensionNames(buildVariant);
+		return new VariantIdentifier<>(unambiguousName, type, identifier, ambiguousDimensions, Collections.emptyList(), buildVariant, unambiguousName);
 	}
 
 	private static String createUnambiguousName(BuildVariant buildVariant) {
 		return StringUtils.uncapitalize(((BuildVariantInternal)buildVariant).getDimensions().stream().map(Named.class::cast).map(Named::getName).map(StringUtils::capitalize).collect(Collectors.joining()));
+	}
+
+	private static List<String> createAmbiguousDimensionNames(BuildVariant buildVariant) {
+		return ((BuildVariantInternal)buildVariant).getDimensions().stream().map(Named.class::cast).map(Named::getName).collect(Collectors.toList());
 	}
 
 	public String getName() {
@@ -143,7 +150,7 @@ public class VariantIdentifier<T extends Variant> implements DomainObjectIdentif
 			}
 			@SuppressWarnings("unchecked")
 			val variantType = (Class<T>) type;
-			return new VariantIdentifier<>(createUnambiguousName(dimensions), variantType, componentIdentifier, allDimensions, buildVariant, createFullName(this.allDimensions));
+			return new VariantIdentifier<>(createUnambiguousName(dimensions), variantType, componentIdentifier, dimensions, allDimensions, buildVariant, createFullName(this.allDimensions));
 		}
 
 		private static String createFullName(List<String> allDimensions) {

@@ -6,7 +6,9 @@ import dev.nokee.platform.base.Binary;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.val;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -34,6 +36,38 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 
 	public static <T extends Binary> BinaryIdentifier<T> of(BinaryName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
 		return new BinaryIdentifier<>(name, type, (DomainObjectIdentifierInternal)ownerIdentifier);
+	}
+
+	public String getOutputDirectoryBase(String outputType) {
+		val segments = new ArrayList<String>();
+
+		segments.add(outputType);
+		getComponentOwnerIdentifier()
+			.map(ComponentIdentifier::getName)
+			.map(ComponentName::get)
+			.ifPresent(segments::add);
+		getVariantOwnerIdentifier()
+			.map(VariantIdentifier::getAmbiguousDimensions)
+			.filter(it -> !it.isEmpty())
+			.ifPresent(segments::addAll);
+
+		return String.join("/", segments);
+	}
+
+	private Optional<ComponentIdentifier<?>> getComponentOwnerIdentifier() {
+		if (ownerIdentifier instanceof VariantIdentifier) {
+			return Optional.of(((VariantIdentifier<?>) ownerIdentifier).getComponentIdentifier());
+		} else if (ownerIdentifier instanceof ComponentIdentifier) {
+			return Optional.of((ComponentIdentifier<?>) ownerIdentifier);
+		}
+		return Optional.empty();
+	}
+
+	private Optional<VariantIdentifier<?>> getVariantOwnerIdentifier() {
+		if (ownerIdentifier instanceof VariantIdentifier) {
+			return Optional.of((VariantIdentifier<?>) ownerIdentifier);
+		}
+		return Optional.empty();
 	}
 
 	@Override
