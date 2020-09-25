@@ -228,7 +228,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 				getDependencies().getRuntimeOnly().getAsConfiguration().extendsFrom(testedComponentDependencies.getRuntimeOnly().getAsConfiguration());
 			}
 			getVariants().configureEach(variant -> {
-				variant.getBinaries().configureEach(ExecutableBinary.class, binary -> {
+				variant.getBinaries().configureEach(ExecutableBinaryInternal.class, binary -> {
 					Provider<List<? extends FileTree>> componentObjects = component.getVariantCollection().filter(it -> ((BuildVariantInternal)it.getBuildVariant()).withoutDimension(DefaultBinaryLinkage.DIMENSION_TYPE).equals(variant.getBuildVariant().withoutDimension(DefaultBinaryLinkage.DIMENSION_TYPE))).map(it -> {
 						ImmutableList.Builder<FileTree> result = ImmutableList.builder();
 						it.stream().flatMap(v -> v.getBinaries().withType(NativeBinary.class).get().stream()).forEach(testedBinary -> {
@@ -268,7 +268,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					if (component instanceof DefaultNativeApplicationComponent) {
 						val relocateTask = tasks.register(variant.getNames().getTaskName("relocateMainSymbolFor"), UnexportMainSymbol.class, task -> {
 							task.getObjects().from(componentObjects);
-							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(variant.getNames().getOutputDirectoryBase("objs/for-test")));
+							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(binary.getIdentifier().getOutputDirectoryBase("objs/for-test")));
 						});
 						objects.setFrom(relocateTask.map(UnexportMainSymbol::getRelocatedObjects));
 					}

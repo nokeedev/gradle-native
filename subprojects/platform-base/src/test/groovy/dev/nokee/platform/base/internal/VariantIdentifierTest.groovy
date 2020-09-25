@@ -90,6 +90,28 @@ class VariantIdentifierTest extends Specification {
 			.build().fullName == ''
 	}
 
+	def "can query the ambiguous dimension list of identifier"() {
+		given:
+		def ownerIdentifier = ComponentIdentifier.ofMain(TestableComponent, ProjectIdentifier.of('root'))
+
+		expect:
+		VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
+			.withType(TestableVariant)
+			.withVariantDimension({'macos'}, [{'macos'}])
+			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
+			.build().ambiguousDimensions == ['debug']
+
+		VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
+			.withType(TestableVariant)
+			.withVariantDimension({'macos'}, [{'macos'}, {'windows'}])
+			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
+			.build().ambiguousDimensions == ['macos', 'debug']
+
+		VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
+			.withType(TestableVariant)
+			.build().ambiguousDimensions == []
+	}
+
 	def "can build identifier from only one unambiguous variant dimension using the builder"() {
 		given:
 		def ownerIdentifier = ComponentIdentifier.ofMain(TestableComponent, ProjectIdentifier.of('root'))
