@@ -7,7 +7,6 @@ import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.DefaultTestSuiteContainer;
@@ -73,6 +72,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	}
 
 	private NativeTestSuite createNativeTestSuite(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier) {
-		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, identifier, NamingScheme.asComponent(identifier.getName().get(), identifier.getName().get()));
+		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, identifier);
 	}
 }

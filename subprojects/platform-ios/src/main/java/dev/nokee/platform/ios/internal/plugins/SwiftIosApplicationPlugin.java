@@ -47,9 +47,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		components.registerFactory(DefaultSwiftIosApplicationExtension.class, id -> {
 			val identifier = ComponentIdentifier.ofMain(DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
 
-			val namingSchemeFactory = new NamingSchemeFactory(project.getName());
-			val names = namingSchemeFactory.forMainComponent();
-			val component = new DefaultIosApplicationComponent(identifier, names, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies());
+			val component = new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies());
 			store.register(identifier, DefaultIosApplicationComponent.class, ignored -> component).get();
 			return new DefaultSwiftIosApplicationExtension(component, project.getObjects(), project.getProviders());
 		});

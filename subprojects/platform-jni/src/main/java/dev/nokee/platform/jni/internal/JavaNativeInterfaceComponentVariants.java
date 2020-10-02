@@ -65,14 +65,13 @@ public class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 		Preconditions.checkArgument(buildVariant.getDimensions().size() == 2);
 		Preconditions.checkArgument(buildVariant.getDimensions().get(0) instanceof OperatingSystemFamily);
 		Preconditions.checkArgument(buildVariant.getDimensions().get(1) instanceof MachineArchitecture);
-		NamingScheme names = component.getNames().forBuildVariant(buildVariant, component.getBuildVariants().get());
 
 		val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(LifecycleBasePlugin.ASSEMBLE_TASK_NAME), identifier), task -> {
 			task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 			task.setDescription(String.format("Assembles the '%s' outputs of this project.", BuildVariantNamer.INSTANCE.determineName((BuildVariantInternal)identifier.getBuildVariant())));
 		});
 
-		val result = new JniLibraryInternal(identifier, names, component.getSources(), component.getGroupId(), component.getBinaryCollection(), variantDependencies, objectFactory, configurationContainer, providerFactory, taskRegistry, assembleTask);
+		val result = new JniLibraryInternal(identifier, component.getSources(), component.getGroupId(), component.getBinaryCollection(), variantDependencies, objectFactory, configurationContainer, providerFactory, taskRegistry, assembleTask);
 		return result;
 	}
 

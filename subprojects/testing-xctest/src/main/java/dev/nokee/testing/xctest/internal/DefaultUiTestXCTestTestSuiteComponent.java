@@ -5,10 +5,7 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.KnownVariant;
-import dev.nokee.platform.base.internal.NamingScheme;
-import dev.nokee.platform.base.internal.NamingSchemeFactory;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -46,8 +43,8 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 	private final ProjectLayout layout;
 
 	@Inject
-	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUiTestXCTestTestSuiteComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(identifier, names, objects, providers, tasks, layout, configurations, dependencyHandler);
+	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUiTestXCTestTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, objects, providers, tasks, layout, configurations, dependencyHandler);
 		this.objects = objects;
 		this.providers = providers;
 		this.taskRegistry = new TaskRegistryImpl(tasks);
@@ -140,10 +137,9 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 		});
 	}
 
-	public static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
+	public static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(ObjectFactory objects) {
 		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent("uiTest");
-			return objects.newInstance(DefaultUiTestXCTestTestSuiteComponent.class, identifier, names);
+			return objects.newInstance(DefaultUiTestXCTestTestSuiteComponent.class, identifier);
 		};
 	}
 }

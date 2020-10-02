@@ -3,7 +3,6 @@ package dev.nokee.platform.objectivec.internal.plugins;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DomainObjectStore;
-import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
@@ -46,9 +45,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		components.registerFactory(DefaultObjectiveCLibraryExtension.class, id -> {
 			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeLibraryComponent.class, ProjectIdentifier.of(project));
 
-			val namingSchemeFactory = new NamingSchemeFactory(project.getName());
-			val names = namingSchemeFactory.forMainComponent();
-			val component = new DefaultNativeLibraryComponent(identifier, names, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies());
+			val component = new DefaultNativeLibraryComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies());
 
 			store.register(identifier, DefaultNativeLibraryComponent.class, ignored -> component).get();
 			return new DefaultObjectiveCLibraryExtension(component, project.getObjects(), project.getProviders(), project.getLayout());

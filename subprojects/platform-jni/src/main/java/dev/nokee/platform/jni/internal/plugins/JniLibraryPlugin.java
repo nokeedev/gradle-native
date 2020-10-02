@@ -122,9 +122,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
 		TaskRegistry taskRegistry = new TaskRegistryImpl(tasks);
-		NamingSchemeFactory namingSchemeFactory = new NamingSchemeFactory(project.getName());
-		NamingScheme mainComponentNames = namingSchemeFactory.forMainComponent();
-		JniLibraryExtensionInternal extension = registerExtension(project, mainComponentNames);
+		JniLibraryExtensionInternal extension = registerExtension(project);
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 
 		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
@@ -183,7 +181,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				val buildVariant = knownVariant.getBuildVariant();
 				val variantIdentifier = knownVariant.getIdentifier();
 				final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
-				final NamingScheme names = mainComponentNames.forBuildVariant(buildVariant, extension.getBuildVariants().get());
 
 				if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
 					taskRegistry.register(TaskIdentifier.of(TaskName.of("objects"), ObjectsLifecycleTask.class, variantIdentifier), configureDependsOn(knownVariant.map(it -> it.getSharedLibrary().getCompileTasks())));
@@ -419,12 +416,12 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		}
 	}
 
-	private JniLibraryExtensionInternal registerExtension(Project project, NamingScheme names) {
+	private JniLibraryExtensionInternal registerExtension(Project project) {
 		project.getPluginManager().apply(ComponentBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(JniLibraryExtensionInternal.class, identifier -> {
 			assert ((ComponentIdentifier<?>) identifier).isMainComponent();
-			return new JniLibraryExtensionInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), names, project.getConfigurations(), project.getObjects(), project.getProviders(), project.getDependencies(), project.getTasks());
+			return new JniLibraryExtensionInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), project.getConfigurations(), project.getObjects(), project.getProviders(), project.getDependencies(), project.getTasks());
 		});
 		val library = components.register("main", JniLibraryExtensionInternal.class).get();
 

@@ -3,7 +3,6 @@ package dev.nokee.platform.objectivec.internal.plugins;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DomainObjectStore;
-import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
@@ -45,9 +44,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 		components.registerFactory(DefaultObjectiveCApplicationExtension.class, id -> {
 			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeApplicationComponent.class, ProjectIdentifier.of(project));
 
-			val namingSchemeFactory = new NamingSchemeFactory(project.getName());
-			val names = namingSchemeFactory.forMainComponent();
-			val component = new DefaultNativeApplicationComponent(identifier, names, project.getObjects(), project.getProviders(), project.getTasks(), project.getConfigurations(), project.getDependencies());
+			val component = new DefaultNativeApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getConfigurations(), project.getDependencies());
 
 			store.register(identifier, DefaultNativeApplicationComponent.class, ignored -> component).get();
 			return new DefaultObjectiveCApplicationExtension(component, project.getObjects(), project.getProviders(), project.getLayout());

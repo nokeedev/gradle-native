@@ -33,8 +33,8 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	private final TaskRegistry taskRegistry;
 	private final ObjectFactory objects;
 
-	public BaseNativeComponent(ComponentIdentifier<?> identifier, NamingScheme names, Class<T> variantType, ObjectFactory objects, TaskContainer tasks) {
-		super(identifier, names, objects);
+	public BaseNativeComponent(ComponentIdentifier<?> identifier, Class<T> variantType, ObjectFactory objects, TaskContainer tasks) {
+		super(identifier, objects);
 		this.objects = objects;
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
 		this.variantType = variantType;

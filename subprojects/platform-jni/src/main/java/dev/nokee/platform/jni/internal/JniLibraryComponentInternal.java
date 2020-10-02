@@ -42,7 +42,6 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	private final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies;
 	@Getter private final GroupId groupId;
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
-	private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
@@ -52,9 +51,8 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	private final TaskRegistry taskRegistry;
 
 	@Inject
-	public JniLibraryComponentInternal(ComponentIdentifier<?> identifier, NamingScheme names, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers, TaskContainer tasks) {
-		super(identifier, names, objects);
-		this.objects = objects;
+	public JniLibraryComponentInternal(ComponentIdentifier<?> identifier, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers, TaskContainer tasks) {
+		super(identifier, objects);
 		this.configurations = configurations;
 		this.dependencyHandler = dependencyHandler;
 		this.providers = providers;

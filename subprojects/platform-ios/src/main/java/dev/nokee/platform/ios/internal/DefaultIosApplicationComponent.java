@@ -66,8 +66,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final ConfigurationContainer configurations;
 
 	@Inject
-	public DefaultIosApplicationComponent(ComponentIdentifier<DefaultIosApplicationComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(identifier, names, DefaultIosApplicationVariant.class, objects, tasks);
+	public DefaultIosApplicationComponent(ComponentIdentifier<DefaultIosApplicationComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, DefaultIosApplicationVariant.class, objects, tasks);
 		this.objects = objects;
 		this.providers = providers;
 		this.layout = layout;
