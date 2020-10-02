@@ -87,11 +87,7 @@ public final class NativeApplicationComponentVariants implements ComponentVarian
 	}
 
 	private DefaultNativeApplicationVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeApplicationComponentDependencies> variantDependencies, TaskProvider<Task> assembleTask) {
-		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
-		val names = component.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
-
-		val result = new DefaultNativeApplicationVariant(identifier, names, variantDependencies, objectFactory, providerFactory, assembleTask);
-		return result;
+		return new DefaultNativeApplicationVariant(identifier, variantDependencies, objectFactory, providerFactory, assembleTask);
 	}
 
 	private void onEachVariantDependencies(VariantProvider<DefaultNativeApplicationVariant> variant, VariantComponentDependencies<?> dependencies) {

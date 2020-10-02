@@ -104,11 +104,7 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 	}
 
 	private DefaultNativeLibraryVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> variantDependencies, TaskProvider<Task> assembleTask) {
-		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
-		NamingScheme names = component.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
-
-		val result = new DefaultNativeLibraryVariant(identifier, names, variantDependencies, objectFactory, providerFactory, assembleTask);
-		return result;
+		return new DefaultNativeLibraryVariant(identifier, variantDependencies, objectFactory, providerFactory, assembleTask);
 	}
 
 	private void onEachVariantDependencies(VariantProvider<DefaultNativeLibraryVariant> variant, VariantComponentDependencies<?> dependencies) {

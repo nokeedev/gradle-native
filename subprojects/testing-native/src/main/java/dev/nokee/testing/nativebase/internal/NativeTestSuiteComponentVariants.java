@@ -87,11 +87,7 @@ public final class NativeTestSuiteComponentVariants implements ComponentVariants
 	}
 
 	private DefaultNativeTestSuiteVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeComponentDependencies> variantDependencies, TaskProvider<Task> assembleTask) {
-		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
-		NamingScheme names = component.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
-
-		val result = new DefaultNativeTestSuiteVariant(identifier, names, variantDependencies, objectFactory, providerFactory, assembleTask);
-		return result;
+		return new DefaultNativeTestSuiteVariant(identifier, variantDependencies, objectFactory, providerFactory, assembleTask);
 	}
 
 	private void onEachVariantDependencies(VariantProvider<DefaultNativeTestSuiteVariant> variant, VariantComponentDependencies<?> dependencies) {

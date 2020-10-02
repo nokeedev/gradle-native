@@ -109,7 +109,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	protected void onEachVariant(KnownVariant<DefaultXCTestTestSuiteVariant> variant) {
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
-				Provider<String> moduleName = getTestedComponent().map(it -> it.getNames().getBaseName().getAsCamelCase());
+				Provider<String> moduleName = getTestedComponent().flatMap(BaseComponent::getBaseName);
 				binary.getCompileTasks().configureEach(SourceCompile.class, task -> {
 					task.getCompilerArgs().addAll(providers.provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator", "-F", getSdkPath() + "/System/Library/Frameworks", "-iframework", getSdkPlatformPath() + "/Developer/Library/Frameworks")));
 					task.getCompilerArgs().addAll(task.getToolChain().map(toolChain -> {

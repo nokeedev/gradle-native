@@ -34,7 +34,7 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import javax.inject.Inject;
 
 public class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal {
-	@Getter  private final NamingScheme names;
+	private final NamingScheme names;
 	private final DefaultJavaNativeInterfaceNativeComponentDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;

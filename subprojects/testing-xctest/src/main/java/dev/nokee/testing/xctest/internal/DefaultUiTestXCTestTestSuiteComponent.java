@@ -5,7 +5,10 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.KnownVariant;
+import dev.nokee.platform.base.internal.NamingScheme;
+import dev.nokee.platform.base.internal.NamingSchemeFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -28,6 +31,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -58,9 +62,9 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
-				((BundleBinaryInternal)binary).getBaseName().set(getNames().getBaseName().getAsCamelCase());
+				((BundleBinaryInternal)binary).getBaseName().set(GUtil.toCamelCase(variant.getIdentifier().getComponentIdentifier().getProjectIdentifier().getName()) + "Test");
 			});
-			String moduleName = testSuite.getNames().getBaseName().getAsCamelCase();
+			String moduleName = GUtil.toCamelCase(variant.getIdentifier().getComponentIdentifier().getProjectIdentifier().getName()) + "Test";
 
 			// XCTest UI Testing
 			val processUiTestPropertyListTask = taskRegistry.register("processUiTestPropertyList", ProcessPropertyListTask.class, task -> {

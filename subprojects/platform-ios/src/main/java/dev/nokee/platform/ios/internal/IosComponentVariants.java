@@ -61,11 +61,7 @@ public final class IosComponentVariants implements ComponentVariants {
 	}
 
 	private DefaultIosApplicationVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeComponentDependencies> variantDependencies, TaskProvider<Task> assembleTask) {
-		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
-		val names = component.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
-
-		val result = new DefaultIosApplicationVariant(identifier, names, variantDependencies, objectFactory, providerFactory, assembleTask);
-		return result;
+		return new DefaultIosApplicationVariant(identifier, variantDependencies, objectFactory, providerFactory, assembleTask);
 	}
 
 	private VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultIosApplicationVariant> variantIdentifier) {

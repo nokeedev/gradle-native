@@ -188,7 +188,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		// Ensure the task is registered before configuring
 		taskRegistry.registerIfAbsent("check").configure(task -> {
 			// TODO: To eliminate access to the TaskContainer, we should have a getter on the variant for the relevant task in question
-			task.dependsOn(getDevelopmentVariant().flatMap(it -> tasks.named(it.getNames().getBaseName().withCamelDimensions())));
+			task.dependsOn(getDevelopmentVariant().flatMap(it -> tasks.named(TaskIdentifier.ofLifecycle(it.getIdentifier()).getTaskName())));
 		});
 
 

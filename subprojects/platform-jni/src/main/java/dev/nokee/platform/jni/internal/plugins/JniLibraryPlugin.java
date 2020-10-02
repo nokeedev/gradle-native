@@ -136,8 +136,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		});
 
 		extension.getVariants().configureEach(JniLibraryInternal.class, variant -> {
-			val names = variant.getNames();
-
 			// Build all language source set
 			DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
 			if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {

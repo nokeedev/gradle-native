@@ -62,11 +62,7 @@ public final class XCTestTestSuiteComponentVariants implements ComponentVariants
 	}
 
 	private DefaultXCTestTestSuiteVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeComponentDependencies> variantDependencies, TaskProvider<Task> assembleTask) {
-		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
-		val names = component.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
-
-		val result = new DefaultXCTestTestSuiteVariant(identifier, names, variantDependencies, objectFactory, providerFactory, assembleTask);
-		return result;
+		return new DefaultXCTestTestSuiteVariant(identifier, variantDependencies, objectFactory, providerFactory, assembleTask);
 	}
 
 	private VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultXCTestTestSuiteVariant> variantIdentifier) {

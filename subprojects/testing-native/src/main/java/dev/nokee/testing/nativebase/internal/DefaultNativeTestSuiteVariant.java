@@ -1,6 +1,5 @@
 package dev.nokee.testing.nativebase.internal;
 
-import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
@@ -19,8 +18,8 @@ public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements 
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public DefaultNativeTestSuiteVariant(VariantIdentifier<?> identifier, NamingScheme names, VariantComponentDependencies<?> variantDependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
-		super(identifier, names, objects, providers, assembleTask);
+	public DefaultNativeTestSuiteVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
+		super(identifier, objects, providers, assembleTask);
 		this.resolvableDependencies = variantDependencies.getIncoming();
 	}
 }
