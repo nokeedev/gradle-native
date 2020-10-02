@@ -48,6 +48,7 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 			.ifPresent(segments::add);
 		getVariantOwnerIdentifier()
 			.map(VariantIdentifier::getAmbiguousDimensions)
+			.map(Dimensions::get)
 			.filter(it -> !it.isEmpty())
 			.ifPresent(segments::addAll);
 
