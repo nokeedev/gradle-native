@@ -26,6 +26,14 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 
 	protected abstract String configureCustomSourceLayout()
 
+	protected String configureBuildTypes() {
+		return """
+			${componentUnderTestDsl} {
+				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
+			}
+		"""
+	}
+
 	protected abstract String getVisualStudioProjectName()
 
 	protected String getVisualStudioSolutionName() {
@@ -83,6 +91,10 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		return ":_visualStudio__build_${visualStudioProjectName.toLowerCase()}_default_x64"
 	}
 
+	protected SourceElement nativeSourceElementOf(SourceElement sourceElement) {
+		return sourceElement
+	}
+
 	def "creates Visual Studio project delegating to Gradle"() {
 		given:
 		settingsFile << configureProjectName()
@@ -112,22 +124,22 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		succeeds('visualStudio')
 
 		then:
-		visualStudioProjectUnderTest.assertHasSourceLayout(componentUnderTest.sources.files.collect { "Source Files/${it.name}".toString() } + componentUnderTest.headers.files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
+		visualStudioProjectUnderTest.assertHasSourceLayout(nativeSourceElementOf(componentUnderTest).sources.files.collect { "Source Files/${it.name}".toString() } + nativeSourceElementOf(componentUnderTest).headers.files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
 	}
 
 	def "include sources in project with custom layout"() {
 		given:
 		settingsFile << configureProjectName()
 		makeSingleProject()
+		buildFile << configureCustomSourceLayout()
 		componentUnderTest.sources.writeToSourceDir(file('srcs'))
 		componentUnderTest.headers.writeToSourceDir(file('hdrs'))
-		buildFile << configureCustomSourceLayout()
 
 		when:
 		succeeds('visualStudio')
 
 		then:
-		visualStudioProjectUnderTest.assertHasSourceLayout(componentUnderTest.sources.files.collect { "Source Files/${it.name}".toString() } + componentUnderTest.headers.files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
+		visualStudioProjectUnderTest.assertHasSourceLayout(nativeSourceElementOf(componentUnderTest).sources.files.collect { "Source Files/${it.name}".toString() } + nativeSourceElementOf(componentUnderTest).headers.files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
 	}
 
 	def "all projects appears in solution"() {
@@ -172,11 +184,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		settingsFile << configureProjectName()
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)
-		buildFile << """
-			${componentUnderTestDsl} {
-				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
-			}
-		"""
+		buildFile << configureBuildTypes()
 
 		when:
 		succeeds('visualStudio')

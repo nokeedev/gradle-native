@@ -19,6 +19,7 @@ dependencies {
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 
 	implementation project(':platformNative') // for NativeBinary
+	implementation project(':platformJni')
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
@@ -36,6 +37,7 @@ gradlePlugin {
 functionalTest {
 	dependencies {
 		pluginUnderTestMetadata project(':platformNative')
+		pluginUnderTestMetadata project(':platformJni')
 		pluginUnderTestMetadata project(':testingNative')
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation project(':platformNative')
