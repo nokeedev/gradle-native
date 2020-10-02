@@ -32,6 +32,7 @@ public final class NativeTestSuiteComponentVariants implements ComponentVariants
 	private final DefaultNativeTestSuiteComponent component;
 	private final DependencyHandler dependencyHandler;
 	private final ConfigurationContainer configurationContainer;
+	private final ProviderFactory providerFactory;
 	private final TaskRegistry taskRegistry;
 
 	public NativeTestSuiteComponentVariants(ObjectFactory objectFactory, DefaultNativeTestSuiteComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry) {
@@ -42,6 +43,7 @@ public final class NativeTestSuiteComponentVariants implements ComponentVariants
 		this.component = component;
 		this.dependencyHandler = dependencyHandler;
 		this.configurationContainer = configurationContainer;
+		this.providerFactory = providerFactory;
 		this.taskRegistry = taskRegistry;
 	}
 
@@ -84,11 +86,11 @@ public final class NativeTestSuiteComponentVariants implements ComponentVariants
 		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
 	}
 
-	private DefaultNativeTestSuiteVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies, TaskProvider<Task> assembleTask) {
+	private DefaultNativeTestSuiteVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeComponentDependencies> variantDependencies, TaskProvider<Task> assembleTask) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		NamingScheme names = component.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		val result = objectFactory.newInstance(DefaultNativeTestSuiteVariant.class, identifier, names, variantDependencies, assembleTask);
+		val result = new DefaultNativeTestSuiteVariant(identifier, names, variantDependencies, objectFactory, providerFactory, assembleTask);
 		return result;
 	}
 

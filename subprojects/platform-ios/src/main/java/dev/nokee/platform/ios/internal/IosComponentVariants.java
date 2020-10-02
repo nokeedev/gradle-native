@@ -8,7 +8,6 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
 import lombok.Getter;
@@ -33,6 +32,7 @@ public final class IosComponentVariants implements ComponentVariants {
 	private final DefaultIosApplicationComponent component;
 	private final DependencyHandler dependencyHandler;
 	private final ConfigurationContainer configurationContainer;
+	private final ProviderFactory providerFactory;
 	private final TaskRegistry taskRegistry;
 
 	public IosComponentVariants(ObjectFactory objectFactory, DefaultIosApplicationComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry) {
@@ -43,6 +43,7 @@ public final class IosComponentVariants implements ComponentVariants {
 		this.component = component;
 		this.dependencyHandler = dependencyHandler;
 		this.configurationContainer = configurationContainer;
+		this.providerFactory = providerFactory;
 		this.taskRegistry = taskRegistry;
 	}
 
@@ -59,15 +60,15 @@ public final class IosComponentVariants implements ComponentVariants {
 		});
 	}
 
-	private DefaultIosApplicationVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies, TaskProvider<Task> assembleTask) {
+	private DefaultIosApplicationVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeComponentDependencies> variantDependencies, TaskProvider<Task> assembleTask) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		val names = component.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		DefaultIosApplicationVariant result = objectFactory.newInstance(DefaultIosApplicationVariant.class, identifier, names, variantDependencies, assembleTask);
+		val result = new DefaultIosApplicationVariant(identifier, names, variantDependencies, objectFactory, providerFactory, assembleTask);
 		return result;
 	}
 
-	private VariantComponentDependencies<NativeComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultIosApplicationVariant> variantIdentifier) {
+	private VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultIosApplicationVariant> variantIdentifier) {
 		var variantDependencies = component.getDependencies();
 		if (getBuildVariants().get().size() > 1) {
 			val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));

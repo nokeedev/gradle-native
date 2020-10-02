@@ -54,7 +54,6 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 		knownVariant.configure(it -> {
 			val incomingDependencies = (NativeIncomingDependencies) it.getResolvableDependencies();
-			val names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			DomainObjectSet<GeneratedSourceSet> objectSourceSets = new NativeLanguageRules(taskRegistry, objects, variantIdentifier).apply(getSourceCollection());
 			BaseNativeVariant variantInternal = (BaseNativeVariant)it;
 			if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {

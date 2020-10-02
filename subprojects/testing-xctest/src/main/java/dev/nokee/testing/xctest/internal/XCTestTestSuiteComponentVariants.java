@@ -33,6 +33,7 @@ public final class XCTestTestSuiteComponentVariants implements ComponentVariants
 	private final BaseXCTestTestSuiteComponent component;
 	private final DependencyHandler dependencyHandler;
 	private final ConfigurationContainer configurationContainer;
+	private final ProviderFactory providerFactory;
 	private final TaskRegistry taskRegistry;
 
 	public XCTestTestSuiteComponentVariants(ObjectFactory objectFactory, BaseXCTestTestSuiteComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry) {
@@ -43,6 +44,7 @@ public final class XCTestTestSuiteComponentVariants implements ComponentVariants
 		this.component = component;
 		this.dependencyHandler = dependencyHandler;
 		this.configurationContainer = configurationContainer;
+		this.providerFactory = providerFactory;
 		this.taskRegistry = taskRegistry;
 	}
 
@@ -59,11 +61,11 @@ public final class XCTestTestSuiteComponentVariants implements ComponentVariants
 		});
 	}
 
-	private DefaultXCTestTestSuiteVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies, TaskProvider<Task> assembleTask) {
+	private DefaultXCTestTestSuiteVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeComponentDependencies> variantDependencies, TaskProvider<Task> assembleTask) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		val names = component.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		DefaultXCTestTestSuiteVariant result = objectFactory.newInstance(DefaultXCTestTestSuiteVariant.class, identifier, names, variantDependencies, assembleTask);
+		val result = new DefaultXCTestTestSuiteVariant(identifier, names, variantDependencies, objectFactory, providerFactory, assembleTask);
 		return result;
 	}
 

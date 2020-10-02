@@ -9,19 +9,16 @@ import lombok.Getter;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 
 public class BaseNativeVariant extends BaseVariant {
 	@Getter private final NamingScheme names;
-	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	private final TaskProvider<Task> assembleTask;
 
-	public BaseNativeVariant(VariantIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers, TaskProvider<Task> assembleTask) {
+	public BaseNativeVariant(VariantIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
 		super(identifier, objects);
 		this.names = names;
-		this.tasks = tasks;
 		this.providers = providers;
 		this.assembleTask = assembleTask;
 
