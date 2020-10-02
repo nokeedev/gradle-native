@@ -68,7 +68,11 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		parentSources.all(sources::add);
 
 		getBinaryCollection().configureEach(parentBinaries::add);
-		getResourcePath().convention(getProviders().provider(() -> names.getResourcePath(groupId)));
+		getResourcePath().convention(getProviders().provider(() -> getResourcePath(groupId)));
+	}
+
+	public String getResourcePath(GroupId groupId) {
+		return groupId.get().map(it -> it.replace('.', '/') + '/').orElse("") + getIdentifier().getAmbiguousDimensions().getAsKebabCase().orElse("");
 	}
 
 	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
@@ -81,7 +85,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		getNativeRuntimeFiles().from(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
 		getNativeRuntimeFiles().from(sharedLibraryBinary.getRuntimeLibrariesDependencies());
 		this.sharedLibraryBinary = sharedLibraryBinary;
-		sharedLibraryBinary.getBaseName().convention(names.getBaseName().getAsString());
+		sharedLibraryBinary.getBaseName().convention(BaseNameUtils.from(getIdentifier()).getAsString());
 		getBinaryCollection().add(sharedLibraryBinary);
 	}
 

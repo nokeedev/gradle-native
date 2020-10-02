@@ -45,7 +45,6 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.Swiftc;
-import org.gradle.util.GUtil;
 import org.gradle.util.VersionNumber;
 
 import javax.inject.Inject;
@@ -149,7 +148,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			Provider<CommandLineTool> assetCompilerTool = providers.provider(() -> new VersionedCommandLineTool(new File("/usr/bin/actool"), VersionNumber.parse("11.3.1")));
 			Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
 
-			String moduleName = GUtil.toCamelCase(variant.getIdentifier().getComponentIdentifier().getProjectIdentifier().getName());
+			String moduleName = BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase();
 			Provider<String> identifier = providers.provider(() -> getGroupId().get().get().map(it -> it + "." + moduleName).orElse(moduleName));
 
 			val compileStoryboardTask = taskRegistry.register("compileStoryboard", StoryboardCompileTask.class, task -> {

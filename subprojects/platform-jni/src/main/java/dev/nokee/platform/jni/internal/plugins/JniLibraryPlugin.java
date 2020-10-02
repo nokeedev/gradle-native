@@ -220,7 +220,9 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				} else {
 					TaskProvider<Jar> jarTask = taskRegistry.register(TaskIdentifier.of(TaskName.of(JavaPlugin.JAR_TASK_NAME), Jar.class, variantIdentifier), task -> {
 						configureJarTaskUsing(knownVariant, unbuildableMainComponentLogger).execute(task);
-						task.getArchiveBaseName().set(names.getBaseName().withKababDimensions());
+
+						val archiveBaseName = BaseNameUtils.from(knownVariant.getIdentifier()).getAsString() + knownVariant.getIdentifier().getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("");
+						task.getArchiveBaseName().set(archiveBaseName);
 					});
 
 					// Attach JNI Jar to runtimeElements

@@ -31,7 +31,6 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -62,9 +61,9 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
-				((BundleBinaryInternal)binary).getBaseName().set(GUtil.toCamelCase(variant.getIdentifier().getComponentIdentifier().getProjectIdentifier().getName()) + "Test");
+				((BundleBinaryInternal)binary).getBaseName().set(BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase());
 			});
-			String moduleName = GUtil.toCamelCase(variant.getIdentifier().getComponentIdentifier().getProjectIdentifier().getName()) + "Test";
+			String moduleName = BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase();
 
 			// XCTest UI Testing
 			val processUiTestPropertyListTask = taskRegistry.register("processUiTestPropertyList", ProcessPropertyListTask.class, task -> {
