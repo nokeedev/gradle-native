@@ -40,31 +40,6 @@ public class NamingScheme {
 		return new NamingScheme(baseName, ComponentName.of(name), ComponentDisplayName.missing(), ConfigurationPrefix.none(), Dimensions.empty());
 	}
 
-	/**
-	 * Returns the configuration name for the target using this scheme, i.e. implementation, testImplementation, testWindowsImplementation, testWindowsNativeImplementation, jvmImplementation.
-	 *
-	 * @param target a configuration target, i.e. implementation, compileOnly
-	 * @return a fully formed configuration name, never null.
-	 */
-	public final String getConfigurationName(String target) {
-		return componentName.prefix(dimensions.prefix(configurationPrefix.prefix(target)));
-	}
-
-	/**
-	 * Returns the configuration name for the target using this scheme without the configuration prefix, i.e. implementation, testImplementation, testWindowsImplementation.
-	 * The configuration prefix is used by JNI to differentiate native and jvm.
-	 *
-	 * @param target a configuration target, i.e. implementation, compileOnly
-	 * @return a fully formed configuration name, never null.
-	 */
-	public final String getConfigurationNameWithoutPrefix(String target) {
-		return componentName.prefix(dimensions.prefix(target));
-	}
-
-	public String getComponentName() {
-		return componentName.get();
-	}
-
 	public BaseNameNamingScheme getBaseName() {
 		return new BaseNameNamingScheme();
 	}
@@ -104,53 +79,6 @@ public class NamingScheme {
 		return buildVariant -> (Named)buildVariant.getDimensions().get(index);
 	}
 
-	/**
-	 * Returns the task name for the specified verb, i.e. link, linkWindows.
-	 *
-	 * @param verb a task action prefix, i.e. link
-	 * @return a fully formed task name, never null.
-	 */
-	public String getTaskName(String verb) {
-		return dimensions.suffix(componentName.suffix(verb));
-	}
-
-	/**
-	 * Returns the task name for the specified verb and object, i.e. compileCpp, compileWindowsCpp.
-	 *
-	 * @param verb a task action prefix, i.e. compile
-	 * @param object a task target suffix, i.e. cpp, swift
-	 * @return a fully formed task name, never null.
-	 */
-	public String getTaskName(String verb, String object) {
-		return getTaskName(verb) + StringUtils.capitalize(object);
-	}
-
-    public NamingScheme withConfigurationNamePrefix(String configurationNamePrefix) {
-		return new NamingScheme(baseName, componentName, displayName, ConfigurationPrefix.of(configurationNamePrefix), dimensions);
-	}
-
-	public NamingScheme withComponentDisplayName(String componentDisplayName) {
-		return new NamingScheme(baseName, componentName, ComponentDisplayName.of(componentDisplayName), configurationPrefix, dimensions);
-	}
-
-	/**
-	 * Returns completed description with the display name.
-	 * @param format a string format pattern with a '%s' where the display name should be placed.
-	 * @return a fully formed description, never null.
-	 * @throws IllegalStateException if no component display name were configured on this naming scheme.
-	 */
-	public String getConfigurationDescription(String format) {
-		return String.format(format, displayName.get());
-	}
-
-	public String getComponentDisplayName() {
-		return displayName.get();
-	}
-
-	public String getSourceSetPath(String languageName) {
-		return "src/" + componentName.get() + "/" + languageName;
-	}
-
 	public class BaseNameNamingScheme {
 		private BaseNameNamingScheme() {}
 
@@ -179,10 +107,6 @@ public class NamingScheme {
 
     public interface Prefixer {
 		String prefix(String target);
-	}
-
-	public interface Suffixer {
-		String suffix(String target);
 	}
 
 	@RequiredArgsConstructor
@@ -231,7 +155,7 @@ public class NamingScheme {
 	//endregion
 
 	//region Dimensions
-	public interface Dimensions extends Prefixer, Suffixer {
+	public interface Dimensions extends Prefixer {
 		Dimensions add(String dimension);
 
 		// TODO: Replace with the correct naming segment operation
@@ -317,7 +241,7 @@ public class NamingScheme {
 	//endregion
 
 	//region ComponentName
-	public interface ComponentName extends Prefixer, Suffixer {
+	public interface ComponentName extends Prefixer {
 		String get();
 
 		static ComponentName ofMain() {

@@ -16,17 +16,19 @@ public class BaseNativeVariant extends BaseVariant {
 	@Getter private final NamingScheme names;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
+	private final TaskProvider<Task> assembleTask;
 
-	public BaseNativeVariant(VariantIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers) {
+	public BaseNativeVariant(VariantIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers, TaskProvider<Task> assembleTask) {
 		super(identifier, objects);
 		this.names = names;
 		this.tasks = tasks;
 		this.providers = providers;
+		this.assembleTask = assembleTask;
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE))));
 	}
 
 	public TaskProvider<Task> getAssembleTask() {
-		return getTasks().named(names.getTaskName("assemble"));
+		return assembleTask;
 	}
 }

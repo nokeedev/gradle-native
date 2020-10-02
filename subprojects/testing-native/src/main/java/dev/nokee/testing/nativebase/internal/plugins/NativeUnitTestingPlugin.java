@@ -48,19 +48,19 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			knownTestSuite.configure(testSuite -> {
 				// TODO: Move these generic source set creation to the respective language plugin
 				if (project.getPluginManager().hasPlugin("dev.nokee.c-language")) {
-					testSuite.getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").from(testSuite.getNames().getSourceSetPath("c")));
+					testSuite.getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").from("src/" + testSuite.getIdentifier().getName().get() + "/c"));
 				}
 				if (project.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
-					testSuite.getSourceCollection().add(getObjects().newInstance(CppSourceSet.class, "cpp").from(testSuite.getNames().getSourceSetPath("cpp")));
+					testSuite.getSourceCollection().add(getObjects().newInstance(CppSourceSet.class, "cpp").from("src/" + testSuite.getIdentifier().getName().get() + "/cpp"));
 				}
 				if (project.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-					testSuite.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").from(testSuite.getNames().getSourceSetPath("objc")));
+					testSuite.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").from("src/" + testSuite.getIdentifier().getName().get() + "/objc"));
 				}
 				if (project.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
-					testSuite.getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").from(testSuite.getNames().getSourceSetPath("objcpp")));
+					testSuite.getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").from("src/" + testSuite.getIdentifier().getName().get() + "/objcpp"));
 				}
 				if (project.getPluginManager().hasPlugin("dev.nokee.swift-language")) {
-					testSuite.getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").from(testSuite.getNames().getSourceSetPath("swift")));
+					testSuite.getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").from("src/" + testSuite.getIdentifier().getName().get() + "/swift"));
 				}
 			});
 		});
@@ -73,6 +73,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	}
 
 	private NativeTestSuite createNativeTestSuite(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier) {
-		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, identifier, NamingScheme.asComponent(identifier.getName().get(), identifier.getName().get()).withComponentDisplayName("Test Suite"));
+		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, identifier, NamingScheme.asComponent(identifier.getName().get(), identifier.getName().get()));
 	}
 }

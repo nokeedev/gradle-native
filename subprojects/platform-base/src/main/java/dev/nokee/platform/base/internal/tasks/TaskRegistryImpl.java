@@ -116,7 +116,7 @@ public final class TaskRegistryImpl implements TaskRegistry {
 				if (requestedType.equals(Task.class) && actualType.equals(DefaultTask.class)) {
 					// it's fine, don't worry about it XD
 				} else {
-					throw new InvalidUserDataException(String.format("Could not register task '%s': Task type requested (%s) does not match actual type (%s).", name, requestedType.getSimpleName(), actualType.getSimpleName()));
+					throw new InvalidUserDataException(String.format("Could not register task '%s': Task type requested (%s) does not match actual type (%s).", name, requestedType.getCanonicalName(), actualType.getCanonicalName()));
 				}
 			}
 			return this;

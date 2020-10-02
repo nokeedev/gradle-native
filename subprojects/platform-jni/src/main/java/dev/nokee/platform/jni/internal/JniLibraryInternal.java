@@ -5,6 +5,10 @@ import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
+import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
+import dev.nokee.platform.base.internal.tasks.TaskName;
+import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
@@ -26,7 +30,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.jvm.tasks.Jar;
+import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
@@ -38,8 +42,10 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
+	private final TaskProvider<Task> assembleTask;
 	private final DefaultTargetMachine targetMachine;
 	private final GroupId groupId;
+	private final TaskRegistry taskRegistry;
 	private AbstractJarBinary jarBinary;
 	private SharedLibraryBinaryInternal sharedLibraryBinary;
 	@Getter private final Property<String> resourcePath;
@@ -47,7 +53,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskContainer tasks) {
+	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskContainer tasks, TaskProvider<Task> assembleTask) {
 		super(identifier, objects);
 		this.names = names;
 		this.dependencies = dependencies.getDependencies();
@@ -55,11 +61,13 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		this.providers = providers;
 		this.tasks = tasks;
 		this.sources = objects.domainObjectSet(LanguageSourceSetInternal.class);
+		this.assembleTask = assembleTask;
 		this.targetMachine = new DefaultTargetMachine((DefaultOperatingSystemFamily)getBuildVariant().getDimensions().get(0), (DefaultMachineArchitecture)getBuildVariant().getDimensions().get(1));
 		this.groupId = groupId;
 		this.resourcePath = objects.property(String.class);
 		this.nativeRuntimeFiles = objects.fileCollection();
 		this.resolvableDependencies = dependencies.getIncoming();
+		this.taskRegistry = new TaskRegistryImpl(tasks);
 
 		parentSources.all(sources::add);
 
@@ -82,7 +90,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	}
 
 	public void registerJniJarBinary() {
-		TaskProvider<Jar> jarTask = getTasks().named(names.getTaskName("jar"), Jar.class);
+		TaskProvider<Jar> jarTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of("jar"), Jar.class, getIdentifier()));
 		addJniJarBinary(getObjects().newInstance(DefaultJniJarBinary.class, jarTask));
 	}
 
@@ -113,7 +121,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	}
 
 	public TaskProvider<Task> getAssembleTask() {
-		return getTasks().named(names.getTaskName("assemble"));
+		return assembleTask;
 	}
 
 	@Override

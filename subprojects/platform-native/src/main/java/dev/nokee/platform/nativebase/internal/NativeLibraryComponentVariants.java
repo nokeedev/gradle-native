@@ -9,6 +9,9 @@ import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
+import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
+import dev.nokee.platform.base.internal.tasks.TaskName;
+import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
@@ -17,6 +20,7 @@ import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantC
 import lombok.Getter;
 import lombok.val;
 import lombok.var;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.RegularFile;
@@ -24,10 +28,13 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
+import org.gradle.api.tasks.TaskProvider;
 
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
+
+import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public final class NativeLibraryComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<DefaultNativeLibraryVariant> variantCollection;
@@ -37,8 +44,9 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 	private final DefaultNativeLibraryComponent component;
 	private final DependencyHandler dependencyHandler;
 	private final ConfigurationContainer configurationContainer;
+	private final TaskRegistry taskRegistry;
 
-	public NativeLibraryComponentVariants(ObjectFactory objectFactory, DefaultNativeLibraryComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory) {
+	public NativeLibraryComponentVariants(ObjectFactory objectFactory, DefaultNativeLibraryComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry) {
 		this.variantCollection = new VariantCollection<>(DefaultNativeLibraryVariant.class, objectFactory);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get()));
@@ -46,21 +54,23 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 		this.component = component;
 		this.dependencyHandler = dependencyHandler;
 		this.configurationContainer = configurationContainer;
+		this.taskRegistry = taskRegistry;
 	}
 
 	public void calculateVariants() {
 		buildVariants.get().forEach(buildVariant -> {
-			val names = component.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			val variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, getBuildVariants().get()).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeLibraryVariant.class).build();
 
-			val dependencies = newDependencies(names.withComponentDisplayName(component.getIdentifier().getDisplayName()), buildVariant, variantIdentifier);
-			val variant = variantCollection.registerVariant(variantIdentifier, (name, bv) -> createVariant(variantIdentifier, dependencies));
+			val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier));
+
+			val dependencies = newDependencies(buildVariant, variantIdentifier);
+			val variant = variantCollection.registerVariant(variantIdentifier, (name, bv) -> createVariant(variantIdentifier, dependencies, assembleTask));
 
 			onEachVariantDependencies(variant, dependencies);
 		});
 	}
 
-	private VariantComponentDependencies<NativeLibraryComponentDependencies> newDependencies(NamingScheme names, BuildVariantInternal buildVariant, VariantIdentifier<DefaultNativeLibraryVariant> variantIdentifier) {
+	private VariantComponentDependencies<NativeLibraryComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultNativeLibraryVariant> variantIdentifier) {
 		var variantDependencies = component.getDependencies();
 		if (getBuildVariants().get().size() > 1) {
 			val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
@@ -84,19 +94,19 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 
 		NativeOutgoingDependencies outgoing = null;
 		if (hasSwift) {
-			outgoing = objectFactory.newInstance(SwiftLibraryOutgoingDependencies.class, names, buildVariant, variantDependencies);
+			outgoing = objectFactory.newInstance(SwiftLibraryOutgoingDependencies.class, variantIdentifier, buildVariant, variantDependencies);
 		} else {
-			outgoing = objectFactory.newInstance(NativeLibraryOutgoingDependencies.class, names, buildVariant, variantDependencies);
+			outgoing = objectFactory.newInstance(NativeLibraryOutgoingDependencies.class, variantIdentifier, buildVariant, variantDependencies);
 		}
 
 		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
 	}
 
-	private DefaultNativeLibraryVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies) {
+	private DefaultNativeLibraryVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies, TaskProvider<Task> assembleTask) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		NamingScheme names = component.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 
-		DefaultNativeLibraryVariant result = objectFactory.newInstance(DefaultNativeLibraryVariant.class, identifier, names, variantDependencies);
+		DefaultNativeLibraryVariant result = objectFactory.newInstance(DefaultNativeLibraryVariant.class, identifier, names, variantDependencies, assembleTask);
 		return result;
 	}
 

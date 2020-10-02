@@ -2,7 +2,7 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.platform.jni.JniJarBinary;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.jvm.tasks.Jar;
+import org.gradle.api.tasks.bundling.Jar;
 
 import javax.inject.Inject;
 

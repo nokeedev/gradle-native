@@ -118,10 +118,5 @@ class DefaultTestSuiteContainerTest extends Specification {
 		TestSuiteComponent testedComponent(Object component) {
 			return null
 		}
-
-		@Override
-		String getName() {
-			return name
-		}
 	}
 }

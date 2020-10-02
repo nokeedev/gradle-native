@@ -2,7 +2,7 @@ package dev.nokee.platform.jni;
 
 import dev.nokee.platform.base.Binary;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.jvm.tasks.Jar;
+import org.gradle.api.tasks.bundling.Jar;
 
 /**
  * Configuration for JAR binary.

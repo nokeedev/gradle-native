@@ -139,7 +139,7 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 
 	public static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
 		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent("uiTest").withComponentDisplayName("iOS UI test XCTest test suite");
+			NamingScheme names = namingSchemeFactory.forMainComponent("uiTest");
 			return objects.newInstance(DefaultUiTestXCTestTestSuiteComponent.class, identifier, names);
 		};
 	}

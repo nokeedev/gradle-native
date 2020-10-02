@@ -44,7 +44,7 @@ abstract class AbstractTaskRegistryIntegrationTest extends Specification {
 		registerIfAbsent(subject)
 		then:
 		def ex = thrown(InvalidUserDataException)
-		ex.message == "Could not register task 'foo': Task type requested (${expectedTaskType}) does not match actual type (WrongTask)."
+		ex.message == "Could not register task 'foo': Task type requested (${expectedTaskType}) does not match actual type (${WrongTask.canonicalName})."
 	}
 
 	def "does not resolve task when checking if task is present"() {
@@ -101,7 +101,7 @@ abstract class AbstractTaskRegistryIntegrationTest extends Specification {
 		registerIfAbsent(subject, action)
 		then:
 		def ex = thrown(InvalidUserDataException)
-		ex.message == "Could not register task 'foo': Task type requested (${expectedTaskType}) does not match actual type (WrongTask)."
+		ex.message == "Could not register task 'foo': Task type requested (${expectedTaskType}) does not match actual type (${WrongTask.canonicalName})."
 		0 * action.execute(_)
 	}
 
@@ -161,7 +161,7 @@ class TaskRegistry_RegisterIfAbsentLifecycleIntegrationTest extends AbstractTask
 
 	@Override
 	protected String getExpectedTaskType() {
-		return Task.simpleName
+		return Task.canonicalName
 	}
 }
 
@@ -176,7 +176,7 @@ class TaskRegistry_RegisterIfAbsentTypeIntegrationTest extends AbstractTaskRegis
 
 	@Override
 	protected String getExpectedTaskType() {
-		return TestableTask.simpleName
+		return TestableTask.canonicalName
 	}
 
 	static class TestableTask extends DefaultTask {}
@@ -193,7 +193,7 @@ class TaskRegistry_RegisterIfAbsentTaskIdentifierIntegrationTest extends Abstrac
 
 	@Override
 	protected String getExpectedTaskType() {
-		return TestableTask.simpleName
+		return TestableTask.canonicalName
 	}
 
 	static class TestableTask extends DefaultTask {}

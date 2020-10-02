@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal.tasks;
 
+import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -11,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 @ToString
 @EqualsAndHashCode
 public final class TaskName {
+	private static final TaskName EMPTY_TASK_NAME = new TaskName("", null);
 	private final String verb;
 	private final String object;
 
@@ -25,6 +27,15 @@ public final class TaskName {
 
 	public Optional<String> getObject() {
 		return Optional.ofNullable(object);
+	}
+
+	/**
+	 * Used as part of {@link TaskIdentifier#ofLifecycle(DomainObjectIdentifierInternal)}
+	 *
+	 * @return an empty task name, never null.
+ 	 */
+	static TaskName empty() {
+		return EMPTY_TASK_NAME;
 	}
 
 	public static TaskName of(String taskName) {

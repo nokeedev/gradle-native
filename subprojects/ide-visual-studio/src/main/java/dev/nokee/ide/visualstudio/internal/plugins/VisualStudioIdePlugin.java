@@ -95,7 +95,7 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 	}
 
 	private VisualStudioIdeProject createVisualStudioIdeProject(BaseComponent<?> component) {
-		val visualStudioProject = getObjects().newInstance(DefaultVisualStudioIdeProject.class, component.getName());
+		val visualStudioProject = getObjects().newInstance(DefaultVisualStudioIdeProject.class, component.getIdentifier().getName().get());
 
 		visualStudioProject.getGeneratorTask().configure(task -> {
 			Provider<RegularFile> projectLocation = getLayout().getProjectDirectory().file(component.getBaseName().map(it -> it + ".vcxproj"));

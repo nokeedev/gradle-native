@@ -60,9 +60,9 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 		super(identifier, names, DefaultXCTestTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
 		this.providers = providers;
 		this.layout = layout;
-		this.componentVariants = new XCTestTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers);
-		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultXCTestTestSuiteVariant.class), Variant::getBinaries)));
 		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.componentVariants = new XCTestTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry);
+		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultXCTestTestSuiteVariant.class), Variant::getBinaries)));
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.groupId = objects.property(GroupId.class);

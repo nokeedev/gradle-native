@@ -77,8 +77,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		super(identifier, names, DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
 		this.objects = objects;
 		this.providers = providers;
-		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers);
-		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeTestSuiteVariant.class), Variant::getBinaries)));
 		this.tasks = tasks;
 
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
@@ -87,18 +85,15 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.getDimensions().convention(ImmutableList.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 		this.getBaseName().convention(names.getBaseName().getAsString());
 
+		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry);
+		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeTestSuiteVariant.class), Variant::getBinaries)));
+
 		this.getBuildVariants().convention(providers.provider(this::createBuildVariants));
 		this.getBuildVariants().finalizeValueOnRead();
 		this.getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
 
 		this.getDimensions().disallowChanges(); // Let's disallow changing them for now.
-
-		this.taskRegistry = new TaskRegistryImpl(tasks);
-	}
-
-	@Override
-	public String getName() {
-		return getNames().getComponentName();
 	}
 
 	protected Iterable<BuildVariantInternal> createBuildVariants() {
@@ -169,7 +164,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 		// HACK: This should really be solve using the variant whenElementKnown API
 		getBuildVariants().get().forEach(buildVariant -> {
-			final NamingScheme names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			val variantIdentifier = VariantIdentifier.builder().withType(DefaultNativeTestSuiteVariant.class).withComponentIdentifier(getIdentifier()).withUnambiguousNameFromBuildVariants(buildVariant, getBuildVariants().get()).build();
 
 			// TODO: The variant should have give access to the testTask
@@ -186,7 +180,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 				});
 			});
 			// TODO: The following is a gap is how we declare task, it should be possible to register a lifecycle task for a entity
-			val testTask = taskRegistry.register(names.getBaseName().withCamelDimensions(), task -> {
+			val testTask = taskRegistry.register(TaskIdentifier.ofLifecycle(variantIdentifier), task -> {
 				task.dependsOn(runTask);
 			});
 		});
@@ -205,9 +199,9 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 			// TODO: Map name to something close to what is expected
 			getBaseName().convention(component.getBaseName().map(it -> {
 				if (component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty()) {
-					return it + "-" + getName();
+					return it + "-" + getIdentifier().getName().get();
 				}
-				return it + StringUtils.capitalize(getName());
+				return it + StringUtils.capitalize(getIdentifier().getName().get());
 			}));
 
 			component.getSourceCollection().withType(BaseSourceSet.class).configureEach(sourceSet -> {
@@ -215,9 +209,9 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
 					if (sourceSet instanceof CHeaderSet || sourceSet instanceof CppHeaderSet) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
-						getSourceCollection().add(objects.newInstance(sourceSet.getClass(), "headers").srcDir(getNames().getSourceSetPath("headers")));
+						getSourceCollection().add(objects.newInstance(sourceSet.getClass(), "headers").srcDir("src/" + getIdentifier().getName().get() + "/headers"));
 					} else {
-						getSourceCollection().add(objects.newInstance(sourceSet.getClass(), sourceSet.getName()).from(getNames().getSourceSetPath(sourceSet.getName())));
+						getSourceCollection().add(objects.newInstance(sourceSet.getClass(), sourceSet.getName()).from("src/" + getIdentifier().getName().get() + "/" + sourceSet.getName()));
 					}
 				}
 			});
@@ -266,7 +260,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					ConfigurableFileCollection objects = this.objects.fileCollection();
 					objects.from(componentObjects);
 					if (component instanceof DefaultNativeApplicationComponent) {
-						val relocateTask = tasks.register(variant.getNames().getTaskName("relocateMainSymbolFor"), UnexportMainSymbol.class, task -> {
+						val relocateTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("relocateMainSymbolFor"), UnexportMainSymbol.class, variant.getIdentifier()), task -> {
 							task.getObjects().from(componentObjects);
 							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(binary.getIdentifier().getOutputDirectoryBase("objs/for-test")));
 						});

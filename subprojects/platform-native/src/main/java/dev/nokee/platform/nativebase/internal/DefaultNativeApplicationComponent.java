@@ -38,12 +38,12 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	@Inject
 	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
 		super(identifier, names, DefaultNativeApplicationVariant.class, objects, providers, tasks, layout, configurations);
-		this.componentVariants = new NativeApplicationComponentVariants(objects, this, dependencyHandler, configurations, providers);
-		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeApplicationVariant.class), Variant::getBinaries)));
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.componentVariants = new NativeApplicationComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry);
+		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeApplicationVariant.class), Variant::getBinaries)));
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 
 	public static DomainObjectFactory<DefaultNativeApplicationComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
 		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent().withComponentDisplayName(((ComponentIdentifier<?>)identifier).getDisplayName());
+			NamingScheme names = namingSchemeFactory.forMainComponent();
 			return objects.newInstance(DefaultNativeApplicationComponent.class, identifier, names);
 		};
 	}

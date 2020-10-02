@@ -42,8 +42,4 @@ public abstract class BaseComponent<T extends Variant> {
 
 	// TODO: We may want to model this as a BuildVariantRegistry for more richness than a plain set
 	public abstract SetProperty<BuildVariantInternal> getBuildVariants();
-
-	public String getName() {
-		return "main";
-	}
 }

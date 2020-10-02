@@ -9,10 +9,12 @@ import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryC
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.gradle.api.Task;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
@@ -22,8 +24,8 @@ public class DefaultNativeLibraryVariant extends BaseNativeVariant implements Na
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public DefaultNativeLibraryVariant(VariantIdentifier<DefaultNativeLibraryVariant> identifier, NamingScheme names, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers, ProjectLayout layout) {
-		super(identifier, names, objects, tasks, providers);
+	public DefaultNativeLibraryVariant(VariantIdentifier<DefaultNativeLibraryVariant> identifier, NamingScheme names, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers, ProjectLayout layout, TaskProvider<Task> assembleTask) {
+		super(identifier, names, objects, tasks, providers, assembleTask);
 		this.dependencies = dependencies.getDependencies();
 		this.layout = layout;
 		this.resolvableDependencies = dependencies.getIncoming();

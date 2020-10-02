@@ -4,7 +4,7 @@ import dev.nokee.platform.base.Binary;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.jvm.tasks.Jar;
+import org.gradle.api.tasks.bundling.Jar;
 
 public abstract class AbstractJarBinary implements Binary {
 	private final TaskProvider<Jar> jarTask;
