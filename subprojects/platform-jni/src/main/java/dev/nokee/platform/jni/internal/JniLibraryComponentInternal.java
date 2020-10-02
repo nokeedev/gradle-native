@@ -1,6 +1,5 @@
 package dev.nokee.platform.jni.internal;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.platform.base.*;
@@ -8,8 +7,6 @@ import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
-import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
@@ -20,6 +17,7 @@ import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import dev.nokee.utils.ConfigureUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -34,7 +32,6 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.internal.Cast;
-import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -55,8 +52,8 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	private final TaskRegistry taskRegistry;
 
 	@Inject
-	public JniLibraryComponentInternal(ComponentIdentifier<JniLibraryComponentInternal> identifier, NamingScheme names, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers, TaskContainer tasks) {
-		super(identifier, names, JniLibraryInternal.class, objects);
+	public JniLibraryComponentInternal(ComponentIdentifier<?> identifier, NamingScheme names, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers, TaskContainer tasks) {
+		super(identifier, names, objects);
 		this.objects = objects;
 		this.configurations = configurations;
 		this.dependencyHandler = dependencyHandler;
@@ -65,7 +62,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		this.dependencies = objects.newInstance(DefaultJavaNativeInterfaceLibraryComponentDependencies.class, dependencyContainer);
 		this.groupId = groupId;
 		this.sources = objects.domainObjectSet(LanguageSourceSetInternal.class);
-		this.targetMachines = objects.setProperty(TargetMachine.class);
+		this.targetMachines = ConfigureUtils.configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.taskRegistry = new TaskRegistryImpl(tasks);
 		this.componentVariants = new JavaNativeInterfaceComponentVariants(objects, this, configurations, dependencyHandler, providers, taskRegistry);
 		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(componentVariants.getVariantCollection().getAsView(JniLibraryInternal.class), Variant::getBinaries)));

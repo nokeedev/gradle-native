@@ -7,7 +7,6 @@ import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.core.exec.internal.VersionedCommandLineTool;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
-import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -23,7 +22,10 @@ import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
-import dev.nokee.platform.nativebase.internal.rules.*;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentAssembleLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
@@ -65,7 +67,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	@Inject
 	public DefaultIosApplicationComponent(ComponentIdentifier<DefaultIosApplicationComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(identifier, names, DefaultIosApplicationVariant.class, objects, providers, tasks, layout, configurations);
+		super(identifier, names, DefaultIosApplicationVariant.class, objects, tasks);
 		this.objects = objects;
 		this.providers = providers;
 		this.layout = layout;
@@ -227,12 +229,5 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		componentVariants.calculateVariants();
 
 		getVariantCollection().disallowChanges();
-	}
-
-	public static DomainObjectFactory<DefaultIosApplicationComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
-		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent();
-			return objects.newInstance(DefaultIosApplicationComponent.class, identifier, names);
-		};
 	}
 }

@@ -30,7 +30,6 @@ import org.gradle.util.GUtil;
 import javax.inject.Inject;
 import java.util.Arrays;
 
-import static dev.nokee.platform.ios.internal.DefaultIosApplicationComponent.newFactory;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.platform.nativebase.internal.NativePlatformFactory.platformNameFor;
 
@@ -65,8 +64,12 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(DefaultObjectiveCIosApplicationExtension.class, id -> {
 			val identifier = ComponentIdentifier.ofMain(DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
-			val component = store.register(identifier, DefaultIosApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
-			return new DefaultObjectiveCIosApplicationExtension(component.get(), project.getObjects(), project.getProviders());
+
+			val namingSchemeFactory = new NamingSchemeFactory(project.getName());
+			val names = namingSchemeFactory.forMainComponent();
+			val component = new DefaultIosApplicationComponent(identifier, names, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies());
+			store.register(identifier, DefaultIosApplicationComponent.class, ignored -> component).get();
+			return new DefaultObjectiveCIosApplicationExtension(component, project.getObjects(), project.getProviders());
 		});
 		val extension = components.register("main", DefaultObjectiveCIosApplicationExtension.class, component -> {
 			component.getComponent().getBaseName().convention(GUtil.toCamelCase(project.getName()));

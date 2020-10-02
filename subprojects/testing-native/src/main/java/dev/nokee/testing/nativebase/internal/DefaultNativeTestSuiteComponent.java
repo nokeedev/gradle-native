@@ -74,7 +74,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 	@Inject
 	public DefaultNativeTestSuiteComponent(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(identifier, names, DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
+		super(identifier, names, DefaultNativeTestSuiteVariant.class, objects, tasks);
 		this.objects = objects;
 		this.providers = providers;
 		this.tasks = tasks;

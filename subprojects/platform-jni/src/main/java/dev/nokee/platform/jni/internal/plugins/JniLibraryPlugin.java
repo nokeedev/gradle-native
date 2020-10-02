@@ -424,7 +424,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(JniLibraryExtensionInternal.class, identifier -> {
 			assert ((ComponentIdentifier<?>) identifier).isMainComponent();
-			return new JniLibraryExtensionInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), names, project.getConfigurations(), project.getObjects(), project.getProviders());
+			return new JniLibraryExtensionInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), names, project.getConfigurations(), project.getObjects(), project.getProviders(), project.getDependencies(), project.getTasks());
 		});
 		val library = components.register("main", JniLibraryExtensionInternal.class).get();
 

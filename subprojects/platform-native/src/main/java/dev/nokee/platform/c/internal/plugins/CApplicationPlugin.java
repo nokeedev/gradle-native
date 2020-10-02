@@ -1,7 +1,10 @@
 package dev.nokee.platform.c.internal.plugins;
 
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.DomainObjectStore;
+import dev.nokee.platform.base.internal.NamingSchemeFactory;
+import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.c.CApplicationExtension;
@@ -18,8 +21,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
 
 import javax.inject.Inject;
-
-import static dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent.newFactory;
 
 public class CApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -43,8 +44,13 @@ public class CApplicationPlugin implements Plugin<Project> {
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(DefaultCApplicationExtension.class, id -> {
 			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeApplicationComponent.class, ProjectIdentifier.of(project));
-			val component = store.register(identifier, DefaultNativeApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
-			return new DefaultCApplicationExtension(component.get(), project.getObjects(), project.getProviders(), project.getLayout());
+
+			val namingSchemeFactory = new NamingSchemeFactory(project.getName());
+			val names = namingSchemeFactory.forMainComponent();
+			val component = new DefaultNativeApplicationComponent(identifier, names, project.getObjects(), project.getProviders(), project.getTasks(), project.getConfigurations(), project.getDependencies());
+
+			store.register(identifier, DefaultNativeApplicationComponent.class, ignored -> component).get();
+			return new DefaultCApplicationExtension(component, project.getObjects(), project.getProviders(), project.getLayout());
 		});
 		val extension = components.register("main", DefaultCApplicationExtension.class, component -> {
 			component.getComponent().getBaseName().convention(project.getName());

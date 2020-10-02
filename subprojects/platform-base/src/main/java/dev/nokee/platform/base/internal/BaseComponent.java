@@ -23,7 +23,7 @@ public abstract class BaseComponent<T extends Variant> {
 
 	@Getter private final Property<String> baseName;
 
-	protected BaseComponent(ComponentIdentifier<?> identifier, NamingScheme names, Class<T> variantType, ObjectFactory objects) {
+	protected BaseComponent(ComponentIdentifier<?> identifier, NamingScheme names, ObjectFactory objects) {
 		this.identifier = identifier;
 		this.names = names;
 		this.binaryCollection = objects.domainObjectSet(Binary.class);

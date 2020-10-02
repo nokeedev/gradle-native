@@ -1,7 +1,6 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -37,7 +36,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 	@Inject
 	public DefaultNativeLibraryComponent(ComponentIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(identifier, names, DefaultNativeLibraryVariant.class, objects, providers, tasks, layout, configurations);
+		super(identifier, names, DefaultNativeLibraryVariant.class, objects, tasks);
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeLibraryComponentDependencies.class, dependencyContainer);
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
@@ -69,13 +68,6 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	@Override
 	public VariantCollection<DefaultNativeLibraryVariant> getVariantCollection() {
 		return componentVariants.getVariantCollection();
-	}
-
-	public static DomainObjectFactory<DefaultNativeLibraryComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
-		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent();
-			return objects.newInstance(DefaultNativeLibraryComponent.class, identifier, names);
-		};
 	}
 
 	public void finalizeExtension(Project project) {

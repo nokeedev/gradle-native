@@ -57,7 +57,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 
 	@Inject
 	public BaseXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(identifier, names, DefaultXCTestTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
+		super(identifier, names, DefaultXCTestTestSuiteVariant.class, objects, tasks);
 		this.providers = providers;
 		this.layout = layout;
 		this.taskRegistry = new TaskRegistryImpl(tasks);
