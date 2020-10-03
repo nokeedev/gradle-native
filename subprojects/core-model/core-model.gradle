@@ -23,6 +23,12 @@ dependencies {
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation gradleApi(minimumGradleVersion)
+
+	testFixturesApi platform("org.spockframework:spock-bom:${spockVersion}")
+	testFixturesApi 'org.spockframework:spock-core'
+	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	testFixturesImplementation gradleApi(minimumGradleVersion)
+	testFixturesImplementation "com.google.guava:guava:${guavaVersion}"
 }
 
 java {

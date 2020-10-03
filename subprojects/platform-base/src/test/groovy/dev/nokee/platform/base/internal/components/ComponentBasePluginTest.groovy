@@ -1,14 +1,14 @@
-package dev.nokee.platform.base.internal.plugins
+package dev.nokee.platform.base.internal.components
 
 import dev.nokee.platform.base.ComponentContainer
+import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 class ComponentBasePluginTest extends Specification {
-	def "creates components container extension"() {
-		given:
-		def project = ProjectBuilder.builder().build()
+	def project = ProjectBuilder.builder().build()
 
+	def "creates components container extension"() {
 		when:
 		project.apply plugin: ComponentBasePlugin
 
@@ -19,7 +19,6 @@ class ComponentBasePluginTest extends Specification {
 
 	def "disallow changes after evaluation"() {
 		given:
-		def project = ProjectBuilder.builder().build()
 		project.apply plugin: ComponentBasePlugin
 
 		when:
@@ -31,9 +30,6 @@ class ComponentBasePluginTest extends Specification {
 
 	def "applies lifecycle-base plugin"() {
 		given:
-		def project = ProjectBuilder.builder().build()
-
-		and:
 		assert !project.pluginManager.hasPlugin('lifecycle-base')
 
 		when:
@@ -41,5 +37,29 @@ class ComponentBasePluginTest extends Specification {
 
 		then:
 		project.pluginManager.hasPlugin('lifecycle-base')
+	}
+
+	def "registers component configurer service"() {
+		when:
+		project.apply plugin: ComponentBasePlugin
+
+		then:
+		project.extensions.findByType(ComponentConfigurer) != null
+	}
+
+	def "registers component repository service"() {
+		when:
+		project.apply plugin: ComponentBasePlugin
+
+		then:
+		project.extensions.findByType(ComponentRepository) != null
+	}
+
+	def "registers known component factory"() {
+		when:
+		project.apply plugin: ComponentBasePlugin
+
+		then:
+		project.extensions.findByType(KnownComponentFactory) != null
 	}
 }

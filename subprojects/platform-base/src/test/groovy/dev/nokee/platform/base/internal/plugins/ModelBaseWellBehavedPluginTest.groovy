@@ -5,7 +5,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.junit.Assume
 
-class ComponentBaseWellBehavedPluginTest extends WellBehavedPluginTest {
+class ModelBaseWellBehavedPluginTest extends WellBehavedPluginTest {
 	@Override
 	protected String getQualifiedPluginId() {
 		Assume.assumeTrue(false) // no qualified plugin id
@@ -14,6 +14,6 @@ class ComponentBaseWellBehavedPluginTest extends WellBehavedPluginTest {
 
 	@Override
 	protected Class<? extends Plugin<Project>> getPluginType() {
-		return ComponentBasePlugin
+		return ModelBasePlugin
 	}
 }
