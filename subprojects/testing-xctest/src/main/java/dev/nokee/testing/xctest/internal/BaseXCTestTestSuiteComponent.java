@@ -56,8 +56,8 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	private final ProjectLayout layout;
 
 	@Inject
-	public BaseXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(identifier, names, DefaultXCTestTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
+	public BaseXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, DefaultXCTestTestSuiteVariant.class, objects, tasks);
 		this.providers = providers;
 		this.layout = layout;
 		this.taskRegistry = new TaskRegistryImpl(tasks);
@@ -109,7 +109,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	protected void onEachVariant(KnownVariant<DefaultXCTestTestSuiteVariant> variant) {
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
-				Provider<String> moduleName = getTestedComponent().map(it -> it.getNames().getBaseName().getAsCamelCase());
+				Provider<String> moduleName = getTestedComponent().flatMap(BaseComponent::getBaseName);
 				binary.getCompileTasks().configureEach(SourceCompile.class, task -> {
 					task.getCompilerArgs().addAll(providers.provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator", "-F", getSdkPath() + "/System/Library/Frameworks", "-iframework", getSdkPlatformPath() + "/Developer/Library/Frameworks")));
 					task.getCompilerArgs().addAll(task.getToolChain().map(toolChain -> {

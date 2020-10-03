@@ -42,8 +42,8 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 	private final ProjectLayout layout;
 
 	@Inject
-	public DefaultUnitTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUnitTestXCTestTestSuiteComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(identifier, names, objects, providers, tasks, layout, configurations, dependencyHandler);
+	public DefaultUnitTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUnitTestXCTestTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, objects, providers, tasks, layout, configurations, dependencyHandler);
 		this.objects = objects;
 		this.providers = providers;
 		this.taskRegistry = new TaskRegistryImpl(tasks);
@@ -57,9 +57,9 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
-				((BundleBinaryInternal)binary).getBaseName().set(getNames().getBaseName().getAsCamelCase());
+				((BundleBinaryInternal)binary).getBaseName().set(BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase());
 			});
-			String moduleName = testSuite.getNames().getBaseName().getAsCamelCase();
+			String moduleName = BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase();
 
 			// XCTest Unit Testing
 			val processUnitTestPropertyListTask = taskRegistry.register("processUnitTestPropertyList", ProcessPropertyListTask.class, task -> {
@@ -83,7 +83,7 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 			});
 
 			val createUnitTestApplicationBundleTask = taskRegistry.register("createUnitTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
-				task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getNames().getBaseName().getAsCamelCase() + "-unsigned.app"));
+				task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getBaseName().get() + "-unsigned.app"));
 				task.getSources().from(getTestedComponent().flatMap(c -> c.getVariants().getElements().map(it -> it.iterator().next().getBinaries().withType(IosApplicationBundleInternal.class).get().iterator().next().getBundleTask().map(t -> t.getSources()))));
 				task.getPlugIns().from(signUnitTestXCTestBundle.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle));
 				task.getFrameworks().from(getXCTestBundleInjectDynamicLibrary());
@@ -93,7 +93,7 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 
 			val signTask = taskRegistry.register("signUnitTestLauncherApplicationBundle", SignIosApplicationBundleTask.class, task -> {
 				task.getUnsignedApplicationBundle().set(createUnitTestApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
-				task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getNames().getBaseName().getAsCamelCase() + ".app"));
+				task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getBaseName().get() + ".app"));
 				task.getCodeSignatureTool().set(codeSignatureTool);
 				task.getCodeSignatureTool().disallowChanges();
 			});
@@ -130,10 +130,9 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 		}
 	}
 
-	public static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTestFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
+	public static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTestFactory(ObjectFactory objects) {
 		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent("unitTest");
-			return objects.newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, identifier, names);
+			return objects.newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, identifier);
 		};
 	}
 }

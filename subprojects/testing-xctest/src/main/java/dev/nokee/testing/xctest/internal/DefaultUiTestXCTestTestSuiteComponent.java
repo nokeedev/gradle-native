@@ -43,8 +43,8 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 	private final ProjectLayout layout;
 
 	@Inject
-	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUiTestXCTestTestSuiteComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(identifier, names, objects, providers, tasks, layout, configurations, dependencyHandler);
+	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUiTestXCTestTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, objects, providers, tasks, layout, configurations, dependencyHandler);
 		this.objects = objects;
 		this.providers = providers;
 		this.taskRegistry = new TaskRegistryImpl(tasks);
@@ -58,9 +58,9 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
-				((BundleBinaryInternal)binary).getBaseName().set(getNames().getBaseName().getAsCamelCase());
+				((BundleBinaryInternal)binary).getBaseName().set(BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase());
 			});
-			String moduleName = testSuite.getNames().getBaseName().getAsCamelCase();
+			String moduleName = BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase();
 
 			// XCTest UI Testing
 			val processUiTestPropertyListTask = taskRegistry.register("processUiTestPropertyList", ProcessPropertyListTask.class, task -> {
@@ -137,10 +137,9 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 		});
 	}
 
-	public static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
+	public static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(ObjectFactory objects) {
 		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent("uiTest");
-			return objects.newInstance(DefaultUiTestXCTestTestSuiteComponent.class, identifier, names);
+			return objects.newInstance(DefaultUiTestXCTestTestSuiteComponent.class, identifier);
 		};
 	}
 }

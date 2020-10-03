@@ -1,6 +1,5 @@
 package dev.nokee.testing.xctest.internal;
 
-import dev.nokee.platform.base.internal.NamingScheme;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
@@ -13,7 +12,6 @@ import lombok.Getter;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
@@ -23,8 +21,8 @@ public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements 
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public DefaultXCTestTestSuiteVariant(VariantIdentifier<DefaultXCTestTestSuiteVariant> identifier, NamingScheme names, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies, ObjectFactory objects, TaskContainer tasks, ProviderFactory providers, TaskProvider<Task> assembleTask) {
-		super(identifier, names, objects, tasks, providers, assembleTask);
+	public DefaultXCTestTestSuiteVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
+		super(identifier, objects, providers, assembleTask);
 		this.dependencies = dependencies.getDependencies();
 		this.resolvableDependencies = dependencies.getIncoming();
 

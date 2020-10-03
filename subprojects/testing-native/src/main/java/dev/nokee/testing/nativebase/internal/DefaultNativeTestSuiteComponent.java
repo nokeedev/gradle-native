@@ -43,7 +43,6 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileTree;
-import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
@@ -73,8 +72,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final BinaryView<Binary> binaries;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(identifier, names, DefaultNativeTestSuiteVariant.class, objects, providers, tasks, layout, configurations);
+	public DefaultNativeTestSuiteComponent(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, DefaultNativeTestSuiteVariant.class, objects, tasks);
 		this.objects = objects;
 		this.providers = providers;
 		this.tasks = tasks;
@@ -83,7 +82,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.testedComponent = Cast.uncheckedCast(objects.property(BaseComponent.class));
 		this.getDimensions().convention(ImmutableList.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
-		this.getBaseName().convention(names.getBaseName().getAsString());
+		this.getBaseName().convention(BaseNameUtils.from(identifier).getAsString());
 
 		this.taskRegistry = new TaskRegistryImpl(tasks);
 		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry);
@@ -188,7 +187,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		// Ensure the task is registered before configuring
 		taskRegistry.registerIfAbsent("check").configure(task -> {
 			// TODO: To eliminate access to the TaskContainer, we should have a getter on the variant for the relevant task in question
-			task.dependsOn(getDevelopmentVariant().flatMap(it -> tasks.named(it.getNames().getBaseName().withCamelDimensions())));
+			task.dependsOn(getDevelopmentVariant().flatMap(it -> tasks.named(TaskIdentifier.ofLifecycle(it.getIdentifier()).getTaskName())));
 		});
 
 

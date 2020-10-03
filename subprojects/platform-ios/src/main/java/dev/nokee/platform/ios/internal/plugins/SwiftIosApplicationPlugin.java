@@ -21,8 +21,6 @@ import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
-import static dev.nokee.platform.ios.internal.DefaultIosApplicationComponent.newFactory;
-
 public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
@@ -48,8 +46,10 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(DefaultSwiftIosApplicationExtension.class, id -> {
 			val identifier = ComponentIdentifier.ofMain(DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
-			val component = store.register(identifier, DefaultIosApplicationComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
-			return new DefaultSwiftIosApplicationExtension(component.get(), project.getObjects(), project.getProviders());
+
+			val component = new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies());
+			store.register(identifier, DefaultIosApplicationComponent.class, ignored -> component).get();
+			return new DefaultSwiftIosApplicationExtension(component, project.getObjects(), project.getProviders());
 		});
 		val extension = components.register("main", DefaultSwiftIosApplicationExtension.class, component -> {
 			component.getComponent().getBaseName().convention(GUtil.toCamelCase(project.getName()));

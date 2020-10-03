@@ -8,7 +8,6 @@ import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependen
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
@@ -17,6 +16,7 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import dev.nokee.utils.ConfigureUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -28,7 +28,6 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
@@ -36,11 +35,9 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import javax.inject.Inject;
 
 public class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal {
-	@Getter  private final NamingScheme names;
 	private final DefaultJavaNativeInterfaceNativeComponentDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
-	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
 	private final TaskProvider<Task> assembleTask;
 	private final DefaultTargetMachine targetMachine;
@@ -53,13 +50,11 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, NamingScheme names, DomainObjectSet<LanguageSourceSetInternal> parentSources, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskContainer tasks, TaskProvider<Task> assembleTask) {
+	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, DomainObjectSet<LanguageSourceSetInternal> parentSources, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, TaskProvider<Task> assembleTask) {
 		super(identifier, objects);
-		this.names = names;
 		this.dependencies = dependencies.getDependencies();
 		this.configurations = configurations;
 		this.providers = providers;
-		this.tasks = tasks;
 		this.sources = objects.domainObjectSet(LanguageSourceSetInternal.class);
 		this.assembleTask = assembleTask;
 		this.targetMachine = new DefaultTargetMachine((DefaultOperatingSystemFamily)getBuildVariant().getDimensions().get(0), (DefaultMachineArchitecture)getBuildVariant().getDimensions().get(1));
@@ -67,12 +62,20 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		this.resourcePath = objects.property(String.class);
 		this.nativeRuntimeFiles = objects.fileCollection();
 		this.resolvableDependencies = dependencies.getIncoming();
-		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.taskRegistry = taskRegistry;
 
 		parentSources.all(sources::add);
 
 		getBinaryCollection().configureEach(parentBinaries::add);
-		getResourcePath().convention(getProviders().provider(() -> names.getResourcePath(groupId)));
+		getResourcePath().convention(getProviders().provider(() -> getResourcePath(groupId)));
+	}
+
+	private String getResourcePath(GroupId groupId) {
+		return groupId.get().map(it -> it.replace('.', '/') + '/').orElse("") + getIdentifier().getAmbiguousDimensions().getAsKebabCase().orElse("");
+	}
+
+	public void setResourcePath(Object value) {
+		ConfigureUtils.setPropertyValue(resourcePath, value);
 	}
 
 	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
@@ -85,7 +88,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		getNativeRuntimeFiles().from(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
 		getNativeRuntimeFiles().from(sharedLibraryBinary.getRuntimeLibrariesDependencies());
 		this.sharedLibraryBinary = sharedLibraryBinary;
-		sharedLibraryBinary.getBaseName().convention(names.getBaseName().getAsString());
+		sharedLibraryBinary.getBaseName().convention(BaseNameUtils.from(getIdentifier()).getAsString());
 		getBinaryCollection().add(sharedLibraryBinary);
 	}
 

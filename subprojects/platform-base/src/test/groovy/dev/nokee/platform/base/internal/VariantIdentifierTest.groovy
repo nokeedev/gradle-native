@@ -99,17 +99,17 @@ class VariantIdentifierTest extends Specification {
 			.withType(TestableVariant)
 			.withVariantDimension({'macos'}, [{'macos'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
-			.build().ambiguousDimensions == ['debug']
+			.build().ambiguousDimensions.get() == ['debug']
 
 		VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
 			.withType(TestableVariant)
 			.withVariantDimension({'macos'}, [{'macos'}, {'windows'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
-			.build().ambiguousDimensions == ['macos', 'debug']
+			.build().ambiguousDimensions.get() == ['macos', 'debug']
 
 		VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
 			.withType(TestableVariant)
-			.build().ambiguousDimensions == []
+			.build().ambiguousDimensions.get() == []
 	}
 
 	def "can build identifier from only one unambiguous variant dimension using the builder"() {

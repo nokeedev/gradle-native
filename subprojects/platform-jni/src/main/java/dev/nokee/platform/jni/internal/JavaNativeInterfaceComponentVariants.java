@@ -36,6 +36,7 @@ public class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 	private final JniLibraryComponentInternal component;
 	private final ConfigurationContainer configurationContainer;
 	private final DependencyHandler dependencyHandler;
+	private final ProviderFactory providerFactory;
 	private final TaskRegistry taskRegistry;
 
 	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ProviderFactory providerFactory, TaskRegistry taskRegistry) {
@@ -46,6 +47,7 @@ public class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 		this.component = component;
 		this.configurationContainer = configurationContainer;
 		this.dependencyHandler = dependencyHandler;
+		this.providerFactory = providerFactory;
 		this.taskRegistry = taskRegistry;
 	}
 
@@ -63,14 +65,13 @@ public class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 		Preconditions.checkArgument(buildVariant.getDimensions().size() == 2);
 		Preconditions.checkArgument(buildVariant.getDimensions().get(0) instanceof OperatingSystemFamily);
 		Preconditions.checkArgument(buildVariant.getDimensions().get(1) instanceof MachineArchitecture);
-		NamingScheme names = component.getNames().forBuildVariant(buildVariant, component.getBuildVariants().get());
 
 		val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(LifecycleBasePlugin.ASSEMBLE_TASK_NAME), identifier), task -> {
 			task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 			task.setDescription(String.format("Assembles the '%s' outputs of this project.", BuildVariantNamer.INSTANCE.determineName((BuildVariantInternal)identifier.getBuildVariant())));
 		});
 
-		JniLibraryInternal result = objectFactory.newInstance(JniLibraryInternal.class, identifier, names, component.getSources(), component.getGroupId(), component.getBinaryCollection(), variantDependencies, assembleTask);
+		val result = new JniLibraryInternal(identifier, component.getSources(), component.getGroupId(), component.getBinaryCollection(), variantDependencies, objectFactory, configurationContainer, providerFactory, taskRegistry, assembleTask);
 		return result;
 	}
 

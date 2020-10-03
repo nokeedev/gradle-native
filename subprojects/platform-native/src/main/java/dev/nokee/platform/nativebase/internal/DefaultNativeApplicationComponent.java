@@ -1,7 +1,6 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -20,7 +19,6 @@ import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -36,8 +34,8 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	private final BinaryView<Binary> binaries;
 
 	@Inject
-	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, NamingScheme names, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
-		super(identifier, names, DefaultNativeApplicationVariant.class, objects, providers, tasks, layout, configurations);
+	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+		super(identifier, DefaultNativeApplicationVariant.class, objects, tasks);
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
@@ -69,13 +67,6 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
 		return componentVariants.getBuildVariants();
-	}
-
-	public static DomainObjectFactory<DefaultNativeApplicationComponent> newFactory(ObjectFactory objects, NamingSchemeFactory namingSchemeFactory) {
-		return identifier -> {
-			NamingScheme names = namingSchemeFactory.forMainComponent();
-			return objects.newInstance(DefaultNativeApplicationComponent.class, identifier, names);
-		};
 	}
 
 	public void finalizeExtension(Project project) {

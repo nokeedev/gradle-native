@@ -1,7 +1,9 @@
 package dev.nokee.platform.cpp.internal.plugins;
 
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.DomainObjectStore;
+import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.cpp.CppLibraryExtension;
@@ -19,8 +21,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
 
 import javax.inject.Inject;
-
-import static dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent.newFactory;
 
 public class CppLibraryPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "library";
@@ -44,8 +44,11 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(DefaultCppLibraryExtension.class, id -> {
 			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeLibraryComponent.class, ProjectIdentifier.of(project));
-			val component = store.register(identifier, DefaultNativeLibraryComponent.class, newFactory(getObjects(), new NamingSchemeFactory(project.getName())));
-			return new DefaultCppLibraryExtension(component.get(), project.getObjects(), project.getProviders(), project.getLayout());
+
+			val component = new DefaultNativeLibraryComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies());
+
+			store.register(identifier, DefaultNativeLibraryComponent.class, ignored -> component).get();
+			return new DefaultCppLibraryExtension(component, project.getObjects(), project.getProviders(), project.getLayout());
 		});
 		val extension = components.register("main", DefaultCppLibraryExtension.class, component -> {
 			component.getComponent().getBaseName().convention(project.getName());

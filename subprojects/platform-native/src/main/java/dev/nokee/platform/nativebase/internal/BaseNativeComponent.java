@@ -24,10 +24,7 @@ import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.val;
 import org.gradle.api.DomainObjectSet;
-import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 
@@ -36,8 +33,8 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	private final TaskRegistry taskRegistry;
 	private final ObjectFactory objects;
 
-	public BaseNativeComponent(ComponentIdentifier<?> identifier, NamingScheme names, Class<T> variantType, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations) {
-		super(identifier, names, variantType, objects);
+	public BaseNativeComponent(ComponentIdentifier<?> identifier, Class<T> variantType, ObjectFactory objects, TaskContainer tasks) {
+		super(identifier, objects);
 		this.objects = objects;
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
 		this.variantType = variantType;
@@ -57,7 +54,6 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 		knownVariant.configure(it -> {
 			val incomingDependencies = (NativeIncomingDependencies) it.getResolvableDependencies();
-			val names = this.getNames().forBuildVariant(buildVariant, getBuildVariants().get());
 			DomainObjectSet<GeneratedSourceSet> objectSourceSets = new NativeLanguageRules(taskRegistry, objects, variantIdentifier).apply(getSourceCollection());
 			BaseNativeVariant variantInternal = (BaseNativeVariant)it;
 			if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
