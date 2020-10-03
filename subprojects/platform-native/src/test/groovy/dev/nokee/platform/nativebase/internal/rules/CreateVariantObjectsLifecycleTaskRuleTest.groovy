@@ -13,7 +13,7 @@ import org.gradle.api.tasks.TaskProvider
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static ToDevelopmentBinaryCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS
+import static ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS
 import static dev.nokee.utils.TaskUtils.configureDependsOn
 
 @Subject(CreateVariantObjectsLifecycleTaskRule)

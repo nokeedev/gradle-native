@@ -6,14 +6,15 @@ import dev.nokee.platform.base.Variant
 import dev.nokee.platform.nativebase.NativeBinary
 import dev.nokee.utils.ProviderUtils
 import org.gradle.api.provider.Provider
+import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static ToDevelopmentBinaryCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS
+import static ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS
 
-@Subject(ToDevelopmentBinaryCompileTasksTransformer)
-class ToDevelopmentBinaryCompileTasksTransformerTest extends Specification {
-
+@Subject(ToBinariesCompileTasksTransformer)
+@Ignore
+class ToBinariesCompileTasksTransformerTest extends Specification {
 	def "returns provider to empty list when development binary is not a native binary"() {
 		given:
 		def variant = Stub(Variant) {
