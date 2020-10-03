@@ -50,11 +50,12 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 			languageName = 'objectiveC'
 		} else if (className.contains('Cpp')) {
 			languageName = 'cpp'
-		} else if (className.contains('c')) {
-			languageName = 'c'
-		} else if (className.contains('swift')) {
+		} else if (className.contains('Swift')) {
 			languageName = 'swift'
+		} else if (className.contains('C')) {
+			languageName = 'c'
 		}
+
 
 		def result = """
 			${componentUnderTestDsl} {
