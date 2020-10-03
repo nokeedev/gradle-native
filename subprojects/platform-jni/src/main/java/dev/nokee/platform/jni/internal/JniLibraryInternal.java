@@ -16,6 +16,7 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import dev.nokee.utils.ConfigureUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -69,8 +70,12 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		getResourcePath().convention(getProviders().provider(() -> getResourcePath(groupId)));
 	}
 
-	public String getResourcePath(GroupId groupId) {
+	private String getResourcePath(GroupId groupId) {
 		return groupId.get().map(it -> it.replace('.', '/') + '/').orElse("") + getIdentifier().getAmbiguousDimensions().getAsKebabCase().orElse("");
+	}
+
+	public void setResourcePath(Object value) {
+		ConfigureUtils.setPropertyValue(resourcePath, value);
 	}
 
 	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
