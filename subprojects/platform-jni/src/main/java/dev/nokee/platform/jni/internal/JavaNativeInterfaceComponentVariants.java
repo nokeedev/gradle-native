@@ -8,6 +8,7 @@ import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
@@ -41,8 +42,12 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 	private final DependencyHandler dependencyHandler;
 	private final ProviderFactory providerFactory;
 	private final TaskRegistry taskRegistry;
+	private final DomainObjectEventPublisher eventPublisher;
+	private final BinaryViewFactory binaryViewFactory;
 
-	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository) {
+	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory) {
+		this.eventPublisher = eventPublisher;
+		this.binaryViewFactory = binaryViewFactory;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), JniLibraryInternal.class, eventPublisher, viewFactory, variantRepository);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(getVariantCollection()::get));
@@ -74,7 +79,7 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 			task.setDescription(String.format("Assembles the '%s' outputs of this project.", BuildVariantNamer.INSTANCE.determineName((BuildVariantInternal)identifier.getBuildVariant())));
 		});
 
-		val result = new JniLibraryInternal(identifier, component.getSources(), component.getGroupId(), component.getBinaryCollection(), variantDependencies, objectFactory, configurationContainer, providerFactory, taskRegistry, assembleTask);
+		val result = new JniLibraryInternal(identifier, component.getSources(), component.getGroupId(), variantDependencies, objectFactory, configurationContainer, providerFactory, taskRegistry, assembleTask, eventPublisher, binaryViewFactory);
 		return result;
 	}
 

@@ -2,8 +2,11 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
-import dev.nokee.platform.base.Binary;
+import dev.nokee.model.internal.DomainObjectCreated;
+import dev.nokee.model.internal.DomainObjectDiscovered;
+import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -40,6 +43,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	private final DomainObjectSet<LanguageSourceSetInternal> sources;
 	private final TaskProvider<Task> assembleTask;
+	private final DomainObjectEventPublisher eventPublisher;
 	private final DefaultTargetMachine targetMachine;
 	private final GroupId groupId;
 	private final TaskRegistry taskRegistry;
@@ -50,13 +54,14 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, DomainObjectSet<LanguageSourceSetInternal> parentSources, GroupId groupId, DomainObjectSet<Binary> parentBinaries, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, TaskProvider<Task> assembleTask) {
-		super(identifier, objects);
+	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, DomainObjectSet<LanguageSourceSetInternal> parentSources, GroupId groupId, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, TaskProvider<Task> assembleTask, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory) {
+		super(identifier, objects, binaryViewFactory);
 		this.dependencies = dependencies.getDependencies();
 		this.configurations = configurations;
 		this.providers = providers;
 		this.sources = objects.domainObjectSet(LanguageSourceSetInternal.class);
 		this.assembleTask = assembleTask;
+		this.eventPublisher = eventPublisher;
 		this.targetMachine = new DefaultTargetMachine((DefaultOperatingSystemFamily)getBuildVariant().getDimensions().get(0), (DefaultMachineArchitecture)getBuildVariant().getDimensions().get(1));
 		this.groupId = groupId;
 		this.resourcePath = objects.property(String.class);
@@ -66,7 +71,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 		parentSources.all(sources::add);
 
-		getBinaryCollection().configureEach(parentBinaries::add);
 		getResourcePath().convention(getProviders().provider(() -> getResourcePath(groupId)));
 	}
 
@@ -84,17 +88,25 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 	public void registerSharedLibraryBinary(DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeIncomingDependencies dependencies) {
 		val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, getIdentifier());
-		SharedLibraryBinaryInternal sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, sources, targetMachine, objectSourceSets, linkTask, dependencies);
+		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
+
+		val sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, sources, targetMachine, objectSourceSets, linkTask, dependencies);
+		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, sharedLibraryBinary));
+
 		getNativeRuntimeFiles().from(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
 		getNativeRuntimeFiles().from(sharedLibraryBinary.getRuntimeLibrariesDependencies());
 		this.sharedLibraryBinary = sharedLibraryBinary;
 		sharedLibraryBinary.getBaseName().convention(BaseNameUtils.from(getIdentifier()).getAsString());
-		getBinaryCollection().add(sharedLibraryBinary);
 	}
 
 	public void registerJniJarBinary() {
+		val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("jniJar"), DefaultJniJarBinary.class, getIdentifier());
+		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
+
 		TaskProvider<Jar> jarTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of("jar"), Jar.class, getIdentifier()));
-		addJniJarBinary(getObjects().newInstance(DefaultJniJarBinary.class, jarTask));
+		val binary = getObjects().newInstance(DefaultJniJarBinary.class, jarTask);
+		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, binary));
+		addJniJarBinary(binary);
 	}
 
 	public AbstractJarBinary getJar() {
@@ -112,11 +124,9 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 	public void addJniJarBinary(AbstractJarBinary jniJarBinary) {
 		jarBinary = jniJarBinary;
-		getBinaryCollection().add(jniJarBinary);
 	}
 
 	public void addJvmJarBinary(DefaultJvmJarBinary jvmJarBinary) {
-		getBinaryCollection().add(jvmJarBinary);
 	}
 
 	public DefaultTargetMachine getTargetMachine() {

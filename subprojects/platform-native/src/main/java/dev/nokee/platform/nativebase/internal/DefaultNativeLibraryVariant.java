@@ -2,6 +2,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
+import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
@@ -19,8 +20,8 @@ public class DefaultNativeLibraryVariant extends BaseNativeVariant implements Na
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public DefaultNativeLibraryVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> dependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
-		super(identifier, objects, providers, assembleTask);
+	public DefaultNativeLibraryVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> dependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
+		super(identifier, objects, providers, assembleTask, binaryViewFactory);
 		this.dependencies = dependencies.getDependencies();
 		this.resolvableDependencies = dependencies.getIncoming();
 	}

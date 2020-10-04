@@ -17,7 +17,9 @@ import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.ProjectIdentifier;
+import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.*;
+import dev.nokee.platform.base.internal.plugins.BinaryBasePlugin;
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
 import dev.nokee.platform.base.internal.plugins.VariantBasePlugin;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -425,10 +427,11 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	private JniLibraryExtensionInternal registerExtension(Project project) {
 		project.getPluginManager().apply(ComponentBasePlugin.class);
 		project.getPluginManager().apply(VariantBasePlugin.class);
+		project.getPluginManager().apply(BinaryBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(JniLibraryExtensionInternal.class, identifier -> {
 			assert ((ComponentIdentifier<?>) identifier).isMainComponent();
-			return new JniLibraryExtensionInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), project.getConfigurations(), project.getObjects(), project.getProviders(), project.getDependencies(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class));
+			return new JniLibraryExtensionInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), project.getConfigurations(), project.getObjects(), project.getProviders(), project.getDependencies(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class));
 		});
 		val library = components.register("main", JniLibraryExtensionInternal.class).get();
 

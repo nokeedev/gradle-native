@@ -3,13 +3,10 @@ package dev.nokee.platform.ios.internal;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.gradle.api.Buildable;
 import org.gradle.api.Task;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -20,12 +17,10 @@ import javax.inject.Inject;
 //  There should probably be something high level in Variant or BaseNativeVariant shouldn't be used for iOS variant.
 public class SignedIosApplicationBundleInternal implements SignedIosApplicationBundle, Binary, Buildable {
 	private final TaskProvider<SignIosApplicationBundleTask> bundleTask;
-	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public SignedIosApplicationBundleInternal(TaskProvider<SignIosApplicationBundleTask> bundleTask, TaskContainer tasks) {
+	public SignedIosApplicationBundleInternal(TaskProvider<SignIosApplicationBundleTask> bundleTask) {
 		this.bundleTask = bundleTask;
-		this.tasks = tasks;
 	}
 
 	public TaskProvider<? extends Task> getBundleTask() {

@@ -14,7 +14,6 @@ import org.gradle.api.provider.SetProperty;
 
 public abstract class BaseComponent<T extends Variant> {
 	@Getter private final ComponentIdentifier<?> identifier;
-	@Getter private final DomainObjectSet<Binary> binaryCollection;
 	@Getter private final DomainObjectSet<SourceSet> sourceCollection;
 
 	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
@@ -24,7 +23,6 @@ public abstract class BaseComponent<T extends Variant> {
 
 	protected BaseComponent(ComponentIdentifier<?> identifier, ObjectFactory objects) {
 		this.identifier = identifier;
-		this.binaryCollection = objects.domainObjectSet(Binary.class);
 		this.sourceCollection = objects.domainObjectSet(SourceSet.class);
 		this.dimensions = objects.setProperty(DimensionType.class);
 		this.baseName = objects.property(String.class);

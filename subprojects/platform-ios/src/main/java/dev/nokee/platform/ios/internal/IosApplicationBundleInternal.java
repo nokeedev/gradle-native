@@ -1,18 +1,11 @@
 package dev.nokee.platform.ios.internal;
 
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
-import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
-import dev.nokee.platform.nativebase.NativeBinary;
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.gradle.api.Buildable;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -22,15 +15,15 @@ import javax.inject.Inject;
 //  BaseNativeVariant#getDevelopmentBinary() assume a NativeBinary...
 //  There should probably be something high level in Variant or BaseNativeVariant shouldn't be used for iOS variant.
 public class IosApplicationBundleInternal implements Binary, Buildable {
-	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
+	private final TaskProvider<CreateIosApplicationBundleTask> bundleTask;
 
 	@Inject
-	public IosApplicationBundleInternal(TaskContainer tasks) {
-		this.tasks = tasks;
+	public IosApplicationBundleInternal(TaskProvider<CreateIosApplicationBundleTask> bundleTask) {
+		this.bundleTask = bundleTask;
 	}
 
 	public TaskProvider<CreateIosApplicationBundleTask> getBundleTask() {
-		return getTasks().named("createApplicationBundle", CreateIosApplicationBundleTask.class);
+		return bundleTask;
 	}
 
 	public boolean isBuildable() {
@@ -44,6 +37,6 @@ public class IosApplicationBundleInternal implements Binary, Buildable {
 	}
 
 	public Provider<FileSystemLocation> getApplicationBundleLocation() {
-		return getTasks().named("createApplicationBundle", SignIosApplicationBundleTask.class).flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle);
+		return bundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle);
 	}
 }

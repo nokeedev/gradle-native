@@ -2,6 +2,7 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.Binary;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 @ToString
 @EqualsAndHashCode
-public final class BinaryIdentifier<T extends Binary> implements DomainObjectIdentifierInternal {
+public final class BinaryIdentifier<T extends Binary> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T> {
 	@Getter private final BinaryName name;
 	@Getter private final Class<T> type;
 	@Getter private final DomainObjectIdentifierInternal ownerIdentifier;
