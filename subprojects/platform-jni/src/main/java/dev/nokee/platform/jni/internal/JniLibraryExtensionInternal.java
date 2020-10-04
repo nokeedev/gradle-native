@@ -10,6 +10,7 @@ import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.VariantCollection;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
+import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantViewInternal;
@@ -40,11 +41,11 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
 	@Inject
-	public JniLibraryExtensionInternal(ComponentIdentifier<?> identifier, GroupId groupId, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers, DependencyHandler dependencyHandler, TaskContainer taskContainer, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory) {
+	public JniLibraryExtensionInternal(ComponentIdentifier<?> identifier, GroupId groupId, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers, DependencyHandler dependencyHandler, TaskContainer taskContainer, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
 		this.configurations = configurations;
 		this.objects = objects;
 		this.providers = providers;
-		this.component = new JniLibraryComponentInternal(identifier, groupId, objects, configurations, dependencyHandler, providers, taskContainer, eventPublisher, viewFactory, variantRepository, binaryViewFactory);
+		this.component = new JniLibraryComponentInternal(identifier, groupId, objects, configurations, dependencyHandler, providers, taskContainer, eventPublisher, viewFactory, variantRepository, binaryViewFactory, taskRegistry);
 	}
 
 	//region Variant-awareness

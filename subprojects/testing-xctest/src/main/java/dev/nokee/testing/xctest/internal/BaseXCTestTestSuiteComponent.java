@@ -5,14 +5,16 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.platform.base.*;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryAwareComponent;
+import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
@@ -61,11 +63,11 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	private final ProjectLayout layout;
 
 	@Inject
-	public BaseXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory) {
-		super(identifier, DefaultXCTestTestSuiteVariant.class, objects, tasks, eventPublisher);
+	public BaseXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
+		super(identifier, DefaultXCTestTestSuiteVariant.class, objects, tasks, eventPublisher, taskRegistry);
 		this.providers = providers;
 		this.layout = layout;
-		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.taskRegistry = taskRegistry;
 		this.componentVariants = new XCTestTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory);
 		this.binaries = binaryViewFactory.create(identifier);
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));

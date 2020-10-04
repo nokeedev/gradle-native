@@ -14,7 +14,6 @@ import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -38,13 +37,13 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	private final ObjectFactory objects;
 	private final DomainObjectEventPublisher eventPublisher;
 
-	public BaseNativeComponent(ComponentIdentifier<?> identifier, Class<T> variantType, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher) {
+	public BaseNativeComponent(ComponentIdentifier<?> identifier, Class<T> variantType, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry) {
 		super(identifier, objects);
 		this.objects = objects;
 		this.eventPublisher = eventPublisher;
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
 		this.variantType = variantType;
-		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.taskRegistry = taskRegistry;
 	}
 
 	public abstract NativeComponentDependencies getDependencies();
