@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
+import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -11,6 +12,9 @@ import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencie
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
+import dev.nokee.platform.base.internal.variants.KnownVariant;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
@@ -56,12 +60,12 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	private final ProjectLayout layout;
 
 	@Inject
-	public BaseXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+	public BaseXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository) {
 		super(identifier, DefaultXCTestTestSuiteVariant.class, objects, tasks);
 		this.providers = providers;
 		this.layout = layout;
 		this.taskRegistry = new TaskRegistryImpl(tasks);
-		this.componentVariants = new XCTestTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry);
+		this.componentVariants = new XCTestTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository);
 		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultXCTestTestSuiteVariant.class), Variant::getBinaries)));
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
@@ -162,7 +166,5 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
 		componentVariants.calculateVariants();
-
-		getVariantCollection().disallowChanges();
 	}
 }

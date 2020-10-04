@@ -1,6 +1,7 @@
 package dev.nokee.testing.xctest.internal;
 
 import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
@@ -8,6 +9,8 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
@@ -36,8 +39,8 @@ public final class XCTestTestSuiteComponentVariants implements ComponentVariants
 	private final ProviderFactory providerFactory;
 	private final TaskRegistry taskRegistry;
 
-	public XCTestTestSuiteComponentVariants(ObjectFactory objectFactory, BaseXCTestTestSuiteComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry) {
-		this.variantCollection = new VariantCollection<>(DefaultXCTestTestSuiteVariant.class, objectFactory);
+	public XCTestTestSuiteComponentVariants(ObjectFactory objectFactory, BaseXCTestTestSuiteComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository) {
+		this.variantCollection = new VariantCollection<>(component.getIdentifier(), DefaultXCTestTestSuiteVariant.class, eventPublisher, viewFactory, variantRepository);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get()));
 		this.objectFactory = objectFactory;

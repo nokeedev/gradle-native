@@ -6,6 +6,7 @@ import dev.nokee.language.cpp.internal.CppSourceSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
@@ -13,6 +14,8 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
@@ -28,7 +31,7 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
-public class JavaNativeInterfaceComponentVariants implements ComponentVariants {
+public final class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<JniLibraryInternal> variantCollection;
 	@Getter private final SetProperty<BuildVariantInternal> buildVariants;
 	@Getter private final Provider<JniLibraryInternal> developmentVariant;
@@ -39,8 +42,8 @@ public class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 	private final ProviderFactory providerFactory;
 	private final TaskRegistry taskRegistry;
 
-	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ProviderFactory providerFactory, TaskRegistry taskRegistry) {
-		this.variantCollection = new VariantCollection<>(JniLibraryInternal.class, objectFactory);
+	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository) {
+		this.variantCollection = new VariantCollection<>(component.getIdentifier(), JniLibraryInternal.class, eventPublisher, viewFactory, variantRepository);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(getVariantCollection()::get));
 		this.objectFactory = objectFactory;

@@ -278,28 +278,6 @@ abstract class AbstractVariantPluginTest extends Specification implements Projec
 		then:
 		extensionUnderTest.variants.get().every { variantType.isAssignableFrom(it.class) }
 	}
-
-	def "disallows variant view realization before evaluation"() {
-		given:
-		applyPluginUnderTest()
-
-		when:
-		extensionUnderTest.variants.elements.get()
-		then:
-		def ex = thrown(IllegalStateException)
-		ex.message == 'Please disallow changes before realizing this collection.'
-	}
-
-	def "allow variant view realization after evaluation"() {
-		given:
-		applyPluginUnderTest()
-		evaluateProject('plugin locks variant view in afterEvaluate')
-
-		when:
-		extensionUnderTest.variants.elements.get()
-		then:
-		noExceptionThrown()
-	}
 }
 
 abstract class AbstractBinaryPluginTest extends Specification implements ProjectTestFixture {
@@ -320,17 +298,6 @@ abstract class AbstractBinaryPluginTest extends Specification implements Project
 	abstract void applyPluginUnderTest()
 
 	abstract def getExtensionUnderTest()
-
-	def "disallows binary view realization before evaluation"() {
-		given:
-		applyPluginUnderTest()
-
-		when:
-		extensionUnderTest.binaries.elements.get()
-		then:
-		def ex = thrown(IllegalStateException)
-		ex.message == 'Please disallow changes before realizing this collection.'
-	}
 
 	def "allow binary view realization after evaluation"() {
 		given:

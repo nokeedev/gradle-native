@@ -14,11 +14,10 @@ public abstract class AbstractKnownDomainObject<TYPE, T extends TYPE> implements
 	@EqualsAndHashCode.Exclude private final Provider<T> provider;
 	@EqualsAndHashCode.Exclude private final DomainObjectConfigurer<TYPE> configurer;
 
-	// Use KnownBinaryFactory
 	protected AbstractKnownDomainObject(TypeAwareDomainObjectIdentifier<T> identifier, Provider<T> provider, DomainObjectConfigurer<TYPE> configurer) {
 		this.identifier = requireNonNull(identifier);
 		this.provider = requireNonNull(provider);
-		this.configurer = requireNonNull(configurer);
+		this.configurer = configurer;
 	}
 
 	public DomainObjectIdentifier getIdentifier() {

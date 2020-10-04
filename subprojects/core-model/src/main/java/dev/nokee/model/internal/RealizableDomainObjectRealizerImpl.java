@@ -13,6 +13,7 @@ public final class RealizableDomainObjectRealizerImpl implements RealizableDomai
 	private final Set<DomainObjectIdentifier> knownIdentifiers = new HashSet<>();
 	private final Map<DomainObjectIdentifier, RealizableDomainObject> identifierToRealizable = new HashMap<>();
 	private final Map<DomainObjectIdentifier, Object> identifierToCreated = new HashMap<>();
+	private final Set<DomainObjectIdentifier> realizedIdentifiers = new HashSet<>();
 	private final DomainObjectEventPublisher eventPublisher;
 
 	public RealizableDomainObjectRealizerImpl(DomainObjectEventPublisher eventPublisher) {
@@ -44,6 +45,10 @@ public final class RealizableDomainObjectRealizerImpl implements RealizableDomai
 	}
 
 	private void realize(DomainObjectIdentifier identifier) {
+		if (realizedIdentifiers.contains(identifier)) {
+			return;
+		}
+
 		val resolveChain = new ArrayDeque<DomainObjectIdentifier>();
 		resolveChain.push(identifier);
 		DomainObjectIdentifierInternal currentIdentifier = (DomainObjectIdentifierInternal) identifier;
@@ -69,6 +74,8 @@ public final class RealizableDomainObjectRealizerImpl implements RealizableDomai
 			}
 			eventPublisher.publish(new DomainObjectRealized<>(identifier, realizedElement));
 		}
+
+		realizedIdentifiers.add(identifier);
 	}
 
 	/**

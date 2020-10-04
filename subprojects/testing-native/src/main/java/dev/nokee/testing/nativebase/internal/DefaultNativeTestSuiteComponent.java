@@ -9,6 +9,7 @@ import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Variant;
@@ -20,6 +21,8 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.internal.*;
@@ -72,7 +75,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final BinaryView<Binary> binaries;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+	public DefaultNativeTestSuiteComponent(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository) {
 		super(identifier, DefaultNativeTestSuiteVariant.class, objects, tasks);
 		this.objects = objects;
 		this.providers = providers;
@@ -85,7 +88,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.getBaseName().convention(BaseNameUtils.from(identifier).getAsString());
 
 		this.taskRegistry = new TaskRegistryImpl(tasks);
-		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry);
+		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository);
 		this.binaries = Cast.uncheckedCast(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeTestSuiteVariant.class), Variant::getBinaries)));
 
 		this.getBuildVariants().convention(providers.provider(this::createBuildVariants));
@@ -158,8 +161,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
 		componentVariants.calculateVariants();
-
-		getVariantCollection().disallowChanges();
 
 		// HACK: This should really be solve using the variant whenElementKnown API
 		getBuildVariants().get().forEach(buildVariant -> {

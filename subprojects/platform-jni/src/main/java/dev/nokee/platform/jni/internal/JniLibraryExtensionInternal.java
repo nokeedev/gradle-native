@@ -1,11 +1,14 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
+import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
@@ -33,11 +36,11 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
 	@Inject
-	public JniLibraryExtensionInternal(ComponentIdentifier<?> identifier, GroupId groupId, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers, DependencyHandler dependencyHandler, TaskContainer taskContainer) {
+	public JniLibraryExtensionInternal(ComponentIdentifier<?> identifier, GroupId groupId, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers, DependencyHandler dependencyHandler, TaskContainer taskContainer, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository) {
 		this.configurations = configurations;
 		this.objects = objects;
 		this.providers = providers;
-		this.component = new JniLibraryComponentInternal(identifier, groupId, objects, configurations, dependencyHandler, providers, taskContainer);
+		this.component = new JniLibraryComponentInternal(identifier, groupId, objects, configurations, dependencyHandler, providers, taskContainer, eventPublisher, viewFactory, variantRepository);
 	}
 
 	//region Variant-awareness

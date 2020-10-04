@@ -1,6 +1,7 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -8,6 +9,8 @@ import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencie
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
@@ -34,13 +37,13 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	private final BinaryView<Binary> binaries;
 
 	@Inject
-	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler) {
+	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository) {
 		super(identifier, DefaultNativeApplicationVariant.class, objects, tasks);
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
 		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 		this.taskRegistry = new TaskRegistryImpl(tasks);
-		this.componentVariants = new NativeApplicationComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry);
+		this.componentVariants = new NativeApplicationComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository);
 		this.binaries = Cast.uncheckedCastBecauseOfTypeErasure(objects.newInstance(VariantAwareBinaryView.class, new DefaultMappingView<>(getVariantCollection().getAsView(DefaultNativeApplicationVariant.class), Variant::getBinaries)));
 	}
 
@@ -78,7 +81,5 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
 		componentVariants.calculateVariants();
-
-		getVariantCollection().disallowChanges();
 	}
 }

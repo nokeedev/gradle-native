@@ -11,14 +11,22 @@ import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilities
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
+import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BaseNameUtils;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
+import dev.nokee.platform.base.internal.plugins.VariantBasePlugin;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
+import dev.nokee.platform.base.internal.variants.KnownVariant;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.DefaultJvmJarBinary;
@@ -260,8 +268,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 //					}
 				}
 			});
-
-			extension.getVariantCollection().disallowChanges();
 		});
 
 		project.afterEvaluate(proj -> {
@@ -418,10 +424,11 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 	private JniLibraryExtensionInternal registerExtension(Project project) {
 		project.getPluginManager().apply(ComponentBasePlugin.class);
+		project.getPluginManager().apply(VariantBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(JniLibraryExtensionInternal.class, identifier -> {
 			assert ((ComponentIdentifier<?>) identifier).isMainComponent();
-			return new JniLibraryExtensionInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), project.getConfigurations(), project.getObjects(), project.getProviders(), project.getDependencies(), project.getTasks());
+			return new JniLibraryExtensionInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), project.getConfigurations(), project.getObjects(), project.getProviders(), project.getDependencies(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class));
 		});
 		val library = components.register("main", JniLibraryExtensionInternal.class).get();
 

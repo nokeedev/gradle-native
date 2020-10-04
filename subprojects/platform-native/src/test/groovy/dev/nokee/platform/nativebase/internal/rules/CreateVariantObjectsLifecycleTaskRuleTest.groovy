@@ -1,12 +1,15 @@
 package dev.nokee.platform.nativebase.internal.rules
 
-import dev.nokee.model.internal.Value
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.Variant
-import dev.nokee.platform.base.internal.*
+import dev.nokee.platform.base.internal.ComponentIdentifier
+import dev.nokee.platform.base.internal.ComponentName
+import dev.nokee.platform.base.internal.ProjectIdentifier
+import dev.nokee.platform.base.internal.VariantIdentifier
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier
 import dev.nokee.platform.base.internal.tasks.TaskName
 import dev.nokee.platform.base.internal.tasks.TaskRegistry
+import dev.nokee.platform.base.internal.variants.KnownVariant
 import dev.nokee.platform.nativebase.internal.tasks.ObjectsLifecycleTask
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
@@ -18,6 +21,14 @@ import static dev.nokee.utils.TaskUtils.configureDependsOn
 
 @Subject(CreateVariantObjectsLifecycleTaskRule)
 class CreateVariantObjectsLifecycleTaskRuleTest extends Specification {
+	KnownVariant newSubject(VariantIdentifier identifier) {
+		return new KnownVariant<>(identifier, Stub(Provider), null)
+	}
+
+	KnownVariant newSubject(VariantIdentifier identifier, Provider provider) {
+		return new KnownVariant<>(identifier, provider, null)
+	}
+
 	def "creates an objects task owned by the variant"() {
 		given:
 		def taskRegistry = Mock(TaskRegistry)
@@ -25,20 +36,18 @@ class CreateVariantObjectsLifecycleTaskRuleTest extends Specification {
 
 		and:
 		def owner1 = VariantIdentifier.of('debug', Variant, ComponentIdentifier.ofMain(Component, ProjectIdentifier.of('root')))
-		def value1 = Value.fixed(Stub(Variant))
 
 		and:
 		def owner2 = VariantIdentifier.of('macos', Variant, ComponentIdentifier.of(ComponentName.of('test'), Component, ProjectIdentifier.of('root')))
-		def value2 = Value.fixed(Stub(Variant))
 
 		when:
-		subject.execute(KnownVariant.of(owner1, value1))
+		subject.execute(newSubject(owner1))
 		then:
 		1 * taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of('objects'), ObjectsLifecycleTask, owner1)) >> Stub(TaskProvider)
 		0 * taskRegistry._
 
 		when:
-		subject.execute(KnownVariant.of(owner2, value2))
+		subject.execute(newSubject(owner2))
 		then:
 		1 * taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of('objects'), ObjectsLifecycleTask, owner2)) >> Stub(TaskProvider)
 		0 * taskRegistry._
@@ -55,10 +64,10 @@ class CreateVariantObjectsLifecycleTaskRuleTest extends Specification {
 		and:
 		def owner = VariantIdentifier.of('debug', Variant, ComponentIdentifier.ofMain(Component, ProjectIdentifier.of('root')))
 		def valueFlatMapProvider = Stub(Provider)
-		def value = Mock(Value)
+		def value = Mock(Provider)
 
 		and:
-		def knownVariant = KnownVariant.of(owner, value)
+		def knownVariant = newSubject(owner, value)
 
 		when:
 		subject.execute(knownVariant)

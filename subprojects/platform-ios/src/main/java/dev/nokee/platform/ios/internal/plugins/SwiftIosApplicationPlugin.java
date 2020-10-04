@@ -1,9 +1,16 @@
 package dev.nokee.platform.ios.internal.plugins;
 
+import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.DomainObjectStore;
+import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
+import dev.nokee.platform.base.internal.plugins.VariantBasePlugin;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.ios.SwiftIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.DefaultSwiftIosApplicationExtension;
@@ -43,11 +50,12 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 
 		// Create the component
 		project.getPluginManager().apply(ComponentBasePlugin.class);
+		project.getPluginManager().apply(VariantBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(DefaultSwiftIosApplicationExtension.class, id -> {
 			val identifier = ComponentIdentifier.ofMain(DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
 
-			val component = new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies());
+			val component = new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class));
 			store.register(identifier, DefaultIosApplicationComponent.class, ignored -> component).get();
 			return new DefaultSwiftIosApplicationExtension(component, project.getObjects(), project.getProviders());
 		});
