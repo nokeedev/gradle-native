@@ -17,11 +17,11 @@ public class ComponentBasePlugin implements Plugin<Project> {
 		val eventPublisher = project.getExtensions().getByType(DomainObjectEventPublisher.class);
 		val realization = project.getExtensions().getByType(RealizableDomainObjectRealizer.class);
 
-		val componentConfigurer = new ComponentConfigurer(eventPublisher);
-		project.getExtensions().add(ComponentConfigurer.class, "__NOKEE_componentConfigurer", componentConfigurer);
-
 		val componentRepository = new ComponentRepository(eventPublisher, realization, project.getProviders());
 		project.getExtensions().add(ComponentRepository.class, "__NOKEE_componentRepository", componentRepository);
+
+		val componentConfigurer = new ComponentConfigurer(eventPublisher);
+		project.getExtensions().add(ComponentConfigurer.class, "__NOKEE_componentConfigurer", componentConfigurer);
 
 		val knownComponentFactory = new KnownComponentFactory(() -> componentRepository, () -> componentConfigurer);
 		project.getExtensions().add(KnownComponentFactory.class, "__NOKEE_knownComponentFactory", knownComponentFactory);

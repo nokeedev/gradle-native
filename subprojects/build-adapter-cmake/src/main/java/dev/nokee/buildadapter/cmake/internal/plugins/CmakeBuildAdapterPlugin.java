@@ -121,7 +121,6 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 								}
 								return b;
 							}).<String>map(it -> it.substring(0, FilenameUtils.indexOfLastSeparator(it)));
-							System.out.println(includePath.get());
 							compileAction = compileAction.headerDirectoryArtifacts(ImmutableList.of(includePath.map(rootProject::file).get()));
 						}
 

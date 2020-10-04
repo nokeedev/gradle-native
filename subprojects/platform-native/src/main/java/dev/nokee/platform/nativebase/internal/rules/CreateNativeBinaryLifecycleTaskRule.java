@@ -2,10 +2,10 @@ package dev.nokee.platform.nativebase.internal.rules;
 
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.KnownVariant;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.tasks.ExecutableLifecycleTask;
 import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask;

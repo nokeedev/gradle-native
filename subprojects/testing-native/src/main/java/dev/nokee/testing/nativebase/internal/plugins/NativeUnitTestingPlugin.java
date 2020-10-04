@@ -5,9 +5,12 @@ import dev.nokee.language.cpp.internal.CppSourceSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.ProjectIdentifier;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.DefaultTestSuiteContainer;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
@@ -40,7 +43,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 		val extension = (DefaultTestSuiteContainer)project.getExtensions().getByType(TestSuiteContainer.class);
 		extension.registerFactory(NativeTestSuite.class, DefaultNativeTestSuiteComponent.class, name -> {
-			return createNativeTestSuite(ComponentIdentifier.of(ComponentName.of(name), DefaultNativeTestSuiteComponent.class, ProjectIdentifier.of(project)));
+			return createNativeTestSuite(ComponentIdentifier.of(ComponentName.of(name), DefaultNativeTestSuiteComponent.class, ProjectIdentifier.of(project)), project);
 		});
 
 		extension.whenElementKnown(DefaultNativeTestSuiteComponent.class, knownTestSuite -> {
@@ -71,7 +74,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		});
 	}
 
-	private NativeTestSuite createNativeTestSuite(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier) {
-		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, identifier);
+	private NativeTestSuite createNativeTestSuite(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, Project project) {
+		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, identifier, project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class));
 	}
 }

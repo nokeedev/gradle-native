@@ -1,10 +1,10 @@
 package dev.nokee.platform.nativebase.internal.rules;
 
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.internal.KnownVariant;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.variants.KnownVariant;
 import org.gradle.api.Action;
 
 import static dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer.TO_DEVELOPMENT_BINARY;

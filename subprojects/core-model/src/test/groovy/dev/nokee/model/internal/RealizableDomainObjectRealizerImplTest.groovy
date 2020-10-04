@@ -153,4 +153,26 @@ class RealizableDomainObjectRealizerImplTest extends Specification {
 		1 * realizableObject.realize() >> { created(realizableIdentifier, entity)}
 		1 * subscriber.handle(new DomainObjectRealized(realizableIdentifier, entity))
 	}
+
+	def "can realize object multiple time but only one realized event"() {
+		given:
+		def subject = new RealizableDomainObjectRealizerImpl(eventPublisher)
+		def (realizableIdentifier, realizableObject) = realizableDiscovered(identifier(), Mock(RealizableDomainObject))
+		def entity = new Object()
+
+		and:
+		def subscriber = subscribed(DomainObjectRealized)
+
+		when:
+		subject.ofElement(realizableIdentifier)
+		then:
+		1 * realizableObject.realize() >> { created(realizableIdentifier, entity)}
+		1 * subscriber.handle(new DomainObjectRealized(realizableIdentifier, entity))
+
+		when:
+		subject.ofElement(realizableIdentifier)
+		then:
+		0 * realizableObject.realize()
+		0 * subscriber.handle(_)
+	}
 }

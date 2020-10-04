@@ -1,11 +1,15 @@
 package dev.nokee.platform.objectivec.internal.plugins;
 
+import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
+import dev.nokee.platform.base.internal.plugins.VariantBasePlugin;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
@@ -40,11 +44,12 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 
 		// Create the component
 		project.getPluginManager().apply(ComponentBasePlugin.class);
+		project.getPluginManager().apply(VariantBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(DefaultObjectiveCApplicationExtension.class, id -> {
 			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeApplicationComponent.class, ProjectIdentifier.of(project));
 
-			val component = new DefaultNativeApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getConfigurations(), project.getDependencies());
+			val component = new DefaultNativeApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class));
 
 			store.register(identifier, DefaultNativeApplicationComponent.class, ignored -> component).get();
 			return new DefaultObjectiveCApplicationExtension(component, project.getObjects(), project.getProviders(), project.getLayout());

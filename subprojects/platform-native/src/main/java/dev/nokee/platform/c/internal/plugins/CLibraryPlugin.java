@@ -1,11 +1,15 @@
 package dev.nokee.platform.c.internal.plugins;
 
+import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
+import dev.nokee.platform.base.internal.plugins.VariantBasePlugin;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.c.CLibraryExtension;
 import dev.nokee.platform.c.internal.DefaultCLibraryExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
@@ -41,11 +45,12 @@ public class CLibraryPlugin implements Plugin<Project> {
 
 		// Create the component
 		project.getPluginManager().apply(ComponentBasePlugin.class);
+		project.getPluginManager().apply(VariantBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(DefaultCLibraryExtension.class, id -> {
 			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeLibraryComponent.class, ProjectIdentifier.of(project));
 
-			val component = new DefaultNativeLibraryComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies());
+			val component = new DefaultNativeLibraryComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class));
 
 			store.register(identifier, DefaultNativeLibraryComponent.class, ignored -> component).get();
 			return new DefaultCLibraryExtension(component, project.getObjects(), project.getProviders(), project.getLayout());

@@ -44,26 +44,26 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			val store = project.getExtensions().getByType(DomainObjectStore.class);
 
 			val unitTestIdentifier = ComponentIdentifier.of(ComponentName.of("unitTest"), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
-			val unitTestComponent = store.register(unitTestIdentifier, DefaultUnitTestXCTestTestSuiteComponent.class, newUnitTestFactory(getObjects()));
+			val unitTestComponent = store.register(unitTestIdentifier, DefaultUnitTestXCTestTestSuiteComponent.class, newUnitTestFactory(getObjects(), project));
 			unitTestComponent.configure(component -> {
 				component.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/unitTest/objc"));
 				component.getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir("src/unitTest/headers"));
 				component.getTestedComponent().value(application).disallowChanges();
 				component.getGroupId().set(GroupId.of(project::getGroup));
 				component.finalizeExtension(project);
-				component.getVariantCollection().disallowChanges().realize(); // Force realization, for now
+				component.getVariantCollection().realize(); // Force realization, for now
 			});
 			unitTestComponent.get();
 
 			val uiTestIdentifier = ComponentIdentifier.of(ComponentName.of("uiTest"), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
-			val uiTestComponent = store.register(uiTestIdentifier, DefaultUiTestXCTestTestSuiteComponent.class, newUiTestFactory(getObjects()));
+			val uiTestComponent = store.register(uiTestIdentifier, DefaultUiTestXCTestTestSuiteComponent.class, newUiTestFactory(getObjects(), project));
 			uiTestComponent.configure(component -> {
 				component.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/uiTest/objc"));
 				component.getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir("src/uiTest/headers"));
 				component.getTestedComponent().value(application).disallowChanges();
 				component.getGroupId().set(GroupId.of(project::getGroup));
 				component.finalizeExtension(project);
-				component.getVariantCollection().disallowChanges().realize(); // Force realization, for now
+				component.getVariantCollection().realize(); // Force realization, for now
 			});
 			uiTestComponent.get();
 		});

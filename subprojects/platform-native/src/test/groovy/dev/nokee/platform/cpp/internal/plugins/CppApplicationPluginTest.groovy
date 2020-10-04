@@ -1,18 +1,11 @@
 package dev.nokee.platform.cpp.internal.plugins
 
-import dev.nokee.fixtures.AbstractBinaryPluginTest
-import dev.nokee.fixtures.AbstractPluginTest
-import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
-import dev.nokee.fixtures.AbstractTaskPluginTest
-import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.fixtures.*
 import dev.nokee.platform.base.Variant
-import dev.nokee.platform.c.internal.plugins.CApplicationPlugin
-import dev.nokee.platform.c.internal.plugins.CApplicationPluginTestFixture
 import dev.nokee.platform.cpp.CppApplicationExtension
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.NativeApplication
 import org.gradle.api.Project
-import org.gradle.nativeplatform.NativeExecutable
 import spock.lang.Subject
 
 trait CppApplicationPluginTestFixture {
