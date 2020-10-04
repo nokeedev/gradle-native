@@ -26,4 +26,9 @@ public final class VariantViewImpl<T extends Variant> extends AbstractDomainObje
 	public void whenElementKnown(Action<? super KnownVariant<T>> action) {
 		configurer.whenElementKnown(viewOwner, viewElementType, identifier -> action.execute(knownVariantFactory.create(identifier)));
 	}
+
+	@Override
+	public <S extends T> void whenElementKnown(Class<S> type, Action<? super KnownVariant<S>> action) {
+		configurer.whenElementKnown(viewOwner, type, identifier -> action.execute(knownVariantFactory.create(identifier)));
+	}
 }

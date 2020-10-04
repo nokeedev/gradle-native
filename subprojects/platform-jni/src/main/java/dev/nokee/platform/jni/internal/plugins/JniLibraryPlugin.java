@@ -11,12 +11,10 @@ import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilities
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
+import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.internal.BaseNameUtils;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.ProjectIdentifier;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.base.internal.plugins.BinaryBasePlugin;
@@ -31,11 +29,9 @@ import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
-import dev.nokee.platform.jni.internal.DefaultJvmJarBinary;
-import dev.nokee.platform.jni.internal.IncompatiblePluginUsage;
-import dev.nokee.platform.jni.internal.JniLibraryExtensionInternal;
-import dev.nokee.platform.jni.internal.JniLibraryInternal;
+import dev.nokee.platform.jni.internal.*;
 import dev.nokee.platform.nativebase.internal.NativeLanguageRules;
+import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
@@ -143,6 +139,38 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			project.getPluginManager().apply(DarwinFrameworkResolutionSupportPlugin.class);
 		});
 
+		extension.getVariants().whenElementKnown(JniLibraryInternal.class, knownVariant -> {
+			val eventPublisher = project.getExtensions().getByType(DomainObjectEventPublisher.class);
+			val sharedLibraryBinaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, knownVariant.getIdentifier());
+			eventPublisher.publish(new DomainObjectDiscovered<>(sharedLibraryBinaryIdentifier));
+
+			if (project.getPluginManager().hasPlugin("java") && extension.getTargetMachines().get().size() == 1) {
+				val jniJarIdentifier = BinaryIdentifier.of(BinaryName.of("jniJar"), DefaultJvmJarBinary.class, knownVariant.getIdentifier());
+				eventPublisher.publish(new DomainObjectDiscovered<>(jniJarIdentifier));
+				knownVariant.configure(variant -> {
+					variant.addJniJarBinary(createJvmBinary(project));
+				});
+			} else {
+				val jniJarIdentifier = BinaryIdentifier.of(BinaryName.of("jniJar"), DefaultJniJarBinary.class, knownVariant.getIdentifier());
+				eventPublisher.publish(new DomainObjectDiscovered<>(jniJarIdentifier));
+				knownVariant.configure(JniLibraryInternal::registerJniJarBinary);
+
+				if (project.getPluginManager().hasPlugin("java")) {
+					val jvmJarIdentifier = BinaryIdentifier.of(BinaryName.of("jvmJar"), DefaultJvmJarBinary.class, knownVariant.getIdentifier());
+					eventPublisher.publish(new DomainObjectDiscovered<>(jvmJarIdentifier));
+					knownVariant.configure(variant -> {
+						variant.addJvmJarBinary(createJvmBinary(project));
+					});
+				}
+//					if (proj.getPluginManager().hasPlugin("java")) {
+//						library.getAssembleTask().configure(task -> task.dependsOn(project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class)));
+//					} else {
+//						// FIXME: There is a gap here, if the project doesn't have any JVM plugin applied but specify multiple target machine what is expected?
+//						//   Only JNI Jar? or an empty JVM Jar and JNI Jar?... Hmmm....
+//					}
+			}
+		});
+
 		extension.getVariants().configureEach(JniLibraryInternal.class, variant -> {
 			// Build all language source set
 			DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
@@ -184,7 +212,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			}
 
 			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
-			Optional<DefaultJvmJarBinary> jvmJarBinary = findJvmBinary(proj);
 
 			extension.getComponent().finalizeExtension(proj);
 			extension.getVariantCollection().whenElementKnown(knownVariant -> {
@@ -199,7 +226,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				taskRegistry.register(TaskIdentifier.of(TaskName.of("sharedLibrary"), SharedLibraryLifecycleTask.class, variantIdentifier), configureDependsOn(knownVariant.map(it -> it.getSharedLibrary().getLinkTask())));
 
 				if (targetMachines.size() > 1) {
-					taskRegistry.register(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier), configureDependsOn(knownVariant.map(it -> it.getJar().getJarTask()), jvmJarBinary.map(it -> ImmutableList.of(it.getJarTask())).orElse(ImmutableList.of())));
+					val jvmJarBinary = knownVariant.flatMap(variant -> variant.getBinaries().withType(DefaultJvmJarBinary.class).getElements()).orElse(ImmutableSet.of());
+					taskRegistry.register(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier), configureDependsOn(knownVariant.map(it -> it.getJar().getJarTask()), jvmJarBinary));
 				}
 
 				// Include native runtime files inside JNI jar
@@ -254,20 +282,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					taskRegistry.registerIfAbsent(ASSEMBLE_TASK_NAME).configure(it -> {
 						it.dependsOn(knownVariant.map(l -> l.getJar().getJarTask()));
 					});
-				}
-			});
-			extension.getVariants().configureEach(JniLibraryInternal.class, variant -> {
-				if (jvmJarBinary.isPresent() && extension.getTargetMachines().get().size() == 1) {
-					variant.addJniJarBinary(jvmJarBinary.get());
-				} else {
-					variant.registerJniJarBinary();
-					jvmJarBinary.ifPresent(variant::addJvmJarBinary);
-//					if (proj.getPluginManager().hasPlugin("java")) {
-//						library.getAssembleTask().configure(task -> task.dependsOn(project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class)));
-//					} else {
-//						// FIXME: There is a gap here, if the project doesn't have any JVM plugin applied but specify multiple target machine what is expected?
-//						//   Only JNI Jar? or an empty JVM Jar and JNI Jar?... Hmmm....
-//					}
 				}
 			});
 		});
@@ -403,12 +417,9 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		};
 	}
 
-	private Optional<DefaultJvmJarBinary> findJvmBinary(Project project) {
-		if (project.getPluginManager().hasPlugin("java")) {
-			TaskProvider<Jar> jvmJarTask = project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class);
-			return Optional.of(new DefaultJvmJarBinary(jvmJarTask));
-		}
-		return Optional.empty();
+	private DefaultJvmJarBinary createJvmBinary(Project project) {
+		TaskProvider<Jar> jvmJarTask = project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class);
+		return new DefaultJvmJarBinary(jvmJarTask);
 	}
 
 	private static void assertNonEmpty(Collection<?> values, String propertyName, String componentName) {

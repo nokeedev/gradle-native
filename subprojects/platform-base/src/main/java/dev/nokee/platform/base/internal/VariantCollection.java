@@ -17,7 +17,7 @@ import org.gradle.api.specs.Spec;
 import java.util.List;
 import java.util.Set;
 
-public final class VariantCollection<T extends Variant> implements Realizable {
+public final class VariantCollection<T extends Variant> {
 	private final Class<T> elementType;
 	private final DomainObjectIdentifier owner;
 	private final DomainObjectEventPublisher eventPublisher;
@@ -46,7 +46,7 @@ public final class VariantCollection<T extends Variant> implements Realizable {
 	}
 
 	// TODO: I don't like that we have to pass in the viewElementType
-	public <S extends Variant> VariantView<S> getAsView(Class<S> viewElementType) {
+	public <S extends Variant> VariantViewInternal<S> getAsView(Class<S> viewElementType) {
 		Preconditions.checkArgument(viewElementType.isAssignableFrom(elementType), "element type of the view needs to be the same type or a supertype of the element of this collection");
 		return variantViewFactory.create(owner, viewElementType);
 	}

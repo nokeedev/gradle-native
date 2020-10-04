@@ -1,12 +1,15 @@
 package dev.nokee.platform.jni.internal;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.platform.base.Binary;
+import org.gradle.api.Buildable;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
 
-public abstract class AbstractJarBinary implements Binary {
+public abstract class AbstractJarBinary implements Binary, Buildable {
 	private final TaskProvider<Jar> jarTask;
 
 	public AbstractJarBinary(TaskProvider<Jar> jarTask) {
@@ -19,5 +22,10 @@ public abstract class AbstractJarBinary implements Binary {
 
 	public Provider<RegularFile> getArchiveFile() {
 		return this.jarTask.flatMap(Jar::getArchiveFile);
+	}
+
+	@Override
+	public TaskDependency getBuildDependencies() {
+		return task -> ImmutableSet.of(jarTask.get());
 	}
 }

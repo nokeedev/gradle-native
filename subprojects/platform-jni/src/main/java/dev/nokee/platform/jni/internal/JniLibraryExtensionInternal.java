@@ -5,11 +5,14 @@ import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.base.internal.VariantCollection;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
+import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.nativebase.TargetMachineFactory;
@@ -50,7 +53,7 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 	}
 
 	@Override
-	public VariantView<JniLibrary> getVariants() {
+	public VariantViewInternal<JniLibrary> getVariants() {
 		return component.getVariants();
 	}
 

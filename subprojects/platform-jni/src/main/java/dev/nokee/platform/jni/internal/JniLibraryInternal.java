@@ -3,7 +3,6 @@ package dev.nokee.platform.jni.internal;
 import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.model.internal.DomainObjectCreated;
-import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -88,7 +87,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 	public void registerSharedLibraryBinary(DomainObjectSet<GeneratedSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeIncomingDependencies dependencies) {
 		val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, getIdentifier());
-		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
 
 		val sharedLibraryBinary = getObjects().newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, sources, targetMachine, objectSourceSets, linkTask, dependencies);
 		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, sharedLibraryBinary));
@@ -100,13 +98,8 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	}
 
 	public void registerJniJarBinary() {
-		val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("jniJar"), DefaultJniJarBinary.class, getIdentifier());
-		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
-
 		TaskProvider<Jar> jarTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of("jar"), Jar.class, getIdentifier()));
-		val binary = getObjects().newInstance(DefaultJniJarBinary.class, jarTask);
-		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, binary));
-		addJniJarBinary(binary);
+		addJniJarBinary(getObjects().newInstance(DefaultJniJarBinary.class, jarTask));
 	}
 
 	public AbstractJarBinary getJar() {
@@ -124,9 +117,17 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 	public void addJniJarBinary(AbstractJarBinary jniJarBinary) {
 		jarBinary = jniJarBinary;
+		Class<? extends AbstractJarBinary> type = DefaultJniJarBinary.class;
+		if (jniJarBinary instanceof DefaultJvmJarBinary) {
+			type = DefaultJvmJarBinary.class;
+		}
+		val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("jniJar"), type, getIdentifier());
+		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, jniJarBinary));
 	}
 
 	public void addJvmJarBinary(DefaultJvmJarBinary jvmJarBinary) {
+		val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("jvmJar"), DefaultJvmJarBinary.class, getIdentifier());
+		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, jvmJarBinary));
 	}
 
 	public DefaultTargetMachine getTargetMachine() {
