@@ -3,6 +3,7 @@ package dev.nokee.model.internal;
 import com.google.common.collect.ImmutableSet;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.reflect.TypeOf;
 
 import java.util.Set;
 import java.util.function.Predicate;
@@ -17,6 +18,19 @@ public abstract class AbstractRealizableDomainObjectRepository<T> implements Rea
 		this.realizer = realizer;
 		this.providerFactory = providerFactory;
 		this.knownObjects = new KnownDomainObjects<>(entityType, eventPublisher);
+		eventPublisher.subscribe(new DomainObjectEventSubscriber<DomainObjectCreated<T>>() {
+			@Override
+			public void handle(DomainObjectCreated<T> event) {
+				if (entityType.isInstance(event.getObject())) {
+					assert knownObjects.isKnown((TypeAwareDomainObjectIdentifier<T>) event.getIdentifier()) : "Entity created without being discovered.";
+				}
+			}
+
+			@Override
+			public Class<? extends DomainObjectCreated<T>> subscribedToEventType() {
+				return new TypeOf<DomainObjectCreated<T>>() {}.getConcreteClass();
+			}
+		});
 		this.objects = new DomainObjects<>(entityType, eventPublisher);
 	}
 
