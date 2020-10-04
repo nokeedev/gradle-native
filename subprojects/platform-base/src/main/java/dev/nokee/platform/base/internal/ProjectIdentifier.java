@@ -21,6 +21,10 @@ public final class ProjectIdentifier implements DomainObjectIdentifierInternal {
 		return path.getName();
 	}
 
+	Path getPath() {
+		return path;
+	}
+
 	@Override
 	public Optional<? extends DomainObjectIdentifierInternal> getParentIdentifier() {
 		return Optional.empty();
