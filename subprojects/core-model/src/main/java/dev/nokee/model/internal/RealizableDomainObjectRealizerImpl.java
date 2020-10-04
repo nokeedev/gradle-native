@@ -1,0 +1,87 @@
+package dev.nokee.model.internal;
+
+import dev.nokee.model.DomainObjectIdentifier;
+import lombok.val;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
+import org.gradle.api.reflect.TypeOf;
+
+import java.util.*;
+
+public final class RealizableDomainObjectRealizerImpl implements RealizableDomainObjectRealizer {
+	private static final Logger LOGGER = Logging.getLogger(RealizableDomainObjectRealizerImpl.class);
+	private final Set<DomainObjectIdentifier> knownIdentifiers = new HashSet<>();
+	private final Map<DomainObjectIdentifier, RealizableDomainObject> identifierToRealizable = new HashMap<>();
+	private final Map<DomainObjectIdentifier, Object> identifierToCreated = new HashMap<>();
+	private final DomainObjectEventPublisher eventPublisher;
+
+	public RealizableDomainObjectRealizerImpl(DomainObjectEventPublisher eventPublisher) {
+		this.eventPublisher = eventPublisher;
+		eventPublisher.subscribe(new DomainObjectEventSubscriber<RealizableDomainObjectDiscovered>() {
+			@Override
+			public void handle(RealizableDomainObjectDiscovered event) {
+				knownIdentifiers.add(event.getIdentifier());
+				identifierToRealizable.put(event.getIdentifier(), event.getObject());
+			}
+
+			@Override
+			public Class<RealizableDomainObjectDiscovered> subscribedToEventType() {
+				return RealizableDomainObjectDiscovered.class;
+			}
+		});
+		eventPublisher.subscribe(new DomainObjectEventSubscriber<DomainObjectCreated<Object>>() {
+			@Override
+			public void handle(DomainObjectCreated<Object> event) {
+				knownIdentifiers.add(event.getIdentifier());
+				identifierToCreated.put(event.getIdentifier(), event.getObject());
+			}
+
+			@Override
+			public Class<DomainObjectCreated<Object>> subscribedToEventType() {
+				return new TypeOf<DomainObjectCreated<Object>>() {}.getConcreteClass();
+			}
+		});
+	}
+
+	private void realize(DomainObjectIdentifier identifier) {
+		val resolveChain = new ArrayDeque<DomainObjectIdentifier>();
+		resolveChain.push(identifier);
+		DomainObjectIdentifierInternal currentIdentifier = (DomainObjectIdentifierInternal) identifier;
+		while (currentIdentifier.getParentIdentifier().isPresent()) {
+			currentIdentifier = currentIdentifier.getParentIdentifier().get();
+			resolveChain.push(currentIdentifier);
+		}
+
+		while (!resolveChain.isEmpty()) {
+			val resolvingIdentifier = resolveChain.pop();
+			val elementToRealize = identifierToRealizable.remove(resolvingIdentifier);
+			if (elementToRealize != null) {
+				elementToRealize.realize();
+			} else {
+				LOGGER.debug("Element " + resolvingIdentifier + "is not known.");
+			}
+		}
+
+		if (knownIdentifiers.contains(identifier)) {
+			val realizedElement = identifierToCreated.remove(identifier);
+			if (realizedElement == null) {
+				throw new IllegalStateException("Element wasn't created");
+			}
+			eventPublisher.publish(new DomainObjectRealized<>(identifier, realizedElement));
+		}
+	}
+
+	/**
+	 * Returns a callable instance which realize the specified identifier and return an empty list.
+	 * This is quite useful when the specified identifier needs to be realized iff a task participate in the task graph.
+	 * It's a sort-of old school software model-ish behavior.
+	 *
+	 * @param identifier the identifier to realize
+	 * @param <T> the expected list type to return
+	 * @return a callable instance which realize the specified identifier and return empty list upon calling.
+	 */
+	public <T extends DomainObjectIdentifier> T ofElement(T identifier) {
+		realize(identifier);
+		return identifier;
+	}
+}

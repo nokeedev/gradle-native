@@ -9,5 +9,5 @@ import java.util.Set;
 public interface ComponentContainerInternal extends ComponentContainer {
 	ComponentContainerInternal disallowChanges();
 
-	Provider<Set<? extends Component>> getElements();
+	Provider<Set<Component>> getElements();
 }

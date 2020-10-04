@@ -18,6 +18,6 @@ public class CreateVariantAwareComponentObjectsLifecycleTaskRule implements Acti
 
 	@Override
 	public void execute(VariantAwareComponentInternal<?> component) {
-		taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of("objects"), ObjectsLifecycleTask.class, component.getIdentifier())).configure(configureDependsOn(component.getDevelopmentVariant().flatMap(ToDevelopmentBinaryCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS)));
+		taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of("objects"), ObjectsLifecycleTask.class, component.getIdentifier())).configure(configureDependsOn(component.getDevelopmentVariant().flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS)));
 	}
 }

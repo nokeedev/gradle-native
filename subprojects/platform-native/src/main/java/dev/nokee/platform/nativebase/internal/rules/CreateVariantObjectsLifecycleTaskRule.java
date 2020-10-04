@@ -19,6 +19,6 @@ public class CreateVariantObjectsLifecycleTaskRule implements Action<KnownVarian
 
 	@Override
 	public void execute(KnownVariant<? extends Variant> knownVariant) {
-		taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of("objects"), ObjectsLifecycleTask.class, knownVariant.getIdentifier())).configure(configureDependsOn(knownVariant.flatMap(ToDevelopmentBinaryCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS)));
+		taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of("objects"), ObjectsLifecycleTask.class, knownVariant.getIdentifier())).configure(configureDependsOn(knownVariant.flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS)));
 	}
 }
