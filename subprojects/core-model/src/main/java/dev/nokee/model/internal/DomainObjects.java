@@ -18,6 +18,7 @@ public final class DomainObjects<T> {
 			@Override
 			public void handle(DomainObjectRealized<T> event) {
 				if (entityType.isInstance(event.getObject())) {
+					assert !objects.containsKey(event.getIdentifier()) : "Entity already realized, duplicated event.";
 					objects.put(event.getIdentifier(), event.getObject());
 				}
 			}
@@ -34,6 +35,7 @@ public final class DomainObjects<T> {
 			@Override
 			public void handle(DomainObjectCreated<T> event) {
 				if (entityType.isInstance(event.getObject())) {
+					assert !objects.containsKey(event.getIdentifier()) : "Entity already realized, duplicated event.";
 					objects.put(event.getIdentifier(), event.getObject());
 					whenObjectCreated.accept(event.getObject());
 				}

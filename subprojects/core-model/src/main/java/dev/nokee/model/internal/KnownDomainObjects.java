@@ -27,6 +27,7 @@ public final class KnownDomainObjects<T> {
 			@Override
 			public void handle(DomainObjectDiscovered<T> event) {
 				if (entityType.isAssignableFrom(event.getType())) {
+					assert !knownObjects.contains(event.getIdentifier()) : "Entity already known, duplicated event.";
 					knownObjects.add(event.getIdentifier());
 					whenDomainObjectDiscovered.accept(event.getIdentifier());
 				}
