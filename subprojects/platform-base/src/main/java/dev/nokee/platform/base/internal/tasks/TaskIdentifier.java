@@ -1,7 +1,9 @@
 package dev.nokee.platform.base.internal.tasks;
 
 import com.google.common.base.Preconditions;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.ProjectIdentifier;
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
 
 @ToString
 @EqualsAndHashCode
-public final class TaskIdentifier<T extends Task> implements DomainObjectIdentifierInternal {
+public final class TaskIdentifier<T extends Task> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T> {
 	@Getter private final TaskName name;
 	@Getter private final Class<T> type;
 	@Getter private final DomainObjectIdentifierInternal ownerIdentifier;
@@ -38,20 +40,20 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 		return ownerIdentifier instanceof ProjectIdentifier || ownerIdentifier instanceof ComponentIdentifier || ownerIdentifier instanceof VariantIdentifier;
 	}
 
-	public static <T extends Task> TaskIdentifier<T> of(TaskName name, Class<T> type, DomainObjectIdentifierInternal ownerIdentifier) {
-		return new TaskIdentifier<>(name, type, ownerIdentifier);
+	public static <T extends Task> TaskIdentifier<T> of(TaskName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
+		return new TaskIdentifier<>(name, type, (DomainObjectIdentifierInternal)ownerIdentifier);
 	}
 
-	public static TaskIdentifier<Task> of(TaskName name, DomainObjectIdentifierInternal ownerIdentifier) {
-		return new TaskIdentifier<>(name, Task.class, ownerIdentifier);
+	public static TaskIdentifier<Task> of(TaskName name, DomainObjectIdentifier ownerIdentifier) {
+		return new TaskIdentifier<>(name, Task.class, (DomainObjectIdentifierInternal)ownerIdentifier);
 	}
 
-	public static TaskIdentifier<Task> ofLifecycle(DomainObjectIdentifierInternal ownerIdentifier) {
+	public static TaskIdentifier<Task> ofLifecycle(DomainObjectIdentifier ownerIdentifier) {
 		Preconditions.checkArgument(isValidLifecycleOwner(ownerIdentifier), "Cannot construct a lifecycle task identifier for specified owner as it will result into an invalid task name.");
-		return new TaskIdentifier<>(TaskName.empty(), Task.class, ownerIdentifier);
+		return new TaskIdentifier<>(TaskName.empty(), Task.class, (DomainObjectIdentifierInternal)ownerIdentifier);
 	}
 
-	private static boolean isValidLifecycleOwner(DomainObjectIdentifierInternal ownerIdentifier) {
+	private static boolean isValidLifecycleOwner(DomainObjectIdentifier ownerIdentifier) {
 		if (ownerIdentifier instanceof VariantIdentifier) {
 			val variantIdentifier = (VariantIdentifier<?>) ownerIdentifier;
 			if (variantIdentifier.getUnambiguousName().isEmpty() && variantIdentifier.getComponentIdentifier().isMainComponent()) {
