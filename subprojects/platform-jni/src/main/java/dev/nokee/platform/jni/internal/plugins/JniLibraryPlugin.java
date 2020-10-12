@@ -431,6 +431,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			return new JniLibraryExtensionInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), project.getConfigurations(), project.getObjects(), project.getProviders(), project.getDependencies(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class));
 		});
 		val library = components.register("main", JniLibraryExtensionInternal.class).get();
+		library.getComponent().getBaseName().convention(names.getBaseName().getAsString());
 
 		val dependencies = library.getDependencies();
 		val configurationRegistry = new ConfigurationBucketRegistryImpl(project.getConfigurations());

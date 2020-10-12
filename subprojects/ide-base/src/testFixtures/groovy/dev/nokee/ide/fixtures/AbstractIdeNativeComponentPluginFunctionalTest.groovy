@@ -7,7 +7,7 @@ import static org.junit.Assume.assumeFalse
 
 abstract class AbstractIdeNativeComponentPluginFunctionalTest extends AbstractGradleSpecification {
 	def "generates IDE files with build type awareness"() {
-		assumeFalse(this.class.simpleName in ['VisualStudioIdeCApplicationWithNativeTestSuiteFunctionalTest', 'VisualStudioIdeCLibraryWithNativeTestSuiteFunctionalTest', 'VisualStudioIdeCppApplicationWithNativeTestSuiteFunctionalTest', 'VisualStudioIdeCppLibraryWithNativeTestSuiteFunctionalTest', 'XcodeIdeSwiftLibraryWithBothLinkageFunctionalTest', 'XcodeIdeSwiftLibraryWithNativeTestSuiteFunctionalTest'])
+		assumeFalse(this.class.simpleName in ['VisualStudioIdeCApplicationWithNativeTestSuiteFunctionalTest', 'VisualStudioIdeCLibraryWithNativeTestSuiteFunctionalTest', 'VisualStudioIdeCppApplicationWithNativeTestSuiteFunctionalTest', 'VisualStudioIdeCppLibraryWithNativeTestSuiteFunctionalTest', 'XcodeIdeSwiftLibraryWithBothLinkageFunctionalTest', 'XcodeIdeSwiftLibraryWithNativeTestSuiteFunctionalTest', 'VisualStudioIdeJavaNativeInterfaceLibraryComponentFunctionalTest'])
 		given:
 		settingsFile << configureProjectName()
 		makeSingleProjectWithDebugAndReleaseBuildTypes()

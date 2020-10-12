@@ -66,6 +66,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 		parentSources.all(sources::add);
 
+		getDevelopmentBinary().convention(getProviders().provider(() -> getBinaryCollection().iterator().next()));
 		getBinaryCollection().configureEach(parentBinaries::add);
 		getResourcePath().convention(getProviders().provider(() -> getResourcePath(groupId)));
 	}

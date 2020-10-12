@@ -68,6 +68,10 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 
 		getProject().getTasks().addRule(getObjects().newInstance(VisualStudioIdeBridge.class, this, extension.getProjects(), getProject()));
 		registerNativeComponentProjects();
+
+		getProject().getPluginManager().withPlugin("dev.nokee.jni-library", appliedPlugin -> {
+			getProject().getPluginManager().apply(JavaNativeInterfaceLibraryVisualStudioIdePlugin.class);
+		});
 	}
 
 	private void registerNativeComponentProjects() {
