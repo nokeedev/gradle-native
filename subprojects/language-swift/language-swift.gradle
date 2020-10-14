@@ -1,0 +1,27 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'java-test-fixtures'
+	id 'maven-publish'
+}
+
+// TODO: These repositories are required because IntelliJ fails again at detecting the repositories
+repositories {
+	jcenter()
+	mavenCentral()
+}
+
+dependencies {
+	api project(':languageBase')
+	implementation project(':runtimeNative')
+
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	testFixturesApi testFixtures(project(':languageNative'))
+	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
+}
+
+gradlePlugin {
+	plugins {
+	}
+}

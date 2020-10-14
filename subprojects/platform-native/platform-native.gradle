@@ -14,7 +14,11 @@ dependencies {
 	implementation project(':coreUtils')
 	api project(':platformBase')
 	api project(':runtimeNative')
-	implementation project(':languageNative')
+	implementation project(':languageC')
+	implementation project(':languageCpp')
+	implementation project(':languageObjectiveC')
+	implementation project(':languageObjectiveCpp')
+	implementation project(':languageSwift')
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
@@ -30,7 +34,11 @@ dependencies {
 	testFixturesImplementation 'org.hamcrest:hamcrest:2.2'
 	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	testFixturesImplementation gradleFixtures()
-	testFixturesImplementation testFixtures(project(':languageNative'))
+	testFixturesImplementation testFixtures(project(':languageC'))
+	testFixturesImplementation testFixtures(project(':languageCpp'))
+	testFixturesImplementation testFixtures(project(':languageObjectiveC'))
+	testFixturesImplementation testFixtures(project(':languageObjectiveCpp'))
+	testFixturesImplementation testFixtures(project(':languageSwift'))
 	testFixturesApi 'dev.nokee:templates:latest.integration'
 }
 

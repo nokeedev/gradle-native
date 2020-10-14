@@ -14,7 +14,11 @@ dependencies {
 
 	implementation project(':platformNative')
 	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation project(':languageNative')
+	implementation project(':languageC')
+	implementation project(':languageCpp')
+	implementation project(':languageObjectiveC')
+	implementation project(':languageObjectiveCpp')
+	implementation project(':languageSwift')
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 }
 

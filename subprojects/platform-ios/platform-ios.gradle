@@ -12,7 +12,8 @@ repositories {
 dependencies {
 	implementation project(':coreUtils')
 	implementation project(':coreModel')
-	implementation project(':languageNative')
+	implementation project(':languageObjectiveC')
+	implementation project(':languageSwift')
 	implementation project(':coreExec')
 	implementation project(':runtimeDarwin')
 	implementation project(':runtimeNative')

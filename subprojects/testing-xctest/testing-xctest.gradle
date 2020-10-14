@@ -17,7 +17,8 @@ dependencies {
 	implementation project(':platformNative') // for NativeBinary
 	implementation project(':runtimeNative')
 	implementation project(':coreExec')
-	implementation project(':languageNative')
+	implementation project(':languageObjectiveC')
+	implementation project(':languageSwift')
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"

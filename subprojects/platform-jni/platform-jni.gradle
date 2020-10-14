@@ -15,7 +15,11 @@ dependencies {
 	implementation project(':coreUtils')
 	implementation project(':runtimeDarwin')
 	implementation project(':runtimeNative')
-	implementation project(':languageNative')
+	implementation project(':languageC')
+	implementation project(':languageCpp')
+	implementation project(':languageObjectiveC')
+	implementation project(':languageObjectiveCpp')
+	implementation project(':languageSwift')
 
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "com.google.guava:guava:${guavaVersion}"

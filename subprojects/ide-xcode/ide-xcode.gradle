@@ -22,7 +22,11 @@ dependencies {
 	implementation project(':testingNative') // needed since Native test suites types are in the main plugin... should not do that
 	implementation project(':testingXctest') // needed since we started to include the XCTest rules inside the main plugins... should not do that
 	compileOnly project(':platformNative') // for NativeBinary
-	implementation project(':languageNative') // for UTType of each language
+	implementation project(':languageC') // for UTType of each language
+	implementation project(':languageCpp') // for UTType of each language
+	implementation project(':languageObjectiveC') // for UTType of each language
+	implementation project(':languageObjectiveCpp') // for UTType of each language
+	implementation project(':languageSwift') // for UTType of each language
 	compileOnly project(':runtimeNative') // for TargetMachine && OperatingSystemFamily
 
 
