@@ -193,8 +193,7 @@ Artifacts
 
 		expect:
 		succeeds('dependencyInsight', '--configuration', "custom${hostVariantName.capitalize()}", '--dependency', 'dev.nokee:platformJni:0.3.0')
-		result.assertOutputContains("""
-> Task :dependencyInsight
+		result.assertOutputContains("""> Task :dependencyInsight
 dev.nokee:platformJni:0.3.0
    variant "runtimeElements" [
       org.gradle.category            = library (not requested)
