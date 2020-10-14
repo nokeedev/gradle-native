@@ -4,10 +4,15 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.model.DomainObjectFactory;
+import dev.nokee.model.internal.DomainObjectCreated;
+import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BaseNameUtils;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.BinaryName;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -47,14 +52,16 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 	private final ProviderFactory providers;
 	private final TaskRegistry taskRegistry;
 	private final ProjectLayout layout;
+	private final DomainObjectEventPublisher eventPublisher;
 
 	@Inject
-	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUiTestXCTestTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository) {
-		super(identifier, objects, providers, tasks, layout, configurations, dependencyHandler, eventPublisher, viewFactory, variantRepository);
+	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUiTestXCTestTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory) {
+		super(identifier, objects, providers, tasks, layout, configurations, dependencyHandler, eventPublisher, viewFactory, variantRepository, binaryViewFactory);
 		this.objects = objects;
 		this.providers = providers;
 		this.taskRegistry = new TaskRegistryImpl(tasks);
 		this.layout = layout;
+		this.eventPublisher = eventPublisher;
 	}
 
 	@Override
@@ -62,50 +69,54 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 		super.onEachVariant(variant);
 		val variantIdentifier = variant.getIdentifier();
 
+		String moduleName = BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase();
+
+		// XCTest UI Testing
+		val processUiTestPropertyListTask = taskRegistry.register("processUiTestPropertyList", ProcessPropertyListTask.class, task -> {
+			task.getIdentifier().set(providers.provider(() -> getGroupId().get().get().get() + "." + moduleName));
+			task.getModule().set(moduleName);
+			task.getSources().from("src/uiTest/resources/Info.plist");
+			task.getOutputFile().set(layout.getBuildDirectory().file("ios/uiTest/Info.plist"));
+		});
+
+		TaskProvider<CreateIosXCTestBundleTask> createUiTestXCTestBundle = taskRegistry.register("createUiTestXCTestBundle", CreateIosXCTestBundleTask.class, task -> {
+			task.getXCTestBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.xctest"));
+			task.getSources().from(processUiTestPropertyListTask.flatMap(it -> it.getOutputFile()));
+			task.getSources().from(variant.flatMap(testSuite -> testSuite.getBinaries().withType(BundleBinary.class).getElements().map(binaries -> binaries.stream().map(binary -> binary.getLinkTask().get().getLinkedFile()).collect(Collectors.toList()))));
+		});
+
+		Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
+		TaskProvider<SignIosApplicationBundleTask> signUiTestXCTestBundle = taskRegistry.register("signUiTestXCTestBundle", SignIosApplicationBundleTask.class, task -> {
+			task.getUnsignedApplicationBundle().set(createUiTestXCTestBundle.flatMap(CreateIosXCTestBundleTask::getXCTestBundle));
+			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + ".xctest"));
+			task.getCodeSignatureTool().set(codeSignatureTool);
+			task.getCodeSignatureTool().disallowChanges();
+		});
+
+		TaskProvider<CreateIosApplicationBundleTask> createUiTestApplicationBundleTask = taskRegistry.register("createUiTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
+			task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.app"));
+			task.getSources().from(getXCTRunner());
+			task.getPlugIns().from(signUiTestXCTestBundle.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle));
+			task.getFrameworks().from(getXCTestFrameworks());
+			task.getSwiftSupportRequired().set(false);
+		});
+
+		val signTask = taskRegistry.register("signUiTestLauncherApplicationBundle", SignIosApplicationBundleTask.class, task -> {
+			task.getUnsignedApplicationBundle().set(createUiTestApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
+			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner.app"));
+			task.getCodeSignatureTool().set(codeSignatureTool);
+			task.getCodeSignatureTool().disallowChanges();
+		});
+
+		val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variant.getIdentifier());
+		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
+		val signedApplicationBundle = new SignedIosApplicationBundleInternal(signTask);
+		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, signedApplicationBundle));
+
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
 				((BundleBinaryInternal)binary).getBaseName().set(BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase());
 			});
-			String moduleName = BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase();
-
-			// XCTest UI Testing
-			val processUiTestPropertyListTask = taskRegistry.register("processUiTestPropertyList", ProcessPropertyListTask.class, task -> {
-				task.getIdentifier().set(providers.provider(() -> getGroupId().get().get().get() + "." + moduleName));
-				task.getModule().set(moduleName);
-				task.getSources().from("src/uiTest/resources/Info.plist");
-				task.getOutputFile().set(layout.getBuildDirectory().file("ios/uiTest/Info.plist"));
-			});
-
-			TaskProvider<CreateIosXCTestBundleTask> createUiTestXCTestBundle = taskRegistry.register("createUiTestXCTestBundle", CreateIosXCTestBundleTask.class, task -> {
-				task.getXCTestBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.xctest"));
-				task.getSources().from(processUiTestPropertyListTask.flatMap(it -> it.getOutputFile()));
-				task.getSources().from(testSuite.getBinaries().withType(BundleBinary.class).getElements().map(binaries -> binaries.stream().map(binary -> binary.getLinkTask().get().getLinkedFile()).collect(Collectors.toList())));
-			});
-
-			Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
-			TaskProvider<SignIosApplicationBundleTask> signUiTestXCTestBundle = taskRegistry.register("signUiTestXCTestBundle", SignIosApplicationBundleTask.class, task -> {
-				task.getUnsignedApplicationBundle().set(createUiTestXCTestBundle.flatMap(CreateIosXCTestBundleTask::getXCTestBundle));
-				task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + ".xctest"));
-				task.getCodeSignatureTool().set(codeSignatureTool);
-				task.getCodeSignatureTool().disallowChanges();
-			});
-
-			TaskProvider<CreateIosApplicationBundleTask> createUiTestApplicationBundleTask = taskRegistry.register("createUiTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
-				task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.app"));
-				task.getSources().from(getXCTRunner());
-				task.getPlugIns().from(signUiTestXCTestBundle.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle));
-				task.getFrameworks().from(getXCTestFrameworks());
-				task.getSwiftSupportRequired().set(false);
-			});
-
-			val signTask = taskRegistry.register("signUiTestLauncherApplicationBundle", SignIosApplicationBundleTask.class, task -> {
-				task.getUnsignedApplicationBundle().set(createUiTestApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
-				task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner.app"));
-				task.getCodeSignatureTool().set(codeSignatureTool);
-				task.getCodeSignatureTool().disallowChanges();
-			});
-
-			testSuite.getBinaryCollection().add(objects.newInstance(SignedIosApplicationBundleInternal.class, signTask));
 		});
 
 		TaskProvider<Task> bundle = taskRegistry.register(TaskIdentifier.of(TaskName.of("bundle"), variantIdentifier), task -> {
@@ -145,7 +156,7 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 
 	public static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(ObjectFactory objects, Project project) {
 		return identifier -> {
-			return objects.newInstance(DefaultUiTestXCTestTestSuiteComponent.class, identifier, project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class));
+			return objects.newInstance(DefaultUiTestXCTestTestSuiteComponent.class, identifier, project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class));
 		};
 	}
 }

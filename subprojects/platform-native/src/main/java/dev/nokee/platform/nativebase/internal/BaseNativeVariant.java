@@ -2,6 +2,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,8 +15,8 @@ public class BaseNativeVariant extends BaseVariant {
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	private final TaskProvider<Task> assembleTask;
 
-	public BaseNativeVariant(VariantIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
-		super(identifier, objects);
+	public BaseNativeVariant(VariantIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
+		super(identifier, objects, binaryViewFactory);
 		this.providers = providers;
 		this.assembleTask = assembleTask;
 

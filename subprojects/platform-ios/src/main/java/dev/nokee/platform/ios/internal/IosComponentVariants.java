@@ -3,6 +3,7 @@ package dev.nokee.platform.ios.internal;
 import dev.nokee.language.swift.internal.SwiftSourceSet;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
@@ -37,8 +38,10 @@ public final class IosComponentVariants implements ComponentVariants {
 	private final ConfigurationContainer configurationContainer;
 	private final ProviderFactory providerFactory;
 	private final TaskRegistry taskRegistry;
+	private final BinaryViewFactory binaryViewFactory;
 
-	public IosComponentVariants(ObjectFactory objectFactory, DefaultIosApplicationComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository) {
+	public IosComponentVariants(ObjectFactory objectFactory, DefaultIosApplicationComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory) {
+		this.binaryViewFactory = binaryViewFactory;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), DefaultIosApplicationVariant.class, eventPublisher, viewFactory, variantRepository);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = providerFactory.provider(new DevelopmentVariantConvention<>(() -> getVariantCollection().get()));
@@ -64,7 +67,7 @@ public final class IosComponentVariants implements ComponentVariants {
 	}
 
 	private DefaultIosApplicationVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeComponentDependencies> variantDependencies, TaskProvider<Task> assembleTask) {
-		return new DefaultIosApplicationVariant(identifier, variantDependencies, objectFactory, providerFactory, assembleTask);
+		return new DefaultIosApplicationVariant(identifier, variantDependencies, objectFactory, providerFactory, assembleTask, binaryViewFactory);
 	}
 
 	private VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultIosApplicationVariant> variantIdentifier) {

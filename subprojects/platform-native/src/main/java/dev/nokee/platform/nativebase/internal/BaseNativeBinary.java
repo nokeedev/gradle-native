@@ -77,7 +77,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 
 	public BaseNativeBinary(BinaryIdentifier<?> identifier, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations) {
 		this.identifier = identifier;
-		this.compileTasks = objects.newInstance(DefaultTaskView.class, Task.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), (Realizable)() -> {});
+		this.compileTasks = objects.newInstance(DefaultTaskView.class, Task.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), Realizable.IDENTITY);
 		this.objectSourceSets = objectSourceSets;
 		this.targetMachine = targetMachine;
 		this.dependencies = dependencies;

@@ -46,7 +46,7 @@ abstract class AbstractDeferrableDomainObjectTest<T> extends DomainObjectSpec<T>
 
 	def "can map the deferrable entity"() {
 		given:
-		def (identifier, entity) = entityRealized(entityCreated(entity(entityDiscovered(entityIdentifier(ownerIdentifier)))))
+		def (identifier, entity) = entityCreated(entity(entityDiscovered(entityIdentifier(ownerIdentifier))))
 		def subject = newSubject(identifier)
 
 		and:
@@ -65,7 +65,7 @@ abstract class AbstractDeferrableDomainObjectTest<T> extends DomainObjectSpec<T>
 
 	def "can flat map the deferrable entity"() {
 		given:
-		def (identifier, entity) = entityRealized(entityCreated(entity(entityDiscovered(entityIdentifier(ownerIdentifier)))))
+		def (identifier, entity) = entityCreated(entity(entityDiscovered(entityIdentifier(ownerIdentifier))))
 		def subject = newSubject(identifier)
 
 		and:

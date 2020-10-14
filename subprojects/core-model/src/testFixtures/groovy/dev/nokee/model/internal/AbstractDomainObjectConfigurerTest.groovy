@@ -188,7 +188,7 @@ abstract class AbstractDomainObjectConfigurerTest<T> extends DomainObjectSpec<T>
 		subject.configureEach(ownerIdentifier, myEntityType, action)
 
 		when:
-		entityCreated(identifier2, entity1)
+		entityCreated(identifier1, entity1)
 		then:
 		0 * action.execute(_)
 

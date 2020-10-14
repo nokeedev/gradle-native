@@ -6,6 +6,8 @@ import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.ProjectIdentifier;
+import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
+import dev.nokee.platform.base.internal.plugins.BinaryBasePlugin;
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
 import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.base.internal.plugins.VariantBasePlugin;
@@ -69,11 +71,12 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(ComponentBasePlugin.class);
 		project.getPluginManager().apply(VariantBasePlugin.class);
+		project.getPluginManager().apply(BinaryBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(DefaultObjectiveCIosApplicationExtension.class, id -> {
 			val identifier = ComponentIdentifier.ofMain(DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
 
-			val component = new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class));
+			val component = new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class));
 			store.register(identifier, DefaultIosApplicationComponent.class, ignored -> component).get();
 			return new DefaultObjectiveCIosApplicationExtension(component, project.getObjects(), project.getProviders());
 		});

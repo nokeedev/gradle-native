@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
-@ToString
 @EqualsAndHashCode
 public final class VariantIdentifier<T extends Variant> implements DomainObjectIdentifierInternal, NamedDomainObjectIdentifier, TypeAwareDomainObjectIdentifier<T> {
 	@Getter private final String unambiguousName;
@@ -24,7 +23,7 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 	@Getter private final ComponentIdentifier<?> componentIdentifier;
 	@Getter @EqualsAndHashCode.Exclude private final Dimensions ambiguousDimensions;
 	private final Dimensions dimensions;
-	@ToString.Exclude @EqualsAndHashCode.Exclude private final BuildVariant buildVariant;
+	@EqualsAndHashCode.Exclude private final BuildVariant buildVariant;
 	@EqualsAndHashCode.Exclude private final String fullName;
 
 	public VariantIdentifier(String unambiguousName, Class<T> type, ComponentIdentifier<?> componentIdentifier, Dimensions ambiguousDimensions, Dimensions dimensions, BuildVariant buildVariant, String fullName) {
@@ -85,6 +84,11 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 			builder.append(" of ").append(componentIdentifier.getDisplayName());
 		}
 		return builder.toString();
+	}
+
+	@Override
+	public String toString() {
+		return "variant " + type.getSimpleName() + " '" + componentIdentifier.getProjectIdentifier().getPath().toString() + ":" + componentIdentifier.getName().get() + ":" + getFullName() + "'";
 	}
 
 	public static Builder<Variant> builder() {
