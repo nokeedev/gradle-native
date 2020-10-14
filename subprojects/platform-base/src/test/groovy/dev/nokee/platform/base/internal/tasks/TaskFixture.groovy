@@ -37,6 +37,10 @@ trait TaskFixture {
 		throw new UnsupportedOperationException()
 	}
 
+	TaskRegistry newTaskRegistry() {
+		return new TaskRegistryImpl(ProjectIdentifier.of(project), eventPublisher, project.getTasks())
+	}
+
 	Class<Task> getEntityType() {
 		return Task
 	}
@@ -45,7 +49,7 @@ trait TaskFixture {
 		return TaskImpl
 	}
 
-	def <S extends Task> TypeAwareDomainObjectIdentifier<S> entityIdentifier(Class<S> type, DomainObjectIdentifier owner) {
+	def <S extends Task> TaskIdentifier<S> entityIdentifier(Class<S> type, DomainObjectIdentifier owner) {
 		return TaskIdentifier.of(TaskName.of('a' + RandomStringUtils.randomAlphanumeric(12)), type, (ComponentIdentifier)owner)
 	}
 
