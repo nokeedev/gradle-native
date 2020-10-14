@@ -14,7 +14,7 @@ import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
+import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -37,14 +37,16 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	private final TaskRegistry taskRegistry;
 	private final ObjectFactory objects;
 	private final DomainObjectEventPublisher eventPublisher;
+	private final TaskViewFactory taskViewFactory;
 
-	public BaseNativeComponent(ComponentIdentifier<?> identifier, Class<T> variantType, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher) {
+	public BaseNativeComponent(ComponentIdentifier<?> identifier, Class<T> variantType, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, objects);
 		this.objects = objects;
 		this.eventPublisher = eventPublisher;
+		this.taskViewFactory = taskViewFactory;
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
 		this.variantType = variantType;
-		this.taskRegistry = new TaskRegistryImpl(tasks);
+		this.taskRegistry = taskRegistry;
 	}
 
 	public abstract NativeComponentDependencies getDependencies();
@@ -86,7 +88,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 					// Binary factory
 					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkExecutableTask.class, variantIdentifier));
-					val binary = objects.newInstance(ExecutableBinaryInternal.class, binaryIdentifier, objectSourceSets, targetMachineInternal, linkTask, incomingDependencies);
+					val binary = objects.newInstance(ExecutableBinaryInternal.class, binaryIdentifier, objectSourceSets, targetMachineInternal, linkTask, incomingDependencies, taskViewFactory);
 					eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, binary));
 
 					binary.getBaseName().convention(getBaseName());
@@ -95,7 +97,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 					// Binary factory
 					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variantIdentifier));
-					val binary = objects.newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, objects.domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask, incomingDependencies);
+					val binary = objects.newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, objects.domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask, incomingDependencies, taskViewFactory);
 					eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, binary));
 
 					binary.getBaseName().convention(getBaseName());
@@ -104,7 +106,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 					// Binary factory
 					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkBundleTask.class, variantIdentifier));
-					val binary = objects.newInstance(BundleBinaryInternal.class, binaryIdentifier, targetMachineInternal, objectSourceSets, linkTask, incomingDependencies);
+					val binary = objects.newInstance(BundleBinaryInternal.class, binaryIdentifier, targetMachineInternal, objectSourceSets, linkTask, incomingDependencies, taskViewFactory);
 					eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, binary));
 
 					binary.getBaseName().convention(getBaseName());
@@ -113,7 +115,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 					// Binary factory
 					val createTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("create"), CreateStaticLibraryTask.class, variantIdentifier));
-					val binary = objects.newInstance(StaticLibraryBinaryInternal.class, binaryIdentifier, objectSourceSets, targetMachineInternal, createTask, incomingDependencies);
+					val binary = objects.newInstance(StaticLibraryBinaryInternal.class, binaryIdentifier, objectSourceSets, targetMachineInternal, createTask, incomingDependencies, taskViewFactory);
 					eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, binary));
 
 					binary.getBaseName().convention(getBaseName());

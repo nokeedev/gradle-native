@@ -7,10 +7,9 @@ import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
-import dev.nokee.platform.base.internal.plugins.BinaryBasePlugin;
-import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
-import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
-import dev.nokee.platform.base.internal.plugins.VariantBasePlugin;
+import dev.nokee.platform.base.internal.plugins.*;
+import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.ios.SwiftIosApplicationExtension;
@@ -54,11 +53,12 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentBasePlugin.class);
 		project.getPluginManager().apply(VariantBasePlugin.class);
 		project.getPluginManager().apply(BinaryBasePlugin.class);
+		project.getPluginManager().apply(TaskBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(DefaultSwiftIosApplicationExtension.class, id -> {
 			val identifier = ComponentIdentifier.ofMain(DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
 
-			val component = new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class));
+			val component = new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
 			store.register(identifier, DefaultIosApplicationComponent.class, ignored -> component).get();
 			return new DefaultSwiftIosApplicationExtension(component, project.getObjects(), project.getProviders());
 		});

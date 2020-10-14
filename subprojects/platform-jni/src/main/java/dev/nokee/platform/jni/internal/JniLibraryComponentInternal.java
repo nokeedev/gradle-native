@@ -10,7 +10,7 @@ import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistry
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
+import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantViewInternal;
@@ -52,10 +52,9 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	private final BinaryView<Binary> binaries;
 	private final JavaNativeInterfaceComponentVariants componentVariants;
-	private final TaskRegistry taskRegistry;
 
 	@Inject
-	public JniLibraryComponentInternal(ComponentIdentifier<?> identifier, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory) {
+	public JniLibraryComponentInternal(ComponentIdentifier<?> identifier, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, objects);
 		this.configurations = configurations;
 		this.dependencyHandler = dependencyHandler;
@@ -65,8 +64,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		this.groupId = groupId;
 		this.sources = objects.domainObjectSet(LanguageSourceSetInternal.class);
 		this.targetMachines = ConfigureUtils.configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
-		this.taskRegistry = new TaskRegistryImpl(tasks);
-		this.componentVariants = new JavaNativeInterfaceComponentVariants(objects, this, configurations, dependencyHandler, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory);
+		this.componentVariants = new JavaNativeInterfaceComponentVariants(objects, this, configurations, dependencyHandler, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, taskViewFactory);
 		this.binaries = binaryViewFactory.create(identifier);
 
 		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE));
