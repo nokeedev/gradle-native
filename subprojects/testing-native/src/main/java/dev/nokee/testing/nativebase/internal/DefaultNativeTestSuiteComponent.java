@@ -20,6 +20,7 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.ExecutableBinary;
@@ -74,8 +75,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final BinaryView<Binary> binaries;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
-		super(identifier, DefaultNativeTestSuiteVariant.class, objects, tasks, eventPublisher, taskRegistry);
+	public DefaultNativeTestSuiteComponent(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
+		super(identifier, DefaultNativeTestSuiteVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.objects = objects;
 		this.providers = providers;
 		this.tasks = tasks;

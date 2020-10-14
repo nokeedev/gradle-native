@@ -24,6 +24,7 @@ import dev.nokee.platform.base.internal.plugins.VariantBasePlugin;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
@@ -443,7 +444,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(JniLibraryExtensionInternal.class, identifier -> {
 			assert ((ComponentIdentifier<?>) identifier).isMainComponent();
-			return new JniLibraryExtensionInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), project.getConfigurations(), project.getObjects(), project.getProviders(), project.getDependencies(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class));
+			return new JniLibraryExtensionInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), project.getConfigurations(), project.getObjects(), project.getProviders(), project.getDependencies(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
 		});
 		val library = components.register("main", JniLibraryExtensionInternal.class).get();
 

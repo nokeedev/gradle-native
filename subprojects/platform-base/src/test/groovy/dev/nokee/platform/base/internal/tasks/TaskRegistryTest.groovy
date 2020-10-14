@@ -311,13 +311,17 @@ class TaskRegistryTest extends Specification {
 		register(subject, 'far')
 
 		then:
-		1 * subscriber.handle({ it == new RealizableDomainObjectDiscovered(register.identifierOf('foo'), new RealizableGradleProvider(taskContainer.named('foo'))) })
-		1 * subscriber.handle({ it == new RealizableDomainObjectDiscovered(register.identifierOf('bar'), new RealizableGradleProvider(taskContainer.named('bar'))) })
-		1 * subscriber.handle({ it == new RealizableDomainObjectDiscovered(register.identifierOf('far'), new RealizableGradleProvider(taskContainer.named('far'))) })
+		1 * subscriber.handle({ it == discoveredEvent(register, 'foo') })
+		1 * subscriber.handle({ it == discoveredEvent(register, 'bar') })
+		1 * subscriber.handle({ it == discoveredEvent(register, 'far') })
 		0 * subscriber.handle(_)
 
 		where:
 		register << REGISTER_FUNCTIONS_UNDER_TEST
+	}
+
+	private RealizableDomainObjectDiscovered discoveredEvent(def register, String name) {
+		return new RealizableDomainObjectDiscovered(register.identifierOf(name), new RealizableGradleProvider(register.identifierOf(name), taskContainer.named(name), eventPublisher))
 	}
 
 	@Unroll

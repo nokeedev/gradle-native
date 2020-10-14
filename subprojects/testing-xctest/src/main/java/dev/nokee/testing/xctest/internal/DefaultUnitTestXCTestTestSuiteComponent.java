@@ -16,6 +16,7 @@ import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
@@ -53,8 +54,8 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 	private final DomainObjectEventPublisher eventPublisher;
 
 	@Inject
-	public DefaultUnitTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUnitTestXCTestTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
-		super(identifier, objects, providers, tasks, layout, configurations, dependencyHandler, eventPublisher, viewFactory, variantRepository, binaryViewFactory, taskRegistry);
+	public DefaultUnitTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUnitTestXCTestTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
+		super(identifier, objects, providers, tasks, layout, configurations, dependencyHandler, eventPublisher, viewFactory, variantRepository, binaryViewFactory, taskRegistry, taskViewFactory);
 		this.objects = objects;
 		this.providers = providers;
 		this.taskRegistry = taskRegistry;
@@ -148,7 +149,7 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 
 	public static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTestFactory(ObjectFactory objects, Project project) {
 		return identifier -> {
-			return objects.newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, identifier, project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class));
+			return objects.newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, identifier, project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
 		};
 	}
 }

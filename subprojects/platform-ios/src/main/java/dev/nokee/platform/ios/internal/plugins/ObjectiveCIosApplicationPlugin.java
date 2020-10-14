@@ -9,6 +9,7 @@ import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.plugins.*;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
@@ -75,7 +76,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		components.registerFactory(DefaultObjectiveCIosApplicationExtension.class, id -> {
 			val identifier = ComponentIdentifier.ofMain(DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
 
-			val component = new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class));
+			val component = new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
 			store.register(identifier, DefaultIosApplicationComponent.class, ignored -> component).get();
 			return new DefaultObjectiveCIosApplicationExtension(component, project.getObjects(), project.getProviders());
 		});

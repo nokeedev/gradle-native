@@ -17,6 +17,7 @@ import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistry
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
@@ -72,8 +73,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final ConfigurationContainer configurations;
 
 	@Inject
-	public DefaultIosApplicationComponent(ComponentIdentifier<DefaultIosApplicationComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
-		super(identifier, DefaultIosApplicationVariant.class, objects, tasks, eventPublisher, taskRegistry);
+	public DefaultIosApplicationComponent(ComponentIdentifier<DefaultIosApplicationComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
+		super(identifier, DefaultIosApplicationVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.objects = objects;
 		this.providers = providers;
 		this.layout = layout;

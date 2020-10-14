@@ -1,9 +1,6 @@
 package dev.nokee.platform.base.internal.tasks;
 
-import dev.nokee.model.internal.DomainObjectDiscovered;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.model.internal.RealizableDomainObjectDiscovered;
-import dev.nokee.model.internal.RealizableGradleProvider;
+import dev.nokee.model.internal.*;
 import dev.nokee.platform.base.internal.ProjectIdentifier;
 import lombok.val;
 import org.gradle.api.Action;
@@ -107,7 +104,7 @@ public final class TaskRegistryImpl implements TaskRegistry {
 	}
 
 	private void fireRealizableDiscoveredEvent(TaskIdentifier<?> identifier, Provider<?> provider) {
-		eventPublisher.publish(new RealizableDomainObjectDiscovered(identifier, new RealizableGradleProvider(provider)));
+		eventPublisher.publish(new RealizableDomainObjectDiscovered(identifier, new RealizableGradleProvider(identifier, provider, eventPublisher)));
 	}
 
 	private <T extends Task> TaskSearchResult<T> findTask(TaskIdentifier<T> identifier) {

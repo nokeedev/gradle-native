@@ -11,6 +11,7 @@ import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.VariantCollection;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantViewInternal;
@@ -41,11 +42,11 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
 	@Inject
-	public JniLibraryExtensionInternal(ComponentIdentifier<?> identifier, GroupId groupId, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers, DependencyHandler dependencyHandler, TaskContainer taskContainer, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
+	public JniLibraryExtensionInternal(ComponentIdentifier<?> identifier, GroupId groupId, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers, DependencyHandler dependencyHandler, TaskContainer taskContainer, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		this.configurations = configurations;
 		this.objects = objects;
 		this.providers = providers;
-		this.component = new JniLibraryComponentInternal(identifier, groupId, objects, configurations, dependencyHandler, providers, taskContainer, eventPublisher, viewFactory, variantRepository, binaryViewFactory, taskRegistry);
+		this.component = new JniLibraryComponentInternal(identifier, groupId, objects, configurations, dependencyHandler, providers, taskContainer, eventPublisher, viewFactory, variantRepository, binaryViewFactory, taskRegistry, taskViewFactory);
 	}
 
 	//region Variant-awareness
