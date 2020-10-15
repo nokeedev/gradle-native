@@ -21,4 +21,9 @@ class LanguageSourceSetImplTest extends AbstractLanguageSourceSetTest<LanguageSo
 	protected Set<String> getDefaultFilterIncludes() {
 		return []
 	}
+
+	@Override
+	protected String fileName(String fileName) {
+		return fileName
+	}
 }

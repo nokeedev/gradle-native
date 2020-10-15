@@ -30,6 +30,8 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 
 	protected abstract Set<String> getDefaultFilterIncludes()
 
+	protected abstract String fileName(String fileName)
+
 	//region initialization
 	def "returns empty file tree on new source set"() {
 		when:
@@ -95,8 +97,8 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def file1 = temporaryFolder.newFile('foo')
-		def file2 = temporaryFolder.newFile('bar')
+		def file1 = temporaryFolder.newFile(fileName('foo'))
+		def file2 = temporaryFolder.newFile(fileName('bar'))
 
 		and:
 		subject.from(file1, file2)
@@ -105,7 +107,7 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 
 		when:
 		subject.filter {
-			it.exclude('bar')
+			it.exclude(fileName('bar'))
 		}
 
 		then:
@@ -117,15 +119,15 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def file1 = temporaryFolder.newFile('foo')
-		def file2 = temporaryFolder.newFile('bar')
+		def file1 = temporaryFolder.newFile(fileName('foo'))
+		def file2 = temporaryFolder.newFile(fileName('bar'))
 
 		and:
 		subject.from(file1, file2)
 
 		when:
 		subject.filter {
-			it.exclude('bar')
+			it.exclude(fileName('bar'))
 		}
 
 		then:
@@ -137,9 +139,9 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def file1 = temporaryFolder.newFile('foo')
+		def file1 = temporaryFolder.newFile(fileName('foo'))
 		def nestedDirectory = temporaryFolder.newFolder('nested')
-		def file2 = temporaryFolder.newFile('nested/bar')
+		def file2 = temporaryFolder.newFile(fileName('nested/bar'))
 
 		and:
 		subject.from(file1, file2)
@@ -158,16 +160,16 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def file1 = temporaryFolder.newFile('foo')
+		def file1 = temporaryFolder.newFile(fileName('foo'))
 		def nestedDirectory = temporaryFolder.newFolder('nested')
-		def file2 = temporaryFolder.newFile('nested/bar')
+		def file2 = temporaryFolder.newFile(fileName('nested/bar'))
 
 		and:
 		subject.from(temporaryFolder.root, nestedDirectory)
 
 		when:
 		subject.filter {
-			it.exclude('bar')
+			it.exclude(fileName('bar'))
 		}
 
 		then:
@@ -181,7 +183,7 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def file = temporaryFolder.newFile('foo')
+		def file = temporaryFolder.newFile(fileName('foo'))
 
 		when:
 		def result = subject.from(file)
@@ -195,7 +197,7 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def file = temporaryFolder.newFile('foo')
+		def file = temporaryFolder.newFile(fileName('foo'))
 
 		when:
 		subject.from(file)
@@ -209,8 +211,8 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def file1 = temporaryFolder.newFile('foo')
-		def file2 = temporaryFolder.newFile('bar')
+		def file1 = temporaryFolder.newFile(fileName('foo'))
+		def file2 = temporaryFolder.newFile(fileName('bar'))
 
 		when:
 		subject.from(file1, file2)
@@ -224,8 +226,8 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def file1 = temporaryFolder.newFile('foo')
-		def file2 = temporaryFolder.newFile('bar')
+		def file1 = temporaryFolder.newFile(fileName('foo'))
+		def file2 = temporaryFolder.newFile(fileName('bar'))
 
 		when:
 		subject.from(file1, file2)
@@ -240,9 +242,9 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def file1 = temporaryFolder.newFile('foo')
+		def file1 = temporaryFolder.newFile(fileName('foo'))
 		def nestedDirectory = temporaryFolder.newFolder('nested')
-		def file2 = temporaryFolder.newFile('nested/bar')
+		def file2 = temporaryFolder.newFile(fileName('nested/bar'))
 
 		when:
 		subject.from(file1, file2)
@@ -258,9 +260,9 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 
 		and:
 		def rootDirectory1 = temporaryFolder.newFolder('a')
-		def file1 = temporaryFolder.newFile('a/foo')
+		def file1 = temporaryFolder.newFile(fileName('a/foo'))
 		def rootDirectory2 = temporaryFolder.newFolder('b')
-		def file2 = temporaryFolder.newFile('b/bar')
+		def file2 = temporaryFolder.newFile(fileName('b/bar'))
 
 		when:
 		subject.from(file1, file2)
@@ -275,8 +277,8 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def file1 = temporaryFolder.newFile('foo')
-		def file2 = temporaryFolder.newFile('bar')
+		def file1 = temporaryFolder.newFile(fileName('foo'))
+		def file2 = temporaryFolder.newFile(fileName('bar'))
 
 		and:
 		subject.from(file1)
@@ -297,8 +299,8 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def file1 = temporaryFolder.newFile('foo')
-		def file2 = temporaryFolder.newFile('bar')
+		def file1 = temporaryFolder.newFile(fileName('foo'))
+		def file2 = temporaryFolder.newFile(fileName('bar'))
 
 		when:
 		subject.from(temporaryFolder.root)
@@ -313,9 +315,9 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def file1 = temporaryFolder.newFile('foo')
+		def file1 = temporaryFolder.newFile(fileName('foo'))
 		def nestedDirectory = temporaryFolder.newFolder('nested')
-		def file2 = temporaryFolder.newFile('nested/bar')
+		def file2 = temporaryFolder.newFile(fileName('nested/bar'))
 
 		when:
 		subject.from(temporaryFolder.root, nestedDirectory)
@@ -331,9 +333,9 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 
 		and:
 		def rootDirectory1 = temporaryFolder.newFolder('a')
-		def file1 = temporaryFolder.newFile('a/foo')
+		def file1 = temporaryFolder.newFile(fileName('a/foo'))
 		def rootDirectory2 = temporaryFolder.newFolder('b')
-		def file2 = temporaryFolder.newFile('b/bar')
+		def file2 = temporaryFolder.newFile(fileName('b/bar'))
 
 		when:
 		subject.from(rootDirectory1, rootDirectory2)
@@ -350,8 +352,8 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def file1 = temporaryFolder.newFile('foo')
-		def file2 = temporaryFolder.newFile('bar')
+		def file1 = temporaryFolder.newFile(fileName('foo'))
+		def file2 = temporaryFolder.newFile(fileName('bar'))
 
 		and:
 		def files = project.files(file1, file2)
@@ -372,8 +374,8 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 
 		and:
 		def rootDirectory = temporaryFolder.newFolder('root')
-		def file1 = temporaryFolder.newFile('root/foo')
-		def file2 = temporaryFolder.newFile('root/bar')
+		def file1 = temporaryFolder.newFile(fileName('root/foo'))
+		def file2 = temporaryFolder.newFile(fileName('root/bar'))
 
 		and:
 		def files = project.fileTree(dir: rootDirectory)
@@ -391,11 +393,11 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def file1 = temporaryFolder.newFile('foo')
-		def file2 = temporaryFolder.newFile('bar')
+		def file1 = temporaryFolder.newFile(fileName('foo'))
+		def file2 = temporaryFolder.newFile(fileName('bar'))
 
 		and:
-		def files = project.fileTree(dir: temporaryFolder.root, includes: ['foo'])
+		def files = project.fileTree(dir: temporaryFolder.root, includes: [ fileName('foo') ])
 
 		when:
 		subject.from(files)
@@ -413,7 +415,7 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 
 		and:
 		def buildTask = project.tasks.create('build')
-		def files = project.files(project.file('foo')) { it.builtBy buildTask }
+		def files = project.files(project.file(fileName('foo'))) { it.builtBy buildTask }
 
 		and:
 		subject.from(files)
@@ -431,7 +433,7 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 
 		and:
 		def buildTask = project.tasks.create('build')
-		def files = project.files(project.file('foo')) { it.builtBy buildTask }
+		def files = project.files(project.file(fileName('foo'))) { it.builtBy buildTask }
 
 		and:
 		subject.from(files)
@@ -454,7 +456,7 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 
 		and:
 		def buildTask = project.tasks.create('build')
-		def files = project.files(project.file('foo')) { it.builtBy buildTask }
+		def files = project.files(project.file(fileName('foo'))) { it.builtBy buildTask }
 
 		and:
 		subject.from(files)
@@ -471,17 +473,17 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 
 		and:
 		def dir1 = temporaryFolder.newFolder('dir1')
-		def dir1file1 = temporaryFolder.newFile('dir1/foo')
-		def dir1file2 = temporaryFolder.newFile('dir1/bar')
+		def dir1file1 = temporaryFolder.newFile(fileName('dir1/foo'))
+		def dir1file2 = temporaryFolder.newFile(fileName('dir1/bar'))
 		def dir2 = temporaryFolder.newFolder('dir2')
-		def dir2file1 = temporaryFolder.newFile('dir2/foo')
-		def dir2file2 = temporaryFolder.newFile('dir2/bar')
+		def dir2file1 = temporaryFolder.newFile(fileName('dir2/foo'))
+		def dir2file2 = temporaryFolder.newFile(fileName('dir2/bar'))
 
 		when:
 		subject.from(temporaryFolder.root)
 
 		then:
-		relativePaths(subject) == ['dir1/foo', 'dir1/bar', 'dir2/foo', 'dir2/bar'] as Set
+		relativePaths(subject) == [fileName('dir1/foo'), fileName('dir1/bar'), fileName('dir2/foo'), fileName('dir2/bar')] as Set
 	}
 
 	def "can access relative to respective base directory path"() {
@@ -491,18 +493,18 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		and:
 		def dir1 = temporaryFolder.newFolder('dir1')
 		def dir1dir = temporaryFolder.newFolder('dir1', 'nestedDir')
-		def dir1file1 = temporaryFolder.newFile('dir1/file1-1')
-		def dir1file2 = temporaryFolder.newFile('dir1/nestedDir/file1-2')
+		def dir1file1 = temporaryFolder.newFile(fileName('dir1/file1-1'))
+		def dir1file2 = temporaryFolder.newFile(fileName('dir1/nestedDir/file1-2'))
 		def dir2 = temporaryFolder.newFolder('dir2')
 		def dir2dir = temporaryFolder.newFolder('dir2', 'nestedDir')
-		def dir2file1 = temporaryFolder.newFile('dir2/file2-1')
-		def dir2file2 = temporaryFolder.newFile('dir2/nestedDir/file2-2')
+		def dir2file1 = temporaryFolder.newFile(fileName('dir2/file2-1'))
+		def dir2file2 = temporaryFolder.newFile(fileName('dir2/nestedDir/file2-2'))
 
 		when:
 		subject.from(dir1, dir2)
 
 		then:
-		relativePaths(subject) == ['file1-1', 'nestedDir/file1-2', 'file2-1', 'nestedDir/file2-2'] as Set
+		relativePaths(subject) == [fileName('file1-1'), fileName('nestedDir/file1-2'), fileName('file2-1'), fileName('nestedDir/file2-2')] as Set
 	}
 
 	private Set<String> relativePaths(LanguageSourceSet sourceSet) {
