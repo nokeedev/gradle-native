@@ -11,10 +11,16 @@ repositories {
 }
 
 dependencies {
+	implementation project(':coreModel')
+	implementation "com.google.guava:guava:${guavaVersion}"
+
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
+	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	testFixturesImplementation platform("org.spockframework:spock-bom:${spockVersion}")
+	testFixturesImplementation 'org.spockframework:spock-core'
+	testFixturesCompileOnly gradleApi(minimumGradleVersion)
 }
 
 gradlePlugin {
