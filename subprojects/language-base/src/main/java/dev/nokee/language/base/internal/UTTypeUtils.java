@@ -4,6 +4,7 @@ import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -19,6 +20,16 @@ public class UTTypeUtils {
 	 * @return a list of filters for all elements returned by {@link UTType#getFilenameExtensions()}, never null.
 	 */
 	public static PatternFilterable onlyIf(UTType type) {
-		return new PatternSet().include(Arrays.stream(type.getFilenameExtensions()).map(it -> "**/*." + it).collect(Collectors.toList()));
+		return new PatternSet().include(asFilenamePattern(type));
+	}
+
+	/**
+	 * Creates a list of filters for all extensions of a {@link UTType}.
+	 *
+	 * @param type a uniform type to create the list of filters
+	 * @return a list of filters for all elements returned by {@link UTType#getFilenameExtensions()}, never null.
+	 */
+	public static List<String> asFilenamePattern(UTType type) {
+		return Arrays.stream(type.getFilenameExtensions()).map(it -> "**/*." + it).collect(Collectors.toList());
 	}
 }

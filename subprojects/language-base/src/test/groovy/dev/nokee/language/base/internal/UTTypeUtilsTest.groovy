@@ -15,4 +15,15 @@ class UTTypeUtilsTest extends Specification {
 		UTTypeUtils.onlyIf(typeWithOneExtension).includes == ['**/*.foo'] as Set
 		UTTypeUtils.onlyIf(typeWithMultipleExtensions).includes == ['**/*.foo', '**/*.bar'] as Set
 	}
+
+	def "can create list of include compatible filter from UTType"() {
+		def typeWithOneExtension = UTTypes.of('foo.bar', ['foo'] as String[])
+		def typeWithMultipleExtensions = UTTypes.of('foo.bar', ['foo', 'bar'] as String[])
+		def typeWithNoExtension = UTTypes.of('foo.bar', [] as String[])
+
+		expect:
+		UTTypeUtils.asFilenamePattern(typeWithNoExtension) == []
+		UTTypeUtils.asFilenamePattern(typeWithOneExtension) == ['**/*.foo']
+		UTTypeUtils.asFilenamePattern(typeWithMultipleExtensions) == ['**/*.foo', '**/*.bar']
+	}
 }
