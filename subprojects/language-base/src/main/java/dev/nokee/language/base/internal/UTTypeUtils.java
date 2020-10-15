@@ -12,7 +12,9 @@ import java.util.stream.Collectors;
  *
  * @since 0.4
  */
-public class UTTypeUtils {
+public final class UTTypeUtils {
+	private UTTypeUtils() {}
+
 	/**
 	 * Creates a list of filters for all extensions of a {@link UTType}.
 	 *
