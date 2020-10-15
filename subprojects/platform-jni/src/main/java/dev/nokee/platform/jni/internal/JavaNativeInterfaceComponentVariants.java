@@ -1,11 +1,11 @@
 package dev.nokee.platform.jni.internal;
 
 import com.google.common.base.Preconditions;
-import dev.nokee.language.c.internal.CSourceSet;
-import dev.nokee.language.cpp.internal.CppSourceSet;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
-import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.cpp.CppSourceSet;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;

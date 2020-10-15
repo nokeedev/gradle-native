@@ -1,7 +1,6 @@
 package dev.nokee.language.base.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.model.DomainObjectIdentifier;
 import org.gradle.api.Action;
 import org.gradle.api.Buildable;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -9,26 +8,31 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
-import org.gradle.util.Configurable;
 
 import java.io.File;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class AbstractLanguageSourceSet<SELF extends LanguageSourceSet> implements LanguageSourceSet, Buildable {
+public abstract class AbstractLanguageSourceSet<SELF extends LanguageSourceSet> implements LanguageSourceSetInternal, Buildable {
+	private final LanguageSourceSetIdentifier<?> identifier;
 	private final Class<SELF> publicType;
 	private final ConfigurableFileCollection sources;
 	private final ConfigurableFileCollection sourceDirectories;
 	private final PatternSet patternSet = new PatternSet();
 
-	protected AbstractLanguageSourceSet(Class<SELF> publicType, ObjectFactory objects) {
+	protected AbstractLanguageSourceSet(LanguageSourceSetIdentifier<?> identifier, Class<SELF> publicType, ObjectFactory objects) {
+		this.identifier = identifier;
 		this.publicType = publicType;
 		this.sources = objects.fileCollection();
 		this.sourceDirectories = objects.fileCollection().from(sources.getElements().map(this::toSourceDirectories));
+	}
+
+	@Override
+	public LanguageSourceSetIdentifier<?> getIdentifier() {
+		return identifier;
 	}
 
 	@Override

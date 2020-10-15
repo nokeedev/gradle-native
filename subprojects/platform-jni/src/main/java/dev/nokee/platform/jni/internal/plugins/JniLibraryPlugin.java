@@ -2,15 +2,18 @@ package dev.nokee.platform.jni.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.language.base.internal.GeneratedSourceSet;
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.c.internal.CSourceSet;
-import dev.nokee.language.cpp.internal.CppHeaderSet;
-import dev.nokee.language.cpp.internal.CppSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetName;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.c.internal.CHeaderSetImpl;
+import dev.nokee.language.c.internal.CSourceSetImpl;
+import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.cpp.internal.CppSourceSetImpl;
+import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetImpl;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.ComponentContainer;
@@ -48,7 +51,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.gradle.api.*;
+import org.gradle.api.Action;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -174,7 +180,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 		extension.getVariants().configureEach(JniLibraryInternal.class, variant -> {
 			// Build all language source set
-			DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
+			val objectSourceSets = getObjects().domainObjectSet(ObjectSourceSet.class);
 			if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
 				objectSourceSets.addAll(new NativeLanguageRules(taskRegistry, objects, variant.getIdentifier()).apply(extension.getComponent().getSourceCollection()));
 			}
@@ -185,10 +191,10 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			variant.getSharedLibrary().getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
 				val taskInternal = (AbstractNativeCompileTask) task;
 				extension.getComponent().getSourceCollection().withType(CHeaderSet.class, sourceSet -> {
-					taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
+					taskInternal.getIncludes().from(sourceSet.getSourceDirectories());
 				});
 				extension.getComponent().getSourceCollection().withType(CppHeaderSet.class, sourceSet -> {
-					taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
+					taskInternal.getIncludes().from(sourceSet.getSourceDirectories());
 				});
 			});
 		});
@@ -197,19 +203,19 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(proj -> {
 			// Create source set on extension
 			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
-				extension.getComponent().getSourceCollection().add(getObjects().newInstance(CppSourceSet.class, "cpp").srcDir("src/main/cpp"));
+				extension.getComponent().getSourceCollection().add(new CppSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("cpp"), CppSourceSetImpl.class, extension.getComponent().getIdentifier()), objects).from("src/main/cpp"));
 			}
 			if (proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
-				extension.getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").srcDir("src/main/c"));
+				extension.getComponent().getSourceCollection().add(new CSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("c"), CSourceSetImpl.class, extension.getComponent().getIdentifier()), objects).from("src/main/c"));
 			}
 			if (proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
-				extension.getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").srcDir("src/main/objcpp"));
+				extension.getComponent().getSourceCollection().add(new ObjectiveCppSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objcpp"), ObjectiveCppSourceSetImpl.class, extension.getComponent().getIdentifier()), objects).from("src/main/objcpp"));
 			}
 			if (proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-				extension.getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/main/objc"));
+				extension.getComponent().getSourceCollection().add(new ObjectiveCSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objc"), ObjectiveCSourceSetImpl.class, extension.getComponent().getIdentifier()), objects).from("src/main/objc"));
 			}
 			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language") || proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language") || proj.getPluginManager().hasPlugin("dev.nokee.c-language") || proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-				extension.getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir("src/main/headers"));
+				extension.getComponent().getSourceCollection().add(new CHeaderSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, extension.getComponent().getIdentifier()), objects).from("src/main/headers"));
 			}
 
 			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
@@ -484,7 +490,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private void registerJvmHeaderSourceSet(JniLibraryExtensionInternal extension) {
-		extension.getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "jvm").srcDir(getJvmIncludes()));
+		extension.getComponent().getSourceCollection().add(new CHeaderSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("jvm"), CHeaderSetImpl.class, extension.getComponent().getIdentifier()), objects).from(getJvmIncludes()));
 	}
 
 	private Provider<List<File>> getJvmIncludes() {
@@ -521,7 +527,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			// See https://github.com/gradle/gradle/issues/12084.
 			task.getOptions().setIncremental(isGradleVersionGreaterOrEqualsTo6Dot3());
 		});
-		extension.getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "jni").srcDir(compileTask.flatMap(it -> it.getOptions().getHeaderOutputDirectory())));
+		extension.getComponent().getSourceCollection().add(new CHeaderSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("jni"), CHeaderSetImpl.class, extension.getComponent().getIdentifier()), objects).from(compileTask.flatMap(it -> it.getOptions().getHeaderOutputDirectory())));
 	}
 
 	private void configureJavaJniRuntime(Project project, JniLibraryExtensionInternal library) {

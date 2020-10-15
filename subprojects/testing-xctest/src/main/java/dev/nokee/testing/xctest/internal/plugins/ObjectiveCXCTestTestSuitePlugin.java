@@ -1,7 +1,9 @@
 package dev.nokee.testing.xctest.internal.plugins;
 
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetName;
+import dev.nokee.language.c.internal.CHeaderSetImpl;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
@@ -46,8 +48,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			val unitTestIdentifier = ComponentIdentifier.of(ComponentName.of("unitTest"), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
 			val unitTestComponent = store.register(unitTestIdentifier, DefaultUnitTestXCTestTestSuiteComponent.class, newUnitTestFactory(getObjects(), project));
 			unitTestComponent.configure(component -> {
-				component.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/unitTest/objc"));
-				component.getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir("src/unitTest/headers"));
+				component.getSourceCollection().add(new ObjectiveCSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objc"), ObjectiveCSourceSetImpl.class, component.getIdentifier()), objects).from("src/unitTest/objc"));
+				component.getSourceCollection().add(new CHeaderSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()), objects).from("src/unitTest/headers"));
 				component.getTestedComponent().value(application).disallowChanges();
 				component.getGroupId().set(GroupId.of(project::getGroup));
 				component.finalizeExtension(project);
@@ -58,8 +60,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			val uiTestIdentifier = ComponentIdentifier.of(ComponentName.of("uiTest"), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
 			val uiTestComponent = store.register(uiTestIdentifier, DefaultUiTestXCTestTestSuiteComponent.class, newUiTestFactory(getObjects(), project));
 			uiTestComponent.configure(component -> {
-				component.getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").srcDir("src/uiTest/objc"));
-				component.getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir("src/uiTest/headers"));
+				component.getSourceCollection().add(new ObjectiveCSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objc"), ObjectiveCSourceSetImpl.class, component.getIdentifier()), objects).from("src/uiTest/objc"));
+				component.getSourceCollection().add(new CHeaderSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()), objects).from("src/uiTest/headers"));
 				component.getTestedComponent().value(application).disallowChanges();
 				component.getGroupId().set(GroupId.of(project::getGroup));
 				component.finalizeExtension(project);

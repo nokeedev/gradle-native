@@ -1,18 +1,19 @@
 package dev.nokee.language.cpp.internal
 
 import dev.nokee.language.base.AbstractLanguageSourceSetTest
+import dev.nokee.language.cpp.CppHeaderSet
 import spock.lang.Subject
 
 @Subject(CppHeaderSetImpl)
-class CppHeaderSetImplTest extends AbstractLanguageSourceSetTest<dev.nokee.language.cpp.CppHeaderSet> {
+class CppHeaderSetImplTest extends AbstractLanguageSourceSetTest<CppHeaderSet> {
 	@Override
-	protected dev.nokee.language.cpp.CppHeaderSet newSubject() {
-		return new CppHeaderSetImpl(project.objects)
+	protected CppHeaderSet newSubject() {
+		return new CppHeaderSetImpl(newIdentifier(), project.objects)
 	}
 
 	@Override
-	protected Class<dev.nokee.language.cpp.CppHeaderSet> getPublicType() {
-		return dev.nokee.language.cpp.CppHeaderSet
+	protected Class<CppHeaderSet> getPublicType() {
+		return CppHeaderSet
 	}
 
 	@Override

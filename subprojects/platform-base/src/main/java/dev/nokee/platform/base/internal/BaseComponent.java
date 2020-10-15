@@ -1,6 +1,6 @@
 package dev.nokee.platform.base.internal;
 
-import dev.nokee.language.base.internal.SourceSet;
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Variant;
@@ -14,7 +14,7 @@ import org.gradle.api.provider.SetProperty;
 
 public abstract class BaseComponent<T extends Variant> {
 	@Getter private final ComponentIdentifier<?> identifier;
-	@Getter private final DomainObjectSet<SourceSet> sourceCollection;
+	@Getter private final DomainObjectSet<LanguageSourceSet> sourceCollection;
 
 	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
 	@Getter private final SetProperty<DimensionType> dimensions;
@@ -23,7 +23,7 @@ public abstract class BaseComponent<T extends Variant> {
 
 	protected BaseComponent(ComponentIdentifier<?> identifier, ObjectFactory objects) {
 		this.identifier = identifier;
-		this.sourceCollection = objects.domainObjectSet(SourceSet.class);
+		this.sourceCollection = objects.domainObjectSet(LanguageSourceSet.class);
 		this.dimensions = objects.setProperty(DimensionType.class);
 		this.baseName = objects.property(String.class);
 

@@ -1,5 +1,8 @@
 package dev.nokee.language.base
 
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier
+import dev.nokee.language.base.internal.LanguageSourceSetName
+import dev.nokee.model.internal.DomainObjectIdentifierInternal
 import org.apache.commons.lang3.RandomStringUtils
 import org.gradle.api.Action
 import org.gradle.api.Buildable
@@ -18,6 +21,10 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 
 	def setup() {
 		project = ProjectBuilder.builder().withProjectDir(temporaryFolder.root).build()
+	}
+
+	protected LanguageSourceSetIdentifier<T> newIdentifier() {
+		return LanguageSourceSetIdentifier.of(LanguageSourceSetName.of(newLowerCamelRandomString()), publicType, Stub(DomainObjectIdentifierInternal))
 	}
 
 	protected static String newLowerCamelRandomString() {

@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-	implementation project(':coreModel')
+	api project(':coreModel')
 	implementation "com.google.guava:guava:${guavaVersion}"
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"

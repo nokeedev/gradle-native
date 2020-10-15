@@ -1,18 +1,19 @@
 package dev.nokee.language.c.internal
 
 import dev.nokee.language.base.AbstractLanguageSourceSetTest
+import dev.nokee.language.c.CHeaderSet
 import spock.lang.Subject
 
 @Subject(CHeaderSetImpl)
-class CHeaderSetImplTest extends AbstractLanguageSourceSetTest<dev.nokee.language.c.CHeaderSet> {
+class CHeaderSetImplTest extends AbstractLanguageSourceSetTest<CHeaderSet> {
 	@Override
-	protected dev.nokee.language.c.CHeaderSet newSubject() {
-		return new CHeaderSetImpl(project.objects)
+	protected CHeaderSet newSubject() {
+		return new CHeaderSetImpl(newIdentifier(), project.objects)
 	}
 
 	@Override
-	protected Class<dev.nokee.language.c.CHeaderSet> getPublicType() {
-		return dev.nokee.language.c.CHeaderSet
+	protected Class<CHeaderSet> getPublicType() {
+		return CHeaderSet
 	}
 
 	@Override

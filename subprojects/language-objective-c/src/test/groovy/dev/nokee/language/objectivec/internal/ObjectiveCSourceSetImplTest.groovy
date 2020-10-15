@@ -1,18 +1,19 @@
 package dev.nokee.language.objectivec.internal
 
 import dev.nokee.language.base.AbstractLanguageSourceSetTest
+import dev.nokee.language.objectivec.ObjectiveCSourceSet
 import spock.lang.Subject
 
 @Subject(ObjectiveCSourceSetImpl)
-class ObjectiveCSourceSetImplTest extends AbstractLanguageSourceSetTest<dev.nokee.language.objectivec.ObjectiveCSourceSet> {
+class ObjectiveCSourceSetImplTest extends AbstractLanguageSourceSetTest<ObjectiveCSourceSet> {
 	@Override
-	protected dev.nokee.language.objectivec.ObjectiveCSourceSet newSubject() {
-		return new ObjectiveCSourceSetImpl(project.objects)
+	protected ObjectiveCSourceSet newSubject() {
+		return new ObjectiveCSourceSetImpl(newIdentifier(), project.objects)
 	}
 
 	@Override
-	protected Class<dev.nokee.language.objectivec.ObjectiveCSourceSet> getPublicType() {
-		return dev.nokee.language.objectivec.ObjectiveCSourceSet
+	protected Class<ObjectiveCSourceSet> getPublicType() {
+		return ObjectiveCSourceSet
 	}
 
 	@Override

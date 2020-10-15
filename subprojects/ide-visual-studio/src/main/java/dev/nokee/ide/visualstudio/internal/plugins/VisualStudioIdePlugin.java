@@ -5,9 +5,9 @@ import dev.nokee.ide.base.internal.*;
 import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.visualstudio.*;
 import dev.nokee.ide.visualstudio.internal.*;
-import dev.nokee.language.base.internal.SourceSet;
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.cpp.internal.CppHeaderSet;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
@@ -102,9 +102,9 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 			task.getProjectLocation().set(projectLocation);
 		});
 
-		visualStudioProject.getSourceFiles().from(getProviders().provider(() -> component.getSourceCollection().stream().filter(it -> !(it instanceof CHeaderSet || it instanceof CppHeaderSet)).map(SourceSet::getAsFileTree).collect(Collectors.toList())));
+		visualStudioProject.getSourceFiles().from(getProviders().provider(() -> component.getSourceCollection().stream().filter(it -> !(it instanceof CHeaderSet || it instanceof CppHeaderSet)).map(LanguageSourceSet::getAsFileTree).collect(Collectors.toList())));
 
-		visualStudioProject.getHeaderFiles().from(getProviders().provider(() -> component.getSourceCollection().stream().filter(it -> it instanceof CHeaderSet || it instanceof CppHeaderSet).map(SourceSet::getAsFileTree).collect(Collectors.toList())));
+		visualStudioProject.getHeaderFiles().from(getProviders().provider(() -> component.getSourceCollection().stream().filter(it -> it instanceof CHeaderSet || it instanceof CppHeaderSet).map(LanguageSourceSet::getAsFileTree).collect(Collectors.toList())));
 
 		val buildTypes = component.getBuildVariants().get().stream().map(b -> b.getAxisValue(BaseTargetBuildType.DIMENSION_TYPE)).collect(Collectors.toSet()); // TODO Maybe use linkedhashset to keep the ordering
 		for (TargetBuildType buildType : buildTypes) {

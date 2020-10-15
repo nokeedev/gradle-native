@@ -1,18 +1,19 @@
 package dev.nokee.language.swift.internal
 
 import dev.nokee.language.base.AbstractLanguageSourceSetTest
+import dev.nokee.language.swift.SwiftSourceSet
 import spock.lang.Subject
 
 @Subject(SwiftSourceSetImpl)
-class SwiftSourceSetImplTest extends AbstractLanguageSourceSetTest<dev.nokee.language.swift.SwiftSourceSet> {
+class SwiftSourceSetImplTest extends AbstractLanguageSourceSetTest<SwiftSourceSet> {
 	@Override
-	protected dev.nokee.language.swift.SwiftSourceSet newSubject() {
-		return new SwiftSourceSetImpl(project.objects)
+	protected SwiftSourceSet newSubject() {
+		return new SwiftSourceSetImpl(newIdentifier(), project.objects)
 	}
 
 	@Override
-	protected Class<dev.nokee.language.swift.SwiftSourceSet> getPublicType() {
-		return dev.nokee.language.swift.SwiftSourceSet
+	protected Class<SwiftSourceSet> getPublicType() {
+		return SwiftSourceSet
 	}
 
 	@Override

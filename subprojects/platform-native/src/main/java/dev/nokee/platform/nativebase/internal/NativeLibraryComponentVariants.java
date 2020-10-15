@@ -1,9 +1,11 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.base.Preconditions;
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.cpp.internal.CppHeaderSet;
-import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetInternal;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.cpp.CppSourceSet;
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.internal.*;
@@ -124,13 +126,11 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 					return one(result);
 				}));
 			}
-			component.getSourceCollection().matching(it -> (it instanceof CHeaderSet || it instanceof CppHeaderSet) && it.getName().equals("public")).configureEach(sourceSet -> {
+			component.getSourceCollection().withType(LanguageSourceSetInternal.class).matching(it -> (it instanceof CHeaderSet || it instanceof CppHeaderSet) && it.getIdentifier().getName().get().equals("public")).configureEach(sourceSet -> {
 				// TODO: Allow to export more than one folder
 				File directory = null;
-				if (sourceSet instanceof CHeaderSet) {
-					directory = ((CHeaderSet) sourceSet).getHeaderDirectory();
-				} else if (sourceSet instanceof CppHeaderSet) {
-					directory = ((CppHeaderSet) sourceSet).getHeaderDirectory();
+				if (sourceSet instanceof CHeaderSet || sourceSet instanceof CppSourceSet) {
+					directory = sourceSet.getSourceDirectories().getSingleFile();
 				}
 
 				dependencies.getOutgoing().getExportedHeaders().fileValue(directory);

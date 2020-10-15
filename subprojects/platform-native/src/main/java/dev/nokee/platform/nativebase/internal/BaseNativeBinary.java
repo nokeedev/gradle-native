@@ -3,12 +3,12 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
-import dev.nokee.language.base.internal.GeneratedSourceSet;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.c.tasks.CCompile;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.cpp.tasks.CppCompile;
+import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
@@ -65,7 +65,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	private final ToolChainSelectorInternal toolChainSelector;
 	@Getter protected final BinaryIdentifier<?> identifier;
 	protected final TaskView<Task> compileTasks; // Until the compile tasks is clean up
-	private final DomainObjectSet<GeneratedSourceSet> objectSourceSets;
+	private final DomainObjectSet<ObjectSourceSet> objectSourceSets;
 	@Getter private final DefaultTargetMachine targetMachine;
 	@Getter private final NativeIncomingDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
@@ -74,10 +74,9 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter private final Property<String> baseName;
 
-	public BaseNativeBinary(BinaryIdentifier<?> identifier, DomainObjectSet<GeneratedSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskViewFactory taskViewFactory) {
+	public BaseNativeBinary(BinaryIdentifier<?> identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskViewFactory taskViewFactory) {
 		this.identifier = identifier;
 		this.compileTasks = taskViewFactory.create(identifier.getOwnerIdentifier(), Task.class);
-//		this.compileTasks = objects.newInstance(DefaultTaskView.class, Task.class, objectSourceSets.stream().map(GeneratedSourceSet::getGeneratedByTask).collect(Collectors.toList()), Realizable.IDENTITY);
 		this.objectSourceSets = objectSourceSets;
 		this.targetMachine = targetMachine;
 		this.dependencies = dependencies;
@@ -272,7 +271,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	}
 
 	public Object getObjectFiles() {
-		Optional<Object> result = objectSourceSets.stream().map(GeneratedSourceSet::getAsFileTree).reduce(FileTree::plus).map(it -> it);
+		Optional<Object> result = objectSourceSets.stream().map(ObjectSourceSet::getAsFileTree).reduce(FileTree::plus).map(it -> it);
 		return result.orElseGet(() -> ImmutableList.of());
 	}
 

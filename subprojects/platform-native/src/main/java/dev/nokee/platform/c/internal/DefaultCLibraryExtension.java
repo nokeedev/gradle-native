@@ -1,7 +1,9 @@
 package dev.nokee.platform.c.internal;
 
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.c.internal.CSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetName;
+import dev.nokee.language.c.internal.CHeaderSetImpl;
+import dev.nokee.language.c.internal.CSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.c.CLibraryExtension;
@@ -24,7 +26,6 @@ import org.gradle.api.provider.SetProperty;
 import javax.inject.Inject;
 
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
-import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
 
 public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements CLibraryExtension, Component {
 	private final ConfigurableFileCollection cSources;
@@ -44,9 +45,9 @@ public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeL
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
 
-		getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").from(cSources.getElements().map(toIfEmpty("src/main/c"))));
-		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
-		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "public").srcDir(getPublicHeaders().getElements().map(toIfEmpty("src/main/public"))));
+		getComponent().getSourceCollection().add(new CSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("c"), CSourceSetImpl.class, component.getIdentifier()), objects).from(cSources.getElements().map(toIfEmpty("src/main/c"))));
+		getComponent().getSourceCollection().add(new CHeaderSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()), objects).from(privateHeaders.getElements().map(toIfEmpty("src/main/headers"))));
+		getComponent().getSourceCollection().add(new CHeaderSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("public"), CHeaderSetImpl.class, component.getIdentifier()), objects).from(publicHeaders.getElements().map(toIfEmpty("src/main/public"))));
 	}
 
 	public void setTargetMachines(Object value) {

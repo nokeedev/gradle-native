@@ -1,6 +1,8 @@
 package dev.nokee.platform.ios.internal;
 
-import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetName;
+import dev.nokee.language.swift.internal.SwiftSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.ios.IosApplication;
@@ -16,7 +18,7 @@ public class DefaultSwiftIosApplicationExtension extends BaseIosExtension<Defaul
 	@Inject
 	public DefaultSwiftIosApplicationExtension(DefaultIosApplicationComponent component, ObjectFactory objects, ProviderFactory providers) {
 		super(component, objects, providers);
-		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").srcDir("src/main/swift"));
+		getComponent().getSourceCollection().add(new SwiftSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("swift"), SwiftSourceSetImpl.class, component.getIdentifier()), objects).from("src/main/swift"));
 	}
 
 	@Override

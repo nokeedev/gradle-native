@@ -1,7 +1,7 @@
 package dev.nokee.language.base.internal;
 
-import org.gradle.api.file.ConfigurableFileCollection;
+import dev.nokee.language.base.LanguageSourceSet;
 
-public abstract class LanguageSourceSetInternal {
-	public abstract ConfigurableFileCollection getSource();
+public interface LanguageSourceSetInternal extends LanguageSourceSet {
+	LanguageSourceSetIdentifier<?> getIdentifier();
 }

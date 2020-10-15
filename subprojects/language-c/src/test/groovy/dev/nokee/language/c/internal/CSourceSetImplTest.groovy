@@ -1,18 +1,19 @@
 package dev.nokee.language.c.internal
 
 import dev.nokee.language.base.AbstractLanguageSourceSetTest
+import dev.nokee.language.c.CSourceSet
 import spock.lang.Subject
 
 @Subject(CSourceSetImpl)
-class CSourceSetImplTest extends AbstractLanguageSourceSetTest<dev.nokee.language.c.CSourceSet> {
+class CSourceSetImplTest extends AbstractLanguageSourceSetTest<CSourceSet> {
 	@Override
-	protected dev.nokee.language.c.CSourceSet newSubject() {
-		return new CSourceSetImpl(project.objects)
+	protected CSourceSet newSubject() {
+		return new CSourceSetImpl(newIdentifier(), project.objects)
 	}
 
 	@Override
-	protected Class<dev.nokee.language.c.CSourceSet> getPublicType() {
-		return dev.nokee.language.c.CSourceSet
+	protected Class<CSourceSet> getPublicType() {
+		return CSourceSet
 	}
 
 	@Override

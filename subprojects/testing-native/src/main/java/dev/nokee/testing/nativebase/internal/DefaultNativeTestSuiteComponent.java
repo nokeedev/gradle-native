@@ -1,13 +1,15 @@
 package dev.nokee.testing.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.language.base.internal.BaseSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetInternal;
+import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.language.base.internal.UTTypeUtils;
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.cpp.internal.CppHeaderSet;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
-import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.Binary;
@@ -59,6 +61,8 @@ import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
 
 import javax.inject.Inject;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -204,14 +208,15 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 				return it + StringUtils.capitalize(getIdentifier().getName().get());
 			}));
 
-			component.getSourceCollection().withType(BaseSourceSet.class).configureEach(sourceSet -> {
+			component.getSourceCollection().withType(LanguageSourceSetInternal.class).configureEach(sourceSet -> {
 				if (getSourceCollection().withType(sourceSet.getClass()).isEmpty()) {
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
 					if (sourceSet instanceof CHeaderSet || sourceSet instanceof CppHeaderSet) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
-						getSourceCollection().add(objects.newInstance(sourceSet.getClass(), "headers").srcDir("src/" + getIdentifier().getName().get() + "/headers"));
+
+						getSourceCollection().add(newSourceSet(sourceSet.getClass(), LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), sourceSet.getClass(), component.getIdentifier())).from("src/" + getIdentifier().getName().get() + "/headers"));
 					} else {
-						getSourceCollection().add(objects.newInstance(sourceSet.getClass(), sourceSet.getName()).from("src/" + getIdentifier().getName().get() + "/" + sourceSet.getName()));
+						getSourceCollection().add(newSourceSet(sourceSet.getClass(), LanguageSourceSetIdentifier.of(sourceSet.getIdentifier().getName(), sourceSet.getClass(), component.getIdentifier())).from("src/" + getIdentifier().getName().get() + "/" + sourceSet.getIdentifier().getName().get()));
 					}
 				}
 			});
@@ -278,10 +283,20 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					task.getModules().from(component.getDevelopmentVariant().map(it -> it.getBinaries().withType(NativeBinary.class).getElements().get().stream().flatMap(b -> b.getCompileTasks().withType(SwiftCompileTask.class).get().stream()).map(SwiftCompile::getModuleFile).collect(Collectors.toList())));
 				});
 				binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
-					((AbstractNativeSourceCompileTask)task).getIncludes().from(providers.provider(() -> component.getSourceCollection().withType(CppHeaderSet.class).stream().map(CppHeaderSet::getHeaderDirectory).collect(Collectors.toList())));
-					((AbstractNativeSourceCompileTask)task).getIncludes().from(providers.provider(() -> component.getSourceCollection().withType(CHeaderSet.class).stream().map(CHeaderSet::getHeaderDirectory).collect(Collectors.toList())));
+					((AbstractNativeSourceCompileTask)task).getIncludes().from(providers.provider(() -> component.getSourceCollection().withType(CppHeaderSet.class).stream().map(CppHeaderSet::getSourceDirectories).collect(Collectors.toList())));
+					((AbstractNativeSourceCompileTask)task).getIncludes().from(providers.provider(() -> component.getSourceCollection().withType(CHeaderSet.class).stream().map(CHeaderSet::getSourceDirectories).collect(Collectors.toList())));
 				});
 			});
+		}
+	}
+
+	LanguageSourceSetInternal newSourceSet(Class<? extends LanguageSourceSetInternal> implementationType, LanguageSourceSetIdentifier<?> identifier) {
+		Constructor<? extends LanguageSourceSetInternal> constructor = null;
+		try {
+			constructor = implementationType.getConstructor(LanguageSourceSetIdentifier.class, ObjectFactory.class);
+			return constructor.newInstance(identifier, objects);
+		} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }

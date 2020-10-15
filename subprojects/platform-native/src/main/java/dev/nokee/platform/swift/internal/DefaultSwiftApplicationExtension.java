@@ -1,6 +1,8 @@
 package dev.nokee.platform.swift.internal;
 
-import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetName;
+import dev.nokee.language.swift.internal.SwiftSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -22,7 +24,6 @@ import org.gradle.api.provider.SetProperty;
 import javax.inject.Inject;
 
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
-import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
 
 public class DefaultSwiftApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements SwiftApplicationExtension, Component {
 	@Getter private final ConfigurableFileCollection swiftSources;
@@ -36,7 +37,7 @@ public class DefaultSwiftApplicationExtension extends BaseNativeExtension<Defaul
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
 
-		getComponent().getSourceCollection().add(getObjects().newInstance(SwiftSourceSet.class, "swift").from(this.getSwiftSources().getElements().map(toIfEmpty("src/main/swift"))));
+		getComponent().getSourceCollection().add(new SwiftSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("swift"), SwiftSourceSetImpl.class, component.getIdentifier()), objects).from(swiftSources.getElements().map(toIfEmpty("src/main/swift"))));
 	}
 
 	public void setTargetMachines(Object value) {

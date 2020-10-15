@@ -1,7 +1,9 @@
 package dev.nokee.platform.objectivecpp.internal;
 
-import dev.nokee.language.cpp.internal.CppHeaderSet;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetName;
+import dev.nokee.language.cpp.internal.CppHeaderSetImpl;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -23,7 +25,6 @@ import org.gradle.api.provider.SetProperty;
 import javax.inject.Inject;
 
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
-import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
 
 public class DefaultObjectiveCppApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCppApplicationExtension, Component {
 	@Getter private final ConfigurableFileCollection objectiveCppSources;
@@ -39,8 +40,8 @@ public class DefaultObjectiveCppApplicationExtension extends BaseNativeExtension
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
 
-		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").from(this.getObjectiveCppSources().getElements().map(toIfEmpty("src/main/objcpp"))));
-		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
+		getComponent().getSourceCollection().add(new ObjectiveCppSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objcpp"), ObjectiveCppSourceSetImpl.class, component.getIdentifier()), objects).from(objectiveCppSources.getElements().map(toIfEmpty("src/main/objcpp"))));
+		getComponent().getSourceCollection().add(new CppHeaderSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CppHeaderSetImpl.class, component.getIdentifier()), objects).from(privateHeaders.getElements().map(toIfEmpty("src/main/headers"))));
 	}
 
 	public void setTargetMachines(Object value) {
