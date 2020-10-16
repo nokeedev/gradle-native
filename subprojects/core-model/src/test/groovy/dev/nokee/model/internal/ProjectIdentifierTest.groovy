@@ -1,10 +1,11 @@
-package dev.nokee.platform.base.internal
+package dev.nokee.model.internal
 
+import dev.nokee.model.internal.ProjectIdentifier
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static dev.nokee.platform.base.internal.ProjectIdentifier.of
+import static dev.nokee.model.internal.ProjectIdentifier.of
 
 @Subject(ProjectIdentifier)
 class ProjectIdentifierTest extends Specification {

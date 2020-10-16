@@ -1,11 +1,11 @@
 package dev.nokee.platform.ios.internal.plugins;
 
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DomainObjectStore;
 import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.plugins.*;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;

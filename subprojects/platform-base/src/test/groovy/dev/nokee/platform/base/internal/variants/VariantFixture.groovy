@@ -5,7 +5,6 @@ import dev.nokee.model.internal.*
 import dev.nokee.platform.base.*
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
-import dev.nokee.platform.base.internal.ProjectIdentifier
 import dev.nokee.platform.base.internal.VariantIdentifier
 import org.apache.commons.lang3.RandomStringUtils
 import org.gradle.api.provider.Provider

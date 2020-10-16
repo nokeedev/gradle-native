@@ -2,7 +2,11 @@ package dev.nokee.platform.base.internal.plugins;
 
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
-import dev.nokee.platform.base.internal.variants.*;
+import dev.nokee.model.internal.plugins.ModelBasePlugin;
+import dev.nokee.platform.base.internal.variants.KnownVariantFactory;
+import dev.nokee.platform.base.internal.variants.VariantConfigurer;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

@@ -1,9 +1,10 @@
 package dev.nokee.platform.base.internal.plugins;
 
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
+import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.components.*;
 import lombok.val;
 import org.gradle.api.Plugin;

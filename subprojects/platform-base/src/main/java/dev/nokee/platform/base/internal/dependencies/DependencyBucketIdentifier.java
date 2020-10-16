@@ -4,7 +4,7 @@ import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.ProjectIdentifier;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.Value;
 import lombok.val;

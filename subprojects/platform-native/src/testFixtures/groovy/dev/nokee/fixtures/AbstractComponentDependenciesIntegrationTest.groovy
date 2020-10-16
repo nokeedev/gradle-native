@@ -4,7 +4,7 @@ import dev.nokee.model.internal.DomainObjectIdentifierInternal
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
-import dev.nokee.platform.base.internal.ProjectIdentifier
+import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.internal.VariantIdentifier
 import dev.nokee.runtime.nativebase.internal.LibraryElements
 import org.gradle.api.Action

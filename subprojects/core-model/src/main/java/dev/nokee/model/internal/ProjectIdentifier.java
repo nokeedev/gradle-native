@@ -1,6 +1,5 @@
-package dev.nokee.platform.base.internal;
+package dev.nokee.model.internal;
 
-import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.gradle.api.Project;
@@ -21,7 +20,7 @@ public final class ProjectIdentifier implements DomainObjectIdentifierInternal {
 		return path.getName();
 	}
 
-	Path getPath() {
+	public Path getPath() {
 		return path;
 	}
 

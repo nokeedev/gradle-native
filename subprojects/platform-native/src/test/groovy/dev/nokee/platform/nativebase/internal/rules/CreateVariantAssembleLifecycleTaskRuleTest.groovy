@@ -1,5 +1,6 @@
 package dev.nokee.platform.nativebase.internal.rules
 
+import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.*

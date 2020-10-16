@@ -5,7 +5,6 @@ import dev.nokee.model.internal.*
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
-import dev.nokee.platform.base.internal.ProjectIdentifier
 import org.apache.commons.lang3.RandomStringUtils
 
 trait ComponentFixture {

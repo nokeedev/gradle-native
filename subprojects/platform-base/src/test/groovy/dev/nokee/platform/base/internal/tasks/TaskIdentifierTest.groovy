@@ -5,7 +5,7 @@ import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
-import dev.nokee.platform.base.internal.ProjectIdentifier
+import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.internal.VariantIdentifier
 import org.gradle.api.Task
 import spock.lang.Specification

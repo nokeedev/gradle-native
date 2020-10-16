@@ -16,6 +16,7 @@ import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetImpl;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;

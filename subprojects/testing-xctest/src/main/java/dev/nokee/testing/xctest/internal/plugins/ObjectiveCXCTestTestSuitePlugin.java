@@ -4,6 +4,7 @@ import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.language.c.internal.CHeaderSetImpl;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;

@@ -3,7 +3,7 @@ package dev.nokee.platform.nativebase.internal.rules
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
-import dev.nokee.platform.base.internal.ProjectIdentifier
+import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier
 import dev.nokee.platform.base.internal.tasks.TaskName
