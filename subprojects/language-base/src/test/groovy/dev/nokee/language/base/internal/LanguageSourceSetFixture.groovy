@@ -37,7 +37,7 @@ trait LanguageSourceSetFixture {
 		return LanguageSourceSetImpl
 	}
 
-	def <S extends LanguageSourceSet> TypeAwareDomainObjectIdentifier<S> entityIdentifier(Class<S> type, DomainObjectIdentifier owner) {
+	def <S extends LanguageSourceSet> LanguageSourceSetIdentifier<S> entityIdentifier(Class<S> type, DomainObjectIdentifier owner) {
 		return LanguageSourceSetIdentifier.of(LanguageSourceSetName.of('a' + RandomStringUtils.randomAlphanumeric(12)), type, owner)
 	}
 
