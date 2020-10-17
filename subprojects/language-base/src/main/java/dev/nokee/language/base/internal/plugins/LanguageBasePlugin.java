@@ -28,7 +28,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		val knownLanguageSourceSetFactory = new KnownLanguageSourceSetFactory(() -> languageSourceSetRepository, () -> project.getExtensions().getByType(LanguageSourceSetConfigurer.class));
 		project.getExtensions().add(KnownLanguageSourceSetFactory.class, "__NOKEE_knownLanguageSourceSetFactory", knownLanguageSourceSetFactory);
 
-		val languageSourceSetViewFactory = new LanguageSourceSetViewFactory(languageSourceSetRepository, languageSourceSetConfigurer);
+		val languageSourceSetViewFactory = new LanguageSourceSetViewFactory(languageSourceSetRepository, languageSourceSetConfigurer, knownLanguageSourceSetFactory);
 		project.getExtensions().add(LanguageSourceSetViewFactory.class, "__NOKEE_languageSourceSetViewFactory", languageSourceSetViewFactory);
 	}
 }

@@ -22,7 +22,7 @@ trait LanguageSourceSetFixture {
 	}
 
     DomainObjectViewFactory<LanguageSourceSet> newEntityViewFactory() {
-		return new LanguageSourceSetViewFactory(entityRepository, entityConfigurer)
+		return new LanguageSourceSetViewFactory(entityRepository, entityConfigurer, newEntityFactory())
 	}
 
 	DomainObjectProviderFactory<LanguageSourceSet> newEntityProviderFactory() {

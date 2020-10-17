@@ -9,8 +9,9 @@ import static java.util.Objects.requireNonNull;
 public final class LanguageSourceSetViewFactory extends AbstractDomainObjectViewFactory<LanguageSourceSet> {
 	private final LanguageSourceSetRepository repository;
 	private final LanguageSourceSetConfigurer configurer;
+	private final KnownLanguageSourceSetFactory knownFactory;
 
-	public LanguageSourceSetViewFactory(LanguageSourceSetRepository repository, LanguageSourceSetConfigurer configurer) {
+	public LanguageSourceSetViewFactory(LanguageSourceSetRepository repository, LanguageSourceSetConfigurer configurer, KnownLanguageSourceSetFactory knownFactory) {
 		super(LanguageSourceSet.class);
 		this.repository = repository;
 		this.configurer = configurer;
@@ -18,6 +19,6 @@ public final class LanguageSourceSetViewFactory extends AbstractDomainObjectView
 
 	@Override
 	public <S extends LanguageSourceSet> LanguageSourceSetViewImpl<S> create(DomainObjectIdentifier viewOwner, Class<S> elementType) {
-		return new LanguageSourceSetViewImpl<>(requireNonNull(viewOwner), elementType, repository, configurer, this);
+		return new LanguageSourceSetViewImpl<>(requireNonNull(viewOwner), elementType, repository, configurer, this, knownFactory);
 	}
 }
