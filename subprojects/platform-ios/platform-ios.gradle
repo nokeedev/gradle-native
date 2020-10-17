@@ -57,6 +57,7 @@ functionalTest {
 		pluginUnderTestMetadata project(':coreExec')
 		implementation testFixtures(project(':platformBase'))
 		implementation testFixtures(project(':platformNative'))
-		implementation testFixtures(project(':languageNative'))
+		implementation testFixtures(project(':languageObjectiveC'))
+		implementation testFixtures(project(':languageSwift'))
 	}
 }

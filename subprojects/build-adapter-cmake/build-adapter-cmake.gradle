@@ -39,6 +39,6 @@ functionalTest {
 		implementation project(':platformNative')
 		implementation project(':testingBase')
 		implementation 'dev.nokee:templates:latest.integration'
-		implementation testFixtures(project(':languageNative'))
+		implementation testFixtures(project(':languageCpp'))
 	}
 }

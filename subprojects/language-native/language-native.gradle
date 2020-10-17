@@ -24,21 +24,5 @@ dependencies {
 
 gradlePlugin {
 	plugins {
-		cppLanguage {
-			id = 'dev.nokee.cpp-language'
-			implementationClass = 'dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin'
-		}
-		cLanguage {
-			id = 'dev.nokee.c-language'
-			implementationClass = 'dev.nokee.language.c.internal.plugins.CLanguagePlugin'
-		}
-		objectiveCLanguage {
-			id = 'dev.nokee.objective-c-language'
-			implementationClass = 'dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin'
-		}
-		objectiveCppLanguage {
-			id = 'dev.nokee.objective-cpp-language'
-			implementationClass = 'dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin'
-		}
 	}
 }

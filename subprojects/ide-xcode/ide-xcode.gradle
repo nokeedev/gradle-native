@@ -52,7 +52,11 @@ functionalTest {
 		implementation project(':platformJni')
 		implementation 'com.googlecode.plist:dd-plist:1.23'
 		implementation 'dev.nokee:templates:latest.integration'
-		implementation testFixtures(project(':languageNative'))
+		implementation testFixtures(project(':languageC'))
+		implementation testFixtures(project(':languageCpp'))
+		implementation testFixtures(project(':languageObjectiveC'))
+		implementation testFixtures(project(':languageObjectiveCpp'))
+		implementation testFixtures(project(':languageSwift'))
 		implementation testFixtures(project(':platformBase'))
 		implementation gradleApi(minimumGradleVersion)
 		implementation project(':platformNative')
