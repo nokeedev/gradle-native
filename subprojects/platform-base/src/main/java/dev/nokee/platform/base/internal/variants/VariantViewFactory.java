@@ -19,7 +19,7 @@ public final class VariantViewFactory extends AbstractDomainObjectViewFactory<Va
 	}
 
 	@Override
-	public <S extends Variant> VariantViewInternal<S> create(DomainObjectIdentifier viewOwner, Class<S> elementType) {
+	public <S extends Variant> VariantViewImpl<S> create(DomainObjectIdentifier viewOwner, Class<S> elementType) {
 		return new VariantViewImpl<>(requireNonNull(viewOwner), elementType, repository, configurer, this, knownObjectFactory);
 	}
 }
