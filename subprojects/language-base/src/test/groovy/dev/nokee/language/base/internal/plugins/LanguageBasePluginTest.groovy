@@ -11,7 +11,7 @@ import spock.lang.Specification
 class LanguageBasePluginTest extends Specification {
 	def project = ProjectBuilder.builder().build()
 
-	def "registers binary configurer service"() {
+	def "registers configurer service"() {
 		when:
 		project.apply plugin: LanguageBasePlugin
 
@@ -19,7 +19,7 @@ class LanguageBasePluginTest extends Specification {
 		project.extensions.findByType(LanguageSourceSetConfigurer) != null
 	}
 
-	def "registers binary repository service"() {
+	def "registers repository service"() {
 		when:
 		project.apply plugin: LanguageBasePlugin
 
@@ -27,7 +27,7 @@ class LanguageBasePluginTest extends Specification {
 		project.extensions.findByType(LanguageSourceSetRepository) != null
 	}
 
-	def "registers binary view factory"() {
+	def "registers view factory"() {
 		when:
 		project.apply plugin: LanguageBasePlugin
 
@@ -35,7 +35,7 @@ class LanguageBasePluginTest extends Specification {
 		project.extensions.findByType(LanguageSourceSetViewFactory) != null
 	}
 
-	def "registers known binary factory"() {
+	def "registers known factory"() {
 		when:
 		project.apply plugin: LanguageBasePlugin
 
