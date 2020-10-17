@@ -9,6 +9,8 @@ import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPl
 public class CLanguagePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
+		project.getPluginManager().apply(CLanguageBasePlugin.class);
+
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 		project.getPluginManager().apply(NativePlatformCapabilitiesMarkerPlugin.class);
 		project.getPluginManager().apply(DomainKnowledgeToolchainsRules.class);

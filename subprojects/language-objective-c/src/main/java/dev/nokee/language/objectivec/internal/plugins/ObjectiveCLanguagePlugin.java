@@ -8,6 +8,8 @@ import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPl
 public class ObjectiveCLanguagePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
+		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
+
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 		project.getPluginManager().apply(NativePlatformCapabilitiesMarkerPlugin.class);
 	}
