@@ -353,6 +353,53 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 	}
 	//endregion
 
+	//region from(non-existent directory)
+	def "can add non-existent directory to source set"() {
+		given:
+		def subject = newSubject()
+		def dir = project.file('src/main/headers')
+
+		when:
+		subject.from(dir)
+
+		then:
+		subject.asFileTree.files == [] as Set
+		subject.sourceDirectories.files == [dir] as Set
+		subject.sourceDirectories.singleFile == dir
+	}
+	//endregion
+
+	//region convention(file tree with non-existent base directory)
+	def "can set convention to non-existent directory to source set"() {
+		given:
+		def subject = newSubject()
+		def dir = project.file('src/main/headers')
+
+		when:
+		subject.convention(project.fileTree(dir))
+
+		then:
+		subject.asFileTree.files == [] as Set
+		subject.sourceDirectories.files == [dir] as Set
+		subject.sourceDirectories.singleFile == dir
+	}
+
+	def "can set convention to file collection of non-existant base directory file tree to source set"() {
+		given:
+		def subject = newSubject()
+		def dir1 = project.file('src/main/headers')
+		def dir2 = project.file('src/main/public')
+
+		when:
+		subject.convention(project.files(dir1, dir2))
+
+		then:
+		subject.asFileTree.files == [] as Set
+		subject.sourceDirectories.files == [dir1, dir2] as Set
+//		subject.sourceDirectories.singleFile == dir
+	}
+	//endregion
+
 	//region from(file collection)
 	def "can add file collection to source set"() {
 		given:
@@ -412,6 +459,109 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		then:
 		subject.asFileTree.files == [file1] as Set
 		subject.sourceDirectories.files == [temporaryFolder.root] as Set
+	}
+	//endregion
+
+	//region convention(file tree)
+	def "can configure source set convention"() {
+		given:
+		def subject = newSubject()
+
+		and:
+		def rootDirectory = temporaryFolder.newFolder('root')
+		def file1 = temporaryFolder.newFile(fileName('root/foo'))
+		def file2 = temporaryFolder.newFile(fileName('root/bar'))
+
+		and:
+		def files = project.fileTree(dir: rootDirectory)
+
+		when:
+		subject.convention(files)
+
+		then:
+		subject.asFileTree.files == [file1, file2] as Set
+		subject.sourceDirectories.files == [rootDirectory] as Set
+	}
+
+	def "can configure source set convention with include filter"() {
+		given:
+		def subject = newSubject()
+
+		and:
+		def rootDirectory = temporaryFolder.newFolder('root')
+		def file1 = temporaryFolder.newFile(fileName('root/foo'))
+		def file2 = temporaryFolder.newFile(fileName('root/bar'))
+
+		and:
+		def files = project.fileTree(dir: rootDirectory, includes: [fileName('foo')])
+
+		when:
+		subject.convention(files)
+
+		then:
+		subject.asFileTree.files == [file1] as Set
+		subject.sourceDirectories.files == [rootDirectory] as Set
+	}
+
+	def "can configure source set convention with exclude filter"() {
+		given:
+		def subject = newSubject()
+
+		and:
+		def rootDirectory = temporaryFolder.newFolder('root')
+		def file1 = temporaryFolder.newFile(fileName('root/foo'))
+		def file2 = temporaryFolder.newFile(fileName('root/bar'))
+
+		and:
+		def files = project.fileTree(dir: rootDirectory, excludes: [fileName('foo')])
+
+		when:
+		subject.convention(files)
+
+		then:
+		subject.asFileTree.files == [file2] as Set
+		subject.sourceDirectories.files == [rootDirectory] as Set
+	}
+
+	def "can configure global source set filter with convention"() {
+		given:
+		def subject = newSubject()
+
+		and:
+		def rootDirectory = temporaryFolder.newFolder('root')
+		def file1 = temporaryFolder.newFile(fileName('root/foo'))
+		def file2 = temporaryFolder.newFile(fileName('root/bar'))
+
+		and:
+		def files = project.fileTree(dir: rootDirectory)
+
+		when:
+		subject.convention(files).filter { it.exclude(fileName('bar')) }
+
+		then:
+		subject.asFileTree.files == [file1] as Set
+		subject.sourceDirectories.files == [rootDirectory] as Set
+	}
+
+	def "overwrite convention when from-ing"() {
+		given:
+		def subject = newSubject()
+
+		and:
+		def rootDirectory1 = temporaryFolder.newFolder('a')
+		def file1 = temporaryFolder.newFile(fileName('a/foo'))
+		def file2 = temporaryFolder.newFile(fileName('a/bar'))
+		def rootDirectory2 = temporaryFolder.newFolder('b')
+		def file3 = temporaryFolder.newFile(fileName('b/foo'))
+		def file4 = temporaryFolder.newFile(fileName('b/bar'))
+
+		when:
+		subject.convention(project.fileTree(dir: rootDirectory1))
+		subject.from(rootDirectory2)
+
+		then:
+		subject.asFileTree.files == [file3, file4] as Set
+		subject.sourceDirectories.files == [rootDirectory2] as Set
 	}
 	//endregion
 
