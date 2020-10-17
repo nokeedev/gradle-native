@@ -1,8 +1,10 @@
 package dev.nokee.language.base.internal.plugins;
 
 import dev.nokee.language.base.internal.*;
+import dev.nokee.language.base.internal.rules.LanguageSourceSetConventionRule;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import lombok.val;
@@ -46,6 +48,8 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 		val languageSourceSetRegistry = new LanguageSourceSetRegistry(eventPublisher, languageSourceSetInstantiator);
 		project.getExtensions().add(LanguageSourceSetRegistry.class, "__NOKEE_languageSourceSetRegistry", languageSourceSetRegistry);
+
+		languageSourceSetConfigurer.configureEach(ProjectIdentifier.of(project), LanguageSourceSetInternal.class, new LanguageSourceSetConventionRule(project.getObjects()));
 	}
 
 	private LanguageSourceSetImpl newSourceSet(DomainObjectIdentifier identifier) {
