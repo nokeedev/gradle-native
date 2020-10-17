@@ -54,4 +54,12 @@ class LanguageBasePluginTest extends Specification {
 		then:
 		project.extensions.findByType(LanguageSourceSetInstantiator) != null
 	}
+
+	def "registers registry"() {
+		when:
+		project.apply plugin: LanguageBasePlugin
+
+		then:
+		project.extensions.findByType(LanguageSourceSetRegistry) != null
+	}
 }

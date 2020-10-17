@@ -43,6 +43,9 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(LanguageSourceSetInstantiator.class, "__NOKEE_languageSourceSetInstantiator", languageSourceSetInstantiator);
 
 		languageSourceSetInstantiator.registerFactory(LanguageSourceSetImpl.class, this::newSourceSet);
+
+		val languageSourceSetRegistry = new LanguageSourceSetRegistry(eventPublisher, languageSourceSetInstantiator);
+		project.getExtensions().add(LanguageSourceSetRegistry.class, "__NOKEE_languageSourceSetRegistry", languageSourceSetRegistry);
 	}
 
 	private LanguageSourceSetImpl newSourceSet(DomainObjectIdentifier identifier) {
