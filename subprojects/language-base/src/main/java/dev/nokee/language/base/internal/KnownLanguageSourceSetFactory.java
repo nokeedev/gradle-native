@@ -1,7 +1,6 @@
 package dev.nokee.language.base.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.model.internal.KnownDomainObject;
 import dev.nokee.model.internal.KnownDomainObjectFactory;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 
@@ -21,7 +20,7 @@ public final class KnownLanguageSourceSetFactory implements KnownDomainObjectFac
 	}
 
 	@Override
-	public <S extends LanguageSourceSet> KnownDomainObject<S> create(TypeAwareDomainObjectIdentifier<S> identifier) {
+	public <S extends LanguageSourceSet> KnownLanguageSourceSet<S> create(TypeAwareDomainObjectIdentifier<S> identifier) {
 		return create((LanguageSourceSetIdentifier<S>)identifier);
 	}
 }

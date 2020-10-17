@@ -9,4 +9,10 @@ public final class KnownLanguageSourceSet<T extends LanguageSourceSet> extends A
 	protected KnownLanguageSourceSet(LanguageSourceSetIdentifier<T> identifier, Provider<T> provider, DomainObjectConfigurer<LanguageSourceSet> configurer) {
 		super(identifier, provider, configurer);
 	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public LanguageSourceSetIdentifier<T> getIdentifier() {
+		return (LanguageSourceSetIdentifier<T>) super.getIdentifier();
+	}
 }

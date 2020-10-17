@@ -15,6 +15,12 @@ public final class LanguageSourceSetViewFactory extends AbstractDomainObjectView
 		super(LanguageSourceSet.class);
 		this.repository = repository;
 		this.configurer = configurer;
+		this.knownFactory = knownFactory;
+	}
+
+	@Override
+	public LanguageSourceSetViewImpl<LanguageSourceSet> create(DomainObjectIdentifier viewOwner) {
+		return (LanguageSourceSetViewImpl<LanguageSourceSet>) super.create(viewOwner);
 	}
 
 	@Override

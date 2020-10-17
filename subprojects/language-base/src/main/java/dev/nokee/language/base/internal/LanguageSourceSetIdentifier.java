@@ -15,7 +15,7 @@ import java.util.Optional;
 public final class LanguageSourceSetIdentifier<T extends LanguageSourceSet> implements TypeAwareDomainObjectIdentifier<T>, DomainObjectIdentifierInternal {
 	@Getter private final LanguageSourceSetName name;
 	@Getter private final Class<T> type;
-	private final DomainObjectIdentifierInternal ownerIdentifier;
+	@Getter private final DomainObjectIdentifierInternal ownerIdentifier;
 
 	private LanguageSourceSetIdentifier(LanguageSourceSetName name, Class<T> type, DomainObjectIdentifierInternal ownerIdentifier) {
 		assert name != null;
