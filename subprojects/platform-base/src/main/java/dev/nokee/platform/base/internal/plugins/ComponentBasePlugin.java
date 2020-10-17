@@ -30,8 +30,11 @@ public class ComponentBasePlugin implements Plugin<Project> {
 		val componentProviderFactory = new ComponentProviderFactory(componentRepository, componentConfigurer);
 		project.getExtensions().add(ComponentProviderFactory.class, "__NOKEE_componentProviderFactory", componentProviderFactory);
 
+		val componentInstantiator = new ComponentInstantiator("project component instantiator");
+		project.getExtensions().add(ComponentInstantiator.class, "__NOKEE_componentInstantiator", componentInstantiator);
+
 		project.getPluginManager().apply("lifecycle-base");
-		val extension = new ComponentContainerImpl(ProjectIdentifier.of(project), componentConfigurer, eventPublisher, componentProviderFactory, componentRepository, knownComponentFactory);
+		val extension = new ComponentContainerImpl(ProjectIdentifier.of(project), componentConfigurer, eventPublisher, componentProviderFactory, componentRepository, knownComponentFactory, componentInstantiator);
 		project.getExtensions().add(ComponentContainer.class, "components", extension);
 		project.afterEvaluate(proj -> extension.disallowChanges());
 	}

@@ -13,7 +13,7 @@ import spock.lang.Subject
 class ComponentContainerImplTest extends AbstractDomainObjectContainerTest<Component> implements ComponentFixture {
 	@Override
 	protected AbstractDomainObjectContainer<Component> newSubject() {
-		return new ComponentContainerImpl(ownerIdentifier, entityConfigurer, eventPublisher, newEntityProviderFactory(), entityRepository, newEntityFactory())
+		return new ComponentContainerImpl(ownerIdentifier, entityConfigurer, eventPublisher, newEntityProviderFactory(), entityRepository, newEntityFactory(), newEntityInstantiator())
 	}
 
 	@Override

@@ -29,6 +29,10 @@ trait ComponentFixture {
 		return new ComponentProviderFactory(entityRepository, entityConfigurer)
 	}
 
+	PolymorphicDomainObjectInstantiator<Component> newEntityInstantiator() {
+		return new ComponentInstantiator('component')
+	}
+
 	Class<Component> getEntityType() {
 		return Component
 	}

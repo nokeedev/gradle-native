@@ -1,17 +1,25 @@
 package dev.nokee.language.base.internal.plugins;
 
-import dev.nokee.language.base.internal.KnownLanguageSourceSetFactory;
-import dev.nokee.language.base.internal.LanguageSourceSetConfigurer;
-import dev.nokee.language.base.internal.LanguageSourceSetRepository;
-import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
+import dev.nokee.language.base.internal.*;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.model.ObjectFactory;
+
+import javax.inject.Inject;
 
 public class LanguageBasePlugin implements Plugin<Project> {
+	private final ObjectFactory objectFactory;
+
+	@Inject
+	public LanguageBasePlugin(ObjectFactory objectFactory) {
+		this.objectFactory = objectFactory;
+	}
+
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(ModelBasePlugin.class);
@@ -30,5 +38,14 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 		val languageSourceSetViewFactory = new LanguageSourceSetViewFactory(languageSourceSetRepository, languageSourceSetConfigurer, knownLanguageSourceSetFactory);
 		project.getExtensions().add(LanguageSourceSetViewFactory.class, "__NOKEE_languageSourceSetViewFactory", languageSourceSetViewFactory);
+
+		val languageSourceSetInstantiator = new LanguageSourceSetInstantiatorImpl("project language source set instantiator");
+		project.getExtensions().add(LanguageSourceSetInstantiator.class, "__NOKEE_languageSourceSetInstantiator", languageSourceSetInstantiator);
+
+		languageSourceSetInstantiator.registerFactory(LanguageSourceSetImpl.class, this::newSourceSet);
+	}
+
+	private LanguageSourceSetImpl newSourceSet(DomainObjectIdentifier identifier) {
+		return new LanguageSourceSetImpl((LanguageSourceSetIdentifier<?>) identifier, objectFactory);
 	}
 }

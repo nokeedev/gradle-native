@@ -16,6 +16,9 @@ dependencies {
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
+	testImplementation project(':languageCpp')
+	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
+
 	testFixturesApi testFixtures(project(':languageNative'))
 	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
 }
