@@ -2,9 +2,9 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.base.Preconditions;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
+import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.cpp.CppHeaderSet;
-import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
@@ -52,9 +52,11 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 	private final ProviderFactory providerFactory;
 	private final TaskRegistry taskRegistry;
 	private final BinaryViewFactory binaryViewFactory;
+	private final LanguageSourceSetRepository languageSourceSetRepository;
 
-	public NativeLibraryComponentVariants(ObjectFactory objectFactory, DefaultNativeLibraryComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory) {
+	public NativeLibraryComponentVariants(ObjectFactory objectFactory, DefaultNativeLibraryComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, LanguageSourceSetRepository languageSourceSetRepository) {
 		this.binaryViewFactory = binaryViewFactory;
+		this.languageSourceSetRepository = languageSourceSetRepository;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), DefaultNativeLibraryVariant.class, eventPublisher, viewFactory, variantRepository);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get()));
@@ -91,7 +93,7 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 			});
 		}
 
-		boolean hasSwift = !component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
+		boolean hasSwift = languageSourceSetRepository.hasKnownType(SwiftSourceSet.class);
 
 		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
 		if (hasSwift) {
@@ -117,7 +119,7 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 
 	private void onEachVariantDependencies(VariantProvider<DefaultNativeLibraryVariant> variant, VariantComponentDependencies<?> dependencies) {
 		if (NativeLibrary.class.isAssignableFrom(DefaultNativeLibraryVariant.class)) {
-			if (!component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty()) {
+			if (languageSourceSetRepository.hasKnownType(SwiftSourceSet.class)) {
 				dependencies.getOutgoing().getExportedSwiftModule().convention(variant.flatMap(it -> {
 					List<? extends Provider<RegularFile>> result = it.getBinaries().withType(NativeBinary.class).flatMap(binary -> {
 						List<? extends Provider<RegularFile>> modules = binary.getCompileTasks().withType(SwiftCompileTask.class).map(task -> task.getModuleFile()).get();
@@ -126,13 +128,9 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 					return one(result);
 				}));
 			}
-			component.getSourceCollection().withType(LanguageSourceSetInternal.class).matching(it -> (it instanceof CHeaderSet || it instanceof CppHeaderSet) && it.getIdentifier().getName().get().equals("public")).configureEach(sourceSet -> {
+			component.getSources().withType(LanguageSourceSetInternal.class).configureEach(it -> (it instanceof CHeaderSet || it instanceof CppHeaderSet) && it.getIdentifier().getName().get().equals("public"), sourceSet -> {
 				// TODO: Allow to export more than one folder
-				File directory = null;
-				if (sourceSet instanceof CHeaderSet || sourceSet instanceof CppSourceSet) {
-					directory = sourceSet.getSourceDirectories().getSingleFile();
-				}
-
+				File directory = sourceSet.getSourceDirectories().getSingleFile();
 				dependencies.getOutgoing().getExportedHeaders().fileValue(directory);
 			});
 		}

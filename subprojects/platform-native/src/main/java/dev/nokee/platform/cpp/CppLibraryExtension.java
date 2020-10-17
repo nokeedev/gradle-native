@@ -1,10 +1,11 @@
 package dev.nokee.platform.cpp;
 
+import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.nativebase.*;
-import org.gradle.api.file.ConfigurableFileCollection;
 
 /**
  * Configuration for a library written in C++, defining the dependencies that make up the library plus other settings.
@@ -23,7 +24,7 @@ public interface CppLibraryExtension extends DependencyAwareComponent<NativeLibr
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getCppSources();
+	CppSourceSet getCppSources();
 
 	/**
 	 * Defines the private headers search directories of this library.
@@ -32,7 +33,7 @@ public interface CppLibraryExtension extends DependencyAwareComponent<NativeLibr
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getPrivateHeaders();
+	CppHeaderSet getPrivateHeaders();
 
 	/**
 	 * Defines the public header file directories of this library.
@@ -41,5 +42,5 @@ public interface CppLibraryExtension extends DependencyAwareComponent<NativeLibr
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getPublicHeaders();
+	CppHeaderSet getPublicHeaders();
 }

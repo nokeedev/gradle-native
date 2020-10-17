@@ -1,6 +1,7 @@
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.language.base.internal.LanguageSourceSetInternal;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.LanguageSourceSetView;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
@@ -41,7 +42,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	private final DefaultJavaNativeInterfaceNativeComponentDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
-	private final DomainObjectSet<LanguageSourceSetInternal> sources;
+	private final LanguageSourceSetView<LanguageSourceSet> sources;
 	private final TaskProvider<Task> assembleTask;
 	private final DomainObjectEventPublisher eventPublisher;
 	private final TaskViewFactory taskViewFactory;
@@ -55,12 +56,12 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, DomainObjectSet<LanguageSourceSetInternal> parentSources, GroupId groupId, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, TaskProvider<Task> assembleTask, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory) {
+	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, LanguageSourceSetView<LanguageSourceSet> parentSources, GroupId groupId, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, TaskProvider<Task> assembleTask, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory) {
 		super(identifier, objects, binaryViewFactory);
 		this.dependencies = dependencies.getDependencies();
 		this.configurations = configurations;
 		this.providers = providers;
-		this.sources = objects.domainObjectSet(LanguageSourceSetInternal.class);
+		this.sources = parentSources;
 		this.assembleTask = assembleTask;
 		this.eventPublisher = eventPublisher;
 		this.taskViewFactory = taskViewFactory;
@@ -70,8 +71,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		this.nativeRuntimeFiles = objects.fileCollection();
 		this.resolvableDependencies = dependencies.getIncoming();
 		this.taskRegistry = taskRegistry;
-
-		parentSources.all(sources::add);
 
 		getResourcePath().convention(getProviders().provider(() -> getResourcePath(groupId)));
 	}
@@ -84,7 +83,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		ConfigureUtils.setPropertyValue(resourcePath, value);
 	}
 
-	public DomainObjectSet<LanguageSourceSetInternal> getSources() {
+	public LanguageSourceSetView<LanguageSourceSet> getSources() {
 		return sources;
 	}
 

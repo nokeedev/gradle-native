@@ -9,6 +9,7 @@ import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
 import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeWorkspaceTask;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.platform.base.KnownDomainObject;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -196,7 +197,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 			val linkage = linkages.iterator().next();
 			xcodeProject.getTargets().register(component.getBaseName().get(), configureTargetForLinkage(component, linkage));
 		}
-		xcodeProject.getGroups().create(component.getBaseName().get()).getSources().from(getProviders().provider(() -> component.getSourceCollection().stream().map(LanguageSourceSet::getAsFileTree).collect(Collectors.toList())));
+		xcodeProject.getGroups().create(component.getBaseName().get()).getSources().from(component.getSources().map(LanguageSourceSet::getAsFileTree));
 		return xcodeProject;
 	}
 
@@ -229,7 +230,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 						.put("COMPILER_INDEX_STORE_ENABLE", "YES")
 						.put("USE_HEADERMAP", "NO");
 
-					if (!component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty()) {
+					if (getProject().getExtensions().getByType(LanguageSourceSetRepository.class).hasKnownType(SwiftSourceSet.class)) {
 						xcodeConfiguration.getBuildSettings()
 							.put("SWIFT_VERSION", "5.2")
 							.put("SWIFT_INCLUDE_PATHS", binary.flatMap(BaseNativeBinary::getImportSearchPaths).map(this::toSpaceSeparatedList));
@@ -237,7 +238,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 				});
 			}
 
-			xcodeTarget.getSources().from(getProviders().provider(() -> component.getSourceCollection().stream().map(LanguageSourceSet::getAsFileTree).collect(Collectors.toList())));
+			xcodeTarget.getSources().from(component.getSources().map(LanguageSourceSet::getAsFileTree));
 		};
 	}
 
@@ -337,7 +338,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 			});
 
 			xcodeProject.getGroups().create(moduleName).getSources().from(xcodeTarget.getSources());
-			xcodeTarget.getSources().from(getProviders().provider(() -> component.getSourceCollection().stream().map(LanguageSourceSet::getAsFileTree).collect(Collectors.toList())));
+			xcodeTarget.getSources().from(component.getSources().map(LanguageSourceSet::getAsFileTree));
 			xcodeTarget.getSources().from(getProviders().provider(() -> {
 				try {
 					List<Path> result = new ArrayList<>();
@@ -412,7 +413,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 						.put("COMPILER_INDEX_STORE_ENABLE", "YES")
 						.put("USE_HEADERMAP", "NO");
 				});
-				xcodeTarget.getSources().from(getProviders().provider(() -> unitTest.getSourceCollection().stream().map(LanguageSourceSet::getAsFileTree).collect(Collectors.toList())));
+				xcodeTarget.getSources().from(unitTest.getSources().map(LanguageSourceSet::getAsFileTree));
 				xcodeTarget.getSources().from(getProject().fileTree("src/unitTest/resources", it -> it.include("*")));
 				xcodeProject.getGroups().create(moduleName + "UnitTest").getSources().from(xcodeTarget.getSources());
 			});
@@ -444,7 +445,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 						.put("USE_HEADERMAP", "NO")
 						.put("TEST_TARGET_NAME", moduleName);
 				});
-				xcodeTarget.getSources().from(getProviders().provider(() -> uiTest.getSourceCollection().stream().map(LanguageSourceSet::getAsFileTree).collect(Collectors.toList())));
+				xcodeTarget.getSources().from(uiTest.getSources().map(LanguageSourceSet::getAsFileTree));
 				xcodeTarget.getSources().from(getProject().fileTree("src/uiTest/resources", it -> it.include("*")));
 				xcodeProject.getGroups().create(moduleName + "UiTest").getSources().from(xcodeTarget.getSources());
 			});

@@ -1,5 +1,7 @@
 package dev.nokee.platform.objectivec;
 
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.VariantAwareComponent;
@@ -7,7 +9,6 @@ import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
-import org.gradle.api.file.ConfigurableFileCollection;
 
 /**
  * Configuration for an application written in Objective-C, defining the dependencies that make up the application plus other settings.
@@ -26,7 +27,7 @@ public interface ObjectiveCApplicationExtension extends DependencyAwareComponent
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getObjectiveCSources();
+	ObjectiveCSourceSet getObjectiveCSources();
 
 	/**
 	 * Defines the private headers search directories of this application.
@@ -35,5 +36,5 @@ public interface ObjectiveCApplicationExtension extends DependencyAwareComponent
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getPrivateHeaders();
+	CHeaderSet getPrivateHeaders();
 }

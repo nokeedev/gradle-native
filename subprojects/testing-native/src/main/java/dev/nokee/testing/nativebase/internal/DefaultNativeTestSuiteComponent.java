@@ -1,10 +1,7 @@
 package dev.nokee.testing.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetInternal;
-import dev.nokee.language.base.internal.LanguageSourceSetName;
-import dev.nokee.language.base.internal.UTTypeUtils;
+import dev.nokee.language.base.internal.*;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
@@ -68,6 +65,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.isDescendent;
+
 public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite {
 	private final DefaultNativeComponentDependencies dependencies;
 	private final ObjectFactory objects;
@@ -75,15 +74,19 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	@Getter Property<BaseComponent<?>> testedComponent;
 	private final TaskRegistry taskRegistry;
 	private final TaskContainer tasks;
+	private final LanguageSourceSetRepository languageSourceSetRepository;
+	private final LanguageSourceSetRegistry languageSourceSetRegistry;
 	private final NativeTestSuiteComponentVariants componentVariants;
 	private final BinaryView<Binary> binaries;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
-		super(identifier, DefaultNativeTestSuiteVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
+	public DefaultNativeTestSuiteComponent(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, LanguageSourceSetRepository languageSourceSetRepository, LanguageSourceSetViewFactory languageSourceSetViewFactory, LanguageSourceSetRegistry languageSourceSetRegistry) {
+		super(identifier, DefaultNativeTestSuiteVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory, languageSourceSetRepository, languageSourceSetViewFactory);
 		this.objects = objects;
 		this.providers = providers;
 		this.tasks = tasks;
+		this.languageSourceSetRepository = languageSourceSetRepository;
+		this.languageSourceSetRegistry = languageSourceSetRegistry;
 
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
@@ -92,7 +95,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.getBaseName().convention(BaseNameUtils.from(identifier).getAsString());
 
 		this.taskRegistry = taskRegistry;
-		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory);
+		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, languageSourceSetRepository);
 		this.binaries = binaryViewFactory.create(identifier);
 
 		this.getBuildVariants().convention(providers.provider(this::createBuildVariants));
@@ -202,21 +205,21 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 			// TODO: Map name to something close to what is expected
 			getBaseName().convention(component.getBaseName().map(it -> {
-				if (component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty()) {
+				if (!languageSourceSetRepository.anyKnownIdentifier(identifier -> isDescendent(identifier, component.getIdentifier()) && SwiftSourceSet.class.isAssignableFrom(identifier.getType()))) {
 					return it + "-" + getIdentifier().getName().get();
 				}
 				return it + StringUtils.capitalize(getIdentifier().getName().get());
 			}));
 
-			component.getSourceCollection().withType(LanguageSourceSetInternal.class).configureEach(sourceSet -> {
-				if (getSourceCollection().withType(sourceSet.getClass()).isEmpty()) {
+			component.getSources().withType(LanguageSourceSetInternal.class).configureEach(sourceSet -> {
+				if (!languageSourceSetRepository.anyKnownIdentifier(identifier -> isDescendent(identifier, getIdentifier()) && sourceSet.getClass().isAssignableFrom(identifier.getType()))) {
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
 					if (sourceSet instanceof CHeaderSet || sourceSet instanceof CppHeaderSet) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
 
-						getSourceCollection().add(newSourceSet(sourceSet.getClass(), LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), sourceSet.getClass(), component.getIdentifier())).from("src/" + getIdentifier().getName().get() + "/headers"));
+						languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), sourceSet.getClass(), component.getIdentifier()));
 					} else {
-						getSourceCollection().add(newSourceSet(sourceSet.getClass(), LanguageSourceSetIdentifier.of(sourceSet.getIdentifier().getName(), sourceSet.getClass(), component.getIdentifier())).from("src/" + getIdentifier().getName().get() + "/" + sourceSet.getIdentifier().getName().get()));
+						languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(sourceSet.getIdentifier().getName(), sourceSet.getClass(), component.getIdentifier()));
 					}
 				}
 			});
@@ -283,8 +286,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					task.getModules().from(component.getDevelopmentVariant().map(it -> it.getBinaries().withType(NativeBinary.class).getElements().get().stream().flatMap(b -> b.getCompileTasks().withType(SwiftCompileTask.class).get().stream()).map(SwiftCompile::getModuleFile).collect(Collectors.toList())));
 				});
 				binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
-					((AbstractNativeSourceCompileTask)task).getIncludes().from(providers.provider(() -> component.getSourceCollection().withType(CppHeaderSet.class).stream().map(CppHeaderSet::getSourceDirectories).collect(Collectors.toList())));
-					((AbstractNativeSourceCompileTask)task).getIncludes().from(providers.provider(() -> component.getSourceCollection().withType(CHeaderSet.class).stream().map(CHeaderSet::getSourceDirectories).collect(Collectors.toList())));
+					((AbstractNativeSourceCompileTask)task).getIncludes().from(component.getSources().withType(CppHeaderSet.class).map(CppHeaderSet::getSourceDirectories));
+					((AbstractNativeSourceCompileTask)task).getIncludes().from(component.getSources().withType(CHeaderSet.class).map(CHeaderSet::getSourceDirectories));
 				});
 			});
 		}

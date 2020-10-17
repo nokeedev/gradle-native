@@ -22,6 +22,7 @@ import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
 import dev.nokee.platform.nativebase.internal.NamedTargetBuildType;
 import dev.nokee.runtime.nativebase.TargetBuildType;
+import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
@@ -102,9 +103,9 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 			task.getProjectLocation().set(projectLocation);
 		});
 
-		visualStudioProject.getSourceFiles().from(getProviders().provider(() -> component.getSourceCollection().stream().filter(it -> !(it instanceof CHeaderSet || it instanceof CppHeaderSet)).map(LanguageSourceSet::getAsFileTree).collect(Collectors.toList())));
+		visualStudioProject.getSourceFiles().from(component.getSources().filter(it -> !(it instanceof CHeaderSet || it instanceof CppHeaderSet)).map(ProviderUtils.map(LanguageSourceSet::getAsFileTree)));
 
-		visualStudioProject.getHeaderFiles().from(getProviders().provider(() -> component.getSourceCollection().stream().filter(it -> it instanceof CHeaderSet || it instanceof CppHeaderSet).map(LanguageSourceSet::getAsFileTree).collect(Collectors.toList())));
+		visualStudioProject.getHeaderFiles().from(component.getSources().filter(it -> it instanceof CHeaderSet || it instanceof CppHeaderSet).map(ProviderUtils.map(LanguageSourceSet::getAsFileTree)));
 
 		val buildTypes = component.getBuildVariants().get().stream().map(b -> b.getAxisValue(BaseTargetBuildType.DIMENSION_TYPE)).collect(Collectors.toSet()); // TODO Maybe use linkedhashset to keep the ordering
 		for (TargetBuildType buildType : buildTypes) {

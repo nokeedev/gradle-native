@@ -1,12 +1,7 @@
 package dev.nokee.testing.nativebase.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetName;
-import dev.nokee.language.c.internal.CSourceSetImpl;
-import dev.nokee.language.cpp.internal.CppSourceSetImpl;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetImpl;
-import dev.nokee.language.swift.internal.SwiftSourceSetImpl;
+import dev.nokee.language.base.internal.LanguageSourceSetRepository;
+import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -51,27 +46,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			return createNativeTestSuite(ComponentIdentifier.of(ComponentName.of(name), DefaultNativeTestSuiteComponent.class, ProjectIdentifier.of(project)), project);
 		});
 
-		extension.whenElementKnown(DefaultNativeTestSuiteComponent.class, knownTestSuite -> {
-			knownTestSuite.configure(testSuite -> {
-				// TODO: Move these generic source set creation to the respective language plugin
-				if (project.getPluginManager().hasPlugin("dev.nokee.c-language")) {
-					testSuite.getSourceCollection().add(new CSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("c"), CSourceSetImpl.class, testSuite.getIdentifier()), objects).from("src/" + testSuite.getIdentifier().getName().get() + "/c"));
-				}
-				if (project.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
-					testSuite.getSourceCollection().add(new CppSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("cpp"), CppSourceSetImpl.class, testSuite.getIdentifier()), objects).from("src/" + testSuite.getIdentifier().getName().get() + "/cpp"));
-				}
-				if (project.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-					testSuite.getSourceCollection().add(new ObjectiveCSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objc"), ObjectiveCSourceSetImpl.class, testSuite.getIdentifier()), objects).from("src/" + testSuite.getIdentifier().getName().get() + "/objc"));
-				}
-				if (project.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
-					testSuite.getSourceCollection().add(new ObjectiveCppSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objcpp"), ObjectiveCppSourceSetImpl.class, testSuite.getIdentifier()), objects).from("src/" + testSuite.getIdentifier().getName().get() + "/objcpp"));
-				}
-				if (project.getPluginManager().hasPlugin("dev.nokee.swift-language")) {
-					testSuite.getSourceCollection().add(new SwiftSourceSetImpl(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("swift"), SwiftSourceSetImpl.class, testSuite.getIdentifier()), objects).from("src/" + testSuite.getIdentifier().getName().get() + "/swift"));
-				}
-			});
-		});
-
 		project.afterEvaluate(proj -> {
 			// TODO: We delay as late as possible to "fake" a finalize action.
 			extension.configureEach(DefaultNativeTestSuiteComponent.class, it -> it.finalizeExtension(proj));
@@ -80,6 +54,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	}
 
 	private NativeTestSuite createNativeTestSuite(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, Project project) {
-		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, identifier, project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
+		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, identifier, project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
 	}
 }

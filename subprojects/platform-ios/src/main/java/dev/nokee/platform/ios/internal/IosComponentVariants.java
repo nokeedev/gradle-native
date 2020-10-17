@@ -1,5 +1,6 @@
 package dev.nokee.platform.ios.internal;
 
+import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.internal.*;
@@ -39,9 +40,11 @@ public final class IosComponentVariants implements ComponentVariants {
 	private final ProviderFactory providerFactory;
 	private final TaskRegistry taskRegistry;
 	private final BinaryViewFactory binaryViewFactory;
+	private final LanguageSourceSetRepository languageSourceSetRepository;
 
-	public IosComponentVariants(ObjectFactory objectFactory, DefaultIosApplicationComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory) {
+	public IosComponentVariants(ObjectFactory objectFactory, DefaultIosApplicationComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, LanguageSourceSetRepository languageSourceSetRepository) {
 		this.binaryViewFactory = binaryViewFactory;
+		this.languageSourceSetRepository = languageSourceSetRepository;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), DefaultIosApplicationVariant.class, eventPublisher, viewFactory, variantRepository);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = providerFactory.provider(new DevelopmentVariantConvention<>(() -> getVariantCollection().get()));
@@ -83,7 +86,7 @@ public final class IosComponentVariants implements ComponentVariants {
 		}
 
 		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
-		boolean hasSwift = !component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
+		boolean hasSwift = languageSourceSetRepository.hasKnownType(SwiftSourceSet.class);
 		if (hasSwift) {
 			incomingDependenciesBuilder.withIncomingSwiftModules();
 		} else {

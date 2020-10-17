@@ -1,6 +1,7 @@
 package dev.nokee.platform.jni.internal;
 
 import com.google.common.base.Preconditions;
+import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
@@ -46,11 +47,13 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 	private final DomainObjectEventPublisher eventPublisher;
 	private final BinaryViewFactory binaryViewFactory;
 	private final TaskViewFactory taskViewFactory;
+	private final LanguageSourceSetRepository languageSourceSetRepository;
 
-	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory) {
+	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory, LanguageSourceSetRepository languageSourceSetRepository) {
 		this.eventPublisher = eventPublisher;
 		this.binaryViewFactory = binaryViewFactory;
 		this.taskViewFactory = taskViewFactory;
+		this.languageSourceSetRepository = languageSourceSetRepository;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), JniLibraryInternal.class, eventPublisher, viewFactory, variantRepository);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(getVariantCollection()::get));
@@ -99,8 +102,8 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 		}
 
 		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(new NativeComponentDependenciesJavaNativeInterfaceAdapter(variantDependencies)).withVariant(buildVariant);
-		boolean hasSwift = !component.getSourceCollection().withType(SwiftSourceSet.class).isEmpty();
-		boolean hasHeader = !component.getSourceCollection().matching(it -> it instanceof CSourceSet || it instanceof CppSourceSet || it instanceof ObjectiveCSourceSet || it instanceof ObjectiveCppSourceSet).isEmpty();
+		boolean hasSwift = languageSourceSetRepository.hasKnownType(SwiftSourceSet.class);
+		boolean hasHeader = languageSourceSetRepository.anyKnownType(it -> CSourceSet.class.isAssignableFrom(it) || CppSourceSet.class.isAssignableFrom(it) || ObjectiveCSourceSet.class.isAssignableFrom(it) || ObjectiveCppSourceSet.class.isAssignableFrom(it));
 		if (hasSwift) {
 			incomingDependenciesBuilder.withIncomingSwiftModules();
 		} else if (hasHeader) {

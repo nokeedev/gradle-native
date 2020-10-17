@@ -53,6 +53,10 @@ public final class KnownDomainObjects<T> {
 		return knownObjects.stream().filter(predicate).collect(toAtMostOneElement());
 	}
 
+	public boolean anyMatch(Predicate<? super TypeAwareDomainObjectIdentifier<? extends T>> predicate) {
+		return knownObjects.stream().anyMatch(predicate);
+	}
+
 	private static <T> Collector<T, ?, Optional<T>> toAtMostOneElement() {
 		return Collectors.collectingAndThen(
 			Collectors.toList(),

@@ -100,6 +100,10 @@ functionalTest {
 		implementation project(':runtimeNative')
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation testFixtures(project(':platformNative'))
-		implementation testFixtures(project(':languageNative'))
+		implementation testFixtures(project(':languageC'))
+		implementation testFixtures(project(':languageCpp'))
+		implementation testFixtures(project(':languageObjectiveC'))
+		implementation testFixtures(project(':languageObjectiveCpp'))
+		implementation testFixtures(project(':languageSwift'))
 	}
 }
