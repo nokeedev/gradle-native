@@ -122,6 +122,22 @@ class DomainObjectEventPublisherImplTest extends Specification {
 		thrown(NullPointerException)
 	}
 
+	def "can handle previously published events on new subscriber"() {
+		given:
+		def event = Stub(MyEvent)
+		def subscriber1 = mockSubscriber(MyEvent)
+		def subscriber2 = mockSubscriber(MyOtherEvent)
+
+		when:
+		subject.publish(event)
+		subject.subscribe(subscriber1)
+		subject.subscribe(subscriber2)
+
+		then:
+		1 * subscriber1.handle(event)
+		0 * subscriber2.handle(_)
+	}
+
 	interface MyEvent extends DomainObjectEvent {}
 	interface MyOtherEvent extends DomainObjectEvent {}
 	interface MyCombinedEvent extends DomainObjectEvent, MyEvent, MyOtherEvent {}
