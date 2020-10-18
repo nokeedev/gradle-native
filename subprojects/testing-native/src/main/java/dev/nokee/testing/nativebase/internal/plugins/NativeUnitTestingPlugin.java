@@ -1,5 +1,6 @@
 package dev.nokee.testing.nativebase.internal.plugins;
 
+import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
 import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
@@ -54,6 +55,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	}
 
 	private NativeTestSuite createNativeTestSuite(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, Project project) {
-		return getObjects().newInstance(DefaultNativeTestSuiteComponent.class, identifier, project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
+		return new DefaultNativeTestSuiteComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRegistry.class));
 	}
 }

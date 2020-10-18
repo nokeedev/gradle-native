@@ -76,7 +76,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final NativeTestSuiteComponentVariants componentVariants;
 	private final BinaryView<Binary> binaries;
 
-	@Inject
 	public DefaultNativeTestSuiteComponent(ComponentIdentifier<DefaultNativeTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, LanguageSourceSetRepository languageSourceSetRepository, LanguageSourceSetViewFactory languageSourceSetViewFactory, LanguageSourceSetRegistry languageSourceSetRegistry) {
 		super(identifier, DefaultNativeTestSuiteVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory, languageSourceSetRepository, languageSourceSetViewFactory);
 		this.objects = objects;
