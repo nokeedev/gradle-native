@@ -41,6 +41,6 @@ public class ObjectiveCppLanguagePlugin implements Plugin<Project> {
 	}
 
 	private void configureConvention(LanguageSourceSetInternal sourceSet) {
-		sourceSet.convention(objectFactory.fileCollection().from(ConventionalRelativeLanguageSourceSetPath.of(sourceSet.getIdentifier()), ConventionalRelativeLanguageSourceSetPath.builder().fromIdentifier(sourceSet.getIdentifier()).withSourceSetName("objcpp")));
+		sourceSet.convention(objectFactory.fileCollection().from(ConventionalRelativeLanguageSourceSetPath.of(sourceSet.getIdentifier()), ConventionalRelativeLanguageSourceSetPath.builder().fromIdentifier(sourceSet.getIdentifier()).withSourceSetName("objcpp").build()));
 	}
 }
