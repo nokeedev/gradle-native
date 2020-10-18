@@ -52,6 +52,7 @@ class CApplicationPluginTest extends AbstractPluginTest implements CApplicationP
 	final String pluginIdUnderTest = pluginId
 }
 
+@Subject(CApplicationPlugin)
 class CApplicationComponentPluginTest extends AbstractComponentPluginTest {
 	@Override
 	protected Class getExtensionTypeUnderTest() {

@@ -52,6 +52,7 @@ class CppLibraryPluginTest extends AbstractPluginTest implements CppLibraryPlugi
 	final String pluginIdUnderTest = pluginId
 }
 
+@Subject(CppLibraryPlugin)
 class CppLibraryComponentPluginTest extends AbstractComponentPluginTest {
 	@Override
 	protected Class getExtensionTypeUnderTest() {

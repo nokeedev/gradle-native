@@ -51,6 +51,7 @@ class SwiftApplicationPluginTest extends AbstractPluginTest implements SwiftAppl
 	final String pluginIdUnderTest = pluginId
 }
 
+@Subject(SwiftApplicationPlugin)
 class SwiftApplicationComponentPluginTest extends AbstractComponentPluginTest {
 	@Override
 	protected Class getExtensionTypeUnderTest() {

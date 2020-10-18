@@ -52,6 +52,7 @@ class CLibraryPluginTest extends AbstractPluginTest implements CLibraryPluginTes
 	final String pluginIdUnderTest = pluginId
 }
 
+@Subject(CLibraryPlugin)
 class CLibraryComponentPluginTest extends AbstractComponentPluginTest {
 	@Override
 	protected Class getExtensionTypeUnderTest() {

@@ -51,6 +51,7 @@ class SwiftLibraryPluginTest extends AbstractPluginTest implements SwiftLibraryP
 	final String pluginIdUnderTest = pluginId
 }
 
+@Subject(SwiftLibraryPlugin)
 class SwiftLibraryComponentPluginTest extends AbstractComponentPluginTest {
 	@Override
 	protected Class getExtensionTypeUnderTest() {

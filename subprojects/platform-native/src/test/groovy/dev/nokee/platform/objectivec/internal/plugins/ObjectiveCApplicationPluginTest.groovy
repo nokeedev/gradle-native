@@ -52,7 +52,8 @@ class ObjectiveCApplicationPluginTest extends AbstractPluginTest implements Obje
 	final String pluginIdUnderTest = pluginId
 }
 
-class CppApplicationComponentPluginTest extends AbstractComponentPluginTest {
+@Subject(ObjectiveCApplicationPlugin)
+class ObjectiveCApplicationComponentPluginTest extends AbstractComponentPluginTest {
 	@Override
 	protected Class getExtensionTypeUnderTest() {
 		return ObjectiveCApplicationExtension
