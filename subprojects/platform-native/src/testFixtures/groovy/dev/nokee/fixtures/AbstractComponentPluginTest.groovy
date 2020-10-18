@@ -56,6 +56,9 @@ abstract class AbstractComponentPluginTest extends Specification {
 		sourceSet.identifier.ownerIdentifier.name == ComponentName.of('main')
 		sourceSet.identifier.ownerIdentifier.type == componentTypeUnderTest
 
+		and: 'source set has conventional source layout'
+		sourceSet.sourceDirectories.files as Set == expectedSourceSet.conventionDirectories.collect { project.file(it) } as Set
+
 		where:
 		expectedSourceSet << expectedLanguageSourceSets
 	}
@@ -113,6 +116,7 @@ abstract class AbstractComponentPluginTest extends Specification {
 
 	protected ExpectedLanguageSourceSet newExpectedSourceSet(String name, Class type, String getterName = "${name}Sources") {
 		return new ExpectedLanguageSourceSet() {
+			private final List<String> conventionDirectories = ["src/main/${name}".toString()]
 			@Override
 			Class getType() {
 				return type
@@ -132,6 +136,16 @@ abstract class AbstractComponentPluginTest extends Specification {
 			LanguageSourceSetIdentifier getIdentifier() {
 				return LanguageSourceSetIdentifier.of(LanguageSourceSetName.of(name), type, ComponentIdentifier.ofMain(componentTypeUnderTest, ProjectIdentifier.of(project)))
 			}
+
+			@Override
+			List<String> getConventionDirectories() {
+				return conventionDirectories
+			}
+
+			ExpectedLanguageSourceSet addConventionDirectory(String dir) {
+				conventionDirectories.add(dir)
+				return this
+			}
 		}
 	}
 
@@ -140,5 +154,7 @@ abstract class AbstractComponentPluginTest extends Specification {
 		String getName()
 		String getGetterName()
 		LanguageSourceSetIdentifier getIdentifier()
+		List<String> getConventionDirectories()
+		ExpectedLanguageSourceSet addConventionDirectory(String dir)
 	}
 }

@@ -36,15 +36,21 @@ public class DefaultObjectiveCppApplicationExtension extends BaseNativeExtension
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
 	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
+	private final ObjectFactory objectFactory;
 
 	@Inject
 	public DefaultObjectiveCppApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, LanguageSourceSetRegistry languageSourceSetRegistry) {
 		super(component, objects, providers, layout);
-		this.objectiveCppSources = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objcpp"), ObjectiveCppSourceSetImpl.class, component.getIdentifier()));
+		this.objectFactory = objects;
+		this.objectiveCppSources = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objectiveCpp"), ObjectiveCppSourceSetImpl.class, component.getIdentifier()), this::configureSourceSet);
 		this.privateHeaders = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CppHeaderSetImpl.class, component.getIdentifier()));
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
 		this.sources = component.getSources();
+	}
+
+	private void configureSourceSet(LanguageSourceSetInternal sourceSet) {
+		sourceSet.convention(objectFactory.fileCollection().from(ConventionalRelativeLanguageSourceSetPath.of(sourceSet.getIdentifier()), ConventionalRelativeLanguageSourceSetPath.builder().fromIdentifier(sourceSet.getIdentifier()).withSourceSetName("objcpp").build()));
 	}
 
 	public void setTargetMachines(Object value) {

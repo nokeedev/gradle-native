@@ -70,7 +70,7 @@ class ObjectiveCppApplicationComponentPluginTest extends AbstractComponentPlugin
 
 	@Override
 	protected List<ExpectedLanguageSourceSet> getExpectedLanguageSourceSets() {
-		return [newExpectedSourceSet('objectiveCpp', ObjectiveCppSourceSetImpl), newExpectedSourceSet('headers', CppHeaderSetImpl, 'privateHeaders')]
+		return [newExpectedSourceSet('objectiveCpp', ObjectiveCppSourceSetImpl).addConventionDirectory('src/main/objcpp'), newExpectedSourceSet('headers', CppHeaderSetImpl, 'privateHeaders')]
 	}
 }
 
