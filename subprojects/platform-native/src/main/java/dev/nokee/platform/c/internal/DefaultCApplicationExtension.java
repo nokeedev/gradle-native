@@ -1,5 +1,7 @@
 package dev.nokee.platform.c.internal;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.LanguageSourceSetView;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
@@ -34,6 +36,7 @@ public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNat
 	@Getter private final CHeaderSet privateHeaders;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
+	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
 
 	@Inject
 	public DefaultCApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, LanguageSourceSetRegistry languageSourceSetRegistry) {
@@ -42,6 +45,7 @@ public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNat
 		this.privateHeaders = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()));
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
+		this.sources = component.getSources();
 	}
 
 	public void setTargetMachines(Object value) {

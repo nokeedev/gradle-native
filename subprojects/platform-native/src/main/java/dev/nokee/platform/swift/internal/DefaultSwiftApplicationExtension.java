@@ -1,5 +1,7 @@
 package dev.nokee.platform.swift.internal;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.LanguageSourceSetView;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
@@ -31,6 +33,7 @@ public class DefaultSwiftApplicationExtension extends BaseNativeExtension<Defaul
 	@Getter private final SwiftSourceSet swiftSources;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
+	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
 
 	@Inject
 	public DefaultSwiftApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, LanguageSourceSetRegistry languageSourceSetRegistry) {
@@ -38,6 +41,7 @@ public class DefaultSwiftApplicationExtension extends BaseNativeExtension<Defaul
 		this.swiftSources = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("swift"), SwiftSourceSetImpl.class, component.getIdentifier()));
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
+		this.sources = component.getSources();
 	}
 
 	public void setTargetMachines(Object value) {
