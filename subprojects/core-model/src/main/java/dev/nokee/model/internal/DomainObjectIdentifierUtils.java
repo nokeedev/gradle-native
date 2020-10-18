@@ -3,8 +3,10 @@ package dev.nokee.model.internal;
 import dev.nokee.model.DomainObjectIdentifier;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.val;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
@@ -29,6 +31,32 @@ public final class DomainObjectIdentifierUtils {
 			return ((DomainObjectIdentifierInternal) self).getParentIdentifier();
 		}
 		return Optional.empty();
+	}
+
+	public static Predicate<? extends DomainObjectIdentifier> directlyOwnedBy(DomainObjectIdentifier owner) {
+		return new DirectlyOwnedIdentifierPredicate(owner);
+	}
+
+	private static final class DirectlyOwnedIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
+		private final DomainObjectIdentifier owner;
+
+		DirectlyOwnedIdentifierPredicate(DomainObjectIdentifier owner) {
+			this.owner = owner;
+		}
+
+		@Override
+		public boolean test(DomainObjectIdentifier identifier) {
+			if (identifier instanceof DomainObjectIdentifierInternal) {
+				val identifierInternal = (DomainObjectIdentifierInternal) identifier;
+				return identifierInternal.getParentIdentifier().isPresent() && identifierInternal.getParentIdentifier().get().equals(owner);
+			}
+			return false;
+		}
+
+		@Override
+		public String toString() {
+			return "DomainObjectIdentifierUtils.directlyOwnedBy(" + owner + ")";
+		}
 	}
 
 	public static Supplier<String> mapDisplayName(DomainObjectIdentifierInternal identifier) {
