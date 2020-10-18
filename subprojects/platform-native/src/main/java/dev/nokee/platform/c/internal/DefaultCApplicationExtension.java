@@ -18,6 +18,7 @@ import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.ConfigureUtils;
 import lombok.Getter;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
@@ -58,6 +59,16 @@ public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNat
 
 	public CSourceSet getcSources() {
 		return cSources;
+	}
+
+	@Override
+	public void cSources(Action<? super CSourceSet> action) {
+		action.execute(cSources);
+	}
+
+	@Override
+	public void privateHeaders(Action<? super CHeaderSet> action) {
+		action.execute(privateHeaders);
 	}
 
 	@Override

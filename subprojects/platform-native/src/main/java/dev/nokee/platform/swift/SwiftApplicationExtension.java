@@ -8,6 +8,10 @@ import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
+import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
+import org.gradle.api.Action;
+import org.gradle.util.ConfigureUtil;
 
 /**
  * Configuration for an application written in Swift, defining the dependencies that make up the application plus other settings.
@@ -27,4 +31,22 @@ public interface SwiftApplicationExtension extends DependencyAwareComponent<Nati
 	 * @since 0.5
 	 */
 	SwiftSourceSet getSwiftSources();
+
+	/**
+	 * Configures the source files or directories of this application.
+	 *
+	 * @param action The action to execute for source set configuration.
+	 * @see #getSwiftSources()
+	 */
+	void swiftSources(Action<? super SwiftSourceSet> action);
+
+	/**
+	 * Configures the source files or directories of this application.
+	 *
+	 * @param closure The closure to execute for source set configuration.
+	 * @see #getSwiftSources()
+	 */
+	default void swiftSources(@DelegatesTo(value = SwiftSourceSet.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		swiftSources(ConfigureUtil.configureUsing(closure));
+	}
 }

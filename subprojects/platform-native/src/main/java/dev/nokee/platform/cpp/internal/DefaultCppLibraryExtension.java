@@ -19,6 +19,7 @@ import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.ConfigureUtils;
 import lombok.Getter;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
@@ -72,5 +73,20 @@ public class DefaultCppLibraryExtension extends BaseNativeExtension<DefaultNativ
 	@Override
 	public VariantView<NativeLibrary> getVariants() {
 		return getComponent().getVariantCollection().getAsView(NativeLibrary.class);
+	}
+
+	@Override
+	public void cppSources(Action<? super CppSourceSet> action) {
+		action.execute(cppSources);
+	}
+
+	@Override
+	public void privateHeaders(Action<? super CppHeaderSet> action) {
+		action.execute(privateHeaders);
+	}
+
+	@Override
+	public void publicHeaders(Action<? super CppHeaderSet> action) {
+		action.execute(publicHeaders);
 	}
 }

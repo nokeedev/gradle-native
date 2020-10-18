@@ -16,6 +16,7 @@ import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.ConfigureUtils;
 import lombok.Getter;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
@@ -59,5 +60,10 @@ public class DefaultSwiftApplicationExtension extends BaseNativeExtension<Defaul
 	@Override
 	public VariantView<NativeApplication> getVariants() {
 		return getComponent().getVariantCollection().getAsView(NativeApplication.class);
+	}
+
+	@Override
+	public void swiftSources(Action<? super SwiftSourceSet> action) {
+		action.execute(swiftSources);
 	}
 }
