@@ -1,7 +1,6 @@
 package dev.nokee.language.base.internal.plugins;
 
 import dev.nokee.language.base.internal.*;
-import dev.nokee.language.base.internal.rules.LanguageSourceSetConventionRule;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -13,6 +12,8 @@ import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
+
+import static dev.nokee.language.base.internal.ConventionalRelativeLanguageSourceSetPath.of;
 
 public class LanguageBasePlugin implements Plugin<Project> {
 	private final ObjectFactory objectFactory;
@@ -49,7 +50,11 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		val languageSourceSetRegistry = new LanguageSourceSetRegistry(eventPublisher, languageSourceSetInstantiator);
 		project.getExtensions().add(LanguageSourceSetRegistry.class, "__NOKEE_languageSourceSetRegistry", languageSourceSetRegistry);
 
-		languageSourceSetConfigurer.configureEach(ProjectIdentifier.of(project), LanguageSourceSetInternal.class, new LanguageSourceSetConventionRule(project.getObjects()));
+		languageSourceSetConfigurer.configureEach(ProjectIdentifier.of(project), LanguageSourceSetInternal.class, this::configureSourceSetConvention);
+	}
+
+	private void configureSourceSetConvention(LanguageSourceSetInternal sourceSet) {
+		sourceSet.convention(objectFactory.fileCollection().from(of(sourceSet.getIdentifier())));
 	}
 
 	private LanguageSourceSetImpl newSourceSet(DomainObjectIdentifier identifier) {
