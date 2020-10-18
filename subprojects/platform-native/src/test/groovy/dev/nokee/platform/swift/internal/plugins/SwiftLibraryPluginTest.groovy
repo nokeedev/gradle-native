@@ -1,15 +1,11 @@
 package dev.nokee.platform.swift.internal.plugins
 
-import dev.nokee.fixtures.AbstractBinaryPluginTest
-import dev.nokee.fixtures.AbstractPluginTest
-import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
-import dev.nokee.fixtures.AbstractTaskPluginTest
-import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.fixtures.*
+import dev.nokee.language.swift.internal.SwiftSourceSetImpl
 import dev.nokee.platform.base.Variant
-import dev.nokee.platform.c.internal.plugins.CLibraryPlugin
-import dev.nokee.platform.c.internal.plugins.CLibraryPluginTestFixture
 import dev.nokee.platform.nativebase.NativeLibrary
 import dev.nokee.platform.nativebase.SharedLibraryBinary
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent
 import dev.nokee.platform.swift.SwiftLibraryExtension
 import org.gradle.api.Project
 import spock.lang.Subject
@@ -53,6 +49,28 @@ trait SwiftLibraryPluginTestFixture {
 @Subject(SwiftLibraryPlugin)
 class SwiftLibraryPluginTest extends AbstractPluginTest implements SwiftLibraryPluginTestFixture {
 	final String pluginIdUnderTest = pluginId
+}
+
+class SwiftLibraryComponentPluginTest extends AbstractComponentPluginTest {
+	@Override
+	protected Class getExtensionTypeUnderTest() {
+		return SwiftLibraryExtension
+	}
+
+	@Override
+	protected Class getComponentTypeUnderTest() {
+		return DefaultNativeLibraryComponent
+	}
+
+	@Override
+	protected void applyPluginUnderTests(Project project) {
+		project.apply plugin: 'dev.nokee.swift-library'
+	}
+
+	@Override
+	protected List<ExpectedLanguageSourceSet> getExpectedLanguageSourceSets() {
+		return [newExpectedSourceSet('swift', SwiftSourceSetImpl)]
+	}
 }
 
 @Subject(SwiftLibraryPlugin)

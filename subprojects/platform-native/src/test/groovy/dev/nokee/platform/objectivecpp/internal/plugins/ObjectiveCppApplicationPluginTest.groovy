@@ -1,19 +1,14 @@
 package dev.nokee.platform.objectivecpp.internal.plugins
 
-import dev.nokee.fixtures.AbstractBinaryPluginTest
-import dev.nokee.fixtures.AbstractPluginTest
-import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
-import dev.nokee.fixtures.AbstractTaskPluginTest
-import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.fixtures.*
+import dev.nokee.language.cpp.internal.CppHeaderSetImpl
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetImpl
 import dev.nokee.platform.base.Variant
-import dev.nokee.platform.c.internal.plugins.CApplicationPlugin
-import dev.nokee.platform.c.internal.plugins.CApplicationPluginTestFixture
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.NativeApplication
-import dev.nokee.platform.nativebase.SharedLibraryBinary
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplicationExtension
 import org.gradle.api.Project
-import org.gradle.nativeplatform.NativeExecutable
 import spock.lang.Subject
 
 trait ObjectiveCppApplicationPluginTestFixture {
@@ -55,6 +50,28 @@ trait ObjectiveCppApplicationPluginTestFixture {
 @Subject(ObjectiveCppApplicationPlugin)
 class ObjectiveCppApplicationPluginTest extends AbstractPluginTest implements ObjectiveCppApplicationPluginTestFixture {
 	final String pluginIdUnderTest = pluginId
+}
+
+class ObjectiveCppApplicationComponentPluginTest extends AbstractComponentPluginTest {
+	@Override
+	protected Class getExtensionTypeUnderTest() {
+		return ObjectiveCppApplicationExtension
+	}
+
+	@Override
+	protected Class getComponentTypeUnderTest() {
+		return DefaultNativeApplicationComponent
+	}
+
+	@Override
+	protected void applyPluginUnderTests(Project project) {
+		project.apply plugin: 'dev.nokee.objective-cpp-application'
+	}
+
+	@Override
+	protected List<ExpectedLanguageSourceSet> getExpectedLanguageSourceSets() {
+		return [newExpectedSourceSet('objectiveCpp', ObjectiveCppSourceSetImpl), newExpectedSourceSet('headers', CppHeaderSetImpl, 'privateHeaders')]
+	}
 }
 
 @Subject(ObjectiveCppApplicationPlugin)

@@ -1,14 +1,13 @@
 package dev.nokee.platform.c.internal.plugins
 
-import dev.nokee.fixtures.AbstractBinaryPluginTest
-import dev.nokee.fixtures.AbstractPluginTest
-import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
-import dev.nokee.fixtures.AbstractTaskPluginTest
-import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.fixtures.*
+import dev.nokee.language.c.internal.CHeaderSetImpl
+import dev.nokee.language.c.internal.CSourceSetImpl
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.c.CLibraryExtension
 import dev.nokee.platform.nativebase.NativeLibrary
 import dev.nokee.platform.nativebase.SharedLibraryBinary
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent
 import org.gradle.api.Project
 import spock.lang.Subject
 
@@ -51,6 +50,28 @@ trait CLibraryPluginTestFixture {
 @Subject(CLibraryPlugin)
 class CLibraryPluginTest extends AbstractPluginTest implements CLibraryPluginTestFixture {
 	final String pluginIdUnderTest = pluginId
+}
+
+class CLibraryComponentPluginTest extends AbstractComponentPluginTest {
+	@Override
+	protected Class getExtensionTypeUnderTest() {
+		return CLibraryExtension
+	}
+
+	@Override
+	protected Class getComponentTypeUnderTest() {
+		return DefaultNativeLibraryComponent
+	}
+
+	@Override
+	protected void applyPluginUnderTests(Project project) {
+		project.apply plugin: 'dev.nokee.c-library'
+	}
+
+	@Override
+	protected List<ExpectedLanguageSourceSet> getExpectedLanguageSourceSets() {
+		return [newExpectedSourceSet('c', CSourceSetImpl), newExpectedSourceSet('headers', CHeaderSetImpl, 'privateHeaders'), newExpectedSourceSet('public', CHeaderSetImpl, 'publicHeaders')]
+	}
 }
 
 @Subject(CLibraryPlugin)
