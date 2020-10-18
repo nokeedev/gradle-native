@@ -1,8 +1,6 @@
 package dev.nokee.testing.xctest.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetName;
-import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
+import dev.nokee.language.base.internal.*;
 import dev.nokee.language.c.internal.CHeaderSetImpl;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -51,7 +49,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			val unitTestComponent = store.register(unitTestIdentifier, DefaultUnitTestXCTestTestSuiteComponent.class, newUnitTestFactory(getObjects(), project));
 			unitTestComponent.configure(component -> {
 				val languageSourceSetRegistry = project.getExtensions().getByType(LanguageSourceSetRegistry.class);
-				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objc"), ObjectiveCSourceSetImpl.class, component.getIdentifier()));
+				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objectiveC"), ObjectiveCSourceSetImpl.class, component.getIdentifier()), this::configureSourceSetConvention);
 				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()));
 				component.getTestedComponent().value(application).disallowChanges();
 				component.getGroupId().set(GroupId.of(project::getGroup));
@@ -64,7 +62,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			val uiTestComponent = store.register(uiTestIdentifier, DefaultUiTestXCTestTestSuiteComponent.class, newUiTestFactory(getObjects(), project));
 			uiTestComponent.configure(component -> {
 				val languageSourceSetRegistry = project.getExtensions().getByType(LanguageSourceSetRegistry.class);
-				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objc"), ObjectiveCSourceSetImpl.class, component.getIdentifier()));
+				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objectiveC"), ObjectiveCSourceSetImpl.class, component.getIdentifier()), this::configureSourceSetConvention);
 				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()));
 				component.getTestedComponent().value(application).disallowChanges();
 				component.getGroupId().set(GroupId.of(project::getGroup));
@@ -73,5 +71,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			});
 			uiTestComponent.get();
 		});
+	}
+
+	private void configureSourceSetConvention(LanguageSourceSetInternal sourceSet) {
+		sourceSet.convention(objects.fileCollection().from(ConventionalRelativeLanguageSourceSetPath.of(sourceSet.getIdentifier()), ConventionalRelativeLanguageSourceSetPath.builder().fromIdentifier(sourceSet.getIdentifier()).withSourceSetName("objc").build()));
 	}
 }
