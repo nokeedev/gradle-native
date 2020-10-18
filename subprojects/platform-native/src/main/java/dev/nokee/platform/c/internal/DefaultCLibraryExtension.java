@@ -29,8 +29,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
-import javax.inject.Inject;
-
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
 public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements CLibraryExtension, Component, HasLanguageSourceSetAccessor {
@@ -42,7 +40,6 @@ public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeL
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
 	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
 
-	@Inject
 	public DefaultCLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, LanguageSourceSetRegistry languageSourceSetRegistry) {
 		super(component, objects, providers, layout);
 		this.cSources = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("c"), CSourceSetImpl.class, component.getIdentifier()));

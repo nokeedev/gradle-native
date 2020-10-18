@@ -27,8 +27,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
-import javax.inject.Inject;
-
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
 public class DefaultSwiftLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements SwiftLibraryExtension, Component, HasLanguageSourceSetAccessor {
@@ -38,7 +36,6 @@ public class DefaultSwiftLibraryExtension extends BaseNativeExtension<DefaultNat
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
 	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
 
-	@Inject
 	public DefaultSwiftLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, LanguageSourceSetRegistry languageSourceSetRegistry) {
 		super(component, objects, providers, layout);
 		this.swiftSources = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("swift"), SwiftSourceSetImpl.class, component.getIdentifier()));

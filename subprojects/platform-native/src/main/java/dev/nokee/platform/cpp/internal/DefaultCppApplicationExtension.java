@@ -28,8 +28,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
-import javax.inject.Inject;
-
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
 public class DefaultCppApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements CppApplicationExtension, Component, HasLanguageSourceSetAccessor {
@@ -39,7 +37,6 @@ public class DefaultCppApplicationExtension extends BaseNativeExtension<DefaultN
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
 	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
 
-	@Inject
 	public DefaultCppApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, LanguageSourceSetRegistry languageSourceSetRegistry) {
 		super(component, objects, providers, layout);
 		this.cppSources = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("cpp"), CppSourceSetImpl.class, component.getIdentifier()));

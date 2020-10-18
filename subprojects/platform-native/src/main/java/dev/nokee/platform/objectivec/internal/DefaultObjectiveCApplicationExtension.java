@@ -26,8 +26,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
-import javax.inject.Inject;
-
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
 public class DefaultObjectiveCApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCApplicationExtension, Component, HasLanguageSourceSetAccessor {
@@ -38,7 +36,6 @@ public class DefaultObjectiveCApplicationExtension extends BaseNativeExtension<D
 	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
 	private final ObjectFactory objectFactory;
 
-	@Inject
 	public DefaultObjectiveCApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, LanguageSourceSetRegistry languageSourceSetRegistry) {
 		super(component, objects, providers, layout);
 		this.objectFactory = objects;
