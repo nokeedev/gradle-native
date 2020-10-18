@@ -57,9 +57,6 @@ import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
 import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
 
-import javax.inject.Inject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -290,16 +287,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					((AbstractNativeSourceCompileTask)task).getIncludes().from(component.getSources().withType(CHeaderSet.class).map(CHeaderSet::getSourceDirectories));
 				});
 			});
-		}
-	}
-
-	LanguageSourceSetInternal newSourceSet(Class<? extends LanguageSourceSetInternal> implementationType, LanguageSourceSetIdentifier<?> identifier) {
-		Constructor<? extends LanguageSourceSetInternal> constructor = null;
-		try {
-			constructor = implementationType.getConstructor(LanguageSourceSetIdentifier.class, ObjectFactory.class);
-			return constructor.newInstance(identifier, objects);
-		} catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-			throw new RuntimeException(e);
 		}
 	}
 }
