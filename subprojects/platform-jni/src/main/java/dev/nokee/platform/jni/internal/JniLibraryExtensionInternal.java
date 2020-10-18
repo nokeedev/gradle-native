@@ -30,6 +30,7 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
+	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
 
 	@Inject
 	public JniLibraryExtensionInternal(JniLibraryComponentInternal component, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers) {
@@ -37,6 +38,7 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 		this.objects = objects;
 		this.providers = providers;
 		this.component = component;
+		this.sources = component.getSources();
 	}
 
 	//region Variant-awareness
@@ -69,10 +71,6 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 	@Override
 	public BinaryView<Binary> getBinaries() {
 		return component.getBinaries();
-	}
-
-	public LanguageSourceSetView<LanguageSourceSet> getSources() {
-		return component.getSources();
 	}
 
 	public Configuration getJvmImplementationDependencies() {
