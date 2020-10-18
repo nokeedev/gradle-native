@@ -9,6 +9,7 @@ import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.SwiftSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.HasLanguageSourceSetAccessor;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
@@ -29,7 +30,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
-public class DefaultSwiftApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements SwiftApplicationExtension, Component {
+public class DefaultSwiftApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements SwiftApplicationExtension, Component, HasLanguageSourceSetAccessor {
 	@Getter private final SwiftSourceSet swiftSources;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;

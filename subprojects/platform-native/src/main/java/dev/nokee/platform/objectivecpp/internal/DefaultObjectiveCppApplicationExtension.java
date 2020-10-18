@@ -2,15 +2,14 @@ package dev.nokee.platform.objectivecpp.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.LanguageSourceSetView;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetName;
-import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
+import dev.nokee.language.base.internal.*;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.internal.CppHeaderSetImpl;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.HasLanguageSourceSetAccessor;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
@@ -31,7 +30,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
-public class DefaultObjectiveCppApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCppApplicationExtension, Component {
+public class DefaultObjectiveCppApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCppApplicationExtension, Component, HasLanguageSourceSetAccessor {
 	@Getter private final ObjectiveCppSourceSet objectiveCppSources;
 	@Getter private final CppHeaderSet privateHeaders;
 	@Getter private final SetProperty<TargetMachine> targetMachines;

@@ -11,6 +11,7 @@ import dev.nokee.language.c.internal.CHeaderSetImpl;
 import dev.nokee.language.c.internal.CSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.HasLanguageSourceSetAccessor;
 import dev.nokee.platform.c.CApplicationExtension;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
@@ -31,7 +32,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
-public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements CApplicationExtension, Component {
+public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements CApplicationExtension, Component, HasLanguageSourceSetAccessor {
 	private final CSourceSet cSources;
 	@Getter private final CHeaderSet privateHeaders;
 	@Getter private final SetProperty<TargetMachine> targetMachines;

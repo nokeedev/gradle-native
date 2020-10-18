@@ -11,6 +11,7 @@ import dev.nokee.language.cpp.internal.CppHeaderSetImpl;
 import dev.nokee.language.cpp.internal.CppSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.HasLanguageSourceSetAccessor;
 import dev.nokee.platform.cpp.CppLibraryExtension;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
@@ -32,7 +33,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
-public class DefaultCppLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements CppLibraryExtension, Component {
+public class DefaultCppLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements CppLibraryExtension, Component, HasLanguageSourceSetAccessor {
 	@Getter private final CppSourceSet cppSources;
 	@Getter private final CppHeaderSet privateHeaders;
 	@Getter private final CppHeaderSet publicHeaders;

@@ -7,6 +7,7 @@ import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.SourceAwareComponent
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
+import dev.nokee.platform.base.internal.HasLanguageSourceSetAccessor
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -21,6 +22,7 @@ abstract class AbstractComponentPluginTest extends Specification {
 	def "extension has default source set getter"(expectedSourceSet) {
 		given:
 		applyPluginUnderTests(project)
+		Assume.assumeTrue(getExtension(project, extensionTypeUnderTest) instanceof HasLanguageSourceSetAccessor)
 
 		expect:
 		def sourceSet = project.extensions.getByType(extensionTypeUnderTest)."${expectedSourceSet.getterName}"
@@ -38,6 +40,7 @@ abstract class AbstractComponentPluginTest extends Specification {
 	def "extension has default source set configuration method"(expectedSourceSet) {
 		given:
 		applyPluginUnderTests(project)
+		Assume.assumeTrue(getExtension(project, extensionTypeUnderTest) instanceof HasLanguageSourceSetAccessor)
 
 		expect:
 		def sourceSet = null

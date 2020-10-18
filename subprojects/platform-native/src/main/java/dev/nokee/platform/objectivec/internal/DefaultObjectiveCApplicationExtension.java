@@ -2,15 +2,14 @@ package dev.nokee.platform.objectivec.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.LanguageSourceSetView;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetName;
-import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
+import dev.nokee.language.base.internal.*;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.CHeaderSetImpl;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.HasLanguageSourceSetAccessor;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
@@ -31,7 +30,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
-public class DefaultObjectiveCApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCApplicationExtension, Component {
+public class DefaultObjectiveCApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCApplicationExtension, Component, HasLanguageSourceSetAccessor {
 	@Getter private final ObjectiveCSourceSet objectiveCSources;
 	@Getter private final CHeaderSet privateHeaders;
 	@Getter private final SetProperty<TargetMachine> targetMachines;

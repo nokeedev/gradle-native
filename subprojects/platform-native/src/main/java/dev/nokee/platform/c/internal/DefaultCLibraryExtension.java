@@ -11,6 +11,7 @@ import dev.nokee.language.c.internal.CHeaderSetImpl;
 import dev.nokee.language.c.internal.CSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.HasLanguageSourceSetAccessor;
 import dev.nokee.platform.c.CLibraryExtension;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
@@ -32,7 +33,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
-public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements CLibraryExtension, Component {
+public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements CLibraryExtension, Component, HasLanguageSourceSetAccessor {
 	private final CSourceSet cSources;
 	@Getter private final CHeaderSet privateHeaders;
 	@Getter private final CHeaderSet publicHeaders;
