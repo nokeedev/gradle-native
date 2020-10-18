@@ -78,17 +78,18 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(TaskBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		components.registerFactory(DefaultObjectiveCIosApplicationExtension.class, id -> {
+		components.registerFactory(DefaultIosApplicationComponent.class, id -> {
 			val identifier = ComponentIdentifier.ofMain(DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
 
 			val component = new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
 			store.register(identifier, DefaultIosApplicationComponent.class, ignored -> component).get();
-			return new DefaultObjectiveCIosApplicationExtension(component, project.getObjects(), project.getProviders(), project.getExtensions().getByType(LanguageSourceSetRegistry.class));
+			return component;
 		});
-		val extension = components.register("main", DefaultObjectiveCIosApplicationExtension.class, component -> {
-			component.getComponent().getBaseName().convention(GUtil.toCamelCase(project.getName()));
-			component.getComponent().getGroupId().set(GroupId.of(project::getGroup));
-		}).get();
+		val componentProvider = components.register("main", DefaultIosApplicationComponent.class, component -> {
+			component.getBaseName().convention(GUtil.toCamelCase(project.getName()));
+			component.getGroupId().set(GroupId.of(project::getGroup));
+		});
+		val extension = new DefaultObjectiveCIosApplicationExtension(componentProvider.get(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(LanguageSourceSetRegistry.class));
 
 		// Other configurations
 		project.afterEvaluate(extension::finalizeExtension);

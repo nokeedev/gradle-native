@@ -19,7 +19,7 @@ abstract class AbstractComponentPluginTest extends Specification {
 	def project = ProjectBuilder.builder().build()
 
 	@Unroll
-	def "extension has default source set getter"(expectedSourceSet) {
+	def "extension has default source set getter"() {
 		given:
 		applyPluginUnderTests(project)
 		Assume.assumeTrue(getExtension(project, extensionTypeUnderTest) instanceof HasLanguageSourceSetAccessor)
@@ -33,11 +33,12 @@ abstract class AbstractComponentPluginTest extends Specification {
 		sourceSet.identifier.ownerIdentifier.type == componentTypeUnderTest
 
 		where:
+		dummy << assumeHasLanguageSourceSets()
 		expectedSourceSet << expectedLanguageSourceSets
 	}
 
 	@Unroll
-	def "extension has default source set configuration method"(expectedSourceSet) {
+	def "extension has default source set configuration method"() {
 		given:
 		applyPluginUnderTests(project)
 		Assume.assumeTrue(getExtension(project, extensionTypeUnderTest) instanceof HasLanguageSourceSetAccessor)
@@ -60,6 +61,7 @@ abstract class AbstractComponentPluginTest extends Specification {
 		sourceSet.sourceDirectories.files as Set == expectedSourceSet.conventionDirectories.collect { project.file(it) } as Set
 
 		where:
+		dummy << assumeHasLanguageSourceSets()
 		expectedSourceSet << expectedLanguageSourceSets
 	}
 
@@ -111,6 +113,11 @@ abstract class AbstractComponentPluginTest extends Specification {
 	protected abstract Class getComponentTypeUnderTest()
 
 	protected abstract void applyPluginUnderTests(Project project)
+
+	protected List<Object> assumeHasLanguageSourceSets() {
+		Assume.assumeFalse(expectedLanguageSourceSets.empty)
+		return expectedLanguageSourceSets
+	}
 
 	protected abstract List<ExpectedLanguageSourceSet> getExpectedLanguageSourceSets()
 
