@@ -7,15 +7,11 @@ import dev.nokee.language.base.internal.*;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.CHeaderSetImpl;
-import dev.nokee.language.c.internal.CSourceSetImpl;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.cpp.CppHeaderSet;
-import dev.nokee.language.cpp.internal.CppSourceSetImpl;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetImpl;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -200,24 +196,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 		PreparedLogger unbuildableMainComponentLogger = new OneTimeLogger(new WarnUnbuildableLogger(project.getPath()));
 		project.afterEvaluate(proj -> {
-			// Create source set on extension
-			val languageSourceSetRegistry = project.getExtensions().getByType(LanguageSourceSetRegistry.class);
-			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language")) {
-				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("cpp"), CppSourceSetImpl.class, extension.getComponent().getIdentifier()));
-			}
-			if (proj.getPluginManager().hasPlugin("dev.nokee.c-language")) {
-				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("c"), CSourceSetImpl.class, extension.getComponent().getIdentifier()));
-			}
-			if (proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language")) {
-				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objcpp"), ObjectiveCppSourceSetImpl.class, extension.getComponent().getIdentifier()));
-			}
-			if (proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objc"), ObjectiveCSourceSetImpl.class, extension.getComponent().getIdentifier()));
-			}
-			if (proj.getPluginManager().hasPlugin("dev.nokee.cpp-language") || proj.getPluginManager().hasPlugin("dev.nokee.objective-cpp-language") || proj.getPluginManager().hasPlugin("dev.nokee.c-language") || proj.getPluginManager().hasPlugin("dev.nokee.objective-c-language")) {
-				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, extension.getComponent().getIdentifier()));
-			}
-
 			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
 
 			extension.getComponent().finalizeExtension(proj);
@@ -450,11 +428,11 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		components.registerFactory(JniLibraryExtensionInternal.class, identifier -> {
+		components.registerFactory(JniLibraryComponentInternal.class, identifier -> {
 			assert ((ComponentIdentifier<?>) identifier).isMainComponent();
-			return new JniLibraryExtensionInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), project.getConfigurations(), project.getObjects(), project.getProviders(), project.getDependencies(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
+			return new JniLibraryComponentInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
 		});
-		val library = components.register("main", JniLibraryExtensionInternal.class).get();
+		val library = new JniLibraryExtensionInternal(components.register("main", JniLibraryComponentInternal.class).get(), project.getConfigurations(), project.getObjects(), project.getProviders());
 
 		val dependencies = library.getDependencies();
 		val configurationRegistry = new ConfigurationBucketRegistryImpl(project.getConfigurations());

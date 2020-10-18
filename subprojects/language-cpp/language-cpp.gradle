@@ -18,6 +18,7 @@ dependencies {
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
 	testImplementation project(':languageObjectiveCpp')
+	testImplementation project(':platformBase')
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
 
 	testFixturesApi testFixtures(project(':languageNative'))

@@ -5,6 +5,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
 import dev.nokee.language.base.internal.LanguageSourceSetViewInternal;
+import dev.nokee.language.nativebase.internal.HasNativeLanguageSupport;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
@@ -44,7 +45,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, BinaryAwareComponent, Component {
+public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, BinaryAwareComponent, Component, HasNativeLanguageSupport {
 	private final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies;
 	@Getter private final GroupId groupId;
 	@Getter private final LanguageSourceSetViewInternal<LanguageSourceSet> sources;

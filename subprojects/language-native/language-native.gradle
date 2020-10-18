@@ -13,6 +13,7 @@ repositories {
 dependencies {
 	api project(':languageBase')
 	implementation project(':runtimeNative')
+	implementation project(':coreUtils')
 	implementation "com.google.guava:guava:${guavaVersion}"
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"

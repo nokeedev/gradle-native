@@ -2,21 +2,11 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.LanguageSourceSetView;
-import dev.nokee.language.base.internal.LanguageSourceSetRepository;
-import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.VariantCollection;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.base.internal.variants.VariantRepository;
-import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
@@ -29,11 +19,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
-import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
 
@@ -44,11 +32,11 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
 	@Inject
-	public JniLibraryExtensionInternal(ComponentIdentifier<?> identifier, GroupId groupId, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers, DependencyHandler dependencyHandler, TaskContainer taskContainer, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, LanguageSourceSetRepository languageSourceSetRepository, LanguageSourceSetViewFactory languageSourceSetViewFactory) {
+	public JniLibraryExtensionInternal(JniLibraryComponentInternal component, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers) {
 		this.configurations = configurations;
 		this.objects = objects;
 		this.providers = providers;
-		this.component = new JniLibraryComponentInternal(identifier, groupId, objects, configurations, dependencyHandler, providers, taskContainer, eventPublisher, viewFactory, variantRepository, binaryViewFactory, taskRegistry, taskViewFactory, languageSourceSetRepository, languageSourceSetViewFactory);
+		this.component = component;
 	}
 
 	//region Variant-awareness
