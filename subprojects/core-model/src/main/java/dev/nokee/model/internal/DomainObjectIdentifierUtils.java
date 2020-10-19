@@ -81,32 +81,4 @@ public final class DomainObjectIdentifierUtils {
 			return "DomainObjectIdentifierUtils.mapDisplayName(" + identifier + ")";
 		}
 	}
-
-	public static DomainObjectIdentifier named(String name) {
-		return new NamedDomainObjectIdentifierImpl(name);
-	}
-
-	@EqualsAndHashCode
-	private static class NamedDomainObjectIdentifierImpl implements NamedDomainObjectIdentifier, DomainObjectIdentifierInternal {
-		@Getter private final String name;
-
-		private NamedDomainObjectIdentifierImpl(String name) {
-			this.name = requireNonNull(name);
-		}
-
-		@Override
-		public Optional<? extends DomainObjectIdentifierInternal> getParentIdentifier() {
-			return Optional.empty();
-		}
-
-		@Override
-		public String getDisplayName() {
-			return "identifier '" + name + "'";
-		}
-
-		@Override
-		public String toString() {
-			return "DomainObjectIdentifierUtils.named(" + name + ")";
-		}
-	}
 }
