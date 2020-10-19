@@ -211,6 +211,39 @@ class KnownDomainObjectsTest extends Specification {
 		0 * action.accept(_)
 	}
 
+	def "returns true if only one identifier matches predicate"() {
+		given:
+		def subject = newSubject()
+		def entityIdentifier1 = entityDiscovered(identifier(MyEntity))
+		def entityIdentifier2 = entityDiscovered(identifier(MyEntity))
+		def entityIdentifier3 = entityDiscovered(identifier(MyEntity))
+
+		expect:
+		subject.anyMatch({ it == entityIdentifier2 } as Predicate)
+	}
+
+	def "returns true if more than one identifier matches predicate"() {
+		given:
+		def subject = newSubject()
+		def entityIdentifier1 = entityDiscovered(identifier(MyEntity))
+		def entityIdentifier2 = entityDiscovered(identifier(MyEntity))
+		def entityIdentifier3 = entityDiscovered(identifier(MyEntity))
+
+		expect:
+		subject.anyMatch({ true } as Predicate)
+	}
+
+	def "returns false if no identifier matches predicate"() {
+		given:
+		def subject = newSubject()
+		def entityIdentifier1 = entityDiscovered(identifier(MyEntity))
+		def entityIdentifier2 = entityDiscovered(identifier(MyEntity))
+		def entityIdentifier3 = entityDiscovered(identifier(MyEntity))
+
+		expect:
+		!subject.anyMatch({ false } as Predicate)
+	}
+
 	interface MyEntity {}
 	interface UnrelatedEntity {}
 }
