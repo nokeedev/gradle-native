@@ -207,15 +207,15 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 				return it + StringUtils.capitalize(getIdentifier().getName().get());
 			}));
 
-			component.getSources().withType(LanguageSourceSetInternal.class).configureEach(sourceSet -> {
-				if (!languageSourceSetRepository.anyKnownIdentifier(identifier -> isDescendent(identifier, getIdentifier()) && sourceSet.getClass().isAssignableFrom(identifier.getType()))) {
+			component.getSources().whenElementKnown(LanguageSourceSetInternal.class, knownSourceSet -> {
+				if (!languageSourceSetRepository.anyKnownIdentifier(identifier -> isDescendent(identifier, getIdentifier()) && knownSourceSet.getType().isAssignableFrom(identifier.getType()))) {
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
-					if (sourceSet instanceof CHeaderSet || sourceSet instanceof CppHeaderSet) {
+					if (CHeaderSet.class.isAssignableFrom(knownSourceSet.getType())  || CppHeaderSet.class.isAssignableFrom(knownSourceSet.getType())) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
 
-						languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), sourceSet.getClass(), component.getIdentifier()));
+						languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), knownSourceSet.getType(), getIdentifier()));
 					} else {
-						languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(sourceSet.getIdentifier().getName(), sourceSet.getClass(), component.getIdentifier()));
+						languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(knownSourceSet.getIdentifier().getName(), knownSourceSet.getType(), getIdentifier()));
 					}
 				}
 			});

@@ -1,7 +1,7 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.LanguageSourceSetView;
+import dev.nokee.language.base.internal.LanguageSourceSetViewInternal;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Variant;
@@ -34,7 +34,7 @@ public abstract class BaseComponent<T extends Variant> {
 
 	public abstract VariantCollection<T> getVariantCollection();
 
-	public abstract LanguageSourceSetView<LanguageSourceSet> getSources();
+	public abstract LanguageSourceSetViewInternal<LanguageSourceSet> getSources();
 
 	// TODO: We may want to model this as a BuildVariantRegistry for more richness than a plain set
 	public abstract SetProperty<BuildVariantInternal> getBuildVariants();
