@@ -33,7 +33,7 @@ public final class DomainObjectIdentifierUtils {
 		return Optional.empty();
 	}
 
-	public static Predicate<? extends DomainObjectIdentifier> directlyOwnedBy(DomainObjectIdentifier owner) {
+	public static Predicate<? super DomainObjectIdentifier> directlyOwnedBy(DomainObjectIdentifier owner) {
 		return new DirectlyOwnedIdentifierPredicate(owner);
 	}
 
