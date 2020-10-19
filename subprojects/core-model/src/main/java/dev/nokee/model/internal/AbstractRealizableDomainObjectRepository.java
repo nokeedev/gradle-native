@@ -57,14 +57,6 @@ public abstract class AbstractRealizableDomainObjectRepository<T> implements Rea
 		return providerFactory.provider(() -> get(identifier));
 	}
 
-	public <S extends T> boolean hasKnownType(Class<S> type) {
-		return knownObjects.anyMatch(identifier -> type.isAssignableFrom(identifier.getType()));
-	}
-
-	public boolean anyKnownType(Predicate<? super Class<? extends T>> predicate) {
-		return knownObjects.anyMatch(identifier -> predicate.test(identifier.getType()));
-	}
-
 	public boolean anyKnownIdentifier(Predicate<? super TypeAwareDomainObjectIdentifier<? extends T>> predicate) {
 		return knownObjects.anyMatch(predicate);
 	}

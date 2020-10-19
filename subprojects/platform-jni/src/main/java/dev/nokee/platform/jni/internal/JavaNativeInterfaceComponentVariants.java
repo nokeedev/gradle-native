@@ -34,6 +34,8 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.withType;
+
 public final class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<JniLibraryInternal> variantCollection;
 	@Getter private final SetProperty<BuildVariantInternal> buildVariants;
@@ -102,8 +104,8 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 		}
 
 		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(new NativeComponentDependenciesJavaNativeInterfaceAdapter(variantDependencies)).withVariant(buildVariant);
-		boolean hasSwift = languageSourceSetRepository.hasKnownType(SwiftSourceSet.class);
-		boolean hasHeader = languageSourceSetRepository.anyKnownType(it -> CSourceSet.class.isAssignableFrom(it) || CppSourceSet.class.isAssignableFrom(it) || ObjectiveCSourceSet.class.isAssignableFrom(it) || ObjectiveCppSourceSet.class.isAssignableFrom(it));
+		boolean hasSwift = languageSourceSetRepository.anyKnownIdentifier(withType(SwiftSourceSet.class));
+		boolean hasHeader = languageSourceSetRepository.anyKnownIdentifier(withType(CSourceSet.class).or(withType(CppSourceSet.class)).or(withType(ObjectiveCSourceSet.class)).or(withType(ObjectiveCppSourceSet.class)));
 		if (hasSwift) {
 			incomingDependenciesBuilder.withIncomingSwiftModules();
 		} else if (hasHeader) {

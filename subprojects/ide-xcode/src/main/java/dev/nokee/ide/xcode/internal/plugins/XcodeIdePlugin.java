@@ -56,6 +56,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.withType;
 import static dev.nokee.utils.ProjectUtils.getPrefixableProjectPath;
 import static java.util.Collections.emptyList;
 
@@ -230,7 +231,7 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 						.put("COMPILER_INDEX_STORE_ENABLE", "YES")
 						.put("USE_HEADERMAP", "NO");
 
-					if (getProject().getExtensions().getByType(LanguageSourceSetRepository.class).hasKnownType(SwiftSourceSet.class)) {
+					if (getProject().getExtensions().getByType(LanguageSourceSetRepository.class).anyKnownIdentifier(withType(SwiftSourceSet.class))) {
 						xcodeConfiguration.getBuildSettings()
 							.put("SWIFT_VERSION", "5.2")
 							.put("SWIFT_INCLUDE_PATHS", binary.flatMap(BaseNativeBinary::getImportSearchPaths).map(this::toSpaceSeparatedList));

@@ -39,6 +39,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.withType;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public final class NativeLibraryComponentVariants implements ComponentVariants {
@@ -93,7 +94,7 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 			});
 		}
 
-		boolean hasSwift = languageSourceSetRepository.hasKnownType(SwiftSourceSet.class);
+		boolean hasSwift = languageSourceSetRepository.anyKnownIdentifier(withType(SwiftSourceSet.class));
 
 		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
 		if (hasSwift) {
@@ -119,7 +120,7 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 
 	private void onEachVariantDependencies(VariantProvider<DefaultNativeLibraryVariant> variant, VariantComponentDependencies<?> dependencies) {
 		if (NativeLibrary.class.isAssignableFrom(DefaultNativeLibraryVariant.class)) {
-			if (languageSourceSetRepository.hasKnownType(SwiftSourceSet.class)) {
+			if (languageSourceSetRepository.anyKnownIdentifier(withType(SwiftSourceSet.class))) {
 				dependencies.getOutgoing().getExportedSwiftModule().convention(variant.flatMap(it -> {
 					List<? extends Provider<RegularFile>> result = it.getBinaries().withType(NativeBinary.class).flatMap(binary -> {
 						List<? extends Provider<RegularFile>> modules = binary.getCompileTasks().withType(SwiftCompileTask.class).map(task -> task.getModuleFile()).get();

@@ -28,6 +28,7 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskProvider;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.withType;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public final class XCTestTestSuiteComponentVariants implements ComponentVariants {
@@ -87,7 +88,7 @@ public final class XCTestTestSuiteComponentVariants implements ComponentVariants
 		}
 
 		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
-		boolean hasSwift = languageSourceSetRepository.hasKnownType(SwiftSourceSet.class);
+		boolean hasSwift = languageSourceSetRepository.anyKnownIdentifier(withType(SwiftSourceSet.class));
 		if (hasSwift) {
 			incomingDependenciesBuilder.withIncomingSwiftModules();
 		} else {
