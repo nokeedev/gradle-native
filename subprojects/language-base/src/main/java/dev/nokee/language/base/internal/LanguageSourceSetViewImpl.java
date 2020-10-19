@@ -17,7 +17,6 @@ import org.gradle.api.UnknownDomainObjectException;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.*;
 
 public final class LanguageSourceSetViewImpl<T extends LanguageSourceSet> extends AbstractDomainObjectView<LanguageSourceSet, T> implements LanguageSourceSetViewInternal<T>, DomainObjectView<T>, HasConfigureElementByNameSupport<T> {
-	@org.jetbrains.annotations.NotNull
 	private final LanguageSourceSetRepository repository;
 	private final KnownLanguageSourceSetFactory knownLanguageSourceSetFactory;
 	private final ConfigureDirectlyOwnedSourceSetByNameMethodInvoker methodInvoker;
