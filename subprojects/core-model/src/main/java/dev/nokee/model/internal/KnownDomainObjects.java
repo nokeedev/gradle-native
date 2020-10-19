@@ -4,7 +4,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.gradle.api.reflect.TypeOf;
 
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -16,7 +17,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class KnownDomainObjects<T> {
-	private final Set<TypeAwareDomainObjectIdentifier<? extends T>> knownObjects = new LinkedHashSet<>();
+	private final List<TypeAwareDomainObjectIdentifier<? extends T>> knownObjects = new ArrayList<>();
 
 	public KnownDomainObjects(Class<T> entityType, DomainObjectEventPublisher eventPublisher) {
 		this(entityType, eventPublisher, identifier -> {});
@@ -69,6 +70,8 @@ public final class KnownDomainObjects<T> {
 	}
 
 	public void forEach(Consumer<? super TypeAwareDomainObjectIdentifier<? extends T>> action) {
-		knownObjects.forEach(action);
+		for (int i = 0; i < knownObjects.size(); i++) {
+			action.accept(knownObjects.get(i));
+		}
 	}
 }

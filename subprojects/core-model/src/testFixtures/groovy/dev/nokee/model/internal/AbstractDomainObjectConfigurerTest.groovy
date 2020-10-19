@@ -485,5 +485,27 @@ abstract class AbstractDomainObjectConfigurerTest<T> extends DomainObjectSpec<T>
 		then:
 		0 * action.execute(_)
 	}
+
+	def "can discover entity inside element known callback"() {
+		given:
+		def subject = newSubject()
+
+		and:
+		def entityIdentifier1 = entityDiscovered(entityIdentifier(ownerIdentifier))
+		def entityIdentifier2 = entityIdentifier(ownerIdentifier)
+
+		and:
+		def action = Mock(Action)
+
+		when:
+		subject.whenElementKnown(ownerIdentifier, entityType, action)
+
+		then:
+		1 * action.execute(entityIdentifier1) >> { entityDiscovered(entityIdentifier2) }
+		and:
+		1 * action.execute(entityIdentifier2)
+		and:
+		0 * action.execute(_)
+	}
 	//endregion
 }
