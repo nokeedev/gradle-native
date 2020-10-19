@@ -82,7 +82,7 @@ public final class DomainObjectIdentifierUtils {
 		}
 	}
 
-	public static Predicate<? super DomainObjectIdentifier> named(String name) {
+	public static Predicate<DomainObjectIdentifier> named(String name) {
 		return new NamedIdentifierPredicate(name);
 	}
 
