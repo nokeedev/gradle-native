@@ -2,6 +2,7 @@ package dev.nokee.model.internal
 
 import org.gradle.api.Action
 import org.gradle.api.specs.Spec
+import org.junit.Assume
 
 abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T> {
 	protected abstract Object newSubject()
@@ -305,6 +306,71 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		entityCreated(identifier2, entity2)
 		then:
 		0 * spec.isSatisfiedBy(_)
+		0 * action.execute(_)
+	}
+	//endregion
+
+	//region configure element by name
+	def "can configure direct element by name"() {
+		given:
+		def subject = newSubject()
+		Assume.assumeTrue(subject instanceof HasConfigureElementByNameSupport)
+
+		and:
+		def (identifier1, entity1) = entity(entityDiscovered(entityIdentifier(ownerIdentifier)))
+		def (identifier2, entity2) = entity(entityDiscovered(entityIdentifier(ownerIdentifier)))
+
+		and:
+		def action = Mock(Action)
+
+		when:
+		subject."${identifier1.name}" { action.execute(it) }
+		then:
+		0 * action.execute(_)
+
+		when:
+		entityCreated(identifier1, entity1)
+		then:
+		1 * action.execute(entity1.get())
+	}
+
+	def "throws exception when configuring descendent element by name"() {
+		given:
+		def subject = newSubject()
+		Assume.assumeTrue(subject instanceof HasConfigureElementByNameSupport)
+
+		and:
+		def indirectOwner = Stub(DomainObjectIdentifierInternal) {
+			getParentIdentifier() >> Optional.of(ownerIdentifier)
+		}
+		def (identifier, entity) = entity(entityDiscovered(entityIdentifier(indirectOwner)))
+
+		and:
+		def action = Mock(Action)
+
+		when:
+		subject."${identifier.name}" { action.execute(it) }
+		then:
+		thrown(MissingMethodException)
+		and:
+		0 * action.execute(_)
+	}
+
+	def "throws exception when configuring unknown element by name"() {
+		given:
+		def subject = newSubject()
+		Assume.assumeTrue(subject instanceof HasConfigureElementByNameSupport)
+
+		and:
+		def action = Mock(Action)
+
+		when:
+		subject.foo { action.execute(it) }
+
+		then:
+		thrown(MissingMethodException)
+
+		and:
 		0 * action.execute(_)
 	}
 	//endregion
