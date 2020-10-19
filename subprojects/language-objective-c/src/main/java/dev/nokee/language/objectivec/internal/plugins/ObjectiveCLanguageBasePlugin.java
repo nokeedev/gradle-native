@@ -34,7 +34,9 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 	}
 
 	private void configureConvention(LanguageSourceSetInternal sourceSet) {
-		sourceSet.convention(objectFactory.fileCollection().from(ConventionalRelativeLanguageSourceSetPath.of(sourceSet.getIdentifier()), ConventionalRelativeLanguageSourceSetPath.builder().fromIdentifier(sourceSet.getIdentifier()).withSourceSetName("objc").build()));
+		if (sourceSet.getIdentifier().getName().get().equals("objectiveC")) {
+			sourceSet.convention(objectFactory.fileCollection().from(ConventionalRelativeLanguageSourceSetPath.of(sourceSet.getIdentifier()), ConventionalRelativeLanguageSourceSetPath.builder().fromIdentifier(sourceSet.getIdentifier()).withSourceSetName("objc").build()));
+		}
 	}
 
 	private ObjectiveCSourceSetImpl newObjectiveCSourceSet(DomainObjectIdentifier identifier) {
