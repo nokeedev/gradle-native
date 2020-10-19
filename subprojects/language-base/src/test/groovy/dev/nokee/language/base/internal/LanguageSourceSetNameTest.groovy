@@ -36,4 +36,12 @@ class LanguageSourceSetNameTest extends Specification {
 		then:
 		thrown(AssertionError)
 	}
+
+	def "convertible to String via toString()"() {
+		expect:
+		LanguageSourceSetName.of('c').toString() == 'c'
+		LanguageSourceSetName.of('cpp').toString() == 'cpp'
+		LanguageSourceSetName.of('objectiveC').toString() == 'objectiveC'
+		LanguageSourceSetName.of('swift').toString() == 'swift'
+	}
 }

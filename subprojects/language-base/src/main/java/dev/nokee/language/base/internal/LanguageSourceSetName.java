@@ -2,9 +2,7 @@ package dev.nokee.language.base.internal;
 
 import com.google.common.base.Strings;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
-@ToString
 @EqualsAndHashCode
 public final class LanguageSourceSetName {
 	private final String name;
@@ -19,6 +17,11 @@ public final class LanguageSourceSetName {
 	}
 
 	public String get() {
+		return name;
+	}
+
+	@Override
+	public String toString() {
 		return name;
 	}
 }
