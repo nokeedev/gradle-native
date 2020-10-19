@@ -3,6 +3,7 @@ package dev.nokee.language.base.internal;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.internal.NameAwareDomainObjectIdentifier;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -12,7 +13,7 @@ import java.util.Optional;
 
 @ToString
 @EqualsAndHashCode
-public final class LanguageSourceSetIdentifier<T extends LanguageSourceSet> implements TypeAwareDomainObjectIdentifier<T>, DomainObjectIdentifierInternal {
+public final class LanguageSourceSetIdentifier<T extends LanguageSourceSet> implements TypeAwareDomainObjectIdentifier<T>, DomainObjectIdentifierInternal, NameAwareDomainObjectIdentifier {
 	@Getter private final LanguageSourceSetName name;
 	@Getter private final Class<T> type;
 	@Getter private final DomainObjectIdentifierInternal ownerIdentifier;
