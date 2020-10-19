@@ -1,11 +1,15 @@
 package dev.nokee.language.cpp.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetConfigurer;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetInstantiator;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
+import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.internal.CppHeaderSetImpl;
 import dev.nokee.language.cpp.internal.CppSourceSetImpl;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.ProjectIdentifier;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -28,6 +32,13 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 		val languageSourceSetInstantiator = project.getExtensions().getByType(LanguageSourceSetInstantiator.class);
 		languageSourceSetInstantiator.registerFactory(CppSourceSetImpl.class, this::newCppSourceSet);
 		languageSourceSetInstantiator.registerFactoryIfAbsent(CppHeaderSetImpl.class, this::newCppHeaderSet);
+
+		val languageSourceSetConfigurer = project.getExtensions().getByType(LanguageSourceSetConfigurer.class);
+		languageSourceSetConfigurer.configureEach(ProjectIdentifier.of(project), CppHeaderSet.class, this::configureCppHeaders);
+	}
+
+	private void configureCppHeaders(LanguageSourceSet sourceSet) {
+		sourceSet.getFilter().include("**/*.h");
 	}
 
 	private CppHeaderSetImpl newCppHeaderSet(DomainObjectIdentifier identifier) {

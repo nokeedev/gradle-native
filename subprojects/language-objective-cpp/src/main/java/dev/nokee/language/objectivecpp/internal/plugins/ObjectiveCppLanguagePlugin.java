@@ -1,7 +1,5 @@
 package dev.nokee.language.objectivecpp.internal.plugins;
 
-import dev.nokee.language.base.internal.ConventionalRelativeLanguageSourceSetPath;
-import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
 import dev.nokee.language.cpp.internal.CppHeaderSetImpl;
@@ -36,11 +34,7 @@ public class ObjectiveCppLanguagePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativePlatformCapabilitiesMarkerPlugin.class);
 
 		val eventPublisher = project.getExtensions().getByType(DomainObjectEventPublisher.class);
-		eventPublisher.subscribe(discoveredType(HasNativeLanguageSupport.class, new RegisterNativeLanguageSourceSetRule(LanguageSourceSetName.of("objectiveCpp"), ObjectiveCppSourceSetImpl.class, project.getExtensions().getByType(LanguageSourceSetRegistry.class), this::configureConvention)));
+		eventPublisher.subscribe(discoveredType(HasNativeLanguageSupport.class, new RegisterNativeLanguageSourceSetRule(LanguageSourceSetName.of("objectiveCpp"), ObjectiveCppSourceSetImpl.class, project.getExtensions().getByType(LanguageSourceSetRegistry.class))));
 		eventPublisher.subscribe(discoveredType(HasNativeLanguageSupport.class, new RegisterNativeLanguageSourceSetRule(LanguageSourceSetName.of("headers"), CppHeaderSetImpl.class, project.getExtensions().getByType(LanguageSourceSetRegistry.class))));
-	}
-
-	private void configureConvention(LanguageSourceSetInternal sourceSet) {
-		sourceSet.convention(objectFactory.fileCollection().from(ConventionalRelativeLanguageSourceSetPath.of(sourceSet.getIdentifier()), ConventionalRelativeLanguageSourceSetPath.builder().fromIdentifier(sourceSet.getIdentifier()).withSourceSetName("objcpp").build()));
 	}
 }

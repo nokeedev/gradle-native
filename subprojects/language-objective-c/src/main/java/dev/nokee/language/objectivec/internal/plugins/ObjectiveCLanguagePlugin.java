@@ -1,7 +1,5 @@
 package dev.nokee.language.objectivec.internal.plugins;
 
-import dev.nokee.language.base.internal.ConventionalRelativeLanguageSourceSetPath;
-import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
 import dev.nokee.language.c.internal.CHeaderSetImpl;
@@ -36,11 +34,7 @@ public class ObjectiveCLanguagePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativePlatformCapabilitiesMarkerPlugin.class);
 
 		val eventPublisher = project.getExtensions().getByType(DomainObjectEventPublisher.class);
-		eventPublisher.subscribe(discoveredType(HasNativeLanguageSupport.class, new RegisterNativeLanguageSourceSetRule(LanguageSourceSetName.of("objectiveC"), ObjectiveCSourceSetImpl.class, project.getExtensions().getByType(LanguageSourceSetRegistry.class), this::configureConvention)));
+		eventPublisher.subscribe(discoveredType(HasNativeLanguageSupport.class, new RegisterNativeLanguageSourceSetRule(LanguageSourceSetName.of("objectiveC"), ObjectiveCSourceSetImpl.class, project.getExtensions().getByType(LanguageSourceSetRegistry.class))));
 		eventPublisher.subscribe(discoveredType(HasNativeLanguageSupport.class, new RegisterNativeLanguageSourceSetRule(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, project.getExtensions().getByType(LanguageSourceSetRegistry.class))));
-	}
-
-	private void configureConvention(LanguageSourceSetInternal sourceSet) {
-		sourceSet.convention(objectFactory.fileCollection().from(ConventionalRelativeLanguageSourceSetPath.of(sourceSet.getIdentifier()), ConventionalRelativeLanguageSourceSetPath.builder().fromIdentifier(sourceSet.getIdentifier()).withSourceSetName("objc").build()));
 	}
 }

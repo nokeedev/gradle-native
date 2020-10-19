@@ -1,11 +1,11 @@
 package dev.nokee.language.objectivec.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetInstantiator;
+import dev.nokee.language.base.internal.*;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.c.internal.CHeaderSetImpl;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.ProjectIdentifier;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -28,6 +28,13 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 		val languageSourceSetInstantiator = project.getExtensions().getByType(LanguageSourceSetInstantiator.class);
 		languageSourceSetInstantiator.registerFactory(ObjectiveCSourceSetImpl.class, this::newObjectiveCSourceSet);
 		languageSourceSetInstantiator.registerFactoryIfAbsent(CHeaderSetImpl.class, this::newCHeaderSet);
+
+		val languageSourceSetConfigurer = project.getExtensions().getByType(LanguageSourceSetConfigurer.class);
+		languageSourceSetConfigurer.configureEach(ProjectIdentifier.of(project), ObjectiveCSourceSetImpl.class, this::configureConvention);
+	}
+
+	private void configureConvention(LanguageSourceSetInternal sourceSet) {
+		sourceSet.convention(objectFactory.fileCollection().from(ConventionalRelativeLanguageSourceSetPath.of(sourceSet.getIdentifier()), ConventionalRelativeLanguageSourceSetPath.builder().fromIdentifier(sourceSet.getIdentifier()).withSourceSetName("objc").build()));
 	}
 
 	private ObjectiveCSourceSetImpl newObjectiveCSourceSet(DomainObjectIdentifier identifier) {
