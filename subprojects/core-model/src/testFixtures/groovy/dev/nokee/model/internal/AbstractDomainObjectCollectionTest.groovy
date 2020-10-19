@@ -1,6 +1,8 @@
 package dev.nokee.model.internal
 
 import org.gradle.api.Action
+import org.gradle.api.InvalidUserDataException
+import org.gradle.api.UnknownDomainObjectException
 import org.gradle.api.specs.Spec
 import org.junit.Assume
 
@@ -324,7 +326,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		def action = Mock(Action)
 
 		when:
-		subject."${identifier1.name}" { action.execute(it) }
+		subject.configure(identifier1.name.get(), action)
 		then:
 		0 * action.execute(_)
 
@@ -332,6 +334,49 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		entityCreated(identifier1, entity1)
 		then:
 		1 * action.execute(entity1.get())
+	}
+
+	def "can configure direct element by name and type"() {
+		given:
+		def subject = newSubject()
+		Assume.assumeTrue(subject instanceof HasConfigureElementByNameSupport)
+
+		and:
+		def (identifier1, entity1) = entity(entityDiscovered(entityIdentifier(ownerIdentifier)))
+		def (identifier2, entity2) = entity(entityDiscovered(entityIdentifier(ownerIdentifier)))
+
+		and:
+		def action = Mock(Action)
+
+		when:
+		subject.configure(identifier1.name.get(), identifier1.type, action)
+		then:
+		0 * action.execute(_)
+
+		when:
+		entityCreated(identifier1, entity1)
+		then:
+		1 * action.execute(entity1.get())
+	}
+
+	def "throws exception when configuring element by name and with wrong type"() {
+		given:
+		def subject = newSubject()
+		Assume.assumeTrue(subject instanceof HasConfigureElementByNameSupport)
+
+		and:
+		def (identifier1, entity1) = entity(entityDiscovered(entityIdentifier(ownerIdentifier)))
+		def (identifier2, entity2) = entity(entityDiscovered(entityIdentifier(ownerIdentifier)))
+
+		and:
+		def action = Mock(Action)
+
+		when:
+		subject.configure(identifier1.name.get(), String, action)
+		then:
+		def ex = thrown(InvalidUserDataException)
+		ex.message == "The domain object '${identifier1.name}' (${entityImplementationType.canonicalName}) is not a subclass of the given type (java.lang.String)."
+		0 * action.execute(_)
 	}
 
 	def "throws exception when configuring descendent element by name"() {
@@ -349,9 +394,33 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		def action = Mock(Action)
 
 		when:
-		subject."${identifier.name}" { action.execute(it) }
+		subject.configure(identifier.name.get(), action)
 		then:
-		thrown(MissingMethodException)
+		def ex = thrown(UnknownDomainObjectException)
+		ex.message == "LanguageSourceSet with name '${identifier.name}' not found."
+		and:
+		0 * action.execute(_)
+	}
+
+	def "throws exception when configuring descendent element by name and type"() {
+		given:
+		def subject = newSubject()
+		Assume.assumeTrue(subject instanceof HasConfigureElementByNameSupport)
+
+		and:
+		def indirectOwner = Stub(DomainObjectIdentifierInternal) {
+			getParentIdentifier() >> Optional.of(ownerIdentifier)
+		}
+		def (identifier, entity) = entity(entityDiscovered(entityIdentifier(indirectOwner)))
+
+		and:
+		def action = Mock(Action)
+
+		when:
+		subject.configure(identifier.name.get(), identifier.type, action)
+		then:
+		def ex = thrown(UnknownDomainObjectException)
+		ex.message == "LanguageSourceSet with name '${identifier.name}' not found."
 		and:
 		0 * action.execute(_)
 	}
@@ -365,10 +434,30 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		def action = Mock(Action)
 
 		when:
-		subject.foo { action.execute(it) }
+		subject.configure('foo', action)
 
 		then:
-		thrown(MissingMethodException)
+		def ex = thrown(UnknownDomainObjectException)
+		ex.message == "LanguageSourceSet with name 'foo' not found."
+
+		and:
+		0 * action.execute(_)
+	}
+
+	def "throws exception when configuring unknown element by name and type"() {
+		given:
+		def subject = newSubject()
+		Assume.assumeTrue(subject instanceof HasConfigureElementByNameSupport)
+
+		and:
+		def action = Mock(Action)
+
+		when:
+		subject.configure('foo', entityType, action)
+
+		then:
+		def ex = thrown(UnknownDomainObjectException)
+		ex.message == "LanguageSourceSet with name 'foo' not found."
 
 		and:
 		0 * action.execute(_)

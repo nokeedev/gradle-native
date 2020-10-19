@@ -13,11 +13,8 @@ import org.gradle.api.specs.Spec;
 import org.gradle.util.ConfigureUtil;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.directlyOwnedBy;
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.named;
 import static dev.nokee.utils.ActionUtils.onlyIf;
 
 public abstract class AbstractDomainObjectView<TYPE, T extends TYPE> extends GroovyObjectSupport {
@@ -72,24 +69,20 @@ public abstract class AbstractDomainObjectView<TYPE, T extends TYPE> extends Gro
 	}
 
 	protected class ConfigureDirectlyOwnedSourceSetByNameMethodInvoker {
-		private final RealizableDomainObjectRepository<TYPE> repository;
+		private final HasConfigureElementByNameSupport<T> thiz;
 
-		public ConfigureDirectlyOwnedSourceSetByNameMethodInvoker(RealizableDomainObjectRepository<TYPE> repository) {
-			this.repository = repository;
-		}
-
-		private Optional<TypeAwareDomainObjectIdentifier<? extends TYPE>> findByName(String name) {
-			return repository.findKnownIdentifier(directlyOwnedBy(viewOwner).and(named(name)));
+		public ConfigureDirectlyOwnedSourceSetByNameMethodInvoker(HasConfigureElementByNameSupport<T> thiz) {
+			this.thiz = thiz;
 		}
 
 		public Object invokeMethod(String name, Object args) {
-			val argsArray = (Object[])args;
+			val argsArray = (Object[]) args;
 			if (argsArray.length == 1 && argsArray[0] instanceof Closure) {
-				val identifier = findByName(name);
-				if (identifier.isPresent()) {
-					configurer.configure(identifier.get(), ConfigureUtil.configureUsing((Closure<Void>)argsArray[0]));
-					return null;
-				}
+				thiz.configure(name, ConfigureUtil.configureUsing((Closure<Void>) argsArray[0]));
+				return null;
+			} else if (argsArray.length == 2 && argsArray[0] instanceof Class && argsArray[1] instanceof Closure) {
+				thiz.configure(name, (Class) argsArray[0], ConfigureUtil.configureUsing((Closure<Void>) argsArray[1]));
+				return null;
 			}
 			return AbstractDomainObjectView.super.invokeMethod(name, args);
 		}
