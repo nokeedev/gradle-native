@@ -1,5 +1,7 @@
 package dev.nokee.model.internal;
 
-public interface NameAwareDomainObjectIdentifier {
+import dev.nokee.model.DomainObjectIdentifier;
+
+public interface NameAwareDomainObjectIdentifier extends DomainObjectIdentifier {
 	Object getName();
 }
