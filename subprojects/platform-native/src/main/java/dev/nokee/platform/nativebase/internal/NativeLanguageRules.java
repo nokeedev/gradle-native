@@ -1,17 +1,18 @@
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.language.base.internal.GeneratedSourceSet;
-import dev.nokee.language.base.internal.SourceSet;
-import dev.nokee.language.c.internal.CSourceSet;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.KnownLanguageSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetViewInternal;
+import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
-import dev.nokee.language.cpp.internal.CppSourceSet;
+import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
-import dev.nokee.language.nativebase.internal.UTTypeObjectCode;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
+import dev.nokee.language.nativebase.internal.ObjectSourceSet;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
-import dev.nokee.language.swift.internal.SwiftSourceSet;
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -19,6 +20,7 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.val;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskProvider;
@@ -37,50 +39,35 @@ public class NativeLanguageRules {
 		this.ownerIdentifier = ownerIdentifier;
 	}
 
-	public DomainObjectSet<GeneratedSourceSet> apply(DomainObjectSet<SourceSet> sourceSets) {
-		DomainObjectSet<GeneratedSourceSet> objectSourceSets = getObjects().domainObjectSet(GeneratedSourceSet.class);
-		sourceSets.withType(CSourceSet.class).stream()
-			.map(createNativeCompileTask("c", CCompileTask.class))
-			.map(this::newObjectSourceSetFromNativeCompileTask)
-			.forEach(objectSourceSets::add);
-		sourceSets.withType(CppSourceSet.class).stream()
-			.map(createNativeCompileTask("cpp", CppCompileTask.class))
-			.map(this::newObjectSourceSetFromNativeCompileTask)
-			.forEach(objectSourceSets::add);
-		sourceSets.withType(ObjectiveCSourceSet.class).stream()
-			.map(createNativeCompileTask("objectiveC", ObjectiveCCompileTask.class))
-			.map(this::newObjectSourceSetFromNativeCompileTask)
-			.forEach(objectSourceSets::add);
-		sourceSets.withType(ObjectiveCppSourceSet.class).stream()
-			.map(createNativeCompileTask("objectiveCpp", ObjectiveCppCompileTask.class))
-			.map(this::newObjectSourceSetFromNativeCompileTask)
-			.forEach(objectSourceSets::add);
-		sourceSets.withType(SwiftSourceSet.class).stream()
-			.map(this::createSwiftCompileTask)
-			.map(this::newObjectSourceSetFromSwiftCompileTask)
-			.forEach(objectSourceSets::add);
+	public DomainObjectSet<ObjectSourceSet> apply(LanguageSourceSetViewInternal<LanguageSourceSet> sourceSets) {
+		val objectSourceSets = objects.domainObjectSet(ObjectSourceSet.class);
+		sourceSets.whenElementKnown(CSourceSet.class, it -> createNativeCompileTask(CCompileTask.class).andThen(this::newObjectSourceSetFromNativeCompileTask).andThen(objectSourceSets::add).apply(it));
+		sourceSets.whenElementKnown(CppSourceSet.class, it -> createNativeCompileTask(CppCompileTask.class).andThen(this::newObjectSourceSetFromNativeCompileTask).andThen(objectSourceSets::add).apply(it));
+		sourceSets.whenElementKnown(ObjectiveCSourceSet.class, it -> createNativeCompileTask(ObjectiveCCompileTask.class).andThen(this::newObjectSourceSetFromNativeCompileTask).andThen(objectSourceSets::add).apply(it));
+		sourceSets.whenElementKnown(ObjectiveCppSourceSet.class, it -> createNativeCompileTask(ObjectiveCppCompileTask.class).andThen(this::newObjectSourceSetFromNativeCompileTask).andThen(objectSourceSets::add).apply(it));
+		sourceSets.whenElementKnown(SwiftSourceSet.class, it -> ((Function<KnownLanguageSourceSet<?>, TaskProvider<SwiftCompileTask>>)this::createSwiftCompileTask).andThen(this::newObjectSourceSetFromSwiftCompileTask).andThen(objectSourceSets::add).apply(it));
 		return objectSourceSets;
 	}
 
-	private <T extends AbstractNativeCompileTask> Function<SourceSet, TaskProvider<T>> createNativeCompileTask(String languageName, Class<T> type) {
-		return sourceSet -> {
-			return taskRegistry.register(TaskIdentifier.of(TaskName.of("compile", languageName), type, ownerIdentifier), task -> {
-				task.getSource().from(sourceSet.getAsFileTree());
+	private <T extends AbstractNativeCompileTask> Function<KnownLanguageSourceSet<?>, TaskProvider<T>> createNativeCompileTask(Class<T> type) {
+		return knownSourceSet -> {
+			return taskRegistry.register(TaskIdentifier.of(TaskName.of("compile", knownSourceSet.getIdentifier().getName().get()), type, ownerIdentifier), task -> {
+				task.getSource().from(knownSourceSet.map(LanguageSourceSet::getAsFileTree));
 			});
 		};
 	}
 
-	private TaskProvider<SwiftCompileTask> createSwiftCompileTask(SourceSet sourceSet) {
+	private TaskProvider<SwiftCompileTask> createSwiftCompileTask(KnownLanguageSourceSet<?> sourceSet) {
 		return taskRegistry.register(TaskIdentifier.of(TaskName.of("compile", "swift"), SwiftCompileTask.class, ownerIdentifier), task -> {
-			task.getSource().from(sourceSet.getAsFileTree());
+			task.getSource().from(sourceSet.map(LanguageSourceSet::getAsFileTree));
 		});
 	}
 
-	private <T extends AbstractNativeCompileTask> GeneratedSourceSet newObjectSourceSetFromNativeCompileTask(TaskProvider<T> task) {
-		return getObjects().newInstance(GeneratedSourceSet.class, task.getName(), UTTypeObjectCode.INSTANCE, task.flatMap(AbstractNativeCompileTask::getObjectFileDir), task);
+	private <T extends AbstractNativeCompileTask> ObjectSourceSet newObjectSourceSetFromNativeCompileTask(TaskProvider<T> task) {
+		return new ObjectSourceSet(task.getName(), task.flatMap(AbstractNativeCompileTask::getObjectFileDir), task, objects);
 	}
 
-	private GeneratedSourceSet newObjectSourceSetFromSwiftCompileTask(TaskProvider<SwiftCompileTask> task) {
-		return getObjects().newInstance(GeneratedSourceSet.class, task.getName(), UTTypeObjectCode.INSTANCE, task.flatMap(SwiftCompileTask::getObjectFileDir), task);
+	private ObjectSourceSet newObjectSourceSetFromSwiftCompileTask(TaskProvider<SwiftCompileTask> task) {
+		return new ObjectSourceSet(task.getName(), task.flatMap(SwiftCompileTask::getObjectFileDir), task, objects);
 	}
 }

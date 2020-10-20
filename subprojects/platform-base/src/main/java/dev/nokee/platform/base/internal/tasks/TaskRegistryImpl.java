@@ -1,7 +1,7 @@
 package dev.nokee.platform.base.internal.tasks;
 
 import dev.nokee.model.internal.*;
-import dev.nokee.platform.base.internal.ProjectIdentifier;
+import dev.nokee.model.internal.ProjectIdentifier;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;

@@ -1,9 +1,17 @@
 package dev.nokee.platform.c.internal;
 
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.c.internal.CSourceSet;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.LanguageSourceSetView;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetName;
+import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.c.internal.CHeaderSetImpl;
+import dev.nokee.language.c.internal.CSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.HasLanguageSourceSetAccessor;
 import dev.nokee.platform.c.CLibraryExtension;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
@@ -14,39 +22,33 @@ import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.ConfigureUtils;
 import lombok.Getter;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
-import javax.inject.Inject;
-
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
-import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
 
-public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements CLibraryExtension, Component {
-	private final ConfigurableFileCollection cSources;
-	@Getter private final ConfigurableFileCollection privateHeaders;
-	@Getter private final ConfigurableFileCollection publicHeaders;
+public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements CLibraryExtension, Component, HasLanguageSourceSetAccessor {
+	private final CSourceSet cSources;
+	@Getter private final CHeaderSet privateHeaders;
+	@Getter private final CHeaderSet publicHeaders;
 	@Getter private final SetProperty<TargetLinkage> targetLinkages;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
+	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
 
-	@Inject
-	public DefaultCLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
+	public DefaultCLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, LanguageSourceSetRegistry languageSourceSetRegistry) {
 		super(component, objects, providers, layout);
-		this.cSources = objects.fileCollection();
-		this.privateHeaders = objects.fileCollection();
-		this.publicHeaders = objects.fileCollection();
+		this.cSources = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("c"), CSourceSetImpl.class, component.getIdentifier()));
+		this.privateHeaders = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()));
+		this.publicHeaders = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("public"), CHeaderSetImpl.class, component.getIdentifier()));
 		this.targetLinkages = configureDisplayName(objects.setProperty(TargetLinkage.class), "targetLinkages");
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
-
-		getComponent().getSourceCollection().add(getObjects().newInstance(CSourceSet.class, "c").from(cSources.getElements().map(toIfEmpty("src/main/c"))));
-		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
-		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "public").srcDir(getPublicHeaders().getElements().map(toIfEmpty("src/main/public"))));
+		this.sources = component.getSources();
 	}
 
 	public void setTargetMachines(Object value) {
@@ -62,12 +64,27 @@ public class DefaultCLibraryExtension extends BaseNativeExtension<DefaultNativeL
 	}
 
 	@Override
-	public ConfigurableFileCollection getCSources() {
+	public CSourceSet getCSources() {
 		return cSources;
 	}
 
-	public ConfigurableFileCollection getcSources() {
+	public CSourceSet getcSources() {
 		return cSources;
+	}
+
+	@Override
+	public void cSources(Action<? super CSourceSet> action) {
+		action.execute(cSources);
+	}
+
+	@Override
+	public void privateHeaders(Action<? super CHeaderSet> action) {
+		action.execute(privateHeaders);
+	}
+
+	@Override
+	public void publicHeaders(Action<? super CHeaderSet> action) {
+		action.execute(publicHeaders);
 	}
 
 	@Override

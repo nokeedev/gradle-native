@@ -14,6 +14,7 @@ repositories {
 
 dependencies {
 	api project(':coreModel')
+	implementation project(':languageBase')
 	implementation project(':coreUtils')
 	implementation project(':runtimeBase')
 	implementation "com.google.guava:guava:${guavaVersion}"
@@ -29,6 +30,7 @@ dependencies {
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
 	testImplementation testFixtures(project(':coreModel'))
 
+	testFixturesApi testFixtures(project(':languageNative'))
 	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 	testFixturesCompileOnly gradleApi(minimumGradleVersion)

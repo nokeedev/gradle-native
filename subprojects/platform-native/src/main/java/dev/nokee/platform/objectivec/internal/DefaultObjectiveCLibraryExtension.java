@@ -1,9 +1,15 @@
 package dev.nokee.platform.objectivec.internal;
 
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSet;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.LanguageSourceSetView;
+import dev.nokee.language.base.internal.*;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.c.internal.CHeaderSetImpl;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.HasLanguageSourceSetAccessor;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
@@ -14,39 +20,35 @@ import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.ConfigureUtils;
 import lombok.Getter;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
-import javax.inject.Inject;
-
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
-import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
 
-public class DefaultObjectiveCLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements ObjectiveCLibraryExtension, Component {
-	@Getter private final ConfigurableFileCollection objectiveCSources;
-	@Getter private final ConfigurableFileCollection privateHeaders;
-	@Getter private final ConfigurableFileCollection publicHeaders;
+public class DefaultObjectiveCLibraryExtension extends BaseNativeExtension<DefaultNativeLibraryComponent> implements ObjectiveCLibraryExtension, Component, HasLanguageSourceSetAccessor {
+	@Getter private final ObjectiveCSourceSet objectiveCSources;
+	@Getter private final CHeaderSet privateHeaders;
+	@Getter private final CHeaderSet publicHeaders;
 	@Getter private final SetProperty<TargetLinkage> targetLinkages;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
+	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
+	private final ObjectFactory objectFactory;
 
-	@Inject
-	public DefaultObjectiveCLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
+	public DefaultObjectiveCLibraryExtension(DefaultNativeLibraryComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, LanguageSourceSetRegistry languageSourceSetRegistry) {
 		super(component, objects, providers, layout);
-		this.objectiveCSources = objects.fileCollection();
-		this.privateHeaders = objects.fileCollection();
-		this.publicHeaders = objects.fileCollection();
+		this.objectFactory = objects;
+		this.objectiveCSources = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objectiveC"), ObjectiveCSourceSetImpl.class, component.getIdentifier()));
+		this.privateHeaders = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()));
+		this.publicHeaders = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("public"), CHeaderSetImpl.class, component.getIdentifier()));
 		this.targetLinkages = configureDisplayName(objects.setProperty(TargetLinkage.class), "targetLinkages");
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
-
-		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCSourceSet.class, "objc").from(this.getObjectiveCSources().getElements().map(toIfEmpty("src/main/objc"))));
-		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
-		getComponent().getSourceCollection().add(getObjects().newInstance(CHeaderSet.class, "public").srcDir(getPublicHeaders().getElements().map(toIfEmpty("src/main/public"))));
+		this.sources = component.getSources();
 	}
 
 	public void setTargetMachines(Object value) {
@@ -73,5 +75,20 @@ public class DefaultObjectiveCLibraryExtension extends BaseNativeExtension<Defau
 	@Override
 	public VariantView<NativeLibrary> getVariants() {
 		return getComponent().getVariantCollection().getAsView(NativeLibrary.class);
+	}
+
+	@Override
+	public void objectiveCSources(Action<? super ObjectiveCSourceSet> action) {
+		action.execute(objectiveCSources);
+	}
+
+	@Override
+	public void privateHeaders(Action<? super CHeaderSet> action) {
+		action.execute(privateHeaders);
+	}
+
+	@Override
+	public void publicHeaders(Action<? super CHeaderSet> action) {
+		action.execute(publicHeaders);
 	}
 }

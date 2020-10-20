@@ -10,6 +10,7 @@ import static java.util.Objects.requireNonNull;
 
 public final class DomainObjectEventPublisherImpl implements DomainObjectEventPublisher {
 	private final List<DomainObjectEventSubscriber<?>> subscribers = new ArrayList<>();
+	private final List<DomainObjectEvent> events = new ArrayList<>();
 
 	public DomainObjectEventPublisherImpl() {}
 
@@ -21,6 +22,7 @@ public final class DomainObjectEventPublisherImpl implements DomainObjectEventPu
 			val castedSubscriber = (DomainObjectEventSubscriber<T>) subscriber;
 			castedSubscriber.handle(event);
 		});
+		events.add(event);
 	}
 
 	private Predicate<DomainObjectEventSubscriber<?>> subscribedToEventType(Class<?> eventType) {
@@ -29,6 +31,13 @@ public final class DomainObjectEventPublisherImpl implements DomainObjectEventPu
 
 	@Override
 	public <T extends DomainObjectEvent> void subscribe(DomainObjectEventSubscriber<T> subscriber) {
+		val subscribedEventType = subscriber.subscribedToEventType();
+		for (int i = 0 ; i < events.size(); ++i) {
+			val event = events.get(i);
+			if (subscribedEventType.isAssignableFrom(event.getClass())) {
+				subscriber.handle((T) event);
+			}
+		}
 		subscribers.add(requireNonNull(subscriber));
 	}
 }

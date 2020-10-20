@@ -1,15 +1,18 @@
 package dev.nokee.platform.base.internal.variants;
 
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.DomainObjectView;
 import dev.nokee.model.internal.AbstractDomainObjectView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.utils.ProviderUtils;
 import dev.nokee.utils.TransformerUtils;
+import groovy.lang.Closure;
 import org.gradle.api.Action;
+import org.gradle.api.specs.Spec;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.isDescendent;
 
-public final class VariantViewImpl<T extends Variant> extends AbstractDomainObjectView<Variant, T> implements VariantViewInternal<T> {
+public final class VariantViewImpl<T extends Variant> extends AbstractDomainObjectView<Variant, T> implements VariantViewInternal<T>, DomainObjectView<T> {
 	private final KnownVariantFactory knownVariantFactory;
 
 	VariantViewImpl(DomainObjectIdentifier viewOwner, Class<T> viewElementType, VariantRepository repository, VariantConfigurer configurer, VariantViewFactory viewFactory, KnownVariantFactory knownVariantFactory) {
@@ -18,8 +21,23 @@ public final class VariantViewImpl<T extends Variant> extends AbstractDomainObje
 	}
 
 	@Override
-	public <S extends T> VariantViewInternal<S> withType(Class<S> type) {
-		return (VariantViewInternal<S>) super.withType(type);
+	public void configureEach(Closure<Void> closure) {
+		DomainObjectView.super.configureEach(closure);
+	}
+
+	@Override
+	public <S extends T> void configureEach(Class<S> type, Closure<Void> closure) {
+		DomainObjectView.super.configureEach(type, closure);
+	}
+
+	@Override
+	public void configureEach(Spec<? super T> spec, Closure<Void> closure) {
+		DomainObjectView.super.configureEach(spec, closure);
+	}
+
+	@Override
+	public <S extends T> VariantViewImpl<S> withType(Class<S> type) {
+		return (VariantViewImpl<S>) super.withType(type);
 	}
 
 	@Override

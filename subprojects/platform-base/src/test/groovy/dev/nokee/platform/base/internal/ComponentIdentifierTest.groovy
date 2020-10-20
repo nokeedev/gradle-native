@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal
 
+import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.Component
 import spock.lang.Specification
 import spock.lang.Unroll

@@ -1,16 +1,14 @@
 package dev.nokee.platform.c.internal.plugins
 
-import dev.nokee.fixtures.AbstractBinaryPluginTest
-import dev.nokee.fixtures.AbstractPluginTest
-import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
-import dev.nokee.fixtures.AbstractTaskPluginTest
-import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.fixtures.*
+import dev.nokee.language.c.internal.CHeaderSetImpl
+import dev.nokee.language.c.internal.CSourceSetImpl
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.c.CApplicationExtension
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.NativeApplication
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent
 import org.gradle.api.Project
-import org.gradle.nativeplatform.NativeExecutable
 import spock.lang.Subject
 
 trait CApplicationPluginTestFixture {
@@ -52,6 +50,29 @@ trait CApplicationPluginTestFixture {
 @Subject(CApplicationPlugin)
 class CApplicationPluginTest extends AbstractPluginTest implements CApplicationPluginTestFixture {
 	final String pluginIdUnderTest = pluginId
+}
+
+@Subject(CApplicationPlugin)
+class CApplicationComponentPluginTest extends AbstractComponentPluginTest {
+	@Override
+	protected Class getExtensionTypeUnderTest() {
+		return CApplicationExtension
+	}
+
+	@Override
+	protected Class getComponentTypeUnderTest() {
+		return DefaultNativeApplicationComponent
+	}
+
+	@Override
+	protected void applyPluginUnderTests(Project project) {
+		project.apply plugin: 'dev.nokee.c-application'
+	}
+
+	@Override
+	protected List<ExpectedLanguageSourceSet> getExpectedLanguageSourceSets() {
+		return [newExpectedSourceSet('c', CSourceSetImpl), newExpectedSourceSet('headers', CHeaderSetImpl, 'privateHeaders')]
+	}
 }
 
 @Subject(CApplicationPlugin)

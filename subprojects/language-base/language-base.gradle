@@ -1,0 +1,35 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'java-test-fixtures'
+	id 'maven-publish'
+}
+
+// TODO: These repositories are required because IntelliJ fails again at detecting the repositories
+repositories {
+	jcenter()
+	mavenCentral()
+}
+
+dependencies {
+	api project(':coreModel')
+	implementation project(':coreUtils')
+	implementation "com.google.guava:guava:${guavaVersion}"
+
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	testCompileOnly project(':platformBase')
+	testImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	testImplementation testFixtures(project(':coreModel'))
+	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
+
+	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	testFixturesImplementation platform("org.spockframework:spock-bom:${spockVersion}")
+	testFixturesImplementation 'org.spockframework:spock-core'
+	testFixturesCompileOnly gradleApi(minimumGradleVersion)
+}
+
+gradlePlugin {
+	plugins {
+	}
+}

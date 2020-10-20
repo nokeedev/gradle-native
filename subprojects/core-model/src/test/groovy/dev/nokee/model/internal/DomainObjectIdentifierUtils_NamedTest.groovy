@@ -1,36 +1,45 @@
 package dev.nokee.model.internal
 
-
+import dev.nokee.model.DomainObjectIdentifier
 import spock.lang.Specification
+import spock.lang.Subject
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.named
 
+@Subject(DomainObjectIdentifierUtils)
 class DomainObjectIdentifierUtils_NamedTest extends Specification {
-	def "can create named identifier via factory method"() {
-		when:
-		def identifier = named('main')
+	def "returns false for non-name aware identifier"() {
+		given:
+		def identifier = Stub(DomainObjectIdentifier)
 
-		then:
-		identifier instanceof NamedDomainObjectIdentifier
-	}
-
-	def "returns name created via the factory method"() {
 		expect:
-		named('main').name == 'main'
-		named('test').name == 'test'
-		named('integTest').name == 'integTest'
+		!named("foo").test(identifier)
 	}
 
-	def "named identifier implement internal interface"() {
+	def "returns true when identifier name matches"() {
+		given:
+		def identifier = Mock(NameAwareDomainObjectIdentifier)
+
 		when:
-		def identifier = named('main')
-
+		assert named('foo').test(identifier)
 		then:
-		identifier instanceof DomainObjectIdentifierInternal
+		1 * identifier.name >> 'foo'
+
+		when:
+		assert named('bar').test(identifier)
+		then:
+		1 * identifier.name >> 'bar'
+
+		when:
+		assert !named('far').test(identifier)
+		then:
+		1 * identifier.name >> 'foo'
 	}
 
-	def "identifier toString() explains where it comes from"() {
+	def "predicate toString() explains where it comes from"() {
 		expect:
-		named('main').toString() == 'DomainObjectIdentifierUtils.named(main)'
+		named('foo').toString() == "DomainObjectIdentifierUtils.named(foo)"
+		named('bar').toString() == "DomainObjectIdentifierUtils.named(bar)"
+		named('far').toString() == "DomainObjectIdentifierUtils.named(far)"
 	}
 }

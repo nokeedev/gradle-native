@@ -3,6 +3,8 @@ package dev.nokee.model.internal
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Shared
 
+import java.util.function.Predicate
+
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.isDescendent
 
 abstract class AbstractRealizableDomainObjectRepositoryTest<T> extends DomainObjectSpec<T> {
@@ -169,5 +171,52 @@ abstract class AbstractRealizableDomainObjectRepositoryTest<T> extends DomainObj
 		1 * realizedSubscriber.handle(new DomainObjectRealized(identifier, entity))
 		and:
 		result == entity
+	}
+
+	def "can match identifier without realizing entity"() {
+		given:
+		def subject = newSubject()
+
+		and:
+		def realizedSubscriber = Mock(DomainObjectEventSubscriber) {
+			subscribedToEventType() >> DomainObjectRealized
+		}
+		eventPublisher.subscribe(realizedSubscriber)
+
+		and:
+		def (identifier, entity) = entityCreated(entity(entityDiscovered(entityIdentifier(ownerIdentifier))))
+
+		when:
+		def hasFoundIdentifier = subject.anyKnownIdentifier({ it == identifier } as Predicate)
+
+		then:
+		0 * realizedSubscriber.handle(_)
+
+		and:
+		hasFoundIdentifier
+	}
+
+	def "can find a single identifier without realizing entity"() {
+		given:
+		def subject = newSubject()
+
+		and:
+		def realizedSubscriber = Mock(DomainObjectEventSubscriber) {
+			subscribedToEventType() >> DomainObjectRealized
+		}
+		eventPublisher.subscribe(realizedSubscriber)
+
+		and:
+		def (identifier, entity) = entityCreated(entity(entityDiscovered(entityIdentifier(ownerIdentifier))))
+
+		when:
+		def foundIdentifier = subject.findKnownIdentifier({ it == identifier } as Predicate)
+
+		then:
+		0 * realizedSubscriber.handle(_)
+
+		and:
+		foundIdentifier.present
+		foundIdentifier.get() == identifier
 	}
 }

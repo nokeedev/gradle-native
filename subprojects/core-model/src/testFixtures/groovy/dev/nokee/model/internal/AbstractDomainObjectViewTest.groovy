@@ -1,6 +1,7 @@
 package dev.nokee.model.internal
 
 import com.google.common.collect.ImmutableSet
+import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.DomainObjectView
 import org.gradle.api.Action
 import org.gradle.api.Transformer
@@ -11,7 +12,7 @@ abstract class AbstractDomainObjectViewTest<T> extends AbstractDomainObjectColle
 		return newSubject(ownerIdentifier)
 	}
 
-	protected DomainObjectView<T> newSubject(TypeAwareDomainObjectIdentifier<T> owner) {
+	protected DomainObjectView<T> newSubject(DomainObjectIdentifier owner) {
 		return newEntityViewFactory().create(owner)
 	}
 

@@ -1,16 +1,13 @@
 package dev.nokee.platform.cpp.internal.plugins
 
-import dev.nokee.fixtures.AbstractBinaryPluginTest
-import dev.nokee.fixtures.AbstractPluginTest
-import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
-import dev.nokee.fixtures.AbstractTaskPluginTest
-import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.fixtures.*
+import dev.nokee.language.cpp.internal.CppHeaderSetImpl
+import dev.nokee.language.cpp.internal.CppSourceSetImpl
 import dev.nokee.platform.base.Variant
-import dev.nokee.platform.c.internal.plugins.CLibraryPlugin
-import dev.nokee.platform.c.internal.plugins.CLibraryPluginTestFixture
 import dev.nokee.platform.cpp.CppLibraryExtension
 import dev.nokee.platform.nativebase.NativeLibrary
 import dev.nokee.platform.nativebase.SharedLibraryBinary
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent
 import org.gradle.api.Project
 import spock.lang.Subject
 
@@ -53,6 +50,29 @@ trait CppLibraryPluginTestFixture {
 @Subject(CppLibraryPlugin)
 class CppLibraryPluginTest extends AbstractPluginTest implements CppLibraryPluginTestFixture {
 	final String pluginIdUnderTest = pluginId
+}
+
+@Subject(CppLibraryPlugin)
+class CppLibraryComponentPluginTest extends AbstractComponentPluginTest {
+	@Override
+	protected Class getExtensionTypeUnderTest() {
+		return CppLibraryExtension
+	}
+
+	@Override
+	protected Class getComponentTypeUnderTest() {
+		return DefaultNativeLibraryComponent
+	}
+
+	@Override
+	protected void applyPluginUnderTests(Project project) {
+		project.apply plugin: 'dev.nokee.cpp-library'
+	}
+
+	@Override
+	protected List<ExpectedLanguageSourceSet> getExpectedLanguageSourceSets() {
+		return [newExpectedSourceSet('cpp', CppSourceSetImpl), newExpectedSourceSet('headers', CppHeaderSetImpl, 'privateHeaders'), newExpectedSourceSet('public', CppHeaderSetImpl, 'publicHeaders')]
+	}
 }
 
 @Subject(CppLibraryPlugin)

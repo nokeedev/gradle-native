@@ -25,7 +25,7 @@ trait BinaryFixture {
 		return new BinaryViewFactory(entityRepository, entityConfigurer)
 	}
 
-	DomainObjectProviderFactory<Component> newEntityProviderFactory() {
+	DomainObjectProviderFactory<Binary> newEntityProviderFactory() {
 		throw new UnsupportedOperationException()
 	}
 

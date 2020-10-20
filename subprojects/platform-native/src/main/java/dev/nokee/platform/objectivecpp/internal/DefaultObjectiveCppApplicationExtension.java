@@ -1,9 +1,15 @@
 package dev.nokee.platform.objectivecpp.internal;
 
-import dev.nokee.language.cpp.internal.CppHeaderSet;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSet;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.LanguageSourceSetView;
+import dev.nokee.language.base.internal.*;
+import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.cpp.internal.CppHeaderSetImpl;
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.HasLanguageSourceSetAccessor;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeExtension;
@@ -13,34 +19,31 @@ import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.ConfigureUtils;
 import lombok.Getter;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
-import javax.inject.Inject;
-
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
-import static dev.nokee.utils.ConfigureUtils.setPropertyValue;
 
-public class DefaultObjectiveCppApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCppApplicationExtension, Component {
-	@Getter private final ConfigurableFileCollection objectiveCppSources;
-	@Getter private final ConfigurableFileCollection privateHeaders;
+public class DefaultObjectiveCppApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCppApplicationExtension, Component, HasLanguageSourceSetAccessor {
+	@Getter private final ObjectiveCppSourceSet objectiveCppSources;
+	@Getter private final CppHeaderSet privateHeaders;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
+	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
+	private final ObjectFactory objectFactory;
 
-	@Inject
-	public DefaultObjectiveCppApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
+	public DefaultObjectiveCppApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, LanguageSourceSetRegistry languageSourceSetRegistry) {
 		super(component, objects, providers, layout);
-		this.objectiveCppSources = objects.fileCollection();
-		this.privateHeaders = objects.fileCollection();
+		this.objectFactory = objects;
+		this.objectiveCppSources = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objectiveCpp"), ObjectiveCppSourceSetImpl.class, component.getIdentifier()));
+		this.privateHeaders = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CppHeaderSetImpl.class, component.getIdentifier()));
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
-
-		getComponent().getSourceCollection().add(getObjects().newInstance(ObjectiveCppSourceSet.class, "objcpp").from(this.getObjectiveCppSources().getElements().map(toIfEmpty("src/main/objcpp"))));
-		getComponent().getSourceCollection().add(getObjects().newInstance(CppHeaderSet.class, "headers").srcDir(getPrivateHeaders().getElements().map(toIfEmpty("src/main/headers"))));
+		this.sources = component.getSources();
 	}
 
 	public void setTargetMachines(Object value) {
@@ -63,5 +66,15 @@ public class DefaultObjectiveCppApplicationExtension extends BaseNativeExtension
 	@Override
 	public VariantView<NativeApplication> getVariants() {
 		return getComponent().getVariantCollection().getAsView(NativeApplication.class);
+	}
+
+	@Override
+	public void objectiveCppSources(Action<? super ObjectiveCppSourceSet> action) {
+		action.execute(objectiveCppSources);
+	}
+
+	@Override
+	public void privateHeaders(Action<? super CppHeaderSet> action) {
+		action.execute(privateHeaders);
 	}
 }

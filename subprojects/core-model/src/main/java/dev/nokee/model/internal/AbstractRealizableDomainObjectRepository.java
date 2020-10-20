@@ -5,6 +5,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.reflect.TypeOf;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -54,5 +55,14 @@ public abstract class AbstractRealizableDomainObjectRepository<T> implements Rea
 	public <S extends T> Provider<S> identified(TypeAwareDomainObjectIdentifier<S> identifier) {
 		knownObjects.assertKnownObject(identifier);
 		return providerFactory.provider(() -> get(identifier));
+	}
+
+	public boolean anyKnownIdentifier(Predicate<? super TypeAwareDomainObjectIdentifier<? extends T>> predicate) {
+		return knownObjects.anyMatch(predicate);
+	}
+
+	@Override
+	public Optional<TypeAwareDomainObjectIdentifier<? extends T>> findKnownIdentifier(Predicate<? super TypeAwareDomainObjectIdentifier<? extends T>> predicate) {
+		return knownObjects.find(predicate);
 	}
 }

@@ -1,13 +1,18 @@
 package dev.nokee.platform.swift;
 
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
-import org.gradle.api.file.ConfigurableFileCollection;
+import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
+import org.gradle.api.Action;
+import org.gradle.util.ConfigureUtil;
 
 /**
  * Configuration for an application written in Swift, defining the dependencies that make up the application plus other settings.
@@ -16,7 +21,7 @@ import org.gradle.api.file.ConfigurableFileCollection;
  *
  * @since 0.4
  */
-public interface SwiftApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent {
+public interface SwiftApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent {
 	/**
 	 * Defines the source files or directories of this application.
 	 * You can add files or directories to this collection.
@@ -26,5 +31,23 @@ public interface SwiftApplicationExtension extends DependencyAwareComponent<Nati
 	 *
 	 * @since 0.5
 	 */
-	ConfigurableFileCollection getSwiftSources();
+	SwiftSourceSet getSwiftSources();
+
+	/**
+	 * Configures the source files or directories of this application.
+	 *
+	 * @param action The action to execute for source set configuration.
+	 * @see #getSwiftSources()
+	 */
+	void swiftSources(Action<? super SwiftSourceSet> action);
+
+	/**
+	 * Configures the source files or directories of this application.
+	 *
+	 * @param closure The closure to execute for source set configuration.
+	 * @see #getSwiftSources()
+	 */
+	default void swiftSources(@DelegatesTo(value = SwiftSourceSet.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		swiftSources(ConfigureUtil.configureUsing(closure));
+	}
 }

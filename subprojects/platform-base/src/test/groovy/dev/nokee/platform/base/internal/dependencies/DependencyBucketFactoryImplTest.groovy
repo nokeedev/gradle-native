@@ -1,6 +1,6 @@
 package dev.nokee.platform.base.internal.dependencies
 
-import dev.nokee.platform.base.internal.ProjectIdentifier
+import dev.nokee.model.internal.ProjectIdentifier
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import spock.lang.Specification

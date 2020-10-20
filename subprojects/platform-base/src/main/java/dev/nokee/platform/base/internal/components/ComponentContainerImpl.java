@@ -4,14 +4,14 @@ import dev.nokee.model.internal.*;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.ProjectIdentifier;
+import dev.nokee.model.internal.ProjectIdentifier;
 import org.gradle.api.Action;
 
 public final class ComponentContainerImpl extends AbstractDomainObjectContainer<Component> implements ComponentContainerInternal {
 	private final ProjectIdentifier owner;
 
-	public ComponentContainerImpl(ProjectIdentifier owner, ComponentConfigurer configurer, DomainObjectEventPublisher eventPublisher, ComponentProviderFactory providerFactory, ComponentRepository repository, KnownComponentFactory knownComponentFactory) {
-		super(owner, Component.class, new PolymorphicDomainObjectInstantiator<>(Component.class, "component"), configurer, eventPublisher, providerFactory, repository, knownComponentFactory);
+	public ComponentContainerImpl(ProjectIdentifier owner, ComponentConfigurer configurer, DomainObjectEventPublisher eventPublisher, ComponentProviderFactory providerFactory, ComponentRepository repository, KnownComponentFactory knownComponentFactory, ComponentInstantiator instantiator) {
+		super(owner, Component.class, instantiator, configurer, eventPublisher, providerFactory, repository, knownComponentFactory);
 		this.owner = owner;
 	}
 

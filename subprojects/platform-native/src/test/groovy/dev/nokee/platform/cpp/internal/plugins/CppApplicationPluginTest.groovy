@@ -1,10 +1,13 @@
 package dev.nokee.platform.cpp.internal.plugins
 
 import dev.nokee.fixtures.*
+import dev.nokee.language.cpp.internal.CppHeaderSetImpl
+import dev.nokee.language.cpp.internal.CppSourceSetImpl
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.cpp.CppApplicationExtension
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.NativeApplication
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent
 import org.gradle.api.Project
 import spock.lang.Subject
 
@@ -47,6 +50,29 @@ trait CppApplicationPluginTestFixture {
 @Subject(CppApplicationPlugin)
 class CppApplicationPluginTest extends AbstractPluginTest implements CppApplicationPluginTestFixture {
 	final String pluginIdUnderTest = pluginId
+}
+
+@Subject(CppApplicationPlugin)
+class CppApplicationComponentPluginTest extends AbstractComponentPluginTest {
+	@Override
+	protected Class getExtensionTypeUnderTest() {
+		return CppApplicationExtension
+	}
+
+	@Override
+	protected Class getComponentTypeUnderTest() {
+		return DefaultNativeApplicationComponent
+	}
+
+	@Override
+	protected void applyPluginUnderTests(Project project) {
+		project.apply plugin: 'dev.nokee.cpp-application'
+	}
+
+	@Override
+	protected List<ExpectedLanguageSourceSet> getExpectedLanguageSourceSets() {
+		return [newExpectedSourceSet('cpp', CppSourceSetImpl), newExpectedSourceSet('headers', CppHeaderSetImpl, 'privateHeaders')]
+	}
 }
 
 @Subject(CppApplicationPlugin)

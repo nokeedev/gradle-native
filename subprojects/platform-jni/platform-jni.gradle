@@ -15,7 +15,11 @@ dependencies {
 	implementation project(':coreUtils')
 	implementation project(':runtimeDarwin')
 	implementation project(':runtimeNative')
-	implementation project(':languageNative')
+	implementation project(':languageC')
+	implementation project(':languageCpp')
+	implementation project(':languageObjectiveC')
+	implementation project(':languageObjectiveCpp')
+	implementation project(':languageSwift')
 
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "com.google.guava:guava:${guavaVersion}"
@@ -55,7 +59,10 @@ functionalTest {
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation "commons-io:commons-io:${commonsIoVersion}"
 		implementation project(':coreExec')
-		implementation testFixtures(project(':languageNative'))
+		implementation testFixtures(project(':languageC'))
+		implementation testFixtures(project(':languageCpp'))
+		implementation testFixtures(project(':languageObjectiveC'))
+		implementation testFixtures(project(':languageObjectiveCpp'))
 		implementation testFixtures(project(':platformNative'))
 	}
 }

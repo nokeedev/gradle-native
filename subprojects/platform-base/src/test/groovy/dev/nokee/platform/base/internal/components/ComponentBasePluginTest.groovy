@@ -62,4 +62,12 @@ class ComponentBasePluginTest extends Specification {
 		then:
 		project.extensions.findByType(KnownComponentFactory) != null
 	}
+
+	def "registers component instantiator"() {
+		when:
+		project.apply plugin: ComponentBasePlugin
+
+		then:
+		project.extensions.findByType(ComponentInstantiator) != null
+	}
 }

@@ -1,5 +1,6 @@
 package dev.nokee.testing.base.internal;
 
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.DomainObjectProvider;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.testing.base.TestSuiteComponent;

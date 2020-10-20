@@ -1,14 +1,18 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.base.Preconditions;
-import dev.nokee.language.base.internal.GeneratedSourceSet;
-import dev.nokee.language.base.internal.LanguageSourceSetInternal;
-import dev.nokee.language.c.internal.CHeaderSet;
-import dev.nokee.language.cpp.internal.CppHeaderSet;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.LanguageSourceSetView;
+import dev.nokee.language.base.internal.LanguageSourceSetRepository;
+import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
+import dev.nokee.language.base.internal.LanguageSourceSetViewInternal;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -26,8 +30,9 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import dev.nokee.utils.ProviderUtils;
+import lombok.Getter;
 import lombok.val;
-import org.gradle.api.DomainObjectSet;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
@@ -38,15 +43,19 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	private final ObjectFactory objects;
 	private final DomainObjectEventPublisher eventPublisher;
 	private final TaskViewFactory taskViewFactory;
+	private final LanguageSourceSetRepository languageSourceSetRepository;
+	@Getter private final LanguageSourceSetViewInternal<LanguageSourceSet> sources;
 
-	public BaseNativeComponent(ComponentIdentifier<?> identifier, Class<T> variantType, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
+	public BaseNativeComponent(ComponentIdentifier<?> identifier, Class<T> variantType, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, LanguageSourceSetRepository languageSourceSetRepository, LanguageSourceSetViewFactory languageSourceSetViewFactory) {
 		super(identifier, objects);
 		this.objects = objects;
 		this.eventPublisher = eventPublisher;
 		this.taskViewFactory = taskViewFactory;
+		this.languageSourceSetRepository = languageSourceSetRepository;
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
 		this.variantType = variantType;
 		this.taskRegistry = taskRegistry;
+		this.sources = languageSourceSetViewFactory.create(identifier);
 	}
 
 	public abstract NativeComponentDependencies getDependencies();
@@ -79,7 +88,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 		knownVariant.configure(it -> {
 			val incomingDependencies = (NativeIncomingDependencies) it.getResolvableDependencies();
-			DomainObjectSet<GeneratedSourceSet> objectSourceSets = new NativeLanguageRules(taskRegistry, objects, variantIdentifier).apply(getSourceCollection());
+			val objectSourceSets = new NativeLanguageRules(taskRegistry, objects, variantIdentifier).apply(getSources());
 			BaseNativeVariant variantInternal = (BaseNativeVariant)it;
 			if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
 				DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
@@ -97,7 +106,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 					// Binary factory
 					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variantIdentifier));
-					val binary = objects.newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, objects.domainObjectSet(LanguageSourceSetInternal.class), targetMachineInternal, objectSourceSets, linkTask, incomingDependencies, taskViewFactory);
+					val binary = objects.newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, targetMachineInternal, objectSourceSets, linkTask, incomingDependencies, taskViewFactory);
 					eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, binary));
 
 					binary.getBaseName().convention(getBaseName());
@@ -124,14 +133,13 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 			it.getBinaries().configureEach(NativeBinary.class, binary -> {
 				binary.getCompileTasks().configureEach(NativeSourceCompile.class, task -> {
 					val taskInternal = (AbstractNativeCompileTask) task;
-					getSourceCollection().withType(CHeaderSet.class).configureEach(sourceSet -> {
-						taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
-					});
-					getSourceCollection().withType(CppHeaderSet.class).configureEach(sourceSet -> {
-						taskInternal.getIncludes().from(sourceSet.getSourceDirectorySet().getSourceDirectories());
-					});
+					taskInternal.getIncludes().from(languageSourceSetRepository.filtered(this::isHeaderSourceSet).map(ProviderUtils.map(LanguageSourceSet::getSourceDirectories)));
 				});
 			});
 		});
+	}
+
+	private boolean isHeaderSourceSet(TypeAwareDomainObjectIdentifier<?> identifier) {
+		return CHeaderSet.class.isAssignableFrom(identifier.getType()) || CppHeaderSet.class.isAssignableFrom(identifier.getType());
 	}
 }

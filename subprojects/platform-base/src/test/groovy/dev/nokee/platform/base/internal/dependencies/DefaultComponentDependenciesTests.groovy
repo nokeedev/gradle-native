@@ -3,7 +3,7 @@ package dev.nokee.platform.base.internal.dependencies
 
 import dev.nokee.platform.base.AbstractComponentDependenciesGroovyDslTest
 import dev.nokee.platform.base.DependencyBucket
-import dev.nokee.platform.base.internal.ProjectIdentifier
+import dev.nokee.model.internal.ProjectIdentifier
 import org.gradle.api.UnknownDomainObjectException
 import org.gradle.api.artifacts.Configuration
 import org.gradle.testfixtures.ProjectBuilder

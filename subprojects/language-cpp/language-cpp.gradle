@@ -1,0 +1,35 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'java-test-fixtures'
+	id 'maven-publish'
+}
+
+// TODO: These repositories are required because IntelliJ fails again at detecting the repositories
+repositories {
+	jcenter()
+	mavenCentral()
+}
+
+dependencies {
+	api project(':languageNative')
+	implementation project(':runtimeNative')
+
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	testImplementation project(':languageObjectiveCpp')
+	testImplementation project(':platformBase')
+	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
+
+	testFixturesApi testFixtures(project(':languageNative'))
+	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
+}
+
+gradlePlugin {
+	plugins {
+		cppLanguage {
+			id = 'dev.nokee.cpp-language'
+			implementationClass = 'dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin'
+		}
+	}
+}

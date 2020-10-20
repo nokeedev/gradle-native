@@ -11,33 +11,19 @@ repositories {
 }
 
 dependencies {
-	implementation project(':platformBase')
+	api project(':languageBase')
 	implementation project(':runtimeNative')
+	implementation project(':coreUtils')
 	implementation "com.google.guava:guava:${guavaVersion}"
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
+	testFixturesApi testFixtures(project(':languageBase'))
 	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
 }
 
 gradlePlugin {
 	plugins {
-		cppLanguage {
-			id = 'dev.nokee.cpp-language'
-			implementationClass = 'dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin'
-		}
-		cLanguage {
-			id = 'dev.nokee.c-language'
-			implementationClass = 'dev.nokee.language.c.internal.plugins.CLanguagePlugin'
-		}
-		objectiveCLanguage {
-			id = 'dev.nokee.objective-c-language'
-			implementationClass = 'dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin'
-		}
-		objectiveCppLanguage {
-			id = 'dev.nokee.objective-cpp-language'
-			implementationClass = 'dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin'
-		}
 	}
 }

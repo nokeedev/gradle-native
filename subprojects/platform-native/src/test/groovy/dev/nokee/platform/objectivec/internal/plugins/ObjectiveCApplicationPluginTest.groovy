@@ -1,18 +1,14 @@
 package dev.nokee.platform.objectivec.internal.plugins
 
-import dev.nokee.fixtures.AbstractBinaryPluginTest
-import dev.nokee.fixtures.AbstractPluginTest
-import dev.nokee.fixtures.AbstractTargetMachineAwarePluginTest
-import dev.nokee.fixtures.AbstractTaskPluginTest
-import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.fixtures.*
+import dev.nokee.language.c.internal.CHeaderSetImpl
+import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl
 import dev.nokee.platform.base.Variant
-import dev.nokee.platform.c.internal.plugins.CApplicationPlugin
-import dev.nokee.platform.c.internal.plugins.CApplicationPluginTestFixture
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.NativeApplication
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent
 import dev.nokee.platform.objectivec.ObjectiveCApplicationExtension
 import org.gradle.api.Project
-import org.gradle.nativeplatform.NativeExecutable
 import spock.lang.Subject
 
 trait ObjectiveCApplicationPluginTestFixture {
@@ -54,6 +50,29 @@ trait ObjectiveCApplicationPluginTestFixture {
 @Subject(ObjectiveCApplicationPlugin)
 class ObjectiveCApplicationPluginTest extends AbstractPluginTest implements ObjectiveCApplicationPluginTestFixture {
 	final String pluginIdUnderTest = pluginId
+}
+
+@Subject(ObjectiveCApplicationPlugin)
+class ObjectiveCApplicationComponentPluginTest extends AbstractComponentPluginTest {
+	@Override
+	protected Class getExtensionTypeUnderTest() {
+		return ObjectiveCApplicationExtension
+	}
+
+	@Override
+	protected Class getComponentTypeUnderTest() {
+		return DefaultNativeApplicationComponent
+	}
+
+	@Override
+	protected void applyPluginUnderTests(Project project) {
+		project.apply plugin: 'dev.nokee.objective-c-application'
+	}
+
+	@Override
+	protected List<ExpectedLanguageSourceSet> getExpectedLanguageSourceSets() {
+		return [newExpectedSourceSet('objectiveC', ObjectiveCSourceSetImpl).addConventionDirectory('src/main/objc'), newExpectedSourceSet('headers', CHeaderSetImpl, 'privateHeaders')]
+	}
 }
 
 @Subject(ObjectiveCApplicationPlugin)

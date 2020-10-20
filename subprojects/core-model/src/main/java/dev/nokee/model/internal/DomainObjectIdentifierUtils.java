@@ -2,12 +2,12 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.DomainObjectIdentifier;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.val;
 
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
 
 public final class DomainObjectIdentifierUtils {
 	private DomainObjectIdentifierUtils() {}
@@ -31,6 +31,82 @@ public final class DomainObjectIdentifierUtils {
 		return Optional.empty();
 	}
 
+	public static Predicate<DomainObjectIdentifier> directlyOwnedBy(DomainObjectIdentifier owner) {
+		return new DirectlyOwnedIdentifierPredicate(owner);
+	}
+
+	private static final class DirectlyOwnedIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
+		private final DomainObjectIdentifier owner;
+
+		DirectlyOwnedIdentifierPredicate(DomainObjectIdentifier owner) {
+			this.owner = owner;
+		}
+
+		@Override
+		public boolean test(DomainObjectIdentifier identifier) {
+			if (identifier instanceof DomainObjectIdentifierInternal) {
+				val identifierInternal = (DomainObjectIdentifierInternal) identifier;
+				return identifierInternal.getParentIdentifier().isPresent() && identifierInternal.getParentIdentifier().get().equals(owner);
+			}
+			return false;
+		}
+
+		@Override
+		public String toString() {
+			return "DomainObjectIdentifierUtils.directlyOwnedBy(" + owner + ")";
+		}
+	}
+
+	public static Predicate<DomainObjectIdentifier> withType(Class<?> type) {
+		return new WithTypeIdentifierPredicate(type);
+	}
+
+	private static final class WithTypeIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
+		private final Class<?> type;
+
+		WithTypeIdentifierPredicate(Class<?> type) {
+			this.type = type;
+		}
+
+		@Override
+		public boolean test(DomainObjectIdentifier identifier) {
+			if (identifier instanceof TypeAwareDomainObjectIdentifier) {
+				return type.isAssignableFrom(((TypeAwareDomainObjectIdentifier<?>) identifier).getType());
+			}
+			return false;
+		}
+
+		@Override
+		public String toString() {
+			return "DomainObjectIdentifierUtils.withType(" + type.getCanonicalName() + ")";
+		}
+	}
+
+	public static Predicate<DomainObjectIdentifier> named(String name) {
+		return new NamedIdentifierPredicate(name);
+	}
+
+	private static final class NamedIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
+		private final String name;
+
+		private NamedIdentifierPredicate(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public boolean test(DomainObjectIdentifier identifier) {
+			if (identifier instanceof NameAwareDomainObjectIdentifier) {
+				return Objects.equals(((NameAwareDomainObjectIdentifier) identifier).getName().toString(), name);
+			}
+			return false;
+		}
+
+		@Override
+		public String toString() {
+			return "DomainObjectIdentifierUtils.named(" + name + ")";
+		}
+	}
+
 	public static Supplier<String> mapDisplayName(DomainObjectIdentifierInternal identifier) {
 		return new MapDisplayName(identifier);
 	}
@@ -51,34 +127,6 @@ public final class DomainObjectIdentifierUtils {
 		@Override
 		public String toString() {
 			return "DomainObjectIdentifierUtils.mapDisplayName(" + identifier + ")";
-		}
-	}
-
-	public static DomainObjectIdentifier named(String name) {
-		return new NamedDomainObjectIdentifierImpl(name);
-	}
-
-	@EqualsAndHashCode
-	private static class NamedDomainObjectIdentifierImpl implements NamedDomainObjectIdentifier, DomainObjectIdentifierInternal {
-		@Getter private final String name;
-
-		private NamedDomainObjectIdentifierImpl(String name) {
-			this.name = requireNonNull(name);
-		}
-
-		@Override
-		public Optional<? extends DomainObjectIdentifierInternal> getParentIdentifier() {
-			return Optional.empty();
-		}
-
-		@Override
-		public String getDisplayName() {
-			return "identifier '" + name + "'";
-		}
-
-		@Override
-		public String toString() {
-			return "DomainObjectIdentifierUtils.named(" + name + ")";
 		}
 	}
 }
