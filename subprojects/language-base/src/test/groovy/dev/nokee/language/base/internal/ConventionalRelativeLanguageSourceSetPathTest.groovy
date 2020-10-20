@@ -29,10 +29,10 @@ class ConventionalRelativeLanguageSourceSetPathTest extends Specification {
 		def project = ProjectBuilder.builder().build()
 
 		expect:
-		project.file(of(newSourceSetIdentifier('main', 'c'))).path == "${project.projectDir}/src/main/c"
-		project.file(of(newSourceSetIdentifier('main', 'public'))).path == "${project.projectDir}/src/main/public"
-		project.file(of(newSourceSetIdentifier('test', 'objc'))).path == "${project.projectDir}/src/test/objc"
-		project.file(of(newSourceSetIdentifier('integTest', 'swift'))).path == "${project.projectDir}/src/integTest/swift"
+		project.file(of(newSourceSetIdentifier('main', 'c'))) == project.file('src/main/c')
+		project.file(of(newSourceSetIdentifier('main', 'public'))) == project.file('src/main/public')
+		project.file(of(newSourceSetIdentifier('test', 'objc'))) == project.file('src/test/objc')
+		project.file(of(newSourceSetIdentifier('integTest', 'swift'))) == project.file('src/integTest/swift')
 	}
 
 	def "can build conventional relative path from source set identifier"() {
