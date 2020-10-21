@@ -1,10 +1,11 @@
 package dev.nokee.platform.ios.fixtures.elements
 
-import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceFile
 
 import java.nio.file.Files
+
+import static dev.gradleplugins.fixtures.file.FileSystemUtils.file;
 
 class NokeeAppAssets extends SourceElement {
 	@Override
@@ -142,8 +143,8 @@ class NokeeAppAssets extends SourceElement {
 	}
 
 	@Override
-	void writeToProject(TestFile projectDir) {
+	void writeToProject(File projectDir) {
 		super.writeToProject(projectDir)
-        Files.copy(getClass().getResourceAsStream('full-green.pdf'), projectDir.file('src/main/resources/Assets.xcassets/full-green.imageset/full-green.pdf').toPath());
+        Files.copy(getClass().getResourceAsStream('full-green.pdf'), file(projectDir, 'src/main/resources/Assets.xcassets/full-green.imageset/full-green.pdf').toPath());
 	}
 }

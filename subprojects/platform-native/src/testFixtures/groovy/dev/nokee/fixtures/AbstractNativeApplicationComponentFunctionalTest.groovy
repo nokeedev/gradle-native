@@ -1,7 +1,7 @@
 package dev.nokee.fixtures
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 
 abstract class AbstractNativeApplicationComponentFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "can run application from command line"() {

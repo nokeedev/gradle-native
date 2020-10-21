@@ -1,13 +1,13 @@
 package dev.nokee.platform.jni.fixtures.elements;
 
-import dev.gradleplugins.test.fixtures.file.TestFile;
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement;
-import dev.gradleplugins.test.fixtures.sources.SourceElement;
-import dev.gradleplugins.test.fixtures.sources.SourceFile;
+import dev.gradleplugins.fixtures.sources.NativeSourceElement;
+import dev.gradleplugins.fixtures.sources.SourceElement;
+import dev.gradleplugins.fixtures.sources.SourceFile;
 
+import java.io.File;
 import java.util.List;
 
-public class TestableJniLibraryElement extends JniLibraryElement {
+public class TestableJniLibraryElement extends SourceElement implements JniLibraryElement {
 	private final JniLibraryElement main;
 	private final SourceElement test;
 
@@ -37,7 +37,7 @@ public class TestableJniLibraryElement extends JniLibraryElement {
 	}
 
 	@Override
-	public void writeToProject(TestFile projectDir) {
+	public void writeToProject(File projectDir) {
 		main.writeToProject(projectDir);
 		test.writeToProject(projectDir);
 	}

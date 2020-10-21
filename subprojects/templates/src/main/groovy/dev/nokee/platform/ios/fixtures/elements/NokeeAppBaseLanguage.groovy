@@ -1,7 +1,7 @@
 package dev.nokee.platform.ios.fixtures.elements
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceFile
 
 class NokeeAppBaseLanguage extends SourceElement {
 	private final NokeeAppMainStoryboard mainStoryboard

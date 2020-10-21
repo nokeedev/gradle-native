@@ -1,21 +1,20 @@
 package dev.nokee.platform.jni.fixtures
 
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement
-import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
-import dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement
-import dev.gradleplugins.test.fixtures.sources.java.JavaSourceFileElement
-import dev.gradleplugins.test.fixtures.sources.objectivec.ObjectiveCSourceElement
+import dev.gradleplugins.fixtures.sources.NativeSourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceFileElement
+import dev.gradleplugins.fixtures.sources.java.JavaPackage
+import dev.nokee.platform.jni.fixtures.elements.JavaNativeLoader
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
 
-import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
-import static dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement.ofPackage
+import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofNativeElements
+import static dev.gradleplugins.fixtures.sources.java.JavaPackage.ofPackage
 
-class JavaJniObjectiveCNSSavePanelLib extends JniLibraryElement {
+class JavaJniObjectiveCNSSavePanelLib extends SourceElement implements JniLibraryElement {
 	final ObjectiveCNSSavePanelJniBinding nativeBindings
-	final JavaSourceElement jvmBindings
-	final JavaSourceElement jvmImplementation
+	final SourceElement jvmBindings
+	final SourceElement jvmImplementation
 
 	@Override
 	SourceElement getJvmSources() {
@@ -35,24 +34,28 @@ class JavaJniObjectiveCNSSavePanelLib extends JniLibraryElement {
 
 		jvmImplementation = new JavaNativeLoader(javaPackage);
 	}
-}
-
-class JavaNativeNSSavePanel extends JavaSourceFileElement {
-	private final SourceFileElement source
-	private final JavaPackage javaPackage
-	private final String sharedLibraryBaseName
-	private final String resourcePath
 
 	@Override
-	SourceFileElement getSource() {
-		return source
+	List<SourceFile> getFiles() {
+		return jvmSources.files + nativeSources.files
 	}
 
-	JavaNativeNSSavePanel(JavaPackage javaPackage, String sharedLibraryBaseName, String resourcePath = '') {
-		this.javaPackage = javaPackage
-		this.sharedLibraryBaseName = sharedLibraryBaseName
-		this.resourcePath = resourcePath
-		source = ofFile(sourceFile("java/${javaPackage.directoryLayout}", 'NSSavePanel.java', """
+	private static class JavaNativeNSSavePanel extends SourceFileElement {
+		private final SourceFile source
+		private final JavaPackage javaPackage
+		private final String sharedLibraryBaseName
+		private final String resourcePath
+
+		@Override
+		SourceFile getSourceFile() {
+			return source
+		}
+
+		JavaNativeNSSavePanel(JavaPackage javaPackage, String sharedLibraryBaseName, String resourcePath = '') {
+			this.javaPackage = javaPackage
+			this.sharedLibraryBaseName = sharedLibraryBaseName
+			this.resourcePath = resourcePath
+			source = sourceFile("java/${javaPackage.directoryLayout}", 'NSSavePanel.java', """
 package ${javaPackage.name};
 
 import java.io.File;
@@ -70,35 +73,35 @@ public class NSSavePanel {
 
     public native String saveDialog(String title, String extension);
 }
-"""))
+""")
+		}
+
+		JavaNativeNSSavePanel withSharedLibraryBaseName(String sharedLibraryBaseName) {
+			return new JavaNativeNSSavePanel(javaPackage, sharedLibraryBaseName, resourcePath)
+		}
+
+		JavaNativeNSSavePanel withResourcePath(String resourcePath) {
+			return new JavaNativeNSSavePanel(javaPackage, sharedLibraryBaseName, resourcePath)
+		}
 	}
 
-	JavaNativeNSSavePanel withSharedLibraryBaseName(String sharedLibraryBaseName) {
-		return new JavaNativeNSSavePanel(javaPackage, sharedLibraryBaseName, resourcePath)
-	}
+	private static class ObjectiveCNSSavePanelJniBinding extends NativeSourceElement {
+		private final source
+		private final JavaPackage javaPackage
 
-	JavaNativeNSSavePanel withResourcePath(String resourcePath) {
-		return new JavaNativeNSSavePanel(javaPackage, sharedLibraryBaseName, resourcePath)
-	}
-}
+		@Override
+		SourceElement getHeaders() {
+			return empty()
+		}
 
-class ObjectiveCNSSavePanelJniBinding extends ObjectiveCSourceElement {
-	private final source
-	private final JavaPackage javaPackage
+		@Override
+		SourceElement getSources() {
+			return source
+		}
 
-	@Override
-	SourceElement getHeaders() {
-		return empty()
-	}
-
-	@Override
-	SourceElement getSources() {
-		return source
-	}
-
-	ObjectiveCNSSavePanelJniBinding(JavaPackage javaPackage) {
-		this.javaPackage = javaPackage
-		source = ofFiles(sourceFile('objc', 'ns_save_panel.m', """
+		ObjectiveCNSSavePanelJniBinding(JavaPackage javaPackage) {
+			this.javaPackage = javaPackage
+			source = ofFiles(sourceFile('objc', 'ns_save_panel.m', """
 #include "${javaPackage.jniHeader('NSSavePanel')}"
 
 #import "JavaNativeFoundation/JavaNativeFoundation.h"
@@ -188,5 +191,6 @@ JNIEXPORT jstring JNICALL ${javaPackage.jniMethodName('NSSavePanel', 'saveDialog
     return NULL;
 }
 """))
+		}
 	}
 }

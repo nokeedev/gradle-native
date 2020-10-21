@@ -1,16 +1,16 @@
 package dev.nokee.platform.nativebase.fixtures
 
-import dev.gradleplugins.test.fixtures.sources.NativeLibraryElement
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.objectivecpp.ObjectiveCppSourceElement
+import dev.gradleplugins.fixtures.sources.NativeLibraryElement
+import dev.gradleplugins.fixtures.sources.NativeSourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.platform.jni.fixtures.ObjectiveCppGreeter
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 
-import static dev.gradleplugins.test.fixtures.sources.NativeSourceElement.ofNativeElements
+import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofNativeElements
 
 class ObjectiveCppGreeterApp extends GreeterImplementationAwareSourceElement<ObjectiveCppGreeter> {
-	@Delegate final NativeSourceElement delegate
+	@Delegate
+	final NativeSourceElement delegate
 
 	ObjectiveCppGreeterApp() {
 		super(new ObjectiveCppMainUsesGreeter(), new ObjectiveCppGreeter())
@@ -21,12 +21,11 @@ class ObjectiveCppGreeterApp extends GreeterImplementationAwareSourceElement<Obj
 	GreeterImplementationAwareSourceElement<NativeLibraryElement> withImplementationAsSubproject(String subprojectPath) {
 		return ofImplementationAsSubproject(elementUsingGreeter, asSubproject(subprojectPath, greeter.asLib()))
 	}
-}
 
-class ObjectiveCppMainUsesGreeter extends ObjectiveCppSourceElement {
-	@Override
-	SourceElement getSources() {
-		return ofFiles(sourceFile('objcpp', 'main.mm', '''
+	private static class ObjectiveCppMainUsesGreeter extends NativeSourceElement {
+		@Override
+		SourceElement getSources() {
+			return ofFiles(sourceFile('objcpp', 'main.mm', '''
 #include <iostream>
 #include "greeter.h"
 
@@ -36,5 +35,6 @@ int main(int argc, const char * argv[]) {
 	return 0;
 }
 '''))
+		}
 	}
 }

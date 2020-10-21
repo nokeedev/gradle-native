@@ -1,7 +1,7 @@
 package dev.nokee.docs;
 
 import com.google.common.collect.ImmutableMap;
-import dev.gradleplugins.test.fixtures.sources.SourceElement;
+import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.nokee.docs.tasks.*;
 import lombok.AccessLevel;
 import lombok.Getter;

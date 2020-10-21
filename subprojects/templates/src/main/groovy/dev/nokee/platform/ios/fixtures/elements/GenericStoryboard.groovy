@@ -1,7 +1,7 @@
 package dev.nokee.platform.ios.fixtures.elements
 
-import dev.gradleplugins.test.fixtures.sources.SourceFile
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement
+import dev.gradleplugins.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceFileElement
 
 /**
  * Artificial storyboard derived from Xcode starter sample's LaunchScreen.storyboard.

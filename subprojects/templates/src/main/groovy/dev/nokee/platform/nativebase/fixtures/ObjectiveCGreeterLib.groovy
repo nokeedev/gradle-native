@@ -1,15 +1,15 @@
 package dev.nokee.platform.nativebase.fixtures
 
-import dev.gradleplugins.test.fixtures.sources.NativeLibraryElement
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.objectivec.ObjectiveCLibraryElement
+import dev.gradleplugins.fixtures.sources.NativeLibraryElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.platform.jni.fixtures.ObjectiveCGreeter
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 
-import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
+import static dev.gradleplugins.fixtures.sources.SourceFileElement.ofFile
 
 class ObjectiveCGreeterLib extends GreeterImplementationAwareSourceElement<ObjectiveCGreeter> {
-	@Delegate final NativeLibraryElement delegate
+	@Delegate
+	final NativeLibraryElement delegate
 
 	ObjectiveCGreeterLib() {
 		super(new ObjectiveCGreetUsesGreeter().asLib(), new ObjectiveCGreeter().asLib())
@@ -20,30 +20,29 @@ class ObjectiveCGreeterLib extends GreeterImplementationAwareSourceElement<Objec
 	GreeterImplementationAwareSourceElement<NativeLibraryElement> withImplementationAsSubproject(String subprojectPath) {
 		return ofImplementationAsSubproject(elementUsingGreeter, asSubproject(subprojectPath, greeter))
 	}
-}
 
-class ObjectiveCGreetUsesGreeter extends ObjectiveCLibraryElement {
-	private final header
-	private final source
+	private static class ObjectiveCGreetUsesGreeter extends NativeLibraryElement {
+		private final header
+		private final source
 
-	@Override
-	SourceElement getPublicHeaders() {
-		return header
-	}
+		@Override
+		SourceElement getPublicHeaders() {
+			return header
+		}
 
-	@Override
-	SourceElement getSources() {
-		return source
-	}
+		@Override
+		SourceElement getSources() {
+			return source
+		}
 
-	ObjectiveCGreetUsesGreeter() {
-		header = ofFile(sourceFile('headers', 'greet_alice.h', """
+		ObjectiveCGreetUsesGreeter() {
+			header = ofFile(sourceFile('headers', 'greet_alice.h', """
 @interface GreetAlice
 + (id)alloc;
 - (void)sayHelloToAlice;
 @end
 """))
-		source = ofFile(sourceFile('objc', 'greet_alice_impl.m', """
+			source = ofFile(sourceFile('objc', 'greet_alice_impl.m', """
 #import "greet_alice.h"
 
 #include <stdio.h>
@@ -63,5 +62,6 @@ class ObjectiveCGreetUsesGreeter extends ObjectiveCLibraryElement {
 }
 @end
 """))
+		}
 	}
 }

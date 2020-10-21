@@ -1,7 +1,7 @@
 package dev.nokee.ide.visualstudio
 
 import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.language.cpp.CppTaskNames
 import dev.nokee.language.cpp.tasks.CppCompile
 import dev.nokee.platform.nativebase.NativeBinary

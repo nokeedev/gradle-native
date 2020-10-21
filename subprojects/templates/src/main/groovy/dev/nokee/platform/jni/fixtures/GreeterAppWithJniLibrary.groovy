@@ -1,10 +1,11 @@
 package dev.nokee.platform.jni.fixtures
 
-import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceFile
 import dev.nokee.platform.jni.fixtures.elements.ApplicationWithLibraryElement
 import dev.nokee.platform.jni.fixtures.elements.JavaMainUsesGreeter
+
+import static dev.gradleplugins.fixtures.file.FileSystemUtils.file
 
 class GreeterAppWithJniLibrary implements ApplicationWithLibraryElement {
 	final JavaJniCppGreeterLib library
@@ -38,8 +39,8 @@ class GreeterAppWithJniLibrary implements ApplicationWithLibraryElement {
 			}
 
 			@Override
-			void writeToProject(TestFile projectDir) {
-				library.withResourcePath(resourcePath).withProjectName(libraryProjectName).writeToProject(projectDir.file(libraryProjectName))
+			void writeToProject(File projectDir) {
+				library.withResourcePath(resourcePath).withProjectName(libraryProjectName).writeToProject(file(projectDir, libraryProjectName))
 				application.writeToProject(projectDir)
 			}
 

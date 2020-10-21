@@ -1,16 +1,13 @@
 package dev.nokee.platform.ios.fixtures
 
-import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFile
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement
-import dev.gradleplugins.test.fixtures.sources.objectivec.ObjectiveCSourceElement
-import dev.gradleplugins.test.fixtures.sources.objectivec.ObjectiveCSourceFileElement
+import dev.gradleplugins.fixtures.sources.NativeSourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceFile
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppAssets
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppBaseLanguage
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppInfoPlist
 
-import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
+import static dev.gradleplugins.fixtures.sources.SourceFileElement.ofFile
 
 class ObjectiveCIosApp extends SourceElement {
 	final SourceElement main = ofElements(
@@ -24,19 +21,18 @@ class ObjectiveCIosApp extends SourceElement {
 	}
 
 	@Override
-	void writeToProject(TestFile projectDir) {
+	void writeToProject(File projectDir) {
 		main.writeToProject(projectDir)
 	}
 
 	ObjectiveCIosUnitXCTest withUnitTest() {
 		return new ObjectiveCIosUnitXCTest(this)
 	}
-}
 
-class ObjectiveCAppDelegate extends ObjectiveCSourceFileElement {
-	@Override
-	SourceFileElement getHeader() {
-		return ofFile(sourceFile('headers', 'AppDelegate.h', '''
+	private static class ObjectiveCAppDelegate extends NativeSourceElement {
+		@Override
+		SourceElement getHeaders() {
+			return ofFile(sourceFile('headers', 'AppDelegate.h', '''
 #import <UIKit/UIKit.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
@@ -44,11 +40,11 @@ class ObjectiveCAppDelegate extends ObjectiveCSourceFileElement {
 
 @end
 '''))
-	}
+		}
 
-	@Override
-	SourceFileElement getSource() {
-		return ofFile(sourceFile('objc', 'AppDelegate.m', '''
+		@Override
+		SourceElement getSources() {
+			return ofFile(sourceFile('objc', 'AppDelegate.m', '''
 #import "AppDelegate.h"
 
 @interface AppDelegate ()
@@ -83,13 +79,13 @@ class ObjectiveCAppDelegate extends ObjectiveCSourceFileElement {
 
 @end
 '''))
+		}
 	}
-}
 
-class ObjectiveCSceneDelegate extends ObjectiveCSourceFileElement {
-	@Override
-	SourceFileElement getHeader() {
-		return ofFile(sourceFile('headers', 'SceneDelegate.h', '''
+	private static class ObjectiveCSceneDelegate extends NativeSourceElement {
+		@Override
+		SourceElement getHeaders() {
+			return ofFile(sourceFile('headers', 'SceneDelegate.h', '''
 #import <UIKit/UIKit.h>
 
 @interface SceneDelegate : UIResponder <UIWindowSceneDelegate>
@@ -98,11 +94,11 @@ class ObjectiveCSceneDelegate extends ObjectiveCSourceFileElement {
 
 @end
 '''))
-	}
+		}
 
-	@Override
-	SourceFileElement getSource() {
-		return ofFile(sourceFile('objc', 'SceneDelegate.m', '''
+		@Override
+		SourceElement getSources() {
+			return ofFile(sourceFile('objc', 'SceneDelegate.m', '''
 #import "SceneDelegate.h"
 
 @interface SceneDelegate ()
@@ -154,14 +150,14 @@ class ObjectiveCSceneDelegate extends ObjectiveCSourceFileElement {
 
 @end
 '''))
+		}
 	}
-}
 
-class ObjectiveCViewController extends ObjectiveCSourceFileElement {
+	private static class ObjectiveCViewController extends NativeSourceElement {
 
-	@Override
-	SourceFileElement getHeader() {
-		return ofFile(sourceFile('headers', 'ViewController.h', '''
+		@Override
+		SourceElement getHeaders() {
+			return ofFile(sourceFile('headers', 'ViewController.h', '''
 #import <UIKit/UIKit.h>
 
 @interface ViewController : UIViewController
@@ -169,11 +165,11 @@ class ObjectiveCViewController extends ObjectiveCSourceFileElement {
 
 @end
 '''))
-	}
+		}
 
-	@Override
-	SourceFileElement getSource() {
-		return ofFile(sourceFile('objc', 'ViewController.m', '''
+		@Override
+		SourceElement getSources() {
+			return ofFile(sourceFile('objc', 'ViewController.m', '''
 #import "ViewController.h"
 
 @interface ViewController ()
@@ -190,18 +186,18 @@ class ObjectiveCViewController extends ObjectiveCSourceFileElement {
 
 @end
 '''))
-	}
-}
-
-class ObjectiveCMain extends ObjectiveCSourceElement {
-	@Override
-	SourceElement getHeaders() {
-		return empty()
+		}
 	}
 
-	@Override
-	SourceElement getSources() {
-		return ofFiles(sourceFile('objc', 'main.m', '''
+	private static class ObjectiveCMain extends NativeSourceElement {
+		@Override
+		SourceElement getHeaders() {
+			return empty()
+		}
+
+		@Override
+		SourceElement getSources() {
+			return ofFiles(sourceFile('objc', 'main.m', '''
 #import <UIKit/UIKit.h>
 #import "AppDelegate.h"
 
@@ -214,6 +210,6 @@ int main(int argc, char * argv[]) {
     return UIApplicationMain(argc, argv, nil, appDelegateClassName);
 }
 '''))
+		}
 	}
 }
-

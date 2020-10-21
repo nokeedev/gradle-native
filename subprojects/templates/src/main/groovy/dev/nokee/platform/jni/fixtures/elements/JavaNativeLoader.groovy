@@ -1,19 +1,19 @@
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement
-import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
-import dev.gradleplugins.test.fixtures.sources.java.JavaSourceFileElement
+package dev.nokee.platform.jni.fixtures.elements
 
-import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
+import dev.gradleplugins.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceFileElement
+import dev.gradleplugins.fixtures.sources.java.JavaPackage
 
-class JavaNativeLoader extends JavaSourceFileElement {
-	private final SourceFileElement source
+class JavaNativeLoader extends SourceFileElement {
+	private final SourceFile source
 
 	@Override
-	SourceFileElement getSource() {
+	SourceFile getSourceFile() {
 		return source
 	}
 
 	JavaNativeLoader(JavaPackage javaPackage) {
-		source = ofFile(sourceFile("java/${javaPackage.directoryLayout}", 'NativeLoader.java', """
+		source = sourceFile("java/${javaPackage.directoryLayout}", 'NativeLoader.java', """
 package ${javaPackage.name};
 
 import java.io.File;
@@ -74,6 +74,6 @@ public class NativeLoader {
 		}
 	}
 }
-"""))
+""")
 	}
 }

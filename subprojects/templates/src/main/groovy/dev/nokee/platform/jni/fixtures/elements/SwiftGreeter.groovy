@@ -1,8 +1,8 @@
 package dev.nokee.platform.jni.fixtures.elements
 
 
-import dev.gradleplugins.test.fixtures.sources.SourceFile
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement
+import dev.gradleplugins.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceFileElement
 
 class SwiftGreeter extends SourceFileElement {
 	@Override

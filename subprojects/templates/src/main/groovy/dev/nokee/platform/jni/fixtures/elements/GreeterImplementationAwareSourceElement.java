@@ -1,16 +1,18 @@
 package dev.nokee.platform.jni.fixtures.elements;
 
 import com.google.common.collect.ImmutableList;
-import dev.gradleplugins.test.fixtures.file.TestFile;
-import dev.gradleplugins.test.fixtures.sources.NativeLibraryElement;
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement;
-import dev.gradleplugins.test.fixtures.sources.SourceElement;
-import dev.gradleplugins.test.fixtures.sources.SourceFile;
+import dev.gradleplugins.fixtures.sources.NativeLibraryElement;
+import dev.gradleplugins.fixtures.sources.NativeSourceElement;
+import dev.gradleplugins.fixtures.sources.SourceElement;
+import dev.gradleplugins.fixtures.sources.SourceFile;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static dev.gradleplugins.fixtures.file.FileSystemUtils.file;
 
 public abstract class GreeterImplementationAwareSourceElement<T extends SourceElement> extends SourceElement {
 	private final SourceElement elementUsingGreeter;
@@ -35,7 +37,7 @@ public abstract class GreeterImplementationAwareSourceElement<T extends SourceEl
 	}
 
 	@Override
-	public void writeToProject(TestFile projectDir) {
+	public void writeToProject(File projectDir) {
 		ofElements(elementUsingGreeter, greeter).writeToProject(projectDir);
 	}
 
@@ -58,8 +60,8 @@ public abstract class GreeterImplementationAwareSourceElement<T extends SourceEl
 			}
 
 			@Override
-			public void writeToProject(TestFile projectDir) {
-				delegate.writeToProject(projectDir.file(subprojectPath));
+			public void writeToProject(File projectDir) {
+				delegate.writeToProject(file(projectDir, subprojectPath));
 			}
 		};
 	}
@@ -73,7 +75,7 @@ public abstract class GreeterImplementationAwareSourceElement<T extends SourceEl
 
 			@Override
 			public SourceElement getPrivateHeaders() {
-				return asSubproject(subprojectPath, delegate.getPublicHeaders());
+				return asSubproject(subprojectPath, delegate.getPrivateHeaders());
 			}
 
 			@Override
@@ -82,8 +84,8 @@ public abstract class GreeterImplementationAwareSourceElement<T extends SourceEl
 			}
 
 			@Override
-			public void writeToProject(TestFile projectDir) {
-				delegate.writeToProject(projectDir.file(subprojectPath));
+			public void writeToProject(File projectDir) {
+				delegate.writeToProject(file(projectDir, subprojectPath));
 			}
 		};
 	}
@@ -115,7 +117,7 @@ public abstract class GreeterImplementationAwareSourceElement<T extends SourceEl
 			}
 
 			@Override
-			public void writeToProject(TestFile projectDir) {
+			public void writeToProject(File projectDir) {
 				for (SourceElement element : elements) {
 					element.writeToProject(projectDir);
 				}

@@ -1,20 +1,20 @@
 package dev.nokee.platform.nativebase.fixtures
 
-import dev.gradleplugins.test.fixtures.sources.NativeLibraryElement
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.cpp.CppSourceElement
+import dev.gradleplugins.fixtures.sources.NativeLibraryElement
+import dev.gradleplugins.fixtures.sources.NativeSourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.platform.jni.fixtures.elements.CppGreeter
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 
-import static dev.gradleplugins.test.fixtures.sources.NativeSourceElement.ofNativeElements
+import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofNativeElements
 
 class CppGreeterApp extends GreeterImplementationAwareSourceElement<CppGreeter> {
-	@Delegate final NativeSourceElement delegate
+	@Delegate
+	final NativeSourceElement delegate
 
 	CppGreeterApp() {
 		super(new CppMainUsesGreeter(), new CppGreeter())
-		delegate = ofNativeElements(elementUsingGreeter, greeter)
+		delegate = ofNativeElements((NativeSourceElement)elementUsingGreeter, greeter)
 	}
 
 	GreeterImplementationAwareSourceElement<NativeLibraryElement> withImplementationAsSubproject(String subprojectPath) {
@@ -24,12 +24,11 @@ class CppGreeterApp extends GreeterImplementationAwareSourceElement<CppGreeter> 
 	SourceElement withGenericTestSuite() {
 		return ofNativeElements(delegate, new CppGreeterTest())
 	}
-}
 
-class CppMainUsesGreeter extends CppSourceElement {
-	@Override
-	SourceElement getSources() {
-		return ofFiles(sourceFile('cpp', 'main.cpp', '''
+	private static class CppMainUsesGreeter extends NativeSourceElement {
+		@Override
+		SourceElement getSources() {
+			return ofFiles(sourceFile('cpp', 'main.cpp', '''
 #include <iostream>
 #include "greeter.h"
 
@@ -38,5 +37,6 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 '''))
+		}
 	}
 }

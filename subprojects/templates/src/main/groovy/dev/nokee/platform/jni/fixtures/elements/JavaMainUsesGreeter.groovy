@@ -1,22 +1,21 @@
 package dev.nokee.platform.jni.fixtures.elements
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement
-import dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement
+import dev.gradleplugins.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceFileElement
 
-import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
+import static dev.gradleplugins.fixtures.sources.java.JavaPackage.ofPackage
 
-class JavaMainUsesGreeter extends JavaSourceElement implements GreeterElement {
-	final SourceFileElement main
+class JavaMainUsesGreeter extends SourceFileElement implements GreeterElement {
+	final SourceFile main
 
 	@Override
-	SourceElement getSources() {
+	SourceFile getSourceFile() {
 		return main
 	}
 
 	JavaMainUsesGreeter() {
 		def javaPackage = ofPackage('com.example.app')
-		main = ofFile(sourceFile("java/${javaPackage.directoryLayout}", 'Main.java', """
+		main = sourceFile("java/${javaPackage.directoryLayout}", 'Main.java', """
 package ${javaPackage.name};
 
 import com.example.greeter.Greeter;
@@ -26,7 +25,7 @@ public class Main {
 		System.out.println(new Greeter().sayHello("World"));
 	}
 }
-"""))
+""")
 	}
 
 	@Override

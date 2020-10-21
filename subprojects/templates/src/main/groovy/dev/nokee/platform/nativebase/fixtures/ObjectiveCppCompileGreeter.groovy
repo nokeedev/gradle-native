@@ -1,15 +1,15 @@
 package dev.nokee.platform.nativebase.fixtures
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.NativeSourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 
-class ObjectiveCppCompileGreeter extends SourceElement {
+class ObjectiveCppCompileGreeter extends NativeSourceElement {
 	@Override
-	List<SourceFile> getFiles() {
-		return [sourceFile('objcpp', 'greeter.mm', '''
+	SourceElement getSources() {
+		return ofFiles(sourceFile('objcpp', 'greeter.mm', '''
 #ifdef SAY_HELLO_EVA
 #pragma message("Bonjour, Eva!")
 #endif
-''')]
+'''))
 	}
 }

@@ -35,6 +35,7 @@ dependencies {
 	testFixturesImplementation project(':coreUtils')
 	testFixturesImplementation project(':coreExec')
 	testFixturesApi project(':runtimeBase')
+	testFixturesApi "dev.gradleplugins:gradle-fixtures-file-system:latest.release"
 }
 
 java {

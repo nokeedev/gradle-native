@@ -1,8 +1,8 @@
 package dev.nokee.platform.nativebase.fixtures
 
 
-import dev.gradleplugins.test.fixtures.sources.SourceFile
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement
+import dev.gradleplugins.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceFileElement
 
 class SwiftGreeterTest extends SourceFileElement {
 	private final String testedModuleName

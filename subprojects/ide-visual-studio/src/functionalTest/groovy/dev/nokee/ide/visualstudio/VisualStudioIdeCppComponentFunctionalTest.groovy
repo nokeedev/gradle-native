@@ -1,6 +1,6 @@
 package dev.nokee.ide.visualstudio
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.language.cpp.CppTaskNames
 import dev.nokee.platform.jni.fixtures.elements.CppGreeter
 import dev.nokee.platform.nativebase.fixtures.CppGreeterApp

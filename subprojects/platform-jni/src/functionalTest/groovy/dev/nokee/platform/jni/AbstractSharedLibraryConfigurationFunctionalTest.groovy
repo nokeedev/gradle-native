@@ -4,7 +4,7 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AvailableToolChains
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.platform.jni.fixtures.JavaJniCGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
@@ -152,7 +152,7 @@ class JavaObjectiveCJniLibrarySharedLibraryConfigurationFunctionalTest extends A
 
 	@Override
 	protected SourceElement getComponentUnderTest() {
-		return new JavaJniObjectiveCGreeterLib().withOptionalFeature()
+		return new JavaJniObjectiveCGreeterLib('jni-library').withOptionalFeature()
 	}
 }
 

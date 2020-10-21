@@ -1,16 +1,16 @@
 package dev.nokee.platform.nativebase.fixtures
 
-import dev.gradleplugins.test.fixtures.sources.NativeLibraryElement
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.cpp.CppLibraryElement
+import dev.gradleplugins.fixtures.sources.NativeLibraryElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.platform.jni.fixtures.elements.CppGreeter
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 
-import static dev.gradleplugins.test.fixtures.sources.NativeSourceElement.ofNativeElements
-import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
+import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofNativeElements
+import static dev.gradleplugins.fixtures.sources.SourceFileElement.ofFile
 
 class CppGreeterLib extends GreeterImplementationAwareSourceElement<CppGreeter> {
-	@Delegate final NativeLibraryElement delegate
+	@Delegate
+	final NativeLibraryElement delegate
 
 	CppGreeterLib() {
 		super(new CppGreetUsingGreeter().asLib(), new CppGreeter().asLib())
@@ -25,24 +25,23 @@ class CppGreeterLib extends GreeterImplementationAwareSourceElement<CppGreeter> 
 	SourceElement withGenericTestSuite() {
 		return ofNativeElements(delegate, new CppGreeterTest())
 	}
-}
 
-class CppGreetUsingGreeter extends CppLibraryElement {
-	private final header
-	private final source
+	private static class CppGreetUsingGreeter extends NativeLibraryElement {
+		private final header
+		private final source
 
-	@Override
-	SourceElement getPublicHeaders() {
-		return header
-	}
+		@Override
+		SourceElement getPublicHeaders() {
+			return header
+		}
 
-	@Override
-	SourceElement getSources() {
-		return source
-	}
+		@Override
+		SourceElement getSources() {
+			return source
+		}
 
-	CppGreetUsingGreeter() {
-		header = ofFile(sourceFile('headers', 'greet_alice.h', """
+		CppGreetUsingGreeter() {
+			header = ofFile(sourceFile('headers', 'greet_alice.h', """
 #pragma once
 
 #ifdef _WIN32
@@ -54,7 +53,7 @@ class CppGreetUsingGreeter extends CppLibraryElement {
 EXPORT_FUNC void say_hello_to_alice();
 """))
 
-		source = ofFiles(sourceFile('cpp', 'greet_alice.cpp', '''
+			source = ofFiles(sourceFile('cpp', 'greet_alice.cpp', '''
 #include "greet_alice.h"
 
 #include <iostream>
@@ -64,5 +63,6 @@ void say_hello_to_alice() {
 	std::cout << say_hello("Alice") << std::endl;
 }
 '''))
+		}
 	}
 }

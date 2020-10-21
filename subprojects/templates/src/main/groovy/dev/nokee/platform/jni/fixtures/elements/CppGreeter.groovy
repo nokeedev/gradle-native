@@ -1,11 +1,9 @@
 package dev.nokee.platform.jni.fixtures.elements
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.cpp.CppLibraryElement
+import dev.gradleplugins.fixtures.sources.NativeLibraryElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 
-import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
-
-class CppGreeter extends CppLibraryElement {
+class CppGreeter extends NativeLibraryElement {
 	private final header
 	private final source
 
@@ -20,7 +18,7 @@ class CppGreeter extends CppLibraryElement {
 	}
 
 	CppGreeter() {
-		header = ofFile(sourceFile('headers', 'greeter.h', """
+		header = ofFiles(sourceFile('headers', 'greeter.h', """
 #pragma once
 
 #ifdef _WIN32
@@ -33,7 +31,7 @@ class CppGreeter extends CppLibraryElement {
 
 std::string EXPORT_FUNC say_hello(std::string name);
 """))
-		source = ofFile(sourceFile('cpp', 'greeter_impl.cpp', """
+		source = ofFiles(sourceFile('cpp', 'greeter_impl.cpp', """
 #include "greeter.h"
 
 #include <string>
@@ -44,8 +42,8 @@ std::string say_hello(std::string name) {
 """))
 	}
 
-	CppLibraryElement withOptionalFeature() {
-		return new CppLibraryElement() {
+	NativeLibraryElement withOptionalFeature() {
+		return new NativeLibraryElement() {
 			@Override
 			SourceElement getPublicHeaders() {
 				return header
@@ -53,7 +51,7 @@ std::string say_hello(std::string name) {
 
 			@Override
 			SourceElement getSources() {
-				return ofFile(sourceFile('cpp', 'greeter_impl.cpp', """
+				return ofFiles(sourceFile('cpp', 'greeter_impl.cpp', """
 #include "greeter.h"
 
 #include <string>

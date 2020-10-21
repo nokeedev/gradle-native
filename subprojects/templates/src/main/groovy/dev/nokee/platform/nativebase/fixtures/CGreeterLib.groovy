@@ -1,16 +1,16 @@
 package dev.nokee.platform.nativebase.fixtures
 
-import dev.gradleplugins.test.fixtures.sources.NativeLibraryElement
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.c.CLibraryElement
+import dev.gradleplugins.fixtures.sources.NativeLibraryElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.platform.jni.fixtures.CGreeter
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 
-import static dev.gradleplugins.test.fixtures.sources.NativeSourceElement.ofNativeElements
-import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
+import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofNativeElements
+import static dev.gradleplugins.fixtures.sources.SourceFileElement.ofFile
 
 class CGreeterLib extends GreeterImplementationAwareSourceElement<CGreeter> {
-	@Delegate final NativeLibraryElement delegate
+	@Delegate
+	final NativeLibraryElement delegate
 
 	CGreeterLib() {
 		super(new CGreetUsingGreeter().asLib(), new CGreeter().asLib())
@@ -24,24 +24,23 @@ class CGreeterLib extends GreeterImplementationAwareSourceElement<CGreeter> {
 	SourceElement withGenericTestSuite() {
 		return ofNativeElements(delegate, new CGreeterTest())
 	}
-}
 
-class CGreetUsingGreeter extends CLibraryElement {
-	private final header
-	private final source
+	private static class CGreetUsingGreeter extends NativeLibraryElement {
+		private final header
+		private final source
 
-	@Override
-	SourceElement getPublicHeaders() {
-		return header
-	}
+		@Override
+		SourceElement getPublicHeaders() {
+			return header
+		}
 
-	@Override
-	SourceElement getSources() {
-		return source
-	}
+		@Override
+		SourceElement getSources() {
+			return source
+		}
 
-	CGreetUsingGreeter() {
-		header = ofFile(sourceFile('headers', 'greet_alice.h', """
+		CGreetUsingGreeter() {
+			header = ofFile(sourceFile('headers', 'greet_alice.h', """
 #pragma once
 
 #ifdef _WIN32
@@ -53,7 +52,7 @@ class CGreetUsingGreeter extends CLibraryElement {
 EXPORT_FUNC void say_hello_to_alice();
 """))
 
-		source = ofFiles(sourceFile('c', 'greet_alice.c', '''
+			source = ofFiles(sourceFile('c', 'greet_alice.c', '''
 #include "greet_alice.h"
 
 #include <stdio.h>
@@ -63,5 +62,6 @@ void say_hello_to_alice() {
 	printf("%s\\n", say_hello("Alice"));
 }
 '''))
+		}
 	}
 }

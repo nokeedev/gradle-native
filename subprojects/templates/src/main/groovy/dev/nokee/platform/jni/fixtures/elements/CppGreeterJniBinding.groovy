@@ -1,10 +1,10 @@
 package dev.nokee.platform.jni.fixtures.elements
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.cpp.CppSourceElement
-import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
+import dev.gradleplugins.fixtures.sources.NativeSourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.java.JavaPackage
 
-class CppGreeterJniBinding extends CppSourceElement {
+class CppGreeterJniBinding extends NativeSourceElement {
 	private final source
 	private final generatedHeader
 	private final JavaPackage javaPackage
@@ -76,8 +76,8 @@ JNIEXPORT jstring JNICALL ${javaPackage.jniMethodName('Greeter', 'sayHello')}
 """))
 	}
 
-	SourceElement withJniGeneratedHeader() {
-		return new CppSourceElement() {
+	NativeSourceElement withJniGeneratedHeader() {
+		return new NativeSourceElement() {
 			@Override
 			SourceElement getHeaders() {
 				return generatedHeader
