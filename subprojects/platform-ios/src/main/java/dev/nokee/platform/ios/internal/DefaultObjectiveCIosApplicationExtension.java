@@ -11,6 +11,7 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.HasLanguageSourceSetAccessor;
 import dev.nokee.platform.ios.IosApplication;
+import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import lombok.Getter;
@@ -22,6 +23,7 @@ import org.gradle.api.provider.ProviderFactory;
 public class DefaultObjectiveCIosApplicationExtension extends BaseIosExtension<DefaultIosApplicationComponent> implements ObjectiveCIosApplicationExtension, Component, HasLanguageSourceSetAccessor {
 	@Getter private final ObjectiveCSourceSet objectiveCSources;
 	@Getter private final CHeaderSet privateHeaders;
+	@Getter private final IosResourceSet resources;
 	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
 	private final ObjectFactory objectFactory;
 
@@ -31,6 +33,7 @@ public class DefaultObjectiveCIosApplicationExtension extends BaseIosExtension<D
 		this.sources = component.getSources();
 		this.objectiveCSources = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objectiveC"), ObjectiveCSourceSetImpl.class, component.getIdentifier()), this::configureSourceSet);
 		this.privateHeaders = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()));
+		this.resources = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("resources"), IosResourceSetImpl.class, component.getIdentifier()));
 	}
 
 	private void configureSourceSet(LanguageSourceSetInternal sourceSet) {
@@ -59,5 +62,10 @@ public class DefaultObjectiveCIosApplicationExtension extends BaseIosExtension<D
 	@Override
 	public void privateHeaders(Action<? super CHeaderSet> action) {
 		action.execute(privateHeaders);
+	}
+
+	@Override
+	public void resources(Action<? super IosResourceSet> action) {
+		action.execute(resources);
 	}
 }

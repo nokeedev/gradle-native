@@ -1,8 +1,6 @@
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
-import dev.nokee.language.base.internal.LanguageSourceSetRepository;
-import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
+import dev.nokee.language.base.internal.*;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.ComponentContainer;
@@ -19,6 +17,7 @@ import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
+import dev.nokee.platform.ios.internal.IosResourceSetImpl;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
@@ -77,6 +76,9 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(BinaryBasePlugin.class);
 		project.getPluginManager().apply(TaskBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
+
+		project.getExtensions().getByType(LanguageSourceSetInstantiator.class).registerFactory(IosResourceSetImpl.class, identifier -> new IosResourceSetImpl((LanguageSourceSetIdentifier<?>)identifier, project.getObjects()));
+
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(DefaultIosApplicationComponent.class, id -> {
 			val identifier = ComponentIdentifier.ofMain(DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));

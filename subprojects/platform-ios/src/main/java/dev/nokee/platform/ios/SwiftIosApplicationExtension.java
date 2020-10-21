@@ -40,4 +40,33 @@ public interface SwiftIosApplicationExtension extends DependencyAwareComponent<N
 	default void swiftSources(@DelegatesTo(value = SwiftSourceSet.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
 		swiftSources(ConfigureUtil.configureUsing(closure));
 	}
+
+	/**
+	 * Defines the iOS resources directories of this application.
+	 *
+	 * <p>When this collection is empty, the directory {@code src/main/resources} is used by default.</p>
+	 *
+	 * @since 0.5
+	 */
+	IosResourceSet getResources();
+
+	/**
+	 * Configures the resources directories of this application.
+	 *
+	 * @param action The action to execute for source set configuration.
+	 * @see #getResources()
+	 * @since 0.5
+	 */
+	void resources(Action<? super IosResourceSet> action);
+
+	/**
+	 * Configures the iOS resources directories of this application.
+	 *
+	 * @param closure The action to execute for source set configuration.
+	 * @see #getResources()
+	 * @since 0.5
+	 */
+	default void resources(@DelegatesTo(value = IosResourceSet.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		resources(ConfigureUtil.configureUsing(closure));
+	}
 }

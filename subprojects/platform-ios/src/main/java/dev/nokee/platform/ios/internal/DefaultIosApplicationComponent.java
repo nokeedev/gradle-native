@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.core.exec.internal.VersionedCommandLineTool;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
 import dev.nokee.language.base.tasks.SourceCompile;
@@ -66,6 +68,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	@Getter private final Property<GroupId> groupId;
 	private final DependencyHandler dependencyHandler;
 	private final DomainObjectEventPublisher eventPublisher;
+	private final LanguageSourceSetRepository languageSourceSetRepository;
 	private final TaskRegistry taskRegistry;
 	private final IosComponentVariants componentVariants;
 	private final BinaryView<Binary> binaries;
@@ -83,6 +86,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		this.configurations = configurations;
 		this.dependencyHandler = dependencyHandler;
 		this.eventPublisher = eventPublisher;
+		this.languageSourceSetRepository = languageSourceSetRepository;
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.groupId = objects.property(GroupId.class);
@@ -128,11 +132,12 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 		String moduleName = BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase();
 		Provider<String> identifier = providers.provider(() -> getGroupId().get().get().map(it -> it + "." + moduleName).orElse(moduleName));
+		val resources = languageSourceSetRepository.get(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("resources"), IosResourceSetImpl.class, getIdentifier()));
 
 		val compileStoryboardTask = taskRegistry.register("compileStoryboard", StoryboardCompileTask.class, task -> {
 			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/storyboards/compiled/main"));
 			task.getModule().set(moduleName);
-			task.getSources().from(objects.fileTree().setDir("src/main/resources").matching(it -> it.include("*.lproj/*.storyboard")));
+			task.getSources().from(resources.getAsFileTree().matching(it -> it.include("*.lproj/*.storyboard")));
 			task.getInterfaceBuilderTool().set(interfaceBuilderTool);
 			task.getInterfaceBuilderTool().finalizeValueOnRead();
 		});
@@ -146,7 +151,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		});
 
 		val assetCatalogCompileTaskTask = taskRegistry.register("compileAssetCatalog", AssetCatalogCompileTask.class, task -> {
-			task.getSource().set(layout.getProjectDirectory().file("src/main/resources/Assets.xcassets"));
+			task.getSource().set(new File(resources.getSourceDirectories().getSingleFile(), "Assets.xcassets"));
 			task.getIdentifier().set(identifier);
 			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/assets/main"));
 			task.getAssetCompilerTool().set(assetCompilerTool);
@@ -159,7 +164,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 				// TODO: I'm not sure we should jump through some hoops for a missing Info.plist.
 				//  I'm under the impression that a missing Info.plist file is an error and should be failing in some way.
 				// TODO: Regardless of what we do above, the "skip when empty" should be handled by the task itself
-				File plistFile = layout.getProjectDirectory().file("src/main/resources/Info.plist").getAsFile();
+				File plistFile = new File(resources.getSourceDirectories().getSingleFile(), "Info.plist");
 				if (plistFile.exists()) {
 					return ImmutableList.of(plistFile);
 				}
