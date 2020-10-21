@@ -2,8 +2,8 @@ package dev.nokee.platform.objectivecpp
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.fixtures.AbstractNativeLanguageSourceLayoutFunctionalTest
-import dev.nokee.language.NativeProjectTasks
 import dev.nokee.language.objectivecpp.ObjectiveCppTaskNames
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCppGreeterApp
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCppGreeterLib
@@ -13,10 +13,13 @@ import spock.util.environment.OperatingSystem
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
 class ObjectiveCppApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements ObjectiveCppTaskNames {
-	def componentUnderTest = new ObjectiveCppGreeterApp()
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new ObjectiveCppGreeterApp()
+	}
 
 	@Override
-	protected void makeSingleComponent() {
+	protected void makeSingleProject() {
 		buildFile << '''
 			plugins {
 				id 'dev.nokee.objective-cpp-application'
@@ -26,15 +29,10 @@ class ObjectiveCppApplicationNativeLanguageSourceLayoutFunctionalTest extends Ab
 				linkerArgs.add('-lobjc')
 			}
 		'''
-		componentUnderTest.sources.writeToSourceDir(file('srcs'))
-		componentUnderTest.headers.writeToSourceDir(file('includes'))
-		componentUnderTest.headers.files.each {
-			file("src/main/${it.path}/${it.name}") << "broken!"
-		}
 	}
 
 	@Override
-	protected void makeComponentWithLibrary() {
+	protected void makeProjectWithLibrary() {
 		settingsFile << '''
 			rootProject.name = 'application'
 			include 'library'
@@ -45,7 +43,6 @@ class ObjectiveCppApplicationNativeLanguageSourceLayoutFunctionalTest extends Ab
 			}
 
 			application {
-				objectiveCppSources.from('srcs')
 				dependencies {
 					implementation project(':library')
 				}
@@ -60,52 +57,23 @@ class ObjectiveCppApplicationNativeLanguageSourceLayoutFunctionalTest extends Ab
 				id 'dev.nokee.objective-cpp-library'
 			}
 
-			library {
-				objectiveCppSources.from('srcs')
-				publicHeaders.from('includes')
-			}
-
 			tasks.withType(LinkSharedLibrary).configureEach {
 				linkerArgs.add('-lobjc')
 			}
 		'''
-		def fixture = componentUnderTest.withImplementationAsSubproject('library')
-		fixture.elementUsingGreeter.sources.writeToSourceDir(file('srcs'))
-		fixture.greeter.sources.writeToSourceDir(file('library', 'srcs'))
-		fixture.greeter.publicHeaders.writeToSourceDir(file('library', 'includes'))
-		fixture.greeter.files.each {
-			file('library', "src/main/${it.path}/${it.name}") << "broken!"
-		}
-	}
-
-	@Override
-	protected String configureSourcesAsConvention() {
-		return """
-			application {
-				objectiveCppSources.from('srcs')
-				privateHeaders.from('includes')
-			}
-		"""
-	}
-
-	@Override
-	protected String configureSourcesAsExplicitFiles() {
-		return """
-			application {
-				${componentUnderTest.sources.files.collect { "objectiveCppSources.from('srcs/${it.name}')" }.join('\n')}
-				privateHeaders.from('includes')
-			}
-		"""
 	}
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
 class ObjectiveCppLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements ObjectiveCppTaskNames {
-	def componentUnderTest = new ObjectiveCppGreeterLib()
+	@Override
+	protected SourceElement getComponentUnderTest() {
+		return new ObjectiveCppGreeterLib()
+	}
 
 	@Override
-	protected void makeSingleComponent() {
+	protected void makeSingleProject() {
 		buildFile << '''
 			plugins {
 				id 'dev.nokee.objective-cpp-library'
@@ -115,19 +83,10 @@ class ObjectiveCppLibraryNativeLanguageSourceLayoutFunctionalTest extends Abstra
 				linkerArgs.add('-lobjc')
 			}
 		'''
-		componentUnderTest.sources.writeToSourceDir(file('srcs'))
-		componentUnderTest.privateHeaders.writeToSourceDir(file('includes'))
-		componentUnderTest.privateHeaders.files.each {
-			file("src/main/headers/${it.name}") << "broken!"
-		}
-		componentUnderTest.publicHeaders.writeToSourceDir(file('includes'))
-		componentUnderTest.publicHeaders.files.each {
-			file("src/main/public/${it.name}") << "broken!"
-		}
 	}
 
 	@Override
-	protected void makeComponentWithLibrary() {
+	protected void makeProjectWithLibrary() {
 		settingsFile << '''
 			rootProject.name = 'application'
 			include 'library'
@@ -138,8 +97,6 @@ class ObjectiveCppLibraryNativeLanguageSourceLayoutFunctionalTest extends Abstra
 			}
 
 			library {
-				objectiveCppSources.from('srcs')
-				privateHeaders.from('includes')
 				dependencies {
 					implementation project(':library')
 				}
@@ -154,126 +111,9 @@ class ObjectiveCppLibraryNativeLanguageSourceLayoutFunctionalTest extends Abstra
 				id 'dev.nokee.objective-cpp-library'
 			}
 
-			library {
-				objectiveCppSources.from('srcs')
-				publicHeaders.from('includes')
-			}
-
 			tasks.withType(LinkSharedLibrary).configureEach {
 				linkerArgs.add('-lobjc')
 			}
 		'''
-		def fixture = componentUnderTest.withImplementationAsSubproject('library')
-		fixture.elementUsingGreeter.sources.writeToSourceDir(file('srcs'))
-		fixture.elementUsingGreeter.headers.writeToSourceDir(file('includes'))
-		fixture.greeter.sources.writeToSourceDir(file('library', 'srcs'))
-		fixture.greeter.publicHeaders.writeToSourceDir(file('library', 'includes'))
-		fixture.greeter.files.each {
-			file('library', "src/main/${it.path}/${it.name}") << "broken!"
-		}
-	}
-
-	@Override
-	protected String configureSourcesAsConvention() {
-		return """
-			library {
-				objectiveCppSources.from('srcs')
-				privateHeaders.from('headers')
-				publicHeaders.from('includes')
-			}
-		"""
-	}
-
-	@Override
-	protected String configureSourcesAsExplicitFiles() {
-		return """
-			library {
-				${componentUnderTest.sources.files.collect { "objectiveCppSources.from('srcs/${it.name}')" }.join('\n')}
-				privateHeaders.from('headers')
-				publicHeaders.from('includes')
-			}
-		"""
-	}
-}
-
-@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
-@Requires({!OperatingSystem.current.windows})
-class ObjectiveCppLibraryWithStaticLinkageNativeLanguageSourceLayoutFunctionalTest extends ObjectiveCppLibraryNativeLanguageSourceLayoutFunctionalTest {
-	@Override
-	protected void makeSingleComponent() {
-		super.makeSingleComponent()
-		buildFile << '''
-			library {
-				targetLinkages = [linkages.static]
-			}
-		'''
-	}
-
-	@Override
-	protected void makeComponentWithLibrary() {
-		super.makeComponentWithLibrary()
-		buildFile << '''
-			library {
-				targetLinkages = [linkages.static]
-			}
-		'''
-	}
-
-	@Override
-	protected NativeProjectTasks getTaskNamesUnderTest() {
-		return tasks.forStaticLibrary
-	}
-}
-
-@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
-@Requires({!OperatingSystem.current.windows})
-class ObjectiveCppLibraryWithSharedLinkageNativeLanguageSourceLayoutFunctionalTest extends ObjectiveCppLibraryNativeLanguageSourceLayoutFunctionalTest {
-	@Override
-	protected void makeSingleComponent() {
-		super.makeSingleComponent()
-		buildFile << '''
-			library {
-				targetLinkages = [linkages.shared]
-			}
-		'''
-	}
-
-	@Override
-	protected void makeComponentWithLibrary() {
-		super.makeComponentWithLibrary()
-		buildFile << '''
-			library {
-				targetLinkages = [linkages.shared]
-			}
-		'''
-	}
-}
-
-@RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
-@Requires({!OperatingSystem.current.windows})
-class ObjectiveCppLibraryWithBothLinkageNativeLanguageSourceLayoutFunctionalTest extends ObjectiveCppLibraryNativeLanguageSourceLayoutFunctionalTest {
-	@Override
-	protected void makeSingleComponent() {
-		super.makeSingleComponent()
-		buildFile << '''
-			library {
-				targetLinkages = [linkages.static, linkages.shared]
-			}
-		'''
-	}
-
-	@Override
-	protected void makeComponentWithLibrary() {
-		super.makeComponentWithLibrary()
-		buildFile << '''
-			library {
-				targetLinkages = [linkages.static, linkages.shared]
-			}
-		'''
-	}
-
-	@Override
-	protected NativeProjectTasks getTaskNamesUnderTest() {
-		return tasks.withLinkage('shared')
 	}
 }

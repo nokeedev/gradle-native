@@ -1,26 +1,26 @@
 package dev.nokee.fixtures
 
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
-import dev.nokee.language.NativeProjectTasks
-import spock.lang.Unroll
+import dev.gradleplugins.test.fixtures.file.TestFile
+import dev.nokee.language.c.CHeaderSet
+import dev.nokee.language.cpp.CppHeaderSet
+
+import static dev.gradleplugins.fixtures.sources.NativeLibraryElement.ofPrivateHeaders
+import static dev.gradleplugins.fixtures.sources.NativeLibraryElement.ofPublicHeaders
+import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofSources
 
 abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 
 	def "can change source layout convention"() {
 		given:
-		makeSingleComponent()
+		makeSingleProject()
+		writeToProjectWithCustomLayout(componentUnderTest)
 		buildFile << configureSourcesAsConvention()
-
-		and:
-		file("src/main/c/broken.c") << "broken!"
-		file("src/main/cpp/broken.cpp") << "broken!"
-		file("src/main/objc/broken.m") << "broken!"
-		file("src/main/objcpp/broken.mm") << "broken!"
-		file("src/main/swift/broken.swift") << "broken!"
 
 		expect:
 		succeeds ":assemble"
-		result.assertTasksExecuted(taskNamesUnderTest.allToLifecycleAssemble)
+		result.assertTasksExecuted(tasks.allToLifecycleAssemble)
 
 		// TODO: Improve this assertion
 		file("build/objs/main").assertIsDirectory()
@@ -28,76 +28,220 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 	def "can add individual source files"() {
 		given:
-		makeSingleComponent()
+		makeSingleProject()
+		writeToProjectWithCustomLayout(componentUnderTest)
 		buildFile << configureSourcesAsExplicitFiles()
-
-		and:
-		file("src/main/c/broken.c") << "broken!"
-		file("src/main/cpp/broken.cpp") << "broken!"
-		file("src/main/objc/broken.m") << "broken!"
-		file("src/main/objcpp/broken.mm") << "broken!"
-		file("src/main/swift/broken.swift") << "broken!"
 
 		expect:
 		succeeds ":assemble"
-		result.assertTasksExecuted(taskNamesUnderTest.allToLifecycleAssemble)
+		result.assertTasksExecuted(tasks.allToLifecycleAssemble)
 
 		// TODO: Improve this assertion
 		file("build/objs/main").assertIsDirectory()
 	}
 
-	@Unroll
-	def "can depends on library with custom source layout"(linkages) {
+	def "can depends on library with custom source layout"() {
 		given:
-		makeComponentWithLibrary()
+		makeProjectWithLibrary()
+
+		and:
+		def fixture = componentUnderTest.withImplementationAsSubproject('library')
+		writeToProjectWithCustomLayout(fixture.elementUsingGreeter)
+		writeToProjectWithCustomLayout(fixture.greeter, file('library'))
+
+		and:
+		buildFile << configureSourcesAsConvention()
+		file('library', buildFileName) << configureSourcesAsConvention('library')
+
+		expect:
+		succeeds ':assemble'
+		result.assertTasksExecuted(tasks.allToLifecycleAssemble, tasks(':library').allToLink)
+	}
+
+	def "can generate sources"() {
+		given:
+		makeSingleProject()
+		componentUnderTest.writeToSourceDir(file('srcs'))
+		buildFile << """
+			def generatedSources = tasks.register('generateSources') {
+				def inputFiles = fileTree('srcs')
+				def outputDir = layout.buildDirectory.dir('generated-srcs-for-native')
+
+				inputs.files(inputFiles)
+				outputs.dir(outputDir)
+				doLast {
+					def out = outputDir.get()
+
+					inputFiles.each {
+						out.file(it.name).asFile.text = it.text
+					}
+				}
+			}
+
+			pluginManager.withPlugin('java') {
+				sourceSets.main.java {
+					setSrcDirs([generatedSources])
+					filter.include('**/*.java')
+				}
+			}
+
+			${componentUnderTestDsl}.sources.configureEach {
+				from(generatedSources)
+			}
+		"""
+
+		and:
+		writeBrokenSourcesAtConventionalLayout()
+
+		expect:
+		succeeds('assemble')
+		result.assertTasksExecuted(tasks.allToAssemble, ':generateSources')
+	}
+
+	def "can depend on library with generated sources"() {
+		given:
+		makeProjectWithLibrary()
+
+		and:
+		def fixture = componentUnderTest.withImplementationAsSubproject('library')
+		fixture.elementUsingGreeter.writeToProject(testDirectory)
+		fixture.greeter.writeToSourceDir(file('library', 'srcs'))
+
+		and:
 		file('library', buildFileName) << """
-			library {
-				targetLinkages = ${linkages}
+			def generatedSources = tasks.register('generateSources') {
+				def inputFiles = fileTree('srcs')
+				def outputDir = layout.buildDirectory.dir('generated-srcs-for-native')
+
+				inputs.files(inputFiles)
+				outputs.dir(outputDir)
+				doLast {
+					def out = outputDir.get()
+
+					inputFiles.each {
+						out.file(it.name).asFile.text = it.text
+					}
+				}
+			}
+
+			pluginManager.withPlugin('java') {
+				sourceSets.main.java {
+					setSrcDirs([generatedSources])
+					filter.include('**/*.java')
+				}
+			}
+
+			library.sources.configureEach {
+				from(generatedSources)
 			}
 		"""
 
 		expect:
-		succeeds ':assemble'
-		result.assertTasksExecuted(taskNamesUnderTest.allToLifecycleAssemble, allTasksToLinkLibrary)
-
-		where:
-		linkages << ['null', '[linkages.static]', '[linkages.shared]', '[linkages.static, linkages.shared]']
-
+		succeeds(':assemble')
+		result.assertTasksExecuted(tasks.allToAssemble, tasks(':library').allToLink, ':library:generateSources')
 	}
 
-	protected List<String> getAllTasksToLinkLibrary() {
-		def libraryBuildFile = file('library', buildFileName)
-
-		def libraryTasks = tasks(':library')
-		if (libraryBuildFile.text.contains('[linkages.static, linkages.shared]')) {
-			libraryTasks = libraryTasks.withLinkage('shared')
+	protected String getComponentUnderTestDsl() {
+		if (getClass().simpleName.contains('Library')) {
+			return 'library'
 		}
+		return 'application'
+	}
 
-		def result = libraryTasks.allToLink
-		if (libraryBuildFile.text.contains('[linkages.static]')) {
-			result = libraryTasks.allToCreate
+	protected void writeToProjectWithCustomLayout(SourceElement component, TestFile projectDir = testDirectory) {
+		componentUnderTest.files.each {
+			projectDir.file("src/main/${it.path}/${it.name}") << "broken!"
 		}
+		ofSources(component).writeToSourceDir(projectDir.file('srcs'))
+		ofPublicHeaders(component).writeToSourceDir(projectDir.file('includes'))
+		ofPrivateHeaders(component).writeToSourceDir(projectDir.file('headers'))
+//
+//		if (getClass().simpleName.contains('Swift')) {
+//			component.writeToSourceDir(projectDir.file('srcs'))
+//		} else if (getClass().simpleName.contains('Jni')) {
+//			component.jvmSources.writeToProject(projectDir)
+//			component.nativeSources.sources.writeToSourceDir(projectDir.file('srcs'))
+//			component.nativeSources.headers.writeToSourceDir(projectDir.file('headers'))
+//		} else {
+//			component.sources.writeToSourceDir(projectDir.file('srcs'))
+//
+//			if (getClass().simpleName.contains('Library') || !component.publicHeaders.empty) {
+//				component.privateHeaders.writeToSourceDir(projectDir.file('headers'))
+//				component.publicHeaders.writeToSourceDir(projectDir.file('includes'))
+//			} else {
+//				component.headers.writeToSourceDir(projectDir.file('headers'))
+//			}
+//		}
+	}
 
-		if (this.class.name.contains('WithStaticLinkage')) {
-			if (this.class.simpleName.startsWith('Swift')) {
-				result = [libraryTasks.compile]
-			} else {
-				result = []
+	protected void writeBrokenSourcesAtConventionalLayout() {
+		file("src/main/c/broken.c") << "broken!"
+		file("src/main/cpp/broken.cpp") << "broken!"
+		file("src/main/objectiveC/broken.m") << "broken!"
+		file("src/main/objc/broken.m") << "broken!"
+		file("src/main/objectiveCpp/broken.mm") << "broken!"
+		file("src/main/objcpp/broken.mm") << "broken!"
+		file("src/main/swift/broken.swift") << "broken!"
+	}
+
+	protected abstract SourceElement getComponentUnderTest()
+
+	protected abstract void makeSingleProject()
+
+	protected abstract void makeProjectWithLibrary()
+
+	protected String configureSourcesAsConvention(String dsl = componentUnderTestDsl) {
+		return """
+			pluginManager.withPlugin('java') {
+				sourceSets.main.java {
+					setSrcDirs(['srcs'])
+					filter.include('**/*.java')
+				}
 			}
-		}
 
-		return result
+			import ${CHeaderSet.canonicalName}
+			import ${CppHeaderSet.canonicalName}
+
+			${dsl} {
+				sources.configureEach({ it instanceof ${CHeaderSet.simpleName} || it instanceof ${CppHeaderSet.simpleName} }) {
+					if (it.identifier.name.get() == 'public') {
+						from('includes')
+					} else {
+						from('headers')
+					}
+				}
+				sources.configureEach({ !(it instanceof ${CHeaderSet.simpleName} || it instanceof ${CppHeaderSet.simpleName}) }) {
+					from('srcs')
+				}
+			}
+		"""
 	}
 
-	protected abstract void makeSingleComponent()
+	protected String configureSourcesAsExplicitFiles() {
+		return """
+			// We don't test Gradle Java plugin
+			pluginManager.withPlugin('java') {
+				sourceSets.main.java {
+					setSrcDirs(['srcs'])
+					filter.include('**/*.java')
+				}
+			}
 
-	protected abstract void makeComponentWithLibrary()
+			import ${CHeaderSet.canonicalName}
+			import ${CppHeaderSet.canonicalName}
 
-	protected abstract String configureSourcesAsConvention()
-
-	protected abstract String configureSourcesAsExplicitFiles()
-
-	protected NativeProjectTasks getTaskNamesUnderTest() {
-		return tasks
+			${componentUnderTestDsl} {
+				sources.configureEach({ it instanceof ${CHeaderSet.simpleName} || it instanceof ${CppHeaderSet.simpleName} }) {
+					if (it.identifier.name.get() == 'public') {
+						from('includes')
+					} else {
+						from('headers')
+					}
+				}
+				sources.configureEach({ !(it instanceof ${CHeaderSet.simpleName} || it instanceof ${CppHeaderSet.simpleName}) }) {
+					${ofSources(componentUnderTest).files.collect { "from('srcs/${it.name}')" }.join('\n')}
+				}
+			}
+		"""
 	}
 }
