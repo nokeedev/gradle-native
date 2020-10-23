@@ -398,7 +398,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		subject.configure(identifier.name.get(), action)
 		then:
 		def ex = thrown(UnknownDomainObjectException)
-		ex.message == "LanguageSourceSet with name '${identifier.name}' not found."
+		ex.message == "${subject.elementType.simpleName} with name '${identifier.name}' not found."
 		and:
 		0 * action.execute(_)
 	}
@@ -422,7 +422,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		subject.configure(identifier.name.get(), identifier.type, action)
 		then:
 		def ex = thrown(UnknownDomainObjectException)
-		ex.message == "LanguageSourceSet with name '${identifier.name}' not found."
+		ex.message == "${subject.elementType.simpleName} with name '${identifier.name}' not found."
 		and:
 		0 * action.execute(_)
 	}
@@ -440,7 +440,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 
 		then:
 		def ex = thrown(UnknownDomainObjectException)
-		ex.message == "LanguageSourceSet with name 'foo' not found."
+		ex.message == "${subject.elementType.simpleName} with name 'foo' not found."
 
 		and:
 		0 * action.execute(_)
@@ -459,7 +459,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 
 		then:
 		def ex = thrown(UnknownDomainObjectException)
-		ex.message == "LanguageSourceSet with name 'foo' not found."
+		ex.message == "${subject.elementType.simpleName} with name 'foo' not found."
 
 		and:
 		0 * action.execute(_)
