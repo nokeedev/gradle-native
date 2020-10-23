@@ -7,6 +7,7 @@ import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
+import dev.nokee.platform.nativebase.internal.NamedTargetBuildType;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import lombok.AccessLevel;
@@ -32,7 +33,7 @@ public class BaseIosExtension<T extends BaseNativeComponent<?>> {
 	}
 
 	protected Iterable<BuildVariantInternal> createBuildVariants() {
-		return ImmutableList.of(DefaultBuildVariant.of(DefaultOperatingSystemFamily.forName("ios"), DefaultMachineArchitecture.X86_64, DefaultBinaryLinkage.EXECUTABLE));
+		return ImmutableList.of(DefaultBuildVariant.of(DefaultOperatingSystemFamily.forName("ios"), DefaultMachineArchitecture.X86_64, DefaultBinaryLinkage.EXECUTABLE, new NamedTargetBuildType("Default")));
 	}
 
 	public T getComponent() {
