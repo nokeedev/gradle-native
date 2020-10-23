@@ -24,6 +24,28 @@ public final class DomainObjectIdentifierUtils {
 		return false;
 	}
 
+	public static Predicate<DomainObjectIdentifier> descendentOf(DomainObjectIdentifier owner) {
+		return new DescendentIdentifierPredicate(owner);
+	}
+
+	private static final class DescendentIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
+		private final DomainObjectIdentifier owner;
+
+		DescendentIdentifierPredicate(DomainObjectIdentifier owner) {
+			this.owner = owner;
+		}
+
+		@Override
+		public boolean test(DomainObjectIdentifier identifier) {
+			return isDescendent(identifier, owner);
+		}
+
+		@Override
+		public String toString() {
+			return "DomainObjectIdentifierUtils.descendentOf(" + owner + ")";
+		}
+	}
+
 	public static Optional<? extends DomainObjectIdentifier> getParent(DomainObjectIdentifier self) {
 		if (self instanceof DomainObjectIdentifierInternal) {
 			return ((DomainObjectIdentifierInternal) self).getParentIdentifier();
