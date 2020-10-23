@@ -1,24 +1,36 @@
 package dev.nokee.ide.xcode.internal;
 
 import dev.nokee.ide.xcode.XcodeIdeBuildConfiguration;
+import dev.nokee.ide.xcode.XcodeIdeProductType;
 import dev.nokee.ide.xcode.XcodeIdeTarget;
 import lombok.Getter;
 import lombok.NonNull;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
 
-import javax.inject.Inject;
+import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
-public abstract class DefaultXcodeIdeTarget implements XcodeIdeTarget {
+public final class DefaultXcodeIdeTarget implements XcodeIdeTarget {
 	@Getter private final String name;
+	@Getter private final Property<String> productName;
+	@Getter private final Property<XcodeIdeProductType> productType;
+	@Getter private final Property<String> productReference;
+	@Getter private final ConfigurableFileCollection sources;
 	@Getter private final NamedDomainObjectContainer<XcodeIdeBuildConfiguration> buildConfigurations;
+	private final ObjectFactory objectFactory;
 
-	@Inject
-	public DefaultXcodeIdeTarget(String name) {
+	public DefaultXcodeIdeTarget(String name, ObjectFactory objectFactory) {
 		this.name = name;
-		this.buildConfigurations = getObjects().domainObjectContainer(XcodeIdeBuildConfiguration.class, this::newBuildConfiguration);
+		this.productName = configureDisplayName(objectFactory.property(String.class), "productName");
+		this.productType = configureDisplayName(objectFactory.property(XcodeIdeProductType.class), "productType");
+		this.productReference = configureDisplayName(objectFactory.property(String.class), "productReference");
+		this.sources = objectFactory.fileCollection();
+		this.buildConfigurations = objectFactory.domainObjectContainer(XcodeIdeBuildConfiguration.class, this::newBuildConfiguration);
+		this.objectFactory = objectFactory;
 		getProductName().convention(getProductReference().map(this::toProductName));
 	}
 
@@ -31,16 +43,13 @@ public abstract class DefaultXcodeIdeTarget implements XcodeIdeTarget {
 		return result;
 	}
 
-	@Inject
-	protected abstract ObjectFactory getObjects();
-
 	@Override
 	public void buildConfigurations(@NonNull Action<? super NamedDomainObjectContainer<XcodeIdeBuildConfiguration>> action) {
 		action.execute(buildConfigurations);
 	}
 
 	private XcodeIdeBuildConfiguration newBuildConfiguration(String name) {
-		return getObjects().newInstance(DefaultXcodeIdeBuildConfiguration.class, name);
+		return new DefaultXcodeIdeBuildConfiguration(name, objectFactory);
 	}
 
 	@Override

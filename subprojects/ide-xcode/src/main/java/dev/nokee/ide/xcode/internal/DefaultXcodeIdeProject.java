@@ -47,7 +47,7 @@ public abstract class DefaultXcodeIdeProject implements XcodeIdeProject, IdeProj
 	}
 
 	private XcodeIdeTarget newTarget(String name) {
-		return getObjects().newInstance(DefaultXcodeIdeTarget.class, name);
+		return new DefaultXcodeIdeTarget(name, getObjects());
 	}
 
 	public void groups(Action<? super NamedDomainObjectContainer<XcodeIdeGroup>> action) {
@@ -55,7 +55,7 @@ public abstract class DefaultXcodeIdeProject implements XcodeIdeProject, IdeProj
 	}
 
 	private XcodeIdeGroup newGroup(String name) {
-		return getObjects().newInstance(DefaultXcodeIdeGroup.class, name);
+		return new DefaultXcodeIdeGroup(name, getObjects());
 	}
 
 	@Override

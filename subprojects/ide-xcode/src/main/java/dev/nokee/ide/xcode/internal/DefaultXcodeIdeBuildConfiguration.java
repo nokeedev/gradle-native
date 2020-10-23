@@ -2,20 +2,20 @@ package dev.nokee.ide.xcode.internal;
 
 import dev.nokee.ide.xcode.XcodeIdeBuildConfiguration;
 import lombok.Getter;
+import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
 
-import javax.inject.Inject;
+import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
-public abstract class DefaultXcodeIdeBuildConfiguration implements XcodeIdeBuildConfiguration {
+public class DefaultXcodeIdeBuildConfiguration implements XcodeIdeBuildConfiguration {
 	@Getter private final String name;
 	@Getter private final DefaultXcodeIdeBuildSettings buildSettings;
+	@Getter private final Property<FileSystemLocation> productLocation;
 
-	@Inject
-	public DefaultXcodeIdeBuildConfiguration(String name) {
+	public DefaultXcodeIdeBuildConfiguration(String name, ObjectFactory objectFactory) {
 		this.name = name;
-		this.buildSettings = getObjects().newInstance(DefaultXcodeIdeBuildSettings.class);
+		this.buildSettings = objectFactory.newInstance(DefaultXcodeIdeBuildSettings.class);
+		this.productLocation = configureDisplayName(objectFactory.property(FileSystemLocation.class), "productLocation");
 	}
-
-	@Inject
-	protected abstract ObjectFactory getObjects();
 }
