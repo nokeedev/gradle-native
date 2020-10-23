@@ -1,6 +1,7 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.internal.NameAwareDomainObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.Component;
@@ -15,7 +16,7 @@ import static java.util.Objects.requireNonNull;
 
 @ToString
 @EqualsAndHashCode
-public final class ComponentIdentifier<T extends Component> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T> {
+public final class ComponentIdentifier<T extends Component> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T>, NameAwareDomainObjectIdentifier {
 	private static final ComponentName MAIN_COMPONENT_NAME = ComponentName.of("main");
 	private static final String MAIN_COMPONENT_DEFAULT_DISPLAY_NAME = "main component";
 	@Getter private final ComponentName name;
