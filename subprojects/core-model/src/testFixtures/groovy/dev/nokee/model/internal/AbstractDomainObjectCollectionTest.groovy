@@ -383,6 +383,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		given:
 		def subject = newSubject()
 		Assume.assumeTrue(subject instanceof HasConfigureElementByNameSupport)
+		Assume.assumeTrue('components cannot be nested', !entityIdentifier(ownerIdentifier()).class.simpleName.equals('ComponentIdentifier'))
 
 		and:
 		def indirectOwner = Stub(DomainObjectIdentifierInternal) {
@@ -406,6 +407,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		given:
 		def subject = newSubject()
 		Assume.assumeTrue(subject instanceof HasConfigureElementByNameSupport)
+		Assume.assumeTrue('components cannot be nested', !entityIdentifier(ownerIdentifier()).class.simpleName.equals('ComponentIdentifier'))
 
 		and:
 		def indirectOwner = Stub(DomainObjectIdentifierInternal) {
