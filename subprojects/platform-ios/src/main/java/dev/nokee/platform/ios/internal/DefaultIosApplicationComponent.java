@@ -76,6 +76,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;
 	private final ConfigurationContainer configurations;
+	@Getter private final Property<String> moduleName;
 
 	@Inject
 	public DefaultIosApplicationComponent(ComponentIdentifier<DefaultIosApplicationComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, LanguageSourceSetRepository languageSourceSetRepository, LanguageSourceSetViewFactory languageSourceSetViewFactory) {
@@ -94,6 +95,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		this.taskRegistry = taskRegistry;
 		this.componentVariants = new IosComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, languageSourceSetRepository);
 		this.binaries = binaryViewFactory.create(identifier);
+		this.moduleName = objects.property(String.class).convention(getBaseName());
 	}
 
 	@Override
