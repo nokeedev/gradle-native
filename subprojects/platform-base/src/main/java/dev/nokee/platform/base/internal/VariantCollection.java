@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.*;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
