@@ -151,4 +151,17 @@ public final class DomainObjectIdentifierUtils {
 			return "DomainObjectIdentifierUtils.mapDisplayName(" + identifier + ")";
 		}
 	}
+
+	@SuppressWarnings("unchecked")
+	public static <S> TypeAwareDomainObjectIdentifier<S> uncheckedIdentifierCast(TypeAwareDomainObjectIdentifier<?> identifier) {
+		return (TypeAwareDomainObjectIdentifier<S>) identifier;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <S> TypeAwareDomainObjectIdentifier<S> castIdentifier(Class<S> outputIdentifierType, TypeAwareDomainObjectIdentifier<?> identifier) {
+		if (outputIdentifierType.isAssignableFrom(identifier.getType())) {
+			return (TypeAwareDomainObjectIdentifier<S>) identifier;
+		}
+		throw new ClassCastException(String.format("Failed to cast identifier %s of type %s to identifier of type %s.", identifier.toString(), identifier.getType().getName(), outputIdentifierType.getName()));
+	}
 }
