@@ -7,6 +7,7 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantCollection;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
@@ -31,24 +32,21 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
+	@Getter private final VariantViewInternal<JniLibrary> variants;
 
 	@Inject
-	public JniLibraryExtensionInternal(JniLibraryComponentInternal component, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers) {
+	public JniLibraryExtensionInternal(JniLibraryComponentInternal component, ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers, VariantViewFactory variantViewFactory) {
 		this.configurations = configurations;
 		this.objects = objects;
 		this.providers = providers;
 		this.component = component;
 		this.sources = component.getSources();
+		this.variants = variantViewFactory.create(component.getIdentifier(), JniLibrary.class);
 	}
 
 	//region Variant-awareness
 	public VariantCollection<JniLibraryInternal> getVariantCollection() {
 		return component.getVariantCollection();
-	}
-
-	@Override
-	public VariantViewInternal<JniLibrary> getVariants() {
-		return component.getVariants();
 	}
 
 	public SetProperty<DimensionType> getDimensions() {

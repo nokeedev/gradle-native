@@ -432,7 +432,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			assert ((ComponentIdentifier<?>) identifier).isMainComponent();
 			return new JniLibraryComponentInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
 		});
-		val library = new JniLibraryExtensionInternal(components.register("main", JniLibraryComponentInternal.class).get(), project.getConfigurations(), project.getObjects(), project.getProviders());
+		val library = new JniLibraryExtensionInternal(components.register("main", JniLibraryComponentInternal.class).get(), project.getConfigurations(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(VariantViewFactory.class));
 
 		val dependencies = library.getDependencies();
 		val configurationRegistry = new ConfigurationBucketRegistryImpl(project.getConfigurations());
