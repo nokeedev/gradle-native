@@ -7,8 +7,8 @@ import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import spock.lang.Unroll
 
-abstract class AbstractDomainObjectContainerTest<T> extends AbstractDomainObjectCollectionTest<T> {
-	protected abstract AbstractDomainObjectContainer<T> newSubject()
+abstract class AbstractDomainObjectContainerTest<TYPE, T extends TYPE> extends AbstractDomainObjectCollectionTest<T> {
+	protected abstract AbstractDomainObjectContainer<TYPE, T> newSubject()
 
 	protected abstract TypeAwareDomainObjectIdentifier entityIdentifier(String name, Class entityType, DomainObjectIdentifier ownerIdentifier)
 

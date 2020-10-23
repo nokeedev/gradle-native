@@ -14,21 +14,22 @@ import org.gradle.util.ConfigureUtil;
 
 import java.util.Set;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.isDescendent;
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.*;
 import static dev.nokee.utils.ActionUtils.onlyIf;
+import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 
-public abstract class AbstractDomainObjectContainer<T> extends GroovyObjectSupport implements DomainObjectContainer<T> {
+public abstract class AbstractDomainObjectContainer<TYPE, T extends TYPE> extends GroovyObjectSupport implements DomainObjectContainer<T> {
 	private final DomainObjectIdentifier owner;
 	private final Class<T> elementType;
-	private final PolymorphicDomainObjectInstantiator<T> instantiator;
-	private final DomainObjectConfigurer<T> configurer;
+	private final PolymorphicDomainObjectInstantiator<TYPE> instantiator;
+	private final DomainObjectConfigurer<TYPE> configurer;
 	private final DomainObjectEventPublisher eventPublisher;
-	private final DomainObjectProviderFactory<T> providerFactory;
-	private final RealizableDomainObjectRepository<T> repository;
-	private final KnownDomainObjectFactory<T> knownObjectFactory;
-	private final DisallowChangesTransformer<Set<T>> disallowChangesTransformer = new DisallowChangesTransformer<>();
+	private final DomainObjectProviderFactory<TYPE> providerFactory;
+	private final RealizableDomainObjectRepository<TYPE> repository;
+	private final KnownDomainObjectFactory<TYPE> knownObjectFactory;
+	private final DisallowChangesTransformer<Set<TYPE>> disallowChangesTransformer = new DisallowChangesTransformer<>();
 
-	protected AbstractDomainObjectContainer(DomainObjectIdentifier owner, Class<T> elementType, PolymorphicDomainObjectInstantiator<T> instantiator, DomainObjectConfigurer<T> configurer, DomainObjectEventPublisher eventPublisher, DomainObjectProviderFactory<T> providerFactory, RealizableDomainObjectRepository<T> repository, KnownDomainObjectFactory<T> knownObjectFactory) {
+	protected AbstractDomainObjectContainer(DomainObjectIdentifier owner, Class<T> elementType, PolymorphicDomainObjectInstantiator<TYPE> instantiator, DomainObjectConfigurer<TYPE> configurer, DomainObjectEventPublisher eventPublisher, DomainObjectProviderFactory<TYPE> providerFactory, RealizableDomainObjectRepository<TYPE> repository, KnownDomainObjectFactory<TYPE> knownObjectFactory) {
 		this.owner = owner;
 		this.elementType = elementType;
 		this.instantiator = instantiator;
@@ -89,10 +90,10 @@ public abstract class AbstractDomainObjectContainer<T> extends GroovyObjectSuppo
 	}
 
 	public Provider<Set<T>> getElements() {
-		return repository.filtered(identifier -> isDescendent(identifier, owner)).map(disallowChangesTransformer);
+		return repository.filtered(descendentOf(owner)).map(disallowChangesTransformer).map(toSetTransformer(elementType));
 	}
 
-	public AbstractDomainObjectContainer<T> disallowChanges() {
+	public AbstractDomainObjectContainer<TYPE, T> disallowChanges() {
 		disallowChangesTransformer.disallowChanges();
 		return this;
 	}

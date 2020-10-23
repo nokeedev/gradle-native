@@ -7,7 +7,7 @@ import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.model.internal.ProjectIdentifier;
 import org.gradle.api.Action;
 
-public final class ComponentContainerImpl extends AbstractDomainObjectContainer<Component> implements ComponentContainerInternal {
+public final class ComponentContainerImpl extends AbstractDomainObjectContainer<Component, Component> implements ComponentContainerInternal {
 	private final ProjectIdentifier owner;
 
 	public ComponentContainerImpl(ProjectIdentifier owner, ComponentConfigurer configurer, DomainObjectEventPublisher eventPublisher, ComponentProviderFactory providerFactory, ComponentRepository repository, KnownComponentFactory knownComponentFactory, ComponentInstantiator instantiator) {

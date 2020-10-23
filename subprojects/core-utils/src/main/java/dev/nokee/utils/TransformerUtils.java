@@ -56,6 +56,11 @@ public final class TransformerUtils {
 		return (Transformer<Set<? extends T>, Iterable<? extends T>>) ToSetTransformer.INSTANCE;
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <OUT, IN> Transformer<Set<OUT>, Iterable<IN>> toSetTransformer(Class<OUT> type) {
+		return (Transformer<Set<OUT>, Iterable<IN>>) (Transformer<? extends Set<OUT>, ? super Iterable<IN>>) ToSetTransformer.INSTANCE;
+	}
+
 	private enum ToSetTransformer implements Transformer<Set<? extends Object>, Iterable<? extends Object>> {
 		INSTANCE;
 

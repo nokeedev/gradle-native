@@ -10,9 +10,9 @@ import dev.nokee.platform.base.internal.ComponentName
 import spock.lang.Subject
 
 @Subject(ComponentContainerImpl)
-class ComponentContainerImplTest extends AbstractDomainObjectContainerTest<Component> implements ComponentFixture {
+class ComponentContainerImplTest extends AbstractDomainObjectContainerTest<Component, Component> implements ComponentFixture {
 	@Override
-	protected AbstractDomainObjectContainer<Component> newSubject() {
+	protected AbstractDomainObjectContainer<Component, Component> newSubject() {
 		return new ComponentContainerImpl(ownerIdentifier, entityConfigurer, eventPublisher, newEntityProviderFactory(), entityRepository, newEntityFactory(), newEntityInstantiator())
 	}
 
