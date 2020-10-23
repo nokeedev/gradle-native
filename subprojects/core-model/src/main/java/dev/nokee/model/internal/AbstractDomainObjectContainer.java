@@ -12,6 +12,8 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 import org.gradle.util.ConfigureUtil;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.*;
@@ -28,6 +30,7 @@ public abstract class AbstractDomainObjectContainer<TYPE, T extends TYPE> extend
 	private final RealizableDomainObjectRepository<TYPE> repository;
 	private final KnownDomainObjectFactory<TYPE> knownObjectFactory;
 	private final DisallowChangesTransformer<Set<TYPE>> disallowChangesTransformer = new DisallowChangesTransformer<>();
+	private final Map<Class<? extends T>, Class<? extends T>> bindings = new HashMap<>();
 
 	protected AbstractDomainObjectContainer(DomainObjectIdentifier owner, Class<T> elementType, PolymorphicDomainObjectInstantiator<TYPE> instantiator, DomainObjectConfigurer<TYPE> configurer, DomainObjectEventPublisher eventPublisher, DomainObjectProviderFactory<TYPE> providerFactory, RealizableDomainObjectRepository<TYPE> repository, KnownDomainObjectFactory<TYPE> knownObjectFactory) {
 		this.owner = owner;
@@ -43,7 +46,7 @@ public abstract class AbstractDomainObjectContainer<TYPE, T extends TYPE> extend
 	@Override
 	public <U extends T> DomainObjectProvider<U> register(String name, Class<U> type) {
 		disallowChangesTransformer.assertChangesAllowed();
-		val identifier = newIdentifier(name, type);
+		val identifier = newIdentifier(name, toImplementationType(type));
 		doRegister(identifier);
 		return providerFactory.create(identifier);
 	}
@@ -51,11 +54,16 @@ public abstract class AbstractDomainObjectContainer<TYPE, T extends TYPE> extend
 	@Override
 	public <U extends T> DomainObjectProvider<U> register(String name, Class<U> type, Action<? super U> action) {
 		disallowChangesTransformer.assertChangesAllowed();
-		val identifier = newIdentifier(name, type);
+		val identifier = newIdentifier(name, toImplementationType(type));
 		doRegister(identifier);
 		configurer.configure(identifier, action);
 
 		return providerFactory.create(identifier);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <U extends T> Class<U> toImplementationType(Class<U> type) {
+		return (Class<U>) bindings.getOrDefault(type, type);
 	}
 
 	private <U extends T> void doRegister(TypeAwareDomainObjectIdentifier<U> identifier) {
@@ -72,6 +80,12 @@ public abstract class AbstractDomainObjectContainer<TYPE, T extends TYPE> extend
 	@Override
 	public <U extends T> void registerFactory(Class<U> type, DomainObjectFactory<? extends U> factory) {
 		instantiator.registerFactory(type, factory);
+	}
+
+	@Override
+	public <U extends T> void registerBinding(Class<U> type, final Class<? extends U> implementationType) {
+		instantiator.registerBinding(type, implementationType);
+		bindings.put(type, implementationType);
 	}
 
 	@Override

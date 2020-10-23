@@ -140,7 +140,7 @@ abstract class AbstractDomainObjectContainerTest<TYPE, T extends TYPE> extends A
 
 		then:
 		def ex = thrown(InvalidUserDataException)
-		ex.message == "Cannot create a ${unknownEntityType.simpleName} because this type is not known to component. Known types are: (None)"
+		ex.message == "Cannot create a ${unknownEntityType.simpleName} because this type is not known to test instantiator. Known types are: (None)"
 
 		where:
 		register << REGISTER_FUNCTIONS_UNDER_TEST
@@ -159,6 +159,68 @@ abstract class AbstractDomainObjectContainerTest<TYPE, T extends TYPE> extends A
 
 		then:
 		noExceptionThrown()
+
+		where:
+		register << REGISTER_FUNCTIONS_UNDER_TEST
+	}
+
+	def "throws exception when binding entity type to non-creatable type"() {
+		given:
+		def subject = newSubject()
+
+		when:
+		subject.registerBinding(myEntityType, myEntityChildType)
+
+		then:
+		def ex = thrown(RuntimeException)
+		ex.message == "Cannot bind type ${myEntityType.simpleName} because a factory for type ${myEntityChildType.simpleName} is not known to test instantiator. Known types are: (None)"
+	}
+
+	def "throws exception when binding creatable entity type"() {
+		given:
+		def subject = newSubject()
+
+		when:
+		subject.registerFactory(myEntityChildType, Stub(DomainObjectFactory))
+		subject.registerFactory(myEntityType, Stub(DomainObjectFactory))
+		subject.registerBinding(myEntityType, myEntityChildType)
+
+		then:
+		def ex = thrown(RuntimeException)
+		ex.message == "Cannot bind type ${myEntityType.simpleName} because a factory for this type is already registered."
+	}
+
+	def "throws exception when registering type already binded"() {
+		given:
+		def subject = newSubject()
+
+		when:
+		subject.registerFactory(myEntityChildType, Stub(DomainObjectFactory))
+		subject.registerBinding(myEntityType, myEntityChildType)
+		subject.registerFactory(myEntityType, Stub(DomainObjectFactory))
+
+		then:
+		def ex = thrown(RuntimeException)
+		ex.message == "Cannot register a factory for type ${myEntityType.simpleName} because a factory for this type is already registered."
+	}
+
+	@Unroll
+	def "can create binded component type"() {
+		given:
+		def subject = newSubject()
+		def factory = Stub(DomainObjectFactory) {
+			create(_) >> { args -> entity(args[0])[1].get() }
+		}
+
+		subject.registerFactory(myEntityChildType, factory)
+		subject.registerBinding(myEntityType, myEntityChildType)
+
+		when:
+		def result = register(subject, 'main', myEntityType)
+
+		then:
+		result.identifier.type == myEntityChildType
+		myEntityChildType.isInstance(result.get())
 
 		where:
 		register << REGISTER_FUNCTIONS_UNDER_TEST

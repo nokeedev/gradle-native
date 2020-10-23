@@ -30,7 +30,7 @@ trait ComponentFixture {
 	}
 
 	PolymorphicDomainObjectInstantiator<Component> newEntityInstantiator() {
-		return new ComponentInstantiator('component')
+		return new ComponentInstantiator('test instantiator')
 	}
 
 	Class<Component> getEntityType() {
@@ -53,6 +53,11 @@ trait ComponentFixture {
 		return MyComponent
 	}
 
+	Class<? extends Component> getMyEntityChildType() {
+		return MyChildComponent
+	}
+
 	static class MyComponent implements Component {}
+	static class MyChildComponent extends MyComponent {}
 	static class ComponentImpl implements Component {}
 }
