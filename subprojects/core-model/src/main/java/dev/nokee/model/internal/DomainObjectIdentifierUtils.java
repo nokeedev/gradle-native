@@ -28,6 +28,7 @@ public final class DomainObjectIdentifierUtils {
 		return new DescendentIdentifierPredicate(owner);
 	}
 
+	@EqualsAndHashCode
 	private static final class DescendentIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
 		private final DomainObjectIdentifier owner;
 
@@ -57,6 +58,7 @@ public final class DomainObjectIdentifierUtils {
 		return new DirectlyOwnedIdentifierPredicate(owner);
 	}
 
+	@EqualsAndHashCode
 	private static final class DirectlyOwnedIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
 		private final DomainObjectIdentifier owner;
 
@@ -83,6 +85,7 @@ public final class DomainObjectIdentifierUtils {
 		return new WithTypeIdentifierPredicate(type);
 	}
 
+	@EqualsAndHashCode
 	private static final class WithTypeIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
 		private final Class<?> type;
 
@@ -108,6 +111,7 @@ public final class DomainObjectIdentifierUtils {
 		return new NamedIdentifierPredicate(name);
 	}
 
+	@EqualsAndHashCode
 	private static final class NamedIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
 		private final String name;
 

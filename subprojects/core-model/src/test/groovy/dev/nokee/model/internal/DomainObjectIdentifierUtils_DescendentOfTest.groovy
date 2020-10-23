@@ -85,6 +85,16 @@ class DomainObjectIdentifierUtils_DescendentOfTest extends Specification {
 		!descendentOf(parentIdentifier).test(identifier)
 	}
 
+	def "can compare predicates"() {
+		given:
+		def identifier1 = Stub(DomainObjectIdentifier)
+		def identifier2 = Stub(DomainObjectIdentifier)
+
+		expect:
+		descendentOf(identifier1) == descendentOf(identifier1)
+		descendentOf(identifier1) != descendentOf(identifier2)
+	}
+
 	def "predicate toString() explains where it comes from"() {
 		given:
 		def identifier = Stub(DomainObjectIdentifierInternal)

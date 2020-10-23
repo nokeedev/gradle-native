@@ -40,6 +40,12 @@ class DomainObjectIdentifierUtils_WithTypeTest extends Specification {
 		!withType(MyUnrelatedEntity).test(identifier)
 	}
 
+	def "can compare predicates"() {
+		expect:
+		withType(MyBaseEntity) == withType(MyBaseEntity)
+		withType(MyBaseEntity) != withType(MyChildEntity)
+	}
+
 	def "predicate toString() explains where it comes from"() {
 		expect:
 		withType(MyBaseEntity).toString() == "DomainObjectIdentifierUtils.withType(${MyBaseEntity.canonicalName})"
