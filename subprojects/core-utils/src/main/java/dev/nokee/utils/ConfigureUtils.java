@@ -1,6 +1,8 @@
 package dev.nokee.utils;
 
 import lombok.val;
+import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.internal.provider.PropertyInternal;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
@@ -58,6 +60,30 @@ public final class ConfigureUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Property<T> configureDisplayName(Property<T> self, String propertyName) {
+		attachDisplayName(self, Describables.of("property '" + propertyName + "'"));
+		return self;
+	}
+
+	/**
+	 * Configures the property display name with the specified value.
+	 *
+	 * @param self the property to configure.
+	 * @param propertyName the property name to use in the display name.
+	 * @return self
+	 */
+	public static RegularFileProperty configureDisplayName(RegularFileProperty self, String propertyName) {
+		attachDisplayName(self, Describables.of("property '" + propertyName + "'"));
+		return self;
+	}
+
+	/**
+	 * Configures the property display name with the specified value.
+	 *
+	 * @param self the property to configure.
+	 * @param propertyName the property name to use in the display name.
+	 * @return self
+	 */
+	public static DirectoryProperty configureDisplayName(DirectoryProperty self, String propertyName) {
 		attachDisplayName(self, Describables.of("property '" + propertyName + "'"));
 		return self;
 	}
