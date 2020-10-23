@@ -26,10 +26,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		val store = project.getExtensions().getByType(DomainObjectStore.class);
 
 		// Create the component
-		project.getPluginManager().apply(ComponentBasePlugin.class);
-		project.getPluginManager().apply(VariantBasePlugin.class);
-		project.getPluginManager().apply(BinaryBasePlugin.class);
-		project.getPluginManager().apply(TaskBasePlugin.class);
+		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 
 		// Register native application factory
