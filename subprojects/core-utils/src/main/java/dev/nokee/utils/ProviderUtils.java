@@ -79,7 +79,7 @@ public final class ProviderUtils {
 	 * @param <IN> input element type to flat map
 	 * @return a {@link Transformer} instance to flat map the element of Gradle collection provider, never null.
 	 */
-	public static <OUT, IN> Transformer<List<? extends OUT>, Iterable<? extends IN>> flatMap(Transformer<Iterable<? extends OUT>, ? super IN> mapper) {
+	public static <OUT, IN> Transformer<List<OUT>, Iterable<IN>> flatMap(Transformer<Iterable<? extends OUT>, ? super IN> mapper) {
 		return new GradleCollectionProviderFlatMapAdapter<>(mapper);
 	}
 
@@ -92,7 +92,7 @@ public final class ProviderUtils {
 	 * @param <IN> input element type to map
 	 * @return a {@link Transformer} instance to map the element of Gradle collection provider, never null.
 	 */
-	public static <OUT, IN> Transformer<List<? extends OUT>, Iterable<? extends IN>> map(Transformer<? extends OUT, ? super IN> mapper) {
+	public static <OUT, IN> Transformer<List<OUT>, Iterable<IN>> map(Transformer<? extends OUT, ? super IN> mapper) {
 		return new GradleCollectionProviderMapAdapter<>(mapper);
 	}
 
@@ -104,7 +104,7 @@ public final class ProviderUtils {
 	 * @param <T> element type to filter
 	 * @return a {@link Transformer} instance to filter the element of Gradle collection provider, never null.
 	 */
-	public static <T> Transformer<List<? extends T>, Iterable<? extends T>> filter(Spec<? super T> spec) {
+	public static <T> Transformer<List<T>, Iterable<T>> filter(Spec<? super T> spec) {
 		if (Specs.satisfyAll().equals(spec)) {
 			return toListTransformer();
 		} else if (Specs.satisfyNone().equals(spec)) {
@@ -114,7 +114,7 @@ public final class ProviderUtils {
 	}
 
 	@EqualsAndHashCode
-	private static final class GradleCollectionProviderFilterAdapter<T> implements Transformer<List<? extends T>, Iterable<? extends T>> {
+	private static final class GradleCollectionProviderFilterAdapter<T> implements Transformer<List<T>, Iterable<T>> {
 		private final Spec<? super T> spec;
 
 		public GradleCollectionProviderFilterAdapter(Spec<? super T> spec) {
@@ -122,7 +122,7 @@ public final class ProviderUtils {
 		}
 
 		@Override
-		public List<? extends T> transform(Iterable<? extends T> elements) {
+		public List<T> transform(Iterable<T> elements) {
 			ImmutableList.Builder<T> result = ImmutableList.builder();
 			for (T element : elements) {
 				if (spec.isSatisfiedBy(element)) {
@@ -139,7 +139,7 @@ public final class ProviderUtils {
 	}
 
 	@EqualsAndHashCode
-	private static final class GradleCollectionProviderFlatMapAdapter<OUT, IN> implements Transformer<List<? extends OUT>, Iterable<? extends IN>> {
+	private static final class GradleCollectionProviderFlatMapAdapter<OUT, IN> implements Transformer<List<OUT>, Iterable<IN>> {
 		private final Transformer<Iterable<? extends OUT>, ? super IN> mapper;
 
 		public GradleCollectionProviderFlatMapAdapter(Transformer<Iterable<? extends OUT>, ? super IN> mapper) {
@@ -147,7 +147,7 @@ public final class ProviderUtils {
 		}
 
 		@Override
-		public List<? extends OUT> transform(Iterable<? extends IN> elements) {
+		public List<OUT> transform(Iterable<IN> elements) {
 			ImmutableList.Builder<OUT> result = ImmutableList.builder();
 			for (IN element : elements) {
 				result.addAll(mapper.transform(element));
@@ -162,7 +162,7 @@ public final class ProviderUtils {
 	}
 
 	@EqualsAndHashCode
-	private static final class GradleCollectionProviderMapAdapter<OUT, IN> implements Transformer<List<? extends OUT>, Iterable<? extends IN>> {
+	private static final class GradleCollectionProviderMapAdapter<OUT, IN> implements Transformer<List<OUT>, Iterable<IN>> {
 		private final Transformer<? extends OUT, ? super IN> mapper;
 
 		public GradleCollectionProviderMapAdapter(Transformer<? extends OUT, ? super IN> mapper) {
@@ -170,7 +170,7 @@ public final class ProviderUtils {
 		}
 
 		@Override
-		public List<? extends OUT> transform(Iterable<? extends IN> elements) {
+		public List<OUT> transform(Iterable<IN> elements) {
 			ImmutableList.Builder<OUT> result = ImmutableList.builder();
 			for (IN element : elements) {
 				result.add(mapper.transform(element));

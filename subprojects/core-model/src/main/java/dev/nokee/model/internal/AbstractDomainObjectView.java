@@ -15,21 +15,29 @@ import org.gradle.util.ConfigureUtil;
 import java.util.List;
 import java.util.Set;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.descendentOf;
 import static dev.nokee.utils.ActionUtils.onlyIf;
+import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 
 public abstract class AbstractDomainObjectView<TYPE, T extends TYPE> extends GroovyObjectSupport {
 	protected final DomainObjectIdentifier viewOwner;
 	protected final Class<T> viewElementType;
-	private final Provider<Set<? extends T>> elementsProvider;
+	private final Provider<Set<T>> elementsProvider;
 	protected final DomainObjectConfigurer<TYPE> configurer;
 	private final DomainObjectViewFactory<TYPE> viewFactory;
 
-	protected AbstractDomainObjectView(DomainObjectIdentifier viewOwner, Class<T> viewElementType, Provider<Set<? extends T>> elementsProvider, DomainObjectConfigurer<TYPE> configurer, DomainObjectViewFactory<TYPE> viewFactory) {
+	protected AbstractDomainObjectView(DomainObjectIdentifier viewOwner, Class<T> viewElementType, RealizableDomainObjectRepository<TYPE> repository, DomainObjectConfigurer<TYPE> configurer, DomainObjectViewFactory<TYPE> viewFactory) {
 		this.viewOwner = viewOwner;
 		this.viewElementType = viewElementType;
-		this.elementsProvider = elementsProvider;
+		this.elementsProvider = viewElements(repository, viewOwner, viewElementType);
 		this.configurer = configurer;
 		this.viewFactory = viewFactory;
+	}
+
+	private static <TYPE, T extends TYPE> Provider<Set<T>> viewElements(RealizableDomainObjectRepository<TYPE> repository, DomainObjectIdentifier viewOwner, Class<T> viewElementType) {
+		return repository
+			.filtered(descendentOf(viewOwner).and(DomainObjectIdentifierUtils.withType(viewElementType)))
+			.map(toSetTransformer(viewElementType));
 	}
 
 	public void configureEach(Action<? super T> action) {
@@ -44,23 +52,23 @@ public abstract class AbstractDomainObjectView<TYPE, T extends TYPE> extends Gro
 		configurer.configureEach(viewOwner, viewElementType, onlyIf(spec, action));
 	}
 
-	public Provider<Set<? extends T>> getElements() {
+	public Provider<Set<T>> getElements() {
 		return elementsProvider;
 	}
 
-	public Set<? extends T> get() {
+	public Set<T> get() {
 		return elementsProvider.get();
 	}
 
-	public <S> Provider<List<? extends S>> map(Transformer<? extends S, ? super T> mapper) {
+	public <S> Provider<List<S>> map(Transformer<? extends S, ? super T> mapper) {
 		return elementsProvider.map(ProviderUtils.map(mapper));
 	}
 
-	public <S> Provider<List<? extends S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper) {
+	public <S> Provider<List<S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper) {
 		return elementsProvider.map(ProviderUtils.flatMap(mapper));
 	}
 
-	public Provider<List<? extends T>> filter(Spec<? super T> spec) {
+	public Provider<List<T>> filter(Spec<? super T> spec) {
 		return getElements().map(ProviderUtils.filter(spec));
 	}
 

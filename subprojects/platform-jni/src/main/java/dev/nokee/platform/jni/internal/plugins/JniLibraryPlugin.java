@@ -515,7 +515,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getConfigurations().getByName("implementation").extendsFrom(library.getJvmImplementationDependencies());
 
 		project.getTasks().named("test", Test.class, task -> {
-			Provider<List<? extends FileCollection>> files = library.getVariants().map(JniLibrary::getNativeRuntimeFiles);
+			Provider<List<FileCollection>> files = library.getVariants().map(JniLibrary::getNativeRuntimeFiles);
 			task.dependsOn((Callable<Iterable<File>>)() -> {
 				val variant = library.getComponent().getDevelopmentVariant().getOrNull();
 				if (variant == null) {

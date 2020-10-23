@@ -7,14 +7,13 @@ import dev.nokee.model.internal.AbstractDomainObjectView;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.HasConfigureElementByNameSupport;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
-import dev.nokee.utils.ProviderUtils;
-import dev.nokee.utils.TransformerUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.UnknownDomainObjectException;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.*;
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.directlyOwnedBy;
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.named;
 
 public final class LanguageSourceSetViewImpl<T extends LanguageSourceSet> extends AbstractDomainObjectView<LanguageSourceSet, T> implements LanguageSourceSetViewInternal<T>, DomainObjectView<T>, HasConfigureElementByNameSupport<T> {
 	private final LanguageSourceSetRepository repository;
@@ -23,7 +22,7 @@ public final class LanguageSourceSetViewImpl<T extends LanguageSourceSet> extend
 	private final Class<T> viewElementType;
 
 	public LanguageSourceSetViewImpl(DomainObjectIdentifier viewOwner, Class<T> viewElementType, LanguageSourceSetRepository repository, LanguageSourceSetConfigurer configurer, LanguageSourceSetViewFactory viewFactory, KnownLanguageSourceSetFactory knownLanguageSourceSetFactory) {
-		super(viewOwner, viewElementType, repository.filtered(id -> isDescendent(id, viewOwner) && viewElementType.isAssignableFrom(id.getType())).map(ProviderUtils.map(viewElementType::cast)).map(TransformerUtils.toSetTransformer()), configurer, viewFactory);
+		super(viewOwner, viewElementType, repository, configurer, viewFactory);
 		this.viewElementType = viewElementType;
 		this.methodInvoker = new ConfigureDirectlyOwnedSourceSetByNameMethodInvoker(this);
 		this.repository = repository;

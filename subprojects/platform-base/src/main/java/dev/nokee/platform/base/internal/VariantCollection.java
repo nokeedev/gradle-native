@@ -51,7 +51,7 @@ public final class VariantCollection<T extends Variant> {
 		return variantViewFactory.create(owner, viewElementType);
 	}
 
-	public Provider<List<? extends T>> filter(Spec<? super T> spec) {
+	public Provider<List<T>> filter(Spec<? super T> spec) {
 		return view.filter(spec);
 	}
 

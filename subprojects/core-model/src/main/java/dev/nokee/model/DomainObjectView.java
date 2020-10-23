@@ -107,14 +107,14 @@ public interface DomainObjectView<T> {
 	 *
 	 * @return a provider containing all the elements included in this view.
 	 */
-	Provider<Set<? extends T>> getElements();
+	Provider<Set<T>> getElements();
 
 	/**
 	 * Returns the contents of this view as a {@link Set} of {@code <T>} instances.
 	 *
 	 * @return a set containing all the elements included in this view.
 	 */
-	Set<? extends T> get();
+	Set<T> get();
 
 	/**
 	 * Returns a list containing the results of applying the given mapper function to each element in the view.
@@ -125,7 +125,7 @@ public interface DomainObjectView<T> {
 	 * @param <S> the type of the mapped elements
 	 * @return a provider containing the transformed elements included in this view.
 	 */
-	<S> Provider<List<? extends S>> map(Transformer<? extends S, ? super T> mapper);
+	<S> Provider<List<S>> map(Transformer<? extends S, ? super T> mapper);
 
 	/**
 	 * Returns a single list containing all elements yielded from results of mapper function being invoked on each element of this view.
@@ -136,7 +136,7 @@ public interface DomainObjectView<T> {
 	 * @param <S> the type of the mapped elements
 	 * @return a provider containing the mapped elements of this view.
 	 */
-	<S> Provider<List<? extends S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper);
+	<S> Provider<List<S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper);
 
 	/**
 	 * Returns a single list containing all elements matching the given specification.
@@ -146,5 +146,5 @@ public interface DomainObjectView<T> {
 	 * @param spec a specification to satisfy
 	 * @return a provider containing the filtered elements of this view.
 	 */
-	Provider<List<? extends T>> filter(Spec<? super T> spec);
+	Provider<List<T>> filter(Spec<? super T> spec);
 }
