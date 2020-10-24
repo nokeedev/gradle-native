@@ -1,91 +1,56 @@
 package dev.nokee.testing.base.internal;
 
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.DomainObjectProvider;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.*;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ComponentName;
+import dev.nokee.platform.base.internal.components.*;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.base.TestSuiteContainer;
-import groovy.lang.Closure;
-import lombok.val;
 import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectFactory;
-import org.gradle.api.model.ObjectFactory;
-import org.gradle.internal.metaobject.*;
-import org.gradle.util.ConfigureUtil;
 
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultTestSuiteContainer extends AbstractDomainObjectContainer<TestSuiteComponent> implements TestSuiteContainer, MethodMixIn {
-	private final Map<Class<?>, NamedDomainObjectFactory<?>> bindings = new HashMap<>();
-	private final Map<Class<?>, Class<?>> implementationTypes = new HashMap<>();
+public final class DefaultTestSuiteContainer extends AbstractDomainObjectContainer<Component, TestSuiteComponent> implements TestSuiteContainer {
+	private final Map<Class<? extends TestSuiteComponent>, Class<? extends TestSuiteComponent>> bindings = new HashMap<>();
+	private final ProjectIdentifier owner;
 
-	@Inject
-	public DefaultTestSuiteContainer(DomainObjectStore store, ObjectFactory objectFactory) {
-		super(TestSuiteComponent.class, store, objectFactory);
-	}
-
-	public <U extends TestSuiteComponent> void registerFactory(Class<U> type, Class<? extends U> implementationType, NamedDomainObjectFactory<U> factory) {
-		bindings.put(type, factory);
-		implementationTypes.put(type, implementationType);
+	public DefaultTestSuiteContainer(ProjectIdentifier owner, ComponentConfigurer configurer, DomainObjectEventPublisher eventPublisher, ComponentProviderFactory providerFactory, ComponentRepository repository, KnownComponentFactory knownComponentFactory, ComponentInstantiator instantiator) {
+		super(owner, TestSuiteComponent.class, instantiator, configurer, eventPublisher, providerFactory, repository, knownComponentFactory);
+		this.owner = owner;
 	}
 
 	@Override
-	public <T extends TestSuiteComponent> DomainObjectProvider<T> register(String name, Class<T> type) {
-		@SuppressWarnings("unchecked")
-		val implementationType = (Class<T>) implementationTypes.get(type);
-		val identifier = ComponentIdentifier.of(ComponentName.of(name), implementationType, ProjectIdentifier.of(""));
-		return getStore().register(identifier, implementationType, id -> {
-			return implementationType.cast(bindings.get(type).create(name));
-		});
+	public void whenElementKnown(Action<? super KnownComponent<? extends TestSuiteComponent>> action) {
+		doWhenElementKnown(TestSuiteComponent.class, (Action<? super KnownDomainObject<TestSuiteComponent>>)action);
 	}
 
 	@Override
-	public <T extends TestSuiteComponent> DomainObjectProvider<T> register(String name, Class<T> type, Action<? super T> action) {
-		val result = register(name, type);
-		result.configure(action);
-		return result;
-	}
-
-	private final ContainerElementsDynamicObject elementsDynamicObject = new ContainerElementsDynamicObject();
-
-	private class ContainerElementsDynamicObject extends AbstractDynamicObject {
-		@Override
-		public String getDisplayName() {
-			return "";
-		}
-
-		@Override
-		public boolean hasMethod(String name, Object... arguments) {
-			return isConfigureMethod(name, arguments);
-		}
-
-		@Override
-		public DynamicInvokeResult tryInvokeMethod(String name, Object... arguments) {
-			if (isConfigureMethod(name, arguments)) {
-				if (arguments.length == 1) {
-					return DynamicInvokeResult.found(register(name, (Class)arguments[0]));
-				} else if (arguments.length == 2) {
-					return DynamicInvokeResult.found(register(name, (Class)arguments[0], ConfigureUtil.configureUsing((Closure) arguments[1])));
-				}
-			}
-			return DynamicInvokeResult.notFound();
-		}
-
-		private boolean isConfigureMethod(String name, Object... arguments) {
-			return (arguments.length == 1 && arguments[0] instanceof Class
-				|| arguments.length == 2 && arguments[0] instanceof Class && arguments[1] instanceof Closure);
-		}
-	}
-
-	protected DynamicObject getElementsAsDynamicObject() {
-		return elementsDynamicObject;
+	public <T extends TestSuiteComponent> void whenElementKnown(Class<T> type, Action<? super KnownComponent<? extends T>> action) {
+		doWhenElementKnown(type, (Action<? super KnownDomainObject<T>>)action);
 	}
 
 	@Override
-	public MethodAccess getAdditionalMethods() {
-		return getElementsAsDynamicObject();
+	protected <U extends TestSuiteComponent> TypeAwareDomainObjectIdentifier<U> newIdentifier(String name, Class<U> type) {
+		// FIXME: Throw exception if type is not implementing TestSuiteComponent
+		return ComponentIdentifier.of(ComponentName.of(name), type, owner);
 	}
 
+	@Override
+	public <U extends TestSuiteComponent> void registerBinding(Class<U> type, Class<? extends U> implementationType) {
+		super.registerBinding(type, implementationType);
+		bindings.put(type, implementationType);
+	}
+
+	@Override
+	public <U extends TestSuiteComponent> DomainObjectProvider<U> register(String name, Class<U> type) {
+		return super.register(name, (Class<U>)bindings.getOrDefault(type, type)); // FIXME: move binding redirect into newIdentifier
+	}
+
+	@Override
+	public <U extends TestSuiteComponent> DomainObjectProvider<U> register(String name, Class<U> type, Action<? super U> action) {
+		return super.register(name, (Class<U>)bindings.getOrDefault(type, type), action); // FIXME: move binding redirect into newIdentifier
+	}
 }

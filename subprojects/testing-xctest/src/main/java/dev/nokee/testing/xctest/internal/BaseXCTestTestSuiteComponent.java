@@ -34,6 +34,7 @@ import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentO
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.utils.Cast;
 import lombok.Getter;
 import lombok.val;
