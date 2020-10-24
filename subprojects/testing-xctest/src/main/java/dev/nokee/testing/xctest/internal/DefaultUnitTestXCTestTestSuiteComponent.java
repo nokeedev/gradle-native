@@ -5,7 +5,6 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
-import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
@@ -32,7 +31,6 @@ import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
-import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.ProjectLayout;
@@ -41,22 +39,20 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component {
+public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component {
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
 	private final TaskRegistry taskRegistry;
 	private final ProjectLayout layout;
 	private final DomainObjectEventPublisher eventPublisher;
 
-	@Inject
-	public DefaultUnitTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUnitTestXCTestTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, LanguageSourceSetRepository languageSourceSetRepository, LanguageSourceSetViewFactory languageSourceSetViewFactory) {
+	public DefaultUnitTestXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, LanguageSourceSetRepository languageSourceSetRepository, LanguageSourceSetViewFactory languageSourceSetViewFactory) {
 		super(identifier, objects, providers, tasks, layout, configurations, dependencyHandler, eventPublisher, viewFactory, variantRepository, binaryViewFactory, taskRegistry, taskViewFactory, languageSourceSetRepository, languageSourceSetViewFactory);
 		this.objects = objects;
 		this.providers = providers;
@@ -93,6 +89,13 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 			task.getCodeSignatureTool().disallowChanges();
 		});
 
+		val binaryIdentifierXCTestBundle = BinaryIdentifier.of(BinaryName.of("unitTestXCTestBundle"), IosXCTestBundle.class, variant.getIdentifier());
+		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifierXCTestBundle));
+		val xcTestBundle = new IosXCTestBundle(createUnitTestXCTestBundle);
+		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifierXCTestBundle, xcTestBundle));
+		// We could use signed bundle as development binary but right now it's only used in Xcode which Xcode will perform the signing so no need to provide a signed bundle
+		variant.configure(it -> it.getDevelopmentBinary().set(xcTestBundle));
+
 		val createUnitTestApplicationBundleTask = taskRegistry.register("createUnitTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
 			task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getBaseName().get() + "-unsigned.app"));
 			task.getSources().from(getTestedComponent().flatMap(c -> c.getVariants().getElements().map(it -> it.iterator().next().getBinaries().withType(IosApplicationBundleInternal.class).get().iterator().next().getBundleTask().map(t -> t.getSources()))));
@@ -109,10 +112,10 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 			task.getCodeSignatureTool().disallowChanges();
 		});
 
-		val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variant.getIdentifier());
-		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
+		val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variant.getIdentifier());
+		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifierApplicationBundle));
 		val signedApplicationBundle = new SignedIosApplicationBundleInternal(signTask);
-		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, signedApplicationBundle));
+		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifierApplicationBundle, signedApplicationBundle));
 
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
@@ -147,11 +150,5 @@ public class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuite
 		} catch (InterruptedException | IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	public static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTestFactory(ObjectFactory objects, Project project) {
-		return identifier -> {
-			return objects.newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, identifier, project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
-		};
 	}
 }

@@ -5,7 +5,6 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
-import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
@@ -22,6 +21,7 @@ import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
+import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.ios.tasks.internal.ProcessPropertyListTask;
@@ -31,7 +31,6 @@ import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
-import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -42,22 +41,20 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component {
+public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component {
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
 	private final TaskRegistry taskRegistry;
 	private final ProjectLayout layout;
 	private final DomainObjectEventPublisher eventPublisher;
 
-	@Inject
-	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier<DefaultUiTestXCTestTestSuiteComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, LanguageSourceSetRepository languageSourceSetRepository, LanguageSourceSetViewFactory languageSourceSetViewFactory) {
+	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, LanguageSourceSetRepository languageSourceSetRepository, LanguageSourceSetViewFactory languageSourceSetViewFactory) {
 		super(identifier, objects, providers, tasks, layout, configurations, dependencyHandler, eventPublisher, viewFactory, variantRepository, binaryViewFactory, taskRegistry, taskViewFactory, languageSourceSetRepository, languageSourceSetViewFactory);
 		this.objects = objects;
 		this.providers = providers;
@@ -103,6 +100,11 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 			task.getSwiftSupportRequired().set(false);
 		});
 
+		val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("launcherApplicationBundle"), IosApplicationBundleInternal.class, variant.getIdentifier());
+		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifierApplicationBundle));
+		val launcherApplicationBundle = new IosApplicationBundleInternal(createUiTestApplicationBundleTask);
+		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifierApplicationBundle, launcherApplicationBundle));
+
 		val signTask = taskRegistry.register("signUiTestLauncherApplicationBundle", SignIosApplicationBundleTask.class, task -> {
 			task.getUnsignedApplicationBundle().set(createUiTestApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
 			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner.app"));
@@ -110,10 +112,11 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 			task.getCodeSignatureTool().disallowChanges();
 		});
 
-		val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variant.getIdentifier());
-		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
-		val signedApplicationBundle = new SignedIosApplicationBundleInternal(signTask);
-		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, signedApplicationBundle));
+		val binaryIdentifierSignedApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedLauncherApplicationBundle"), SignedIosApplicationBundleInternal.class, variant.getIdentifier());
+		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifierSignedApplicationBundle));
+		val signedLauncherApplicationBundle = new SignedIosApplicationBundleInternal(signTask);
+		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifierSignedApplicationBundle, signedLauncherApplicationBundle));
+		variant.configure(it -> it.getDevelopmentBinary().set(signedLauncherApplicationBundle));
 
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
@@ -154,11 +157,5 @@ public class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteCo
 		return providers.provider(() -> {
 			return new File(getSdkPlatformPath(), "Developer/Library/Xcode/Agents/XCTRunner.app/XCTRunner");
 		});
-	}
-
-	public static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(ObjectFactory objects, Project project) {
-		return identifier -> {
-			return objects.newInstance(DefaultUiTestXCTestTestSuiteComponent.class, identifier, project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
-		};
 	}
 }

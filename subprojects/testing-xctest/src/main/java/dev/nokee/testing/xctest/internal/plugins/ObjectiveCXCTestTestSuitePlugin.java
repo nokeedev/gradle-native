@@ -3,51 +3,45 @@ package dev.nokee.testing.xctest.internal.plugins;
 import dev.nokee.language.base.internal.*;
 import dev.nokee.language.c.internal.CHeaderSetImpl;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.model.DomainObjectFactory;
+import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
+import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
+import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.TaskContainer;
+import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
-import static dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent.newUiTestFactory;
-import static dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent.newUnitTestFactory;
-
 public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
-	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
-	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
-	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
-	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	private final ObjectFactory objects;
 
 	@Inject
-	public ObjectiveCXCTestTestSuitePlugin(TaskContainer tasks, ProjectLayout layout, ProviderFactory providers, ObjectFactory objects) {
-		this.tasks = tasks;
-		this.layout = layout;
-		this.providers = providers;
-		this.objects = objects;
+	public ObjectiveCXCTestTestSuitePlugin(ObjectFactory objectFactory) {
+		this.objects = objectFactory;
 	}
 
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
 			BaseNativeComponent<?> application = ((DefaultObjectiveCIosApplicationExtension) project.getExtensions().getByType(ObjectiveCIosApplicationExtension.class)).getComponent();
-			val store = project.getExtensions().getByType(DomainObjectStore.class);
+			val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);
 
-			val unitTestIdentifier = ComponentIdentifier.of(ComponentName.of("unitTest"), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
-			val unitTestComponent = store.register(unitTestIdentifier, DefaultUnitTestXCTestTestSuiteComponent.class, newUnitTestFactory(getObjects(), project));
-			unitTestComponent.configure(component -> {
+			testSuites.registerFactory(DefaultUnitTestXCTestTestSuiteComponent.class, newUnitTestFactory(project));
+			val unitTestComponent = testSuites.register("unitTest", DefaultUnitTestXCTestTestSuiteComponent.class, component -> {
 				val languageSourceSetRegistry = project.getExtensions().getByType(LanguageSourceSetRegistry.class);
 				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objectiveC"), ObjectiveCSourceSetImpl.class, component.getIdentifier()), this::configureSourceSetConvention);
 				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()));
@@ -55,12 +49,10 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				component.getGroupId().set(GroupId.of(project::getGroup));
 				component.finalizeExtension(project);
 				component.getVariantCollection().realize(); // Force realization, for now
-			});
-			unitTestComponent.get();
+			}).get();
 
-			val uiTestIdentifier = ComponentIdentifier.of(ComponentName.of("uiTest"), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
-			val uiTestComponent = store.register(uiTestIdentifier, DefaultUiTestXCTestTestSuiteComponent.class, newUiTestFactory(getObjects(), project));
-			uiTestComponent.configure(component -> {
+			testSuites.registerFactory(DefaultUiTestXCTestTestSuiteComponent.class, newUiTestFactory(project));
+			val uiTestComponent = testSuites.register("uiTest", DefaultUiTestXCTestTestSuiteComponent.class, component -> {
 				val languageSourceSetRegistry = project.getExtensions().getByType(LanguageSourceSetRegistry.class);
 				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objectiveC"), ObjectiveCSourceSetImpl.class, component.getIdentifier()), this::configureSourceSetConvention);
 				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()));
@@ -68,12 +60,23 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				component.getGroupId().set(GroupId.of(project::getGroup));
 				component.finalizeExtension(project);
 				component.getVariantCollection().realize(); // Force realization, for now
-			});
-			uiTestComponent.get();
+			}).get();
 		});
 	}
 
 	private void configureSourceSetConvention(LanguageSourceSetInternal sourceSet) {
 		sourceSet.convention(objects.fileCollection().from(ConventionalRelativeLanguageSourceSetPath.of(sourceSet.getIdentifier()), ConventionalRelativeLanguageSourceSetPath.builder().fromIdentifier(sourceSet.getIdentifier()).withSourceSetName("objc").build()));
+	}
+
+	private static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTestFactory(Project project) {
+		return identifier -> {
+			return new DefaultUnitTestXCTestTestSuiteComponent((ComponentIdentifier<?>)identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
+		};
+	}
+
+	private static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(Project project) {
+		return identifier -> {
+			return new DefaultUiTestXCTestTestSuiteComponent((ComponentIdentifier<?>)identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
+		};
 	}
 }
