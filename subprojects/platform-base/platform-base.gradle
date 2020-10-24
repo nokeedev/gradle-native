@@ -29,6 +29,7 @@ dependencies {
 	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
 	testImplementation testFixtures(project(':coreModel'))
+	testImplementation project(':testingBase')
 
 	testFixturesApi testFixtures(project(':languageNative'))
 	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"

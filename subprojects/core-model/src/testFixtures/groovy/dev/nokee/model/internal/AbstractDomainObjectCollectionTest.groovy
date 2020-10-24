@@ -487,7 +487,6 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 			(MissingMethodException.class): { it.startsWith("No signature of method: ${subject.class.canonicalName}.${identifier1.name}() is applicable for argument types") }
 		].get(ex.class)(ex.message)
 		0 * action.execute(_)
-				//{ it == "Cannot create a String because this type is not known to test instantiator. Known types are: (None)" },
 
 		where:
 		configure << CONFIGURE_WITH_TYPE_FUNCTIONS_UNDER_TEST
@@ -514,7 +513,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		then:
 		def ex = thrown(RuntimeException)
 		[
-			(UnknownDomainObjectException.class): { it == "${subject.elementType.simpleName} with name '${identifier.name}' and directly owned by ${ownerIdentifier} not found." },
+			(UnknownDomainObjectException.class): { it == "${entityConfigurer.entityType.simpleName} with name '${identifier.name}' and directly owned by ${ownerIdentifier} not found." },
 			(MissingMethodException.class): { it.startsWith("No signature of method: ${subject.class.canonicalName}.${identifier.name}() is applicable for argument types")}
 		].get(ex.class)(ex.message)
 		and:
@@ -545,7 +544,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		then:
 		def ex = thrown(RuntimeException)
 		[
-			(UnknownDomainObjectException.class): { it == "${subject.elementType.simpleName} with name '${identifier.name}' and directly owned by ${ownerIdentifier} not found." },
+			(UnknownDomainObjectException.class): { it == "${entityConfigurer.entityType.simpleName} with name '${identifier.name}' and directly owned by ${ownerIdentifier} not found." },
 			(MissingMethodException.class): { it.startsWith("No signature of method: ${subject.class.canonicalName}.${identifier.name}() is applicable for argument types") }
 		].get(ex.class)(ex.message)
 		and:
@@ -570,7 +569,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		then:
 		def ex = thrown(RuntimeException)
 		[
-			(UnknownDomainObjectException.class): { it == "${subject.elementType.simpleName} with name 'foo' and directly owned by ${ownerIdentifier} not found." },
+			(UnknownDomainObjectException.class): { it == "${entityConfigurer.entityType.simpleName} with name 'foo' and directly owned by ${ownerIdentifier} not found." },
 			(InvalidUserDataException.class): { it == "Cannot create a ${entityType.simpleName} because this type is not known to test instantiator. Known types are: (None)" },
 			(MissingMethodException.class): { it.startsWith("No signature of method: ${subject.class.canonicalName}.foo() is applicable for argument types") }
 		].get(ex.class)(ex.message)
@@ -597,7 +596,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		then:
 		def ex = thrown(RuntimeException)
 		[
-			(UnknownDomainObjectException.class): { it == "${subject.elementType.simpleName} with name 'foo' and directly owned by ${ownerIdentifier} not found." },
+			(UnknownDomainObjectException.class): { it == "${entityConfigurer.entityType.simpleName} with name 'foo' and directly owned by ${ownerIdentifier} not found." },
 			(InvalidUserDataException.class): { it == "Cannot create a ${entityType.simpleName} because this type is not known to test instantiator. Known types are: (None)" },
 			(MissingMethodException.class): { it.startsWith("No signature of method: ${subject.class.canonicalName}.foo() is applicable for argument types") }
 		].get(ex.class)(ex.message)

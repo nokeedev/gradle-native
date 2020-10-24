@@ -12,11 +12,17 @@ public abstract class AbstractDomainObjectConfigurer<T> implements DomainObjectC
 	private final KnownDomainObjects<T> knownObjects;
 	private final DomainObjects<T> objects;
 	private final NamedDomainObjectConfigurer<T> nameAwareConfigurer;
+	private final Class<T> entityType;
 
 	public AbstractDomainObjectConfigurer(Class<T> entityType, DomainObjectEventPublisher eventPublisher) {
+		this.entityType = entityType;
 		this.knownObjects = new KnownDomainObjects<>(entityType, eventPublisher, knownConfigureActions);
 		this.objects = new DomainObjects<>(entityType, eventPublisher, configureActions);
 		this.nameAwareConfigurer = new NamedDomainObjectConfigurer<>(entityType, knownObjects, this);
+	}
+
+	public Class<T> getEntityType() {
+		return entityType;
 	}
 
 	public <S extends T> void configureEach(DomainObjectIdentifier owner, Class<S> type, Action<? super S> action) {
