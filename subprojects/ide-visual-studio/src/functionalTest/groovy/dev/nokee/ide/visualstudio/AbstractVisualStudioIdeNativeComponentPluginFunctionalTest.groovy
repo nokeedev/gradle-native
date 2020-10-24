@@ -9,6 +9,7 @@ import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeSolutionFixture
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeTaskNames
 import org.apache.commons.lang3.SystemUtils
+import spock.lang.Ignore
 import spock.lang.Requires
 
 import static org.junit.Assume.assumeFalse
@@ -143,6 +144,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		visualStudioSolutionUnderTest.assertHasProjects(expectedProjectNames)
 	}
 
+	@Ignore("because left over Gradle daemons cause failures")
 	@Requires({SystemUtils.IS_OS_WINDOWS})
 	def "build generated visual studio solution"() {
 		using msbuildTool
