@@ -124,7 +124,7 @@ abstract class AbstractDomainObjectContainerTest<TYPE, T extends TYPE> extends A
 		}
 	}
 
-	private static final List<RegisterFunction> REGISTER_FUNCTIONS_UNDER_TEST = [RegisterNameTypeFunction.INSTANCE, RegisterNameTypeActionFunction.INSTANCE, RegisterNameTypeClosureFunction.INSTANCE, RegisterGroovyDslMethodCall.INSTANCE, RegisterGroovyDslMethodWithClosureCall.INSTANCE]
+	protected static final List<RegisterFunction> REGISTER_FUNCTIONS_UNDER_TEST = [RegisterNameTypeFunction.INSTANCE, RegisterNameTypeActionFunction.INSTANCE, RegisterNameTypeClosureFunction.INSTANCE, RegisterGroovyDslMethodCall.INSTANCE, RegisterGroovyDslMethodWithClosureCall.INSTANCE]
 
 	private static final List<RegisterWithActionFunction> REGISTER_WITH_ACTION_FUNCTIONS_UNDER_TEST = [RegisterNameTypeActionFunction.INSTANCE, RegisterNameTypeClosureFunction.INSTANCE, RegisterGroovyDslMethodWithClosureCall.INSTANCE]
 
