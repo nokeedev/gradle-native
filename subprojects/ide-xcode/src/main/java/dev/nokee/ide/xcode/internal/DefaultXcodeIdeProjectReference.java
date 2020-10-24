@@ -5,7 +5,7 @@ import dev.nokee.ide.xcode.XcodeIdeProjectReference;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
 
-public class DefaultXcodeIdeProjectReference extends BaseIdeProjectReference implements XcodeIdeProjectReference {
+public final class DefaultXcodeIdeProjectReference extends BaseIdeProjectReference implements XcodeIdeProjectReference {
     public DefaultXcodeIdeProjectReference(Provider<DefaultXcodeIdeProject> xcodeProject) {
         super(xcodeProject);
     }

@@ -3,6 +3,7 @@ package dev.nokee.ide.xcode.internal;
 import dev.nokee.ide.xcode.XcodeIdeBuildConfiguration;
 import dev.nokee.ide.xcode.XcodeIdeProductType;
 import dev.nokee.ide.xcode.XcodeIdeTarget;
+import dev.nokee.utils.ConfigureUtils;
 import lombok.Getter;
 import lombok.NonNull;
 import org.apache.commons.io.FilenameUtils;
@@ -41,6 +42,18 @@ public final class DefaultXcodeIdeTarget implements XcodeIdeTarget {
 			result = result.substring(3);
 		}
 		return result;
+	}
+
+	public void setProductName(Object value) {
+		ConfigureUtils.setPropertyValue(productName, value);
+	}
+
+	public void setProductType(Object value) {
+		ConfigureUtils.setPropertyValue(productType, value);
+	}
+
+	public void setProductReference(Object value) {
+		ConfigureUtils.setPropertyValue(productReference, value);
 	}
 
 	@Override

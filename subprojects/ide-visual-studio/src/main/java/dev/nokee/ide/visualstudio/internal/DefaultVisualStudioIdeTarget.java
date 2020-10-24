@@ -3,6 +3,7 @@ package dev.nokee.ide.visualstudio.internal;
 import dev.nokee.ide.visualstudio.VisualStudioIdeProjectConfiguration;
 import dev.nokee.ide.visualstudio.VisualStudioIdePropertyGroup;
 import dev.nokee.ide.visualstudio.VisualStudioIdeTarget;
+import dev.nokee.utils.ConfigureUtils;
 import lombok.Getter;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -24,6 +25,10 @@ public final class DefaultVisualStudioIdeTarget implements VisualStudioIdeTarget
 		this.productLocation = configureDisplayName(objectFactory.fileProperty(), "productLocation");
 		this.properties = objectFactory.newInstance(DefaultVisualStudioIdePropertyGroup.class);
 		this.itemProperties = objectFactory.domainObjectContainer(VisualStudioIdePropertyGroup.class, this::newPropertyGroup);
+	}
+
+	public void setProductLocation(Object value) {
+		ConfigureUtils.setPropertyValue(productLocation, value);
 	}
 
 	@Override
