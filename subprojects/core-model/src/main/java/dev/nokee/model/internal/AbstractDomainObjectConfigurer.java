@@ -11,10 +11,12 @@ public abstract class AbstractDomainObjectConfigurer<T> implements DomainObjectC
 	private final DomainObjectActions<T> configureActions = new DomainObjectActions<>();
 	private final KnownDomainObjects<T> knownObjects;
 	private final DomainObjects<T> objects;
+	private final NamedDomainObjectConfigurer<T> nameAwareConfigurer;
 
 	public AbstractDomainObjectConfigurer(Class<T> entityType, DomainObjectEventPublisher eventPublisher) {
 		this.knownObjects = new KnownDomainObjects<>(entityType, eventPublisher, knownConfigureActions);
 		this.objects = new DomainObjects<>(entityType, eventPublisher, configureActions);
+		this.nameAwareConfigurer = new NamedDomainObjectConfigurer<>(entityType, knownObjects, this);
 	}
 
 	public <S extends T> void configureEach(DomainObjectIdentifier owner, Class<S> type, Action<? super S> action) {
@@ -39,6 +41,10 @@ public abstract class AbstractDomainObjectConfigurer<T> implements DomainObjectC
 		} else {
 			action.execute(identifier.getType().cast(object.get()));
 		}
+	}
+
+	public <S extends T> void configure(DomainObjectIdentifier owner, String name, Class<S> type, Action<? super S> action) {
+		nameAwareConfigurer.configure(owner, name, type, action);
 	}
 
 	public <S extends T> void whenElementKnown(DomainObjectIdentifier owner, Class<S> type, Action<? super TypeAwareDomainObjectIdentifier<S>> action) {

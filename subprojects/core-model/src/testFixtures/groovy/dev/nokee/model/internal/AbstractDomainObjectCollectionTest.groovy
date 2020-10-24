@@ -375,7 +375,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		subject.configure(identifier1.name.get(), String, action)
 		then:
 		def ex = thrown(InvalidUserDataException)
-		ex.message == "The domain object '${identifier1.name}' (${entityImplementationType.canonicalName}) is not a subclass of the given type (java.lang.String)."
+		ex.message == "The domain object '${identifier1.name}' (${entityImplementationType.canonicalName}) directly owned by ${ownerIdentifier} is not a subclass of the given type (java.lang.String)."
 		0 * action.execute(_)
 	}
 
@@ -398,7 +398,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		subject.configure(identifier.name.get(), action)
 		then:
 		def ex = thrown(UnknownDomainObjectException)
-		ex.message == "${subject.elementType.simpleName} with name '${identifier.name}' not found."
+		ex.message == "${subject.elementType.simpleName} with name '${identifier.name}' and directly owned by ${ownerIdentifier} not found."
 		and:
 		0 * action.execute(_)
 	}
@@ -422,7 +422,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 		subject.configure(identifier.name.get(), identifier.type, action)
 		then:
 		def ex = thrown(UnknownDomainObjectException)
-		ex.message == "${subject.elementType.simpleName} with name '${identifier.name}' not found."
+		ex.message == "${subject.elementType.simpleName} with name '${identifier.name}' and directly owned by ${ownerIdentifier} not found."
 		and:
 		0 * action.execute(_)
 	}
@@ -440,7 +440,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 
 		then:
 		def ex = thrown(UnknownDomainObjectException)
-		ex.message == "${subject.elementType.simpleName} with name 'foo' not found."
+		ex.message == "${subject.elementType.simpleName} with name 'foo' and directly owned by ${ownerIdentifier} not found."
 
 		and:
 		0 * action.execute(_)
@@ -459,7 +459,7 @@ abstract class AbstractDomainObjectCollectionTest<T> extends DomainObjectSpec<T>
 
 		then:
 		def ex = thrown(UnknownDomainObjectException)
-		ex.message == "${subject.elementType.simpleName} with name 'foo' not found."
+		ex.message == "${subject.elementType.simpleName} with name 'foo' and directly owned by ${ownerIdentifier} not found."
 
 		and:
 		0 * action.execute(_)

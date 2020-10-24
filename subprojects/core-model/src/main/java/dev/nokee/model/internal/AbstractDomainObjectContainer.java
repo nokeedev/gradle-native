@@ -118,6 +118,16 @@ public abstract class AbstractDomainObjectContainer<TYPE, T extends TYPE> extend
 		});
 	}
 
+	//region configure by name/type
+	public void configure(String name, Action<? super T> action) {
+		configurer.configure(owner, name, elementType, action);
+	}
+
+	public <S extends T> void configure(String name, Class<S> type, Action<? super S> action) {
+		configurer.configure(owner, name, type, action);
+	}
+	//endregion
+
 	@Override
 	public Object invokeMethod(String name, Object args) {
 		val argsArray = (Object[])args;
