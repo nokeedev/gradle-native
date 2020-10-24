@@ -6,7 +6,6 @@ import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
-import dev.nokee.platform.base.internal.plugins.ProjectStorePlugin;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
@@ -24,7 +23,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(TestingBasePlugin.class);
-		project.getPluginManager().apply(ProjectStorePlugin.class);
 
 		val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);
 		testSuites.registerFactory(DefaultNativeTestSuiteComponent.class, identifier -> createNativeTestSuite((ComponentIdentifier<?>) identifier, project));

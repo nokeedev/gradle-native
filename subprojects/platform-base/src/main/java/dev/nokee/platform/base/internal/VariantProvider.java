@@ -1,7 +1,6 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.Value;
-import dev.nokee.platform.base.DomainObjectProvider;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.utils.TransformerUtils;
 import org.gradle.api.Action;
@@ -23,10 +22,6 @@ public final class VariantProvider<T extends Variant> {
 
 	public Class<T> getType() {
 		return identifier.getType();
-	}
-
-	public DomainObjectProvider<T> getDelegate() {
-		throw new UnsupportedOperationException(); // TODO: SHould not expose this
 	}
 
 	public T get() {
