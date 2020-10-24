@@ -19,6 +19,7 @@ import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
@@ -47,6 +48,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()));
 				component.getTestedComponent().value(application).disallowChanges();
 				component.getGroupId().set(GroupId.of(project::getGroup));
+				component.getBaseName().set(GUtil.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
+				component.getModuleName().set(GUtil.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
+				component.getProductBundleIdentifier().set(project.getGroup().toString() + "." + GUtil.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
 				component.finalizeExtension(project);
 				component.getVariantCollection().realize(); // Force realization, for now
 			}).get();
@@ -58,6 +62,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()));
 				component.getTestedComponent().value(application).disallowChanges();
 				component.getGroupId().set(GroupId.of(project::getGroup));
+				component.getBaseName().set(GUtil.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
+				component.getModuleName().set(GUtil.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
+				component.getProductBundleIdentifier().set(project.getGroup().toString() + "." + GUtil.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
 				component.finalizeExtension(project);
 				component.getVariantCollection().realize(); // Force realization, for now
 			}).get();
