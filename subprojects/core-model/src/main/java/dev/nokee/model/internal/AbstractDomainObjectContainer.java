@@ -4,23 +4,23 @@ import dev.nokee.model.DomainObjectContainer;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
-import groovy.lang.Closure;
+import dev.nokee.model.internal.dsl.GroovyDslContainerInvoker;
+import dev.nokee.model.internal.dsl.GroovyDslInvoker;
 import groovy.lang.GroovyObjectSupport;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
-import org.gradle.util.ConfigureUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.*;
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.descendentOf;
 import static dev.nokee.utils.ActionUtils.onlyIf;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 
-public abstract class AbstractDomainObjectContainer<TYPE, T extends TYPE> extends GroovyObjectSupport implements DomainObjectContainer<T> {
+public abstract class AbstractDomainObjectContainer<TYPE, T extends TYPE> extends GroovyObjectSupport implements DomainObjectContainer<T>, HasConfigureElementByNameSupport<T> {
 	private final DomainObjectIdentifier owner;
 	private final Class<T> elementType;
 	private final PolymorphicDomainObjectInstantiator<TYPE> instantiator;
@@ -31,6 +31,7 @@ public abstract class AbstractDomainObjectContainer<TYPE, T extends TYPE> extend
 	private final KnownDomainObjectFactory<TYPE> knownObjectFactory;
 	private final DisallowChangesTransformer<Set<TYPE>> disallowChangesTransformer = new DisallowChangesTransformer<>();
 	private final Map<Class<? extends T>, Class<? extends T>> bindings = new HashMap<>();
+	private final GroovyDslInvoker<T> invoker;
 
 	protected AbstractDomainObjectContainer(DomainObjectIdentifier owner, Class<T> elementType, PolymorphicDomainObjectInstantiator<TYPE> instantiator, DomainObjectConfigurer<TYPE> configurer, DomainObjectEventPublisher eventPublisher, DomainObjectProviderFactory<TYPE> providerFactory, RealizableDomainObjectRepository<TYPE> repository, KnownDomainObjectFactory<TYPE> knownObjectFactory) {
 		this.owner = owner;
@@ -41,6 +42,21 @@ public abstract class AbstractDomainObjectContainer<TYPE, T extends TYPE> extend
 		this.providerFactory = providerFactory;
 		this.repository = repository;
 		this.knownObjectFactory = knownObjectFactory;
+		this.invoker = new GroovyDslContainerInvoker<>(this, owner, elementType, repository, configurer, new DomainObjectRegistry<T>() {
+			@Override
+			public <S extends T> DomainObjectProvider<S> register(String name, Class<S> type) {
+				return AbstractDomainObjectContainer.this.register(name, type);
+			}
+
+			@Override
+			public <S extends T> DomainObjectProvider<S> register(String name, Class<S> type, Action<? super S> action) {
+				return AbstractDomainObjectContainer.this.register(name, type, action);
+			}
+		});
+	}
+
+	public Class<T> getElementType() {
+		return elementType;
 	}
 
 	@Override
@@ -130,12 +146,6 @@ public abstract class AbstractDomainObjectContainer<TYPE, T extends TYPE> extend
 
 	@Override
 	public Object invokeMethod(String name, Object args) {
-		val argsArray = (Object[])args;
-		if (argsArray.length == 1 && argsArray[0] instanceof Class) {
-			return register(name, (Class)argsArray[0]);
-		} else if (argsArray.length == 2 && argsArray[0] instanceof Class && argsArray[1] instanceof Closure) {
-			return register(name, (Class)argsArray[0], ConfigureUtil.configureUsing((Closure)argsArray[1]));
-		}
-		return super.invokeMethod(name, args);
+		return invoker.invokeMethod(name, args);
 	}
 }

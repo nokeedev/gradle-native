@@ -9,13 +9,11 @@ import org.gradle.api.Action;
 
 public final class LanguageSourceSetViewImpl<T extends LanguageSourceSet> extends AbstractDomainObjectView<LanguageSourceSet, T> implements LanguageSourceSetViewInternal<T>, DomainObjectView<T>, HasConfigureElementByNameSupport<T> {
 	private final KnownLanguageSourceSetFactory knownLanguageSourceSetFactory;
-	private final ConfigureDirectlyOwnedSourceSetByNameMethodInvoker methodInvoker;
 	private final Class<T> viewElementType;
 
 	public LanguageSourceSetViewImpl(DomainObjectIdentifier viewOwner, Class<T> viewElementType, LanguageSourceSetRepository repository, LanguageSourceSetConfigurer configurer, LanguageSourceSetViewFactory viewFactory, KnownLanguageSourceSetFactory knownLanguageSourceSetFactory) {
 		super(viewOwner, viewElementType, repository, configurer, viewFactory);
 		this.viewElementType = viewElementType;
-		this.methodInvoker = new ConfigureDirectlyOwnedSourceSetByNameMethodInvoker(this);
 		this.knownLanguageSourceSetFactory = knownLanguageSourceSetFactory;
 	}
 
@@ -35,11 +33,6 @@ public final class LanguageSourceSetViewImpl<T extends LanguageSourceSet> extend
 	}
 
 	//region configure by name/type
-	@Override
-	public Object invokeMethod(String name, Object args) {
-		return methodInvoker.invokeMethod(name, args);
-	}
-
 	public void configure(String name, Action<? super T> action) {
 		configurer.configure(viewOwner, name, viewElementType, action);
 	}
