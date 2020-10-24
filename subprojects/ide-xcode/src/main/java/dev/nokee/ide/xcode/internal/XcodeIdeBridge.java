@@ -54,13 +54,14 @@ public abstract class XcodeIdeBridge extends IdeBridgeRule<XcodeIdeRequest> {
 
 	private XcodeIdeTarget findXcodeTarget(XcodeIdeRequest request) {
 		String projectName = request.getGradleIdeProjectName();
-		realize(xcodeProjects);
+		realize(xcodeProjects); // FIXME: asGradleListProvider needs some hacking to "have one value" to ensure we don't need
 		XcodeIdeProject project = xcodeProjects.findByName(projectName);
 		if (project == null) {
 			throw new GradleException(String.format("Unknown Xcode IDE project '%s', try re-generating the Xcode IDE configuration using '%s:xcode' task.", projectName, getPrefixableProjectPath(this.project)));
 		}
 
 		String targetName = request.getTargetName();
+		realize(project.getTargets()); // FIXME: asGradleListProvider needs some hacking to "have one value" to ensure we don't need
 		XcodeIdeTarget target = project.getTargets().findByName(targetName);
 		if (target == null) {
 			throw new GradleException(String.format("Unknown Xcode IDE target '%s', try re-generating the Xcode IDE configuration using '%s:xcode' task.", targetName, getPrefixableProjectPath(this.project)));
@@ -71,6 +72,7 @@ public abstract class XcodeIdeBridge extends IdeBridgeRule<XcodeIdeRequest> {
 	private void bridgeProductBuild(SyncXcodeIdeProduct bridgeTask, XcodeIdeTarget target, XcodeIdeRequest request) {
 		// Library or executable
 		final String configurationName = request.getConfiguration();
+		realize(target.getBuildConfigurations()); // FIXME: asGradleListProvider needs some hacking to "have one value" to ensure we don't need
 		XcodeIdeBuildConfiguration configuration = target.getBuildConfigurations().findByName(configurationName);
 		if (configuration == null) {
 			throw new GradleException(String.format("Unknown Xcode IDE configuration '%s', try re-generating the Xcode IDE configuration using '%s:xcode' task.", configurationName, getPrefixableProjectPath(this.project)));

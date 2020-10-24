@@ -19,6 +19,7 @@ dependencies {
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 
+	implementation project(':platformBase')
 	implementation project(':platformNative') // for NativeBinary
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"

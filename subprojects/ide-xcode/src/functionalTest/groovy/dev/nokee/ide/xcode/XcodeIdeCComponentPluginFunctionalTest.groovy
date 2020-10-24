@@ -73,6 +73,7 @@ class XcodeIdeCApplicationWithNativeTestSuiteFunctionalTest extends AbstractXcod
 		return "app"
 	}
 
+	@Override
 	protected String getGroupName() {
 		return "app-test"
 	}

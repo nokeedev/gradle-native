@@ -47,7 +47,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 	protected abstract List<String> getAllTasksForBuildAction()
 
 	protected List<String> getAllTasksToXcode() {
-		return [":${visualStudioProjectName}VisualStudioProject", ':visualStudioSolution', ':visualStudio']
+		return [":mainVisualStudioProject", ':visualStudioSolution', ':visualStudio']
 	}
 
 	protected List<String> getExpectedProjectNames() {
