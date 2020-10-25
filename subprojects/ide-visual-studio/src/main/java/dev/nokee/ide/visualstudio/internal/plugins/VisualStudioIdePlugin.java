@@ -5,8 +5,13 @@ import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.visualstudio.VisualStudioIdeProject;
 import dev.nokee.ide.visualstudio.internal.*;
 import dev.nokee.ide.visualstudio.internal.rules.CreateNativeComponentVisualStudioIdeProject;
-import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.components.ComponentConfigurer;
+import dev.nokee.platform.base.internal.components.KnownComponent;
+import dev.nokee.platform.base.internal.components.KnownComponentFactory;
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
 import lombok.val;
 import org.gradle.api.Action;
@@ -53,11 +58,16 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 	}
 
 	private Action<ComponentBasePlugin> mapComponentToVisualStudioIdeProjects(IdeProjectExtension<VisualStudioIdeProject> extension) {
+		val knownComponentFactory = getProject().getExtensions().getByType(KnownComponentFactory.class);
 		return new Action<ComponentBasePlugin>() {
 			@Override
 			public void execute(ComponentBasePlugin appliedPlugin) {
-				val component = getProject().getExtensions().getByType(ComponentContainer.class);
-				component.whenElementKnown(getComponentImplementationType(), new CreateNativeComponentVisualStudioIdeProject(extension, getProject().getLayout(), getProject().getObjects(), getProject().getProviders()));
+				val componentConfigurer = getProject().getExtensions().getByType(ComponentConfigurer.class);
+				componentConfigurer.whenElementKnown(ProjectIdentifier.of(getProject()), getComponentImplementationType(), asKnownComponent(new CreateNativeComponentVisualStudioIdeProject(extension, getProject().getLayout(), getProject().getObjects(), getProject().getProviders())));
+			}
+
+			private <T extends Component> Action<? super TypeAwareDomainObjectIdentifier<T>> asKnownComponent(Action<? super KnownComponent<T>> action) {
+				return identifier -> action.execute(knownComponentFactory.create(identifier));
 			}
 
 			private Class<BaseComponent<?>> getComponentImplementationType() {
