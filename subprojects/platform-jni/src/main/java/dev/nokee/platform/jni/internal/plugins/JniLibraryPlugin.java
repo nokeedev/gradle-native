@@ -141,7 +141,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
 		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJniHeaderSourceSet(project, extension));
-		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJvmHeaderSourceSet(project, extension));
+		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJvmHeaderSourceSet(extension));
 		project.getPlugins().withType(NativePlatformCapabilitiesMarkerPlugin.class, appliedPlugin -> {
 			project.getPluginManager().apply(DarwinFrameworkResolutionSupportPlugin.class);
 		});
@@ -469,8 +469,16 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		return GradleVersion.current().compareTo(GradleVersion.version("6.3")) >= 0;
 	}
 
-	private void registerJvmHeaderSourceSet(Project project, JniLibraryExtensionInternal extension) {
-		project.getExtensions().getByType(LanguageSourceSetRegistry.class).create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("jvm"), CHeaderSetImpl.class, extension.getComponent().getIdentifier()), sourceSet -> sourceSet.from(getJvmIncludes()));
+	private void registerJvmHeaderSourceSet(JniLibraryExtensionInternal extension) {
+		// TODO: This is an external dependency meaning we should go through the component dependencies.
+		//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
+		//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
+		val jvmIncludes = getJvmIncludes();
+		extension.getBinaries().configureEach(BaseNativeBinary.class, binary -> {
+			binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
+				((AbstractNativeCompileTask) task).getIncludes().from(jvmIncludes);
+			});
+		});
 	}
 
 	private Provider<List<File>> getJvmIncludes() {
