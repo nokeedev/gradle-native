@@ -58,8 +58,16 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 	}
 
 	private Action<ComponentBasePlugin> mapComponentToVisualStudioIdeProjects(IdeProjectExtension<VisualStudioIdeProject> extension) {
-		val knownComponentFactory = getProject().getExtensions().getByType(KnownComponentFactory.class);
 		return new Action<ComponentBasePlugin>() {
+			private KnownComponentFactory knownComponentFactory;
+
+			private KnownComponentFactory getKnownComponentFactory() {
+				if (knownComponentFactory == null) {
+					knownComponentFactory = getProject().getExtensions().getByType(KnownComponentFactory.class);
+				}
+				return knownComponentFactory;
+			}
+
 			@Override
 			public void execute(ComponentBasePlugin appliedPlugin) {
 				val componentConfigurer = getProject().getExtensions().getByType(ComponentConfigurer.class);
@@ -67,7 +75,7 @@ public abstract class VisualStudioIdePlugin extends AbstractIdePlugin<VisualStud
 			}
 
 			private <T extends Component> Action<? super TypeAwareDomainObjectIdentifier<T>> asKnownComponent(Action<? super KnownComponent<T>> action) {
-				return identifier -> action.execute(knownComponentFactory.create(identifier));
+				return identifier -> action.execute(getKnownComponentFactory().create(identifier));
 			}
 
 			private Class<BaseComponent<?>> getComponentImplementationType() {

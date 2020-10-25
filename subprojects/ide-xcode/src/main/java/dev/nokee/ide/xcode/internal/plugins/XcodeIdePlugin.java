@@ -11,8 +11,12 @@ import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeWorkspaceTask;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.components.ComponentConfigurer;
+import dev.nokee.platform.base.internal.components.KnownComponent;
+import dev.nokee.platform.base.internal.components.KnownComponentFactory;
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import lombok.val;
@@ -126,10 +130,23 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 
 	private Action<ComponentBasePlugin> mapComponentToXcodeIdeProjects(IdeProjectExtension<XcodeIdeProject> extension) {
 		return new Action<ComponentBasePlugin>() {
+			private KnownComponentFactory knownComponentFactory;
+
+			private KnownComponentFactory getKnownComponentFactory() {
+				if (knownComponentFactory == null) {
+					knownComponentFactory = getProject().getExtensions().getByType(KnownComponentFactory.class);
+				}
+				return knownComponentFactory;
+			}
+
 			@Override
 			public void execute(ComponentBasePlugin appliedPlugin) {
-				val component = getProject().getExtensions().getByType(ComponentContainer.class);
-				component.whenElementKnown(getComponentImplementationType(), new CreateNativeComponentXcodeIdeProject(extension, getProject().getProviders(), getProject().getObjects(), getProject().getExtensions().getByType(LanguageSourceSetRepository.class), getProject().getLayout(), getProject().getTasks(), ProjectIdentifier.of(getProject())));
+				val componentConfigurer = getProject().getExtensions().getByType(ComponentConfigurer.class);
+				componentConfigurer.whenElementKnown(ProjectIdentifier.of(getProject()), getComponentImplementationType(), asKnownComponent(new CreateNativeComponentXcodeIdeProject(extension, getProject().getProviders(), getProject().getObjects(), getProject().getExtensions().getByType(LanguageSourceSetRepository.class), getProject().getLayout(), getProject().getTasks(), ProjectIdentifier.of(getProject()))));
+			}
+
+			private <T extends Component> Action<? super TypeAwareDomainObjectIdentifier<T>> asKnownComponent(Action<? super KnownComponent<T>> action) {
+				return identifier -> action.execute(getKnownComponentFactory().create(identifier));
 			}
 
 			private Class<BaseComponent<?>> getComponentImplementationType() {
