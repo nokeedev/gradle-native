@@ -7,14 +7,13 @@ import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.Component;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 import lombok.val;
+import org.gradle.util.Path;
 
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
-@ToString
 @EqualsAndHashCode
 public final class ComponentIdentifier<T extends Component> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T>, NameAwareDomainObjectIdentifier {
 	private static final ComponentName MAIN_COMPONENT_NAME = ComponentName.of("main");
@@ -106,5 +105,14 @@ public final class ComponentIdentifier<T extends Component> implements DomainObj
 
 	private static String displayNameOf(String componentName) {
 		return "component '" + componentName + "'";
+	}
+
+	public Path getPath() {
+		return getProjectIdentifier().getPath().child(name.get());
+	}
+
+	@Override
+	public String toString() {
+		return "component '" + getPath() + "' (" + type.getSimpleName() + ")";
 	}
 }

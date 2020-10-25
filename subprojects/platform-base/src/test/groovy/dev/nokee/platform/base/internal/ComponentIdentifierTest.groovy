@@ -218,6 +218,12 @@ class ComponentIdentifierTest extends Specification {
 		of(ComponentName.of('test'), TestableComponent, ProjectIdentifier.of('foo')) instanceof NameAwareDomainObjectIdentifier
 	}
 
+	def "has meaningful toString() implementation"() {
+		expect:
+		ofMain(TestableComponent, ProjectIdentifier.of('foo')).toString() == "component ':foo:main' (${TestableComponent.simpleName})"
+		of(ComponentName.of('integTest'), TestableComponent, ProjectIdentifier.of('bar')).toString() == "component ':bar:integTest' (${TestableComponent.simpleName})"
+	}
+
 	interface TestableComponent extends Component {}
 	interface AnotherTestableComponent extends Component {}
 }

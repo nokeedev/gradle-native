@@ -6,6 +6,7 @@ import dev.nokee.model.internal.*
 import groovy.transform.EqualsAndHashCode
 import org.apache.commons.lang3.RandomStringUtils
 import org.gradle.testfixtures.ProjectBuilder
+import org.gradle.util.Path
 
 trait LanguageSourceSetFixture {
 	RealizableDomainObjectRepository<LanguageSourceSet> newEntityRepository() {
@@ -65,6 +66,11 @@ trait LanguageSourceSetFixture {
 		@Override
 		String getDisplayName() {
 			throw new UnsupportedOperationException()
+		}
+
+		@Override
+		Path getPath() {
+			return Path.ROOT
 		}
 	}
 

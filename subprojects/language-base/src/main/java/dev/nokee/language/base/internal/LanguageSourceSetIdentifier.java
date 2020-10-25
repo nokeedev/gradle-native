@@ -7,11 +7,10 @@ import dev.nokee.model.internal.NameAwareDomainObjectIdentifier;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
+import org.gradle.util.Path;
 
 import java.util.Optional;
 
-@ToString
 @EqualsAndHashCode
 public final class LanguageSourceSetIdentifier<T extends LanguageSourceSet> implements TypeAwareDomainObjectIdentifier<T>, DomainObjectIdentifierInternal, NameAwareDomainObjectIdentifier {
 	@Getter private final LanguageSourceSetName name;
@@ -39,5 +38,14 @@ public final class LanguageSourceSetIdentifier<T extends LanguageSourceSet> impl
 	@Override
 	public String getDisplayName() {
 		throw new UnsupportedOperationException();
+	}
+
+	public Path getPath() {
+		return getOwnerIdentifier().getPath().child(name.get());
+	}
+
+	@Override
+	public String toString() {
+		return "source set '" + getPath() + "' (" + type.getSimpleName() + ")";
 	}
 }
