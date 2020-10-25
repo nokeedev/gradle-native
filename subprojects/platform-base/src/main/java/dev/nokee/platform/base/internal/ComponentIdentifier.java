@@ -20,7 +20,7 @@ public final class ComponentIdentifier<T extends Component> implements DomainObj
 	private static final String MAIN_COMPONENT_DEFAULT_DISPLAY_NAME = "main component";
 	@Getter private final ComponentName name;
 	@Getter private final Class<T> type;
-	@Getter private final String displayName;
+	@EqualsAndHashCode.Exclude @Getter private final String displayName;
 	@Getter private final ProjectIdentifier projectIdentifier;
 
 	private ComponentIdentifier(ComponentName name, Class<T> type, String displayName, ProjectIdentifier projectIdentifier) {
