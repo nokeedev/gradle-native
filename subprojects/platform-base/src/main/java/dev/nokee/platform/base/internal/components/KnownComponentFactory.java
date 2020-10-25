@@ -1,6 +1,5 @@
 package dev.nokee.platform.base.internal.components;
 
-import dev.nokee.model.internal.KnownDomainObject;
 import dev.nokee.model.internal.KnownDomainObjectFactory;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.Component;
@@ -22,7 +21,7 @@ public final class KnownComponentFactory implements KnownDomainObjectFactory<Com
 	}
 
 	@Override
-	public <S extends Component> KnownDomainObject<S> create(TypeAwareDomainObjectIdentifier<S> identifier) {
+	public <S extends Component> KnownComponent<S> create(TypeAwareDomainObjectIdentifier<S> identifier) {
 		return create((ComponentIdentifier<S>) identifier);
 	}
 }
