@@ -128,4 +128,18 @@ class TaskNameTest extends Specification {
 		TaskName.of('foo') != TaskName.of('foo', 'bar')
 		TaskName.of('foo') != TaskName.empty()
 	}
+
+	def "can get task name"() {
+		expect:
+		TaskName.of('foo').get() == 'foo'
+		TaskName.of('foo', 'bar').get() == 'fooBar'
+		TaskName.empty().get() == ''
+	}
+
+	def "returns name value via toString()"() {
+		expect:
+		TaskName.of('foo').toString() == 'foo'
+		TaskName.of('foo', 'bar').toString() == 'fooBar'
+		TaskName.empty().toString() == ''
+	}
 }

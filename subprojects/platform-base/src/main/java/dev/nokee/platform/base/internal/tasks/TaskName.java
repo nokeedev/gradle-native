@@ -2,14 +2,13 @@ package dev.nokee.platform.base.internal.tasks;
 
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-@ToString
 @EqualsAndHashCode
 public final class TaskName {
 	private static final TaskName EMPTY_TASK_NAME = new TaskName("", null);
@@ -27,6 +26,13 @@ public final class TaskName {
 
 	public Optional<String> getObject() {
 		return Optional.ofNullable(object);
+	}
+
+	public String get() {
+		if (object == null) {
+			return verb;
+		}
+		return verb + StringUtils.capitalize(object);
 	}
 
 	/**
@@ -53,5 +59,10 @@ public final class TaskName {
 		checkArgument(Character.isLowerCase(verb.charAt(0)));
 		checkArgument(Character.isLowerCase(object.charAt(0)));
 		return new TaskName(verb, object);
+	}
+
+	@Override
+	public String toString() {
+		return get();
 	}
 }
