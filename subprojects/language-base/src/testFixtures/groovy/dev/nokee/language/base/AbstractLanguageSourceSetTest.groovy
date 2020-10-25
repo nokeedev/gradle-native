@@ -9,10 +9,12 @@ import org.gradle.api.Buildable
 import org.gradle.api.Project
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.file.FileVisitor
+import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.Unroll
 
 abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extends Specification {
 	@Rule
@@ -74,7 +76,32 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 	//endregion
 
 	//region filter
-	def "can configure filter pattern"() {
+	interface ConfigureFilterMethod {
+		def <T extends LanguageSourceSet> T call(T subject, Action<? super PatternFilterable> action)
+	}
+
+	enum ConfigureFilterWithActionMethod implements ConfigureFilterMethod {
+		INSTANCE;
+
+		@Override
+		def <T extends LanguageSourceSet> T call(T subject, Action<? super PatternFilterable> action) {
+			return subject.filter(action)
+		}
+	}
+
+	enum ConfigureFilterWithClosureMethod implements ConfigureFilterMethod {
+		INSTANCE;
+
+		@Override
+		def <T extends LanguageSourceSet> T call(T subject, Action<? super PatternFilterable> action) {
+			return subject.filter { action.execute(delegate) }
+		}
+	}
+
+	private static final List<ConfigureFilterMethod> CONFIGURE_FILTER_METHODS = [ConfigureFilterWithActionMethod.INSTANCE, ConfigureFilterWithClosureMethod.INSTANCE]
+
+	@Unroll
+	def "can configure filter pattern"(filter) {
 		given:
 		def subject = newSubject()
 
@@ -82,24 +109,32 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def action = Mock(Action)
 
 		when:
-		subject.filter(action)
+		filter(subject, action)
 
 		then:
 		1 * action.execute(subject.filter)
+
+		where:
+		filter << CONFIGURE_FILTER_METHODS
 	}
 
-	def "returns source set instance when filter-ing"() {
+	@Unroll
+	def "returns source set instance when filter-ing"(filter) {
 		given:
 		def subject = newSubject()
 
 		when:
-		def result = subject.filter(Stub(Action))
+		def result = filter(subject, Stub(Action))
 
 		then:
 		result == subject
+
+		where:
+		filter << CONFIGURE_FILTER_METHODS
 	}
 
-	def "previous file tree honors changes to filter"() {
+	@Unroll
+	def "previous file tree honors changes to filter"(filter) {
 		given:
 		def subject = newSubject()
 
@@ -113,15 +148,19 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		assert files.files == [file1, file2] as Set
 
 		when:
-		subject.filter {
+		filter(subject) {
 			it.exclude(fileName('bar'))
 		}
 
 		then:
 		files.files == [file1] as Set
+
+		where:
+		filter << CONFIGURE_FILTER_METHODS
 	}
 
-	def "new file tree honors current filter"() {
+	@Unroll
+	def "new file tree honors current filter"(filter) {
 		given:
 		def subject = newSubject()
 
@@ -133,15 +172,19 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		subject.from(file1, file2)
 
 		when:
-		subject.filter {
+		filter(subject) {
 			it.exclude(fileName('bar'))
 		}
 
 		then:
 		subject.asFileTree.files == [file1] as Set
+
+		where:
+		filter << CONFIGURE_FILTER_METHODS
 	}
 
-	def "filters does not affect per-file source directories"() {
+	@Unroll
+	def "filters does not affect per-file source directories"(filter) {
 		given:
 		def subject = newSubject()
 
@@ -154,15 +197,19 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		subject.from(file1, file2)
 
 		when:
-		subject.filter {
+		filter(subject) {
 			it.exclude('bar')
 		}
 
 		then:
 		subject.sourceDirectories.files == [temporaryFolder.root, nestedDirectory] as Set
+
+		where:
+		filter << CONFIGURE_FILTER_METHODS
 	}
 
-	def "filters does not affect source directories"() {
+	@Unroll
+	def "filters does not affect source directories"(filter) {
 		given:
 		def subject = newSubject()
 
@@ -175,12 +222,15 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		subject.from(temporaryFolder.root, nestedDirectory)
 
 		when:
-		subject.filter {
+		filter(subject) {
 			it.exclude(fileName('bar'))
 		}
 
 		then:
 		subject.sourceDirectories.files == [temporaryFolder.root, nestedDirectory] as Set
+
+		where:
+		filter << CONFIGURE_FILTER_METHODS
 	}
 	//endregion
 
