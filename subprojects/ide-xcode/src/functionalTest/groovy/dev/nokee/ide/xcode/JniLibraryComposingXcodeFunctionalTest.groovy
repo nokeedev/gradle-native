@@ -6,7 +6,9 @@ import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
 import dev.nokee.platform.nativebase.SharedLibraryBinary
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal
 import org.gradle.internal.os.OperatingSystem
+import spock.lang.Ignore
 
+@Ignore("Find a better test example for this")
 class JniLibraryComposingXcodeFunctionalTest extends AbstractGradleSpecification implements JavaObjectiveCJniLibraryXcodeIdeFixture, XcodeIdeFixture {
 	protected void makeSingleProject() {
 		settingsFile << "rootProject.name = 'jni-greeter'"
