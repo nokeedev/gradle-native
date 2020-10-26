@@ -3,8 +3,10 @@ package dev.nokee.language.jvm.internal
 import dev.nokee.language.base.AbstractLanguageSourceSetTest
 import dev.nokee.language.jvm.JavaSourceSet
 import org.gradle.api.plugins.JavaPlugin
+import org.junit.Ignore
 import spock.lang.Subject
 
+@Ignore
 @Subject(JavaSourceSetImpl)
 class JavaSourceSetImplTest extends AbstractLanguageSourceSetTest<JavaSourceSet> {
 

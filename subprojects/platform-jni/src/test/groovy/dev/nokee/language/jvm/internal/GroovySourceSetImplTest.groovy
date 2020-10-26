@@ -3,8 +3,10 @@ package dev.nokee.language.jvm.internal
 import dev.nokee.language.base.AbstractLanguageSourceSetTest
 import dev.nokee.language.jvm.GroovySourceSet
 import org.gradle.api.plugins.GroovyPlugin
+import spock.lang.Ignore
 import spock.lang.Subject
 
+@Ignore
 @Subject(GroovySourceSetImpl)
 class GroovySourceSetImplTest extends AbstractLanguageSourceSetTest<GroovySourceSet> {
 

@@ -1,6 +1,5 @@
 package dev.nokee.language.jvm.internal;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
@@ -34,7 +33,7 @@ public abstract class AbstractLanguageSourceSetAdapter<SELF extends LanguageSour
 		this.publicType = publicType;
 		this.sourceSet = sourceSet;
 		this.objectFactory = objectFactory;
-		sourceSet.setSrcDirs(ImmutableList.of());
+//		sourceSet.setSrcDirs(ImmutableList.of()); // fufill the contract with Nokee LanguageSourceSet but breaks Gradle SourceSet
 		this.conventionSourceDirectories = objectFactory.fileCollection();
 	}
 

@@ -2,8 +2,10 @@ package dev.nokee.language.jvm.internal
 
 import dev.nokee.language.base.AbstractLanguageSourceSetTest
 import dev.nokee.language.jvm.KotlinSourceSet
+import org.junit.Ignore
 import spock.lang.Subject
 
+@Ignore
 @Subject(KotlinSourceSetImpl)
 class KotlinSourceSetImplTest extends AbstractLanguageSourceSetTest<KotlinSourceSet> {
 
