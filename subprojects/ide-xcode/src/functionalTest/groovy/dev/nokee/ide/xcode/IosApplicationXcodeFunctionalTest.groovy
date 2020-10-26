@@ -2,8 +2,8 @@ package dev.nokee.ide.xcode
 
 import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.gradleplugins.test.fixtures.gradle.executer.internal.AbstractGradleDistribution
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceFile
 import dev.nokee.platform.ios.fixtures.ObjectiveCIosApp
 import org.apache.commons.lang3.SystemUtils
 import spock.lang.Requires

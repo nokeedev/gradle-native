@@ -4,6 +4,7 @@ import dev.nokee.fixtures.AbstractComponentPluginTest
 import dev.nokee.language.swift.internal.SwiftSourceSetImpl
 import dev.nokee.platform.ios.SwiftIosApplicationExtension
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent
+import dev.nokee.platform.ios.internal.IosResourceSetImpl
 import org.gradle.api.Project
 
 class SwiftIosApplicationComponentPluginTest extends AbstractComponentPluginTest {
@@ -24,6 +25,6 @@ class SwiftIosApplicationComponentPluginTest extends AbstractComponentPluginTest
 
 	@Override
 	protected List<ExpectedLanguageSourceSet> getExpectedLanguageSourceSets() {
-		return [newExpectedSourceSet('swift', SwiftSourceSetImpl)]
+		return [newExpectedSourceSet('swift', SwiftSourceSetImpl), newExpectedSourceSet('resources', IosResourceSetImpl, "resources")]
 	}
 }

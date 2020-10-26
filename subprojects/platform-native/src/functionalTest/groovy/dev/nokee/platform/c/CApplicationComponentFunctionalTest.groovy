@@ -1,6 +1,6 @@
 package dev.nokee.platform.c
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.fixtures.AbstractNativeApplicationComponentFunctionalTest
 import dev.nokee.platform.nativebase.fixtures.CGreeterApp
 

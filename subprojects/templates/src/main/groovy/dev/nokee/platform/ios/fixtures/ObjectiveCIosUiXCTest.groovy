@@ -1,9 +1,8 @@
 package dev.nokee.platform.ios.fixtures
 
-import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFile
-import dev.gradleplugins.test.fixtures.sources.objectivec.ObjectiveCSourceElement
+import dev.gradleplugins.fixtures.sources.NativeSourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceFile
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppUiXCTestInfoPlist
 
 class ObjectiveCIosUiXCTest extends SourceElement {
@@ -20,22 +19,20 @@ class ObjectiveCIosUiXCTest extends SourceElement {
 	}
 
 	@Override
-	void writeToProject(TestFile projectDir) {
+	void writeToProject(File projectDir) {
 		main.writeToProject(projectDir)
 		uiTest.writeToProject(projectDir)
 	}
-}
 
+	private static class ObjectiveCUiTest extends NativeSourceElement {
+		@Override
+		SourceElement getHeaders() {
+			return empty()
+		}
 
-class ObjectiveCUiTest extends ObjectiveCSourceElement {
-	@Override
-	SourceElement getHeaders() {
-		return empty()
-	}
-
-	@Override
-	SourceElement getSources() {
-		return ofFiles(sourceFile('objc', 'objective_c_ios_applicationUITests.m', '''
+		@Override
+		SourceElement getSources() {
+			return ofFiles(sourceFile('objc', 'objective_c_ios_applicationUITests.m', '''
 #import <XCTest/XCTest.h>
 
 @interface objective_c_ios_applicationUITests : XCTestCase
@@ -77,10 +74,11 @@ class ObjectiveCUiTest extends ObjectiveCSourceElement {
 
 @end
 '''))
-	}
+		}
 
-	@Override
-	String getSourceSetName() {
-		return 'uiTest'
+		@Override
+		String getSourceSetName() {
+			return 'uiTest'
+		}
 	}
 }

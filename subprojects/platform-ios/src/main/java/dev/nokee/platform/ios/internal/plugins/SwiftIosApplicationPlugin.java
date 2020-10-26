@@ -1,8 +1,6 @@
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
-import dev.nokee.language.base.internal.LanguageSourceSetRepository;
-import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
+import dev.nokee.language.base.internal.*;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -19,6 +17,7 @@ import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.ios.SwiftIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.DefaultSwiftIosApplicationExtension;
+import dev.nokee.platform.ios.internal.IosResourceSetImpl;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import lombok.AccessLevel;
@@ -59,6 +58,9 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(BinaryBasePlugin.class);
 		project.getPluginManager().apply(TaskBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
+
+		project.getExtensions().getByType(LanguageSourceSetInstantiator.class).registerFactory(IosResourceSetImpl.class, identifier -> new IosResourceSetImpl((LanguageSourceSetIdentifier<?>)identifier, project.getObjects()));
+
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(DefaultIosApplicationComponent.class, id -> {
 			val identifier = ComponentIdentifier.ofMain(DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));

@@ -31,6 +31,7 @@ dependencies {
 	compileOnly 'org.asciidoctor:asciidoctorj:2.2.0'
 	implementation "dev.gradleplugins:gradle-plugin-development:${toolboxVersion}"
 	implementation gradleFixtures()
+	implementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.release"
 	implementation "org.apache.commons:commons-exec:${commonsExecVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation 'org.jbake:jbake-gradle-plugin:5.0.0'

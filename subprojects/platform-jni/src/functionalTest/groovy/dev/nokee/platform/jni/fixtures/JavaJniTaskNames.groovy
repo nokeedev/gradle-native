@@ -1,7 +1,6 @@
 package dev.nokee.platform.jni.fixtures
 
 import dev.nokee.language.DefaultNativeProjectTasks
-import dev.nokee.language.NativeLanguageTaskNames
 import dev.nokee.language.NativeProjectTaskNames
 import dev.nokee.language.NativeProjectTasks
 

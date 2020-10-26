@@ -1,6 +1,6 @@
 package dev.nokee.ide.xcode
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.language.objectivec.ObjectiveCTaskNames
 import dev.nokee.platform.jni.fixtures.ObjectiveCGreeter
 import dev.nokee.platform.nativebase.ExecutableBinary

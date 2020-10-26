@@ -35,6 +35,7 @@ dependencies {
 	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 	testFixturesCompileOnly gradleApi(minimumGradleVersion)
 	testFixturesImplementation gradleFixtures()
+	testFixturesImplementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.release"
 }
 
 java {

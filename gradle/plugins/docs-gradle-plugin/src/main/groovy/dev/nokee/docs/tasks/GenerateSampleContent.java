@@ -1,13 +1,12 @@
 package dev.nokee.docs.tasks;
 
+import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.test.fixtures.file.TestFile;
-import dev.gradleplugins.test.fixtures.sources.SourceElement;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Specs;
 import org.gradle.api.tasks.*;
 

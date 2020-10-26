@@ -1,6 +1,6 @@
 package dev.nokee.ide.visualstudio
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.language.c.CTaskNames
 import dev.nokee.platform.nativebase.fixtures.CGreeterApp
 import dev.nokee.platform.nativebase.fixtures.CGreeterLib

@@ -4,7 +4,6 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.language.DefaultNativeProjectTasks
-import dev.nokee.language.NativeLanguageTaskNames
 import dev.nokee.language.c.CTaskNames
 import dev.nokee.language.cpp.CppTaskNames
 import dev.nokee.language.objectivec.ObjectiveCTaskNames

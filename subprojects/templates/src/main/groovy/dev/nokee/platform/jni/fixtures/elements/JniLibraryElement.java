@@ -1,41 +1,34 @@
 package dev.nokee.platform.jni.fixtures.elements;
 
-import dev.gradleplugins.test.fixtures.file.TestFile;
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement;
-import dev.gradleplugins.test.fixtures.sources.SourceElement;
-import dev.gradleplugins.test.fixtures.sources.SourceFile;
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement;
+import com.google.common.collect.ImmutableList;
+import dev.gradleplugins.fixtures.sources.NativeSourceElement;
+import dev.gradleplugins.fixtures.sources.SourceElement;
+import dev.gradleplugins.fixtures.sources.SourceFile;
+import dev.gradleplugins.fixtures.sources.SourceFileElement;
 
+import java.io.File;
 import java.util.List;
 
-public abstract class JniLibraryElement extends SourceElement {
-	public abstract SourceElement getJvmSources();
+import static dev.gradleplugins.fixtures.sources.SourceElement.ofElements;
 
-	public abstract NativeSourceElement getNativeSources();
+public interface JniLibraryElement {
+	SourceElement getJvmSources();
 
-	public TestableJniLibraryElement withJUnitTest() {
+	NativeSourceElement getNativeSources();
+
+	default TestableJniLibraryElement withJUnitTest() {
 		return new TestableJniLibraryElement(this, newJUnitTestElement());
 	}
 
-	protected SourceElement newJUnitTestElement() {
+	default SourceElement newJUnitTestElement() {
 		return new JavaGreeterJUnitTest();
 	}
 
-	@Override
-	public List<SourceFile> getFiles() {
-		return ofElements(getJvmSources(), getNativeSources()).getFiles();
-	}
-
-	@Override
-	public void writeToProject(TestFile projectDir) {
+	default void writeToProject(File projectDir) {
 		ofElements(getJvmSources(), getNativeSources()).writeToProject(projectDir);
 	}
 
-	public static NativeSourceElement ofNativeElements(NativeSourceElement... elements) {
-		return NativeSourceElement.ofNativeElements(elements);
-	}
-
-	protected SourceFileElement newResourceElement() {
+	static SourceFileElement newResourceElement() {
 		return new SourceFileElement() {
 			@Override
 			public SourceFile getSourceFile() {
@@ -44,17 +37,38 @@ public abstract class JniLibraryElement extends SourceElement {
 		};
 	}
 
-	public JniLibraryElement withResources() {
-		return new JniLibraryElement() {
-			@Override
-			public SourceElement getJvmSources() {
-				return ofElements(JniLibraryElement.this.getJvmSources(), JniLibraryElement.this.newResourceElement());
-			}
+	default JniLibraryElement withResources() {
+		return new SimpleJniLibraryElement(ofElements(getJvmSources(), JniLibraryElement.newResourceElement()), getNativeSources());
+	}
 
-			@Override
-			public NativeSourceElement getNativeSources() {
-				return JniLibraryElement.this.getNativeSources();
-			}
-		};
+	class SimpleJniLibraryElement extends SourceElement implements JniLibraryElement {
+		private final SourceElement jvmSources;
+		private final NativeSourceElement nativeSources;
+
+		public SimpleJniLibraryElement(SourceElement jvmSources, NativeSourceElement nativeSources) {
+			this.jvmSources = jvmSources;
+			this.nativeSources = nativeSources;
+		}
+
+		@Override
+		public List<SourceFile> getFiles() {
+			return ImmutableList.<SourceFile>builder().addAll(getJvmSources().getFiles()).addAll(getNativeSources().getFiles()).build();
+		}
+
+		@Override
+		public SourceElement getJvmSources() {
+			return jvmSources;
+		}
+
+		@Override
+		public NativeSourceElement getNativeSources() {
+			return nativeSources;
+		}
+
+		@Override
+		public void writeToProject(File projectDir) {
+			jvmSources.writeToProject(projectDir);
+			nativeSources.writeToProject(projectDir);
+		}
 	}
 }

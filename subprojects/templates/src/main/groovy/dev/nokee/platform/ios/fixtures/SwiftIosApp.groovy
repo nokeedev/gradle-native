@@ -1,9 +1,8 @@
 package dev.nokee.platform.ios.fixtures
 
-import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFile
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceFileElement
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppAssets
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppBaseLanguage
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppInfoPlist
@@ -20,19 +19,18 @@ class SwiftIosApp extends SourceElement {
 	}
 
 	@Override
-	void writeToProject(TestFile projectDir) {
+	void writeToProject(File projectDir) {
 		main.writeToProject(projectDir)
 	}
 
 	SwiftIosUnitXCTest withUnitTest() {
 		return new SwiftIosUnitXCTest(this)
 	}
-}
 
-class SwiftAppDelegate extends SourceFileElement {
-	@Override
-	SourceFile getSourceFile() {
-		return sourceFile('swift', 'AppDelegate.swift', '''
+	private static class SwiftAppDelegate extends SourceFileElement {
+		@Override
+		SourceFile getSourceFile() {
+			return sourceFile('swift', 'AppDelegate.swift', '''
 import UIKit
 
 @UIApplicationMain
@@ -62,15 +60,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 ''')
+		}
+
+
 	}
 
-
-}
-
-class SwiftSceneDelegate extends SourceFileElement {
-	@Override
-	SourceFile getSourceFile() {
-		return sourceFile('swift', 'SceneDelegate.swift', '''
+	private static class SwiftSceneDelegate extends SourceFileElement {
+		@Override
+		SourceFile getSourceFile() {
+			return sourceFile('swift', 'SceneDelegate.swift', '''
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -116,13 +114,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 }
 ''')
+		}
 	}
-}
 
-class SwiftViewController extends SourceFileElement {
-	@Override
-	SourceFile getSourceFile() {
-		return sourceFile('swift', 'ViewController.swift', '''
+	private static class SwiftViewController extends SourceFileElement {
+		@Override
+		SourceFile getSourceFile() {
+			return sourceFile('swift', 'ViewController.swift', '''
 import UIKit
 
 class ViewController: UIViewController {
@@ -135,6 +133,6 @@ class ViewController: UIViewController {
 
 }
 ''')
+		}
 	}
 }
-

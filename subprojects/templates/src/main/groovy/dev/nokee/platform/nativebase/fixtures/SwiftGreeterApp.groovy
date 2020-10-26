@@ -1,13 +1,14 @@
 package dev.nokee.platform.nativebase.fixtures
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFile
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceFileElement
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 import dev.nokee.platform.jni.fixtures.elements.SwiftGreeter
 
 class SwiftGreeterApp extends GreeterImplementationAwareSourceElement<SwiftGreeter> {
-	@Delegate final SourceElement delegate
+	@Delegate
+	final SourceElement delegate
 
 	SwiftGreeterApp() {
 		super(new SwiftMainUsesGreeter(), new SwiftGreeter())
@@ -22,12 +23,11 @@ class SwiftGreeterApp extends GreeterImplementationAwareSourceElement<SwiftGreet
 	GreeterImplementationAwareSourceElement<SourceElement> withImplementationAsSubproject(String subprojectPath) {
 		return ofImplementationAsSubproject(elementUsingGreeter.withImport(subprojectPath.capitalize()), asSubproject(subprojectPath, greeter))
 	}
-}
 
-class SwiftMainUsesGreeter extends SourceFileElement {
-	@Override
-	SourceFile getSourceFile() {
-		return sourceFile('swift', 'main.swift', '''
+	private static class SwiftMainUsesGreeter extends SourceFileElement {
+		@Override
+		SourceFile getSourceFile() {
+			return sourceFile('swift', 'main.swift', '''
 func main() -> Int {
 	let greeter = Greeter()
 	print(greeter.sayHello(name: "Alice"))
@@ -36,18 +36,19 @@ func main() -> Int {
 
 _ = main()
 ''')
-	}
+		}
 
-	SourceFileElement withImport(String moduleToImport) {
-		def delegate = sourceFile
-		return new SourceFileElement() {
-			@Override
-			SourceFile getSourceFile() {
-				return sourceFile(delegate.path, delegate.name, """
+		SourceFileElement withImport(String moduleToImport) {
+			def delegate = sourceFile
+			return new SourceFileElement() {
+				@Override
+				SourceFile getSourceFile() {
+					return sourceFile(delegate.path, delegate.name, """
 import ${moduleToImport}
 
 ${delegate.content}
 """)
+				}
 			}
 		}
 	}

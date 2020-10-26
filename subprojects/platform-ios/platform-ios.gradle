@@ -45,6 +45,7 @@ gradlePlugin {
 test {
 	dependencies {
 		implementation testFixtures(project(':platformNative'))
+		implementation testFixtures(project(':languageBase'))
 	}
 }
 

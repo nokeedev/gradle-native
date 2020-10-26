@@ -1,7 +1,7 @@
 package dev.nokee.platform.jni
 
 import dev.gradleplugins.test.fixtures.archive.JarTestFixture
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.language.MixedLanguageTaskNames
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import dev.nokee.platform.nativebase.SharedLibraryBinary

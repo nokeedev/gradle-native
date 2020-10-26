@@ -1,25 +1,21 @@
 package dev.nokee.platform.jni.fixtures
 
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement
-import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
-import dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement
-import dev.gradleplugins.test.fixtures.sources.java.JavaSourceFileElement
-import dev.nokee.platform.jni.fixtures.elements.CppGreeter
-import dev.nokee.platform.jni.fixtures.elements.CppGreeterJniBinding
-import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
-import dev.nokee.platform.jni.fixtures.elements.TestableJniLibraryElement
+import dev.gradleplugins.fixtures.sources.NativeSourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceFileElement
+import dev.gradleplugins.fixtures.sources.java.JavaPackage
+import dev.nokee.platform.jni.fixtures.elements.*
 
-import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
-import static dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement.ofPackage
+import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofNativeElements
+import static dev.gradleplugins.fixtures.sources.java.JavaPackage.ofPackage
 
-class KotlinJniCppGreeterLib extends JniLibraryElement {
+class KotlinJniCppGreeterLib extends GreeterImplementationAwareSourceElement<NativeSourceElement> implements JniLibraryElement {
 	final NativeSourceElement nativeBindings
 	final KotlinNativeGreeter jvmBindings
-	final JavaSourceElement jvmImplementation
+	final SourceElement jvmImplementation
 	final CppGreeter nativeImplementation
-	final JavaSourceElement junitTest
+	final SourceElement junitTest
 	private final String projectName
 	private final String resourcePath
 
@@ -34,42 +30,50 @@ class KotlinJniCppGreeterLib extends JniLibraryElement {
 	}
 
 	KotlinJniCppGreeterLib(String projectName, String resourcePath = '') {
+		this(ofPackage('com.example.greeter'), projectName, resourcePath)
 		this.resourcePath = resourcePath
 		this.projectName = projectName
-		def javaPackage = ofPackage('com.example.greeter')
-		String sharedLibraryBaseName = projectName
-		jvmBindings = new KotlinNativeGreeter(javaPackage, sharedLibraryBaseName, resourcePath)
-		nativeBindings = new CppGreeterJniBinding(javaPackage).withJniGeneratedHeader()
+	}
 
-		jvmImplementation = new KotlinNativeLoader(javaPackage);
+	private KotlinJniCppGreeterLib(JavaPackage javaPackage, String sharedLibraryBaseName, String resourcePath) {
+		this(new KotlinNativeGreeter(javaPackage, sharedLibraryBaseName, resourcePath), new CppGreeterJniBinding(javaPackage).withJniGeneratedHeader(), new KotlinNativeLoader(javaPackage), new CppGreeter(), new KotlinGreeterJUnitTest(javaPackage))
+	}
 
-		nativeImplementation = new CppGreeter()
-
-		junitTest = new KotlinGreeterJUnitTest(javaPackage)
+	private KotlinJniCppGreeterLib(KotlinNativeGreeter jvmBindings, NativeSourceElement nativeBindings, KotlinNativeLoader jvmImplementation, CppGreeter nativeImplementation, KotlinGreeterJUnitTest junitTest) {
+		super(ofElements(jvmBindings, nativeBindings, jvmImplementation), nativeImplementation)
+		this.jvmBindings = jvmBindings
+		this.nativeBindings = nativeBindings
+		this.jvmImplementation = jvmImplementation
+		this.nativeImplementation = nativeImplementation
+		this.junitTest = junitTest
 	}
 
 	@Override
 	TestableJniLibraryElement withJUnitTest() {
 		return new TestableJniLibraryElement(this, junitTest)
 	}
-}
-
-class KotlinNativeGreeter extends JavaSourceFileElement {
-	private final SourceFileElement source
-	private final JavaPackage javaPackage
-	private final String sharedLibraryBaseName
-	private final String resourcePath
 
 	@Override
-	SourceFileElement getSource() {
-		return source
+	GreeterImplementationAwareSourceElement<NativeSourceElement> withImplementationAsSubproject(String subprojectPath) {
+		return ofImplementationAsSubproject(elementUsingGreeter, asSubproject(subprojectPath, nativeImplementation.asLib()))
 	}
 
-	KotlinNativeGreeter(JavaPackage javaPackage, String sharedLibraryBaseName, String resourcePath = '') {
-		this.javaPackage = javaPackage
-		this.sharedLibraryBaseName = sharedLibraryBaseName
-		this.resourcePath = resourcePath
-		source = ofFile(sourceFile("kotlin/${javaPackage.directoryLayout}", 'Greeter.kt', """
+	private static class KotlinNativeGreeter extends SourceFileElement {
+		private final SourceFile source
+		private final JavaPackage javaPackage
+		private final String sharedLibraryBaseName
+		private final String resourcePath
+
+		@Override
+		SourceFile getSourceFile() {
+			return source
+		}
+
+		KotlinNativeGreeter(JavaPackage javaPackage, String sharedLibraryBaseName, String resourcePath = '') {
+			this.javaPackage = javaPackage
+			this.sharedLibraryBaseName = sharedLibraryBaseName
+			this.resourcePath = resourcePath
+			source = sourceFile("kotlin/${javaPackage.directoryLayout}", 'Greeter.kt', """
 package ${javaPackage.name}
 
 class Greeter {
@@ -81,28 +85,28 @@ class Greeter {
 
 	external fun sayHello(name: String?): String?
 }
-"""))
+""")
+		}
+
+		KotlinNativeGreeter withSharedLibraryBaseName(String sharedLibraryBaseName) {
+			return new KotlinNativeGreeter(javaPackage, sharedLibraryBaseName, resourcePath)
+		}
+
+		KotlinNativeGreeter withResourcePath(String resourcePath) {
+			return new KotlinNativeGreeter(javaPackage, sharedLibraryBaseName, resourcePath)
+		}
 	}
 
-	KotlinNativeGreeter withSharedLibraryBaseName(String sharedLibraryBaseName) {
-		return new KotlinNativeGreeter(javaPackage, sharedLibraryBaseName, resourcePath)
-	}
+	private static class KotlinNativeLoader extends SourceFileElement {
+		private final SourceFile source
 
-	KotlinNativeGreeter withResourcePath(String resourcePath) {
-		return new KotlinNativeGreeter(javaPackage, sharedLibraryBaseName, resourcePath)
-	}
-}
+		@Override
+		SourceFile getSourceFile() {
+			return source
+		}
 
-class KotlinNativeLoader extends JavaSourceFileElement {
-	private final SourceFileElement source
-
-	@Override
-	SourceFileElement getSource() {
-		return source
-	}
-
-	KotlinNativeLoader(JavaPackage javaPackage) {
-		source = ofFile(sourceFile("kotlin/${javaPackage.directoryLayout}", 'NativeLoader.kt', """
+		KotlinNativeLoader(JavaPackage javaPackage) {
+			source = sourceFile("kotlin/${javaPackage.directoryLayout}", 'NativeLoader.kt', """
 package ${javaPackage.name}
 
 import java.io.IOException
@@ -156,25 +160,25 @@ object NativeLoader {
 		}
 	}
 }
-"""))
-	}
-}
-
-class KotlinGreeterJUnitTest extends JavaSourceFileElement {
-	private final SourceFileElement source
-
-	@Override
-	SourceFileElement getSource() {
-		return source
+""")
+		}
 	}
 
-	@Override
-	String getSourceSetName() {
-		return 'test'
-	}
+	private static class KotlinGreeterJUnitTest extends SourceFileElement {
+		private final SourceFile source
 
-	KotlinGreeterJUnitTest(JavaPackage javaPackage) {
-		source = ofFile(sourceFile("kotlin/${javaPackage.directoryLayout}", 'GreeterTest.kt', """
+		@Override
+		SourceFile getSourceFile() {
+			return source
+		}
+
+		@Override
+		String getSourceSetName() {
+			return 'test'
+		}
+
+		KotlinGreeterJUnitTest(JavaPackage javaPackage) {
+			source = sourceFile("kotlin/${javaPackage.directoryLayout}", 'GreeterTest.kt', """
 package ${javaPackage.name}
 
 import org.hamcrest.CoreMatchers.equalTo
@@ -196,6 +200,7 @@ class GreeterTest {
 		assertThat(greeting, equalTo("name cannot be null"))
 	}
 }
-"""))
+""")
+		}
 	}
 }

@@ -3,7 +3,7 @@ package dev.nokee.platform.objectivec
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.fixtures.AbstractNativeComponentBuildTypeFunctionalTest
 import dev.nokee.language.objectivec.ObjectiveCTaskNames
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement

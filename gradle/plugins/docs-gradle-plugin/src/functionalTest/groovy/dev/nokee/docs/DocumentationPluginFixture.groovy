@@ -1,8 +1,8 @@
 package dev.nokee.docs
 
 import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceFile
 
 trait DocumentationPluginFixture {
 	abstract TestFile file(Object... path)

@@ -44,6 +44,6 @@ trait JavaObjectiveCJniLibraryXcodeIdeFixture {
 	}
 
 	JavaJniObjectiveCGreeterLib getComponent() {
-		return new JavaJniObjectiveCGreeterLib()
+		return new JavaJniObjectiveCGreeterLib('jni-greeter')
 	}
 }

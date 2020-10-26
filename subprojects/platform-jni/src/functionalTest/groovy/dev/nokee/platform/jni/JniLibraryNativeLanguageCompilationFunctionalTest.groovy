@@ -2,7 +2,7 @@ package dev.nokee.platform.jni
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
 import dev.nokee.language.c.CTaskNames
 import dev.nokee.language.cpp.CppTaskNames

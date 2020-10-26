@@ -1,6 +1,6 @@
 package dev.nokee.platform.ios
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
 import dev.nokee.language.objectivec.ObjectiveCTaskNames
 import dev.nokee.platform.ios.fixtures.IosTaskNames

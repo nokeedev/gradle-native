@@ -1,9 +1,8 @@
 package dev.nokee.platform.ios.fixtures
 
-import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFile
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceFileElement
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppUnitXCTestInfoPlist
 
 class SwiftIosUnitXCTest extends SourceElement {
@@ -20,7 +19,7 @@ class SwiftIosUnitXCTest extends SourceElement {
 	}
 
 	@Override
-	void writeToProject(TestFile projectDir) {
+	void writeToProject(File projectDir) {
 		main.writeToProject(projectDir)
 		unitTest.writeToProject(projectDir)
 	}
@@ -28,13 +27,11 @@ class SwiftIosUnitXCTest extends SourceElement {
 	SourceElement withUiTest() {
 		return new SwiftIosUiXCTest(this);
 	}
-}
 
-
-class SwiftUnitTest extends SourceFileElement {
-	@Override
-	SourceFile getSourceFile() {
-		return sourceFile('swift', 'swift_ios_applicationTests.swift', '''
+	private static class SwiftUnitTest extends SourceFileElement {
+		@Override
+		SourceFile getSourceFile() {
+			return sourceFile('swift', 'swift_ios_applicationTests.swift', '''
 import XCTest
 @testable import swift_ios_application
 
@@ -62,10 +59,11 @@ class swift_ios_applicationTests: XCTestCase {
 
 }
 ''')
-	}
+		}
 
-	@Override
-	String getSourceSetName() {
-		return 'unitTest'
+		@Override
+		String getSourceSetName() {
+			return 'unitTest'
+		}
 	}
 }

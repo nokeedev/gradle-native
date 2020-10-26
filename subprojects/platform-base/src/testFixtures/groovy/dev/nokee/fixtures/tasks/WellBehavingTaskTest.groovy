@@ -1,23 +1,12 @@
 package dev.nokee.fixtures.tasks
 
 import com.google.common.collect.ImmutableList
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceFile
 import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceFile
 import org.gradle.api.Task
-import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Classpath
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Nested
-import org.gradle.api.tasks.OutputDirectories
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.OutputFiles
+import org.gradle.api.tasks.*
 import org.hamcrest.Matchers
 import spock.lang.Unroll
 
@@ -26,7 +15,6 @@ import java.lang.annotation.Annotation
 import java.lang.reflect.Modifier
 
 import static org.junit.Assume.assumeThat
-import static org.junit.Assume.assumeTrue
 
 abstract class WellBehavingTaskTest extends AbstractGradleSpecification implements WellBehavingTaskSpec {
 	protected abstract Class<? extends Task> getTaskType();

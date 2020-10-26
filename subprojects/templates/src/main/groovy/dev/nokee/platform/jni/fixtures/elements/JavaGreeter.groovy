@@ -1,21 +1,21 @@
 package dev.nokee.platform.jni.fixtures.elements
 
-import dev.gradleplugins.test.fixtures.sources.SourceFileElement
-import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
-import dev.gradleplugins.test.fixtures.sources.java.JavaSourceFileElement
+import dev.gradleplugins.fixtures.sources.SourceFile
+import dev.gradleplugins.fixtures.sources.SourceFileElement
+import dev.gradleplugins.fixtures.sources.java.JavaPackage
 
-import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
+import static dev.gradleplugins.fixtures.sources.java.JavaPackage.ofPackage
 
-class JavaGreeter extends JavaSourceFileElement {
-	private final SourceFileElement source
+class JavaGreeter extends SourceFileElement {
+	private final SourceFile source
 
 	@Override
-	SourceFileElement getSource() {
+	SourceFile getSourceFile() {
 		return source
 	}
 
 	JavaGreeter(JavaPackage javaPackage = ofPackage('com.example.greeter')) {
-		source = ofFile(sourceFile("java/${javaPackage.directoryLayout}", 'Greeter.java', """
+		source = sourceFile("java/${javaPackage.directoryLayout}", 'Greeter.java', """
 package ${javaPackage.name};
 
 import java.io.File;
@@ -30,6 +30,6 @@ public class Greeter {
 		return "Bonjour, " + name + "!";
 	}
 }
-"""))
+""")
 	}
 }

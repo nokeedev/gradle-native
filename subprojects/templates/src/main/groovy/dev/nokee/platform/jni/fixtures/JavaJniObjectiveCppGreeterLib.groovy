@@ -1,20 +1,17 @@
 package dev.nokee.platform.jni.fixtures
 
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.java.JavaPackage
-import dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement
-import dev.gradleplugins.test.fixtures.sources.objectivecpp.ObjectiveCppLibraryElement
-import dev.gradleplugins.test.fixtures.sources.objectivecpp.ObjectiveCppSourceElement
-import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
+import dev.gradleplugins.fixtures.sources.NativeSourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.java.JavaPackage
+import dev.nokee.platform.jni.fixtures.elements.*
 
-import static dev.gradleplugins.test.fixtures.sources.SourceFileElement.ofFile
-import static dev.gradleplugins.test.fixtures.sources.java.JavaSourceElement.ofPackage
+import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofNativeElements
+import static dev.gradleplugins.fixtures.sources.java.JavaPackage.ofPackage
 
-class JavaJniObjectiveCppGreeterLib extends JniLibraryElement {
+class JavaJniObjectiveCppGreeterLib  extends GreeterImplementationAwareSourceElement<NativeSourceElement> implements JniLibraryElement {
 	final ObjectiveCppGreeterJniBinding nativeBindings
-	final JavaSourceElement jvmBindings
-	final JavaSourceElement jvmImplementation
+	final SourceElement jvmBindings
+	final SourceElement jvmImplementation
 	final ObjectiveCppGreeter nativeImplementation
 
 	@Override
@@ -28,142 +25,52 @@ class JavaJniObjectiveCppGreeterLib extends JniLibraryElement {
 	}
 
 	JavaJniObjectiveCppGreeterLib(String projectName) {
-		def javaPackage = ofPackage('com.example.greeter')
-		String sharedLibraryBaseName = projectName
-		jvmBindings = new JavaNativeGreeter(javaPackage, sharedLibraryBaseName)
-		nativeBindings = new ObjectiveCppGreeterJniBinding(javaPackage)
+		this(ofPackage('com.example.greeter'), projectName)
+	}
 
-		jvmImplementation = new JavaNativeLoader(javaPackage);
+	private JavaJniObjectiveCppGreeterLib(JavaPackage javaPackage, String sharedLibraryBaseName) {
+		this(new JavaNativeGreeter(javaPackage, sharedLibraryBaseName), new ObjectiveCppGreeterJniBinding(javaPackage), new JavaNativeLoader(javaPackage), new ObjectiveCppGreeter())
+	}
 
-		nativeImplementation = new ObjectiveCppGreeter()
+	private JavaJniObjectiveCppGreeterLib(JavaNativeGreeter jvmBindings, ObjectiveCppGreeterJniBinding nativeBindings, JavaNativeLoader jvmImplementation, ObjectiveCppGreeter nativeImplementation) {
+		super(ofElements(jvmBindings, nativeBindings, jvmImplementation), nativeImplementation)
+		this.jvmBindings = jvmBindings
+		this.nativeBindings = nativeBindings
+		this.jvmImplementation = jvmImplementation
+		this.nativeImplementation = nativeImplementation
 	}
 
 	JniLibraryElement withoutNativeImplementation() {
-		return new JniLibraryElement() {
-			@Override
-			SourceElement getJvmSources() {
-				return ofElements(JavaJniObjectiveCppGreeterLib.this.jvmBindings, JavaJniObjectiveCppGreeterLib.this.jvmImplementation)
-			}
-
-			@Override
-			NativeSourceElement getNativeSources() {
-				return nativeBindings
-			}
-		}
+		return new SimpleJniLibraryElement(ofElements(jvmBindings, jvmImplementation), nativeBindings)
 	}
 
 	JniLibraryElement withOptionalFeature() {
-		return new JniLibraryElement() {
-			@Override
-			SourceElement getJvmSources() {
-				return JavaJniObjectiveCppGreeterLib.this.jvmSources
-			}
+		return new SimpleJniLibraryElement(jvmSources, ofNativeElements(nativeBindings, nativeImplementation.withOptionalFeature()))
+	}
 
-			@Override
-			NativeSourceElement getNativeSources() {
-				return ofNativeElements(nativeBindings, nativeImplementation.withOptionalFeature())
-			}
+	@Override
+	GreeterImplementationAwareSourceElement<NativeSourceElement> withImplementationAsSubproject(String subprojectPath) {
+		return ofImplementationAsSubproject(elementUsingGreeter, asSubproject(subprojectPath, nativeImplementation.asLib()))
+	}
+
+	private static class ObjectiveCppGreeterJniBinding extends NativeSourceElement {
+		private final source
+		private final generatedHeader
+		private final JavaPackage javaPackage
+
+		@Override
+		SourceElement getHeaders() {
+			return empty()
 		}
-	}
-}
 
-
-class ObjectiveCppGreeter extends ObjectiveCppLibraryElement {
-	private final header
-	private final source
-
-	@Override
-	SourceElement getPublicHeaders() {
-		return header
-	}
-
-	@Override
-	SourceElement getSources() {
-		return source
-	}
-
-	ObjectiveCppGreeter() {
-		header = ofFile(sourceFile('headers', 'greeter.h', """
-#include <string>
-
-@interface Greeter
-+ (id)alloc;
-- (std::string)sayHello:(std::string)name;
-@end
-"""))
-		source = ofFile(sourceFile('objcpp', 'greeter_impl.mm', """
-#import "greeter.h"
-
-#include <string>
-#include <objc/runtime.h>
-
-@implementation Greeter
-
-+(id)alloc {
-    return class_createInstance(self, 0);
-}
-
-- (std::string)sayHello:(std::string)name {
-    return "Bonjour, " + name + "!";
-}
-@end
-"""))
-	}
-
-	ObjectiveCppLibraryElement withOptionalFeature() {
-		return new ObjectiveCppLibraryElement() {
-			@Override
-			SourceElement getPublicHeaders() {
-				return header
-			}
-
-			@Override
-			SourceElement getSources() {
-				return ofFile(sourceFile('objcpp', 'greeter_impl.mm', """
-#import "greeter.h"
-
-#include <string>
-#include <objc/runtime.h>
-
-@implementation Greeter
-
-+(id)alloc {
-    return class_createInstance(self, 0);
-}
-
-- (std::string)sayHello:(std::string)name {
-#ifdef WITH_FEATURE
-#pragma message("compiling with feature enabled")
-	return "Hello, " + name + "!";
-#else
-    return "Bonjour, " + name + "!";
-#endif
-}
-@end
-"""))
-			}
+		@Override
+		SourceElement getSources() {
+			return source
 		}
-	}
-}
 
-class ObjectiveCppGreeterJniBinding extends ObjectiveCppSourceElement {
-	private final source
-	private final generatedHeader
-	private final JavaPackage javaPackage
-
-	@Override
-	SourceElement getHeaders() {
-		return empty()
-	}
-
-	@Override
-	SourceElement getSources() {
-		return source
-	}
-
-	ObjectiveCppGreeterJniBinding(JavaPackage javaPackage) {
-		this.javaPackage = javaPackage
-		source = ofFiles(sourceFile('objcpp', 'greeter.mm', """
+		ObjectiveCppGreeterJniBinding(JavaPackage javaPackage) {
+			this.javaPackage = javaPackage
+			source = ofFiles(sourceFile('objcpp', 'greeter.mm', """
 #include "${javaPackage.jniHeader('Greeter')}"
 
 #include <string.h>
@@ -192,7 +99,7 @@ JNIEXPORT jstring JNICALL ${javaPackage.jniMethodName('Greeter', 'sayHello')}(JN
     return result;
 }
 """))
-		generatedHeader = ofFiles(sourceFile('headers', javaPackage.jniHeader('Greeter'), """
+			generatedHeader = ofFiles(sourceFile('headers', javaPackage.jniHeader('Greeter'), """
 /* DO NOT EDIT THIS FILE - it is machine generated */
 #include <jni.h>
 /* Header for class com_example_greeter_Greeter */
@@ -215,18 +122,19 @@ JNIEXPORT jstring JNICALL ${javaPackage.jniMethodName('Greeter', 'sayHello')}
 #endif
 #endif
 """))
-	}
+		}
 
-	SourceElement withJniGeneratedHeader() {
-		return new ObjectiveCppSourceElement() {
-			@Override
-			SourceElement getHeaders() {
-				return generatedHeader
-			}
+		SourceElement withJniGeneratedHeader() {
+			return new NativeSourceElement() {
+				@Override
+				SourceElement getHeaders() {
+					return generatedHeader
+				}
 
-			@Override
-			SourceElement getSources() {
-				return ObjectiveCppGreeterJniBinding.this.source
+				@Override
+				SourceElement getSources() {
+					return ObjectiveCppGreeterJniBinding.this.source
+				}
 			}
 		}
 	}

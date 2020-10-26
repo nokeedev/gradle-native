@@ -1,7 +1,7 @@
 package dev.nokee.fixtures
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.language.NativeProjectTasks
 import org.hamcrest.Matchers
 import spock.lang.Unroll

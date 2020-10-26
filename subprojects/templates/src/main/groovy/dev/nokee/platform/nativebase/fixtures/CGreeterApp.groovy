@@ -1,16 +1,16 @@
 package dev.nokee.platform.nativebase.fixtures
 
-import dev.gradleplugins.test.fixtures.sources.NativeLibraryElement
-import dev.gradleplugins.test.fixtures.sources.NativeSourceElement
-import dev.gradleplugins.test.fixtures.sources.SourceElement
-import dev.gradleplugins.test.fixtures.sources.c.CSourceElement
+import dev.gradleplugins.fixtures.sources.NativeLibraryElement
+import dev.gradleplugins.fixtures.sources.NativeSourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.platform.jni.fixtures.CGreeter
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 
-import static dev.gradleplugins.test.fixtures.sources.NativeSourceElement.ofNativeElements
+import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofNativeElements
 
 class CGreeterApp extends GreeterImplementationAwareSourceElement<CGreeter> {
-	@Delegate final NativeSourceElement delegate
+	@Delegate
+	final NativeSourceElement delegate
 
 	CGreeterApp() {
 		super(new CMainUsesGreeter(), new CGreeter())
@@ -24,12 +24,11 @@ class CGreeterApp extends GreeterImplementationAwareSourceElement<CGreeter> {
 	SourceElement withGenericTestSuite() {
 		return ofNativeElements(delegate, new CGreeterTest())
 	}
-}
 
-class CMainUsesGreeter extends CSourceElement {
-	@Override
-	SourceElement getSources() {
-		return ofFiles(sourceFile('c', 'main.c', '''
+	private static class CMainUsesGreeter extends NativeSourceElement {
+		@Override
+		SourceElement getSources() {
+			return ofFiles(sourceFile('c', 'main.c', '''
 #include <stdio.h>
 #include "greeter.h"
 
@@ -38,5 +37,6 @@ int main(int argc, char** argv) {
 	return 0;
 }
 '''))
+		}
 	}
 }

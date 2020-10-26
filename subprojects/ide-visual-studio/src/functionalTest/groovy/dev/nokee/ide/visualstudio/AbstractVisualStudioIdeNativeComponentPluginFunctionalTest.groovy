@@ -1,6 +1,6 @@
 package dev.nokee.ide.visualstudio
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.ide.fixtures.AbstractIdeNativeComponentPluginFunctionalTest
 import dev.nokee.ide.fixtures.IdeProjectFixture
 import dev.nokee.ide.fixtures.IdeWorkspaceFixture

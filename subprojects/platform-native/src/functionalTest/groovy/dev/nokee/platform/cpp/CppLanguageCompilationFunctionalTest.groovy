@@ -1,6 +1,6 @@
 package dev.nokee.platform.cpp
 
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
 import dev.nokee.language.NativeProjectTasks
 import dev.nokee.language.cpp.CppTaskNames

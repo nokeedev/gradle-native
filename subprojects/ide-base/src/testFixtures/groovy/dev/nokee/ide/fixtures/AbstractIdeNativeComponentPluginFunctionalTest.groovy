@@ -1,7 +1,7 @@
 package dev.nokee.ide.fixtures
 
 import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
-import dev.gradleplugins.test.fixtures.sources.SourceElement
+import dev.gradleplugins.fixtures.sources.SourceElement
 
 import static org.junit.Assume.assumeFalse
 

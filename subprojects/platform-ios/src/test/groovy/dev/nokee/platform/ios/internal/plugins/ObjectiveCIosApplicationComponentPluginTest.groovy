@@ -5,6 +5,7 @@ import dev.nokee.language.c.internal.CHeaderSetImpl
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent
+import dev.nokee.platform.ios.internal.IosResourceSetImpl
 import org.gradle.api.Project
 
 class ObjectiveCIosApplicationComponentPluginTest extends AbstractComponentPluginTest {
@@ -25,6 +26,6 @@ class ObjectiveCIosApplicationComponentPluginTest extends AbstractComponentPlugi
 
 	@Override
 	protected List<ExpectedLanguageSourceSet> getExpectedLanguageSourceSets() {
-		return [newExpectedSourceSet('objectiveC', ObjectiveCSourceSetImpl).addConventionDirectory('src/main/objc'), newExpectedSourceSet('headers', CHeaderSetImpl, 'privateHeaders')]
+		return [newExpectedSourceSet('objectiveC', ObjectiveCSourceSetImpl).addConventionDirectory('src/main/objc'), newExpectedSourceSet('headers', CHeaderSetImpl, 'privateHeaders'), newExpectedSourceSet('resources', IosResourceSetImpl, "resources")]
 	}
 }
