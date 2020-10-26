@@ -6,15 +6,14 @@ import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.Binary;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 import lombok.val;
+import org.gradle.util.Path;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-@ToString
 @EqualsAndHashCode
 public final class BinaryIdentifier<T extends Binary> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T> {
 	@Getter private final BinaryName name;
@@ -80,5 +79,15 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 	@Override
 	public String getDisplayName() {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Path getPath() {
+		return getOwnerIdentifier().getPath().child(name.get());
+	}
+
+	@Override
+	public String toString() {
+		return "binary '" + getPath() + "' (" + type.getSimpleName() + ")";
 	}
 }

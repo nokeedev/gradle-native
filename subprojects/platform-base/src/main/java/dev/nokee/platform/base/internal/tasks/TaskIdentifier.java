@@ -3,23 +3,22 @@ package dev.nokee.platform.base.internal.tasks;
 import com.google.common.base.Preconditions;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Task;
+import org.gradle.util.Path;
 
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@ToString
 @EqualsAndHashCode
 public final class TaskIdentifier<T extends Task> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T> {
 	@Getter private final TaskName name;
@@ -109,5 +108,18 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 	@Override
 	public String getDisplayName() {
 		throw new UnsupportedOperationException(); // for now...
+	}
+
+	@Override
+	public Path getPath() {
+		if (getName().get().isEmpty()) {
+			return getOwnerIdentifier().getPath();
+		}
+		return getOwnerIdentifier().getPath().child(getName().get());
+	}
+
+	@Override
+	public String toString() {
+		return "task '" + getPath() + "' (" + type.getSimpleName() + ")";
 	}
 }

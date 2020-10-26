@@ -85,6 +85,16 @@ class DomainObjectIdentifierUtils_DirectlyOwnedByTest extends Specification {
 		!directlyOwnedBy(parentIdentifier).test(identifier)
 	}
 
+	def "can compare predicates"() {
+		given:
+		def identifier1 = Stub(DomainObjectIdentifier)
+		def identifier2 = Stub(DomainObjectIdentifier)
+
+		expect:
+		directlyOwnedBy(identifier1) == directlyOwnedBy(identifier1)
+		directlyOwnedBy(identifier1) != directlyOwnedBy(identifier2)
+	}
+
 	def "predicate toString() explains where it comes from"() {
 		given:
 		def identifier = Stub(DomainObjectIdentifierInternal)

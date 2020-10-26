@@ -3,23 +3,32 @@ package dev.nokee.ide.visualstudio.internal;
 import dev.nokee.ide.visualstudio.VisualStudioIdeProjectConfiguration;
 import dev.nokee.ide.visualstudio.VisualStudioIdePropertyGroup;
 import dev.nokee.ide.visualstudio.VisualStudioIdeTarget;
+import dev.nokee.utils.ConfigureUtils;
 import lombok.Getter;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 
-import javax.inject.Inject;
+import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
-public abstract class DefaultVisualStudioIdeTarget implements VisualStudioIdeTarget, Named {
+public final class DefaultVisualStudioIdeTarget implements VisualStudioIdeTarget, Named {
+	private final ObjectFactory objectFactory;
 	@Getter private final VisualStudioIdeProjectConfiguration projectConfiguration;
 	@Getter private final DefaultVisualStudioIdePropertyGroup properties;
 	@Getter private final NamedDomainObjectContainer<VisualStudioIdePropertyGroup> itemProperties;
+	@Getter private final RegularFileProperty productLocation;
 
-	@Inject
-	public DefaultVisualStudioIdeTarget(VisualStudioIdeProjectConfiguration projectConfiguration) {
+	public DefaultVisualStudioIdeTarget(VisualStudioIdeProjectConfiguration projectConfiguration, ObjectFactory objectFactory) {
 		this.projectConfiguration = projectConfiguration;
-		this.properties = getObjects().newInstance(DefaultVisualStudioIdePropertyGroup.class);
-		this.itemProperties = getObjects().domainObjectContainer(VisualStudioIdePropertyGroup.class, this::newPropertyGroup);
+		this.objectFactory = objectFactory;
+		this.productLocation = configureDisplayName(objectFactory.fileProperty(), "productLocation");
+		this.properties = objectFactory.newInstance(DefaultVisualStudioIdePropertyGroup.class);
+		this.itemProperties = objectFactory.domainObjectContainer(VisualStudioIdePropertyGroup.class, this::newPropertyGroup);
+	}
+
+	public void setProductLocation(Object value) {
+		ConfigureUtils.setPropertyValue(productLocation, value);
 	}
 
 	@Override
@@ -27,10 +36,7 @@ public abstract class DefaultVisualStudioIdeTarget implements VisualStudioIdeTar
 		return VisualStudioIdeUtils.asName(projectConfiguration);
 	}
 
-	@Inject
-	protected abstract ObjectFactory getObjects();
-
 	private VisualStudioIdePropertyGroup newPropertyGroup(String name) {
-		return getObjects().newInstance(NamedVisualStudioIdePropertyGroup.class, name);
+		return objectFactory.newInstance(NamedVisualStudioIdePropertyGroup.class, name);
 	}
 }

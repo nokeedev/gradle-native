@@ -424,6 +424,20 @@ class TaskIdentifierTest extends Specification {
 		ex.message == 'Cannot construct a lifecycle task identifier for specified owner as it will result into an invalid task name.'
 	}
 
+	def "has meaningful toString() implementation"() {
+		given:
+		def ownerProject = ProjectIdentifier.of('root')
+		def ownerComponent = ComponentIdentifier.ofMain(TestableComponent, ownerProject)
+		def ownerVariant = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponent)
+
+		expect:
+		TaskIdentifier.ofLifecycle(ownerVariant).toString() == "task ':root:main:macosDebug' (Task)"
+		TaskIdentifier.ofLifecycle(ComponentIdentifier.of(ComponentName.of('test'), Component, ownerProject)).toString() == "task ':root:test' (Task)"
+		TaskIdentifier.of(TaskName.of('compile', 'c'), TestableTask, ownerVariant).toString() == "task ':root:main:macosDebug:compileC' (${TestableTask.simpleName})"
+		TaskIdentifier.of(TaskName.of('create', 'jar'), TestableTask, ownerComponent).toString() == "task ':root:main:createJar' (${TestableTask.simpleName})"
+		TaskIdentifier.of(TaskName.of('link'), TestableTask, ownerProject).toString() == "task ':root:link' (${TestableTask.simpleName})"
+	}
+
 	private static TaskIdentifier identifier(String verb, DomainObjectIdentifierInternal owner) {
 		return TaskIdentifier.of(TaskName.of(verb), TaskIdentifierTest.TestableTask, owner)
 	}

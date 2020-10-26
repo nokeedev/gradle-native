@@ -1,26 +1,26 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.internal.NameAwareDomainObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.Component;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 import lombok.val;
+import org.gradle.util.Path;
 
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
-@ToString
 @EqualsAndHashCode
-public final class ComponentIdentifier<T extends Component> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T> {
+public final class ComponentIdentifier<T extends Component> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T>, NameAwareDomainObjectIdentifier {
 	private static final ComponentName MAIN_COMPONENT_NAME = ComponentName.of("main");
 	private static final String MAIN_COMPONENT_DEFAULT_DISPLAY_NAME = "main component";
 	@Getter private final ComponentName name;
 	@Getter private final Class<T> type;
-	@Getter private final String displayName;
+	@EqualsAndHashCode.Exclude @Getter private final String displayName;
 	@Getter private final ProjectIdentifier projectIdentifier;
 
 	private ComponentIdentifier(ComponentName name, Class<T> type, String displayName, ProjectIdentifier projectIdentifier) {
@@ -105,5 +105,14 @@ public final class ComponentIdentifier<T extends Component> implements DomainObj
 
 	private static String displayNameOf(String componentName) {
 		return "component '" + componentName + "'";
+	}
+
+	public Path getPath() {
+		return getProjectIdentifier().getPath().child(name.get());
+	}
+
+	@Override
+	public String toString() {
+		return "component '" + getPath() + "' (" + type.getSimpleName() + ")";
 	}
 }

@@ -135,6 +135,9 @@ class JavaObjectiveCJniLibrarySharedLibraryConfigurationFunctionalTest extends A
 
 	@Override
 	protected void makeSingleProject() {
+		settingsFile << '''
+			rootProject.name = 'jni-greeter'
+		'''
 		buildFile << '''
 			plugins {
 				id 'java'
@@ -152,7 +155,7 @@ class JavaObjectiveCJniLibrarySharedLibraryConfigurationFunctionalTest extends A
 
 	@Override
 	protected SourceElement getComponentUnderTest() {
-		return new JavaJniObjectiveCGreeterLib('jni-library').withOptionalFeature()
+		return new JavaJniObjectiveCGreeterLib('jni-greeter').withOptionalFeature()
 	}
 }
 

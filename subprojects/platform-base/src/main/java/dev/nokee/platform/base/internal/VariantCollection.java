@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.*;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
@@ -51,7 +50,7 @@ public final class VariantCollection<T extends Variant> {
 		return variantViewFactory.create(owner, viewElementType);
 	}
 
-	public Provider<List<? extends T>> filter(Spec<? super T> spec) {
+	public Provider<List<T>> filter(Spec<? super T> spec) {
 		return view.filter(spec);
 	}
 

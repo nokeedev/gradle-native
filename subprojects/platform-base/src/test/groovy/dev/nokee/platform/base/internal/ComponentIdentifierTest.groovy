@@ -1,6 +1,8 @@
 package dev.nokee.platform.base.internal
 
+import dev.nokee.model.internal.NameAwareDomainObjectIdentifier
 import dev.nokee.model.internal.ProjectIdentifier
+import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier
 import dev.nokee.platform.base.Component
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -202,6 +204,24 @@ class ComponentIdentifierTest extends Specification {
 
 		then:
 		thrown(NullPointerException)
+	}
+
+	def "is type aware"() {
+		expect:
+		ofMain(TestableComponent, ProjectIdentifier.of('foo')) instanceof TypeAwareDomainObjectIdentifier
+		of(ComponentName.of('test'), TestableComponent, ProjectIdentifier.of('foo')) instanceof TypeAwareDomainObjectIdentifier
+	}
+
+	def "is name aware"() {
+		expect:
+		ofMain(TestableComponent, ProjectIdentifier.of('foo')) instanceof NameAwareDomainObjectIdentifier
+		of(ComponentName.of('test'), TestableComponent, ProjectIdentifier.of('foo')) instanceof NameAwareDomainObjectIdentifier
+	}
+
+	def "has meaningful toString() implementation"() {
+		expect:
+		ofMain(TestableComponent, ProjectIdentifier.of('foo')).toString() == "component ':foo:main' (${TestableComponent.simpleName})"
+		of(ComponentName.of('integTest'), TestableComponent, ProjectIdentifier.of('bar')).toString() == "component ':bar:integTest' (${TestableComponent.simpleName})"
 	}
 
 	interface TestableComponent extends Component {}

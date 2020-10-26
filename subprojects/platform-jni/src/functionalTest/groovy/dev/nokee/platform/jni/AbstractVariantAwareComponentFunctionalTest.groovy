@@ -66,9 +66,9 @@ abstract class AbstractVariantAwareComponentFunctionalTest extends AbstractInsta
 		succeeds('tasks')
 		result.assertOutputContains("""Custom tasks
 ------------
-customLinux${currentArchitecture.capitalize()} - Custom task for variant 'linux${currentArchitecture.capitalize()}'.
-customMacos${currentArchitecture.capitalize()} - Custom task for variant 'macos${currentArchitecture.capitalize()}'.
-customWindows${currentArchitecture.capitalize()} - Custom task for variant 'windows${currentArchitecture.capitalize()}'.
+customLinux${currentArchitecture.capitalize()}Shared - Custom task for variant 'linux${currentArchitecture.capitalize()}Shared'.
+customMacos${currentArchitecture.capitalize()}Shared - Custom task for variant 'macos${currentArchitecture.capitalize()}Shared'.
+customWindows${currentArchitecture.capitalize()}Shared - Custom task for variant 'windows${currentArchitecture.capitalize()}Shared'.
 """)
 	}
 
@@ -97,13 +97,13 @@ customWindows${currentArchitecture.capitalize()} - Custom task for variant 'wind
 		expect:
 		succeeds('dependencies')
 		result.assertOutputContains("""
-customLinux${currentArchitecture.capitalize()} - Custom configuration for variant 'linux${currentArchitecture.capitalize()}'.
+customLinux${currentArchitecture.capitalize()}Shared - Custom configuration for variant 'linux${currentArchitecture.capitalize()}Shared'.
 No dependencies
 
-customMacos${currentArchitecture.capitalize()} - Custom configuration for variant 'macos${currentArchitecture.capitalize()}'.
+customMacos${currentArchitecture.capitalize()}Shared - Custom configuration for variant 'macos${currentArchitecture.capitalize()}Shared'.
 No dependencies
 
-customWindows${currentArchitecture.capitalize()} - Custom configuration for variant 'windows${currentArchitecture.capitalize()}'.
+customWindows${currentArchitecture.capitalize()}Shared - Custom configuration for variant 'windows${currentArchitecture.capitalize()}Shared'.
 No dependencies
 """)
 	}
@@ -137,28 +137,28 @@ No dependencies
 		succeeds('outgoingVariants')
 		result.assertOutputContains(separatorsToSystem("""
 --------------------------------------------------
-Variant customLinux${currentArchitecture.capitalize()}Elements
+Variant customLinux${currentArchitecture.capitalize()}SharedElements
 --------------------------------------------------
-Description = Custom configuration for variant 'linux${currentArchitecture.capitalize()}'.
+Description = Custom configuration for variant 'linux${currentArchitecture.capitalize()}Shared'.
 
 Artifacts
-    - build/linux${currentArchitecture.capitalize()}.potato (artifactType = potato)
+    - build/linux${currentArchitecture.capitalize()}Shared.potato (artifactType = potato)
 
 --------------------------------------------------
-Variant customMacos${currentArchitecture.capitalize()}Elements
+Variant customMacos${currentArchitecture.capitalize()}SharedElements
 --------------------------------------------------
-Description = Custom configuration for variant 'macos${currentArchitecture.capitalize()}'.
-
-Artifacts
-    - build/macos${currentArchitecture.capitalize()}.potato (artifactType = potato)
-
---------------------------------------------------
-Variant customWindows${currentArchitecture.capitalize()}Elements
---------------------------------------------------
-Description = Custom configuration for variant 'windows${currentArchitecture.capitalize()}'.
+Description = Custom configuration for variant 'macos${currentArchitecture.capitalize()}Shared'.
 
 Artifacts
-    - build/windows${currentArchitecture.capitalize()}.potato (artifactType = potato)
+    - build/macos${currentArchitecture.capitalize()}Shared.potato (artifactType = potato)
+
+--------------------------------------------------
+Variant customWindows${currentArchitecture.capitalize()}SharedElements
+--------------------------------------------------
+Description = Custom configuration for variant 'windows${currentArchitecture.capitalize()}Shared'.
+
+Artifacts
+    - build/windows${currentArchitecture.capitalize()}Shared.potato (artifactType = potato)
 """))
 	}
 
@@ -192,7 +192,7 @@ Artifacts
 		'''
 
 		expect:
-		succeeds('dependencyInsight', '--configuration', "custom${hostVariantName.capitalize()}", '--dependency', 'dev.nokee:platformJni:0.3.0')
+		succeeds('dependencyInsight', '--configuration', "custom${hostVariantName.capitalize()}Shared", '--dependency', 'dev.nokee:platformJni:0.3.0')
 		result.assertOutputContains("""> Task :dependencyInsight
 dev.nokee:platformJni:0.3.0
    variant "runtimeElements" [
@@ -205,7 +205,7 @@ dev.nokee:platformJni:0.3.0
    ]
 
 dev.nokee:platformJni:0.3.0
-\\--- custom${hostVariantName.capitalize()}""")
+\\--- custom${hostVariantName.capitalize()}Shared""")
 	}
 
 	protected abstract void makeSingleProject()

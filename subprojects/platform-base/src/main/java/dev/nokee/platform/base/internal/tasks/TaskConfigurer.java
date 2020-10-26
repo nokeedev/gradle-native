@@ -15,10 +15,12 @@ public final class TaskConfigurer implements DomainObjectConfigurer<Task> {
 	private final KnownDomainObjects<Task> knownDomainObjects;
 	private final TaskCollection<Task> tasks;
 	private final KnownDomainObjectActions<Task> knownConfigureActions = new KnownDomainObjectActions<>();
+	private final NamedDomainObjectConfigurer<Task> nameAwareConfigurer;
 
 	public TaskConfigurer(DomainObjectEventPublisher eventPublisher, TaskCollection<Task> tasks) {
 		this.knownDomainObjects = new KnownDomainObjects<>(Task.class, eventPublisher, knownConfigureActions);
 		this.tasks = tasks;
+		this.nameAwareConfigurer = new NamedDomainObjectConfigurer<>(Task.class, knownDomainObjects, this);
 	}
 
 	@Override
@@ -30,6 +32,11 @@ public final class TaskConfigurer implements DomainObjectConfigurer<Task> {
 				}
 			});
 		});
+	}
+
+	@Override
+	public <S extends Task> void configure(DomainObjectIdentifier owner, String name, Class<S> type, Action<? super S> action) {
+		nameAwareConfigurer.configure(owner, name, type, action);
 	}
 
 	private static <S extends Task> Predicate<? super TypeAwareDomainObjectIdentifier<? extends S>> identifierForTask(String taskName) {

@@ -78,7 +78,7 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 
 	private JniLibraryInternal createVariant(VariantIdentifier<JniLibraryInternal> identifier, VariantComponentDependencies variantDependencies) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
-		Preconditions.checkArgument(buildVariant.getDimensions().size() == 2);
+		Preconditions.checkArgument(buildVariant.getDimensions().size() >= 2);
 		Preconditions.checkArgument(buildVariant.getDimensions().get(0) instanceof OperatingSystemFamily);
 		Preconditions.checkArgument(buildVariant.getDimensions().get(1) instanceof MachineArchitecture);
 

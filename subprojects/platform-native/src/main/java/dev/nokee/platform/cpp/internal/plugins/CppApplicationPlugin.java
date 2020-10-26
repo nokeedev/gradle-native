@@ -1,25 +1,14 @@
 package dev.nokee.platform.cpp.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
-import dev.nokee.language.base.internal.LanguageSourceSetRepository;
-import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.DomainObjectStore;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
-import dev.nokee.platform.base.internal.plugins.*;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.base.internal.variants.VariantRepository;
-import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.cpp.CppApplicationExtension;
 import dev.nokee.platform.cpp.internal.DefaultCppApplicationExtension;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
+import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -43,28 +32,14 @@ public class CppApplicationPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
 
-		// Load the store
-		project.getPluginManager().apply(ProjectStorePlugin.class);
-		val store = project.getExtensions().getByType(DomainObjectStore.class);
-
 		// Create the component
-		project.getPluginManager().apply(ComponentBasePlugin.class);
-		project.getPluginManager().apply(VariantBasePlugin.class);
-		project.getPluginManager().apply(BinaryBasePlugin.class);
-		project.getPluginManager().apply(TaskBasePlugin.class);
+		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CppLanguageBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		components.registerFactory(DefaultCppApplicationExtension.class, id -> {
-			val identifier = ComponentIdentifier.of(((ComponentIdentifier<?>)id).getName(), DefaultNativeApplicationComponent.class, ProjectIdentifier.of(project));
-
-			val component = new DefaultNativeApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
-
-			store.register(identifier, DefaultNativeApplicationComponent.class, ignored -> component).get();
-			return new DefaultCppApplicationExtension(component, project.getObjects(), project.getProviders(), project.getLayout(), project.getExtensions().getByType(LanguageSourceSetRegistry.class));
+		val componentProvider = components.register("main", DefaultNativeApplicationComponent.class, component -> {
+			component.getBaseName().convention(project.getName());
 		});
-		val extension = components.register("main", DefaultCppApplicationExtension.class, component -> {
-			component.getComponent().getBaseName().convention(project.getName());
-		}).get();
+		val extension = new DefaultCppApplicationExtension(componentProvider.get(), project.getObjects(), project.getProviders(), project.getLayout(), project.getExtensions().getByType(LanguageSourceSetRegistry.class));
 
 		// Other configurations
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));

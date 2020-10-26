@@ -91,5 +91,16 @@ class BinaryIdentifierTest extends Specification {
 		ex.message == 'Cannot construct a task identifier because the owner identifier is invalid, only ComponentIdentifier and VariantIdentifier are accepted.'
 	}
 
+	def "has meaningful toString() implementation"() {
+		given:
+		def ownerProject = ProjectIdentifier.of('root')
+		def ownerComponent = ComponentIdentifier.ofMain(Component, ownerProject)
+		def ownerVariant = VariantIdentifier.of('macosRelease', Variant, ownerComponent)
+
+		expect:
+		BinaryIdentifier.of(BinaryName.of('bar'), TestableBinary, ownerComponent).toString() == "binary ':root:main:bar' (${TestableBinary.simpleName})"
+		BinaryIdentifier.of(BinaryName.of('jar'), TestableBinary, ownerVariant).toString() == "binary ':root:main:macosRelease:jar' (${TestableBinary.simpleName})"
+	}
+
 	interface TestableBinary extends Binary {}
 }

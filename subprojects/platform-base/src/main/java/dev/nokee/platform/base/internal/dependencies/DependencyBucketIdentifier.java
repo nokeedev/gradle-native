@@ -10,6 +10,7 @@ import lombok.Value;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.util.GUtil;
+import org.gradle.util.Path;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -67,6 +68,11 @@ public class DependencyBucketIdentifier<T extends DependencyBucket> implements D
 		}
 		builder.append(" for ").append(ownerIdentifier.getDisplayName()).append(".");
 		return builder.toString();
+	}
+
+	@Override
+	public Path getPath() {
+		return getOwnerIdentifier().getPath().child(name.get());
 	}
 
 	public String getConfigurationName() {

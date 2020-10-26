@@ -9,6 +9,7 @@ repositories {
 }
 
 dependencies {
+	implementation project(':coreExec')
 	implementation project(':coreUtils')
 	implementation project(':ideBase')
 	compileOnly "org.codehaus.groovy:groovy-templates:${groovyVersion}"

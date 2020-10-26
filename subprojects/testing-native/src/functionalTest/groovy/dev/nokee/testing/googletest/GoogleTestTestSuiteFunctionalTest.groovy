@@ -6,8 +6,11 @@ import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.fixtures.CppGreeterLib
 import dev.nokee.platform.nativebase.fixtures.GoogleTestGreeterTest
 import dev.nokee.testing.nativebase.NativeTestSuite
+import org.apache.commons.lang3.SystemUtils
+import spock.lang.IgnoreIf
 
 class GoogleTestTestSuiteFunctionalTest extends AbstractInstalledToolChainIntegrationSpec implements CppTaskNames {
+	@IgnoreIf({ SystemUtils.IS_OS_WINDOWS }) // because left over daemons cause failures
 	def "can test using Google Test built from source"() {
 		given:
 		settingsFile << '''

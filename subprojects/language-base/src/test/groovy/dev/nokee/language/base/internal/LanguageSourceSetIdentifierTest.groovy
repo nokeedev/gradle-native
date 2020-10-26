@@ -2,6 +2,7 @@ package dev.nokee.language.base.internal
 
 import dev.nokee.language.base.LanguageSourceSet
 import dev.nokee.model.internal.DomainObjectIdentifierInternal
+import org.gradle.util.Path
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -80,6 +81,20 @@ class LanguageSourceSetIdentifierTest extends Specification {
 
 		then:
 		thrown(AssertionError)
+	}
+
+	def "has meaningful toString() implementation"() {
+		given:
+		def rootOwner = Stub(DomainObjectIdentifierInternal) {
+			getPath() >> Path.ROOT
+		}
+		def childOwner = Stub(DomainObjectIdentifierInternal) {
+			getPath() >> Path.path(':test')
+		}
+
+		expect:
+		of(languageName('c'), TestableSourceSet, rootOwner).toString() == "source set ':c' (${TestableSourceSet.simpleName})"
+		of(languageName('swift'), TestableSourceSet, childOwner).toString() == "source set ':test:swift' (${TestableSourceSet.simpleName})"
 	}
 
 	interface TestableSourceSet extends LanguageSourceSet {}

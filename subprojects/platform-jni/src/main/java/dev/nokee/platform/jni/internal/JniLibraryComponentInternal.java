@@ -19,8 +19,8 @@ import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
-import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
+import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
@@ -84,13 +84,13 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	}
 
 	//region Variant-awareness
-	public VariantViewInternal<JniLibrary> getVariants() {
-		return getVariantCollection().getAsView(JniLibrary.class);
+	public VariantViewInternal<JniLibraryInternal> getVariants() {
+		return getVariantCollection().getAsView(JniLibraryInternal.class);
 	}
 
 	private List<BuildVariantInternal> createBuildVariants() {
 		Set<TargetMachine> targetMachines = getTargetMachines().get();
-		return targetMachines.stream().map(it -> (DefaultTargetMachine)it).map(it -> DefaultBuildVariant.of(it.getOperatingSystemFamily(), it.getArchitecture())).collect(Collectors.toList());
+		return targetMachines.stream().map(it -> (DefaultTargetMachine)it).map(it -> DefaultBuildVariant.of(it.getOperatingSystemFamily(), it.getArchitecture(), DefaultBinaryLinkage.SHARED)).collect(Collectors.toList());
 	}
 	//endregion
 

@@ -49,4 +49,11 @@ class BinaryNameTest extends Specification {
 		then:
 		thrown(IllegalArgumentException)
 	}
+
+	def "returns name value via toString()"() {
+		expect:
+		BinaryName.of('main').toString() == 'main'
+		BinaryName.of('foo').toString() == 'foo'
+		BinaryName.of('test').toString() == 'test'
+	}
 }

@@ -22,6 +22,18 @@ class TransformerUtils_ToSetTransformerTest extends Specification {
 		toSetTransformer() == toSetTransformer()
 	}
 
+	def "can cast each elements to specified type"() {
+		given:
+		Set<Object> obj = ['a', 'b', 'c']
+
+		when:
+		def result = toSetTransformer(String).transform(obj)
+
+		then:
+		noExceptionThrown()
+		result == ['a', 'b', 'c'] as Set
+	}
+
 	def "transformer toString() explains where the transformer comes from"() {
 		expect:
 		toSetTransformer().toString() == 'TransformerUtils.toSetTransformer()'

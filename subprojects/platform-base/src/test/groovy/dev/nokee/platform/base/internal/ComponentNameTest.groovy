@@ -44,4 +44,11 @@ class ComponentNameTest extends Specification {
 		of('Foo') == of('Foo')
 		of('foo') != of('Foo')
 	}
+
+	def "returns name value via toString()"() {
+		expect:
+		of('main').toString() == 'main'
+		of('foo').toString() == 'foo'
+		of('test').toString() == 'test'
+	}
 }

@@ -9,8 +9,11 @@ import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeSolutionFixture
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeTaskNames
 import org.apache.commons.lang3.SystemUtils
+import spock.lang.Ignore
 import spock.lang.Requires
 
+import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofHeaders
+import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofSources
 import static org.junit.Assume.assumeFalse
 
 abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractIdeNativeComponentPluginFunctionalTest implements VisualStudioIdeFixture {
@@ -25,6 +28,14 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 	protected abstract SourceElement getComponentUnderTest()
 
 	protected abstract String configureCustomSourceLayout()
+
+	protected String configureBuildTypes(String... buildTypes) {
+		return """
+			${componentUnderTestDsl} {
+				targetBuildTypes = [${buildTypes.collect { "buildTypes.named('${it}')"}.join(', ')}]
+			}
+		"""
+	}
 
 	protected abstract String getVisualStudioProjectName()
 
@@ -47,7 +58,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 	protected abstract List<String> getAllTasksForBuildAction()
 
 	protected List<String> getAllTasksToXcode() {
-		return [":${visualStudioProjectName}VisualStudioProject", ':visualStudioSolution', ':visualStudio']
+		return [":mainVisualStudioProject", ':visualStudioSolution', ':visualStudio']
 	}
 
 	protected List<String> getExpectedProjectNames() {
@@ -112,22 +123,22 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		succeeds('visualStudio')
 
 		then:
-		visualStudioProjectUnderTest.assertHasSourceLayout(componentUnderTest.sources.files.collect { "Source Files/${it.name}".toString() } + componentUnderTest.headers.files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
+		visualStudioProjectUnderTest.assertHasSourceLayout(ofSources(componentUnderTest).files.collect { "Source Files/${it.name}".toString() } + ofHeaders(componentUnderTest).files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
 	}
 
 	def "include sources in project with custom layout"() {
 		given:
 		settingsFile << configureProjectName()
 		makeSingleProject()
-		componentUnderTest.sources.writeToSourceDir(file('srcs'))
-		componentUnderTest.headers.writeToSourceDir(file('hdrs'))
+		ofSources(componentUnderTest).writeToSourceDir(file('srcs'))
+		ofHeaders(componentUnderTest).writeToSourceDir(file('hdrs'))
 		buildFile << configureCustomSourceLayout()
 
 		when:
 		succeeds('visualStudio')
 
 		then:
-		visualStudioProjectUnderTest.assertHasSourceLayout(componentUnderTest.sources.files.collect { "Source Files/${it.name}".toString() } + componentUnderTest.headers.files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
+		visualStudioProjectUnderTest.assertHasSourceLayout(ofSources(componentUnderTest).files.collect { "Source Files/${it.name}".toString() } + ofHeaders(componentUnderTest).files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
 	}
 
 	def "all projects appears in solution"() {
@@ -143,6 +154,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		visualStudioSolutionUnderTest.assertHasProjects(expectedProjectNames)
 	}
 
+	@Ignore("because left over Gradle daemons cause failures")
 	@Requires({SystemUtils.IS_OS_WINDOWS})
 	def "build generated visual studio solution"() {
 		using msbuildTool
@@ -172,11 +184,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		settingsFile << configureProjectName()
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)
-		buildFile << """
-			${componentUnderTestDsl} {
-				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
-			}
-		"""
+		buildFile << configureBuildTypes('debug', 'release')
 
 		when:
 		succeeds('visualStudio')
@@ -333,16 +341,6 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 	@Override
 	protected IdeProjectFixture getIdeProjectUnderTest() {
 		return visualStudioProjectUnderTest
-	}
-
-	@Override
-	protected void makeSingleProjectWithDebugAndReleaseBuildTypes() {
-		makeSingleProject()
-		buildFile << """
-			${componentUnderTestDsl} {
-				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
-			}
-		"""
 	}
 
 	@Override

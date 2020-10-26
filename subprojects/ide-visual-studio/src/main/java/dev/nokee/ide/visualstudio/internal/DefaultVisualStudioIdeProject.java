@@ -71,7 +71,7 @@ public abstract class DefaultVisualStudioIdeProject implements VisualStudioIdePr
 	}
 
 	private DefaultVisualStudioIdeTarget newTarget(VisualStudioIdeProjectConfiguration projectConfiguration) {
-		val result = getObjects().newInstance(DefaultVisualStudioIdeTarget.class, projectConfiguration);
+		val result = new DefaultVisualStudioIdeTarget(projectConfiguration, getObjects());
 		getTargets().add(result);
 		return result;
 	}

@@ -223,6 +223,24 @@ class VariantIdentifierTest extends Specification {
         VariantIdentifier.of('', TestableVariant, jniOwnerIdentifier).displayName == "iOS application"
 	}
 
+	def "has meaningful toString() implementation"() {
+		given:
+		def ownerIdentifier = ComponentIdentifier.ofMain(TestableComponent, ProjectIdentifier.of('root'))
+		def singleDimension = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
+			.withType(TestableVariant)
+			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
+			.build()
+		def multipleDimension = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
+			.withType(TestableVariant)
+			.withVariantDimension({'macos'}, [{'macos'}])
+			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
+			.build()
+
+		expect:
+		singleDimension.toString() == "variant ':root:main:debug' (${TestableVariant.simpleName})"
+		multipleDimension.toString() == "variant ':root:main:macosDebug' (${TestableVariant.simpleName})"
+	}
+
 	interface TestableComponent extends Component {}
 	interface TestableVariant extends Variant {}
 }

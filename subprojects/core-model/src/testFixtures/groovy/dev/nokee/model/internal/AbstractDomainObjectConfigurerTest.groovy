@@ -2,6 +2,9 @@ package dev.nokee.model.internal
 
 
 import org.gradle.api.Action
+import org.gradle.api.InvalidUserDataException
+import org.gradle.api.UnknownDomainObjectException
+import org.junit.Assume
 
 abstract class AbstractDomainObjectConfigurerTest<T> extends DomainObjectSpec<T> {
 	protected abstract DomainObjectConfigurer<T> newSubject()
@@ -204,7 +207,7 @@ abstract class AbstractDomainObjectConfigurerTest<T> extends DomainObjectSpec<T>
 	}
 	//endregion
 
-	//region configure
+	//region configure by identifier
 	def "throw exception when configuring unknown identifier"() {
 		given:
 		def subject = newSubject()
@@ -506,6 +509,96 @@ abstract class AbstractDomainObjectConfigurerTest<T> extends DomainObjectSpec<T>
 		1 * action.execute(entityIdentifier2)
 		and:
 		0 * action.execute(_)
+	}
+	//endregion
+
+	//region configure by name
+	def "throws exception for unknown name"() {
+		given:
+		def subject = newSubject()
+		def action = Mock(Action)
+
+		and:
+		entityDiscovered(entityIdentifier(myEntityType, ownerIdentifier))
+
+		when:
+		subject.configure(ownerIdentifier, "foo", entityType, action)
+
+		then:
+		def ex = thrown(UnknownDomainObjectException)
+		ex.message == "${entityType.simpleName} with name 'foo' and directly owned by ${ownerIdentifier} not found."
+
+		and:
+		0 * action.execute(_)
+	}
+
+	def "throws exception for known name but wrong type"() {
+		given:
+		def subject = newSubject()
+		def action = Mock(Action)
+
+		and:
+		def identifier = entityDiscovered(entityIdentifier(myEntityType, ownerIdentifier))
+		Assume.assumeTrue(identifier instanceof NameAwareDomainObjectIdentifier)
+		def name = ((NameAwareDomainObjectIdentifier)identifier).name.toString()
+
+		when:
+		subject.configure(ownerIdentifier, name, entityImplementationType, action)
+
+		then:
+		def ex = thrown(InvalidUserDataException)
+		ex.message == "The domain object '${name}' (${myEntityType.canonicalName}) directly owned by ${ownerIdentifier} is not a subclass of the given type (${entityImplementationType.canonicalName})."
+
+		and:
+		0 * action.execute(_)
+	}
+
+	def "can configure known name with exact type"() {
+		given:
+		def subject = newSubject()
+		def action = Mock(Action)
+
+		and:
+		def identifier = entityDiscovered(entityIdentifier(myEntityType, ownerIdentifier))
+		Assume.assumeTrue(identifier instanceof NameAwareDomainObjectIdentifier)
+		def name = ((NameAwareDomainObjectIdentifier)identifier).name.toString()
+
+		and:
+		def (_, entity) = entity(identifier)
+
+		when:
+		subject.configure(ownerIdentifier, name, myEntityType, action)
+		then:
+		0 * action.execute(_)
+
+		when:
+		entityCreated(identifier, entity)
+		then:
+		1 * action.execute(entity.get())
+	}
+
+	def "can configure known name with super type"() {
+		given:
+		def subject = newSubject()
+		def action = Mock(Action)
+
+		and:
+		def identifier = entityDiscovered(entityIdentifier(myEntityType, ownerIdentifier))
+		Assume.assumeTrue(identifier instanceof NameAwareDomainObjectIdentifier)
+		def name = ((NameAwareDomainObjectIdentifier)identifier).name.toString()
+
+		and:
+		def (_, entity) = entity(identifier)
+
+		when:
+		subject.configure(ownerIdentifier, name, entityType, action)
+		then:
+		0 * action.execute(_)
+
+		when:
+		entityCreated(identifier, entity)
+		then:
+		1 * action.execute(entity.get())
 	}
 	//endregion
 }

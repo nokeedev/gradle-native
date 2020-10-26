@@ -24,6 +24,29 @@ public final class DomainObjectIdentifierUtils {
 		return false;
 	}
 
+	public static Predicate<DomainObjectIdentifier> descendentOf(DomainObjectIdentifier owner) {
+		return new DescendentIdentifierPredicate(owner);
+	}
+
+	@EqualsAndHashCode
+	private static final class DescendentIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
+		private final DomainObjectIdentifier owner;
+
+		DescendentIdentifierPredicate(DomainObjectIdentifier owner) {
+			this.owner = owner;
+		}
+
+		@Override
+		public boolean test(DomainObjectIdentifier identifier) {
+			return isDescendent(identifier, owner);
+		}
+
+		@Override
+		public String toString() {
+			return "DomainObjectIdentifierUtils.descendentOf(" + owner + ")";
+		}
+	}
+
 	public static Optional<? extends DomainObjectIdentifier> getParent(DomainObjectIdentifier self) {
 		if (self instanceof DomainObjectIdentifierInternal) {
 			return ((DomainObjectIdentifierInternal) self).getParentIdentifier();
@@ -35,6 +58,7 @@ public final class DomainObjectIdentifierUtils {
 		return new DirectlyOwnedIdentifierPredicate(owner);
 	}
 
+	@EqualsAndHashCode
 	private static final class DirectlyOwnedIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
 		private final DomainObjectIdentifier owner;
 
@@ -61,6 +85,7 @@ public final class DomainObjectIdentifierUtils {
 		return new WithTypeIdentifierPredicate(type);
 	}
 
+	@EqualsAndHashCode
 	private static final class WithTypeIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
 		private final Class<?> type;
 
@@ -86,6 +111,7 @@ public final class DomainObjectIdentifierUtils {
 		return new NamedIdentifierPredicate(name);
 	}
 
+	@EqualsAndHashCode
 	private static final class NamedIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
 		private final String name;
 
@@ -128,5 +154,18 @@ public final class DomainObjectIdentifierUtils {
 		public String toString() {
 			return "DomainObjectIdentifierUtils.mapDisplayName(" + identifier + ")";
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <S> TypeAwareDomainObjectIdentifier<S> uncheckedIdentifierCast(TypeAwareDomainObjectIdentifier<?> identifier) {
+		return (TypeAwareDomainObjectIdentifier<S>) identifier;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <S> TypeAwareDomainObjectIdentifier<S> castIdentifier(Class<S> outputIdentifierType, TypeAwareDomainObjectIdentifier<?> identifier) {
+		if (outputIdentifierType.isAssignableFrom(identifier.getType())) {
+			return (TypeAwareDomainObjectIdentifier<S>) identifier;
+		}
+		throw new ClassCastException(String.format("Failed to cast identifier %s of type %s to identifier of type %s.", identifier.toString(), identifier.getType().getName(), outputIdentifierType.getName()));
 	}
 }

@@ -1,9 +1,12 @@
 package dev.nokee.language.base;
 
+import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.util.PatternFilterable;
+import org.gradle.util.ConfigureUtil;
 
 public interface LanguageSourceSet {
 	/**
@@ -34,6 +37,16 @@ public interface LanguageSourceSet {
 	 * @return this language source set, never null.
 	 */
 	LanguageSourceSet filter(Action<? super PatternFilterable> action);
+
+	/**
+	 * Configures the filter patterns using the specified configuration closure.
+	 *
+	 * @param closure the configuration closure
+	 * @return this language source set, never null.
+	 */
+	default LanguageSourceSet filter(@DelegatesTo(value = PatternFilterable.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		return filter(ConfigureUtil.configureUsing(closure));
+	}
 
 	/**
 	 * Returns the filter used to select the source from the source directories.

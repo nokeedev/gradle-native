@@ -42,6 +42,28 @@ class ConfigureUtils_ConfigureDisplayNameTest extends Specification {
 		property.declaredDisplayName.displayName == "property 'foo'"
 	}
 
+	def "can configure display name of regular file property"() {
+		given:
+		def property = project.objects.fileProperty()
+
+		when:
+		configureDisplayName(property, 'foo')
+
+		then:
+		property.declaredDisplayName.displayName == "property 'foo'"
+	}
+
+	def "can configure display name of directory property"() {
+		given:
+		def property = project.objects.directoryProperty()
+
+		when:
+		configureDisplayName(property, 'foo')
+
+		then:
+		property.declaredDisplayName.displayName == "property 'foo'"
+	}
+
 	def "returns the property"() {
 		given:
 		def property = project.objects.property(String)
@@ -61,6 +83,22 @@ class ConfigureUtils_ConfigureDisplayNameTest extends Specification {
 	def "returns the list property"() {
 		given:
 		def property = project.objects.listProperty(String)
+
+		expect:
+		configureDisplayName(property, 'foo') == property
+	}
+
+	def "returns the regular file property"() {
+		given:
+		def property = project.objects.fileProperty()
+
+		expect:
+		configureDisplayName(property, 'foo') == property
+	}
+
+	def "returns the directory property"() {
+		given:
+		def property = project.objects.directoryProperty()
 
 		expect:
 		configureDisplayName(property, 'foo') == property

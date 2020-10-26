@@ -9,6 +9,7 @@ import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.CHeaderSetImpl;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
@@ -19,10 +20,7 @@ import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.*;
-import dev.nokee.platform.base.internal.plugins.BinaryBasePlugin;
-import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
-import dev.nokee.platform.base.internal.plugins.TaskBasePlugin;
-import dev.nokee.platform.base.internal.plugins.VariantBasePlugin;
+import dev.nokee.platform.base.internal.plugins.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -33,10 +31,7 @@ import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
-import dev.nokee.platform.nativebase.internal.NativeLanguageRules;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
-import dev.nokee.platform.nativebase.internal.TargetMachineRule;
-import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
+import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.tasks.ObjectsLifecycleTask;
 import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask;
@@ -141,7 +136,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
 		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJniHeaderSourceSet(project, extension));
-		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJvmHeaderSourceSet(project, extension));
+		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJvmHeaderSourceSet(extension));
 		project.getPlugins().withType(NativePlatformCapabilitiesMarkerPlugin.class, appliedPlugin -> {
 			project.getPluginManager().apply(DarwinFrameworkResolutionSupportPlugin.class);
 		});
@@ -421,18 +416,18 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private JniLibraryExtensionInternal registerExtension(Project project) {
-		project.getPluginManager().apply(ComponentBasePlugin.class);
-		project.getPluginManager().apply(VariantBasePlugin.class);
-		project.getPluginManager().apply(BinaryBasePlugin.class);
-		project.getPluginManager().apply(TaskBasePlugin.class);
-		project.getPluginManager().apply(LanguageBasePlugin.class);
+		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
+		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(JniLibraryComponentInternal.class, identifier -> {
 			assert ((ComponentIdentifier<?>) identifier).isMainComponent();
 			return new JniLibraryComponentInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
 		});
-		val library = new JniLibraryExtensionInternal(components.register("main", JniLibraryComponentInternal.class).get(), project.getConfigurations(), project.getObjects(), project.getProviders());
+		val componentProvider = components.register("main", JniLibraryComponentInternal.class, component -> {
+			component.getBaseName().convention(project.getName());
+		});
+		val library = new JniLibraryExtensionInternal(componentProvider.get(), project.getConfigurations(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(VariantViewFactory.class));
 
 		val dependencies = library.getDependencies();
 		val configurationRegistry = new ConfigurationBucketRegistryImpl(project.getConfigurations());
@@ -469,8 +464,16 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		return GradleVersion.current().compareTo(GradleVersion.version("6.3")) >= 0;
 	}
 
-	private void registerJvmHeaderSourceSet(Project project, JniLibraryExtensionInternal extension) {
-		project.getExtensions().getByType(LanguageSourceSetRegistry.class).create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("jvm"), CHeaderSetImpl.class, extension.getComponent().getIdentifier()), sourceSet -> sourceSet.from(getJvmIncludes()));
+	private void registerJvmHeaderSourceSet(JniLibraryExtensionInternal extension) {
+		// TODO: This is an external dependency meaning we should go through the component dependencies.
+		//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
+		//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
+		val jvmIncludes = getJvmIncludes();
+		extension.getBinaries().configureEach(BaseNativeBinary.class, binary -> {
+			binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
+				((AbstractNativeCompileTask) task).getIncludes().from(jvmIncludes);
+			});
+		});
 	}
 
 	private Provider<List<File>> getJvmIncludes() {
@@ -515,7 +518,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getConfigurations().getByName("implementation").extendsFrom(library.getJvmImplementationDependencies());
 
 		project.getTasks().named("test", Test.class, task -> {
-			Provider<List<? extends FileCollection>> files = library.getVariants().map(JniLibrary::getNativeRuntimeFiles);
+			Provider<List<FileCollection>> files = library.getVariants().map(JniLibrary::getNativeRuntimeFiles);
 			task.dependsOn((Callable<Iterable<File>>)() -> {
 				val variant = library.getComponent().getDevelopmentVariant().getOrNull();
 				if (variant == null) {

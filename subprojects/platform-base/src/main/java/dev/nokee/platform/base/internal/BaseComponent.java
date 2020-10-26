@@ -2,9 +2,7 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetViewInternal;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.*;
 import dev.nokee.runtime.base.internal.DimensionType;
 import lombok.Getter;
 import org.gradle.api.model.ObjectFactory;
@@ -12,7 +10,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 
-public abstract class BaseComponent<T extends Variant> {
+public abstract class BaseComponent<T extends Variant> implements Component {
 	@Getter private final ComponentIdentifier<?> identifier;
 
 	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
@@ -31,6 +29,8 @@ public abstract class BaseComponent<T extends Variant> {
 	public abstract Provider<T> getDevelopmentVariant();
 
 	public abstract BinaryView<Binary> getBinaries();
+
+	public abstract VariantView<T> getVariants();
 
 	public abstract VariantCollection<T> getVariantCollection();
 

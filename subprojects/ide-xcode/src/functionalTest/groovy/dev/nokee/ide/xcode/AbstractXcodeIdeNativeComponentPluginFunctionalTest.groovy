@@ -13,6 +13,9 @@ import org.apache.commons.lang3.SystemUtils
 import org.junit.Assume
 import spock.lang.Requires
 
+import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofHeaders
+import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofSources
+
 abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends AbstractIdeNativeComponentPluginFunctionalTest implements XcodeIdeFixture {
 	protected String configureProjectName() {
 		return """
@@ -218,8 +221,8 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		if (this.class.simpleName.startsWith('XcodeIdeSwift')) {
 			componentUnderTest.writeToSourceDir(file('srcs'))
 		} else {
-			componentUnderTest.sources.writeToSourceDir(file('srcs'))
-			componentUnderTest.headers.writeToSourceDir(file('hdrs'))
+			ofSources(componentUnderTest).writeToSourceDir(file('srcs'))
+			ofHeaders(componentUnderTest).writeToSourceDir(file('hdrs'))
 		}
 		buildFile << configureCustomSourceLayout()
 
@@ -305,11 +308,7 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		componentUnderTest.writeToProject(testDirectory)
 
 		and:
-		buildFile << """
-			${componentUnderTestDsl} {
-				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
-			}
-		"""
+		buildFile << configureBuildTypes('debug', 'release')
 
 		and:
 		succeeds('xcode')
@@ -334,16 +333,6 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 	@Override
 	protected IdeProjectFixture getIdeProjectUnderTest() {
 		return xcodeProjectUnderTest
-	}
-
-	@Override
-	protected void makeSingleProjectWithDebugAndReleaseBuildTypes() {
-		makeSingleProject()
-		buildFile << """
-			${componentUnderTestDsl} {
-				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
-			}
-		"""
 	}
 
 	@Override

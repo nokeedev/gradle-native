@@ -32,8 +32,8 @@ public final class TransformerUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> Transformer<List<? extends T>, Iterable<? extends T>> toListTransformer() {
-		return (Transformer<List<? extends T>, Iterable<? extends T>>) ToListTransformer.INSTANCE;
+	public static <T> Transformer<List<T>, Iterable<T>> toListTransformer() {
+		return (Transformer<List<T>, Iterable<T>>) (Transformer<? extends List<T>, ? super Iterable<T>>) ToListTransformer.INSTANCE;
 	}
 
 	private enum ToListTransformer implements Transformer<List<? extends Object>, Iterable<? extends Object>> {
@@ -52,8 +52,13 @@ public final class TransformerUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> Transformer<Set<? extends T>, Iterable<? extends T>> toSetTransformer() {
-		return (Transformer<Set<? extends T>, Iterable<? extends T>>) ToSetTransformer.INSTANCE;
+	public static <T> Transformer<Set<T>, Iterable<T>> toSetTransformer() {
+		return (Transformer<Set<T>, Iterable<T>>) (Transformer<? extends Set<T>, ? super Iterable<T>>) ToSetTransformer.INSTANCE;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <OUT, IN> Transformer<Set<OUT>, Iterable<IN>> toSetTransformer(Class<OUT> type) {
+		return (Transformer<Set<OUT>, Iterable<IN>>) (Transformer<? extends Set<OUT>, ? super Iterable<IN>>) ToSetTransformer.INSTANCE;
 	}
 
 	private enum ToSetTransformer implements Transformer<Set<? extends Object>, Iterable<? extends Object>> {

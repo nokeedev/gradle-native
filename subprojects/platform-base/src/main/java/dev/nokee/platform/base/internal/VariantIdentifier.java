@@ -9,6 +9,7 @@ import dev.nokee.runtime.base.internal.Dimension;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Named;
+import org.gradle.util.Path;
 
 import java.util.*;
 import java.util.function.Function;
@@ -87,8 +88,13 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 	}
 
 	@Override
+	public Path getPath() {
+		return getComponentIdentifier().getPath().child(fullName);
+	}
+
+	@Override
 	public String toString() {
-		return "variant " + type.getSimpleName() + " '" + componentIdentifier.getProjectIdentifier().getPath().toString() + ":" + componentIdentifier.getName().get() + ":" + getFullName() + "'";
+		return "variant '" + getPath() + "' (" + type.getSimpleName() + ")";
 	}
 
 	public static Builder<Variant> builder() {

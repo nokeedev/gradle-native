@@ -36,6 +36,12 @@ class DomainObjectIdentifierUtils_NamedTest extends Specification {
 		1 * identifier.name >> 'foo'
 	}
 
+	def "can compare predicates"() {
+		expect:
+		named('foo') == named('foo')
+		named('foo') != named('bar')
+	}
+
 	def "predicate toString() explains where it comes from"() {
 		expect:
 		named('foo').toString() == "DomainObjectIdentifierUtils.named(foo)"

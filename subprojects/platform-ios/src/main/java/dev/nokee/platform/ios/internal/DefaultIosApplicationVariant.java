@@ -12,6 +12,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDepen
 import lombok.Getter;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -20,12 +21,14 @@ import javax.inject.Inject;
 public class DefaultIosApplicationVariant extends BaseNativeVariant implements IosApplication, VariantInternal {
 	private final DefaultNativeComponentDependencies dependencies;
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
+	@Getter private final Property<String> productBundleIdentifier;
 
 	@Inject
 	public DefaultIosApplicationVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
 		super(identifier, objects, providers, assembleTask, binaryViewFactory);
 		this.dependencies = dependencies.getDependencies();
 		this.resolvableDependencies = dependencies.getIncoming();
+		this.productBundleIdentifier = objects.property(String.class);
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
 	}

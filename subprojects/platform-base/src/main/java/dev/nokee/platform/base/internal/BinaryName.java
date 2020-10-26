@@ -5,7 +5,6 @@ import lombok.*;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-@ToString
 @EqualsAndHashCode
 public final class BinaryName {
 	private final String name;
@@ -24,5 +23,10 @@ public final class BinaryName {
 
 	public static BinaryName of(String name) {
 		return new BinaryName(name);
+	}
+
+	@Override
+	public String toString() {
+		return name;
 	}
 }

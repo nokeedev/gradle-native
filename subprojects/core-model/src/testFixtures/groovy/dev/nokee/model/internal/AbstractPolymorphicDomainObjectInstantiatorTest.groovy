@@ -36,7 +36,7 @@ abstract class AbstractPolymorphicDomainObjectInstantiatorTest<T> extends Specif
 
 		then:
 		def ex = thrown(IllegalArgumentException)
-		ex.message == "Cannot register a factory for type MyIncompatibleType because it is not a subtype of container element type ${baseType.simpleName}."
+		ex.message == "Cannot register a factory for type MyIncompatibleType because it is not a subtype of type ${baseType.simpleName}."
 	}
 
 	def "throws an exception when a factory already exists for the type"() {
@@ -110,6 +110,103 @@ abstract class AbstractPolymorphicDomainObjectInstantiatorTest<T> extends Specif
 		0 * factory._
 	}
 
+	def "can bind type to an already registered type"() {
+		given:
+		def subject = newSubject()
+		def factory = Mock(DomainObjectFactory)
+		subject.registerFactory(childType, factory)
+		def identifier = Stub(DomainObjectIdentifier)
+
+		when:
+		subject.registerBinding(baseType, childType)
+		then:
+		noExceptionThrown()
+
+		when:
+		def result = subject.newInstance(identifier, baseType)
+		then:
+		childType.isAssignableFrom(result.class)
+		1 * factory.create(identifier) >> Stub(childType)
+		0 * factory._
+	}
+
+	def "throws exception when registering type of an already binded type"() {
+		given:
+		def subject = newSubject()
+		subject.registerFactory(childType, Stub(DomainObjectFactory))
+		subject.registerBinding(baseType, childType)
+
+		when:
+		subject.registerFactory(baseType, Stub(DomainObjectFactory))
+
+		then:
+		def ex = thrown(RuntimeException)
+		ex.message == "Cannot register a factory for type ${baseType.simpleName} because a factory for this type is already registered."
+	}
+
+	def "throws exception when binding type of an already registered type"() {
+		given:
+		def subject = newSubject()
+		subject.registerFactory(baseType, Stub(DomainObjectFactory))
+
+		when:
+		subject.registerBinding(baseType, childType)
+
+		then:
+		def ex = thrown(RuntimeException)
+		ex.message == "Cannot bind type ${baseType.simpleName} because a factory for this type is already registered."
+	}
+
+	def "throws exception when binding to an uncreatable type"() {
+		given:
+		def subject = newSubject()
+
+		when:
+		subject.registerBinding(baseType, childType)
+
+		then:
+		def ex = thrown(RuntimeException)
+		ex.message == "Cannot bind type ${baseType.simpleName} because a factory for type ${childType.simpleName} is not known to test instantiator. Known types are: (None)"
+	}
+
+	def "throws exception when binding type to itself"() {
+		given:
+		def subject = newSubject()
+
+		when:
+		subject.registerBinding(baseType, baseType)
+
+		then:
+		def ex = thrown(RuntimeException)
+		ex.message == "Cannot bind type ${baseType.simpleName} to itself."
+	}
+
+	def "throws an exception when binding a factory for an incompatible type"() {
+		given:
+		def subject = newSubject()
+		assert !baseType.isAssignableFrom(MyIncompatibleType)
+
+		when:
+		subject.registerBinding(MyIncompatibleType, MyIncompatibleChildType)
+
+		then:
+		def ex = thrown(IllegalArgumentException)
+		ex.message == "Cannot bind type MyIncompatibleType because it is not a subtype of type ${baseType.simpleName}."
+	}
+
+	def "throws an exception when binding types are not polymorphic"() {
+		given:
+		def subject = newSubject()
+		assert !baseType.isAssignableFrom(MyIncompatibleType)
+
+		when:
+		subject.registerBinding(childType, baseType)
+
+		then:
+		def ex = thrown(IllegalArgumentException)
+		ex.message == "Cannot bind type ${childType.simpleName} because it is not a supertype of type ${baseType.simpleName}."
+	}
+
 	def "returns no creatable types on newly created instantitor"() {
 		when:
 		def subject = newSubject()
@@ -149,4 +246,5 @@ abstract class AbstractPolymorphicDomainObjectInstantiatorTest<T> extends Specif
 	}
 
 	interface MyIncompatibleType {}
+	interface MyIncompatibleChildType extends MyIncompatibleType {}
 }

@@ -155,23 +155,6 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 		ofSources(component).writeToSourceDir(projectDir.file('srcs'))
 		ofPublicHeaders(component).writeToSourceDir(projectDir.file('includes'))
 		ofPrivateHeaders(component).writeToSourceDir(projectDir.file('headers'))
-//
-//		if (getClass().simpleName.contains('Swift')) {
-//			component.writeToSourceDir(projectDir.file('srcs'))
-//		} else if (getClass().simpleName.contains('Jni')) {
-//			component.jvmSources.writeToProject(projectDir)
-//			component.nativeSources.sources.writeToSourceDir(projectDir.file('srcs'))
-//			component.nativeSources.headers.writeToSourceDir(projectDir.file('headers'))
-//		} else {
-//			component.sources.writeToSourceDir(projectDir.file('srcs'))
-//
-//			if (getClass().simpleName.contains('Library') || !component.publicHeaders.empty) {
-//				component.privateHeaders.writeToSourceDir(projectDir.file('headers'))
-//				component.publicHeaders.writeToSourceDir(projectDir.file('includes'))
-//			} else {
-//				component.headers.writeToSourceDir(projectDir.file('headers'))
-//			}
-//		}
 	}
 
 	protected void writeBrokenSourcesAtConventionalLayout() {
@@ -192,13 +175,6 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 	protected String configureSourcesAsConvention(String dsl = componentUnderTestDsl) {
 		return """
-			pluginManager.withPlugin('java') {
-				sourceSets.main.java {
-					setSrcDirs(['srcs'])
-					filter.include('**/*.java')
-				}
-			}
-
 			import ${CHeaderSet.canonicalName}
 			import ${CppHeaderSet.canonicalName}
 
@@ -214,19 +190,18 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 					from('srcs')
 				}
 			}
-		"""
-	}
 
-	protected String configureSourcesAsExplicitFiles() {
-		return """
-			// We don't test Gradle Java plugin
 			pluginManager.withPlugin('java') {
 				sourceSets.main.java {
 					setSrcDirs(['srcs'])
 					filter.include('**/*.java')
 				}
 			}
+		"""
+	}
 
+	protected String configureSourcesAsExplicitFiles() {
+		return """
 			import ${CHeaderSet.canonicalName}
 			import ${CppHeaderSet.canonicalName}
 
@@ -240,6 +215,14 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 				}
 				sources.configureEach({ !(it instanceof ${CHeaderSet.simpleName} || it instanceof ${CppHeaderSet.simpleName}) }) {
 					${ofSources(componentUnderTest).files.collect { "from('srcs/${it.name}')" }.join('\n')}
+				}
+			}
+
+			// We don't test Gradle Java plugin
+			pluginManager.withPlugin('java') {
+				sourceSets.main.java {
+					setSrcDirs(['srcs'])
+					filter.include('**/*.java')
 				}
 			}
 		"""
