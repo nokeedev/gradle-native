@@ -155,23 +155,6 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 		ofSources(component).writeToSourceDir(projectDir.file('srcs'))
 		ofPublicHeaders(component).writeToSourceDir(projectDir.file('includes'))
 		ofPrivateHeaders(component).writeToSourceDir(projectDir.file('headers'))
-//
-//		if (getClass().simpleName.contains('Swift')) {
-//			component.writeToSourceDir(projectDir.file('srcs'))
-//		} else if (getClass().simpleName.contains('Jni')) {
-//			component.jvmSources.writeToProject(projectDir)
-//			component.nativeSources.sources.writeToSourceDir(projectDir.file('srcs'))
-//			component.nativeSources.headers.writeToSourceDir(projectDir.file('headers'))
-//		} else {
-//			component.sources.writeToSourceDir(projectDir.file('srcs'))
-//
-//			if (getClass().simpleName.contains('Library') || !component.publicHeaders.empty) {
-//				component.privateHeaders.writeToSourceDir(projectDir.file('headers'))
-//				component.publicHeaders.writeToSourceDir(projectDir.file('includes'))
-//			} else {
-//				component.headers.writeToSourceDir(projectDir.file('headers'))
-//			}
-//		}
 	}
 
 	protected void writeBrokenSourcesAtConventionalLayout() {
