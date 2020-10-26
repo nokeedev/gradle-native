@@ -383,7 +383,10 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownC
 				}
 
 				private NamedTargetBuildType buildType(BuildVariantInternal buildVariant) {
-					return (NamedTargetBuildType) buildVariant.getAxisValue(BaseTargetBuildType.DIMENSION_TYPE);
+					if (buildVariant.hasAxisValue(BaseTargetBuildType.DIMENSION_TYPE)) {
+						return (NamedTargetBuildType) buildVariant.getAxisValue(BaseTargetBuildType.DIMENSION_TYPE);
+					}
+					return new NamedTargetBuildType("Default");
 				}
 			});
 		}

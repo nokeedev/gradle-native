@@ -129,7 +129,10 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 		}
 
 		private NamedTargetBuildType buildType(VariantInternal variantInternal) {
-			return (NamedTargetBuildType) variantInternal.getBuildVariant().getAxisValue(BaseTargetBuildType.DIMENSION_TYPE);
+			if (variantInternal.getBuildVariant().hasAxisValue(BaseTargetBuildType.DIMENSION_TYPE)) {
+				return (NamedTargetBuildType) variantInternal.getBuildVariant().getAxisValue(BaseTargetBuildType.DIMENSION_TYPE);
+			}
+			return new NamedTargetBuildType("default");
 		}
 
 		private VisualStudioIdeProjectConfiguration projectConfiguration(NamedTargetBuildType buildType) {
