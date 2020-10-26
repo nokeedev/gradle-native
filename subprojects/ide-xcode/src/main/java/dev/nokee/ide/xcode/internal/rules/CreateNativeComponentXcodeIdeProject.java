@@ -35,9 +35,7 @@ import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.FileSystemLocation;
-import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.file.*;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -45,6 +43,7 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.language.objectivec.tasks.ObjectiveCCompile;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -123,8 +122,24 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownC
 		if (sourceSet instanceof IosResourceSet) {
 			return objectFactory.fileCollection()
 				.from(sourceSet.getAsFileTree().matching(it -> it.include("*.lproj/*.storyboard")))
-				.from(sourceSet.getAsFileTree().matching(it -> it.exclude("*.lproj")));
+				.from(sourceSet.getAsFileTree().matching(it -> it.exclude("*.lproj", "*.xcassets/**")))
+				.from((Callable<List<File>>)() -> {
+					List<File> result = new ArrayList<>();
+					sourceSet.getAsFileTree().visit(new FileVisitor() {
+						@Override
+						public void visitDir(FileVisitDetails details) {
+							if (details.getName().endsWith(".xcassets")) {
+								result.add(details.getFile());
+							}
+						}
 
+						@Override
+						public void visitFile(FileVisitDetails details) {
+							// ignores
+						}
+					});
+					return result;
+				});
 		}
 		return sourceSet.getAsFileTree();
 	}
