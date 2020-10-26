@@ -34,10 +34,7 @@ import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
-import dev.nokee.platform.nativebase.internal.NativeLanguageRules;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
-import dev.nokee.platform.nativebase.internal.TargetMachineRule;
-import dev.nokee.platform.nativebase.internal.ToolChainSelectorInternal;
+import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.tasks.ObjectsLifecycleTask;
 import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask;
@@ -434,7 +431,10 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			assert ((ComponentIdentifier<?>) identifier).isMainComponent();
 			return new JniLibraryComponentInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
 		});
-		val library = new JniLibraryExtensionInternal(components.register("main", JniLibraryComponentInternal.class).get(), project.getConfigurations(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(VariantViewFactory.class));
+		val componentProvider = components.register("main", JniLibraryComponentInternal.class, component -> {
+			component.getBaseName().convention(project.getName());
+		});
+		val library = new JniLibraryExtensionInternal(componentProvider.get(), project.getConfigurations(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(VariantViewFactory.class));
 
 		val dependencies = library.getDependencies();
 		val configurationRegistry = new ConfigurationBucketRegistryImpl(project.getConfigurations());
