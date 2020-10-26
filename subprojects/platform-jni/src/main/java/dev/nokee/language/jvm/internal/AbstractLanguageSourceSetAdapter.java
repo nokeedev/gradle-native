@@ -27,14 +27,16 @@ public abstract class AbstractLanguageSourceSetAdapter<SELF extends LanguageSour
 	private final ObjectFactory objectFactory;
 	private FileCollection conventionSources;
 	private final ConfigurableFileCollection conventionSourceDirectories;
+	private final ProjectLayout projectLayout;
 
-	protected AbstractLanguageSourceSetAdapter(LanguageSourceSetIdentifier<?> identifier, Class<SELF> publicType, SourceDirectorySet sourceSet, ObjectFactory objectFactory) {
+	protected AbstractLanguageSourceSetAdapter(LanguageSourceSetIdentifier<?> identifier, Class<SELF> publicType, SourceDirectorySet sourceSet, ObjectFactory objectFactory, ProjectLayout projectLayout) {
 		this.identifier = identifier;
 		this.publicType = publicType;
 		this.sourceSet = sourceSet;
 		this.objectFactory = objectFactory;
 //		sourceSet.setSrcDirs(ImmutableList.of()); // fufill the contract with Nokee LanguageSourceSet but breaks Gradle SourceSet
 		this.conventionSourceDirectories = objectFactory.fileCollection();
+		this.projectLayout = projectLayout;
 	}
 
 	@Override
@@ -107,7 +109,15 @@ public abstract class AbstractLanguageSourceSetAdapter<SELF extends LanguageSour
 	@Override
 	public SELF from(Object... paths) {
 		for (Object path : paths) {
-			if (path instanceof File && ((File) path).isFile()) {
+			if (path instanceof String) {
+				val file = projectLayout.getProjectDirectory().file((String) path).getAsFile();
+				if (file.isFile()) {
+					sourceSet.srcDir(file.getParentFile());
+					sourceSet.include(file.getName());
+				} else {
+					sourceSet.srcDir(file.getParentFile());
+				}
+			} else if (path instanceof File && ((File) path).isFile()) {
 				sourceSet.srcDir(((File) path).getParentFile());
 				sourceSet.include(((File) path).getName());
 			} else if (path instanceof ConfigurableFileTree) {

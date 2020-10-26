@@ -15,6 +15,7 @@ import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.model.ObjectFactory;
 
@@ -29,42 +30,42 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 			val configurer = project.getExtensions().getByType(ComponentConfigurer.class);
 			configurer.whenElementKnown(projectIdentifier, Component.class, componentIdentifier -> {
 				project.getPluginManager().withPlugin("java-base", appliedPlugin -> {
-					JavaJvmPluginHelper.whenSourceSetKnown(project, nameOf(componentIdentifier), newJavaSourceSet(eventPublisher, componentIdentifier, project.getObjects()));
+					JavaJvmPluginHelper.whenSourceSetKnown(project, nameOf(componentIdentifier), newJavaSourceSet(eventPublisher, componentIdentifier, project.getObjects(), project.getLayout()));
 				});
 
 				project.getPluginManager().withPlugin("groovy-base", appliedPlugin -> {
-					GroovyJvmPluginHelper.whenSourceSetKnown(project, nameOf(componentIdentifier), newGroovySourceSet(eventPublisher, componentIdentifier, project.getObjects()));
+					GroovyJvmPluginHelper.whenSourceSetKnown(project, nameOf(componentIdentifier), newGroovySourceSet(eventPublisher, componentIdentifier, project.getObjects(), project.getLayout()));
 				});
 
 				project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", appliedPlugin -> {
-					KotlinJvmPluginHelper.whenSourceSetKnown(project, nameOf(componentIdentifier), newKotlinSourceSet(eventPublisher, componentIdentifier, project.getObjects()));
+					KotlinJvmPluginHelper.whenSourceSetKnown(project, nameOf(componentIdentifier), newKotlinSourceSet(eventPublisher, componentIdentifier, project.getObjects(), project.getLayout()));
 				});
 			});
 		});
 	}
 
-	private Action<SourceDirectorySet> newJavaSourceSet(DomainObjectEventPublisher eventPublisher, DomainObjectIdentifier componentIdentifier, ObjectFactory objectFactory) {
+	private Action<SourceDirectorySet> newJavaSourceSet(DomainObjectEventPublisher eventPublisher, DomainObjectIdentifier componentIdentifier, ObjectFactory objectFactory, ProjectLayout projectLayout) {
 		return sourceSet -> {
 			val identifier = LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("java"), JavaSourceSetImpl.class, componentIdentifier);
 			eventPublisher.publish(new DomainObjectDiscovered<>(identifier));
-			eventPublisher.publish(new DomainObjectCreated<>(identifier, new JavaSourceSetImpl(identifier, sourceSet, objectFactory)));
+			eventPublisher.publish(new DomainObjectCreated<>(identifier, new JavaSourceSetImpl(identifier, sourceSet, objectFactory, projectLayout)));
 		};
 	}
 
-	private Action<SourceDirectorySet> newGroovySourceSet(DomainObjectEventPublisher eventPublisher, DomainObjectIdentifier componentIdentifier, ObjectFactory objectFactory) {
+	private Action<SourceDirectorySet> newGroovySourceSet(DomainObjectEventPublisher eventPublisher, DomainObjectIdentifier componentIdentifier, ObjectFactory objectFactory, ProjectLayout projectLayout) {
 		return sourceSet -> {
 			val identifier = LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("groovy"), GroovySourceSetImpl.class, componentIdentifier);
 			eventPublisher.publish(new DomainObjectDiscovered<>(identifier));
-			eventPublisher.publish(new DomainObjectCreated<>(identifier, new GroovySourceSetImpl(identifier, sourceSet, objectFactory)));
+			eventPublisher.publish(new DomainObjectCreated<>(identifier, new GroovySourceSetImpl(identifier, sourceSet, objectFactory, projectLayout)));
 		};
 	}
 
-	private Action<SourceDirectorySet> newKotlinSourceSet(DomainObjectEventPublisher eventPublisher, DomainObjectIdentifier componentIdentifier, ObjectFactory objectFactory) {
+	private Action<SourceDirectorySet> newKotlinSourceSet(DomainObjectEventPublisher eventPublisher, DomainObjectIdentifier componentIdentifier, ObjectFactory objectFactory, ProjectLayout projectLayout) {
 		return sourceSet -> {
 			System.out.println("CLASS " + KotlinSourceSetImpl.class.hashCode());
 			val identifier = LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("kotlin"), KotlinSourceSetImpl.class, componentIdentifier);
 			eventPublisher.publish(new DomainObjectDiscovered<>(identifier));
-			eventPublisher.publish(new DomainObjectCreated<>(identifier, new KotlinSourceSetImpl(identifier, sourceSet, objectFactory)));
+			eventPublisher.publish(new DomainObjectCreated<>(identifier, new KotlinSourceSetImpl(identifier, sourceSet, objectFactory, projectLayout)));
 		};
 	}
 
