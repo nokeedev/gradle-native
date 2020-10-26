@@ -20,10 +20,7 @@ import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.*;
-import dev.nokee.platform.base.internal.plugins.BinaryBasePlugin;
-import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
-import dev.nokee.platform.base.internal.plugins.TaskBasePlugin;
-import dev.nokee.platform.base.internal.plugins.VariantBasePlugin;
+import dev.nokee.platform.base.internal.plugins.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -419,11 +416,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private JniLibraryExtensionInternal registerExtension(Project project) {
-		project.getPluginManager().apply(ComponentBasePlugin.class);
-		project.getPluginManager().apply(VariantBasePlugin.class);
-		project.getPluginManager().apply(BinaryBasePlugin.class);
-		project.getPluginManager().apply(TaskBasePlugin.class);
-		project.getPluginManager().apply(LanguageBasePlugin.class);
+		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
