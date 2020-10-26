@@ -175,13 +175,6 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 	protected String configureSourcesAsConvention(String dsl = componentUnderTestDsl) {
 		return """
-			pluginManager.withPlugin('java') {
-				sourceSets.main.java {
-					setSrcDirs(['srcs'])
-					filter.include('**/*.java')
-				}
-			}
-
 			import ${CHeaderSet.canonicalName}
 			import ${CppHeaderSet.canonicalName}
 
@@ -197,19 +190,18 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 					from('srcs')
 				}
 			}
-		"""
-	}
 
-	protected String configureSourcesAsExplicitFiles() {
-		return """
-			// We don't test Gradle Java plugin
 			pluginManager.withPlugin('java') {
 				sourceSets.main.java {
 					setSrcDirs(['srcs'])
 					filter.include('**/*.java')
 				}
 			}
+		"""
+	}
 
+	protected String configureSourcesAsExplicitFiles() {
+		return """
 			import ${CHeaderSet.canonicalName}
 			import ${CppHeaderSet.canonicalName}
 
@@ -223,6 +215,14 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 				}
 				sources.configureEach({ !(it instanceof ${CHeaderSet.simpleName} || it instanceof ${CppHeaderSet.simpleName}) }) {
 					${ofSources(componentUnderTest).files.collect { "from('srcs/${it.name}')" }.join('\n')}
+				}
+			}
+
+			// We don't test Gradle Java plugin
+			pluginManager.withPlugin('java') {
+				sourceSets.main.java {
+					setSrcDirs(['srcs'])
+					filter.include('**/*.java')
 				}
 			}
 		"""
