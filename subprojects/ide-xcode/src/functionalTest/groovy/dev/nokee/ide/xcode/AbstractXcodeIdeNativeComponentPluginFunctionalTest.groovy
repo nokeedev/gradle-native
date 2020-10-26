@@ -337,16 +337,6 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 	}
 
 	@Override
-	protected void makeSingleProjectWithDebugAndReleaseBuildTypes() {
-		makeSingleProject()
-		buildFile << """
-			${componentUnderTestDsl} {
-				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
-			}
-		"""
-	}
-
-	@Override
 	protected IdeWorkspaceTasks getIdeTasks() {
 		return new XcodeIdeTaskNames.XcodeIdeWorkspaceTasks()
 	}

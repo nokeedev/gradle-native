@@ -10,7 +10,8 @@ abstract class AbstractIdeNativeComponentPluginFunctionalTest extends AbstractGr
 		assumeFalse(this.class.simpleName in ['VisualStudioIdeCApplicationWithNativeTestSuiteFunctionalTest', 'VisualStudioIdeCLibraryWithNativeTestSuiteFunctionalTest', 'VisualStudioIdeCppApplicationWithNativeTestSuiteFunctionalTest', 'VisualStudioIdeCppLibraryWithNativeTestSuiteFunctionalTest', 'XcodeIdeSwiftLibraryWithBothLinkageFunctionalTest', 'XcodeIdeSwiftLibraryWithNativeTestSuiteFunctionalTest'])
 		given:
 		settingsFile << configureProjectName()
-		makeSingleProjectWithDebugAndReleaseBuildTypes()
+		makeSingleProject()
+		buildFile << configureBuildTypes('debug', 'release')
 		componentUnderTest.writeToProject(testDirectory)
 
 		when:
@@ -33,7 +34,17 @@ abstract class AbstractIdeNativeComponentPluginFunctionalTest extends AbstractGr
 
 	protected abstract SourceElement getComponentUnderTest()
 
-	protected abstract void makeSingleProjectWithDebugAndReleaseBuildTypes()
+	protected abstract void makeSingleProject()
+
+	protected String configureBuildTypes(String... buildTypes) {
+		return """
+			${componentUnderTestDsl} {
+				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
+			}
+		"""
+	}
+
+	protected abstract String getComponentUnderTestDsl()
 
 	protected abstract IdeWorkspaceTasks getIdeTasks()
 
