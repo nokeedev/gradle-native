@@ -22,6 +22,17 @@ class XcodeIdeJavaNativeInterfaceLibraryFunctionalTest extends AbstractXcodeIdeN
 	}
 
 	@Override
+	protected String configureBuildTypes(String... buildTypes) {
+		Assume.assumeFalse(true)
+		throw new UnsupportedOperationException()
+	}
+
+	protected String configureCustomSourceLayout() {
+		Assume.assumeFalse(true)
+		throw new UnsupportedOperationException()
+	}
+
+	@Override
 	protected String getProjectName() {
 		return 'lib'
 	}

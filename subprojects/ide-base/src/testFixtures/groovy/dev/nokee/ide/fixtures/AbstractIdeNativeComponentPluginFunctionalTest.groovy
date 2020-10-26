@@ -39,7 +39,7 @@ abstract class AbstractIdeNativeComponentPluginFunctionalTest extends AbstractGr
 	protected String configureBuildTypes(String... buildTypes) {
 		return """
 			${componentUnderTestDsl} {
-				targetBuildTypes = [buildTypes.named('debug'), buildTypes.named('release')]
+				targetBuildTypes = [${buildTypes.collect { "buildTypes.named('${it}')" }.join(', ')}]
 			}
 		"""
 	}
