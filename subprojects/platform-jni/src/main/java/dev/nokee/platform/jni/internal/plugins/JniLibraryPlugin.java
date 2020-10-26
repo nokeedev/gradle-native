@@ -9,6 +9,7 @@ import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.CHeaderSetImpl;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
@@ -427,6 +428,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(TaskBasePlugin.class);
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
+		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		components.registerFactory(JniLibraryComponentInternal.class, identifier -> {
 			assert ((ComponentIdentifier<?>) identifier).isMainComponent();

@@ -621,7 +621,7 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def buildTask = project.tasks.create('build')
+		def buildTask = project.tasks.create('buildTask')
 		def files = project.files(project.file(fileName('foo'))) { it.builtBy buildTask }
 
 		and:
@@ -639,7 +639,7 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def buildTask = project.tasks.create('build')
+		def buildTask = project.tasks.create('buildTask')
 		def files = project.files(project.file(fileName('foo'))) { it.builtBy buildTask }
 
 		and:
@@ -662,7 +662,7 @@ abstract class AbstractLanguageSourceSetTest<T extends LanguageSourceSet> extend
 		def subject = newSubject()
 
 		and:
-		def buildTask = project.tasks.create('build')
+		def buildTask = project.tasks.create('buildTask')
 		def files = project.files(project.file(fileName('foo'))) { it.builtBy buildTask }
 
 		and:
