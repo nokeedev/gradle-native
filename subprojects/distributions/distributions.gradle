@@ -106,7 +106,9 @@ tasks.register("updateBintrayMetadata") {
 										  "dev.nokee.cmake-build-adapter:${project.group}:buildAdapterCmake",
 										  "dev.nokee.native-unit-testing:${project.group}:testingNative",
 										  "dev.nokee.xcode-ide:${project.group}:ideXcode",
+										  "dev.nokee.xcode-ide-base:${project.group}:ideXcode",
 										  "dev.nokee.visual-studio-ide:${project.group}:ideVisualStudio",
+										  "dev.nokee.visual-studio-ide-base:${project.group}:ideVisualStudio",
 										]]
 			data = data.collect { k, v ->
 				return [name: k, values: v, type: 'string']
