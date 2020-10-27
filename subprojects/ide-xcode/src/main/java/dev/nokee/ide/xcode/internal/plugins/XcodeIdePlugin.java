@@ -1,13 +1,9 @@
 package dev.nokee.ide.xcode.internal.plugins;
 
-import dev.nokee.ide.base.internal.*;
-import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
-import dev.nokee.ide.xcode.XcodeIdeProject;
 import dev.nokee.ide.xcode.XcodeIdeProjectExtension;
-import dev.nokee.ide.xcode.internal.*;
+import dev.nokee.ide.xcode.internal.XcodeIdePropertyAdapter;
+import dev.nokee.ide.xcode.internal.XcodeIdeRequest;
 import dev.nokee.ide.xcode.internal.rules.CreateNativeComponentXcodeIdeProject;
-import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
-import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeWorkspaceTask;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -24,68 +20,44 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
-import org.gradle.api.Rule;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.FileSystemLocation;
-import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
-import org.gradle.api.tasks.TaskContainer;
-import org.gradle.internal.Actions;
-import org.gradle.plugins.ide.internal.IdeProjectMetadata;
 import org.gradle.util.GUtil;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-import static dev.nokee.utils.ProjectUtils.getPrefixableProjectPath;
-
-public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> {
-	public static final String XCODE_EXTENSION_NAME = "xcode";
+public abstract class XcodeIdePlugin implements Plugin<Project> {
 
 	@Override
-	public void doProjectApply(IdeProjectExtension<XcodeIdeProject> extension) {
-		DefaultXcodeIdeProjectExtension projectExtension = (DefaultXcodeIdeProjectExtension) extension;
+	public void apply(Project project) {
+		project.getPluginManager().apply("dev.nokee.xcode-ide-base");
 
-		Provider<XcodeIdeGidGeneratorService> xcodeIdeGidGeneratorService = getProject().getGradle().getSharedServices().registerIfAbsent("xcodeIdeGidGeneratorService", XcodeIdeGidGeneratorService.class, Actions.doNothing());
-		projectExtension.getProjects().withType(DefaultXcodeIdeProject.class).configureEach(xcodeProject -> {
-			xcodeProject.getSources().from(getBuildFiles());
-			xcodeProject.getGeneratorTask().configure( task -> {
-				FileSystemLocation projectLocation = getLayout().getProjectDirectory().dir(xcodeProject.getName() + ".xcodeproj");
-				task.getProjectLocation().convention(projectLocation);
-				task.usesService(xcodeIdeGidGeneratorService);
-				task.getGidGenerator().set(xcodeIdeGidGeneratorService);
-				task.getGradleCommand().set(toGradleCommand(getProject().getGradle()));
-				task.getBridgeTaskPath().set(getBridgeTaskPath());
-				task.getAdditionalGradleArguments().set(getAdditionalBuildArguments());
-			});
-		});
-
-		getProject().getTasks().addRule(getObjects().newInstance(XcodeIdeBridge.class, this, projectExtension.getProjects(), getProject()));
-		getProject().getPlugins().withType(ComponentBasePlugin.class, mapComponentToXcodeIdeProjects(extension));
-		getProject().getPluginManager().withPlugin("dev.nokee.objective-c-xctest-test-suite", appliedPlugin -> {
-			String moduleName = GUtil.toCamelCase(getProject().getName());
+		project.getPlugins().withType(ComponentBasePlugin.class, mapComponentToXcodeIdeProjects(project, (XcodeIdeProjectExtension) project.getExtensions().getByName(XcodeIdeBasePlugin.XCODE_EXTENSION_NAME)));
+		project.getPluginManager().withPlugin("dev.nokee.objective-c-xctest-test-suite", appliedPlugin -> {
+			String moduleName = GUtil.toCamelCase(project.getName());
 
 			// The Xcode IDE model will sync the `.xctest` product but we need the `-Runner.app`.
 			// We can't just sync the `-Runner.app` as Xcode will complain about a missing `.xctest`.
 			// Also the file under the `Products` group depends what product is synced.
 			// It's better to sync both files over to the BUILT_PRODUCTS_DIR.
-			getTasks().register("syncUiTestRunner", SyncXcodeIdeProduct.class, task -> {
-				task.getProductLocation().set(getTasks().named("createUiTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class).flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
+			project.getTasks().register("syncUiTestRunner", SyncXcodeIdeProduct.class, task -> {
+				task.getProductLocation().set(project.getTasks().named("createUiTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class).flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
 
 				// TODO: To improve the situation, we should provide XcodeIdePropertyAdapter and/or XcodeIdeRequest through this task.
 				//  If we clean up the situation by exposing the lifecycle/sync task through the model, we could avoid exposing the information on the task
 				//  However, it would be convenient for the users that need to hack things together.
 				//  It should also be possible to achieve similar integration in term of complexity only via public APIs.
 				//  It will need to be evaluated in the bigger context.
-				val properties = getObjects().newInstance(XcodeIdePropertyAdapter.class);
-				task.getDestinationLocation().set(getObjects().directoryProperty().fileProvider(properties.getBuiltProductsDir().map(File::new)).file(moduleName + "UiTest-Runner.app"));
+				val properties = project.getObjects().newInstance(XcodeIdePropertyAdapter.class);
+				task.getDestinationLocation().set(project.getObjects().directoryProperty().fileProvider(properties.getBuiltProductsDir().map(File::new)).file(moduleName + "UiTest-Runner.app"));
 			});
 
-			getTasks().withType(SyncXcodeIdeProduct.class).configureEach(task -> {
+			project.getTasks().withType(SyncXcodeIdeProduct.class).configureEach(task -> {
 				// Complete wiring for syncing the `-Runner.app` for UI testing.
 				if (task.getName().contains(moduleName + "UiTest")) {
 					task.dependsOn("syncUiTestRunner");
@@ -105,8 +77,8 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 					task.doLast(new Action<Task>() {
 						@Override
 						public void execute(Task task) {
-							XcodeIdeRequest request = getObjects().newInstance(XcodeIdeRequest.class, task.getName());
-							FileCollection sources = getProject().getExtensions().getByType(XcodeIdeProjectExtension.class).getProjects().getByName(request.getProjectName()).getTargets().getByName(request.getTargetName()).getSources();
+							XcodeIdeRequest request = project.getObjects().newInstance(XcodeIdeRequest.class, task.getName());
+							FileCollection sources = project.getProject().getExtensions().getByType(XcodeIdeProjectExtension.class).getProjects().getByName(request.getProjectName()).getTargets().getByName(request.getTargetName()).getSources();
 							for (String arch : StringUtils.split(System.getenv("ARCHS"), ' ')) {
 								String objectFileDir = System.getenv("OBJECT_FILE_DIR");
 								String productName = System.getenv("PRODUCT_NAME");
@@ -128,21 +100,21 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 		});
 	}
 
-	private Action<ComponentBasePlugin> mapComponentToXcodeIdeProjects(IdeProjectExtension<XcodeIdeProject> extension) {
+	private Action<ComponentBasePlugin> mapComponentToXcodeIdeProjects(Project project, XcodeIdeProjectExtension extension) {
 		return new Action<ComponentBasePlugin>() {
 			private KnownComponentFactory knownComponentFactory;
 
 			private KnownComponentFactory getKnownComponentFactory() {
 				if (knownComponentFactory == null) {
-					knownComponentFactory = getProject().getExtensions().getByType(KnownComponentFactory.class);
+					knownComponentFactory = project.getExtensions().getByType(KnownComponentFactory.class);
 				}
 				return knownComponentFactory;
 			}
 
 			@Override
 			public void execute(ComponentBasePlugin appliedPlugin) {
-				val componentConfigurer = getProject().getExtensions().getByType(ComponentConfigurer.class);
-				componentConfigurer.whenElementKnown(ProjectIdentifier.of(getProject()), getComponentImplementationType(), asKnownComponent(new CreateNativeComponentXcodeIdeProject(extension, getProject().getProviders(), getProject().getObjects(), getProject().getExtensions().getByType(LanguageSourceSetRepository.class), getProject().getLayout(), getProject().getTasks(), ProjectIdentifier.of(getProject()))));
+				val componentConfigurer = project.getExtensions().getByType(ComponentConfigurer.class);
+				componentConfigurer.whenElementKnown(ProjectIdentifier.of(project), getComponentImplementationType(), asKnownComponent(new CreateNativeComponentXcodeIdeProject(extension, project.getProviders(), project.getObjects(), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getLayout(), project.getTasks(), ProjectIdentifier.of(project))));
 			}
 
 			private <T extends Component> Action<? super TypeAwareDomainObjectIdentifier<T>> asKnownComponent(Action<? super KnownComponent<T>> action) {
@@ -153,68 +125,5 @@ public abstract class XcodeIdePlugin extends AbstractIdePlugin<XcodeIdeProject> 
 				return new TypeOf<BaseComponent<?>>() {}.getConcreteClass();
 			}
 		};
-	}
-
-	@Override
-	public void doWorkspaceApply(IdeWorkspaceExtension<XcodeIdeProject> extension) {
-		DefaultXcodeIdeWorkspaceExtension workspaceExtension = (DefaultXcodeIdeWorkspaceExtension) extension;
-
-		workspaceExtension.getWorkspace().getGeneratorTask().configure(task -> {
-			task.getWorkspaceLocation().set(getLayout().getProjectDirectory().dir(getProject().getName() + ".xcworkspace"));
-			task.getProjectReferences().set(workspaceExtension.getWorkspace().getProjects());
-			task.getDerivedDataLocation().set(".gradle/XcodeDerivedData");
-		});
-
-		getCleanTask().configure(task -> {
-			task.delete(workspaceExtension.getWorkspace().getGeneratorTask().flatMap(GenerateXcodeIdeWorkspaceTask::getDerivedDataLocation));
-		});
-	}
-
-	@Override
-	protected String getExtensionName() {
-		return XCODE_EXTENSION_NAME;
-	}
-
-	@Override
-	protected IdeProjectMetadata newIdeProjectMetadata(Provider<IdeProjectInternal> ideProject) {
-		return new DefaultXcodeIdeProjectReference(ideProject.map(DefaultXcodeIdeProject.class::cast));
-	}
-
-	@Override
-	protected Class<? extends BaseIdeProjectReference> getIdeProjectReferenceType() {
-		return DefaultXcodeIdeProjectReference.class;
-	}
-
-	@Override
-	protected IdeProjectMetadata newIdeCleanMetadata(Provider<? extends Task> cleanTask) {
-		return new XcodeIdeCleanMetadata(cleanTask);
-	}
-
-	@Override
-	protected Class<? extends BaseIdeCleanMetadata> getIdeCleanMetadataType() {
-		return XcodeIdeCleanMetadata.class;
-	}
-
-	@Override
-	protected IdeWorkspaceExtension<XcodeIdeProject> newIdeWorkspaceExtension() {
-		return getObjects().newInstance(DefaultXcodeIdeWorkspaceExtension.class);
-	}
-
-	@Override
-	protected IdeProjectExtension<XcodeIdeProject> newIdeProjectExtension() {
-		return getObjects().newInstance(DefaultXcodeIdeProjectExtension.class);
-	}
-
-	@Inject
-	protected abstract ProjectLayout getLayout();
-
-	/**
-	 * Returns the task name format to uses when delegating to Gradle.
-	 * When Gradle is invoked with tasks following the name format, it is delegated to {@link XcodeIdeBridge} via {@link TaskContainer#addRule(Rule)}.
-	 *
-	 * @return a fully qualified task path format for the {@literal PBXLegacyTarget} target type to realize using the build settings from within Xcode IDE.
-	 */
-	private String getBridgeTaskPath() {
-		return getPrefixableProjectPath(getProject()) + ":" + XcodeIdeBridge.BRIDGE_TASK_NAME;
 	}
 }

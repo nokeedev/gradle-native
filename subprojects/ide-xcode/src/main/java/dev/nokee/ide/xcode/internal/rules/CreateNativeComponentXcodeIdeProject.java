@@ -3,7 +3,6 @@ package dev.nokee.ide.xcode.internal.rules;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
-import dev.nokee.ide.base.internal.IdeProjectExtension;
 import dev.nokee.ide.xcode.*;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeBuildConfiguration;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeGroup;
@@ -57,7 +56,7 @@ import static dev.nokee.model.internal.DomainObjectIdentifierUtils.descendentOf;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.withType;
 
 public final class CreateNativeComponentXcodeIdeProject implements Action<KnownComponent<? extends BaseComponent<?>>> {
-	private final IdeProjectExtension<XcodeIdeProject> extension;
+	private final XcodeIdeProjectExtension extension;
 	private final ProviderFactory providerFactory;
 	private final ObjectFactory objectFactory;
 	private final LanguageSourceSetRepository languageSourceSetRepository;
@@ -65,7 +64,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownC
 	private final TaskContainer taskContainer;
 	private final ProjectIdentifier projectIdentifier;
 
-	public CreateNativeComponentXcodeIdeProject(IdeProjectExtension<XcodeIdeProject> extension, ProviderFactory providerFactory, ObjectFactory objectFactory, LanguageSourceSetRepository languageSourceSetRepository, ProjectLayout projectLayout, TaskContainer taskContainer, ProjectIdentifier projectIdentifier) {
+	public CreateNativeComponentXcodeIdeProject(XcodeIdeProjectExtension extension, ProviderFactory providerFactory, ObjectFactory objectFactory, LanguageSourceSetRepository languageSourceSetRepository, ProjectLayout projectLayout, TaskContainer taskContainer, ProjectIdentifier projectIdentifier) {
 		this.extension = extension;
 		this.providerFactory = providerFactory;
 		this.objectFactory = objectFactory;
