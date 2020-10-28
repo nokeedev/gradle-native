@@ -67,8 +67,8 @@ public interface CommandLine {
 	 * @param commandLine the command line elements, cannot be empty or contains null values.
 	 * @return a {@link CommandLine} instance representing the specified command line, never null.
 	 */
-	static CommandLine of(@NonNull List<Object> commandLine) {
-		Iterator<Object> it = commandLine.iterator();
+	static CommandLine of(@NonNull List<?> commandLine) {
+		Iterator<?> it = commandLine.iterator();
 		Preconditions.checkArgument(it.hasNext(), "The command line must contain at least one element for the executable");
 		Object executable = it.next();
 		Preconditions.checkNotNull(executable, "The command line cannot contain null elements");
