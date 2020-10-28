@@ -8,6 +8,6 @@ import java.io.Serializable;
 public class DuplicateToSystemOutputStreamCommandLineToolInvocationStandardOutputRedirect implements CommandLineToolInvocationStandardOutputRedirect, CommandLineToolInvocationOutputRedirectInternal, Serializable {
 	@Override
 	public CommandLineToolOutputStreams redirect(CommandLineToolOutputStreams delegate) {
-		return new CommandLineToolOutputStreams(new TeeOutputStream(delegate.getStandardOutput(), System.out), delegate.getErrorOutput());
+		return new CommandLineToolOutputStreamsImpl(new TeeOutputStream(delegate.getStandardOutput(), System.out), delegate.getErrorOutput());
 	}
 }

@@ -3,12 +3,11 @@ package dev.nokee.core.exec;
 import dev.nokee.core.exec.internal.CommandLineToolInvocationOutputRedirectInternal;
 import dev.nokee.core.exec.internal.CommandLineToolOutputStreams;
 import dev.nokee.core.exec.internal.DefaultCommandLineToolExecutionResult;
+import dev.nokee.core.exec.internal.CommandLineToolOutputStreamsIntertwineImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import lombok.var;
 import org.apache.commons.exec.PumpStreamHandler;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.function.Supplier;
@@ -23,10 +22,9 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 		processBuilder.environment().putAll(invocation.getEnvironmentVariables().getAsMap());
 		try {
 			Process process = processBuilder.start();
-			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-			ByteArrayOutputStream errStream = new ByteArrayOutputStream();
 
-			var streams = new CommandLineToolOutputStreams(outStream, errStream);
+			val endStreams = new CommandLineToolOutputStreamsIntertwineImpl();
+			CommandLineToolOutputStreams streams = endStreams;
 			if (invocation.getStandardOutputRedirect() instanceof CommandLineToolInvocationOutputRedirectInternal) {
 				streams = ((CommandLineToolInvocationOutputRedirectInternal) invocation.getStandardOutputRedirect()).redirect(streams);
 			}
@@ -38,7 +36,7 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 			streamHandler.setProcessOutputStream(process.getInputStream());
 			streamHandler.setProcessErrorStream(process.getErrorStream());
 			streamHandler.start();
-			return new Handle(process, streamHandler, outStream::toString, errStream::toString, () -> String.join(" ", processBuilder.command()));
+			return new Handle(process, streamHandler, endStreams::getStandardOutputContent, endStreams::getErrorOutputContent, endStreams::getOutputContent, () -> String.join(" ", processBuilder.command()));
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
@@ -48,15 +46,16 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 	public static class Handle implements CommandLineToolExecutionHandle {
 		private final Process process;
 		private final PumpStreamHandler streamHandler;
-		private final Supplier<String> standardOutput;
-		private final Supplier<String> errorOutput;
+		private final Supplier<CommandLineToolLogContent> standardOutput;
+		private final Supplier<CommandLineToolLogContent> errorOutput;
+		private final Supplier<CommandLineToolLogContent> output;
 		private final Supplier<String> displayName;
 
 		public CommandLineToolExecutionResult waitFor() {
 			try {
 				process.waitFor();
 				streamHandler.stop();
-				return new DefaultCommandLineToolExecutionResult(process.exitValue(), standardOutput.get(), errorOutput.get(), displayName);
+				return new DefaultCommandLineToolExecutionResult(process.exitValue(), standardOutput.get(), errorOutput.get(), output.get(), displayName);
 			} catch (InterruptedException | IOException e) {
 				throw new RuntimeException(e);
 			}

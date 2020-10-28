@@ -16,6 +16,6 @@ public class AppendStandardStreamToFileCommandLineToolInvocationOutputRedirect i
 	@SneakyThrows
 	@Override
 	public CommandLineToolOutputStreams redirect(CommandLineToolOutputStreams delegate) {
-		return new CommandLineToolOutputStreams(new TeeOutputStream(delegate.getStandardOutput(), new FileOutputStream(file)), delegate.getErrorOutput());
+		return new CommandLineToolOutputStreamsImpl(new TeeOutputStream(delegate.getStandardOutput(), new FileOutputStream(file)), delegate.getErrorOutput());
 	}
 }

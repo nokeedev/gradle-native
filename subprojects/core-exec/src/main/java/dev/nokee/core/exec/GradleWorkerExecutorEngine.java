@@ -2,8 +2,8 @@ package dev.nokee.core.exec;
 
 import dev.nokee.core.exec.internal.CommandLineToolInvocationOutputRedirectInternal;
 import dev.nokee.core.exec.internal.CommandLineToolOutputStreams;
+import dev.nokee.core.exec.internal.CommandLineToolOutputStreamsImpl;
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import org.gradle.api.GradleException;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
@@ -14,7 +14,7 @@ import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
 
 public abstract class GradleWorkerExecutorEngine implements CommandLineToolExecutionEngine<GradleWorkerExecutorEngine.Handle> {
 	@Inject
@@ -60,7 +60,7 @@ public abstract class GradleWorkerExecutorEngine implements CommandLineToolExecu
 				getExecOperations().exec(spec -> {
 					spec.commandLine(getParameters().getCommandLine().get());
 
-					var streams = new CommandLineToolOutputStreams(logs, logs);
+					CommandLineToolOutputStreams streams = new CommandLineToolOutputStreamsImpl(logs, logs);
 					if (getParameters().getStandardOutputRedirect().get() instanceof CommandLineToolInvocationOutputRedirectInternal) {
 						streams = ((CommandLineToolInvocationOutputRedirectInternal) getParameters().getStandardOutputRedirect().get()).redirect(streams);
 					}
