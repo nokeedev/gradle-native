@@ -7,7 +7,7 @@ import org.apache.commons.io.output.WriterOutputStream;
 import java.io.Writer;
 import java.nio.charset.Charset;
 
-public class CommandLineToolInvocationErrorOutputRedirectForwardImpl implements CommandLineToolInvocationErrorOutputRedirect, CommandLineToolInvocationOutputRedirectInternal {
+public final class CommandLineToolInvocationErrorOutputRedirectForwardImpl implements CommandLineToolInvocationErrorOutputRedirect, CommandLineToolInvocationOutputRedirectInternal {
 	private final Writer writer;
 
 	public CommandLineToolInvocationErrorOutputRedirectForwardImpl(Writer writer) {

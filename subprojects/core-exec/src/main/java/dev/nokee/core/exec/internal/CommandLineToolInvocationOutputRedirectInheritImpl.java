@@ -7,7 +7,7 @@ import lombok.Value;
 import java.io.Serializable;
 
 @Value
-public class InheritCommandLineToolInvocationOutputRedirect implements CommandLineToolInvocationStandardOutputRedirect, CommandLineToolInvocationErrorOutputRedirect, CommandLineToolInvocationOutputRedirectInternal, Serializable {
+public class CommandLineToolInvocationOutputRedirectInheritImpl implements CommandLineToolInvocationStandardOutputRedirect, CommandLineToolInvocationErrorOutputRedirect, CommandLineToolInvocationOutputRedirectInternal, Serializable {
 	@Override
 	public CommandLineToolOutputStreams redirect(CommandLineToolOutputStreams delegate) {
 		return delegate;

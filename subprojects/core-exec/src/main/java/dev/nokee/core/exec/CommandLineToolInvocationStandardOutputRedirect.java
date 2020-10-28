@@ -1,7 +1,7 @@
 package dev.nokee.core.exec;
 
 import dev.nokee.core.exec.internal.CommandLineToolInvocationStandardOutputRedirectForwardImpl;
-import dev.nokee.core.exec.internal.DuplicateToSystemOutputStreamCommandLineToolInvocationStandardOutputRedirect;
+import dev.nokee.core.exec.internal.CommandLineToolInvocationStandardOutputRedirectDuplicateToSystemOutputStreamImpl;
 
 import java.io.Writer;
 
@@ -17,7 +17,7 @@ public interface CommandLineToolInvocationStandardOutputRedirect {
 	 * @return a {@link CommandLineToolInvocationStandardOutputRedirect} instance that redirect process standard output to {@link System#out}.
 	 */
 	static CommandLineToolInvocationStandardOutputRedirect duplicateToSystemOutput() {
-		return new DuplicateToSystemOutputStreamCommandLineToolInvocationStandardOutputRedirect();
+		return new CommandLineToolInvocationStandardOutputRedirectDuplicateToSystemOutputStreamImpl();
 	}
 
 	/**

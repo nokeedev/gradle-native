@@ -1,7 +1,7 @@
 package dev.nokee.core.exec;
 
 import dev.nokee.core.exec.internal.CommandLineToolInvocationErrorOutputRedirectForwardImpl;
-import dev.nokee.core.exec.internal.DuplicateToSystemErrorStreamCommandLineToolInvocationErrorOutputRedirect;
+import dev.nokee.core.exec.internal.CommandLineToolInvocationErrorOutputRedirectDuplicateToSystemErrorStreamImpl;
 
 import java.io.Writer;
 
@@ -17,7 +17,7 @@ public interface CommandLineToolInvocationErrorOutputRedirect {
 	 * @return a {@link CommandLineToolInvocationErrorOutputRedirect} instance that redirect process error output to {@link System#err}, never null.
 	 */
 	static CommandLineToolInvocationErrorOutputRedirect duplicateToSystemError() {
-		return new DuplicateToSystemErrorStreamCommandLineToolInvocationErrorOutputRedirect();
+		return new CommandLineToolInvocationErrorOutputRedirectDuplicateToSystemErrorStreamImpl();
 	}
 
 	/**

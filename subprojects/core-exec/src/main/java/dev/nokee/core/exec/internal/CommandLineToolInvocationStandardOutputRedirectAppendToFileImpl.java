@@ -10,7 +10,7 @@ import java.io.FileOutputStream;
 import java.io.Serializable;
 
 @Value
-public class AppendStandardStreamToFileCommandLineToolInvocationOutputRedirect implements CommandLineToolInvocationStandardOutputRedirect, CommandLineToolInvocationOutputRedirectInternal, Serializable {
+public class CommandLineToolInvocationStandardOutputRedirectAppendToFileImpl implements CommandLineToolInvocationStandardOutputRedirect, CommandLineToolInvocationOutputRedirectInternal, Serializable {
 	File file;
 
 	@SneakyThrows

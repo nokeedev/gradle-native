@@ -7,8 +7,8 @@ import java.io.File;
 public class DefaultCommandLineToolInvocationBuilder implements CommandLineToolInvocationBuilder {
 	private final CommandLine commandLine;
 	private File workingDirectory = null;
-	private CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect = new InheritCommandLineToolInvocationOutputRedirect();
-	private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = new InheritCommandLineToolInvocationOutputRedirect();
+	private CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect = new CommandLineToolInvocationOutputRedirectInheritImpl();
+	private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = new CommandLineToolInvocationOutputRedirectInheritImpl();
 	private CommandLineToolInvocationEnvironmentVariables environmentVariables = CommandLineToolInvocationEnvironmentVariables.inherit();
 
 	public DefaultCommandLineToolInvocationBuilder(CommandLine commandLine) {
@@ -29,7 +29,7 @@ public class DefaultCommandLineToolInvocationBuilder implements CommandLineToolI
 
 	@Override
 	public CommandLineToolInvocationBuilder appendStandardStreamToFile(File file) {
-		standardOutputRedirect = new AppendStandardStreamToFileCommandLineToolInvocationOutputRedirect(file);
+		standardOutputRedirect = new CommandLineToolInvocationStandardOutputRedirectAppendToFileImpl(file);
 		return this;
 	}
 
