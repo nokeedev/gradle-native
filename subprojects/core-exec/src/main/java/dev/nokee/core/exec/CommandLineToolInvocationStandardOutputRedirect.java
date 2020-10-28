@@ -1,8 +1,9 @@
 package dev.nokee.core.exec;
 
+import dev.nokee.core.exec.internal.CommandLineToolInvocationStandardOutputRedirectForwardImpl;
 import dev.nokee.core.exec.internal.DuplicateToSystemOutputStreamCommandLineToolInvocationStandardOutputRedirect;
 
-import java.io.File;
+import java.io.Writer;
 
 /**
  * Represents how to redirect the standard output of the command line tool invocation.
@@ -17,6 +18,16 @@ public interface CommandLineToolInvocationStandardOutputRedirect {
 	 */
 	static CommandLineToolInvocationStandardOutputRedirect duplicateToSystemOutput() {
 		return new DuplicateToSystemOutputStreamCommandLineToolInvocationStandardOutputRedirect();
+	}
+
+	/**
+	 * Creates a redirection that forward the process standard output to the specified writer.
+	 *
+	 * @param writer a writer that will receive the process's standard output.
+	 * @return a {@link CommandLineToolInvocationErrorOutputRedirect} instance that redirect the process standard output to the specified writer, never null.
+	 */
+	static CommandLineToolInvocationStandardOutputRedirect forwardTo(Writer writer) {
+		return new CommandLineToolInvocationStandardOutputRedirectForwardImpl(writer);
 	}
 
 	// TODO: Add factory method for appendToFile(File)
