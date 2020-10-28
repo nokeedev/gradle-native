@@ -9,7 +9,7 @@ public class DefaultCommandLineToolInvocationBuilder implements CommandLineToolI
 	private File workingDirectory = null;
 	private CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect = new InheritCommandLineToolInvocationOutputRedirect();
 	private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = new InheritCommandLineToolInvocationOutputRedirect();
-	private CommandLineToolInvocationEnvironmentVariables environmentVariables = new InheritCommandLineToolInvocationEnvironmentVariables();
+	private CommandLineToolInvocationEnvironmentVariables environmentVariables = CommandLineToolInvocationEnvironmentVariables.inherit();
 
 	public DefaultCommandLineToolInvocationBuilder(CommandLine commandLine) {
 		this.commandLine = commandLine;

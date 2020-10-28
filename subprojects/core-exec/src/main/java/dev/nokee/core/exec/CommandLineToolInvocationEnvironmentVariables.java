@@ -1,27 +1,105 @@
 package dev.nokee.core.exec;
 
-import dev.nokee.core.exec.internal.FromListCommandLineToolInvocationEnvironmentVariables;
-
+import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
+import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesEmptyImpl.EMPTY_ENVIRONMENT_VARIABLES;
+import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.asMap;
+import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.load;
+
+/**
+ * Represents the environment variable of a command line tool invocation.
+ *
+ * @since 0.5
+ */
 public interface CommandLineToolInvocationEnvironmentVariables {
+	/**
+	 * Returns the environment variables as a (key, value)-pair map.
+	 *
+	 * @return a map representing the environment variables, never null.
+	 */
 	Map<String, String> getAsMap();
 
+	/**
+	 * Returns the environment variables as a (key=value)-pair list.
+	 *
+	 * @return a list representing the environment variables, never null.
+	 */
 	List<String> getAsList();
 
 	// TODO: allow more manipulation of the environment variables such as getting, putting (creates another instance with the result), etc.
 
-	// TODO: allow to compare various instances
-	//   for example: listOf("foo=a", "bar=b") == mapOf(bar=b, foo=a)
+	/**
+	 * Merges the current environment variables with the specified environment variables.
+	 *
+	 * @param environmentVariables the environment variables to merge with this instance.
+	 * @return a new instance representing the merged environment variables, never null.
+	 */
+	CommandLineToolInvocationEnvironmentVariables plus(CommandLineToolInvocationEnvironmentVariables environmentVariables);
 
+	/**
+	 * Creates the invocation environment variables from the specified list.
+	 *
+	 * @param environmentVariables the environment variables to use
+	 * @return a instance representing the environment variables to use, never null.
+	 */
 	static CommandLineToolInvocationEnvironmentVariables from(List<String> environmentVariables) {
-		return new FromListCommandLineToolInvocationEnvironmentVariables(environmentVariables);
+		if (environmentVariables.isEmpty()) {
+			return EMPTY_ENVIRONMENT_VARIABLES;
+		}
+		return new CommandLineToolInvocationEnvironmentVariablesMapImpl(asMap(environmentVariables));
 	}
 
-	// TODO: factory methods should include from(Map<String, String>)
-	// TODO: factory methods should include inherit() -> from current process
-	// TODO: factory methods should include empty() -> No environment variables
-	// TODO: factory methods could include from(File) -> files that is properties style values
-	// TODO: factory methods could include from(Properties)
+	/**
+	 * Creates the invocation environment variables from the specified map.
+	 *
+	 * @param environmentVariables the environment variables to use
+	 * @return a instance representing the environment variables to use, never null.
+	 */
+	static CommandLineToolInvocationEnvironmentVariables from(Map<String, ?> environmentVariables) {
+		if (environmentVariables.isEmpty()) {
+			return EMPTY_ENVIRONMENT_VARIABLES;
+		}
+		return new CommandLineToolInvocationEnvironmentVariablesMapImpl(environmentVariables);
+	}
+
+	/**
+	 * Creates the invocation environment variables from the current process.
+	 *
+	 * @return a instance representing the environment variables to use, never null.
+	 */
+	static CommandLineToolInvocationEnvironmentVariables inherit() {
+		return new CommandLineToolInvocationEnvironmentVariablesMapImpl(System.getenv());
+	}
+
+	/**
+	 * Creates the empty invocation environment variables.
+	 *
+	 * @return a instance representing the environment variables to use, never null.
+	 */
+	static CommandLineToolInvocationEnvironmentVariables empty() {
+		return EMPTY_ENVIRONMENT_VARIABLES;
+	}
+
+	/**
+	 * Creates the invocation environment variables from a .properties file.
+	 *
+	 * @param propertiesFile a file from which to load the environment variables
+	 * @return a instance representing the environment variables to use, never null.
+	 */
+	static CommandLineToolInvocationEnvironmentVariables from(File propertiesFile) {
+		return from(load(propertiesFile));
+	}
+
+	/**
+	 * Creates the invocation environment variables from a {@link Properties} instance.
+	 *
+	 * @param properties a {@link Properties} instance of environment variables to use
+	 * @return a instance representing the environment variables to use, never null.
+	 */
+	static CommandLineToolInvocationEnvironmentVariables from(Properties properties) {
+		return from(asMap(properties));
+	}
 }
