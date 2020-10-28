@@ -12,6 +12,7 @@ repositories {
 }
 
 dependencies {
+	implementation 'net.rubygrapefruit:ansi-control-sequence-util:0.2'
 	implementation "org.apache.commons:commons-exec:${commonsExecVersion}"
 	compileOnly gradleApi(minimumGradleVersion)
 	implementation "com.google.guava:guava:${guavaVersion}"
@@ -23,6 +24,8 @@ dependencies {
 
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
+	testImplementation 'org.fusesource.jansi:jansi:2.0'
+
 }
 
 java {
