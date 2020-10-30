@@ -72,4 +72,19 @@ class CommandLineToolOutputStreamIntertwineImplTest extends Specification {
 		streams.errorOutputContent.asString == 'Goodbye, world!Oh, world!\n'
 		streams.outputContent.asString == 'Hello, world!Goodbye, world!Hey, world!\nOh, world!\n'
 	}
+
+	def "only commit captured output on flush"() {
+		when:
+		out.print('Hello, ')
+		err.print('Goodbye, ')
+		out.println('world!')
+		err.println('world!')
+		err.flush()
+		out.flush()
+
+		then:
+		streams.standardOutputContent.asString == 'Hello, world!\n'
+		streams.errorOutputContent.asString == 'Goodbye, world!\n'
+		streams.outputContent.asString == 'Goodbye, world!\nHello, world!\n'
+	}
 }

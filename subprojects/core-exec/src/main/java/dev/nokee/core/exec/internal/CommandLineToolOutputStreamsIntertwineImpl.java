@@ -14,7 +14,6 @@ import static java.util.stream.Collectors.joining;
 
 public final class CommandLineToolOutputStreamsIntertwineImpl implements CommandLineToolOutputStreams {
 	private final List<OutputSegment> outputSegments = new ArrayList<>();
-	private OutputSegment currentSegment;
 	private final Object lock = new Object();
 	private final SegmentingOutputStream out = new SegmentingOutputStream(OutputType.OUT);
 	private final SegmentingOutputStream err = new SegmentingOutputStream(OutputType.ERR);
@@ -43,31 +42,24 @@ public final class CommandLineToolOutputStreamsIntertwineImpl implements Command
 
 	private class SegmentingOutputStream extends OutputStream {
 		private final OutputType type;
+		private OutputSegment currentSegment;
 
 		SegmentingOutputStream(OutputType type) {
 			this.type = type;
+			this.currentSegment = new OutputSegment(type);
 		}
 
 		@Override
 		public void write(int b) throws IOException {
+			currentSegment.append(b);
+		}
+
+		@Override
+		public void flush() throws IOException {
 			synchronized (lock) {
-				getCurrentSegment().append(b);
+				outputSegments.add(currentSegment);
+				currentSegment = new OutputSegment(type);
 			}
-		}
-
-		private OutputSegment getCurrentSegment() {
-			if (currentSegment == null) {
-				return newSegment();
-			} else if (currentSegment.type != type) {
-				return newSegment();
-			}
-			return currentSegment;
-		}
-
-		private OutputSegment newSegment() {
-			currentSegment = new OutputSegment(type);
-			outputSegments.add(currentSegment);
-			return currentSegment;
 		}
 	}
 
