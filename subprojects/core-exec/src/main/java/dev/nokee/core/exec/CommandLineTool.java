@@ -1,6 +1,5 @@
 package dev.nokee.core.exec;
 
-import dev.nokee.core.exec.internal.SystemCommandLineTool;
 import org.gradle.api.tasks.Internal;
 
 import javax.annotation.Nullable;
@@ -16,15 +15,15 @@ import java.util.List;
  */
 public interface CommandLineTool {
 	static CommandLineTool fromPath(String executable) {
-		return CommandLineToolFactory.fromPath(executable);
+		return CommandLineTools.findInPath(executable);
 	}
 
 	static CommandLineTool of(File executable) {
-		return CommandLineToolFactory.fromLocation(executable);
+		return CommandLineTools.fromLocation(executable);
 	}
 
 	static CommandLineTool of(Object executable) {
-		return new SystemCommandLineTool(executable);
+		return CommandLineTools.fromPath(executable);
 	}
 
 	@Internal

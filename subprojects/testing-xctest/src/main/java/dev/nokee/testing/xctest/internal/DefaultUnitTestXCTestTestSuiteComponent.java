@@ -2,7 +2,6 @@ package dev.nokee.testing.xctest.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
 import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
 import dev.nokee.model.internal.DomainObjectCreated;
@@ -81,7 +80,7 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 			task.getSources().from(processUnitTestPropertyListTask.flatMap(it -> it.getOutputFile()));
 			task.getSources().from(variant.flatMap(testSuite -> testSuite.getBinaries().withType(BundleBinary.class).getElements().map(binaries -> binaries.stream().map(binary -> binary.getLinkTask().get().getLinkedFile()).collect(Collectors.toList()))));
 		});
-		Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
+		Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> CommandLineTool.of(new File("/usr/bin/codesign")));
 		val signUnitTestXCTestBundle = taskRegistry.register("signUnitTestXCTestBundle", SignIosApplicationBundleTask.class, task -> {
 			task.getUnsignedApplicationBundle().set(createUnitTestXCTestBundle.flatMap(CreateIosXCTestBundleTask::getXCTestBundle));
 			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + moduleName + ".xctest"));

@@ -3,8 +3,6 @@ package dev.nokee.core.exec;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.internal.DefaultCommandLine;
-import dev.nokee.core.exec.internal.DefaultCommandLineToolArguments;
-import dev.nokee.core.exec.internal.SystemCommandLineTool;
 import lombok.NonNull;
 
 import javax.annotation.Nullable;
@@ -91,6 +89,6 @@ public interface CommandLine {
 			Preconditions.checkNotNull(element, "The command line cannot contain null elements");
 			arguments.add(element);
 		});
-		return new DefaultCommandLine(new SystemCommandLineTool(executable), new DefaultCommandLineToolArguments(arguments.build()));
+		return new DefaultCommandLine(CommandLineTool.of(executable), CommandLineToolArguments.of(arguments.build()));
 	}
 }
