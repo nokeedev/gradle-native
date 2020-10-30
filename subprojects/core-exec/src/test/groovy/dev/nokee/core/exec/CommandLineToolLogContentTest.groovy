@@ -55,8 +55,19 @@ bar
 		expect:
 		of('foo\r\nbar').withNormalizedEndOfLine() == of('foo\nbar')
 		of('foo\r\n\r\nbar\r\n').withNormalizedEndOfLine() == of('foo\n\nbar\n')
-		of('foo\r\r\n\r\nbar\r\n').withNormalizedEndOfLine() == of('foo\r\n\nbar\n')
+		of('foo\r\r\n\r\nbar\r\n').withNormalizedEndOfLine() == of('foo\n\nbar\n')
+		of('fo\ro\r\n\r\nbar\r\n').withNormalizedEndOfLine() == of('fo\ro\n\nbar\n')
 		of('foo\nbar\n').withNormalizedEndOfLine() == of('foo\nbar\n')
+	}
+
+	def "removes whitespace at the end of line when normalizing end of lines"() {
+		expect:
+		of('foo \nbar').withNormalizedEndOfLine() == of('foo\nbar')
+		of('foo\t\nbar').withNormalizedEndOfLine() == of('foo\nbar')
+		of('foo\nbar ').withNormalizedEndOfLine() == of('foo\nbar')
+		of('foo\nbar\t').withNormalizedEndOfLine() == of('foo\nbar')
+		of('\t').withNormalizedEndOfLine() == empty()
+		of('  ').withNormalizedEndOfLine() == empty()
 	}
 
 	def "can lines from the content"() {

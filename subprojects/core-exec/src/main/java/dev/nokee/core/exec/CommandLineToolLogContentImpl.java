@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static dev.nokee.core.exec.CommandLineToolLogContentEmptyImpl.EMPTY_LOG_CONTENT;
+import static java.util.stream.Collectors.joining;
 
 @EqualsAndHashCode
 final class CommandLineToolLogContentImpl implements CommandLineToolLogContent {
@@ -43,7 +44,15 @@ final class CommandLineToolLogContentImpl implements CommandLineToolLogContent {
 
 	@Override
 	public CommandLineToolLogContent withNormalizedEndOfLine() {
-		return new CommandLineToolLogContentImpl(content.replaceAll("\r?\n", "\n"), definitelyNoAnsiChars);
+		val newContent = toLines(content).stream().map(CommandLineToolLogContentImpl::rtrim).collect(joining("\n"));
+		if (newContent.isEmpty()) {
+			return EMPTY_LOG_CONTENT;
+		}
+		return new CommandLineToolLogContentImpl(newContent, definitelyNoAnsiChars);
+	}
+
+	private static String rtrim(String str) {
+		return str.replaceAll("\\s+$", "");
 	}
 
 	@Override
