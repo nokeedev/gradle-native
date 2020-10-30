@@ -4,10 +4,12 @@ import com.google.common.collect.ImmutableMap;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 final class CommandLineToolInvocationEnvironmentVariablesUtils {
 	private CommandLineToolInvocationEnvironmentVariablesUtils() {}
@@ -45,7 +47,11 @@ final class CommandLineToolInvocationEnvironmentVariablesUtils {
 	}
 
 	static Map<String, ?> merge(Map<String, ?> left, Map<String, ?> right) {
-		return Stream.concat(left.entrySet().stream(), right.entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		val result = new HashMap<String, Object>();
+		result.putAll(left);
+		result.putAll(right);
+		return result;
+//		return Stream.concat(left.entrySet().stream(), right.entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
 	static Map<String, ?> load(File file) {

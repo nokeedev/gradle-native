@@ -28,6 +28,11 @@ class CommandLineToolInvocationEnvironmentVariablesTest extends Specification {
 		empty().plus(from([A: 'a'])) == from([A: 'a'])
 	}
 
+	def "can merge environment variables overwriting each other"() {
+		expect:
+		from([A:'a']).plus(from([A: 'aa'])) == from([A: 'aa'])
+	}
+
 	def "can create environment variables from current process"() {
 		expect:
 		inherit() == from(System.getenv())
