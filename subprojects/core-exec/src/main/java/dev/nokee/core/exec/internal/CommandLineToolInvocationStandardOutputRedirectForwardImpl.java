@@ -3,20 +3,18 @@ package dev.nokee.core.exec.internal;
 import dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect;
 import dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect;
 import org.apache.commons.io.output.TeeOutputStream;
-import org.apache.commons.io.output.WriterOutputStream;
 
-import java.io.Writer;
-import java.nio.charset.Charset;
+import java.io.OutputStream;
 
 public final class CommandLineToolInvocationStandardOutputRedirectForwardImpl implements CommandLineToolInvocationStandardOutputRedirect, CommandLineToolInvocationErrorOutputRedirect, CommandLineToolInvocationOutputRedirectInternal {
-	private final Writer writer;
+	private final OutputStream outputStream;
 
-	public CommandLineToolInvocationStandardOutputRedirectForwardImpl(Writer writer) {
-		this.writer = writer;
+	public CommandLineToolInvocationStandardOutputRedirectForwardImpl(OutputStream outputStream) {
+		this.outputStream = outputStream;
 	}
 
 	@Override
 	public CommandLineToolOutputStreams redirect(CommandLineToolOutputStreams delegate) {
-		return new CommandLineToolOutputStreamsImpl(new TeeOutputStream(delegate.getStandardOutput(), new WriterOutputStream(writer, Charset.defaultCharset())), delegate.getErrorOutput());
+		return new CommandLineToolOutputStreamsImpl(new TeeOutputStream(delegate.getStandardOutput(), outputStream), delegate.getErrorOutput());
 	}
 }
