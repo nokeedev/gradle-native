@@ -3,12 +3,20 @@ package dev.nokee.core.exec
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.empty
-import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.from
-import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.inherit
+import java.lang.reflect.Modifier
+
+import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.*
 
 @Subject(CommandLineToolInvocationEnvironmentVariables)
 class CommandLineToolInvocationEnvironmentVariablesTest extends Specification {
+	def "can create empty environment variables when from null list"() {
+		given:
+		def from = CommandLineToolInvocationEnvironmentVariables.methods.find { Modifier.isStatic(it.modifiers) && it.name == 'from' && it.parameterCount == 1 && List == it.parameterTypes[0]}
+
+		expect:
+		(from.invoke(null, [null] as Object[]) as CommandLineToolInvocationEnvironmentVariables) == inherit()
+	}
+
 	def "can create empty environment variables"() {
 		expect:
 		empty() == from([:])

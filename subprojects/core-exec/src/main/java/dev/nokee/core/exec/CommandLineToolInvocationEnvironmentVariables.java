@@ -1,5 +1,6 @@
 package dev.nokee.core.exec;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +46,10 @@ public interface CommandLineToolInvocationEnvironmentVariables {
 	 * @param environmentVariables the environment variables to use
 	 * @return a instance representing the environment variables to use, never null.
 	 */
-	static CommandLineToolInvocationEnvironmentVariables from(List<String> environmentVariables) {
-		if (environmentVariables.isEmpty()) {
+	static CommandLineToolInvocationEnvironmentVariables from(@Nullable List<?> environmentVariables) {
+		if (environmentVariables == null) {
+			return inherit();
+		} else if (environmentVariables.isEmpty()) {
 			return EMPTY_ENVIRONMENT_VARIABLES;
 		}
 		return new CommandLineToolInvocationEnvironmentVariablesMapImpl(asMap(environmentVariables));
