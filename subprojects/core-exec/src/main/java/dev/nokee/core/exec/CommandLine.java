@@ -7,6 +7,8 @@ import dev.nokee.core.exec.internal.DefaultCommandLineToolArguments;
 import dev.nokee.core.exec.internal.SystemCommandLineTool;
 import lombok.NonNull;
 
+import javax.annotation.Nullable;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +52,17 @@ public interface CommandLine {
 	 * @return a {@link CommandLineToolExecutionHandle} representing the execution in progress, never null.
 	 */
 	<T extends CommandLineToolExecutionHandle> T execute(CommandLineToolExecutionEngine<T> engine);
+
+	/**
+	 * Convenience for {@code newInvocation().withEnvironmentVariables(CommandLineToolInvocationEnvironmentVariables.from(env)).workingDirectory(workingDirectory).build().submit(new ProcessBuilderEngine())}.
+	 * This API behave similarly to the Groovy API.
+	 *
+	 * @param env the environment variable to invoke the process with, null means inherited.
+	 * @param workingDirectory the working directory to invoke the process in, null means inherited.
+	 * @return a {@link ProcessBuilderEngine.Handle} representing the execution in progress, never null.
+	 * @since 0.5
+	 */
+	ProcessBuilderEngine.Handle execute(@Nullable List<?> env, File workingDirectory);
 
 	/**
 	 * Creates a {@link CommandLine} instance from the command line elements specified.
