@@ -4,6 +4,9 @@ package dev.nokee.core.exec
 import spock.lang.Specification
 import spock.lang.Subject
 
+import java.util.function.Consumer
+
+import static dev.nokee.core.exec.CommandLineToolLogContent.empty
 import static dev.nokee.core.exec.CommandLineToolLogContent.of
 import static org.fusesource.jansi.Ansi.Color.GREEN
 import static org.fusesource.jansi.Ansi.Color.RED
@@ -104,6 +107,135 @@ bar
 
 		and:
 		of('  ').lines == ['  ']
+	}
+	//endregion
+
+	//region Line visitor
+	def "can visit multiple lines with Windows line ending"() {
+		given:
+		def visitor = Mock(Consumer)
+
+		when:
+		of('foo\r\nbar\r\nyolo').visitEachLine(visitor)
+
+		then:
+		1 * visitor.accept({ it.line == 'foo' })
+		and:
+		1 * visitor.accept({ it.line == 'bar' })
+		and:
+		1 * visitor.accept({ it.line == 'yolo' })
+	}
+
+	def "can visit multiple lines with *nix line ending"() {
+		given:
+		def visitor = Mock(Consumer)
+
+		when:
+		of('foo\nbar\nyolo').visitEachLine(visitor)
+
+		then:
+		1 * visitor.accept({ it.line == 'foo' })
+		and:
+		1 * visitor.accept({ it.line == 'bar' })
+		and:
+		1 * visitor.accept({ it.line == 'yolo' })
+	}
+
+	def "can visit multiple empty lines"() {
+		given:
+		def visitor = Mock(Consumer)
+
+		when:
+		of('\n\n').visitEachLine(visitor)
+		then:
+		3 * visitor.accept({ it.line == '' })
+
+		when:
+		of('\r\n\r\n').visitEachLine(visitor)
+		then:
+		3 * visitor.accept({ it.line == '' })
+	}
+
+	def "can visit lines of empty log"() {
+		given:
+		def visitor = Mock(Consumer)
+
+		when:
+		empty().visitEachLine(visitor)
+
+		then:
+		0 * visitor.accept(_)
+	}
+
+	def "do nothing line visitor return the same log"() {
+		expect:
+		of('foo\r\nbar\r\nyolo').visitEachLine(Stub(Consumer)) == of('foo\r\nbar\r\nyolo')
+		of('foo\nbar\nyolo').visitEachLine(Stub(Consumer)) == of('foo\nbar\nyolo')
+	}
+
+	def "can drop a single line"() {
+		given:
+		def visitor = Stub(Consumer) {
+			accept({ it.line == 'bar'}) >> { args -> args[0].dropLine() }
+		}
+
+		expect:
+		of('foo\r\nbar\r\nyolo').visitEachLine(visitor) == of('foo\r\nyolo')
+		of('foo\nbar\nyolo').visitEachLine(visitor) == of('foo\nyolo')
+	}
+
+	def "can drop multiple line until the end"() {
+		given:
+		def visitor = Stub(Consumer) {
+			accept({ it.line == 'bar'}) >> { args -> args[0].drop(2) }
+		}
+
+		expect:
+		of('foo\r\nbar\r\nyolo').visitEachLine(visitor) == of('foo')
+		of('foo\nbar\nyolo').visitEachLine(visitor) == of('foo')
+	}
+
+	def "can drop multiple line from the middle"() {
+		given:
+		def visitor = Stub(Consumer) {
+			accept({ it.line == 'bar'}) >> { args -> args[0].drop(2) }
+		}
+
+		expect:
+		of('foo\r\nbar\r\nfar\r\nyolo').visitEachLine(visitor) == of('foo\r\nyolo')
+		of('foo\nbar\nfar\nyolo').visitEachLine(visitor) == of('foo\nyolo')
+
+		and: 'with mixed line separators'
+		of('foo\r\nbar\r\nfar\nyolo').visitEachLine(visitor) == of('foo\r\nyolo')
+		of('foo\nbar\r\nfar\r\nyolo').visitEachLine(visitor) == of('foo\nyolo')
+	}
+
+	def "can drop last line"() {
+		given:
+		def visitor = Stub(Consumer) {
+			accept({ it.line == 'yolo'}) >> { args -> args[0].dropLine() }
+		}
+
+		expect:
+		of('foo\r\nbar\r\nyolo').visitEachLine(visitor) == of('foo\r\nbar')
+		of('foo\nbar\nyolo').visitEachLine(visitor) == of('foo\nbar')
+	}
+
+	def "can visit whitespace line"() {
+		given:
+		def visitor = Mock(Consumer)
+
+		when:
+		of('  ').visitEachLine(visitor)
+
+		then:
+		1 * visitor.accept({ it.line == '  ' })
+	}
+
+	def "can drop lines until empty"() {
+		expect:
+		of('foo\n\nbar\nyolo').visitEachLine({ it.dropLine() }) == empty()
+		of('foo\n\nbar\nyolo').visitEachLine({ it.drop(42) }) == empty()
 	}
 	//endregion
 

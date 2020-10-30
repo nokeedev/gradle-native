@@ -2,6 +2,7 @@ package dev.nokee.core.exec;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static dev.nokee.core.exec.CommandLineToolLogContentEmptyImpl.EMPTY_LOG_CONTENT;
 
@@ -86,4 +87,18 @@ public interface CommandLineToolLogContent {
 	 * @since 0.5
 	 */
 	List<String> getLines();
+
+	/**
+	 * Visit each lines.
+	 *
+	 * @return a new {@link CommandLineToolLogContent} instance of the result following the visit, never null.
+	 * @since 0.5
+	 */
+	CommandLineToolLogContent visitEachLine(Consumer<LineDetails> visitor);
+
+	interface LineDetails {
+		void dropLine();
+		void drop(int n);
+		String getLine();
+	}
 }

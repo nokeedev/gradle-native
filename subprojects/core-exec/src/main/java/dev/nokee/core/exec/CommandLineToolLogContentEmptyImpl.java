@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 enum CommandLineToolLogContentEmptyImpl implements CommandLineToolLogContent {
 	EMPTY_LOG_CONTENT;
@@ -37,4 +38,11 @@ enum CommandLineToolLogContentEmptyImpl implements CommandLineToolLogContent {
 	public List<String> getLines() {
 		return ImmutableList.of();
 	}
+
+	@Override
+	public CommandLineToolLogContent visitEachLine(Consumer<LineDetails> visitor) {
+		return this;
+	}
+
+
 }

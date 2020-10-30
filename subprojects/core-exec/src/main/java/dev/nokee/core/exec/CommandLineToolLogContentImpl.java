@@ -15,6 +15,7 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static dev.nokee.core.exec.CommandLineToolLogContentEmptyImpl.EMPTY_LOG_CONTENT;
@@ -93,6 +94,78 @@ final class CommandLineToolLogContentImpl implements CommandLineToolLogContent {
 	@Override
 	public List<String> getLines() {
 		return toLines(content);
+	}
+
+	@Override
+	public CommandLineToolLogContent visitEachLine(Consumer<LineDetails> visitor) {
+		val builder = new StringBuilder();
+		int indexOfStartOfLine = 0;
+		int n = 0;
+		String previousLineSeparator = "";
+		boolean lastLine = false;
+		do
+		{
+			int indexOfEndOfLine = content.indexOf('\n', indexOfStartOfLine);
+
+			String currentLineSeparator = null;
+			if (indexOfEndOfLine == -1) {
+				indexOfEndOfLine = content.length();
+				currentLineSeparator = "";
+				lastLine = true;
+			} else if (indexOfEndOfLine == 0) {
+				currentLineSeparator = "\n";
+			} else if (content.charAt(indexOfEndOfLine - 1) == '\r') {
+				indexOfEndOfLine = indexOfEndOfLine - 1;
+				currentLineSeparator = "\r\n";
+			} else {
+				currentLineSeparator = "\n";
+			}
+
+			String line = content.substring(indexOfStartOfLine, indexOfEndOfLine);
+			if (n == 0) {
+				val details = new LineDetailsImpl(line);
+				visitor.accept(details);
+				n = details.n;
+				if (n == 0) {
+					builder.append(previousLineSeparator).append(line);
+					previousLineSeparator = currentLineSeparator;
+				}
+			}
+			if (n > 0) {
+				--n;
+			}
+			indexOfStartOfLine = indexOfEndOfLine + currentLineSeparator.length();
+		} while (indexOfStartOfLine <= content.length() && !lastLine);
+
+		val newContent = builder.toString();
+		if (newContent.isEmpty()) {
+			return EMPTY_LOG_CONTENT;
+		}
+		return new CommandLineToolLogContentImpl(newContent, false);
+	}
+
+	private static final class LineDetailsImpl implements LineDetails {
+		private final String line;
+		private int n = 0;
+
+		LineDetailsImpl(String line) {
+			this.line = line;
+		}
+
+		@Override
+		public void dropLine() {
+			n = 1;
+		}
+
+		@Override
+		public void drop(int n) {
+			this.n = n;
+		}
+
+		@Override
+		public String getLine() {
+			return line;
+		}
 	}
 
 	private static List<String> toLines(String content) {
