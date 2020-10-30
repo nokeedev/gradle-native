@@ -253,7 +253,7 @@ bar
 	//region empty log content
 	def "can create empty log content"() {
 		expect:
-		CommandLineToolLogContent.empty().asString == ''
+		empty().asString == ''
 	}
 
 	def "can create empty log content from string"() {
@@ -262,7 +262,7 @@ bar
 	}
 
 	def "returns same instance when dropping any number of lines"() {
-		def subject = CommandLineToolLogContent.empty()
+		def subject = empty()
 
 		expect:
 		subject.drop(1) == subject
@@ -271,14 +271,14 @@ bar
 	}
 
 	def "returns same instance when interpreting ANSI characters"() {
-		def subject = CommandLineToolLogContent.empty()
+		def subject = empty()
 
 		expect:
 		subject.withAnsiControlCharactersInterpreted() == subject
 	}
 
 	def "returns same instance when normalizing line endings"() {
-		def subject = CommandLineToolLogContent.empty()
+		def subject = empty()
 
 		expect:
 		subject.withNormalizedEndOfLine() == subject
@@ -289,7 +289,7 @@ bar
 		def obj = new Object()
 
 		when:
-		def result = CommandLineToolLogContent.empty().parse(parser)
+		def result = empty().parse(parser)
 
 		then:
 		1 * parser.parse('') >> obj
@@ -298,7 +298,7 @@ bar
 
 	def "returns empty list of lines"() {
 		expect:
-		CommandLineToolLogContent.empty().lines == []
+		empty().lines == []
 	}
 	//endregion
 }
