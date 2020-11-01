@@ -9,7 +9,7 @@ import java.io.File;
 public class XcodeUtils {
 	// TODO: We should use the xcrun already located
 	public static File findTool(String name) {
-		return CommandLineTool.fromPath("xcrun").withArguments("--find", name).newInvocation().buildAndSubmit(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().parse(asPath());
+		return CommandLineTool.fromPath("xcrun").get().withArguments("--find", name).newInvocation().buildAndSubmit(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().parse(asPath());
 	}
 
 	private static CommandLineToolOutputParser<File> asPath() {

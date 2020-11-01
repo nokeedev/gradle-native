@@ -5,13 +5,14 @@ import org.gradle.api.tasks.*;
 import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
+import java.util.Optional;
 
 final class CommandLineTools {
 	private CommandLineTools() {}
 
-	public static CommandLineTool findInPath(String executable) {
+	public static Optional<CommandLineTool> findInPath(String executable) {
 		// TODO: Write integration test for this
-		return new CommandLineToolFromFileSystemLocationImpl(OperatingSystem.current().findInPath(executable));
+		return Optional.ofNullable(OperatingSystem.current().findInPath(executable)).map(CommandLineTools::fromLocation);
 	}
 
 	public static CommandLineTool fromPath(Object executable) {

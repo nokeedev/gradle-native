@@ -11,6 +11,7 @@ public class IosApplicationRules {
 	public static String getSdkPath() {
 		return CommandLineTool
 			.fromPath("xcrun")
+			.get()
 			.withArguments("--sdk", "iphonesimulator", "--show-sdk-path")
 			.execute(ENGINE)
 			.getResult()

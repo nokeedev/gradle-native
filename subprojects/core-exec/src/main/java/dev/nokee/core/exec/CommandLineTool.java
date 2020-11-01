@@ -5,6 +5,7 @@ import org.gradle.api.tasks.Internal;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A command line tool represent a executable component that can be used as a tool.
@@ -14,7 +15,7 @@ import java.util.List;
  * @since 0.4
  */
 public interface CommandLineTool {
-	static CommandLineTool fromPath(String executable) {
+	static Optional<CommandLineTool> fromPath(String executable) {
 		return CommandLineTools.findInPath(executable);
 	}
 
