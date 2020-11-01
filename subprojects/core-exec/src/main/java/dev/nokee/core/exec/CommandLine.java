@@ -62,6 +62,8 @@ public interface CommandLine {
 	 */
 	ProcessBuilderEngine.Handle execute(@Nullable List<?> env, File workingDirectory);
 
+	ProcessBuilderEngine.Handle execute();
+
 	/**
 	 * Creates a {@link CommandLine} instance from the command line elements specified.
 	 *

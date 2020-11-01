@@ -32,4 +32,9 @@ public class DefaultCommandLine implements CommandLine {
 			.withEnvironmentVariables(from(env))
 			.buildAndSubmit(new ProcessBuilderEngine());
 	}
+
+	@Override
+	public ProcessBuilderEngine.Handle execute() {
+		return execute(new ProcessBuilderEngine());
+	}
 }
