@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import static dev.nokee.utils.DeferredUtils.flatUnpack;
+
 /**
  * A command line is composed of a tool with zero or more arguments.
  * The execution of the command can proceed in two ways:
@@ -81,7 +83,7 @@ public interface CommandLine {
 	 * @return a {@link CommandLine} instance representing the specified command line, never null.
 	 */
 	static CommandLine of(@NonNull List<?> commandLine) {
-		Iterator<?> it = commandLine.iterator();
+		Iterator<?> it = flatUnpack(commandLine).iterator();
 		Preconditions.checkArgument(it.hasNext(), "The command line must contain at least one element for the executable");
 		Object executable = it.next();
 		Preconditions.checkNotNull(executable, "The command line cannot contain null elements");
