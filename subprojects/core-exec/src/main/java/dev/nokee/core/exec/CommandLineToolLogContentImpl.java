@@ -136,7 +136,7 @@ final class CommandLineToolLogContentImpl implements CommandLineToolLogContent {
 				visitor.accept(details);
 				n = details.n;
 				if (n == 0) {
-					builder.append(previousLineSeparator).append(line);
+					builder.append(previousLineSeparator).append(details.lineToAppend);
 					previousLineSeparator = currentLineSeparator;
 				}
 			}
@@ -155,10 +155,12 @@ final class CommandLineToolLogContentImpl implements CommandLineToolLogContent {
 
 	private static final class LineDetailsImpl implements LineDetails {
 		private final String line;
+		private String lineToAppend;
 		private int n = 0;
 
 		LineDetailsImpl(String line) {
 			this.line = line;
+			this.lineToAppend = line;
 		}
 
 		@Override
@@ -169,6 +171,14 @@ final class CommandLineToolLogContentImpl implements CommandLineToolLogContent {
 		@Override
 		public void drop(int n) {
 			this.n = n;
+		}
+
+		@Override
+		public void replaceWith(String newLineContent) {
+			if (newLineContent == null) {
+				throw new IllegalArgumentException("Cannot replace line with a null value. If you need to erase the line from the resulting output, please use LineDetails#drop() API instead.");
+			}
+			lineToAppend = newLineContent;
 		}
 
 		@Override

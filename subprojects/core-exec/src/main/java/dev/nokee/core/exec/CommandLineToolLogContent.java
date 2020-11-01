@@ -99,6 +99,7 @@ public interface CommandLineToolLogContent {
 	interface LineDetails {
 		void dropLine();
 		void drop(int n);
+		void replaceWith(String newLineContent);
 		String getLine();
 	}
 }

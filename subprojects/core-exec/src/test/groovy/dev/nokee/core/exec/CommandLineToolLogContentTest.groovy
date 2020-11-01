@@ -248,6 +248,20 @@ bar
 		of('foo\n\nbar\nyolo').visitEachLine({ it.dropLine() }) == empty()
 		of('foo\n\nbar\nyolo').visitEachLine({ it.drop(42) }) == empty()
 	}
+
+	def "can replace line with another string"() {
+		expect:
+		of('foo\nbar\nyolo').visitEachLine({ if (it.line == 'bar') { it.replaceWith('far') }}) == of('foo\nfar\nyolo')
+	}
+
+	def "throws exception when replacing line with null"() {
+		when:
+		of('foo\nbar\nyolo').visitEachLine({ it.replaceWith(null) })
+
+		then:
+		def ex = thrown(IllegalArgumentException)
+		ex.message == "Cannot replace line with a null value. If you need to erase the line from the resulting output, please use LineDetails#drop() API instead."
+	}
 	//endregion
 
 	//region empty log content
