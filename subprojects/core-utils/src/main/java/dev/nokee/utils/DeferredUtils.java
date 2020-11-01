@@ -1,5 +1,6 @@
 package dev.nokee.utils;
 
+import com.google.common.collect.ImmutableList;
 import lombok.val;
 import org.gradle.api.DomainObjectCollection;
 import org.gradle.api.provider.Provider;
@@ -8,8 +9,12 @@ import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
+import static java.util.Objects.requireNonNull;
 import static org.gradle.util.GUtil.uncheckedCall;
 
 public final class DeferredUtils {
@@ -87,15 +92,19 @@ public final class DeferredUtils {
 	}
 
 	public static List<Object> flatUnpackWhile(@Nullable Object deferred, Predicate<Object> predicate) {
-		return flatUnpackWhile(deferred, DeferredUtils::flatten, DeferredUtils::unpack, predicate);
+		return flatUnpackWhile(deferred, DeferredUtils::flatten, DeferredUtils::unpack, requireNonNull(predicate));
 	}
 
 	public static List<Object> flatUnpackWhile(@Nullable Object deferred, UnaryOperator<Object> unpacker, Predicate<Object> predicate) {
-		return flatUnpackWhile(deferred, DeferredUtils::flatten, unpacker, predicate);
+		return flatUnpackWhile(deferred, DeferredUtils::flatten, requireNonNull(unpacker), requireNonNull(predicate));
 	}
 
 	// TODO: Add tests
 	public static List<Object> flatUnpackWhile(@Nullable Object deferred, BiConsumer<Object, Deque<Object>> flatter, UnaryOperator<Object> unpacker, Predicate<Object> predicate) {
+		if (deferred == null) {
+			return ImmutableList.of();
+		}
+
 		final List<Object> result = new ArrayList<>();
 		final Deque<Object> queue = new ArrayDeque<>();
 		queue.addFirst(deferred);
@@ -103,14 +112,14 @@ public final class DeferredUtils {
 			Object value = queue.removeFirst();
 			if (predicate.test(value)) {
 				queue.addFirst(unpacker.apply(value));
-			}
-
-			val sizeBefore = queue.size();
-			flatter.accept(value, queue);
-			if (sizeBefore > queue.size()) {
-				throw new IllegalStateException("Flatter consumer cannot remove items from the queue");
-			} else if (sizeBefore == queue.size()) {
-				result.add(value);
+			} else {
+				val sizeBefore = queue.size();
+				flatter.accept(value, queue);
+				if (sizeBefore > queue.size()) {
+					throw new IllegalStateException("Flatter consumer cannot remove items from the queue");
+				} else if (sizeBefore == queue.size()) {
+					result.add(value);
+				}
 			}
 		}
 		return result;
