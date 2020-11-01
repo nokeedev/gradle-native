@@ -2,14 +2,16 @@ package dev.nokee.core.exec;
 
 import dev.nokee.core.exec.internal.CommandLineToolInvocationOutputRedirectInternal;
 import dev.nokee.core.exec.internal.CommandLineToolOutputStreams;
-import dev.nokee.core.exec.internal.DefaultCommandLineToolExecutionResult;
 import dev.nokee.core.exec.internal.CommandLineToolOutputStreamsIntertwineImpl;
+import dev.nokee.core.exec.internal.DefaultCommandLineToolExecutionResult;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.apache.commons.exec.PumpStreamHandler;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<ProcessBuilderEngine.Handle> {
@@ -54,6 +56,26 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 		public CommandLineToolExecutionResult waitFor() {
 			try {
 				process.waitFor();
+				streamHandler.stop();
+				return new DefaultCommandLineToolExecutionResult(process.exitValue(), standardOutput.get(), errorOutput.get(), output.get(), displayName);
+			} catch (InterruptedException | IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		public CommandLineToolExecutionResult waitFor(long timeout, TimeUnit unit) {
+			try {
+				process.waitFor(timeout, unit);
+				streamHandler.stop();
+				return new DefaultCommandLineToolExecutionResult(process.exitValue(), standardOutput.get(), errorOutput.get(), output.get(), displayName);
+			} catch (InterruptedException | IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		public CommandLineToolExecutionResult waitFor(Duration duration) {
+			try {
+				process.waitFor(duration.toMillis(), TimeUnit.MILLISECONDS);
 				streamHandler.stop();
 				return new DefaultCommandLineToolExecutionResult(process.exitValue(), standardOutput.get(), errorOutput.get(), output.get(), displayName);
 			} catch (InterruptedException | IOException e) {
