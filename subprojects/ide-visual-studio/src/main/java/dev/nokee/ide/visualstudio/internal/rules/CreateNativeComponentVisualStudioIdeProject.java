@@ -1,6 +1,5 @@
 package dev.nokee.ide.visualstudio.internal.rules;
 
-import dev.nokee.ide.base.internal.IdeProjectExtension;
 import dev.nokee.ide.visualstudio.*;
 import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeProject;
 import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeTarget;
@@ -41,12 +40,12 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public final class CreateNativeComponentVisualStudioIdeProject implements Action<KnownComponent<BaseComponent<?>>> {
-	private final IdeProjectExtension<VisualStudioIdeProject> extension;
+	private final VisualStudioIdeProjectExtension extension;
 	private final ProjectLayout projectLayout;
 	private final ObjectFactory objectFactory;
 	private final ProviderFactory providerFactory;
 
-	public CreateNativeComponentVisualStudioIdeProject(IdeProjectExtension<VisualStudioIdeProject> extension, ProjectLayout projectLayout, ObjectFactory objectFactory, ProviderFactory providerFactory) {
+	public CreateNativeComponentVisualStudioIdeProject(VisualStudioIdeProjectExtension extension, ProjectLayout projectLayout, ObjectFactory objectFactory, ProviderFactory providerFactory) {
 		this.extension = extension;
 		this.projectLayout = projectLayout;
 		this.objectFactory = objectFactory;

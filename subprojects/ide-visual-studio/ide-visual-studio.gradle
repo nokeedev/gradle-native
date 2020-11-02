@@ -32,6 +32,16 @@ gradlePlugin {
 			id = 'dev.nokee.visual-studio-ide'
 			implementationClass = 'dev.nokee.ide.visualstudio.internal.plugins.VisualStudioIdePlugin'
 		}
+		visualStudioIdeBase {
+			id = 'dev.nokee.visual-studio-ide-base'
+			implementationClass = 'dev.nokee.ide.visualstudio.internal.plugins.VisualStudioIdeBasePlugin'
+		}
+	}
+}
+
+test {
+	dependencies {
+		implementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
 	}
 }
 

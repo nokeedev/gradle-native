@@ -41,6 +41,16 @@ gradlePlugin {
 			id = 'dev.nokee.xcode-ide'
 			implementationClass = 'dev.nokee.ide.xcode.internal.plugins.XcodeIdePlugin'
 		}
+		xcodeIdeBase {
+			id = 'dev.nokee.xcode-ide-base'
+			implementationClass = 'dev.nokee.ide.xcode.internal.plugins.XcodeIdeBasePlugin'
+		}
+	}
+}
+
+test {
+	dependencies {
+		implementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
 	}
 }
 

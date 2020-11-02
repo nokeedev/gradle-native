@@ -68,7 +68,11 @@ dependencies {
 	docsTestImplementation 'com.google.guava:guava:28.2-jre'
 	docsTestImplementation testFixtures('dev.nokee.docs:docs-gradle-plugin:latest.integration')
 	docsTestImplementation project(':platformBase')
-	docsTestImplementation project(':languageNative')
+	docsTestImplementation project(':languageC')
+	docsTestImplementation project(':languageCpp')
+	docsTestImplementation project(':languageObjectiveC')
+	docsTestImplementation project(':languageObjectiveCpp')
+	docsTestImplementation project(':languageSwift')
 }
 // TODO: Improve this Antlr mess... :(
 afterEvaluate {

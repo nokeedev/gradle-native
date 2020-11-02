@@ -6,7 +6,7 @@ plugins {
 	id 'java'
 	id 'dev.nokee.jni-library'
 	id 'dev.nokee.objective-c-language'
-	id 'dev.nokee.xcode-ide'
+	id 'dev.nokee.xcode-ide-base'
 }
 
 library.variants.configureEach {

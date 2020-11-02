@@ -86,10 +86,10 @@ tasks.register("updateBintrayMetadata") {
 
 			// TODO: Build this metadata automatically
 			def data = ['gradle-plugin': ["dev.nokee.jni-library:${project.group}:platformJni",
-										  "dev.nokee.cpp-language:${project.group}:languageNative",
-										  "dev.nokee.c-language:${project.group}:languageNative",
-										  "dev.nokee.objective-c-language:${project.group}:languageNative",
-										  "dev.nokee.objective-cpp-language:${project.group}:languageNative",
+										  "dev.nokee.cpp-language:${project.group}:languageCpp",
+										  "dev.nokee.c-language:${project.group}:languageC",
+										  "dev.nokee.objective-c-language:${project.group}:languageObjectiveC",
+										  "dev.nokee.objective-cpp-language:${project.group}:languagObjectiveCpp",
 										  "dev.nokee.objective-c-ios-application:${project.group}:platformIos",
 										  "dev.nokee.swift-ios-application:${project.group}:platformIos",
 										  "dev.nokee.objective-c-xctest-test-suite:${project.group}:testingXctest",
@@ -106,7 +106,9 @@ tasks.register("updateBintrayMetadata") {
 										  "dev.nokee.cmake-build-adapter:${project.group}:buildAdapterCmake",
 										  "dev.nokee.native-unit-testing:${project.group}:testingNative",
 										  "dev.nokee.xcode-ide:${project.group}:ideXcode",
+										  "dev.nokee.xcode-ide-base:${project.group}:ideXcode",
 										  "dev.nokee.visual-studio-ide:${project.group}:ideVisualStudio",
+										  "dev.nokee.visual-studio-ide-base:${project.group}:ideVisualStudio",
 										]]
 			data = data.collect { k, v ->
 				return [name: k, values: v, type: 'string']
