@@ -2,6 +2,8 @@ plugins {
 	id 'java-library'
 	id 'maven-publish'
 	id 'groovy-base'
+	id 'java-gradle-plugin' // Only for wiring the plugin under test metadata
+	id 'dev.gradleplugins.gradle-plugin-unit-test'
 }
 
 import static dev.gradleplugins.GradleRuntimeCompatibility.*
@@ -26,7 +28,8 @@ dependencies {
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation 'org.fusesource.jansi:jansi:2.0'
-
+	testImplementation gradleFixtures()
+	testImplementation gradleApi(minimumGradleVersion)
 }
 
 java {
