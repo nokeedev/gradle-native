@@ -51,20 +51,17 @@ class CommandLineTest extends Specification {
 		when:
 		CommandLine.of('foo', null)
 		then:
-		def ex1 = thrown(NullPointerException)
-		ex1.message == 'The command line cannot contain null elements'
+		thrown(NullPointerException)
 
 		when:
 		CommandLine.of([null])
 		then:
-		def ex2 = thrown(NullPointerException)
-		ex2.message == 'The command line cannot contain null elements'
+		thrown(NullPointerException)
 
 		when:
 		CommandLine.of(['foo', null])
 		then:
-		def ex3 = thrown(NullPointerException)
-		ex3.message == 'The command line cannot contain null elements'
+		thrown(NullPointerException)
 	}
 
 	def "throws exception when command line list is null"() {

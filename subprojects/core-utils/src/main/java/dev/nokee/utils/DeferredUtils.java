@@ -9,10 +9,7 @@ import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.function.BiConsumer;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
+import java.util.function.*;
 
 import static java.util.Objects.requireNonNull;
 import static org.gradle.util.GUtil.uncheckedCall;
@@ -100,12 +97,12 @@ public final class DeferredUtils {
 	}
 
 	// TODO: Add tests
-	public static List<Object> flatUnpackWhile(@Nullable Object deferred, BiConsumer<Object, Deque<Object>> flatter, UnaryOperator<Object> unpacker, Predicate<Object> predicate) {
+	public static List<Object> flatUnpackWhile(@Nullable Object deferred, BiFunction<Object, Deque<Object>, Boolean> flatter, UnaryOperator<Object> unpacker, Predicate<Object> predicate) {
 		if (deferred == null) {
 			return ImmutableList.of();
 		}
 
-		final List<Object> result = new ArrayList<>();
+		final ImmutableList.Builder<Object> result = ImmutableList.builder();
 		final Deque<Object> queue = new ArrayDeque<>();
 		queue.addFirst(deferred);
 		while (!queue.isEmpty()) {
@@ -114,18 +111,18 @@ public final class DeferredUtils {
 				queue.addFirst(unpacker.apply(value));
 			} else {
 				val sizeBefore = queue.size();
-				flatter.accept(value, queue);
+				val didFlat = flatter.apply(value, queue);
 				if (sizeBefore > queue.size()) {
 					throw new IllegalStateException("Flatter consumer cannot remove items from the queue");
-				} else if (sizeBefore == queue.size()) {
+				} else if (!didFlat) {
 					result.add(value);
 				}
 			}
 		}
-		return result;
+		return result.build();
 	}
 
-	static void flatten(Object value, Deque<Object> queue) {
+	static boolean flatten(Object value, Deque<Object> queue) {
 		if (value instanceof List) {
 			List<?> list = (List<?>) value;
 			if (list instanceof RandomAccess) {
@@ -139,10 +136,13 @@ public final class DeferredUtils {
 					queue.addFirst(item);
 				}
 			}
+			return true;
 		} else if (value instanceof Object[]) {
 			Object[] array = (Object[]) value;
 			addAllFirst(queue, array);
+			return true;
 		}
+		return false;
 	}
 
 	private static void addAllFirst(Deque<Object> queue, Object[] items) {
