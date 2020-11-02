@@ -2,7 +2,7 @@ plugins {
 	id 'java-library'
 	id 'maven-publish'
 	id 'groovy-base'
-	id 'java-gradle-plugin' // Only for wiring the plugin under test metadata
+	id 'dev.gradleplugins.java-gradle-plugin' // Only for wiring the plugin under test metadata
 	id 'dev.gradleplugins.gradle-plugin-unit-test'
 }
 
