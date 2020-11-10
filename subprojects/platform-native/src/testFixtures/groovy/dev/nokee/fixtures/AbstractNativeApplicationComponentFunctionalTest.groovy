@@ -14,8 +14,12 @@ abstract class AbstractNativeApplicationComponentFunctionalTest extends Abstract
 		succeeds('assemble')
 
 		then:
-		executable('build/exes/main/application').assertExists()
-		executable('build/exes/main/application').exec().out == 'Bonjour, Alice!\n'
+		executable("build/exes/main/${executableBaseName}").assertExists()
+		executable("build/exes/main/${executableBaseName}").exec().out == 'Bonjour, Alice!\n'
+	}
+
+	protected String getExecutableBaseName() {
+		return 'application'
 	}
 
 	protected abstract void makeSingleProject()

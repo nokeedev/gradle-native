@@ -18,6 +18,11 @@ class SwiftApplicationComponentFunctionalTest extends AbstractNativeApplicationC
 	}
 
 	@Override
+	protected String getExecutableBaseName() {
+		return super.getExecutableBaseName().capitalize()
+	}
+
+	@Override
 	protected SourceElement getComponentUnderTest() {
 		return new SwiftGreeterApp()
 	}
