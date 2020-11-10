@@ -23,6 +23,7 @@ class CGreeterTest extends NativeSourceElement {
 		return ofFiles(sourceFile('c', 'greeter_test.c', '''
 			#include "greeter_fixtures.h"
 			#include <string.h>
+			#include <stdlib.h>
 			#include "greeter.h"
 
 			int main(int argc, char** argv) {
