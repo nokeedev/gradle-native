@@ -3,7 +3,7 @@ plugins {
 	id 'maven-publish'
 }
 
-def allPlatformProjects = rootProject.subprojects - [project(':docs'), project(':distributions'), project(':distributions:bom'), project(':distributions:all'), project]
+def allPlatformProjects = rootProject.subprojects - [project(':docs'), project(':distributions'), project(':distributions:bom'), project(':distributions:all'), project(':distributions:init'), project]
 
 javaPlatform {
 	allowDependencies()
