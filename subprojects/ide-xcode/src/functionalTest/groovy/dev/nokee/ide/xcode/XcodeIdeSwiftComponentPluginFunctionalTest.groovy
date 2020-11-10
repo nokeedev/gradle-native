@@ -29,7 +29,7 @@ class XcodeIdeSwiftApplicationFunctionalTest extends AbstractXcodeIdeNativeCompo
 	}
 
 	@Override
-	protected String getProjectName() {
+	protected String getGroupName() {
 		return "App"
 	}
 
@@ -78,11 +78,6 @@ class XcodeIdeSwiftApplicationWithNativeTestSuiteFunctionalTest extends Abstract
 	}
 
 	@Override
-	protected String getProjectName() {
-		return 'App'
-	}
-
-	@Override
 	protected String getSchemeName() {
 		return 'AppTest'
 	}
@@ -111,7 +106,7 @@ class XcodeIdeSwiftLibraryFunctionalTest extends AbstractXcodeIdeNativeComponent
 	}
 
 	@Override
-	protected String getProjectName() {
+	protected String getGroupName() {
 		return "Lib"
 	}
 
@@ -157,11 +152,6 @@ class XcodeIdeSwiftLibraryWithNativeTestSuiteFunctionalTest extends AbstractXcod
 	protected String configureCustomSourceLayout() {
 		Assume.assumeTrue(false)
 		return super.configureCustomSourceLayout()
-	}
-
-	@Override
-	protected String getProjectName() {
-		return 'Lib'
 	}
 
 	@Override
