@@ -106,14 +106,16 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 		throw new IllegalArgumentException()
 	}
 
-	protected abstract String getProjectName();
+	protected String getProjectName() {
+		return gradleProjectNameUnderTest
+	}
 
 	protected String getSchemeName() {
 		return groupName
 	}
 
 	protected String getWorkspaceName() {
-		return projectName
+		return gradleProjectNameUnderTest
 	}
 
 	@Override

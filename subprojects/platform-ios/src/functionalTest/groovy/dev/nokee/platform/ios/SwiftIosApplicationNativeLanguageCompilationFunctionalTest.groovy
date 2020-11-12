@@ -7,7 +7,9 @@ import dev.nokee.fixtures.AbstractNativeLanguageCompilationFunctionalTest
 import dev.nokee.language.swift.SwiftTaskNames
 import dev.nokee.platform.ios.fixtures.IosTaskNames
 import dev.nokee.platform.ios.fixtures.SwiftIosApp
+import spock.lang.Requires
 
+@Requires({ os.macOs })
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
 class SwiftIosApplicationNativeLanguageCompilationFunctionalTest extends AbstractNativeLanguageCompilationFunctionalTest implements SwiftTaskNames, IosTaskNames {
 	@Override

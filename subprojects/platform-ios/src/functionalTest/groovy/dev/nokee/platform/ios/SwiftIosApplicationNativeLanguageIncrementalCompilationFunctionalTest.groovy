@@ -5,7 +5,9 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.fixtures.AbstractNativeLanguageIncrementalCompilationFunctionalTest
 import dev.nokee.language.swift.SwiftTaskNames
 import dev.nokee.platform.ios.fixtures.IosTaskNames
+import spock.lang.Requires
 
+@Requires({ os.macOs })
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
 class SwiftIosApplicationNativeLanguageIncrementalCompilationFunctionalTest extends AbstractNativeLanguageIncrementalCompilationFunctionalTest implements SwiftTaskNames, IosTaskNames {
 	@Override

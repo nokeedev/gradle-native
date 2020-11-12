@@ -5,10 +5,9 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.platform.ios.fixtures.BundleFixture
 import dev.nokee.platform.ios.fixtures.ObjectiveCIosApp
-import org.apache.commons.lang3.SystemUtils
 import spock.lang.Requires
 
-@Requires({ SystemUtils.IS_OS_MAC })
+@Requires({ os.macOs })
 @RequiresInstalledToolChain(value = ToolChainRequirement.CLANG)
 class BasicIosApplicationFunctionalTest extends AbstractFunctionalSpec {
 	def "can assemble"() {
