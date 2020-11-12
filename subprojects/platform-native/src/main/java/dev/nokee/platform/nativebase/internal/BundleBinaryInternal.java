@@ -85,4 +85,14 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	public TaskProvider<ObjectFilesToBinaryTask> getCreateOrLinkTask() {
 		return getTasks().named(linkTask.getName(), ObjectFilesToBinaryTask.class);
 	}
+
+	@Override
+	public boolean isBuildable() {
+		return super.isBuildable() && isBuildable(linkTask.get());
+	}
+
+	private static boolean isBuildable(LinkBundle linkTask) {
+		AbstractLinkTask linkTaskInternal = (AbstractLinkTask)linkTask;
+		return isBuildable(linkTaskInternal.getToolChain().get(), linkTaskInternal.getTargetPlatform().get());
+	}
 }
