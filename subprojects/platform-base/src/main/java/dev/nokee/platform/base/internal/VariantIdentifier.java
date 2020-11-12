@@ -115,12 +115,16 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 		}
 
 		public <V extends Named> Builder<T> withVariantDimension(V value, Collection<? extends V> allValuesForAxis) {
-			allDimensions = allDimensions.add(value.getName());
+			return withVariantDimension(value.getName(), allValuesForAxis);
+		}
+
+		public Builder<T> withVariantDimension(String name, Collection<?> allValuesForAxis) {
+			allDimensions = allDimensions.add(name);
 			if (allValuesForAxis.size() == 1) {
 				return this;
 			}
 
-			dimensions = dimensions.add(value.getName());
+			dimensions = dimensions.add(name);
 			return this;
 		}
 
