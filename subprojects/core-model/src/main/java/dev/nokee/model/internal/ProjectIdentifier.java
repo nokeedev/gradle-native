@@ -1,14 +1,12 @@
 package dev.nokee.model.internal;
 
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.gradle.api.Project;
 import org.gradle.util.Path;
 
 import java.util.Optional;
 
-@ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(doNotUseGetters = true)
 public final class ProjectIdentifier implements DomainObjectIdentifierInternal {
 	private final Path path;
 
@@ -21,7 +19,7 @@ public final class ProjectIdentifier implements DomainObjectIdentifierInternal {
 	}
 
 	public Path getPath() {
-		return path;
+		return path.getParent();
 	}
 
 	@Override
@@ -39,6 +37,11 @@ public final class ProjectIdentifier implements DomainObjectIdentifierInternal {
 
 	@Override
 	public String getDisplayName() {
-		return "project '" + path.toString() + "'";
+		return "project '" + getPath() + "'";
+	}
+
+	@Override
+	public String toString() {
+		return "project '" + getPath() + "'";
 	}
 }

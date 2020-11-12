@@ -4,6 +4,7 @@ import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.Binary
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.Variant
+import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -93,13 +94,17 @@ class BinaryIdentifierTest extends Specification {
 
 	def "has meaningful toString() implementation"() {
 		given:
-		def ownerProject = ProjectIdentifier.of('root')
+		def rootProject = ProjectBuilder.builder().withName('foo').build()
+		def childProject = ProjectBuilder.builder().withName('bar').withParent(rootProject).build()
+
+		and:
+		def ownerProject = ProjectIdentifier.of(childProject)
 		def ownerComponent = ComponentIdentifier.ofMain(Component, ownerProject)
 		def ownerVariant = VariantIdentifier.of('macosRelease', Variant, ownerComponent)
 
 		expect:
-		BinaryIdentifier.of(BinaryName.of('bar'), TestableBinary, ownerComponent).toString() == "binary ':root:main:bar' (${TestableBinary.simpleName})"
-		BinaryIdentifier.of(BinaryName.of('jar'), TestableBinary, ownerVariant).toString() == "binary ':root:main:macosRelease:jar' (${TestableBinary.simpleName})"
+		BinaryIdentifier.of(BinaryName.of('bar'), TestableBinary, ownerComponent).toString() == "binary ':bar:main:bar' (${TestableBinary.simpleName})"
+		BinaryIdentifier.of(BinaryName.of('jar'), TestableBinary, ownerVariant).toString() == "binary ':bar:main:macosRelease:jar' (${TestableBinary.simpleName})"
 	}
 
 	interface TestableBinary extends Binary {}

@@ -4,6 +4,7 @@ import dev.nokee.model.internal.NameAwareDomainObjectIdentifier
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier
 import dev.nokee.platform.base.Component
+import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -219,9 +220,21 @@ class ComponentIdentifierTest extends Specification {
 	}
 
 	def "has meaningful toString() implementation"() {
+		given:
+		def rootProject = ProjectBuilder.builder().withName('foo').build()
+		def childProject = ProjectBuilder.builder().withName('bar').withParent(rootProject).build()
+
 		expect:
-		ofMain(TestableComponent, ProjectIdentifier.of('foo')).toString() == "component ':foo:main' (${TestableComponent.simpleName})"
-		of(ComponentName.of('integTest'), TestableComponent, ProjectIdentifier.of('bar')).toString() == "component ':bar:integTest' (${TestableComponent.simpleName})"
+		ofMain(TestableComponent, ProjectIdentifier.of('foo')).toString() == "component ':main' (${TestableComponent.simpleName})"
+		of(ComponentName.of('integTest'), TestableComponent, ProjectIdentifier.of('bar')).toString() == "component ':integTest' (${TestableComponent.simpleName})"
+
+		and:
+		ofMain(TestableComponent, ProjectIdentifier.of(rootProject)).toString() == "component ':main' (${TestableComponent.simpleName})"
+		ofMain(TestableComponent, ProjectIdentifier.of(childProject)).toString() == "component ':bar:main' (${TestableComponent.simpleName})"
+
+		and:
+		of(ComponentName.of('integTest'), TestableComponent, ProjectIdentifier.of(rootProject)).toString() == "component ':integTest' (${TestableComponent.simpleName})"
+		of(ComponentName.of('integTest'), TestableComponent, ProjectIdentifier.of(childProject)).toString() == "component ':bar:integTest' (${TestableComponent.simpleName})"
 	}
 
 	interface TestableComponent extends Component {}
