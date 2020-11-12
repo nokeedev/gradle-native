@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.*;
-import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.CHeaderSetImpl;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
@@ -20,7 +19,7 @@ import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.*;
-import dev.nokee.platform.base.internal.plugins.*;
+import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -33,6 +32,7 @@ import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
+import dev.nokee.platform.nativebase.internal.rules.WarnUnbuildableLogger;
 import dev.nokee.platform.nativebase.internal.tasks.ObjectsLifecycleTask;
 import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
@@ -44,7 +44,6 @@ import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.utils.ProviderUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -58,7 +57,6 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Provider;
@@ -81,12 +79,16 @@ import org.gradle.util.GradleVersion;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
+import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
@@ -189,7 +191,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			});
 		});
 
-		PreparedLogger unbuildableMainComponentLogger = new OneTimeLogger(new WarnUnbuildableLogger(project.getPath()));
+		val unbuildableMainComponentLogger = new WarnUnbuildableLogger(extension.getComponent().getIdentifier());
 		project.afterEvaluate(proj -> {
 			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
 
@@ -207,7 +209,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 				if (targetMachines.size() > 1) {
 					val jvmJarBinary = knownVariant.flatMap(variant -> variant.getBinaries().withType(DefaultJvmJarBinary.class).getElements()).orElse(ImmutableSet.of());
-					taskRegistry.register(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier), configureDependsOn(knownVariant.map(it -> it.getJar().getJarTask()), jvmJarBinary));
+					taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier)).configure(configureDependsOn(knownVariant.map(it -> it.getJar().getJarTask()), jvmJarBinary));
 				}
 
 				// Include native runtime files inside JNI jar
@@ -295,17 +297,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				extension.getVariantCollection().realize();
 			});
 		});
-
-		// Warn if component is cannot build on this machine
-		getTasks().named(ASSEMBLE_TASK_NAME, task -> {
-			task.dependsOn((Callable) () -> {
-				boolean targetsCurrentMachine = extension.getTargetMachines().get().stream().anyMatch(toolChainSelectorInternal::canBuild);
-				if (!targetsCurrentMachine) {
-					unbuildableMainComponentLogger.log();
-				}
-				return Collections.emptyList();
-			});
-		});
 	}
 
 	// NOTE(daniel): I added the diagnostic because I lost about 2 hours debugging missing files from the generated JAR file.
@@ -348,7 +339,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		}
 	}
 
-	private Action<Jar> configureJarTaskUsing(KnownVariant<JniLibraryInternal> library, PreparedLogger unbuildableMainComponentLogger) {
+	private Action<Jar> configureJarTaskUsing(KnownVariant<JniLibraryInternal> library, WarnUnbuildableLogger logger) {
+		val runnableLogger = onlyOnce(logger::warn);
 		return task -> {
 			MissingFileDiagnostic diagnostic = new MissingFileDiagnostic();
 			task.doFirst(new Action<Task>() {
@@ -385,7 +377,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					if (it.getTargetMachine().getOperatingSystemFamily().equals(DefaultOperatingSystemFamily.HOST)) {
 						return it.getNativeRuntimeFiles();
 					} else {
-						unbuildableMainComponentLogger.log();
+						runnableLogger.run();
 						return emptyList();
 					}
 				}
@@ -536,35 +528,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				}
 			});
 		});
-	}
-
-	private interface PreparedLogger {
-		void log();
-	}
-
-	@RequiredArgsConstructor
-	private static class WarnUnbuildableLogger implements PreparedLogger {
-		private static final Logger LOGGER = Logging.getLogger(WarnUnbuildableLogger.class);
-		private final String projectPath;
-
-		@Override
-		public void log() {
-			LOGGER.warn("'main' component in project '" + projectPath + "' cannot build on this machine.");
-		}
-	}
-
-	@RequiredArgsConstructor
-	private static class OneTimeLogger implements PreparedLogger {
-		private final PreparedLogger delegate;
-		private boolean messageAlreadyLogged = false;
-
-		@Override
-		public void log() {
-			if (!messageAlreadyLogged) {
-				delegate.log();
-				messageAlreadyLogged = true;
-			}
-		}
 	}
 
 	/**

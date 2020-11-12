@@ -7,6 +7,7 @@ import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import dev.nokee.platform.nativebase.SharedLibraryBinary
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily
+import dev.nokee.fixtures.AbstractTargetMachinesFunctionalTest
 
 class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunctionalTest implements MixedLanguageTaskNames {
 	@Override
@@ -18,12 +19,6 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 				id 'dev.nokee.cpp-language'
 			}
 		'''
-		settingsFile << "rootProject.name = 'jni-greeter'"
-	}
-
-	@Override
-	protected String getComponentUnderTestDsl() {
-		return 'library'
 	}
 
 	@Override
@@ -32,23 +27,8 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 	}
 
 	@Override
-	protected String getTaskNameToAssembleDevelopmentBinary() {
-		return 'assemble'
-	}
-
-	@Override
 	protected List<String> getTasksToAssembleDevelopmentBinary() {
 		return taskNames.java.tasks.allToAssemble + taskNames.cpp.tasks.allToAssemble
-	}
-
-	@Override
-	protected String getTaskNameToAssembleDevelopmentBinaryWithArchitecture(String architecture) {
-		return "assemble${architecture.capitalize()}"
-	}
-
-	@Override
-	protected String getComponentName() {
-		return 'main'
 	}
 
 	@Override

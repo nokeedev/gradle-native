@@ -24,6 +24,7 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
 
