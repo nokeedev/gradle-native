@@ -1,6 +1,7 @@
 package dev.nokee.platform.nativebase.internal.rules;
 
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.*;
 import org.gradle.api.Project;
@@ -18,6 +19,10 @@ public interface TaskEntityFixture extends NokeeEntitiesFixture {
 	}
 
 	static TaskIdentifier<Task> aTaskOfVariant(String name, VariantIdentifier<?> owner) {
+		return TaskIdentifier.of(TaskName.of(name), Task.class, owner);
+	}
+
+	static TaskIdentifier<Task> aTaskOfComponent(String name, ComponentIdentifier<?> owner) {
 		return TaskIdentifier.of(TaskName.of(name), Task.class, owner);
 	}
 }

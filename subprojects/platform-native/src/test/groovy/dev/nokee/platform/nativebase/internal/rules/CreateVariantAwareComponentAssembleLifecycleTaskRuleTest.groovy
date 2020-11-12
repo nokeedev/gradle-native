@@ -1,79 +1,72 @@
 package dev.nokee.platform.nativebase.internal.rules
 
-import dev.nokee.platform.base.Component
+
 import dev.nokee.platform.base.internal.ComponentIdentifier
-import dev.nokee.platform.base.internal.ComponentName
-import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal
-import dev.nokee.platform.base.internal.tasks.TaskIdentifier
-import dev.nokee.platform.base.internal.tasks.TaskName
-import dev.nokee.platform.base.internal.tasks.TaskRegistry
-import dev.nokee.utils.ProviderUtils
-import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.Project
+import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
+import spock.lang.Unroll
 
-import static dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer.TO_DEVELOPMENT_BINARY
-import static dev.nokee.utils.TaskUtils.configureDependsOn
 import static dev.nokee.utils.TaskUtils.configureGroup
-import static org.gradle.language.base.plugins.LifecycleBasePlugin.BUILD_GROUP
 
 @Subject(CreateVariantAwareComponentAssembleLifecycleTaskRule)
-class CreateVariantAwareComponentAssembleLifecycleTaskRuleTest extends Specification {
-	def "creates an assemble task owned by the variant"() {
-		given:
-		def taskRegistry = Mock(TaskRegistry)
-		def subject = new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry)
+class CreateVariantAwareComponentAssembleLifecycleTaskRuleTest extends Specification implements TaskEntityFixture, ComponentEntityFixture {
+	Project project = ProjectBuilder.builder().build()
+	def subject = new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry)
 
-		and:
-		def owner1 = ComponentIdentifier.ofMain(Component, ProjectIdentifier.of('root'))
-		def owner2 = ComponentIdentifier.of(ComponentName.of('test'), Component, ProjectIdentifier.of('root'))
-
-		and:
-		def component = Mock(VariantAwareComponentInternal) {
-			getDevelopmentVariant() >> ProviderUtils.notDefined()
+	VariantAwareComponentInternal<?> aComponent(ComponentIdentifier<?> identifier) {
+		return Stub(VariantAwareComponentInternal) {
+			getIdentifier() >> identifier
 		}
-
-		when:
-		subject.execute(component)
-		then:
-		1 * component.identifier >> owner1
-		1 * taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of('assemble'), owner1), configureGroup(BUILD_GROUP)) >> Stub(TaskProvider)
-		0 * taskRegistry._
-
-		when:
-		subject.execute(component)
-		then:
-		1 * component.identifier >> owner2
-		1 * taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of('assemble'), owner2), configureGroup(BUILD_GROUP)) >> Stub(TaskProvider)
-		0 * taskRegistry._
 	}
 
-	def "configures the task with dependency of mapping to development binaries compile tasks of the development variant"() {
+	@Unroll
+	def "creates the assemble task if absent"(component) {
 		given:
-		def taskProvider = Mock(TaskProvider)
-		def taskRegistry = Stub(TaskRegistry) {
-			registerIfAbsent(_, _) >> taskProvider
-		}
-		def subject = new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry)
-
-		and:
-		def developmentVariantFlatMapProvider = Stub(Provider)
-		def developmentVariantProvider = Mock(Provider)
-
-		and:
-		def owner = ComponentIdentifier.ofMain(Component, ProjectIdentifier.of('root'))
-		def component = Stub(VariantAwareComponentInternal) {
-			getIdentifier() >> owner
-			getDevelopmentVariant() >> developmentVariantProvider
-		}
+		discovered(component)
 
 		when:
-		subject.execute(component)
+		subject.execute(aComponent(component))
 
 		then:
-		1 * taskProvider.configure(configureDependsOn(developmentVariantFlatMapProvider))
-		1 * developmentVariantProvider.flatMap(TO_DEVELOPMENT_BINARY) >> developmentVariantFlatMapProvider // because provider don't have equals
+		def assembleTask = taskRepository.get(aTaskOfComponent('assemble', component))
+		assembleTask.group == 'build'
+
+		where:
+		component << [mainComponentIdentifier(), aComponentIdentifier('test'), aComponentIdentifier('integTest')]
+	}
+
+	@Unroll
+	def "does not configure the assemble task group if already present"(component) {
+		given:
+		discovered(component)
+		def assembleTask = taskRegistry.register(aTaskOfComponent('assemble', component), configureGroup('some group')).get()
+
+		when:
+		subject.execute(aComponent(component))
+
+		then:
+		assembleTask.group == 'some group'
+
+		where:
+		component << [mainComponentIdentifier(), aComponentIdentifier('test')]
+	}
+
+	@Unroll
+	def "configures assemble task with a dependency on the buildable variant or warns"(component) {
+		given:
+		discovered(component)
+
+		when:
+		subject.execute(aComponent(component))
+
+		then:
+		def assembleTask = taskRepository.get(aTaskOfComponent('assemble', component))
+		assembleTask.dependsOn.size() == 1 // We assume the dependency is buildable variant or warning logger
+
+		where:
+		component << [mainComponentIdentifier(), aComponentIdentifier('test')]
 	}
 }
