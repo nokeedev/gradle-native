@@ -1,15 +1,13 @@
 package dev.nokee.ide.visualstudio.internal;
 
-import dev.nokee.utils.Cast;
-import lombok.SneakyThrows;
-import lombok.val;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.util.GradleVersion;
 
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
+
+import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 
 public abstract class VisualStudioIdePropertyAdapter {
 	@Inject
@@ -39,14 +37,8 @@ public abstract class VisualStudioIdePropertyAdapter {
 		return getXcodeProperty("GRADLE_IDE_PROJECT_NAME");
 	}
 
-	@SneakyThrows
 	private Provider<String> getXcodeProperty(String name) {
-		if (GradleVersion.current().compareTo(GradleVersion.version("6.5")) >= 0) {
-			Provider<String> result = getProviders().gradleProperty(prefixName(name));
-			val method = Provider.class.getMethod("forUseAtConfigurationTime");
-			return Cast.uncheckedCast("using reflection to support newer Gradle", method.invoke(result));
-		}
-		return getProviders().gradleProperty(prefixName(name));
+		return forUseAtConfigurationTime(getProviders().gradleProperty(prefixName(name)));
 	}
 
 	public static List<String> getAdapterCommandLine(String action) {

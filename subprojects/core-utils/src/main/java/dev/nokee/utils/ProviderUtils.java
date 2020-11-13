@@ -9,8 +9,11 @@ import org.gradle.api.internal.provider.Providers;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.specs.Specs;
+import org.gradle.util.GradleVersion;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -182,5 +185,17 @@ public final class ProviderUtils {
 		public String toString() {
 			return "ProviderUtils.map(" + mapper + ")";
 		}
+	}
+
+	public static <S> Provider<S> forUseAtConfigurationTime(Provider<S> provider) {
+		if (GradleVersion.current().compareTo(GradleVersion.version("6.5")) >= 0) {
+			try {
+				Method method = Provider.class.getMethod("forUseAtConfigurationTime");
+				return Cast.uncheckedCast("using reflection to support newer Gradle", method.invoke(provider));
+			} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+				throw new RuntimeException("Could not mark provider usage for configuration time because of an exception.", e);
+			}
+		}
+		return provider;
 	}
 }
