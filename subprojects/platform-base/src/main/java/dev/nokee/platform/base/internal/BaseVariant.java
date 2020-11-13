@@ -13,7 +13,7 @@ import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 public class BaseVariant {
 	@Getter private final VariantIdentifier<?> identifier;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
-	@Getter private final Property<Binary> developmentBinary;
+	private final Property<Binary> developmentBinary;
 	@Getter private final BinaryView<Binary> binaries;
 
 	protected BaseVariant(VariantIdentifier<?> identifier, ObjectFactory objects, BinaryViewFactory binaryViewFactory) {
@@ -25,5 +25,9 @@ public class BaseVariant {
 
 	public BuildVariantInternal getBuildVariant() {
 		return (BuildVariantInternal) identifier.getBuildVariant();
+	}
+
+	public Property<Binary> getDevelopmentBinary() {
+		return developmentBinary;
 	}
 }
