@@ -13,6 +13,7 @@ import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.components.KnownComponent;
+import dev.nokee.platform.jni.internal.AbstractJarBinary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
@@ -230,6 +231,8 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 						return "StaticLibrary";
 					} else if (binary instanceof ExecutableBinary) {
 						return "Application";
+					} else if (binary instanceof AbstractJarBinary) {
+						return "Unknown";
 					}
 					throw unsupportedBinaryType(binary);
 				});
