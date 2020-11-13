@@ -1,5 +1,6 @@
 package dev.nokee.utils;
 
+import com.google.common.collect.ImmutableList;
 import lombok.val;
 import org.gradle.api.DomainObjectCollection;
 import org.gradle.api.provider.Provider;
@@ -10,6 +11,7 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.*;
 
+import static java.util.Objects.requireNonNull;
 import static org.gradle.util.GUtil.uncheckedCall;
 
 public final class DeferredUtils {
@@ -87,36 +89,40 @@ public final class DeferredUtils {
 	}
 
 	public static List<Object> flatUnpackWhile(@Nullable Object deferred, Predicate<Object> predicate) {
-		return flatUnpackWhile(deferred, DeferredUtils::flatten, DeferredUtils::unpack, predicate);
+		return flatUnpackWhile(deferred, DeferredUtils::flatten, DeferredUtils::unpack, requireNonNull(predicate));
 	}
 
 	public static List<Object> flatUnpackWhile(@Nullable Object deferred, UnaryOperator<Object> unpacker, Predicate<Object> predicate) {
-		return flatUnpackWhile(deferred, DeferredUtils::flatten, unpacker, predicate);
+		return flatUnpackWhile(deferred, DeferredUtils::flatten, requireNonNull(unpacker), requireNonNull(predicate));
 	}
 
 	// TODO: Add tests
-	public static List<Object> flatUnpackWhile(@Nullable Object deferred, BiConsumer<Object, Deque<Object>> flatter, UnaryOperator<Object> unpacker, Predicate<Object> predicate) {
-		final List<Object> result = new ArrayList<>();
+	public static List<Object> flatUnpackWhile(@Nullable Object deferred, BiFunction<Object, Deque<Object>, Boolean> flatter, UnaryOperator<Object> unpacker, Predicate<Object> predicate) {
+		if (deferred == null) {
+			return ImmutableList.of();
+		}
+
+		final ImmutableList.Builder<Object> result = ImmutableList.builder();
 		final Deque<Object> queue = new ArrayDeque<>();
 		queue.addFirst(deferred);
 		while (!queue.isEmpty()) {
 			Object value = queue.removeFirst();
 			if (predicate.test(value)) {
 				queue.addFirst(unpacker.apply(value));
-			}
-
-			val sizeBefore = queue.size();
-			flatter.accept(value, queue);
-			if (sizeBefore > queue.size()) {
-				throw new IllegalStateException("Flatter consumer cannot remove items from the queue");
-			} else if (sizeBefore == queue.size()) {
-				result.add(value);
+			} else {
+				val sizeBefore = queue.size();
+				val didFlat = flatter.apply(value, queue);
+				if (sizeBefore > queue.size()) {
+					throw new IllegalStateException("Flatter consumer cannot remove items from the queue");
+				} else if (!didFlat) {
+					result.add(value);
+				}
 			}
 		}
-		return result;
+		return result.build();
 	}
 
-	static void flatten(Object value, Deque<Object> queue) {
+	static boolean flatten(Object value, Deque<Object> queue) {
 		if (value instanceof List) {
 			List<?> list = (List<?>) value;
 			if (list instanceof RandomAccess) {
@@ -130,10 +136,13 @@ public final class DeferredUtils {
 					queue.addFirst(item);
 				}
 			}
+			return true;
 		} else if (value instanceof Object[]) {
 			Object[] array = (Object[]) value;
 			addAllFirst(queue, array);
+			return true;
 		}
+		return false;
 	}
 
 	private static void addAllFirst(Deque<Object> queue, Object[] items) {

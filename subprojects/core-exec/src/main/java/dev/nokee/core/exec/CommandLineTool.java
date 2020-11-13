@@ -1,9 +1,11 @@
 package dev.nokee.core.exec;
 
-import dev.nokee.core.exec.internal.SystemCommandLineTool;
 import org.gradle.api.tasks.Internal;
 
+import javax.annotation.Nullable;
 import java.io.File;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * A command line tool represent a executable component that can be used as a tool.
@@ -13,16 +15,16 @@ import java.io.File;
  * @since 0.4
  */
 public interface CommandLineTool {
-	static CommandLineTool fromPath(String executable) {
-		return CommandLineToolFactory.fromPath(executable);
+	static Optional<CommandLineTool> fromPath(String executable) {
+		return CommandLineTools.findInPath(executable);
 	}
 
 	static CommandLineTool of(File executable) {
-		return CommandLineToolFactory.fromLocation(executable);
+		return CommandLineTools.fromLocation(executable);
 	}
 
 	static CommandLineTool of(Object executable) {
-		return new SystemCommandLineTool(executable);
+		return CommandLineTools.fromPath(executable);
 	}
 
 	@Internal
@@ -66,4 +68,15 @@ public interface CommandLineTool {
 	 * @since 0.5
 	 */
 	<T extends CommandLineToolExecutionHandle> T execute(CommandLineToolExecutionEngine<T> engine);
+
+	/**
+	 * Convenience for {@code newInvocation().withEnvironmentVariables(CommandLineToolInvocationEnvironmentVariables.from(env)).workingDirectory(workingDirectory).build().submit(new ProcessBuilderEngine())}.
+	 * This API behave similarly to the Groovy API.
+	 *
+	 * @param env the environment variable to invoke the process with, null means inherited.
+	 * @param workingDirectory the working directory to invoke the process in, null means inherited.
+	 * @return a {@link ProcessBuilderEngine.Handle} representing the execution in progress, never null.
+	 * @since 0.5
+	 */
+	ProcessBuilderEngine.Handle execute(@Nullable List<?> env, File workingDirectory);
 }

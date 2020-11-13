@@ -2,6 +2,8 @@ plugins {
 	id 'java-library'
 	id 'maven-publish'
 	id 'groovy-base'
+	id 'dev.gradleplugins.java-gradle-plugin' // Only for wiring the plugin under test metadata
+	id 'dev.gradleplugins.gradle-plugin-unit-test'
 }
 
 import static dev.gradleplugins.GradleRuntimeCompatibility.*
@@ -12,17 +14,22 @@ repositories {
 }
 
 dependencies {
+	implementation 'net.rubygrapefruit:ansi-control-sequence-util:0.2'
 	implementation "org.apache.commons:commons-exec:${commonsExecVersion}"
 	compileOnly gradleApi(minimumGradleVersion)
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	implementation project(':coreUtils')
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
+	testImplementation 'org.fusesource.jansi:jansi:2.0'
+	testImplementation gradleFixtures()
+	testImplementation gradleApi(minimumGradleVersion)
 }
 
 java {

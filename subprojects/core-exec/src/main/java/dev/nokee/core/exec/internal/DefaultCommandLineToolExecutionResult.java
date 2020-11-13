@@ -11,18 +11,24 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 public class DefaultCommandLineToolExecutionResult implements CommandLineToolExecutionResult {
 	@Getter private final int exitValue;
-	private final String output;
-	private final String error;
+	private final CommandLineToolLogContent output;
+	private final CommandLineToolLogContent error;
+	private final CommandLineToolLogContent fullOutput;
 	private final Supplier<String> displayName;
 
 	@Override
 	public CommandLineToolLogContent getStandardOutput() {
-		return new DefaultCommandLineToolLogContent(output);
+		return output;
 	}
 
 	@Override
 	public CommandLineToolLogContent getErrorOutput() {
-		return new DefaultCommandLineToolLogContent(error);
+		return error;
+	}
+
+	@Override
+	public CommandLineToolLogContent getOutput() {
+		return fullOutput;
 	}
 
 	@Override

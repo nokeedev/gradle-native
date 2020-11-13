@@ -3,8 +3,6 @@ package dev.nokee.platform.ios.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.core.exec.internal.PathAwareCommandLineTool;
-import dev.nokee.core.exec.internal.VersionedCommandLineTool;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.language.base.internal.LanguageSourceSetRepository;
@@ -55,7 +53,6 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.Swiftc;
-import org.gradle.util.VersionNumber;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -129,8 +126,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		interfaceBuilderToolConfiguration.getDependencies().add(dependencyHandler.create("dev.nokee.tool:ibtool:latest.release"));
 		Provider<CommandLineTool> interfaceBuilderTool = providers.provider(() -> new DescriptorCommandLineTool(interfaceBuilderToolConfiguration.getSingleFile()));
 
-		Provider<CommandLineTool> assetCompilerTool = providers.provider(() -> new VersionedCommandLineTool(new File("/usr/bin/actool"), VersionNumber.parse("11.3.1")));
-		Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> new PathAwareCommandLineTool(new File("/usr/bin/codesign")));
+		Provider<CommandLineTool> assetCompilerTool = providers.provider(() -> CommandLineTool.of(new File("/usr/bin/actool")));
+		Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> CommandLineTool.of(new File("/usr/bin/codesign")));
 
 		String moduleName = BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase();
 		Provider<String> identifier = providers.provider(() -> getGroupId().get().get().map(it -> it + "." + moduleName).orElse(moduleName));

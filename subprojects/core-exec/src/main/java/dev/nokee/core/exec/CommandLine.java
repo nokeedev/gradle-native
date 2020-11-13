@@ -3,13 +3,15 @@ package dev.nokee.core.exec;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.internal.DefaultCommandLine;
-import dev.nokee.core.exec.internal.DefaultCommandLineToolArguments;
-import dev.nokee.core.exec.internal.SystemCommandLineTool;
 import lombok.NonNull;
 
+import javax.annotation.Nullable;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
+import static dev.nokee.utils.DeferredUtils.flatUnpack;
 
 /**
  * A command line is composed of a tool with zero or more arguments.
@@ -52,6 +54,19 @@ public interface CommandLine {
 	<T extends CommandLineToolExecutionHandle> T execute(CommandLineToolExecutionEngine<T> engine);
 
 	/**
+	 * Convenience for {@code newInvocation().withEnvironmentVariables(CommandLineToolInvocationEnvironmentVariables.from(env)).workingDirectory(workingDirectory).build().submit(new ProcessBuilderEngine())}.
+	 * This API behave similarly to the Groovy API.
+	 *
+	 * @param env the environment variable to invoke the process with, null means inherited.
+	 * @param workingDirectory the working directory to invoke the process in, null means inherited.
+	 * @return a {@link ProcessBuilderEngine.Handle} representing the execution in progress, never null.
+	 * @since 0.5
+	 */
+	ProcessBuilderEngine.Handle execute(@Nullable List<?> env, File workingDirectory);
+
+	ProcessBuilderEngine.Handle execute();
+
+	/**
 	 * Creates a {@link CommandLine} instance from the command line elements specified.
 	 *
 	 * @param commandLine the command line elements, cannot be empty or contains null values.
@@ -67,8 +82,8 @@ public interface CommandLine {
 	 * @param commandLine the command line elements, cannot be empty or contains null values.
 	 * @return a {@link CommandLine} instance representing the specified command line, never null.
 	 */
-	static CommandLine of(@NonNull List<Object> commandLine) {
-		Iterator<Object> it = commandLine.iterator();
+	static CommandLine of(@NonNull List<?> commandLine) {
+		Iterator<?> it = flatUnpack(commandLine).iterator();
 		Preconditions.checkArgument(it.hasNext(), "The command line must contain at least one element for the executable");
 		Object executable = it.next();
 		Preconditions.checkNotNull(executable, "The command line cannot contain null elements");
@@ -78,6 +93,6 @@ public interface CommandLine {
 			Preconditions.checkNotNull(element, "The command line cannot contain null elements");
 			arguments.add(element);
 		});
-		return new DefaultCommandLine(new SystemCommandLineTool(executable), new DefaultCommandLineToolArguments(arguments.build()));
+		return new DefaultCommandLine(CommandLineTool.of(executable), CommandLineToolArguments.of(arguments.build()));
 	}
 }

@@ -1,7 +1,6 @@
-package dev.nokee.core.exec.internal;
+package dev.nokee.core.exec;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.core.exec.CommandLineToolArguments;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
@@ -10,7 +9,7 @@ import java.util.stream.Collectors;
 
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class DefaultCommandLineToolArguments implements CommandLineToolArguments {
+final class CommandLineToolArgumentsImpl implements CommandLineToolArguments {
 	private final List<Object> arguments;
 
 	@Override

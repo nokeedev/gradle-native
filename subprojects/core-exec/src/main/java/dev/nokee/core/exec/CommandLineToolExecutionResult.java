@@ -23,6 +23,13 @@ public interface CommandLineToolExecutionResult {
 	CommandLineToolLogContent getErrorOutput();
 
 	/**
+	 * Returns the log content of the command line tool execution's standard and error output as received during execution.
+	 *
+	 * @return a {@link CommandLineToolLogContent} instance of the command line tool execution output, never null.
+	 */
+	CommandLineToolLogContent getOutput();
+
+	/**
 	 * Returns the exit value of the process.
 	 *
 	 * @return the integer value return when the process exited.

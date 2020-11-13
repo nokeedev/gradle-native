@@ -10,12 +10,12 @@ import java.io.FileOutputStream;
 import java.io.Serializable;
 
 @Value
-public class AppendStandardStreamToFileCommandLineToolInvocationOutputRedirect implements CommandLineToolInvocationStandardOutputRedirect, CommandLineToolInvocationOutputRedirectInternal, Serializable {
+public class CommandLineToolInvocationStandardOutputRedirectAppendToFileImpl implements CommandLineToolInvocationStandardOutputRedirect, CommandLineToolInvocationOutputRedirectInternal, Serializable {
 	File file;
 
 	@SneakyThrows
 	@Override
 	public CommandLineToolOutputStreams redirect(CommandLineToolOutputStreams delegate) {
-		return new CommandLineToolOutputStreams(new TeeOutputStream(delegate.getStandardOutput(), new FileOutputStream(file)), delegate.getErrorOutput());
+		return new CommandLineToolOutputStreamsImpl(new TeeOutputStream(delegate.getStandardOutput(), new FileOutputStream(file)), delegate.getErrorOutput());
 	}
 }
