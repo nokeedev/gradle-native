@@ -21,7 +21,6 @@ import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
 import dev.nokee.platform.nativebase.internal.NamedTargetBuildType;
 import dev.nokee.utils.ProviderUtils;
-import dev.nokee.utils.TransformerUtils;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
@@ -113,7 +112,7 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			val projectConfiguration = projectConfiguration(buildType);
 			val target = new DefaultVisualStudioIdeTarget(projectConfiguration, objectFactory);
 
-			val binary = variant.getDevelopmentBinary().map(toSharedLibraryWhenJniLibraryVariant(variant));
+			val binary = developmentBinary(variant);
 			target.getProductLocation().set(binary.flatMap(toProductLocation()));
 			target.getProperties().put("ConfigurationType", binary.flatMap(toConfigurationType()));
 			target.getProperties().put("UseDebugLibraries", true);
@@ -129,16 +128,11 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			return target;
 		}
 
-		private Transformer<Binary, Binary> toSharedLibraryWhenJniLibraryVariant(Variant variant) {
+		private Provider<Binary> developmentBinary(Variant variant) {
 			if (variant instanceof JniLibrary) {
-				return new Transformer<Binary, Binary>() {
-					@Override
-					public Binary transform(Binary binary) {
-						return ((JniLibrary) variant).getSharedLibrary();
-					}
-				};
+				return ProviderUtils.fixed(((JniLibrary) variant).getSharedLibrary());
 			}
-			return TransformerUtils.noOpTransformer();
+			return variant.getDevelopmentBinary();
 		}
 
 		private NamedTargetBuildType buildType(VariantInternal variantInternal) {

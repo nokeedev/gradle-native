@@ -8,11 +8,13 @@ import lombok.Getter;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.internal.tasks.TaskDependencyContainer;
+import org.gradle.api.internal.tasks.TaskDependencyResolveContext;
 import org.gradle.api.model.ObjectFactory;
 
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
-public final class DefaultVisualStudioIdeTarget implements VisualStudioIdeTarget, Named {
+public final class DefaultVisualStudioIdeTarget implements VisualStudioIdeTarget, Named, TaskDependencyContainer {
 	private final ObjectFactory objectFactory;
 	@Getter private final VisualStudioIdeProjectConfiguration projectConfiguration;
 	@Getter private final DefaultVisualStudioIdePropertyGroup properties;
@@ -38,5 +40,11 @@ public final class DefaultVisualStudioIdeTarget implements VisualStudioIdeTarget
 
 	private VisualStudioIdePropertyGroup newPropertyGroup(String name) {
 		return objectFactory.newInstance(NamedVisualStudioIdePropertyGroup.class, name);
+	}
+
+	@Override
+	public void visitDependencies(TaskDependencyResolveContext context) {
+		properties.visitDependencies(context);
+		itemProperties.stream().map(DefaultVisualStudioIdePropertyGroup.class::cast).forEach(it -> it.visitDependencies(context));
 	}
 }

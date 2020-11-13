@@ -47,6 +47,10 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		return solutionName
 	}
 
+	protected List<String> getGeneratedHeaders() {
+		return []
+	}
+
 	protected VisualStudioIdeProjectFixture getVisualStudioProjectUnderTest() {
 		return visualStudioProject(visualStudioProjectName)
 	}
@@ -123,7 +127,7 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		succeeds('visualStudio')
 
 		then:
-		visualStudioProjectUnderTest.assertHasSourceLayout(ofSources(componentUnderTest).files.collect { "Source Files/${it.name}".toString() } + ofHeaders(componentUnderTest).files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
+		visualStudioProjectUnderTest.assertHasSourceLayout(ofSources(componentUnderTest).files.collect { "Source Files/${it.name}".toString() } + ofHeaders(componentUnderTest).files.collect { "Header Files/${it.name}".toString() } + generatedHeaders.collect { "Header Files/${it}".toString() } + ['build.gradle', 'settings.gradle'])
 	}
 
 	def "include sources in project with custom layout"() {

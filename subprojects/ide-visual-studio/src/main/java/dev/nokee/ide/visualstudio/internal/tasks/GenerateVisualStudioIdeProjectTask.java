@@ -17,12 +17,14 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
-import org.simpleframework.xml.*;
+import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.Registry;
 import org.simpleframework.xml.convert.RegistryStrategy;
 import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.Strategy;
-import org.simpleframework.xml.stream.*;
+import org.simpleframework.xml.stream.CamelCaseStyle;
+import org.simpleframework.xml.stream.Format;
+import org.simpleframework.xml.stream.Style;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -52,6 +54,7 @@ public abstract class GenerateVisualStudioIdeProjectTask extends DefaultTask {
 	@Inject
 	public GenerateVisualStudioIdeProjectTask(VisualStudioIdeProject visualStudioProject) {
 		this.visualStudioProject = (DefaultVisualStudioIdeProject) visualStudioProject;
+		dependsOn(this.visualStudioProject.getTargets());
 		getFiltersLocation().fileProvider(getProjectLocation().map(it -> new File(it.getAsFile().getAbsolutePath() + ".filters")));
 	}
 
