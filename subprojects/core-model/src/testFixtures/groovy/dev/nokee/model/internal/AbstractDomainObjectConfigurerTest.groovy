@@ -117,7 +117,6 @@ abstract class AbstractDomainObjectConfigurerTest<T> extends DomainObjectSpec<T>
 
 		when:
 		entityCreated(identifier1, entity1)
-		println entity1.get()
 		then:
 		1 * action.execute({ it == entity1.get() })
 		0 * action.execute(_)
