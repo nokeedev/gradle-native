@@ -13,7 +13,7 @@ import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.components.KnownComponent;
-import dev.nokee.platform.jni.internal.AbstractJarBinary;
+import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
@@ -21,6 +21,7 @@ import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
 import dev.nokee.platform.nativebase.internal.NamedTargetBuildType;
 import dev.nokee.utils.ProviderUtils;
+import dev.nokee.utils.TransformerUtils;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
@@ -112,7 +113,7 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			val projectConfiguration = projectConfiguration(buildType);
 			val target = new DefaultVisualStudioIdeTarget(projectConfiguration, objectFactory);
 
-			val binary = variant.getDevelopmentBinary();
+			val binary = variant.getDevelopmentBinary().map(toSharedLibraryWhenJniLibraryVariant(variant));
 			target.getProductLocation().set(binary.flatMap(toProductLocation()));
 			target.getProperties().put("ConfigurationType", binary.flatMap(toConfigurationType()));
 			target.getProperties().put("UseDebugLibraries", true);
@@ -126,6 +127,18 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 				.put("SubSystem", binary.flatMap(toSubSystem()));
 
 			return target;
+		}
+
+		private Transformer<Binary, Binary> toSharedLibraryWhenJniLibraryVariant(Variant variant) {
+			if (variant instanceof JniLibrary) {
+				return new Transformer<Binary, Binary>() {
+					@Override
+					public Binary transform(Binary binary) {
+						return ((JniLibrary) variant).getSharedLibrary();
+					}
+				};
+			}
+			return TransformerUtils.noOpTransformer();
 		}
 
 		private NamedTargetBuildType buildType(VariantInternal variantInternal) {
@@ -231,8 +244,6 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 						return "StaticLibrary";
 					} else if (binary instanceof ExecutableBinary) {
 						return "Application";
-					} else if (binary instanceof AbstractJarBinary) {
-						return "Unknown";
 					}
 					throw unsupportedBinaryType(binary);
 				});
