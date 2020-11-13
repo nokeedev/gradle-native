@@ -1,9 +1,11 @@
 package dev.nokee.platform.nativebase.internal.dependencies;
 
+import com.google.common.collect.Iterables;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
+import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
@@ -23,6 +25,7 @@ public class NativeLibraryOutgoingDependencies extends AbstractNativeLibraryOutg
 			ConsumableDependencyBucket.class, ownerIdentifier);
 		val apiElements = configurationRegistry.createIfAbsent(identifier.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingHeaderSearchPathFrom(dependencies.getApi().getAsConfiguration(), dependencies.getCompileOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifier.getDisplayName()));
 
-		apiElements.getOutgoing().artifact(getExportedHeaders());
+		// See https://github.com/gradle/gradle/issues/15146 to learn more about splitting the implicit dependencies
+		apiElements.getOutgoing().artifact(getExportedHeaders().getElements().flatMap(it -> ProviderUtils.fixed(Iterables.getOnlyElement(it))), it -> it.builtBy(getExportedHeaders()));
 	}
 }

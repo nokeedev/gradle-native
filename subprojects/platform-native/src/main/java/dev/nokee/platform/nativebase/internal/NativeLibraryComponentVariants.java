@@ -1,7 +1,6 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import dev.nokee.language.base.internal.LanguageSourceSetInternal;
 import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.c.CHeaderSet;
@@ -29,7 +28,6 @@ import lombok.var;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
@@ -132,8 +130,7 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 			}
 			component.getSources().withType(LanguageSourceSetInternal.class).configureEach(it -> (it instanceof CHeaderSet || it instanceof CppHeaderSet) && it.getIdentifier().getName().get().equals("public"), sourceSet -> {
 				// TODO: Allow to export more than one folder
-				val directory = sourceSet.getSourceDirectories().getElements().map(Iterables::getOnlyElement).map(FileSystemLocation::getAsFile);
-				dependencies.getOutgoing().getExportedHeaders().fileProvider(directory);
+				dependencies.getOutgoing().getExportedHeaders().from(sourceSet.getSourceDirectories());
 			});
 		}
 		dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));

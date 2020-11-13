@@ -11,7 +11,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
@@ -22,14 +22,14 @@ import javax.inject.Inject;
 
 public class IosApplicationOutgoingDependencies implements NativeOutgoingDependencies {
 	@Getter(AccessLevel.PROTECTED) private final DefaultNativeComponentDependencies dependencies;
-	@Getter private final DirectoryProperty exportedHeaders;
+	@Getter private final ConfigurableFileCollection exportedHeaders;
 	@Getter private final RegularFileProperty exportedSwiftModule;
 	@Getter private final Property<Binary> exportedBinary;
 
 	@Inject
 	public IosApplicationOutgoingDependencies(DomainObjectIdentifierInternal ownerIdentifier, BuildVariantInternal buildVariant, DefaultNativeComponentDependencies dependencies, ConfigurationContainer configurationContainer, ObjectFactory objects) {
 		this.dependencies = dependencies;
-		this.exportedHeaders = objects.directoryProperty();
+		this.exportedHeaders = objects.fileCollection();
 		this.exportedSwiftModule = objects.fileProperty();
 		this.exportedBinary = objects.property(Binary.class);
 
