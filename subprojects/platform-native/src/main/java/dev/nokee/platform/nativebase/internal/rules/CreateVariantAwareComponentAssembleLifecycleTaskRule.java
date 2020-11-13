@@ -4,9 +4,14 @@ import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.utils.DeferUtils;
+import lombok.val;
 import org.gradle.api.Action;
 
+import java.util.Arrays;
+
 import static dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer.TO_DEVELOPMENT_BINARY;
+import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TaskUtils.configureGroup;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
@@ -24,7 +29,8 @@ public class CreateVariantAwareComponentAssembleLifecycleTaskRule implements Act
 		// The "component" assemble task was most likely added by the 'lifecycle-base' plugin
 		//   then we configure the dependency.
 		//   Note that the dependency may already exists for single variant component but it's not a big deal.
+		val logger = new WarnUnbuildableLogger(component.getIdentifier());
 		taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), component.getIdentifier()), configureGroup(BUILD_GROUP))
-			.configure(configureDependsOn(component.getDevelopmentVariant().flatMap(TO_DEVELOPMENT_BINARY)));
+			.configure(configureDependsOn(component.getDevelopmentVariant().flatMap(TO_DEVELOPMENT_BINARY).map(Arrays::asList).orElse(DeferUtils.executes(onlyOnce(logger::warn)))));
 	}
 }

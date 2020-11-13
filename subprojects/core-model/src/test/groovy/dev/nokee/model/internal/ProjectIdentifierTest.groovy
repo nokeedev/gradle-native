@@ -1,11 +1,11 @@
 package dev.nokee.model.internal
 
-import dev.nokee.model.internal.ProjectIdentifier
 import org.gradle.testfixtures.ProjectBuilder
+import org.gradle.util.Path
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static dev.nokee.model.internal.ProjectIdentifier.of
+import static dev.nokee.model.internal.ProjectIdentifier.*
 
 @Subject(ProjectIdentifier)
 class ProjectIdentifierTest extends Specification {
@@ -18,9 +18,33 @@ class ProjectIdentifierTest extends Specification {
 
 	def "has display name"() {
 		expect:
-		of('root').displayName == "project ':root'"
-		of('foo').displayName == "project ':foo'"
-		of('bar').displayName == "project ':bar'"
+		of('root').displayName == "project ':'"
+		of('foo').displayName == "project ':'"
+		of('bar').displayName == "project ':'"
+	}
+
+	def "can create identifier for root project without name"() {
+		expect:
+		def subject = ofRootProject()
+		subject.name == null
+		subject.path == Path.ROOT
+		subject.displayName == "project ':'"
+	}
+
+	def "can create child project"() {
+		expect:
+		def subject = ofChildProject('foo')
+		subject.name == 'foo'
+		subject.path == Path.ROOT.child('foo')
+		subject.displayName == "project ':foo'"
+	}
+
+	def "can create nested child project"() {
+		expect:
+		def subject = ofChildProject('foo', 'bar')
+		subject.name == 'bar'
+		subject.path == Path.ROOT.child('foo').child('bar')
+		subject.displayName == "project ':foo:bar'"
 	}
 
 	def "can create identifier from Project instance"() {
@@ -29,7 +53,7 @@ class ProjectIdentifierTest extends Specification {
 
 		expect:
 		of(project).name == project.name
-		of(project).displayName == "project ':${project.name}'"
+		of(project).displayName == "project '${project.path}'"
 	}
 
 	def "can create identifier from child Project instance"() {
@@ -39,7 +63,7 @@ class ProjectIdentifierTest extends Specification {
 
 		expect:
 		of(childProject).name == childProject.name
-		of(childProject).displayName == "project ':${rootProject.name}:${childProject.name}'"
+		of(childProject).displayName == "project '${childProject.path}'"
 	}
 
 	def "has no parent identifier"() {

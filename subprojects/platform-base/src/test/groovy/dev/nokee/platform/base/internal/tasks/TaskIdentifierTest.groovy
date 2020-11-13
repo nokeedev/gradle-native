@@ -426,16 +426,28 @@ class TaskIdentifierTest extends Specification {
 
 	def "has meaningful toString() implementation"() {
 		given:
-		def ownerProject = ProjectIdentifier.of('root')
-		def ownerComponent = ComponentIdentifier.ofMain(TestableComponent, ownerProject)
-		def ownerVariant = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponent)
+		def ownerRootProject = ProjectIdentifier.ofRootProject()
+		def ownerComponentInRootProject = ComponentIdentifier.ofMain(TestableComponent, ownerRootProject)
+		def ownerVariantInRootProject = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponentInRootProject)
 
-		expect:
-		TaskIdentifier.ofLifecycle(ownerVariant).toString() == "task ':root:main:macosDebug' (Task)"
-		TaskIdentifier.ofLifecycle(ComponentIdentifier.of(ComponentName.of('test'), Component, ownerProject)).toString() == "task ':root:test' (Task)"
-		TaskIdentifier.of(TaskName.of('compile', 'c'), TestableTask, ownerVariant).toString() == "task ':root:main:macosDebug:compileC' (${TestableTask.simpleName})"
-		TaskIdentifier.of(TaskName.of('create', 'jar'), TestableTask, ownerComponent).toString() == "task ':root:main:createJar' (${TestableTask.simpleName})"
-		TaskIdentifier.of(TaskName.of('link'), TestableTask, ownerProject).toString() == "task ':root:link' (${TestableTask.simpleName})"
+		and:
+		def ownerChildProject = ProjectIdentifier.ofChildProject('foo')
+		def ownerComponentInChildProject = ComponentIdentifier.ofMain(TestableComponent, ownerChildProject)
+		def ownerVariantInChildProject = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponentInChildProject)
+
+		expect: 'in a root project'
+		TaskIdentifier.ofLifecycle(ownerVariantInRootProject).toString() == "task ':main:macosDebug' (Task)"
+		TaskIdentifier.ofLifecycle(ComponentIdentifier.of(ComponentName.of('test'), Component, ownerRootProject)).toString() == "task ':test' (Task)"
+		TaskIdentifier.of(TaskName.of('compile', 'c'), TestableTask, ownerVariantInRootProject).toString() == "task ':main:macosDebug:compileC' (${TestableTask.simpleName})"
+		TaskIdentifier.of(TaskName.of('create', 'jar'), TestableTask, ownerComponentInRootProject).toString() == "task ':main:createJar' (${TestableTask.simpleName})"
+		TaskIdentifier.of(TaskName.of('link'), TestableTask, ownerRootProject).toString() == "task ':link' (${TestableTask.simpleName})"
+
+		and: 'in a child project'
+		TaskIdentifier.ofLifecycle(ownerVariantInChildProject).toString() == "task ':foo:main:macosDebug' (Task)"
+		TaskIdentifier.ofLifecycle(ComponentIdentifier.of(ComponentName.of('test'), Component, ownerChildProject)).toString() == "task ':foo:test' (Task)"
+		TaskIdentifier.of(TaskName.of('compile', 'c'), TestableTask, ownerVariantInChildProject).toString() == "task ':foo:main:macosDebug:compileC' (${TestableTask.simpleName})"
+		TaskIdentifier.of(TaskName.of('create', 'jar'), TestableTask, ownerComponentInChildProject).toString() == "task ':foo:main:createJar' (${TestableTask.simpleName})"
+		TaskIdentifier.of(TaskName.of('link'), TestableTask, ownerChildProject).toString() == "task ':foo:link' (${TestableTask.simpleName})"
 	}
 
 	private static TaskIdentifier identifier(String verb, DomainObjectIdentifierInternal owner) {

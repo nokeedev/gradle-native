@@ -1,18 +1,24 @@
-package dev.nokee.platform.jni
+package dev.nokee.fixtures
 
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
-import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture
 import org.gradle.nativeplatform.OperatingSystemFamily
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin
+import org.junit.Assume
 import spock.lang.Unroll
 
-import static org.hamcrest.CoreMatchers.containsString
+import static org.hamcrest.Matchers.containsString
+
 // See https://github.com/gradle/gradle-native/issues/982 for the distinction between unknown, unsupported and unbuildable.
 abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
+	def setup() {
+		settingsFile << "rootProject.name = '${projectName}'"
+	}
+
 	def "can build on current operating system family and architecture when explicitly specified"() {
 		given:
 		makeSingleProject()
@@ -67,6 +73,7 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 	}
 
 	def "fails when target machine is unknown by the configured tool chains"() {
+		Assume.assumeFalse(this.class.simpleName.contains('Swift')) // TODO: Fix toolchains discovery so we can align Swift with everyone else.
 		given:
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)
@@ -105,7 +112,7 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 		expect:
 		fails taskNameToAssembleDevelopmentBinary
 		failure.assertHasDescription("A problem occurred configuring root project '${projectName}'.")
-		failure.assertHasCause("A target machine needs to be specified for the library.")
+		failure.assertHasCause("A target machine needs to be specified for the ${componentUnderTestDsl}.")
 	}
 
 	def "can build for current machine when multiple target machines are specified"() {
@@ -176,7 +183,7 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
             task verifyTargetMachineCount {
                 doLast {
                     assert ${componentUnderTestDsl}.targetMachines.get().size() == 1
-                    assert ${componentUnderTestDsl}.targetMachines.get() == [library.machines.${currentHostOperatingSystemFamilyDsl}] as Set
+                    assert ${componentUnderTestDsl}.targetMachines.get() == [${componentUnderTestDsl}.machines.${currentHostOperatingSystemFamilyDsl}] as Set
                 }
             }
         """
@@ -202,7 +209,6 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 
 	def "can specify unbuildable architecture as a component target machine"() {
 		given:
-		println testDirectory
 		makeSingleProject()
 		componentUnderTest.writeToProject(testDirectory)
 
@@ -217,19 +223,37 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 
 	protected abstract void makeSingleProject()
 
-	protected abstract String getComponentUnderTestDsl()
+	protected String getComponentUnderTestDsl() {
+		if (this.class.simpleName.contains('Application')) {
+			return 'application'
+		}
+		return 'library'
+	}
 
 	protected abstract SourceElement getComponentUnderTest()
 
-	protected abstract String getTaskNameToAssembleDevelopmentBinary()
+	protected String getTaskNameToAssembleDevelopmentBinary() {
+		return 'assemble'
+	}
 
-	protected abstract List<String> getTasksToAssembleDevelopmentBinary()
+	protected List<String> getTasksToAssembleDevelopmentBinary() {
+		return tasks.allToAssemble
+	}
 
-	protected abstract String getTaskNameToAssembleDevelopmentBinaryWithArchitecture(String architecture)
+	protected String getTaskNameToAssembleDevelopmentBinaryWithArchitecture(String architecture) {
+		return "assemble${architecture.capitalize()}"
+	}
 
-	protected abstract String getComponentName()
+	protected String getComponentName() {
+		return 'main'
+	}
 
-	protected abstract String getProjectName()
+	protected String getProjectName() {
+		if (this.class.simpleName.contains('Application')) {
+			return 'application'
+		}
+		return 'library'
+	}
 
 	protected abstract void assertComponentUnderTestWasBuilt(String variant = '')
 

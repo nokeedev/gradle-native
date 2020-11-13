@@ -69,8 +69,6 @@ class VisualStudioIdeSolutionFixture implements IdeWorkspaceFixture {
 				projects.put(it[1], new ProjectReference(it[1], it[2], it[3]))
 			})
 
-			println projects
-
 			visitGlobalSection(new GlobalSectionVisitor() {
 				@Override
 				void visitSolutionConfigurationPlatform(String configurationName, String platformName) {

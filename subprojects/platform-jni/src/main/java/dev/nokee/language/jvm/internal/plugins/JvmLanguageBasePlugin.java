@@ -62,7 +62,6 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 
 	private Action<SourceDirectorySet> newKotlinSourceSet(DomainObjectEventPublisher eventPublisher, DomainObjectIdentifier componentIdentifier, ObjectFactory objectFactory, ProjectLayout projectLayout) {
 		return sourceSet -> {
-			System.out.println("CLASS " + KotlinSourceSetImpl.class.hashCode());
 			val identifier = LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("kotlin"), KotlinSourceSetImpl.class, componentIdentifier);
 			eventPublisher.publish(new DomainObjectDiscovered<>(identifier));
 			eventPublisher.publish(new DomainObjectCreated<>(identifier, new KotlinSourceSetImpl(identifier, sourceSet, objectFactory, projectLayout)));

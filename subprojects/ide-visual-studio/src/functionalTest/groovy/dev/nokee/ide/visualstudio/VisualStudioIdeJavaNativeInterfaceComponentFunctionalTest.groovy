@@ -44,4 +44,9 @@ class VisualStudioIdeJavaNativeInterfaceLibraryFunctionalTest extends AbstractVi
 	protected List<String> getAllTasksForBuildAction() {
 		return [':compileJava'] + tasks.allToLink
 	}
+
+	@Override
+	protected List<String> getGeneratedHeaders() {
+		return ['com_example_greeter_Greeter.h']
+	}
 }

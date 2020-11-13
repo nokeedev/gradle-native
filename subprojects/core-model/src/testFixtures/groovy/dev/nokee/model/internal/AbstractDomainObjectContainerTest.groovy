@@ -231,18 +231,6 @@ abstract class AbstractDomainObjectContainerTest<TYPE, T extends TYPE> extends A
 		given:
 		def subject = newSubject()
 
-		eventPublisher.subscribe(new DomainObjectEventSubscriber<DomainObjectEvent>() {
-			@Override
-			void handle(DomainObjectEvent event) {
-				println event
-			}
-
-			@Override
-			Class<? extends DomainObjectEvent> subscribedToEventType() {
-				return DomainObjectEvent
-			}
-		})
-
 		and:
 		def factory = Mock(DomainObjectFactory)
 		subject.registerFactory(myEntityType, factory)

@@ -8,6 +8,7 @@ import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.internal.VariantIdentifier
+import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
@@ -15,9 +16,21 @@ import spock.lang.Unroll
 @Subject(DependencyBucketIdentifier)
 class DependencyBucketIdentifier_DisplayNameTest extends Specification {
 	@Unroll
+	def "can generate name for single word bucket name owned by a root project"() {
+		given:
+		def project = ProjectBuilder.builder().build()
+		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, ProjectIdentifier.of(project))
+
+		expect:
+		identifier.displayName == "Implementation dependencies for project ':'."
+	}
+
+	@Unroll
 	def "can generate name for single word bucket name owned by a project"(projectName) {
 		given:
-		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, ProjectIdentifier.of(projectName))
+		def rootProject = ProjectBuilder.builder().build()
+		def childProject = ProjectBuilder.builder().withName(projectName).withParent(rootProject).build()
+		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, ProjectIdentifier.of(childProject))
 
 		expect:
 		identifier.displayName == "Implementation dependencies for project ':${projectName}'."
@@ -32,7 +45,7 @@ class DependencyBucketIdentifier_DisplayNameTest extends Specification {
 		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(bucketName), TestableBucket, ProjectIdentifier.of('root'))
 
 		expect:
-		identifier.displayName == "${expectedValue} dependencies for project ':root'."
+		identifier.displayName == "${expectedValue} dependencies for project ':'."
 
 		where:
 		bucketName    	  | expectedValue
@@ -45,8 +58,8 @@ class DependencyBucketIdentifier_DisplayNameTest extends Specification {
 
 	def "can generate name for three words bucket name owned by a project"() {
 		expect:
-		identifier('headerSearchPaths').displayName == "Header search paths dependencies for project ':root'."
-		identifier('importSwiftModules').displayName == "Import swift modules dependencies for project ':root'."
+		identifier('headerSearchPaths').displayName == "Header search paths dependencies for project ':'."
+		identifier('importSwiftModules').displayName == "Import swift modules dependencies for project ':'."
 		// TODO: Maybe we should capitalize the language name
 	}
 
@@ -96,24 +109,24 @@ class DependencyBucketIdentifier_DisplayNameTest extends Specification {
 
 	def "always capitalize API word"() {
 		expect:
-		identifier('api').displayName == "API dependencies for project ':root'."
-		identifier('apiElements').displayName == "API elements dependencies for project ':root'."
-		identifier('jvmApiElements').displayName == "Jvm API elements dependencies for project ':root'."
+		identifier('api').displayName == "API dependencies for project ':'."
+		identifier('apiElements').displayName == "API elements dependencies for project ':'."
+		identifier('jvmApiElements').displayName == "Jvm API elements dependencies for project ':'."
 		// TODO: Should we also capitalize JVM?
 	}
 
 	def "does not add the word dependencies to the consumable buckets"() {
 		expect:
-		identifier('runtimeElements', TestableConsumableBucket).displayName == "Runtime elements for project ':root'."
-		identifier('compileElements', TestableConsumableBucket).displayName == "Compile elements for project ':root'."
+		identifier('runtimeElements', TestableConsumableBucket).displayName == "Runtime elements for project ':'."
+		identifier('compileElements', TestableConsumableBucket).displayName == "Compile elements for project ':'."
 	}
 
 	def "does not add the word dependencies to the resolvable buckets"() {
 		expect:
-		identifier('linkLibraries', TestableResolvableBucket).displayName == "Link libraries for project ':root'."
-		identifier('runtimeLibraries', TestableResolvableBucket).displayName == "Runtime libraries for project ':root'."
-		identifier('headerSearchPaths', TestableResolvableBucket).displayName == "Header search paths for project ':root'."
-		identifier('importSwiftModules', TestableResolvableBucket).displayName == "Import swift modules for project ':root'."
+		identifier('linkLibraries', TestableResolvableBucket).displayName == "Link libraries for project ':'."
+		identifier('runtimeLibraries', TestableResolvableBucket).displayName == "Runtime libraries for project ':'."
+		identifier('headerSearchPaths', TestableResolvableBucket).displayName == "Header search paths for project ':'."
+		identifier('importSwiftModules', TestableResolvableBucket).displayName == "Import swift modules for project ':'."
 	}
 
 	def "uses component display name for single variant"() {

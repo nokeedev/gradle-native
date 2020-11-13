@@ -8,20 +8,26 @@ import lombok.Getter;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 
+import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
+
 public class BaseVariant {
 	@Getter private final VariantIdentifier<?> identifier;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
-	@Getter private final Property<Binary> developmentBinary;
+	private final Property<Binary> developmentBinary;
 	@Getter private final BinaryView<Binary> binaries;
 
 	protected BaseVariant(VariantIdentifier<?> identifier, ObjectFactory objects, BinaryViewFactory binaryViewFactory) {
 		this.identifier = identifier;
 		this.objects = objects;
-		this.developmentBinary = objects.property(Binary.class);
+		this.developmentBinary = configureDisplayName(objects.property(Binary.class), "developmentBinary");
 		this.binaries = binaryViewFactory.create(identifier);
 	}
 
 	public BuildVariantInternal getBuildVariant() {
 		return (BuildVariantInternal) identifier.getBuildVariant();
+	}
+
+	public Property<Binary> getDevelopmentBinary() {
+		return developmentBinary;
 	}
 }

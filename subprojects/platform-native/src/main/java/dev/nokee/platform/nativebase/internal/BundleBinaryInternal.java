@@ -24,6 +24,7 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
 
@@ -83,5 +84,15 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	@Override
 	public TaskProvider<ObjectFilesToBinaryTask> getCreateOrLinkTask() {
 		return getTasks().named(linkTask.getName(), ObjectFilesToBinaryTask.class);
+	}
+
+	@Override
+	public boolean isBuildable() {
+		return super.isBuildable() && isBuildable(linkTask.get());
+	}
+
+	private static boolean isBuildable(LinkBundle linkTask) {
+		AbstractLinkTask linkTaskInternal = (AbstractLinkTask)linkTask;
+		return isBuildable(linkTaskInternal.getToolChain().get(), linkTaskInternal.getTargetPlatform().get());
 	}
 }

@@ -5,6 +5,7 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.variants.KnownVariant;
+import lombok.val;
 import org.gradle.api.Action;
 
 import static dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer.TO_DEVELOPMENT_BINARY;
@@ -23,7 +24,12 @@ public class CreateVariantAssembleLifecycleTaskRule implements Action<KnownVaria
 	@Override
 	public void execute(KnownVariant<? extends Variant> knownVariant) {
 		// For single variant component, the task may already exists, coming from 'lifecycle-base'.
-		taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), knownVariant.getIdentifier()), configureGroup(BUILD_GROUP))
-			.configure(configureDependsOn(knownVariant.flatMap(TO_DEVELOPMENT_BINARY)));
+		val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), knownVariant.getIdentifier()), configureGroup(BUILD_GROUP));
+
+		// Only multi-variant component should attach the proper dependency to the assemble task.
+		//   Single variant depends on the a more complex logic around buildability, see CreateVariantAwareComponentAssembleLifecycleTaskRule
+		if (!knownVariant.getIdentifier().getAmbiguousDimensions().get().isEmpty()) {
+			assembleTask.configure(configureDependsOn(knownVariant.flatMap(TO_DEVELOPMENT_BINARY)));
+		}
 	}
 }

@@ -3,6 +3,7 @@ package dev.nokee.platform.base.internal
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.Variant
+import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 class VariantIdentifierTest extends Specification {
@@ -225,7 +226,11 @@ class VariantIdentifierTest extends Specification {
 
 	def "has meaningful toString() implementation"() {
 		given:
-		def ownerIdentifier = ComponentIdentifier.ofMain(TestableComponent, ProjectIdentifier.of('root'))
+		def rootProject = ProjectBuilder.builder().withName('foo').build()
+		def childProject = ProjectBuilder.builder().withName('bar').withParent(rootProject).build()
+
+		and:
+		def ownerIdentifier = ComponentIdentifier.ofMain(TestableComponent, ProjectIdentifier.of(childProject))
 		def singleDimension = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
 			.withType(TestableVariant)
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
@@ -237,8 +242,8 @@ class VariantIdentifierTest extends Specification {
 			.build()
 
 		expect:
-		singleDimension.toString() == "variant ':root:main:debug' (${TestableVariant.simpleName})"
-		multipleDimension.toString() == "variant ':root:main:macosDebug' (${TestableVariant.simpleName})"
+		singleDimension.toString() == "variant ':bar:main:debug' (${TestableVariant.simpleName})"
+		multipleDimension.toString() == "variant ':bar:main:macosDebug' (${TestableVariant.simpleName})"
 	}
 
 	interface TestableComponent extends Component {}

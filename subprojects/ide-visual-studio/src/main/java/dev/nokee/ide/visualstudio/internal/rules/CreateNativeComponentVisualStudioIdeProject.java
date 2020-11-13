@@ -13,6 +13,7 @@ import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.components.KnownComponent;
+import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
@@ -111,7 +112,7 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			val projectConfiguration = projectConfiguration(buildType);
 			val target = new DefaultVisualStudioIdeTarget(projectConfiguration, objectFactory);
 
-			val binary = variant.getDevelopmentBinary();
+			val binary = developmentBinary(variant);
 			target.getProductLocation().set(binary.flatMap(toProductLocation()));
 			target.getProperties().put("ConfigurationType", binary.flatMap(toConfigurationType()));
 			target.getProperties().put("UseDebugLibraries", true);
@@ -125,6 +126,13 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 				.put("SubSystem", binary.flatMap(toSubSystem()));
 
 			return target;
+		}
+
+		private Provider<Binary> developmentBinary(Variant variant) {
+			if (variant instanceof JniLibrary) {
+				return ProviderUtils.fixed(((JniLibrary) variant).getSharedLibrary());
+			}
+			return variant.getDevelopmentBinary();
 		}
 
 		private NamedTargetBuildType buildType(VariantInternal variantInternal) {

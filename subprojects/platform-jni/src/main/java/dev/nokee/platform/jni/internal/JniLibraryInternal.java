@@ -73,6 +73,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		this.taskRegistry = taskRegistry;
 
 		getResourcePath().convention(getProviders().provider(() -> getResourcePath(groupId)));
+		getDevelopmentBinary().convention(providers.provider(this::getJar));
 	}
 
 	private String getResourcePath(GroupId groupId) {
