@@ -46,7 +46,7 @@ The native library produced inside `./build/libs/main` directory:
 [listing.terminal,only-if='macos']
 ----
 $ ls ./build/libs/main/*
-./build/libs/main/libswift-library.dylib
+./build/libs/main/libSwiftLibrary.dylib
 ----
 
 For more information, see <<../../manual/{plugin-language-id}-library-plugin.adoc#,{plugin-language} Library Plugin>> reference chapter and <<../../manual/building-native-projects.adoc#,Building Native Projects>> chapter.
