@@ -434,7 +434,7 @@ Searched in the following locations:
 		"""
 
 		when:
-		def failure = executer.withEnvironmentVars([DEVELOPER_DIR: '/opt/xcode']).withTasks('resolveConfiguration', '-i').runWithFailure()
+		def failure = executer.withEnvironmentVariable('DEVELOPER_DIR', '/opt/xcode').withTasks('resolveConfiguration', '-i').buildAndFail()
 		then:
 		failure.assertOutputContains('''An exception occurred during the dispatch of the request: Process '/usr/bin/xcrun --find xcodebuild' finished with non-zero exit value 1''')
 		and:
@@ -446,7 +446,7 @@ Searched in the following locations:
 .+""", MULTILINE | DOTALL)))
 
 		when:
-		failure = executer.withEnvironmentVars([DEVELOPER_DIR: '/opt/xcode']).withTasks('resolveConfiguration').runWithFailure()
+		failure = executer.withEnvironmentVariable('DEVELOPER_DIR', '/opt/xcode').withTasks('resolveConfiguration').buildAndFail()
 		then:
 		failure.assertNotOutput('''An exception occurred during the dispatch of the request: Process '/usr/bin/xcrun --find xcodebuild' finished with non-zero exit value 1''')
 		and:
