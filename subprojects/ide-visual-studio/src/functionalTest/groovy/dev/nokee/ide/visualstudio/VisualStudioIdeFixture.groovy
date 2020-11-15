@@ -1,6 +1,6 @@
 package dev.nokee.ide.visualstudio
 
-import dev.gradleplugins.test.fixtures.gradle.executer.GradleExecuter
+import dev.gradleplugins.runnerkit.GradleRunner
 import dev.nokee.ide.fixtures.IdeCommandLineUtils
 import dev.nokee.ide.visualstudio.fixtures.MSBuildExecutor
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture
@@ -49,7 +49,7 @@ trait VisualStudioIdeFixture {
 		return new MSBuildExecutor(testDirectory)
 	}
 
-	UnaryOperator<GradleExecuter> getMsbuildTool() {
+	UnaryOperator<GradleRunner> getMsbuildTool() {
 		return { executer ->
 			def initScript = file("init.gradle")
 			initScript << IdeCommandLineUtils.generateGradleProbeInitFile('visualStudio', 'msbuild')

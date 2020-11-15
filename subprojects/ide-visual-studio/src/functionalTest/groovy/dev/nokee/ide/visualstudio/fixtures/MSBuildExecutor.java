@@ -1,11 +1,11 @@
 package dev.nokee.ide.visualstudio.fixtures;
 
 import com.google.common.collect.Lists;
+import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.test.fixtures.file.TestFile;
 import dev.gradleplugins.test.fixtures.gradle.executer.ExecutionFailure;
 import dev.gradleplugins.test.fixtures.gradle.executer.ExecutionResult;
-import dev.gradleplugins.test.fixtures.gradle.executer.internal.OutputScrapingExecutionFailure;
-import dev.gradleplugins.test.fixtures.gradle.executer.internal.OutputScrapingExecutionResult;
+import dev.gradleplugins.test.fixtures.gradle.executer.internal.ExecutionResultImpl;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolExecutionResult;
 import dev.nokee.core.exec.CommandLineToolProvider;
@@ -91,7 +91,7 @@ public class MSBuildExecutor extends AbstractIdeExecutor<MSBuildExecutor> {
 	@Override
 	protected ExecutionResult asExecutionResult(CommandLineToolExecutionResult result) {
 		if (getOutputFiles().isEmpty()) {
-			return OutputScrapingExecutionResult.from(trimLines(result.getStandardOutput().getAsString()), trimLines(result.getErrorOutput().getAsString()));
+			return new ExecutionResultImpl(BuildResult.from(trimLines(result.getOutput().getAsString())));
 		} else {
 			// TODO: Support multiple Gradle execution result
 			Assert.assertThat(getOutputFiles().size(), Matchers.equalTo(1));
@@ -102,14 +102,14 @@ public class MSBuildExecutor extends AbstractIdeExecutor<MSBuildExecutor> {
 			System.out.println(gradleStdout);
 			System.out.println(gradleStderr);
 
-			return OutputScrapingExecutionResult.from(trimLines(gradleStdout), trimLines(gradleStderr));
+			return new ExecutionResultImpl(BuildResult.from(trimLines(gradleStdout + '\n' + gradleStderr)));
 		}
 	}
 
 	@Override
 	protected ExecutionFailure asExecutionFailure(CommandLineToolExecutionResult result) {
 		if (getOutputFiles().isEmpty()) {
-			return OutputScrapingExecutionFailure.from(trimLines(result.getStandardOutput().getAsString()), trimLines(result.getErrorOutput().getAsString()));
+			return new ExecutionResultImpl(BuildResult.from(trimLines(result.getOutput().getAsString())));
 		} else {
 			Assert.assertThat(getOutputFiles().size(), Matchers.equalTo(1));
 			ExecutionOutput output = getOutputFiles().iterator().next();
@@ -119,7 +119,7 @@ public class MSBuildExecutor extends AbstractIdeExecutor<MSBuildExecutor> {
 			System.out.println(gradleStdout);
 			System.out.println(gradleStderr);
 
-			return OutputScrapingExecutionFailure.from(trimLines(gradleStdout), trimLines(gradleStderr));
+			return new ExecutionResultImpl(BuildResult.from(trimLines(gradleStdout + '\n' + gradleStderr)));
 		}
 	}
 

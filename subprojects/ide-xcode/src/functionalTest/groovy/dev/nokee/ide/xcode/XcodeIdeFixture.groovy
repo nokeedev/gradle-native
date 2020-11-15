@@ -1,7 +1,6 @@
 package dev.nokee.ide.xcode
 
-
-import dev.gradleplugins.test.fixtures.gradle.executer.GradleExecuter
+import dev.gradleplugins.runnerkit.GradleRunner
 import dev.nokee.ide.fixtures.IdeCommandLineUtils
 import dev.nokee.ide.xcode.fixtures.XcodeIdeProjectFixture
 import dev.nokee.ide.xcode.fixtures.XcodeIdeWorkspaceFixture
@@ -56,7 +55,7 @@ trait XcodeIdeFixture {
 		return new XcodebuildExecutor(testDirectory)
 	}
 
-	UnaryOperator<GradleExecuter> getXcodebuildTool(ideTaskName = 'xcode') {
+	UnaryOperator<GradleRunner> getXcodebuildTool(ideTaskName = 'xcode') {
 		return { executer ->
 			def initScript = file('init.gradle')
 			initScript << IdeCommandLineUtils.generateGradleProbeInitFile(ideTaskName, 'xcodebuild')
