@@ -43,9 +43,9 @@ trait VisualStudioIdeFixture {
 
 	MSBuildExecutor getMsbuild() {
 		// Gradle needs to be isolated so the msbuild does not leave behind daemons
-		assert executer.usesGradleDistribution()
-		assert !executer.usesSharedDaemons()
-		assert executer.usesDaemon()
+//		assert executer.usesGradleDistribution()
+//		assert !executer.usesSharedDaemons()
+//		assert executer.usesDaemon()
 		return new MSBuildExecutor(testDirectory)
 	}
 
@@ -54,9 +54,9 @@ trait VisualStudioIdeFixture {
 			def initScript = file("init.gradle")
 			initScript << IdeCommandLineUtils.generateGradleProbeInitFile('visualStudio', 'msbuild')
 			return executer
-				.requireIsolatedDaemons()
-				.requireGradleDistribution()
-				.requireDaemon()
+//				.requireIsolatedDaemons()
+//				.requireGradleDistribution()
+//				.requireDaemon()
 				.usingInitScript(initScript)
 		}
 	}
