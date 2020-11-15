@@ -1,0 +1,61 @@
+= JNI Library Custom Source Layout Configuration
+:jbake-summary: Configure custom source layout for a JNI library.
+:jbake-type: sample_chapter
+:jbake-tags: sample, jni, java, jvm, library, sources, native, c++, gradle
+:jbake-category: Java Native Interface (JNI)
+:jbake-description: See how to customize the source layout of a Java Native Interface (JNI) library using the Gradle Nokee plugins.
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how to configure the source layout of a Java Native Interface (JNI) library.
+The library has no dependencies, and the build has a minimal configuration.
+
+In this sample, we are configuring source layout of a JNI library implemented in Java and {cpp}; however, this applies to other JVM and native languages as well.
+
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+include::groovy-dsl/build.gradle[]
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/build.gradle.kts[]
+----
+=====
+====
+<1> Configure Java source files to `srcs`.
+<2> Configure C++ source files to `srcs`.
+<3> Configure C headers to `incs`.
+
+To build the library:
+
+[listing.terminal]
+----
+$ ./gradlew assemble
+
+BUILD SUCCESSFUL
+4 actionable tasks: 4 executed
+----
+
+If we create invalid source code at the conventional location and rebuild the library, as expected, the build succeeds.
+
+[listing.terminal]
+----
+$ mkdir -p src/main/cpp
+$ echo "broken!" > src/main/cpp/broken.cpp
+$ mkdir -p src/main/headers
+$ echo "broken!" > src/main/headers/greeter.h
+$ ./gradlew clean assemble
+
+BUILD SUCCESSFUL
+5 actionable tasks: 5 executed
+----
+
+For more information, see <<../../manual/working-with-source-files.adoc#,working with source files chapter>>.

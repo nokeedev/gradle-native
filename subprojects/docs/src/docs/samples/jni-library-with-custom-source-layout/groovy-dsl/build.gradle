@@ -1,0 +1,13 @@
+plugins {
+	id 'java'
+	id 'dev.nokee.jni-library'
+	id 'dev.nokee.cpp-language'
+}
+
+sourceSets.main.java.srcDir('srcs')				// <1>
+library {
+	sources {
+		cpp { from('srcs') }					// <2>
+		headers { from('incs') }				// <3>
+	}
+}
