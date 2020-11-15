@@ -1,0 +1,422 @@
+[[chapter:working-with-source-files]]
+= Working with source files
+:jbake-type: manual_chapter
+:jbake-tags: user manual, nokee, gradle, gradle plugin, language source set, source set, source view
+:jbake-description: Learn how to work with source files.
+
+This chapter presents the language source set concept heavily used by Nokee.
+Head over to the respective native or Java Native Interface project chapter to learn how this concept applies to building those projects.
+Feel free to head over to the sample section at any time to view how to apply the source files concept to common use cases.
+
+
+
+== Introduction
+
+Language-based component relies on processing source files and resources to assemble the final artifact.
+We often logically group source files and resources by type, e.g. C++ source files vs Swift source files.
+Nokee uses a convention-over-configuration approach which greatly simplifies the configuration of new projects.
+We can configure each logical group individually when need to tweak the convention further for our need.
+
+== Base concept
+
+The following is a typical source configuration:
+
+image::img/working-with-source-files-configuration.png[]
+
+We highlighted the three major concept of the source concept.
+First, components provides its sources via a source view accessible via the `sources` property.
+The source view allow access to all of the component's source sets.
+Finally, the source set contains all of the source declaration participating to the build process assembling the final artifact.
+
+link:#component[Nokee components that provides sources] has a source view accessible via the `sources` property.
+We use the source view to access declared source set.
+Finally, source set contains the files logically contained together.
+
+=== When does a component provide sources?
+
+A component provide sources implementing `SourceAwareComponent`.
+
+=== Component with sources provide a single getSources() -> source view
+Which component provide sources?
+Component implementing SourceAwareComponent
+
+=== Source view
+
+The source view allows access to all or a subset of the declared source sets for configuration or querying.
+Components can declare multiple source sets and the view allows to select which one to configure.
+We can also obtain a list of source sets to be used as inputs into other models such as custom extensions or plugins.
+
+There are several ways to configure source sets, the most common is via `configureEach` method which configures each source sets using the provided action.
+
+More advance configuration includes configuring by source set types, matching a specific predicate, a mix of both, or by name.
+
+Some plugins give direct access to a source set from their custom extensions.
+These direct accessor are provided for conveniences to shortcut the selection of the source set to configure and query from the source view.
+These are documented on each plugin reference chapter.
+Regardless of the presence of these accessors, we can always rely on the availability of the source view for language-based components.
+
+configure & query ->simple
+
+=== Source Set
+
+
+
+from -> add files
+
+TIP: There's a lot of debate between adding source files individually or by globing them.
+Nokee recommend using what feels right for your project.
+The language source set are much more flexible than most native build system source declaration.
+We suggest learning more about file manipulation in Gradle.
+
+
+
+
+== Advance source set
+
+=== Global filter
+
+.Configuring global source set filter
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+plugins {
+   id 'dev.nokee.cpp-application'
+}
+
+application.sources.cpp {
+    filter.include '*.c'            // <1>
+    filter {                        // <2>
+        exclude 'foo.c'
+    }
+    filter.excludes = []            // <3>
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+plugins {
+   id("dev.nokee.cpp-application")
+}
+
+application.sources.cpp {
+    filter.include("*.c")           // <1>
+    filter {                        // <2>
+        exclude("foo.c")
+    }
+    filter.excludes = emptyList()   // <3>
+}
+----
+=====
+====
+<1> Access filter pattern directly
+<2> Configure filter via an configuration action
+<3> Overwrite previous configuration
+
+
+
+
+
+
+== Query source set
+
+=== Source files
+
+Accessing the file tree is the most common use case.
+
+You can use the `asFileTree` property. It returns a file tree from all the source tree with the global filter applied.
+
+WARNING: If you include all the `.cpp` source file from a folder but globally include only `.c` files, the file tree will be empty.
+It's important to be aware of the link:#default-global-pattern-source-set[default global include of each source set type].
+
+=== Source directories
+
+Accessing the source directories is very useful for source files that are directory base such as C/C++ headers.
+
+You can get the list of source directories via sourceDirectories property.
+It's important to know how the source directories are extrapolated from the specified sources.
+Obvious directories are included as is such as the following:
+
+.Adding individual directories to source set
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+plugins {
+   id 'dev.nokee.cpp-application'
+}
+
+application.sources.configureEach {
+    from('src/a')                   // <1>
+    from(file('src/b'))             // <2>
+    from(file('src/c').toPath())    // <3>
+
+    assert sourceDirectories == [file('src/a'), file('src/b')]
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+plugins {
+   id("dev.nokee.cpp-application")
+}
+
+application.sources.configureEach {
+    from("src/a")                   // <1>
+    from(file("src/b"))             // <2>
+    from(file("src/c").toPath())    // <3>
+
+    assert(sourceDirectories == listOf(file("src/a"), file("src/b")))
+}
+----
+=====
+====
+<1> Directory by relative path
+<2> Directory by File
+<3> Directory by Path
+
+File trees, only the base directory of a is used
+
+.Adding directories to source set
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+plugins {
+   id 'dev.nokee.cpp-application'
+}
+
+application.sources.configureEach {
+    from(fileTree('src'))            // <1>
+
+    assert sourceDirectories == [file('src')]
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+plugins {
+   id("dev.nokee.cpp-application")
+}
+
+application.sources.configureEach {
+    from(fileTree("src"))           // <1>
+
+    assert(sourceDirectories == listOf(file("src")))
+}
+----
+=====
+====
+<1> File tree with base directory to `src`
+
+NOTE: Missing file are assume to be a directory
+
+```
+sources.configureEach {
+    def missingFile = file('src/foo.c')
+    from(missingFile)
+
+    assert !missingFile.exists()
+    assert sourceDirectories = [missingFile]
+}
+```
+
+
+
+
+
+== Implicit Task dependencies
+
+=== Consuming dependencies
+Dependencies attached to a `FileCollection` or `FileTree` or `Provider`.
+
+```
+def generateTask = tasks.register('generate') { /*...*/ }
+
+sources.configureEach {
+    from(files('src').buildBy(generateTask))
+}
+```
+
+or the output of a tasks
+
+```
+def generateTask = tasks.register('generate') {
+    outputs.dir('src')
+    // ...
+}
+
+sources.configureEach {
+    from(generateTask)
+}
+```
+
+=== Producing dependencies
+
+Via sourceDirectories
+
+
+Via asFileTree
+
+
+
+
+== Advance configuration
+
+// Each
+configureEach(Spec) {}
+
+=== Pitfall
+
+Prefer configureEach(Type) {} instead of configureEach({ it instanceof Type }) {}
+
+=== By name
+// By name
+sources.configure(name) {}
+
+// Groovy DSL
+sources.name { }
+
+== Configuration type safety
+
+=== Configure each source set
+
+configureEach(Type) {}
+configureEach(Type, Spec) {}
+
+=== Configure by name
+configure(name, Type)
+
+// Groovy DSL enhancement
+sources.name(Type) {}
+
+=== Common withType(Type) Pitfall
+
+Prefer sources.configureEach(Type) {} to sources.withType(Type).configureEach {}
+
+Prefer sources.configureEach(Type, Spec) {} to sources.withType(Type).configureEach(Spec) {}
+
+
+
+
+
+
+
+== Advance filtering
+
+instead of sources.elements.map { it.collect { } } or the type safety alternative sources.withType(Type).elements.map { ... }, Nokee provides a filter(Spec) method to replace the `elements.map { /*...*/ }` into a more convenient.
+The filter method will collect any source set or the view matching the spec into a live Provider.
+Live provider include current and future source set of the source view.
+
+withType(Type).filter(Spec) -> provider
+
+filter(Spec) -> provider
+
+
+
+
+
+== Advance mapping
+
+Transforming the elements of the source view via the link:TODO/link-to-dsl-getElements[accessible `Provider` elements] can be tedious.
+For this reason, we provide mapping methods directly on the source view.
+These methods will automatically unroll each element, passing them sequentially to your transformer before reassembling a new list from the result.
+
+IMPORTANT: The mapping methods perform the work lazily.
+Each method return a live Gradle provider that will perform the mapping only when realizing the Provider.
+
+For example, we can map each source set one-to-one to their `FileTree` representation:
+
+.Mapping source view to a collection of `FileTree`
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+plugins {
+   id 'dev.nokee.cpp-application'
+}
+
+application.sources.map { it.asFileTree }   // <1>
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+plugins {
+   id("dev.nokee.cpp-application")
+}
+
+application.sources.map { it.asFileTree }   // <1>
+----
+=====
+====
+<1> The returned provider will contain the implicit dependencies of each source set as they are included in the FileTree returned from LanguageSourceSet#getAsFileTree().
+
+We can also map each source set to flatten list of files, note the use of `flatMap` instead of `map`:
+
+.Mapping source view to a collection of files
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+plugins {
+   id 'dev.nokee.cpp-application'
+}
+
+application.sources.flatMap { it.asFileTree.files } // <1>
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+plugins {
+   id("dev.nokee.cpp-application")
+}
+
+application.sources.flatMap { it.asFileTree.files } // <1>
+----
+=====
+====
+<1> The returned provider won't contains any implicit dependencies as the Java Set of File returned by FileTree#getFiles() is not a producer aware type.
+
+
+
+
+
+
+== Default global pattern by source set
+
+Refer to the DSL reference for each language source set
+
+
+//// TODO: Later
+//== Implementing custom source set
+//
+//```
+//class MyCustomSourceSet extends BaseLanguageSourceSet {}
+//
+//
+//```
