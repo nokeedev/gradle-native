@@ -49,9 +49,12 @@ docsTest.dependsOn('assembleSamples')
 dependencies {
 	docsTestImplementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
 	docsTestImplementation 'org.asciidoctor:asciidoctorj:2.2.0'
+	docsTestImplementation 'dev.gradleplugins:gradle-runner-kit:latest.integration'
 	docsTestImplementation gradleFixtures()
 	docsTestImplementation gradleApi(minimumGradleVersion) // Is this really needed?
 	docsTestImplementation gradleTestKit() // needed for readme tests
+	docsTestImplementation project(':coreExec')
+	docsTestImplementation project(':coreUtils')
 
 	docsTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 	docsTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
