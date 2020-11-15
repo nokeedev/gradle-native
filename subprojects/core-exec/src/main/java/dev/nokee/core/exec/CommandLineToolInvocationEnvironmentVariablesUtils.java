@@ -51,7 +51,6 @@ final class CommandLineToolInvocationEnvironmentVariablesUtils {
 		result.putAll(left);
 		result.putAll(right);
 		return result;
-//		return Stream.concat(left.entrySet().stream(), right.entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
 	static Map<String, ?> load(File file) {

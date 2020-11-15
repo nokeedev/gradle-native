@@ -16,6 +16,7 @@ import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
 import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.testing.base.TestSuiteContainer;
+import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
 import lombok.val;
@@ -37,6 +38,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
+		project.getPluginManager().apply(TestingBasePlugin.class);
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
 			BaseNativeComponent<?> application = ((DefaultObjectiveCIosApplicationExtension) project.getExtensions().getByType(ObjectiveCIosApplicationExtension.class)).getComponent();
 			val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);

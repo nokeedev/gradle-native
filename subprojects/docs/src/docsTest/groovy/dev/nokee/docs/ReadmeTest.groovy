@@ -1,10 +1,8 @@
 package dev.nokee.docs
 
-import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.gradleplugins.test.fixtures.gradle.GradleExecuterFactory
+import dev.gradleplugins.runnerkit.GradleExecutor
+import dev.gradleplugins.runnerkit.GradleRunner
 import dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl
-import dev.gradleplugins.test.fixtures.gradle.executer.GradleExecuter
-import dev.gradleplugins.test.fixtures.gradle.executer.internal.GradleRunnerExecuter
 import dev.nokee.docs.fixtures.html.HtmlLinkTester
 import groovy.json.JsonSlurper
 import org.asciidoctor.Asciidoctor
@@ -81,11 +79,11 @@ class ReadmeTest extends Specification {
 		}
 
 		and:
-		GradleExecuter executer = ((GradleRunnerExecuter)new GradleExecuterFactory().testKit(TestFile.of(rootDirectory.toFile()))).usingGradleVersion("6.2.1").withGradleUserHomeDirectory(rootDirectory.resolve('gradle-user-home').toFile())
+		GradleRunner runner = GradleRunner.create(GradleExecutor.gradleTestKit()).inDirectory(rootDirectory.toFile()).withGradleVersion("6.2.1").withGradleUserHomeDirectory(rootDirectory.resolve('gradle-user-home').toFile())
 
 		expect:
-		executer.withArgument('help').run()
-		executer.withArgument('tasks').run()
+		runner.withArgument('help').build()
+		runner.withArgument('tasks').build()
 
 		where:
 		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]

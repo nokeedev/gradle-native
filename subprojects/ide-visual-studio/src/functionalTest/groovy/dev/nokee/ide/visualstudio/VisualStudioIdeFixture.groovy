@@ -1,6 +1,6 @@
 package dev.nokee.ide.visualstudio
 
-import dev.gradleplugins.test.fixtures.gradle.executer.GradleExecuter
+import dev.gradleplugins.runnerkit.GradleRunner
 import dev.nokee.ide.fixtures.IdeCommandLineUtils
 import dev.nokee.ide.visualstudio.fixtures.MSBuildExecutor
 import dev.nokee.ide.visualstudio.fixtures.VisualStudioIdeProjectFixture
@@ -43,20 +43,20 @@ trait VisualStudioIdeFixture {
 
 	MSBuildExecutor getMsbuild() {
 		// Gradle needs to be isolated so the msbuild does not leave behind daemons
-		assert executer.usesGradleDistribution()
-		assert !executer.usesSharedDaemons()
-		assert executer.usesDaemon()
+//		assert executer.usesGradleDistribution()
+//		assert !executer.usesSharedDaemons()
+//		assert executer.usesDaemon()
 		return new MSBuildExecutor(testDirectory)
 	}
 
-	UnaryOperator<GradleExecuter> getMsbuildTool() {
+	UnaryOperator<GradleRunner> getMsbuildTool() {
 		return { executer ->
 			def initScript = file("init.gradle")
 			initScript << IdeCommandLineUtils.generateGradleProbeInitFile('visualStudio', 'msbuild')
 			return executer
-				.requireIsolatedDaemons()
-				.requireGradleDistribution()
-				.requireDaemon()
+//				.requireIsolatedDaemons()
+//				.requireGradleDistribution()
+//				.requireDaemon()
 				.usingInitScript(initScript)
 		}
 	}

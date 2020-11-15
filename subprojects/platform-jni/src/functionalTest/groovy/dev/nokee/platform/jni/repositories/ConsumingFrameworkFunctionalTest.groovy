@@ -18,8 +18,11 @@ import spock.util.environment.OperatingSystem
 
 import java.nio.file.Files
 
+import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.hasFailureCause
+import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.hasFailureDescription
 import static java.util.regex.Pattern.*
 import static org.hamcrest.text.MatchesPattern.matchesPattern
+import static spock.util.matcher.HamcrestSupport.expect
 
 @Requires({OperatingSystem.current.macOs})
 class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
@@ -434,25 +437,25 @@ Searched in the following locations:
 		"""
 
 		when:
-		def failure = executer.withEnvironmentVars([DEVELOPER_DIR: '/opt/xcode']).withTasks('resolveConfiguration', '-i').runWithFailure()
+		def failure = executer.withEnvironmentVariable('DEVELOPER_DIR', '/opt/xcode').withTasks('resolveConfiguration', '-i').buildAndFail()
 		then:
-		failure.assertOutputContains('''An exception occurred during the dispatch of the request: Process '/usr/bin/xcrun --find xcodebuild' finished with non-zero exit value 1''')
+		failure.output.contains('''An exception occurred during the dispatch of the request: Process '/usr/bin/xcrun --find xcodebuild' finished with non-zero exit value 1''')
 		and:
-		failure.assertHasDescription("Execution failed for task ':resolveConfiguration'.")
-		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
-		failure.assertThatCause(matchesPattern(compile("""Could not find dev.nokee.framework:Foundation:${sdkVersion}.
+		expect failure, hasFailureDescription("Execution failed for task ':resolveConfiguration'.")
+		expect failure, hasFailureCause("Could not resolve all files for configuration ':framework'.")
+		expect failure, hasFailureCause(matchesPattern(compile("""Could not find dev.nokee.framework:Foundation:${sdkVersion}.
 Searched in the following locations:
   - http://127.0.0.1:\\d+/dev/nokee/framework/Foundation/${sdkVersion}/Foundation-${sdkVersion}.module
 .+""", MULTILINE | DOTALL)))
 
 		when:
-		failure = executer.withEnvironmentVars([DEVELOPER_DIR: '/opt/xcode']).withTasks('resolveConfiguration').runWithFailure()
+		failure = executer.withEnvironmentVariable('DEVELOPER_DIR', '/opt/xcode').withTasks('resolveConfiguration').buildAndFail()
 		then:
-		failure.assertNotOutput('''An exception occurred during the dispatch of the request: Process '/usr/bin/xcrun --find xcodebuild' finished with non-zero exit value 1''')
+		!failure.output.contains('''An exception occurred during the dispatch of the request: Process '/usr/bin/xcrun --find xcodebuild' finished with non-zero exit value 1''')
 		and:
-		failure.assertHasDescription("Execution failed for task ':resolveConfiguration'.")
-		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
-		failure.assertThatCause(matchesPattern(compile("""Could not find dev.nokee.framework:Foundation:${sdkVersion}.
+		expect failure, hasFailureDescription("Execution failed for task ':resolveConfiguration'.")
+		expect failure, hasFailureCause("Could not resolve all files for configuration ':framework'.")
+		expect failure, hasFailureCause(matchesPattern(compile("""Could not find dev.nokee.framework:Foundation:${sdkVersion}.
 Searched in the following locations:
   - http://127.0.0.1:\\d+/dev/nokee/framework/Foundation/${sdkVersion}/Foundation-${sdkVersion}.module
 .+""", MULTILINE | DOTALL)))

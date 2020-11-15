@@ -69,7 +69,7 @@ class GoogleTestTestSuiteFunctionalTest extends AbstractInstalledToolChainIntegr
 
 		when:
 		// Because of https://github.com/gradle/gradle/issues/13793
-		executer = executer.withoutDeprecationChecks().requireIsolatedDaemons()
+		executer = executer.withoutDeprecationChecks()
 		succeeds('test')
 
 		then:

@@ -45,7 +45,7 @@ The application produced inside `./build/exes/main` directory:
 
 [listing.terminal,only-if='macos']
 ----
-$ ./build/exes/main/swift-application
+$ ./build/exes/main/SwiftApplication
 Bonjour, Alice!
 ----
 
