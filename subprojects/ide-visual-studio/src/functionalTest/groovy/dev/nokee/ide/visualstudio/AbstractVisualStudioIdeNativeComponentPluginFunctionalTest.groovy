@@ -37,6 +37,14 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		"""
 	}
 
+	protected String configurePlatforms(String... platforms) {
+		return """
+			${componentUnderTestDsl} {
+				targetMachines = [${platforms.join(', ')}]
+			}
+		"""
+	}
+
 	protected abstract String getVisualStudioProjectName()
 
 	protected String getVisualStudioSolutionName() {
@@ -196,6 +204,22 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		then:
 		visualStudioSolutionUnderTest.assertHasProjectConfigurations('debug|x64', 'release|x64')
 		visualStudioProjectUnderTest.assertHasProjectConfigurations('debug|x64', 'release|x64')
+	}
+
+	def "can generate projects and solution for multiple machine architecture"() {
+		assumeFalse(this.class.simpleName.contains('WithNativeTestSuite'))
+		given:
+		settingsFile << configureProjectName()
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+		buildFile << configurePlatforms('machines.windows.x86', 'machines.windows.x86_64')
+
+		when:
+		succeeds('visualStudio')
+
+		then:
+		visualStudioSolutionUnderTest.assertHasProjectConfigurations('default|Win32', 'default|x64')
+		visualStudioProjectUnderTest.assertHasProjectConfigurations('default|Win32', 'default|x64')
 	}
 
 	// TODO: Check ConfigurationType

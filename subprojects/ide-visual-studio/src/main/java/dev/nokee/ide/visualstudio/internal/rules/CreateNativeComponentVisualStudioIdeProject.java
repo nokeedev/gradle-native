@@ -20,6 +20,7 @@ import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
 import dev.nokee.platform.nativebase.internal.NamedTargetBuildType;
+import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -109,7 +110,8 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 		public VisualStudioIdeTarget transform(Variant variant) {
 			val variantInternal = (VariantInternal) variant;
 			val buildType = buildType(variantInternal);
-			val projectConfiguration = projectConfiguration(buildType);
+			val machineArchitecture = machineArchitecture(variantInternal);
+			val projectConfiguration = projectConfiguration(buildType, machineArchitecture);
 			val target = new DefaultVisualStudioIdeTarget(projectConfiguration, objectFactory);
 
 			val binary = developmentBinary(variant);
@@ -142,8 +144,21 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			return new NamedTargetBuildType("default");
 		}
 
-		private VisualStudioIdeProjectConfiguration projectConfiguration(NamedTargetBuildType buildType) {
-			return VisualStudioIdeProjectConfiguration.of(VisualStudioIdeConfiguration.of(buildType.getName()), VisualStudioIdePlatforms.X64);
+		private DefaultMachineArchitecture machineArchitecture(VariantInternal variantInternal) {
+			return variantInternal.getBuildVariant().getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE);
+		}
+
+		private VisualStudioIdeProjectConfiguration projectConfiguration(NamedTargetBuildType buildType, DefaultMachineArchitecture machineArchitecture) {
+			VisualStudioIdePlatform idePlatform = null;
+			if (machineArchitecture.is64Bit()) {
+				idePlatform = VisualStudioIdePlatforms.X64;
+			} else if (machineArchitecture.is32Bit()) {
+				idePlatform = VisualStudioIdePlatforms.WIN32;
+			} else {
+				throw new IllegalArgumentException("Unsupported architecture for Visual Studio IDE.");
+			}
+
+			return VisualStudioIdeProjectConfiguration.of(VisualStudioIdeConfiguration.of(buildType.getName()), idePlatform);
 		}
 
 		private Transformer<Provider<String>, Binary> toSubSystem() {
