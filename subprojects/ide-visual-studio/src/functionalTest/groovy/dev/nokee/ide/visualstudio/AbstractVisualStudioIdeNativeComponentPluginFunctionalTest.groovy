@@ -48,11 +48,15 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 	protected abstract String getVisualStudioProjectName()
 
 	protected String getVisualStudioSolutionName() {
-		String solutionName = 'app'
+		return gradleProjectName
+	}
+
+	protected String getGradleProjectName() {
+		String projectName = 'app'
 		if (this.class.simpleName.contains('Library')) {
-			solutionName = 'lib'
+			projectName = 'lib'
 		}
-		return solutionName
+		return projectName
 	}
 
 	protected List<String> getGeneratedHeaders() {
@@ -220,6 +224,25 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		then:
 		visualStudioSolutionUnderTest.assertHasProjectConfigurations('default|Win32', 'default|x64')
 		visualStudioProjectUnderTest.assertHasProjectConfigurations('default|Win32', 'default|x64')
+	}
+
+	def "can build different machine architecture for projects [staged]"() {
+		assumeFalse(this.class.simpleName.contains('WithNativeTestSuite'))
+		given:
+		settingsFile << configureProjectName()
+		makeSingleProject()
+		componentUnderTest.writeToProject(testDirectory)
+		buildFile << configurePlatforms('machines.windows.x86', 'machines.windows.x86_64')
+
+		when:
+		def resultX86 = succeeds('-Pdev.nokee.internal.visualStudio.bridge.Action=build', "-Pdev.nokee.internal.visualStudio.bridge.OutDir=.vs/x86", "-Pdev.nokee.internal.visualStudio.bridge.PlatformName=Win32", "-Pdev.nokee.internal.visualStudio.bridge.Configuration=default", "-Pdev.nokee.internal.visualStudio.bridge.ProjectName=${gradleProjectName}", "-Pdev.nokee.internal.visualStudio.bridge.GRADLE_IDE_PROJECT_NAME=main", ":_visualStudio__build_${gradleProjectName}_default_Win32", "--dry-run")
+		then:
+		resultX86.assertTasksExecuted(':compileX86Cpp', ':linkX86', ":_visualStudio__build_${gradleProjectName}_default_Win32")
+
+		when:
+		def resultX64 = succeeds('-Pdev.nokee.internal.visualStudio.bridge.Action=build', "-Pdev.nokee.internal.visualStudio.bridge.OutDir=.vs/x64", "-Pdev.nokee.internal.visualStudio.bridge.PlatformName=x64", "-Pdev.nokee.internal.visualStudio.bridge.Configuration=default", "-Pdev.nokee.internal.visualStudio.bridge.ProjectName=${gradleProjectName}", "-Pdev.nokee.internal.visualStudio.bridge.GRADLE_IDE_PROJECT_NAME=main", ":_visualStudio__build_${gradleProjectName}_default_x64", "--dry-run")
+		then:
+		resultX64.assertTasksExecuted(':compileX86-64Cpp', ':linkX86-64', ":_visualStudio__build_${gradleProjectName}_default_x64")
 	}
 
 	// TODO: Check ConfigurationType
