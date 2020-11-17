@@ -40,10 +40,19 @@ dependencies {
 	testFixturesImplementation testFixtures(project(':languageObjectiveCpp'))
 	testFixturesImplementation testFixtures(project(':languageSwift'))
 	testFixturesApi 'dev.nokee:templates:latest.integration'
+	testFixturesApi "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
 }
 
 gradlePlugin {
 	plugins {
+		multiLanguageApplication {
+			id = 'dev.nokee.native-application'
+			implementationClass = 'dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPlugin'
+		}
+		nativeLibrary {
+			id = 'dev.nokee.native-library'
+			implementationClass = 'dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin'
+		}
 		cppApplication {
 			id = 'dev.nokee.cpp-application'
 			implementationClass = 'dev.nokee.platform.cpp.internal.plugins.CppApplicationPlugin'
@@ -92,6 +101,8 @@ test {
 		runtimeOnly 'net.bytebuddy:byte-buddy:1.10.10' // Because NamingScheme is not an interface
 		runtimeOnly 'org.objenesis:objenesis:3.1' // Because NamingScheme is not an interface
 		implementation testFixtures(project(':platformBase'))
+		runtimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+		runtimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"
 	}
 }
 
@@ -105,5 +116,9 @@ functionalTest {
 		implementation testFixtures(project(':languageObjectiveC'))
 		implementation testFixtures(project(':languageObjectiveCpp'))
 		implementation testFixtures(project(':languageSwift'))
+		runtimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+		runtimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"
 	}
 }
+
+tasks.withType(Test).configureEach { it.useJUnitPlatform() }
