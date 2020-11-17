@@ -71,7 +71,11 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		return visualStudioSolution(visualStudioSolutionName)
 	}
 
-	protected abstract List<String> getAllTasksForBuildAction()
+	protected final List<String> getAllTasksForBuildAction() {
+		return allTasksForBuildAction('')
+	}
+
+	protected abstract List<String> allTasksForBuildAction(String variant)
 
 	protected List<String> getAllTasksToXcode() {
 		return [":mainVisualStudioProject", ':visualStudioSolution', ':visualStudio']
@@ -237,12 +241,12 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		when:
 		def resultX86 = succeeds('-Pdev.nokee.internal.visualStudio.bridge.Action=build', "-Pdev.nokee.internal.visualStudio.bridge.OutDir=.vs/x86", "-Pdev.nokee.internal.visualStudio.bridge.PlatformName=Win32", "-Pdev.nokee.internal.visualStudio.bridge.Configuration=default", "-Pdev.nokee.internal.visualStudio.bridge.ProjectName=${gradleProjectName}", "-Pdev.nokee.internal.visualStudio.bridge.GRADLE_IDE_PROJECT_NAME=main", ":_visualStudio__build_${gradleProjectName}_default_Win32", "--dry-run")
 		then:
-		resultX86.assertTasksExecuted(':compileX86Cpp', ':linkX86', ":_visualStudio__build_${gradleProjectName}_default_Win32")
+		resultX86.assertTasksExecuted(allTasksForBuildAction('x86'), ":_visualStudio__build_${gradleProjectName}_default_Win32")
 
 		when:
 		def resultX64 = succeeds('-Pdev.nokee.internal.visualStudio.bridge.Action=build', "-Pdev.nokee.internal.visualStudio.bridge.OutDir=.vs/x64", "-Pdev.nokee.internal.visualStudio.bridge.PlatformName=x64", "-Pdev.nokee.internal.visualStudio.bridge.Configuration=default", "-Pdev.nokee.internal.visualStudio.bridge.ProjectName=${gradleProjectName}", "-Pdev.nokee.internal.visualStudio.bridge.GRADLE_IDE_PROJECT_NAME=main", ":_visualStudio__build_${gradleProjectName}_default_x64", "--dry-run")
 		then:
-		resultX64.assertTasksExecuted(':compileX86-64Cpp', ':linkX86-64', ":_visualStudio__build_${gradleProjectName}_default_x64")
+		resultX64.assertTasksExecuted(allTasksForBuildAction('x86-64'), ":_visualStudio__build_${gradleProjectName}_default_x64")
 	}
 
 	// TODO: Check ConfigurationType

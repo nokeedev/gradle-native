@@ -41,8 +41,8 @@ class VisualStudioIdeJavaNativeInterfaceLibraryFunctionalTest extends AbstractVi
 	}
 
 	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return [':compileJava'] + tasks.allToLink
+	protected List<String> allTasksForBuildAction(String variant) {
+		return [':compileJava'] + tasks.withOperatingSystemFamily(variant).allToLink
 	}
 
 	@Override

@@ -41,8 +41,8 @@ class VisualStudioIdeCppApplicationFunctionalTest extends AbstractVisualStudioId
 	}
 
 	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return tasks.allToLink
+	protected List<String> allTasksForBuildAction(String variant) {
+		return tasks.withOperatingSystemFamily(variant).allToLink
 	}
 }
 
@@ -90,8 +90,8 @@ class VisualStudioIdeCppApplicationWithNativeTestSuiteFunctionalTest extends Abs
 	}
 
 	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return [tasks.compile] + tasks.withComponentName('test').allToLink + [tasks.withComponentName('test').relocateMainSymbol]
+	protected List<String> allTasksForBuildAction(String variant) {
+		return [tasks.withOperatingSystemFamily(variant).compile] + tasks.withComponentName('test').withOperatingSystemFamily(variant).allToLink + [tasks.withComponentName('test').withOperatingSystemFamily(variant).relocateMainSymbol]
 	}
 }
 
@@ -127,8 +127,8 @@ class VisualStudioIdeCppLibraryFunctionalTest extends AbstractVisualStudioIdeNat
 	}
 
 	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return tasks.allToLink
+	protected List<String> allTasksForBuildAction(String variant) {
+		return tasks.withOperatingSystemFamily(variant).allToLink
 	}
 }
 
@@ -176,8 +176,8 @@ class VisualStudioIdeCppLibraryWithNativeTestSuiteFunctionalTest extends Abstrac
 	}
 
 	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return [tasks.compile] + tasks.withComponentName('test').allToLink
+	protected List<String> allTasksForBuildAction(String variant) {
+		return [tasks.withOperatingSystemFamily(variant).compile] + tasks.withComponentName('test').withOperatingSystemFamily(variant).allToLink
 	}
 }
 
@@ -194,8 +194,8 @@ class VisualStudioIdeCppLibraryWithStaticLinkageFunctionalTest extends VisualStu
 	}
 
 	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return tasks.forStaticLibrary.allToCreate
+	protected List<String> allTasksForBuildAction(String variant) {
+		return tasks.forStaticLibrary.withOperatingSystemFamily(variant).allToCreate
 	}
 }
 
@@ -223,7 +223,7 @@ class VisualStudioIdeCppLibraryWithBothLinkageFunctionalTest extends VisualStudi
 	}
 
 	@Override
-	protected List<String> getAllTasksForBuildAction() {
-		return tasks.withLinkage('shared').allToLink
+	protected List<String> allTasksForBuildAction(String variant) {
+		return tasks.withLinkage('shared').withOperatingSystemFamily(variant).allToLink
 	}
 }
