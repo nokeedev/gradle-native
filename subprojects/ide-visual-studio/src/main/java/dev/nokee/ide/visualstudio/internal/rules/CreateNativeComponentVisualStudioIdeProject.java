@@ -19,7 +19,9 @@ import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
+import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.NamedTargetBuildType;
+import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -34,11 +36,15 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.specs.Specs;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import static java.util.stream.Collectors.joining;
 
 public final class CreateNativeComponentVisualStudioIdeProject implements Action<KnownComponent<BaseComponent<?>>> {
 	private final VisualStudioIdeProjectExtension extension;
@@ -95,21 +101,29 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 	}
 
 	private Provider<List<VisualStudioIdeTarget>> toVisualStudioIdeTargets(BaseComponent<?> component) {
-		return component.getVariants().map(new ToVisualStudioIdeTargets(component));
+		return component.getVariants().flatMap(new ToVisualStudioIdeTargets(component));
 	}
 
-	private class ToVisualStudioIdeTargets implements Transformer<VisualStudioIdeTarget, Variant> {
+	private class ToVisualStudioIdeTargets implements Transformer<Iterable<? extends VisualStudioIdeTarget>, Variant> {
 		private final BaseComponent<?> component;
+		private final Set<DefaultBinaryLinkage> allLinkages;
 
 		ToVisualStudioIdeTargets(BaseComponent<?> component) {
 			this.component = component;
+			this.allLinkages = component.getBuildVariants().get().stream().map(it -> it.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)).collect(Collectors.toSet());
 		}
 
 		@Override
-		public VisualStudioIdeTarget transform(Variant variant) {
+		public Iterable<VisualStudioIdeTarget> transform(Variant variant) {
+			// Ignore non-shared linkage variant when multiple linkage are available
+			if (allLinkages.size() > 1 && !variant.getBuildVariant().hasAxisOf(DefaultBinaryLinkage.SHARED)) {
+				return Collections.emptyList();
+			}
+
 			val variantInternal = (VariantInternal) variant;
 			val buildType = buildType(variantInternal);
-			val projectConfiguration = projectConfiguration(buildType);
+			val machineArchitecture = machineArchitecture(variantInternal);
+			val projectConfiguration = projectConfiguration(buildType, machineArchitecture);
 			val target = new DefaultVisualStudioIdeTarget(projectConfiguration, objectFactory);
 
 			val binary = developmentBinary(variant);
@@ -125,7 +139,7 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			target.getItemProperties().maybeCreate("Link")
 				.put("SubSystem", binary.flatMap(toSubSystem()));
 
-			return target;
+			return Collections.singletonList(target);
 		}
 
 		private Provider<Binary> developmentBinary(Variant variant) {
@@ -142,8 +156,21 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			return new NamedTargetBuildType("default");
 		}
 
-		private VisualStudioIdeProjectConfiguration projectConfiguration(NamedTargetBuildType buildType) {
-			return VisualStudioIdeProjectConfiguration.of(VisualStudioIdeConfiguration.of(buildType.getName()), VisualStudioIdePlatforms.X64);
+		private DefaultMachineArchitecture machineArchitecture(VariantInternal variantInternal) {
+			return variantInternal.getBuildVariant().getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE);
+		}
+
+		private VisualStudioIdeProjectConfiguration projectConfiguration(NamedTargetBuildType buildType, DefaultMachineArchitecture machineArchitecture) {
+			VisualStudioIdePlatform idePlatform = null;
+			if (machineArchitecture.is64Bit()) {
+				idePlatform = VisualStudioIdePlatforms.X64;
+			} else if (machineArchitecture.is32Bit()) {
+				idePlatform = VisualStudioIdePlatforms.WIN32;
+			} else {
+				throw new IllegalArgumentException("Unsupported architecture for Visual Studio IDE.");
+			}
+
+			return VisualStudioIdeProjectConfiguration.of(VisualStudioIdeConfiguration.of(buildType.getName()), idePlatform);
 		}
 
 		private Transformer<Provider<String>, Binary> toSubSystem() {
@@ -249,13 +276,17 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 				@Override
 				public Provider<String> transform(Binary binary) {
 					if (binary instanceof BaseNativeBinary) {
-						return ((BaseNativeBinary) binary).getHeaderSearchPaths().map(this::toSemiColonSeperatedPaths);
+						return ((BaseNativeBinary) binary).getHeaderSearchPaths().map(this::toSemiColonSeparatedPaths);
 					}
 					throw unsupportedBinaryType(binary);
 				}
 
-				private String toSemiColonSeperatedPaths(Iterable<? extends FileSystemLocation> it) {
-					return StreamSupport.stream(it.spliterator(), false).map(a -> "\"" + a.getAsFile().getAbsolutePath() + "\"").collect(Collectors.joining(";"));
+				private String toSemiColonSeparatedPaths(Iterable<? extends FileSystemLocation> it) {
+					return StreamSupport.stream(it.spliterator(), false).map(this::quotedAbsolutePath).collect(joining(";"));
+				}
+
+				private String quotedAbsolutePath(FileSystemLocation location) {
+					return "\"" + location.getAsFile().getAbsolutePath() + "\"";
 				}
 			};
 		}

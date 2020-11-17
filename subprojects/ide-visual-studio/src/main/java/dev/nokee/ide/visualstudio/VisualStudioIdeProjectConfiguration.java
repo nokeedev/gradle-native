@@ -27,4 +27,9 @@ public class VisualStudioIdeProjectConfiguration {
 	public static VisualStudioIdeProjectConfiguration of(VisualStudioIdeConfiguration configuration, VisualStudioIdePlatform platform) {
 		return new VisualStudioIdeProjectConfiguration(configuration, platform);
 	}
+
+	@Override
+	public String toString() {
+		return String.format("project configuration '%s|%s'", configuration, platform);
+	}
 }
