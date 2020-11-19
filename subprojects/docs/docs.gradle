@@ -290,8 +290,9 @@ tasks.named('docsTest', Test) { task ->
 	task.systemProperty('sampleArchiveDirectory', layout.buildDirectory.dir('generated/zips').get().asFile.absolutePath)
 }
 
-tasks.named('stageDocumentation', Sync) {
-	from(tasks.getByPath(':distributions:javadoc')) {
-		into('docs/nightly/javadoc')
-	}
-}
+// Disabled glue coming from docs-gradle-plugins, those will be merged to Nokee directly
+//tasks.named('stageDocumentation', Sync) {
+//	from(tasks.getByPath(':distributions:javadoc')) {
+//		into('docs/nightly/javadoc')
+//	}
+//}

@@ -11,10 +11,9 @@ plugins {
 }
 
 
+
 import dev.nokee.core.exec.CommandLine
 import dev.nokee.core.exec.GradleWorkerExecutorEngine
-import dev.nokee.docs.JavadocDependencyLock
-import dev.nokee.docs.tasks.GenerateJavadocClasspathLock
 import groovy.json.JsonOutput
 
 def allPluginProjectPaths = (rootProject.allprojects - [project(':docs'), project(':distributions')])*.path
@@ -134,21 +133,21 @@ private String resolveProperty(Project project, String envVarKey, String project
 	return null;
 }
 
-def allJavadocProjectPaths = allPluginProjectPaths - [':distributions:all', ':distributions:bom']
-
-apply plugin: 'dev.nokee.documentation.javadoc'
-allJavadocProjectPaths.each { projectPath ->
-	project(projectPath) {
-		apply plugin: 'dev.nokee.documentation.javadoc'
-	}
-	dependencies {
-		javadocClasspathLock project(projectPath)
-		javadocSource project(projectPath)
-		javadocClasspath project(':distributions:all')
-	}
-}
-
-tasks.named('generateJavadocClasspathLock', GenerateJavadocClasspathLock) {
-	it.dependencies.add(new JavadocDependencyLock.Dependency('dev.nokee', 'nokee-gradle-plugins', version.toString()))
-	it.repositories.add(new JavadocDependencyLock.Repository(uri('https://dl.bintray.com/nokeedev/distributions/')))
-}
+//def allJavadocProjectPaths = allPluginProjectPaths - [':distributions:all', ':distributions:bom']
+//
+//apply plugin: 'dev.nokee.documentation.javadoc'
+//allJavadocProjectPaths.each { projectPath ->
+//	project(projectPath) {
+//		apply plugin: 'dev.nokee.documentation.javadoc'
+//	}
+//	dependencies {
+//		javadocClasspathLock project(projectPath)
+//		javadocSource project(projectPath)
+//		javadocClasspath project(':distributions:all')
+//	}
+//}
+//
+//tasks.named('generateJavadocClasspathLock', GenerateJavadocClasspathLock) {
+//	it.dependencies.add(new JavadocDependencyLock.Dependency('dev.nokee', 'nokee-gradle-plugins', version.toString()))
+//	it.repositories.add(new JavadocDependencyLock.Repository(uri('https://dl.bintray.com/nokeedev/distributions/')))
+//}
