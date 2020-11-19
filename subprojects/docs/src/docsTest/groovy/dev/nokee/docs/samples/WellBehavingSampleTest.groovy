@@ -1,10 +1,10 @@
 package dev.nokee.docs.samples
 
+import dev.gradleplugins.integtests.fixtures.nativeplatform.AvailableToolChains
+import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.runnerkit.BuildResult
 import dev.gradleplugins.runnerkit.GradleExecutor
 import dev.gradleplugins.runnerkit.GradleRunner
-import dev.gradleplugins.integtests.fixtures.nativeplatform.AvailableToolChains
-import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.spock.lang.CleanupTestDirectory
 import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
 import dev.gradleplugins.test.fixtures.file.TestFile
@@ -433,7 +433,7 @@ abstract class WellBehavingSampleTest extends Specification {
 			if (tool.isPresent()) {
 				String stdout = unzipTo(inputFile, outputDirectory)
 				// unzip add extra newline but also have extra tailing spaces
-				stdout = stdout.replace(testDirectory.absolutePath, '/Users/daniel')
+				stdout = stdout.replace(testDirectory.absolutePath, separatorsToSystem('/Users/daniel'))
 
 				assert UnzipCommandHelper.Output.parse(stdout) == UnzipCommandHelper.Output.parse(command.expectedOutput.get())
 			} else {
