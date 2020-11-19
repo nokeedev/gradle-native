@@ -1,0 +1,31 @@
+digraph typicalComponentSourceConfiguration {
+ 	graph [ dpi = 100, fontname="Sans"];
+	node [fontname = "Sans"];
+	edge [fontname = "Sans"];
+    graph[splines=ortho]
+	node [shape=rectangle, fixedsize=true, width=2.5, height=0.5];
+
+    sources[shape=underline label="application.sources" width=1.6]
+    dot2[shape=none label="." width=0.01]
+    configureEach[shape=underline label="configureEach" width=1.2]
+    leftMustash[shape=none label="{" width=0.01]
+    from[shape=underline label="from('src')" width=1.2]
+    rightMustash[shape=none label="}" width=0.01]
+    {rank=same sources dot2 configureEach leftMustash from rightMustash}
+
+    {0001 [width=0, shape=point];}
+    from -> 0001 -> sourceSet[arrowhead=none]
+    {rank=same; 0001 sourceSet}
+
+    {0010, 0020 [width=0, shape=point];}
+    configureEach -> 0010 -> 0020 -> sourceView[arrowhead=none]
+    {rank=same; 0020 sourceView}
+
+    {0100, 0200, 0300 [width=0, shape=point];}
+    sources -> 0100 -> 0200 -> 0300 -> componentSources[arrowhead=none]
+    {rank=same; 0300 componentSources}
+
+    sourceSet[style=none label="Source set"]
+    sourceView[style=none label="Source view"]
+    componentSources[style=none label="Component sources"]
+}
