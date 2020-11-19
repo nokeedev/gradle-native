@@ -3,9 +3,12 @@ package dev.nokee.docs
 import dev.nokee.docs.fixtures.html.HtmlLinkTester
 import dev.nokee.docs.tags.Baked
 import org.junit.experimental.categories.Category
+import spock.lang.Requires
 import spock.lang.Specification
+import spock.util.environment.OperatingSystem
 
 @Category(Baked)
+@Requires({ os.family == OperatingSystem.Family.MAC_OS })
 class BrokenLinksTest extends Specification {
 	def "checks HTML for broken links"() {
 		expect:
