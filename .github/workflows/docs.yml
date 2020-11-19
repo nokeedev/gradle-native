@@ -91,6 +91,9 @@ jobs:
             -   name: (linux) Install documentation dependencies
                 if: matrix.os == 'ubuntu-latest'
                 run: sudo apt-get update && sudo apt-get -y install graphviz asciinema imagemagick gifsicle ffmpeg tree && sudo npm --global install asciicast2gif giflossy --unsafe-perm
+            -   name: (linux) Install gcc dependencies
+                if: matrix.os == 'ubuntu-latest'
+                run: sudo apt-get update && sudo apt-get -y install gobjc-8-multilib gobjc++-8-multilib gcc-8-multilib g++-8-multilib libpthread-stubs0-dev
             -   name: (macos) Install documentation dependencies
                 if: matrix.os == 'macos-latest'
                 run: brew install tree
