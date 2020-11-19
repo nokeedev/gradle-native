@@ -7,6 +7,7 @@ import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependen
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
+import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import lombok.Getter;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
@@ -24,5 +25,7 @@ public class DefaultNativeApplicationVariant extends BaseNativeVariant implement
 		super(identifier, objects, providers, assembleTask, binaryViewFactory);
 		this.dependencies = dependencies.getDependencies();
 		this.resolvableDependencies = dependencies.getIncoming();
+
+		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE))));
 	}
 }
