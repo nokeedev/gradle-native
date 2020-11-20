@@ -23,6 +23,8 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     CI: true
+                    AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+                    AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
             -   name: Trigger docs.nokee.dev rebuild (main-only)
                 shell: bash
                 run: |
@@ -65,6 +67,8 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     CI: true
+                    AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+                    AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
             -   name: Trigger nokeedev.gitlab.io rebuild (main-only)
                 shell: bash
                 run: |
