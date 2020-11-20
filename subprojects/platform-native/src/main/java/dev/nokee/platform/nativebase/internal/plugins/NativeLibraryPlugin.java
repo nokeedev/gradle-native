@@ -1,5 +1,10 @@
 package dev.nokee.platform.nativebase.internal.plugins;
 
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetName;
+import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
+import dev.nokee.language.c.internal.CHeaderSetImpl;
+import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
 import dev.nokee.platform.nativebase.internal.*;
@@ -33,6 +38,11 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 			component.getBaseName().convention(project.getName());
 		});
 		val extension = new NativeLibraryExtensionImpl(componentProvider.get(), project.getObjects(), project.getProviders(), project.getLayout());
+
+		// This is a work around for exported headers, some clean up needs to happen:
+		project.getPluginManager().apply(CLanguageBasePlugin.class);
+		val sourceSetRegistry = project.getExtensions().getByType(LanguageSourceSetRegistry.class);
+		sourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("public"), CHeaderSetImpl.class, componentProvider.getIdentifier()));
 
 		// Other configurations
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
