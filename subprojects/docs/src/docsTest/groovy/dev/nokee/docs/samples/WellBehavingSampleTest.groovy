@@ -42,6 +42,7 @@ import static dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirec
 import static dev.nokee.utils.DeferredUtils.flatUnpack
 import static org.apache.commons.io.FilenameUtils.getExtension
 import static org.apache.commons.io.FilenameUtils.separatorsToSystem
+import static org.apache.commons.io.FilenameUtils.separatorsToUnix
 import static org.hamcrest.Matchers.greaterThan
 import static org.junit.Assume.assumeThat
 import static org.junit.Assume.assumeTrue
@@ -433,7 +434,8 @@ abstract class WellBehavingSampleTest extends Specification {
 			if (tool.isPresent()) {
 				String stdout = unzipTo(inputFile, outputDirectory)
 				// unzip add extra newline but also have extra tailing spaces
-				stdout = stdout.replace(testDirectory.absolutePath, separatorsToSystem('/Users/daniel'))
+				stdout = stdout.replace(testDirectory.absolutePath, '/Users/daniel')
+				stdout = separatorsToUnix(stdout)
 
 				assert UnzipCommandHelper.Output.parse(stdout) == UnzipCommandHelper.Output.parse(command.expectedOutput.get())
 			} else {
