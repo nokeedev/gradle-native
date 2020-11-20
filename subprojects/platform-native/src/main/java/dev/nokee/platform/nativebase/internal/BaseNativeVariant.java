@@ -3,7 +3,6 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
-import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Task;
@@ -19,8 +18,6 @@ public class BaseNativeVariant extends BaseVariant {
 		super(identifier, objects, binaryViewFactory);
 		this.providers = providers;
 		this.assembleTask = assembleTask;
-
-		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE))));
 	}
 
 	public TaskProvider<Task> getAssembleTask() {

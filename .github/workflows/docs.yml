@@ -1,0 +1,109 @@
+name: Documentation
+
+on: push
+
+jobs:
+    publish-jbake-templates:
+        if: github.ref == 'refs/heads/master'
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+            -   uses: actions/setup-java@v1
+                with:
+                    java-version: '8'
+            -   name: Install documentation dependencies
+                run: sudo apt-get update && sudo apt-get -y install graphviz asciinema imagemagick gifsicle ffmpeg tree && sudo npm --global install asciicast2gif giflossy --unsafe-perm
+            -   name: Build all code
+                id: gradle
+                uses: eskatos/gradle-command-action@v1
+                with:
+                    arguments: :docs:publishJbakePublicationToS3Repository --scan --continue --no-daemon --no-build-cache "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
+                    wrapper-cache-enabled: true
+                    dependencies-cache-enabled: true
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    CI: true
+            -   name: Trigger docs.nokee.dev rebuild (main-only)
+                shell: bash
+                run: |
+                    curl \
+                    --silent \
+                    --show-error \
+                    --fail \
+                    --request POST \
+                    --form "token=${{ secrets.GITLAB_CI_TRIGGER_DOCSNOKEEDEV }}" \
+                    --form ref=master \
+                    --url https://gitlab.com/api/v4/projects/17545900/trigger/pipeline
+            -   name: Trigger nokeedev.gitlab.io rebuild (main-only)
+                shell: bash
+                run: |
+                    curl \
+                    --silent \
+                    --show-error \
+                    --fail \
+                    --request POST \
+                    --form "token=${{ secrets.GITLAB_CI_TRIGGER_NOKEEDEVGITLABIO }}" \
+                    --form ref=master \
+                    --url https://gitlab.com/api/v4/projects/16537594/trigger/pipeline
+    publish-nightly-documentations:
+        if: github.ref == 'refs/heads/master'
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+            -   uses: actions/setup-java@v1
+                with:
+                    java-version: '8'
+            -   name: Install documentation dependencies
+                run: sudo apt-get update && sudo apt-get -y install graphviz asciinema imagemagick gifsicle ffmpeg tree && sudo npm --global install asciicast2gif giflossy --unsafe-perm
+            -   name: Build all code
+                id: gradle
+                uses: eskatos/gradle-command-action@v1
+                with:
+                    arguments: :docs:bakedDocsTest :docs:publishBakedPublicationToS3Repository --scan --continue --max-workers 4 --info --no-daemon --no-build-cache "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
+                    wrapper-cache-enabled: true
+                    dependencies-cache-enabled: true
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    CI: true
+            -   name: Trigger nokeedev.gitlab.io rebuild (main-only)
+                shell: bash
+                run: |
+                    curl \
+                    --silent \
+                    --show-error \
+                    --fail \
+                    --request POST \
+                    --form "token=${{ secrets.GITLAB_CI_TRIGGER_NOKEEDEVGITLABIO }}" \
+                    --form ref=master \
+                    --url https://gitlab.com/api/v4/projects/16537594/trigger/pipeline
+    check-documentations:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                checkTask: [':docs:docsTest']
+                os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        steps:
+            -   uses: actions/checkout@v2
+            -   uses: actions/setup-java@v1
+                with:
+                    java-version: '8'
+            -   name: (linux) Install documentation dependencies
+                if: matrix.os == 'ubuntu-latest'
+                run: sudo apt-get update && sudo apt-get -y install graphviz asciinema imagemagick gifsicle ffmpeg tree && sudo npm --global install asciicast2gif giflossy --unsafe-perm
+            -   name: (linux) Install gcc dependencies
+                if: matrix.os == 'ubuntu-latest'
+                run: sudo apt-get update && sudo apt-get -y install gobjc-8-multilib gobjc++-8-multilib gcc-8-multilib g++-8-multilib libpthread-stubs0-dev
+            -   name: (macos) Install documentation dependencies
+                if: matrix.os == 'macos-latest'
+                run: brew install tree
+            -   name: Run all tests
+                id: gradle
+                uses: eskatos/gradle-command-action@v1
+                with:
+                    arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon --no-build-cache "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
+                    wrapper-cache-enabled: true
+                    dependencies-cache-enabled: true
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    CI: true

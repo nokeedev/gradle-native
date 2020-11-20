@@ -9,9 +9,11 @@ import org.asciidoctor.Asciidoctor
 import org.asciidoctor.ast.Document
 import org.asciidoctor.ast.StructuralNode
 import org.asciidoctor.jruby.ast.impl.ListImpl
+import spock.lang.Requires
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
+import spock.util.environment.OperatingSystem
 
 import java.nio.file.Files
 
@@ -37,6 +39,7 @@ class ReadmeTest extends Specification {
 		return new JsonSlurper().parse(new URL('https://services.nokee.dev/versions/current.json')).version
 	}
 
+	@Requires({ os.family == OperatingSystem.Family.MAC_OS })
 	def "checks for broken links"() {
 		given:
 		def rootDirectory = Files.createTempDirectory('nokee')
