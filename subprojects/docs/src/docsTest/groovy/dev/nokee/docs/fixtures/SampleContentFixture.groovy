@@ -1,5 +1,7 @@
 package dev.nokee.docs.fixtures
 
+import dev.gradleplugins.exemplarkit.Exemplar
+import dev.gradleplugins.exemplarkit.Step
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl
 import dev.nokee.docs.fixtures.html.HtmlTestFixture
@@ -7,6 +9,7 @@ import dev.nokee.docs.fixtures.html.UriService
 import org.asciidoctor.Asciidoctor
 import org.asciidoctor.ast.Document
 
+import static dev.gradleplugins.exemplarkit.asciidoc.AsciidocExemplarStepLoader.extractFromAsciiDoc
 import static org.asciidoctor.OptionsBuilder.options
 
 class SampleContentFixture {
@@ -47,9 +50,15 @@ class SampleContentFixture {
 		return getKotlinDslSample()
 	}
 
-	List<Command> getCommands() {
-		Document document = loadDocument()
-		return new CommandDiscovery().extractAsciidocCommands(document)
+	Exemplar getDslExemplar(GradleScriptDsl dsl) {
+		def builder = Exemplar.builder()
+		for (Step step : extractFromAsciiDoc(loadDocument())) {
+			builder = builder.step(step)
+		}
+		if (dsl == GradleScriptDsl.GROOVY_DSL) {
+			return builder.fromArchive(getGroovyDslSample()).build()
+		}
+		return builder.fromArchive(getKotlinDslSample()).build()
 	}
 
 	String getCategory() {

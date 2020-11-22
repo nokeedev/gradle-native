@@ -24,7 +24,6 @@ buildscript {
 plugins {
 	id 'dev.nokeebuild.documentation'
 	id 'maven-publish'
-	id 'antlr'
 }
 
 docsTest.dependsOn({ project(':distributions').tasks.named('publishToStaging')})
@@ -60,9 +59,6 @@ dependencies {
 	docsTestImplementation 'org.apache.commons:commons-lang3:3.9'
 	docsTestImplementation 'org.hamcrest:hamcrest:2.2'
 
-	docsTestImplementation "org.antlr:antlr4:${antlrVersion}"
-	antlr "org.antlr:antlr4:${antlrVersion}"
-
 	docsTestImplementation 'commons-io:commons-io:2.6'
 	docsTestImplementation 'net.sourceforge.nekohtml:nekohtml:1.9.21'
 	docsTestImplementation 'io.github.http-builder-ng:http-builder-ng-core:1.0.4'
@@ -74,13 +70,9 @@ dependencies {
 	docsTestImplementation project(':languageObjectiveC')
 	docsTestImplementation project(':languageObjectiveCpp')
 	docsTestImplementation project(':languageSwift')
+	docsTestImplementation project('exemplar-kit')
+	docsTestImplementation testFixtures(project('exemplar-kit'))
 }
-// TODO: Improve this Antlr mess... :(
-afterEvaluate {
-	sourceSets.docsTest.groovy.srcDirs(sourceSets.docsTest.java.srcDirs)
-	sourceSets.docsTest.java.srcDirs = []
-}
-compileGroovy.dependsOn(generateDocsTestGrammarSource)
 
 repositories {
 	gradlePluginDevelopment()
