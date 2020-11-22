@@ -166,6 +166,10 @@ include 'docs'
 project(':docs').projectDir = file('subprojects/docs')
 project(':docs').buildFileName = 'docs.gradle'
 
+include 'docs:exemplar-kit'
+project(':docs:exemplar-kit').projectDir = file('subprojects/docs/exemplar-kit')
+project(':docs:exemplar-kit').buildFileName = 'exemplar-kit.gradle'
+
 buildCache {
 	remote(HttpBuildCache) {
 		url = 'https://gradle-build-cache.nokee.dev/cache/'
