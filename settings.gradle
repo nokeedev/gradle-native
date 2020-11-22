@@ -166,9 +166,9 @@ include 'docs'
 project(':docs').projectDir = file('subprojects/docs')
 project(':docs').buildFileName = 'docs.gradle'
 
-include 'docs:exemplar-kit'
-project(':docs:exemplar-kit').projectDir = file('subprojects/docs/exemplar-kit')
-project(':docs:exemplar-kit').buildFileName = 'exemplar-kit.gradle'
+include 'docs:exemplarKit'
+project(':docs:exemplarKit').projectDir = file('subprojects/docs/exemplar-kit')
+project(':docs:exemplarKit').buildFileName = 'exemplar-kit.gradle'
 
 buildCache {
 	remote(HttpBuildCache) {

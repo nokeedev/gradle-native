@@ -70,8 +70,8 @@ dependencies {
 	docsTestImplementation project(':languageObjectiveC')
 	docsTestImplementation project(':languageObjectiveCpp')
 	docsTestImplementation project(':languageSwift')
-	docsTestImplementation project('exemplar-kit')
-	docsTestImplementation testFixtures(project('exemplar-kit'))
+	docsTestImplementation project('exemplarKit')
+	docsTestImplementation testFixtures(project('exemplarKit'))
 }
 
 repositories {
