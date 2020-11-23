@@ -3,6 +3,8 @@ package dev.gradleplugins.exemplarkit
 import dev.gradleplugins.exemplarkit.testers.StepExecutionResultNoOutputTester
 import dev.gradleplugins.exemplarkit.testers.StepExecutionResultOutputTester
 import dev.gradleplugins.exemplarkit.testers.StepExecutionResultSuccessfulStepTester
+import org.apache.commons.io.FilenameUtils
+import org.apache.commons.lang3.SystemUtils
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -24,7 +26,7 @@ class ExemplarRunnerChangeDirectoryStepTest {
 
 		def exemplar = Exemplar.builder()
 			.step(Step.builder().execute('cd', 'nested/dir'))
-			.step(Step.builder().execute('pwd'))
+			.step(Step.builder().execute(SystemUtils.IS_OS_WINDOWS ? 'cd' : 'pwd'))
 			.build()
 		result = create(defaultExecutor()).inDirectory(testDirectory).using(exemplar).run()
 	}
@@ -72,7 +74,7 @@ class ExemplarRunnerChangeDirectoryStepTest {
 
 			@Override
 			protected String getExpectedOutput() {
-				return "${testDirectory.canonicalPath}/nested/dir\n"
+				return "${FilenameUtils.separatorsToSystem(testDirectory.canonicalPath + '/nested/dir')}${System.lineSeparator()}"
 			}
 		}
 	}

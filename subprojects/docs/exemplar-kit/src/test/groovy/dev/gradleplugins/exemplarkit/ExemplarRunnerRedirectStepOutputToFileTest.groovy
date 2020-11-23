@@ -33,7 +33,7 @@ class ExemplarRunnerRedirectStepOutputToFileTest {
 
 	@Test
 	void "redirect output to file"() {
-		assertThat(new File(testDirectory, 'foo.txt').text, equalTo('Hello, world!\n'))
+		assertThat(new File(testDirectory, 'foo.txt').text, equalTo("Hello, world!${System.lineSeparator()}".toString()))
 	}
 
 	@Nested

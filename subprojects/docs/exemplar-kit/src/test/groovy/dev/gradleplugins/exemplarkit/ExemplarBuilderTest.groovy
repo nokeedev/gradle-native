@@ -78,7 +78,7 @@ class ExemplarBuilderTest {
 	void "throws exception if sample directory does not exists"(@TempDir File testDirectory) {
 		def sampleDirectory = new File(testDirectory, 'non-existant')
 		def ex = assertThrows(IllegalArgumentException, { builder().fromDirectory(sampleDirectory) })
-		assertEquals("Please specify a valid directory because directory '${testDirectory.absolutePath}/non-existant' does not exists.".toString(), ex.message)
+		assertEquals("Please specify a valid directory because directory '${testDirectory.absolutePath}${File.separator}non-existant' does not exists.".toString(), ex.message)
 	}
 
 	@Test
@@ -93,6 +93,6 @@ class ExemplarBuilderTest {
 	void "throws exception if sample archive does not exists"(@TempDir File testDirectory) {
 		def sampleArchive = new File(testDirectory, 'foo.zip')
 		def ex = assertThrows(IllegalArgumentException, { builder().fromArchive(sampleArchive) })
-		assertEquals("Please specify a valid archive because archive '${testDirectory.absolutePath}/foo.zip' does not exists.".toString(), ex.message)
+		assertEquals("Please specify a valid archive because archive '${testDirectory.absolutePath}${File.separator}foo.zip' does not exists.".toString(), ex.message)
 	}
 }

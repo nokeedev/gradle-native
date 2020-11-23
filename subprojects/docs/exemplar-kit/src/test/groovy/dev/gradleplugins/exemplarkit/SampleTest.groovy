@@ -3,6 +3,8 @@ package dev.gradleplugins.exemplarkit
 import dev.gradleplugins.exemplarkit.fixtures.ExemplarSample
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.DisabledOnOs
+import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.api.io.TempDir
 import org.zeroturnaround.zip.ZipUtil
 
@@ -48,6 +50,7 @@ class SampleTest {
 	}
 
 	@Test
+	@DisabledOnOs(value = [ OS.WINDOWS ], disabledReason = "because Windows doesn't have an issue with executable permission")
 	void "restore executable permission from archive-base sample"() {
 		def sampleDirectory = writeSampleToDirectory()
 		def exampleDirectory = new File(testDirectory, 'example')
