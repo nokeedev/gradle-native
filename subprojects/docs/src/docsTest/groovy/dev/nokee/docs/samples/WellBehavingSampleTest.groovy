@@ -256,10 +256,10 @@ abstract class WellBehavingSampleTest extends Specification {
 		assumeThat(exemplar.steps.size(), greaterThan(0))
 		expect:
 		[exemplar.steps, result.stepResults].transpose().each { Step expected, StepExecutionResult actual ->
-			assert actual.exitValue.get() == 0
 			assert actual.outcome != StepExecutionOutcome.FAILED
 
 			if (actual.outcome == StepExecutionOutcome.EXECUTED) {
+				assert actual.exitValue.get() == 0
 				if (expected.executable == './gradlew') {
 					def actualBuildResult = BuildResult.from(actual.output.get())
 						.withNormalizedTaskOutput({ it.taskName == 'xcode' }, normalizeXcodePath(testDirectory))
