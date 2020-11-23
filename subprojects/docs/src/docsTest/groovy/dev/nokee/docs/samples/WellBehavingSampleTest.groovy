@@ -331,7 +331,7 @@ abstract class WellBehavingSampleTest extends Specification {
 				}
 			"""
 			executer = toolChain.configureExecuter(executer.usingInitScript(initScript))
-			command.args.each {
+			context.currentStep.arguments.each {
 				executer = executer.withArgument(it)
 			}
 			def result = executer.build()
