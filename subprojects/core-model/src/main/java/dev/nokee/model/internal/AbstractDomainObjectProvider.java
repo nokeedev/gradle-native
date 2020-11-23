@@ -7,6 +7,8 @@ import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
+import static java.util.Objects.requireNonNull;
+
 @EqualsAndHashCode
 public abstract class AbstractDomainObjectProvider<TYPE, T extends TYPE> implements DomainObjectProvider<T> {
 	private final TypeAwareDomainObjectIdentifier<T> identifier;
@@ -31,7 +33,7 @@ public abstract class AbstractDomainObjectProvider<TYPE, T extends TYPE> impleme
 
 	@Override
 	public void configure(Action<? super T> action) {
-		configurer.configure(identifier, action);
+		configurer.configure(identifier, requireNonNull(action));
 	}
 
 	@Override
@@ -41,11 +43,11 @@ public abstract class AbstractDomainObjectProvider<TYPE, T extends TYPE> impleme
 
 	@Override
 	public <S> Provider<S> map(Transformer<? extends S, ? super T> transformer) {
-		return provider.map(transformer);
+		return provider.map(requireNonNull(transformer));
 	}
 
 	@Override
 	public <S> Provider<S> flatMap(Transformer<? extends Provider<? extends S>, ? super T> transformer) {
-		return provider.flatMap(transformer);
+		return provider.flatMap(requireNonNull(transformer));
 	}
 }
