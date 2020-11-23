@@ -40,7 +40,7 @@ class ExemplarRunnerSingleOutputSuccessfulStepTest {
 
 		@Override
 		protected String getExpectedOutput() {
-			return "Hello, world!${System.lineSeparator()}"
+			return "Hello, world!\n"
 		}
 	}
 

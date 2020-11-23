@@ -21,7 +21,7 @@ class ExemplarRunnerRedirectStepOutputToFileTest {
 	@BeforeEach
 	void "given a single echo command redirecting output exemplar"() {
 		def exemplar = Exemplar.builder()
-			.step(Step.builder().execute('echo', 'Hello, world!', '>', 'foo.txt'))
+			.step(Step.builder().execute('echo', '"Hello, world!"', '>', 'foo.txt'))
 			.build()
 		result = create(defaultExecutor()).inDirectory(testDirectory).using(exemplar).run()
 	}

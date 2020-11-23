@@ -74,7 +74,7 @@ class ExemplarRunnerChangeDirectoryStepTest {
 
 			@Override
 			protected String getExpectedOutput() {
-				return "${FilenameUtils.separatorsToSystem(testDirectory.canonicalPath + '/nested/dir')}${System.lineSeparator()}"
+				return "${FilenameUtils.separatorsToSystem(testDirectory.canonicalPath + '/nested/dir')}\n"
 			}
 		}
 	}
