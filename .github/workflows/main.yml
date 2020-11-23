@@ -48,7 +48,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                checkTask: [':buildAdapterCmake:check', ':coreUtils:check', ':ideBase:check', ':ideVisualStudio:check', ':ideXcode:check', ':languageBase:check', ':languageC:check', ':languageCpp:check', ':languageNative:check', ':languageObjectiveC:check', ':languageObjectiveCpp:check', ':languageSwift:check', ':platformBase:check', ':platformIos:check', ':platformJni:check', ':platformNative:check', ':runtimeBase:check', ':runtimeDarwin:check', ':runtimeNative:check', ':testingBase:check', ':testingNative:check', ':testingXctest:check']
+                checkTask: [':buildAdapterCmake:check', ':coreScript:check', ':coreUtils:check', ':ideBase:check', ':ideVisualStudio:check', ':ideXcode:check', ':languageBase:check', ':languageC:check', ':languageCpp:check', ':languageNative:check', ':languageObjectiveC:check', ':languageObjectiveCpp:check', ':languageSwift:check', ':platformBase:check', ':platformIos:check', ':platformJni:check', ':platformNative:check', ':runtimeBase:check', ':runtimeDarwin:check', ':runtimeNative:check', ':testingBase:check', ':testingNative:check', ':testingXctest:check']
         steps:
             -   uses: actions/checkout@v2
             -   uses: actions/setup-java@v1
@@ -71,7 +71,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                checkTask: [':buildAdapterCmake:check', ':coreUtils:check', ':ideBase:check', ':ideVisualStudio:check', ':ideXcode:check', ':languageBase:check', ':languageC:check', ':languageCpp:check', ':languageNative:check', ':languageObjectiveC:check', ':languageObjectiveCpp:check', ':languageSwift:check', ':platformBase:check', ':platformIos:check', ':platformJni:check', ':platformNative:check', ':runtimeBase:check', ':runtimeDarwin:check', ':runtimeNative:check', ':testingBase:check', ':testingNative:check', ':testingXctest:check']
+                checkTask: [':buildAdapterCmake:check', ':coreScript:check', ':coreUtils:check', ':ideBase:check', ':ideVisualStudio:check', ':ideXcode:check', ':languageBase:check', ':languageC:check', ':languageCpp:check', ':languageNative:check', ':languageObjectiveC:check', ':languageObjectiveCpp:check', ':languageSwift:check', ':platformBase:check', ':platformIos:check', ':platformJni:check', ':platformNative:check', ':runtimeBase:check', ':runtimeDarwin:check', ':runtimeNative:check', ':testingBase:check', ':testingNative:check', ':testingXctest:check']
         steps:
             -   uses: actions/checkout@v2
             -   uses: actions/setup-java@v1
@@ -94,7 +94,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                checkTask: [':buildAdapterCmake:check', ':coreUtils:check', ':ideBase:check', ':ideVisualStudio:check', ':ideXcode:check', ':languageBase:check', ':languageC:check', ':languageCpp:check', ':languageNative:check', ':languageObjectiveC:check', ':languageObjectiveCpp:check', ':languageSwift:check', ':platformBase:check', ':platformIos:check', ':platformJni:check', ':platformNative:check', ':runtimeBase:check', ':runtimeDarwin:check', ':runtimeNative:check', ':testingBase:check', ':testingNative:check', ':testingXctest:check']
+                checkTask: [':buildAdapterCmake:check', ':coreScript:check', ':coreUtils:check', ':ideBase:check', ':ideVisualStudio:check', ':ideXcode:check', ':languageBase:check', ':languageC:check', ':languageCpp:check', ':languageNative:check', ':languageObjectiveC:check', ':languageObjectiveCpp:check', ':languageSwift:check', ':platformBase:check', ':platformIos:check', ':platformJni:check', ':platformNative:check', ':runtimeBase:check', ':runtimeDarwin:check', ':runtimeNative:check', ':testingBase:check', ':testingNative:check', ':testingXctest:check']
         steps:
             -   uses: actions/checkout@v2
             -   uses: actions/setup-java@v1

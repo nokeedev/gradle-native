@@ -54,6 +54,10 @@ include 'coreModel'
 project(':coreModel').projectDir = file('subprojects/core-model')
 project(':coreModel').buildFileName = 'core-model.gradle'
 
+include 'coreScript'
+project(':coreScript').projectDir = file('subprojects/core-script')
+project(':coreScript').buildFileName = 'core-script.gradle'
+
 include 'coreUtils'
 project(':coreUtils').projectDir = file('subprojects/core-utils')
 project(':coreUtils').buildFileName = 'core-utils.gradle'
