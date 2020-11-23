@@ -13,12 +13,11 @@ repositories {
 }
 
 dependencies {
-	compileOnly "org.projectlombok:lombok:latest.release"
-	annotationProcessor "org.projectlombok:lombok:latest.release"
-
 	compileOnly gradleApi(minimumGradleVersion)
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	implementation project(':coreUtils')
 	implementation "com.google.guava:guava:${guavaVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
 	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
 	testImplementation 'org.spockframework:spock-core'
@@ -27,9 +26,16 @@ dependencies {
 
 	testFixturesApi platform("org.spockframework:spock-bom:${spockVersion}")
 	testFixturesApi 'org.spockframework:spock-core'
-	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	testFixturesApi "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+	testFixturesImplementation project(':coreUtils')
 	testFixturesImplementation gradleApi(minimumGradleVersion)
+	testFixturesImplementation "org.mockito:mockito-core:${mockitoVersion}"
+	testFixturesImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
+	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	testFixturesImplementation "com.google.guava:guava:${guavaVersion}"
+	testFixturesImplementation "com.google.guava:guava-testlib:${guavaVersion}"
+	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 }
 
 java {
