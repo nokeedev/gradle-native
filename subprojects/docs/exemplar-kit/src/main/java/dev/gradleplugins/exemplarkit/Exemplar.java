@@ -1,10 +1,13 @@
 package dev.gradleplugins.exemplarkit;
 
+import lombok.ToString;
+
 import java.io.File;
 import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 
+@ToString
 public final class Exemplar {
 	private final Sample sample;
 	private final List<Step> steps;
