@@ -1,0 +1,20 @@
+plugins {
+	id 'java-library'
+	id 'groovy-base'
+}
+
+repositories {
+	jcenter()
+	gradlePluginDevelopment()
+}
+
+dependencies {
+	compileOnly gradleApi(minimumGradleVersion)
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	testImplementation gradleApi(minimumGradleVersion)
+	testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+	testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+}
