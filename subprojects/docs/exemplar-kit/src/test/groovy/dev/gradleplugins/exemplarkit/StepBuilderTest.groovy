@@ -250,4 +250,42 @@ class StepBuilderTest {
 			assertThat(step.attributes, hasEntry('k4', 'v4'))
 		}
 	}
+
+	@Nested
+	class ToString {
+		private static String step(@DelegatesTo(Step.Builder) Closure closure) {
+			def builder = builder()
+			closure.delegate = builder
+			closure.call(builder)
+			closure.resolveStrategy = Closure.DELEGATE_FIRST
+			return builder.build().toString()
+		}
+
+		@Test
+		void "executable only"() {
+			assertEquals('Step{command=ls}', step { execute('ls') })
+		}
+
+		@Test
+		void "executable with arguments"() {
+			assertEquals('Step{command=cat /some/file}', step { execute('cat', '/some/file') })
+		}
+
+		@Test
+		void "executable with multi-line output"() {
+			assertEquals('Step{command=./foo, output=foo[...]}', step { execute('./foo').output('foo', 'bar', 'far') })
+			assertEquals('Step{command=./foo, output=foo[...]}', step { execute('./foo').output('foo\r\nbar\r\nfar') })
+			assertEquals('Step{command=./foo, output=foo[...]}', step { execute('./foo').output('foo\nbar\nfar') })
+		}
+
+		@Test
+		void "executable with single line output"() {
+			assertEquals('Step{command=./bar, output=bar}', step { execute('./bar').output('bar') })
+		}
+
+		@Test
+		void "executable with attributes"() {
+			assertEquals('Step{command=./far, attributes={k0=v0, k1=v1, k2=v2}}', step { execute('./far').attribute('k0', 'v0').attribute('k1', 'v1').attribute('k2', 'v2') })
+		}
+	}
 }

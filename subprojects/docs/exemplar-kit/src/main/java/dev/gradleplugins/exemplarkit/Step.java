@@ -1,11 +1,15 @@
 package dev.gradleplugins.exemplarkit;
 
+import com.google.common.collect.Iterables;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
@@ -60,6 +64,32 @@ public final class Step {
 	 */
 	public Map<String, Object> getAttributes() {
 		return attributes;
+	}
+
+	@Override
+	public String toString() {
+		val toStringBuilder = toStringHelper(this)
+			.add("command", String.join(" ", Iterables.concat(singletonList(executable), arguments)));
+
+		if (output != null) {
+			int indexOf = output.indexOf('\r');
+			if (indexOf < 0) {
+				indexOf = output.indexOf('\n');
+			}
+
+
+			if (indexOf < 0) { // single-line output
+				toStringBuilder.add("output", output);
+			} else { // multi-line output
+				toStringBuilder.add("output", output.substring(0, indexOf) + "[...]");
+			}
+		}
+
+		if (!attributes.isEmpty()) {
+			toStringBuilder.add("attributes", attributes);
+		}
+
+		return toStringBuilder.toString();
 	}
 
 	public static Builder builder() {

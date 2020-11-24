@@ -21,9 +21,10 @@ dependencies {
 	implementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
 	runtimeOnly 'org.asciidoctor:asciidoctorj:2.2.0'
 	implementation project(':coreExec')
+	implementation project(':coreUtils')
 	implementation gradleRunnerKit()
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	implementation project(':coreUtils')
+	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation 'org.apache.ant:ant:1.9.13' // For unziping sample
 
 	testImplementation "com.google.guava:guava-testlib:30.0-jre"

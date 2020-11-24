@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
-import static dev.gradleplugins.exemplarkit.Exemplar.builder
+import static dev.gradleplugins.exemplarkit.Step.builder
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.junit.jupiter.api.Assertions.assertEquals
