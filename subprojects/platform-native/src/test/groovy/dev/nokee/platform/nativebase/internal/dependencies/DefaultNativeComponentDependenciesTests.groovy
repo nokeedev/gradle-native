@@ -48,15 +48,12 @@ class DefaultNativeComponentDependenciesTest extends AbstractComponentDependenci
 		0 * configurations.implementation._
 
 		and:
-		1 * configurations.compileOnly.extendsFrom(configurations.implementation)
 		0 * configurations.compileOnly._
 
 		and:
-		1 * configurations.linkOnly.extendsFrom(configurations.implementation)
 		0 * configurations.linkOnly._
 
 		and:
-		1 * configurations.runtimeOnly.extendsFrom(configurations.implementation)
 		0 * configurations.runtimeOnly._
 	}
 }
