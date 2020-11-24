@@ -31,15 +31,12 @@ public class DefaultNativeComponentDependencies extends BaseComponentDependencie
 	}
 
 	private void configureCompileOnlyConfiguration(Configuration configuration) {
-		configuration.extendsFrom(implementation.getAsConfiguration());
 	}
 
 	private void configureLinkOnlyConfiguration(Configuration configuration) {
-		configuration.extendsFrom(implementation.getAsConfiguration());
 	}
 
 	private void configureRuntimeOnlyConfiguration(Configuration configuration) {
-		configuration.extendsFrom(implementation.getAsConfiguration());
 	}
 
 	@Override
