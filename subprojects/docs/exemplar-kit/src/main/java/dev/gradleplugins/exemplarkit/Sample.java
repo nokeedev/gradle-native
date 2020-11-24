@@ -40,6 +40,11 @@ public abstract class Sample {
 		void writeToDirectory(File directory) {
 			// Do nothing, it's empty
 		}
+
+		@Override
+		public String toString() {
+			return "Sample.empty()";
+		}
 	}
 
 	@EqualsAndHashCode(callSuper = false)
@@ -66,6 +71,11 @@ public abstract class Sample {
 				unzip.setProject(new Project());
 				unzip.execute();
 			}
+		}
+
+		@Override
+		public String toString() {
+			return "Sample.fromArchive(" + sampleArchiveFile.getAbsolutePath() + ")";
 		}
 	}
 
@@ -96,6 +106,11 @@ public abstract class Sample {
 						throw new UncheckedIOException(String.format("Could not copy file from '%s' to '%s' because of an error.", sourcePath.toString(), targetPath.toString()), e);
 					}
 				});
+		}
+
+		@Override
+		public String toString() {
+			return "Sample.fromDirectory(" + sampleDirectory.getAbsolutePath() + ")";
 		}
 	}
 }

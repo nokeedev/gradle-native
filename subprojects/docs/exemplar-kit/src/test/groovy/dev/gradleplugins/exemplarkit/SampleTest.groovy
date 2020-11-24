@@ -72,4 +72,21 @@ class SampleTest {
 		new File(sampleDirectory, 'hello').executable = true
 		return sampleDirectory
 	}
+
+	@Test
+	void "empty sample toString()"() {
+		assertEquals('Sample.empty()', Sample.empty().toString())
+	}
+
+	@Test
+	void "sample from directory toString()"(@TempDir File sampleDirectory) {
+		assertEquals("Sample.fromDirectory(${sampleDirectory.absolutePath})".toString(), Sample.fromDirectory(sampleDirectory).toString())
+	}
+
+	@Test
+	void "sample from archive toString()"(@TempDir File testDirectory) {
+		def archiveFile = new File(testDirectory, 'bar.zip')
+		archiveFile.createNewFile()
+		assertEquals("Sample.fromArchive(${archiveFile.absolutePath})".toString(), Sample.fromArchive(archiveFile).toString())
+	}
 }
