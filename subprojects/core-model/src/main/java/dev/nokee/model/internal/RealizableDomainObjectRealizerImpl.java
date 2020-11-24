@@ -19,10 +19,16 @@ public final class RealizableDomainObjectRealizerImpl implements RealizableDomai
 	public RealizableDomainObjectRealizerImpl(DomainObjectEventPublisher eventPublisher) {
 		this.eventPublisher = eventPublisher;
 		eventPublisher.subscribe(new DomainObjectEventSubscriber<RealizableDomainObjectDiscovered>() {
+			private final boolean forceRealize = Boolean.parseBoolean(System.getProperty("dev.nokee.internal.realize.force", "false"));
+
 			@Override
 			public void handle(RealizableDomainObjectDiscovered event) {
 				knownIdentifiers.add(event.getIdentifier());
-				identifierToRealizable.put(event.getIdentifier(), event.getObject());
+				if (forceRealize) {
+					event.getObject().realize();
+				} else {
+					identifierToRealizable.put(event.getIdentifier(), event.getObject());
+				}
 			}
 
 			@Override
