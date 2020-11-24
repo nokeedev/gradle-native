@@ -5,6 +5,9 @@ import dev.gradleplugins.exemplarkit.testers.StepExecutionResultSuccessfulStepTe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.DisabledOnOs
+import org.junit.jupiter.api.condition.EnabledOnOs
+import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.api.io.TempDir
 
 import static dev.gradleplugins.exemplarkit.ExemplarExecutor.defaultExecutor
@@ -21,7 +24,7 @@ class ExemplarRunnerRedirectStepOutputToFileTest {
 	@BeforeEach
 	void "given a single echo command redirecting output exemplar"() {
 		def exemplar = Exemplar.builder()
-			.step(Step.builder().execute('echo', '"Hello, world!"', '>', 'foo.txt'))
+			.step(Step.builder().execute('echo', 'Hello, world!', '>', 'foo.txt'))
 			.build()
 		result = create(defaultExecutor()).inDirectory(testDirectory).using(exemplar).run()
 	}
@@ -32,8 +35,15 @@ class ExemplarRunnerRedirectStepOutputToFileTest {
 	}
 
 	@Test
-	void "redirect output to file"() {
-		assertThat(new File(testDirectory, 'foo.txt').text, equalTo("Hello, world!${System.lineSeparator()}".toString()))
+	@EnabledOnOs([OS.WINDOWS])
+	void "redirect output to file on Windows"() {
+		assertThat(new File(testDirectory, 'foo.txt').text, equalTo("Hello, world!  \r\n".toString()))
+	}
+
+	@Test
+	@DisabledOnOs([OS.WINDOWS])
+	void "redirect output to file on *nix"() {
+		assertThat(new File(testDirectory, 'foo.txt').text, equalTo("Hello, world!\n".toString()))
 	}
 
 	@Nested
