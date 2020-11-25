@@ -37,13 +37,13 @@ class ExemplarRunnerRedirectStepOutputToFileTest {
 	@Test
 	@EnabledOnOs([OS.WINDOWS])
 	void "redirect output to file on Windows"() {
-		assertThat(new File(testDirectory, 'foo.txt').text, equalTo("Hello, world!  \r\n".toString()))
+		assertThat(new File(testDirectory, 'foo.txt').text, equalTo('Hello, world! \r\n'))
 	}
 
 	@Test
 	@DisabledOnOs([OS.WINDOWS])
 	void "redirect output to file on *nix"() {
-		assertThat(new File(testDirectory, 'foo.txt').text, equalTo("Hello, world!\n".toString()))
+		assertThat(new File(testDirectory, 'foo.txt').text, equalTo('Hello, world!\n'))
 	}
 
 	@Nested
