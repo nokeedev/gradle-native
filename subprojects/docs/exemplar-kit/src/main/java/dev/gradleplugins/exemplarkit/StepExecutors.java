@@ -5,6 +5,7 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.LoggingEngine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import lombok.val;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -110,9 +111,17 @@ public final class StepExecutors {
 			return true;
 		}
 
+		private static CommandLine commandLine(StepExecutionContext context) {
+			String executable = context.getCurrentStep().getExecutable();
+			if (executable.startsWith("./") && SystemUtils.IS_OS_WINDOWS) {
+				executable = executable.substring(2);
+			}
+			return CommandLine.script(executable, context.getCurrentStep().getArguments());
+		}
+
 		@Override
 		public StepExecutionResult run(StepExecutionContext context) {
-			val result = CommandLine.script(context.getCurrentStep().getExecutable(), context.getCurrentStep().getArguments())
+			val result = commandLine(context)
 				.newInvocation()
 				.redirectStandardOutput(duplicateToSystemOutput())
 				.redirectErrorOutput(duplicateToSystemError())
