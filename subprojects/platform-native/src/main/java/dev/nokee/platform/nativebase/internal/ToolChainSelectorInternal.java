@@ -36,7 +36,15 @@ public class ToolChainSelectorInternal {
 	}
 
 	public boolean isKnown(TargetMachine targetMachine) {
-		return KNOWN_TOOLCHAINS.computeIfAbsent(targetMachine, tm -> getToolChains().stream().anyMatch(it -> it.knows(targetMachine)));
+		// Only cache known toolchains... assuming no-one configured the toolchain.
+		Boolean result = KNOWN_TOOLCHAINS.get(targetMachine);
+		if (result == null) {
+			result = getToolChains().stream().anyMatch(it -> it.knows(targetMachine));
+			if (result) {
+				KNOWN_TOOLCHAINS.put(targetMachine, result);
+			}
+		}
+		return result;
 	}
 
 	public boolean canBuild(TargetMachine targetMachine) {
