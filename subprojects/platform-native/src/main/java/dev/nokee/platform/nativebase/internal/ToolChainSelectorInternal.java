@@ -3,6 +3,7 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import lombok.val;
 import org.apache.commons.lang3.SystemUtils;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.model.internal.registry.ModelRegistry;
@@ -18,12 +19,14 @@ import org.gradle.nativeplatform.toolchain.internal.swift.SwiftcToolChain;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 
 public class ToolChainSelectorInternal {
+	private static final Map<TargetMachine, Boolean> KNOWN_TOOLCHAINS = new ConcurrentHashMap<>();
 	private final ModelRegistry modelRegistry;
 	private final NativePlatformFactory nativePlatformFactory = new NativePlatformFactory();
 
@@ -33,7 +36,7 @@ public class ToolChainSelectorInternal {
 	}
 
 	public boolean isKnown(TargetMachine targetMachine) {
-		return getToolChains().stream().anyMatch(it -> it.knows(targetMachine));
+		return KNOWN_TOOLCHAINS.computeIfAbsent(targetMachine, tm -> getToolChains().stream().anyMatch(it -> it.knows(targetMachine)));
 	}
 
 	public boolean canBuild(TargetMachine targetMachine) {
@@ -64,7 +67,7 @@ public class ToolChainSelectorInternal {
 	}
 
 	private Collection<ToolChain> getToolChains() {
-		List<ToolChain> result = new ArrayList<>();
+		val result = new ArrayList<ToolChain>();
 		result.add(new DomainKnowledgeToolChain());
 		result.addAll(modelRegistry.realize("toolChains", NativeToolChainRegistryInternal.class).withType(NativeToolChainInternal.class).stream().map(SoftwareModelToolChain::new).collect(Collectors.toList()));
 		return result;
