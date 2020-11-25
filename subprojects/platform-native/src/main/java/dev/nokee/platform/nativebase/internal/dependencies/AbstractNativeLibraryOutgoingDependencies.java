@@ -43,7 +43,7 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 
 		val identifierLinkElements = DependencyBucketIdentifier.of(DependencyBucketName.of("linkElements"),
 			ConsumableDependencyBucket.class, ownerIdentifier);
-		val linkElements = configurationRegistry.createIfAbsent(identifierLinkElements.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingLinkLibrariesFrom(dependencies.getApi().getAsConfiguration(), dependencies.getLinkOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifierLinkElements.getDisplayName()));
+		val linkElements = configurationRegistry.createIfAbsent(identifierLinkElements.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingLinkLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getLinkOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifierLinkElements.getDisplayName()));
 
 		val identifierRuntimeElements = DependencyBucketIdentifier.of(DependencyBucketName.of("runtimeElements"),
 			ConsumableDependencyBucket.class, ownerIdentifier);
