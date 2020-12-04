@@ -18,9 +18,6 @@ dependencies {
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "com.googlecode.plist:dd-plist:${ddPlist}"
 
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
 	implementation "org.antlr:antlr4:${antlrVersion}"
 	antlr "org.antlr:antlr4:${antlrVersion}"
 }

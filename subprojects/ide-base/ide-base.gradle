@@ -14,8 +14,6 @@ repositories {
 
 dependencies {
 	implementation project(':coreUtils')
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 	compileOnly gradleApi(minimumGradleVersion)
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "com.google.guava:guava:${guavaVersion}"
@@ -24,8 +22,6 @@ dependencies {
 	testImplementation gradleApi(minimumGradleVersion)
 
 
-	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
-	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 	testFixturesApi project(':internalTesting')
 	testFixturesImplementation gradleApi(minimumGradleVersion)
 	testFixturesImplementation gradleFixtures()

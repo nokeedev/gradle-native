@@ -15,9 +15,6 @@ dependencies {
 	implementation project(':coreUtils')
 	implementation "com.google.guava:guava:${guavaVersion}"
 
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
 	testCompileOnly project(':platformBase')
 	testImplementation project(':internalTesting')
 	testImplementation testFixtures(project(':coreModel'))

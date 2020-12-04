@@ -54,9 +54,6 @@ dependencies {
 	docsTestImplementation project(':coreExec')
 	docsTestImplementation project(':coreUtils')
 
-	docsTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"
-	docsTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
 	docsTestImplementation project(':internalTesting')
 
 	docsTestImplementation "org.antlr:antlr4:${antlrVersion}"

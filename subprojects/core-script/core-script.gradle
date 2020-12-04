@@ -11,8 +11,6 @@ repositories {
 
 dependencies {
 	compileOnly gradleApi(minimumGradleVersion)
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
 	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)

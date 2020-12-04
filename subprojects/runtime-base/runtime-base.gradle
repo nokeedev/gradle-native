@@ -16,8 +16,5 @@ dependencies {
 	implementation 'org.eclipse.jetty:jetty-server:9.4.27.v20200227'
 	implementation 'com.google.code.gson:gson:2.8.6'
 
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
 	testImplementation project(':internalTesting')
 }

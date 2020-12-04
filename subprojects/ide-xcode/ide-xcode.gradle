@@ -29,10 +29,6 @@ dependencies {
 	implementation project(':languageObjectiveCpp') // for UTType of each language
 	implementation project(':languageSwift') // for UTType of each language
 	compileOnly project(':runtimeNative') // for TargetMachine && OperatingSystemFamily
-
-
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 }
 
 gradlePlugin {

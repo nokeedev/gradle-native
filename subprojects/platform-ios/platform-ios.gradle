@@ -24,9 +24,6 @@ dependencies {
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation 'com.google.code.gson:gson:2.8.6' // For deserializing the descriptor... probably not the right place to do this
 	implementation "commons-io:commons-io:${commonsIoVersion}" // same as previous
-
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 }
 
 gradlePlugin {
@@ -51,8 +48,6 @@ test {
 
 functionalTest {
 	dependencies {
-		compileOnly "org.projectlombok:lombok:${lombokVersion}"
-		annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation project(':coreExec')
 		pluginUnderTestMetadata project(':coreExec')

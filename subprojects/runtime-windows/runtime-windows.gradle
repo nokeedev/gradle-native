@@ -15,9 +15,6 @@ dependencies {
 	api project(':runtimeBase')
 	implementation project(':coreExec')
 	compileOnly gradleApi(minimumGradleVersion)
-
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 }
 
 java {

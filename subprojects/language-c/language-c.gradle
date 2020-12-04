@@ -14,9 +14,6 @@ dependencies {
 	api project(':languageNative')
 	implementation project(':runtimeNative')
 
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
 	testImplementation project(':languageObjectiveC')
 	testImplementation project(':platformBase')
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"

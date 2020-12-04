@@ -22,9 +22,6 @@ dependencies {
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation project(':coreUtils')
 
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
 	testImplementation project(':internalTesting')
 	testImplementation 'org.fusesource.jansi:jansi:2.0'
 	testImplementation gradleFixtures()

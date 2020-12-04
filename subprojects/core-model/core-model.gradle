@@ -14,20 +14,16 @@ repositories {
 
 dependencies {
 	compileOnly gradleApi(minimumGradleVersion)
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	implementation project(':coreUtils')
 	implementation "com.google.guava:guava:${guavaVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
 	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
 
-	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 	testFixturesApi project(':internalTesting')
 	testFixturesImplementation project(':coreUtils')
 	testFixturesImplementation gradleApi(minimumGradleVersion)
-	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 }
 
 java {

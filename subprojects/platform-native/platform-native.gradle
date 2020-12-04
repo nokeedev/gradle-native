@@ -24,9 +24,6 @@ dependencies {
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation project(':coreExec')
 
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
 	testFixturesImplementation project(':internalTesting')
 	testFixturesImplementation project(':runtimeNative')
 	testFixturesImplementation gradleApi(minimumGradleVersion)

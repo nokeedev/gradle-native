@@ -22,9 +22,6 @@ dependencies {
 	implementation project(':platformBase')
 	implementation project(':platformNative') // for NativeBinary
 	implementation project(':platformJni')
-
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 }
 
 gradlePlugin {

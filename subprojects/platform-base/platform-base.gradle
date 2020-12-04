@@ -21,9 +21,6 @@ dependencies {
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	compileOnly gradleApi(minimumGradleVersion)
 
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
 	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
@@ -31,8 +28,6 @@ dependencies {
 	testImplementation project(':testingBase')
 
 	testFixturesApi testFixtures(project(':languageNative'))
-	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
-	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 	testFixturesCompileOnly gradleApi(minimumGradleVersion)
 	testFixturesImplementation gradleFixtures()
 	testFixturesImplementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.release"

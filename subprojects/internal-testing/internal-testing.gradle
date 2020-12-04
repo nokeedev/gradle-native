@@ -8,10 +8,6 @@ repositories {
 }
 
 dependencies {
-	// Lombok
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
 	// JUnit 5
 	api "org.junit.jupiter:junit-jupiter:${junitVersion}"
 	runtimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"

@@ -13,9 +13,6 @@ repositories {
 dependencies {
 	api project(':languageC')
 
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
 	testImplementation project(':languageC')
 	testImplementation project(':platformBase')
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
