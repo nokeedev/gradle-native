@@ -15,6 +15,7 @@ import java.util.function.Predicate;
 import static dev.gradleplugins.exemplarkit.StepExecutionResult.*;
 import static dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect.duplicateToSystemError;
 import static dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect.duplicateToSystemOutput;
+import static org.apache.commons.io.FilenameUtils.separatorsToSystem;
 
 public final class StepExecutors {
 	public static StepExecutor skipIf(Predicate<Step> executionCondition) {
@@ -114,7 +115,7 @@ public final class StepExecutors {
 		private static CommandLine commandLine(StepExecutionContext context) {
 			String executable = context.getCurrentStep().getExecutable();
 			if (executable.startsWith("./") && SystemUtils.IS_OS_WINDOWS) {
-				executable = executable.substring(2);
+				executable = separatorsToSystem(executable.substring(2));
 			}
 			return CommandLine.script(executable, context.getCurrentStep().getArguments());
 		}
