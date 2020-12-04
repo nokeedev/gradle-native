@@ -1,9 +1,9 @@
 package dev.nokee.platform.nativebase.internal.plugins.testers;
 
+import dev.nokee.internal.testing.utils.TestUtils;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionsSchema;
 import org.gradle.api.reflect.TypeOf;
-import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,7 @@ public abstract class MainEntryPointExtensionPluginTester {
 	protected abstract Class<?> getExtensionType();
 	protected abstract String getQualifiedPluginId();
 
-	private final Project project = ProjectBuilder.builder().build();
+	private final Project project = TestUtils.rootProject();
 
 	@BeforeEach
 	void applyPlugin() {

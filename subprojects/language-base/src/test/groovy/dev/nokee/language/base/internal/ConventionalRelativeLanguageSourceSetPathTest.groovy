@@ -1,10 +1,10 @@
 package dev.nokee.language.base.internal
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 import static dev.nokee.language.base.internal.ConventionalRelativeLanguageSourceSetPath.builder
@@ -26,7 +26,7 @@ class ConventionalRelativeLanguageSourceSetPathTest extends Specification {
 
 	def "can use conventional value as Gradle file value"() {
 		given:
-		def project = ProjectBuilder.builder().build()
+		def project = TestUtils.rootProject()
 
 		expect:
 		project.file(of(newSourceSetIdentifier('main', 'c'))) == project.file('src/main/c')

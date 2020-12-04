@@ -1,15 +1,15 @@
 package dev.nokee.model.internal
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.model.DomainObjectIdentifier
 import org.apache.commons.lang3.RandomStringUtils
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Shared
 import spock.lang.Specification
 
 import java.util.function.Supplier
 
 abstract class DomainObjectSpec<T> extends Specification {
-	@Shared def providerFactory = ProjectBuilder.builder().build().providers
+	@Shared def providerFactory = TestUtils.providerFactory()
 	def eventPublisher = new DomainObjectEventPublisherImpl()
 	def entityRepository = newEntityRepository()
 	def entityConfigurer = newEntityConfigurer()

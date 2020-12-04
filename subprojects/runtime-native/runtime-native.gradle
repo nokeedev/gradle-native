@@ -19,10 +19,8 @@ dependencies {
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
-	testImplementation 'org.spockframework:spock-core'
+	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)
-	testImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 }
 
 java {

@@ -1,5 +1,6 @@
 package dev.nokee.fixtures
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.model.internal.DomainObjectIdentifierInternal
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.Variant
@@ -25,7 +26,7 @@ import static dev.nokee.runtime.nativebase.internal.LibraryElements.LIBRARY_ELEM
 import static org.junit.Assert.assertThat
 
 abstract class AbstractComponentDependenciesIntegrationTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 
 	protected DomainObjectIdentifierInternal newNamingScheme(String variant = '') {
 		return VariantIdentifier.of(variant, Variant, ComponentIdentifier.ofMain(Component, ProjectIdentifier.of(project)))
@@ -256,7 +257,7 @@ abstract class AbstractComponentDependenciesIntegrationTest extends Specificatio
  * Tests specifically for allowing local darwin framework dependencies via the magic group.
  */
 abstract class AbstractLocalDarwinFrameworkDependenciesIntegrationTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 	def identifier = ComponentIdentifier.ofMain(Component, ProjectIdentifier.of(project))
 	def dependencies = newDependencies(identifier)
 
@@ -407,7 +408,7 @@ abstract class AbstractLocalDarwinFrameworkDependenciesIntegrationTest extends S
 }
 
 abstract class AbstractLibraryComponentDependenciesIntegrationTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 	def identifier = ComponentIdentifier.ofMain(Component, ProjectIdentifier.of(project))
 	def dependencies = newDependencies(identifier)
 

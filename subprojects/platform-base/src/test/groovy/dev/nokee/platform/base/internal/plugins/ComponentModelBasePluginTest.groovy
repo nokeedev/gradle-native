@@ -1,13 +1,13 @@
 package dev.nokee.platform.base.internal.plugins
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
 
 @Subject(ComponentModelBasePlugin)
 class ComponentModelBasePluginTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 
 	def "applies language base plugin"() {
 		when:

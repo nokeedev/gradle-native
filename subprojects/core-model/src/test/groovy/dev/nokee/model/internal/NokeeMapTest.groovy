@@ -1,14 +1,14 @@
 package dev.nokee.model.internal
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.model.DomainObjectIdentifier
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
 @Subject(NokeeMapImpl)
 class NokeeMapTest extends Specification {
-	@Shared def objectFactory = ProjectBuilder.builder().build().objects
+	@Shared def objectFactory = TestUtils.objectFactory()
 
 	def "can put new entry in the map"() {
 		when:

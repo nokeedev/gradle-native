@@ -1,12 +1,11 @@
 package dev.nokee.platform.base.internal.variants
 
-
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.platform.base.internal.plugins.VariantBasePlugin
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 class VariantBasePluginTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 
 	def "registers variant configurer service"() {
 		when:

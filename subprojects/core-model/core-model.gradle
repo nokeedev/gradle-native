@@ -19,22 +19,14 @@ dependencies {
 	implementation "com.google.guava:guava:${guavaVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
-	testImplementation 'org.spockframework:spock-core'
+	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
 
-	testFixturesApi platform("org.spockframework:spock-bom:${spockVersion}")
-	testFixturesApi 'org.spockframework:spock-core'
-	testFixturesApi "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
 	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+	testFixturesApi project(':internalTesting')
 	testFixturesImplementation project(':coreUtils')
 	testFixturesImplementation gradleApi(minimumGradleVersion)
-	testFixturesImplementation "org.mockito:mockito-core:${mockitoVersion}"
-	testFixturesImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
-	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	testFixturesImplementation "com.google.guava:guava:${guavaVersion}"
-	testFixturesImplementation "com.google.guava:guava-testlib:${guavaVersion}"
 	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 }
 

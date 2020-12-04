@@ -4,6 +4,7 @@ import dev.nokee.fixtures.AbstractBinaryPluginTest
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTaskPluginTest
 import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.ios.IosApplication
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension
@@ -17,7 +18,6 @@ import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.NativeComponentDependencies
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Requires
 import spock.lang.Specification
 import spock.lang.Subject
@@ -83,7 +83,7 @@ class ObjectiveCIosApplicationTaskPluginTest extends AbstractTaskPluginTest impl
 @Requires({SystemUtils.IS_OS_MAC})
 @Subject(ObjectiveCIosApplicationPlugin)
 class ObjectiveCIosApplicationPluginTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 
 	def "applies the lifecycle-base plugin"() {
 		when:

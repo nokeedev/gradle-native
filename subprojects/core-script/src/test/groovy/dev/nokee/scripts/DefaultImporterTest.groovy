@@ -1,6 +1,6 @@
 package dev.nokee.scripts
 
-import org.gradle.testfixtures.ProjectBuilder
+import dev.nokee.internal.testing.utils.TestUtils
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.function.Executable
@@ -10,12 +10,12 @@ import static org.hamcrest.Matchers.equalTo
 import static org.junit.jupiter.api.Assertions.*
 
 class DefaultImporterTest {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 
 	@BeforeEach
 	void "import some types"() {
 		project.extensions.add(TypeCollidingWithExtension.simpleName, project.objects.newInstance(TypeCollidingWithExtension))
-		dev.nokee.platform.base.internal.DefaultImporter.forProject(project)
+		DefaultImporter.forProject(project)
 			.defaultImport(DefaultImportedType0)
 			.defaultImport(DefaultImportedType1)
 			.defaultImport(DefaultImportedType2)
@@ -38,12 +38,12 @@ class DefaultImporterTest {
 
 	@Test
 	void "do nothing when duplicate default import"() {
-		assertDoesNotThrow({ dev.nokee.platform.base.internal.DefaultImporter.forProject(project).defaultImport(DefaultImportedType0) } as Executable)
+		assertDoesNotThrow({ DefaultImporter.forProject(project).defaultImport(DefaultImportedType0) } as Executable)
 	}
 
 	@Test
 	void "throws exception when default import collide with an extension"() {
-		def ex = assertThrows(IllegalArgumentException, { dev.nokee.platform.base.internal.DefaultImporter.forProject(project).defaultImport(TypeCollidingWithExtension) })
+		def ex = assertThrows(IllegalArgumentException, { DefaultImporter.forProject(project).defaultImport(TypeCollidingWithExtension) })
 		assertEquals("Could not default import type '${TypeCollidingWithExtension.canonicalName}'.".toString(), ex.message)
 	}
 

@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal.components
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.model.DomainObjectFactory
 import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.DomainObjectProvider
@@ -14,7 +15,6 @@ import dev.nokee.platform.base.internal.ComponentName
 import org.apache.commons.lang3.RandomStringUtils
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
-import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.BeforeAll
 
 class ComponentProviderTest extends DomainObjectProviderTest<Component> {
@@ -31,7 +31,7 @@ class ComponentProviderTest extends DomainObjectProviderTest<Component> {
 	}
 
 	private static class TestComponentGenerator {
-		protected final Project project = ProjectBuilder.builder().build()
+		protected final Project project = TestUtils.rootProject()
 		protected final DomainObjectEventPublisher eventPublisher = new DomainObjectEventPublisherImpl()
 		private final ComponentConfigurer configurer = new ComponentConfigurer(eventPublisher)
 		private final RealizableDomainObjectRealizer realizer = new RealizableDomainObjectRealizerImpl(eventPublisher)

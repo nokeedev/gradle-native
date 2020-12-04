@@ -1,11 +1,11 @@
 package dev.nokee.platform.nativebase.internal.plugins.testers;
 
+import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.components.ComponentRepository;
 import org.gradle.api.Project;
-import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +18,7 @@ public abstract class MainComponentPluginTester {
 	protected abstract Class<? extends Component> getComponentType();
 	protected abstract String getQualifiedPluginId();
 
-	private final Project project = ProjectBuilder.builder().build();
+	private final Project project = TestUtils.rootProject();
 
 	@BeforeEach
 	void applyPlugin() {

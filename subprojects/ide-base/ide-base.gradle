@@ -20,15 +20,13 @@ dependencies {
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "com.google.guava:guava:${guavaVersion}"
 
-	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
-	testImplementation 'org.spockframework:spock-core'
+	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)
 
 
 	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-	testFixturesImplementation platform("org.spockframework:spock-bom:${spockVersion}")
-	testFixturesImplementation 'org.spockframework:spock-core'
+	testFixturesApi project(':internalTesting')
 	testFixturesImplementation gradleApi(minimumGradleVersion)
 	testFixturesImplementation gradleFixtures()
 	testFixturesImplementation "commons-io:commons-io:${commonsIoVersion}"

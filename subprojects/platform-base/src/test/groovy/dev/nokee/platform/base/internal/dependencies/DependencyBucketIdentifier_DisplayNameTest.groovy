@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal.dependencies
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.model.internal.DomainObjectIdentifierInternal
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.DependencyBucket
@@ -18,7 +19,7 @@ class DependencyBucketIdentifier_DisplayNameTest extends Specification {
 	@Unroll
 	def "can generate name for single word bucket name owned by a root project"() {
 		given:
-		def project = ProjectBuilder.builder().build()
+		def project = TestUtils.rootProject()
 		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, ProjectIdentifier.of(project))
 
 		expect:
@@ -28,8 +29,8 @@ class DependencyBucketIdentifier_DisplayNameTest extends Specification {
 	@Unroll
 	def "can generate name for single word bucket name owned by a project"(projectName) {
 		given:
-		def rootProject = ProjectBuilder.builder().build()
-		def childProject = ProjectBuilder.builder().withName(projectName).withParent(rootProject).build()
+		def rootProject = TestUtils.rootProject()
+		def childProject = TestUtils.createChildProject(rootProject, projectName)
 		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, ProjectIdentifier.of(childProject))
 
 		expect:

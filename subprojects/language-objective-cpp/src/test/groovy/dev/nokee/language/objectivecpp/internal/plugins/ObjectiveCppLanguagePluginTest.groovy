@@ -1,5 +1,6 @@
 package dev.nokee.language.objectivecpp.internal.plugins
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier
 import dev.nokee.language.base.internal.LanguageSourceSetInternal
 import dev.nokee.language.base.internal.LanguageSourceSetName
@@ -12,7 +13,6 @@ import dev.nokee.model.internal.DomainObjectEventPublisher
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.internal.ComponentIdentifier
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -20,7 +20,7 @@ import static dev.nokee.model.internal.DomainObjectIdentifierUtils.directlyOwned
 
 @Subject(ObjectiveCppLanguagePlugin)
 class ObjectiveCppLanguagePluginTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 
 	def "applies Objective-C++ language base plugin"() {
 		when:

@@ -24,14 +24,11 @@ dependencies {
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
-	testImplementation 'org.spockframework:spock-core'
+	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
 	testImplementation testFixtures(project(':coreModel'))
 	testImplementation project(':testingBase')
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
-	testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"
 
 	testFixturesApi testFixtures(project(':languageNative'))
 	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
@@ -40,8 +37,6 @@ dependencies {
 	testFixturesImplementation gradleFixtures()
 	testFixturesImplementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.release"
 }
-
-tasks.withType(Test).configureEach { it.useJUnitPlatform() }
 
 java {
 	sourceCompatibility = minimumJavaVersionFor(minimumGradleVersion)

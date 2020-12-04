@@ -140,3 +140,8 @@ subprojects {
 		}
 	}
 }
+
+// Configure JUnit 5 compatibility
+subprojects {
+	tasks.withType(Test).configureEach { it.useJUnitPlatform() }
+}

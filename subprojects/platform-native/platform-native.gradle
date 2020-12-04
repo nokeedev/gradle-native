@@ -27,12 +27,9 @@ dependencies {
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
+	testFixturesImplementation project(':internalTesting')
 	testFixturesImplementation project(':runtimeNative')
-	testFixturesImplementation platform("org.spockframework:spock-bom:${spockVersion}")
-	testFixturesImplementation 'org.spockframework:spock-core'
 	testFixturesImplementation gradleApi(minimumGradleVersion)
-	testFixturesImplementation 'org.hamcrest:hamcrest:2.2'
-	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	testFixturesImplementation gradleFixtures()
 	testFixturesImplementation testFixtures(project(':languageC'))
 	testFixturesImplementation testFixtures(project(':languageCpp'))
@@ -40,7 +37,6 @@ dependencies {
 	testFixturesImplementation testFixtures(project(':languageObjectiveCpp'))
 	testFixturesImplementation testFixtures(project(':languageSwift'))
 	testFixturesApi 'dev.nokee:templates:latest.integration'
-	testFixturesApi "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
 }
 
 gradlePlugin {
@@ -98,16 +94,14 @@ gradlePlugin {
 
 test {
 	dependencies {
-		runtimeOnly 'net.bytebuddy:byte-buddy:1.10.10' // Because NamingScheme is not an interface
-		runtimeOnly 'org.objenesis:objenesis:3.1' // Because NamingScheme is not an interface
+		implementation project(':internalTesting')
 		implementation testFixtures(project(':platformBase'))
-		runtimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
-		runtimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"
 	}
 }
 
 functionalTest {
 	dependencies {
+		implementation project(':internalTesting')
 		implementation project(':runtimeNative')
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation testFixtures(project(':platformNative'))
@@ -116,9 +110,5 @@ functionalTest {
 		implementation testFixtures(project(':languageObjectiveC'))
 		implementation testFixtures(project(':languageObjectiveCpp'))
 		implementation testFixtures(project(':languageSwift'))
-		runtimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
-		runtimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"
 	}
 }
-
-tasks.withType(Test).configureEach { it.useJUnitPlatform() }

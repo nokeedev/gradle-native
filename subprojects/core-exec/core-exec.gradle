@@ -25,8 +25,7 @@ dependencies {
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-	testImplementation platform("org.spockframework:spock-bom:${spockVersion}")
-	testImplementation 'org.spockframework:spock-core'
+	testImplementation project(':internalTesting')
 	testImplementation 'org.fusesource.jansi:jansi:2.0'
 	testImplementation gradleFixtures()
 	testImplementation gradleApi(minimumGradleVersion)
