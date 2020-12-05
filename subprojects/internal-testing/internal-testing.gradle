@@ -21,6 +21,7 @@ dependencies {
 
 	// Support libraries
 	api "org.hamcrest:hamcrest:${hamcrestVersion}"
+	api "com.spotify:hamcrest-optional:${hamcrestOptionalVersion}"
 	api "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	api "com.google.guava:guava:${guavaVersion}"
 	api "com.google.guava:guava-testlib:${guavaVersion}"
