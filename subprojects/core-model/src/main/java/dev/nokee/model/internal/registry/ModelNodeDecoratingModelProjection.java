@@ -9,6 +9,10 @@ import org.gradle.api.plugins.ExtensionAware;
 
 import java.util.function.Supplier;
 
+/**
+ * A projection that inject the model node instance.
+ * The injection is done through the {@link ExtensionAware} implementation.
+ */
 public final class ModelNodeDecoratingModelProjection implements ModelProjection {
 	private final ModelProjection delegate;
 	private final Supplier<ModelNode> modelNodeSupplier;

@@ -3,6 +3,9 @@ package dev.nokee.model.internal.registry;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.type.ModelType;
 
+/**
+ * A memoized projection that wraps a delegate projection.
+ */
 public final class MemoizedModelProjection implements ModelProjection {
 	private final ModelProjection delegate;
 	private Object value;

@@ -5,6 +5,11 @@ import dev.nokee.model.internal.type.ModelType;
 
 import java.util.Objects;
 
+/**
+ * A projection always returning the same instance.
+ *
+ * @param <M>  the type of the projection
+ */
 public final class UnmanagedInstanceModelProjection<M> implements ModelProjection {
 	private final M instance;
 
