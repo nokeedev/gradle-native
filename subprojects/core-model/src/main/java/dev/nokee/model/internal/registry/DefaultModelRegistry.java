@@ -11,14 +11,14 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Predicates.alwaysTrue;
 
-public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer {
+public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer, ModelLookup {
 	private final ObjectFactory objectFactory;
 	private final Map<ModelPath, ModelNode> nodes = new LinkedHashMap<>();
 	private final List<ModelConfiguration> configurations = new ArrayList<>();
 
 	public DefaultModelRegistry(ObjectFactory objectFactory) {
 		this.objectFactory = objectFactory;
-		nodes.put(ModelPath.root(), createRootNode());
+		nodes.put(ModelPath.root(), createRootNode().register());
 	}
 
 	private static ModelNode createRootNode() {
@@ -42,7 +42,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		}
 
 		registration = decorateProjectionWithModelNode(defaultManagedProjection(registration));
-		val node = new ModelNode(registration.getPath(), registration.getProjections(), this);
+		val node = new ModelNode(registration.getPath(), registration.getProjections(), this).register();
 		nodes.put(registration.getPath(), node);
 
 		for (val configuration : configurations) {
@@ -62,8 +62,13 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		return registration.withProjections(registration.getProjections().stream().map(projection -> new ModelNodeDecoratingModelProjection(projection, () -> get(registration.getPath()))).collect(Collectors.toList()));
 	}
 
-	private ModelNode get(ModelPath path) {
-		return Objects.requireNonNull(nodes.get(path), path::get);
+	@Override
+	public ModelNode get(ModelPath path) {
+		Objects.requireNonNull(path);
+		if (!nodes.containsKey(path)) {
+			throw new IllegalArgumentException();
+		}
+		return nodes.get(path);
 	}
 
 	@Override

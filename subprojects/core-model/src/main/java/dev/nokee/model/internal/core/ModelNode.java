@@ -16,7 +16,8 @@ public final class ModelNode {
 	private State state = State.Initialized;
 
 	public enum State {
-		Initialized
+		Initialized,
+		Registered
 	}
 
 	public ModelNode(ModelPath path, List<ModelProjection> projections) {
@@ -27,6 +28,11 @@ public final class ModelNode {
 		this.path = path;
 		this.projections.addAll(projections);
 		this.configurer = configurer;
+	}
+
+	public ModelNode register() {
+		state = State.Registered;
+		return this;
 	}
 
 	public boolean canBeViewedAs(ModelType<?> type) {

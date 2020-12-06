@@ -73,6 +73,11 @@ class ModelNodeTest {
 		assertEquals(ModelNode.State.Initialized, node().getState());
 	}
 
+	@Test
+	void nodeTransitionToRegisteredWhenRegistered() {
+		assertEquals(ModelNode.State.Registered, node().register().getState());
+	}
+
 	interface MyType {}
 	interface WrongType {}
 }

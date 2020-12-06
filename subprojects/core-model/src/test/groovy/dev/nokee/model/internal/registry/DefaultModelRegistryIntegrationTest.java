@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 
 public class DefaultModelRegistryIntegrationTest {
-	DefaultModelRegistry modelRegistry = new DefaultModelRegistry(TestUtils.objectFactory());
+	private final DefaultModelRegistry modelRegistry = new DefaultModelRegistry(TestUtils.objectFactory());
 
 	@Test
 	void modelNodeRegistrationGivesAccessToProviderThatResolvesToTheNodeValue() {
@@ -144,7 +144,6 @@ public class DefaultModelRegistryIntegrationTest {
 		Mockito.verify(action, times(3)).execute(captor.capture());
 		assertThat(captor.getAllValues().stream().map(ModelNode::getPath).collect(toList()), contains(root(), path("foo"), path("bar")));
 	}
-
 
 //	@Test
 //	void canAccessModelNodeOnManagedType() {
