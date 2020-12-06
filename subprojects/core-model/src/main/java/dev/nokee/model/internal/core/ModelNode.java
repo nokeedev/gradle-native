@@ -14,6 +14,11 @@ public final class ModelNode {
 	private final ModelPath path;
 	private final List<ModelProjection> projections = new ArrayList<>();
 	private final ModelConfigurer configurer;
+	private State state = State.Initialized;
+
+	public enum State {
+		Initialized
+	}
 
 	public ModelNode(ModelPath path) {
 		this(path, Collections.emptyList());
@@ -36,6 +41,15 @@ public final class ModelNode {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Returns the state of this model node.
+	 *
+	 * @return a {@link ModelNode.State} representing the state of this model node, never null.
+	 */
+	public State getState() {
+		return state;
 	}
 
 	/**

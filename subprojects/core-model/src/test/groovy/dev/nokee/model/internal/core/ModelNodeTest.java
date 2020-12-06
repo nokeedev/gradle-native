@@ -68,6 +68,11 @@ class ModelNodeTest {
 		assertFalse(node(projectionOf(MyType.class)).canBeViewedAs(WRONG_TYPE));
 	}
 
+	@Test
+	void stateOfNewlyCreatedNodeIsInitialized() {
+		assertEquals(ModelNode.State.Initialized, node().getState());
+	}
+
 	interface MyType {}
 	interface WrongType {}
 }
