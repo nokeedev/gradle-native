@@ -7,8 +7,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.core.ModelNodes.*;
-import static dev.nokee.model.internal.core.ModelTestUtils.node;
-import static dev.nokee.model.internal.core.ModelTestUtils.projectionOf;
+import static dev.nokee.model.internal.core.ModelTestUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,6 +39,13 @@ public class ModelNodesTest {
 		val predicate = withType(ModelType.of(MyType.class));
 		assertTrue(predicate.test(node(projectionOf(MyType.class))));
 		assertFalse(predicate.test(node(projectionOf(WrongType.class))));
+	}
+
+	@Test
+	void canCreatePredicateFilterForModelNodeByState() {
+		val predicate = ModelNodes.stateAtLeast(ModelNode.State.Registered);
+		assertFalse(predicate.test(node()));
+		assertTrue(predicate.test(registeredNode()));
 	}
 
 	private static Object decoratedObjectWithModelNode() {

@@ -9,8 +9,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.model.internal.core.ModelPath.path;
-import static dev.nokee.model.internal.core.ModelTestUtils.node;
-import static dev.nokee.model.internal.core.ModelTestUtils.projectionOf;
+import static dev.nokee.model.internal.core.ModelTestUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -53,6 +52,17 @@ class NodePredicateTest {
 			}
 		};
 	}
+
+	@Test
+	void canCreateSpecMatchingAllDirectDescendantsOfSpecificState() {
+		val spec = NodePredicate.allDirectDescendants().stateAtLeast(ModelNode.State.Registered).scope(path("foo"));
+		assertThat(spec.getPath(), emptyOptional());
+		assertThat(spec.getParent(), optionalWithValue(equalTo(path("foo"))));
+		assertThat(spec.getAncestor(), emptyOptional());
+		assertFalse(spec.isSatisfiedBy(node()));
+		assertTrue(spec.isSatisfiedBy(registeredNode()));
+	}
+
 
 	interface MyType {}
 }

@@ -40,10 +40,20 @@ public final class ModelNodes {
 	 * Returns a predicate filtering the model node by the specified type.
 	 *
 	 * @param type  the type to filter model node
-	 * @return a predicate matching model node by the specified type
+	 * @return a predicate matching model node by type
 	 */
 	public static Predicate<ModelNode> withType(ModelType<?> type) {
 		return node -> node.canBeViewedAs(type);
+	}
+
+	/**
+	 * Returns a predicate filtering the model node by the specified state.
+	 *
+	 * @param state  the state to filter model node
+	 * @return a predicate matching model node by state
+	 */
+	public static Predicate<ModelNode> stateAtLeast(ModelNode.State state) {
+		return node -> node.isAtLeast(state);
 	}
 
 	private static IllegalArgumentException objectNotDecoratedWithModelNode(Object target) {

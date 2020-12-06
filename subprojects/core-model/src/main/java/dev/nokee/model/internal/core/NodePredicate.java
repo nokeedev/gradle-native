@@ -70,6 +70,17 @@ public abstract class NodePredicate {
 		};
 	}
 
+	public NodePredicate stateAtLeast(ModelNode.State state) {
+		val matcher = ModelNodes.stateAtLeast(state).and(this.matcher);
+		val parent = this;
+		return new NodePredicate(matcher) {
+			@Override
+			protected ModelSpec scope(ModelPath path, Predicate<? super ModelNode> predicate) {
+				return parent.scope(path, matcher);
+			}
+		};
+	}
+
 	private static final class BasicPredicateSpec implements ModelSpec {
 		@Nullable
 		private final ModelPath path;
