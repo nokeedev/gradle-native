@@ -127,8 +127,8 @@ public class DefaultModelRegistryIntegrationTest {
 		modelRegistry.register(ModelRegistration.of("y", MyType.class));
 
 		val captor = ArgumentCaptor.forClass(ModelNode.class);
-		Mockito.verify(action, times(3)).execute(captor.capture());
-		assertThat(captor.getAllValues().stream().map(ModelNode::getPath).collect(toList()), contains(root(), path("x"), path("y")));
+		Mockito.verify(action, times(5)).execute(captor.capture());
+		assertThat(captor.getAllValues().stream().map(ModelNode::getPath).collect(toList()), contains(root(), path("x"), path("x"), path("y"), path("y")));
 	}
 
 	@Test

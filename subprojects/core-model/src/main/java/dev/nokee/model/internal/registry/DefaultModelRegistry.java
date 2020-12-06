@@ -15,6 +15,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final ObjectFactory objectFactory;
 	private final Map<ModelPath, ModelNode> nodes = new LinkedHashMap<>();
 	private final List<ModelConfiguration> configurations = new ArrayList<>();
+	private final NodeStateListener nodeStateListener = new NodeStateListener();
 
 	public DefaultModelRegistry(ObjectFactory objectFactory) {
 		this.objectFactory = objectFactory;
@@ -41,14 +42,13 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			throw new IllegalArgumentException("Has to be direct descendant");
 		}
 
-		registration = decorateProjectionWithModelNode(defaultManagedProjection(registration));
-		val node = new ModelNode(registration.getPath(), registration.getProjections(), this).register();
-		nodes.put(registration.getPath(), node);
-
-		for (val configuration : configurations) {
-			configuration.notifyFor(node);
-		}
+		val node = newNode(registration).register();
 		return new ModelNodeBackedProvider<>(registration.getType(), node);
+	}
+
+	private ModelNode newNode(ModelRegistration<?> registration) {
+		registration = decorateProjectionWithModelNode(defaultManagedProjection(registration));
+		return new ModelNode(registration.getPath(), registration.getProjections(), this, nodeStateListener);
 	}
 
 	private <T> ModelRegistration<T> defaultManagedProjection(ModelRegistration<T> registration) {
@@ -78,6 +78,25 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			configuration.notifyFor(node);
 		}
 		configurations.add(configuration);
+	}
+
+	private final class NodeStateListener implements ModelNodeListener {
+		@Override
+		public void initialized(ModelNode node) {
+			notify(node);
+		}
+
+		@Override
+		public void registered(ModelNode node) {
+			nodes.put(node.getPath(), node);
+			notify(node);
+		}
+
+		private void notify(ModelNode node) {
+			for (val configuration : configurations) {
+				configuration.notifyFor(node);
+			}
+		}
 	}
 
 	private static final class ModelConfiguration {

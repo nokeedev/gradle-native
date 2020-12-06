@@ -3,6 +3,7 @@ package dev.nokee.model.internal.core;
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -11,17 +12,16 @@ import org.mockito.Mockito;
 import java.util.Arrays;
 
 import static dev.nokee.model.internal.core.ModelPath.path;
-import static dev.nokee.model.internal.core.ModelTestUtils.node;
-import static dev.nokee.model.internal.core.ModelTestUtils.projectionOf;
+import static dev.nokee.model.internal.core.ModelTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ModelNodeTest {
 	private static final ModelType<MyType> TYPE = ModelType.of(MyType.class);
 	private static final ModelType<WrongType> WRONG_TYPE = ModelType.of(WrongType.class);
-	private final ModelProjection projection1 = Mockito.mock(ModelProjection.class);
-	private final ModelProjection projection2 = Mockito.mock(ModelProjection.class);
-	private final ModelProjection projection3 = Mockito.mock(ModelProjection.class);
+	private final ModelProjection projection1 = mock(ModelProjection.class);
+	private final ModelProjection projection2 = mock(ModelProjection.class);
+	private final ModelProjection projection3 = mock(ModelProjection.class);
 	private final ModelNode subject = new ModelNode(path("po.ta.to"), Arrays.asList(projection1, projection2, projection3));
 
 	@ParameterizedTest
@@ -75,7 +75,48 @@ class ModelNodeTest {
 
 	@Test
 	void nodeTransitionToRegisteredWhenRegistered() {
-		assertEquals(ModelNode.State.Registered, node().register().getState());
+		assertEquals(ModelNode.State.Registered, registeredNode().getState());
+	}
+
+	@Test
+	void newNodesAreAtLeastInitialized() {
+		assertTrue(node().isAtLeast(ModelNode.State.Initialized));
+		assertFalse(node().isAtLeast(ModelNode.State.Registered));
+	}
+
+	@Test
+	void registeredNodesAreAtLeastRegistered() {
+		assertTrue(registeredNode().isAtLeast(ModelNode.State.Initialized));
+		assertTrue(registeredNode().isAtLeast(ModelNode.State.Registered));
+	}
+
+	@Nested
+	class ModelNodeListenerContractTest {
+		private final ModelNodeListener listener = mock(ModelNodeListener.class);
+
+		@Test
+		void callsBackWhenTheNodeIsInitialized() {
+			val node = node(listener);
+			verify(listener, only()).initialized(node);
+		}
+
+		@Test
+		void callsBackWhenTheNodeIsRegistered() {
+			val node = node(listener);
+			Mockito.reset(listener);
+
+			node.register();
+			verify(listener, only()).registered(node);
+		}
+
+		@Test
+		void callsBackOnlyOnceWhenMultipleRegister() {
+			val node = node(listener);
+			Mockito.reset(listener);
+
+			node.register().register().register();
+			verify(listener, only()).registered(node);
+		}
 	}
 
 	interface MyType {}

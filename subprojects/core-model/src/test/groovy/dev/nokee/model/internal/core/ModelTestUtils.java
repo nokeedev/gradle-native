@@ -1,9 +1,11 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.testing.utils.TestUtils;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.type.ModelType;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 public final class ModelTestUtils {
 	private static final ModelPath DEFAULT_MODEL_PATH = ModelPath.path("test");
@@ -27,6 +29,14 @@ public final class ModelTestUtils {
 
 	public static ModelNode node(ModelProjection... projections) {
 		return new ModelNode(DEFAULT_MODEL_PATH, Arrays.asList(projections));
+	}
+
+	public static ModelNode registeredNode() {
+		return node().register();
+	}
+
+	public static ModelNode node(ModelNodeListener listener) {
+		return new ModelNode(DEFAULT_MODEL_PATH, Collections.emptyList(), ModelConfigurer.failingConfigurer(), listener);
 	}
 
 	public static ModelNode node(String path, ModelProjection... projections) {

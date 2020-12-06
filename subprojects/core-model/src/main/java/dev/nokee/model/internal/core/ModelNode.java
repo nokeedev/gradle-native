@@ -11,6 +11,7 @@ import java.util.List;
  */
 public final class ModelNode {
 	private final ModelPath path;
+	private final ModelNodeListener listener;
 	private final List<ModelProjection> projections = new ArrayList<>();
 	private final ModelConfigurer configurer;
 	private State state = State.Initialized;
@@ -21,17 +22,22 @@ public final class ModelNode {
 	}
 
 	public ModelNode(ModelPath path, List<ModelProjection> projections) {
-		this(path, projections, ModelConfigurer.failingConfigurer());
+		this(path, projections, ModelConfigurer.failingConfigurer(), ModelNodeListener.noOpListener());
 	}
 
-	public ModelNode(ModelPath path, List<ModelProjection> projections, ModelConfigurer configurer) {
+	public ModelNode(ModelPath path, List<ModelProjection> projections, ModelConfigurer configurer, ModelNodeListener listener) {
 		this.path = path;
 		this.projections.addAll(projections);
 		this.configurer = configurer;
+		this.listener = listener;
+		listener.initialized(this);
 	}
 
 	public ModelNode register() {
-		state = State.Registered;
+		if (!isAtLeast(State.Registered)) {
+			state = State.Registered;
+			listener.registered(this);
+		}
 		return this;
 	}
 
@@ -60,6 +66,16 @@ public final class ModelNode {
 	 */
 	public ModelPath getPath() {
 		return path;
+	}
+
+	/**
+	 * Checks the state of the node is at or later that the specified state.
+	 *
+	 * @param state  the state to compare
+	 * @return true if the state of the node is at or later that the specified state or false otherwise.
+	 */
+	public boolean isAtLeast(State state) {
+		return this.state.compareTo(state) >= 0;
 	}
 
 	/**

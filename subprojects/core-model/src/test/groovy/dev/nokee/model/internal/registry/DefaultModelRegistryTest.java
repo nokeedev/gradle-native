@@ -2,16 +2,16 @@ package dev.nokee.model.internal.registry;
 
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.internal.testing.utils.TestUtils;
-import dev.nokee.model.internal.core.ModelIdentifier;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.*;
 import lombok.val;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class DefaultModelRegistryTest {
 	private final DefaultModelRegistry subject = new DefaultModelRegistry(TestUtils.objectFactory());
@@ -65,6 +65,32 @@ public class DefaultModelRegistryTest {
 		void throwsExceptionForUnregisteredModelNodeLookup() {
 			assertThrows(IllegalArgumentException.class, () -> modelLookup.get(path("foo")));
 			assertDoesNotThrow(() -> modelLookup.get(register("foo")));
+		}
+
+		@Test
+		void failsLookupForInitializedNode() {
+			val action = Mockito.mock(ModelAction.class);
+			doAnswer(invocation -> {
+				assertEquals(path("foo"), invocation.getArgument(0, ModelNode.class).getPath());
+				assertThrows(IllegalArgumentException.class, () -> modelLookup.get(path("foo")));
+				return null;
+			}).when(action).execute(any());
+			subject.configureMatching(it -> it.getState().equals(ModelNode.State.Initialized), action);
+			register("foo");
+			verify(action, times(1)).execute(any());
+		}
+
+		@Test
+		void succeedLookupForRegisteredNode() {
+			val action = Mockito.mock(ModelAction.class);
+			doAnswer(invocation -> {
+				assertEquals(path("bar"), invocation.getArgument(0, ModelNode.class).getPath());
+				assertDoesNotThrow(() -> modelLookup.get(path("bar")));
+				return null;
+			}).when(action).execute(any());
+			subject.configureMatching(it -> it.getState().equals(ModelNode.State.Registered) && it.getPath().equals(path("bar")), action);
+			register("bar");
+			verify(action, times(1)).execute(any());
 		}
 	}
 
