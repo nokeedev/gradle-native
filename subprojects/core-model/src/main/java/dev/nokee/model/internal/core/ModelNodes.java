@@ -1,7 +1,10 @@
 package dev.nokee.model.internal.core;
 
+import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.plugins.ExtensionAware;
+
+import java.util.function.Predicate;
 
 /**
  * A group of common model node operations.
@@ -31,6 +34,16 @@ public final class ModelNodes {
 		assert target instanceof ExtensionAware;
 		((ExtensionAware) target).getExtensions().add(ModelNode.class, "__NOKEE_modelNode", node);
 		return target;
+	}
+
+	/**
+	 * Returns a predicate filtering the model node by the specified type.
+	 *
+	 * @param type  the type to filter model node
+	 * @return a predicate matching model node by the specified type
+	 */
+	public static Predicate<ModelNode> withType(ModelType<?> type) {
+		return node -> node.canBeViewedAs(type);
 	}
 
 	private static IllegalArgumentException objectNotDecoratedWithModelNode(Object target) {

@@ -1,17 +1,18 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.testing.utils.TestUtils;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.plugins.ExtensionAware;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.model.internal.core.ModelNodes.inject;
-import static dev.nokee.model.internal.core.ModelNodes.of;
+import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelPath.path;
+import static dev.nokee.model.internal.core.ModelTestUtils.node;
+import static dev.nokee.model.internal.core.ModelTestUtils.projectionOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ModelNodesTest {
 	@Test
@@ -35,6 +36,13 @@ public class ModelNodesTest {
 		assertEquals(node, of(inject(undecoratedObject(), node)), "should be able to inject model node in ExtensibleAware types");
 	}
 
+	@Test
+	void canCreatePredicateFilterForModelNodeByType() {
+		val predicate = withType(ModelType.of(MyType.class));
+		assertTrue(predicate.test(node(projectionOf(MyType.class))));
+		assertFalse(predicate.test(node(projectionOf(WrongType.class))));
+	}
+
 	private static Object decoratedObjectWithModelNode() {
 		val node = new ModelNode(path("a.b.c"));
 		val object = TestUtils.objectFactory().newInstance(MyType.class);
@@ -51,4 +59,5 @@ public class ModelNodesTest {
 	}
 
 	interface MyType {}
+	interface WrongType {}
 }

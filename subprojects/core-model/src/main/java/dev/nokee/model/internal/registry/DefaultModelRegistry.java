@@ -5,13 +5,16 @@ import dev.nokee.model.internal.core.*;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public final class DefaultModelRegistry implements ModelRegistry {
+import static com.google.common.base.Predicates.alwaysTrue;
+
+public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer {
 	private final ObjectFactory objectFactory;
-	private final Map<ModelPath, ModelNode> nodes = new HashMap<>();
+	private final Map<ModelPath, ModelNode> nodes = new LinkedHashMap<>();
+	private final List<ModelConfiguration> configurations = new ArrayList<>();
 
 	public DefaultModelRegistry(ObjectFactory objectFactory) {
 		this.objectFactory = objectFactory;
@@ -24,7 +27,7 @@ public final class DefaultModelRegistry implements ModelRegistry {
 			throw new IllegalStateException(String.format("Expected model node at '%s' but none was found", identifier.getPath()));
 		}
 
-		return new ModelNodeBackedProvider<>(identifier.getType(), nodes.get(identifier.getPath()));
+		return new ModelNodeBackedProvider<>(identifier.getType(), get(identifier.getPath()));
 	}
 
 	@Override
@@ -35,8 +38,12 @@ public final class DefaultModelRegistry implements ModelRegistry {
 		}
 
 		registration = decorateProjectionWithModelNode(defaultManagedProjection(registration));
-		val node = new ModelNode(registration.getPath(), registration.getProjections());
+		val node = new ModelNode(registration.getPath(), registration.getProjections(), this);
 		nodes.put(registration.getPath(), node);
+
+		for (val configuration : configurations) {
+			configuration.notifyFor(node);
+		}
 		return new ModelNodeBackedProvider<>(registration.getType(), node);
 	}
 
@@ -48,6 +55,64 @@ public final class DefaultModelRegistry implements ModelRegistry {
 	}
 
 	private <T> ModelRegistration<T> decorateProjectionWithModelNode(ModelRegistration<T> registration) {
-		return registration.withProjections(registration.getProjections().stream().map(projection -> new ModelNodeDecoratingModelProjection(projection, () -> nodes.get(registration.getPath()))).collect(Collectors.toList()));
+		return registration.withProjections(registration.getProjections().stream().map(projection -> new ModelNodeDecoratingModelProjection(projection, () -> get(registration.getPath()))).collect(Collectors.toList()));
+	}
+
+	private ModelNode get(ModelPath path) {
+		return Objects.requireNonNull(nodes.get(path), path::get);
+	}
+
+	@Override
+	public void configureMatching(ModelSpec spec, ModelAction action) {
+		val configuration = new ModelConfiguration(spec, action);
+		for(val node : nodes.values()) {
+			configuration.notifyFor(node);
+		}
+		configurations.add(configuration);
+	}
+
+	private static final class ModelConfiguration {
+		private final Predicate<ModelNode> predicate;
+		private final ModelAction action;
+
+		private ModelConfiguration(ModelSpec spec, ModelAction action) {
+			Objects.requireNonNull(spec);
+			this.predicate = toPathPredicate(spec).and(toParentPredicate(spec)).and(toAncestorPredicate(spec)).and(spec::isSatisfiedBy);
+			this.action = Objects.requireNonNull(action);
+		}
+
+		private static Predicate<ModelNode> toPathPredicate(ModelSpec spec) {
+			return spec.getPath().map(ModelConfiguration::asPathPredicate).orElse(alwaysTrue());
+		}
+
+		private static Predicate<ModelNode> asPathPredicate(ModelPath path) {
+			return node -> node.getPath().equals(path);
+		}
+
+		private static Predicate<ModelNode> toParentPredicate(ModelSpec spec) {
+			return spec.getParent().map(ModelConfiguration::asParentPredicate).orElse(alwaysTrue());
+		}
+
+		private static Predicate<ModelNode> asParentPredicate(ModelPath parent) {
+			return node -> {
+				val parentPath = node.getPath().getParent();
+				return parentPath.isPresent() && parentPath.get().equals(parent);
+			};
+		}
+
+		private static Predicate<ModelNode> toAncestorPredicate(ModelSpec spec) {
+			return spec.getAncestor().map(ModelConfiguration::asAncestorPredicate).orElse(alwaysTrue());
+		}
+
+		private static Predicate<ModelNode> asAncestorPredicate(ModelPath ancestor) {
+//			return node -> node.getPath().equals(path);
+			return alwaysTrue();
+		}
+
+		public void notifyFor(ModelNode node) {
+			if (predicate.test(node)) {
+				action.execute(node);
+			}
+		}
 	}
 }

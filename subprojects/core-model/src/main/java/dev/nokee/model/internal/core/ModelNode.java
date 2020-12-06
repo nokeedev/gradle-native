@@ -1,5 +1,6 @@
 package dev.nokee.model.internal.core;
 
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.type.ModelType;
 
 import java.util.ArrayList;
@@ -12,14 +13,29 @@ import java.util.List;
 public final class ModelNode {
 	private final ModelPath path;
 	private final List<ModelProjection> projections = new ArrayList<>();
+	private final ModelConfigurer configurer;
 
 	public ModelNode(ModelPath path) {
 		this(path, Collections.emptyList());
 	}
 
 	public ModelNode(ModelPath path, List<ModelProjection> projections) {
+		this(path, projections, ModelConfigurer.failingConfigurer());
+	}
+
+	public ModelNode(ModelPath path, List<ModelProjection> projections, ModelConfigurer configurer) {
 		this.path = path;
 		this.projections.addAll(projections);
+		this.configurer = configurer;
+	}
+
+	public boolean canBeViewedAs(ModelType<?> type) {
+		for (ModelProjection projection : projections) {
+			if (projection.canBeViewedAs(type)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -37,6 +53,18 @@ public final class ModelNode {
 	 * @param type  the type of the requested projection
 	 * @param <T>  the type of the requested projection
 	 * @return an instance of the projected node into the specified instance
+	 * @see #get(ModelType)
+	 */
+	public <T> T get(Class<T> type) {
+		return get(ModelType.of(type));
+	}
+
+	/**
+	 * Returns the first projection matching the specified type.
+	 *
+	 * @param type  the type of the requested projection
+	 * @param <T>  the type of the requested projection
+	 * @return an instance of the projected node into the specified instance
 	 */
 	public <T> T get(ModelType<T> type) {
 		for (ModelProjection projection : projections) {
@@ -45,5 +73,9 @@ public final class ModelNode {
 			}
 		}
 		return null; // TODO: throw exception
+	}
+
+	public void applyTo(NodePredicate predicate, ModelAction action) {
+		configurer.configureMatching(predicate.scope(getPath()), action);
 	}
 }

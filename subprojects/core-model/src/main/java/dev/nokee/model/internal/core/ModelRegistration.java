@@ -60,6 +60,10 @@ public final class ModelRegistration<T> {
 		return new Builder<>(identifier).withProjection(new MemoizedModelProjection(UnmanagedCreatingModelProjection.of(identifier.getType(), factory))).build();
 	}
 
+	public static <T> Builder<T> unmanagedInstanceBuilder(ModelIdentifier<T> identifier, Factory<T> factory) {
+		return new Builder<>(identifier).withProjection(new MemoizedModelProjection(UnmanagedCreatingModelProjection.of(identifier.getType(), factory)));
+	}
+
 	public ModelRegistration<T> withProjections(List<ModelProjection> projections) {
 		return new ModelRegistration<>(identifier, projections);
 	}
