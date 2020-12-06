@@ -18,7 +18,11 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	public DefaultModelRegistry(ObjectFactory objectFactory) {
 		this.objectFactory = objectFactory;
-		nodes.put(ModelPath.root(), new ModelNode(ModelPath.root()));
+		nodes.put(ModelPath.root(), createRootNode());
+	}
+
+	private static ModelNode createRootNode() {
+		return new ModelNode(ModelPath.root(), Collections.emptyList());
 	}
 
 	@Override

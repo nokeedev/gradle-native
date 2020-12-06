@@ -4,7 +4,6 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.type.ModelType;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,10 +17,6 @@ public final class ModelNode {
 
 	public enum State {
 		Initialized
-	}
-
-	public ModelNode(ModelPath path) {
-		this(path, Collections.emptyList());
 	}
 
 	public ModelNode(ModelPath path, List<ModelProjection> projections) {

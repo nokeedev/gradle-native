@@ -7,7 +7,6 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.core.ModelNodes.*;
-import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.core.ModelTestUtils.projectionOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -32,7 +31,7 @@ public class ModelNodesTest {
 
 	@Test
 	void canInjectModelNode() {
-		val node = new ModelNode(path("a.b.c"));
+		val node = ModelTestUtils.node("a.b.c");
 		assertEquals(node, of(inject(undecoratedObject(), node)), "should be able to inject model node in ExtensibleAware types");
 	}
 
@@ -44,7 +43,7 @@ public class ModelNodesTest {
 	}
 
 	private static Object decoratedObjectWithModelNode() {
-		val node = new ModelNode(path("a.b.c"));
+		val node = ModelTestUtils.node("a.b.c");
 		val object = TestUtils.objectFactory().newInstance(MyType.class);
 		((ExtensionAware) object).getExtensions().add(ModelNode.class, "__NOKEE_modelNode", node);
 		return object;
