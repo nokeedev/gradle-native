@@ -31,7 +31,17 @@ public abstract class NodePredicate {
 	 * @return a {@link NodePredicate} matching all direct descendants, never null
 	 */
 	public static NodePredicate allDirectDescendants() {
-		return new NodePredicate(alwaysTrue()) {
+		return allDirectDescendants(alwaysTrue());
+	}
+
+	/**
+	 * Creates a predicate that matches all direct descendants of the scoped path with the specified predicate.
+	 *
+	 * @param predicate  a predicate to match against all direct descendants
+	 * @return a {@link NodePredicate} matching all direct descendants with a predicate, never null
+	 */
+	public static NodePredicate allDirectDescendants(Predicate<? super ModelNode> predicate) {
+		return new NodePredicate(predicate) {
 			@Override
 			public ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
 				return new BasicPredicateSpec(null, path, null, matcher);
