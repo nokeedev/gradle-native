@@ -1,7 +1,5 @@
 package dev.nokee.model.internal.core;
 
-import lombok.val;
-
 import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -37,23 +35,6 @@ public abstract class NodePredicate {
 			@Override
 			public ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
 				return new BasicPredicateSpec(null, path, null, matcher);
-			}
-		};
-	}
-
-	/**
-	 * Creates a predicate that further filter the matching nodes to only the one that are at least at the specified state.
-	 *
-	 * @param state  the filtering mode node state
-	 * @return a {@link NodePredicate} further matching the node's state, never null
-	 */
-	public NodePredicate stateAtLeast(ModelNode.State state) {
-		val matcher = ModelNodes.stateAtLeast(state).and(this.matcher);
-		val parent = this;
-		return new NodePredicate(matcher) {
-			@Override
-			protected ModelSpec scope(ModelPath path, Predicate<? super ModelNode> predicate) {
-				return parent.scope(path, matcher);
 			}
 		};
 	}
