@@ -136,7 +136,7 @@ public final class ModelNode {
 				return projection.get(type);
 			}
 		}
-		return null; // TODO: throw exception
+		throw new IllegalStateException("no projection for " + type);
 	}
 
 	public void applyTo(NodePredicate predicate, ModelAction action) {

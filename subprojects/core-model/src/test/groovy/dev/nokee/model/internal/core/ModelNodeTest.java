@@ -43,6 +43,12 @@ class ModelNodeTest {
 		verify(projection3, never()).get(any());
 	}
 
+	@ParameterizedTest
+	@EnumSource(Get.class)
+	void throwsExceptionWhenNoProjectionMatchingType(GetMethod get) {
+		assertThrows(IllegalStateException.class, () -> get.invoke(node(projectionOf(WrongType.class)), MyType.class));
+	}
+
 	interface GetMethod {
 		<T> T invoke(ModelNode target, Class<T> type);
 	}
