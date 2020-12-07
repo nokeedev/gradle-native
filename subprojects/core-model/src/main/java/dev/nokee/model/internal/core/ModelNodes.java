@@ -1,6 +1,7 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.model.internal.type.ModelType;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.specs.Spec;
@@ -44,7 +45,26 @@ public final class ModelNodes {
 	 * @return a predicate matching model node by type
 	 */
 	public static Predicate<ModelNode> withType(ModelType<?> type) {
-		return node -> node.canBeViewedAs(type);
+		return new WithTypePredicate(type);
+	}
+
+	@EqualsAndHashCode
+	private static final class WithTypePredicate implements Predicate<ModelNode> {
+		private final ModelType<?> type;
+
+		private WithTypePredicate(ModelType<?> type) {
+			this.type = type;
+		}
+
+		@Override
+		public boolean test(ModelNode node) {
+			return node.canBeViewedAs(type);
+		}
+
+		@Override
+		public String toString() {
+			return "ModelNodes.withType(" + type + ")";
+		}
 	}
 
 	/**
