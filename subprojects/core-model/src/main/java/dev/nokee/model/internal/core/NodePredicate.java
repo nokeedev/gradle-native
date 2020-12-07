@@ -1,6 +1,5 @@
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
 import javax.annotation.Nullable;
@@ -38,34 +37,6 @@ public abstract class NodePredicate {
 			@Override
 			public ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
 				return new BasicPredicateSpec(null, path, null, matcher);
-			}
-		};
-	}
-
-	/**
-	 * Creates a predicate that further filter the matching nodes to only the one that can be viewed as the specified class.
-	 *
-	 * @param type  the filtering model node view type
-	 * @return a {@link NodePredicate} further matching the node's view type, never null.
-	 * @see #withType(ModelType)
-	 */
-	public NodePredicate withType(Class<?> type) {
-		return withType(ModelType.of(type));
-	}
-
-	/**
-	 * Creates a predicate that further filter the matching nodes to only the one that can be viewed as the specified type.
-	 *
-	 * @param type  the filtering model node view type
-	 * @return a {@link NodePredicate} further matching the node's view type, never null
-	 */
-	public NodePredicate withType(ModelType<?> type) {
-		val matcher = ModelNodes.withType(type).and(this.matcher);
-		val parent = this;
-		return new NodePredicate(matcher) {
-			@Override
-			public ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
-				return parent.scope(path, matcher);
 			}
 		};
 	}
