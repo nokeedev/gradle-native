@@ -30,7 +30,7 @@ public class ModelNodesTest {
 
 	@Test
 	void canInjectModelNode() {
-		val node = ModelTestUtils.node("a.b.c");
+		val node = node("a.b.c");
 		assertEquals(node, of(inject(undecoratedObject(), node)), "should be able to inject model node in ExtensibleAware types");
 	}
 
@@ -45,11 +45,12 @@ public class ModelNodesTest {
 	void canCreatePredicateFilterForModelNodeByState() {
 		val predicate = ModelNodes.stateAtLeast(ModelNode.State.Registered);
 		assertFalse(predicate.test(node()));
-		assertTrue(predicate.test(registeredNode()));
+		assertTrue(predicate.test(node().register()));
+		assertTrue(predicate.test(node().realize()));
 	}
 
 	private static Object decoratedObjectWithModelNode() {
-		val node = ModelTestUtils.node("a.b.c");
+		val node = node("a.b.c");
 		val object = TestUtils.objectFactory().newInstance(MyType.class);
 		((ExtensionAware) object).getExtensions().add(ModelNode.class, "__NOKEE_modelNode", node);
 		return object;

@@ -51,8 +51,6 @@ public final class ModelRegistration<T> {
 	}
 
 	public static <T> ModelRegistration<T> bridgedInstance(ModelIdentifier<T> identifier, T instance) {
-		// TODO: Find a way to publish created events from instance
-		//   Maybe withState(Created) -> which will create
 		return new Builder<>(identifier).withProjection(UnmanagedInstanceModelProjection.of(instance)).build();
 	}
 

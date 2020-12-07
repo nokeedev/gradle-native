@@ -25,6 +25,6 @@ public final class ModelNodeBackedProvider<T> implements ModelProvider<T> {
 
 	@Override
 	public T get() {
-		return node.get(type);
+		return node.realize().get(type);
 	}
 }

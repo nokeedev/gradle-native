@@ -22,8 +22,13 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		nodes.put(ModelPath.root(), createRootNode().register());
 	}
 
-	private static ModelNode createRootNode() {
-		return new ModelNode(ModelPath.root(), Collections.emptyList());
+	private ModelNode createRootNode() {
+		return ModelNode.builder()
+			.withPath(ModelPath.root())
+			.withConfigurer(this)
+			.withLookup(this)
+			.withListener(nodeStateListener)
+			.build();
 	}
 
 	@Override
@@ -48,7 +53,13 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	private ModelNode newNode(ModelRegistration<?> registration) {
 		registration = decorateProjectionWithModelNode(defaultManagedProjection(registration));
-		return new ModelNode(registration.getPath(), registration.getProjections(), this, nodeStateListener);
+		return ModelNode.builder()
+			.withPath(registration.getPath())
+			.withProjections(registration.getProjections())
+			.withConfigurer(this)
+			.withListener(nodeStateListener)
+			.withLookup(this)
+			.build();
 	}
 
 	private <T> ModelRegistration<T> defaultManagedProjection(ModelRegistration<T> registration) {
@@ -89,6 +100,11 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		@Override
 		public void registered(ModelNode node) {
 			nodes.put(node.getPath(), node);
+			notify(node);
+		}
+
+		@Override
+		public void realized(ModelNode node) {
 			notify(node);
 		}
 

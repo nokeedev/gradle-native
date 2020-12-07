@@ -14,4 +14,18 @@ public interface ModelLookup {
 	 * @return the {@link ModelNode} for the specified path, never null.
 	 */
 	ModelNode get(ModelPath path);
+
+	/**
+	 * Returns an always failing model lookup.
+	 *
+	 * @return a model lookup that always fails.
+	 */
+	static ModelLookup failingLookup() {
+		return new ModelLookup() {
+			@Override
+			public ModelNode get(ModelPath path) {
+				throw new UnsupportedOperationException();
+			}
+		};
+	}
 }

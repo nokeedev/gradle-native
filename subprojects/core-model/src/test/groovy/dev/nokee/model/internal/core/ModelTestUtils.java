@@ -1,14 +1,15 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.testing.utils.TestUtils;
-import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.val;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.function.Consumer;
 
 public final class ModelTestUtils {
-	private static final ModelPath DEFAULT_MODEL_PATH = ModelPath.path("test");
+	private static final String DEFAULT_NODE_NAME = "test";
+	private static final ModelNode ROOT = rootNode();
 	private ModelTestUtils() {}
 
 	public static ModelProjection projectionOf(Class<?> projectionType) {
@@ -27,19 +28,47 @@ public final class ModelTestUtils {
 		};
 	}
 
-	public static ModelNode node(ModelProjection... projections) {
-		return new ModelNode(DEFAULT_MODEL_PATH, Arrays.asList(projections));
-	}
-
-	public static ModelNode registeredNode() {
-		return node().register();
+	public static ModelNode rootNode() {
+		return ModelNode.builder().withPath(ModelPath.root()).build();
 	}
 
 	public static ModelNode node(ModelNodeListener listener) {
-		return new ModelNode(DEFAULT_MODEL_PATH, Collections.emptyList(), ModelConfigurer.failingConfigurer(), listener);
+		return childNode(ROOT, DEFAULT_NODE_NAME, builder -> builder.withListener(listener));
+	}
+
+	public static ModelNode node(ModelProjection... projections) {
+		return childNode(ROOT, DEFAULT_NODE_NAME, builder -> builder.withProjections(projections));
 	}
 
 	public static ModelNode node(String path, ModelProjection... projections) {
-		return new ModelNode(ModelPath.path(path), Arrays.asList(projections));
+		ModelNode result = ROOT;
+		for (String name : ModelPath.path(path)) {
+			result = childNode(result, name, builder -> builder.withProjections(projections));
+		}
+		return result;
+	}
+
+	public static ModelNode childNode(ModelNode parent) {
+		return childNode(parent, DEFAULT_NODE_NAME);
+	}
+
+	public static ModelNode childNode(ModelNode parent, String name) {
+		return childNode(parent, name, builder -> {});
+	}
+
+	public static ModelNode childNode(ModelNode parent, String name, Consumer<ModelNode.Builder> action) {
+		val builder = ModelNode.builder();
+		action.accept(builder);
+		builder.withPath(parent.getPath().child(name));
+		builder.withLookup(new ModelLookup() {
+			@Override
+			public ModelNode get(ModelPath path) {
+				if (parent.getPath().equals(path)) {
+					return parent;
+				}
+				throw new UnsupportedOperationException();
+			}
+		});
+		return builder.build();
 	}
 }

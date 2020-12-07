@@ -1,27 +1,24 @@
 package dev.nokee.model.internal.registry;
 
 import dev.nokee.internal.testing.utils.TestUtils;
-import dev.nokee.model.internal.core.ModelAction;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.*;
+import lombok.Value;
 import lombok.val;
 import org.gradle.api.provider.Property;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
-import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
 import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
-import static java.util.stream.Collectors.toList;
+import static dev.nokee.model.internal.core.ModelSpecs.alwaysTrue;
+import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.NodeStateTransitionCollectingAction.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
 
 public class DefaultModelRegistryIntegrationTest {
 	private final DefaultModelRegistry modelRegistry = new DefaultModelRegistry(TestUtils.objectFactory());
@@ -107,42 +104,83 @@ public class DefaultModelRegistryIntegrationTest {
 
 	@Test
 	void canConfigureNodesAlreadyRegistered() {
-		val action = Mockito.mock(ModelAction.class);
+		val action = new NodeStateTransitionCollectingAction();
 
 		modelRegistry.register(ModelRegistration.of("a", MyType.class));
 		modelRegistry.register(ModelRegistration.of("b", MyType.class));
-		modelRegistry.configureMatching(node -> true, action);
+		modelRegistry.configureMatching(alwaysTrue(), action);
 
-		val captor = ArgumentCaptor.forClass(ModelNode.class);
-		Mockito.verify(action, times(3)).execute(captor.capture());
-		assertThat(captor.getAllValues().stream().map(ModelNode::getPath).collect(toList()), contains(root(), path("a"), path("b")));
+		assertThat(action.values,
+			contains(registered(root()), registered("a"), registered("b")));
 	}
 
 	@Test
 	void canConfigureFutureNodesRegistered() {
-		val action = Mockito.mock(ModelAction.class);
+		val action = new NodeStateTransitionCollectingAction();
 
-		modelRegistry.configureMatching(node -> true, action);
+		modelRegistry.configureMatching(alwaysTrue(), action);
 		modelRegistry.register(ModelRegistration.of("x", MyType.class));
 		modelRegistry.register(ModelRegistration.of("y", MyType.class));
 
-		val captor = ArgumentCaptor.forClass(ModelNode.class);
-		Mockito.verify(action, times(5)).execute(captor.capture());
-		assertThat(captor.getAllValues().stream().map(ModelNode::getPath).collect(toList()), contains(root(), path("x"), path("x"), path("y"), path("y")));
+		assertThat(action.values,
+			contains(registered(root()), initialized("x"), registered("x"), initialized("y"), registered("y")));
 	}
 
 	@Test
-	@Disabled("Not implemented")
+	void queryProviderRealizeNodeAndParent() {
+		val action = new NodeStateTransitionCollectingAction();
+
+		modelRegistry.configureMatching(alwaysTrue(), action);
+		modelRegistry.register(ModelRegistration.of("x", MyType.class)).get();
+
+		assertThat(action.values,
+			contains(registered(root()), initialized("x"), registered("x"), realized(root()), realized("x")));
+	}
+
+	@Test
 	void canConfigureNodesOnlyWhenOnSpecificState() {
-		val action = Mockito.mock(ModelAction.class);
+		val action = new NodeStateTransitionCollectingAction();
 
 		modelRegistry.register(ModelRegistration.of("i", MyType.class));
-		modelRegistry.configureMatching(node -> true, action);
-		modelRegistry.register(ModelRegistration.of("j", MyType.class));
+		modelRegistry.configureMatching(node -> node.isAtLeast(ModelNode.State.Realized), action);
+		modelRegistry.register(ModelRegistration.of("j", MyType.class)).get();
 
-		val captor = ArgumentCaptor.forClass(ModelNode.class);
-		Mockito.verify(action, times(3)).execute(captor.capture());
-		assertThat(captor.getAllValues().stream().map(ModelNode::getPath).collect(toList()), contains(root(), path("foo"), path("bar")));
+		assertThat(action.values, contains(realized(root()), realized("j")));
+	}
+
+	static class NodeStateTransitionCollectingAction implements ModelAction {
+		private final List<NodeStateTransition> values = new ArrayList<>();
+
+		@Override
+		public void execute(ModelNode node) {
+			values.add(new NodeStateTransition(node.getPath(), node.getState()));
+		}
+
+		static NodeStateTransition realized(String path) {
+			return new NodeStateTransition(ModelPath.path(path), ModelNode.State.Realized);
+		}
+
+		static NodeStateTransition realized(ModelPath path) {
+			return new NodeStateTransition(path, ModelNode.State.Realized);
+		}
+
+		static NodeStateTransition registered(String path) {
+			return new NodeStateTransition(ModelPath.path(path), ModelNode.State.Registered);
+		}
+
+		static NodeStateTransition registered(ModelPath path) {
+			return new NodeStateTransition(path, ModelNode.State.Registered);
+		}
+
+		static NodeStateTransition initialized(String path) {
+			return new NodeStateTransition(ModelPath.path(path), ModelNode.State.Initialized);
+		}
+
+		@Value
+		static class NodeStateTransition {
+			ModelPath path;
+			ModelNode.State state;
+		}
 	}
 
 //	@Test
@@ -151,7 +189,6 @@ public class DefaultModelRegistryIntegrationTest {
 //		assertEquals("a", provider.get().getModelPathAsString());
 //	}
 //
-
 
 	// NOT SURE...
 //	@Test
@@ -173,7 +210,4 @@ public class DefaultModelRegistryIntegrationTest {
 	// TODO: Can initialize node when registering
 
 	// TODO: Can register sub-node from node (add link)
-
-	interface MyComponentContainer {}
-	interface MyComponent {}
 }

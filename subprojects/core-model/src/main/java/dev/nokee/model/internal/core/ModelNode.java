@@ -1,35 +1,38 @@
 package dev.nokee.model.internal.core;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.type.ModelType;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A node in the model.
  */
 public final class ModelNode {
 	private final ModelPath path;
+	private final ModelLookup modelLookup;
 	private final ModelNodeListener listener;
-	private final List<ModelProjection> projections = new ArrayList<>();
+	private final List<ModelProjection> projections;
 	private final ModelConfigurer configurer;
 	private State state = State.Initialized;
 
 	public enum State {
 		Initialized,
-		Registered
+		Registered,
+		Realized
 	}
 
-	public ModelNode(ModelPath path, List<ModelProjection> projections) {
-		this(path, projections, ModelConfigurer.failingConfigurer(), ModelNodeListener.noOpListener());
-	}
-
-	public ModelNode(ModelPath path, List<ModelProjection> projections, ModelConfigurer configurer, ModelNodeListener listener) {
+	private ModelNode(ModelPath path, List<ModelProjection> projections, ModelConfigurer configurer, ModelNodeListener listener, ModelLookup modelLookup) {
 		this.path = path;
-		this.projections.addAll(projections);
+		this.projections = ImmutableList.copyOf(projections);
 		this.configurer = configurer;
 		this.listener = listener;
+		this.modelLookup = modelLookup;
 		listener.initialized(this);
 	}
 
@@ -41,6 +44,36 @@ public final class ModelNode {
 		return this;
 	}
 
+	/**
+	 * Realize this node.
+	 *
+	 * @return this model node, never null
+	 */
+	public ModelNode realize() {
+		register();
+		if (!isAtLeast(State.Realized)) {
+			getParent().ifPresent(ModelNode::realize);
+			state = State.Realized;
+			listener.realized(this);
+		}
+		return this;
+	}
+
+	/**
+	 * Returns the parent node of this model node, if available.
+	 *
+	 * @return the parent model node, never null but can be absent.
+	 */
+	public Optional<ModelNode> getParent() {
+		return path.getParent().map(modelLookup::get);
+	}
+
+	/**
+	 * Returns if the current node can be viewed as the specified type.
+	 *
+	 * @param type  the type to query this model node
+	 * @return true if the node can be projected into the specified type, or false otherwise.
+	 */
 	public boolean canBeViewedAs(ModelType<?> type) {
 		for (ModelProjection projection : projections) {
 			if (projection.canBeViewedAs(type)) {
@@ -108,5 +141,55 @@ public final class ModelNode {
 
 	public void applyTo(NodePredicate predicate, ModelAction action) {
 		configurer.configureMatching(predicate.scope(getPath()), action);
+	}
+
+	/**
+	 * Returns a builder for a model node.
+	 *
+	 * @return a builder to create a model node, never null.
+	 */
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static final class Builder {
+		private ModelPath path;
+		private List<ModelProjection> projections = Collections.emptyList();
+		private ModelConfigurer configurer = ModelConfigurer.failingConfigurer();
+		private ModelNodeListener listener = ModelNodeListener.noOpListener();
+		private ModelLookup lookup = ModelLookup.failingLookup();
+
+		public Builder withPath(ModelPath path) {
+			this.path = path;
+			return this;
+		}
+
+		public Builder withProjections(ModelProjection... projections) {
+			return withProjections(Arrays.asList(projections));
+		}
+
+		public Builder withProjections(List<ModelProjection> projections) {
+			this.projections = projections;
+			return this;
+		}
+
+		public Builder withConfigurer(ModelConfigurer configurer) {
+			this.configurer = configurer;
+			return this;
+		}
+
+		public Builder withListener(ModelNodeListener listener) {
+			this.listener = listener;
+			return this;
+		}
+
+		public Builder withLookup(ModelLookup lookup) {
+			this.lookup = lookup;
+			return this;
+		}
+
+		public ModelNode build() {
+			return new ModelNode(path, projections, configurer, listener, lookup);
+		}
 	}
 }

@@ -60,9 +60,9 @@ class NodePredicateTest {
 		assertThat(spec.getParent(), optionalWithValue(equalTo(path("foo"))));
 		assertThat(spec.getAncestor(), emptyOptional());
 		assertFalse(spec.isSatisfiedBy(node()));
-		assertTrue(spec.isSatisfiedBy(registeredNode()));
+		assertTrue(spec.isSatisfiedBy(node().register()));
+		assertTrue(spec.isSatisfiedBy(node().realize()));
 	}
-
 
 	interface MyType {}
 }

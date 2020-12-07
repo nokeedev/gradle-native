@@ -20,6 +20,11 @@ public interface ModelNodeListener {
 			public void registered(ModelNode modelNode) {
 				// do nothing
 			}
+
+			@Override
+			public void realized(ModelNode node) {
+				// do nothing
+			}
 		};
 	}
 
@@ -36,4 +41,11 @@ public interface ModelNodeListener {
 	 * @param node  the model node that transitioned to the registered state
 	 */
 	void registered(ModelNode node);
+
+	/**
+	 * When the model node transition to {@link ModelNode.State#Realized}.
+	 *
+	 * @param node  the model node that transitioned to the realized state
+	 */
+	void realized(ModelNode node);
 }

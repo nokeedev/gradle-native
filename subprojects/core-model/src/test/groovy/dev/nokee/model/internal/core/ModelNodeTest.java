@@ -3,16 +3,20 @@ package dev.nokee.model.internal.core;
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
 
-import java.util.Arrays;
-
+import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
+import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelTestUtils.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -22,7 +26,7 @@ class ModelNodeTest {
 	private final ModelProjection projection1 = mock(ModelProjection.class);
 	private final ModelProjection projection2 = mock(ModelProjection.class);
 	private final ModelProjection projection3 = mock(ModelProjection.class);
-	private final ModelNode subject = new ModelNode(path("po.ta.to"), Arrays.asList(projection1, projection2, projection3));
+	private final ModelNode subject = node("po.ta.to", projection1, projection2, projection3);
 
 	@ParameterizedTest
 	@EnumSource(Get.class)
@@ -75,48 +79,136 @@ class ModelNodeTest {
 
 	@Test
 	void nodeTransitionToRegisteredWhenRegistered() {
-		assertEquals(ModelNode.State.Registered, registeredNode().getState());
+		assertEquals(ModelNode.State.Registered, node().register().getState());
 	}
 
 	@Test
-	void newNodesAreAtLeastInitialized() {
+	void newNodesAreOnlyInitialized() {
 		assertTrue(node().isAtLeast(ModelNode.State.Initialized));
 		assertFalse(node().isAtLeast(ModelNode.State.Registered));
+		assertFalse(node().isAtLeast(ModelNode.State.Realized));
 	}
 
 	@Test
-	void registeredNodesAreAtLeastRegistered() {
-		assertTrue(registeredNode().isAtLeast(ModelNode.State.Initialized));
-		assertTrue(registeredNode().isAtLeast(ModelNode.State.Registered));
+	void registeredNodesAreAtMostRegistered() {
+		assertTrue(node().register().isAtLeast(ModelNode.State.Initialized));
+		assertTrue(node().register().isAtLeast(ModelNode.State.Registered));
+		assertFalse(node().register().isAtLeast(ModelNode.State.Realized));
+	}
+
+	@Test
+	void realizedNodesAreAtMostRealized() {
+		assertTrue(node().realize().isAtLeast(ModelNode.State.Initialized));
+		assertTrue(node().realize().isAtLeast(ModelNode.State.Registered));
+		assertTrue(node().realize().isAtLeast(ModelNode.State.Realized));
 	}
 
 	@Nested
 	class ModelNodeListenerContractTest {
 		private final ModelNodeListener listener = mock(ModelNodeListener.class);
+		private final ModelNode node = node(listener);
 
 		@Test
 		void callsBackWhenTheNodeIsInitialized() {
-			val node = node(listener);
 			verify(listener, only()).initialized(node);
 		}
 
-		@Test
-		void callsBackWhenTheNodeIsRegistered() {
-			val node = node(listener);
-			Mockito.reset(listener);
+		@Nested
+		class Register {
+			@BeforeEach
+			void resetListenerMock() {
+				Mockito.reset(listener);
+			}
 
-			node.register();
-			verify(listener, only()).registered(node);
+			@Test
+			void callsBackWhenTheNodeIsRegistered() {
+				node.register();
+			}
+
+			@Test
+			void callsBackOnlyOnceWhenMultipleRegister() {
+				node.register().register().register();
+			}
+
+			@AfterEach
+			void verifyRegisteredCalledOnlyOnce() {
+				verify(listener, only()).registered(node);
+			}
 		}
 
-		@Test
-		void callsBackOnlyOnceWhenMultipleRegister() {
-			val node = node(listener);
-			Mockito.reset(listener);
 
-			node.register().register().register();
-			verify(listener, only()).registered(node);
+		@Nested
+		class Realize {
+			@BeforeEach
+			void resetListenerMock() {
+				node.register();
+				Mockito.reset(listener);
+			}
+
+			@Test
+			void callsBackWhenTheNodeIsRealized() {
+				node.realize();
+			}
+
+			@Test
+			void callsBackOnlyOnceWhenMultipleRealize() {
+				node.realize().realize().realize();
+			}
+
+			@Test
+			void stayAsRealizeWhenRegisterIsCalledAfter() {
+				assertEquals(ModelNode.State.Realized, node.realize().register().getState());
+			}
+
+			@AfterEach
+			void verifyRegisteredCalledOnlyOnce() {
+				verify(listener, only()).realized(node);
+			}
 		}
+
+		@Nested
+		class DirectRealize {
+			@BeforeEach
+			void realizeNode() {
+				Mockito.reset(listener);
+				node.realize();
+			}
+
+			@Test
+			void stateIsRealized() {
+				assertEquals(ModelNode.State.Realized, node.getState());
+			}
+
+			@Test
+			void callsBackThoughRegisteredFollowedByRealized() {
+				val inOrder = Mockito.inOrder(listener);
+				inOrder.verify(listener, times(1)).registered(node);
+				inOrder.verify(listener, times(1)).realized(node);
+			}
+		}
+	}
+
+	@Test
+	void canAccessParentNode() {
+		val parentNode = node();
+		val childNode = childNode(parentNode);
+		assertThat(childNode.getParent(), optionalWithValue(equalTo(parentNode)));
+	}
+
+	@Test
+	void rootNodeHasNoParentNode() {
+		assertThat(rootNode().getParent(), emptyOptional());
+	}
+
+	@Test
+	void parentNodesAreRealize() {
+		val parentNode = node();
+		val childNode = childNode(parentNode);
+		childNode.realize();
+		assertAll(() -> {
+			assertThat(parentNode.getState(), equalTo(ModelNode.State.Realized));
+			assertThat(childNode.getState(), equalTo(ModelNode.State.Realized));
+		});
 	}
 
 	interface MyType {}

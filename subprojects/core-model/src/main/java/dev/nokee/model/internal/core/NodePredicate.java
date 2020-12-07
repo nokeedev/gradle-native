@@ -20,7 +20,7 @@ public abstract class NodePredicate {
 	 * Returns a model specification based on this predicate and the scoping path.
 	 *
 	 * @param path  the model path to scope the predicate
-	 * @return a {@link ModelSpec} for matching model nodes, never null.
+	 * @return a {@link ModelSpec} for matching model nodes, never null
 	 */
 	public ModelSpec scope(ModelPath path) {
 		return scope(path, matcher);
@@ -31,7 +31,7 @@ public abstract class NodePredicate {
 	/**
 	 * Creates a predicate that matches all direct descendants of the scoped path.
 	 *
-	 * @return a {@link NodePredicate} matching all direct descendants, never null.
+	 * @return a {@link NodePredicate} matching all direct descendants, never null
 	 */
 	public static NodePredicate allDirectDescendants() {
 		return new NodePredicate(alwaysTrue()) {
@@ -57,7 +57,7 @@ public abstract class NodePredicate {
 	 * Creates a predicate that further filter the matching nodes to only the one that can be viewed as the specified type.
 	 *
 	 * @param type  the filtering model node view type
-	 * @return a {@link NodePredicate} further matching the node's view type, never null.
+	 * @return a {@link NodePredicate} further matching the node's view type, never null
 	 */
 	public NodePredicate withType(ModelType<?> type) {
 		val matcher = ModelNodes.withType(type).and(this.matcher);
@@ -70,6 +70,12 @@ public abstract class NodePredicate {
 		};
 	}
 
+	/**
+	 * Creates a predicate that further filter the matching nodes to only the one that are at least at the specified state.
+	 *
+	 * @param state  the filtering mode node state
+	 * @return a {@link NodePredicate} further matching the node's state, never null
+	 */
 	public NodePredicate stateAtLeast(ModelNode.State state) {
 		val matcher = ModelNodes.stateAtLeast(state).and(this.matcher);
 		val parent = this;
