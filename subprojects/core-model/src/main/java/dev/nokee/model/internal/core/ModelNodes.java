@@ -74,7 +74,26 @@ public final class ModelNodes {
 	 * @return a predicate matching model node by state
 	 */
 	public static Predicate<ModelNode> stateAtLeast(ModelNode.State state) {
-		return node -> node.isAtLeast(state);
+		return new StateAtLeastPredicate(state);
+	}
+
+	@EqualsAndHashCode
+	private static final class StateAtLeastPredicate implements Predicate<ModelNode> {
+		private final ModelNode.State state;
+
+		private StateAtLeastPredicate(ModelNode.State state) {
+			this.state = state;
+		}
+
+		@Override
+		public boolean test(ModelNode node) {
+			return node.isAtLeast(state);
+		}
+
+		@Override
+		public String toString() {
+			return "ModelNodes.stateAtLeast(" + state + ")";
+		}
 	}
 
 	/**
