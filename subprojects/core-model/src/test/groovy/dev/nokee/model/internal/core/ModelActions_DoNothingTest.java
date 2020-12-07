@@ -1,5 +1,6 @@
 package dev.nokee.model.internal.core;
 
+import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.core.ModelActions.doNothing;
@@ -12,6 +13,15 @@ class ModelActions_DoNothingTest {
 	@Test
 	void doesNothing() {
 		assertDoesNotThrow(() -> doNothing().execute(node()));
+	}
+
+	@Test
+	@SuppressWarnings("UnstableApiUsage")
+	void checkEquals() {
+		new EqualsTester()
+			.addEqualityGroup(doNothing(), doNothing())
+			.addEqualityGroup((ModelAction) node -> { /* something */})
+			.testEquals();
 	}
 
 	@Test
