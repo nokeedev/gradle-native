@@ -14,7 +14,7 @@ import static dev.nokee.model.internal.core.ModelIdentifier.of;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
 import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
-import static dev.nokee.model.internal.core.ModelSpecs.alwaysTrue;
+import static dev.nokee.model.internal.core.ModelSpecs.satisfyAll;
 import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.NodeStateTransitionCollectingAction.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -108,7 +108,7 @@ public class DefaultModelRegistryIntegrationTest {
 
 		modelRegistry.register(ModelRegistration.of("a", MyType.class));
 		modelRegistry.register(ModelRegistration.of("b", MyType.class));
-		modelRegistry.configureMatching(alwaysTrue(), action);
+		modelRegistry.configureMatching(satisfyAll(), action);
 
 		assertThat(action.values,
 			contains(registered(root()), registered("a"), registered("b")));
@@ -118,7 +118,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canConfigureFutureNodesRegistered() {
 		val action = new NodeStateTransitionCollectingAction();
 
-		modelRegistry.configureMatching(alwaysTrue(), action);
+		modelRegistry.configureMatching(satisfyAll(), action);
 		modelRegistry.register(ModelRegistration.of("x", MyType.class));
 		modelRegistry.register(ModelRegistration.of("y", MyType.class));
 
@@ -130,7 +130,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void queryProviderRealizeNodeAndParent() {
 		val action = new NodeStateTransitionCollectingAction();
 
-		modelRegistry.configureMatching(alwaysTrue(), action);
+		modelRegistry.configureMatching(satisfyAll(), action);
 		modelRegistry.register(ModelRegistration.of("x", MyType.class)).get();
 
 		assertThat(action.values,

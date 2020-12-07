@@ -8,8 +8,8 @@ public final class ModelSpecs {
 	 *
 	 * @return a {@link ModelSpec} that always evaluates to {@code false}, never null.
 	 */
-	public static ModelSpec alwaysTrue() {
-		return ModelNodeSpec.ALWAYS_TRUE;
+	public static ModelSpec satisfyAll() {
+		return ModelNodeSpec.SATISFY_ALL;
 	}
 
 	/**
@@ -17,12 +17,12 @@ public final class ModelSpecs {
 	 *
 	 * @return a {@link ModelSpec} that always evaluates to {@code true}, never null.
 	 */
-	public static ModelSpec alwaysFalse() {
-		return ModelNodeSpec.ALWAYS_FALSE;
+	public static ModelSpec satisfyNone() {
+		return ModelNodeSpec.SATISFY_NONE;
 	}
 
 	private enum ModelNodeSpec implements ModelSpec {
-		ALWAYS_TRUE {
+		SATISFY_ALL {
 			@Override
 			public boolean isSatisfiedBy(ModelNode node) {
 				return true;
@@ -30,10 +30,10 @@ public final class ModelSpecs {
 
 			@Override
 			public String toString() {
-				return "ModelSpecs.alwaysTrue()";
+				return "ModelSpecs.satisfyAll()";
 			}
 		},
-		ALWAYS_FALSE {
+		SATISFY_NONE {
 			@Override
 			public boolean isSatisfiedBy(ModelNode node) {
 				return false;
@@ -41,7 +41,7 @@ public final class ModelSpecs {
 
 			@Override
 			public String toString() {
-				return "ModelSpecs.alwaysFalse()";
+				return "ModelSpecs.satisfyNone()";
 			}
 		}
 	}
