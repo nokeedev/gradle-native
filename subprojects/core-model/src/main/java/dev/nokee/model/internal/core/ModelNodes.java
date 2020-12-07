@@ -104,8 +104,8 @@ public final class ModelNodes {
 	 * @param <T> the projection type
 	 * @return a predicate matching model node by spec of a projection
 	 */
-	public static <T> Predicate<ModelNode> isSatisfiedByProjection(Class<T> type, Spec<? super T> spec) {
-		return new SatisfiedByProjectionSpecAdapter<>(ModelType.of(type), spec);
+	public static <T> Predicate<ModelNode> isSatisfiedByProjection(ModelType<T> type, Spec<? super T> spec) {
+		return new SatisfiedByProjectionSpecAdapter<>(type, spec);
 	}
 
 	private static final class SatisfiedByProjectionSpecAdapter<T> implements Predicate<ModelNode> {
