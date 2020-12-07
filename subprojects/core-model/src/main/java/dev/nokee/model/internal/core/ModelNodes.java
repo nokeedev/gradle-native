@@ -3,6 +3,7 @@ package dev.nokee.model.internal.core;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.specs.Spec;
 
 import java.util.function.Predicate;
 
@@ -54,6 +55,38 @@ public final class ModelNodes {
 	 */
 	public static Predicate<ModelNode> stateAtLeast(ModelNode.State state) {
 		return node -> node.isAtLeast(state);
+	}
+
+	/**
+	 * Returns a predicate filtering the model node that satisfy the specified spec for the projection type specified.
+	 *
+	 * @param type  the projection type to match using the spec
+	 * @param spec  the spec to satisfy using a projection of the model node
+	 * @param <T> the projection type
+	 * @return a predicate matching model node by spec of a projection
+	 */
+	public static <T> Predicate<ModelNode> isSatisfiedByProjection(Class<T> type, Spec<? super T> spec) {
+		return new SatisfiedByProjectionSpecAdapter<>(ModelType.of(type), spec);
+	}
+
+	private static final class SatisfiedByProjectionSpecAdapter<T> implements Predicate<ModelNode> {
+		private final ModelType<T> type;
+		private final Spec<? super T> spec;
+
+		private SatisfiedByProjectionSpecAdapter(ModelType<T> type, Spec<? super T> spec) {
+			this.type = type;
+			this.spec = spec;
+		}
+
+		@Override
+		public boolean test(ModelNode node) {
+			return node.canBeViewedAs(type) && spec.isSatisfiedBy(node.get(type));
+		}
+
+		@Override
+		public String toString() {
+			return "ModelNodes.isSatisfiedByProjection(" + type + ", " + spec + ")";
+		}
 	}
 
 	private static IllegalArgumentException objectNotDecoratedWithModelNode(Object target) {
