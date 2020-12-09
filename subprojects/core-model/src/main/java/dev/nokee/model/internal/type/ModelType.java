@@ -1,7 +1,12 @@
 package dev.nokee.model.internal.type;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 import lombok.EqualsAndHashCode;
+import lombok.val;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A type token to representing a resolved type.
@@ -11,16 +16,19 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 @SuppressWarnings("UnstableApiUsage")
 public final class ModelType<T> {
+	private static final Collection<ModelType<?>> OBJECT_TYPE = ImmutableList.of(of(Object.class));
 	private final TypeToken<T> type;
 
 	private ModelType(TypeToken<T> type) {
 		this.type = type;
 	}
 
+	// TODO: It feels strange the method is about types but returns a class
 	public Class<? super T> getRawType() {
 		return type.getRawType();
 	}
 
+	// TODO: It feels strange the method is about types but returns a class
 	@SuppressWarnings("unchecked")
 	public Class<T> getConcreteType() {
 		return (Class<T>) type.getRawType();
@@ -32,10 +40,85 @@ public final class ModelType<T> {
 
 	@Override
 	public String toString() {
-		return type.getRawType().toString();
+		return (type.getRawType().isInterface() ? "interface" : "class") + " " + type.toString();
 	}
 
+	/**
+	 * Creates a type representation for the specified class.
+	 *
+	 * @param type  a class
+	 * @param <T>  the type
+	 * @return a type representation of the specified class, never null.
+	 */
 	public static <T> ModelType<T> of(Class<T> type) {
 		return new ModelType<>(TypeToken.of(type));
+	}
+
+	/**
+	 * Creates a type representation for the specified type token.
+	 *
+	 * @param type  the type token
+	 * @param <T>  the type
+	 * @return a type representation of the specified type token, never null.
+	 * @see TypeOf  for complex type
+	 */
+	public static <T> ModelType<T> of(TypeOf<T> type) {
+		return new ModelType<>(type.type);
+	}
+
+	/**
+	 * Returns the type representing the superclass of this type.
+	 * If this type represents either the {@code Object} type, an interface, a primitive type, or void, then absent is returned.
+	 *
+	 * @return the type representing the superclass of this type if available, never null.
+	 */
+	public Optional<ModelType<? super T>> getSupertype() {
+		return Optional.ofNullable(type.getRawType().getSuperclass())
+			.map(type::getSupertype)
+			.map(ModelType::new);
+	}
+
+	/**
+	 * Determines the interfaces implemented by the class or interface represented by this object.
+	 *
+	 * @return a list of interfaces implemented by this type, never null.
+	 */
+	public List<ModelType<? super T>> getInterfaces() {
+		return Arrays.stream(type.getRawType().getInterfaces())
+			.map(this::cast)
+			.map(type::getSupertype)
+			.map(ModelType::new)
+			.collect(Collectors.toList());
+	}
+
+	@SuppressWarnings("unchecked")
+	private Class<? super T> cast(Class<?> type) {
+		return (Class<? super T>) type;
+	}
+
+	/**
+	 * Visits all types in a type hierarchy in breadth-first order, super-classes first and then implemented interfaces.
+	 *
+	 * @param visitor  the visitor to call for each type in the hierarchy.
+	 */
+	public void walkTypeHierarchy(Visitor<? extends T> visitor) {
+		val seenInterfaces = new HashSet<ModelType<?>>();
+		val queue = new ArrayDeque<ModelType<? super T>>();
+		queue.add(this);
+		ModelType<? super T> walkingType;
+		while ((walkingType = queue.poll()) != null) {
+			if (OBJECT_TYPE.contains(walkingType)) {
+				continue;
+			}
+
+			visitor.visitType(walkingType);
+
+			walkingType.getSupertype().ifPresent(queue::add);
+			walkingType.getInterfaces().stream().filter(seenInterfaces::add).forEach(queue::add);
+		}
+	}
+
+	public interface Visitor<T> {
+		void visitType(ModelType<? super T> type);
 	}
 }

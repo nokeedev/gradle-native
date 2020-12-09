@@ -1,25 +1,13 @@
 package dev.nokee.model.internal.type;
 
-import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.type.ModelType.of;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ModelTypeTest {
-	@Test
-	@SuppressWarnings("UnstableApiUsage")
-	void canEquals() {
-		new EqualsTester()
-				.addEqualityGroup(of(String.class), of(String.class))
-				.addEqualityGroup(of(Integer.class))
-				.testEquals();
-	}
-
 	@Test
 	void canAccessRawType() {
 		assertAll(() -> {
@@ -55,17 +43,5 @@ public class ModelTypeTest {
 		});
 	}
 
-	@Test
-	void checkToStringForInterfaceType() {
-		assertThat(of(MyInterfaceType.class), hasToString("interface dev.nokee.model.internal.type.ModelTypeTest$MyInterfaceType"));
-	}
-
-	@Test
-	void checkToStringForClassType() {
-		assertThat(of(MyClassType.class), hasToString("class dev.nokee.model.internal.type.ModelTypeTest$MyClassType"));
-	}
-
 	interface MyType {}
-	interface MyInterfaceType {}
-	static class MyClassType {}
 }
