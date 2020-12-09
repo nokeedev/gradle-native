@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+
 /**
  * A node in the model.
  */
@@ -141,6 +143,15 @@ public final class ModelNode {
 
 	public void applyTo(NodePredicate predicate, ModelAction action) {
 		configurer.configureMatching(predicate.scope(getPath()), action);
+	}
+
+	/**
+	 * Returns the direct descending nodes.
+	 *
+	 * @return a list of directly descending nodes, never null.
+	 */
+	public List<ModelNode> getDirectDescendants() {
+		return modelLookup.query(allDirectDescendants().scope(path)).get();
 	}
 
 	@Override

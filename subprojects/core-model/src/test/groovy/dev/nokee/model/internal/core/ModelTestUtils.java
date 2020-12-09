@@ -58,7 +58,6 @@ public final class ModelTestUtils {
 
 	public static ModelNode childNode(ModelNode parent, String name, Consumer<ModelNode.Builder> action) {
 		val builder = ModelNode.builder();
-		action.accept(builder);
 		builder.withPath(parent.getPath().child(name));
 		builder.withLookup(new ModelLookup() {
 			@Override
@@ -68,7 +67,13 @@ public final class ModelTestUtils {
 				}
 				throw new UnsupportedOperationException();
 			}
+
+			@Override
+			public Result query(ModelSpec spec) {
+				throw new UnsupportedOperationException();
+			}
 		});
+		action.accept(builder);
 		return builder.build();
 	}
 }

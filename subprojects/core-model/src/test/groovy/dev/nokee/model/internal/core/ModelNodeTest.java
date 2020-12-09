@@ -1,6 +1,7 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.testing.utils.TestUtils;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
@@ -15,6 +16,7 @@ import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelTestUtils.*;
+import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
@@ -226,6 +228,15 @@ class ModelNodeTest {
 		assertThat(rootNode(), hasToString("<root>"));
 		assertThat(parentNode, hasToString("foo"));
 		assertThat(childNode, hasToString("foo.bar"));
+	}
+
+	@Test
+	void canQueryAllDirectDescendantsOfNode() {
+		val modelLookup = mock(ModelLookup.class);
+		val parentNode = childNode(rootNode(), "parent", builder -> builder.withLookup(modelLookup));
+		when(modelLookup.query(any())).thenReturn(ModelLookup.Result.empty());
+		parentNode.getDirectDescendants();
+		verify(modelLookup, times(1)).query(allDirectDescendants().scope(path("parent")));
 	}
 
 	interface MyType {}

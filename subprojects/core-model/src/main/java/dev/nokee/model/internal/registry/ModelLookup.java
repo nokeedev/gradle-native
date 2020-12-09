@@ -2,6 +2,10 @@ package dev.nokee.model.internal.registry;
 
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelSpec;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A read-only supplier of {@link ModelNode}.
@@ -16,6 +20,40 @@ public interface ModelLookup {
 	ModelNode get(ModelPath path);
 
 	/**
+	 * Executes a complex query on the known model nodes.
+	 *
+	 * @param spec  the spec to match the nodes to select
+	 * @return a result instance containing matching nodes, never null.
+	 */
+	Result query(ModelSpec spec);
+
+	/**
+	 * A model lookup query result.
+	 */
+	interface Result {
+		/**
+		 * Returns all model nodes matching the query.
+		 *
+		 * @return a list of matching nodes, never null.
+		 */
+		List<ModelNode> get();
+
+		/**
+		 * Returns an empty query result.
+		 *
+		 * @return an empty query result, never null.
+		 */
+		static Result empty() {
+			return new Result() {
+				@Override
+				public List<ModelNode> get() {
+					return Collections.emptyList();
+				}
+			};
+		}
+	}
+
+	/**
 	 * Returns an always failing model lookup.
 	 *
 	 * @return a model lookup that always fails.
@@ -24,6 +62,11 @@ public interface ModelLookup {
 		return new ModelLookup() {
 			@Override
 			public ModelNode get(ModelPath path) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public Result query(ModelSpec spec) {
 				throw new UnsupportedOperationException();
 			}
 		};

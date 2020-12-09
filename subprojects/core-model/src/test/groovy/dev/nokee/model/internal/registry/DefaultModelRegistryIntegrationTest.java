@@ -1,5 +1,6 @@
 package dev.nokee.model.internal.registry;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.internal.core.*;
 import lombok.Value;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
+import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
 import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
@@ -181,6 +183,26 @@ public class DefaultModelRegistryIntegrationTest {
 			ModelPath path;
 			ModelNode.State state;
 		}
+	}
+
+	protected ModelNode registerNode(String path) {
+		modelRegistry.register(ModelRegistration.of(path, MyType.class));
+		return modelRegistry.get(path(path));
+	}
+
+	@Test
+	void canGetDirectNodeDescendants() {
+		registerNode("a");
+		val expectedNodes = ImmutableList.of(
+			registerNode("a.b0"),
+			registerNode("a.b1"),
+			registerNode("a.b2"));
+		registerNode("a.b2.c0");
+		registerNode("a.b2.c1");
+
+		assertThat("direct descendant of a should be only b*",
+			modelRegistry.get(path("a")).getDirectDescendants(),
+			contains(expectedNodes.toArray()));
 	}
 
 //	@Test

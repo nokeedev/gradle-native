@@ -80,6 +80,17 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	@Override
+	public Result query(ModelSpec spec) {
+		val result = nodes.values().stream().filter(spec::isSatisfiedBy).collect(ImmutableList.toImmutableList());
+		return new Result() {
+			@Override
+			public List<ModelNode> get() {
+				return result;
+			}
+		};
+	}
+
+	@Override
 	public void configureMatching(ModelSpec spec, ModelAction action) {
 		val configuration = new ModelConfiguration(spec, action);
 		for(val node : nodes.values()) {
