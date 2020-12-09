@@ -17,6 +17,7 @@ import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelTestUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -215,6 +216,16 @@ class ModelNodeTest {
 			assertThat(parentNode.getState(), equalTo(ModelNode.State.Realized));
 			assertThat(childNode.getState(), equalTo(ModelNode.State.Realized));
 		});
+	}
+
+	@Test
+	void checkToString() {
+		val parentNode = childNode(rootNode(), "foo");
+		val childNode = childNode(parentNode, "bar");
+
+		assertThat(rootNode(), hasToString("<root>"));
+		assertThat(parentNode, hasToString("foo"));
+		assertThat(childNode, hasToString("foo.bar"));
 	}
 
 	interface MyType {}

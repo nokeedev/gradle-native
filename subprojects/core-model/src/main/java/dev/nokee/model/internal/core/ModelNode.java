@@ -143,6 +143,11 @@ public final class ModelNode {
 		configurer.configureMatching(predicate.scope(getPath()), action);
 	}
 
+	@Override
+	public String toString() {
+		return path.toString();
+	}
+
 	/**
 	 * Returns a builder for a model node.
 	 *
