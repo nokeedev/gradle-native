@@ -1,16 +1,21 @@
 package dev.nokee.model.internal.core;
 
+import lombok.EqualsAndHashCode;
+import lombok.val;
+
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Predicates.alwaysTrue;
 
+@EqualsAndHashCode
 public abstract class NodePredicate {
 	private final Predicate<? super ModelNode> matcher;
 
 	private NodePredicate(Predicate<? super ModelNode> matcher) {
-		this.matcher = matcher;
+		this.matcher = Objects.requireNonNull(matcher);
 	}
 
 	/**
@@ -19,11 +24,11 @@ public abstract class NodePredicate {
 	 * @param path  the model path to scope the predicate
 	 * @return a {@link ModelSpec} for matching model nodes, never null
 	 */
-	public ModelSpec scope(ModelPath path) {
+	public final ModelSpec scope(ModelPath path) {
 		return scope(path, matcher);
 	}
 
-	protected abstract ModelSpec scope(ModelPath path, Predicate<? super ModelNode> predicate);
+	protected abstract ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher);
 
 	/**
 	 * Creates a predicate that matches all direct descendants of the scoped path.
@@ -31,7 +36,17 @@ public abstract class NodePredicate {
 	 * @return a {@link NodePredicate} matching all direct descendants, never null
 	 */
 	public static NodePredicate allDirectDescendants() {
-		return allDirectDescendants(alwaysTrue());
+		return new NodePredicate(alwaysTrue()) {
+			@Override
+			public ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
+				return new BasicPredicateSpec(null, path, null, matcher);
+			}
+
+			@Override
+			public String toString() {
+				return "NodePredicate.allDirectDescendants()";
+			}
+		};
 	}
 
 	/**
@@ -46,9 +61,15 @@ public abstract class NodePredicate {
 			public ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
 				return new BasicPredicateSpec(null, path, null, matcher);
 			}
+
+			@Override
+			public String toString() {
+				return "NodePredicate.allDirectDescendants(" + predicate + ")";
+			}
 		};
 	}
 
+	@EqualsAndHashCode
 	private static final class BasicPredicateSpec implements ModelSpec {
 		@Nullable
 		private final ModelPath path;
@@ -59,17 +80,46 @@ public abstract class NodePredicate {
 		@Nullable
 		private final ModelPath ancestor;
 		private final Predicate<? super ModelNode> matcher;
+		@EqualsAndHashCode.Exclude private final Predicate<ModelNode> predicate;
 
 		public BasicPredicateSpec(@Nullable ModelPath path, @Nullable ModelPath parent, @Nullable ModelPath ancestor, Predicate<? super ModelNode> matcher) {
 			this.path = path;
 			this.parent = parent;
 			this.ancestor = ancestor;
 			this.matcher = matcher;
+			this.predicate = toPathPredicate(this).and(toParentPredicate(this)).and(toAncestorPredicate(this)).and(matcher);
+		}
+
+		private static Predicate<ModelNode> toPathPredicate(ModelSpec spec) {
+			return spec.getPath().map(BasicPredicateSpec::asPathPredicate).orElse(alwaysTrue());
+		}
+
+		private static Predicate<ModelNode> asPathPredicate(ModelPath path) {
+			return node -> node.getPath().equals(path);
+		}
+
+		private static Predicate<ModelNode> toParentPredicate(ModelSpec spec) {
+			return spec.getParent().map(BasicPredicateSpec::asParentPredicate).orElse(alwaysTrue());
+		}
+
+		private static Predicate<ModelNode> asParentPredicate(ModelPath parent) {
+			return node -> {
+				val parentPath = node.getPath().getParent();
+				return parentPath.isPresent() && parentPath.get().equals(parent);
+			};
+		}
+
+		private static Predicate<ModelNode> toAncestorPredicate(ModelSpec spec) {
+			return spec.getAncestor().map(BasicPredicateSpec::asAncestorPredicate).orElse(alwaysTrue());
+		}
+
+		private static Predicate<ModelNode> asAncestorPredicate(ModelPath ancestor) {
+			throw new UnsupportedOperationException("Not yet implemented");
 		}
 
 		@Override
 		public boolean isSatisfiedBy(ModelNode node) {
-			return matcher.test(node);
+			return predicate.test(node);
 		}
 
 		@Override
@@ -85,6 +135,11 @@ public abstract class NodePredicate {
 		@Override
 		public Optional<ModelPath> getAncestor() {
 			return Optional.ofNullable(ancestor);
+		}
+
+		@Override
+		public Predicate<? super ModelNode> getMatcher() {
+			return matcher;
 		}
 	}
 }

@@ -1,6 +1,9 @@
 package dev.nokee.model.internal.core;
 
+import com.google.common.base.Predicates;
+
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * A predicate for matching model node more efficiently.
@@ -18,5 +21,9 @@ public interface ModelPredicate {
 
 	default Optional<ModelPath> getAncestor() {
 		return Optional.empty();
+	}
+
+	default Predicate<? super ModelNode> getMatcher() {
+		return Predicates.alwaysTrue();
 	}
 }

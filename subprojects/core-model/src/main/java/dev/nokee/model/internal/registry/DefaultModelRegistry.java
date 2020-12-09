@@ -6,10 +6,7 @@ import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static com.google.common.base.Predicates.alwaysTrue;
 
 public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer, ModelLookup {
 	private final ObjectFactory objectFactory;
@@ -116,45 +113,16 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	private static final class ModelConfiguration {
-		private final Predicate<ModelNode> predicate;
+		private final ModelSpec spec;
 		private final ModelAction action;
 
 		private ModelConfiguration(ModelSpec spec, ModelAction action) {
-			Objects.requireNonNull(spec);
-			this.predicate = toPathPredicate(spec).and(toParentPredicate(spec)).and(toAncestorPredicate(spec)).and(spec::isSatisfiedBy);
+			this.spec = Objects.requireNonNull(spec);
 			this.action = Objects.requireNonNull(action);
 		}
 
-		private static Predicate<ModelNode> toPathPredicate(ModelSpec spec) {
-			return spec.getPath().map(ModelConfiguration::asPathPredicate).orElse(alwaysTrue());
-		}
-
-		private static Predicate<ModelNode> asPathPredicate(ModelPath path) {
-			return node -> node.getPath().equals(path);
-		}
-
-		private static Predicate<ModelNode> toParentPredicate(ModelSpec spec) {
-			return spec.getParent().map(ModelConfiguration::asParentPredicate).orElse(alwaysTrue());
-		}
-
-		private static Predicate<ModelNode> asParentPredicate(ModelPath parent) {
-			return node -> {
-				val parentPath = node.getPath().getParent();
-				return parentPath.isPresent() && parentPath.get().equals(parent);
-			};
-		}
-
-		private static Predicate<ModelNode> toAncestorPredicate(ModelSpec spec) {
-			return spec.getAncestor().map(ModelConfiguration::asAncestorPredicate).orElse(alwaysTrue());
-		}
-
-		private static Predicate<ModelNode> asAncestorPredicate(ModelPath ancestor) {
-//			return node -> node.getPath().equals(path);
-			return alwaysTrue();
-		}
-
 		public void notifyFor(ModelNode node) {
-			if (predicate.test(node)) {
+			if (spec.isSatisfiedBy(node)) {
 				action.execute(node);
 			}
 		}
