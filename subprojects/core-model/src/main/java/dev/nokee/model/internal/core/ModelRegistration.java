@@ -11,27 +11,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
-
 public final class ModelRegistration<T> {
-	private final ModelIdentifier<T> identifier;
 	private final List<ModelProjection> projections;
+	private final ModelPath path;
+	private final ModelType<T> defaultProjectionType;
 
-	private ModelRegistration(ModelIdentifier<T> identifier, List<ModelProjection> projections) {
-		this.identifier = requireNonNull(identifier);
+	private ModelRegistration(ModelPath path, ModelType<T> defaultProjectionType, List<ModelProjection> projections) {
+		this.path = path;
+		this.defaultProjectionType = defaultProjectionType;
 		this.projections = projections;
 	}
 
+	// TODO: We should remove this...
 	public ModelIdentifier<T> getIdentifier() {
-		return identifier;
+		return ModelIdentifier.of(path, defaultProjectionType);
 	}
 
 	public ModelPath getPath() {
-		return identifier.getPath();
+		return path;
 	}
 
 	public ModelType<T> getType() {
-		return identifier.getType();
+		return defaultProjectionType;
 	}
 
 	public List<ModelProjection> getProjections() {
@@ -39,7 +40,7 @@ public final class ModelRegistration<T> {
 	}
 
 	public ModelRegistration<T> withProjections(List<ModelProjection> projections) {
-		return new ModelRegistration<>(identifier, projections);
+		return new ModelRegistration<>(path, defaultProjectionType, projections);
 	}
 
 	public static <T> ModelRegistration<T> of(String path, Class<T> type) {
@@ -88,7 +89,7 @@ public final class ModelRegistration<T> {
 		}
 
 		@SuppressWarnings("unchecked") // take the specified information for granted
-		public <S> Builder<S> withDefaultProjectionType(ModelType<S> type) {
+		public <S extends T> Builder<S> withDefaultProjectionType(ModelType<S> type) {
 			((Builder<S>) this).defaultProjectionType = type;
 			return (Builder<S>) this;
 		}
@@ -98,8 +99,10 @@ public final class ModelRegistration<T> {
 			return this;
 		}
 
+		// take for granted that whatever projection type is, it will project to <T>
+		@SuppressWarnings("unchecked")
 		public ModelRegistration<T> build() {
-			return new ModelRegistration<>(ModelIdentifier.of(path, (ModelType<T>)defaultProjectionType), projections);
+			return new ModelRegistration<>(path, (ModelType<T>)defaultProjectionType, projections);
 		}
 	}
 }
