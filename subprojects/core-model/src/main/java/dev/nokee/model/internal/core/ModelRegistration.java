@@ -22,11 +22,6 @@ public final class ModelRegistration<T> {
 		this.projections = projections;
 	}
 
-	// TODO: We should remove this...
-	public ModelIdentifier<T> getIdentifier() {
-		return ModelIdentifier.of(path, defaultProjectionType);
-	}
-
 	public ModelPath getPath() {
 		return path;
 	}

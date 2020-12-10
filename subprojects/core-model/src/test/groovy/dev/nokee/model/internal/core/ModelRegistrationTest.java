@@ -25,7 +25,6 @@ class ModelRegistrationTest {
 			val registration = ModelRegistration.of("a.b.c", MyType.class);
 			assertEquals(path("a.b.c"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getType());
-			assertEquals(of("a.b.c", MyType.class), registration.getIdentifier());
 		});
 	}
 
@@ -41,7 +40,6 @@ class ModelRegistrationTest {
 			val registration = unmanagedInstance(of("foo", MyType.class), mock(Factory.class));
 			assertEquals(path("foo"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getType());
-			assertEquals(of("foo", MyType.class), registration.getIdentifier());
 
 			// Assume projection of unmanaged instance
 			assertThat(registration.getProjections().size(), equalTo(1));
@@ -54,7 +52,6 @@ class ModelRegistrationTest {
 			val registration = bridgedInstance(of("foo", MyType.class), new MyType());
 			assertEquals(path("foo"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getType());
-			assertEquals(of("foo", MyType.class), registration.getIdentifier());
 
 			// Assume projection of bridged instance
 			assertThat(registration.getProjections().size(), equalTo(1));
