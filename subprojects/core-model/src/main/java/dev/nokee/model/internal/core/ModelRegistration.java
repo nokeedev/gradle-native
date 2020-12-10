@@ -45,7 +45,7 @@ public final class ModelRegistration<T> {
 	public static <T> ModelRegistration<T> of(String path, Class<T> type) {
 		return builder()
 			.withPath(ModelPath.path(path))
-			.withMainProjectionType(ModelType.of(type))
+			.withDefaultProjectionType(ModelType.of(type))
 			.withProjection(ManagedModelProjection.of(type))
 			.build();
 	}
@@ -53,7 +53,7 @@ public final class ModelRegistration<T> {
 	public static <T> ModelRegistration<T> bridgedInstance(ModelIdentifier<T> identifier, T instance) {
 		return builder()
 			.withPath(identifier.getPath())
-			.withMainProjectionType(identifier.getType())
+			.withDefaultProjectionType(identifier.getType())
 			.withProjection(UnmanagedInstanceModelProjection.of(instance))
 			.build();
 	}
@@ -61,7 +61,7 @@ public final class ModelRegistration<T> {
 	public static <T> ModelRegistration<T> unmanagedInstance(ModelIdentifier<T> identifier, Factory<T> factory) {
 		return builder()
 			.withPath(identifier.getPath())
-			.withMainProjectionType(identifier.getType())
+			.withDefaultProjectionType(identifier.getType())
 			.withProjection(new MemoizedModelProjection(UnmanagedCreatingModelProjection.of(identifier.getType(), factory)))
 			.build();
 	}
@@ -69,7 +69,7 @@ public final class ModelRegistration<T> {
 	public static <T> Builder<T> unmanagedInstanceBuilder(ModelIdentifier<T> identifier, Factory<T> factory) {
 		return builder()
 			.withPath(identifier.getPath())
-			.withMainProjectionType(identifier.getType())
+			.withDefaultProjectionType(identifier.getType())
 			.withProjection(new MemoizedModelProjection(UnmanagedCreatingModelProjection.of(identifier.getType(), factory)));
 	}
 
@@ -79,7 +79,7 @@ public final class ModelRegistration<T> {
 
 	public static final class Builder<T> {
 		private ModelPath path;
-		private ModelType<T> type;
+		private ModelType<? super T> defaultProjectionType = ModelType.untyped();
 		private final List<ModelProjection> projections = new ArrayList<>();
 
 		public Builder<T> withPath(ModelPath path) {
@@ -87,8 +87,9 @@ public final class ModelRegistration<T> {
 			return this;
 		}
 
-		public <S> Builder<S> withMainProjectionType(ModelType<S> type) {
-			((Builder<S>) this).type = type;
+		@SuppressWarnings("unchecked") // take the specified information for granted
+		public <S> Builder<S> withDefaultProjectionType(ModelType<S> type) {
+			((Builder<S>) this).defaultProjectionType = type;
 			return (Builder<S>) this;
 		}
 
@@ -98,7 +99,7 @@ public final class ModelRegistration<T> {
 		}
 
 		public ModelRegistration<T> build() {
-			return new ModelRegistration<>(ModelIdentifier.of(path, type), projections);
+			return new ModelRegistration<>(ModelIdentifier.of(path, (ModelType<T>)defaultProjectionType), projections);
 		}
 	}
 }

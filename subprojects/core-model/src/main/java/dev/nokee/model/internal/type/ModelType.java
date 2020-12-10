@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode
 @SuppressWarnings("UnstableApiUsage")
 public final class ModelType<T> {
+	private static final ModelType<Object> UNTYPED = ModelType.of(Object.class);
 	private static final Collection<ModelType<?>> OBJECT_TYPE = ImmutableList.of(of(Object.class));
 	private final TypeToken<T> type;
 
@@ -64,6 +65,10 @@ public final class ModelType<T> {
 	 */
 	public static <T> ModelType<T> of(TypeOf<T> type) {
 		return new ModelType<>(type.type);
+	}
+
+	public static ModelType<Object> untyped() {
+		return UNTYPED;
 	}
 
 	/**

@@ -4,6 +4,7 @@ import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.model.internal.type.ModelType.untyped;
 
 class ModelType_EqualsTest {
 	@Test
@@ -13,6 +14,7 @@ class ModelType_EqualsTest {
 			.addEqualityGroup(of(String.class), of(String.class))
 			.addEqualityGroup(of(Integer.class))
 			.addEqualityGroup(of(new TypeOf<MyList<String>>() {}), of(MyStringList.class).getSupertype().get())
+			.addEqualityGroup(untyped(), untyped())
 			.testEquals();
 	}
 
