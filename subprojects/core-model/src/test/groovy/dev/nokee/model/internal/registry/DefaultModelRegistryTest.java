@@ -19,14 +19,14 @@ public class DefaultModelRegistryTest {
 
 	@Test
 	void cannotRegisterNodeWhenParentDoesNotExists() {
-		assertThrows(IllegalArgumentException.class, () -> modelRegistry.register(ModelRegistration.of(ModelIdentifier.of("foo.bar", MyType.class))));
+		assertThrows(IllegalArgumentException.class, () -> modelRegistry.register(ModelRegistration.of("foo.bar", MyType.class)));
 	}
 
 	@Test
 	void canRegisterNestedNodeWhenAncestorExists() {
 		assertDoesNotThrow(() -> {
-			modelRegistry.register(ModelRegistration.of(ModelIdentifier.of("foo", MyType.class)));
-			modelRegistry.register(ModelRegistration.of(ModelIdentifier.of("foo.bar", MyType.class)));
+			modelRegistry.register(ModelRegistration.of("foo", MyType.class));
+			modelRegistry.register(ModelRegistration.of("foo.bar", MyType.class));
 		});
 	}
 

@@ -30,16 +30,6 @@ class ModelRegistrationTest {
 	}
 
 	@Test
-	void canCreateFromIdentifier() {
-		assertAll(() -> {
-			val registration = ModelRegistration.of(of("a.b.c", MyType.class));
-			assertEquals(path("a.b.c"), registration.getPath());
-			assertEquals(of(MyType.class), registration.getType());
-			assertEquals(of("a.b.c", MyType.class), registration.getIdentifier());
-		});
-	}
-
-	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkNulls() {
 		new NullPointerTester().setDefault(ModelIdentifier.class, of("x.y.z", MyType.class)).testAllPublicStaticMethods(ModelRegistration.class);
