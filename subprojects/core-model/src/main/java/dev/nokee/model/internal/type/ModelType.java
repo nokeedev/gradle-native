@@ -56,6 +56,18 @@ public final class ModelType<T> {
 	}
 
 	/**
+	 * Creates a type representation for the specified instance.
+	 *
+	 * @param instance  a instance
+	 * @param <T>  the type
+	 * @return a type representation of the specified instance, never null.
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> ModelType<T> typeOf(T instance) {
+		return new ModelType<>(TypeToken.of((Class<T>) instance.getClass()));
+	}
+
+	/**
 	 * Creates a type representation for the specified type token.
 	 *
 	 * @param type  the type token
