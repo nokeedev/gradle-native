@@ -6,6 +6,11 @@ import lombok.EqualsAndHashCode;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Represent a specific projection of a model node.
+ *
+ * @param <T>  the projection type
+ */
 // TODO: This may not be needed anymore...
 @EqualsAndHashCode
 public final class ModelIdentifier<T> implements DomainObjectIdentifier {
