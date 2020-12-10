@@ -24,7 +24,7 @@ public abstract class NodePredicate {
 	 * @param path  the model path to scope the predicate
 	 * @return a {@link ModelSpec} for matching model nodes, never null
 	 */
-	public final ModelSpec scope(ModelPath path) {
+	final ModelSpec scope(ModelPath path) {
 		return scope(path, matcher);
 	}
 
