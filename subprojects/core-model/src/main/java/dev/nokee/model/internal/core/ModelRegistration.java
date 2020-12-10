@@ -1,13 +1,13 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.Factory;
+import dev.nokee.model.internal.registry.ManagedModelProjection;
 import dev.nokee.model.internal.registry.MemoizedModelProjection;
 import dev.nokee.model.internal.registry.UnmanagedCreatingModelProjection;
 import dev.nokee.model.internal.registry.UnmanagedInstanceModelProjection;
 import dev.nokee.model.internal.type.ModelType;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,10 +16,6 @@ import static java.util.Objects.requireNonNull;
 public final class ModelRegistration<T> {
 	private final ModelIdentifier<T> identifier;
 	private final List<ModelProjection> projections;
-
-	private ModelRegistration(ModelIdentifier<T> identifier) {
-		this(identifier, Collections.emptyList());
-	}
 
 	private ModelRegistration(ModelIdentifier<T> identifier, List<ModelProjection> projections) {
 		this.identifier = requireNonNull(identifier);
@@ -47,7 +43,11 @@ public final class ModelRegistration<T> {
 	}
 
 	public static <T> ModelRegistration<T> of(String path, Class<T> type) {
-		return new ModelRegistration<>(ModelIdentifier.of(ModelPath.path(path), ModelType.of(type)));
+		return builder()
+			.withPath(ModelPath.path(path))
+			.withMainProjectionType(ModelType.of(type))
+			.withProjection(ManagedModelProjection.of(type))
+			.build();
 	}
 
 	public static <T> ModelRegistration<T> bridgedInstance(ModelIdentifier<T> identifier, T instance) {

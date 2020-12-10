@@ -49,7 +49,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	private ModelNode newNode(ModelRegistration<?> registration) {
-		registration = decorateProjectionWithModelNode(defaultManagedProjection(registration));
+		registration = decorateProjectionWithModelNode(bindManagedProjection(registration));
 		return ModelNode.builder()
 			.withPath(registration.getPath())
 			.withProjections(registration.getProjections())
@@ -59,11 +59,13 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			.build();
 	}
 
-	private <T> ModelRegistration<T> defaultManagedProjection(ModelRegistration<T> registration) {
-		if (registration.getProjections().isEmpty()) {
-			return registration.withProjections(ImmutableList.of(new MemoizedModelProjection(UnmanagedCreatingModelProjection.of(registration.getType(), () -> objectFactory.newInstance(registration.getType().getConcreteType())))));
-		}
-		return registration;
+	private <T> ModelRegistration<T> bindManagedProjection(ModelRegistration<T> registration) {
+		return registration.withProjections(registration.getProjections().stream().map(it -> {
+			if (it instanceof ManagedModelProjection) {
+				return ((ManagedModelProjection<?>) it).bind(objectFactory);
+			}
+			return it;
+		}).collect(Collectors.toList()));
 	}
 
 	private <T> ModelRegistration<T> decorateProjectionWithModelNode(ModelRegistration<T> registration) {
