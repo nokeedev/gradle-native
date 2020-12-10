@@ -27,6 +27,10 @@ public interface ModelLookup {
 	 */
 	Result query(ModelSpec spec);
 
+	// TODO: We could introduce a visitor pattern API to walk model nodes.
+	//   val result = ImmutableSet.<T>builder();
+	//   visit(directDescendants(projection(type).andThen(result::add)));
+
 	/**
 	 * A model lookup query result.
 	 */
