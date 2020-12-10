@@ -26,7 +26,7 @@ public final class ModelRegistration<T> {
 		return path;
 	}
 
-	public ModelType<T> getType() {
+	public ModelType<T> getDefaultProjectionType() {
 		return defaultProjectionType;
 	}
 

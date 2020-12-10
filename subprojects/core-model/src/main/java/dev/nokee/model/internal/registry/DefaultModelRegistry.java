@@ -45,7 +45,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		}
 
 		val node = newNode(registration).register();
-		return new ModelNodeBackedProvider<>(registration.getType(), node);
+		return new ModelNodeBackedProvider<>(registration.getDefaultProjectionType(), node);
 	}
 
 	private ModelNode newNode(ModelRegistration<?> registration) {
