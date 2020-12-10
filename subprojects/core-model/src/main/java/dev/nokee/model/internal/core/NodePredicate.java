@@ -1,7 +1,6 @@
 package dev.nokee.model.internal.core;
 
 import lombok.EqualsAndHashCode;
-import lombok.val;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -9,6 +8,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Predicates.alwaysTrue;
+import static dev.nokee.model.internal.core.ModelNodes.withParent;
 
 @EqualsAndHashCode
 public abstract class NodePredicate {
@@ -39,7 +39,7 @@ public abstract class NodePredicate {
 		return new NodePredicate(alwaysTrue()) {
 			@Override
 			public ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
-				return new BasicPredicateSpec(null, path, null, matcher);
+				return new BasicPredicateSpec(null, path, null, withParent(path).and(matcher));
 			}
 
 			@Override
@@ -59,7 +59,7 @@ public abstract class NodePredicate {
 		return new NodePredicate(predicate) {
 			@Override
 			public ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
-				return new BasicPredicateSpec(null, path, null, matcher);
+				return new BasicPredicateSpec(null, path, null, withParent(path).and(matcher));
 			}
 
 			@Override
@@ -87,7 +87,7 @@ public abstract class NodePredicate {
 			this.parent = parent;
 			this.ancestor = ancestor;
 			this.matcher = matcher;
-			this.predicate = toPathPredicate(this).and(toParentPredicate(this)).and(toAncestorPredicate(this)).and(matcher);
+			this.predicate = toPathPredicate(this).and(toAncestorPredicate(this)).and(matcher);
 		}
 
 		private static Predicate<ModelNode> toPathPredicate(ModelSpec spec) {
@@ -96,17 +96,6 @@ public abstract class NodePredicate {
 
 		private static Predicate<ModelNode> asPathPredicate(ModelPath path) {
 			return node -> node.getPath().equals(path);
-		}
-
-		private static Predicate<ModelNode> toParentPredicate(ModelSpec spec) {
-			return spec.getParent().map(BasicPredicateSpec::asParentPredicate).orElse(alwaysTrue());
-		}
-
-		private static Predicate<ModelNode> asParentPredicate(ModelPath parent) {
-			return node -> {
-				val parentPath = node.getPath().getParent();
-				return parentPath.isPresent() && parentPath.get().equals(parent);
-			};
 		}
 
 		private static Predicate<ModelNode> toAncestorPredicate(ModelSpec spec) {
