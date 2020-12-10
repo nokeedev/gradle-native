@@ -2,6 +2,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
@@ -237,6 +238,14 @@ class ModelNodeTest {
 		when(modelLookup.query(any())).thenReturn(ModelLookup.Result.empty());
 		parentNode.getDirectDescendants();
 		verify(modelLookup, times(1)).query(allDirectDescendants().scope(path("parent")));
+	}
+
+	@Test
+	void canRegisterNodeRelativeToCurrentNode() {
+		val modelRegistry = mock(ModelRegistry.class);
+		val parentNode = childNode(rootNode(), "parent", builder -> builder.withRegistry(modelRegistry));
+		parentNode.register(NodeRegistration.of("foo", MyType.class));
+		verify(modelRegistry, times(1)).register(ModelRegistration.of("parent.foo", MyType.class));
 	}
 
 	interface MyType {}

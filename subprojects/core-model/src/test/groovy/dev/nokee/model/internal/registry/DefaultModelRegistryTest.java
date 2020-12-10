@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static dev.nokee.model.internal.core.ModelPath.path;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -92,6 +94,20 @@ public class DefaultModelRegistryTest {
 			register("bar");
 			verify(action, times(1)).execute(any());
 		}
+	}
+
+	@Test
+	void canRegisterNodeRelativeToRootNode() {
+		assertThat("relative registration are performed from the root node",
+			subject.register(NodeRegistration.of("foo", MyType.class)), equalTo(modelRegistry.get("foo", MyType.class)));
+	}
+
+	@Test
+	void canRegisterNodeRelativeToNestedNode() {
+		subject.register(ModelRegistration.of("a", MyType.class));
+		assertThat("relative registration can also be performed from an arbitrary node",
+			subject.get(path("a")).register(NodeRegistration.of("foo", MyType.class)),
+			equalTo(modelRegistry.get("a.foo", MyType.class)));
 	}
 
 	interface MyType {}

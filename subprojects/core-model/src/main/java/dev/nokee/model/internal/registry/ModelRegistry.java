@@ -9,5 +9,6 @@ public interface ModelRegistry {
 	}
 	<T> ModelProvider<T> get(ModelIdentifier<T> identifier);
 
+	<T> ModelProvider<T> register(NodeRegistration<T> registration);
 	<T> ModelProvider<T> register(ModelRegistration<T> registration);
 }

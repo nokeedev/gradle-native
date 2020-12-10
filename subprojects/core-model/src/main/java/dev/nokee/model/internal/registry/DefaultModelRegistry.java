@@ -15,10 +15,12 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final Map<ModelPath, ModelNode> nodes = new LinkedHashMap<>();
 	private final List<ModelConfiguration> configurations = new ArrayList<>();
 	private final NodeStateListener nodeStateListener = new NodeStateListener();
+	private final ModelNode rootNode;
 
 	public DefaultModelRegistry(ObjectFactory objectFactory) {
 		this.objectFactory = objectFactory;
-		nodes.put(ModelPath.root(), createRootNode().register());
+		rootNode = createRootNode().register();
+		nodes.put(ModelPath.root(), rootNode);
 	}
 
 	private ModelNode createRootNode() {
@@ -27,6 +29,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			.withConfigurer(this)
 			.withLookup(this)
 			.withListener(nodeStateListener)
+			.withRegistry(this)
 			.build();
 	}
 
@@ -37,6 +40,11 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		}
 
 		return new ModelNodeBackedProvider<>(identifier.getType(), get(identifier.getPath()));
+	}
+
+	@Override
+	public <T> ModelProvider<T> register(NodeRegistration<T> registration) {
+		return rootNode.register(registration);
 	}
 
 	@Override
@@ -57,6 +65,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			.withConfigurer(this)
 			.withListener(nodeStateListener)
 			.withLookup(this)
+			.withRegistry(this)
 			.build();
 	}
 
