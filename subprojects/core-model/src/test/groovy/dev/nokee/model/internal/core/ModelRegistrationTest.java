@@ -1,14 +1,16 @@
 package dev.nokee.model.internal.core;
 
+import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.internal.Factory;
+import dev.nokee.model.internal.registry.ManagedModelProjection;
+import dev.nokee.model.internal.registry.UnmanagedInstanceModelProjection;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
 import static dev.nokee.model.internal.core.ModelPath.path;
-import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
-import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
+import static dev.nokee.model.internal.core.ModelRegistration.*;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -30,6 +32,25 @@ class ModelRegistrationTest {
 	@SuppressWarnings("UnstableApiUsage")
 	void checkNulls() {
 		new NullPointerTester().setDefault(ModelIdentifier.class, of("x.y.z", MyType.class)).testAllPublicStaticMethods(ModelRegistration.class);
+	}
+
+	@Test
+	@SuppressWarnings("UnstableApiUsage")
+	void checkEquals() {
+		new EqualsTester()
+			.addEqualityGroup(
+				ModelRegistration.of("po.ta.to", MyType.class),
+				ModelRegistration.of("po.ta.to", MyType.class))
+			.addEqualityGroup(ModelRegistration.of("to.ma.to", MyType.class))
+			.addEqualityGroup(
+				ModelRegistration.of("po.ta.to", MyOtherType.class),
+				builder().withPath(path("po.ta.to")).withProjection(ManagedModelProjection.of(MyOtherType.class)).build())
+			.addEqualityGroup(
+				builder().withPath(path("po.ta.to")).build(),
+				builder().withPath(path("po.ta.to")).withDefaultProjectionType(of(MyType.class)).build())
+			.addEqualityGroup(
+				builder().withPath(path("po.ta.to")).withProjection(UnmanagedInstanceModelProjection.of(new MyType())).build())
+			.testEquals();
 	}
 
 	@Test
@@ -57,4 +78,5 @@ class ModelRegistrationTest {
 	}
 
 	static class MyType {}
+	static class MyOtherType {}
 }

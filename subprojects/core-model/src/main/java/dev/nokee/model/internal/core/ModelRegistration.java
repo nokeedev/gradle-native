@@ -6,6 +6,7 @@ import dev.nokee.model.internal.registry.MemoizedModelProjection;
 import dev.nokee.model.internal.registry.UnmanagedCreatingModelProjection;
 import dev.nokee.model.internal.registry.UnmanagedInstanceModelProjection;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +17,11 @@ import java.util.Objects;
  *
  * @param <T>  the default projection type, provided for type-safety.
  */
+@EqualsAndHashCode
 public final class ModelRegistration<T> {
 	private final List<ModelProjection> projections;
 	private final ModelPath path;
-	private final ModelType<T> defaultProjectionType;
+	@EqualsAndHashCode.Exclude private final ModelType<T> defaultProjectionType;
 
 	private ModelRegistration(ModelPath path, ModelType<T> defaultProjectionType, List<ModelProjection> projections) {
 		this.path = path;
