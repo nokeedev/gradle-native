@@ -2,7 +2,10 @@ package dev.nokee.model.internal.registry;
 
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.EqualsAndHashCode;
 import org.gradle.api.model.ObjectFactory;
+
+import java.util.Objects;
 
 /**
  * Represent a managed model projection.
@@ -10,11 +13,12 @@ import org.gradle.api.model.ObjectFactory;
  *
  * @param <M>  the managed type of the model projection
  */
+@EqualsAndHashCode
 public final class ManagedModelProjection<M> implements ModelProjection {
 	private final ModelType<M> type;
 
 	private ManagedModelProjection(ModelType<M> type) {
-		this.type = type;
+		this.type = Objects.requireNonNull(type);
 	}
 
 	public static <T> ManagedModelProjection<T> of(Class<T> type) {
