@@ -5,15 +5,13 @@ import dev.nokee.internal.Factory;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
 import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -55,18 +53,6 @@ class ModelRegistrationTest {
 
 			// Assume projection of bridged instance
 			assertThat(registration.getProjections().size(), equalTo(1));
-		});
-	}
-
-	@Test
-	void canDerivedRegistrationWithDifferentProjections() {
-		val originalRegistration = bridgedInstance(of("foo", MyType.class), new MyType());
-		val derivedRegistration = originalRegistration.withProjections(Collections.emptyList());
-
-		assertAll(() -> {
-			assertThat("original registration has default projections", originalRegistration.getProjections(), hasSize(1));
-			assertThat("derived registration has no projections", derivedRegistration.getProjections(), empty());
-			assertThat("original registration is not the same instance than derived registration", originalRegistration, not(equalTo(derivedRegistration)));
 		});
 	}
 

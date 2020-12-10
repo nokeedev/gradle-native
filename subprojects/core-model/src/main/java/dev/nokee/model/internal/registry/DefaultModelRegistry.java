@@ -6,6 +6,8 @@ import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 
 import java.util.*;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer, ModelLookup {
@@ -49,27 +51,33 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	private ModelNode newNode(ModelRegistration<?> registration) {
-		registration = decorateProjectionWithModelNode(bindManagedProjection(registration));
 		return ModelNode.builder()
 			.withPath(registration.getPath())
-			.withProjections(registration.getProjections())
+			.withProjections(finalizeProjections(registration))
 			.withConfigurer(this)
 			.withListener(nodeStateListener)
 			.withLookup(this)
 			.build();
 	}
 
-	private <T> ModelRegistration<T> bindManagedProjection(ModelRegistration<T> registration) {
-		return registration.withProjections(registration.getProjections().stream().map(it -> {
-			if (it instanceof ManagedModelProjection) {
-				return ((ManagedModelProjection<?>) it).bind(objectFactory);
-			}
-			return it;
-		}).collect(Collectors.toList()));
+	private List<ModelProjection> finalizeProjections(ModelRegistration<?> registration) {
+		return registration.getProjections().stream()
+			.map(bindManagedProjectionWithInstantiator(objectFactory)
+				.andThen(decorateProjectionWithModelNode(() -> get(registration.getPath()))))
+			.collect(Collectors.toList());
 	}
 
-	private <T> ModelRegistration<T> decorateProjectionWithModelNode(ModelRegistration<T> registration) {
-		return registration.withProjections(registration.getProjections().stream().map(projection -> new ModelNodeDecoratingModelProjection(projection, () -> get(registration.getPath()))).collect(Collectors.toList()));
+	private static UnaryOperator<ModelProjection> bindManagedProjectionWithInstantiator(ObjectFactory objectFactory) {
+		return projection -> {
+			if (projection instanceof ManagedModelProjection) {
+				return ((ManagedModelProjection<?>) projection).bind(objectFactory);
+			}
+			return projection;
+		};
+	}
+
+	private static UnaryOperator<ModelProjection> decorateProjectionWithModelNode(Supplier<ModelNode> nodeSupplier) {
+		return projection -> new ModelNodeDecoratingModelProjection(projection, nodeSupplier);
 	}
 
 	@Override

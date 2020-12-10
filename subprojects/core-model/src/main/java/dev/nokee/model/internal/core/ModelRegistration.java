@@ -34,10 +34,6 @@ public final class ModelRegistration<T> {
 		return projections;
 	}
 
-	public ModelRegistration<T> withProjections(List<ModelProjection> projections) {
-		return new ModelRegistration<>(path, defaultProjectionType, projections);
-	}
-
 	public static <T> ModelRegistration<T> of(String path, Class<T> type) {
 		return builder()
 			.withPath(ModelPath.path(path))
