@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
 public final class ModelActions {
 	private ModelActions() {}
@@ -114,6 +115,33 @@ public final class ModelActions {
 		@Override
 		public String toString() {
 			return "ModelActions.register(" + registration + ")";
+		}
+	}
+
+	public static ModelAction onlyIf(Predicate<? super ModelNode> predicate, ModelAction action) {
+		return new OnlyIfModelAction(predicate, action);
+	}
+
+	@EqualsAndHashCode
+	private static final class OnlyIfModelAction implements ModelAction {
+		private final Predicate<? super ModelNode> predicate;
+		private final ModelAction action;
+
+		public OnlyIfModelAction(Predicate<? super ModelNode> predicate, ModelAction action) {
+			this.predicate = Objects.requireNonNull(predicate);
+			this.action = Objects.requireNonNull(action);
+		}
+
+		@Override
+		public void execute(ModelNode node) {
+			if (predicate.test(node)) {
+				action.execute(node);
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "ModelActions.onlyIf(" + predicate + ", " + action + ")";
 		}
 	}
 }
