@@ -1,9 +1,9 @@
 package dev.nokee.model.internal.registry;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.internal.core.*;
 import lombok.val;
-import org.gradle.api.model.ObjectFactory;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -11,14 +11,14 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer, ModelLookup {
-	private final ObjectFactory objectFactory;
+	private final Instantiator instantiator;
 	private final Map<ModelPath, ModelNode> nodes = new LinkedHashMap<>();
 	private final List<ModelConfiguration> configurations = new ArrayList<>();
 	private final NodeStateListener nodeStateListener = new NodeStateListener();
 	private final ModelNode rootNode;
 
-	public DefaultModelRegistry(ObjectFactory objectFactory) {
-		this.objectFactory = objectFactory;
+	public DefaultModelRegistry(Instantiator instantiator) {
+		this.instantiator = instantiator;
 		rootNode = createRootNode().register();
 		nodes.put(ModelPath.root(), rootNode);
 	}
@@ -71,15 +71,15 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	private List<ModelProjection> finalizeProjections(ModelRegistration<?> registration) {
 		return registration.getProjections().stream()
-			.map(bindManagedProjectionWithInstantiator(objectFactory)
+			.map(bindManagedProjectionWithInstantiator(instantiator)
 				.andThen(decorateProjectionWithModelNode(() -> get(registration.getPath()))))
 			.collect(Collectors.toList());
 	}
 
-	private static UnaryOperator<ModelProjection> bindManagedProjectionWithInstantiator(ObjectFactory objectFactory) {
+	private static UnaryOperator<ModelProjection> bindManagedProjectionWithInstantiator(Instantiator instantiator) {
 		return projection -> {
 			if (projection instanceof ManagedModelProjection) {
-				return ((ManagedModelProjection<?>) projection).bind(objectFactory);
+				return ((ManagedModelProjection<?>) projection).bind(instantiator);
 			}
 			return projection;
 		};

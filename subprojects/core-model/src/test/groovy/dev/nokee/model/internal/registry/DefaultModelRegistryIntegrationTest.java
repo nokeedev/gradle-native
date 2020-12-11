@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DefaultModelRegistryIntegrationTest {
-	private final DefaultModelRegistry modelRegistry = new DefaultModelRegistry(TestUtils.objectFactory());
+	private final DefaultModelRegistry modelRegistry = new DefaultModelRegistry(TestUtils.objectFactory()::newInstance);
 
 	@Test
 	void modelNodeRegistrationGivesAccessToProviderThatResolvesToTheNodeValue() {

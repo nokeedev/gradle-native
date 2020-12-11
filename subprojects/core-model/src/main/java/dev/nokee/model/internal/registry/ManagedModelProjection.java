@@ -1,5 +1,6 @@
 package dev.nokee.model.internal.registry;
 
+import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
@@ -44,10 +45,10 @@ public final class ManagedModelProjection<M> implements ModelProjection {
 	 * The model object will use the instantitator to create an instance.
 	 * The returned instance is memoized.
 	 *
-	 * @param objectFactory  the instantiator to use when creating an instance
+	 * @param instantiator  the instantiator to use when creating an instance
 	 * @return a model projection bounded to the specified instantiator, never null.
 	 */
-	public ModelProjection bind(ObjectFactory objectFactory) {
-		return new MemoizedModelProjection(UnmanagedCreatingModelProjection.of(type, () -> objectFactory.newInstance(type.getConcreteType())));
+	public ModelProjection bind(Instantiator instantiator) {
+		return new MemoizedModelProjection(UnmanagedCreatingModelProjection.of(type, () -> instantiator.newInstance(type.getConcreteType())));
 	}
 }

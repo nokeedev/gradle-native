@@ -16,7 +16,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class DefaultModelRegistryTest {
-	private final DefaultModelRegistry subject = new DefaultModelRegistry(TestUtils.objectFactory());
+	private final DefaultModelRegistry subject = new DefaultModelRegistry(TestUtils.objectFactory()::newInstance);
 	private final ModelRegistry modelRegistry = subject;
 
 	@Test

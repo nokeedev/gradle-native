@@ -30,7 +30,7 @@ class ManagedModelProjectionTest {
 	@EnumSource(Factory.class)
 	void canBindProjectionToAnInstantiator(Factory factory) {
 		assertAll(() -> {
-			val projection = factory.create(MyType.class).bind(TestUtils.objectFactory());
+			val projection = factory.create(MyType.class).bind(TestUtils.objectFactory()::newInstance);
 			assertTrue(projection.canBeViewedAs(ModelType.of(MyType.class)));
 			assertFalse(projection.canBeViewedAs(ModelType.of(WrongType.class)));
 
