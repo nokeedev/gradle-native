@@ -27,6 +27,13 @@ import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 //  We can disable those methods but that would be a hack.
 //  Instead we should extract the concept into the proper interface and classes.
 //  For now, we will move forward with the current implementation and see what will become obvious as we use the APIs.
+//  NOTE: It's also important to note that when accessing ModelNode from ModelLookup, we have access to all three mechanic mixed-in.
+//    We should not allow users arbitrarily accessing every mechanic of the node.
+//    It should be a truly immutable node they access...
+//    Maybe at the worst they can attach a configuration on the node but that can be problematic if we "finalize" the node,
+//      aka prevent further changes to the node.
+//    Actually, we shouldn't allow attaching configuration (applyTo, applyToSelf).
+//    Instead users should go through the ModelRegistry for that and access a thin layer that gives access to the allowed query and apply methods
 public final class ModelNode {
 	private final ModelPath path;
 	private final ModelLookup modelLookup;
