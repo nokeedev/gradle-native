@@ -8,7 +8,9 @@ import lombok.val;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
+import static dev.nokee.model.internal.core.ModelActions.onlyIf;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 
 // The major difference between {@link ModelRegistration} and {@link NodeRegistration} is the fact that ModelRegistration is absolute, e.g. starts from root node where NodeRegistration is relative, e.g. relative to a model node.
@@ -18,6 +20,7 @@ public final class NodeRegistration<T> {
 	private final String name;
 	private final ModelType<T> type;
 	private final List<ModelProjection> projections = new ArrayList<>();
+	private final List<ModelAction> actions = new ArrayList<>();
 
 	private NodeRegistration(String name, ModelType<T> type) {
 		this.name = name;
@@ -30,6 +33,7 @@ public final class NodeRegistration<T> {
 			.withDefaultProjectionType(type)
 			.withProjection(ManagedModelProjection.of(type));
 		projections.forEach(builder::withProjection);
+		actions.forEach(builder::action);
 		return builder.build();
 	}
 
@@ -39,6 +43,11 @@ public final class NodeRegistration<T> {
 
 	public NodeRegistration<T> withProjection(ModelProjection projection) {
 		projections.add(projection);
+		return this;
+	}
+
+	public NodeRegistration<T> action(Predicate<? super ModelNode> predicate, ModelAction action) {
+		actions.add(onlyIf(predicate, action));
 		return this;
 	}
 }

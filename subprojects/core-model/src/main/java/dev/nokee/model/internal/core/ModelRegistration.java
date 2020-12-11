@@ -20,13 +20,15 @@ import java.util.Objects;
 @EqualsAndHashCode
 public final class ModelRegistration<T> {
 	private final List<ModelProjection> projections;
+	private final List<ModelAction> actions;
 	private final ModelPath path;
 	@EqualsAndHashCode.Exclude private final ModelType<T> defaultProjectionType;
 
-	private ModelRegistration(ModelPath path, ModelType<T> defaultProjectionType, List<ModelProjection> projections) {
+	private ModelRegistration(ModelPath path, ModelType<T> defaultProjectionType, List<ModelProjection> projections, List<ModelAction> actions) {
 		this.path = path;
 		this.defaultProjectionType = defaultProjectionType;
 		this.projections = projections;
+		this.actions = actions;
 	}
 
 	public ModelPath getPath() {
@@ -76,10 +78,15 @@ public final class ModelRegistration<T> {
 		return new Builder<>();
 	}
 
+	public List<ModelAction> getActions() {
+		return actions;
+	}
+
 	public static final class Builder<T> {
 		private ModelPath path;
 		private ModelType<? super T> defaultProjectionType = ModelType.untyped();
 		private final List<ModelProjection> projections = new ArrayList<>();
+		private final List<ModelAction> actions = new ArrayList<>();
 
 		public Builder<T> withPath(ModelPath path) {
 			this.path = path;
@@ -97,10 +104,15 @@ public final class ModelRegistration<T> {
 			return this;
 		}
 
+		public Builder<T> action(ModelAction action) {
+			actions.add(action);
+			return this;
+		}
+
 		// take for granted that whatever projection type is, it will project to <T>
 		@SuppressWarnings("unchecked")
 		public ModelRegistration<T> build() {
-			return new ModelRegistration<>(path, (ModelType<T>)defaultProjectionType, projections);
+			return new ModelRegistration<>(path, (ModelType<T>)defaultProjectionType, projections, actions);
 		}
 	}
 }

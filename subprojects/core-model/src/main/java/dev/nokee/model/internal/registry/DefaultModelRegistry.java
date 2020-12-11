@@ -55,6 +55,9 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			throw new IllegalArgumentException("Has to be direct descendant");
 		}
 
+		configurations.add(new ModelConfiguration(it -> it.getPath().equals(registration.getPath()), it -> {
+			registration.getActions().forEach(action -> action.execute(it));
+		}));
 		val node = newNode(registration).register();
 		return new ModelNodeBackedProvider<>(registration.getDefaultProjectionType(), node);
 	}
@@ -142,7 +145,8 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		}
 
 		private void notify(ModelNode node) {
-			for (val configuration : configurations) {
+			for (int i = 0; i < configurations.size(); ++i) {
+				val configuration = configurations.get(i);
 				configuration.notifyFor(node);
 			}
 		}

@@ -24,6 +24,7 @@ class ModelRegistrationTest {
 			val registration = ModelRegistration.of("a.b.c", MyType.class);
 			assertEquals(path("a.b.c"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
+			assertThat(registration.getActions(), empty());
 		});
 	}
 
@@ -49,6 +50,8 @@ class ModelRegistrationTest {
 				builder().withPath(path("po.ta.to")).withDefaultProjectionType(of(MyType.class)).build())
 			.addEqualityGroup(
 				builder().withPath(path("po.ta.to")).withProjection(UnmanagedInstanceModelProjection.of(new MyType())).build())
+			.addEqualityGroup(
+				builder().withPath(path("po.ta.to")).action(ModelActions.doNothing()).build())
 			.testEquals();
 	}
 
@@ -58,6 +61,7 @@ class ModelRegistrationTest {
 			val registration = unmanagedInstance(of("foo", MyType.class), alwaysThrow());
 			assertEquals(path("foo"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
+			assertThat(registration.getActions(), empty());
 
 			// Assume projection of unmanaged instance
 			assertThat(registration.getProjections().size(), equalTo(1));
@@ -70,9 +74,22 @@ class ModelRegistrationTest {
 			val registration = bridgedInstance(of("foo", MyType.class), new MyType());
 			assertEquals(path("foo"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
+			assertThat(registration.getActions(), empty());
 
 			// Assume projection of bridged instance
 			assertThat(registration.getProjections().size(), equalTo(1));
+		});
+	}
+
+	@Test
+	void canAddActionToRegistration() {
+		assertAll(() -> {
+			val registration = ModelRegistration.builder()
+				.withPath(path("a.b.c"))
+				.withDefaultProjectionType(of(MyType.class))
+				.action(ModelActions.doNothing())
+				.build();
+			assertThat(registration.getActions(), contains(ModelActions.doNothing()));
 		});
 	}
 

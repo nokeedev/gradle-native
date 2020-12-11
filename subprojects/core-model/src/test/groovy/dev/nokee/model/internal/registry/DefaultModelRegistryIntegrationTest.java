@@ -11,12 +11,19 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.common.base.Predicates.alwaysTrue;
+import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.core.ModelActions.register;
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
+import static dev.nokee.model.internal.core.ModelNode.State.Realized;
+import static dev.nokee.model.internal.core.ModelNode.State.Registered;
+import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
 import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
 import static dev.nokee.model.internal.core.ModelSpecs.satisfyAll;
+import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.MyComponent.aComponent;
 import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.NodeStateTransitionCollectingAction.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -40,9 +47,6 @@ public class DefaultModelRegistryIntegrationTest {
 		val provider = modelRegistry.register(ModelRegistration.of("foo", MyType.class));
 		assertEquals(provider, modelRegistry.get("foo", MyType.class));
 	}
-
-	// TODO: register unmanaged node
-	// TODO: register node instance
 
 	@Test
 	void canRegisterBridgedInstanceModel() {
@@ -144,7 +148,7 @@ public class DefaultModelRegistryIntegrationTest {
 		val action = new NodeStateTransitionCollectingAction();
 
 		modelRegistry.register(ModelRegistration.of("i", MyType.class));
-		modelRegistry.configureMatching(node -> node.isAtLeast(ModelNode.State.Realized), action);
+		modelRegistry.configureMatching(node -> node.isAtLeast(Realized), action);
 		modelRegistry.register(ModelRegistration.of("j", MyType.class)).get();
 
 		assertThat(action.values, contains(realized(root()), realized("j")));
@@ -159,19 +163,19 @@ public class DefaultModelRegistryIntegrationTest {
 		}
 
 		static NodeStateTransition realized(String path) {
-			return new NodeStateTransition(ModelPath.path(path), ModelNode.State.Realized);
+			return new NodeStateTransition(ModelPath.path(path), Realized);
 		}
 
 		static NodeStateTransition realized(ModelPath path) {
-			return new NodeStateTransition(path, ModelNode.State.Realized);
+			return new NodeStateTransition(path, Realized);
 		}
 
 		static NodeStateTransition registered(String path) {
-			return new NodeStateTransition(ModelPath.path(path), ModelNode.State.Registered);
+			return new NodeStateTransition(ModelPath.path(path), Registered);
 		}
 
 		static NodeStateTransition registered(ModelPath path) {
-			return new NodeStateTransition(path, ModelNode.State.Registered);
+			return new NodeStateTransition(path, Registered);
 		}
 
 		static NodeStateTransition initialized(String path) {
@@ -217,6 +221,34 @@ public class DefaultModelRegistryIntegrationTest {
 		val paths = ImmutableList.<ModelPath>builder();
 		modelRegistry.query(it -> it.getPath().getName().startsWith("b")).map(ModelNode::getPath).forEach(paths::add);
 		assertThat(paths.build(), contains(path("a0.b1"), path("a0.b2"), path("a0.b3"), path("b4")));
+	}
+
+
+	@Test
+	void canRegisterComplexModelSimply() {
+		modelRegistry.register(aComponent("main"));
+		val paths = ImmutableList.<ModelPath>builder();
+		modelRegistry.query(alwaysTrue()::test).map(ModelNode::getPath).forEach(paths::add);
+		assertThat(paths.build(), contains(root(), path("main"), path("main.sources"), path("main.sources.foo"), path("main.sources.bar")));
+	}
+
+	interface MyComponent {
+		static NodeRegistration<MyComponent> aComponent(String name) {
+			return NodeRegistration.of(name, MyComponent.class)
+				.action(stateAtLeast(Registered), once(register(MyComponentSources.componentSources())));
+		}
+	}
+	interface MyComponentSources {
+		static NodeRegistration<MyComponentSources> componentSources() {
+			return NodeRegistration.of("sources", MyComponentSources.class)
+				.action(stateAtLeast(Registered), once(register(MySourceSet.aSourceSet("foo"))))
+				.action(stateAtLeast(Registered), once(register(MySourceSet.aSourceSet("bar"))));
+		}
+	}
+	interface MySourceSet {
+		static NodeRegistration<MySourceSet> aSourceSet(String name) {
+			return NodeRegistration.of(name, MySourceSet.class);
+		}
 	}
 
 //	@Test
