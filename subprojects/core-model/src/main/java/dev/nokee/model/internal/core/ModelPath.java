@@ -112,4 +112,16 @@ public final class ModelPath implements Iterable<String> {
 	public Iterator<String> iterator() {
 		return Iterators.forArray(components);
 	}
+
+	/**
+	 * Returns the name of the path, which is the last segment of the path.
+	 *
+	 * @return the name of the path, never null.
+	 */
+	public String getName() {
+		if (components.length == 0) {
+			return "";
+		}
+		return components[components.length - 1];
+	}
 }
