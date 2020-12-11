@@ -6,6 +6,7 @@ import dev.nokee.model.internal.core.ModelSpec;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * A read-only supplier of {@link ModelNode}.
@@ -43,6 +44,11 @@ public interface ModelLookup {
 		List<ModelNode> get();
 
 		/**
+		 * Returns a mapped.
+		 */
+		<R> List<R> map(Function<? super ModelNode, R> mapper);
+
+		/**
 		 * Returns an empty query result.
 		 *
 		 * @return an empty query result, never null.
@@ -51,6 +57,11 @@ public interface ModelLookup {
 			return new Result() {
 				@Override
 				public List<ModelNode> get() {
+					return Collections.emptyList();
+				}
+
+				@Override
+				public <R> List<R> map(Function<? super ModelNode, R> mapper) {
 					return Collections.emptyList();
 				}
 			};

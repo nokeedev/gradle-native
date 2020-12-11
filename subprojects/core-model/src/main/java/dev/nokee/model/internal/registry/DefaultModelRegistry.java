@@ -6,6 +6,7 @@ import dev.nokee.model.internal.core.*;
 import lombok.val;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -105,6 +106,11 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			@Override
 			public List<ModelNode> get() {
 				return result;
+			}
+
+			@Override
+			public <R> List<R> map(Function<? super ModelNode, R> mapper) {
+				return result.stream().map(mapper).collect(ImmutableList.toImmutableList());
 			}
 		};
 	}
