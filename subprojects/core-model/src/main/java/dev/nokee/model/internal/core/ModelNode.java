@@ -16,6 +16,17 @@ import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 /**
  * A node in the model.
  */
+// TODO: There is 3 concept mixed in here that we will need to extract:
+//  1) The model node itself, which contains path, state, projections and some convenience methods for walking the adjacent model nodes
+//  2) The discovery mechanic which allows users to register other nodes to this node
+//  3) The configuration mechanic which allows users to apply ModelAction to the node and descendants
+//  Each of these concept should only have access to a subset of the functionality here.
+//  For example, during discovery, it should not be possible to change the state of the node as well as "getting" a projection.
+//  You should be able to call register(NodeRegistration) and query "what are the projection types" (but not the projection instance).
+//  During configuration, it should not be allowed to call register(NodeRegistration).
+//  We can disable those methods but that would be a hack.
+//  Instead we should extract the concept into the proper interface and classes.
+//  For now, we will move forward with the current implementation and see what will become obvious as we use the APIs.
 public final class ModelNode {
 	private final ModelPath path;
 	private final ModelLookup modelLookup;
