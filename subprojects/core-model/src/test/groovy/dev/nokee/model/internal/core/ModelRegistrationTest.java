@@ -2,21 +2,20 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
-import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.registry.ManagedModelProjection;
 import dev.nokee.model.internal.registry.UnmanagedInstanceModelProjection;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.Factories.alwaysThrow;
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelRegistration.*;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 class ModelRegistrationTest {
 	@Test
@@ -56,7 +55,7 @@ class ModelRegistrationTest {
 	@Test
 	void canCreateRegistrationForInstance() {
 		assertAll(() -> {
-			val registration = unmanagedInstance(of("foo", MyType.class), mock(Factory.class));
+			val registration = unmanagedInstance(of("foo", MyType.class), alwaysThrow());
 			assertEquals(path("foo"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
 
