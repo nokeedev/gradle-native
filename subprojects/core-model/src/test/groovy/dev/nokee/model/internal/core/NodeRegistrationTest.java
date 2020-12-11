@@ -1,10 +1,12 @@
 package dev.nokee.model.internal.core;
 
+import com.google.common.testing.EqualsTester;
 import dev.nokee.model.internal.registry.ManagedModelProjection;
 import dev.nokee.model.internal.registry.UnmanagedInstanceModelProjection;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.junit.jupiter.api.Test;
+import spock.lang.Subject;
 
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -12,6 +14,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+@Subject(NodeRegistration.class)
 class NodeRegistrationTest {
 	@Test
 	void canCreateRegistrationOfManagedType() {
@@ -40,7 +43,17 @@ class NodeRegistrationTest {
 		});
 	}
 
-	// TODO: Add equal to model registration
+	@Test
+	@SuppressWarnings("UnstableApiUsage")
+	void checkEquals() {
+		new EqualsTester()
+			.addEqualityGroup(NodeRegistration.of("a", MyType.class), NodeRegistration.of("a", MyType.class))
+			.addEqualityGroup(NodeRegistration.of("c", MyType.class))
+			.addEqualityGroup(NodeRegistration.of("a", MyOtherType.class))
+			.addEqualityGroup(NodeRegistration.of("a", MyType.class).withProjection(UnmanagedInstanceModelProjection.of("foo")))
+			.testEquals();
+	}
 
 	interface MyType {}
+	interface MyOtherType {}
 }
