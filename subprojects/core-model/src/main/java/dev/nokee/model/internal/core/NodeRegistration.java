@@ -3,6 +3,7 @@ package dev.nokee.model.internal.core;
 import dev.nokee.model.internal.registry.ManagedModelProjection;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.val;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.List;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 
 // The major difference between {@link ModelRegistration} and {@link NodeRegistration} is the fact that ModelRegistration is absolute, e.g. starts from root node where NodeRegistration is relative, e.g. relative to a model node.
+@ToString
 @EqualsAndHashCode
 public final class NodeRegistration<T> {
 	private final String name;

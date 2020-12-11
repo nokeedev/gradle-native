@@ -40,6 +40,10 @@ public final class ModelTestUtils {
 		return childNode(ROOT, DEFAULT_NODE_NAME, builder -> builder.withProjections(projections));
 	}
 
+	public static ModelNode node(String name, Consumer<? super ModelNode.Builder> action) {
+		return childNode(ROOT, name, action);
+	}
+
 	public static ModelNode node(String path, ModelProjection... projections) {
 		ModelNode result = ROOT;
 		for (String name : ModelPath.path(path)) {
@@ -56,7 +60,7 @@ public final class ModelTestUtils {
 		return childNode(parent, name, builder -> {});
 	}
 
-	public static ModelNode childNode(ModelNode parent, String name, Consumer<ModelNode.Builder> action) {
+	public static ModelNode childNode(ModelNode parent, String name, Consumer<? super ModelNode.Builder> action) {
 		val builder = ModelNode.builder();
 		builder.withPath(parent.getPath().child(name));
 		builder.withLookup(new ModelLookup() {
