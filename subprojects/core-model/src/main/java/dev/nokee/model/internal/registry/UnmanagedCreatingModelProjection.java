@@ -3,6 +3,7 @@ package dev.nokee.model.internal.registry;
 import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.EqualsAndHashCode;
 
 import java.util.Objects;
 
@@ -13,12 +14,13 @@ import java.util.Objects;
  *
  * @param <M>  the type of the projection
  */
+@EqualsAndHashCode
 public final class UnmanagedCreatingModelProjection<M> implements ModelProjection {
 	private final ModelType<M> type;
 	private final Factory<M> factory;
 
 	public UnmanagedCreatingModelProjection(ModelType<M> type, Factory<M> factory) {
-		this.type = type;
+		this.type = Objects.requireNonNull(type);
 		this.factory = Objects.requireNonNull(factory);
 	}
 
@@ -34,5 +36,10 @@ public final class UnmanagedCreatingModelProjection<M> implements ModelProjectio
 	@Override
 	public <T> T get(ModelType<T> type) {
 		return type.getConcreteType().cast(factory.create());
+	}
+
+	@Override
+	public String toString() {
+		return "UnmanagedCreatingModelProjection.of(" + type + ", " + factory + ")";
 	}
 }
