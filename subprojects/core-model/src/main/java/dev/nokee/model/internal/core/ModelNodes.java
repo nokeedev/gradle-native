@@ -203,6 +203,35 @@ public final class ModelNodes {
 		}
 	}
 
+	/**
+	 * Returns a predicate that select the specified path in the model.
+	 *
+	 * @param path  the path to match a model node
+	 * @return a predicate matching a single model node of the specified path, never null.
+	 */
+	public static Predicate<ModelNode> withPath(ModelPath path) {
+		return new WithPathPredicate(path);
+	}
+
+	@EqualsAndHashCode
+	private static final class WithPathPredicate implements Predicate<ModelNode> {
+		private final ModelPath path;
+
+		public WithPathPredicate(ModelPath path) {
+			this.path = path;
+		}
+
+		@Override
+		public boolean test(ModelNode node) {
+			return node.getPath().equals(path);
+		}
+
+		@Override
+		public String toString() {
+			return "ModelNodes.withPath(" + path + ")";
+		}
+	}
+
 	private static IllegalArgumentException objectNotDecoratedWithModelNode(Object target) {
 		return new IllegalArgumentException(String.format("Object '%s' is not decorated with ModelNode.", target));
 	}
