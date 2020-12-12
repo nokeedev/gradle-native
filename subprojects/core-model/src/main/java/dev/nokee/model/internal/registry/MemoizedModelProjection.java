@@ -2,11 +2,13 @@ package dev.nokee.model.internal.registry;
 
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.EqualsAndHashCode;
 
 /**
  * A memoized projection that wraps a delegate projection.
  */
 // TODO: consider creating memoised and Unmanaged creating projection together
+@EqualsAndHashCode
 public final class MemoizedModelProjection implements ModelProjection {
 	private final ModelProjection delegate;
 	private Object value;

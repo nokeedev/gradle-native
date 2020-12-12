@@ -1,7 +1,9 @@
 package dev.nokee.model.internal.registry;
 
+import com.google.common.testing.EqualsTester;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -58,6 +60,16 @@ class MemoizedModelProjectionTest {
 	@Test
 	void alwaysReturnTheSameValue() {
 		assertEquals(subject.get(TYPE), subject.get(TYPE));
+	}
+
+	@Test
+	@SuppressWarnings("UnstableApiUsage")
+	void checkEquals() {
+		val projection = mock(ModelProjection.class);
+		new EqualsTester()
+			.addEqualityGroup(new MemoizedModelProjection(projection), new MemoizedModelProjection(projection))
+			.addEqualityGroup(new MemoizedModelProjection(mock(ModelProjection.class)))
+			.testEquals();
 	}
 
 	private static ModelProjection memoized(ModelProjection projection) {
