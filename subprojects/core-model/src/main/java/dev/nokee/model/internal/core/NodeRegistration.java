@@ -37,8 +37,8 @@ public final class NodeRegistration<T> {
 		return builder.build();
 	}
 
-	public static <T> NodeRegistration<T> of(String name, Class<T> type) {
-		return new NodeRegistration<>(name, ModelType.of(type));
+	public static <T> NodeRegistration<T> of(String name, ModelType<T> type) {
+		return new NodeRegistration<>(name, type);
 	}
 
 	public NodeRegistration<T> withProjection(ModelProjection projection) {

@@ -18,6 +18,7 @@ import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelTestUtils.*;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
@@ -25,8 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ModelNodeTest {
-	private static final ModelType<MyType> TYPE = ModelType.of(MyType.class);
-	private static final ModelType<WrongType> WRONG_TYPE = ModelType.of(WrongType.class);
+	private static final ModelType<MyType> TYPE = of(MyType.class);
+	private static final ModelType<WrongType> WRONG_TYPE = of(WrongType.class);
 	private final ModelProjection projection1 = mock(ModelProjection.class);
 	private final ModelProjection projection2 = mock(ModelProjection.class);
 	private final ModelProjection projection3 = mock(ModelProjection.class);
@@ -60,7 +61,7 @@ class ModelNodeTest {
 		GET_USING_MODEL_TYPE() {
 			@Override
 			public <T> T invoke(ModelNode target, Class<T> type) {
-				return target.get(ModelType.of(type));
+				return target.get(of(type));
 			}
 		},
 		GET_USING_CLASS() {
@@ -244,7 +245,7 @@ class ModelNodeTest {
 	void canRegisterNodeRelativeToCurrentNode() {
 		val modelRegistry = mock(ModelRegistry.class);
 		val parentNode = childNode(rootNode(), "parent", builder -> builder.withRegistry(modelRegistry));
-		parentNode.register(NodeRegistration.of("foo", MyType.class));
+		parentNode.register(NodeRegistration.of("foo", of(MyType.class)));
 		verify(modelRegistry, times(1)).register(ModelRegistration.of("parent.foo", MyType.class));
 	}
 

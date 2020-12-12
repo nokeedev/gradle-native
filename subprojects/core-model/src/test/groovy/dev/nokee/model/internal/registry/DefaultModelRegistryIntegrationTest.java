@@ -15,6 +15,7 @@ import static com.google.common.base.Predicates.alwaysTrue;
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelActions.register;
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.core.ModelNode.State.Realized;
 import static dev.nokee.model.internal.core.ModelNode.State.Registered;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
@@ -234,20 +235,20 @@ public class DefaultModelRegistryIntegrationTest {
 
 	interface MyComponent {
 		static NodeRegistration<MyComponent> aComponent(String name) {
-			return NodeRegistration.of(name, MyComponent.class)
+			return NodeRegistration.of(name, of(MyComponent.class))
 				.action(stateAtLeast(Registered), once(register(MyComponentSources.componentSources())));
 		}
 	}
 	interface MyComponentSources {
 		static NodeRegistration<MyComponentSources> componentSources() {
-			return NodeRegistration.of("sources", MyComponentSources.class)
+			return NodeRegistration.of("sources", of(MyComponentSources.class))
 				.action(stateAtLeast(Registered), once(register(MySourceSet.aSourceSet("foo"))))
 				.action(stateAtLeast(Registered), once(register(MySourceSet.aSourceSet("bar"))));
 		}
 	}
 	interface MySourceSet {
 		static NodeRegistration<MySourceSet> aSourceSet(String name) {
-			return NodeRegistration.of(name, MySourceSet.class);
+			return NodeRegistration.of(name, of(MySourceSet.class));
 		}
 	}
 
