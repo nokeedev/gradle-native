@@ -32,7 +32,7 @@ public final class ManagedModelProjection<M> implements ModelProjection {
 
 	@Override
 	public <T> boolean canBeViewedAs(ModelType<T> type) {
-		throw new UnsupportedOperationException("This projection is a placeholder and require to be bind with an instantiator.");
+		return type.isAssignableFrom(this.type);
 	}
 
 	@Override

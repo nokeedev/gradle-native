@@ -20,11 +20,16 @@ class ManagedModelProjectionTest {
 	@ParameterizedTest
 	@EnumSource(Factory.class)
 	void managedProjectionCannotBeUsedAsIs(Factory factory) {
-		assertAll(() -> {
-			val projection = factory.create(MyType.class);
-			assertThrows(UnsupportedOperationException.class, () -> projection.canBeViewedAs(of(MyType.class)));
-			assertThrows(UnsupportedOperationException.class, () -> projection.get(of(MyType.class)));
-		});
+		val projection = factory.create(MyType.class);
+		assertThrows(UnsupportedOperationException.class, () -> projection.get(of(MyType.class)));
+	}
+
+	@ParameterizedTest
+	@EnumSource(Factory.class)
+	void managedProjectionCanQueryViewedAs(Factory factory) {
+		val projection = factory.create(MyType.class);
+		assertTrue(projection.canBeViewedAs(of(MyType.class)));
+		assertFalse(projection.canBeViewedAs(of(WrongType.class)));
 	}
 
 	@ParameterizedTest
