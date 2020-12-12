@@ -40,6 +40,11 @@ public final class ManagedModelProjection<M> implements ModelProjection {
 		throw new UnsupportedOperationException("This projection is a placeholder and require to be bind with an instantiator.");
 	}
 
+	@Override
+	public String toString() {
+		return "ManagedModelProjection.of(" + type + ")";
+	}
+
 	/**
 	 * Returned a model projection bounded to the Gradle {@link ObjectFactory} instantiator.
 	 * The model object will use the instantitator to create an instance.

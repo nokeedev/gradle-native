@@ -3,14 +3,15 @@ package dev.nokee.model.internal.registry;
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.internal.testing.utils.TestUtils;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import spock.lang.Subject;
 
+import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasToString;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,8 +22,8 @@ class ManagedModelProjectionTest {
 	void managedProjectionCannotBeUsedAsIs(Factory factory) {
 		assertAll(() -> {
 			val projection = factory.create(MyType.class);
-			assertThrows(UnsupportedOperationException.class, () -> projection.canBeViewedAs(ModelType.of(MyType.class)));
-			assertThrows(UnsupportedOperationException.class, () -> projection.get(ModelType.of(MyType.class)));
+			assertThrows(UnsupportedOperationException.class, () -> projection.canBeViewedAs(of(MyType.class)));
+			assertThrows(UnsupportedOperationException.class, () -> projection.get(of(MyType.class)));
 		});
 	}
 
@@ -31,10 +32,10 @@ class ManagedModelProjectionTest {
 	void canBindProjectionToAnInstantiator(Factory factory) {
 		assertAll(() -> {
 			val projection = factory.create(MyType.class).bind(TestUtils.objectFactory()::newInstance);
-			assertTrue(projection.canBeViewedAs(ModelType.of(MyType.class)));
-			assertFalse(projection.canBeViewedAs(ModelType.of(WrongType.class)));
+			assertTrue(projection.canBeViewedAs(of(MyType.class)));
+			assertFalse(projection.canBeViewedAs(of(WrongType.class)));
 
-			assertThat(projection.get(ModelType.of(MyType.class)), isA(MyType.class));
+			assertThat(projection.get(of(MyType.class)), isA(MyType.class));
 		});
 	}
 
@@ -46,7 +47,7 @@ class ManagedModelProjectionTest {
 		},
 		FactoryUsingType {
 			<T> ManagedModelProjection<T> create(Class<T> type) {
-				return ManagedModelProjection.of(ModelType.of(type));
+				return ManagedModelProjection.of(of(type));
 			}
 		};
 
@@ -63,9 +64,15 @@ class ManagedModelProjectionTest {
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(ManagedModelProjection.of(MyType.class), ManagedModelProjection.of(ModelType.of(MyType.class)))
+			.addEqualityGroup(ManagedModelProjection.of(MyType.class), ManagedModelProjection.of(of(MyType.class)))
 			.addEqualityGroup(ManagedModelProjection.of(MyOtherType.class))
 			.testEquals();
+	}
+
+	@Test
+	void checkToString() {
+		assertThat(ManagedModelProjection.of(MyType.class),
+			hasToString("ManagedModelProjection.of(interface dev.nokee.model.internal.registry.ManagedModelProjectionTest$MyType)"));
 	}
 
 	interface MyType {}
