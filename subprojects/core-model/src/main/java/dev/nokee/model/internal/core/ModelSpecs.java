@@ -1,5 +1,9 @@
 package dev.nokee.model.internal.core;
 
+import lombok.EqualsAndHashCode;
+
+import java.util.function.Predicate;
+
 public final class ModelSpecs {
 	private ModelSpecs() {}
 
@@ -43,6 +47,35 @@ public final class ModelSpecs {
 			public String toString() {
 				return "ModelSpecs.satisfyNone()";
 			}
+		}
+	}
+
+	/**
+	 * Returns a predicate adapted as a model spec.
+	 *
+	 * @param predicate  the predicate to adapt
+	 * @return a {@link ModelSpec} delegating to the specified predicate, never null.
+	 */
+	public static ModelSpec of(Predicate<? super ModelNode> predicate) {
+		return new OfPredicateModelSpec(predicate);
+	}
+
+	@EqualsAndHashCode
+	private static final class OfPredicateModelSpec implements ModelSpec {
+		private final Predicate<? super ModelNode> predicate;
+
+		public OfPredicateModelSpec(Predicate<? super ModelNode> predicate) {
+			this.predicate = predicate;
+		}
+
+		@Override
+		public boolean isSatisfiedBy(ModelNode node) {
+			return predicate.test(node);
+		}
+
+		@Override
+		public String toString() {
+			return "ModelSpecs.of(" + predicate + ")";
 		}
 	}
 }
