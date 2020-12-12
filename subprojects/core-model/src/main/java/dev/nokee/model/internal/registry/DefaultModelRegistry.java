@@ -2,6 +2,7 @@ package dev.nokee.model.internal.registry;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.reflect.Instantiator;
+import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.*;
 import lombok.val;
 
@@ -35,7 +36,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	@Override
-	public <T> ModelProvider<T> get(ModelIdentifier<T> identifier) {
+	public <T> DomainObjectProvider<T> get(ModelIdentifier<T> identifier) {
 		if (!nodes.containsKey(identifier.getPath())) {
 			throw new IllegalStateException(String.format("Expected model node at '%s' but none was found", identifier.getPath()));
 		}
@@ -44,12 +45,12 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	@Override
-	public <T> ModelProvider<T> register(NodeRegistration<T> registration) {
+	public <T> DomainObjectProvider<T> register(NodeRegistration<T> registration) {
 		return rootNode.register(registration);
 	}
 
 	@Override
-	public <T> ModelProvider<T> register(ModelRegistration<T> registration) {
+	public <T> DomainObjectProvider<T> register(ModelRegistration<T> registration) {
 		// TODO: Should deny creating any model registration for root node
 		if (!registration.getPath().getParent().isPresent() || !nodes.containsKey(registration.getPath().getParent().get())) {
 			throw new IllegalArgumentException("Has to be direct descendant");

@@ -1,6 +1,7 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -177,7 +178,7 @@ public final class ModelNode {
 	 */
 	// TODO: Should we return a provider here?
 	//  We should return a provider here so the caller can chain a configuration on the object itself when realized.
-	public <T> ModelProvider<T> register(NodeRegistration<T> registration) {
+	public <T> DomainObjectProvider<T> register(NodeRegistration<T> registration) {
 		return modelRegistry.register(registration.scope(path));
 	}
 
@@ -263,17 +264,17 @@ public final class ModelNode {
 		private static ModelRegistry failingRegistry() {
 			return new ModelRegistry() {
 				@Override
-				public <T> ModelProvider<T> get(ModelIdentifier<T> identifier) {
+				public <T> DomainObjectProvider<T> get(ModelIdentifier<T> identifier) {
 					throw new UnsupportedOperationException();
 				}
 
 				@Override
-				public <T> ModelProvider<T> register(NodeRegistration<T> registration) {
+				public <T> DomainObjectProvider<T> register(NodeRegistration<T> registration) {
 					throw new UnsupportedOperationException();
 				}
 
 				@Override
-				public <T> ModelProvider<T> register(ModelRegistration<T> registration) {
+				public <T> DomainObjectProvider<T> register(ModelRegistration<T> registration) {
 					throw new UnsupportedOperationException();
 				}
 			};

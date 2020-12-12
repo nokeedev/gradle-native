@@ -1,7 +1,11 @@
 package dev.nokee.model.internal.registry;
 
 import com.google.common.base.Preconditions;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.core.ModelActions;
+import dev.nokee.model.internal.core.ModelIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ProviderUtils;
 import lombok.EqualsAndHashCode;
@@ -10,7 +14,7 @@ import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
 @EqualsAndHashCode
-public final class ModelNodeBackedProvider<T> implements ModelProvider<T> {
+public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T> {
 	private final ModelIdentifier<T> identifier;
 	private final ModelType<T> type;
 	@EqualsAndHashCode.Exclude private final ModelNode node;
