@@ -213,8 +213,8 @@ public final class ModelNodes {
 		return new WithPathPredicate(path);
 	}
 
-	@EqualsAndHashCode
-	private static final class WithPathPredicate implements Predicate<ModelNode> {
+	@EqualsAndHashCode(callSuper = false)
+	private static final class WithPathPredicate extends AbstractModelNodePredicate {
 		private final ModelPath path;
 
 		public WithPathPredicate(ModelPath path) {
