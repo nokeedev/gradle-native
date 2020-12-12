@@ -14,6 +14,7 @@ import java.util.Optional;
 /**
  * A path of a model node.
  */
+// TODO: There should be a way to warn when path 'a.b.c' is compared as 3 components vs 1 components.
 @EqualsAndHashCode
 public final class ModelPath implements Iterable<String> {
 	private static final char PATH_SEPARATOR = '.';
