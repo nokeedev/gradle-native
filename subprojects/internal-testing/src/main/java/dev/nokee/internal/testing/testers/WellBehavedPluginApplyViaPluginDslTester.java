@@ -1,7 +1,8 @@
-package dev.nokee.platform.nativebase.internal.plugins.testers;
+package dev.nokee.internal.testing.testers;
 
 import dev.gradleplugins.runnerkit.GradleExecutor;
 import dev.gradleplugins.runnerkit.GradleRunner;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -11,8 +12,6 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-
-import static org.apache.commons.io.FileUtils.writeStringToFile;
 
 public abstract class WellBehavedPluginApplyViaPluginDslTester {
 	protected abstract String getQualifiedPluginIdUnderTest();
@@ -25,7 +24,7 @@ public abstract class WellBehavedPluginApplyViaPluginDslTester {
 		out.println("plugins {");
 		out.println("    id '" + getQualifiedPluginIdUnderTest() + "'");
 		out.println("}");
-		writeStringToFile(buildFile, content.toString(), StandardCharsets.UTF_8);
+		FileUtils.writeStringToFile(buildFile, content.toString(), StandardCharsets.UTF_8);
 
 		configureRunner(GradleRunner.create(GradleExecutor.gradleTestKit()).inDirectory(workingDirectory)).build();
 	}

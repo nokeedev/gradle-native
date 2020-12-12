@@ -1,4 +1,4 @@
-package dev.nokee.platform.nativebase.internal.plugins.testers;
+package dev.nokee.internal.testing.testers;
 
 import org.gradle.api.Plugin;
 import org.junit.jupiter.api.DisplayName;

@@ -1,4 +1,4 @@
-package dev.nokee.platform.nativebase.internal.plugins.testers;
+package dev.nokee.internal.testing.testers;
 
 import dev.gradleplugins.runnerkit.GradleExecutor;
 import dev.gradleplugins.runnerkit.GradleRunner;

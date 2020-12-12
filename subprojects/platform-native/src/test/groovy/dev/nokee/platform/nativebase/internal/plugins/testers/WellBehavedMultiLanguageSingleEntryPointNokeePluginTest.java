@@ -1,5 +1,6 @@
 package dev.nokee.platform.nativebase.internal.plugins.testers;
 
+import dev.nokee.internal.testing.testers.WellBehavedPluginTester;
 import dev.nokee.platform.base.Component;
 import org.gradle.api.Plugin;
 import org.gradle.util.GUtil;
