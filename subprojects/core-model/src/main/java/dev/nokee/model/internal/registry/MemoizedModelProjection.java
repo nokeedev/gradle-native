@@ -6,6 +6,7 @@ import dev.nokee.model.internal.type.ModelType;
 /**
  * A memoized projection that wraps a delegate projection.
  */
+// TODO: consider creating memoised and Unmanaged creating projection together
 public final class MemoizedModelProjection implements ModelProjection {
 	private final ModelProjection delegate;
 	private Object value;
