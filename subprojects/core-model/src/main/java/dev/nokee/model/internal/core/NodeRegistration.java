@@ -22,23 +22,23 @@ public final class NodeRegistration<T> {
 	private final List<ModelProjection> projections = new ArrayList<>();
 	private final List<ModelAction> actions = new ArrayList<>();
 
-	private NodeRegistration(String name, ModelType<T> type) {
+	private NodeRegistration(String name, ModelType<T> type, ModelProjection defaultProjection) {
 		this.name = name;
 		this.type = type;
+		projections.add(defaultProjection);
 	}
 
 	ModelRegistration<T> scope(ModelPath path) {
 		val builder = builder()
 			.withPath(path.child(name))
-			.withDefaultProjectionType(type)
-			.withProjection(ManagedModelProjection.of(type));
+			.withDefaultProjectionType(type);
 		projections.forEach(builder::withProjection);
 		actions.forEach(builder::action);
 		return builder.build();
 	}
 
 	public static <T> NodeRegistration<T> of(String name, ModelType<T> type) {
-		return new NodeRegistration<>(name, type);
+		return new NodeRegistration<>(name, type, ManagedModelProjection.of(type));
 	}
 
 	public NodeRegistration<T> withProjection(ModelProjection projection) {
