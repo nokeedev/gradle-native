@@ -1,6 +1,7 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.testing.utils.TestUtils;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
@@ -13,8 +14,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
 
+import static com.google.common.base.Predicates.alwaysTrue;
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
+import static dev.nokee.model.internal.core.ModelNodes.withPath;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelTestUtils.*;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
@@ -247,6 +250,15 @@ class ModelNodeTest {
 		val parentNode = childNode(rootNode(), "parent", builder -> builder.withRegistry(modelRegistry));
 		parentNode.register(NodeRegistration.of("foo", of(MyType.class)));
 		verify(modelRegistry, times(1)).register(ModelRegistration.of("parent.foo", MyType.class));
+	}
+
+	@Test
+	void canApplyConfigurationToSelf() {
+		val modelConfigurer = mock(ModelConfigurer.class);
+		val node = node("foo", builder -> builder.withConfigurer(modelConfigurer));
+		node.applyToSelf(alwaysTrue(), ModelActions.doNothing());
+		verify(modelConfigurer, times(1))
+			.configureMatching(ModelSpecs.of(withPath(path("foo")).and(alwaysTrue())), ModelActions.doNothing());
 	}
 
 	interface MyType {}

@@ -10,7 +10,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
+import static dev.nokee.model.internal.core.ModelNodes.withPath;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 
 /**
@@ -186,6 +188,16 @@ public final class ModelNode {
 	 */
 	public List<ModelNode> getDirectDescendants() {
 		return modelLookup.query(allDirectDescendants().scope(path)).get();
+	}
+
+	/**
+	 * Apply a configuration action to this node only.
+	 *
+	 * @param predicate  the predicate to match before applying the action
+	 * @param action  the action to execute on the node
+	 */
+	public void applyToSelf(Predicate<? super ModelNode> predicate, ModelAction action) {
+		configurer.configureMatching(ModelSpecs.of(withPath(path).and(predicate)), action);
 	}
 
 	@Override
