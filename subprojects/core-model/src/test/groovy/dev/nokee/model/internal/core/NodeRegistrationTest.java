@@ -2,11 +2,14 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.testing.EqualsTester;
 import dev.nokee.model.internal.registry.ManagedModelProjection;
+import dev.nokee.model.internal.registry.MemoizedModelProjection;
+import dev.nokee.model.internal.registry.UnmanagedCreatingModelProjection;
 import dev.nokee.model.internal.registry.UnmanagedInstanceModelProjection;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
+import static dev.nokee.internal.Factories.alwaysThrow;
 import static dev.nokee.model.internal.core.ModelActions.doNothing;
 import static dev.nokee.model.internal.core.ModelActions.onlyIf;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
@@ -25,6 +28,17 @@ class NodeRegistrationTest {
 			assertThat(registration.getPath(), equalTo(path("a.b.c")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
 			assertThat(registration.getProjections(), contains(ManagedModelProjection.of(MyType.class)));
+			assertThat(registration.getActions(), empty());
+		});
+	}
+
+	@Test
+	void canCreateRegistrationOfUnmanagedType() {
+		val registration = NodeRegistration.unmanaged("z", of(MyType.class), alwaysThrow()).scope(path("x.y"));
+		assertAll(() -> {
+			assertThat(registration.getPath(), equalTo(path("x.y.z")));
+			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
+			assertThat(registration.getProjections(), contains(new MemoizedModelProjection(UnmanagedCreatingModelProjection.of(of(MyType.class), alwaysThrow()))));
 			assertThat(registration.getActions(), empty());
 		});
 	}
