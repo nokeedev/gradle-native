@@ -2,10 +2,13 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.registry.UnmanagedInstanceModelProjection;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public final class ModelTestUtils {
 	private static final String DEFAULT_NODE_NAME = "test";
@@ -40,6 +43,10 @@ public final class ModelTestUtils {
 		return childNode(ROOT, DEFAULT_NODE_NAME, builder -> builder.withProjections(projections));
 	}
 
+	public static ModelNode node(Object... projectionInstances) {
+		return childNode(ROOT, DEFAULT_NODE_NAME, builder -> builder.withProjections(Arrays.stream(projectionInstances).map(UnmanagedInstanceModelProjection::of).collect(Collectors.toList())));
+	}
+
 	public static ModelNode node(String name, Consumer<? super ModelNode.Builder> action) {
 		return childNode(ROOT, name, action);
 	}
@@ -48,6 +55,14 @@ public final class ModelTestUtils {
 		ModelNode result = ROOT;
 		for (String name : ModelPath.path(path)) {
 			result = childNode(result, name, builder -> builder.withProjections(projections));
+		}
+		return result;
+	}
+
+	public static ModelNode node(String path, Object... projectionInstances) {
+		ModelNode result = ROOT;
+		for (String name : ModelPath.path(path)) {
+			result = childNode(result, name, builder -> builder.withProjections(Arrays.stream(projectionInstances).map(UnmanagedInstanceModelProjection::of).collect(Collectors.toList())));
 		}
 		return result;
 	}
