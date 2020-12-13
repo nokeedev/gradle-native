@@ -211,21 +211,6 @@ public class DefaultModelRegistryIntegrationTest {
 	}
 
 	@Test
-	void canMapQueryResult() {
-		registerNode("a0");
-		registerNode("a0.b1");
-		registerNode("a0.b2");
-		registerNode("a0.b3");
-		registerNode("b4");
-		registerNode("a1");
-
-		val paths = ImmutableList.<ModelPath>builder();
-		modelRegistry.query(it -> it.getPath().getName().startsWith("b")).map(ModelNode::getPath).forEach(paths::add);
-		assertThat(paths.build(), contains(path("a0.b1"), path("a0.b2"), path("a0.b3"), path("b4")));
-	}
-
-
-	@Test
 	void canRegisterComplexModelSimply() {
 		modelRegistry.register(aComponent("main"));
 		val paths = ImmutableList.<ModelPath>builder();

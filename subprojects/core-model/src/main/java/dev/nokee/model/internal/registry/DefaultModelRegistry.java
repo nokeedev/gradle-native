@@ -7,7 +7,6 @@ import dev.nokee.model.internal.core.*;
 import lombok.val;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -106,17 +105,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	@Override
 	public Result query(ModelSpec spec) {
 		val result = nodes.values().stream().filter(spec::isSatisfiedBy).collect(ImmutableList.toImmutableList());
-		return new Result() {
-			@Override
-			public List<ModelNode> get() {
-				return result;
-			}
-
-			@Override
-			public <R> List<R> map(Function<? super ModelNode, R> mapper) {
-				return result.stream().map(mapper).collect(ImmutableList.toImmutableList());
-			}
-		};
+		return new ModelLookupDefaultResult(result);
 	}
 
 	@Override

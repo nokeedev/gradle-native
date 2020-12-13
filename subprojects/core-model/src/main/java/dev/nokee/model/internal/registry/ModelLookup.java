@@ -4,8 +4,8 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelSpec;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -44,9 +44,18 @@ public interface ModelLookup {
 		List<ModelNode> get();
 
 		/**
-		 * Returns a mapped.
+		 * Returns the result mapped using the specified mapper function.
+		 *
+		 * @return a list of the matching nodes mapped using the mapper function, never null.
 		 */
 		<R> List<R> map(Function<? super ModelNode, R> mapper);
+
+		/**
+		 * Performs the given action for each element of the results.
+		 *
+		 * @param action  the action to be performed for each element
+		 */
+		void forEach(Consumer<? super ModelNode> action);
 
 		/**
 		 * Returns an empty query result.
@@ -54,17 +63,7 @@ public interface ModelLookup {
 		 * @return an empty query result, never null.
 		 */
 		static Result empty() {
-			return new Result() {
-				@Override
-				public List<ModelNode> get() {
-					return Collections.emptyList();
-				}
-
-				@Override
-				public <R> List<R> map(Function<? super ModelNode, R> mapper) {
-					return Collections.emptyList();
-				}
-			};
+			return ModelLookupEmptyResult.INSTANCE;
 		}
 	}
 
