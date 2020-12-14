@@ -176,6 +176,8 @@ public final class ModelNode {
 	 */
 	// TODO: Should we return a provider here?
 	//  We should return a provider here so the caller can chain a configuration on the object itself when realized.
+	//  We should not return a provider here, it's crossing wires in the implementation. It should return only the ModelNode
+	//  On ModelRegistry, we can return a provider for NodeRegistration which would be a convenience only to bridge with the ModelRegistration API.
 	public <T> DomainObjectProvider<T> register(NodeRegistration<T> registration) {
 		return modelRegistry.register(registration.scope(path));
 	}
