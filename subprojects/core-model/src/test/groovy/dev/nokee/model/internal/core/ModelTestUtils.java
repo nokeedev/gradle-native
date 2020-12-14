@@ -1,6 +1,8 @@
 package dev.nokee.model.internal.core;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.utils.TestUtils;
+import dev.nokee.model.internal.registry.ManagedModelProjection;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.UnmanagedInstanceModelProjection;
 import dev.nokee.model.internal.type.ModelType;
@@ -16,19 +18,7 @@ public final class ModelTestUtils {
 	private ModelTestUtils() {}
 
 	public static ModelProjection projectionOf(Class<?> projectionType) {
-		return new ModelProjection() {
-			private final Object instance = TestUtils.objectFactory().newInstance(projectionType);
-
-			@Override
-			public <T> boolean canBeViewedAs(ModelType<T> type) {
-				return ModelType.of(projectionType).isAssignableFrom(type);
-			}
-
-			@Override
-			public <T> T get(ModelType<T> type) {
-				return type.getConcreteType().cast(instance);
-			}
-		};
+		return UnmanagedInstanceModelProjection.of(TestUtils.objectFactory().newInstance(projectionType));
 	}
 
 	public static ModelNode rootNode() {
@@ -51,10 +41,26 @@ public final class ModelTestUtils {
 		return childNode(ROOT, name, action);
 	}
 
-	public static ModelNode node(String path, ModelProjection... projections) {
+	public static ModelNode node(String path) {
 		ModelNode result = ROOT;
 		for (String name : ModelPath.path(path)) {
-			result = childNode(result, name, builder -> builder.withProjections(projections));
+			result = childNode(result, name);
+		}
+		return result;
+	}
+
+	public static ModelNode node(String path, ModelProjection projection, ModelProjection... projections) {
+		ModelNode result = ROOT;
+		for (String name : ModelPath.path(path)) {
+			result = childNode(result, name, builder -> builder.withProjections(ImmutableList.<ModelProjection>builder().add(projection).add(projections).build()));
+		}
+		return result;
+	}
+
+	public static ModelNode node(String path, Class<?> projectionType, Class<?>... projectionTypes) {
+		ModelNode result = ROOT;
+		for (String name : ModelPath.path(path)) {
+			result = childNode(result, name, builder -> builder.withProjections(ImmutableList.<Class<?>>builder().add(projectionType).add(projectionTypes).build().stream().map(ModelType::of).map(ManagedModelProjection::of).collect(Collectors.toList())));
 		}
 		return result;
 	}
