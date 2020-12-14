@@ -237,6 +237,33 @@ public class DefaultModelRegistryIntegrationTest {
 		}
 	}
 
+	@Test
+	void canCheckExistingDescendantNode() {
+		val parent = registerNode("foo");
+		registerNode("foo.bar");
+		assertTrue(parent.hasDescendant("bar"), "existing child node can be checked from parent node");
+	}
+
+	@Test
+	void canCheckNonExistingDescendantNode() {
+		val parent = registerNode("foo");
+		assertFalse(parent.hasDescendant("bar"), "non-existing child node can be checked from parent node");
+	}
+
+	@Test
+	void canGetExistingDescendantNode() {
+		val parent = registerNode("foo");
+		val child = registerNode("foo.bar");
+		assertThat("existing child node can query from parent node", parent.getDescendant("bar"), equalTo(child));
+	}
+
+	@Test
+	void throwsExceptionWhenGettingNonExistingDescendantNode() {
+		val parent = registerNode("foo");
+		assertThrows(IllegalArgumentException.class, () -> parent.getDescendant("bar"),
+			"non-existing child node cannot be queried from parent node");
+	}
+
 //	@Test
 //	void canAccessModelNodeOnManagedType() {
 //		val provider = modelRegistry.register(unmanagedInstance(of("a", ModelNodeAccessingType.class), () -> TestUtils.objectFactory().newInstance(ModelNodeAccessingType.class)));

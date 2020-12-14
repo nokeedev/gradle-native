@@ -262,6 +262,22 @@ class ModelNodeTest {
 	}
 
 	@Test
+	void canGetDescendantNode() {
+		val modelLookup = mock(ModelLookup.class);
+		val node = node("foo", builder -> builder.withLookup(modelLookup));
+		node.getDescendant("bar");
+		verify(modelLookup, times(1)).get(path("foo.bar"));
+	}
+
+	@Test
+	void canHasDescendantNode() {
+		val modelLookup = mock(ModelLookup.class);
+		val node = node("foo", builder -> builder.withLookup(modelLookup));
+		node.hasDescendant("bar");
+		verify(modelLookup, times(1)).has(path("foo.bar"));
+	}
+
+	@Test
 	void canGetTypeDescriptionOfNode() {
 		assertThat(node("a", MyType.class).getTypeDescription(), optionalWithValue(equalTo("interface dev.nokee.model.internal.core.ModelNodeTest$MyType")));
 	}

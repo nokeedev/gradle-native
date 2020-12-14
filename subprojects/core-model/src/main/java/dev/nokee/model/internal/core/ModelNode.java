@@ -189,6 +189,14 @@ public final class ModelNode {
 		return modelLookup.query(allDirectDescendants().scope(path)).get();
 	}
 
+	public ModelNode getDescendant(String name) {
+		return modelLookup.get(path.child(name));
+	}
+
+	public boolean hasDescendant(String name) {
+		return modelLookup.has(path.child(name));
+	}
+
 	/**
 	 * Returns the main projection type description of this node.
 	 * In practice, this describes the type of the Object projection of this node.
