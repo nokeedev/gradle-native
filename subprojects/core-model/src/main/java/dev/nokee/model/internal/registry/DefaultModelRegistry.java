@@ -97,7 +97,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	public ModelNode get(ModelPath path) {
 		Objects.requireNonNull(path);
 		if (!nodes.containsKey(path)) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Element at '" + path + "' wasn't found.");
 		}
 		return nodes.get(path);
 	}
@@ -106,6 +106,11 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	public Result query(ModelSpec spec) {
 		val result = nodes.values().stream().filter(spec::isSatisfiedBy).collect(ImmutableList.toImmutableList());
 		return new ModelLookupDefaultResult(result);
+	}
+
+	@Override
+	public boolean has(ModelPath path) {
+		return nodes.containsKey(Objects.requireNonNull(path));
 	}
 
 	@Override

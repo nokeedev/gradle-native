@@ -97,6 +97,11 @@ public final class ModelTestUtils {
 			public Result query(ModelSpec spec) {
 				throw new UnsupportedOperationException();
 			}
+
+			@Override
+			public boolean has(ModelPath path) {
+				throw new UnsupportedOperationException();
+			}
 		});
 		action.accept(builder);
 		return builder.build();

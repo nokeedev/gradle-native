@@ -95,6 +95,21 @@ public class DefaultModelRegistryTest {
 			register("bar");
 			verify(action, times(1)).execute(any());
 		}
+
+		@Test
+		void rootNodeAlwaysExists() {
+			assertTrue(modelLookup.has(ModelPath.root()), "root node always exists");
+		}
+
+		@Test
+		void canCheckNonExistingNode() {
+			assertFalse(modelLookup.has(path("foo")), "non-existing node does not exists");
+		}
+
+		@Test
+		void canCheckExistingNode() {
+			assertTrue(modelLookup.has(register("foo")), "existing node exists");
+		}
 	}
 
 	@Test
