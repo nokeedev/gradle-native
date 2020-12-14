@@ -19,10 +19,6 @@ public final class ManagedModelProjection<M> extends TypeCompatibilityModelProje
 		super(type);
 	}
 
-	public static <T> ManagedModelProjection<T> of(Class<T> type) {
-		return new ManagedModelProjection<>(ModelType.of(type));
-	}
-
 	public static <T> ManagedModelProjection<T> of(ModelType<T> type) {
 		return new ManagedModelProjection<>(type);
 	}

@@ -44,7 +44,7 @@ class ModelRegistrationTest {
 			.addEqualityGroup(ModelRegistration.of("to.ma.to", MyType.class))
 			.addEqualityGroup(
 				ModelRegistration.of("po.ta.to", MyOtherType.class),
-				builder().withPath(path("po.ta.to")).withProjection(ManagedModelProjection.of(MyOtherType.class)).build())
+				builder().withPath(path("po.ta.to")).withProjection(ManagedModelProjection.of(of(MyOtherType.class))).build())
 			.addEqualityGroup(
 				builder().withPath(path("po.ta.to")).build(),
 				builder().withPath(path("po.ta.to")).withDefaultProjectionType(of(MyType.class)).build())

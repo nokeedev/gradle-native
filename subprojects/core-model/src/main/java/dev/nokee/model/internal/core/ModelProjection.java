@@ -8,4 +8,7 @@ public interface ModelProjection {
 	<T> boolean canBeViewedAs(ModelType<T> type);
 
 	<T> T get(ModelType<T> type);
+
+	// Use only for reporting
+	Iterable<String> getTypeDescriptions();
 }

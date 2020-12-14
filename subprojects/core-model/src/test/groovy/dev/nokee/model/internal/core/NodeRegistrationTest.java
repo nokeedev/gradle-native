@@ -27,7 +27,7 @@ class NodeRegistrationTest {
 		assertAll(() -> {
 			assertThat(registration.getPath(), equalTo(path("a.b.c")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
-			assertThat(registration.getProjections(), contains(ManagedModelProjection.of(MyType.class)));
+			assertThat(registration.getProjections(), contains(ManagedModelProjection.of(of(MyType.class))));
 			assertThat(registration.getActions(), empty());
 		});
 	}
@@ -47,7 +47,7 @@ class NodeRegistrationTest {
 	void whenNodeRegistrationAreScopedTheyAreEqualToAnEquivalentModelRegistration() {
 		assertThat(NodeRegistration.of("a", of(MyType.class)).scope(path("foo")), equalTo(ModelRegistration.of("foo.a", MyType.class)));
 		assertThat(NodeRegistration.of("b", of(MyType.class)).withProjection(UnmanagedInstanceModelProjection.of("bar")).scope(path("bar")),
-			equalTo(ModelRegistration.builder().withPath(path("bar.b")).withDefaultProjectionType(of(MyType.class)).withProjection(ManagedModelProjection.of(MyType.class)).withProjection(UnmanagedInstanceModelProjection.of("bar")).build()));
+			equalTo(ModelRegistration.builder().withPath(path("bar.b")).withDefaultProjectionType(of(MyType.class)).withProjection(ManagedModelProjection.of(of(MyType.class))).withProjection(UnmanagedInstanceModelProjection.of("bar")).build()));
 	}
 
 	@Test
@@ -56,7 +56,7 @@ class NodeRegistrationTest {
 		assertAll(() -> {
 			assertThat(registration.getPath(), equalTo(path("ab.c")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
-			assertThat(registration.getProjections(), contains(ManagedModelProjection.of(MyType.class), UnmanagedInstanceModelProjection.of("foo")));
+			assertThat(registration.getProjections(), contains(ManagedModelProjection.of(of(MyType.class)), UnmanagedInstanceModelProjection.of("foo")));
 			assertThat(registration.getActions(), empty());
 		});
 	}

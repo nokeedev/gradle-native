@@ -47,7 +47,7 @@ public final class ModelRegistration<T> {
 		return builder()
 			.withPath(ModelPath.path(path))
 			.withDefaultProjectionType(ModelType.of(type))
-			.withProjection(ManagedModelProjection.of(type))
+			.withProjection(ManagedModelProjection.of(ModelType.of(type)))
 			.build();
 	}
 

@@ -43,6 +43,12 @@ class MemoizedModelProjectionTest {
 	}
 
 	@Test
+	void delegatesTypeDescriptions() {
+		subject.getTypeDescriptions();
+		Mockito.verify(delegate, times(1)).getTypeDescriptions();
+	}
+
+	@Test
 	void valueMemoizedOnFirstCall() {
 		subject.get(TYPE);
 		verify(delegate, times(1)).get(TYPE);

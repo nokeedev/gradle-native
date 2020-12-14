@@ -13,30 +13,11 @@ import static dev.nokee.internal.Factories.alwaysThrow;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-class UnmanagedCreatingModelProjectionTest {
+class UnmanagedCreatingModelProjectionTest extends TypeCompatibilityModelProjectionSupportTest {
 	private static final ModelType<MyType> TYPE = ModelType.of(MyType.class);
-	private final ModelProjection subject = UnmanagedCreatingModelProjection.of(TYPE, MyType::new);
-
-	@Test
-	void canQueryExactProjectionType() {
-		assertTrue(subject.canBeViewedAs(TYPE), "projection should be viewable as exact type");
-	}
-
-	@Test
-	void canQueryBaseProjectionType() {
-		assertTrue(subject.canBeViewedAs(of(BaseType.class)), "projection should be viewable as base type");
-		assertTrue(subject.canBeViewedAs(of(Object.class)), "projection should be viewable as base type");
-	}
-
-	@Test
-	void cannotQueryWrongProjectionType() {
-		assertFalse(subject.canBeViewedAs(of(WrongType.class)), "projection should not be viewable for wrong type");
-	}
 
 	@Test
 	void delegateToFactoryWhenProjectionIsResolved() {
@@ -74,7 +55,11 @@ class UnmanagedCreatingModelProjectionTest {
 			.testEquals();
 	}
 
+	@Override
+	protected ModelProjection createSubject(Class<?> type) {
+		return UnmanagedCreatingModelProjection.of(of(type), alwaysThrow());
+	}
+
 	interface BaseType {}
 	static class MyType implements BaseType {}
-	interface WrongType {}
 }

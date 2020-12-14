@@ -32,6 +32,11 @@ public final class ModelNodeDecoratingModelProjection implements ModelProjection
 		return injectModelNode(delegate.get(type));
 	}
 
+	@Override
+	public Iterable<String> getTypeDescriptions() {
+		return delegate.getTypeDescriptions();
+	}
+
 	private <T> T injectModelNode(T target) {
 		if (target instanceof ExtensionAware) {
 			val node = ((ExtensionAware) target).getExtensions().findByType(ModelNode.class);

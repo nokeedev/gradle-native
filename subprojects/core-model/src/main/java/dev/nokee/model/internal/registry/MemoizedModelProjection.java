@@ -29,4 +29,9 @@ public final class MemoizedModelProjection implements ModelProjection {
 		}
 		return type.getConcreteType().cast(value);
 	}
+
+	@Override
+	public Iterable<String> getTypeDescriptions() {
+		return delegate.getTypeDescriptions();
+	}
 }

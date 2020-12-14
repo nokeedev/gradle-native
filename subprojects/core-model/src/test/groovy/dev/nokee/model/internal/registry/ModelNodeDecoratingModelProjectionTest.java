@@ -49,5 +49,11 @@ class ModelNodeDecoratingModelProjectionTest {
 		Mockito.verify(delegate, times(1)).canBeViewedAs(TYPE);
 	}
 
+	@Test
+	void delegatesTypeDescriptions() {
+		subject.getTypeDescriptions();
+		Mockito.verify(delegate, times(1)).getTypeDescriptions();
+	}
+
 	interface MyType {}
 }

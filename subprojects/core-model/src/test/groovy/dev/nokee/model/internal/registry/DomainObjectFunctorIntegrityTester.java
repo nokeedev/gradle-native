@@ -44,7 +44,7 @@ public abstract class DomainObjectFunctorIntegrityTester<F> extends AbstractDoma
 		new EqualsTester()
 			.addEqualityGroup(createSubject(MyType.class, node), createSubject(MyType.class, node))
 			.addEqualityGroup(createSubject(MyOtherType.class, node))
-			.addEqualityGroup(createSubject(MyType.class, node("bar", ManagedModelProjection.of(MyType.class))))
+			.addEqualityGroup(createSubject(MyType.class, node("bar", MyType.class)))
 			.testEquals();
 	}
 }
