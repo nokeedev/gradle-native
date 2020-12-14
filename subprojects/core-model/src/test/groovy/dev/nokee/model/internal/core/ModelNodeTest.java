@@ -261,6 +261,16 @@ class ModelNodeTest {
 			.configureMatching(ModelSpecs.of(withPath(path("foo")).and(alwaysTrue())), ModelActions.doNothing());
 	}
 
+	@Test
+	void canGetTypeDescriptionOfNode() {
+		assertThat(node("a", MyType.class).getTypeDescription(), optionalWithValue(equalTo("interface dev.nokee.model.internal.core.ModelNodeTest$MyType")));
+	}
+
+	@Test
+	void returnsEmptyTypeDescriptionForNodeWithoutProjection() {
+		assertThat(node("a").getTypeDescription(), emptyOptional());
+	}
+
 	interface MyType {}
 	interface WrongType {}
 }

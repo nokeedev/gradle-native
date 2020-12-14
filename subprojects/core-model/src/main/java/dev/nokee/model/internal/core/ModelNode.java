@@ -1,16 +1,14 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static dev.nokee.model.internal.core.ModelNodes.withPath;
@@ -189,6 +187,20 @@ public final class ModelNode {
 	 */
 	public List<ModelNode> getDirectDescendants() {
 		return modelLookup.query(allDirectDescendants().scope(path)).get();
+	}
+
+	/**
+	 * Returns the main projection type description of this node.
+	 * In practice, this describes the type of the Object projection of this node.
+	 *
+	 * @return the type description of this node, if present.
+	 */
+	// TODO: This is used to generating descriptive message. We should find a better way to do this.
+	//  In the end, this fits in the reporting APIs.
+	public Optional<String> getTypeDescription() {
+		return Optional.ofNullable(Iterables.getFirst(projections, null))
+			.map(ModelProjection::getTypeDescriptions)
+			.map(it -> String.join(", ", it));
 	}
 
 	/**
