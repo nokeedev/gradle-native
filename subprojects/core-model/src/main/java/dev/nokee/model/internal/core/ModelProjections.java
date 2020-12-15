@@ -50,6 +50,6 @@ public final class ModelProjections {
 	 * @see ModelNodeContext#injectCurrentModelNodeIfAllowed(Object) for decoration information
 	 */
 	public static <T> ModelProjection createdUsing(ModelType<T> type, Factory<T> factory) {
-		return SupplyingModelProjection.of(type, memoize(compose(factory, ModelNodeContext::injectCurrentModelNodeIfAllowed)));
+		return new SupplyingModelProjection<>(type, memoize(compose(factory, ModelNodeContext::injectCurrentModelNodeIfAllowed)));
 	}
 }
