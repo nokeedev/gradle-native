@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public final class Factories {
 	private Factories() {}
@@ -105,6 +106,29 @@ public final class Factories {
 		@Override
 		public String toString() {
 			return "Factories.compose(" + factory + ", " + function + ")";
+		}
+	}
+
+	public static <T> Supplier<T> asSupplier(Factory<T> factory) {
+		return new FactoryAsSupplier<>(factory);
+	}
+
+	@EqualsAndHashCode
+	private static final class FactoryAsSupplier<T> implements Supplier<T> {
+		private final Factory<T> factory;
+
+		public FactoryAsSupplier(Factory<T> factory) {
+			this.factory = Objects.requireNonNull(factory);
+		}
+
+		@Override
+		public T get() {
+			return factory.create();
+		}
+
+		@Override
+		public String toString() {
+			return "Factories.asSupplier(" + factory + ")";
 		}
 	}
 }
