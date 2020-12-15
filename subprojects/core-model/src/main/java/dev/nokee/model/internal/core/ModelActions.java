@@ -116,6 +116,13 @@ public final class ModelActions {
 		}
 	}
 
+	/**
+	 * Returns an action that will execute only if the specified predicate matches.
+	 *
+	 * @param predicate  the predicate to match
+	 * @param action  the action to execute
+	 * @return an action that will execute the specified action only for the matching predicate, never null.
+	 */
 	public static ModelAction onlyIf(Predicate<? super ModelNode> predicate, ModelAction action) {
 		return new OnlyIfModelAction(predicate, action);
 	}
