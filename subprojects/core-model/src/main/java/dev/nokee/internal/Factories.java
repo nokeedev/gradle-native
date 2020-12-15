@@ -2,6 +2,7 @@ package dev.nokee.internal;
 
 import lombok.EqualsAndHashCode;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -63,7 +64,7 @@ public final class Factories {
 	private static final class MemoizeFactory<T> implements Factory<T> {
 		private final Factory<T> delegate;
 		@EqualsAndHashCode.Exclude private boolean initialized = false;
-		@EqualsAndHashCode.Exclude private T value;
+		@EqualsAndHashCode.Exclude @Nullable private T value;
 
 		public MemoizeFactory(Factory<T> delegate) {
 			this.delegate = Objects.requireNonNull(delegate);
