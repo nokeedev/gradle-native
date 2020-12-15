@@ -1,5 +1,7 @@
 package dev.nokee.model.internal.core;
 
+import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
@@ -147,6 +149,40 @@ public final class ModelActions {
 		@Override
 		public String toString() {
 			return "ModelActions.onlyIf(" + predicate + ", " + action + ")";
+		}
+	}
+
+	/**
+	 * Returns an action that will execute the specified action using as a known projection type.
+	 *
+	 * @param type  the projection type
+	 * @param action  the action to execute
+	 * @param <T>  the projection type
+	 * @return an action that will execute for known domain object, never null.
+	 */
+	public static <T> ModelAction executeAsKnownProjection(ModelType<T> type, Action<? super KnownDomainObject<T>> action) {
+		return new ExecuteAsKnownProjectionModelAction<>(type, action);
+	}
+
+	// TODO: Should we also ensure the node is at least registered (or discovered)?
+	@EqualsAndHashCode
+	private static class ExecuteAsKnownProjectionModelAction<T> implements ModelAction {
+		private final ModelType<T> type;
+		private final Action<? super KnownDomainObject<T>> action;
+
+		public ExecuteAsKnownProjectionModelAction(ModelType<T> type, Action<? super KnownDomainObject<T>> action) {
+			this.type = Objects.requireNonNull(type);
+			this.action = Objects.requireNonNull(action);
+		}
+
+		@Override
+		public void execute(ModelNode node) {
+			action.execute(new ModelNodeBackedKnownDomainObject<>(type, node));
+		}
+
+		@Override
+		public String toString() {
+			return "ModelActions.executeAsKnownProjection(" + type + ", " + action + ")";
 		}
 	}
 }
