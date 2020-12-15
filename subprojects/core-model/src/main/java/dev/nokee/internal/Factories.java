@@ -52,4 +52,33 @@ public final class Factories {
 			return "Factories.constant(" + value + ")";
 		}
 	}
+
+	public static <T> Factory<T> memoize(Factory<T> factory) {
+		return new MemoizeFactory<>(factory);
+	}
+
+	@EqualsAndHashCode
+	private static final class MemoizeFactory<T> implements Factory<T> {
+		private final Factory<T> delegate;
+		@EqualsAndHashCode.Exclude private boolean initialized = false;
+		@EqualsAndHashCode.Exclude private T value;
+
+		public MemoizeFactory(Factory<T> delegate) {
+			this.delegate = Objects.requireNonNull(delegate);
+		}
+
+		@Override
+		public T create() {
+			if (!initialized) {
+				value = delegate.create();
+				initialized = true;
+			}
+			return value;
+		}
+
+		@Override
+		public String toString() {
+			return "Factories.memoize(" + delegate + ")";
+		}
+	}
 }
