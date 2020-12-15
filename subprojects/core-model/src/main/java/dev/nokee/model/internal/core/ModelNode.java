@@ -155,12 +155,14 @@ public final class ModelNode {
 	 * @return an instance of the projected node into the specified instance
 	 */
 	public <T> T get(ModelType<T> type) {
-		for (ModelProjection projection : projections) {
-			if (projection.canBeViewedAs(type)) {
-				return projection.get(type);
+		return ModelNodeContext.of(this).execute(node -> {
+			for (ModelProjection projection : projections) {
+				if (projection.canBeViewedAs(type)) {
+					return projection.get(type);
+				}
 			}
-		}
-		throw new IllegalStateException("no projection for " + type);
+			throw new IllegalStateException("no projection for " + type);
+		});
 	}
 
 	public void applyTo(NodePredicate predicate, ModelAction action) {

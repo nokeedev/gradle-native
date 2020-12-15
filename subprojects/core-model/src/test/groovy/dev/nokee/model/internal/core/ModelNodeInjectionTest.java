@@ -43,4 +43,11 @@ class ModelNodeInjectionTest {
 	}
 
 	static class NotExtensionAwareType {}
+
+	@Test
+	void doesNothingIfNoModelNodePresentInContext() {
+		val instance = mock(ExplicitExtensionAwareType.class);
+		injectCurrentModelNodeIfAllowed(instance);
+		verifyNoInteractions(instance);
+	}
 }

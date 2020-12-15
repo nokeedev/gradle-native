@@ -35,9 +35,13 @@ public final class ModelNodeContext {
 
 	public static <T> T injectCurrentModelNodeIfAllowed(T target) {
 		requireNonNull(target);
-		if (target instanceof ExtensionAware) {
+		if (target instanceof ExtensionAware && canInjectCurrentModelNode()) {
 			ModelNodes.inject(target, ModelNodeContext.getCurrentModelNode());
 		}
 		return target;
+	}
+
+	private static boolean canInjectCurrentModelNode() {
+		return MODEL_NODE_INFO.get() != null;
 	}
 }
