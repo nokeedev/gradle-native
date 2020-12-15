@@ -3,6 +3,7 @@ package dev.nokee.internal;
 import lombok.EqualsAndHashCode;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 public final class Factories {
 	private Factories() {}
@@ -79,6 +80,31 @@ public final class Factories {
 		@Override
 		public String toString() {
 			return "Factories.memoize(" + delegate + ")";
+		}
+	}
+
+	public static <T, R> Factory<R> compose(Factory<T> factory, Function<? super T, ? extends R> function) {
+		return new ComposeFactory<>(factory, function);
+	}
+
+	@EqualsAndHashCode
+	private static final class ComposeFactory<T, R> implements Factory<R> {
+		private final Factory<T> factory;
+		private final Function<? super T, ? extends R> function;
+
+		public ComposeFactory(Factory<T> factory, Function<? super T, ? extends R> function) {
+			this.factory = Objects.requireNonNull(factory);
+			this.function = Objects.requireNonNull(function);
+		}
+
+		@Override
+		public R create() {
+			return function.apply(factory.create());
+		}
+
+		@Override
+		public String toString() {
+			return "Factories.compose(" + factory + ", " + function + ")";
 		}
 	}
 }
