@@ -15,7 +15,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ModelNodesTest {
 	@Test
 	void canAccessModelNodeFromExtensibleAware() {
-		assertThat("model node is accessible on decorated objects", of(decoratedObjectWithModelNode()), isA(ModelNode.class));
+		assertThat("model node is accessible on decorated objects", of(decoratedExtensionAwareObjectWithModelNode()), isA(ModelNode.class));
+	}
+
+	@Test
+	void canAccessModelNodeFromModelNodeAware() {
+		assertThat("model node is accessible on decorated objects", of(decoratedModelNodeAwareObjectWithModelNode()), isA(ModelNode.class));
 	}
 
 	@Test
@@ -34,11 +39,23 @@ public class ModelNodesTest {
 		assertEquals(node, of(inject(undecoratedObject(), node)), "should be able to inject model node in ExtensibleAware types");
 	}
 
-	private static Object decoratedObjectWithModelNode() {
+	private static Object decoratedExtensionAwareObjectWithModelNode() {
 		val node = node("a.b.c");
 		val object = TestUtils.objectFactory().newInstance(MyType.class);
 		((ExtensionAware) object).getExtensions().add(ModelNode.class, "__NOKEE_modelNode", node);
 		return object;
+	}
+
+	private static Object decoratedModelNodeAwareObjectWithModelNode() {
+		val node = node("a.b.c");
+		val object = TestUtils.objectFactory().newInstance(MyType.class);
+		((ExtensionAware) object).getExtensions().add(ModelNode.class, "__NOKEE_modelNode", node);
+		return new ModelNodeAware() {
+			@Override
+			public ModelNode getNode() {
+				return node;
+			}
+		};
 	}
 
 	private static Object object() {

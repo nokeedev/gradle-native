@@ -67,7 +67,9 @@ public final class ModelNodes {
 	 * @return the model node for the specified instance if available
 	 */
 	public static ModelNode of(Object target) {
-		if (target instanceof ExtensionAware) {
+		if (target instanceof ModelNodeAware) {
+			return ((ModelNodeAware) target).getNode();
+		} else if (target instanceof ExtensionAware) {
 			val node = ((ExtensionAware) target).getExtensions().findByType(ModelNode.class);
 			if (node == null) {
 				throw objectNotDecoratedWithModelNode(target);
