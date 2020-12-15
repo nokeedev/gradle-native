@@ -10,6 +10,7 @@ import dev.nokee.model.internal.core.ModelSpec;
 //   When the node transition to Discovered, listener can use that as "element known" configuration.
 //   A user configuring a listener for Discovered but the node is created should still be called as the node *is discovered* but is also created.
 public interface ModelConfigurer {
+	// TODO: We should probably merge spec and action together and enhance ModelAction with ModelPredicate to enable fast filtering and indexing
 	void configureMatching(ModelSpec spec, ModelAction action);
 
 	static ModelConfigurer failingConfigurer() {

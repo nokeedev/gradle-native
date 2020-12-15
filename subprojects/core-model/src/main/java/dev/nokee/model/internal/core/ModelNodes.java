@@ -91,6 +91,7 @@ public final class ModelNodes {
 	 * @param type  the type to filter model node
 	 * @return a predicate matching model nodes by type, never null.
 	 */
+	// TODO: Rename to subtypeOf
 	public static Predicate<ModelNode> withType(ModelType<?> type) {
 		return new WithTypePredicate(type);
 	}
@@ -181,6 +182,7 @@ public final class ModelNodes {
 	 * @param parentPath  the parent path to match model nodes
 	 * @return a predicate matching model nodes by parent path, never null.
 	 */
+	// TODO: Rename to directDescendantOf
 	public static Predicate<ModelNode> withParent(ModelPath parentPath) {
 		return new WithParentPredicate(parentPath);
 	}
@@ -211,6 +213,7 @@ public final class ModelNodes {
 	 * @param path  the path to match a model node
 	 * @return a predicate matching a single model node of the specified path, never null.
 	 */
+	// TODO: Maybe rename to pathOf(
 	public static Predicate<ModelNode> withPath(ModelPath path) {
 		return new WithPathPredicate(path);
 	}
