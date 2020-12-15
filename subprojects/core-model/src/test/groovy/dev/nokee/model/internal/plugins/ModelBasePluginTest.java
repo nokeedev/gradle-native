@@ -4,6 +4,8 @@ import dev.nokee.internal.testing.testers.WellBehavedPluginTester;
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
+import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -52,6 +54,18 @@ class ModelBasePluginTest {
 	void registersModelRegistryService() {
 		project.apply(of("plugin", ModelBasePlugin.class));
 		assertThat(project, hasExtensionOf(ModelRegistry.class));
+	}
+
+	@Test
+	void registersModelLookupService() {
+		project.apply(of("plugin", ModelBasePlugin.class));
+		assertThat(project, hasExtensionOf(ModelLookup.class));
+	}
+
+	@Test
+	void registersModelConfigurerService() {
+		project.apply(of("plugin", ModelBasePlugin.class));
+		assertThat(project, hasExtensionOf(ModelConfigurer.class));
 	}
 
 	private static Matcher<Project> hasExtensionOf(Class<?> extensionType) {
