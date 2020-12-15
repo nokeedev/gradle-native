@@ -4,7 +4,9 @@ import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public final class ModelActions {
@@ -66,7 +68,7 @@ public final class ModelActions {
 	@EqualsAndHashCode
 	private static final class OnceModelAction implements ModelAction {
 		private final ModelAction action;
-		@EqualsAndHashCode.Exclude private boolean executed = false;
+		@EqualsAndHashCode.Exclude private final Set<ModelPath> alreadyExecuted = new HashSet<>();
 
 		public OnceModelAction(ModelAction action) {
 			this.action = Objects.requireNonNull(action);
@@ -74,12 +76,8 @@ public final class ModelActions {
 
 		@Override
 		public void execute(ModelNode node) {
-			if (!executed) {
-				try {
-					action.execute(node);
-				} finally {
-					executed = true;
-				}
+			if (alreadyExecuted.add(node.getPath())) {
+				action.execute(node);
 			}
 		}
 
