@@ -1,11 +1,11 @@
 package dev.nokee.model.internal.registry;
 
-import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.core.TypeCompatibilityModelProjectionSupport;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * A projection that uses a factory to create the view instance.
@@ -14,20 +14,20 @@ import java.util.Objects;
  */
 @EqualsAndHashCode(callSuper = true)
 public final class SupplyingModelProjection<M> extends TypeCompatibilityModelProjectionSupport<M> {
-	private final Factory<M> factory;
+	private final Supplier<M> supplier;
 
-	public SupplyingModelProjection(ModelType<M> type, Factory<M> factory) {
+	public SupplyingModelProjection(ModelType<M> type, Supplier<M> supplier) {
 		super(type);
-		this.factory = Objects.requireNonNull(factory);
+		this.supplier = Objects.requireNonNull(supplier);
 	}
 
 	@Override
 	public <T> T get(ModelType<T> type) {
-		return type.getConcreteType().cast(factory.create());
+		return type.getConcreteType().cast(supplier.get());
 	}
 
 	@Override
 	public String toString() {
-		return "SupplyingModelProjection.of(" + getType() + ", " + factory + ")";
+		return "SupplyingModelProjection.of(" + getType() + ", " + supplier + ")";
 	}
 }

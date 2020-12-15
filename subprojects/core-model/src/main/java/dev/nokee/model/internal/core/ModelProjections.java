@@ -1,13 +1,14 @@
 package dev.nokee.model.internal.core;
 
-import dev.nokee.internal.Factories;
 import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.registry.ManagedModelProjection;
 import dev.nokee.model.internal.registry.SupplyingModelProjection;
 import dev.nokee.model.internal.type.ModelType;
 
-import static dev.nokee.internal.Factories.compose;
-import static dev.nokee.internal.Factories.memoize;
+import java.util.function.Function;
+
+import static dev.nokee.internal.Factories.*;
+import static dev.nokee.model.internal.type.ModelType.typeOf;
 
 public final class ModelProjections {
 	private ModelProjections() {}
@@ -22,7 +23,7 @@ public final class ModelProjections {
 	 * @see ModelNodeContext#injectCurrentModelNodeIfAllowed(Object) for decoration information
 	 */
 	public static <T> ModelProjection ofInstance(T instance) {
-		return createdUsing(ModelType.typeOf(instance), Factories.constant(instance));
+		return createdUsing(typeOf(instance), constant(instance));
 	}
 
 	/**
@@ -50,6 +51,26 @@ public final class ModelProjections {
 	 * @see ModelNodeContext#injectCurrentModelNodeIfAllowed(Object) for decoration information
 	 */
 	public static <T> ModelProjection createdUsing(ModelType<T> type, Factory<T> factory) {
-		return new SupplyingModelProjection<>(type, memoize(compose(factory, ModelNodeContext::injectCurrentModelNodeIfAllowed)));
+		return new SupplyingModelProjection<>(type, asSupplier(memoize(compose(factory, InjectCurrentNodeFunction.INSTANCE.withNarrowType()))));
+	}
+
+	// To ensure Objects.equals works with the created model projections
+	private enum InjectCurrentNodeFunction implements Function<Object, Object> {
+		INSTANCE;
+
+		@Override
+		public Object apply(Object o) {
+			return ModelNodeContext.injectCurrentModelNodeIfAllowed(o);
+		}
+
+		@SuppressWarnings("unchecked")
+		public <T, R> Function<T, R> withNarrowType() {
+			return (Function<T, R>) this;
+		}
+
+		@Override
+		public String toString() {
+			return "injectCurrentModelNode()";
+		}
 	}
 }
