@@ -3,7 +3,7 @@ package dev.nokee.model.internal.core;
 import dev.nokee.internal.Factories;
 import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.registry.ManagedModelProjection;
-import dev.nokee.model.internal.registry.UnmanagedCreatingModelProjection;
+import dev.nokee.model.internal.registry.SupplyingModelProjection;
 import dev.nokee.model.internal.type.ModelType;
 
 import static dev.nokee.internal.Factories.compose;
@@ -50,6 +50,6 @@ public final class ModelProjections {
 	 * @see ModelNodeContext#injectCurrentModelNodeIfAllowed(Object) for decoration information
 	 */
 	public static <T> ModelProjection createdUsing(ModelType<T> type, Factory<T> factory) {
-		return UnmanagedCreatingModelProjection.of(type, memoize(compose(factory, ModelNodeContext::injectCurrentModelNodeIfAllowed)));
+		return SupplyingModelProjection.of(type, memoize(compose(factory, ModelNodeContext::injectCurrentModelNodeIfAllowed)));
 	}
 }

@@ -14,16 +14,16 @@ import java.util.Objects;
  * @param <M>  the type of the projection
  */
 @EqualsAndHashCode(callSuper = true)
-public final class UnmanagedCreatingModelProjection<M> extends TypeCompatibilityModelProjectionSupport<M> {
+public final class SupplyingModelProjection<M> extends TypeCompatibilityModelProjectionSupport<M> {
 	private final Factory<M> factory;
 
-	public UnmanagedCreatingModelProjection(ModelType<M> type, Factory<M> factory) {
+	public SupplyingModelProjection(ModelType<M> type, Factory<M> factory) {
 		super(type);
 		this.factory = Objects.requireNonNull(factory);
 	}
 
 	public static <M> ModelProjection of(ModelType<M> type, Factory<M> factory) {
-		return new UnmanagedCreatingModelProjection<>(type, factory);
+		return new SupplyingModelProjection<>(type, factory);
 	}
 
 	@Override
@@ -33,6 +33,6 @@ public final class UnmanagedCreatingModelProjection<M> extends TypeCompatibility
 
 	@Override
 	public String toString() {
-		return "UnmanagedCreatingModelProjection.of(" + getType() + ", " + factory + ")";
+		return "SupplyingModelProjection.of(" + getType() + ", " + factory + ")";
 	}
 }

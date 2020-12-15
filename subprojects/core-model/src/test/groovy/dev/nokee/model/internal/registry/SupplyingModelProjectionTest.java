@@ -16,14 +16,14 @@ import static org.hamcrest.Matchers.hasToString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-class UnmanagedCreatingModelProjectionTest extends TypeCompatibilityModelProjectionSupportTest {
+class SupplyingModelProjectionTest extends TypeCompatibilityModelProjectionSupportTest {
 	private static final ModelType<MyType> TYPE = ModelType.of(MyType.class);
 
 	@Test
 	void delegateToFactoryWhenProjectionIsResolved() {
 		@SuppressWarnings("unchecked")
 		val factory = (Factory<MyType>) Mockito.mock(Factory.class);
-		val projection = UnmanagedCreatingModelProjection.of(TYPE, factory);
+		val projection = SupplyingModelProjection.of(TYPE, factory);
 
 		// Each calls delegate once to factory
 		projection.get(TYPE);
@@ -36,28 +36,28 @@ class UnmanagedCreatingModelProjectionTest extends TypeCompatibilityModelProject
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkNulls() {
-		new NullPointerTester().setDefault(ModelType.class, TYPE).testAllPublicStaticMethods(UnmanagedCreatingModelProjection.class);
+		new NullPointerTester().setDefault(ModelType.class, TYPE).testAllPublicStaticMethods(SupplyingModelProjection.class);
 	}
 
 	@Test
 	void checkToString() {
-		assertThat(UnmanagedCreatingModelProjection.of(TYPE, alwaysThrow()),
-			hasToString("UnmanagedCreatingModelProjection.of(class dev.nokee.model.internal.registry.UnmanagedCreatingModelProjectionTest$MyType, Factories.alwaysThrow())"));
+		assertThat(SupplyingModelProjection.of(TYPE, alwaysThrow()),
+			hasToString("SupplyingModelProjection.of(class dev.nokee.model.internal.registry.SupplyingModelProjectionTest$MyType, Factories.alwaysThrow())"));
 	}
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(UnmanagedCreatingModelProjection.of(TYPE, alwaysThrow()), UnmanagedCreatingModelProjection.of(TYPE, alwaysThrow()))
-			.addEqualityGroup(UnmanagedCreatingModelProjection.of(TYPE, () -> null))
-			.addEqualityGroup(UnmanagedCreatingModelProjection.of(ModelType.of(BaseType.class), alwaysThrow()))
+			.addEqualityGroup(SupplyingModelProjection.of(TYPE, alwaysThrow()), SupplyingModelProjection.of(TYPE, alwaysThrow()))
+			.addEqualityGroup(SupplyingModelProjection.of(TYPE, () -> null))
+			.addEqualityGroup(SupplyingModelProjection.of(ModelType.of(BaseType.class), alwaysThrow()))
 			.testEquals();
 	}
 
 	@Override
 	protected ModelProjection createSubject(Class<?> type) {
-		return UnmanagedCreatingModelProjection.of(of(type), alwaysThrow());
+		return SupplyingModelProjection.of(of(type), alwaysThrow());
 	}
 
 	interface BaseType {}
