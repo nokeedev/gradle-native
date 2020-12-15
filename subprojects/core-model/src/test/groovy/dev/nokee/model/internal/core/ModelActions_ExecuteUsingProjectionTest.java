@@ -1,10 +1,9 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.testing.EqualsTester;
-import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.internal.Cast;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
@@ -36,16 +35,14 @@ class ModelActions_ExecuteUsingProjectionTest {
 
 	@Test
 	void executeActionWhenProjectionIsAvailable() {
-		@SuppressWarnings("unchecked")
-		val action = (Action<MyType>) Mockito.mock(Action.class);
+		Action<MyType> action = Cast.uncheckedCast(mock(Action.class));
 		assertDoesNotThrow(() -> executeUsingProjection(of(MyType.class), action).execute(node(projectionOf(MyType.class))));
 		verify(action, times(1)).execute(isA(MyType.class));
 	}
 
 	@Test
-	void throwExceptionWhenProjectIsUnavailable() {
-		@SuppressWarnings("unchecked")
-		val action = (Action<WrongType>) Mockito.mock(Action.class);
+	void throwExceptionWhenProjectionIsUnavailable() {
+		Action<WrongType> action = Cast.uncheckedCast(mock(Action.class));
 		assertThrows(IllegalStateException.class, () -> executeUsingProjection(of(WrongType.class), action).execute(node(projectionOf(MyType.class))));
 		verify(action, never()).execute(any());
 	}
