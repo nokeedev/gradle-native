@@ -2,6 +2,7 @@ package dev.nokee.model.internal.registry;
 
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.ModelProjections;
 import dev.nokee.model.internal.core.TypeCompatibilityModelProjectionSupport;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
@@ -42,6 +43,6 @@ public final class ManagedModelProjection<M> extends TypeCompatibilityModelProje
 	 * @return a model projection bounded to the specified instantiator, never null.
 	 */
 	public ModelProjection bind(Instantiator instantiator) {
-		return new MemoizedModelProjection(UnmanagedCreatingModelProjection.of(getType(), () -> instantiator.newInstance(getType().getConcreteType())));
+		return ModelProjections.createdUsing(getType(), () -> instantiator.newInstance(getType().getConcreteType()));
 	}
 }

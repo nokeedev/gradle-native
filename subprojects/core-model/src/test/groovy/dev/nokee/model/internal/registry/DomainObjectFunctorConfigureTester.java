@@ -3,6 +3,7 @@ package dev.nokee.model.internal.registry;
 import dev.nokee.internal.testing.ClosureAssertions;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelProjections;
 import dev.nokee.model.internal.core.ModelSpecs;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.*;
 public abstract class DomainObjectFunctorConfigureTester<F> extends AbstractDomainObjectFunctorTester<F> {
 	private final ModelConfigurer modelConfigurer = Mockito.mock(ModelConfigurer.class);
 	private final MyType myTypeInstance = new MyType();
-	private final ModelNode node = node("foo", builder -> builder.withConfigurer(modelConfigurer).withProjections(UnmanagedInstanceModelProjection.of(myTypeInstance)));
+	private final ModelNode node = node("foo", builder -> builder.withConfigurer(modelConfigurer).withProjections(ModelProjections.ofInstance(myTypeInstance)));
 
 	@Override
 	protected <T> F createSubject(Class<T> type) {

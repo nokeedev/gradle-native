@@ -1,10 +1,6 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.testing.EqualsTester;
-import dev.nokee.model.internal.registry.ManagedModelProjection;
-import dev.nokee.model.internal.registry.MemoizedModelProjection;
-import dev.nokee.model.internal.registry.UnmanagedCreatingModelProjection;
-import dev.nokee.model.internal.registry.UnmanagedInstanceModelProjection;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
@@ -27,7 +23,7 @@ class NodeRegistrationTest {
 		assertAll(() -> {
 			assertThat(registration.getPath(), equalTo(path("a.b.c")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
-			assertThat(registration.getProjections(), contains(ManagedModelProjection.of(of(MyType.class))));
+			assertThat(registration.getProjections(), contains(ModelProjections.managed(of(MyType.class))));
 			assertThat(registration.getActions(), empty());
 		});
 	}
@@ -38,7 +34,7 @@ class NodeRegistrationTest {
 		assertAll(() -> {
 			assertThat(registration.getPath(), equalTo(path("x.y.z")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
-			assertThat(registration.getProjections(), contains(new MemoizedModelProjection(UnmanagedCreatingModelProjection.of(of(MyType.class), alwaysThrow()))));
+			assertThat(registration.getProjections(), contains(ModelProjections.createdUsing(of(MyType.class), alwaysThrow())));
 			assertThat(registration.getActions(), empty());
 		});
 	}
@@ -46,17 +42,17 @@ class NodeRegistrationTest {
 	@Test
 	void whenNodeRegistrationAreScopedTheyAreEqualToAnEquivalentModelRegistration() {
 		assertThat(NodeRegistration.of("a", of(MyType.class)).scope(path("foo")), equalTo(ModelRegistration.of("foo.a", MyType.class)));
-		assertThat(NodeRegistration.of("b", of(MyType.class)).withProjection(UnmanagedInstanceModelProjection.of("bar")).scope(path("bar")),
-			equalTo(ModelRegistration.builder().withPath(path("bar.b")).withDefaultProjectionType(of(MyType.class)).withProjection(ManagedModelProjection.of(of(MyType.class))).withProjection(UnmanagedInstanceModelProjection.of("bar")).build()));
+		assertThat(NodeRegistration.of("b", of(MyType.class)).withProjection(ModelProjections.ofInstance("bar")).scope(path("bar")),
+			equalTo(ModelRegistration.builder().withPath(path("bar.b")).withDefaultProjectionType(of(MyType.class)).withProjection(ModelProjections.managed(of(MyType.class))).withProjection(ModelProjections.ofInstance("bar")).build()));
 	}
 
 	@Test
 	void canAddProjection() {
-		val registration = NodeRegistration.of("c", of(MyType.class)).withProjection(UnmanagedInstanceModelProjection.of("foo")).scope(path("ab"));
+		val registration = NodeRegistration.of("c", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")).scope(path("ab"));
 		assertAll(() -> {
 			assertThat(registration.getPath(), equalTo(path("ab.c")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
-			assertThat(registration.getProjections(), contains(ManagedModelProjection.of(of(MyType.class)), UnmanagedInstanceModelProjection.of("foo")));
+			assertThat(registration.getProjections(), contains(ModelProjections.managed(of(MyType.class)), ModelProjections.ofInstance("foo")));
 			assertThat(registration.getActions(), empty());
 		});
 	}
@@ -68,8 +64,8 @@ class NodeRegistrationTest {
 			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)), NodeRegistration.of("a", of(MyType.class)))
 			.addEqualityGroup(NodeRegistration.of("c", of(MyType.class)))
 			.addEqualityGroup(NodeRegistration.of("a", of(MyOtherType.class)))
-			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(UnmanagedInstanceModelProjection.of("foo")))
-			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(UnmanagedInstanceModelProjection.of("foo")).action(stateAtLeast(ModelNode.State.Registered), doNothing()))
+			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")))
+			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")).action(stateAtLeast(ModelNode.State.Registered), doNothing()))
 			.testEquals();
 	}
 

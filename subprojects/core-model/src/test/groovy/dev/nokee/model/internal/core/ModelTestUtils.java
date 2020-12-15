@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.internal.registry.ManagedModelProjection;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.registry.UnmanagedInstanceModelProjection;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
@@ -18,7 +17,7 @@ public final class ModelTestUtils {
 	private ModelTestUtils() {}
 
 	public static ModelProjection projectionOf(Class<?> projectionType) {
-		return UnmanagedInstanceModelProjection.of(TestUtils.objectFactory().newInstance(projectionType));
+		return ModelProjections.ofInstance(TestUtils.objectFactory().newInstance(projectionType));
 	}
 
 	public static ModelNode rootNode() {
@@ -34,7 +33,7 @@ public final class ModelTestUtils {
 	}
 
 	public static ModelNode node(Object... projectionInstances) {
-		return childNode(ROOT, DEFAULT_NODE_NAME, builder -> builder.withProjections(Arrays.stream(projectionInstances).map(UnmanagedInstanceModelProjection::of).collect(Collectors.toList())));
+		return childNode(ROOT, DEFAULT_NODE_NAME, builder -> builder.withProjections(Arrays.stream(projectionInstances).map(ModelProjections::ofInstance).collect(Collectors.toList())));
 	}
 
 	public static ModelNode node(String name, Consumer<? super ModelNode.Builder> action) {
@@ -68,7 +67,7 @@ public final class ModelTestUtils {
 	public static ModelNode node(String path, Object... projectionInstances) {
 		ModelNode result = ROOT;
 		for (String name : ModelPath.path(path)) {
-			result = childNode(result, name, builder -> builder.withProjections(Arrays.stream(projectionInstances).map(UnmanagedInstanceModelProjection::of).collect(Collectors.toList())));
+			result = childNode(result, name, builder -> builder.withProjections(Arrays.stream(projectionInstances).map(ModelProjections::ofInstance).collect(Collectors.toList())));
 		}
 		return result;
 	}

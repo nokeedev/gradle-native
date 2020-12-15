@@ -10,8 +10,6 @@ import java.util.Objects;
 
 /**
  * A projection that uses a factory to create the view instance.
- * A new view instance will be created on each query.
- * Users should use {@link MemoizedModelProjection} together with this projection to lock on the first instance create.
  *
  * @param <M>  the type of the projection
  */

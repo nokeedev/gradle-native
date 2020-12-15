@@ -7,7 +7,6 @@ import dev.nokee.model.internal.core.*;
 import lombok.val;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -75,8 +74,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	private List<ModelProjection> finalizeProjections(ModelRegistration<?> registration) {
 		return registration.getProjections().stream()
-			.map(bindManagedProjectionWithInstantiator(instantiator)
-				.andThen(decorateProjectionWithModelNode(() -> get(registration.getPath()))))
+			.map(bindManagedProjectionWithInstantiator(instantiator))
 			.collect(Collectors.toList());
 	}
 
@@ -87,10 +85,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			}
 			return projection;
 		};
-	}
-
-	private static UnaryOperator<ModelProjection> decorateProjectionWithModelNode(Supplier<ModelNode> nodeSupplier) {
-		return projection -> new ModelNodeDecoratingModelProjection(projection, nodeSupplier);
 	}
 
 	@Override

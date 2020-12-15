@@ -1,10 +1,6 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.Factory;
-import dev.nokee.model.internal.registry.ManagedModelProjection;
-import dev.nokee.model.internal.registry.MemoizedModelProjection;
-import dev.nokee.model.internal.registry.UnmanagedCreatingModelProjection;
-import dev.nokee.model.internal.registry.UnmanagedInstanceModelProjection;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 
@@ -47,7 +43,7 @@ public final class ModelRegistration<T> {
 		return builder()
 			.withPath(ModelPath.path(path))
 			.withDefaultProjectionType(ModelType.of(type))
-			.withProjection(ManagedModelProjection.of(ModelType.of(type)))
+			.withProjection(ModelProjections.managed(ModelType.of(type)))
 			.build();
 	}
 
@@ -55,7 +51,7 @@ public final class ModelRegistration<T> {
 		return builder()
 			.withPath(identifier.getPath())
 			.withDefaultProjectionType(identifier.getType())
-			.withProjection(UnmanagedInstanceModelProjection.of(instance))
+			.withProjection(ModelProjections.ofInstance(instance))
 			.build();
 	}
 
@@ -63,7 +59,7 @@ public final class ModelRegistration<T> {
 		return builder()
 			.withPath(identifier.getPath())
 			.withDefaultProjectionType(identifier.getType())
-			.withProjection(new MemoizedModelProjection(UnmanagedCreatingModelProjection.of(identifier.getType(), factory)))
+			.withProjection(ModelProjections.createdUsing(identifier.getType(), factory))
 			.build();
 	}
 
@@ -71,7 +67,7 @@ public final class ModelRegistration<T> {
 		return builder()
 			.withPath(identifier.getPath())
 			.withDefaultProjectionType(identifier.getType())
-			.withProjection(new MemoizedModelProjection(UnmanagedCreatingModelProjection.of(identifier.getType(), factory)));
+			.withProjection(ModelProjections.createdUsing(identifier.getType(), factory));
 	}
 
 	public static <T> Builder<T> builder() {

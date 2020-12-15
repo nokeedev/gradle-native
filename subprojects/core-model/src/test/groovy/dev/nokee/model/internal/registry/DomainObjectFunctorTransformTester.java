@@ -1,6 +1,7 @@
 package dev.nokee.model.internal.registry;
 
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelProjections;
 import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ import static org.hamcrest.Matchers.lessThan;
 
 public abstract class DomainObjectFunctorTransformTester<F> extends AbstractDomainObjectFunctorTester<F> {
 	private final MyType myTypeInstance = new MyType();
-	private final ModelNode node = node("foo", UnmanagedInstanceModelProjection.of(myTypeInstance));
+	private final ModelNode node = node("foo", ModelProjections.ofInstance(myTypeInstance));
 	private final Provider<String> subject = transform(createSubject(MyType.class), MyType::getValue);
 
 	@Override

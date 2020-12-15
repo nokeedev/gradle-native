@@ -1,9 +1,6 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.Factory;
-import dev.nokee.model.internal.registry.ManagedModelProjection;
-import dev.nokee.model.internal.registry.MemoizedModelProjection;
-import dev.nokee.model.internal.registry.UnmanagedCreatingModelProjection;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -41,11 +38,11 @@ public final class NodeRegistration<T> {
 	}
 
 	public static <T> NodeRegistration<T> of(String name, ModelType<T> type) {
-		return new NodeRegistration<>(name, type, ManagedModelProjection.of(type));
+		return new NodeRegistration<>(name, type, ModelProjections.managed(type));
 	}
 
 	public static <T> NodeRegistration<T> unmanaged(String name, ModelType<T> type, Factory<T> factory) {
-		return new NodeRegistration<>(name, type, new MemoizedModelProjection(UnmanagedCreatingModelProjection.of(type, factory)));
+		return new NodeRegistration<>(name, type, ModelProjections.createdUsing(type, factory));
 	}
 
 	public NodeRegistration<T> withProjection(ModelProjection projection) {

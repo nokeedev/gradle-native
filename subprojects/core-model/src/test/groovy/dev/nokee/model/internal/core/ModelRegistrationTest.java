@@ -2,8 +2,6 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
-import dev.nokee.model.internal.registry.ManagedModelProjection;
-import dev.nokee.model.internal.registry.UnmanagedInstanceModelProjection;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
@@ -44,12 +42,12 @@ class ModelRegistrationTest {
 			.addEqualityGroup(ModelRegistration.of("to.ma.to", MyType.class))
 			.addEqualityGroup(
 				ModelRegistration.of("po.ta.to", MyOtherType.class),
-				builder().withPath(path("po.ta.to")).withProjection(ManagedModelProjection.of(of(MyOtherType.class))).build())
+				builder().withPath(path("po.ta.to")).withProjection(ModelProjections.managed(of(MyOtherType.class))).build())
 			.addEqualityGroup(
 				builder().withPath(path("po.ta.to")).build(),
 				builder().withPath(path("po.ta.to")).withDefaultProjectionType(of(MyType.class)).build())
 			.addEqualityGroup(
-				builder().withPath(path("po.ta.to")).withProjection(UnmanagedInstanceModelProjection.of(new MyType())).build())
+				builder().withPath(path("po.ta.to")).withProjection(ModelProjections.ofInstance(new MyType())).build())
 			.addEqualityGroup(
 				builder().withPath(path("po.ta.to")).action(ModelActions.doNothing()).build())
 			.testEquals();
