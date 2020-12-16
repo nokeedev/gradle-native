@@ -5,6 +5,7 @@ import com.google.common.reflect.TypeToken;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,6 +38,10 @@ public final class ModelType<T> {
 
 	public boolean isAssignableFrom(ModelType<?> type) {
 		return this == type || this.getConcreteType().isAssignableFrom(type.getConcreteType());
+	}
+
+	public boolean isSubtypeOf(Type type) {
+		return this.type.isSubtypeOf(type);
 	}
 
 	@Override
