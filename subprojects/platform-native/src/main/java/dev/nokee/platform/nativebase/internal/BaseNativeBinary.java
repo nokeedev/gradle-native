@@ -206,7 +206,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	}
 
 	private Provider<RegularFile> toSwiftModuleFile(String moduleName) {
-		return getLayout().getBuildDirectory().file("modules/main/" + moduleName + ".swiftmodule");
+		return getLayout().getBuildDirectory().file(identifier.getOutputDirectoryBase("modules") + "/" + moduleName + ".swiftmodule");
 	}
 
 	Provider<NativeToolChain> selectNativeToolChain(TargetMachine targetMachine) {
