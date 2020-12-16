@@ -5,6 +5,7 @@ import com.google.common.reflect.TypeToken;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,6 +43,23 @@ public final class ModelType<T> {
 
 	public boolean isSubtypeOf(Type type) {
 		return this.type.isSubtypeOf(type);
+	}
+
+	public boolean isParameterized() {
+		return this.type.getType() instanceof ParameterizedType;
+	}
+
+	public List<ModelType<?>> getTypeVariables() {
+		if (isParameterized()) {
+			Type[] typeArguments = ((ParameterizedType) this.type.getType()).getActualTypeArguments();
+			val builder = ImmutableList.<ModelType<?>>builder();
+			for (Type typeArgument : typeArguments) {
+				builder.add(new ModelType<>(TypeToken.of(typeArgument)));
+			}
+			return builder.build();
+		} else {
+			return ImmutableList.of();
+		}
 	}
 
 	@Override

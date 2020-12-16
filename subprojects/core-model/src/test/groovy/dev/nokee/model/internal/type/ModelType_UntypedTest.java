@@ -12,4 +12,9 @@ class ModelType_UntypedTest {
 	void untypedModelTypeIsObjectType() {
 		assertThat(untyped(), equalTo(of(Object.class)));
 	}
+
+	@Test
+	void untypedModelTypeIsNotParameterized() {
+		assertThat(untyped().isParameterized(), equalTo(false));
+	}
 }
