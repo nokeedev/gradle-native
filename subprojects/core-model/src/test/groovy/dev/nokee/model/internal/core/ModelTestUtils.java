@@ -2,7 +2,6 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.utils.TestUtils;
-import dev.nokee.model.internal.registry.ManagedModelProjection;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
@@ -59,7 +58,7 @@ public final class ModelTestUtils {
 	public static ModelNode node(String path, Class<?> projectionType, Class<?>... projectionTypes) {
 		ModelNode result = ROOT;
 		for (String name : ModelPath.path(path)) {
-			result = childNode(result, name, builder -> builder.withProjections(ImmutableList.<Class<?>>builder().add(projectionType).add(projectionTypes).build().stream().map(ModelType::of).map(ManagedModelProjection::of).collect(Collectors.toList())));
+			result = childNode(result, name, builder -> builder.withProjections(ImmutableList.<Class<?>>builder().add(projectionType).add(projectionTypes).build().stream().map(ModelType::of).map(ModelProjections::managed).collect(Collectors.toList())));
 		}
 		return result;
 	}

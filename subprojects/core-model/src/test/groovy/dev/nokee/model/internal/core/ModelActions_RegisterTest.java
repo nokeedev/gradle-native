@@ -25,7 +25,7 @@ class ModelActions_RegisterTest {
 
 	@Test
 	void checkToString() {
-		assertThat(register(NodeRegistration.of("bar", of(MyType.class))), hasToString("ModelActions.register(NodeRegistration(name=bar, type=interface dev.nokee.model.internal.core.ModelActions_RegisterTest$MyType, projections=[ManagedModelProjection.of(interface dev.nokee.model.internal.core.ModelActions_RegisterTest$MyType)], actions=[]))"));
+		assertThat(register(NodeRegistration.of("bar", of(MyType.class))), hasToString("ModelActions.register(NodeRegistration(name=bar, type=interface dev.nokee.model.internal.core.ModelActions_RegisterTest$MyType, projections=[ModelProjections.managed(interface dev.nokee.model.internal.core.ModelActions_RegisterTest$MyType)], actions=[]))"));
 	}
 
 	@Test

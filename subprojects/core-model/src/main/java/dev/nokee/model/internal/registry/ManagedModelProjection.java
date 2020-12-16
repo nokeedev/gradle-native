@@ -6,6 +6,7 @@ import dev.nokee.model.internal.core.ModelProjections;
 import dev.nokee.model.internal.core.TypeCompatibilityModelProjectionSupport;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 
 /**
@@ -23,10 +24,6 @@ public final class ManagedModelProjection<M> extends TypeCompatibilityModelProje
 		this.parameters = parameters;
 	}
 
-	public static <T> ManagedModelProjection<T> of(ModelType<T> type) {
-		return new ManagedModelProjection<>(type);
-	}
-
 	@Override
 	public <T> T get(ModelType<T> type) {
 		throw new UnsupportedOperationException("This projection is a placeholder and require to be bind with an instantiator.");
@@ -34,7 +31,13 @@ public final class ManagedModelProjection<M> extends TypeCompatibilityModelProje
 
 	@Override
 	public String toString() {
-		return "ManagedModelProjection.of(" + getType() + ")";
+		val builder = new StringBuilder();
+		builder.append("ModelProjections.managed(").append(getType());
+		for (Object parameter : parameters) {
+			builder.append(", ").append(parameter);
+		}
+		builder.append(")");
+		return builder.toString();
 	}
 
 	/**

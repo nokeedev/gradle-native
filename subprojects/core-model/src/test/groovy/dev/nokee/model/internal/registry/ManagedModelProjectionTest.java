@@ -3,7 +3,6 @@ package dev.nokee.model.internal.registry;
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.internal.testing.utils.TestUtils;
-import dev.nokee.model.internal.core.ModelProjection;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
@@ -19,14 +18,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class ManagedModelProjectionTest extends TypeCompatibilityModelProjectionSupportTest {
 	@Test
 	void managedProjectionCannotBeUsedAsIs() {
-		val projection = ManagedModelProjection.of(of(MyType.class));
+		val projection = createSubject(MyType.class);
 		assertThrows(UnsupportedOperationException.class, () -> projection.get(of(MyType.class)));
 	}
 
 	@Test
 	void canBindProjectionToAnInstantiator() {
 		assertAll(() -> {
-			val projection = ManagedModelProjection.of(of(MyType.class)).bind(TestUtils.objectFactory()::newInstance);
+			val projection = createSubject(MyType.class).bind(TestUtils.objectFactory()::newInstance);
 			assertTrue(projection.canBeViewedAs(of(MyType.class)));
 			assertFalse(projection.canBeViewedAs(of(WrongType.class)));
 
@@ -36,7 +35,7 @@ class ManagedModelProjectionTest extends TypeCompatibilityModelProjectionSupport
 
 	@Test
 	void canCreateProjectionWithSpecifiedParametersAfterBind() {
-		val projection = new ManagedModelProjection(of(MyTypeWithParameters.class), "foo", 42).bind(TestUtils.objectFactory()::newInstance);
+		val projection = createSubject(MyTypeWithParameters.class, "foo", 42).bind(TestUtils.objectFactory()::newInstance);
 		val instance = projection.get(of(MyTypeWithParameters.class));
 		assertThat(instance.name, equalTo("foo"));
 		assertThat(instance.answer, equalTo(42));
@@ -54,8 +53,12 @@ class ManagedModelProjectionTest extends TypeCompatibilityModelProjectionSupport
 	}
 
 	@Override
-	protected ModelProjection createSubject(Class<?> type) {
-		return ManagedModelProjection.of(of(type));
+	protected ManagedModelProjection<?> createSubject(Class<?> type) {
+		return new ManagedModelProjection<>(of(type));
+	}
+
+	protected ManagedModelProjection<?> createSubject(Class<?> type, Object... parameters) {
+		return new ManagedModelProjection<>(of(type), parameters);
 	}
 
 	@Test
@@ -68,15 +71,19 @@ class ManagedModelProjectionTest extends TypeCompatibilityModelProjectionSupport
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(ManagedModelProjection.of(of(MyType.class)), ManagedModelProjection.of(of(MyType.class)))
-			.addEqualityGroup(ManagedModelProjection.of(of(MyOtherType.class)))
+			.addEqualityGroup(createSubject(MyType.class), createSubject(MyType.class))
+			.addEqualityGroup(createSubject(MyOtherType.class))
+			.addEqualityGroup(createSubject(MyTypeWithParameters.class, "foo", 42), createSubject(MyTypeWithParameters.class, "foo", 42))
+			.addEqualityGroup(createSubject(MyTypeWithParameters.class, "bar", 24))
 			.testEquals();
 	}
 
 	@Test
 	void checkToString() {
-		assertThat(ManagedModelProjection.of(of(MyType.class)),
-			hasToString("ManagedModelProjection.of(interface dev.nokee.model.internal.registry.ManagedModelProjectionTest$MyType)"));
+		assertThat(createSubject(MyType.class),
+			hasToString("ModelProjections.managed(interface dev.nokee.model.internal.registry.ManagedModelProjectionTest$MyType)"));
+		assertThat(createSubject(MyTypeWithParameters.class, "foo", 42),
+			hasToString("ModelProjections.managed(class dev.nokee.model.internal.registry.ManagedModelProjectionTest$MyTypeWithParameters, foo, 42)"));
 	}
 
 	interface MyType {}

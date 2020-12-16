@@ -39,7 +39,7 @@ public final class ModelProjections {
 	 * @see dev.nokee.internal.reflect.Instantiator
 	 */
 	public static <T> ModelProjection managed(ModelType<T> type, Object... parameters) {
-		return new ManagedModelProjection(type, parameters);
+		return new ManagedModelProjection<>(type, parameters);
 	}
 
 	/**
