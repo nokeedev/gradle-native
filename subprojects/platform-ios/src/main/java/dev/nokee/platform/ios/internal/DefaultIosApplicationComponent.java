@@ -157,6 +157,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		});
 
 		val processPropertyListTask = taskRegistry.register("processPropertyList", ProcessPropertyListTask.class, task -> {
+			task.dependsOn(resources.getSourceDirectories());
 			task.getIdentifier().set(identifier);
 			task.getModule().set(moduleName);
 			task.getSources().from(providers.provider(() -> {
