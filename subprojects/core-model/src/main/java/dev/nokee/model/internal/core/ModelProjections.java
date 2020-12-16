@@ -32,12 +32,14 @@ public final class ModelProjections {
 	 * A managed instance is created, memoized and decorated on first use.
 	 *
 	 * @param type  the managed type
+	 * @param parameters  the parameters to use when constructing the managed type
 	 * @param <T>  the type of the projection
 	 * @return a model projection of the specified type, never null.
 	 * @see ModelNodeContext#injectCurrentModelNodeIfAllowed(Object) for decoration information
+	 * @see dev.nokee.internal.reflect.Instantiator
 	 */
-	public static <T> ModelProjection managed(ModelType<T> type) {
-		return ManagedModelProjection.of(type);
+	public static <T> ModelProjection managed(ModelType<T> type, Object... parameters) {
+		return new ManagedModelProjection(type, parameters);
 	}
 
 	/**

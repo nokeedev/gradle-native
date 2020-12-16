@@ -8,10 +8,11 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
+import javax.inject.Inject;
+
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasToString;
-import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Subject(ManagedModelProjection.class)
@@ -31,6 +32,25 @@ class ManagedModelProjectionTest extends TypeCompatibilityModelProjectionSupport
 
 			assertThat(projection.get(of(MyType.class)), isA(MyType.class));
 		});
+	}
+
+	@Test
+	void canCreateProjectionWithSpecifiedParametersAfterBind() {
+		val projection = new ManagedModelProjection(of(MyTypeWithParameters.class), "foo", 42).bind(TestUtils.objectFactory()::newInstance);
+		val instance = projection.get(of(MyTypeWithParameters.class));
+		assertThat(instance.name, equalTo("foo"));
+		assertThat(instance.answer, equalTo(42));
+	}
+
+	static class MyTypeWithParameters implements MyType {
+		private final String name;
+		private final int answer;
+
+		@Inject
+		public MyTypeWithParameters(String name, int answer) {
+			this.name = name;
+			this.answer = answer;
+		}
 	}
 
 	@Override

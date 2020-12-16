@@ -37,8 +37,8 @@ public final class NodeRegistration<T> {
 		return builder.build();
 	}
 
-	public static <T> NodeRegistration<T> of(String name, ModelType<T> type) {
-		return new NodeRegistration<>(name, type, ModelProjections.managed(type));
+	public static <T> NodeRegistration<T> of(String name, ModelType<T> type, Object... parameters) {
+		return new NodeRegistration<>(name, type, ModelProjections.managed(type, parameters));
 	}
 
 	public static <T> NodeRegistration<T> unmanaged(String name, ModelType<T> type, Factory<T> factory) {

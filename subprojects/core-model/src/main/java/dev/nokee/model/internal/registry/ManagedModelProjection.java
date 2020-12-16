@@ -16,8 +16,11 @@ import org.gradle.api.model.ObjectFactory;
  */
 @EqualsAndHashCode(callSuper = true)
 public final class ManagedModelProjection<M> extends TypeCompatibilityModelProjectionSupport<M> {
-	private ManagedModelProjection(ModelType<M> type) {
+	private final Object[] parameters;
+
+	public ManagedModelProjection(ModelType<M> type, Object... parameters) {
 		super(type);
+		this.parameters = parameters;
 	}
 
 	public static <T> ManagedModelProjection<T> of(ModelType<T> type) {
@@ -43,6 +46,6 @@ public final class ManagedModelProjection<M> extends TypeCompatibilityModelProje
 	 * @return a model projection bounded to the specified instantiator, never null.
 	 */
 	public ModelProjection bind(Instantiator instantiator) {
-		return ModelProjections.createdUsing(getType(), () -> instantiator.newInstance(getType().getConcreteType()));
+		return ModelProjections.createdUsing(getType(), () -> instantiator.newInstance(getType().getConcreteType(), parameters));
 	}
 }
