@@ -14,6 +14,7 @@ import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilities
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.NameAwareDomainObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
@@ -412,9 +413,10 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		components.registerFactory(JniLibraryComponentInternal.class, identifier -> {
-			assert ((ComponentIdentifier<?>) identifier).isMainComponent();
-			return new JniLibraryComponentInternal((ComponentIdentifier<?>) identifier, GroupId.of(project::getGroup), project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
+		components.registerFactory(JniLibraryComponentInternal.class, name -> {
+			val identifier = ComponentIdentifier.of(ComponentName.of(((NameAwareDomainObjectIdentifier)name).getName().toString()), JniLibraryComponentInternal.class, ProjectIdentifier.of(project));
+			assert identifier.isMainComponent();
+			return new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
 		});
 		val componentProvider = components.register("main", JniLibraryComponentInternal.class, component -> {
 			component.getBaseName().convention(project.getName());

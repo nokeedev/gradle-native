@@ -1,8 +1,12 @@
 package dev.nokee.testing.base.internal.plugins;
 
-import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.internal.components.*;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelSpecs;
+import dev.nokee.model.internal.core.NodeRegistration;
+import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.base.TestSuiteContainer;
@@ -11,19 +15,22 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.withType;
-
 public class TestingBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
-		val testSuites = new DefaultTestSuiteContainer(ProjectIdentifier.of(project), project.getExtensions().getByType(ComponentConfigurer.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(ComponentProviderFactory.class), project.getExtensions().getByType(ComponentRepository.class), project.getExtensions().getByType(KnownComponentFactory.class), project.getExtensions().getByType(ComponentInstantiator.class));
-		project.getExtensions().add(TestSuiteContainer.class, "testSuites", testSuites);
+		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
+		val components = modeRegistry.register(testSuites()).get();
+		project.getExtensions().add(TestSuiteContainer.class, "testSuites", components);
 
 		project.afterEvaluate(proj -> {
 			// Force realize all test suite... until we solve the differing problem.
-			project.getExtensions().getByType(ComponentRepository.class).filter(withType(TestSuiteComponent.class));
+			project.getExtensions().getByType(ModelLookup.class).query(ModelSpecs.of(ModelNodes.withType(ModelType.of(TestSuiteComponent.class)))).forEach(ModelNode::realize);
 		});
+	}
+
+	private static NodeRegistration<DefaultTestSuiteContainer> testSuites() {
+		return DefaultTestSuiteContainer.newRegistration("testSuites", DefaultTestSuiteContainer.class);
 	}
 }

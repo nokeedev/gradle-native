@@ -10,13 +10,13 @@ import dev.nokee.ide.xcode.internal.DefaultXcodeIdeTarget;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.platform.base.internal.components.KnownComponent;
 import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.internal.*;
 import dev.nokee.platform.nativebase.ExecutableBinary;
@@ -55,7 +55,7 @@ import java.util.stream.StreamSupport;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.descendentOf;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.withType;
 
-public final class CreateNativeComponentXcodeIdeProject implements Action<KnownComponent<? extends BaseComponent<?>>> {
+public final class CreateNativeComponentXcodeIdeProject implements Action<KnownDomainObject<? extends BaseComponent<?>>> {
 	private final XcodeIdeProjectExtension extension;
 	private final ProviderFactory providerFactory;
 	private final ObjectFactory objectFactory;
@@ -75,7 +75,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownC
 	}
 
 	@Override
-	public void execute(KnownComponent<? extends BaseComponent<?>> knownComponent) {
+	public void execute(KnownDomainObject<? extends BaseComponent<?>> knownComponent) {
 		registerXcodeIdeProjectIfAbsent(extension.getProjects(), projectIdentifier.getName()).configure(configureXcodeIdeProject(knownComponent));
 	}
 
@@ -90,7 +90,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownC
 		return !StreamSupport.stream(container.getCollectionSchema().getElements().spliterator(), false).anyMatch(it -> it.getName().equals(name));
 	}
 
-	private Action<XcodeIdeProject> configureXcodeIdeProject(KnownComponent<? extends BaseComponent<?>> knownComponent) {
+	private Action<XcodeIdeProject> configureXcodeIdeProject(KnownDomainObject<? extends BaseComponent<?>> knownComponent) {
 		return new Action<XcodeIdeProject>() {
 			@Override
 			public void execute(XcodeIdeProject xcodeProject) {
