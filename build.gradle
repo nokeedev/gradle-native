@@ -140,3 +140,17 @@ subprojects {
 		}
 	}
 }
+
+// Configure JUnit 5 compatibility
+subprojects {
+	tasks.withType(Test).configureEach { it.useJUnitPlatform() }
+}
+
+// Enable lombok on all subprojects
+subprojects { project ->
+	def addLombokDependency = { Configuration configuration ->
+		project.dependencies.add(configuration.name, "org.projectlombok:lombok:${lombokVersion}" as String)
+	}
+	configurations.matching { it.name.toLowerCase().endsWith('compileonly') }.all(addLombokDependency)
+	configurations.matching { it.name.toLowerCase().endsWith('annotationprocessor') }.all(addLombokDependency)
+}

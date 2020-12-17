@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal.tasks
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.*
 import dev.nokee.platform.base.Component
@@ -8,12 +9,11 @@ import dev.nokee.platform.base.internal.ComponentName
 import org.apache.commons.lang3.RandomStringUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
-import org.gradle.testfixtures.ProjectBuilder
 
 import java.util.function.Supplier
 
 trait TaskFixture {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 
     RealizableDomainObjectRepository<Task> newEntityRepository() {
 		def realizer = new RealizableDomainObjectRealizerImpl(eventPublisher)

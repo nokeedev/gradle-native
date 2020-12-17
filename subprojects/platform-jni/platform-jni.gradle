@@ -24,9 +24,6 @@ dependencies {
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
-
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 }
 
 gradlePlugin {
@@ -40,13 +37,11 @@ gradlePlugin {
 
 test {
 	dependencies {
-		implementation 'org.hamcrest:hamcrest:2.2'
+		implementation project(':internalTesting')
 		implementation testFixtures(project(':platformNative'))
 		implementation testFixtures(project(':platformBase'))
 		implementation "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10"
 		implementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
-		runtimeOnly 'net.bytebuddy:byte-buddy:1.10.10' // Because NamingScheme is not an interface
-		runtimeOnly 'org.objenesis:objenesis:3.1' // Because NamingScheme is not an interface
 	}
 }
 

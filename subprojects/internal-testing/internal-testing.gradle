@@ -1,0 +1,28 @@
+plugins {
+	id 'java-library'
+}
+
+repositories {
+	jcenter()
+	gradlePluginDevelopment()
+}
+
+dependencies {
+	// JUnit 5
+	api "org.junit.jupiter:junit-jupiter:${junitVersion}"
+	runtimeOnly "org.junit.vintage:junit-vintage-engine:${junitVersion}"
+
+	// Spock
+	api platform("org.spockframework:spock-bom:${spockVersion}")
+	api 'org.spockframework:spock-core'
+
+	// Mockito
+	api "org.mockito:mockito-core:${mockitoVersion}"
+
+	// Support libraries
+	api "org.hamcrest:hamcrest:${hamcrestVersion}"
+	api "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	api "com.google.guava:guava:${guavaVersion}"
+	api "com.google.guava:guava-testlib:${guavaVersion}"
+	implementation gradleApi(minimumGradleVersion)
+}

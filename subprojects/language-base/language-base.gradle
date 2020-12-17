@@ -15,17 +15,12 @@ dependencies {
 	implementation project(':coreUtils')
 	implementation "com.google.guava:guava:${guavaVersion}"
 
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
 	testCompileOnly project(':platformBase')
-	testImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	testImplementation project(':internalTesting')
 	testImplementation testFixtures(project(':coreModel'))
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
 
-	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	testFixturesImplementation platform("org.spockframework:spock-bom:${spockVersion}")
-	testFixturesImplementation 'org.spockframework:spock-core'
+	testFixturesApi project(':internalTesting')
 	testFixturesCompileOnly gradleApi(minimumGradleVersion)
 }
 

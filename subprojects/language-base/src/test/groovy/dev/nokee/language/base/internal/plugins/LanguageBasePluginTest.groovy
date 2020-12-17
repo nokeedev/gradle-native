@@ -1,15 +1,15 @@
 package dev.nokee.language.base.internal.plugins
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.language.base.internal.*
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 class LanguageBasePluginTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 
 	def "registers configurer service"() {
 		when:

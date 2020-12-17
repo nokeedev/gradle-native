@@ -1,5 +1,6 @@
 package dev.nokee.runtime.base.internal.repositories
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.runtime.base.internal.plugins.FakeMavenRepositoryPlugin
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Requires
@@ -17,7 +18,7 @@ class NokeeServerServiceTest extends Specification {
 	def "choose a free random port to listen on"() {
 		given:
 		def takeOverTheHardCodedPort = new ServerSocket(9666) // used to use a static port
-		def project = ProjectBuilder.builder().build()
+		def project = TestUtils.rootProject()
 
 		when:
 		project.apply plugin: FakeMavenRepositoryPlugin

@@ -1,8 +1,10 @@
 package dev.nokee.utils
 
+
 import spock.lang.Subject
 import spock.lang.Unroll
 
+import static dev.nokee.internal.testing.utils.TestUtils.objectFactory
 import static dev.nokee.utils.DeferredUtils.*
 
 @Subject(DeferredUtils)
@@ -48,7 +50,7 @@ class DeferredUtilsTest extends DeferredUtils_BaseSpec {
 	@Unroll
 	def "can realize deferred collection"(collectionFactoryMethod) {
 		given:
-		def collection = objectFactory."${collectionFactoryMethod}"(String)
+		def collection = objectFactory()."${collectionFactoryMethod}"(String)
 
 		and:
 		def realizedElements = []
@@ -74,7 +76,7 @@ class DeferredUtilsTest extends DeferredUtils_BaseSpec {
 	@Unroll
 	def "can realize empty deferred collection"(collectionFactoryMethod) {
 		given:
-		def collection = objectFactory."${collectionFactoryMethod}"(String)
+		def collection = objectFactory()."${collectionFactoryMethod}"(String)
 
 		when:
 		realize(collection)

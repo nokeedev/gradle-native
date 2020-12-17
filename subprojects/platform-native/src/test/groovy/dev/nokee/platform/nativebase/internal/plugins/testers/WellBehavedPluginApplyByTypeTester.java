@@ -1,8 +1,8 @@
 package dev.nokee.platform.nativebase.internal.plugins.testers;
 
+import dev.nokee.internal.testing.utils.TestUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -12,7 +12,7 @@ public abstract class WellBehavedPluginApplyByTypeTester {
 
 	@Test
 	void canApplyPluginByTypeUsingProjectApply() {
-		Project project = ProjectBuilder.builder().build();
+		Project project = TestUtils.rootProject();
 		project.apply(Collections.singletonMap("plugin", getPluginTypeUnderTest()));
 	}
 }

@@ -1,5 +1,6 @@
 package dev.nokee.fixtures
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.language.base.LanguageSourceSet
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier
 import dev.nokee.language.base.internal.LanguageSourceSetName
@@ -10,13 +11,12 @@ import dev.nokee.platform.base.internal.ComponentName
 import dev.nokee.platform.base.internal.HasLanguageSourceSetAccessor
 import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Assume
 import spock.lang.Specification
 import spock.lang.Unroll
 
 abstract class AbstractComponentPluginTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 
 	@Unroll
 	def "extension has default source set getter"() {

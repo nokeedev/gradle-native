@@ -12,9 +12,6 @@ repositories {
 }
 
 dependencies {
-	compileOnly "org.projectlombok:lombok:latest.release"
-	annotationProcessor "org.projectlombok:lombok:latest.release"
-
 	api 'com.google.dagger:dagger:latest.release'
 	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
 

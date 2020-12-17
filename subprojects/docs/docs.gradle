@@ -53,16 +53,11 @@ dependencies {
 	docsTestImplementation project(':coreExec')
 	docsTestImplementation project(':coreUtils')
 
-	docsTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"
-	docsTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
-	docsTestImplementation 'org.apache.commons:commons-lang3:3.9'
-	docsTestImplementation 'org.hamcrest:hamcrest:2.2'
+	docsTestImplementation project(':internalTesting')
 
 	docsTestImplementation 'commons-io:commons-io:2.6'
 	docsTestImplementation 'net.sourceforge.nekohtml:nekohtml:1.9.21'
 	docsTestImplementation 'io.github.http-builder-ng:http-builder-ng-core:1.0.4'
-	docsTestImplementation 'com.google.guava:guava:28.2-jre'
 	docsTestImplementation testFixtures('dev.nokee.docs:docs-gradle-plugin:latest.integration')
 	docsTestImplementation project(':platformBase')
 	docsTestImplementation project(':languageC')

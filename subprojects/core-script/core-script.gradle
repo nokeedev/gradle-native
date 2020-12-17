@@ -11,13 +11,9 @@ repositories {
 
 dependencies {
 	compileOnly gradleApi(minimumGradleVersion)
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
+	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)
-	testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
-	testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
 }
 
 publishing {

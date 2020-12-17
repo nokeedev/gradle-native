@@ -1,8 +1,8 @@
 package dev.nokee.platform.nativebase.internal.plugins.testers;
 
+import dev.nokee.internal.testing.utils.TestUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.Test;
 
 import static java.util.Collections.singletonMap;
@@ -13,7 +13,7 @@ public abstract class WellBehavedPluginApplyByIdTester {
 	protected abstract String getQualifiedPluginIdUnderTest();
 	protected abstract Class<? extends Plugin<?>> getPluginTypeUnderTest();
 
-	private final Project project = ProjectBuilder.builder().build();
+	private final Project project = TestUtils.rootProject();
 
 	private void applyPluginUnderTest() {
 		project.apply(singletonMap("plugin", getQualifiedPluginIdUnderTest()));

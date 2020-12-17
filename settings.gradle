@@ -90,6 +90,10 @@ include 'ideXcode'
 project(':ideXcode').projectDir = file('subprojects/ide-xcode')
 project(':ideXcode').buildFileName = 'ide-xcode.gradle'
 
+include 'internalTesting'
+project(':internalTesting').projectDir = file('subprojects/internal-testing')
+project(':internalTesting').buildFileName = 'internal-testing.gradle'
+
 include 'languageBase'
 project(':languageBase').projectDir = file('subprojects/language-base')
 project(':languageBase').buildFileName = 'language-base.gradle'

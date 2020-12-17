@@ -1,5 +1,6 @@
 package dev.nokee.language.objectivecpp.internal.plugins
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier
 import dev.nokee.language.base.internal.LanguageSourceSetInstantiator
 import dev.nokee.language.base.internal.LanguageSourceSetName
@@ -12,13 +13,12 @@ import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
 
 @Subject(ObjectiveCppLanguageBasePlugin)
 class ObjectiveCppLanguageBasePluginTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 
 	def "registers Objective-C++ source set factory"() {
 		when:

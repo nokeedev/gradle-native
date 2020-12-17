@@ -1,5 +1,6 @@
 package dev.nokee.language.jvm.internal.plugins
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.language.base.LanguageSourceSet
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier
 import dev.nokee.language.base.internal.LanguageSourceSetName
@@ -19,7 +20,6 @@ import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
@@ -28,7 +28,7 @@ import java.util.function.Predicate
 
 @Subject(JvmLanguageBasePlugin)
 class JvmLanguageBasePluginTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 
 	def "does not register any JVM source set when no JVM plugins applied"() {
 		when:

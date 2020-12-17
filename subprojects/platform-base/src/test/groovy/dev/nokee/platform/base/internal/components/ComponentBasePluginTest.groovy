@@ -1,12 +1,12 @@
 package dev.nokee.platform.base.internal.components
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.platform.base.ComponentContainer
 import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 class ComponentBasePluginTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 
 	def "creates components container extension"() {
 		when:

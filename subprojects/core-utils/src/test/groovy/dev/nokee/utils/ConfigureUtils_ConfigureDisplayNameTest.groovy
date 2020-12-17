@@ -1,13 +1,13 @@
 package dev.nokee.utils
 
-import org.gradle.testfixtures.ProjectBuilder
+import dev.nokee.internal.testing.utils.TestUtils
 import spock.lang.Shared
 import spock.lang.Specification
 
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName
 
 class ConfigureUtils_ConfigureDisplayNameTest extends Specification {
-	@Shared def project = ProjectBuilder.builder().build()
+	@Shared def project = TestUtils.rootProject()
 
 	def "can configure display name of property"() {
 		given:

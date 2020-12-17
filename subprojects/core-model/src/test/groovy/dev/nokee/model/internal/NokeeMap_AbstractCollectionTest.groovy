@@ -1,15 +1,15 @@
 package dev.nokee.model.internal
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.model.DomainObjectIdentifier
 import org.gradle.api.Action
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
 @Subject(NokeeMapImpl)
 abstract class NokeeMap_AbstractCollectionTest extends Specification {
-	@Shared def objectFactory = ProjectBuilder.builder().build().objects
+	@Shared def objectFactory = TestUtils.objectFactory()
 
 	protected abstract def collectionUnderTest(NokeeMap subject)
 	protected abstract def byTypeFilter(Class type)

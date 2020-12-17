@@ -1,11 +1,11 @@
 package dev.nokee.language.base.internal
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.language.base.LanguageSourceSet
 import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.*
 import groovy.transform.EqualsAndHashCode
 import org.apache.commons.lang3.RandomStringUtils
-import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.util.Path
 
 trait LanguageSourceSetFixture {
@@ -80,7 +80,7 @@ trait LanguageSourceSetFixture {
 
 	static class MyLanguageSourceSet extends AbstractLanguageSourceSet<MyLanguageSourceSet> {
 		MyLanguageSourceSet() {
-			super(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of('a' + RandomStringUtils.randomAlphanumeric(12)), MyLanguageSourceSet, new MyOwnerIdentifier()), MyLanguageSourceSet, ProjectBuilder.builder().build().objects)
+			super(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of('a' + RandomStringUtils.randomAlphanumeric(12)), MyLanguageSourceSet, new MyOwnerIdentifier()), MyLanguageSourceSet, TestUtils.objectFactory())
 		}
 	}
 
@@ -92,7 +92,7 @@ trait LanguageSourceSetFixture {
 
 	static class LanguageSourceSetImpl extends AbstractLanguageSourceSet<LanguageSourceSetImpl> {
 		LanguageSourceSetImpl() {
-			super(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of('a' + RandomStringUtils.randomAlphanumeric(12)), LanguageSourceSetImpl, new MyOwnerIdentifier()), LanguageSourceSetImpl, ProjectBuilder.builder().build().objects)
+			super(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of('a' + RandomStringUtils.randomAlphanumeric(12)), LanguageSourceSetImpl, new MyOwnerIdentifier()), LanguageSourceSetImpl, TestUtils.objectFactory())
 		}
 	}
 }

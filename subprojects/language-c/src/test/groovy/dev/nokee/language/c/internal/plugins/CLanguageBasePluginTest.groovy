@@ -1,17 +1,17 @@
 package dev.nokee.language.c.internal.plugins
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.language.base.internal.LanguageSourceSetInstantiator
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin
 import dev.nokee.language.c.internal.CHeaderSetImpl
 import dev.nokee.language.c.internal.CSourceSetImpl
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
 
 @Subject(CLanguageBasePlugin)
 class CLanguageBasePluginTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 
 	def "registers C source set factory"() {
 		when:

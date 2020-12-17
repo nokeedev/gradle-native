@@ -11,7 +11,7 @@ import static org.apache.commons.io.FilenameUtils.separatorsToSystem
 
 @Subject(VisualStudioIdeBasePlugin)
 class VisualStudioIdeBasePluginTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 
 	def "registers lifecycle task"() {
 		when:

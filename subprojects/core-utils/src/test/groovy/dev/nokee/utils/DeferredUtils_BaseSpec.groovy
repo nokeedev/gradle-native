@@ -1,30 +1,29 @@
 package dev.nokee.utils
 
+
 import kotlin.jvm.functions.Function0
 import org.gradle.api.Named
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 import java.util.concurrent.Callable
 import java.util.function.Supplier
 
-class DeferredUtils_BaseSpec extends Specification {
-	def project = ProjectBuilder.builder().build()
-	def objectFactory = project.objects
-	def providerFactory = project.providers
+import static dev.nokee.internal.testing.utils.TestUtils.objectFactory
+import static dev.nokee.internal.testing.utils.TestUtils.providerFactory
 
+class DeferredUtils_BaseSpec extends Specification {
 	protected Property<String> propertyOf(String value) {
 		return propertyOf(String, value)
 	}
 
 	protected <T> Property<T> propertyOf(Class<T> type, T value) {
-		return objectFactory.property(type).value(providerOf(value))
+		return objectFactory().property(type).value(providerOf(value))
 	}
 
 	protected <T> Provider<T> providerOf(T value) {
-		return providerFactory.provider { ThrowIfResolvedGuard.resolve(value) }
+		return providerFactory().provider { ThrowIfResolvedGuard.resolve(value) }
 	}
 
 	protected <T> Supplier<T> supplierOf(T value) {

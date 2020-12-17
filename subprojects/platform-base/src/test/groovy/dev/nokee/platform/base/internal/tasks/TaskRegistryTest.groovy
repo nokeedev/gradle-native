@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal.tasks
 
+import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.*
 import dev.nokee.platform.base.Component
@@ -12,15 +13,16 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
+import static dev.nokee.internal.testing.utils.TestUtils.*
+
 @Subject(TaskRegistryImpl)
 class TaskRegistryTest extends Specification {
 	protected eventPublisher = new DomainObjectEventPublisherImpl()
-	protected taskContainer = ProjectBuilder.builder().build().getTasks()
+	protected taskContainer = rootProject().getTasks()
 
 	protected TaskRegistry newSubject() {
 		return new TaskRegistryImpl(DEFAULT_OWNER_IDENTIFIER, eventPublisher, taskContainer)

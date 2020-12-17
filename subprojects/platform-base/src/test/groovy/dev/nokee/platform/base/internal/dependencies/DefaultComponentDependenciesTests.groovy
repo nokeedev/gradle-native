@@ -1,18 +1,17 @@
 package dev.nokee.platform.base.internal.dependencies
 
-
+import dev.nokee.internal.testing.utils.TestUtils
+import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.AbstractComponentDependenciesGroovyDslTest
 import dev.nokee.platform.base.DependencyBucket
-import dev.nokee.model.internal.ProjectIdentifier
 import org.gradle.api.UnknownDomainObjectException
 import org.gradle.api.artifacts.Configuration
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
 
 @Subject(DefaultComponentDependencies)
 class DefaultComponentDependenciesTest extends Specification {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 	def factory = Mock(DependencyBucketFactory)
 	def ownerIdentifier = ProjectIdentifier.of('root')
 	def dependencies = project.objects.newInstance(DefaultComponentDependencies, ownerIdentifier, factory)
@@ -150,7 +149,7 @@ class DefaultComponentDependenciesTest extends Specification {
 
 @Subject(DefaultComponentDependencies)
 class DefaultComponentDependenciesGroovyDslTest extends AbstractComponentDependenciesGroovyDslTest {
-	def project = ProjectBuilder.builder().build()
+	def project = TestUtils.rootProject()
 	def factory = new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)
 	ComponentDependenciesInternal dependenciesUnderTest = project.objects.newInstance(DefaultComponentDependencies, ProjectIdentifier.of('root'), factory)
 
