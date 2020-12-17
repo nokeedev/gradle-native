@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni.repositories
 
+import com.google.common.collect.Iterables
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.nokee.core.exec.CachingProcessBuilderEngine
@@ -9,9 +10,11 @@ import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCNSSavePanelLib
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils
 import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory
+import dev.nokee.runtime.darwin.internal.locators.XcodebuildLocator
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin
 import dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes
 import dev.nokee.runtime.nativebase.internal.LibraryElements
+import spock.lang.Ignore
 import spock.lang.Requires
 import spock.lang.Unroll
 import spock.util.environment.OperatingSystem
@@ -20,6 +23,7 @@ import java.nio.file.Files
 
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.hasFailureCause
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.hasFailureDescription
+import static dev.nokee.runtime.darwin.internal.FrameworkRouteHandler.findMacOsSdks
 import static java.util.regex.Pattern.*
 import static org.hamcrest.text.MatchesPattern.matchesPattern
 import static spock.util.matcher.HamcrestSupport.expect
@@ -102,6 +106,7 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 		result.assertOutputContains("Nokee server stopped")
 	}
 
+	@Ignore // For now, JavaVM is only available on Xcode 12.1 and lower
 	def "can depends on subframeworks via capabilities (ie JavaNativeFoundation)"() {
 		settingsFile << "rootProject.name = 'save-panel'"
 		buildFile << """
@@ -398,9 +403,9 @@ Searched in the following locations:
 		versionNotation       			| displayName
 		'latest.integration'  			| 'latest status for integration'
 		'latest.release'      			| 'latest status for release'
-		'10.+'                			| 'prefix version range'
-		'[10.0,10.17]'        			| 'version range'
-		"[10.0,10.17]!!${sdkVersion}"	| 'version range with preference'
+		'11.+'                			| 'prefix version range'
+		'[10.0,11.17]'        			| 'version range'
+		"[10.0,11.17]!!${sdkVersion}"	| 'version range with preference'
 	}
 
 	def "handles xcrun errors without logging beyond info level"() {
@@ -467,7 +472,8 @@ Searched in the following locations:
 
 	private static final CachingProcessBuilderEngine ENGINE = new CachingProcessBuilderEngine(new ProcessBuilderEngine())
 	private String getSdkVersion() {
-		return CommandLine.of("xcrun", "--show-sdk-version")
+		def xcodeSdk = findMacOsSdks(Iterables.getFirst(new XcodebuildLocator().findAll("xcodebuild"), null), ENGINE)
+		return CommandLine.of("xcrun", "-sdk", xcodeSdk.identifier, "--show-sdk-version")
 			.execute(ENGINE)
 			.result
 			.assertNormalExitValue()
