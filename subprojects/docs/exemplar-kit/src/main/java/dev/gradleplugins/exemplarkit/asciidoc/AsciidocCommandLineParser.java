@@ -1,14 +1,14 @@
-package dev.nokee.docs.fixtures;
+package dev.gradleplugins.exemplarkit.asciidoc;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class CommandLine {
+final class AsciidocCommandLineParser {
 	private final String executable;
 	private final List<String> arguments;
 
-	private CommandLine(String executable, List<String> arguments) {
+	private AsciidocCommandLineParser(String executable, List<String> arguments) {
 		this.executable = executable;
 		this.arguments = arguments;
 	}
@@ -21,7 +21,7 @@ public class CommandLine {
 		return arguments;
 	}
 
-	public static CommandLine of(String commandLine) {
+	public static AsciidocCommandLineParser parse(String commandLine) {
 		String[] commandLineWords = commandLine.split("\\s+");
 		String executable = commandLineWords[0];
 
@@ -30,6 +30,6 @@ public class CommandLine {
 			arguments = Arrays.asList(Arrays.copyOfRange(commandLineWords, 1, commandLineWords.length));
 		}
 
-		return new CommandLine(executable, arguments);
+		return new AsciidocCommandLineParser(executable, arguments);
 	}
 }

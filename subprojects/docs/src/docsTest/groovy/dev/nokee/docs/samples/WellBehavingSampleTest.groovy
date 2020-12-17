@@ -1,5 +1,9 @@
 package dev.nokee.docs.samples
 
+import dev.gradleplugins.exemplarkit.*
+import dev.gradleplugins.exemplarkit.output.JarCommandOutput
+import dev.gradleplugins.exemplarkit.output.TreeCommandOutput
+import dev.gradleplugins.exemplarkit.output.UnzipCommandOutput
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AvailableToolChains
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.runnerkit.BuildResult
@@ -12,7 +16,8 @@ import dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl
 import dev.nokee.core.exec.CommandLineTool
 import dev.nokee.core.exec.LoggingEngine
 import dev.nokee.core.exec.ProcessBuilderEngine
-import dev.nokee.docs.fixtures.*
+import dev.nokee.docs.fixtures.OnlyIfCondition
+import dev.nokee.docs.fixtures.SampleContentFixture
 import dev.nokee.docs.fixtures.html.HtmlTag
 import dev.nokee.docs.tags.Baked
 import dev.nokee.language.c.internal.UTTypeCSource
@@ -21,8 +26,6 @@ import dev.nokee.language.objectivec.internal.UTTypeObjectiveCSource
 import dev.nokee.language.objectivecpp.internal.UTTypeObjectiveCppSource
 import dev.nokee.language.swift.internal.UTTypeSwiftSource
 import groovy.io.FileType
-import groovy.transform.ToString
-import org.apache.commons.lang3.SystemUtils
 import org.gradle.internal.logging.ConsoleRenderer
 import org.gradle.internal.os.OperatingSystem
 import org.junit.Rule
@@ -32,17 +35,17 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.time.Duration
-import java.util.concurrent.Callable
 import java.util.function.UnaryOperator
 import java.util.regex.Pattern
 
-import static dev.nokee.core.exec.CommandLine.of
+import static dev.gradleplugins.exemplarkit.StepExecutors.skipIf
+import static dev.gradleplugins.exemplarkit.StepExecutors.replaceIfAbsent
+import static dev.gradleplugins.exemplarkit.StepExecutionResult.stepExecuted
 import static dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect.duplicateToSystemError
 import static dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect.duplicateToSystemOutput
-import static dev.nokee.utils.DeferredUtils.flatUnpack
 import static org.apache.commons.io.FilenameUtils.getExtension
-import static org.apache.commons.io.FilenameUtils.separatorsToSystem
 import static org.apache.commons.io.FilenameUtils.separatorsToUnix
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS
 import static org.hamcrest.Matchers.greaterThan
 import static org.junit.Assume.assumeThat
 import static org.junit.Assume.assumeTrue
@@ -79,15 +82,15 @@ abstract class WellBehavingSampleTest extends Specification {
 	}
 
 	// TODO: Migrate to TestFile
-	protected String unzipTo(TestFile zipFile, File workingDirectory) {
-		zipFile.assertIsFile()
+	protected static String unzipTo(File zipFile, File workingDirectory) {
+		assert zipFile.isFile()
 		workingDirectory.mkdirs()
 		def result = CommandLineTool.of('unzip')
 			.withArguments(zipFile.getCanonicalPath(), '-d', workingDirectory.getCanonicalPath())
 			.newInvocation()
 			.redirectStandardOutput(duplicateToSystemOutput())
 			.redirectErrorOutput(duplicateToSystemError())
-			.workingDirectory(testDirectory)
+			.workingDirectory(workingDirectory)
 			.buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine()))
 			.waitFor(Duration.ofSeconds(30))
 			.assertNormalExitValue()
@@ -182,10 +185,17 @@ abstract class WellBehavingSampleTest extends Specification {
 	 */
 	def "ensure gradle commands does not have any timing values in build result"() {
 		// TODO: Reports all the error at once instead of failing on the first one
-		def commands = wrap(fixture.commands).findAll { it instanceof GradleWrapperCommand } as List<GradleWrapperCommand>
-		assumeThat("Gradle commands are present", commands.size(), greaterThan(0))
+		def gradleSteps = fixture.getDslExemplar(GradleScriptDsl.GROOVY_DSL).steps.findAll { it.executable.endsWith('gradlew') }
+		assumeThat("Gradle commands are present", gradleSteps.size(), greaterThan(0))
 		expect:
-		commands*.assertNoTimingInformationOnBuildResult()
+		gradleSteps.each { assertNoTimingInformationOnBuildResult(it) }
+	}
+
+	private static final Pattern BUILD_RESULT_PATTERN = Pattern.compile("BUILD (SUCCESSFUL|FAILED) in \\d+(ms|s|m|h)( \\d+(ms|s|m|h))*");
+	private static void assertNoTimingInformationOnBuildResult(Step step) {
+		step.output.ifPresent { output ->
+			assert !BUILD_RESULT_PATTERN.matcher(output).find()
+		}
 	}
 
 	@Category(Baked)
@@ -231,65 +241,85 @@ abstract class WellBehavingSampleTest extends Specification {
 		toolChain = AvailableToolChains.getToolChain(toolChainRequirement)
 		assumeTrue(toolChain != null && toolChain.meets(ToolChainRequirement.AVAILABLE))
 
-		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
+		def exemplar = fixture.getDslExemplar(dsl)
+		ExemplarExecutor executor = ExemplarExecutor.builder()
+			.registerCommandLineToolExecutor(skipIf { !OnlyIfCondition.of(Objects.toString(it.attributes.get('only-if'), null)).canExecute() })
+			.registerCommandLineToolExecutor(new JarStepExecutor())
+			.registerCommandLineToolExecutor(skipIf {it.executable == 'tree' && IS_OS_WINDOWS })
+			.registerCommandLineToolExecutor(new UnzipStepExecutor())
+			.registerCommandLineToolExecutor(skipIf { it.executable == 'ls' && IS_OS_WINDOWS })
+			.registerCommandLineToolExecutor(replaceIfAbsent('mv', 'move'))
+			.registerCommandLineToolExecutor(new GradleWrapperStepExecutor())
+			.build()
+		def result = ExemplarRunner.create(executor).inDirectory(temporaryFolder.testDirectory).using(exemplar).run()
 
-		def c = wrapAndGetExecutable(fixture.getCommands())
-		assumeThat(c.size(), greaterThan(0));
+		assumeThat(exemplar.steps.size(), greaterThan(0))
 		expect:
-		c.each { it.execute(TestFile.of(temporaryFolder.testDirectory)) }
+		[exemplar.steps, result.stepResults].transpose().each { Step expected, StepExecutionResult actual ->
+			assert actual.outcome != StepExecutionOutcome.FAILED
+
+			if (actual.outcome == StepExecutionOutcome.EXECUTED) {
+				assert actual.exitValue.get() == 0
+				if (expected.executable == './gradlew') {
+					def actualBuildResult = BuildResult.from(actual.output.get())
+						.withNormalizedTaskOutput({ it.taskName == 'xcode' }, normalizeXcodePath(testDirectory))
+						.withNormalizedTaskOutput({ it.taskName == 'outgoingVariants' }, normalizeOutputVariantsPath())
+
+					if (expected.output.get().startsWith('...\n') && expected.output.get().endsWith('\n...')) {
+						def tokens = expected.output.get().split("\n?\\.\\.\\.\n?")
+						tokens.drop(1)
+						// the first element is empty because of the first ...\n
+						assert tokens.size() > 0
+						tokens.each {
+							assert actualBuildResult.output.contains(it)
+						}
+					} else {
+						def expectedBuildResult = BuildResult.from(expected.output.get())
+						assert actualBuildResult == expectedBuildResult
+					}
+				} else if (expected.executable == 'tree') {
+					if (actual.output.present) {
+						assert TreeCommandOutput.from(actual.output.get()) == TreeCommandOutput.from(expected.output.get())
+					}
+				} else if (expected.executable == 'unzip') {
+					if (actual.output.present) {
+						assert UnzipCommandOutput.from(actual.output.get()) == UnzipCommandOutput.from(expected.output.get())
+					}
+				} else if (expected.executable == 'jar') {
+					assert JarCommandOutput.from(actual.output.get()) == JarCommandOutput.from(expected.output.get())
+				} else if (expected.executable == 'xcodebuild') {
+					assert BuildResult.from(actual.output.get()) == BuildResult.from(expected.output.get())
+				} else {
+					if (actual.output.present) {
+						assert actual.output.get().startsWith(expected.output.get())
+					}
+				}
+			}
+		}
 
 		where:
 		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]
 	}
 
-	private List<? super Comm> wrapAndGetExecutable(List<Command> commands) {
-		return commands.findAll { it.canExecute() }.collect { convert(it) }
+	private static UnaryOperator<String> normalizeXcodePath(File testDirectory) {
+		return { it.replace(new ConsoleRenderer().asClickableFileUrl(testDirectory), 'file://').replace('\\', '/') }
 	}
 
-	private List<? super Comm> wrap(List<Command> commands) {
-		return commands.collect { convert(it) }
+	private static UnaryOperator<String> normalizeOutputVariantsPath() {
+		return { it.replace('\\', '/') }
 	}
 
-	protected Comm convert(Command command) {
-		if (command.executable == './gradlew') {
-			return new GradleWrapperCommand(command)
-		} else if (command.executable == 'ls') {
-			return new ListDirectoryCommand(command)
-		} else if (command.executable == 'mv') {
-			return new MoveFilesCommand(command)
-		} else if (command.executable == 'unzip') {
-			return new UnzipCommand(command)
-		} else if (command.executable == 'tree') {
-			return new TreeCommand(command)
-		} else if (command.executable == 'jar') {
-			return new JarCommand(command)
-		} else if (command.executable == 'xcodebuild') {
-			return new XcodebuildCommand(command)
-		}
-		return new GenericCommand(command)
-	}
-
-	@ToString
-	private static abstract class Comm {
-		protected final Command command
-
-		Comm(Command command) {
-			this.command = command
-		}
-
-		abstract void execute(TestFile testDirectory);
-	}
-
-	private class GradleWrapperCommand extends Comm {
-		GradleWrapperCommand(Command command) {
-			super(command)
+	private final class GradleWrapperStepExecutor implements StepExecutor {
+		@Override
+		boolean canHandle(Step step) {
+			return step.executable == './gradlew'
 		}
 
 		@Override
-		void execute(TestFile testDirectory) {
-			def executer = configureLocalPluginResolution(GradleRunner.create(GradleExecutor.gradleWrapper()).inDirectory(testDirectory).withRichConsoleEnabled())
+		StepExecutionResult run(StepExecutionContext context) {
+			def executer = configureLocalPluginResolution(GradleRunner.create(GradleExecutor.gradleWrapper()).inDirectory(context.currentWorkingDirectory).withRichConsoleEnabled())
 
-			def initScript = testDirectory.file("init.gradle") << """
+			def initScript = new File(context.currentWorkingDirectory, "init.gradle") << """
 				allprojects { p ->
 					apply plugin: ${toolChain.pluginClass}
 
@@ -301,183 +331,59 @@ abstract class WellBehavingSampleTest extends Specification {
 				}
 			"""
 			executer = toolChain.configureExecuter(executer.usingInitScript(initScript))
-			command.args.each {
+			context.currentStep.arguments.each {
 				executer = executer.withArgument(it)
 			}
 			def result = executer.build()
-				.withNormalizedTaskOutput({ it.taskName == 'xcode' }, normalizeXcodePath(testDirectory))
-				.withNormalizedTaskOutput({ it.taskName == 'outgoingVariants' }, normalizeOutputVariantsPath())
 
-
-			if (command.expectedOutput.get().startsWith('...\n') && command.expectedOutput.get().endsWith('\n...')) {
-				def tokens = command.expectedOutput.get().split("\n?\\.\\.\\.\n?")
-				tokens.drop(1) // the first element is empty because of the first ...\n
-				assert tokens.size() > 0
-				tokens.each {
-					assert result.output.contains(it)
-				}
-			} else {
-				def expectedResult = BuildResult.from(command.expectedOutput.get())
-				assert result == expectedResult
-			}
-		}
-
-		private static UnaryOperator<String> normalizeXcodePath(File testDirectory) {
-			return { it.replace(new ConsoleRenderer().asClickableFileUrl(testDirectory), 'file://').replace('\\', '/') }
-		}
-
-		private static UnaryOperator<String> normalizeOutputVariantsPath() {
-			return { it.replace('\\', '/') }
-		}
-
-		private static final Pattern BUILD_RESULT_PATTERN = Pattern.compile("BUILD (SUCCESSFUL|FAILED) in \\d+(ms|s|m|h)( \\d+(ms|s|m|h))*");
-		void assertNoTimingInformationOnBuildResult() {
-			command.expectedOutput.ifPresent { output ->
-				assert !BUILD_RESULT_PATTERN.matcher(output).find()
-			}
+			return stepExecuted(0, result.output)
 		}
 	}
 
-	private class XcodebuildCommand extends Comm {
-		XcodebuildCommand(Command command) {
-			super(command)
+	private static final class UnzipStepExecutor implements StepExecutor {
+		static File inputFile(StepExecutionContext context) {
+			return new File(context.currentWorkingDirectory, context.currentStep.arguments[0])
+		}
+
+		static File outputDirectory(StepExecutionContext context) {
+			return new File(context.currentWorkingDirectory, context.currentStep.arguments[context.currentStep.arguments.findIndexOf { it == '-d' } + 1])
 		}
 
 		@Override
-		void execute(TestFile testDirectory) {
-			def result = of(command.executable, command.args)
-				.newInvocation()
-				.redirectStandardOutput(duplicateToSystemOutput())
-				.redirectErrorOutput(duplicateToSystemError())
-				.workingDirectory(testDirectory)
-				.buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine()))
-				.waitFor()
-				.assertNormalExitValue()
-				.output
-				.parse { BuildResult.from(it) }
-
-			assert result == BuildResult.from(command.expectedOutput.get())
-		}
-	}
-
-	private class ListDirectoryCommand extends Comm {
-
-		ListDirectoryCommand(Command command) {
-			super(command)
+		boolean canHandle(Step step) {
+			return step.executable == 'unzip'
 		}
 
 		@Override
-		void execute(TestFile testDirectory) {
-			if (!SystemUtils.IS_OS_WINDOWS) {
-				def result = of(script(command.executable, command.args))
-					.newInvocation()
-					.redirectStandardOutput(duplicateToSystemOutput())
-					.redirectErrorOutput(duplicateToSystemError())
-					.workingDirectory(testDirectory)
-					.buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine()))
-					.waitFor()
-					.assertNormalExitValue()
-				assert result.standardOutput.asString.startsWith(command.expectedOutput.get())
-			}
-		}
-	}
-
-	private class MoveFilesCommand extends Comm {
-
-		MoveFilesCommand(Command command) {
-			super(command)
-		}
-
-		String getMoveExecutable() {
-			if (SystemUtils.IS_OS_WINDOWS) {
-				// Trust me? Not too sure if it's equal.
-				return 'move'
-			}
-			return command.executable
-		}
-
-		@Override
-		void execute(TestFile testDirectory) {
-			def result = of(script(moveExecutable, command.args.collect { separatorsToSystem(it) }))
-				.newInvocation()
-				.redirectStandardOutput(duplicateToSystemOutput())
-				.redirectErrorOutput(duplicateToSystemError())
-				.workingDirectory(testDirectory)
-				.buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine()))
-				.waitFor()
-				.assertNormalExitValue()
-
-			if (!SystemUtils.IS_OS_WINDOWS) {
-				assert result.standardOutput.asString.trim().empty
-			}
-		}
-	}
-
-	private class UnzipCommand extends Comm {
-		UnzipCommand(Command command) {
-			super(command)
-		}
-
-		TestFile inputFile(TestFile testDirectory) {
-			return testDirectory.file(command.args[0])
-		}
-
-		TestFile outputDirectory(TestFile testDirectory) {
-			return testDirectory.file(command.args[command.args.findIndexOf { it == '-d' } + 1])
-		}
-
-		@Override
-		void execute(TestFile testDirectory) {
-			def tool = CommandLineTool.fromPath(command.executable)
-			TestFile inputFile = inputFile(testDirectory)
-			TestFile outputDirectory = outputDirectory(testDirectory)
+		StepExecutionResult run(StepExecutionContext context) {
+			def tool = CommandLineTool.fromPath(context.currentStep.executable)
+			def inputFile = inputFile(context)
+			def outputDirectory = outputDirectory(context)
 			if (tool.isPresent()) {
 				String stdout = unzipTo(inputFile, outputDirectory)
 				// unzip add extra newline but also have extra tailing spaces
-				stdout = stdout.replace(testDirectory.absolutePath, '/Users/daniel')
+				stdout = stdout.replace(context.currentWorkingDirectory.absolutePath, '/Users/daniel')
 				stdout = separatorsToUnix(stdout)
-
-				assert UnzipCommandHelper.Output.parse(stdout) == UnzipCommandHelper.Output.parse(command.expectedOutput.get())
-			} else {
-				inputFile.usingNativeTools().unzipTo(outputDirectory)
+				return stepExecuted(0, stdout)
 			}
+
+			TestFile.of(inputFile).usingNativeTools().unzipTo(outputDirectory)
+			return stepExecuted(0)
 		}
 	}
 
-	private class TreeCommand extends Comm {
-		TreeCommand(Command command) {
-			super(command)
+	private static final class JarStepExecutor implements StepExecutor {
+		@Override
+		boolean canHandle(Step step) {
+			return step.executable == 'jar'
 		}
 
 		@Override
-		void execute(TestFile testDirectory) {
-			if (!SystemUtils.IS_OS_WINDOWS) {
-				def result = of(command.executable, command.args)
-					.newInvocation()
-					.redirectStandardOutput(duplicateToSystemOutput())
-					.redirectErrorOutput(duplicateToSystemError())
-					.workingDirectory(testDirectory)
-					.buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine()))
-					.waitFor()
-					.assertNormalExitValue()
-					.standardOutput
-					.parse { TreeCommandHelper.Output.parse(it) }
-				assert result == TreeCommandHelper.Output.parse(command.getExpectedOutput().get())
-			}
-		}
-	}
-
-	private class JarCommand extends Comm {
-		JarCommand(Command command) {
-			super(command)
-		}
-
-		@Override
-		void execute(TestFile testDirectory) {
+		StepExecutionResult run(StepExecutionContext context) {
 			def tool = CommandLineTool.fromPath('jar')
 			if (!tool.isPresent()) {
 				String javaHome = System.getenv('JAVA_HOME')
-				if (javaHome == null && SystemUtils.IS_OS_WINDOWS) {
+				if (javaHome == null && IS_OS_WINDOWS) {
 					// Check known location
 					javaHome = "C:\\Program Files\\Java\\jdk1.8.0_241"
 				}
@@ -485,51 +391,15 @@ abstract class WellBehavingSampleTest extends Specification {
 				tool = Optional.of(CommandLineTool.of(new File(javaHome, OperatingSystem.current().getExecutableName("bin/jar"))))
 			}
 			def result = tool.get()
-				.withArguments(command.args)
+				.withArguments(context.currentStep.arguments)
 				.newInvocation()
 				.redirectStandardOutput(duplicateToSystemOutput())
 				.redirectErrorOutput(duplicateToSystemError())
-				.workingDirectory(testDirectory)
+				.workingDirectory(context.currentWorkingDirectory)
 				.buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine()))
 				.waitFor()
-				.assertNormalExitValue()
-				.standardOutput
-				.parse {JarCommandHelper.Output.parse(it) }
 
-			assert result == JarCommandHelper.Output.parse(command.getExpectedOutput().get())
-		}
-	}
-
-	static Callable<List<Object>> getScriptCommandLine() {
-		return {
-			if (SystemUtils.IS_OS_WINDOWS) {
-				return ['cmd', '/c']
-			}
-			return ['/bin/bash', '-c']
-		}
-	}
-
-	static List<Object> script(Object... objects) {
-		return [scriptCommandLine, flatUnpack(Arrays.asList(objects)).join(' ')]
-	}
-
-	private class GenericCommand extends Comm {
-		GenericCommand(Command command) {
-			super(command)
-		}
-
-		@Override
-		void execute(TestFile testDirectory) {
-			def result = of(script(separatorsToSystem(command.executable), command.args))
-				.newInvocation()
-				.workingDirectory(testDirectory)
-				.redirectStandardOutput(duplicateToSystemOutput())
-				.redirectErrorOutput(duplicateToSystemError())
-				.buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine()))
-				.waitFor()
-				.assertNormalExitValue()
-
-			assert result.standardOutput.withNormalizedEndOfLine().asString.startsWith(command.getExpectedOutput().get())
+			return stepExecuted(result.exitValue, result.output.asString)
 		}
 	}
 }

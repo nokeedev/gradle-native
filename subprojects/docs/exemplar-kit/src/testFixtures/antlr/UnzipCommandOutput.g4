@@ -1,8 +1,4 @@
-grammar Unzip;
-
-@header {
-package dev.nokee.docs.fixtures;
-}
+grammar UnzipCommandOutput;
 
 output: unzipHeader (action)+;
 

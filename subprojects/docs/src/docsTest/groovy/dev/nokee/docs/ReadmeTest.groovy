@@ -1,14 +1,15 @@
 package dev.nokee.docs
 
+import dev.gradleplugins.exemplarkit.asciidoc.AsciidoctorContent
 import dev.gradleplugins.runnerkit.GradleExecutor
 import dev.gradleplugins.runnerkit.GradleRunner
 import dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl
 import dev.nokee.docs.fixtures.html.HtmlLinkTester
 import groovy.json.JsonSlurper
 import org.asciidoctor.Asciidoctor
+import org.asciidoctor.ast.Block
 import org.asciidoctor.ast.Document
 import org.asciidoctor.ast.StructuralNode
-import org.asciidoctor.jruby.ast.impl.ListImpl
 import spock.lang.Requires
 import spock.lang.Shared
 import spock.lang.Specification
@@ -93,24 +94,18 @@ class ReadmeTest extends Specification {
 	}
 
 	List<StructuralNode> findSnippetBlocks() {
-		def snippets = new ArrayList<>();
-		Queue<StructuralNode> queue = new ArrayDeque<>();
-		queue.add(readme);
-		while (!queue.isEmpty()) {
-			StructuralNode node = queue.poll();
-			if (node instanceof ListImpl) {
-				queue.addAll(((ListImpl) node).getItems());
-			} else {
-				for (StructuralNode child : node.getBlocks()) {
-					if (child.isBlock() && child.getContext().equals("listing") && child.getStyle().equals("source")) {
-						snippets.add(child)
-					} else {
-						queue.offer(child);
-					}
+		def snippets = new ArrayList<StructuralNode>();
+		AsciidoctorContent.of(readme).walk(new AsciidoctorContent.Visitor() {
+			@Override
+			void visit(Document node) {}
+
+			@Override
+			void visit(Block node) {
+				if (node.isBlock() && node.getContext().equals("listing") && node.getStyle().equals("source")) {
+					snippets.add(node)
 				}
 			}
-		}
-
+		})
 		return snippets
 	}
 }

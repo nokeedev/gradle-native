@@ -1,10 +1,13 @@
 package dev.nokee.core.exec
 
+import org.apache.commons.lang3.SystemUtils
+import spock.lang.Requires
 import spock.lang.Specification
 import spock.lang.Subject
 
 import java.util.concurrent.Callable
 
+import static dev.nokee.core.exec.CommandLine.script
 import static java.util.Collections.emptyList
 
 @Subject(CommandLine)
@@ -89,6 +92,22 @@ class CommandLineTest extends Specification {
 		def c = CommandLine.of(['cmd', '/c'], 'foo', ['arg1', 'arg2', 'arg3'])
 		c.tool.executable == 'cmd'
 		c.arguments == CommandLineToolArguments.of('/c', 'foo', 'arg1', 'arg2', 'arg3')
+	}
+
+	@Requires({ SystemUtils.IS_OS_WINDOWS })
+	def "can create command line for cmd on Windows"() {
+		expect:
+		def scriptCommand = script('dir', 'C:\\some\\path')
+		scriptCommand.tool.executable == 'cmd'
+		scriptCommand.arguments.get() == ['/c', 'dir C:\\some\\path']
+	}
+
+	@Requires({ !SystemUtils.IS_OS_WINDOWS })
+	def "can create command line for cmd on *nix"() {
+		expect:
+		def scriptCommand = script('ls', '-l', '/some/path')
+		scriptCommand.tool.executable == '/bin/bash'
+		scriptCommand.arguments.get() == ['-c', 'ls -l /some/path']
 	}
 
 	static Callable<List<Object>> callableOf(List<?> values) {

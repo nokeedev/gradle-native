@@ -1,8 +1,4 @@
-grammar Tree;
-
-@header {
-package dev.nokee.docs.fixtures;
-}
+grammar TreeCommandOutput;
 
 output: treeHeader Newline (entry)+ Newline summary;
 

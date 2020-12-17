@@ -1,0 +1,87 @@
+plugins {
+	id 'java-library'
+
+	id 'java-test-fixtures'
+	id 'antlr'
+
+	// for testing
+	id 'groovy-base'
+}
+
+repositories {
+	jcenter()
+	gradlePluginDevelopment()
+}
+
+dependencies {
+	antlr "org.antlr:antlr4:${antlrVersion}"
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	implementation 'org.asciidoctor:asciidoctorj-api:2.2.0'
+	runtimeOnly 'org.asciidoctor:asciidoctorj:2.2.0'
+	implementation project(':coreExec')
+	implementation project(':coreUtils')
+	implementation gradleRunnerKit()
+	implementation "commons-io:commons-io:${commonsIoVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation 'org.apache.ant:ant:1.9.13' // For unziping sample
+
+	testImplementation "com.google.guava:guava-testlib:30.0-jre"
+	testImplementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.integration"
+	testImplementation "org.zeroturnaround:zt-zip:1.13"
+	testImplementation gradleFixtures()
+
+	testFixturesCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+	testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+	testFixturesApi "org.antlr:antlr4:${antlrVersion}"
+}
+
+//region Configure JUnit 5 with Groovy
+dependencies {
+	testImplementation localGroovy()
+	testImplementation "org.hamcrest:hamcrest:2.2"
+	testImplementation "org.mockito:mockito-core:2.28.2"
+	testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.0"
+	testImplementation "org.junit.jupiter:junit-jupiter-params:5.7.0"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.0"
+}
+tasks.named('test', Test) {
+	it.useJUnitPlatform()
+}
+//endregion
+
+//region Configure Antlr for testFixtures component
+def generateGrammarSource = tasks.named('generateTestFixturesGrammarSource', AntlrTask)
+//region Move output file in appropriate package
+generateGrammarSource.configure { task ->
+	task.arguments += ["-package", "dev.gradleplugins.exemplarkit.output"]
+	ext.sourceSetDirectory = task.outputDirectory
+	task.outputDirectory = new File(sourceSetDirectory, "dev/gradleplugins/exemplarkit/output")
+}
+sourceSets.testFixtures.java.srcDir(generateGrammarSource.map { it.sourceSetDirectory })
+//endregion
+
+//region Generate visitor classes
+generateGrammarSource.configure { task ->
+	task.arguments += ['-visitor']
+}
+//endregion
+
+//region Make generated class/interface package private
+generateGrammarSource.configure { task ->
+	task.doLast {
+		fileTree(dir: task.outputDirectory, includes: ['**/*.java']).visit(new FileVisitor() {
+			@Override
+			void visitDir(FileVisitDetails details) {}
+
+			@Override
+			void visitFile(FileVisitDetails details) {
+				details.file.text = details.file.text.replace('public class', 'class').replace('public interface', 'interface')
+			}
+		})
+	}
+}
+//endregion
+//endregion

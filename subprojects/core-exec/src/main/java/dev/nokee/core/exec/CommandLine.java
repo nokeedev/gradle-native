@@ -10,7 +10,9 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static dev.nokee.core.exec.CommandLineUtils.getScriptCommandLine;
 import static dev.nokee.utils.DeferredUtils.flatUnpack;
 
 /**
@@ -94,5 +96,16 @@ public interface CommandLine {
 			arguments.add(element);
 		});
 		return new DefaultCommandLine(CommandLineTool.of(executable), CommandLineToolArguments.of(arguments.build()));
+	}
+
+	/**
+	 * Creates a {@link CommandLine} instance using the scripting environment to execute the specified command line.
+	 * The scripting environment will be {@literal cmd /c} on Windows or {@literal bash -c} on *nix.
+	 *
+	 * @param commandLine the command line elements, cannot be empty or contains null values.
+	 * @return a {@link CommandLine} instance representing the specified command line executing in the scripting environment, never null.
+	 */
+	static CommandLine script(Object... commandLine) {
+		return of(Arrays.asList(getScriptCommandLine(), flatUnpack(Arrays.asList(commandLine)).stream().map(Object::toString).collect(Collectors.joining(" "))));
 	}
 }

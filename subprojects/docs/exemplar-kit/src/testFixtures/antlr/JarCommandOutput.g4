@@ -1,8 +1,4 @@
-grammar Jar;
-
-@header {
-package dev.nokee.docs.fixtures;
-}
+grammar JarCommandOutput;
 
 output: entry+;
 
