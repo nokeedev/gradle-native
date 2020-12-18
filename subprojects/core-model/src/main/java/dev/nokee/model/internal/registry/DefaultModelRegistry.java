@@ -54,9 +54,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			throw new IllegalArgumentException("Has to be direct descendant");
 		}
 
-		configurations.add(new ModelConfiguration(it -> it.getPath().equals(registration.getPath()), it -> {
-			registration.getActions().forEach(action -> action.execute(it));
-		}));
+		registration.getActions().forEach(action -> configurations.add(new ModelConfiguration(ModelSpecs.satisfyAll(), action)));
 		val node = newNode(registration).register();
 		return new ModelNodeBackedProvider<>(registration.getDefaultProjectionType(), node);
 	}

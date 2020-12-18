@@ -5,10 +5,10 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
-import static com.google.common.base.Predicates.alwaysFalse;
-import static com.google.common.base.Predicates.alwaysTrue;
 import static dev.nokee.model.internal.core.ModelActions.onlyIf;
 import static dev.nokee.model.internal.core.ModelActions.doNothing;
+import static dev.nokee.model.internal.core.ModelSpecs.satisfyAll;
+import static dev.nokee.model.internal.core.ModelSpecs.satisfyNone;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
@@ -20,7 +20,7 @@ class ModelActions_OnlyIfTest {
 	void executesActionIfPredicateIsTrue() {
 		val action = mock(ModelAction.class);
 		val node = node();
-		onlyIf(alwaysTrue(), action).execute(node);
+		onlyIf(satisfyAll(), action).execute(node);
 		verify(action, times(1)).execute(node);
 	}
 
@@ -28,23 +28,23 @@ class ModelActions_OnlyIfTest {
 	void doesNotExecuteActionIfPredicateIsFalse() {
 		val action = mock(ModelAction.class);
 		val node = node();
-		onlyIf(alwaysFalse(), action).execute(node);
+		onlyIf(satisfyNone(), action).execute(node);
 		verify(action, never()).execute(node);
 	}
 
 	@Test
 	void checkToString() {
-		assertThat(onlyIf(alwaysTrue(), doNothing()),
-			hasToString("ModelActions.onlyIf(Predicates.alwaysTrue(), ModelActions.doNothing())"));
+		assertThat(onlyIf(satisfyAll(), doNothing()),
+			hasToString("ModelActions.onlyIf(ModelSpecs.satisfyAll(), ModelActions.doNothing())"));
 	}
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(onlyIf(alwaysTrue(), doNothing()), onlyIf(alwaysTrue(), doNothing()))
-			.addEqualityGroup(onlyIf(alwaysFalse(), doNothing()))
-			.addEqualityGroup(onlyIf(alwaysTrue(), it -> {}))
+			.addEqualityGroup(onlyIf(satisfyAll(), doNothing()), onlyIf(satisfyAll(), doNothing()))
+			.addEqualityGroup(onlyIf(satisfyNone(), doNothing()))
+			.addEqualityGroup(onlyIf(satisfyAll(), it -> {}))
 			.testEquals();
 	}
 }
