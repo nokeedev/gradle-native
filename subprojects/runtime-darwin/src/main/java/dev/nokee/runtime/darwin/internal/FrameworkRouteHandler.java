@@ -52,14 +52,18 @@ public class FrameworkRouteHandler extends AbstractRouteHandler {
 
 	private XcodeSdk findMacOsSdks() {
 		CommandLineToolDescriptor xcodebuilt = toolRepository.findAll("xcodebuild").iterator().next();
-		return CommandLineTool.of(xcodebuilt.getPath())
+		return findMacOsSdks(xcodebuilt, engine);
+	}
+
+	public static XcodeSdk findMacOsSdks(CommandLineToolDescriptor xcodebuild, CommandLineToolExecutionEngine<CachingProcessBuilderEngine.Handle> engine) {
+		return CommandLineTool.of(xcodebuild.getPath())
 			.withArguments("-showsdks")
 			.execute(engine)
 			.getResult()
 			.getStandardOutput()
 			.parse(XcodebuildParsers.showSdkParser())
 			.stream().filter(it -> it.getIdentifier().startsWith("macosx")).findFirst()
-			.orElseThrow(() -> new RuntimeException(String.format("MacOS SDK not found using '%s' version %s", xcodebuilt.getPath().getAbsolutePath(), xcodebuilt.getVersion())));
+			.orElseThrow(() -> new RuntimeException(String.format("MacOS SDK not found using '%s' version %s", xcodebuild.getPath().getAbsolutePath(), xcodebuild.getVersion())));
 	}
 
 	@Override
