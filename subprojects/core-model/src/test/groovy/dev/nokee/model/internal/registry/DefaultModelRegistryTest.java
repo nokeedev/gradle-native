@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -44,7 +45,7 @@ public class DefaultModelRegistryTest {
 		private final ModelLookup modelLookup = subject;
 
 		private ModelPath register(String path) {
-			subject.register(ModelRegistration.of(path, DefaultModelRegistryIntegrationTest.MyType.class));
+			subject.register(ModelRegistration.of(path, MyType.class));
 			return path(path);
 		}
 
@@ -110,6 +111,13 @@ public class DefaultModelRegistryTest {
 		void canCheckExistingNode() {
 			assertTrue(modelLookup.has(register("foo")), "existing node exists");
 		}
+
+		@Test
+		void canMatchNode() {
+			register("bar");
+			assertTrue(modelLookup.anyMatch(ModelSpecs.of(withType(of(MyType.class)))), "a node should match");
+			assertFalse(modelLookup.anyMatch(ModelSpecs.of(withType(of(WrongType.class)))), "a node should not match");
+		}
 	}
 
 	@Test
@@ -127,4 +135,5 @@ public class DefaultModelRegistryTest {
 	}
 
 	interface MyType {}
+	interface WrongType {}
 }

@@ -106,6 +106,11 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	@Override
+	public boolean anyMatch(ModelSpec spec) {
+		return nodes.values().stream().anyMatch(spec::isSatisfiedBy);
+	}
+
+	@Override
 	public void configureMatching(ModelSpec spec, ModelAction action) {
 		val configuration = new ModelConfiguration(spec, action);
 		for (val node : nodes.values()) {

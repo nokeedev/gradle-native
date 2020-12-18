@@ -36,6 +36,14 @@ public interface ModelLookup {
 	 */
 	boolean has(ModelPath path);
 
+	/**
+	 * Returns true if any node matches the specified spec, or false otherwise.
+	 *
+	 * @param spec  a spec to match any model nodes
+	 * @return true if a node matches the specified spec, of false otherwise.
+	 */
+	boolean anyMatch(ModelSpec spec);
+
 	// TODO: We could introduce a visitor pattern API to walk model nodes.
 	//   val result = ImmutableSet.<T>builder();
 	//   visit(directDescendants(projection(type).andThen(result::add)));
@@ -94,6 +102,11 @@ public interface ModelLookup {
 
 			@Override
 			public boolean has(ModelPath path) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public boolean anyMatch(ModelSpec spec) {
 				throw new UnsupportedOperationException();
 			}
 		};
