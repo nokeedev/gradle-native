@@ -80,30 +80,14 @@ public abstract class NodePredicate {
 		@Nullable
 		private final ModelPath ancestor;
 		private final Predicate<? super ModelNode> matcher;
-		@EqualsAndHashCode.Exclude private final Predicate<ModelNode> predicate;
+		@EqualsAndHashCode.Exclude private final Predicate<? super ModelNode> predicate;
 
 		public BasicPredicateSpec(@Nullable ModelPath path, @Nullable ModelPath parent, @Nullable ModelPath ancestor, Predicate<? super ModelNode> matcher) {
 			this.path = path;
 			this.parent = parent;
 			this.ancestor = ancestor;
 			this.matcher = matcher;
-			this.predicate = toPathPredicate(this).and(toAncestorPredicate(this)).and(matcher);
-		}
-
-		private static Predicate<ModelNode> toPathPredicate(ModelSpec spec) {
-			return spec.getPath().map(BasicPredicateSpec::asPathPredicate).orElse(alwaysTrue());
-		}
-
-		private static Predicate<ModelNode> asPathPredicate(ModelPath path) {
-			return node -> node.getPath().equals(path);
-		}
-
-		private static Predicate<ModelNode> toAncestorPredicate(ModelSpec spec) {
-			return spec.getAncestor().map(BasicPredicateSpec::asAncestorPredicate).orElse(alwaysTrue());
-		}
-
-		private static Predicate<ModelNode> asAncestorPredicate(ModelPath ancestor) {
-			throw new UnsupportedOperationException("Not yet implemented");
+			this.predicate = matcher;
 		}
 
 		@Override
