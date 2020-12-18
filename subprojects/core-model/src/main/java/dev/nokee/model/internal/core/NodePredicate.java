@@ -1,6 +1,7 @@
 package dev.nokee.model.internal.core;
 
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -69,6 +70,7 @@ public abstract class NodePredicate {
 		};
 	}
 
+	@ToString
 	@EqualsAndHashCode
 	private static final class BasicPredicateSpec implements ModelSpec {
 		@Nullable
