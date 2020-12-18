@@ -2,6 +2,7 @@ package dev.nokee.model;
 
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import groovy.lang.Closure;
@@ -23,6 +24,10 @@ public abstract class AbstractDomainObjectViewTester<T> {
 
 	protected final ModelRegistry getModelRegistry() {
 		return subjectGenerator.getModelRegistry();
+	}
+
+	protected final ModelLookup getModelLookup() {
+		return subjectGenerator.getModelLookup();
 	}
 
 	protected final Class<? extends DomainObjectView<T>> getViewUnderTestType() {
