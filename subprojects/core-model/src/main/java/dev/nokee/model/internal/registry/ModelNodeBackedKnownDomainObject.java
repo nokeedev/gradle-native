@@ -3,10 +3,7 @@ package dev.nokee.model.internal.registry;
 import com.google.common.base.Preconditions;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.core.ModelActions;
-import dev.nokee.model.internal.core.ModelIdentifier;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ProviderUtils;
 import lombok.EqualsAndHashCode;
@@ -15,7 +12,7 @@ import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
 @EqualsAndHashCode
-public class ModelNodeBackedKnownDomainObject<T> implements KnownDomainObject<T> {
+public class ModelNodeBackedKnownDomainObject<T> implements KnownDomainObject<T>, ModelNodeAware {
 	private final ModelIdentifier<T> identifier;
 	private final ModelType<T> type;
 	@EqualsAndHashCode.Exclude private final ModelNode node;
@@ -60,5 +57,10 @@ public class ModelNodeBackedKnownDomainObject<T> implements KnownDomainObject<T>
 	@Override
 	public String toString() {
 		return "known object(node '" + node.getPath() + "', " + type + ")";
+	}
+
+	@Override
+	public ModelNode getNode() {
+		return node;
 	}
 }

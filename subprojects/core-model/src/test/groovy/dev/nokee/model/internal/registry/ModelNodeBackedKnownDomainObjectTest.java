@@ -94,6 +94,19 @@ class ModelNodeBackedKnownDomainObjectTest {
 		assertThat(knownObject(MyOtherType.class, node("bar", new MyOtherType())), hasToString("known object(node 'bar', class dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObjectTest$MyOtherType)"));
 	}
 
+	@Nested
+	class CanAccessModelNode extends DomainObjectFunctorModelNodeTester<KnownDomainObject> {
+		@Override
+		protected <T> KnownDomainObject createSubject(Class<T> type) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		protected <T> KnownDomainObject createSubject(Class<T> type, ModelNode node) {
+			return knownObject(type, node);
+		}
+	}
+
 	static class MyType {}
 	static class MyOtherType {}
 }
