@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 
 import static com.google.common.base.Predicates.alwaysTrue;
 import static dev.nokee.model.internal.core.ModelNodes.withParent;
+import static dev.nokee.model.internal.core.ModelNodes.withPath;
 
 @EqualsAndHashCode
 public abstract class NodePredicate {
@@ -66,6 +67,34 @@ public abstract class NodePredicate {
 			@Override
 			public String toString() {
 				return "NodePredicate.allDirectDescendants(" + predicate + ")";
+			}
+		};
+	}
+
+	public static NodePredicate self() {
+		return new NodePredicate(alwaysTrue()) {
+			@Override
+			protected ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
+				return new BasicPredicateSpec(path, null, null, withPath(path).and(matcher));
+			}
+
+			@Override
+			public String toString() {
+				return "NodePredicate.self()";
+			}
+		};
+	}
+
+	public static NodePredicate self(Predicate<? super ModelNode> predicate) {
+		return new NodePredicate(predicate) {
+			@Override
+			protected ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
+				return new BasicPredicateSpec(path, null, null, withPath(path).and(matcher));
+			}
+
+			@Override
+			public String toString() {
+				return "NodePredicate.self(" + predicate + ")";
 			}
 		};
 	}
