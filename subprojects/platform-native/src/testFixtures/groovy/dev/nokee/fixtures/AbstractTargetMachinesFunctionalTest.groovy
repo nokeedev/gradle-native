@@ -79,7 +79,7 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 		componentUnderTest.writeToProject(testDirectory)
 
 		and:
-		buildFile << configureTargetMachines("machines.os('some-other-family')")
+		buildFile << configureTargetMachines("machines.os('some-unknown-family')")
 
 		expect:
 		fails taskNameToAssembleDevelopmentBinary
