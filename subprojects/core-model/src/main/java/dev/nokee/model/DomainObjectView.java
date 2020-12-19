@@ -11,12 +11,23 @@ import org.gradle.util.ConfigureUtil;
 import java.util.List;
 import java.util.Set;
 
+import static org.gradle.util.ConfigureUtil.configureUsing;
+
 /**
  * A view of a collection that are created and configured as they are required.
  *
  * @param <T> type of the elements in this view
  * @since 0.5
  */
+// TODO: Think about splitting the default implementation away from the interface and introduce
+//   AbstractDomainObjectView -> AbstractNamedDomainObjectView -> AbstractDomainObjectContainer (or just move away from those construct)
+//   Then have a BaseDomainObjectView, BaseNamedDomainObjectView and BaseDomainObjectContainer for implementer
+//   Each of those concrete class should pull the ModelNode from a ThreadLocal implementation (a-la BaseLanguageSourceSet)
+//   This should allow us to use final implementation for View and container
+//   However we need to change, yet again, the implementation for GroovySupport.... we can get around it for now.
+// TODO: We should introduce NodeInitializer, NodeDiscover, NodeConfigurer... maybe to follow a certain lifecycle
+//   Initializer can add projection and further discover/configuer
+//   Discover can add more node and further configurer
 public interface DomainObjectView<T> {
 	/**
 	 * Registers an action to execute to configure each element in the view.
@@ -35,7 +46,7 @@ public interface DomainObjectView<T> {
 	 * @param closure The closure to execute on each element for configuration.
 	 */
 	default void configureEach(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
-		configureEach(ConfigureUtil.configureUsing(closure));
+		configureEach(configureUsing(closure));
 	}
 
 	/**
@@ -63,7 +74,7 @@ public interface DomainObjectView<T> {
 	 * @param closure the closure to execute on each element for configuration.
 	 */
 	default <S extends T> void configureEach(Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
-		configureEach(type, ConfigureUtil.configureUsing(closure));
+		configureEach(type, configureUsing(closure));
 	}
 
 	/**
@@ -87,18 +98,8 @@ public interface DomainObjectView<T> {
 	 * @since 0.4
 	 */
 	default void configureEach(Spec<? super T> spec, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
-		configureEach(spec, ConfigureUtil.configureUsing(closure));
+		configureEach(spec, configureUsing(closure));
 	}
-
-	/**
-	 * Returns a view containing the objects in this view of the given type.
-	 * The returned view is live, so that when matching objects are later added to this view, they are also visible in the filtered view.
-	 *
-	 * @param type the type of element to find.
-	 * @param <S> the base type of the element of the new view.
-	 * @return the matching element as a {@link DomainObjectView}, never null.
-	 */
-	<S extends T> DomainObjectView<S> withType(Class<S> type);
 
 	/**
 	 * Returns the contents of this view as a {@link Provider} of {@code <T>} instances.
@@ -147,4 +148,44 @@ public interface DomainObjectView<T> {
 	 * @return a provider containing the filtered elements of this view.
 	 */
 	Provider<List<T>> filter(Spec<? super T> spec);
+
+	/**
+	 * Executes given action when an element becomes known to the view.
+	 *
+	 * @param action  the action to execute for each known element of this view
+	 */
+	// TODO: Rename to whenElementKnown once all views have been migrated
+	default void whenElementKnownEx(Action<? super KnownDomainObject<T>> action) {}
+
+	/**
+	 * Executes given closure when an element becomes known to the view of the specified type.
+	 *
+	 * @param closure  the closure to execute for each known element of this view
+	 */
+	// TODO: Rename to whenElementKnown once all views have been migrated
+	default void whenElementKnownEx(@DelegatesTo(value = KnownDomainObject.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		whenElementKnownEx(ConfigureUtil.configureUsing(closure));
+	}
+
+	/**
+	 * Executes given action when an element becomes known to the view of the specified type.
+	 *
+	 * @param type  the element type to match
+	 * @param action  the action to execute for each known element of this view
+	 * @param <S>  the element type to match
+	 */
+	// TODO: Rename to whenElementKnown once all views have been migrated
+	default <S extends T> void whenElementKnownEx(Class<S> type, Action<? super KnownDomainObject<S>> action) {}
+
+	/**
+	 * Executes given closure when an element becomes known to the view of the specified type.
+	 *
+	 * @param type  the element type to match
+	 * @param closure  the closure to execute for each known element of this view
+	 * @param <S>  the element type to match
+	 */
+	// TODO: Rename to whenElementKnown once all views have been migrated
+	default <S extends T> void whenElementKnownEx(Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+		whenElementKnownEx(type, ConfigureUtil.configureUsing(closure));
+	}
 }

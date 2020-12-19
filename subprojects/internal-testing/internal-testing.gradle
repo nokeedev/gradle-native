@@ -21,8 +21,11 @@ dependencies {
 
 	// Support libraries
 	api "org.hamcrest:hamcrest:${hamcrestVersion}"
+	api "com.spotify:hamcrest-optional:${hamcrestOptionalVersion}"
 	api "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	api "commons-io:commons-io:${commonsIoVersion}"
 	api "com.google.guava:guava:${guavaVersion}"
 	api "com.google.guava:guava-testlib:${guavaVersion}"
+	api gradleRunnerKit()
 	implementation gradleApi(minimumGradleVersion)
 }

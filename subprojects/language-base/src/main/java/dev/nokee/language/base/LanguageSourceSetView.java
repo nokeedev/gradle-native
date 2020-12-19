@@ -20,7 +20,6 @@ public interface LanguageSourceSetView<T extends LanguageSourceSet> extends Doma
 	 * @param <S> The base type of the new language source set view.
 	 * @return the matching element as a {@link LanguageSourceSetView}, never null.
 	 */
-	@Override
 	<S extends T> LanguageSourceSetView<S> withType(Class<S> type);
 
 	/**

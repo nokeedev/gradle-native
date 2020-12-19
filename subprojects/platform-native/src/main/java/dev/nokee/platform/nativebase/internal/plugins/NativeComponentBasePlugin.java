@@ -3,8 +3,11 @@ package dev.nokee.platform.nativebase.internal.plugins;
 import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.NameAwareDomainObjectIdentifier;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -27,20 +30,24 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 
 		// Register native component factory
-		components.registerFactory(DefaultNativeApplicationComponent.class, identifier -> {
-			val component = new DefaultNativeApplicationComponent((ComponentIdentifier<?>)identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
+		components.registerFactory(DefaultNativeApplicationComponent.class, name -> {
+			val identifier = ComponentIdentifier.of(ComponentName.of(((NameAwareDomainObjectIdentifier)name).getName().toString()), DefaultNativeApplicationComponent.class, ProjectIdentifier.of(project));
+			val component = new DefaultNativeApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
 			return component;
 		});
-		components.registerFactory(DefaultNativeLibraryComponent.class, identifier -> {
-			val component = new DefaultNativeLibraryComponent((ComponentIdentifier<?>)identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
+		components.registerFactory(DefaultNativeLibraryComponent.class, name -> {
+			val identifier = ComponentIdentifier.of(ComponentName.of(((NameAwareDomainObjectIdentifier)name).getName().toString()), DefaultNativeLibraryComponent.class, ProjectIdentifier.of(project));
+			val component = new DefaultNativeLibraryComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
 			return component;
 		});
-		components.registerFactory(DefaultMultiLanguageNativeApplicationComponent.class, identifier -> {
-			val component = new DefaultMultiLanguageNativeApplicationComponent((ComponentIdentifier<?>)identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
+		components.registerFactory(DefaultMultiLanguageNativeApplicationComponent.class, name -> {
+			val identifier = ComponentIdentifier.of(ComponentName.of(((NameAwareDomainObjectIdentifier)name).getName().toString()), DefaultMultiLanguageNativeApplicationComponent.class, ProjectIdentifier.of(project));
+			val component = new DefaultMultiLanguageNativeApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
 			return component;
 		});
-		components.registerFactory(DefaultMultiLanguageNativeLibraryComponent.class, identifier -> {
-			val component = new DefaultMultiLanguageNativeLibraryComponent((ComponentIdentifier<?>)identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
+		components.registerFactory(DefaultMultiLanguageNativeLibraryComponent.class, name -> {
+			val identifier = ComponentIdentifier.of(ComponentName.of(((NameAwareDomainObjectIdentifier)name).getName().toString()), DefaultMultiLanguageNativeLibraryComponent.class, ProjectIdentifier.of(project));
+			val component = new DefaultMultiLanguageNativeLibraryComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
 			return component;
 		});
 	}

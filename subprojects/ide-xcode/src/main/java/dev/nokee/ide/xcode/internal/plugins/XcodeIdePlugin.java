@@ -7,13 +7,13 @@ import dev.nokee.ide.xcode.internal.rules.CreateNativeComponentXcodeIdeProject;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
-import dev.nokee.platform.base.Component;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.components.ComponentConfigurer;
-import dev.nokee.platform.base.internal.components.KnownComponent;
-import dev.nokee.platform.base.internal.components.KnownComponentFactory;
-import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
+import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import lombok.val;
 import org.apache.commons.io.FileUtils;
@@ -24,12 +24,15 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.util.GUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+
+import static dev.nokee.model.internal.core.ModelActions.executeAsKnownProjection;
+import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.core.ModelNodes.withType;
 
 public abstract class XcodeIdePlugin implements Plugin<Project> {
 
@@ -37,7 +40,7 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply("dev.nokee.xcode-ide-base");
 
-		project.getPlugins().withType(ComponentBasePlugin.class, mapComponentToXcodeIdeProjects(project, (XcodeIdeProjectExtension) project.getExtensions().getByName(XcodeIdeBasePlugin.XCODE_EXTENSION_NAME)));
+		project.getPlugins().withType(ComponentModelBasePlugin.class, mapComponentToXcodeIdeProjects(project, (XcodeIdeProjectExtension) project.getExtensions().getByName(XcodeIdeBasePlugin.XCODE_EXTENSION_NAME)));
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-xctest-test-suite", appliedPlugin -> {
 			String moduleName = GUtil.toCamelCase(project.getName());
 
@@ -100,29 +103,17 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 		});
 	}
 
-	private Action<ComponentBasePlugin> mapComponentToXcodeIdeProjects(Project project, XcodeIdeProjectExtension extension) {
-		return new Action<ComponentBasePlugin>() {
-			private KnownComponentFactory knownComponentFactory;
-
-			private KnownComponentFactory getKnownComponentFactory() {
-				if (knownComponentFactory == null) {
-					knownComponentFactory = project.getExtensions().getByType(KnownComponentFactory.class);
-				}
-				return knownComponentFactory;
-			}
-
+	private Action<ComponentModelBasePlugin> mapComponentToXcodeIdeProjects(Project project, XcodeIdeProjectExtension extension) {
+		return new Action<ComponentModelBasePlugin>() {
 			@Override
-			public void execute(ComponentBasePlugin appliedPlugin) {
-				val componentConfigurer = project.getExtensions().getByType(ComponentConfigurer.class);
-				componentConfigurer.whenElementKnown(ProjectIdentifier.of(project), getComponentImplementationType(), asKnownComponent(new CreateNativeComponentXcodeIdeProject(extension, project.getProviders(), project.getObjects(), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getLayout(), project.getTasks(), ProjectIdentifier.of(project))));
+			public void execute(ComponentModelBasePlugin appliedPlugin) {
+				val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
+				val action = new CreateNativeComponentXcodeIdeProject(extension, project.getProviders(), project.getObjects(), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getLayout(), project.getTasks(), ProjectIdentifier.of(project));
+				modelConfigurer.configureMatching(ModelNodes.stateAtLeast(ModelNode.State.Registered).and(withType(getComponentImplementationType()))::test, once(executeAsKnownProjection(getComponentImplementationType(), action)));
 			}
 
-			private <T extends Component> Action<? super TypeAwareDomainObjectIdentifier<T>> asKnownComponent(Action<? super KnownComponent<T>> action) {
-				return identifier -> action.execute(getKnownComponentFactory().create(identifier));
-			}
-
-			private Class<BaseComponent<?>> getComponentImplementationType() {
-				return new TypeOf<BaseComponent<?>>() {}.getConcreteClass();
+			private ModelType<BaseComponent<?>> getComponentImplementationType() {
+				return ModelType.of(new TypeOf<BaseComponent<?>>() {});
 			}
 		};
 	}

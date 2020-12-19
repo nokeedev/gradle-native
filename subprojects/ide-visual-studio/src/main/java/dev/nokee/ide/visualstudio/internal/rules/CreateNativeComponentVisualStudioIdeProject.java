@@ -8,11 +8,12 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.tasks.CppCompile;
+import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.platform.base.internal.components.KnownComponent;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
@@ -46,7 +47,7 @@ import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.joining;
 
-public final class CreateNativeComponentVisualStudioIdeProject implements Action<KnownComponent<BaseComponent<?>>> {
+public final class CreateNativeComponentVisualStudioIdeProject implements Action<KnownDomainObject<BaseComponent<?>>> {
 	private final VisualStudioIdeProjectExtension extension;
 	private final ProjectLayout projectLayout;
 	private final ObjectFactory objectFactory;
@@ -60,11 +61,12 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 	}
 
 	@Override
-	public void execute(KnownComponent<BaseComponent<?>> knownComponent) {
-		extension.getProjects().register(knownComponent.getIdentifier().getName().get(), configureVisualStudioIdeProject(knownComponent));
+	public void execute(KnownDomainObject<BaseComponent<?>> knownComponent) {
+		// TODO: Do something about the casting of DomainObjectIdentifier
+		extension.getProjects().register(((ModelIdentifier<?>)knownComponent.getIdentifier()).getPath().getName(), configureVisualStudioIdeProject(knownComponent));
 	}
 
-	private Action<VisualStudioIdeProject> configureVisualStudioIdeProject(KnownComponent<BaseComponent<?>> knownComponent) {
+	private Action<VisualStudioIdeProject> configureVisualStudioIdeProject(KnownDomainObject<BaseComponent<?>> knownComponent) {
 		return new Action<VisualStudioIdeProject>() {
 			@Override
 			public void execute(VisualStudioIdeProject visualStudioProject) {

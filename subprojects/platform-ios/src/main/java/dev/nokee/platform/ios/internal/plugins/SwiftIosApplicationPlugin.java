@@ -8,10 +8,7 @@ import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
-import dev.nokee.platform.base.internal.plugins.BinaryBasePlugin;
-import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
-import dev.nokee.platform.base.internal.plugins.TaskBasePlugin;
-import dev.nokee.platform.base.internal.plugins.VariantBasePlugin;
+import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
@@ -51,10 +48,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DarwinRuntimePlugin.class);
 
 		// Create the component
-		project.getPluginManager().apply(ComponentBasePlugin.class);
-		project.getPluginManager().apply(VariantBasePlugin.class);
-		project.getPluginManager().apply(BinaryBasePlugin.class);
-		project.getPluginManager().apply(TaskBasePlugin.class);
+		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 
 		project.getExtensions().getByType(LanguageSourceSetInstantiator.class).registerFactory(IosResourceSetImpl.class, identifier -> new IosResourceSetImpl((LanguageSourceSetIdentifier<?>)identifier, project.getObjects()));

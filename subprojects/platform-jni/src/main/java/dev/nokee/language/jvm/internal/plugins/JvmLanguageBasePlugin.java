@@ -8,9 +8,13 @@ import dev.nokee.language.jvm.internal.JavaSourceSetImpl;
 import dev.nokee.language.jvm.internal.KotlinSourceSetImpl;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.*;
+import dev.nokee.model.internal.core.ModelIdentifier;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.components.ComponentConfigurer;
-import dev.nokee.platform.base.internal.plugins.ComponentBasePlugin;
+import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ComponentName;
+import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -26,9 +30,12 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 
 		val eventPublisher = project.getExtensions().getByType(DomainObjectEventPublisher.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
-		project.getPlugins().withType(ComponentBasePlugin.class, a -> {
-			val configurer = project.getExtensions().getByType(ComponentConfigurer.class);
-			configurer.whenElementKnown(projectIdentifier, Component.class, componentIdentifier -> {
+		project.getPlugins().withType(ComponentModelBasePlugin.class, a -> {
+			val components = project.getExtensions().getByType(ComponentContainer.class);
+			components.whenElementKnownEx(Component.class, knownComponent -> {
+				// TODO: Because identifier are quite strict, we have to poke the model node...
+				Class<? extends Component> type = project.getExtensions().getByType(ModelLookup.class).get(((ModelIdentifier<?>)knownComponent.getIdentifier()).getPath()).get(Component.class).getClass();
+				val componentIdentifier = ComponentIdentifier.of(ComponentName.of(((ModelIdentifier<?>)knownComponent.getIdentifier()).getPath().getName()), type, projectIdentifier);
 				project.getPluginManager().withPlugin("java-base", appliedPlugin -> {
 					JavaJvmPluginHelper.whenSourceSetKnown(project, nameOf(componentIdentifier), newJavaSourceSet(eventPublisher, componentIdentifier, project.getObjects(), project.getLayout()));
 				});

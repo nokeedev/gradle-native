@@ -17,14 +17,6 @@ class ComponentModelBasePluginTest extends Specification {
 		project.plugins.hasPlugin(LanguageBasePlugin)
 	}
 
-	def "applies component base plugin"() {
-		when:
-		project.apply plugin: ComponentModelBasePlugin
-
-		then:
-		project.plugins.hasPlugin(ComponentBasePlugin)
-	}
-
 	def "applies binary base plugin"() {
 		when:
 		project.apply plugin: BinaryBasePlugin
