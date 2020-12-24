@@ -23,16 +23,10 @@ import dev.nokee.ide.xcode.internal.DefaultXcodeIdeBuildSettings;
 import dev.nokee.ide.xcode.internal.XcodeIdePropertyAdapter;
 import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
 import dev.nokee.ide.xcode.internal.xcodeproj.*;
-import dev.nokee.language.c.internal.UTTypeCSource;
-import dev.nokee.language.cpp.internal.UTTypeCppSource;
-import dev.nokee.language.objectivec.internal.UTTypeObjectiveCSource;
-import dev.nokee.language.objectivecpp.internal.UTTypeObjectiveCppSource;
-import dev.nokee.language.swift.internal.UTTypeSwiftSource;
 import lombok.Value;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.internal.tasks.TaskDependencyContainer;
@@ -393,11 +387,11 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		return result;
 	}
 	private static Set<String> COMPILATION_UNITS_EXTENSIONS = ImmutableSet.<String>builder()
-		.add(UTTypeObjectiveCSource.INSTANCE.getFilenameExtensions())
-		.add(UTTypeCppSource.INSTANCE.getFilenameExtensions())
-		.add(UTTypeCSource.INSTANCE.getFilenameExtensions())
-		.add(UTTypeObjectiveCppSource.INSTANCE.getFilenameExtensions())
-		.add(UTTypeSwiftSource.INSTANCE.getFilenameExtensions())
+		.add("m")
+		.add("cp", "cpp", "c++", "cc", "cxx")
+		.add("c")
+		.add("mm")
+		.add("swift")
 		.build();
 	private static boolean keepingOnlyCompilationUnits(File sourceFile) {
 		return COMPILATION_UNITS_EXTENSIONS.contains(FilenameUtils.getExtension(sourceFile.getName()));
