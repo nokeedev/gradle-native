@@ -7,12 +7,12 @@ plugins {
 dependencies {
 	api project(':coreModel')
 	implementation project(':coreUtils')
+	implementation project(':coreScript')
 	implementation "com.google.guava:guava:${guavaVersion}"
 
 	testCompileOnly project(':platformBase')
-	testImplementation project(':internalTesting')
 	testImplementation testFixtures(project(':coreModel'))
-	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
+	testImplementation testFixtures(project(':coreScript'))
 
 	testFixturesApi project(':internalTesting')
 	testFixturesCompileOnly gradleApi(minimumGradleVersion)

@@ -1,0 +1,140 @@
+package dev.nokee.language.base.internal;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import lombok.val;
+import lombok.var;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileTree;
+import org.gradle.api.file.FileTreeElement;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.internal.file.FileCollectionInternal;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.specs.Spec;
+import org.gradle.api.tasks.TaskDependency;
+import org.gradle.api.tasks.util.PatternFilterable;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.util.Set;
+import java.util.concurrent.Callable;
+
+public class BridgedLanguageSourceSetProjection implements LanguageSourceSetProjection {
+	private final SourceDirectorySet sourceSet;
+	private final ObjectFactory objectFactory;
+
+	@Inject
+	public BridgedLanguageSourceSetProjection(SourceDirectorySet sourceSet, ObjectFactory objectFactory) {
+		this.sourceSet = sourceSet;
+		this.objectFactory = objectFactory;
+	}
+
+	@Override
+	public void convention(Object... paths) {
+		if (sourceSet.getSrcDirTrees().isEmpty()) {
+			sourceSet.source(asConventional(objectFactory.fileCollection().from(paths)));
+		}
+	}
+
+	private SourceDirectorySet asConventional(FileCollection paths) {
+		val delegate = new FileCollectionAsSourceDirectorySet(paths);
+		val result = objectFactory.sourceDirectorySet(nextAdapterName(), "adapting a file collection as convention");
+		result.srcDir(new ReturnEmptyListOnReentrantCallable<>(() -> {
+			if (sourceSet.getSrcDirTrees().size() == 0) {
+				return delegate.call();
+			}
+			return ImmutableList.of();
+		}));
+		result.include(delegate);
+		return result;
+	}
+
+	private static final class ReturnEmptyListOnReentrantCallable<T> implements Callable<Iterable<T>> {
+		private final Callable<Iterable<T>> delegate;
+		private boolean reentering = false;
+
+		public ReturnEmptyListOnReentrantCallable(Callable<Iterable<T>> delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Iterable<T> call() throws Exception {
+			if (reentering) {
+				return ImmutableList.of();
+			}
+			reentering = true;
+			try {
+				return delegate.call();
+			} finally {
+				reentering = false;
+			}
+		}
+	}
+
+	@Override
+	public void from(Object... paths) {
+		sourceSet.source(asSourceDirectorySet(objectFactory.fileCollection().from(paths)));
+	}
+
+	private SourceDirectorySet asSourceDirectorySet(FileCollection paths) {
+		val delegate = new FileCollectionAsSourceDirectorySet(paths);
+		val result = objectFactory.sourceDirectorySet(nextAdapterName(), "adapting a file collection");
+		result.srcDir(objectFactory.fileCollection().builtBy(paths));
+		result.srcDir(delegate);
+		result.include(delegate);
+		return result;
+	}
+
+	private static class FileCollectionAsSourceDirectorySet implements Callable<Iterable<File>>, Spec<FileTreeElement> {
+		private final FileCollection delegate;
+
+		public FileCollectionAsSourceDirectorySet(FileCollection delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Set<File> call() throws Exception {
+			val result = ImmutableSet.<File>builder();
+			((FileCollectionInternal) delegate).visitStructure(new DirectoryStructureVisitor(result));
+			return result.build();
+		}
+
+		@Override
+		public boolean isSatisfiedBy(FileTreeElement element) {
+			val files = delegate.getFiles();
+			var file = element.getFile();
+			while (file != null) {
+				if (files.contains(file)) {
+					return true;
+				}
+				file = file.getParentFile();
+			}
+			return false;
+		}
+	}
+
+	private int counter = 0;
+	private String nextAdapterName() {
+		return "adapter-" + counter++;
+	}
+
+	@Override
+	public FileCollection getSourceDirectories() {
+		return sourceSet.getSourceDirectories();
+	}
+
+	@Override
+	public PatternFilterable getFilter() {
+		return sourceSet.getFilter();
+	}
+
+	@Override
+	public FileTree getAsFileTree() {
+		return sourceSet.getAsFileTree();
+	}
+
+	@Override
+	public TaskDependency getBuildDependencies() {
+		return task -> sourceSet.getBuildDependencies().getDependencies(task);
+	}
+}
