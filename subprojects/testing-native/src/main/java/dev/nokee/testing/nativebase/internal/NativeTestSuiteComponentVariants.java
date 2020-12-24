@@ -1,8 +1,10 @@
 package dev.nokee.testing.nativebase.internal;
 
-import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelSpecs;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -27,7 +29,7 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskProvider;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.withType;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public final class NativeTestSuiteComponentVariants implements ComponentVariants {
@@ -41,11 +43,11 @@ public final class NativeTestSuiteComponentVariants implements ComponentVariants
 	private final ProviderFactory providerFactory;
 	private final TaskRegistry taskRegistry;
 	private final BinaryViewFactory binaryViewFactory;
-	private final LanguageSourceSetRepository languageSourceSetRepository;
+	private final ModelLookup modelLookup;
 
-	public NativeTestSuiteComponentVariants(ObjectFactory objectFactory, DefaultNativeTestSuiteComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, LanguageSourceSetRepository languageSourceSetRepository) {
+	public NativeTestSuiteComponentVariants(ObjectFactory objectFactory, DefaultNativeTestSuiteComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, ModelLookup modelLookup) {
 		this.binaryViewFactory = binaryViewFactory;
-		this.languageSourceSetRepository = languageSourceSetRepository;
+		this.modelLookup = modelLookup;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), DefaultNativeTestSuiteVariant.class, eventPublisher, viewFactory, variantRepository);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get()));
@@ -83,7 +85,7 @@ public final class NativeTestSuiteComponentVariants implements ComponentVariants
 		}
 
 		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
-		boolean hasSwift = languageSourceSetRepository.anyKnownIdentifier(withType(SwiftSourceSet.class));
+		boolean hasSwift = modelLookup.anyMatch(ModelSpecs.of(ModelNodes.withType(of(SwiftSourceSet.class))));
 		if (hasSwift) {
 			incomingDependenciesBuilder.withIncomingSwiftModules();
 		} else {
