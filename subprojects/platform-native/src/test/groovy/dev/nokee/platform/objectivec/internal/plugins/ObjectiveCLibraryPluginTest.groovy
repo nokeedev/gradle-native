@@ -1,12 +1,9 @@
 package dev.nokee.platform.objectivec.internal.plugins
 
 import dev.nokee.fixtures.*
-import dev.nokee.language.c.internal.CHeaderSetImpl
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.nativebase.NativeLibrary
 import dev.nokee.platform.nativebase.SharedLibraryBinary
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent
 import dev.nokee.platform.objectivec.ObjectiveCLibraryExtension
 import org.gradle.api.Project
 import spock.lang.Subject
@@ -50,29 +47,6 @@ trait ObjectiveCLibraryPluginTestFixture {
 @Subject(ObjectiveCLibraryPlugin)
 class ObjectiveCLibraryPluginTest extends AbstractPluginTest implements ObjectiveCLibraryPluginTestFixture {
 	final String pluginIdUnderTest = pluginId
-}
-
-@Subject(ObjectiveCLibraryPlugin)
-class ObjectiveCLibraryComponentPluginTest extends AbstractComponentPluginTest {
-	@Override
-	protected Class getExtensionTypeUnderTest() {
-		return ObjectiveCLibraryExtension
-	}
-
-	@Override
-	protected Class getComponentTypeUnderTest() {
-		return DefaultNativeLibraryComponent
-	}
-
-	@Override
-	protected void applyPluginUnderTests(Project project) {
-		project.apply plugin: 'dev.nokee.objective-c-library'
-	}
-
-	@Override
-	protected List<ExpectedLanguageSourceSet> getExpectedLanguageSourceSets() {
-		return [newExpectedSourceSet('objectiveC', ObjectiveCSourceSetImpl).addConventionDirectory('src/main/objc'), newExpectedSourceSet('headers', CHeaderSetImpl, 'privateHeaders'), newExpectedSourceSet('public', CHeaderSetImpl, 'publicHeaders')]
-	}
 }
 
 @Subject(ObjectiveCLibraryPlugin)

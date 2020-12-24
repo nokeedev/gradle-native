@@ -1,17 +1,14 @@
 package dev.nokee.platform.nativebase.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetName;
-import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
-import dev.nokee.language.c.internal.CHeaderSetImpl;
+import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelIdentifier;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
-import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.NativeLibraryExtensionImpl;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
+import dev.nokee.platform.nativebase.internal.TargetLinkageRule;
+import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -21,6 +18,12 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
 
 import javax.inject.Inject;
+
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
+import static dev.nokee.model.internal.core.ModelActions.register;
+import static dev.nokee.model.internal.core.ModelNodes.discover;
+import static dev.nokee.model.internal.core.NodePredicate.self;
+import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.multiLanguageNativeLibrary;
 
 public class NativeLibraryPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "library";
@@ -37,17 +40,18 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
+		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		val componentProvider = components.register("main", DefaultMultiLanguageNativeLibraryComponent.class, component -> {
+//		val componentProvider = components.register("main", DefaultMultiLanguageNativeLibraryComponent.class, component -> {
+//			component.getBaseName().convention(project.getName());
+//		});
+		val componentProvider =  ModelNodes.of(components).register(multiLanguageNativeLibrary("main", project)
+			.action(self(discover()).apply(register(sourceSet("public", CHeaderSet.class))))
+			.action(self(discover()).apply(register(sourceSet("headers", CHeaderSet.class)))));
+		componentProvider.configure(component -> {
 			component.getBaseName().convention(project.getName());
 		});
 		val extension = new NativeLibraryExtensionImpl(componentProvider.get(), project.getObjects(), project.getProviders(), project.getLayout());
-
-		// This is a work around for exported headers, some clean up needs to happen:
-		project.getPluginManager().apply(CLanguageBasePlugin.class);
-		val sourceSetRegistry = project.getExtensions().getByType(LanguageSourceSetRegistry.class);
-		val componentIdentifier = ComponentIdentifier.of(ComponentName.of(((ModelIdentifier<?>)componentProvider.getIdentifier()).getPath().getName()), DefaultMultiLanguageNativeLibraryComponent.class, ProjectIdentifier.of(project));
-		sourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("public"), CHeaderSetImpl.class, componentIdentifier));
 
 		// Other configurations
 		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));

@@ -1,9 +1,7 @@
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.language.base.internal.LanguageSourceSetRepository;
-import dev.nokee.language.base.internal.LanguageSourceSetViewFactory;
-import dev.nokee.language.nativebase.internal.HasNativeLanguageSupport;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -16,8 +14,8 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 
-public final class DefaultMultiLanguageNativeApplicationComponent extends DefaultNativeApplicationComponent implements HasNativeLanguageSupport {
-	public DefaultMultiLanguageNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, LanguageSourceSetRepository languageSourceSetRepository, LanguageSourceSetViewFactory languageSourceSetViewFactory) {
-		super(identifier, objects, providers, tasks, configurations, dependencyHandler, eventPublisher, viewFactory, variantRepository, binaryViewFactory, taskRegistry, taskViewFactory, languageSourceSetRepository, languageSourceSetViewFactory);
+public final class DefaultMultiLanguageNativeApplicationComponent extends DefaultNativeApplicationComponent {
+	public DefaultMultiLanguageNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
+		super(identifier, objects, providers, tasks, configurations, dependencyHandler, eventPublisher, viewFactory, variantRepository, binaryViewFactory, taskRegistry, taskViewFactory, modelLookup);
 	}
 }

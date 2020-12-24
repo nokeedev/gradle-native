@@ -1,11 +1,9 @@
 package dev.nokee.platform.swift.internal.plugins
 
 import dev.nokee.fixtures.*
-import dev.nokee.language.swift.internal.SwiftSourceSetImpl
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.NativeApplication
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent
 import dev.nokee.platform.swift.SwiftApplicationExtension
 import org.gradle.api.Project
 import spock.lang.Subject
@@ -49,29 +47,6 @@ trait SwiftApplicationPluginTestFixture {
 @Subject(SwiftApplicationPlugin)
 class SwiftApplicationPluginTest extends AbstractPluginTest implements SwiftApplicationPluginTestFixture {
 	final String pluginIdUnderTest = pluginId
-}
-
-@Subject(SwiftApplicationPlugin)
-class SwiftApplicationComponentPluginTest extends AbstractComponentPluginTest {
-	@Override
-	protected Class getExtensionTypeUnderTest() {
-		return SwiftApplicationExtension
-	}
-
-	@Override
-	protected Class getComponentTypeUnderTest() {
-		return DefaultNativeApplicationComponent
-	}
-
-	@Override
-	protected void applyPluginUnderTests(Project project) {
-		project.apply plugin: 'dev.nokee.swift-application'
-	}
-
-	@Override
-	protected List<ExpectedLanguageSourceSet> getExpectedLanguageSourceSets() {
-		return [newExpectedSourceSet('swift', SwiftSourceSetImpl)]
-	}
 }
 
 @Subject(SwiftApplicationPlugin)

@@ -3,6 +3,9 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -30,7 +33,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class BaseNativeExtension<T extends BaseNativeComponent<?>> {
+public class BaseNativeExtension<T extends BaseNativeComponent<?>> implements ModelNodeAware {
 	@Getter private final T component;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
@@ -58,6 +61,10 @@ public class BaseNativeExtension<T extends BaseNativeComponent<?>> {
 		};
 	}
 
+	@Override
+	public ModelNode getNode() {
+		return ModelNodes.of(component);
+	}
 
 	@RequiredArgsConstructor
 	private static final class TargetMachineDimension implements Dimension {

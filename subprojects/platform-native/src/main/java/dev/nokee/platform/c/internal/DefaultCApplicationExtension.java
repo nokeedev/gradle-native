@@ -1,14 +1,6 @@
 package dev.nokee.platform.c.internal;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.LanguageSourceSetView;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetName;
-import dev.nokee.language.base.internal.LanguageSourceSetRegistry;
-import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.CSourceSet;
-import dev.nokee.language.c.internal.CHeaderSetImpl;
-import dev.nokee.language.c.internal.CSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.HasLanguageSourceSetAccessor;
@@ -21,7 +13,6 @@ import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.ConfigureUtils;
 import lombok.Getter;
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
@@ -31,19 +22,13 @@ import org.gradle.api.provider.SetProperty;
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
 public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements CApplicationExtension, Component, HasLanguageSourceSetAccessor {
-	private final CSourceSet cSources;
-	@Getter private final CHeaderSet privateHeaders;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
-	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
 
-	public DefaultCApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, LanguageSourceSetRegistry languageSourceSetRegistry) {
+	public DefaultCApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
 		super(component, objects, providers, layout);
-		this.cSources = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("c"), CSourceSetImpl.class, component.getIdentifier()));
-		this.privateHeaders = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()));
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
-		this.sources = component.getSources();
 	}
 
 	public void setTargetMachines(Object value) {
@@ -54,23 +39,9 @@ public class DefaultCApplicationExtension extends BaseNativeExtension<DefaultNat
 		ConfigureUtils.setPropertyValue(targetBuildTypes, value);
 	}
 
-	@Override
-	public CSourceSet getCSources() {
-		return cSources;
-	}
-
+	// For Groovy DSL
 	public CSourceSet getcSources() {
-		return cSources;
-	}
-
-	@Override
-	public void cSources(Action<? super CSourceSet> action) {
-		action.execute(cSources);
-	}
-
-	@Override
-	public void privateHeaders(Action<? super CHeaderSet> action) {
-		action.execute(privateHeaders);
+		return getCSources();
 	}
 
 	@Override
