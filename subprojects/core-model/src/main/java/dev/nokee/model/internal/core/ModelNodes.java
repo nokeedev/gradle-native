@@ -8,6 +8,8 @@ import org.gradle.api.specs.Spec;
 
 import java.util.function.Predicate;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * A group of common model node operations.
  */
@@ -32,8 +34,8 @@ public final class ModelNodes {
 		private final Predicate<? super ModelNode> second;
 
 		public AndPredicate(Predicate<? super ModelNode> first, Predicate<? super ModelNode> second) {
-			this.first = first;
-			this.second = second;
+			this.first = requireNonNull(first);
+			this.second = requireNonNull(second);
 		}
 
 		@Override
@@ -67,6 +69,7 @@ public final class ModelNodes {
 	 * @return the model node for the specified instance if available
 	 */
 	public static ModelNode of(Object target) {
+		requireNonNull(target);
 		if (target instanceof ModelNodeAware) {
 			return ((ModelNodeAware) target).getNode();
 		} else if (target instanceof ExtensionAware) {
@@ -80,6 +83,8 @@ public final class ModelNodes {
 	}
 
 	public static <T> T inject(T target, ModelNode node) {
+		requireNonNull(target);
+		requireNonNull(node);
 		assert target instanceof ExtensionAware;
 		((ExtensionAware) target).getExtensions().add(ModelNode.class, "__NOKEE_modelNode", node);
 		return target;
@@ -101,7 +106,7 @@ public final class ModelNodes {
 		private final ModelType<?> type;
 
 		private WithTypePredicate(ModelType<?> type) {
-			this.type = type;
+			this.type = requireNonNull(type);
 		}
 
 		@Override
@@ -130,7 +135,7 @@ public final class ModelNodes {
 		private final ModelNode.State state;
 
 		private StateAtLeastPredicate(ModelNode.State state) {
-			this.state = state;
+			this.state = requireNonNull(state);
 		}
 
 		@Override
@@ -161,8 +166,8 @@ public final class ModelNodes {
 		private final Spec<? super T> spec;
 
 		private SatisfiedByProjectionSpecAdapter(ModelType<T> type, Spec<? super T> spec) {
-			this.type = type;
-			this.spec = spec;
+			this.type = requireNonNull(type);
+			this.spec = requireNonNull(spec);
 		}
 
 		@Override
@@ -192,7 +197,7 @@ public final class ModelNodes {
 		private final ModelPath parentPath;
 
 		public WithParentPredicate(ModelPath parentPath) {
-			this.parentPath = parentPath;
+			this.parentPath = requireNonNull(parentPath);
 		}
 
 		@Override
@@ -223,7 +228,7 @@ public final class ModelNodes {
 		private final ModelPath path;
 
 		public WithPathPredicate(ModelPath path) {
-			this.path = path;
+			this.path = requireNonNull(path);
 		}
 
 		@Override
