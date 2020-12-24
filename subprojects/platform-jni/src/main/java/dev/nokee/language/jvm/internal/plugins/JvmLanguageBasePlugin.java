@@ -1,81 +1,119 @@
 package dev.nokee.language.jvm.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
-import dev.nokee.language.jvm.internal.GroovySourceSetImpl;
-import dev.nokee.language.jvm.internal.JavaSourceSetImpl;
-import dev.nokee.language.jvm.internal.KotlinSourceSetImpl;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.*;
-import dev.nokee.model.internal.core.ModelIdentifier;
-import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.language.jvm.GroovySourceSet;
+import dev.nokee.language.jvm.JavaSourceSet;
+import dev.nokee.language.jvm.KotlinSourceSet;
+import dev.nokee.language.jvm.internal.JvmSourceSetExtensible;
+import dev.nokee.model.internal.core.ModelActions;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
+import dev.nokee.platform.base.ComponentSources;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.specs.Spec;
+import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
+
+import java.lang.reflect.InvocationTargetException;
+
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.bridgeSourceSet;
+import static dev.nokee.language.base.internal.SourceSetExtensible.discoveringInstanceOf;
+import static dev.nokee.model.internal.core.ModelActions.matching;
+import static dev.nokee.model.internal.type.ModelType.of;
 
 public class JvmLanguageBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 
-		val eventPublisher = project.getExtensions().getByType(DomainObjectEventPublisher.class);
-		val projectIdentifier = ProjectIdentifier.of(project);
-		project.getPlugins().withType(ComponentModelBasePlugin.class, a -> {
-			val components = project.getExtensions().getByType(ComponentContainer.class);
-			components.whenElementKnownEx(Component.class, knownComponent -> {
-				// TODO: Because identifier are quite strict, we have to poke the model node...
-				Class<? extends Component> type = project.getExtensions().getByType(ModelLookup.class).get(((ModelIdentifier<?>)knownComponent.getIdentifier()).getPath()).get(Component.class).getClass();
-				val componentIdentifier = ComponentIdentifier.of(ComponentName.of(((ModelIdentifier<?>)knownComponent.getIdentifier()).getPath().getName()), type, projectIdentifier);
-				project.getPluginManager().withPlugin("java-base", appliedPlugin -> {
-					JavaJvmPluginHelper.whenSourceSetKnown(project, nameOf(componentIdentifier), newJavaSourceSet(eventPublisher, componentIdentifier, project.getObjects(), project.getLayout()));
-				});
+		val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
+		project.getPluginManager().withPlugin("java-base", appliedPlugin -> {
+			modelConfigurer.configure(matching(discoveringInstanceOf(JvmSourceSetExtensible.class), ModelActions.once(sources -> {
+				sourceSetContainer(project).matching(nameOf(componentOf(sources))).all(registerJavaSourceSet(sources));
+			})));
+		});
 
-				project.getPluginManager().withPlugin("groovy-base", appliedPlugin -> {
-					GroovyJvmPluginHelper.whenSourceSetKnown(project, nameOf(componentIdentifier), newGroovySourceSet(eventPublisher, componentIdentifier, project.getObjects(), project.getLayout()));
-				});
+		project.getPluginManager().withPlugin("groovy-base", appliedPlugin -> {
+			modelConfigurer.configure(matching(discoveringInstanceOf(JvmSourceSetExtensible.class), ModelActions.once(sources -> {
+				sourceSetContainer(project).matching(nameOf(componentOf(sources))).all(registerGroovySourceSet(sources));
+			})));
+		});
 
-				project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", appliedPlugin -> {
-					KotlinJvmPluginHelper.whenSourceSetKnown(project, nameOf(componentIdentifier), newKotlinSourceSet(eventPublisher, componentIdentifier, project.getObjects(), project.getLayout()));
-				});
-			});
+		project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", appliedPlugin -> {
+			modelConfigurer.configure(matching(discoveringInstanceOf(JvmSourceSetExtensible.class), ModelActions.once(sources -> {
+				sourceSetContainer(project).matching(nameOf(componentOf(sources))).all(registerKotlinSourceSet(sources));
+			})));
 		});
 	}
 
-	private Action<SourceDirectorySet> newJavaSourceSet(DomainObjectEventPublisher eventPublisher, DomainObjectIdentifier componentIdentifier, ObjectFactory objectFactory, ProjectLayout projectLayout) {
-		return sourceSet -> {
-			val identifier = LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("java"), JavaSourceSetImpl.class, componentIdentifier);
-			eventPublisher.publish(new DomainObjectDiscovered<>(identifier));
-			eventPublisher.publish(new DomainObjectCreated<>(identifier, new JavaSourceSetImpl(identifier, sourceSet, objectFactory, projectLayout)));
+	private static SourceSetContainer sourceSetContainer(Project project) {
+		return project.getExtensions().getByType(SourceSetContainer.class);
+	}
+
+	private static ModelNode componentOf(ModelNode sources) {
+		// We assume it's a ComponentSources model node
+		assert sources.canBeViewedAs(of(ComponentSources.class));
+		assert sources.getParent().isPresent();
+		assert sources.getParent().get().canBeViewedAs(of(Component.class));
+		return sources.getParent().get();
+	}
+
+	private static Spec<? super SourceSet> nameOf(ModelNode component) {
+		// We assume it's a Component model node
+		assert component.canBeViewedAs(of(Component.class));
+		String componentName = component.getPath().getName();
+		return sourceSet -> sourceSet.getName().equals(componentName);
+	}
+
+	private static Action<SourceSet> registerJavaSourceSet(ModelNode sources) {
+		return new Action<SourceSet>() {
+			@Override
+			public void execute(SourceSet sourceSet) {
+				sources.register(bridgeSourceSet(asSourceDirectorySet(sourceSet), JavaSourceSet.class));
+			}
+
+			private SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
+				return sourceSet.getJava();
+			}
 		};
 	}
 
-	private Action<SourceDirectorySet> newGroovySourceSet(DomainObjectEventPublisher eventPublisher, DomainObjectIdentifier componentIdentifier, ObjectFactory objectFactory, ProjectLayout projectLayout) {
-		return sourceSet -> {
-			val identifier = LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("groovy"), GroovySourceSetImpl.class, componentIdentifier);
-			eventPublisher.publish(new DomainObjectDiscovered<>(identifier));
-			eventPublisher.publish(new DomainObjectCreated<>(identifier, new GroovySourceSetImpl(identifier, sourceSet, objectFactory, projectLayout)));
+	private static Action<SourceSet> registerGroovySourceSet(ModelNode sources) {
+		return new Action<SourceSet>() {
+			@Override
+			public void execute(SourceSet sourceSet) {
+				sources.register(bridgeSourceSet(asSourceDirectorySet(sourceSet), GroovySourceSet.class));
+			}
+
+			private SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
+				return ((org.gradle.api.tasks.GroovySourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("groovy")).getGroovy();
+			}
 		};
 	}
 
-	private Action<SourceDirectorySet> newKotlinSourceSet(DomainObjectEventPublisher eventPublisher, DomainObjectIdentifier componentIdentifier, ObjectFactory objectFactory, ProjectLayout projectLayout) {
-		return sourceSet -> {
-			val identifier = LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("kotlin"), KotlinSourceSetImpl.class, componentIdentifier);
-			eventPublisher.publish(new DomainObjectDiscovered<>(identifier));
-			eventPublisher.publish(new DomainObjectCreated<>(identifier, new KotlinSourceSetImpl(identifier, sourceSet, objectFactory, projectLayout)));
-		};
-	}
+	private static Action<SourceSet> registerKotlinSourceSet(ModelNode sources) {
+		return new Action<SourceSet>() {
+			@Override
+			public void execute(SourceSet sourceSet) {
+				sources.register(bridgeSourceSet(asSourceDirectorySet(sourceSet), KotlinSourceSet.class));
+			}
 
-	private static String nameOf(DomainObjectIdentifier identifier) {
-		return ((NameAwareDomainObjectIdentifier) identifier).getName().toString();
+			private SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
+				try {
+					val kotlinSourceSet = new DslObject(sourceSet).getConvention().getPlugins().get("kotlin");
+					val DefaultKotlinSourceSet = kotlinSourceSet.getClass();
+					val getKotlin = DefaultKotlinSourceSet.getMethod("getKotlin");
+					return (SourceDirectorySet) getKotlin.invoke(kotlinSourceSet);
+				} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		};
 	}
 }

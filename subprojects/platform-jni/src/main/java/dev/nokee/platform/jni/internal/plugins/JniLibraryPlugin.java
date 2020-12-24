@@ -3,21 +3,23 @@ package dev.nokee.platform.jni.internal.plugins;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.*;
 import dev.nokee.language.c.CHeaderSet;
-import dev.nokee.language.c.internal.CHeaderSetImpl;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
-import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.c.internal.plugins.CLanguagePlugin;
+import dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
+import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
-import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilitiesMarkerPlugin;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
+import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -30,6 +32,7 @@ import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
+import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JniLibraryExtension;
 import dev.nokee.platform.jni.internal.*;
@@ -90,8 +93,16 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
+import static dev.nokee.model.internal.core.ModelActions.register;
+import static dev.nokee.model.internal.core.ModelNodes.discover;
+import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.componentSourcesOf;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
+import static dev.nokee.platform.objectivec.internal.ObjectiveCSourceSetModelHelpers.configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
+import static dev.nokee.platform.objectivecpp.internal.ObjectiveCppSourceSetModelHelpers.configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
 import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static java.util.Collections.emptyList;
@@ -100,6 +111,7 @@ import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK
 
 public class JniLibraryPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "library";
+	private static final Set<Class<? extends Plugin<Project>>> NATIVE_LANGUAGE_PLUGINS = ImmutableSet.of(CLanguagePlugin.class, CppLanguagePlugin.class, ObjectiveCLanguagePlugin.class, ObjectiveCppLanguagePlugin.class);
 
 	private final ToolChainSelectorInternal toolChainSelectorInternal;
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
@@ -143,8 +155,10 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
 		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJniHeaderSourceSet(project, extension));
 		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJvmHeaderSourceSet(extension));
-		project.getPlugins().withType(NativePlatformCapabilitiesMarkerPlugin.class, appliedPlugin -> {
-			project.getPluginManager().apply(DarwinFrameworkResolutionSupportPlugin.class);
+		project.getPlugins().whenPluginAdded(appliedPlugin -> {
+			if (isNativeLanguagePlugin(appliedPlugin)) {
+				project.getPluginManager().apply(DarwinFrameworkResolutionSupportPlugin.class);
+			}
 		});
 
 		extension.getVariants().whenElementKnown(JniLibraryInternal.class, knownVariant -> {
@@ -182,7 +196,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		extension.getVariants().configureEach(JniLibraryInternal.class, variant -> {
 			// Build all language source set
 			val objectSourceSets = getObjects().domainObjectSet(ObjectSourceSet.class);
-			if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
+			if (project.getPlugins().stream().anyMatch(appliedPlugin -> isNativeLanguagePlugin(appliedPlugin))) {
 				objectSourceSets.addAll(new NativeLanguageRules(taskRegistry, objects, variant.getIdentifier()).apply(extension.getComponent().getSources()));
 			}
 
@@ -191,7 +205,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 			variant.getSharedLibrary().getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
 				val taskInternal = (AbstractNativeCompileTask) task;
-				taskInternal.getIncludes().from(extension.getComponent().getSources().withType(LanguageSourceSetInternal.class).filter(it -> it instanceof CHeaderSet || it instanceof CppHeaderSet).map(ProviderUtils.map(LanguageSourceSet::getSourceDirectories)));
+				taskInternal.getIncludes().from(extension.getComponent().getSources().filter(it -> it instanceof NativeHeaderSet).map(ProviderUtils.map(LanguageSourceSet::getSourceDirectories)));
 			});
 		});
 
@@ -205,7 +219,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				val variantIdentifier = knownVariant.getIdentifier();
 				final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
 
-				if (project.getPlugins().hasPlugin(NativePlatformCapabilitiesMarkerPlugin.class)) {
+				if (project.getPlugins().stream().anyMatch(appliedPlugin -> isNativeLanguagePlugin(appliedPlugin))) {
 					taskRegistry.register(TaskIdentifier.of(TaskName.of("objects"), ObjectsLifecycleTask.class, variantIdentifier), configureDependsOn(knownVariant.map(it -> it.getSharedLibrary().getCompileTasks())));
 				}
 
@@ -301,6 +315,10 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				extension.getVariantCollection().realize();
 			});
 		});
+	}
+
+	private static boolean isNativeLanguagePlugin(Plugin<Project> appliedPlugin) {
+		return NATIVE_LANGUAGE_PLUGINS.stream().anyMatch(it -> it.isAssignableFrom(appliedPlugin.getClass()));
 	}
 
 	// NOTE(daniel): I added the diagnostic because I lost about 2 hours debugging missing files from the generated JAR file.
@@ -415,6 +433,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
+
+		// TODO: Use the ComponentContainer instead of ModelRegistry
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		val registry = ModelNodes.of(components).get(NodeRegistrationFactoryRegistry.class);
 		registry.registerFactory(of(JniLibraryComponentInternal.class), name -> javaNativeInterfaceLibrary(name, project));
@@ -454,12 +474,23 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		return library;
 	}
 
-	private static NodeRegistration<JniLibraryComponentInternal> javaNativeInterfaceLibrary(String name, Project project) {
-		return NodeRegistration.unmanaged(name, of(JniLibraryComponentInternal.class), () -> {
-			val identifier = ComponentIdentifier.of(ComponentName.of(name), JniLibraryComponentInternal.class, ProjectIdentifier.of(project));
-			assert identifier.isMainComponent();
-			return new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
-		});
+	public static NodeRegistration<JniLibraryComponentInternal> javaNativeInterfaceLibrary(String name, Project project) {
+		val identifier = ComponentIdentifier.of(ComponentName.of(name), JniLibraryComponentInternal.class, ProjectIdentifier.of(project));
+		assert identifier.isMainComponent();
+		return component(name, JniLibraryComponentInternal.class, () -> new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelLookup.class)))
+			.action(self(discover()).apply(register(sources())))
+
+			// TODO: This convention is only good is to support older Gradle style source set
+			//   We could deprecate this behaviour by creating additional source set named objc/objcpp and warn when there's sources in them... that would fail some tests because we don't expect a source set... we could also just remove it...
+			.action(configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)))
+			.action(configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
+	}
+
+	private static NodeRegistration<JavaNativeInterfaceLibrarySources> sources() {
+		return componentSourcesOf(JavaNativeInterfaceLibrarySources.class)
+			.action(self(discover()).apply(register(sourceSet("jni", CHeaderSet.class))))
+			// TODO: ONLY if applying include language plugin
+			.action(self(discover()).apply(register(sourceSet("headers", CHeaderSet.class))));
 	}
 
 	private static boolean isGradleVersionGreaterOrEqualsTo6Dot3() {
@@ -512,7 +543,11 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			// See https://github.com/gradle/gradle/issues/12084.
 			task.getOptions().setIncremental(isGradleVersionGreaterOrEqualsTo6Dot3());
 		});
-		project.getExtensions().getByType(LanguageSourceSetRegistry.class).create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("jni"), CHeaderSetImpl.class, extension.getComponent().getIdentifier()), sourceSet -> sourceSet.from(compileTask.flatMap(it -> it.getOptions().getHeaderOutputDirectory())));
+		project.getExtensions().getByType(ComponentContainer.class).configure("main", JniLibraryComponentInternal.class, component -> {
+			component.getSources().configure("jni", CHeaderSet.class, sourceSet -> {
+				sourceSet.from(compileTask.flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
+			});
+		});
 	}
 
 	private void configureJavaJniRuntime(Project project, JniLibraryExtensionInternal library) {

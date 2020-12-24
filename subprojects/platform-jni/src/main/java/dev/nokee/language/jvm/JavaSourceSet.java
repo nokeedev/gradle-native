@@ -1,13 +1,12 @@
 package dev.nokee.language.jvm;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import org.gradle.api.Action;
-import org.gradle.api.tasks.util.PatternFilterable;
+import dev.nokee.language.base.SelfAwareLanguageSourceSet;
 
-public interface JavaSourceSet extends LanguageSourceSet {
-	@Override
-	JavaSourceSet from(Object... paths);
-
-	@Override
-	JavaSourceSet filter(Action<? super PatternFilterable> action);
-}
+/**
+ * A set of Java source files.
+ *
+ * @see LanguageSourceSet
+ * @since 0.5
+ */
+public interface JavaSourceSet extends SelfAwareLanguageSourceSet<JavaSourceSet> {}

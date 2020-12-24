@@ -1,7 +1,6 @@
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.LanguageSourceSetView;
+import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
@@ -42,7 +41,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	private final DefaultJavaNativeInterfaceNativeComponentDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
-	private final LanguageSourceSetView<LanguageSourceSet> sources;
+	private final FunctionalSourceSet sources;
 	private final TaskProvider<Task> assembleTask;
 	private final DomainObjectEventPublisher eventPublisher;
 	private final TaskViewFactory taskViewFactory;
@@ -56,7 +55,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, LanguageSourceSetView<LanguageSourceSet> parentSources, GroupId groupId, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, TaskProvider<Task> assembleTask, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory) {
+	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, FunctionalSourceSet parentSources, GroupId groupId, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, TaskProvider<Task> assembleTask, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory) {
 		super(identifier, objects, binaryViewFactory);
 		this.dependencies = dependencies.getDependencies();
 		this.configurations = configurations;
@@ -84,7 +83,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		ConfigureUtils.setPropertyValue(resourcePath, value);
 	}
 
-	public LanguageSourceSetView<LanguageSourceSet> getSources() {
+	public FunctionalSourceSet getSources() {
 		return sources;
 	}
 
