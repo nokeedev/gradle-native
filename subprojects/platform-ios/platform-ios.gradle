@@ -37,6 +37,8 @@ test {
 	dependencies {
 		implementation testFixtures(project(':platformNative'))
 		implementation testFixtures(project(':languageBase'))
+		implementation testFixtures(project(':platformBase'))
+		implementation testFixtures(project(':coreModel'))
 	}
 }
 
