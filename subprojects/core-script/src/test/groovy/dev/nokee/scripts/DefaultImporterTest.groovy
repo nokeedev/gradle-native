@@ -4,11 +4,13 @@ import dev.nokee.internal.testing.utils.TestUtils
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.function.Executable
+import spock.lang.Subject
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.equalTo
 import static org.junit.jupiter.api.Assertions.*
 
+@Subject(DefaultImporter.class)
 class DefaultImporterTest {
 	def project = TestUtils.rootProject()
 
