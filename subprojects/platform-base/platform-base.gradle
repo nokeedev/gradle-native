@@ -26,6 +26,7 @@ dependencies {
 	testFixturesCompileOnly gradleApi(minimumGradleVersion)
 	testFixturesImplementation gradleFixtures()
 	testFixturesImplementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.release"
+	testFixturesImplementation testFixtures(project(':coreModel'))
 }
 
 java {

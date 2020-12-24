@@ -3,6 +3,7 @@ package dev.nokee.platform.base.internal.components;
 import dev.nokee.internal.Factories;
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.DomainObjectFactory;
+import dev.nokee.model.internal.BaseNamedDomainObjectContainer;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
