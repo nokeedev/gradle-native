@@ -8,11 +8,6 @@ plugins {
 
 import static dev.gradleplugins.GradleRuntimeCompatibility.*
 
-repositories {
-	jcenter()
-	gradlePluginDevelopment()
-}
-
 dependencies {
 	implementation 'net.rubygrapefruit:ansi-control-sequence-util:0.2'
 	implementation "org.apache.commons:commons-exec:${commonsExecVersion}"

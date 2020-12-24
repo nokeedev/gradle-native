@@ -7,11 +7,6 @@ plugins {
 
 import static dev.gradleplugins.GradleRuntimeCompatibility.*
 
-repositories {
-	jcenter()
-	gradlePluginDevelopment()
-}
-
 dependencies {
 	implementation project(':coreUtils')
 	compileOnly gradleApi(minimumGradleVersion)

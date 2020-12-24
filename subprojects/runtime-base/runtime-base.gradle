@@ -3,11 +3,6 @@ plugins {
 	id 'maven-publish'
 }
 
-repositories {
-	jcenter()
-	gradlePluginDevelopment()
-}
-
 dependencies {
 	implementation project(':coreExec')
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"

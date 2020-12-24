@@ -4,12 +4,6 @@ plugins {
 	id 'maven-publish'
 }
 
-repositories {
-	jcenter()
-	mavenCentral()
-	gradlePluginDevelopment()
-}
-
 dependencies {
 	implementation project(':coreUtils')
 	api project(':platformBase')

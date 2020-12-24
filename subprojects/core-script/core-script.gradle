@@ -4,11 +4,6 @@ plugins {
 	id 'groovy-base'
 }
 
-repositories {
-	jcenter()
-	gradlePluginDevelopment()
-}
-
 dependencies {
 	compileOnly gradleApi(minimumGradleVersion)
 
