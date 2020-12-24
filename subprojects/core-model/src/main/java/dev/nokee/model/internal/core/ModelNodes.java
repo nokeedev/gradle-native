@@ -212,6 +212,29 @@ public final class ModelNodes {
 		}
 	}
 
+	public static Predicate<ModelNode> descendantOf(ModelPath ancestorPath) {
+		return new DescendantOfPredicate(ancestorPath);
+	}
+
+	@EqualsAndHashCode(callSuper = false)
+	private static final class DescendantOfPredicate extends AbstractModelNodePredicate {
+		private final ModelPath ancestorPath;
+
+		public DescendantOfPredicate(ModelPath ancestorPath) {
+			this.ancestorPath = requireNonNull(ancestorPath);
+		}
+
+		@Override
+		public boolean test(ModelNode node) {
+			return ancestorPath.isDescendant(node.getPath());
+		}
+
+		@Override
+		public String toString() {
+			return "ModelNodes.descendantOf(" + ancestorPath + ")";
+		}
+	}
+
 	/**
 	 * Returns a predicate that select the specified path in the model.
 	 *
