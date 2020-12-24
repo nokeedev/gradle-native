@@ -149,6 +149,29 @@ public final class ModelNodes {
 		}
 	}
 
+	public static Predicate<ModelNode> stateOf(ModelNode.State state) {
+		return new StateOfPredicate(state);
+	}
+
+	@EqualsAndHashCode
+	private static final class StateOfPredicate implements Predicate<ModelNode> {
+		private final ModelNode.State state;
+
+		private StateOfPredicate(ModelNode.State state) {
+			this.state = requireNonNull(state);
+		}
+
+		@Override
+		public boolean test(ModelNode node) {
+			return node.getState().equals(state);
+		}
+
+		@Override
+		public String toString() {
+			return "ModelNodes.stateOf(" + state + ")";
+		}
+	}
+
 	/**
 	 * Returns a predicate filtering model nodes that satisfy the specified spec for the projection type specified.
 	 *
