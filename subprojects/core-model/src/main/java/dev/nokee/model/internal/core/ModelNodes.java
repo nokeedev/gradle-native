@@ -8,6 +8,8 @@ import org.gradle.api.specs.Spec;
 
 import java.util.function.Predicate;
 
+import static dev.nokee.model.internal.core.ModelNode.State.Realized;
+import static dev.nokee.model.internal.core.ModelNode.State.Registered;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -153,8 +155,8 @@ public final class ModelNodes {
 		return new StateOfPredicate(state);
 	}
 
-	@EqualsAndHashCode
-	private static final class StateOfPredicate implements Predicate<ModelNode> {
+	@EqualsAndHashCode(callSuper = false)
+	private static final class StateOfPredicate extends AbstractModelNodePredicate {
 		private final ModelNode.State state;
 
 		private StateOfPredicate(ModelNode.State state) {
@@ -256,6 +258,18 @@ public final class ModelNodes {
 		public String toString() {
 			return "ModelNodes.descendantOf(" + ancestorPath + ")";
 		}
+	}
+
+	public static Predicate<ModelNode> discover() {
+		return stateOf(Registered);
+	}
+
+	public static Predicate<ModelNode> discover(ModelType<?> type) {
+		return stateOf(Registered).and(withType(type));
+	}
+
+	public static Predicate<ModelNode> mutate(ModelType<?> type) {
+		return stateOf(Realized).and(withType(type));
 	}
 
 	/**
