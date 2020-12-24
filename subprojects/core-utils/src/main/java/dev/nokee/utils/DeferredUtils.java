@@ -54,34 +54,17 @@ public final class DeferredUtils {
 	 * @throws IllegalArgumentException if the unpacker operator returns the same object
 	 * @throws IllegalStateException if the flatter consumer removes elements from the queue
 	 */
-	public static <T> List<T> flatUnpackUntil(@Nullable Object deferred, BiConsumer<Object, Deque<Object>> flatter, UnaryOperator<Object> unpacker, Class<T> type) {
-		if (deferred == null) {
-			return Collections.emptyList();
-		}
-
-		final List<T> result = new ArrayList<>();
-		final Deque<Object> queue = new ArrayDeque<>();
-		queue.addFirst(deferred);
-		while (!queue.isEmpty()) {
-			Object value = queue.removeFirst();
-			if (type.isAssignableFrom(value.getClass())) {
-				result.add(type.cast(value));
-			} else {
-				val afterUnpack = unpacker.apply(value);
-				if (!value.equals(afterUnpack)) {
-					queue.addFirst(afterUnpack);
-				} else {
-					val sizeBefore = queue.size();
-					flatter.accept(value, queue);
-					if (sizeBefore > queue.size()) {
-						throw new IllegalStateException("Flatter consumer cannot remove items from the queue");
-					} else if (sizeBefore == queue.size()) {
-						throw new IllegalArgumentException("Cannot unpack element further to appropriate type");
-					}
-				}
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> flatUnpackUntil(@Nullable Object deferred, BiFunction<Object, Deque<Object>, Boolean> flatter, UnaryOperator<Object> unpacker, Class<T> type) {
+		return (List<T>) flatUnpackWhile(deferred, flatter, it -> unpacker.apply(unpack(it)), it -> {
+			if (isFlattenableType(it)) {
+				return false;
 			}
-		}
-		return result;
+			if (isNestableDeferred(it)) {
+				return true;
+			}
+			return !type.isInstance(it);
+		});
 	}
 
 	public static List<Object> flatUnpack(@Nullable Object deferred) {
@@ -137,12 +120,19 @@ public final class DeferredUtils {
 				}
 			}
 			return true;
+		} else if (value instanceof Set) {
+			((Set<?>) value).forEach(queue::addFirst);
+			return true;
 		} else if (value instanceof Object[]) {
 			Object[] array = (Object[]) value;
 			addAllFirst(queue, array);
 			return true;
 		}
 		return false;
+	}
+
+	static boolean isFlattenableType(Object value) {
+		return value instanceof List || value instanceof Set || value instanceof Object[];
 	}
 
 	private static void addAllFirst(Deque<Object> queue, Object[] items) {
