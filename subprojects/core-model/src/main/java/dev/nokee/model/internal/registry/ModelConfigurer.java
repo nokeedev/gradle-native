@@ -17,7 +17,7 @@ public interface ModelConfigurer {
 		return new ModelConfigurer() {
 			@Override
 			public void configureMatching(ModelSpec spec, ModelAction action) {
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException("This instance always fails.");
 			}
 		};
 	}

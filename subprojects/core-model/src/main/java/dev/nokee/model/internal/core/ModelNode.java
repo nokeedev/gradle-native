@@ -289,17 +289,17 @@ public final class ModelNode {
 			return new ModelRegistry() {
 				@Override
 				public <T> DomainObjectProvider<T> get(ModelIdentifier<T> identifier) {
-					throw new UnsupportedOperationException();
+					throw new UnsupportedOperationException("This instance always fails.");
 				}
 
 				@Override
 				public <T> DomainObjectProvider<T> register(NodeRegistration<T> registration) {
-					throw new UnsupportedOperationException();
+					throw new UnsupportedOperationException("This instance always fails.");
 				}
 
 				@Override
 				public <T> DomainObjectProvider<T> register(ModelRegistration<T> registration) {
-					throw new UnsupportedOperationException();
+					throw new UnsupportedOperationException("This instance always fails.");
 				}
 			};
 		}
