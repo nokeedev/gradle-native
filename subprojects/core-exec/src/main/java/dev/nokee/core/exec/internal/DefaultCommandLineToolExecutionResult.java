@@ -43,7 +43,7 @@ public class DefaultCommandLineToolExecutionResult implements CommandLineToolExe
 	@Override
 	public CommandLineToolExecutionResult assertNormalExitValue() throws ExecException {
 		if (this.exitValue != 0) {
-			throw new ExecException(String.format("Process '%s' finished with non-zero exit value %d\n%s", displayName.get(), exitValue, error));
+			throw new ExecException(String.format("Process '%s' finished with non-zero exit value %d\n%s", displayName.get(), exitValue, error.getAsString()));
 		} else {
 			return this;
 		}
