@@ -67,20 +67,20 @@ class NodeRegistrationTest {
 			.addEqualityGroup(NodeRegistration.of("c", of(MyType.class)))
 			.addEqualityGroup(NodeRegistration.of("a", of(MyOtherType.class)))
 			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")))
-			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")).action(stateAtLeast(ModelNode.State.Registered), doSomething()))
+			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")).action(self(stateAtLeast(ModelNode.State.Registered)).apply(doSomething())))
 			.testEquals();
 	}
 
 	@Test
 	void canAddActions() {
-		val registration = NodeRegistration.of("bar", of(MyType.class)).action(stateAtLeast(ModelNode.State.Registered), doSomething()).scope(path("foo"));
+		val registration = NodeRegistration.of("bar", of(MyType.class)).action(self(stateAtLeast(ModelNode.State.Registered)).apply(doSomething())).scope(path("foo"));
 		assertThat(registration.getActions(), contains(onlyIf(self(stateAtLeast(ModelNode.State.Registered)).scope(path("foo.bar")), doSomething())));
 	}
 
 	@Test
 	void canAddActionsUsingNodePredicate() {
 		val registration = NodeRegistration.of("b", of(MyType.class))
-			.action(allDirectDescendants(), doSomething()).scope(path("a"));
+			.action(allDirectDescendants().apply(doSomething())).scope(path("a"));
 		assertThat(registration.getActions(), contains(onlyIf(allDirectDescendants().scope(path("a.b")), doSomething())));
 	}
 

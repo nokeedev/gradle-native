@@ -26,6 +26,7 @@ import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
 import static dev.nokee.model.internal.core.ModelSpecs.satisfyAll;
 import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.MyComponent.aComponent;
 import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.NodeStateTransitionCollectingAction.*;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -224,14 +225,14 @@ public class DefaultModelRegistryIntegrationTest {
 	interface MyComponent {
 		static NodeRegistration<MyComponent> aComponent(String name) {
 			return NodeRegistration.of(name, of(MyComponent.class))
-				.action(stateAtLeast(Registered), once(register(MyComponentSources.componentSources())));
+				.action(self(stateAtLeast(Registered)).apply(once(register(MyComponentSources.componentSources()))));
 		}
 	}
 	interface MyComponentSources {
 		static NodeRegistration<MyComponentSources> componentSources() {
 			return NodeRegistration.of("sources", of(MyComponentSources.class))
-				.action(stateAtLeast(Registered), once(register(MySourceSet.aSourceSet("foo"))))
-				.action(stateAtLeast(Registered), once(register(MySourceSet.aSourceSet("bar"))));
+				.action(self(stateAtLeast(Registered)).apply(once(register(MySourceSet.aSourceSet("foo")))))
+				.action(self(stateAtLeast(Registered)).apply(once(register(MySourceSet.aSourceSet("bar")))));
 		}
 	}
 	interface MySourceSet {
@@ -244,7 +245,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canIncludeActionInNodeRegistrationThatAppliesOnlyToSelfModelNode() {
 		val modelPaths = new HashSet<ModelPath>();
 		modelRegistry.register(ModelRegistration.of("x", MyType.class));
-		modelRegistry.register(NodeRegistration.of("y", of(MyType.class)).action(node -> modelPaths.add(node.getPath()), doSomething()));
+		modelRegistry.register(NodeRegistration.of("y", of(MyType.class)).action(self(node -> modelPaths.add(node.getPath())).apply(doSomething())));
 		modelRegistry.register(ModelRegistration.of("y.foo", MyType.class));
 		modelRegistry.register(ModelRegistration.of("z", MyType.class));
 		assertThat("action for specific node isn't called for other nodes", modelPaths, hasItems(path("y")));
@@ -254,7 +255,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canIncludeActionInNodeRegistrationThatAppliesOnlyToDescendantModelNode() {
 		val modelPaths = new HashSet<ModelPath>();
 		modelRegistry.register(ModelRegistration.of("a", MyType.class));
-		modelRegistry.register(NodeRegistration.of("b", of(MyType.class)).action(allDirectDescendants(node -> modelPaths.add(node.getPath())), doSomething()));
+		modelRegistry.register(NodeRegistration.of("b", of(MyType.class)).action(allDirectDescendants(node -> modelPaths.add(node.getPath())).apply(doSomething())));
 		modelRegistry.register(ModelRegistration.of("b.bar", MyType.class));
 		modelRegistry.register(ModelRegistration.of("c", MyType.class));
 		assertThat("action for descendant node isn't called for other nodes", modelPaths, hasItems(path("b.bar")));

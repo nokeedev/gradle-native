@@ -110,6 +110,26 @@ public abstract class NodePredicate {
 		abstract ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher);
 	}
 
+	public NodeAction apply(ModelAction action) {
+		return new DefaultNodeAction(this, action);
+	}
+
+	@EqualsAndHashCode(callSuper = false)
+	private static final class DefaultNodeAction extends NodeAction {
+		private final NodePredicate predicate;
+		private final ModelAction action;
+
+		public DefaultNodeAction(NodePredicate predicate, ModelAction action) {
+			this.predicate = predicate;
+			this.action = requireNonNull(action);
+		}
+
+		@Override
+		ModelAction scope(ModelPath path) {
+			return ModelActions.onlyIf(predicate.scope(path), action);
+		}
+	}
+
 	@ToString
 	@EqualsAndHashCode
 	private static final class BasicPredicateSpec implements ModelSpec {
