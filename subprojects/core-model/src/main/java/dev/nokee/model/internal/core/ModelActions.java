@@ -7,8 +7,9 @@ import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
+
+import static java.util.Objects.requireNonNull;
 
 public final class ModelActions {
 	private ModelActions() {}
@@ -41,8 +42,8 @@ public final class ModelActions {
 		private final Action<? super T> action;
 
 		private ExecuteUsingProjectionModelAction(ModelType<T> type, Action<? super T> action) {
-			this.type = Objects.requireNonNull(type);
-			this.action = Objects.requireNonNull(action);
+			this.type = requireNonNull(type);
+			this.action = requireNonNull(action);
 		}
 
 		@Override
@@ -72,7 +73,7 @@ public final class ModelActions {
 		@EqualsAndHashCode.Exclude private final Set<ModelPath> alreadyExecuted = new HashSet<>();
 
 		public OnceModelAction(ModelAction action) {
-			this.action = Objects.requireNonNull(action);
+			this.action = requireNonNull(action);
 		}
 
 		@Override
@@ -103,7 +104,7 @@ public final class ModelActions {
 		private final NodeRegistration<?> registration;
 
 		public RegisterModelAction(NodeRegistration<?> registration) {
-			this.registration = Objects.requireNonNull(registration);
+			this.registration = requireNonNull(registration);
 		}
 
 		@Override
@@ -134,8 +135,8 @@ public final class ModelActions {
 		private final ModelAction action;
 
 		public OnlyIfModelAction(ModelSpec spec, ModelAction action) {
-			this.spec = Objects.requireNonNull(spec);
-			this.action = Objects.requireNonNull(action);
+			this.spec = requireNonNull(spec);
+			this.action = requireNonNull(action);
 		}
 
 		@Override
@@ -170,8 +171,8 @@ public final class ModelActions {
 		private final Action<? super KnownDomainObject<T>> action;
 
 		public ExecuteAsKnownProjectionModelAction(ModelType<T> type, Action<? super KnownDomainObject<T>> action) {
-			this.type = Objects.requireNonNull(type);
-			this.action = Objects.requireNonNull(action);
+			this.type = requireNonNull(type);
+			this.action = requireNonNull(action);
 		}
 
 		@Override
