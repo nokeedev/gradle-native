@@ -2,11 +2,6 @@ plugins {
 	id 'java-library'
 }
 
-repositories {
-	jcenter()
-	gradlePluginDevelopment()
-}
-
 dependencies {
 	// JUnit 5
 	api "org.junit.jupiter:junit-jupiter:${junitVersion}"

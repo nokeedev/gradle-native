@@ -12,12 +12,12 @@ import org.gradle.api.Project;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
 import static com.google.common.collect.ImmutableMap.of;
+import static dev.nokee.internal.testing.Assumptions.skipCurrentTestExecution;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @Subject(ModelBasePlugin.class)
@@ -26,8 +26,7 @@ class ModelBasePluginTest {
 	class IsWellBehavingPlugin extends WellBehavedPluginTester {
 		@Override
 		protected String getQualifiedPluginIdUnderTest() {
-			Assumptions.assumeTrue(false, "plugin does not have a plugin id");
-			throw new UnsupportedOperationException();
+			return skipCurrentTestExecution("plugin does not have a plugin id");
 		}
 
 		@Override

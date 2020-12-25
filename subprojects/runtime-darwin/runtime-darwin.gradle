@@ -4,11 +4,6 @@ plugins {
 	id 'antlr'
 }
 
-repositories {
-	jcenter()
-	gradlePluginDevelopment()
-}
-
 dependencies {
 	implementation project(':runtimeNative')
 	implementation project(':coreExec')

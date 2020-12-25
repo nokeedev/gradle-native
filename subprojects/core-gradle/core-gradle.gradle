@@ -6,11 +6,6 @@ plugins {
 
 import static dev.gradleplugins.GradleRuntimeCompatibility.*
 
-repositories {
-	jcenter()
-	gradlePluginDevelopment()
-}
-
 dependencies {
 	api 'com.google.dagger:dagger:latest.release'
 	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'

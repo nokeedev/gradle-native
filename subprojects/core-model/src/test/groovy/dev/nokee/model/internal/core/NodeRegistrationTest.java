@@ -8,8 +8,10 @@ import spock.lang.Subject;
 import static dev.nokee.internal.Factories.alwaysThrow;
 import static dev.nokee.model.internal.core.ModelActions.doNothing;
 import static dev.nokee.model.internal.core.ModelActions.onlyIf;
-import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
+import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelPath.path;
+import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -72,7 +74,14 @@ class NodeRegistrationTest {
 	@Test
 	void canAddActions() {
 		val registration = NodeRegistration.of("bar", of(MyType.class)).action(stateAtLeast(ModelNode.State.Registered), doNothing()).scope(path("foo"));
-		assertThat(registration.getActions(), contains(onlyIf(stateAtLeast(ModelNode.State.Registered), doNothing())));
+		assertThat(registration.getActions(), contains(onlyIf(self(stateAtLeast(ModelNode.State.Registered)).scope(path("foo.bar")), doNothing())));
+	}
+
+	@Test
+	void canAddActionsUsingNodePredicate() {
+		val registration = NodeRegistration.of("b", of(MyType.class))
+			.action(allDirectDescendants(), doNothing()).scope(path("a"));
+		assertThat(registration.getActions(), contains(onlyIf(allDirectDescendants().scope(path("a.b")), doNothing())));
 	}
 
 	interface MyType {}

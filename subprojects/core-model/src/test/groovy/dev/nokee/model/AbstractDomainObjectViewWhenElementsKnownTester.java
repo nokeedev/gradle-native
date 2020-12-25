@@ -90,7 +90,6 @@ public abstract class AbstractDomainObjectViewWhenElementsKnownTester<T> extends
 		register("myTypes.e1.e4", getElementType());
 
 		val captor = whenElementKnown(subject);
-		System.out.println(captor.getAllValues());
 		assertThat("element of unrelated types are not known",
 			captor.getAllValues(),
 			contains(known("e0"), known("e1")));

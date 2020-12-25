@@ -100,6 +100,11 @@ public final class ModelTestUtils {
 			public boolean has(ModelPath path) {
 				throw new UnsupportedOperationException();
 			}
+
+			@Override
+			public boolean anyMatch(ModelSpec spec) {
+				throw new UnsupportedOperationException();
+			}
 		});
 		action.accept(builder);
 		return builder.build();

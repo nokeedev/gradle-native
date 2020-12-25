@@ -154,3 +154,12 @@ subprojects { project ->
 	configurations.matching { it.name.toLowerCase().endsWith('compileonly') }.all(addLombokDependency)
 	configurations.matching { it.name.toLowerCase().endsWith('annotationprocessor') }.all(addLombokDependency)
 }
+
+// Configure general artifact repositories
+subprojects {
+	repositories {
+		jcenter()
+		mavenCentral()
+		gradlePluginDevelopment()
+	}
+}

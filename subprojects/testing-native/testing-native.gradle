@@ -3,10 +3,6 @@ plugins {
 	id 'maven-publish'
 }
 
-repositories {
-	jcenter()
-}
-
 dependencies {
 	api project(':testingBase')
 

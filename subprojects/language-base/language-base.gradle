@@ -4,12 +4,6 @@ plugins {
 	id 'maven-publish'
 }
 
-// TODO: These repositories are required because IntelliJ fails again at detecting the repositories
-repositories {
-	jcenter()
-	mavenCentral()
-}
-
 dependencies {
 	api project(':coreModel')
 	implementation project(':coreUtils')

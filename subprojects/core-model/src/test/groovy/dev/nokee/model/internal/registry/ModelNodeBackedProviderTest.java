@@ -123,6 +123,19 @@ public class ModelNodeBackedProviderTest {
 		assertThat(provider(MyOtherType.class, node("bar", new MyOtherType())), hasToString("provider(node 'bar', class dev.nokee.model.internal.registry.ModelNodeBackedProviderTest$MyOtherType)"));
 	}
 
+	@Nested
+	class CanAccessModelNode extends DomainObjectFunctorModelNodeTester<DomainObjectProvider> {
+		@Override
+		protected <T> DomainObjectProvider createSubject(Class<T> type) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		protected <T> DomainObjectProvider createSubject(Class<T> type, ModelNode node) {
+			return provider(type, node);
+		}
+	}
+
 	static class MyType {}
 	static class MyOtherType {}
 }

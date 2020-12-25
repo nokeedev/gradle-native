@@ -69,10 +69,6 @@ dependencies {
 	docsTestImplementation testFixtures(project('exemplarKit'))
 }
 
-repositories {
-	gradlePluginDevelopment()
-}
-
 documentation {
 	samples.configureEach { minimumGradleVersion = project.minimumGradleVersion }
 	samples {

@@ -9,11 +9,11 @@ import org.gradle.api.provider.Property;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static com.google.common.base.Predicates.alwaysTrue;
-import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelActions.register;
+import static dev.nokee.model.internal.core.ModelActions.*;
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
 import static dev.nokee.model.internal.core.ModelNode.State.Realized;
 import static dev.nokee.model.internal.core.ModelNode.State.Registered;
@@ -23,6 +23,7 @@ import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
 import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
 import static dev.nokee.model.internal.core.ModelSpecs.satisfyAll;
+import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.MyComponent.aComponent;
 import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.NodeStateTransitionCollectingAction.*;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -235,6 +236,26 @@ public class DefaultModelRegistryIntegrationTest {
 		static NodeRegistration<MySourceSet> aSourceSet(String name) {
 			return NodeRegistration.of(name, of(MySourceSet.class));
 		}
+	}
+
+	@Test
+	void canIncludeActionInNodeRegistrationThatAppliesOnlyToSelfModelNode() {
+		val modelPaths = new HashSet<ModelPath>();
+		modelRegistry.register(ModelRegistration.of("x", MyType.class));
+		modelRegistry.register(NodeRegistration.of("y", of(MyType.class)).action(node -> modelPaths.add(node.getPath()), doNothing()));
+		modelRegistry.register(ModelRegistration.of("y.foo", MyType.class));
+		modelRegistry.register(ModelRegistration.of("z", MyType.class));
+		assertThat("action for specific node isn't called for other nodes", modelPaths, hasItems(path("y")));
+	}
+
+	@Test
+	void canIncludeActionInNodeRegistrationThatAppliesOnlyToDescendantModelNode() {
+		val modelPaths = new HashSet<ModelPath>();
+		modelRegistry.register(ModelRegistration.of("a", MyType.class));
+		modelRegistry.register(NodeRegistration.of("b", of(MyType.class)).action(allDirectDescendants(node -> modelPaths.add(node.getPath())), doNothing()));
+		modelRegistry.register(ModelRegistration.of("b.bar", MyType.class));
+		modelRegistry.register(ModelRegistration.of("c", MyType.class));
+		assertThat("action for descendant node isn't called for other nodes", modelPaths, hasItems(path("b.bar")));
 	}
 
 	@Test

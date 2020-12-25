@@ -3,11 +3,6 @@ plugins {
 	id 'maven-publish'
 }
 
-repositories {
-	mavenCentral()
-	jcenter()
-}
-
 dependencies {
 	implementation project(':coreUtils')
 	api project(':ideBase')

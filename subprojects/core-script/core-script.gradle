@@ -2,11 +2,7 @@ plugins {
 	id 'java-library'
 	id 'maven-publish'
 	id 'groovy-base'
-}
-
-repositories {
-	jcenter()
-	gradlePluginDevelopment()
+	id 'java-test-fixtures'
 }
 
 dependencies {
@@ -14,6 +10,9 @@ dependencies {
 
 	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)
+
+	testFixturesApi gradleApi(minimumGradleVersion)
+	testFixturesApi "org.hamcrest:hamcrest:${hamcrestVersion}"
 }
 
 publishing {

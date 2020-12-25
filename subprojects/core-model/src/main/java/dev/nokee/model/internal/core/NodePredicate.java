@@ -1,6 +1,7 @@
 package dev.nokee.model.internal.core;
 
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -9,6 +10,7 @@ import java.util.function.Predicate;
 
 import static com.google.common.base.Predicates.alwaysTrue;
 import static dev.nokee.model.internal.core.ModelNodes.withParent;
+import static dev.nokee.model.internal.core.ModelNodes.withPath;
 
 @EqualsAndHashCode
 public abstract class NodePredicate {
@@ -69,6 +71,35 @@ public abstract class NodePredicate {
 		};
 	}
 
+	public static NodePredicate self() {
+		return new NodePredicate(alwaysTrue()) {
+			@Override
+			protected ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
+				return new BasicPredicateSpec(path, null, null, withPath(path).and(matcher));
+			}
+
+			@Override
+			public String toString() {
+				return "NodePredicate.self()";
+			}
+		};
+	}
+
+	public static NodePredicate self(Predicate<? super ModelNode> predicate) {
+		return new NodePredicate(predicate) {
+			@Override
+			protected ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
+				return new BasicPredicateSpec(path, null, null, withPath(path).and(matcher));
+			}
+
+			@Override
+			public String toString() {
+				return "NodePredicate.self(" + predicate + ")";
+			}
+		};
+	}
+
+	@ToString
 	@EqualsAndHashCode
 	private static final class BasicPredicateSpec implements ModelSpec {
 		@Nullable
@@ -80,30 +111,14 @@ public abstract class NodePredicate {
 		@Nullable
 		private final ModelPath ancestor;
 		private final Predicate<? super ModelNode> matcher;
-		@EqualsAndHashCode.Exclude private final Predicate<ModelNode> predicate;
+		@EqualsAndHashCode.Exclude private final Predicate<? super ModelNode> predicate;
 
 		public BasicPredicateSpec(@Nullable ModelPath path, @Nullable ModelPath parent, @Nullable ModelPath ancestor, Predicate<? super ModelNode> matcher) {
 			this.path = path;
 			this.parent = parent;
 			this.ancestor = ancestor;
 			this.matcher = matcher;
-			this.predicate = toPathPredicate(this).and(toAncestorPredicate(this)).and(matcher);
-		}
-
-		private static Predicate<ModelNode> toPathPredicate(ModelSpec spec) {
-			return spec.getPath().map(BasicPredicateSpec::asPathPredicate).orElse(alwaysTrue());
-		}
-
-		private static Predicate<ModelNode> asPathPredicate(ModelPath path) {
-			return node -> node.getPath().equals(path);
-		}
-
-		private static Predicate<ModelNode> toAncestorPredicate(ModelSpec spec) {
-			return spec.getAncestor().map(BasicPredicateSpec::asAncestorPredicate).orElse(alwaysTrue());
-		}
-
-		private static Predicate<ModelNode> asAncestorPredicate(ModelPath ancestor) {
-			throw new UnsupportedOperationException("Not yet implemented");
+			this.predicate = matcher;
 		}
 
 		@Override

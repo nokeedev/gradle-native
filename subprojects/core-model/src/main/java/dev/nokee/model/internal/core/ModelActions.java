@@ -9,7 +9,6 @@ import org.gradle.api.Action;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Predicate;
 
 public final class ModelActions {
 	private ModelActions() {}
@@ -121,34 +120,34 @@ public final class ModelActions {
 	/**
 	 * Returns an action that will execute only if the specified predicate matches.
 	 *
-	 * @param predicate  the predicate to match
+	 * @param spec  the predicate to match
 	 * @param action  the action to execute
 	 * @return an action that will execute the specified action only for the matching predicate, never null.
 	 */
-	public static ModelAction onlyIf(Predicate<? super ModelNode> predicate, ModelAction action) {
-		return new OnlyIfModelAction(predicate, action);
+	public static ModelAction onlyIf(ModelSpec spec, ModelAction action) {
+		return new OnlyIfModelAction(spec, action);
 	}
 
 	@EqualsAndHashCode
 	private static final class OnlyIfModelAction implements ModelAction {
-		private final Predicate<? super ModelNode> predicate;
+		private final ModelSpec spec;
 		private final ModelAction action;
 
-		public OnlyIfModelAction(Predicate<? super ModelNode> predicate, ModelAction action) {
-			this.predicate = Objects.requireNonNull(predicate);
+		public OnlyIfModelAction(ModelSpec spec, ModelAction action) {
+			this.spec = Objects.requireNonNull(spec);
 			this.action = Objects.requireNonNull(action);
 		}
 
 		@Override
 		public void execute(ModelNode node) {
-			if (predicate.test(node)) {
+			if (spec.isSatisfiedBy(node)) {
 				action.execute(node);
 			}
 		}
 
 		@Override
 		public String toString() {
-			return "ModelActions.onlyIf(" + predicate + ", " + action + ")";
+			return "ModelActions.onlyIf(" + spec + ", " + action + ")";
 		}
 	}
 
