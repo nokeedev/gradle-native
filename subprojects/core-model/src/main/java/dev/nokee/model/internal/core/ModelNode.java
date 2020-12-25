@@ -45,10 +45,12 @@ public final class ModelNode {
 	private final ModelRegistry modelRegistry;
 
 	public enum State {
-		Created,
-		Initialized,
-		Registered,
-		Realized
+		Created, // Node instance created, can now add projections
+		Initialized, // All projection added
+		Registered, // Node attached to registry
+		// Discovered, // Node discovered, can now register child nodes
+		Realized // Node is in use
+		// Finalized, // Node data should not mutate any more, can now compute additional data on child nodes
 	}
 
 	private ModelNode(ModelPath path, List<ModelProjection> projections, ModelConfigurer configurer, ModelNodeListener listener, ModelLookup modelLookup, ModelRegistry modelRegistry, Instantiator instantiator) {
