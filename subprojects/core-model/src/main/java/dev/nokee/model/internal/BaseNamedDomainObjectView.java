@@ -15,8 +15,12 @@ import static dev.nokee.model.internal.type.ModelType.of;
  * @param <T>
  */
 public class BaseNamedDomainObjectView<T> extends AbstractModelNodeBackedNamedDomainObjectView<T> implements NamedDomainObjectView<T> {
+	protected BaseNamedDomainObjectView() {
+		super(null, getCurrentModelNode());
+	}
+
 	protected BaseNamedDomainObjectView(Class<T> elementType) {
-		this(of(elementType), getCurrentModelNode());
+		super(of(elementType), getCurrentModelNode());
 	}
 
 	// Don't share beyond package

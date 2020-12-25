@@ -14,6 +14,10 @@ import static dev.nokee.model.internal.type.ModelType.of;
  * @param <T>
  */
 public class BaseNamedDomainObjectContainer<T> extends AbstractModelNodeBackedNamedDomainObjectContainer<T> implements DomainObjectContainer<T> {
+	protected BaseNamedDomainObjectContainer() {
+		super(null, getCurrentModelNode());
+	}
+
 	protected BaseNamedDomainObjectContainer(Class<T> elementType) {
 		super(of(elementType), getCurrentModelNode());
 	}

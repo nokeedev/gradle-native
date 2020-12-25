@@ -8,15 +8,20 @@ import dev.nokee.model.internal.type.ModelType;
 import static dev.nokee.model.internal.core.ModelNodeContext.getCurrentModelNode;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static java.util.Objects.requireNonNull;
 
 public class BaseDomainObjectView<T> extends AbstractModelNodeBackedDomainObjectView<T> implements DomainObjectView<T> {
+	protected BaseDomainObjectView() {
+		super(null, getCurrentModelNode());
+	}
+
 	protected BaseDomainObjectView(Class<T> elementType) {
-		this(of(elementType), getCurrentModelNode());
+		super(of(elementType), getCurrentModelNode());
 	}
 
 	// Don't share beyond package
 	BaseDomainObjectView(ModelType<T> elementType, ModelNode node) {
-		super(elementType, node);
+		super(requireNonNull(elementType), node);
 	}
 
 	public static <T> NodeRegistration<T> view(String name, ModelType<T> viewType) {

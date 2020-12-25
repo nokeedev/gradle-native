@@ -14,6 +14,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 import org.gradle.internal.metaobject.*;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,21 +23,38 @@ import java.util.Set;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
-abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn, PropertyMixIn,DomainObjectView<T> {
+abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn, PropertyMixIn, DomainObjectView<T> {
 	private final DynamicObject elementsDynamicObject;
 	private final Projection projection;
 
 	// Allow sub-implementation to access but not outside the package
 	final ModelType<T> elementType;
 
-	AbstractModelNodeBackedDomainObjectView(ModelType<T> elementType, ModelNode node) {
+	AbstractModelNodeBackedDomainObjectView(@Nullable ModelType<T> elementType, ModelNode node) {
 		this(elementType, node, null); // TODO: Dynamic object just deny everything
 	}
 
-	AbstractModelNodeBackedDomainObjectView(ModelType<T> elementType, ModelNode node, DynamicObject elementsDynamicObject) {
-		this.elementType = elementType;
+	AbstractModelNodeBackedDomainObjectView(@Nullable ModelType<T> elementType, ModelNode node, DynamicObject elementsDynamicObject) {
+		if (elementType == null) {
+			this.elementType = inferElementType(of(getClass()));
+		} else {
+			this.elementType = elementType;
+		}
 		this.elementsDynamicObject = elementsDynamicObject;
 		this.projection = node.get(Projection.class);
+	}
+
+	private static <V, E> ModelType<E> inferElementType(ModelType<V> viewType) {
+		val result = new ArrayList<ModelType<?>>();
+		viewType.walkTypeHierarchy(new ModelType.Visitor<V>() {
+			@Override
+			public void visitType(ModelType<? super V> type) {
+				if (type.getRawType().equals(DomainObjectView.class)) {
+					result.addAll(type.getTypeVariables());
+				}
+			}
+		});
+		return (ModelType<E>) Iterables.getOnlyElement(result);
 	}
 
 	// TODO: Use GroovySupport directly
