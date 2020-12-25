@@ -297,10 +297,10 @@ public class DefaultModelRegistryIntegrationTest {
 		val executionOrder = new ArrayList<String>();
 		modelRegistry.configure(once(n1 -> {
 			executionOrder.add("n1 - " + n1.getPath());
-			n1.applyTo(allDirectDescendants(), once(n2 -> {
+			n1.applyTo(allDirectDescendants().apply(once(n2 -> {
 				executionOrder.add("n2 - " + n2.getPath());
-				n2.applyTo(allDirectDescendants(), once(n3 -> executionOrder.add("n3 - " + n3.getPath())));
-			}));
+				n2.applyTo(allDirectDescendants().apply(once(n3 -> executionOrder.add("n3 - " + n3.getPath()))));
+			})));
 		}));
 
 		registerNode("foo");

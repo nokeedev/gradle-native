@@ -16,6 +16,7 @@ import java.util.function.UnaryOperator;
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelNodeContext.getCurrentModelNode;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
+import static dev.nokee.model.internal.core.NodePredicate.self;
 
 public class BaseNamedDomainObjectViewProjection implements AbstractModelNodeBackedNamedDomainObjectView.Projection {
 	private final ObjectFactory objectFactory;
@@ -33,7 +34,7 @@ public class BaseNamedDomainObjectViewProjection implements AbstractModelNodeBac
 
 	@Override
 	public <T> void configure(String name, ModelType<T> type, Action<? super T> action) {
-		checkType(name, type).apply(node.getDescendant(name)).applyToSelf(stateAtLeast(ModelNode.State.Realized), executeUsingProjection(type, action));
+		checkType(name, type).apply(node.getDescendant(name)).applyTo(self(stateAtLeast(ModelNode.State.Realized)).apply(executeUsingProjection(type, action)));
 	}
 
 //	protected String getTypeDisplayName() {

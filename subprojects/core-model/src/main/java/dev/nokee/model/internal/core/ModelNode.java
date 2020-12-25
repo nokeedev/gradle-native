@@ -181,10 +181,6 @@ public final class ModelNode {
 		configurer.configure(action.scope(getPath()));
 	}
 
-	public void applyTo(NodePredicate predicate, ModelAction action) {
-		configurer.configure(predicate.apply(action).scope(getPath()));
-	}
-
 	/**
 	 * Returns a model provider of the relative registration.
 	 *
@@ -229,16 +225,6 @@ public final class ModelNode {
 		return Optional.ofNullable(Iterables.getFirst(projections, null))
 			.map(ModelProjection::getTypeDescriptions)
 			.map(it -> String.join(", ", it));
-	}
-
-	/**
-	 * Apply a configuration action to this node only.
-	 *
-	 * @param predicate  the predicate to match before applying the action
-	 * @param action  the action to execute on the node
-	 */
-	public void applyToSelf(Predicate<? super ModelNode> predicate, ModelAction action) {
-		configurer.configure(matching(ModelSpecs.of(withPath(path).and(predicate)), action));
 	}
 
 	@Override

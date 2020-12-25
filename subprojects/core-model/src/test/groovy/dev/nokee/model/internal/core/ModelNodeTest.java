@@ -14,15 +14,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
 
-import static com.google.common.base.Predicates.alwaysTrue;
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
-import static dev.nokee.model.internal.core.ModelActions.matching;
-import static dev.nokee.model.internal.core.ModelNodes.withPath;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
 import static dev.nokee.model.internal.core.ModelTestUtils.*;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -270,9 +268,9 @@ class ModelNodeTest {
 	void canApplyConfigurationToSelf() {
 		val modelConfigurer = mock(ModelConfigurer.class);
 		val node = node("foo", builder -> builder.withConfigurer(modelConfigurer));
-		node.applyToSelf(alwaysTrue(), doSomething());
+		node.applyTo(self().apply(doSomething()));
 		verify(modelConfigurer, times(1))
-			.configure(matching(ModelSpecs.of(withPath(path("foo")).and(alwaysTrue())), doSomething()));
+			.configure(self().apply(doSomething()).scope(path("foo")));
 	}
 
 	@Test

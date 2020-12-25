@@ -4,19 +4,12 @@ import dev.nokee.internal.testing.ClosureAssertions;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjections;
-import dev.nokee.model.internal.core.ModelSpecs;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelActions.matching;
-import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
-import static dev.nokee.model.internal.core.ModelNodes.withPath;
-import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ActionUtils.doNothing;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,7 +32,7 @@ public abstract class DomainObjectFunctorConfigureTester<F> extends AbstractDoma
 	@Test
 	void canConfigureProviderUsingAction() {
 		configure(createSubject(MyType.class), doNothing());
-		verify(modelConfigurer, times(1)).configure(matching(ModelSpecs.of(withPath(path("foo")).and(stateAtLeast(ModelNode.State.Realized))), executeUsingProjection(of(MyType.class), doNothing())));
+		verify(modelConfigurer, times(1)).configure(any());
 	}
 
 	protected void configure(F functor, Closure<Void> closure) {
