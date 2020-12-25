@@ -6,9 +6,10 @@ import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
 import static dev.nokee.model.internal.core.ModelActions.onlyIf;
-import static dev.nokee.model.internal.core.ModelActions.doNothing;
 import static dev.nokee.model.internal.core.ModelSpecs.satisfyAll;
 import static dev.nokee.model.internal.core.ModelSpecs.satisfyNone;
+import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
+import static dev.nokee.model.internal.core.ModelTestActions.doSomethingElse;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
@@ -34,17 +35,17 @@ class ModelActions_OnlyIfTest {
 
 	@Test
 	void checkToString() {
-		assertThat(onlyIf(satisfyAll(), doNothing()),
-			hasToString("ModelActions.onlyIf(ModelSpecs.satisfyAll(), ModelActions.doNothing())"));
+		assertThat(onlyIf(satisfyAll(), doSomething()),
+			hasToString("ModelActions.onlyIf(ModelSpecs.satisfyAll(), ModelTestActions.doSomething())"));
 	}
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(onlyIf(satisfyAll(), doNothing()), onlyIf(satisfyAll(), doNothing()))
-			.addEqualityGroup(onlyIf(satisfyNone(), doNothing()))
-			.addEqualityGroup(onlyIf(satisfyAll(), it -> {}))
+			.addEqualityGroup(onlyIf(satisfyAll(), doSomething()), onlyIf(satisfyAll(), doSomething()))
+			.addEqualityGroup(onlyIf(satisfyNone(), doSomething()))
+			.addEqualityGroup(onlyIf(satisfyAll(), doSomethingElse()))
 			.testEquals();
 	}
 }

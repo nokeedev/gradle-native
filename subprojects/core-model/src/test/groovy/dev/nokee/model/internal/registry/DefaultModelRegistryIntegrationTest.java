@@ -24,6 +24,7 @@ import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
 import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
 import static dev.nokee.model.internal.core.ModelSpecs.satisfyAll;
+import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.MyComponent.aComponent;
 import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.NodeStateTransitionCollectingAction.*;
@@ -243,7 +244,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canIncludeActionInNodeRegistrationThatAppliesOnlyToSelfModelNode() {
 		val modelPaths = new HashSet<ModelPath>();
 		modelRegistry.register(ModelRegistration.of("x", MyType.class));
-		modelRegistry.register(NodeRegistration.of("y", of(MyType.class)).action(node -> modelPaths.add(node.getPath()), doNothing()));
+		modelRegistry.register(NodeRegistration.of("y", of(MyType.class)).action(node -> modelPaths.add(node.getPath()), doSomething()));
 		modelRegistry.register(ModelRegistration.of("y.foo", MyType.class));
 		modelRegistry.register(ModelRegistration.of("z", MyType.class));
 		assertThat("action for specific node isn't called for other nodes", modelPaths, hasItems(path("y")));
@@ -253,7 +254,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canIncludeActionInNodeRegistrationThatAppliesOnlyToDescendantModelNode() {
 		val modelPaths = new HashSet<ModelPath>();
 		modelRegistry.register(ModelRegistration.of("a", MyType.class));
-		modelRegistry.register(NodeRegistration.of("b", of(MyType.class)).action(allDirectDescendants(node -> modelPaths.add(node.getPath())), doNothing()));
+		modelRegistry.register(NodeRegistration.of("b", of(MyType.class)).action(allDirectDescendants(node -> modelPaths.add(node.getPath())), doSomething()));
 		modelRegistry.register(ModelRegistration.of("b.bar", MyType.class));
 		modelRegistry.register(ModelRegistration.of("c", MyType.class));
 		assertThat("action for descendant node isn't called for other nodes", modelPaths, hasItems(path("b.bar")));

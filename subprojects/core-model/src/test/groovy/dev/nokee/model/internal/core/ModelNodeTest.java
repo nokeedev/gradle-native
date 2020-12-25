@@ -19,6 +19,7 @@ import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.model.internal.core.ModelNodes.withPath;
 import static dev.nokee.model.internal.core.ModelPath.path;
+import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
 import static dev.nokee.model.internal.core.ModelTestUtils.*;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -256,9 +257,9 @@ class ModelNodeTest {
 	void canApplyConfigurationToSelf() {
 		val modelConfigurer = mock(ModelConfigurer.class);
 		val node = node("foo", builder -> builder.withConfigurer(modelConfigurer));
-		node.applyToSelf(alwaysTrue(), ModelActions.doNothing());
+		node.applyToSelf(alwaysTrue(), doSomething());
 		verify(modelConfigurer, times(1))
-			.configureMatching(ModelSpecs.of(withPath(path("foo")).and(alwaysTrue())), ModelActions.doNothing());
+			.configureMatching(ModelSpecs.of(withPath(path("foo")).and(alwaysTrue())), doSomething());
 	}
 
 	@Test
