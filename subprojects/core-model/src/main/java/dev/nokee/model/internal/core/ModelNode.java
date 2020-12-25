@@ -8,7 +8,10 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import static dev.nokee.model.internal.core.ModelNodes.withPath;
@@ -41,10 +44,11 @@ public final class ModelNode {
 	private final ModelNodeListener listener;
 	private final List<ModelProjection> projections;
 	private final ModelConfigurer configurer;
-	private State state = State.Initialized;
+	private State state = State.Created;
 	private final ModelRegistry modelRegistry;
 
 	public enum State {
+		Created,
 		Initialized,
 		Registered,
 		Realized
@@ -57,6 +61,13 @@ public final class ModelNode {
 		this.listener = listener;
 		this.modelLookup = modelLookup;
 		this.modelRegistry = modelRegistry;
+		listener.created(this);
+		initialize();
+	}
+
+	private void initialize() {
+		assert state == State.Created;
+		state = State.Initialized;
 		listener.initialized(this);
 	}
 

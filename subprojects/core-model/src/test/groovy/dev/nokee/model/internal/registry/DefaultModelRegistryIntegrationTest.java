@@ -134,7 +134,7 @@ public class DefaultModelRegistryIntegrationTest {
 		modelRegistry.register(ModelRegistration.of("y", MyType.class));
 
 		assertThat(action.values,
-			contains(registered(root()), initialized("x"), registered("x"), initialized("y"), registered("y")));
+			contains(registered(root()), created("x"), initialized("x"), registered("x"), created("y"), initialized("y"), registered("y")));
 	}
 
 	@Test
@@ -145,7 +145,7 @@ public class DefaultModelRegistryIntegrationTest {
 		modelRegistry.register(ModelRegistration.of("x", MyType.class)).get();
 
 		assertThat(action.values,
-			contains(registered(root()), initialized("x"), registered("x"), realized(root()), realized("x")));
+			contains(registered(root()), created("x"), initialized("x"), registered("x"), realized(root()), realized("x")));
 	}
 
 	@Test
@@ -167,24 +167,29 @@ public class DefaultModelRegistryIntegrationTest {
 			values.add(new NodeStateTransition(node.getPath(), node.getState()));
 		}
 
-		static NodeStateTransition realized(String path) {
-			return new NodeStateTransition(ModelPath.path(path), Realized);
+		static NodeStateTransition realized(Object path) {
+			return new NodeStateTransition(asPath(path), Realized);
 		}
 
-		static NodeStateTransition realized(ModelPath path) {
-			return new NodeStateTransition(path, Realized);
+		static NodeStateTransition registered(Object path) {
+			return new NodeStateTransition(asPath(path), Registered);
 		}
 
-		static NodeStateTransition registered(String path) {
-			return new NodeStateTransition(ModelPath.path(path), Registered);
+		static NodeStateTransition initialized(Object path) {
+			return new NodeStateTransition(asPath(path), ModelNode.State.Initialized);
 		}
 
-		static NodeStateTransition registered(ModelPath path) {
-			return new NodeStateTransition(path, Registered);
+		static NodeStateTransition created(Object path) {
+			return new NodeStateTransition(asPath(path), ModelNode.State.Created);
 		}
 
-		static NodeStateTransition initialized(String path) {
-			return new NodeStateTransition(ModelPath.path(path), ModelNode.State.Initialized);
+		private static ModelPath asPath(Object path) {
+			if (path instanceof ModelPath) {
+				return (ModelPath) path;
+			} else if (path instanceof String) {
+				return ModelPath.path((String) path);
+			}
+			throw new IllegalArgumentException("Invalid path '" + path + "'");
 		}
 
 		@Value

@@ -123,6 +123,11 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	private final class NodeStateListener implements ModelNodeListener {
 		@Override
+		public void created(ModelNode node) {
+			notify(node);
+		}
+
+		@Override
 		public void initialized(ModelNode node) {
 			notify(node);
 		}

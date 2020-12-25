@@ -124,8 +124,20 @@ class ModelNodeTest {
 		private final ModelNode node = node(listener);
 
 		@Test
+		void callsBackWhenTheNodeIsCreated() {
+			verify(listener, times(1)).created(node);
+		}
+
+		@Test
+		void callsBackCreatedBeforeInitialized() {
+			val inOrder = inOrder(listener);
+			inOrder.verify(listener, times(1)).created(node);
+			inOrder.verify(listener, times(1)).initialized(node);
+		}
+
+		@Test
 		void callsBackWhenTheNodeIsInitialized() {
-			verify(listener, only()).initialized(node);
+			verify(listener, times(1)).initialized(node);
 		}
 
 		@Nested
@@ -196,7 +208,7 @@ class ModelNodeTest {
 
 			@Test
 			void callsBackThoughRegisteredFollowedByRealized() {
-				val inOrder = Mockito.inOrder(listener);
+				val inOrder = inOrder(listener);
 				inOrder.verify(listener, times(1)).registered(node);
 				inOrder.verify(listener, times(1)).realized(node);
 			}
