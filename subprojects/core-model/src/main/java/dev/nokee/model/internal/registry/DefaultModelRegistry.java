@@ -1,6 +1,7 @@
 package dev.nokee.model.internal.registry;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.*;
@@ -113,10 +114,11 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	@Override
 	public void configureMatching(ModelSpec spec, ModelAction action) {
 		val configuration = ModelActions.onlyIf(spec, action);
-		for (val node : nodes.values()) {
-			configuration.execute(node);
-		}
 		configurations.add(configuration);
+		val size = nodes.size();
+		for (int i = 0; i < size; i++) {
+			configuration.execute(Iterables.get(nodes.values(), i));
+		}
 	}
 
 	private final class NodeStateListener implements ModelNodeListener {

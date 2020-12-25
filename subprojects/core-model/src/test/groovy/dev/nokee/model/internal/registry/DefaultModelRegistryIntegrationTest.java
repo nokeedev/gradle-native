@@ -18,6 +18,7 @@ import static dev.nokee.model.internal.core.ModelIdentifier.of;
 import static dev.nokee.model.internal.core.ModelNode.State.Realized;
 import static dev.nokee.model.internal.core.ModelNode.State.Registered;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
+import static dev.nokee.model.internal.core.ModelNodes.stateOf;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
@@ -283,6 +284,54 @@ public class DefaultModelRegistryIntegrationTest {
 		val parent = registerNode("foo");
 		assertThrows(IllegalArgumentException.class, () -> parent.getDescendant("bar"),
 			"non-existing child node cannot be queried from parent node");
+	}
+
+	@Test
+	void honorsNestedConfigurationActionOrder() {
+		val executionOrder = new ArrayList<String>();
+		modelRegistry.configureMatching(ModelSpecs.satisfyAll(), once(n1 -> {
+			executionOrder.add("n1 - " + n1.getPath());
+			n1.applyTo(allDirectDescendants(), once(n2 -> {
+				executionOrder.add("n2 - " + n2.getPath());
+				n2.applyTo(allDirectDescendants(), once(n3 -> executionOrder.add("n3 - " + n3.getPath())));
+			}));
+		}));
+
+		registerNode("foo");
+		assertThat(executionOrder, contains("n1 - <root>", "n1 - foo", "n2 - foo"));
+		registerNode("foo.bar");
+		assertThat(executionOrder, contains("n1 - <root>", "n1 - foo", "n2 - foo", "n1 - foo.bar", "n2 - foo.bar", "n3 - foo.bar"));
+	}
+
+	@Test
+	void canRegisterNodeWhileDispatchingConfigurationActions() {
+		val paths = new ArrayList<ModelPath>();
+		registerNode("foo");
+		modelRegistry.configureMatching(ModelSpecs.of(stateOf(Registered)), node -> {
+			paths.add(node.getPath());
+			if (node.getPath().equals(path("foo"))) {
+				node.register(NodeRegistration.of("bar", of(MyType.class)));
+			}
+		});
+
+		System.out.println("Current paths: " + paths);
+		assertThat(paths, contains(root(), path("foo"), path("foo.bar")));
+	}
+
+	@Test // This may not be exactly the behaviour we want, let's keep a close eye
+	void dispatchConfigurationActionsAsNodeAreRegistered() {
+		val paths = new ArrayList<ModelPath>();
+		registerNode("foo");
+		registerNode("bar");
+		modelRegistry.configureMatching(ModelSpecs.of(stateOf(Registered)), node -> {
+			paths.add(node.getPath());
+			if (node.getPath().equals(path("foo"))) {
+				node.register(NodeRegistration.of("bar", of(MyType.class)));
+			}
+		});
+
+		System.out.println("Current paths: " + paths);
+		assertThat(paths, contains(root(), path("foo"), path("foo.bar"), path("bar")));
 	}
 
 //	@Test
