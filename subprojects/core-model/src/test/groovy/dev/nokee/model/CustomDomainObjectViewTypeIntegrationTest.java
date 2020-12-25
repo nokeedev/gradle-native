@@ -8,7 +8,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 
 import javax.inject.Inject;
 
-import static dev.nokee.model.internal.BaseDomainObjectView.newRegistration;
+import static dev.nokee.model.internal.BaseDomainObjectView.view;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 /**
@@ -22,7 +22,7 @@ class CustomDomainObjectViewTypeIntegrationTest extends DomainObjectViewTester<C
 
 			@Override
 			public DomainObjectView<MyType> create(String name) {
-				return modelRegistry.register(newRegistration(name, of(CustomViewOfMyType.class))).get();
+				return modelRegistry.register(view(name, of(CustomViewOfMyType.class))).get();
 			}
 
 			@Override

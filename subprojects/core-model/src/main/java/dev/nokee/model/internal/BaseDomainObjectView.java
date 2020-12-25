@@ -19,7 +19,7 @@ public class BaseDomainObjectView<T> extends AbstractModelNodeBackedDomainObject
 		super(elementType, node);
 	}
 
-	public static <T> NodeRegistration<T> newRegistration(String name, ModelType<T> viewType) {
+	public static <T> NodeRegistration<T> view(String name, ModelType<T> viewType) {
 		return NodeRegistration.of(name, viewType, elementTypeParameter(viewType, DomainObjectView.class))
 			.withProjection(managed(of(BaseDomainObjectViewProjection.class)));
 	}
