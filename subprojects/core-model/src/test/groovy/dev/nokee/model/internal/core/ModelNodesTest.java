@@ -1,6 +1,8 @@
 package dev.nokee.model.internal.core;
 
+import com.google.common.testing.NullPointerTester;
 import dev.nokee.internal.testing.utils.TestUtils;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.plugins.ExtensionAware;
 import org.junit.jupiter.api.Test;
@@ -8,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import static dev.nokee.model.internal.core.ModelNodes.inject;
 import static dev.nokee.model.internal.core.ModelNodes.of;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
+import static dev.nokee.model.internal.type.ModelType.untyped;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,6 +40,15 @@ public class ModelNodesTest {
 	void canInjectModelNode() {
 		val node = node("a.b.c");
 		assertEquals(node, of(inject(undecoratedObject(), node)), "should be able to inject model node in ExtensibleAware types");
+	}
+
+	@Test
+	@SuppressWarnings("UnstableApiUsage")
+	void checkNulls() {
+		new NullPointerTester()
+			.setDefault(ModelNode.class, node())
+			.setDefault(ModelType.class, untyped())
+			.testAllPublicStaticMethods(ModelNodes.class);
 	}
 
 	private static Object decoratedExtensionAwareObjectWithModelNode() {

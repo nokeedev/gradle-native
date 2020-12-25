@@ -54,7 +54,7 @@ class ModelNodeContextTest {
 
 	@Test
 	void cannotAccessCurrentModelNodeWhenExceptionThrowDuringContextExecution() {
-		assertThrows(UnsupportedOperationException.class, () -> subject.execute(node -> { throw new UnsupportedOperationException(); }));
+		assertThrows(RuntimeException.class, () -> subject.execute(node -> { throw new RuntimeException("Expected exception"); }));
 		assertThrows(NullPointerException.class, ModelNodeContext::getCurrentModelNode);
 	}
 

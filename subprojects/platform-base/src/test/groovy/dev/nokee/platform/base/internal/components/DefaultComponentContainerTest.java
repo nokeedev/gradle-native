@@ -12,7 +12,8 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
-import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.newRegistration;
+import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ActionUtils.doNothing;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Subject(DefaultComponentContainer.class)
 class DefaultComponentContainerTest {
 	private final ModelRegistry modelRegistry = new DefaultModelRegistry(TestUtils.objectFactory()::newInstance);
-	private final ComponentContainer subject = modelRegistry.register(newRegistration("components", DefaultComponentContainer.class)).get();
+	private final ComponentContainer subject = modelRegistry.register(namedContainer("components", of(DefaultComponentContainer.class))).get();
 
 	private static <T> DomainObjectFactory<T> alwaysThrow() {
 		return t -> Factories.<T>alwaysThrow().create();

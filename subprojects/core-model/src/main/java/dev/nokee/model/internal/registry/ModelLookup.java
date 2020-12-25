@@ -92,22 +92,22 @@ public interface ModelLookup {
 		return new ModelLookup() {
 			@Override
 			public ModelNode get(ModelPath path) {
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException("This instance always fails.");
 			}
 
 			@Override
 			public Result query(ModelSpec spec) {
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException("This instance always fails.");
 			}
 
 			@Override
 			public boolean has(ModelPath path) {
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException("This instance always fails.");
 			}
 
 			@Override
 			public boolean anyMatch(ModelSpec spec) {
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException("This instance always fails.");
 			}
 		};
 	}

@@ -31,6 +31,6 @@ class ModelLookupEmptyResultTest {
 
 	@Test
 	void hasNoValuesToIterateOver() {
-		assertDoesNotThrow(() -> subject.forEach(t -> { throw new UnsupportedOperationException(); }));
+		assertDoesNotThrow(() -> subject.forEach(t -> { throw new AssertionError("Not expecting this exception"); }));
 	}
 }

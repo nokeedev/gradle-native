@@ -88,22 +88,22 @@ public final class ModelTestUtils {
 				if (parent.getPath().equals(path)) {
 					return parent;
 				}
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException("This instance always fails if path is not '" + parent + "'.");
 			}
 
 			@Override
 			public Result query(ModelSpec spec) {
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException("This instance always fails.");
 			}
 
 			@Override
 			public boolean has(ModelPath path) {
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException("This instance always fails.");
 			}
 
 			@Override
 			public boolean anyMatch(ModelSpec spec) {
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException("This instance always fails.");
 			}
 		});
 		action.accept(builder);

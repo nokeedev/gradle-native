@@ -8,6 +8,10 @@ import org.gradle.api.specs.Spec;
 
 import java.util.function.Predicate;
 
+import static dev.nokee.model.internal.core.ModelNode.State.Realized;
+import static dev.nokee.model.internal.core.ModelNode.State.Registered;
+import static java.util.Objects.requireNonNull;
+
 /**
  * A group of common model node operations.
  */
@@ -32,8 +36,8 @@ public final class ModelNodes {
 		private final Predicate<? super ModelNode> second;
 
 		public AndPredicate(Predicate<? super ModelNode> first, Predicate<? super ModelNode> second) {
-			this.first = first;
-			this.second = second;
+			this.first = requireNonNull(first);
+			this.second = requireNonNull(second);
 		}
 
 		@Override
@@ -67,6 +71,7 @@ public final class ModelNodes {
 	 * @return the model node for the specified instance if available
 	 */
 	public static ModelNode of(Object target) {
+		requireNonNull(target);
 		if (target instanceof ModelNodeAware) {
 			return ((ModelNodeAware) target).getNode();
 		} else if (target instanceof ExtensionAware) {
@@ -80,6 +85,8 @@ public final class ModelNodes {
 	}
 
 	public static <T> T inject(T target, ModelNode node) {
+		requireNonNull(target);
+		requireNonNull(node);
 		assert target instanceof ExtensionAware;
 		((ExtensionAware) target).getExtensions().add(ModelNode.class, "__NOKEE_modelNode", node);
 		return target;
@@ -101,7 +108,7 @@ public final class ModelNodes {
 		private final ModelType<?> type;
 
 		private WithTypePredicate(ModelType<?> type) {
-			this.type = type;
+			this.type = requireNonNull(type);
 		}
 
 		@Override
@@ -130,7 +137,7 @@ public final class ModelNodes {
 		private final ModelNode.State state;
 
 		private StateAtLeastPredicate(ModelNode.State state) {
-			this.state = state;
+			this.state = requireNonNull(state);
 		}
 
 		@Override
@@ -141,6 +148,29 @@ public final class ModelNodes {
 		@Override
 		public String toString() {
 			return "ModelNodes.stateAtLeast(" + state + ")";
+		}
+	}
+
+	public static Predicate<ModelNode> stateOf(ModelNode.State state) {
+		return new StateOfPredicate(state);
+	}
+
+	@EqualsAndHashCode(callSuper = false)
+	private static final class StateOfPredicate extends AbstractModelNodePredicate {
+		private final ModelNode.State state;
+
+		private StateOfPredicate(ModelNode.State state) {
+			this.state = requireNonNull(state);
+		}
+
+		@Override
+		public boolean test(ModelNode node) {
+			return node.getState().equals(state);
+		}
+
+		@Override
+		public String toString() {
+			return "ModelNodes.stateOf(" + state + ")";
 		}
 	}
 
@@ -161,8 +191,8 @@ public final class ModelNodes {
 		private final Spec<? super T> spec;
 
 		private SatisfiedByProjectionSpecAdapter(ModelType<T> type, Spec<? super T> spec) {
-			this.type = type;
-			this.spec = spec;
+			this.type = requireNonNull(type);
+			this.spec = requireNonNull(spec);
 		}
 
 		@Override
@@ -192,7 +222,7 @@ public final class ModelNodes {
 		private final ModelPath parentPath;
 
 		public WithParentPredicate(ModelPath parentPath) {
-			this.parentPath = parentPath;
+			this.parentPath = requireNonNull(parentPath);
 		}
 
 		@Override
@@ -205,6 +235,41 @@ public final class ModelNodes {
 		public String toString() {
 			return "ModelNodes.withParent(" + parentPath + ")";
 		}
+	}
+
+	public static Predicate<ModelNode> descendantOf(ModelPath ancestorPath) {
+		return new DescendantOfPredicate(ancestorPath);
+	}
+
+	@EqualsAndHashCode(callSuper = false)
+	private static final class DescendantOfPredicate extends AbstractModelNodePredicate {
+		private final ModelPath ancestorPath;
+
+		public DescendantOfPredicate(ModelPath ancestorPath) {
+			this.ancestorPath = requireNonNull(ancestorPath);
+		}
+
+		@Override
+		public boolean test(ModelNode node) {
+			return ancestorPath.isDescendant(node.getPath());
+		}
+
+		@Override
+		public String toString() {
+			return "ModelNodes.descendantOf(" + ancestorPath + ")";
+		}
+	}
+
+	public static Predicate<ModelNode> discover() {
+		return stateOf(Registered);
+	}
+
+	public static Predicate<ModelNode> discover(ModelType<?> type) {
+		return stateOf(Registered).and(withType(type));
+	}
+
+	public static Predicate<ModelNode> mutate(ModelType<?> type) {
+		return stateOf(Realized).and(withType(type));
 	}
 
 	/**
@@ -223,7 +288,7 @@ public final class ModelNodes {
 		private final ModelPath path;
 
 		public WithPathPredicate(ModelPath path) {
-			this.path = path;
+			this.path = requireNonNull(path);
 		}
 
 		@Override

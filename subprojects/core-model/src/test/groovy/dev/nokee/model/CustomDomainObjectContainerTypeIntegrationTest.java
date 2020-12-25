@@ -8,7 +8,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 
 import javax.inject.Inject;
 
-import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.newRegistration;
+import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 class CustomDomainObjectContainerTypeIntegrationTest extends NamedDomainObjectViewTester<CustomDomainObjectContainerTypeIntegrationTest.MyType> {
@@ -19,7 +19,7 @@ class CustomDomainObjectContainerTypeIntegrationTest extends NamedDomainObjectVi
 
 			@Override
 			public DomainObjectContainer<MyType> create(String name) {
-				return modelRegistry.register(newRegistration(name, of(CustomContainerOfMyType.class))).get();
+				return modelRegistry.register(namedContainer(name, of(CustomContainerOfMyType.class))).get();
 			}
 
 			@Override

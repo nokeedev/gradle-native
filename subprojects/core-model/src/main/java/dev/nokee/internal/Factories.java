@@ -18,7 +18,7 @@ public final class Factories {
 		ALWAYS_THROW {
 			@Override
 			public Object create() {
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException("This factory always throw an exception.");
 			}
 
 			@Override

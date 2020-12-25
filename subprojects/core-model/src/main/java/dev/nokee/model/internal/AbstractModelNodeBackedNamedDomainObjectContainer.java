@@ -9,13 +9,15 @@ import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.internal.metaobject.DynamicObject;
 
+import javax.annotation.Nullable;
+
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
 abstract class AbstractModelNodeBackedNamedDomainObjectContainer<T> extends AbstractModelNodeBackedNamedDomainObjectView<T> implements DomainObjectContainer<T> {
 	private final Projection projection;
 
-	AbstractModelNodeBackedNamedDomainObjectContainer(ModelType<T> elementType, ModelNode node) {
+	AbstractModelNodeBackedNamedDomainObjectContainer(@Nullable ModelType<T> elementType, ModelNode node) {
 		this(elementType, node, new ModelNodeBackedNamedDomainObjectCollectionDynamicObject(elementType, node) {
 			@Override
 			protected boolean canRegister() {
@@ -24,7 +26,7 @@ abstract class AbstractModelNodeBackedNamedDomainObjectContainer<T> extends Abst
 		});
 	}
 
-	AbstractModelNodeBackedNamedDomainObjectContainer(ModelType<T> elementType, ModelNode node, DynamicObject elementsDynamicObject) {
+	AbstractModelNodeBackedNamedDomainObjectContainer(@Nullable ModelType<T> elementType, ModelNode node, DynamicObject elementsDynamicObject) {
 		super(elementType, node, elementsDynamicObject);
 		this.projection = node.get(Projection.class);
 	}

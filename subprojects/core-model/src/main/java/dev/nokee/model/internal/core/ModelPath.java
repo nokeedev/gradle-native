@@ -75,6 +75,22 @@ public final class ModelPath implements Iterable<String> {
 		return other.getParent().map(this::equals).orElse(false);
 	}
 
+	public boolean isDescendant(ModelPath other) {
+		Objects.requireNonNull(other);
+
+		int length = components.length;
+		if (other.components.length <= components.length) {
+			return false;
+		}
+
+		for (int i = 0; i < length; i++) {
+			if (!components[i].equals(other.components[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	private static String[] splitPath(String path) {
 		return PATH_SPLITTER.splitToStream(path).toArray(String[]::new);
 	}

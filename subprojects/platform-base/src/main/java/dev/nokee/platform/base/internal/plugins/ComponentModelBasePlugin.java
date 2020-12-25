@@ -18,7 +18,8 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.newRegistration;
+import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
+import static dev.nokee.model.internal.type.ModelType.of;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
 	@Override
@@ -44,6 +45,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 	}
 
 	private static NodeRegistration<DefaultComponentContainer> components() {
-		return newRegistration("components", DefaultComponentContainer.class);
+		return namedContainer("components", of(DefaultComponentContainer.class));
 	}
 }
