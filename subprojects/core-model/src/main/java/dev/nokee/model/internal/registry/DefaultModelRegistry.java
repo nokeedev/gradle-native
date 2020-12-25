@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer, ModelLookup {
 	private final Instantiator instantiator;
 	private final Map<ModelPath, ModelNode> nodes = new LinkedHashMap<>();
-	private final List<ModelConfiguration> configurations = new ArrayList<>();
+	private final List<ModelAction> configurations = new ArrayList<>();
 	private final NodeStateListener nodeStateListener = new NodeStateListener();
 	private final ModelNode rootNode;
 
@@ -54,7 +54,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			throw new IllegalArgumentException("Has to be direct descendant");
 		}
 
-		registration.getActions().forEach(action -> configurations.add(new ModelConfiguration(ModelSpecs.satisfyAll(), action)));
+		registration.getActions().forEach(configurations::add);
 		val node = newNode(registration).register();
 		return new ModelNodeBackedProvider<>(registration.getDefaultProjectionType(), node);
 	}
@@ -112,9 +112,9 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	@Override
 	public void configureMatching(ModelSpec spec, ModelAction action) {
-		val configuration = new ModelConfiguration(spec, action);
+		val configuration = ModelActions.onlyIf(spec, action);
 		for (val node : nodes.values()) {
-			configuration.notifyFor(node);
+			configuration.execute(node);
 		}
 		configurations.add(configuration);
 	}
@@ -139,23 +139,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		private void notify(ModelNode node) {
 			for (int i = 0; i < configurations.size(); ++i) {
 				val configuration = configurations.get(i);
-				configuration.notifyFor(node);
-			}
-		}
-	}
-
-	private static final class ModelConfiguration {
-		private final ModelSpec spec;
-		private final ModelAction action;
-
-		private ModelConfiguration(ModelSpec spec, ModelAction action) {
-			this.spec = Objects.requireNonNull(spec);
-			this.action = Objects.requireNonNull(action);
-		}
-
-		public void notifyFor(ModelNode node) {
-			if (spec.isSatisfiedBy(node)) {
-				action.execute(node);
+				configuration.execute(node);
 			}
 		}
 	}
