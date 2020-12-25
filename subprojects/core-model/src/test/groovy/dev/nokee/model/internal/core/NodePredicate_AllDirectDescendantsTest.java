@@ -10,6 +10,7 @@ import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static dev.nokee.model.internal.core.NodePredicate.self;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
@@ -42,6 +43,7 @@ class NodePredicate_AllDirectDescendantsTest {
 			.addEqualityGroup(allDirectDescendants(), allDirectDescendants())
 			.addEqualityGroup(allDirectDescendants(alwaysFalse()), allDirectDescendants(alwaysFalse()))
 			.addEqualityGroup(allDirectDescendants(node -> true))
+			.addEqualityGroup(self())
 			.testEquals();
 	}
 
