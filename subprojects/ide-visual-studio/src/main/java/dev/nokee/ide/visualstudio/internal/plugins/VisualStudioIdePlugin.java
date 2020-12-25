@@ -14,8 +14,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import static dev.nokee.model.internal.core.ModelActions.executeAsKnownProjection;
-import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.core.ModelActions.*;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 
 public abstract class VisualStudioIdePlugin implements Plugin<Project> {
@@ -32,7 +31,7 @@ public abstract class VisualStudioIdePlugin implements Plugin<Project> {
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
 				val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
 				val action = new CreateNativeComponentVisualStudioIdeProject(extension, project.getLayout(), project.getObjects(), project.getProviders());
-				modelConfigurer.configureMatching(ModelNodes.stateAtLeast(ModelNode.State.Registered).and(withType(getComponentImplementationType()))::test, once(executeAsKnownProjection(getComponentImplementationType(), action)));
+				modelConfigurer.configure(matching(ModelNodes.stateAtLeast(ModelNode.State.Registered).and(withType(getComponentImplementationType()))::test, once(executeAsKnownProjection(getComponentImplementationType(), action))));
 			}
 
 			private ModelType<BaseComponent<?>> getComponentImplementationType() {

@@ -5,7 +5,7 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
-import static dev.nokee.model.internal.core.ModelActions.onlyIf;
+import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelSpecs.satisfyAll;
 import static dev.nokee.model.internal.core.ModelSpecs.satisfyNone;
 import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
@@ -16,12 +16,12 @@ import static org.hamcrest.Matchers.hasToString;
 import static org.mockito.Mockito.*;
 
 @Subject(ModelActions.class)
-class ModelActions_OnlyIfTest {
+class ModelActions_MatchingTest {
 	@Test
 	void executesActionIfPredicateIsTrue() {
 		val action = mock(ModelAction.class);
 		val node = node();
-		onlyIf(satisfyAll(), action).execute(node);
+		matching(satisfyAll(), action).execute(node);
 		verify(action, times(1)).execute(node);
 	}
 
@@ -29,23 +29,23 @@ class ModelActions_OnlyIfTest {
 	void doesNotExecuteActionIfPredicateIsFalse() {
 		val action = mock(ModelAction.class);
 		val node = node();
-		onlyIf(satisfyNone(), action).execute(node);
+		matching(satisfyNone(), action).execute(node);
 		verify(action, never()).execute(node);
 	}
 
 	@Test
 	void checkToString() {
-		assertThat(onlyIf(satisfyAll(), doSomething()),
-			hasToString("ModelActions.onlyIf(ModelSpecs.satisfyAll(), ModelTestActions.doSomething())"));
+		assertThat(matching(satisfyAll(), doSomething()),
+			hasToString("ModelActions.matching(ModelSpecs.satisfyAll(), ModelTestActions.doSomething())"));
 	}
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(onlyIf(satisfyAll(), doSomething()), onlyIf(satisfyAll(), doSomething()))
-			.addEqualityGroup(onlyIf(satisfyNone(), doSomething()))
-			.addEqualityGroup(onlyIf(satisfyAll(), doSomethingElse()))
+			.addEqualityGroup(matching(satisfyAll(), doSomething()), matching(satisfyAll(), doSomething()))
+			.addEqualityGroup(matching(satisfyNone(), doSomething()))
+			.addEqualityGroup(matching(satisfyAll(), doSomethingElse()))
 			.testEquals();
 	}
 }

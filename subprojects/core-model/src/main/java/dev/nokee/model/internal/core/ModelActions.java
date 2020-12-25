@@ -125,16 +125,16 @@ public final class ModelActions {
 	 * @param action  the action to execute
 	 * @return an action that will execute the specified action only for the matching predicate, never null.
 	 */
-	public static ModelAction onlyIf(ModelSpec spec, ModelAction action) {
-		return new OnlyIfModelAction(spec, action);
+	public static ModelAction matching(ModelSpec spec, ModelAction action) {
+		return new MatchingModelAction(spec, action);
 	}
 
 	@EqualsAndHashCode
-	private static final class OnlyIfModelAction implements ModelAction {
+	private static final class MatchingModelAction implements ModelAction {
 		private final ModelSpec spec;
 		private final ModelAction action;
 
-		public OnlyIfModelAction(ModelSpec spec, ModelAction action) {
+		public MatchingModelAction(ModelSpec spec, ModelAction action) {
 			this.spec = requireNonNull(spec);
 			this.action = requireNonNull(action);
 		}
@@ -148,7 +148,7 @@ public final class ModelActions {
 
 		@Override
 		public String toString() {
-			return "ModelActions.onlyIf(" + spec + ", " + action + ")";
+			return "ModelActions.matching(" + spec + ", " + action + ")";
 		}
 	}
 

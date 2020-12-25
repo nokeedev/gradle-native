@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
 import static dev.nokee.internal.Factories.alwaysThrow;
-import static dev.nokee.model.internal.core.ModelActions.onlyIf;
+import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
@@ -74,14 +74,14 @@ class NodeRegistrationTest {
 	@Test
 	void canAddActions() {
 		val registration = NodeRegistration.of("bar", of(MyType.class)).action(self(stateAtLeast(ModelNode.State.Registered)).apply(doSomething())).scope(path("foo"));
-		assertThat(registration.getActions(), contains(onlyIf(self(stateAtLeast(ModelNode.State.Registered)).scope(path("foo.bar")), doSomething())));
+		assertThat(registration.getActions(), contains(matching(self(stateAtLeast(ModelNode.State.Registered)).scope(path("foo.bar")), doSomething())));
 	}
 
 	@Test
 	void canAddActionsUsingNodePredicate() {
 		val registration = NodeRegistration.of("b", of(MyType.class))
 			.action(allDirectDescendants().apply(doSomething())).scope(path("a"));
-		assertThat(registration.getActions(), contains(onlyIf(allDirectDescendants().scope(path("a.b")), doSomething())));
+		assertThat(registration.getActions(), contains(matching(allDirectDescendants().scope(path("a.b")), doSomething())));
 	}
 
 	interface MyType {}

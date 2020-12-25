@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelNodes.withPath;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 
@@ -176,8 +177,12 @@ public final class ModelNode {
 		});
 	}
 
+	public void applyTo(NodeAction action) {
+		configurer.configure(action.scope(getPath()));
+	}
+
 	public void applyTo(NodePredicate predicate, ModelAction action) {
-		configurer.configureMatching(predicate.scope(getPath()), action);
+		configurer.configure(predicate.apply(action).scope(getPath()));
 	}
 
 	/**
@@ -233,7 +238,7 @@ public final class ModelNode {
 	 * @param action  the action to execute on the node
 	 */
 	public void applyToSelf(Predicate<? super ModelNode> predicate, ModelAction action) {
-		configurer.configureMatching(ModelSpecs.of(withPath(path).and(predicate)), action);
+		configurer.configure(matching(ModelSpecs.of(withPath(path).and(predicate)), action));
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
+import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelNodes.withPath;
 import static dev.nokee.model.internal.core.ModelPath.path;
@@ -19,7 +20,6 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ActionUtils.doNothing;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public abstract class DomainObjectFunctorConfigureTester<F> extends AbstractDomainObjectFunctorTester<F> {
@@ -39,7 +39,7 @@ public abstract class DomainObjectFunctorConfigureTester<F> extends AbstractDoma
 	@Test
 	void canConfigureProviderUsingAction() {
 		configure(createSubject(MyType.class), doNothing());
-		verify(modelConfigurer, times(1)).configureMatching(ModelSpecs.of(withPath(path("foo")).and(stateAtLeast(ModelNode.State.Realized))), executeUsingProjection(of(MyType.class), doNothing()));
+		verify(modelConfigurer, times(1)).configure(matching(ModelSpecs.of(withPath(path("foo")).and(stateAtLeast(ModelNode.State.Realized))), executeUsingProjection(of(MyType.class), doNothing())));
 	}
 
 	protected void configure(F functor, Closure<Void> closure) {
@@ -49,11 +49,11 @@ public abstract class DomainObjectFunctorConfigureTester<F> extends AbstractDoma
 	@Test
 	void canConfigureProviderUsingClosure() {
 		doAnswer(invocation -> {
-			invocation.getArgument(1, ModelAction.class).execute(node);
+			invocation.getArgument(0, ModelAction.class).execute(node.realize());
 			return null;
 		})
 			.when(modelConfigurer)
-			.configureMatching(eq(ModelSpecs.of(withPath(path("foo")).and(stateAtLeast(ModelNode.State.Realized)))), any());
+			.configure(any());
 		ClosureAssertions.executeWith(closure -> configure(createSubject(MyType.class), closure))
 			.assertCalledOnce()
 			.assertLastCalledArgumentThat(equalTo(myTypeInstance))

@@ -126,7 +126,7 @@ public abstract class NodePredicate {
 
 		@Override
 		ModelAction scope(ModelPath path) {
-			return ModelActions.onlyIf(predicate.scope(path), action);
+			return ModelActions.matching(predicate.scope(path), action);
 		}
 	}
 

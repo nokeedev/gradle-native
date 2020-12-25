@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 import static com.google.common.base.Predicates.alwaysTrue;
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
+import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelNodes.withPath;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
@@ -271,7 +272,7 @@ class ModelNodeTest {
 		val node = node("foo", builder -> builder.withConfigurer(modelConfigurer));
 		node.applyToSelf(alwaysTrue(), doSomething());
 		verify(modelConfigurer, times(1))
-			.configureMatching(ModelSpecs.of(withPath(path("foo")).and(alwaysTrue())), doSomething());
+			.configure(matching(ModelSpecs.of(withPath(path("foo")).and(alwaysTrue())), doSomething()));
 	}
 
 	@Test

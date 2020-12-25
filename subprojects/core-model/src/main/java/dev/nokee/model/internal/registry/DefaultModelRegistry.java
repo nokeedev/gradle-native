@@ -112,8 +112,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	@Override
-	public void configureMatching(ModelSpec spec, ModelAction action) {
-		val configuration = ModelActions.onlyIf(spec, action);
+	public void configure(ModelAction configuration) {
 		configurations.add(configuration);
 		val size = nodes.size();
 		for (int i = 0; i < size; i++) {

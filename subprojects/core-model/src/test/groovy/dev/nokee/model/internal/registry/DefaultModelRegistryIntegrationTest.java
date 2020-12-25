@@ -23,7 +23,6 @@ import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
 import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
-import static dev.nokee.model.internal.core.ModelSpecs.satisfyAll;
 import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
@@ -119,7 +118,7 @@ public class DefaultModelRegistryIntegrationTest {
 
 		modelRegistry.register(ModelRegistration.of("a", MyType.class));
 		modelRegistry.register(ModelRegistration.of("b", MyType.class));
-		modelRegistry.configureMatching(satisfyAll(), action);
+		modelRegistry.configure(action);
 
 		assertThat(action.values,
 			contains(registered(root()), registered("a"), registered("b")));
@@ -129,7 +128,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canConfigureFutureNodesRegistered() {
 		val action = new NodeStateTransitionCollectingAction();
 
-		modelRegistry.configureMatching(satisfyAll(), action);
+		modelRegistry.configure(action);
 		modelRegistry.register(ModelRegistration.of("x", MyType.class));
 		modelRegistry.register(ModelRegistration.of("y", MyType.class));
 
@@ -141,7 +140,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void queryProviderRealizeNodeAndParent() {
 		val action = new NodeStateTransitionCollectingAction();
 
-		modelRegistry.configureMatching(satisfyAll(), action);
+		modelRegistry.configure(action);
 		modelRegistry.register(ModelRegistration.of("x", MyType.class)).get();
 
 		assertThat(action.values,
@@ -153,7 +152,7 @@ public class DefaultModelRegistryIntegrationTest {
 		val action = new NodeStateTransitionCollectingAction();
 
 		modelRegistry.register(ModelRegistration.of("i", MyType.class));
-		modelRegistry.configureMatching(node -> node.isAtLeast(Realized), action);
+		modelRegistry.configure(matching(node -> node.isAtLeast(Realized), action));
 		modelRegistry.register(ModelRegistration.of("j", MyType.class)).get();
 
 		assertThat(action.values, contains(realized(root()), realized("j")));
@@ -296,7 +295,7 @@ public class DefaultModelRegistryIntegrationTest {
 	@Test
 	void honorsNestedConfigurationActionOrder() {
 		val executionOrder = new ArrayList<String>();
-		modelRegistry.configureMatching(ModelSpecs.satisfyAll(), once(n1 -> {
+		modelRegistry.configure(once(n1 -> {
 			executionOrder.add("n1 - " + n1.getPath());
 			n1.applyTo(allDirectDescendants(), once(n2 -> {
 				executionOrder.add("n2 - " + n2.getPath());
@@ -314,12 +313,12 @@ public class DefaultModelRegistryIntegrationTest {
 	void canRegisterNodeWhileDispatchingConfigurationActions() {
 		val paths = new ArrayList<ModelPath>();
 		registerNode("foo");
-		modelRegistry.configureMatching(ModelSpecs.of(stateOf(Registered)), node -> {
+		modelRegistry.configure(matching(ModelSpecs.of(stateOf(Registered)), node -> {
 			paths.add(node.getPath());
 			if (node.getPath().equals(path("foo"))) {
 				node.register(NodeRegistration.of("bar", of(MyType.class)));
 			}
-		});
+		}));
 
 		System.out.println("Current paths: " + paths);
 		assertThat(paths, contains(root(), path("foo"), path("foo.bar")));
@@ -330,12 +329,12 @@ public class DefaultModelRegistryIntegrationTest {
 		val paths = new ArrayList<ModelPath>();
 		registerNode("foo");
 		registerNode("bar");
-		modelRegistry.configureMatching(ModelSpecs.of(stateOf(Registered)), node -> {
+		modelRegistry.configure(matching(ModelSpecs.of(stateOf(Registered)), node -> {
 			paths.add(node.getPath());
 			if (node.getPath().equals(path("foo"))) {
 				node.register(NodeRegistration.of("bar", of(MyType.class)));
 			}
-		});
+		}));
 
 		System.out.println("Current paths: " + paths);
 		assertThat(paths, contains(root(), path("foo"), path("foo.bar"), path("bar")));
