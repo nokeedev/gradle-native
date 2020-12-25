@@ -8,8 +8,6 @@ import dev.nokee.model.internal.core.*;
 import lombok.val;
 
 import java.util.*;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer, ModelLookup {
 	private final Instantiator instantiator;
@@ -31,6 +29,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			.withLookup(this)
 			.withListener(nodeStateListener)
 			.withRegistry(this)
+			.withInstantiator(instantiator)
 			.build();
 	}
 
@@ -63,27 +62,13 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private ModelNode newNode(ModelRegistration<?> registration) {
 		return ModelNode.builder()
 			.withPath(registration.getPath())
-			.withProjections(finalizeProjections(registration))
+			.withProjections(registration.getProjections())
 			.withConfigurer(this)
 			.withListener(nodeStateListener)
 			.withLookup(this)
 			.withRegistry(this)
+			.withInstantiator(instantiator)
 			.build();
-	}
-
-	private List<ModelProjection> finalizeProjections(ModelRegistration<?> registration) {
-		return registration.getProjections().stream()
-			.map(bindManagedProjectionWithInstantiator(instantiator))
-			.collect(Collectors.toList());
-	}
-
-	private static UnaryOperator<ModelProjection> bindManagedProjectionWithInstantiator(Instantiator instantiator) {
-		return projection -> {
-			if (projection instanceof ManagedModelProjection) {
-				return ((ManagedModelProjection<?>) projection).bind(instantiator);
-			}
-			return projection;
-		};
 	}
 
 	@Override

@@ -20,7 +20,7 @@ public final class ModelTestUtils {
 	}
 
 	public static ModelNode rootNode() {
-		return ModelNode.builder().withPath(ModelPath.root()).build();
+		return ModelNode.builder().withPath(ModelPath.root()).withInstantiator(TestUtils.objectFactory()::newInstance).build();
 	}
 
 	public static ModelNode node(ModelNodeListener listener) {
@@ -106,6 +106,7 @@ public final class ModelTestUtils {
 				throw new UnsupportedOperationException("This instance always fails.");
 			}
 		});
+		builder.withInstantiator(TestUtils.objectFactory()::newInstance);
 		action.accept(builder);
 		return builder.build();
 	}

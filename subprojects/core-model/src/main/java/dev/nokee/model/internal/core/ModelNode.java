@@ -1,22 +1,18 @@
 package dev.nokee.model.internal.core;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.registry.ManagedModelProjection;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
+import java.util.*;
 
-import static dev.nokee.model.internal.core.ModelActions.matching;
-import static dev.nokee.model.internal.core.ModelNodes.withPath;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static java.util.Objects.requireNonNull;
 
 /**
  * A node in the model.
@@ -43,7 +39,7 @@ public final class ModelNode {
 	private final ModelPath path;
 	private final ModelLookup modelLookup;
 	private final ModelNodeListener listener;
-	private final List<ModelProjection> projections;
+	private final Projections projections;
 	private final ModelConfigurer configurer;
 	private State state = State.Created;
 	private final ModelRegistry modelRegistry;
@@ -55,13 +51,14 @@ public final class ModelNode {
 		Realized
 	}
 
-	private ModelNode(ModelPath path, List<ModelProjection> projections, ModelConfigurer configurer, ModelNodeListener listener, ModelLookup modelLookup, ModelRegistry modelRegistry) {
+	private ModelNode(ModelPath path, List<ModelProjection> projections, ModelConfigurer configurer, ModelNodeListener listener, ModelLookup modelLookup, ModelRegistry modelRegistry, Instantiator instantiator) {
 		this.path = path;
-		this.projections = ImmutableList.copyOf(projections);
+		this.projections = new Projections(instantiator);
 		this.configurer = configurer;
 		this.listener = listener;
 		this.modelLookup = modelLookup;
 		this.modelRegistry = modelRegistry;
+		projections.forEach(this.projections::add);
 		listener.created(this);
 		initialize();
 	}
@@ -111,12 +108,7 @@ public final class ModelNode {
 	 * @return true if the node can be projected into the specified type, or false otherwise.
 	 */
 	public boolean canBeViewedAs(ModelType<?> type) {
-		for (ModelProjection projection : projections) {
-			if (projection.canBeViewedAs(type)) {
-				return true;
-			}
-		}
-		return false;
+		return projections.canBeViewedAs(type);
 	}
 
 	/**
@@ -167,14 +159,7 @@ public final class ModelNode {
 	 * @return an instance of the projected node into the specified instance
 	 */
 	public <T> T get(ModelType<T> type) {
-		return ModelNodeContext.of(this).execute(node -> {
-			for (ModelProjection projection : projections) {
-				if (projection.canBeViewedAs(type)) {
-					return projection.get(type);
-				}
-			}
-			throw new IllegalStateException("no projection for " + type);
-		});
+		return ModelNodeContext.of(this).execute(node -> projections.get(type));
 	}
 
 	public void applyTo(NodeAction action) {
@@ -222,14 +207,56 @@ public final class ModelNode {
 	// TODO: This is used to generating descriptive message. We should find a better way to do this.
 	//  In the end, this fits in the reporting APIs.
 	public Optional<String> getTypeDescription() {
-		return Optional.ofNullable(Iterables.getFirst(projections, null))
-			.map(ModelProjection::getTypeDescriptions)
-			.map(it -> String.join(", ", it));
+		return projections.getTypeDescription();
 	}
 
 	@Override
 	public String toString() {
 		return path.toString();
+	}
+
+	private final static class Projections {
+		private final List<ModelProjection> projections = new ArrayList<>();
+		private final Instantiator instantiator;
+
+		public Projections(Instantiator instantiator) {
+			this.instantiator = instantiator;
+		}
+
+		public void add(ModelProjection projection) {
+			projections.add(bindManagedProjectionWithInstantiator(projection));
+		}
+
+		private ModelProjection bindManagedProjectionWithInstantiator(ModelProjection projection) {
+			if (projection instanceof ManagedModelProjection) {
+				return ((ManagedModelProjection<?>) projection).bind(instantiator);
+			}
+			return projection;
+		}
+
+		public <T> T get(ModelType<T> type) {
+			for (ModelProjection projection : projections) {
+				if (projection.canBeViewedAs(type)) {
+					return projection.get(type);
+				}
+			}
+			throw new IllegalStateException("no projection for " + type);
+		}
+
+		public boolean canBeViewedAs(ModelType<?> type) {
+			for (ModelProjection projection : projections) {
+				if (projection.canBeViewedAs(type)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public Optional<String> getTypeDescription() {
+			return Optional.ofNullable(Iterables.getFirst(projections, null))
+				.map(ModelProjection::getTypeDescriptions)
+				.map(it -> String.join(", ", it));
+		}
 	}
 
 	/**
@@ -248,6 +275,7 @@ public final class ModelNode {
 		private ModelNodeListener listener = ModelNodeListener.noOpListener();
 		private ModelLookup lookup = ModelLookup.failingLookup();
 		private ModelRegistry registry = failingRegistry();
+		private Instantiator instantiator;
 
 		public Builder withPath(ModelPath path) {
 			this.path = path;
@@ -283,8 +311,13 @@ public final class ModelNode {
 			return this;
 		}
 
+		public Builder withInstantiator(Instantiator instantiator) {
+			this.instantiator = instantiator;
+			return this;
+		}
+
 		public ModelNode build() {
-			return new ModelNode(path, projections, configurer, listener, lookup, registry);
+			return new ModelNode(path, projections, configurer, listener, lookup, registry, requireNonNull(instantiator));
 		}
 
 		private static ModelRegistry failingRegistry() {
