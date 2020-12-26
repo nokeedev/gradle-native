@@ -23,7 +23,7 @@ class ModelRegistrationTest {
 			val registration = ModelRegistration.of("a.b.c", MyType.class);
 			assertEquals(path("a.b.c"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
-			assertThat(registration.getActions(), empty());
+			assertThat(registration.getActions(), iterableWithSize(1)); // for the projections
 		});
 	}
 
@@ -60,10 +60,7 @@ class ModelRegistrationTest {
 			val registration = unmanagedInstance(of("foo", MyType.class), alwaysThrow());
 			assertEquals(path("foo"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
-			assertThat(registration.getActions(), empty());
-
-			// Assume projection of unmanaged instance
-			assertThat(registration.getProjections().size(), equalTo(1));
+			assertThat(registration.getActions(), iterableWithSize(1)); // for the projections
 		});
 	}
 
@@ -73,10 +70,7 @@ class ModelRegistrationTest {
 			val registration = bridgedInstance(of("foo", MyType.class), new MyType());
 			assertEquals(path("foo"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
-			assertThat(registration.getActions(), empty());
-
-			// Assume projection of bridged instance
-			assertThat(registration.getProjections().size(), equalTo(1));
+			assertThat(registration.getActions(), iterableWithSize(1)); // for the projections
 		});
 	}
 
@@ -88,7 +82,7 @@ class ModelRegistrationTest {
 				.withDefaultProjectionType(of(MyType.class))
 				.action(doSomething())
 				.build();
-			assertThat(registration.getActions(), contains(doSomething()));
+			assertThat(registration.getActions(), hasItem(doSomething())); // other are projections
 		});
 	}
 

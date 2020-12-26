@@ -53,16 +53,20 @@ public final class ModelNode {
 		// Finalized, // Node data should not mutate any more, can now compute additional data on child nodes
 	}
 
-	private ModelNode(ModelPath path, List<ModelProjection> projections, ModelConfigurer configurer, ModelNodeListener listener, ModelLookup modelLookup, ModelRegistry modelRegistry, Instantiator instantiator) {
+	private ModelNode(ModelPath path, ModelConfigurer configurer, ModelNodeListener listener, ModelLookup modelLookup, ModelRegistry modelRegistry, Instantiator instantiator) {
 		this.path = path;
 		this.projections = new Projections(instantiator);
 		this.configurer = configurer;
 		this.listener = listener;
 		this.modelLookup = modelLookup;
 		this.modelRegistry = modelRegistry;
-		projections.forEach(this.projections::add);
 		listener.created(this);
 		initialize();
+	}
+
+	void addProjection(ModelProjection projection) {
+		assert state == State.Created : "can only add projection before the node is initialized";
+		projections.add(projection);
 	}
 
 	private void initialize() {
@@ -272,7 +276,6 @@ public final class ModelNode {
 
 	public static final class Builder {
 		private ModelPath path;
-		private List<ModelProjection> projections = Collections.emptyList();
 		private ModelConfigurer configurer = ModelConfigurer.failingConfigurer();
 		private ModelNodeListener listener = ModelNodeListener.noOpListener();
 		private ModelLookup lookup = ModelLookup.failingLookup();
@@ -281,15 +284,6 @@ public final class ModelNode {
 
 		public Builder withPath(ModelPath path) {
 			this.path = path;
-			return this;
-		}
-
-		public Builder withProjections(ModelProjection... projections) {
-			return withProjections(Arrays.asList(projections));
-		}
-
-		public Builder withProjections(List<ModelProjection> projections) {
-			this.projections = projections;
 			return this;
 		}
 
@@ -319,7 +313,7 @@ public final class ModelNode {
 		}
 
 		public ModelNode build() {
-			return new ModelNode(path, projections, configurer, listener, lookup, registry, requireNonNull(instantiator));
+			return new ModelNode(path, configurer, listener, lookup, registry, requireNonNull(instantiator));
 		}
 
 		private static ModelRegistry failingRegistry() {

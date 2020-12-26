@@ -25,8 +25,7 @@ class NodeRegistrationTest {
 		assertAll(() -> {
 			assertThat(registration.getPath(), equalTo(path("a.b.c")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
-			assertThat(registration.getProjections(), contains(ModelProjections.managed(of(MyType.class))));
-			assertThat(registration.getActions(), empty());
+			assertThat(registration.getActions(), iterableWithSize(1)); // for projections
 		});
 	}
 
@@ -36,8 +35,7 @@ class NodeRegistrationTest {
 		assertAll(() -> {
 			assertThat(registration.getPath(), equalTo(path("x.y.z")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
-			assertThat(registration.getProjections(), contains(ModelProjections.createdUsing(of(MyType.class), alwaysThrow())));
-			assertThat(registration.getActions(), empty());
+			assertThat(registration.getActions(), iterableWithSize(1)); // for projections
 		});
 	}
 
@@ -54,8 +52,7 @@ class NodeRegistrationTest {
 		assertAll(() -> {
 			assertThat(registration.getPath(), equalTo(path("ab.c")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
-			assertThat(registration.getProjections(), contains(ModelProjections.managed(of(MyType.class)), ModelProjections.ofInstance("foo")));
-			assertThat(registration.getActions(), empty());
+			assertThat(registration.getActions(), iterableWithSize(1)); // for projections
 		});
 	}
 
@@ -74,14 +71,14 @@ class NodeRegistrationTest {
 	@Test
 	void canAddActions() {
 		val registration = NodeRegistration.of("bar", of(MyType.class)).action(self(stateAtLeast(ModelNode.State.Registered)).apply(doSomething())).scope(path("foo"));
-		assertThat(registration.getActions(), contains(matching(self(stateAtLeast(ModelNode.State.Registered)).scope(path("foo.bar")), doSomething())));
+		assertThat(registration.getActions(), hasItem(matching(self(stateAtLeast(ModelNode.State.Registered)).scope(path("foo.bar")), doSomething()))); // other are for projections
 	}
 
 	@Test
 	void canAddActionsUsingNodePredicate() {
 		val registration = NodeRegistration.of("b", of(MyType.class))
 			.action(allDirectDescendants().apply(doSomething())).scope(path("a"));
-		assertThat(registration.getActions(), contains(matching(allDirectDescendants().scope(path("a.b")), doSomething())));
+		assertThat(registration.getActions(), hasItem(matching(allDirectDescendants().scope(path("a.b")), doSomething()))); // other are for projections
 	}
 
 	interface MyType {}

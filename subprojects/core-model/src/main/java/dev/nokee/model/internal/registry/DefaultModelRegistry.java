@@ -62,7 +62,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private ModelNode newNode(ModelRegistration<?> registration) {
 		return ModelNode.builder()
 			.withPath(registration.getPath())
-			.withProjections(registration.getProjections())
 			.withConfigurer(this)
 			.withListener(nodeStateListener)
 			.withLookup(this)

@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static dev.nokee.model.internal.core.NodePredicate.self;
+
 /**
  * A model registration request.
  *
@@ -15,15 +17,13 @@ import java.util.Objects;
  */
 @EqualsAndHashCode
 public final class ModelRegistration<T> {
-	private final List<ModelProjection> projections;
 	private final List<ModelAction> actions;
 	private final ModelPath path;
 	@EqualsAndHashCode.Exclude private final ModelType<T> defaultProjectionType;
 
-	private ModelRegistration(ModelPath path, ModelType<T> defaultProjectionType, List<ModelProjection> projections, List<ModelAction> actions) {
+	private ModelRegistration(ModelPath path, ModelType<T> defaultProjectionType, List<ModelAction> actions) {
 		this.path = path;
 		this.defaultProjectionType = defaultProjectionType;
-		this.projections = projections;
 		this.actions = actions;
 	}
 
@@ -33,10 +33,6 @@ public final class ModelRegistration<T> {
 
 	public ModelType<T> getDefaultProjectionType() {
 		return defaultProjectionType;
-	}
-
-	public List<ModelProjection> getProjections() {
-		return projections;
 	}
 
 	public static <T> ModelRegistration<T> of(String path, Class<T> type) {
@@ -108,7 +104,24 @@ public final class ModelRegistration<T> {
 		// take for granted that whatever projection type is, it will project to <T>
 		@SuppressWarnings("unchecked")
 		public ModelRegistration<T> build() {
-			return new ModelRegistration<>(path, (ModelType<T>)defaultProjectionType, projections, actions);
+			if (!projections.isEmpty()) {
+				actions.add(0, self().apply(new AddProjectionsAction(projections)).scope(path));
+			}
+			return new ModelRegistration<>(path, (ModelType<T>)defaultProjectionType, actions);
+		}
+
+		@EqualsAndHashCode(callSuper = false)
+		private static final class AddProjectionsAction extends ModelInitializerAction {
+			private final Iterable<ModelProjection> projections;
+
+			private AddProjectionsAction(Iterable<ModelProjection> projections) {
+				this.projections = projections;
+			}
+
+			@Override
+			public void execute(Context context) {
+				projections.forEach(context::addProjection);
+			}
 		}
 	}
 }

@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 public abstract class DomainObjectFunctorConfigureTester<F> extends AbstractDomainObjectFunctorTester<F> {
 	private final ModelConfigurer modelConfigurer = Mockito.mock(ModelConfigurer.class);
 	private final MyType myTypeInstance = new MyType();
-	private final ModelNode node = node("foo", builder -> builder.withConfigurer(modelConfigurer).withProjections(ModelProjections.ofInstance(myTypeInstance)));
+	private final ModelNode node = node("foo", ModelProjections.ofInstance(myTypeInstance),  builder -> builder.withConfigurer(modelConfigurer));
 
 	@Override
 	protected <T> F createSubject(Class<T> type) {
