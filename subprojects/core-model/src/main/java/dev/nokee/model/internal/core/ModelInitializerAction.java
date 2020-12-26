@@ -26,5 +26,9 @@ public abstract class ModelInitializerAction implements ModelAction {
 			node.addProjection(projection);
 			return this;
 		}
+
+		public ModelPath getPath() {
+			return node.getPath();
+		}
 	}
 }

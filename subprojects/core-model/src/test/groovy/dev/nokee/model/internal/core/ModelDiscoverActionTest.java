@@ -8,9 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import spock.lang.Subject;
 
+import java.util.ArrayList;
+
 import static dev.nokee.model.internal.core.ModelActions.discover;
+import static dev.nokee.model.internal.core.ModelActions.initialize;
 import static dev.nokee.model.internal.core.ModelPath.path;
-import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.*;
+import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.realized;
+import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.registered;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -42,6 +46,13 @@ class ModelDiscoverActionTest {
 		assertThat(captor.getAllTransitions(), contains(registered("foo")));
 		node.realize();
 		assertThat(captor.getAllTransitions(), contains(registered("foo"), realized("foo")));
+	}
+
+	@Test
+	void canAccessNodePath() {
+		val paths = new ArrayList<ModelPath>();
+		node("foo", discover(context -> paths.add(context.getPath())));
+		assertThat(paths, contains(path("foo")));
 	}
 
 	interface MyType {}

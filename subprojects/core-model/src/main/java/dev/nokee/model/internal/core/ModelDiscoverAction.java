@@ -27,5 +27,9 @@ public abstract class ModelDiscoverAction implements ModelAction {
 			node.register(registration);
 			return this;
 		}
+
+		public ModelPath getPath() {
+			return node.getPath();
+		}
 	}
 }

@@ -6,11 +6,14 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
+import java.util.ArrayList;
+
 import static dev.nokee.model.internal.core.ModelActions.initialize;
-import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.created;
-import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.initialized;
+import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
+import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.created;
+import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.initialized;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -46,6 +49,13 @@ class ModelInitializerActionTest {
 		val captor = new ModelTestActions.CaptureNodeTransitionAction();
 		val node = node("foo", initialize(context -> context.applyTo(self().apply(captor))));
 		assertThat(captor.getAllTransitions(), contains(created("foo"), initialized("foo")));
+	}
+
+	@Test
+	void canAccessNodePath() {
+		val paths = new ArrayList<ModelPath>();
+		node("foo", initialize(context -> paths.add(context.getPath())));
+		assertThat(paths, contains(path("foo")));
 	}
 
 	static final class MyType {}
