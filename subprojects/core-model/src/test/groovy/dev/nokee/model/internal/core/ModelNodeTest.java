@@ -14,13 +14,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
 
-import static com.google.common.base.Predicates.alwaysTrue;
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
-import static dev.nokee.model.internal.core.ModelNodes.withPath;
 import static dev.nokee.model.internal.core.ModelPath.path;
+import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
 import static dev.nokee.model.internal.core.ModelTestUtils.*;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -123,8 +123,20 @@ class ModelNodeTest {
 		private final ModelNode node = node(listener);
 
 		@Test
+		void callsBackWhenTheNodeIsCreated() {
+			verify(listener, times(1)).created(node);
+		}
+
+		@Test
+		void callsBackCreatedBeforeInitialized() {
+			val inOrder = inOrder(listener);
+			inOrder.verify(listener, times(1)).created(node);
+			inOrder.verify(listener, times(1)).initialized(node);
+		}
+
+		@Test
 		void callsBackWhenTheNodeIsInitialized() {
-			verify(listener, only()).initialized(node);
+			verify(listener, times(1)).initialized(node);
 		}
 
 		@Nested
@@ -195,7 +207,7 @@ class ModelNodeTest {
 
 			@Test
 			void callsBackThoughRegisteredFollowedByRealized() {
-				val inOrder = Mockito.inOrder(listener);
+				val inOrder = inOrder(listener);
 				inOrder.verify(listener, times(1)).registered(node);
 				inOrder.verify(listener, times(1)).realized(node);
 			}
@@ -256,9 +268,9 @@ class ModelNodeTest {
 	void canApplyConfigurationToSelf() {
 		val modelConfigurer = mock(ModelConfigurer.class);
 		val node = node("foo", builder -> builder.withConfigurer(modelConfigurer));
-		node.applyToSelf(alwaysTrue(), ModelActions.doNothing());
+		node.applyTo(self().apply(doSomething()));
 		verify(modelConfigurer, times(1))
-			.configureMatching(ModelSpecs.of(withPath(path("foo")).and(alwaysTrue())), ModelActions.doNothing());
+			.configure(self().apply(doSomething()).scope(path("foo")));
 	}
 
 	@Test

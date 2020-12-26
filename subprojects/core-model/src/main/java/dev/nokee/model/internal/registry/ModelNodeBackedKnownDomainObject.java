@@ -11,6 +11,10 @@ import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
+import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
+import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
+import static dev.nokee.model.internal.core.NodePredicate.self;
+
 @EqualsAndHashCode
 public class ModelNodeBackedKnownDomainObject<T> implements KnownDomainObject<T>, ModelNodeAware {
 	private final ModelIdentifier<T> identifier;
@@ -37,7 +41,7 @@ public class ModelNodeBackedKnownDomainObject<T> implements KnownDomainObject<T>
 
 	@Override
 	public void configure(Action<? super T> action) {
-		node.applyToSelf(ModelNodes.stateAtLeast(ModelNode.State.Realized), ModelActions.executeUsingProjection(type, action));
+		node.applyTo(self(stateAtLeast(ModelNode.State.Realized)).apply(executeUsingProjection(type, action)));
 	}
 
 	private Provider<T> getAsProvider() {

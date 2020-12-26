@@ -1,19 +1,18 @@
 package dev.nokee.model.internal.registry;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.*;
 import lombok.val;
 
 import java.util.*;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer, ModelLookup {
 	private final Instantiator instantiator;
 	private final Map<ModelPath, ModelNode> nodes = new LinkedHashMap<>();
-	private final List<ModelConfiguration> configurations = new ArrayList<>();
+	private final List<ModelAction> configurations = new ArrayList<>();
 	private final NodeStateListener nodeStateListener = new NodeStateListener();
 	private final ModelNode rootNode;
 
@@ -30,6 +29,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			.withLookup(this)
 			.withListener(nodeStateListener)
 			.withRegistry(this)
+			.withInstantiator(instantiator)
 			.build();
 	}
 
@@ -54,7 +54,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			throw new IllegalArgumentException("Has to be direct descendant");
 		}
 
-		registration.getActions().forEach(action -> configurations.add(new ModelConfiguration(ModelSpecs.satisfyAll(), action)));
+		registration.getActions().forEach(configurations::add);
 		val node = newNode(registration).register();
 		return new ModelNodeBackedProvider<>(registration.getDefaultProjectionType(), node);
 	}
@@ -62,27 +62,12 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private ModelNode newNode(ModelRegistration<?> registration) {
 		return ModelNode.builder()
 			.withPath(registration.getPath())
-			.withProjections(finalizeProjections(registration))
 			.withConfigurer(this)
 			.withListener(nodeStateListener)
 			.withLookup(this)
 			.withRegistry(this)
+			.withInstantiator(instantiator)
 			.build();
-	}
-
-	private List<ModelProjection> finalizeProjections(ModelRegistration<?> registration) {
-		return registration.getProjections().stream()
-			.map(bindManagedProjectionWithInstantiator(instantiator))
-			.collect(Collectors.toList());
-	}
-
-	private static UnaryOperator<ModelProjection> bindManagedProjectionWithInstantiator(Instantiator instantiator) {
-		return projection -> {
-			if (projection instanceof ManagedModelProjection) {
-				return ((ManagedModelProjection<?>) projection).bind(instantiator);
-			}
-			return projection;
-		};
 	}
 
 	@Override
@@ -111,15 +96,20 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	@Override
-	public void configureMatching(ModelSpec spec, ModelAction action) {
-		val configuration = new ModelConfiguration(spec, action);
-		for (val node : nodes.values()) {
-			configuration.notifyFor(node);
-		}
+	public void configure(ModelAction configuration) {
 		configurations.add(configuration);
+		val size = nodes.size();
+		for (int i = 0; i < size; i++) {
+			configuration.execute(Iterables.get(nodes.values(), i));
+		}
 	}
 
 	private final class NodeStateListener implements ModelNodeListener {
+		@Override
+		public void created(ModelNode node) {
+			notify(node);
+		}
+
 		@Override
 		public void initialized(ModelNode node) {
 			notify(node);
@@ -139,23 +129,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		private void notify(ModelNode node) {
 			for (int i = 0; i < configurations.size(); ++i) {
 				val configuration = configurations.get(i);
-				configuration.notifyFor(node);
-			}
-		}
-	}
-
-	private static final class ModelConfiguration {
-		private final ModelSpec spec;
-		private final ModelAction action;
-
-		private ModelConfiguration(ModelSpec spec, ModelAction action) {
-			this.spec = Objects.requireNonNull(spec);
-			this.action = Objects.requireNonNull(action);
-		}
-
-		public void notifyFor(ModelNode node) {
-			if (spec.isSatisfiedBy(node)) {
-				action.execute(node);
+				configuration.execute(node);
 			}
 		}
 	}

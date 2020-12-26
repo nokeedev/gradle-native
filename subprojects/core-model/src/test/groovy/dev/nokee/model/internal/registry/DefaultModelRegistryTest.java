@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -79,7 +80,7 @@ public class DefaultModelRegistryTest {
 				assertThrows(IllegalArgumentException.class, () -> modelLookup.get(path("foo")));
 				return null;
 			}).when(action).execute(any());
-			subject.configureMatching(it -> it.getState().equals(ModelNode.State.Initialized), action);
+			subject.configure(matching(it -> it.getState().equals(ModelNode.State.Initialized), action));
 			register("foo");
 			verify(action, times(1)).execute(any());
 		}
@@ -92,7 +93,7 @@ public class DefaultModelRegistryTest {
 				assertDoesNotThrow(() -> modelLookup.get(path("bar")));
 				return null;
 			}).when(action).execute(any());
-			subject.configureMatching(it -> it.getState().equals(ModelNode.State.Registered) && it.getPath().equals(path("bar")), action);
+			subject.configure(matching(it -> it.getState().equals(ModelNode.State.Registered) && it.getPath().equals(path("bar")), action));
 			register("bar");
 			verify(action, times(1)).execute(any());
 		}

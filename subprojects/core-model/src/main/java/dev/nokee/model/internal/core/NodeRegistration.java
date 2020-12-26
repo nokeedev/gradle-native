@@ -8,10 +8,8 @@ import lombok.val;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.core.NodePredicate.self;
 
 // The major difference between {@link ModelRegistration} and {@link NodeRegistration} is the fact that ModelRegistration is absolute, e.g. starts from root node where NodeRegistration is relative, e.g. relative to a model node.
 @ToString
@@ -20,7 +18,7 @@ public final class NodeRegistration<T> {
 	private final String name;
 	private final ModelType<T> type;
 	private final List<ModelProjection> projections = new ArrayList<>();
-	private final List<NodeActionRegistration> actionRegistrations = new ArrayList<>();
+	private final List<NodeAction> actionRegistrations = new ArrayList<>();
 
 	private NodeRegistration(String name, ModelType<T> type, ModelProjection defaultProjection) {
 		this.name = name;
@@ -50,28 +48,8 @@ public final class NodeRegistration<T> {
 		return this;
 	}
 
-	// TODO: Consider for removal
-	public NodeRegistration<T> action(Predicate<? super ModelNode> predicate, ModelAction action) {
-		action(self(predicate), action);
+	public NodeRegistration<T> action(NodeAction action) {
+		actionRegistrations.add(action);
 		return this;
-	}
-
-	public NodeRegistration<T> action(NodePredicate predicate, ModelAction action) {
-		actionRegistrations.add(new NodeActionRegistration(predicate, action));
-		return this;
-	}
-
-	private static final class NodeActionRegistration {
-		private final NodePredicate predicate;
-		private final ModelAction action;
-
-		public NodeActionRegistration(NodePredicate predicate, ModelAction action) {
-			this.predicate = predicate;
-			this.action = action;
-		}
-
-		public ModelAction scope(ModelPath path) {
-			return ModelActions.onlyIf(predicate.scope(path), action);
-		}
 	}
 }

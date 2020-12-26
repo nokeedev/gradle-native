@@ -14,8 +14,10 @@ import dev.nokee.language.nativebase.internal.plugins.NativePlatformCapabilities
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.model.internal.NameAwareDomainObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.NodeRegistration;
+import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -88,6 +90,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
 import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
@@ -413,11 +416,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		components.registerFactory(JniLibraryComponentInternal.class, name -> {
-			val identifier = ComponentIdentifier.of(ComponentName.of(((NameAwareDomainObjectIdentifier)name).getName().toString()), JniLibraryComponentInternal.class, ProjectIdentifier.of(project));
-			assert identifier.isMainComponent();
-			return new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
-		});
+		val registry = ModelNodes.of(components).get(NodeRegistrationFactoryRegistry.class);
+		registry.registerFactory(of(JniLibraryComponentInternal.class), name -> javaNativeInterfaceLibrary(name, project));
 		val componentProvider = components.register("main", JniLibraryComponentInternal.class, component -> {
 			component.getBaseName().convention(project.getName());
 		});
@@ -452,6 +452,14 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 		project.getExtensions().add(JniLibraryExtension.class, "library", library);
 		return library;
+	}
+
+	private static NodeRegistration<JniLibraryComponentInternal> javaNativeInterfaceLibrary(String name, Project project) {
+		return NodeRegistration.unmanaged(name, of(JniLibraryComponentInternal.class), () -> {
+			val identifier = ComponentIdentifier.of(ComponentName.of(name), JniLibraryComponentInternal.class, ProjectIdentifier.of(project));
+			assert identifier.isMainComponent();
+			return new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
+		});
 	}
 
 	private static boolean isGradleVersionGreaterOrEqualsTo6Dot3() {

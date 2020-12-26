@@ -3,14 +3,12 @@ package dev.nokee.model.internal.registry;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.internal.core.*;
-import lombok.Value;
 import lombok.val;
 import org.gradle.api.provider.Property;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 import static com.google.common.base.Predicates.alwaysTrue;
 import static dev.nokee.model.internal.core.ModelActions.*;
@@ -18,14 +16,16 @@ import static dev.nokee.model.internal.core.ModelIdentifier.of;
 import static dev.nokee.model.internal.core.ModelNode.State.Realized;
 import static dev.nokee.model.internal.core.ModelNode.State.Registered;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
+import static dev.nokee.model.internal.core.ModelNodes.stateOf;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
 import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
-import static dev.nokee.model.internal.core.ModelSpecs.satisfyAll;
+import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.*;
+import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.MyComponent.aComponent;
-import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.NodeStateTransitionCollectingAction.*;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -112,83 +112,48 @@ public class DefaultModelRegistryIntegrationTest {
 
 	@Test
 	void canConfigureNodesAlreadyRegistered() {
-		val action = new NodeStateTransitionCollectingAction();
+		val action = new ModelTestActions.CaptureNodeTransitionAction();
 
 		modelRegistry.register(ModelRegistration.of("a", MyType.class));
 		modelRegistry.register(ModelRegistration.of("b", MyType.class));
-		modelRegistry.configureMatching(satisfyAll(), action);
+		modelRegistry.configure(action);
 
-		assertThat(action.values,
+		assertThat(action.getAllTransitions(),
 			contains(registered(root()), registered("a"), registered("b")));
 	}
 
 	@Test
 	void canConfigureFutureNodesRegistered() {
-		val action = new NodeStateTransitionCollectingAction();
+		val action = new ModelTestActions.CaptureNodeTransitionAction();
 
-		modelRegistry.configureMatching(satisfyAll(), action);
+		modelRegistry.configure(action);
 		modelRegistry.register(ModelRegistration.of("x", MyType.class));
 		modelRegistry.register(ModelRegistration.of("y", MyType.class));
 
-		assertThat(action.values,
-			contains(registered(root()), initialized("x"), registered("x"), initialized("y"), registered("y")));
+		assertThat(action.getAllTransitions(),
+			contains(registered(root()), created("x"), initialized("x"), registered("x"), created("y"), initialized("y"), registered("y")));
 	}
 
 	@Test
 	void queryProviderRealizeNodeAndParent() {
-		val action = new NodeStateTransitionCollectingAction();
+		val action = new ModelTestActions.CaptureNodeTransitionAction();
 
-		modelRegistry.configureMatching(satisfyAll(), action);
+		modelRegistry.configure(action);
 		modelRegistry.register(ModelRegistration.of("x", MyType.class)).get();
 
-		assertThat(action.values,
-			contains(registered(root()), initialized("x"), registered("x"), realized(root()), realized("x")));
+		assertThat(action.getAllTransitions(),
+			contains(registered(root()), created("x"), initialized("x"), registered("x"), realized(root()), realized("x")));
 	}
 
 	@Test
 	void canConfigureNodesOnlyWhenOnSpecificState() {
-		val action = new NodeStateTransitionCollectingAction();
+		val action = new ModelTestActions.CaptureNodeTransitionAction();
 
 		modelRegistry.register(ModelRegistration.of("i", MyType.class));
-		modelRegistry.configureMatching(node -> node.isAtLeast(Realized), action);
+		modelRegistry.configure(matching(node -> node.isAtLeast(Realized), action));
 		modelRegistry.register(ModelRegistration.of("j", MyType.class)).get();
 
-		assertThat(action.values, contains(realized(root()), realized("j")));
-	}
-
-	static class NodeStateTransitionCollectingAction implements ModelAction {
-		private final List<NodeStateTransition> values = new ArrayList<>();
-
-		@Override
-		public void execute(ModelNode node) {
-			values.add(new NodeStateTransition(node.getPath(), node.getState()));
-		}
-
-		static NodeStateTransition realized(String path) {
-			return new NodeStateTransition(ModelPath.path(path), Realized);
-		}
-
-		static NodeStateTransition realized(ModelPath path) {
-			return new NodeStateTransition(path, Realized);
-		}
-
-		static NodeStateTransition registered(String path) {
-			return new NodeStateTransition(ModelPath.path(path), Registered);
-		}
-
-		static NodeStateTransition registered(ModelPath path) {
-			return new NodeStateTransition(path, Registered);
-		}
-
-		static NodeStateTransition initialized(String path) {
-			return new NodeStateTransition(ModelPath.path(path), ModelNode.State.Initialized);
-		}
-
-		@Value
-		static class NodeStateTransition {
-			ModelPath path;
-			ModelNode.State state;
-		}
+		assertThat(action.getAllTransitions(), contains(realized(root()), realized("j")));
 	}
 
 	protected ModelNode registerNode(String path) {
@@ -222,14 +187,14 @@ public class DefaultModelRegistryIntegrationTest {
 	interface MyComponent {
 		static NodeRegistration<MyComponent> aComponent(String name) {
 			return NodeRegistration.of(name, of(MyComponent.class))
-				.action(stateAtLeast(Registered), once(register(MyComponentSources.componentSources())));
+				.action(self(stateAtLeast(Registered)).apply(once(register(MyComponentSources.componentSources()))));
 		}
 	}
 	interface MyComponentSources {
 		static NodeRegistration<MyComponentSources> componentSources() {
 			return NodeRegistration.of("sources", of(MyComponentSources.class))
-				.action(stateAtLeast(Registered), once(register(MySourceSet.aSourceSet("foo"))))
-				.action(stateAtLeast(Registered), once(register(MySourceSet.aSourceSet("bar"))));
+				.action(self(stateAtLeast(Registered)).apply(once(register(MySourceSet.aSourceSet("foo")))))
+				.action(self(stateAtLeast(Registered)).apply(once(register(MySourceSet.aSourceSet("bar")))));
 		}
 	}
 	interface MySourceSet {
@@ -242,7 +207,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canIncludeActionInNodeRegistrationThatAppliesOnlyToSelfModelNode() {
 		val modelPaths = new HashSet<ModelPath>();
 		modelRegistry.register(ModelRegistration.of("x", MyType.class));
-		modelRegistry.register(NodeRegistration.of("y", of(MyType.class)).action(node -> modelPaths.add(node.getPath()), doNothing()));
+		modelRegistry.register(NodeRegistration.of("y", of(MyType.class)).action(self(node -> modelPaths.add(node.getPath())).apply(doSomething())));
 		modelRegistry.register(ModelRegistration.of("y.foo", MyType.class));
 		modelRegistry.register(ModelRegistration.of("z", MyType.class));
 		assertThat("action for specific node isn't called for other nodes", modelPaths, hasItems(path("y")));
@@ -252,7 +217,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canIncludeActionInNodeRegistrationThatAppliesOnlyToDescendantModelNode() {
 		val modelPaths = new HashSet<ModelPath>();
 		modelRegistry.register(ModelRegistration.of("a", MyType.class));
-		modelRegistry.register(NodeRegistration.of("b", of(MyType.class)).action(allDirectDescendants(node -> modelPaths.add(node.getPath())), doNothing()));
+		modelRegistry.register(NodeRegistration.of("b", of(MyType.class)).action(allDirectDescendants(node -> modelPaths.add(node.getPath())).apply(doSomething())));
 		modelRegistry.register(ModelRegistration.of("b.bar", MyType.class));
 		modelRegistry.register(ModelRegistration.of("c", MyType.class));
 		assertThat("action for descendant node isn't called for other nodes", modelPaths, hasItems(path("b.bar")));
@@ -283,6 +248,54 @@ public class DefaultModelRegistryIntegrationTest {
 		val parent = registerNode("foo");
 		assertThrows(IllegalArgumentException.class, () -> parent.getDescendant("bar"),
 			"non-existing child node cannot be queried from parent node");
+	}
+
+	@Test
+	void honorsNestedConfigurationActionOrder() {
+		val executionOrder = new ArrayList<String>();
+		modelRegistry.configure(once(n1 -> {
+			executionOrder.add("n1 - " + n1.getPath());
+			n1.applyTo(allDirectDescendants().apply(once(n2 -> {
+				executionOrder.add("n2 - " + n2.getPath());
+				n2.applyTo(allDirectDescendants().apply(once(n3 -> executionOrder.add("n3 - " + n3.getPath()))));
+			})));
+		}));
+
+		registerNode("foo");
+		assertThat(executionOrder, contains("n1 - <root>", "n1 - foo", "n2 - foo"));
+		registerNode("foo.bar");
+		assertThat(executionOrder, contains("n1 - <root>", "n1 - foo", "n2 - foo", "n1 - foo.bar", "n2 - foo.bar", "n3 - foo.bar"));
+	}
+
+	@Test
+	void canRegisterNodeWhileDispatchingConfigurationActions() {
+		val paths = new ArrayList<ModelPath>();
+		registerNode("foo");
+		modelRegistry.configure(matching(ModelSpecs.of(stateOf(Registered)), node -> {
+			paths.add(node.getPath());
+			if (node.getPath().equals(path("foo"))) {
+				node.register(NodeRegistration.of("bar", of(MyType.class)));
+			}
+		}));
+
+		System.out.println("Current paths: " + paths);
+		assertThat(paths, contains(root(), path("foo"), path("foo.bar")));
+	}
+
+	@Test // This may not be exactly the behaviour we want, let's keep a close eye
+	void dispatchConfigurationActionsAsNodeAreRegistered() {
+		val paths = new ArrayList<ModelPath>();
+		registerNode("foo");
+		registerNode("bar");
+		modelRegistry.configure(matching(ModelSpecs.of(stateOf(Registered)), node -> {
+			paths.add(node.getPath());
+			if (node.getPath().equals(path("foo"))) {
+				node.register(NodeRegistration.of("bar", of(MyType.class)));
+			}
+		}));
+
+		System.out.println("Current paths: " + paths);
+		assertThat(paths, contains(root(), path("foo"), path("foo.bar"), path("bar")));
 	}
 
 //	@Test

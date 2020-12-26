@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
 import static dev.nokee.internal.Factories.alwaysThrow;
-import static dev.nokee.model.internal.core.ModelActions.doNothing;
-import static dev.nokee.model.internal.core.ModelActions.onlyIf;
-import static dev.nokee.model.internal.core.ModelNodes.*;
+import static dev.nokee.model.internal.core.ModelActions.matching;
+import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelPath.path;
+import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -25,8 +25,7 @@ class NodeRegistrationTest {
 		assertAll(() -> {
 			assertThat(registration.getPath(), equalTo(path("a.b.c")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
-			assertThat(registration.getProjections(), contains(ModelProjections.managed(of(MyType.class))));
-			assertThat(registration.getActions(), empty());
+			assertThat(registration.getActions(), iterableWithSize(1)); // for projections
 		});
 	}
 
@@ -36,8 +35,7 @@ class NodeRegistrationTest {
 		assertAll(() -> {
 			assertThat(registration.getPath(), equalTo(path("x.y.z")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
-			assertThat(registration.getProjections(), contains(ModelProjections.createdUsing(of(MyType.class), alwaysThrow())));
-			assertThat(registration.getActions(), empty());
+			assertThat(registration.getActions(), iterableWithSize(1)); // for projections
 		});
 	}
 
@@ -54,8 +52,7 @@ class NodeRegistrationTest {
 		assertAll(() -> {
 			assertThat(registration.getPath(), equalTo(path("ab.c")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
-			assertThat(registration.getProjections(), contains(ModelProjections.managed(of(MyType.class)), ModelProjections.ofInstance("foo")));
-			assertThat(registration.getActions(), empty());
+			assertThat(registration.getActions(), iterableWithSize(1)); // for projections
 		});
 	}
 
@@ -67,21 +64,21 @@ class NodeRegistrationTest {
 			.addEqualityGroup(NodeRegistration.of("c", of(MyType.class)))
 			.addEqualityGroup(NodeRegistration.of("a", of(MyOtherType.class)))
 			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")))
-			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")).action(stateAtLeast(ModelNode.State.Registered), doNothing()))
+			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")).action(self(stateAtLeast(ModelNode.State.Registered)).apply(doSomething())))
 			.testEquals();
 	}
 
 	@Test
 	void canAddActions() {
-		val registration = NodeRegistration.of("bar", of(MyType.class)).action(stateAtLeast(ModelNode.State.Registered), doNothing()).scope(path("foo"));
-		assertThat(registration.getActions(), contains(onlyIf(self(stateAtLeast(ModelNode.State.Registered)).scope(path("foo.bar")), doNothing())));
+		val registration = NodeRegistration.of("bar", of(MyType.class)).action(self(stateAtLeast(ModelNode.State.Registered)).apply(doSomething())).scope(path("foo"));
+		assertThat(registration.getActions(), hasItem(matching(self(stateAtLeast(ModelNode.State.Registered)).scope(path("foo.bar")), doSomething()))); // other are for projections
 	}
 
 	@Test
 	void canAddActionsUsingNodePredicate() {
 		val registration = NodeRegistration.of("b", of(MyType.class))
-			.action(allDirectDescendants(), doNothing()).scope(path("a"));
-		assertThat(registration.getActions(), contains(onlyIf(allDirectDescendants().scope(path("a.b")), doNothing())));
+			.action(allDirectDescendants().apply(doSomething())).scope(path("a"));
+		assertThat(registration.getActions(), hasItem(matching(allDirectDescendants().scope(path("a.b")), doSomething()))); // other are for projections
 	}
 
 	interface MyType {}

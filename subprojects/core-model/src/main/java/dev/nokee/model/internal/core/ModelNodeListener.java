@@ -12,6 +12,11 @@ public interface ModelNodeListener {
 	static ModelNodeListener noOpListener() {
 		return new ModelNodeListener() {
 			@Override
+			public void created(ModelNode node) {
+				// do nothing
+			}
+
+			@Override
 			public void initialized(ModelNode modelNode) {
 				// do nothing
 			}
@@ -27,6 +32,13 @@ public interface ModelNodeListener {
 			}
 		};
 	}
+
+	/**
+	 * When the model node transition to {@link ModelNode.State#Created}.
+	 *
+	 * @param node  the model node that transitioned to the created state
+	 */
+	void created(ModelNode node);
 
 	/**
 	 * When the model node transition to {@link ModelNode.State#Initialized}.

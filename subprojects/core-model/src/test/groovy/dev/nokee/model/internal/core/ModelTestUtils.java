@@ -2,15 +2,23 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.utils.TestUtils;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.Getter;
 import lombok.val;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+
+import static dev.nokee.model.internal.core.ModelActions.initialize;
+import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 
 public final class ModelTestUtils {
+	private static final Consumer<ModelNode.Builder> DO_NOTHING = builder -> {};
 	private static final String DEFAULT_NODE_NAME = "test";
 	private static final ModelNode ROOT = rootNode();
 	private ModelTestUtils() {}
@@ -20,23 +28,27 @@ public final class ModelTestUtils {
 	}
 
 	public static ModelNode rootNode() {
-		return ModelNode.builder().withPath(ModelPath.root()).build();
+		return ModelNode.builder().withPath(ModelPath.root()).withInstantiator(TestUtils.objectFactory()::newInstance).build();
 	}
 
 	public static ModelNode node(ModelNodeListener listener) {
-		return childNode(ROOT, DEFAULT_NODE_NAME, builder -> builder.withListener(listener));
+		return childNode(ROOT, DEFAULT_NODE_NAME, ImmutableList.of(), builder -> builder.withListener(listener));
 	}
 
 	public static ModelNode node(ModelProjection... projections) {
-		return childNode(ROOT, DEFAULT_NODE_NAME, builder -> builder.withProjections(projections));
+		return childNode(ROOT, DEFAULT_NODE_NAME, ImmutableList.of(addProjections(asList(projections))), DO_NOTHING);
 	}
 
 	public static ModelNode node(Object... projectionInstances) {
-		return childNode(ROOT, DEFAULT_NODE_NAME, builder -> builder.withProjections(Arrays.stream(projectionInstances).map(ModelProjections::ofInstance).collect(Collectors.toList())));
+		return childNode(ROOT, DEFAULT_NODE_NAME, ImmutableList.of(addProjections(ofInstances(projectionInstances))), DO_NOTHING);
 	}
 
 	public static ModelNode node(String name, Consumer<? super ModelNode.Builder> action) {
-		return childNode(ROOT, name, action);
+		return childNode(ROOT, name, ImmutableList.of(), action);
+	}
+
+	public static ModelNode node(String name, ModelProjection projection, Consumer<? super ModelNode.Builder> action) {
+		return childNode(ROOT, name, ImmutableList.of(addProjections(ImmutableList.of(projection))), action);
 	}
 
 	public static ModelNode node(String path) {
@@ -50,7 +62,7 @@ public final class ModelTestUtils {
 	public static ModelNode node(String path, ModelProjection projection, ModelProjection... projections) {
 		ModelNode result = ROOT;
 		for (String name : ModelPath.path(path)) {
-			result = childNode(result, name, builder -> builder.withProjections(ImmutableList.<ModelProjection>builder().add(projection).add(projections).build()));
+			result = childNode(result, name, ImmutableList.of(addProjections(ImmutableList.<ModelProjection>builder().add(projection).add(projections).build())), DO_NOTHING);
 		}
 		return result;
 	}
@@ -58,7 +70,7 @@ public final class ModelTestUtils {
 	public static ModelNode node(String path, Class<?> projectionType, Class<?>... projectionTypes) {
 		ModelNode result = ROOT;
 		for (String name : ModelPath.path(path)) {
-			result = childNode(result, name, builder -> builder.withProjections(ImmutableList.<Class<?>>builder().add(projectionType).add(projectionTypes).build().stream().map(ModelType::of).map(ModelProjections::managed).collect(Collectors.toList())));
+			result = childNode(result, name, ImmutableList.of(addProjections(ofTypes(ImmutableList.<Class<?>>builder().add(projectionType).add(projectionTypes).build()))), DO_NOTHING);
 		}
 		return result;
 	}
@@ -66,9 +78,21 @@ public final class ModelTestUtils {
 	public static ModelNode node(String path, Object... projectionInstances) {
 		ModelNode result = ROOT;
 		for (String name : ModelPath.path(path)) {
-			result = childNode(result, name, builder -> builder.withProjections(Arrays.stream(projectionInstances).map(ModelProjections::ofInstance).collect(Collectors.toList())));
+			result = childNode(result, name, ImmutableList.of(addProjections(ofInstances(projectionInstances))), DO_NOTHING);
 		}
 		return result;
+	}
+
+	private static List<ModelProjection> ofInstances(Object... projectionInstances) {
+		return stream(projectionInstances).map(ModelProjections::ofInstance).collect(toList());
+	}
+
+	private static List<ModelProjection> ofTypes(List<Class<?>> projectionTypes) {
+		return projectionTypes.stream().map(ModelType::of).map(ModelProjections::managed).collect(toList());
+	}
+
+	private static ModelAction addProjections(List<ModelProjection> projections) {
+		return initialize(context -> projections.forEach(context::addProjection));
 	}
 
 	public static ModelNode childNode(ModelNode parent) {
@@ -76,11 +100,26 @@ public final class ModelTestUtils {
 	}
 
 	public static ModelNode childNode(ModelNode parent, String name) {
-		return childNode(parent, name, builder -> {});
+		return childNode(parent, name, ImmutableList.of(), DO_NOTHING);
+	}
+
+	private static final class Value {
+		@Getter private ModelNode node;
+
+		public ModelNode bind(ModelNode node) {
+			this.node = node;
+			return node;
+		}
 	}
 
 	public static ModelNode childNode(ModelNode parent, String name, Consumer<? super ModelNode.Builder> action) {
+		return childNode(parent, name, ImmutableList.of(), action);
+	}
+
+	public static ModelNode childNode(ModelNode parent, String name, List<ModelAction> providedActions, Consumer<? super ModelNode.Builder> action) {
+		val nodeProvider = new Value();
 		val builder = ModelNode.builder();
+		val actions = new ArrayList<>(providedActions);
 		builder.withPath(parent.getPath().child(name));
 		builder.withLookup(new ModelLookup() {
 			@Override
@@ -104,6 +143,43 @@ public final class ModelTestUtils {
 			@Override
 			public boolean anyMatch(ModelSpec spec) {
 				throw new UnsupportedOperationException("This instance always fails.");
+			}
+		});
+		builder.withInstantiator(TestUtils.objectFactory()::newInstance);
+		builder.withConfigurer(new ModelConfigurer() {
+			@Override
+			public void configure(ModelAction action) {
+				actions.add(action);
+				action.execute(nodeProvider.getNode());
+			}
+		});
+		builder.withListener(new ModelNodeListener() {
+			@Override
+			public void created(ModelNode node) {
+				nodeProvider.bind(node);
+				execute(actions, node);
+			}
+
+			@Override
+			public void initialized(ModelNode node) {
+				execute(actions, node);
+			}
+
+			@Override
+			public void registered(ModelNode node) {
+				execute(actions, node);
+			}
+
+			@Override
+			public void realized(ModelNode node) {
+				execute(actions, node);
+			}
+
+			private void execute(List<ModelAction> actions, ModelNode node) {
+				val size = actions.size();
+				for (int i = 0; i < size; ++i) {
+					actions.get(i).execute(node);
+				}
 			}
 		});
 		action.accept(builder);

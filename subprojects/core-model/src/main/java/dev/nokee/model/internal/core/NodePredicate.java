@@ -4,20 +4,22 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.annotation.Nullable;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Predicates.alwaysTrue;
 import static dev.nokee.model.internal.core.ModelNodes.withParent;
 import static dev.nokee.model.internal.core.ModelNodes.withPath;
+import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
 public abstract class NodePredicate {
 	private final Predicate<? super ModelNode> matcher;
+	private final NodePredicateScopeStrategy scopeStrategy;
 
-	private NodePredicate(Predicate<? super ModelNode> matcher) {
-		this.matcher = Objects.requireNonNull(matcher);
+	private NodePredicate(Predicate<? super ModelNode> matcher, NodePredicateScopeStrategy scopeStrategy) {
+		this.matcher = requireNonNull(matcher);
+		this.scopeStrategy = scopeStrategy;
 	}
 
 	/**
@@ -27,10 +29,10 @@ public abstract class NodePredicate {
 	 * @return a {@link ModelSpec} for matching model nodes, never null
 	 */
 	final ModelSpec scope(ModelPath path) {
-		return scope(path, matcher);
+		return scopeStrategy.scope(path, matcher);
 	}
 
-	protected abstract ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher);
+	abstract void doNotExtendBeyondThisPackage();
 
 	/**
 	 * Creates a predicate that matches all direct descendants of the scoped path.
@@ -38,11 +40,9 @@ public abstract class NodePredicate {
 	 * @return a {@link NodePredicate} matching all direct descendants, never null
 	 */
 	public static NodePredicate allDirectDescendants() {
-		return new NodePredicate(alwaysTrue()) {
+		return new NodePredicate(alwaysTrue(), NodePredicateScopeStrategy.ALL_DIRECT_DESCENDANT) {
 			@Override
-			public ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
-				return new BasicPredicateSpec(null, path, null, withParent(path).and(matcher));
-			}
+			void doNotExtendBeyondThisPackage() {}
 
 			@Override
 			public String toString() {
@@ -58,11 +58,9 @@ public abstract class NodePredicate {
 	 * @return a {@link NodePredicate} matching all direct descendants with a predicate, never null
 	 */
 	public static NodePredicate allDirectDescendants(Predicate<? super ModelNode> predicate) {
-		return new NodePredicate(predicate) {
+		return new NodePredicate(predicate, NodePredicateScopeStrategy.ALL_DIRECT_DESCENDANT) {
 			@Override
-			public ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
-				return new BasicPredicateSpec(null, path, null, withParent(path).and(matcher));
-			}
+			void doNotExtendBeyondThisPackage() {}
 
 			@Override
 			public String toString() {
@@ -72,11 +70,9 @@ public abstract class NodePredicate {
 	}
 
 	public static NodePredicate self() {
-		return new NodePredicate(alwaysTrue()) {
+		return new NodePredicate(alwaysTrue(), NodePredicateScopeStrategy.SELF) {
 			@Override
-			protected ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
-				return new BasicPredicateSpec(path, null, null, withPath(path).and(matcher));
-			}
+			void doNotExtendBeyondThisPackage() {}
 
 			@Override
 			public String toString() {
@@ -86,17 +82,52 @@ public abstract class NodePredicate {
 	}
 
 	public static NodePredicate self(Predicate<? super ModelNode> predicate) {
-		return new NodePredicate(predicate) {
+		return new NodePredicate(predicate, NodePredicateScopeStrategy.SELF) {
 			@Override
-			protected ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
-				return new BasicPredicateSpec(path, null, null, withPath(path).and(matcher));
-			}
+			void doNotExtendBeyondThisPackage() {}
 
 			@Override
 			public String toString() {
 				return "NodePredicate.self(" + predicate + ")";
 			}
 		};
+	}
+
+	private enum NodePredicateScopeStrategy {
+		ALL_DIRECT_DESCENDANT {
+			@Override
+			ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
+				return new BasicPredicateSpec(null, path, null, withParent(path).and(matcher));
+			}
+		},
+		SELF {
+			@Override
+			ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
+				return new BasicPredicateSpec(path, null, null, withPath(path).and(matcher));
+			}
+		};
+
+		abstract ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher);
+	}
+
+	public NodeAction apply(ModelAction action) {
+		return new DefaultNodeAction(this, action);
+	}
+
+	@EqualsAndHashCode(callSuper = false)
+	private static final class DefaultNodeAction extends NodeAction {
+		private final NodePredicate predicate;
+		private final ModelAction action;
+
+		public DefaultNodeAction(NodePredicate predicate, ModelAction action) {
+			this.predicate = predicate;
+			this.action = requireNonNull(action);
+		}
+
+		@Override
+		ModelAction scope(ModelPath path) {
+			return ModelActions.matching(predicate.scope(path), action);
+		}
 	}
 
 	@ToString

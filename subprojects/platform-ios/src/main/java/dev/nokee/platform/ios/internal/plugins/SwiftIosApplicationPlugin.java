@@ -4,8 +4,12 @@ import dev.nokee.language.base.internal.*;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.NodeRegistration;
+import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
@@ -31,6 +35,8 @@ import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.type.ModelType.of;
+
 public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
@@ -54,12 +60,8 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().getByType(LanguageSourceSetInstantiator.class).registerFactory(IosResourceSetImpl.class, identifier -> new IosResourceSetImpl((LanguageSourceSetIdentifier<?>)identifier, project.getObjects()));
 
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		components.registerFactory(DefaultIosApplicationComponent.class, id -> {
-			val identifier = ComponentIdentifier.ofMain(DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
-
-			val component = new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
-			return component;
-		});
+		val registry = ModelNodes.of(components).get(NodeRegistrationFactoryRegistry.class);
+		registry.registerFactory(of(DefaultIosApplicationComponent.class), name -> iosApplication(name, project));
 		val componentProvider = components.register("main", DefaultIosApplicationComponent.class, component -> {
 			component.getBaseName().convention(GUtil.toCamelCase(project.getName()));
 			component.getGroupId().set(GroupId.of(project::getGroup));
@@ -74,6 +76,14 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		// TODO: This should be solve in a better way
 		getTasks().withType(CreateIosApplicationBundleTask.class).configureEach(task -> {
 			task.getSwiftSupportRequired().set(true);
+		});
+	}
+
+	private static NodeRegistration<DefaultIosApplicationComponent> iosApplication(String name, Project project) {
+		return NodeRegistration.unmanaged(name, of(DefaultIosApplicationComponent.class), () -> {
+			val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
+
+			return new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
 		});
 	}
 }

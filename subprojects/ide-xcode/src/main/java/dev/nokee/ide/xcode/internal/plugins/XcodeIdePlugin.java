@@ -30,8 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-import static dev.nokee.model.internal.core.ModelActions.executeAsKnownProjection;
-import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.core.ModelActions.*;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 
 public abstract class XcodeIdePlugin implements Plugin<Project> {
@@ -109,7 +108,7 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
 				val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
 				val action = new CreateNativeComponentXcodeIdeProject(extension, project.getProviders(), project.getObjects(), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getLayout(), project.getTasks(), ProjectIdentifier.of(project));
-				modelConfigurer.configureMatching(ModelNodes.stateAtLeast(ModelNode.State.Registered).and(withType(getComponentImplementationType()))::test, once(executeAsKnownProjection(getComponentImplementationType(), action)));
+				modelConfigurer.configure(matching(ModelNodes.stateAtLeast(ModelNode.State.Registered).and(withType(getComponentImplementationType()))::test, once(executeAsKnownProjection(getComponentImplementationType(), action))));
 			}
 
 			private ModelType<BaseComponent<?>> getComponentImplementationType() {

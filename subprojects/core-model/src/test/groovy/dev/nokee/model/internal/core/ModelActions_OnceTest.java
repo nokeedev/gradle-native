@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelActions.doNothing;
+import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
+import static dev.nokee.model.internal.core.ModelTestActions.doSomethingElse;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
@@ -40,15 +41,15 @@ class ModelActions_OnceTest {
 
 	@Test
 	void checkToString() {
-		assertThat(once(doNothing()), hasToString("ModelActions.once(ModelActions.doNothing())"));
+		assertThat(once(doSomething()), hasToString("ModelActions.once(ModelTestActions.doSomething())"));
 	}
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(once(doNothing()), once(doNothing()), alreadyExecutedAction(doNothing()))
-			.addEqualityGroup(once(t -> {}))
+			.addEqualityGroup(once(doSomething()), once(doSomething()), alreadyExecutedAction(doSomething()))
+			.addEqualityGroup(once(doSomethingElse()))
 			.testEquals();
 	}
 

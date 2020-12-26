@@ -9,6 +9,7 @@ import static dev.nokee.internal.Factories.alwaysThrow;
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelRegistration.*;
+import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -22,7 +23,7 @@ class ModelRegistrationTest {
 			val registration = ModelRegistration.of("a.b.c", MyType.class);
 			assertEquals(path("a.b.c"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
-			assertThat(registration.getActions(), empty());
+			assertThat(registration.getActions(), iterableWithSize(1)); // for the projections
 		});
 	}
 
@@ -49,7 +50,7 @@ class ModelRegistrationTest {
 			.addEqualityGroup(
 				builder().withPath(path("po.ta.to")).withProjection(ModelProjections.ofInstance(new MyType())).build())
 			.addEqualityGroup(
-				builder().withPath(path("po.ta.to")).action(ModelActions.doNothing()).build())
+				builder().withPath(path("po.ta.to")).action(doSomething()).build())
 			.testEquals();
 	}
 
@@ -59,10 +60,7 @@ class ModelRegistrationTest {
 			val registration = unmanagedInstance(of("foo", MyType.class), alwaysThrow());
 			assertEquals(path("foo"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
-			assertThat(registration.getActions(), empty());
-
-			// Assume projection of unmanaged instance
-			assertThat(registration.getProjections().size(), equalTo(1));
+			assertThat(registration.getActions(), iterableWithSize(1)); // for the projections
 		});
 	}
 
@@ -72,10 +70,7 @@ class ModelRegistrationTest {
 			val registration = bridgedInstance(of("foo", MyType.class), new MyType());
 			assertEquals(path("foo"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
-			assertThat(registration.getActions(), empty());
-
-			// Assume projection of bridged instance
-			assertThat(registration.getProjections().size(), equalTo(1));
+			assertThat(registration.getActions(), iterableWithSize(1)); // for the projections
 		});
 	}
 
@@ -85,9 +80,9 @@ class ModelRegistrationTest {
 			val registration = ModelRegistration.builder()
 				.withPath(path("a.b.c"))
 				.withDefaultProjectionType(of(MyType.class))
-				.action(ModelActions.doNothing())
+				.action(doSomething())
 				.build();
-			assertThat(registration.getActions(), contains(ModelActions.doNothing()));
+			assertThat(registration.getActions(), hasItem(doSomething())); // other are projections
 		});
 	}
 
