@@ -2,10 +2,12 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.DomainObjectContainer;
 import dev.nokee.model.internal.core.NodeRegistration;
+import dev.nokee.model.internal.core.NodeRegistrationFactories;
 import dev.nokee.model.internal.type.ModelType;
 
 import static dev.nokee.model.internal.core.ModelNodeContext.getCurrentModelNode;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 /**
@@ -26,6 +28,7 @@ public class BaseNamedDomainObjectContainer<T> extends AbstractModelNodeBackedNa
 		return NodeRegistration.of(name, viewType, elementTypeParameter(viewType, DomainObjectContainer.class))
 			.withProjection(managed(of(BaseDomainObjectViewProjection.class)))
 			.withProjection(managed(of(BaseNamedDomainObjectViewProjection.class)))
-			.withProjection(managed(of(BaseNamedDomainObjectContainerProjection.class)));
+			.withProjection(managed(of(BaseNamedDomainObjectContainerProjection.class)))
+			.withProjection(ofInstance(new NodeRegistrationFactories()));
 	}
 }
