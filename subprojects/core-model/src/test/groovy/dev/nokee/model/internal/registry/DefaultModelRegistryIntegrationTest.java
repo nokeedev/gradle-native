@@ -3,14 +3,12 @@ package dev.nokee.model.internal.registry;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.internal.core.*;
-import lombok.Value;
 import lombok.val;
 import org.gradle.api.provider.Property;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 import static com.google.common.base.Predicates.alwaysTrue;
 import static dev.nokee.model.internal.core.ModelActions.*;
@@ -23,11 +21,11 @@ import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
 import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
+import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.*;
 import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.MyComponent.aComponent;
-import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.NodeStateTransitionCollectingAction.*;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -114,88 +112,48 @@ public class DefaultModelRegistryIntegrationTest {
 
 	@Test
 	void canConfigureNodesAlreadyRegistered() {
-		val action = new NodeStateTransitionCollectingAction();
+		val action = new ModelTestActions.CaptureNodeTransitionAction();
 
 		modelRegistry.register(ModelRegistration.of("a", MyType.class));
 		modelRegistry.register(ModelRegistration.of("b", MyType.class));
 		modelRegistry.configure(action);
 
-		assertThat(action.values,
+		assertThat(action.getAllTransitions(),
 			contains(registered(root()), registered("a"), registered("b")));
 	}
 
 	@Test
 	void canConfigureFutureNodesRegistered() {
-		val action = new NodeStateTransitionCollectingAction();
+		val action = new ModelTestActions.CaptureNodeTransitionAction();
 
 		modelRegistry.configure(action);
 		modelRegistry.register(ModelRegistration.of("x", MyType.class));
 		modelRegistry.register(ModelRegistration.of("y", MyType.class));
 
-		assertThat(action.values,
+		assertThat(action.getAllTransitions(),
 			contains(registered(root()), created("x"), initialized("x"), registered("x"), created("y"), initialized("y"), registered("y")));
 	}
 
 	@Test
 	void queryProviderRealizeNodeAndParent() {
-		val action = new NodeStateTransitionCollectingAction();
+		val action = new ModelTestActions.CaptureNodeTransitionAction();
 
 		modelRegistry.configure(action);
 		modelRegistry.register(ModelRegistration.of("x", MyType.class)).get();
 
-		assertThat(action.values,
+		assertThat(action.getAllTransitions(),
 			contains(registered(root()), created("x"), initialized("x"), registered("x"), realized(root()), realized("x")));
 	}
 
 	@Test
 	void canConfigureNodesOnlyWhenOnSpecificState() {
-		val action = new NodeStateTransitionCollectingAction();
+		val action = new ModelTestActions.CaptureNodeTransitionAction();
 
 		modelRegistry.register(ModelRegistration.of("i", MyType.class));
 		modelRegistry.configure(matching(node -> node.isAtLeast(Realized), action));
 		modelRegistry.register(ModelRegistration.of("j", MyType.class)).get();
 
-		assertThat(action.values, contains(realized(root()), realized("j")));
-	}
-
-	static class NodeStateTransitionCollectingAction implements ModelAction {
-		private final List<NodeStateTransition> values = new ArrayList<>();
-
-		@Override
-		public void execute(ModelNode node) {
-			values.add(new NodeStateTransition(node.getPath(), node.getState()));
-		}
-
-		static NodeStateTransition realized(Object path) {
-			return new NodeStateTransition(asPath(path), Realized);
-		}
-
-		static NodeStateTransition registered(Object path) {
-			return new NodeStateTransition(asPath(path), Registered);
-		}
-
-		static NodeStateTransition initialized(Object path) {
-			return new NodeStateTransition(asPath(path), ModelNode.State.Initialized);
-		}
-
-		static NodeStateTransition created(Object path) {
-			return new NodeStateTransition(asPath(path), ModelNode.State.Created);
-		}
-
-		private static ModelPath asPath(Object path) {
-			if (path instanceof ModelPath) {
-				return (ModelPath) path;
-			} else if (path instanceof String) {
-				return ModelPath.path((String) path);
-			}
-			throw new IllegalArgumentException("Invalid path '" + path + "'");
-		}
-
-		@Value
-		static class NodeStateTransition {
-			ModelPath path;
-			ModelNode.State state;
-		}
+		assertThat(action.getAllTransitions(), contains(realized(root()), realized("j")));
 	}
 
 	protected ModelNode registerNode(String path) {

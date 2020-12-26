@@ -1,9 +1,15 @@
 package dev.nokee.model.internal.core;
 
 import lombok.EqualsAndHashCode;
+import lombok.Value;
 
 import javax.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static dev.nokee.model.internal.core.ModelNode.State.Realized;
+import static dev.nokee.model.internal.core.ModelNode.State.Registered;
 import static java.util.Objects.requireNonNull;
 
 public final class ModelTestActions {
@@ -87,6 +93,50 @@ public final class ModelTestActions {
 		@Override
 		public String toString() {
 			return "ModelTestActions.doSomethingElse(" + (what == null ? "" : what) + ")";
+		}
+	}
+
+	public static class CaptureNodeTransitionAction implements ModelAction {
+		private final List<NodeStateTransition> values = new ArrayList<>();
+
+		public List<NodeStateTransition> getAllTransitions() {
+			return values;
+		}
+
+		@Override
+		public void execute(ModelNode node) {
+			values.add(new CaptureNodeTransitionAction.NodeStateTransition(node.getPath(), node.getState()));
+		}
+
+		public static CaptureNodeTransitionAction.NodeStateTransition realized(Object path) {
+			return new CaptureNodeTransitionAction.NodeStateTransition(asPath(path), Realized);
+		}
+
+		public static CaptureNodeTransitionAction.NodeStateTransition registered(Object path) {
+			return new CaptureNodeTransitionAction.NodeStateTransition(asPath(path), Registered);
+		}
+
+		public static CaptureNodeTransitionAction.NodeStateTransition initialized(Object path) {
+			return new CaptureNodeTransitionAction.NodeStateTransition(asPath(path), ModelNode.State.Initialized);
+		}
+
+		public static CaptureNodeTransitionAction.NodeStateTransition created(Object path) {
+			return new CaptureNodeTransitionAction.NodeStateTransition(asPath(path), ModelNode.State.Created);
+		}
+
+		private static ModelPath asPath(Object path) {
+			if (path instanceof ModelPath) {
+				return (ModelPath) path;
+			} else if (path instanceof String) {
+				return ModelPath.path((String) path);
+			}
+			throw new IllegalArgumentException("Invalid path '" + path + "'");
+		}
+
+		@Value
+		public static class NodeStateTransition {
+			ModelPath path;
+			ModelNode.State state;
 		}
 	}
 }
