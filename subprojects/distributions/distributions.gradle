@@ -16,7 +16,7 @@ import dev.nokee.core.exec.CommandLine
 import dev.nokee.core.exec.GradleWorkerExecutorEngine
 import groovy.json.JsonOutput
 
-def allPluginProjectPaths = (rootProject.allprojects - [project(':docs'), project(':docs:exemplarKit'), project(':distributions')])*.path
+def allPluginProjectPaths = (rootProject.allprojects - [project(':docs'), project(':docs:exemplarKit'), project(':distributions'), project(':internalTesting')])*.path
 
 def publishToStaging = tasks.register('publishToStaging') {
 	group = 'publishing'
