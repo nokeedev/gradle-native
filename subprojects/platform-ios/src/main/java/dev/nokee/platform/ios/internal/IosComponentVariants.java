@@ -1,7 +1,8 @@
 package dev.nokee.platform.ios.internal;
 
-import dev.nokee.language.base.internal.LanguageSourceSetRepository;
+import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -27,7 +28,8 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskProvider;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.withType;
+import java.util.ArrayList;
+
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public final class IosComponentVariants implements ComponentVariants {
@@ -41,11 +43,11 @@ public final class IosComponentVariants implements ComponentVariants {
 	private final ProviderFactory providerFactory;
 	private final TaskRegistry taskRegistry;
 	private final BinaryViewFactory binaryViewFactory;
-	private final LanguageSourceSetRepository languageSourceSetRepository;
+	private final FunctionalSourceSet sourceView;
 
-	public IosComponentVariants(ObjectFactory objectFactory, DefaultIosApplicationComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, LanguageSourceSetRepository languageSourceSetRepository) {
+	public IosComponentVariants(ObjectFactory objectFactory, DefaultIosApplicationComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, FunctionalSourceSet sourceView) {
 		this.binaryViewFactory = binaryViewFactory;
-		this.languageSourceSetRepository = languageSourceSetRepository;
+		this.sourceView = sourceView;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), DefaultIosApplicationVariant.class, eventPublisher, viewFactory, variantRepository);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = providerFactory.provider(new DevelopmentVariantConvention<>(() -> getVariantCollection().get()));
@@ -89,7 +91,11 @@ public final class IosComponentVariants implements ComponentVariants {
 		}
 
 		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
-		boolean hasSwift = languageSourceSetRepository.anyKnownIdentifier(withType(SwiftSourceSet.class));
+
+		// FIXME!!!!
+		val swiftSources = new ArrayList<KnownDomainObject<SwiftSourceSet>>();
+		sourceView.whenElementKnownEx(SwiftSourceSet.class, swiftSources::add);
+		boolean hasSwift = !swiftSources.isEmpty();
 		if (hasSwift) {
 			incomingDependenciesBuilder.withIncomingSwiftModules();
 		} else {

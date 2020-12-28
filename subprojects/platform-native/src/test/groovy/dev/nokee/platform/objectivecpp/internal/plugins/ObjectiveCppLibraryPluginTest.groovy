@@ -1,12 +1,9 @@
 package dev.nokee.platform.objectivecpp.internal.plugins
 
 import dev.nokee.fixtures.*
-import dev.nokee.language.cpp.internal.CppHeaderSetImpl
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetImpl
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.nativebase.NativeLibrary
 import dev.nokee.platform.nativebase.SharedLibraryBinary
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibraryExtension
 import org.gradle.api.Project
 import spock.lang.Subject
@@ -50,29 +47,6 @@ trait ObjectiveCppLibraryPluginTestFixture {
 @Subject(ObjectiveCppLibraryPlugin)
 class ObjectiveCppLibraryPluginTest extends AbstractPluginTest implements ObjectiveCppLibraryPluginTestFixture {
 	final String pluginIdUnderTest = pluginId
-}
-
-@Subject(ObjectiveCppLibraryPlugin)
-class ObjectiveCppLibraryComponentPluginTest extends AbstractComponentPluginTest {
-	@Override
-	protected Class getExtensionTypeUnderTest() {
-		return ObjectiveCppLibraryExtension
-	}
-
-	@Override
-	protected Class getComponentTypeUnderTest() {
-		return DefaultNativeLibraryComponent
-	}
-
-	@Override
-	protected void applyPluginUnderTests(Project project) {
-		project.apply plugin: 'dev.nokee.objective-cpp-library'
-	}
-
-	@Override
-	protected List<ExpectedLanguageSourceSet> getExpectedLanguageSourceSets() {
-		return [newExpectedSourceSet('objectiveCpp', ObjectiveCppSourceSetImpl).addConventionDirectory('src/main/objcpp'), newExpectedSourceSet('headers', CppHeaderSetImpl, 'privateHeaders'), newExpectedSourceSet('public', CppHeaderSetImpl, 'publicHeaders')]
-	}
 }
 
 @Subject(ObjectiveCppLibraryPlugin)

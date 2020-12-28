@@ -8,10 +8,11 @@ import dev.nokee.ide.xcode.internal.DefaultXcodeIdeBuildConfiguration;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeGroup;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeTarget;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelSpecs;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -52,26 +53,28 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.descendentOf;
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.withType;
+import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
+import static dev.nokee.model.internal.core.ModelNodes.withType;
+import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 
 public final class CreateNativeComponentXcodeIdeProject implements Action<KnownDomainObject<? extends BaseComponent<?>>> {
 	private final XcodeIdeProjectExtension extension;
 	private final ProviderFactory providerFactory;
 	private final ObjectFactory objectFactory;
-	private final LanguageSourceSetRepository languageSourceSetRepository;
 	private final ProjectLayout projectLayout;
 	private final TaskContainer taskContainer;
 	private final ProjectIdentifier projectIdentifier;
+	private final ModelLookup modelLookup;
 
-	public CreateNativeComponentXcodeIdeProject(XcodeIdeProjectExtension extension, ProviderFactory providerFactory, ObjectFactory objectFactory, LanguageSourceSetRepository languageSourceSetRepository, ProjectLayout projectLayout, TaskContainer taskContainer, ProjectIdentifier projectIdentifier) {
+	public CreateNativeComponentXcodeIdeProject(XcodeIdeProjectExtension extension, ProviderFactory providerFactory, ObjectFactory objectFactory, ProjectLayout projectLayout, TaskContainer taskContainer, ProjectIdentifier projectIdentifier, ModelLookup modelLookup) {
 		this.extension = extension;
 		this.providerFactory = providerFactory;
 		this.objectFactory = objectFactory;
-		this.languageSourceSetRepository = languageSourceSetRepository;
 		this.projectLayout = projectLayout;
 		this.taskContainer = taskContainer;
 		this.projectIdentifier = projectIdentifier;
+		this.modelLookup = modelLookup;
 	}
 
 	@Override
@@ -111,7 +114,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 			@Override
 			public XcodeIdeGroup call() throws Exception {
 				val result = new DefaultXcodeIdeGroup(component.getBaseName().get(), objectFactory);
-				result.getSources().from(component.getSources().flatMap(CreateNativeComponentXcodeIdeProject.this::toSource));
+				result.getSources().from(sourceViewOf(component).flatMap(CreateNativeComponentXcodeIdeProject.this::toSource));
 				return result;
 			}
 		});
@@ -174,7 +177,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 				val target = xcodeIdeTargets.computeIfAbsent(targetName(component, linkage), createXcodeIdeTarget(osOperations, linkage));
 
 				target.getBuildConfigurations().addLater(createXcodeIdeBuildConfiguration(variantInternal));
-				target.getSources().from(component.getSources().flatMap(CreateNativeComponentXcodeIdeProject.this::toSource));
+				target.getSources().from(sourceViewOf(component).flatMap(CreateNativeComponentXcodeIdeProject.this::toSource));
 			});
 
 			return providerFactory.provider(() -> ImmutableList.copyOf(xcodeIdeTargets.values()));
@@ -300,7 +303,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 				}
 
 				private boolean hasSwiftCapability() {
-					return languageSourceSetRepository.anyKnownIdentifier(descendentOf(component.getIdentifier()).and(withType(SwiftSourceSet.class)));
+					return modelLookup.anyMatch(ModelSpecs.of(descendantOf(component.getNode().getPath()).and(withType(of(SwiftSourceSet.class)))));
 				}
 
 				public Transformer<Provider<? extends FileSystemLocation>, Binary> toProductLocation() {

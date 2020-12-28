@@ -1,7 +1,8 @@
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.LanguageSourceSetView;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
@@ -26,12 +27,11 @@ import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
 
-public class JniLibraryExtensionInternal implements JniLibraryExtension, Component {
+public class JniLibraryExtensionInternal implements JniLibraryExtension, Component, ModelNodeAware {
 	@Getter private final JniLibraryComponentInternal component;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
-	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
 	@Getter private final VariantViewInternal<JniLibrary> variants;
 
 	@Inject
@@ -40,7 +40,6 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 		this.objects = objects;
 		this.providers = providers;
 		this.component = component;
-		this.sources = component.getSources();
 		this.variants = variantViewFactory.create(component.getIdentifier(), JniLibrary.class);
 	}
 
@@ -91,5 +90,10 @@ public class JniLibraryExtensionInternal implements JniLibraryExtension, Compone
 
 	public void setTargetMachines(Object value) {
 		ConfigureUtils.setPropertyValue(component.getTargetMachines(), value);
+	}
+
+	@Override
+	public ModelNode getNode() {
+		return ModelNodes.of(component);
 	}
 }

@@ -1,6 +1,9 @@
 package dev.nokee.platform.ios.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -15,7 +18,7 @@ import lombok.Getter;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 
-public class BaseIosExtension<T extends BaseNativeComponent<?>> {
+public class BaseIosExtension<T extends BaseNativeComponent<?>> implements ModelNodeAware {
 	private final T component;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
@@ -42,5 +45,10 @@ public class BaseIosExtension<T extends BaseNativeComponent<?>> {
 
 	public BinaryView<Binary> getBinaries() {
 		return component.getBinaries();
+	}
+
+	@Override
+	public ModelNode getNode() {
+		return ModelNodes.of(component);
 	}
 }

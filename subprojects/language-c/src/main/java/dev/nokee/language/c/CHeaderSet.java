@@ -1,13 +1,12 @@
 package dev.nokee.language.c;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import org.gradle.api.Action;
-import org.gradle.api.tasks.util.PatternFilterable;
+import dev.nokee.language.nativebase.NativeHeaderSet;
 
-public interface CHeaderSet extends LanguageSourceSet {
-	@Override
-	CHeaderSet from(Object... paths);
-
-	@Override
-	CHeaderSet filter(Action<? super PatternFilterable> action);
-}
+/**
+ * A set of C header files.
+ *
+ * @see LanguageSourceSet
+ * @since 0.5
+ */
+public interface CHeaderSet extends NativeHeaderSet {}

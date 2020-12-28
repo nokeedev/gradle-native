@@ -5,9 +5,8 @@ import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeProject;
 import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeTarget;
 import dev.nokee.ide.visualstudio.internal.tasks.GenerateVisualStudioIdeProjectTask;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.c.CHeaderSet;
-import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.tasks.CppCompile;
+import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.platform.base.Binary;
@@ -45,6 +44,7 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static java.util.stream.Collectors.joining;
 
 public final class CreateNativeComponentVisualStudioIdeProject implements Action<KnownDomainObject<BaseComponent<?>>> {
@@ -79,15 +79,15 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			}
 
 			private Provider<List<? extends FileTree>> componentSources(BaseComponent<?> component) {
-				return component.getSources().filter(Specs.negate(this::forHeaderSets)).map(ProviderUtils.map(LanguageSourceSet::getAsFileTree));
+				return sourceViewOf(component).filter(Specs.negate(this::forHeaderSets)).map(ProviderUtils.map(LanguageSourceSet::getAsFileTree));
 			}
 
 			private Provider<List<? extends FileTree>> componentHeaders(BaseComponent<?> component) {
-				return component.getSources().filter(this::forHeaderSets).map(ProviderUtils.map(LanguageSourceSet::getAsFileTree));
+				return sourceViewOf(component).filter(this::forHeaderSets).map(ProviderUtils.map(LanguageSourceSet::getAsFileTree));
 			}
 
 			private boolean forHeaderSets(LanguageSourceSet sourceSet) {
-				return sourceSet instanceof CHeaderSet || sourceSet instanceof CppHeaderSet;
+				return sourceSet instanceof NativeHeaderSet;
 			}
 
 			private Action<GenerateVisualStudioIdeProjectTask> vcxprojFilenameToMatchComponentBaseName(Provider<String> baseName) {

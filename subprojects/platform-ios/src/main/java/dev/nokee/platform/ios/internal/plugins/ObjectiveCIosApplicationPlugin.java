@@ -1,6 +1,7 @@
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.language.base.internal.*;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -17,10 +18,11 @@ import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
+import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
+import dev.nokee.platform.ios.ObjectiveCIosApplicationSources;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
-import dev.nokee.platform.ios.internal.IosResourceSetImpl;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
@@ -45,8 +47,14 @@ import javax.inject.Inject;
 import java.util.Arrays;
 
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
+import static dev.nokee.model.internal.core.ModelActions.register;
+import static dev.nokee.model.internal.core.ModelNodes.discover;
+import static dev.nokee.model.internal.core.NodePredicate.self;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.platform.nativebase.internal.NativePlatformFactory.platformNameFor;
+import static dev.nokee.platform.objectivec.internal.ObjectiveCSourceSetModelHelpers.configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
 
 public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -57,7 +65,6 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 
 	@Inject
 	public ObjectiveCIosApplicationPlugin(ObjectFactory objects, ProjectLayout layout, TaskContainer tasks, ProviderFactory providers) {
-
 		this.objects = objects;
 		this.layout = layout;
 		this.tasks = tasks;
@@ -74,29 +81,19 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 
-		project.getExtensions().getByType(LanguageSourceSetInstantiator.class).registerFactory(IosResourceSetImpl.class, identifier -> new IosResourceSetImpl((LanguageSourceSetIdentifier<?>)identifier, project.getObjects()));
-
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		val registry = ModelNodes.of(components).get(NodeRegistrationFactoryRegistry.class);
-		registry.registerFactory(of(DefaultIosApplicationComponent.class), name -> iosApplication(name, project));
+		registry.registerFactory(of(DefaultIosApplicationComponent.class), name -> objectiveCIosApplication(name, project));
 		val componentProvider = components.register("main", DefaultIosApplicationComponent.class, component -> {
 			component.getBaseName().convention(GUtil.toCamelCase(project.getName()));
 			component.getGroupId().set(GroupId.of(project::getGroup));
 		});
-		val extension = new DefaultObjectiveCIosApplicationExtension(componentProvider.get(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(LanguageSourceSetRegistry.class));
+		val extension = new DefaultObjectiveCIosApplicationExtension(componentProvider.get(), project.getObjects(), project.getProviders());
 
 		// Other configurations
 		project.afterEvaluate(extension::finalizeExtension);
 
 		project.getExtensions().add(ObjectiveCIosApplicationExtension.class, EXTENSION_NAME, extension);
-	}
-
-	private static NodeRegistration<DefaultIosApplicationComponent> iosApplication(String name, Project project) {
-		return NodeRegistration.unmanaged(name, of(DefaultIosApplicationComponent.class), () -> {
-			val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
-
-			return new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(LanguageSourceSetRepository.class), project.getExtensions().getByType(LanguageSourceSetViewFactory.class));
-		});
 	}
 
 	public static class ToolChainMetadataRules extends RuleSource {
@@ -113,5 +110,23 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 				});
 			});
 		}
+	}
+
+	public static NodeRegistration<DefaultIosApplicationComponent> objectiveCIosApplication(String name, Project project) {
+		return component(name, DefaultIosApplicationComponent.class, () -> create(name, project))
+			.action(self(discover()).apply(register(sources())))
+			.action(configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
+	}
+
+	private static DefaultIosApplicationComponent create(String name, Project project) {
+		val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
+		return new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
+	}
+
+	private static NodeRegistration<ObjectiveCIosApplicationSources> sources() {
+		return ComponentModelBasePlugin.componentSourcesOf(ObjectiveCIosApplicationSources.class)
+			.action(self(discover()).apply(register(sourceSet("objectiveC", ObjectiveCSourceSet.class))))
+			.action(self(discover()).apply(register(sourceSet("headers", CHeaderSet.class))))
+			.action(self(discover()).apply(register(sourceSet("resources", IosResourceSet.class))));
 	}
 }

@@ -18,6 +18,10 @@ public final class ComponentName {
 		return new ComponentName(name);
 	}
 
+	public boolean isMain() {
+		return name.equals("main");
+	}
+
 	public String get() {
 		return name;
 	}

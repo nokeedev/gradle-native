@@ -87,6 +87,7 @@ test {
 	dependencies {
 		implementation project(':internalTesting')
 		implementation testFixtures(project(':platformBase'))
+		implementation testFixtures(project(':coreModel'))
 	}
 }
 

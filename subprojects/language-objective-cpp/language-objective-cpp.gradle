@@ -6,10 +6,11 @@ plugins {
 
 dependencies {
 	api project(':languageCpp')
+	implementation project(':coreScript')
 
-	testImplementation project(':languageCpp')
-	testImplementation project(':platformBase')
-	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
+	testImplementation project(':languageCpp') // TODO: Maybe?
+	testImplementation testFixtures(project(':coreModel'))
+	testImplementation testFixtures(project(':coreScript'))
 
 	testFixturesApi testFixtures(project(':languageNative'))
 	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'

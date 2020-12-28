@@ -3,8 +3,13 @@ package dev.nokee.fixtures
 import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.nokee.language.c.CHeaderSet
-import dev.nokee.language.cpp.CppHeaderSet
+import dev.nokee.language.base.LanguageSourceSet
+import dev.nokee.language.c.CSourceSet
+import dev.nokee.language.cpp.CppSourceSet
+import dev.nokee.language.nativebase.NativeHeaderSet
+import dev.nokee.language.objectivec.ObjectiveCSourceSet
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet
+import dev.nokee.language.swift.SwiftSourceSet
 
 import static dev.gradleplugins.fixtures.sources.NativeLibraryElement.ofPrivateHeaders
 import static dev.gradleplugins.fixtures.sources.NativeLibraryElement.ofPublicHeaders
@@ -63,6 +68,20 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 		makeSingleProject()
 		componentUnderTest.writeToSourceDir(file('srcs'))
 		buildFile << """
+			import ${LanguageSourceSet.canonicalName}
+			pluginManager.withPlugin('java-base') {
+				sourceSets.main.java.setSrcDirs([])
+				${componentUnderTestDsl}.sources.java(LanguageSourceSet) { filter.include('**/*.java') }
+			}
+			pluginManager.withPlugin('groovy-base') {
+				sourceSets.main.groovy.setSrcDirs([])
+				${componentUnderTestDsl}.sources.groovy(LanguageSourceSet) { filter.include('**/*.groovy') }
+			}
+			pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
+				sourceSets.main.kotlin.setSrcDirs([])
+				${componentUnderTestDsl}.sources.kotlin(LanguageSourceSet) { filter.include('**/*.kt') }
+			}
+
 			def generatedSources = tasks.register('generateSources') {
 				def inputFiles = fileTree('srcs')
 				def outputDir = layout.buildDirectory.dir('generated-srcs-for-native')
@@ -78,16 +97,20 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 				}
 			}
 
-			pluginManager.withPlugin('java') {
-				sourceSets.main.java {
-					setSrcDirs([generatedSources])
-					filter.include('**/*.java')
-				}
-			}
-
 			${componentUnderTestDsl}.sources.configureEach {
 				from(generatedSources)
 			}
+
+			import ${CSourceSet.canonicalName}
+			import ${CppSourceSet.canonicalName}
+			import ${ObjectiveCSourceSet.canonicalName}
+			import ${ObjectiveCppSourceSet.canonicalName}
+			import ${SwiftSourceSet.canonicalName}
+			${componentUnderTestDsl}.sources.configureEach(CSourceSet) { filter.include('**/*.c') }
+			${componentUnderTestDsl}.sources.configureEach(CppSourceSet) { filter.include('**/*.cpp') }
+			${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { filter.include('**/*.m') }
+			${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { filter.include('**/*.mm') }
+			${componentUnderTestDsl}.sources.configureEach(SwiftSourceSet) { filter.include('**/*.swift') }
 		"""
 
 		and:
@@ -109,6 +132,20 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 		and:
 		file('library', buildFileName) << """
+			import ${LanguageSourceSet.canonicalName}
+			pluginManager.withPlugin('java-base') {
+				sourceSets.main.java.setSrcDirs([])
+				library.sources.java(LanguageSourceSet) { filter.include('**/*.java') }
+			}
+			pluginManager.withPlugin('groovy-base') {
+				sourceSets.main.groovy.setSrcDirs([])
+				library.sources.groovy(LanguageSourceSet) { filter.include('**/*.groovy') }
+			}
+			pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
+				sourceSets.main.kotlin.setSrcDirs([])
+				library.sources.kotlin(LanguageSourceSet) { filter.include('**/*.kt') }
+			}
+
 			def generatedSources = tasks.register('generateSources') {
 				def inputFiles = fileTree('srcs')
 				def outputDir = layout.buildDirectory.dir('generated-srcs-for-native')
@@ -124,16 +161,19 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 				}
 			}
 
-			pluginManager.withPlugin('java') {
-				sourceSets.main.java {
-					setSrcDirs([generatedSources])
-					filter.include('**/*.java')
-				}
-			}
-
 			library.sources.configureEach {
 				from(generatedSources)
 			}
+			import ${CSourceSet.canonicalName}
+			import ${CppSourceSet.canonicalName}
+			import ${ObjectiveCSourceSet.canonicalName}
+			import ${ObjectiveCppSourceSet.canonicalName}
+			import ${SwiftSourceSet.canonicalName}
+			library.sources.configureEach(CSourceSet) { filter.include('**/*.c') }
+			library.sources.configureEach(CppSourceSet) { filter.include('**/*.cpp') }
+			library.sources.configureEach(ObjectiveCSourceSet) { filter.include('**/*.m') }
+			library.sources.configureEach(ObjectiveCppSourceSet) { filter.include('**/*.mm') }
+			library.sources.configureEach(SwiftSourceSet) { filter.include('**/*.swift') }
 		"""
 
 		expect:
@@ -175,56 +215,89 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 	protected String configureSourcesAsConvention(String dsl = componentUnderTestDsl) {
 		return """
-			import ${CHeaderSet.canonicalName}
-			import ${CppHeaderSet.canonicalName}
+			import ${LanguageSourceSet.canonicalName}
+			pluginManager.withPlugin('java-base') {
+				sourceSets.main.java.setSrcDirs([])
+				${dsl}.sources.java(LanguageSourceSet) { filter.include('**/*.java') }
+			}
+			pluginManager.withPlugin('groovy-base') {
+				sourceSets.main.groovy.setSrcDirs([])
+				${dsl}.sources.groovy(LanguageSourceSet) { filter.include('**/*.groovy') }
+			}
+			pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
+				sourceSets.main.kotlin.setSrcDirs([])
+				${dsl}.sources.kotlin(LanguageSourceSet) { filter.include('**/*.kt') }
+			}
+
+			import ${NativeHeaderSet.canonicalName}
+			import ${CSourceSet.canonicalName}
+			import ${CppSourceSet.canonicalName}
+			import ${ObjectiveCSourceSet.canonicalName}
+			import ${ObjectiveCppSourceSet.canonicalName}
+			import ${SwiftSourceSet.canonicalName}
+			import ${LanguageSourceSet.canonicalName}
 
 			${dsl} {
-				sources.configureEach({ it instanceof ${CHeaderSet.simpleName} || it instanceof ${CppHeaderSet.simpleName} }) {
-					if (it.identifier.name.get() == 'public') {
+				sources.configureEach(NativeHeaderSet) {
+					if (it.name == 'public') {
 						from('includes')
 					} else {
 						from('headers')
 					}
 				}
-				sources.configureEach({ !(it instanceof ${CHeaderSet.simpleName} || it instanceof ${CppHeaderSet.simpleName}) }) {
+				sources.configureEach({ !(it instanceof NativeHeaderSet) }) {
 					from('srcs')
 				}
 			}
-
-			pluginManager.withPlugin('java') {
-				sourceSets.main.java {
-					setSrcDirs(['srcs'])
-					filter.include('**/*.java')
-				}
-			}
+			${dsl}.sources.configureEach(CSourceSet) { filter.include('**/*.c') }
+			${dsl}.sources.configureEach(CppSourceSet) { filter.include('**/*.cpp') }
+			${dsl}.sources.configureEach(ObjectiveCSourceSet) { filter.include('**/*.m') }
+			${dsl}.sources.configureEach(ObjectiveCppSourceSet) { filter.include('**/*.mm') }
+			${dsl}.sources.configureEach(SwiftSourceSet) { filter.include('**/*.swift') }
 		"""
 	}
 
 	protected String configureSourcesAsExplicitFiles() {
 		return """
-			import ${CHeaderSet.canonicalName}
-			import ${CppHeaderSet.canonicalName}
+			import ${LanguageSourceSet.canonicalName}
+			pluginManager.withPlugin('java-base') {
+				sourceSets.main.java.setSrcDirs([])
+				${componentUnderTestDsl}.sources.java(LanguageSourceSet) { filter.include('**/*.java') }
+			}
+			pluginManager.withPlugin('groovy-base') {
+				sourceSets.main.groovy.setSrcDirs([])
+				${componentUnderTestDsl}.sources.groovy(LanguageSourceSet) { filter.include('**/*.groovy') }
+			}
+			pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
+				sourceSets.main.kotlin.setSrcDirs([])
+				${componentUnderTestDsl}.sources.kotlin(LanguageSourceSet) { filter.include('**/*.kt') }
+			}
+
+			import ${NativeHeaderSet.canonicalName}
 
 			${componentUnderTestDsl} {
-				sources.configureEach({ it instanceof ${CHeaderSet.simpleName} || it instanceof ${CppHeaderSet.simpleName} }) {
-					if (it.identifier.name.get() == 'public') {
+				sources.configureEach(NativeHeaderSet) {
+					if (it.name == 'public') {
 						from('includes')
 					} else {
 						from('headers')
 					}
 				}
-				sources.configureEach({ !(it instanceof ${CHeaderSet.simpleName} || it instanceof ${CppHeaderSet.simpleName}) }) {
+				sources.configureEach({ !(it instanceof NativeHeaderSet) }) {
 					${ofSources(componentUnderTest).files.collect { "from('srcs/${it.name}')" }.join('\n')}
 				}
 			}
 
-			// We don't test Gradle Java plugin
-			pluginManager.withPlugin('java') {
-				sourceSets.main.java {
-					setSrcDirs(['srcs'])
-					filter.include('**/*.java')
-				}
-			}
+			import ${CSourceSet.canonicalName}
+			import ${CppSourceSet.canonicalName}
+			import ${ObjectiveCSourceSet.canonicalName}
+			import ${ObjectiveCppSourceSet.canonicalName}
+			import ${SwiftSourceSet.canonicalName}
+			${componentUnderTestDsl}.sources.configureEach(CSourceSet) { filter.include('**/*.c') }
+			${componentUnderTestDsl}.sources.configureEach(CppSourceSet) { filter.include('**/*.cpp') }
+			${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { filter.include('**/*.m') }
+			${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { filter.include('**/*.mm') }
+			${componentUnderTestDsl}.sources.configureEach(SwiftSourceSet) { filter.include('**/*.swift') }
 		"""
 	}
 }

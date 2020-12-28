@@ -1,7 +1,5 @@
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.LanguageSourceSetView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
@@ -41,11 +39,6 @@ public final class NativeApplicationExtensionImpl extends BaseNativeExtension<De
 	@Override
 	public NativeApplicationComponentDependencies getDependencies() {
 		return component.getDependencies();
-	}
-
-	@Override
-	public LanguageSourceSetView<LanguageSourceSet> getSources() {
-		return component.getSources();
 	}
 
 	@Override

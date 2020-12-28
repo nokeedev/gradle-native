@@ -20,11 +20,6 @@ import dev.nokee.docs.fixtures.OnlyIfCondition
 import dev.nokee.docs.fixtures.SampleContentFixture
 import dev.nokee.docs.fixtures.html.HtmlTag
 import dev.nokee.docs.tags.Baked
-import dev.nokee.language.c.internal.UTTypeCSource
-import dev.nokee.language.cpp.internal.UTTypeCppSource
-import dev.nokee.language.objectivec.internal.UTTypeObjectiveCSource
-import dev.nokee.language.objectivecpp.internal.UTTypeObjectiveCppSource
-import dev.nokee.language.swift.internal.UTTypeSwiftSource
 import groovy.io.FileType
 import org.gradle.internal.logging.ConsoleRenderer
 import org.gradle.internal.os.OperatingSystem
@@ -38,9 +33,9 @@ import java.time.Duration
 import java.util.function.UnaryOperator
 import java.util.regex.Pattern
 
-import static dev.gradleplugins.exemplarkit.StepExecutors.skipIf
-import static dev.gradleplugins.exemplarkit.StepExecutors.replaceIfAbsent
 import static dev.gradleplugins.exemplarkit.StepExecutionResult.stepExecuted
+import static dev.gradleplugins.exemplarkit.StepExecutors.replaceIfAbsent
+import static dev.gradleplugins.exemplarkit.StepExecutors.skipIf
 import static dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect.duplicateToSystemError
 import static dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect.duplicateToSystemOutput
 import static org.apache.commons.io.FilenameUtils.getExtension
@@ -130,11 +125,11 @@ abstract class WellBehavingSampleTest extends Specification {
 		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
 
 		def pluginIdsToExtensions = [
-			'dev.nokee.c': UTTypeCSource.INSTANCE.filenameExtensions,
-			'dev.nokee.cpp': UTTypeCppSource.INSTANCE.filenameExtensions,
-			'dev.nokee.objective-c': UTTypeObjectiveCSource.INSTANCE.filenameExtensions,
-			'dev.nokee.objective-cpp': UTTypeObjectiveCppSource.INSTANCE.filenameExtensions,
-			'dev.nokee.swift': UTTypeSwiftSource.INSTANCE.filenameExtensions,
+			'dev.nokee.c': ['c'],
+			'dev.nokee.cpp': ['cp', 'cpp', 'c++', 'cc', 'cxx'],
+			'dev.nokee.objective-c': ['m'],
+			'dev.nokee.objective-cpp': ['mm'],
+			'dev.nokee.swift': ['swift'],
 			'dev.gradleplugins.java': ['java'],
 			'dev.gradleplugins.groovy': ['groovy'],
 			'java': ['java'],

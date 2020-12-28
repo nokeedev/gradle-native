@@ -1,13 +1,14 @@
 package dev.nokee.platform.jni.internal;
 
 import com.google.common.base.Preconditions;
-import dev.nokee.language.base.internal.LanguageSourceSetRepository;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.core.ModelSpecs;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -34,7 +35,8 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.withType;
+import static dev.nokee.model.internal.core.ModelNodes.withType;
+import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<JniLibraryInternal> variantCollection;
@@ -49,13 +51,13 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 	private final DomainObjectEventPublisher eventPublisher;
 	private final BinaryViewFactory binaryViewFactory;
 	private final TaskViewFactory taskViewFactory;
-	private final LanguageSourceSetRepository languageSourceSetRepository;
+	private final ModelLookup modelLookup;
 
-	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory, LanguageSourceSetRepository languageSourceSetRepository) {
+	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
 		this.eventPublisher = eventPublisher;
 		this.binaryViewFactory = binaryViewFactory;
 		this.taskViewFactory = taskViewFactory;
-		this.languageSourceSetRepository = languageSourceSetRepository;
+		this.modelLookup = modelLookup;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), JniLibraryInternal.class, eventPublisher, viewFactory, variantRepository);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(getVariantCollection()::get));
@@ -104,8 +106,8 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 		}
 
 		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(new NativeComponentDependenciesJavaNativeInterfaceAdapter(variantDependencies)).withVariant(buildVariant);
-		boolean hasSwift = languageSourceSetRepository.anyKnownIdentifier(withType(SwiftSourceSet.class));
-		boolean hasHeader = languageSourceSetRepository.anyKnownIdentifier(withType(CSourceSet.class).or(withType(CppSourceSet.class)).or(withType(ObjectiveCSourceSet.class)).or(withType(ObjectiveCppSourceSet.class)));
+		boolean hasSwift = modelLookup.anyMatch(ModelSpecs.of(withType(of(SwiftSourceSet.class))));
+		boolean hasHeader = modelLookup.anyMatch(ModelSpecs.of(withType(of(CSourceSet.class)).or(withType(of(CppSourceSet.class))).or(withType(of(ObjectiveCSourceSet.class))).or(withType(of(ObjectiveCppSourceSet.class)))));
 		if (hasSwift) {
 			incomingDependenciesBuilder.withIncomingSwiftModules();
 		} else if (hasHeader) {

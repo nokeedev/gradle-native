@@ -1,6 +1,5 @@
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.base.internal.UTType;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.Directory;
@@ -8,8 +7,6 @@ import org.gradle.api.file.FileTree;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskProvider;
-
-import static dev.nokee.language.base.internal.UTTypeUtils.asFilenamePattern;
 
 public final class ObjectSourceSet {
 	private final String name;
@@ -20,7 +17,7 @@ public final class ObjectSourceSet {
 		this.name = name;
 		this.generatedByTask = generatedByTask;
 		this.fileTree = objectFactory.fileTree();
-		this.fileTree.setDir(sourceDirectory).builtBy(generatedByTask).include(asFilenamePattern(getType()));
+		this.fileTree.setDir(sourceDirectory).builtBy(generatedByTask).include("**/*.o", "**/*.obj");
 	}
 
 	public TaskProvider<? extends Task> getGeneratedByTask() {
@@ -29,10 +26,6 @@ public final class ObjectSourceSet {
 
 	public String getName() {
 		return name;
-	}
-
-	public UTType getType() {
-		return UTTypeObjectCode.INSTANCE;
 	}
 
 	public FileTree getAsFileTree() {

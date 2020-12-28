@@ -10,6 +10,8 @@ dependencies {
 	implementation project(':coreUtils')
 	implementation "com.google.guava:guava:${guavaVersion}"
 
+	testImplementation testFixtures(project(':coreModel'))
+
 	testFixturesApi testFixtures(project(':languageBase'))
 	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
 }

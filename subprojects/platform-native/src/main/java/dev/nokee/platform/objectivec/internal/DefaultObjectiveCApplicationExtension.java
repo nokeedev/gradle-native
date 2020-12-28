@@ -1,12 +1,5 @@
 package dev.nokee.platform.objectivec.internal;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.LanguageSourceSetView;
-import dev.nokee.language.base.internal.*;
-import dev.nokee.language.c.CHeaderSet;
-import dev.nokee.language.c.internal.CHeaderSetImpl;
-import dev.nokee.language.objectivec.ObjectiveCSourceSet;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetImpl;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.HasLanguageSourceSetAccessor;
@@ -19,7 +12,6 @@ import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.ConfigureUtils;
 import lombok.Getter;
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
@@ -29,21 +21,13 @@ import org.gradle.api.provider.SetProperty;
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
 public class DefaultObjectiveCApplicationExtension extends BaseNativeExtension<DefaultNativeApplicationComponent> implements ObjectiveCApplicationExtension, Component, HasLanguageSourceSetAccessor {
-	@Getter private final ObjectiveCSourceSet objectiveCSources;
-	@Getter private final CHeaderSet privateHeaders;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	@Getter private final SetProperty<TargetBuildType> targetBuildTypes;
-	@Getter private final LanguageSourceSetView<LanguageSourceSet> sources;
-	private final ObjectFactory objectFactory;
 
-	public DefaultObjectiveCApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, LanguageSourceSetRegistry languageSourceSetRegistry) {
+	public DefaultObjectiveCApplicationExtension(DefaultNativeApplicationComponent component, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout) {
 		super(component, objects, providers, layout);
-		this.objectFactory = objects;
-		this.objectiveCSources = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("objectiveC"), ObjectiveCSourceSetImpl.class, component.getIdentifier()));
-		this.privateHeaders = languageSourceSetRegistry.create(LanguageSourceSetIdentifier.of(LanguageSourceSetName.of("headers"), CHeaderSetImpl.class, component.getIdentifier()));
 		this.targetMachines = configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.targetBuildTypes = configureDisplayName(objects.setProperty(TargetBuildType.class), "targetBuildTypes");
-		this.sources = component.getSources();
 	}
 
 	public void setTargetMachines(Object value) {
@@ -66,15 +50,5 @@ public class DefaultObjectiveCApplicationExtension extends BaseNativeExtension<D
 	@Override
 	public VariantView<NativeApplication> getVariants() {
 		return getComponent().getVariantCollection().getAsView(NativeApplication.class);
-	}
-
-	@Override
-	public void objectiveCSources(Action<? super ObjectiveCSourceSet> action) {
-		action.execute(objectiveCSources);
-	}
-
-	@Override
-	public void privateHeaders(Action<? super CHeaderSet> action) {
-		action.execute(privateHeaders);
 	}
 }
