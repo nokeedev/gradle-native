@@ -8,6 +8,7 @@ import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.core.Finalizable;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -37,7 +38,6 @@ import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import lombok.Getter;
 import lombok.val;
-import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -58,7 +58,7 @@ import java.util.List;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
-public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources> {
+public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources>, Finalizable {
 	private final DefaultNativeComponentDependencies dependencies;
 	@Getter private final Property<GroupId> groupId;
 	private final DependencyHandler dependencyHandler;
@@ -236,7 +236,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		});
 	}
 
-	public void finalizeExtension(Project project) {
+	@Override
+	public void finalizeValue() {
 		getVariantCollection().whenElementKnown(this::onEachVariant);
 		getVariantCollection().whenElementKnown(this::createBinaries);
 		getVariantCollection().whenElementKnown(new CreateVariantObjectsLifecycleTaskRule(taskRegistry));

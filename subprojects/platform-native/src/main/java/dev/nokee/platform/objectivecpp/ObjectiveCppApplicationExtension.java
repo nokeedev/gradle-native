@@ -13,4 +13,5 @@ import dev.nokee.platform.nativebase.*;
  *
  * @since 0.4
  */
+@Deprecated // Use ObjectiveCppApplication instead
 public interface ObjectiveCppApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<ObjectiveCppApplicationSources>, HasPrivateHeaders, HasObjectiveCppSources {}

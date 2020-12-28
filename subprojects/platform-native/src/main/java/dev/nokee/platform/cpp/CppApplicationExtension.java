@@ -13,4 +13,5 @@ import dev.nokee.platform.nativebase.*;
  *
  * @since 0.4
  */
+@Deprecated // Use CppApplication instead
 public interface CppApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CppApplicationSources>, HasPrivateHeaders, HasCppSources {}

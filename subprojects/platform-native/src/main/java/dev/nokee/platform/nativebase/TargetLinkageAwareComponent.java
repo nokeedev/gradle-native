@@ -1,5 +1,6 @@
 package dev.nokee.platform.nativebase;
 
+import dev.nokee.platform.nativebase.internal.DefaultTargetLinkageFactory;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import org.gradle.api.provider.SetProperty;
 
@@ -27,5 +28,7 @@ public interface TargetLinkageAwareComponent {
 	 *
 	 * @return a {@link TargetLinkageFactory} for creating {@link TargetLinkage} instance, never null.
 	 */
-	TargetLinkageFactory getLinkages();
+	default TargetLinkageFactory getLinkages() {
+		return DefaultTargetLinkageFactory.INSTANCE;
+	}
 }

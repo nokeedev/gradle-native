@@ -13,4 +13,5 @@ import dev.nokee.platform.nativebase.*;
  *
  * @since 0.4
  */
+@Deprecated // Use SwiftLibrary instead
 public interface SwiftLibraryExtension extends DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<SwiftLibrarySources>, HasSwiftSources {}

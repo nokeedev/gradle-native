@@ -13,4 +13,5 @@ import dev.nokee.platform.nativebase.*;
  *
  * @since 0.4
  */
+@Deprecated // Use CLibrary instead
 public interface CLibraryExtension extends DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CLibrarySources>, HasPrivateHeaders, HasPublicHeaders, HasCSources {}

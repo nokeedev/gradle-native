@@ -1,5 +1,0 @@
-{
-	"category": "JNI types",
-	"properties": ["targetMachines", "binaries"],
-	"methods": []
-}

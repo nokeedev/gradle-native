@@ -61,16 +61,16 @@ class JniLibraryPluginLayoutTest extends AbstractPluginTest implements JniLibrar
 
 	@Override
 	Class getExtensionType() {
-		return JniLibraryExtension
+		return JavaNativeInterfaceLibrary
 	}
 
 	@Override
 	Class getDependenciesType() {
-		return JniLibraryDependencies
+		return JavaNativeInterfaceLibraryComponentDependencies
 	}
 
 	Class getVariantDependenciesType() {
-		return JniLibraryNativeDependencies
+		return JavaNativeInterfaceNativeComponentDependencies
 	}
 }
 

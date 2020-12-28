@@ -4,7 +4,7 @@ import dev.nokee.fixtures.*
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.nativebase.NativeLibrary
 import dev.nokee.platform.nativebase.SharedLibraryBinary
-import dev.nokee.platform.objectivecpp.ObjectiveCppLibraryExtension
+import dev.nokee.platform.objectivecpp.ObjectiveCppLibrary
 import org.gradle.api.Project
 import spock.lang.Subject
 
@@ -28,7 +28,7 @@ trait ObjectiveCppLibraryPluginTestFixture {
 	}
 
 	Class getExtensionType() {
-		return ObjectiveCppLibraryExtension
+		return ObjectiveCppLibrary
 	}
 
 	Class getVariantType() {

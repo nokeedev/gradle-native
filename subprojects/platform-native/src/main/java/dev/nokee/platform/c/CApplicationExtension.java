@@ -13,4 +13,5 @@ import dev.nokee.platform.nativebase.*;
  *
  * @since 0.4
  */
+@Deprecated // Use CApplication instead
 public interface CApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CApplicationSources>, HasPrivateHeaders, HasCSources {}

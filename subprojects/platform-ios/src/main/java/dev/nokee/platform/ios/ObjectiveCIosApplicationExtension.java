@@ -8,4 +8,5 @@ import dev.nokee.platform.nativebase.HasPrivateHeaders;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.objectivec.HasObjectiveCSources;
 
+@Deprecated // Use ObjectiveCIosApplication instead.
 public interface ObjectiveCIosApplicationExtension extends DependencyAwareComponent<NativeComponentDependencies>, VariantAwareComponent<IosApplication>, BinaryAwareComponent, SourceAwareComponent<ObjectiveCIosApplicationSources>, HasObjectiveCSources, HasPrivateHeaders, HasIosResources {}

@@ -44,6 +44,10 @@ public final class ModelNode {
 	private State state = State.Created;
 	private final ModelRegistry modelRegistry;
 
+	public void finalizeValue() {
+		projections.finalizeValues();
+	}
+
 	public enum State {
 		Created, // Node instance created, can now add projections
 		Initialized, // All projection added
@@ -262,6 +266,10 @@ public final class ModelNode {
 			return Optional.ofNullable(Iterables.getFirst(projections, null))
 				.map(ModelProjection::getTypeDescriptions)
 				.map(it -> String.join(", ", it));
+		}
+
+		public void finalizeValues() {
+			projections.stream().filter(it -> it.canBeViewedAs(ModelType.of(Finalizable.class))).forEach(it -> it.get(ModelType.of(Finalizable.class)).finalizeValue());
 		}
 	}
 

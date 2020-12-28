@@ -2,6 +2,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.core.Finalizable;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -33,7 +34,7 @@ import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
 
-public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources> {
+public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources>, Finalizable {
 	private final DefaultNativeApplicationComponentDependencies dependencies;
 	private final TaskRegistry taskRegistry;
 	private final NativeApplicationComponentVariants componentVariants;
@@ -84,5 +85,10 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
 		componentVariants.calculateVariants();
+	}
+
+	@Override
+	public void finalizeValue() {
+		finalizeExtension(null);
 	}
 }
