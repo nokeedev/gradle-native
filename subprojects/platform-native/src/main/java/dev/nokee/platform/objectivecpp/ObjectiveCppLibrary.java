@@ -1,10 +1,7 @@
 package dev.nokee.platform.objectivecpp;
 
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.SourceAwareComponent;
-import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 
@@ -15,7 +12,7 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
  *
  * @since 0.5
  */
-public interface ObjectiveCppLibrary extends ObjectiveCppLibraryExtension, DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<ObjectiveCppLibrarySources>, HasPrivateHeaders, HasPublicHeaders, HasObjectiveCppSources {
+public interface ObjectiveCppLibrary extends ObjectiveCppLibraryExtension, DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<ObjectiveCppLibrarySources>, HasPrivateHeaders, HasPublicHeaders, HasObjectiveCppSources, BaseNameAwareComponent {
 	default NativeLibraryComponentDependencies getDependencies() {
 		return ModelNodes.of(this).get(DefaultNativeLibraryComponent.class).getDependencies();
 	}

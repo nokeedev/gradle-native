@@ -1,14 +1,18 @@
 package dev.nokee.platform.objectivec;
 
+import dev.nokee.fixtures.NativeComponentMatchers;
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.base.testers.FileSystemWorkspace;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import spock.lang.Subject;
@@ -23,7 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
 @Subject(ObjectiveCLibrary.class)
-class ObjectiveCLibraryTest implements SourceAwareComponentTester<ObjectiveCLibrary> {
+class ObjectiveCLibraryTest implements SourceAwareComponentTester<ObjectiveCLibrary>, BaseNameAwareComponentTester {
 	@Getter @TempDir File testDirectory;
 
 	@Override
@@ -33,6 +37,11 @@ class ObjectiveCLibraryTest implements SourceAwareComponentTester<ObjectiveCLibr
 		val component = create(registry(project.getObjects()), objectiveCLibrary(componentName, project));
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
+	}
+
+	@Override
+	public Matcher<Component> hasArtifactBaseNameOf(String name) {
+		return NativeComponentMatchers.hasArtifactBaseNameOf(name);
 	}
 
 	@Override
