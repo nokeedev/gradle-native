@@ -12,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static dev.nokee.internal.testing.utils.ClosureTestUtils.adaptToClosure;
 import static org.hamcrest.Matchers.allOf;
@@ -44,6 +45,19 @@ public final class ExecuteWith {
 				Action<T> action = Cast.uncheckedCast(Mockito.mock(Action.class));
 				ArgumentCaptor<T> captor = Cast.uncheckedCast(ArgumentCaptor.forClass(Object.class));
 				Mockito.doNothing().when(action).execute(captor.capture());
+				execution.accept(action);
+				return new ActionExecutionResult<>(captor.getAllValues());
+			}
+		};
+	}
+
+	public static <T> ExecutionStrategy<T> consumer(ThrowingConsumer<? super Consumer<? super T>> execution) {
+		return new ExecutionStrategy<T>() {
+			@Override
+			public ExecutionResult<T> execute() throws Throwable {
+				Consumer<T> action = Cast.uncheckedCast(Mockito.mock(Consumer.class));
+				ArgumentCaptor<T> captor = Cast.uncheckedCast(ArgumentCaptor.forClass(Object.class));
+				Mockito.doNothing().when(action).accept(captor.capture());
 				execution.accept(action);
 				return new ActionExecutionResult<>(captor.getAllValues());
 			}
