@@ -106,6 +106,14 @@ public final class ExecuteWith {
 		};
 	}
 
+	public static <T> Matcher<ExecutionResult<T>> calledOnce() {
+		return called(equalTo(1));
+	}
+
+	public static <T> Matcher<ExecutionResult<T>> neverCalled() {
+		return called(equalTo(0));
+	}
+
 	public static <T> Matcher<ExecutionResult<T>> lastArgument(Matcher<T> matcher) {
 		return new FeatureMatcher<ExecutionResult<T>, T>(matcher, "", "") {
 			@Override
