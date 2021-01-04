@@ -1,16 +1,19 @@
 package dev.nokee.platform.base.internal;
 
-import com.google.common.base.Strings;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.StringUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
 public final class ComponentName {
+	private static final String MAIN_COMPONENT_NAME = "main";
 	private final String name;
 
 	private ComponentName(String name) {
-		checkArgument(!Strings.isNullOrEmpty(name));
+		requireNonNull(name);
+		checkArgument(!StringUtils.isEmpty(name));
 		this.name = name;
 	}
 
@@ -18,8 +21,12 @@ public final class ComponentName {
 		return new ComponentName(name);
 	}
 
-	public boolean isMain() {
-		return name.equals("main");
+    public static ComponentName ofMain() {
+		return new ComponentName(MAIN_COMPONENT_NAME);
+    }
+
+    public boolean isMain() {
+		return name.equals(MAIN_COMPONENT_NAME);
 	}
 
 	public String get() {
