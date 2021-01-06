@@ -206,4 +206,22 @@ public final class ModelActions {
 			}
 		};
 	}
+
+	public static <T> ModelAction mutate(ModelType<T> projectionType, Consumer<? super T> action) {
+		requireNonNull(projectionType);
+		requireNonNull(action);
+		return mutate(context -> {
+			action.accept(context.projectionOf(projectionType));
+		});
+	}
+
+	public static ModelAction mutate(Consumer<? super ModelMutateAction.Context> action) {
+		requireNonNull(action);
+		return new ModelMutateAction() {
+			@Override
+			public void execute(Context context) {
+				action.accept(context);
+			}
+		};
+	}
 }
