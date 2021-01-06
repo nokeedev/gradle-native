@@ -91,11 +91,15 @@ public final class ModelNode {
 	public ModelNode realize() {
 		register();
 		if (!isAtLeast(State.Realized)) {
-			getParent().ifPresent(ModelNode::realize);
-			state = State.Realized;
+			changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback();
 			listener.realized(this);
 		}
 		return this;
+	}
+
+	private void changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback() {
+		state = State.Realized;
+		getParent().ifPresent(ModelNode::realize);
 	}
 
 	/**

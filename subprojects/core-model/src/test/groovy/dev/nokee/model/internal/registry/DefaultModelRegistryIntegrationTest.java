@@ -298,6 +298,47 @@ public class DefaultModelRegistryIntegrationTest {
 		assertThat(paths, contains(root(), path("foo"), path("foo.bar"), path("bar")));
 	}
 
+	@Test
+	void realizingChildNodeWhileTheParentNodeIsBeingRealizedCallbacksOnlyOnce() {
+		val action = new ModelTestActions.CaptureNodeTransitionAction();
+		modelRegistry.configure(action);
+
+		modelRegistry.register(NodeRegistration.of("a", of(MyParent.class))
+			.action(self(discover(ctx -> ctx.register(NodeRegistration.of("child", of(MyChild.class))))))
+			.action(self(mutate(of(MyParent.class), MyParent::getChild))));
+		modelRegistry.get(path("a")).realize();
+
+		assertThat(action.getAllTransitions(), contains(registered(root()),
+			created("a"), initialized("a"), registered("a"),
+			created("a.child"), initialized("a.child"), registered("a.child"),
+			realized(root()), realized("a"), realized("a.child")));
+	}
+
+	@Test
+	void realizingChildNodeWhileTheChildNodeIsBeingRealizedCallbacksOnlyOnce() {
+		val action = new ModelTestActions.CaptureNodeTransitionAction();
+		modelRegistry.configure(action);
+
+		modelRegistry.register(NodeRegistration.of("a", of(MyParent.class))
+			.action(self(discover(ctx -> ctx.register(NodeRegistration.of("child", of(MyChild.class))))))
+			.action(self(mutate(of(MyParent.class), MyParent::getChild))));
+		modelRegistry.get(path("a.child")).realize();
+
+		assertThat(action.getAllTransitions(), contains(registered(root()),
+			created("a"), initialized("a"), registered("a"),
+			created("a.child"), initialized("a.child"), registered("a.child"),
+			realized(root()), realized("a"), realized("a.child")));
+	}
+
+	interface MyParent {
+		default MyChild getChild() {
+			// When querying descendant node, it's best practice to realize the node.
+			return ModelNodes.of(this).getDescendant("child").realize().get(MyChild.class);
+		}
+	}
+
+	interface MyChild {}
+
 //	@Test
 //	void canAccessModelNodeOnManagedType() {
 //		val provider = modelRegistry.register(unmanagedInstance(of("a", ModelNodeAccessingType.class), () -> TestUtils.objectFactory().newInstance(ModelNodeAccessingType.class)));
