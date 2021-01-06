@@ -5,8 +5,8 @@ import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.type.ModelType;
-import lombok.Getter;
 import lombok.val;
+import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,21 +103,12 @@ public final class ModelTestUtils {
 		return childNode(parent, name, ImmutableList.of(), DO_NOTHING);
 	}
 
-	private static final class Value {
-		@Getter private ModelNode node;
-
-		public ModelNode bind(ModelNode node) {
-			this.node = node;
-			return node;
-		}
-	}
-
 	public static ModelNode childNode(ModelNode parent, String name, Consumer<? super ModelNode.Builder> action) {
 		return childNode(parent, name, ImmutableList.of(), action);
 	}
 
 	public static ModelNode childNode(ModelNode parent, String name, List<ModelAction> providedActions, Consumer<? super ModelNode.Builder> action) {
-		val nodeProvider = new Value();
+		val nodeProvider = new MutableObject<ModelNode>();
 		val builder = ModelNode.builder();
 		val actions = new ArrayList<>(providedActions);
 		builder.withPath(parent.getPath().child(name));
