@@ -165,7 +165,7 @@ public final class ModelNode {
 	 * @return an instance of the projected node into the specified instance
 	 */
 	public <T> T get(ModelType<T> type) {
-		return ModelNodeContext.of(this).execute(node -> projections.get(type));
+		return ModelNodeContext.of(this).execute(node -> { return projections.get(type); });
 	}
 
 	public void applyTo(NodeAction action) {

@@ -20,7 +20,9 @@ class ModelNodeInjectionTest {
 
 	@Test
 	void includesModelNodeAsExtensionIfInstanceIsExplicitlyExtensionAware() {
-		val instance = of(node).execute(node -> injectCurrentModelNodeIfAllowed(objectFactory().newInstance(ExplicitExtensionAwareType.class)));
+		val instance = of(node).execute(node -> {
+			return injectCurrentModelNodeIfAllowed(objectFactory().newInstance(ExplicitExtensionAwareType.class));
+		});
 		assertThat(instance.getExtensions().findByType(ModelNode.class), equalTo(node));
 	}
 
@@ -28,7 +30,9 @@ class ModelNodeInjectionTest {
 
 	@Test
 	void includesModelNodeAsExtensionIfInstanceIsImplicitlyExtensionAware() {
-		val instance = of(node).execute(node -> injectCurrentModelNodeIfAllowed(objectFactory().newInstance(ImplicitExtensionAwareType.class)));
+		val instance = of(node).execute(node -> {
+			return injectCurrentModelNodeIfAllowed(objectFactory().newInstance(ImplicitExtensionAwareType.class));
+		});
 		assertThat(((ExtensionAware) instance).getExtensions().findByType(ModelNode.class), equalTo(node));
 	}
 
