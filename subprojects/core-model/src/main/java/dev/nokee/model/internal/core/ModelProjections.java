@@ -22,7 +22,7 @@ public final class ModelProjections {
 	 * @return a model projection of the specified instance, never null.
 	 * @see ModelNodeContext#injectCurrentModelNodeIfAllowed(Object) for decoration information
 	 */
-	public static <T> ModelProjection ofInstance(T instance) {
+	public static <T> TypeCompatibilityModelProjectionSupport<T> ofInstance(T instance) {
 		return createdUsing(typeOf(instance), constant(instance));
 	}
 
@@ -38,7 +38,7 @@ public final class ModelProjections {
 	 * @see ModelNodeContext#injectCurrentModelNodeIfAllowed(Object) for decoration information
 	 * @see dev.nokee.internal.reflect.Instantiator
 	 */
-	public static <T> ModelProjection managed(ModelType<T> type, Object... parameters) {
+	public static <T> TypeCompatibilityModelProjectionSupport<T> managed(ModelType<T> type, Object... parameters) {
 		return new ManagedModelProjection<>(type, parameters);
 	}
 
@@ -52,7 +52,7 @@ public final class ModelProjections {
 	 * @return a model projection of the specified type, never null.
 	 * @see ModelNodeContext#injectCurrentModelNodeIfAllowed(Object) for decoration information
 	 */
-	public static <T> ModelProjection createdUsing(ModelType<T> type, Factory<T> factory) {
+	public static <T> TypeCompatibilityModelProjectionSupport<T> createdUsing(ModelType<T> type, Factory<T> factory) {
 		return new SupplyingModelProjection<>(type, asSupplier(memoize(compose(factory, InjectCurrentNodeFunction.INSTANCE.withNarrowType()))));
 	}
 
