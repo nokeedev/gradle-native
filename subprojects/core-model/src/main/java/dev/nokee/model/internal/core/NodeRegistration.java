@@ -16,20 +16,20 @@ import static dev.nokee.model.internal.core.ModelRegistration.builder;
 @EqualsAndHashCode
 public final class NodeRegistration<T> {
 	private final String name;
-	private final ModelType<T> type;
+	private final ModelType<T> defaultProjectionType;
 	private final List<ModelProjection> projections = new ArrayList<>();
 	private final List<NodeAction> actionRegistrations = new ArrayList<>();
 
-	private NodeRegistration(String name, ModelType<T> type, ModelProjection defaultProjection) {
+	private NodeRegistration(String name, ModelType<T> defaultProjectionType, ModelProjection defaultProjection) {
 		this.name = name;
-		this.type = type;
+		this.defaultProjectionType = defaultProjectionType;
 		projections.add(defaultProjection);
 	}
 
 	ModelRegistration<T> scope(ModelPath path) {
 		val builder = builder()
 			.withPath(path.child(name))
-			.withDefaultProjectionType(type);
+			.withDefaultProjectionType(defaultProjectionType);
 		projections.forEach(builder::withProjection);
 		actionRegistrations.stream().map(it -> it.scope(path.child(name))).forEach(builder::action);
 		return builder.build();
@@ -51,5 +51,9 @@ public final class NodeRegistration<T> {
 	public NodeRegistration<T> action(NodeAction action) {
 		actionRegistrations.add(action);
 		return this;
+	}
+
+	public ModelType<T> getDefaultProjectionType() {
+		return defaultProjectionType;
 	}
 }

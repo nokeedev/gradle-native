@@ -81,6 +81,11 @@ class NodeRegistrationTest {
 		assertThat(registration.getActions(), hasItem(matching(allDirectDescendants().scope(path("a.b")), doSomething()))); // other are for projections
 	}
 
+	@Test
+	void canQueryDefaultProjectionType() {
+		assertThat(NodeRegistration.of("a", of(MyType.class)).getDefaultProjectionType(), equalTo(of(MyType.class)));
+	}
+
 	interface MyType {}
 	interface MyOtherType {}
 }
