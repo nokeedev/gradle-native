@@ -96,7 +96,7 @@ public final class ModelTestUtils {
 	}
 
 	private static ModelAction addProjections(List<ModelProjection> projections) {
-		return initialize(context -> projections.forEach(context::addProjection));
+		return initialize(context -> projections.forEach(context::withProjection));
 	}
 
 	public static ModelNode childNode(ModelNode parent) {
