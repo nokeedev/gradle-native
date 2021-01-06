@@ -1,12 +1,16 @@
 package dev.nokee.platform.swift;
 
+import dev.nokee.fixtures.NativeComponentMatchers;
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.io.TempDir;
 import spock.lang.Subject;
 
@@ -18,7 +22,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 import static dev.nokee.platform.swift.internal.plugins.SwiftLibraryPlugin.swiftLibrary;
 
 @Subject(SwiftLibrary.class)
-public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary> {
+public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary>, BaseNameAwareComponentTester {
 	@Getter @TempDir File testDirectory;
 
 	@Override
@@ -28,6 +32,11 @@ public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary
 		val component = create(registry(project.getObjects()), swiftLibrary(componentName, project));
 		((FunctionalSourceSet) component.getSources()).get(); // force realize
 		return component;
+	}
+
+	@Override
+	public Matcher<Component> hasArtifactBaseNameOf(String name) {
+		return NativeComponentMatchers.hasArtifactBaseNameOf(name);
 	}
 
 	@Override

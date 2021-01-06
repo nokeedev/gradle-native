@@ -2,10 +2,7 @@ package dev.nokee.platform.c;
 
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.SourceAwareComponent;
-import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 
@@ -16,7 +13,7 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
  *
  * @since 0.5
  */
-public interface CApplication extends CApplicationExtension, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CApplicationSources>, HasPrivateHeaders, HasCSources {
+public interface CApplication extends CApplicationExtension, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CApplicationSources>, HasPrivateHeaders, HasCSources, BaseNameAwareComponent {
 	default NativeApplicationComponentDependencies getDependencies() {
 		return ModelNodes.of(this).get(DefaultNativeApplicationComponent.class).getDependencies();
 	}

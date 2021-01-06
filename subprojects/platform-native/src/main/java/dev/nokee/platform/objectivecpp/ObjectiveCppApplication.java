@@ -1,10 +1,7 @@
 package dev.nokee.platform.objectivecpp;
 
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.SourceAwareComponent;
-import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 
@@ -15,7 +12,7 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
  *
  * @since 0.5
  */
-public interface ObjectiveCppApplication extends ObjectiveCppApplicationExtension, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<ObjectiveCppApplicationSources>, HasPrivateHeaders, HasObjectiveCppSources {
+public interface ObjectiveCppApplication extends ObjectiveCppApplicationExtension, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<ObjectiveCppApplicationSources>, HasPrivateHeaders, HasObjectiveCppSources, BaseNameAwareComponent {
 	default NativeApplicationComponentDependencies getDependencies() {
 		return ModelNodes.of(this).get(DefaultNativeApplicationComponent.class).getDependencies();
 	}
