@@ -17,8 +17,7 @@ import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
-import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension;
-import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
+import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.testing.base.TestSuiteContainer;
@@ -34,11 +33,11 @@ import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
 import static dev.nokee.model.internal.core.ModelActions.register;
 import static dev.nokee.model.internal.core.ModelNodes.discover;
 import static dev.nokee.model.internal.core.NodePredicate.self;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.componentSourcesOf;
 import static dev.nokee.platform.objectivec.internal.ObjectiveCSourceSetModelHelpers.configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
@@ -55,7 +54,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(TestingBasePlugin.class);
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
-			BaseNativeComponent<?> application = ((DefaultObjectiveCIosApplicationExtension) project.getExtensions().getByType(ObjectiveCIosApplicationExtension.class)).getComponent();
+			BaseNativeComponent<?> application = ModelNodes.of(project.getExtensions().getByType(ObjectiveCIosApplication.class)).get(BaseNativeComponent.class);
 			val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);
 			val registry = ModelNodes.of(testSuites).get(NodeRegistrationFactoryRegistry.class);
 			registry.registerFactory(of(DefaultUnitTestXCTestTestSuiteComponent.class), name -> unitTestXCTestTestSuite(name, project));

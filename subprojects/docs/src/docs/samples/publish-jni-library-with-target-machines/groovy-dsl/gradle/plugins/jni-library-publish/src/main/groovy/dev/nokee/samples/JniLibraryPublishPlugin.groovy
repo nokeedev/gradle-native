@@ -24,7 +24,7 @@ abstract class JniLibraryPublishPlugin implements Plugin<Project> {
 		ObjectFactory objects = project.getObjects()
 		TaskContainer tasks = project.getTasks()
 		DependencyHandler dependencies = project.getDependencies()
-		/*dev.nokee.platform.jni.JniLibraryExtension*/def extension = extension(project)
+		/*dev.nokee.platform.jni.JavaNativeInterfaceLibrary*/def extension = extension(project)
 		SoftwareComponentContainer components = project.getComponents()
 
 		Configuration library = configurations.create("library") { Configuration config ->
@@ -88,7 +88,7 @@ abstract class JniLibraryPublishPlugin implements Plugin<Project> {
 		}
 	}
 
-	/*dev.nokee.platform.jni.JniLibraryExtension*/def extension(Project project) {
+	/*dev.nokee.platform.jni.JavaNativeInterfaceLibrary*/def extension(Project project) {
 		return project.extensions.library
 	}
 

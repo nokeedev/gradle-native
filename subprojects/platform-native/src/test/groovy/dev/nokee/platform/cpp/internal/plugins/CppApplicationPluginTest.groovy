@@ -2,7 +2,7 @@ package dev.nokee.platform.cpp.internal.plugins
 
 import dev.nokee.fixtures.*
 import dev.nokee.platform.base.Variant
-import dev.nokee.platform.cpp.CppApplicationExtension
+import dev.nokee.platform.cpp.CppApplication
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.NativeApplication
 import org.gradle.api.Project
@@ -28,7 +28,7 @@ trait CppApplicationPluginTestFixture {
 	}
 
 	Class getExtensionType() {
-		return CppApplicationExtension
+		return CppApplication
 	}
 
 	Class getVariantType() {

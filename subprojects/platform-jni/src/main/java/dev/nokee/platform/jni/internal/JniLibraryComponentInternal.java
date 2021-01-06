@@ -2,6 +2,7 @@ package dev.nokee.platform.jni.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.core.Finalizable;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
@@ -28,7 +29,6 @@ import dev.nokee.utils.ConfigureUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<JavaNativeInterfaceLibrarySources> {
+public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<JavaNativeInterfaceLibrarySources>, Finalizable {
 	private final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies;
 	@Getter private final GroupId groupId;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
@@ -116,7 +116,8 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		return componentVariants.getBuildVariants();
 	}
 
-	public void finalizeExtension(Project project) {
+	@Override
+	public void finalizeValue() {
 		componentVariants.calculateVariants();
 	}
 }

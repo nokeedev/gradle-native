@@ -7,7 +7,6 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppApplicationExtension;
 import lombok.Getter;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -23,17 +22,17 @@ import static dev.nokee.platform.objectivecpp.internal.plugins.ObjectiveCppAppli
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-@Subject(ObjectiveCppApplicationExtension.class)
-class ObjectiveCppApplicationTest implements SourceAwareComponentTester<ObjectiveCppApplicationExtension> {
+@Subject(ObjectiveCppApplication.class)
+class ObjectiveCppApplicationTest implements SourceAwareComponentTester<ObjectiveCppApplication> {
 	@Getter @TempDir File testDirectory;
 
 	@Override
-	public ObjectiveCppApplicationExtension createSubject(String componentName) {
+	public ObjectiveCppApplication createSubject(String componentName) {
 		val project = TestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		val component = create(registry(project.getObjects()), objectiveCppApplication(componentName, project));
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
-		return new DefaultObjectiveCppApplicationExtension(component, project.getObjects(), project.getProviders(), project.getLayout());
+		return component;
 	}
 
 	@Override

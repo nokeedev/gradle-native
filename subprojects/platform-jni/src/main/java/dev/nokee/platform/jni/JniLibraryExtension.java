@@ -13,6 +13,7 @@ import org.gradle.api.provider.SetProperty;
  *
  * @since 0.1
  */
+@Deprecated // Use JavaNativeInterfaceLibrary instead.
 public interface JniLibraryExtension extends DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, VariantAwareComponent<JniLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, SourceAwareComponent<JavaNativeInterfaceLibrarySources> {
 	/**
 	 * Returns the dependencies of this component.
@@ -35,29 +36,4 @@ public interface JniLibraryExtension extends DependencyAwareComponent<JavaNative
 	 * @since 0.1
 	 */
 	SetProperty<TargetMachine> getTargetMachines();
-
-	/**
-	 * Configure the variants of this component.
-	 *
-	 * @return a {@link VariantView} for configuring each {@link JniLibrary}, never null.
-	 * @since 0.2
-	 */
-	VariantView<JniLibrary> getVariants();
-
-	/**
-	 * Configure the binaries of this component.
-	 * The view contains an aggregation of all the binaries for each realized variants.
-	 *
-	 * @return a {@link BinaryView} for configuring each binary, never null.
-	 * @since 0.3
-	 */
-	BinaryView<Binary> getBinaries();
-
-	/**
-	 * Returns a factory to create target machines when configuring {@link #getTargetMachines()}.
-	 *
-	 * @return a {@link TargetMachineFactory} for creating {@link TargetMachine} instance, never null.
-	 * @since 0.4
-	 */
-	TargetMachineFactory getMachines();
 }

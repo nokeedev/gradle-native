@@ -153,10 +153,10 @@ public final class DefaultNativeTestSuiteComponent extends BaseNativeComponent<D
 
 	@Override
 	public TestSuiteComponent testedComponent(Object component) {
-		if (component instanceof BaseNativeExtension) {
-			getTestedComponent().set(((BaseNativeExtension) component).getComponent());
-		} else if (component instanceof BaseComponent) {
+		if (component instanceof BaseComponent) {
 			getTestedComponent().set((BaseComponent) component);
+		} else if (ModelNodes.of(component).canBeViewedAs(of(BaseComponent.class))) {
+			getTestedComponent().set(ModelNodes.of(component).get(BaseComponent.class));
 		} else {
 			throw new UnsupportedOperationException();
 		}

@@ -6,7 +6,6 @@ import dev.nokee.language.base.testers.FileSystemWorkspace;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
-import dev.nokee.platform.ios.internal.DefaultObjectiveCIosApplicationExtension;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -23,17 +22,17 @@ import static dev.nokee.platform.ios.internal.plugins.ObjectiveCIosApplicationPl
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-@Subject(ObjectiveCIosApplicationExtension.class)
-class ObjectiveCIosApplicationTest implements SourceAwareComponentTester<ObjectiveCIosApplicationExtension> {
+@Subject(ObjectiveCIosApplication.class)
+class ObjectiveCIosApplicationTest implements SourceAwareComponentTester<ObjectiveCIosApplication> {
 	@Getter @TempDir File testDirectory;
 
 	@Override
-	public ObjectiveCIosApplicationExtension createSubject(String componentName) {
+	public ObjectiveCIosApplication createSubject(String componentName) {
 		val project = TestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		val component = create(registry(project.getObjects()), objectiveCIosApplication(componentName, project));
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
-		return new DefaultObjectiveCIosApplicationExtension(component, project.getObjects(), project.getProviders());
+		return component;
 	}
 
 	@Override

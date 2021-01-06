@@ -16,4 +16,5 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
  *
  * @since 0.4
  */
+@Deprecated // Use SwiftApplication instead
 public interface SwiftApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<SwiftApplicationSources>, HasSwiftSources {}

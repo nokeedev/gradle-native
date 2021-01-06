@@ -50,6 +50,11 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		return namedContainer("components", of(DefaultComponentContainer.class));
 	}
 
+	public static <T extends Component> NodeRegistration<T> component(String name, Class<T> type) {
+		return NodeRegistration.of(name, of(type))
+			.action(configureSourceSetConventionUsingMavenLayout(ComponentName.of(name)));
+	}
+
 	public static <T extends Component> NodeRegistration<T> component(String name, Class<T> type, Factory<T> factory) {
 		return NodeRegistration.unmanaged(name, of(type), factory)
 			.action(configureSourceSetConventionUsingMavenLayout(ComponentName.of(name)));

@@ -186,7 +186,7 @@ This configuration contains the native runtime libraries of the shared library.
 == Library Extension
 
 The plugin expose a Gradle extension to use for customizing the library.
-The extension name is `library` and is of type link:../javadoc/dev/nokee/platform/jni/JniLibraryExtension.html[JniLibraryExtension].
+The extension name is `library` and is of type link:../javadoc/dev/nokee/platform/jni/JavaNativeInterfaceLibrary.html[JavaNativeInterfaceLibrary].
 
 === Properties
 

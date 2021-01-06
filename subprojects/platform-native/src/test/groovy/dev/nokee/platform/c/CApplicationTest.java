@@ -5,7 +5,6 @@ import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
-import dev.nokee.platform.c.internal.DefaultCApplicationExtension;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -19,17 +18,17 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 import static dev.nokee.platform.c.internal.plugins.CApplicationPlugin.cApplication;
 
-@Subject(CApplicationExtension.class)
-class CApplicationTest implements SourceAwareComponentTester<CApplicationExtension> {
+@Subject(CApplication.class)
+class CApplicationTest implements SourceAwareComponentTester<CApplication> {
 	@Getter @TempDir File testDirectory;
 
 	@Override
-	public CApplicationExtension createSubject(String componentName) {
+	public CApplication createSubject(String componentName) {
 		val project = TestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		val component = create(registry(project.getObjects()), cApplication(componentName, project));
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
-		return new DefaultCApplicationExtension(component, project.getObjects(), project.getProviders(), project.getLayout());
+		return component;
 	}
 
 	@Override

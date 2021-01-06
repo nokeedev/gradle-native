@@ -7,7 +7,6 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.objectivec.internal.DefaultObjectiveCLibraryExtension;
 import lombok.Getter;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -23,17 +22,17 @@ import static dev.nokee.platform.objectivec.internal.plugins.ObjectiveCLibraryPl
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-@Subject(ObjectiveCLibraryExtension.class)
-class ObjectiveCLibraryTest implements SourceAwareComponentTester<ObjectiveCLibraryExtension> {
+@Subject(ObjectiveCLibrary.class)
+class ObjectiveCLibraryTest implements SourceAwareComponentTester<ObjectiveCLibrary> {
 	@Getter @TempDir File testDirectory;
 
 	@Override
-	public ObjectiveCLibraryExtension createSubject(String componentName) {
+	public ObjectiveCLibrary createSubject(String componentName) {
 		val project = TestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		val component = create(registry(project.getObjects()), objectiveCLibrary(componentName, project));
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
-		return new DefaultObjectiveCLibraryExtension(component, project.getObjects(), project.getProviders(), project.getLayout());
+		return component;
 	}
 
 	@Override
