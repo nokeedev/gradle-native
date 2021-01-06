@@ -1,5 +1,6 @@
 package dev.nokee.model.internal.core;
 
+import com.google.common.base.Suppliers;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.type.ModelType;
@@ -9,6 +10,7 @@ import org.gradle.api.Action;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -93,24 +95,34 @@ public final class ModelActions {
 	/**
 	 * Returns an action that will register the specified registration on the node.
 	 *
-	 * @param registration  the node to register
-	 * @return an action that will register a child node, never null.
+	 * @param registration  the node to register, must not be null
+	 * @return an action that will register a child node, never null
 	 */
 	public static ModelAction register(NodeRegistration<?> registration) {
-		return new RegisterModelAction(registration);
+		return new RegisterModelAction(Suppliers.ofInstance(requireNonNull(registration)));
+	}
+
+	/**
+	 * Returns an action that will register the supplied registration on the node.
+	 *
+	 * @param registrationSupplier  the node registration supplier, must not be null
+	 * @return an action that will register a child node, never null
+	 */
+	public static ModelAction register(Supplier<NodeRegistration<?>> registrationSupplier) {
+		return new RegisterModelAction(registrationSupplier);
 	}
 
 	@EqualsAndHashCode
 	private static final class RegisterModelAction implements ModelAction {
-		private final NodeRegistration<?> registration;
+		private final Supplier<NodeRegistration<?>> registration;
 
-		public RegisterModelAction(NodeRegistration<?> registration) {
+		public RegisterModelAction(Supplier<NodeRegistration<?>> registration) {
 			this.registration = requireNonNull(registration);
 		}
 
 		@Override
 		public void execute(ModelNode node) {
-			node.register(registration);
+			node.register(registration.get());
 		}
 
 		@Override

@@ -24,8 +24,16 @@ class ModelActions_RegisterTest {
 	}
 
 	@Test
+	void registerSuppliedNodeRegistrationOnExecutingNode() {
+		val modelRegistry = mock(ModelRegistry.class);
+		val node = node("foo", builder -> builder.withRegistry(modelRegistry));
+		register(() -> NodeRegistration.of("bar", of(MyType.class))).execute(node);
+		verify(modelRegistry, times(1)).register(ModelRegistration.of("foo.bar", MyType.class));
+	}
+
+	@Test
 	void checkToString() {
-		assertThat(register(NodeRegistration.of("bar", of(MyType.class))), hasToString("ModelActions.register(NodeRegistration(name=bar, defaultProjectionType=interface dev.nokee.model.internal.core.ModelActions_RegisterTest$MyType, projections=[ModelProjections.managed(interface dev.nokee.model.internal.core.ModelActions_RegisterTest$MyType)], actionRegistrations=[]))"));
+		assertThat(register(NodeRegistration.of("bar", of(MyType.class))), hasToString("ModelActions.register(Suppliers.ofInstance(NodeRegistration(name=bar, defaultProjectionType=interface dev.nokee.model.internal.core.ModelActions_RegisterTest$MyType, projections=[ModelProjections.managed(interface dev.nokee.model.internal.core.ModelActions_RegisterTest$MyType)], actionRegistrations=[])))"));
 	}
 
 	@Test
