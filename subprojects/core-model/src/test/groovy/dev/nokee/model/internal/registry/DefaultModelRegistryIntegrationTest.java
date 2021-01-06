@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.function.Predicate;
 
 import static com.google.common.base.Predicates.alwaysTrue;
 import static dev.nokee.model.internal.core.ModelActions.*;
@@ -207,7 +208,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canIncludeActionInNodeRegistrationThatAppliesOnlyToSelfModelNode() {
 		val modelPaths = new HashSet<ModelPath>();
 		modelRegistry.register(ModelRegistration.of("x", MyType.class));
-		modelRegistry.register(NodeRegistration.of("y", of(MyType.class)).action(self(node -> modelPaths.add(node.getPath())).apply(doSomething())));
+		modelRegistry.register(NodeRegistration.of("y", of(MyType.class)).action(self((Predicate<ModelNode>) node -> modelPaths.add(node.getPath())).apply(doSomething())));
 		modelRegistry.register(ModelRegistration.of("y.foo", MyType.class));
 		modelRegistry.register(ModelRegistration.of("z", MyType.class));
 		assertThat("action for specific node isn't called for other nodes", modelPaths, hasItems(path("y")));

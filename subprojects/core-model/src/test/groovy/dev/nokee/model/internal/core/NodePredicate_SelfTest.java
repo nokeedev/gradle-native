@@ -9,6 +9,8 @@ import static com.google.common.base.Predicates.alwaysFalse;
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.model.internal.core.ModelPath.path;
+import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
+import static dev.nokee.model.internal.core.ModelTestActions.doSomethingElse;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
@@ -17,6 +19,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 @Subject(NodePredicate.class)
 class NodePredicate_SelfTest {
@@ -61,6 +64,8 @@ class NodePredicate_SelfTest {
 			.addEqualityGroup(self(alwaysFalse()).scope(path("foo")))
 			.addEqualityGroup(self(node -> true).scope(path("foo")))
 			.addEqualityGroup(self(node -> true).scope(path("bar")))
+			.addEqualityGroup(self(doSomething()), self(doSomething()))
+			.addEqualityGroup(self(doSomethingElse()))
 			.testEquals();
 	}
 
@@ -68,7 +73,22 @@ class NodePredicate_SelfTest {
 	void checkToString() {
 		assertThat(self(), hasToString("NodePredicate.self()"));
 		assertThat(self(alwaysFalse()), hasToString("NodePredicate.self(Predicates.alwaysFalse())"));
+		assertThat(self(doSomething()), hasToString("NodePredicate.self(ModelTestActions.doSomething())"));
 	}
 
+	@Test
+	void willCallbackWithNodeMatchingSelf() {
+		val action = mock(ModelAction.class);
+		val node = node("a.b");
+		self(action).scope(path("a.b")).execute(node);
+		verify(action).execute(node);
+	}
 
+	@Test
+	void willNotCallbackWithNodeMatchingSelf() {
+		val action = mock(ModelAction.class);
+		val node = node("a");
+		self(action).scope(path("a.b")).execute(node);
+		verify(action, never()).execute(node);
+	}
 }

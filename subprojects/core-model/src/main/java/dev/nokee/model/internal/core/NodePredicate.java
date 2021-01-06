@@ -93,6 +93,29 @@ public abstract class NodePredicate {
 		};
 	}
 
+	public static NodeAction self(ModelAction action) {
+		return new SelfNodeAction(action);
+	}
+
+	@EqualsAndHashCode(callSuper = true)
+	private static final class SelfNodeAction extends NodeAction {
+		private final ModelAction action;
+
+		private SelfNodeAction(ModelAction action) {
+			this.action = requireNonNull(action);
+		}
+
+		@Override
+		ModelAction scope(ModelPath path) {
+			return ModelActions.matching(NodePredicateScopeStrategy.SELF.scope(path, alwaysTrue()), action);
+		}
+
+		@Override
+		public String toString() {
+			return "NodePredicate.self(" + action + ")";
+		}
+	}
+
 	private enum NodePredicateScopeStrategy {
 		ALL_DIRECT_DESCENDANT {
 			@Override

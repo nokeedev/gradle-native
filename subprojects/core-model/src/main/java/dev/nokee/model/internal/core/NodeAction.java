@@ -1,5 +1,8 @@
 package dev.nokee.model.internal.core;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 public abstract class NodeAction {
 	abstract ModelAction scope(ModelPath path);
 
