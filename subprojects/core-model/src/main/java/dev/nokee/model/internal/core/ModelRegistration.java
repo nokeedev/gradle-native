@@ -120,7 +120,7 @@ public final class ModelRegistration<T> {
 
 			@Override
 			public void execute(Context context) {
-				projections.forEach(context::addProjection);
+				projections.forEach(context::withProjection);
 			}
 		}
 	}

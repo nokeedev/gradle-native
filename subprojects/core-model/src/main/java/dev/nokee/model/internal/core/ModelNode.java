@@ -95,11 +95,15 @@ public final class ModelNode {
 	public ModelNode realize() {
 		register();
 		if (!isAtLeast(State.Realized)) {
-			getParent().ifPresent(ModelNode::realize);
-			state = State.Realized;
+			changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback();
 			listener.realized(this);
 		}
 		return this;
+	}
+
+	private void changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback() {
+		state = State.Realized;
+		getParent().ifPresent(ModelNode::realize);
 	}
 
 	/**
@@ -169,7 +173,7 @@ public final class ModelNode {
 	 * @return an instance of the projected node into the specified instance
 	 */
 	public <T> T get(ModelType<T> type) {
-		return ModelNodeContext.of(this).execute(node -> projections.get(type));
+		return ModelNodeContext.of(this).execute(node -> { return projections.get(type); });
 	}
 
 	public void applyTo(NodeAction action) {

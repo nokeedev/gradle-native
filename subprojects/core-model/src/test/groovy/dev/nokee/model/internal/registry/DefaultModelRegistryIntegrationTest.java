@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.function.Predicate;
 
 import static com.google.common.base.Predicates.alwaysTrue;
 import static dev.nokee.model.internal.core.ModelActions.*;
@@ -207,7 +208,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canIncludeActionInNodeRegistrationThatAppliesOnlyToSelfModelNode() {
 		val modelPaths = new HashSet<ModelPath>();
 		modelRegistry.register(ModelRegistration.of("x", MyType.class));
-		modelRegistry.register(NodeRegistration.of("y", of(MyType.class)).action(self(node -> modelPaths.add(node.getPath())).apply(doSomething())));
+		modelRegistry.register(NodeRegistration.of("y", of(MyType.class)).action(self((Predicate<ModelNode>) node -> modelPaths.add(node.getPath())).apply(doSomething())));
 		modelRegistry.register(ModelRegistration.of("y.foo", MyType.class));
 		modelRegistry.register(ModelRegistration.of("z", MyType.class));
 		assertThat("action for specific node isn't called for other nodes", modelPaths, hasItems(path("y")));
@@ -297,6 +298,47 @@ public class DefaultModelRegistryIntegrationTest {
 		System.out.println("Current paths: " + paths);
 		assertThat(paths, contains(root(), path("foo"), path("foo.bar"), path("bar")));
 	}
+
+	@Test
+	void realizingChildNodeWhileTheParentNodeIsBeingRealizedCallbacksOnlyOnce() {
+		val action = new ModelTestActions.CaptureNodeTransitionAction();
+		modelRegistry.configure(action);
+
+		modelRegistry.register(NodeRegistration.of("a", of(MyParent.class))
+			.action(self(discover(ctx -> ctx.register(NodeRegistration.of("child", of(MyChild.class))))))
+			.action(self(mutate(of(MyParent.class), MyParent::getChild))));
+		modelRegistry.get(path("a")).realize();
+
+		assertThat(action.getAllTransitions(), contains(registered(root()),
+			created("a"), initialized("a"), registered("a"),
+			created("a.child"), initialized("a.child"), registered("a.child"),
+			realized(root()), realized("a"), realized("a.child")));
+	}
+
+	@Test
+	void realizingChildNodeWhileTheChildNodeIsBeingRealizedCallbacksOnlyOnce() {
+		val action = new ModelTestActions.CaptureNodeTransitionAction();
+		modelRegistry.configure(action);
+
+		modelRegistry.register(NodeRegistration.of("a", of(MyParent.class))
+			.action(self(discover(ctx -> ctx.register(NodeRegistration.of("child", of(MyChild.class))))))
+			.action(self(mutate(of(MyParent.class), MyParent::getChild))));
+		modelRegistry.get(path("a.child")).realize();
+
+		assertThat(action.getAllTransitions(), contains(registered(root()),
+			created("a"), initialized("a"), registered("a"),
+			created("a.child"), initialized("a.child"), registered("a.child"),
+			realized(root()), realized("a"), realized("a.child")));
+	}
+
+	interface MyParent {
+		default MyChild getChild() {
+			// When querying descendant node, it's best practice to realize the node.
+			return ModelNodes.of(this).getDescendant("child").realize().get(MyChild.class);
+		}
+	}
+
+	interface MyChild {}
 
 //	@Test
 //	void canAccessModelNodeOnManagedType() {

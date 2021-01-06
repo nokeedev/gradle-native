@@ -1,6 +1,5 @@
 package dev.nokee.model.internal.core;
 
-import com.google.common.testing.NullPointerTester;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
@@ -8,8 +7,10 @@ import spock.lang.Subject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Functions.constant;
+import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static java.util.function.Function.identity;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -17,14 +18,20 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Subject(ModelNodeContext.class)
-class ModelNodeContextTest {
+class ModelNodeContext_FunctionTest {
 	private final ModelNode node = node("x.y.z");
 	private final ModelNodeContext subject = ModelNodeContext.of(node);
 
 	@Test
+	void calledWithCurrentModelNode() {
+		assertThat(executeWith(function(subject::execute)), calledOnceWith(equalTo(node)));
+	}
+
+	@Test
 	void canAccessCurrentModelNodeWhileExecutingInContext() {
-		val captor = subject.execute(new CaptureModelNodeContextFunction());
-		assertThat(captor.getNode(), equalTo(node));
+		val contextualNodeCaptor = contextualCapture(ModelNodeContext::getCurrentModelNode);
+		executeWith(function(subject::execute).captureUsing(contextualNodeCaptor));
+		assertThat(contextualNodeCaptor.getLastValue(), equalTo(node));
 	}
 
 	static class CaptureModelNodeContextFunction implements Function<ModelNode, CaptureModelNodeContextFunction> {
@@ -54,41 +61,36 @@ class ModelNodeContextTest {
 
 	@Test
 	void cannotAccessCurrentModelNodeWhenExceptionThrowDuringContextExecution() {
-		assertThrows(RuntimeException.class, () -> subject.execute(node -> { throw new RuntimeException("Expected exception"); }));
+		assertThrows(RuntimeException.class,
+			() -> executeWith(function(subject::execute).thenThrow(new RuntimeException("Expected exception"))));
 		assertThrows(NullPointerException.class, ModelNodeContext::getCurrentModelNode);
 	}
 
 	@Test
 	void canExecuteNestedContext() {
 		val nestedNode = node("a.b.c");
-		val captor = subject.execute(new CaptureNestedModelNodeContextFunction(nestedNode));
-		assertThat(captor.getAllValues(), contains(node, nestedNode, node));
+		val contextualNodesCaptor = contextualCapture(new NestedModelNodeContextCaptor(nestedNode));
+		executeWith(function(subject::execute).captureUsing(contextualNodesCaptor));
+		assertThat(contextualNodesCaptor.getLastValue(), contains(node, nestedNode, node));
 	}
 
-	static class CaptureNestedModelNodeContextFunction implements Function<ModelNode, CaptureNestedModelNodeContextFunction> {
-		private final List<ModelNode> allValues = new ArrayList<>();
+	static class NestedModelNodeContextCaptor implements Supplier<List<ModelNode>> {
 		private final ModelNode nestedNode;
 
-		public CaptureNestedModelNodeContextFunction(ModelNode nestedNode) {
+		NestedModelNodeContextCaptor(ModelNode nestedNode) {
 			this.nestedNode = nestedNode;
 		}
 
 		@Override
-		public CaptureNestedModelNodeContextFunction apply(ModelNode modelNode) {
+		public List<ModelNode> get() {
+			val allValues = new ArrayList<ModelNode>();
 			allValues.add(ModelNodeContext.getCurrentModelNode());
-			allValues.add(ModelNodeContext.of(nestedNode).execute(new CaptureModelNodeContextFunction()).getNode());
+			ModelNodeContext.of(nestedNode).execute(modelNode -> {
+				allValues.add(ModelNodeContext.getCurrentModelNode());
+				return null;
+			});
 			allValues.add(ModelNodeContext.getCurrentModelNode());
-			return this;
-		}
-
-		public List<ModelNode> getAllValues() {
 			return allValues;
 		}
-	}
-
-	@Test
-	@SuppressWarnings("UnstableApiUsage")
-	void checkNulls() {
-		new NullPointerTester().testAllPublicStaticMethods(ModelNodeContext.class);
 	}
 }

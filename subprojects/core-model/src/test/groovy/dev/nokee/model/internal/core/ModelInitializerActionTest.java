@@ -1,13 +1,15 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.model.KnownDomainObject;
 import lombok.val;
-import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
 import java.util.ArrayList;
 
+import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.model.internal.core.ModelActions.initialize;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
@@ -18,28 +20,42 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Subject(ModelInitializerAction.class)
 class ModelInitializerActionTest {
 	@Test
 	void executesOnlyIfNodeStateIsCreated() {
-		val callCount = new MutableInt();
-		node("foo", initialize(context -> callCount.increment()));
-		assertThat(callCount.getValue(), equalTo(1));
+		assertThat(executeWith(consumer(action -> node(initialize(action)))),
+			calledOnce());
 	}
 
 	@Test
 	void canAddUnmanagedProjections() {
+		val capturedValue = new MutableObject<KnownDomainObject<MyType>>();
 		val myType = new MyType();
-		val node = node("foo", initialize(context -> context.addProjection(ofInstance(myType))));
+		val node = node(
+			initialize(context -> capturedValue.setValue(context.withProjection(ofInstance(myType)))));
 		assertTrue(node.canBeViewedAs(of(MyType.class)));
 		assertThat(node.get(MyType.class), equalTo(myType));
+		assertThat(capturedValue.getValue().getType(), equalTo(MyType.class));
 	}
 
 	@Test
 	void canAddManagedProjections() {
-		val node = node("foo", initialize(context -> context.addProjection(managed(of(MyManagedType.class)))));
+		val capturedValue = new MutableObject<KnownDomainObject<MyManagedType>>();
+		val node = node(
+			initialize(context -> capturedValue.setValue(context.withProjection(managed(of(MyManagedType.class))))));
+		assertTrue(node.canBeViewedAs(of(MyManagedType.class)));
+		assertThat(node.get(MyManagedType.class), isA(MyManagedType.class));
+		assertThat(capturedValue.getValue().getType(), equalTo(MyManagedType.class));
+	}
+
+	@Test
+	void canAddModelProjections() {
+		ModelProjection projection = managed(of(MyManagedType.class));
+		val node = node(
+			initialize(context -> assertThat(context.withProjection(projection), equalTo(context))));
 		assertTrue(node.canBeViewedAs(of(MyManagedType.class)));
 		assertThat(node.get(MyManagedType.class), isA(MyManagedType.class));
 	}
@@ -58,8 +74,34 @@ class ModelInitializerActionTest {
 		assertThat(paths, contains(path("foo")));
 	}
 
+	@Test
+	void throwsExceptionWhenAccessingUnknownProjection() {
+		assertThrows(IllegalArgumentException.class,
+			() -> node(initialize(context -> context.projectionOf(of(MyManagedType.class)))));
+	}
+
+	@Test
+	void canAccessKnownProjection() {
+		val capturedValue = new MutableObject<KnownDomainObject<MyManagedType>>();
+		ModelProjection projection = managed(of(MyManagedType.class));
+		assertDoesNotThrow(() -> node(
+			initialize(context -> capturedValue.setValue(context.withProjection(projection).projectionOf(of(MyManagedType.class))))));
+		assertThat(capturedValue.getValue().getType(), equalTo(MyManagedType.class));
+	}
+
+	@Test
+	void canAccessTheNodeContextually() {
+		val capturedValue = new MutableObject<ModelNode>();
+		val expected = node(initialize(context -> capturedValue.setValue(ModelNodeContext.getCurrentModelNode())));
+		assertThat(capturedValue.getValue(), equalTo(expected));
+	}
+
 	static final class MyType {}
 	interface MyManagedType {}
+
+	private static ModelNode node(ModelAction action) {
+		return ModelTestUtils.childNode(ModelTestUtils.rootNode(), "test", ImmutableList.of(action), builder -> {});
+	}
 
 	private static ModelNode node(String name, ModelAction action) {
 		return ModelTestUtils.childNode(ModelTestUtils.rootNode(), name, ImmutableList.of(action), builder -> {});

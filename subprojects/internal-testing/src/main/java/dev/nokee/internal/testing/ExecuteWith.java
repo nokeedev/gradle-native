@@ -2,7 +2,9 @@ package dev.nokee.internal.testing;
 
 import com.google.common.collect.Iterables;
 import groovy.lang.Closure;
+import lombok.val;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.gradle.api.Action;
 import org.gradle.internal.Cast;
 import org.hamcrest.FeatureMatcher;
@@ -10,10 +12,19 @@ import org.hamcrest.Matcher;
 import org.junit.jupiter.api.function.ThrowingConsumer;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
+import static com.google.common.base.Suppliers.ofInstance;
 import static dev.nokee.internal.testing.utils.ClosureTestUtils.adaptToClosure;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -46,6 +57,149 @@ public final class ExecuteWith {
 				Mockito.doNothing().when(action).execute(captor.capture());
 				execution.accept(action);
 				return new ActionExecutionResult<>(captor.getAllValues());
+			}
+		};
+	}
+
+	public interface ConsumerExecutionStrategy<T> extends ExecutionStrategy<T> {
+		ConsumerExecutionStrategy<T> thenAnswer(Answer<Void> answer);
+		ConsumerExecutionStrategy<T> thenThrow(Throwable throwable);
+		ConsumerExecutionStrategy<T> captureUsing(ContextualCaptor<?> captor);
+	}
+
+	public static <T> ConsumerExecutionStrategy<T> consumer(ThrowingConsumer<? super Consumer<? super T>> execution) {
+		return new ConsumerExecutionStrategy<T>() {
+			private final List<ContextualCaptorAnswer<?>> contextCaptors = new ArrayList<>();
+			private Answer<Void> answer = t -> null;
+
+			@Override
+			public ConsumerExecutionStrategy<T> thenAnswer(Answer<Void> answer) {
+				this.answer = answer;
+				return this;
+			}
+
+			@Override
+			public ConsumerExecutionStrategy<T> thenThrow(Throwable throwable) {
+				answer = t -> { throw throwable; };
+				return this;
+			}
+
+			@Override
+			public ConsumerExecutionStrategy<T> captureUsing(ContextualCaptor<?> captor) {
+				contextCaptors.add((ContextualCaptorAnswer<?>) captor);
+				return this;
+			}
+
+			@Override
+			public ExecutionResult<T> execute() throws Throwable {
+				Consumer<T> action = Cast.uncheckedCast(Mockito.mock(Consumer.class));
+				ArgumentCaptor<T> captor = Cast.uncheckedCast(ArgumentCaptor.forClass(Object.class));
+				Mockito.doAnswer(t -> {
+					for (ContextualCaptorAnswer<?> contextCaptor : contextCaptors) {
+						contextCaptor.answer(t);
+					}
+					return answer.answer(t);
+				}).when(action).accept(captor.capture());
+				execution.accept(action);
+				return new ActionExecutionResult<>(captor.getAllValues());
+			}
+		};
+	}
+
+	public interface FunctionExecutionStrategy<T, R> extends ExecutionStrategy<T> {
+		FunctionExecutionStrategy<T, R> thenReturn(R value);
+		FunctionExecutionStrategy<T, R> thenAnswer(Answer<R> answer);
+		FunctionExecutionStrategy<T, R> thenThrow(Throwable throwable);
+		FunctionExecutionStrategy<T, R> captureUsing(ContextualCaptor<?> captor);
+	}
+
+	public static <T, R> FunctionExecutionStrategy<T, R> function(ThrowingConsumer<? super Function<? super T, ? extends R>> execution) {
+		return new FunctionExecutionStrategy<T, R>() {
+			private final List<ContextualCaptorAnswer<?>> contextCaptors = new ArrayList<>();
+			private Answer<R> answer = t -> null;
+
+			@Override
+			public FunctionExecutionStrategy<T, R> thenReturn(R value) {
+				answer = t -> value;
+				return this;
+			}
+
+			@Override
+			public FunctionExecutionStrategy<T, R> thenAnswer(Answer<R> answer) {
+				this.answer = answer;
+				return this;
+			}
+
+			@Override
+			public FunctionExecutionStrategy<T, R> thenThrow(Throwable throwable) {
+				answer = t -> { throw throwable; };
+				return this;
+			}
+
+			@Override
+			public FunctionExecutionStrategy<T, R> captureUsing(ContextualCaptor<?> captor) {
+				contextCaptors.add((ContextualCaptorAnswer<?>) captor);
+				return this;
+			}
+
+			@Override
+			public ExecutionResult<T> execute() throws Throwable {
+				Function<T, R> action = Cast.uncheckedCast(Mockito.mock(Function.class));
+				ArgumentCaptor<T> captor = Cast.uncheckedCast(ArgumentCaptor.forClass(Object.class));
+				Mockito.when(action.apply(captor.capture())).thenAnswer(t -> {
+					for (ContextualCaptorAnswer<?> contextCaptor : contextCaptors) {
+						contextCaptor.answer(t);
+					}
+					return answer.answer(t);
+				});
+				execution.accept(action);
+				return new ActionExecutionResult<>(captor.getAllValues());
+			}
+		};
+	}
+
+	public interface RunnableExecutionStrategy extends ExecutionStrategy<Void> {
+		RunnableExecutionStrategy thenAnswer(Answer<Void> answer);
+		RunnableExecutionStrategy thenThrow(Throwable throwable);
+		RunnableExecutionStrategy captureUsing(ContextualCaptor<?> captor);
+	}
+
+	public static RunnableExecutionStrategy runnable(ThrowingConsumer<? super Runnable> execution) {
+		return new RunnableExecutionStrategy() {
+			private final List<ContextualCaptorAnswer<?>> contextCaptors = new ArrayList<>();
+			private Answer<Void> answer = t -> null;
+
+			@Override
+			public RunnableExecutionStrategy thenAnswer(Answer<Void> answer) {
+				this.answer = answer;
+				return this;
+			}
+
+			@Override
+			public RunnableExecutionStrategy thenThrow(Throwable throwable) {
+				answer = t -> { throw throwable; };
+				return this;
+			}
+
+			@Override
+			public RunnableExecutionStrategy captureUsing(ContextualCaptor<?> captor) {
+				contextCaptors.add((ContextualCaptorAnswer<?>) captor);
+				return this;
+			}
+
+			@Override
+			public ExecutionResult<Void> execute() throws Throwable {
+				val action = Mockito.mock(Runnable.class);
+				val callCount = new MutableInt();
+				Mockito.doAnswer(t -> {
+					callCount.increment();
+					for (ContextualCaptorAnswer<?> contextCaptor : contextCaptors) {
+						contextCaptor.answer(t);
+					}
+					return answer.answer(t);
+				}).when(action).run();
+				execution.accept(action);
+				return new ActionExecutionResult<>(Stream.<Void>generate(ofInstance(null)).limit(callCount.intValue()).collect(toList()));
 			}
 		};
 	}
@@ -92,6 +246,14 @@ public final class ExecuteWith {
 		};
 	}
 
+	public static <T> Matcher<ExecutionResult<T>> calledOnce() {
+		return called(equalTo(1));
+	}
+
+	public static <T> Matcher<ExecutionResult<T>> neverCalled() {
+		return called(equalTo(0));
+	}
+
 	public static <T> Matcher<ExecutionResult<T>> lastArgument(Matcher<T> matcher) {
 		return new FeatureMatcher<ExecutionResult<T>, T>(matcher, "", "") {
 			@Override
@@ -99,5 +261,33 @@ public final class ExecuteWith {
 				return actual.getLastArgument();
 			}
 		};
+	}
+
+	public static <T> ContextualCaptor<T> contextualCapture(Supplier<T> captor) {
+		return new ContextualCaptorAnswer<>(captor);
+	}
+
+	public interface ContextualCaptor<T> {
+		T getLastValue();
+	}
+
+	private static final class ContextualCaptorAnswer<T> implements ContextualCaptor<T>, Answer<Void> {
+		private final Supplier<T> captor;
+		private final List<T> values = new ArrayList<>();
+
+		private ContextualCaptorAnswer(Supplier<T> captor) {
+			this.captor = captor;
+		}
+
+		@Override
+		public T getLastValue() {
+			return Iterables.getLast(values);
+		}
+
+		@Override
+		public Void answer(InvocationOnMock invocation) throws Throwable {
+			values.add(captor.get());
+			return null;
+		}
 	}
 }

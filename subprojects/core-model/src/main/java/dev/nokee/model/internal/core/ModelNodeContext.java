@@ -3,6 +3,7 @@ package dev.nokee.model.internal.core;
 import lombok.val;
 import org.gradle.api.plugins.ExtensionAware;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
@@ -24,6 +25,26 @@ public final class ModelNodeContext {
 		MODEL_NODE_INFO.set(node);
 		try {
 			return action.apply(node);
+		} finally {
+			MODEL_NODE_INFO.set(previousNode);
+		}
+	}
+
+	public void execute(Runnable action) {
+		val previousNode = MODEL_NODE_INFO.get();
+		MODEL_NODE_INFO.set(node);
+		try {
+			action.run();
+		} finally {
+			MODEL_NODE_INFO.set(previousNode);
+		}
+	}
+
+	public void execute(Consumer<? super ModelNode> action) {
+		val previousNode = MODEL_NODE_INFO.get();
+		MODEL_NODE_INFO.set(node);
+		try {
+			action.accept(node);
 		} finally {
 			MODEL_NODE_INFO.set(previousNode);
 		}
