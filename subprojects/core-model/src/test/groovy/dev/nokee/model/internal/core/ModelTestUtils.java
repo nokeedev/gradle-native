@@ -2,13 +2,17 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.utils.TestUtils;
+import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.registry.ModelNodeBackedProvider;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -109,6 +113,7 @@ public final class ModelTestUtils {
 
 	public static ModelNode childNode(ModelNode parent, String name, List<ModelAction> providedActions, Consumer<? super ModelNode.Builder> action) {
 		val nodeProvider = new MutableObject<ModelNode>();
+		val children = new HashMap<ModelPath, ModelNode>();
 		val builder = ModelNode.builder();
 		val actions = new ArrayList<>(providedActions);
 		builder.withPath(parent.getPath().child(name));
@@ -118,7 +123,9 @@ public final class ModelTestUtils {
 				if (parent.getPath().equals(path)) {
 					return parent;
 				}
-				throw new UnsupportedOperationException("This instance always fails if path is not '" + parent + "'.");
+				return children.computeIfAbsent(path, key -> {
+					throw new UnsupportedOperationException("This instance always fails if path is not '" + parent + "' or any known direct children.");
+				});
 			}
 
 			@Override
@@ -128,7 +135,7 @@ public final class ModelTestUtils {
 
 			@Override
 			public boolean has(ModelPath path) {
-				throw new UnsupportedOperationException("This instance always fails.");
+				return children.containsKey(path);
 			}
 
 			@Override
@@ -141,13 +148,13 @@ public final class ModelTestUtils {
 			@Override
 			public void configure(ModelAction action) {
 				actions.add(action);
-				action.execute(nodeProvider.getNode());
+				action.execute(nodeProvider.getValue());
 			}
 		});
 		builder.withListener(new ModelNodeListener() {
 			@Override
 			public void created(ModelNode node) {
-				nodeProvider.bind(node);
+				nodeProvider.setValue(node);
 				execute(actions, node);
 			}
 
@@ -171,6 +178,24 @@ public final class ModelTestUtils {
 				for (int i = 0; i < size; ++i) {
 					actions.get(i).execute(node);
 				}
+			}
+		});
+		builder.withRegistry(new ModelRegistry() {
+			@Override
+			public <T> DomainObjectProvider<T> get(ModelIdentifier<T> identifier) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public <T> DomainObjectProvider<T> register(NodeRegistration<T> registration) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public <T> DomainObjectProvider<T> register(ModelRegistration<T> registration) {
+				val childNode = childNode(nodeProvider.getValue(), registration.getPath().getName(), registration.getActions(), builder -> {});
+				children.put(registration.getPath(), childNode);
+				return new ModelNodeBackedProvider<>(registration.getDefaultProjectionType(), childNode);
 			}
 		});
 		action.accept(builder);
