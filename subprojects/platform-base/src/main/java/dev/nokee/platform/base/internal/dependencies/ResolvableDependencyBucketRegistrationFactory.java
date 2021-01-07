@@ -7,6 +7,7 @@ import org.gradle.api.artifacts.ArtifactView;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 
+import javax.inject.Inject;
 import java.util.function.Consumer;
 
 import static dev.nokee.model.internal.core.ModelActions.initialize;
@@ -51,6 +52,9 @@ public final class ResolvableDependencyBucketRegistrationFactory implements Node
 
 	static class IncomingArtifacts {
 		private final Configuration delegate = ModelNodeContext.getCurrentModelNode().get(Configuration.class);
+
+		@Inject
+		public IncomingArtifacts() {}
 
 		public FileCollection get() {
 			return delegate.getIncoming().getFiles();
