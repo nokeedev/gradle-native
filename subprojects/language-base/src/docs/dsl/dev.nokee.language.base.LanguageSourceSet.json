@@ -1,0 +1,5 @@
+{
+	"category": "Source types",
+	"properties": ["name", "sourceDirectories", "filter", "asFileTree"],
+	"methods": ["from", "filter", "convention"]
+}

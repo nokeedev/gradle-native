@@ -1,0 +1,4 @@
+<plugins>
+	<plugin id="dev.nokee.c-language" description="C Language Plugin">
+	</plugin>
+</plugins>

@@ -1,26 +1,14 @@
-//buildscript {
-//	repositories {
-//		if (!file('../docs-gradle-plugins').exists()) {
-//			maven {
-//				name = "GitHubPackages"
-//				url = "https://maven.pkg.github.com/nokeedev/docs-gradle-plugins"
-//				credentials {
-//					username = System.getenv("GITHUB_ACTOR")
-//					password = System.getenv("GITHUB_TOKEN")
-//				}
-//				mavenContent {
-//					includeModule('dev.nokee.docs', 'docs-gradle-plugins')
-//				}
-//			}
-//		}
-//		gradlePluginPortal()
-//		maven { url = 'https://repo.eclipse.org/content/groups/releases/' }
-//		mavenCentral()
-//	}
-//	dependencies {
-//		classpath 'dev.nokee.docs:docs-gradle-plugins:latest.release'
-//	}
-//}
+buildscript {
+	repositories {
+		jcenter()
+		maven { url = 'subprojects/distributions/build/repository' }
+		maven { url = 'https://dl.bintray.com/nokeedev/distributions-snapshots' }
+		maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+	}
+	dependencies {
+		classpath 'dev.gradleplugins:documentation-kit:latest.integration'
+	}
+}
 
 import org.gradle.util.VersionNumber
 
@@ -107,21 +95,6 @@ subprojects {
 	}
 }
 
-// Configure javadoc tasks
-subprojects {
-	tasks.withType(Javadoc).configureEach {
-		if (name == 'javadoc') {
-			exclude('**/internal/**')
-
-			StandardJavadocDocletOptions options = it.options as StandardJavadocDocletOptions
-			options.setEncoding("utf-8")
-			options.setDocEncoding("utf-8")
-			options.setCharSet("utf-8")
-			options.links("https://docs.oracle.com/javase/8/docs/api", "https://docs.gradle.org/${minimumGradleVersion}/javadoc/")
-		}
-	}
-}
-
 // Configure functionalTest
 subprojects {
 	pluginManager.withPlugin('dev.gradleplugins.java-gradle-plugin') {
@@ -180,5 +153,25 @@ subprojects {
 		jcenter()
 		mavenCentral()
 		gradlePluginDevelopment()
+	}
+}
+
+// Configure Documentation
+subprojects { prj ->
+	pluginManager.apply('dev.gradleplugins.documentation.dsl-reference')
+	pluginManager.apply('dev.gradleplugins.documentation.api-reference')
+	pluginManager.apply('dev.gradleplugins.documentation.javadoc-render')
+	prj.configurations.matching { it.name == 'implementation' }.all { implementation ->
+		prj.extensions.components.apiReference {
+			dependencies.api.asConfiguration.extendsFrom(implementation)
+		}
+	}
+	prj.configurations.matching { it.name == 'compileOnly' }.all { compileOnly ->
+		prj.extensions.components.apiReference {
+			dependencies.api.asConfiguration.extendsFrom(compileOnly)
+		}
+	}
+	tasks.named('generateDslReference') {
+		templateFile = rootProject.file('subprojects/docs/src/docs/dsl/dsl.template')
 	}
 }

@@ -1,0 +1,4 @@
+<plugins>
+	<plugin id="dev.nokee.objective-c-language" description="Objective-C Language Plugin">
+	</plugin>
+</plugins>

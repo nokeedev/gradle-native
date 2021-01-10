@@ -61,7 +61,6 @@ public abstract class DomainElementsDynamicObject extends AbstractDynamicObject 
 			return DynamicInvokeResult.found(getElement(name, asType(arguments[0])));
 		} else if (isRegisterByTypeMethod(name, arguments)) {
 			val provider = doRegister(name, asType(arguments[0]));
-//			provider.get(); // Force resolve because of TestSuite
 			return DynamicInvokeResult.found(provider);
 		} else if (isConfigureMethod(name, arguments)) {
 			getElement(name).configure(asAction(arguments[0]));
@@ -72,7 +71,6 @@ public abstract class DomainElementsDynamicObject extends AbstractDynamicObject 
 		} else if (isRegisterByTypeWithConfigurationMethod(name, arguments)) {
 			val provider = doRegister(name, asType(arguments[0]));
 			provider.configure(asAction(arguments[1]));
-//			provider.get(); // Force resolve because of TestSuite
 			return DynamicInvokeResult.found(provider);
 		}
 		return DynamicInvokeResult.notFound();

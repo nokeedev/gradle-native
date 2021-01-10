@@ -1,0 +1,5 @@
+<plugins>
+    <plugin id="dev.nokee.jni-library" description="JNI Library Plugin">
+        <extends targetClass="org.gradle.api.Project" id="library" extensionClass="dev.nokee.platform.jni.JniLibraryExtension"/>
+    </plugin>
+</plugins>

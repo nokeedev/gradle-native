@@ -24,6 +24,7 @@ dependencies {
 	implementation project(':languageObjectiveCpp') // for UTType of each language
 	implementation project(':languageSwift') // for UTType of each language
 	compileOnly project(':runtimeNative') // for TargetMachine && OperatingSystemFamily
+	compileOnlyApi gradleApi(minimumGradleVersion)
 }
 
 gradlePlugin {

@@ -61,7 +61,6 @@ class SampleTest {
 		Sample.fromArchive(archiveFile).writeToDirectory(exampleDirectory)
 
 		then:
-		exampleDirectory.eachFileRecurse { println it }
 		assertTrue(new File(exampleDirectory, 'hello').canExecute())
 	}
 

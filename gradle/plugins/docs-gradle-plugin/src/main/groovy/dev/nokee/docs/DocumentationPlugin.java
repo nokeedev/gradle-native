@@ -2,8 +2,6 @@ package dev.nokee.docs;
 
 import dev.gradleplugins.internal.GroovySpockFrameworkTestSuite;
 import dev.gradleplugins.internal.plugins.SpockFrameworkTestSuiteBasePlugin;
-import dev.nokee.docs.dsl.docbook.AssembleDslDocTask;
-import dev.nokee.docs.dsl.source.ExtractDslMetaDataTask;
 import dev.nokee.docs.tasks.DotCompile;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -19,7 +17,6 @@ import org.gradle.api.component.AdhocComponentWithVariants;
 import org.gradle.api.component.ConfigurationVariantDetails;
 import org.gradle.api.component.SoftwareComponentContainer;
 import org.gradle.api.component.SoftwareComponentFactory;
-import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.file.ProjectLayout;
@@ -131,26 +128,6 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			task.from(bakedFiles);
 		});
 
-		// DSL documentation
-		TaskProvider<ExtractDslMetaDataTask> extractDslMetaDataTask = tasks.register("dslMetaData", ExtractDslMetaDataTask.class, task -> {
-			ConfigurableFileTree source = project.getRootProject().fileTree("subprojects");
-			source.include("*/src/main/java/**/*.java");
-			source.exclude("**/internal/**");
-			task.source(source);
-			task.getDestinationFile().set(layout.getBuildDirectory().file("tmp/" + task.getName() + "/dsl-meta-data.bin"));
-		});
-		TaskProvider<AssembleDslDocTask> assembleDslTask = tasks.register("assembleDsl", AssembleDslDocTask.class, task -> {
-			task.getClassMetaDataFile().set(extractDslMetaDataTask.flatMap(ExtractDslMetaDataTask::getDestinationFile));
-			task.getPluginsMetaDataFile().set(project.file("src/docs/dsl/plugins.xml"));
-			task.getClassDocbookDirectory().set(project.file("src/docs/dsl"));
-			task.getTemplateFile().set(project.file("src/docs/dsl/dsl.template"));
-			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("tmp/" + task.getName()));
-		});
-		Provider<Directory> dslAsciidoctor = assembleDslTask.flatMap(AssembleDslDocTask::getDestinationDirectory);
-		stageBakeTask.configure(task -> {
-			task.from(dslAsciidoctor, spec -> spec.into("content/docs/" + documentationVersion.get() + "/dsl"));
-		});
-
 		/////////////////////////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////
@@ -235,26 +212,13 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			task.getInputs().files(assets);
 			task.getInputs().files(templates);
 
-			task.from(content, spec -> spec.into("content"));
+			task.from(content, spec -> spec.into(documentationVersion.map(it -> "content/docs/" + it)));
 			task.from(assets, spec -> spec.into("assets"));
 			task.from(templates, spec -> spec.into("templates"));
 		});
 
 		// Configurations (outgoing)
-		configurations.create("contentElements", configuration -> {
-			configuration.setCanBeResolved(false);
-			configuration.setCanBeConsumed(true);
-			configuration.attributes(attributes -> {
-				attributes.attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.class, "jbake-content"));
-			});
-//			project.afterEvaluate(proj -> {
-//				components.withType(JBakeContentSourceSet.class).stream().map(LanguageSourceSet::getSource).forEach(source -> {
-//					source.getFiles().forEach(file -> {
-//						configuration.getOutgoing().artifact(file, it -> it.builtBy(source));
-//					});
-//				});
-//			});
-		});
+		// contentElements is handled by documentation-kit
 		Configuration assetsElements = configurations.create("assetsElements", configuration -> {
 			configuration.setCanBeConsumed(false);
 			configuration.setCanBeConsumed(true);
