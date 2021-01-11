@@ -34,6 +34,18 @@ class TransformerUtils_ComposeTest {
 			hasToString("TransformerUtils.compose(TransformerUtils.noOpTransformer(), TransformerUtils.noOpTransformer())"));
 	}
 
+	@Test
+	void canComposeFromTransformer() {
+		assertThat(prefixWith("after-").compose(prefixWith("before-")).transform("bar"),
+			equalTo("after-before-bar"));
+	}
+
+	@Test
+	void canAndThen() {
+		assertThat(prefixWith("-").andThen(prefixWith("then")).transform("far"),
+			equalTo("then-far"));
+	}
+
 	private static TransformerUtils.Transformer<String, String> prefixWith(String prefix) {
 		return s -> prefix + s;
 	}

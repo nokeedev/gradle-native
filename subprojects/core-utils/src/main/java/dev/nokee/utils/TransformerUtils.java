@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
-import org.gradle.api.Transformer;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
@@ -135,15 +135,15 @@ public final class TransformerUtils {
 	 * @param <IN>  input element type to transform
 	 * @return a {@link Transformer} instance to flat transform each the element of an iterable, never null.
 	 */
-	public static <OUT, IN> Transformer<List<OUT>, Iterable<IN>> flatTransformEach(Transformer<? extends Iterable<OUT>, ? super IN> mapper) {
+	public static <OUT, IN> Transformer<List<OUT>, Iterable<IN>> flatTransformEach(org.gradle.api.Transformer<? extends Iterable<OUT>, ? super IN> mapper) {
 		return new FlatTransformEachAdapter<>(mapper);
 	}
 
 	@EqualsAndHashCode
 	private static final class FlatTransformEachAdapter<OUT, IN> implements Transformer<List<OUT>, Iterable<IN>> {
-		private final Transformer<? extends Iterable<OUT>, ? super IN> mapper;
+		private final org.gradle.api.Transformer<? extends Iterable<OUT>, ? super IN> mapper;
 
-		public FlatTransformEachAdapter(Transformer<? extends Iterable<OUT>, ? super IN> mapper) {
+		public FlatTransformEachAdapter(org.gradle.api.Transformer<? extends Iterable<OUT>, ? super IN> mapper) {
 			this.mapper = requireNonNull(mapper);
 		}
 
@@ -171,15 +171,15 @@ public final class TransformerUtils {
 	 * @param <IN>  input element type to transform
 	 * @return a {@link Transformer} instance to transform each the element of an iterable, never null.
 	 */
-	public static <OUT, IN> Transformer<List<OUT>, Iterable<IN>> transformEach(Transformer<? extends OUT, ? super IN> mapper) {
+	public static <OUT, IN> Transformer<List<OUT>, Iterable<IN>> transformEach(org.gradle.api.Transformer<? extends OUT, ? super IN> mapper) {
 		return new TransformEachAdapter<>(mapper);
 	}
 
 	@EqualsAndHashCode
 	private static final class TransformEachAdapter<OUT, IN> implements Transformer<List<OUT>, Iterable<IN>> {
-		private final Transformer<? extends OUT, ? super IN> mapper;
+		private final org.gradle.api.Transformer<? extends OUT, ? super IN> mapper;
 
-		public TransformEachAdapter(Transformer<? extends OUT, ? super IN> mapper) {
+		public TransformEachAdapter(org.gradle.api.Transformer<? extends OUT, ? super IN> mapper) {
 			this.mapper = requireNonNull(mapper);
 		}
 
@@ -198,7 +198,7 @@ public final class TransformerUtils {
 		}
 	}
 
-	public static <A, B, C> Transformer<C, A> compose(Transformer<C, B> g, Transformer<? extends B, A> f) {
+	public static <A, B, C> Transformer<C, A> compose(org.gradle.api.Transformer<C, B> g, org.gradle.api.Transformer<? extends B, A> f) {
 		return new ComposeTransformer<>(g, f);
 	}
 
@@ -207,7 +207,7 @@ public final class TransformerUtils {
 		private final org.gradle.api.Transformer<? extends C, ? super B> g;
 		private final org.gradle.api.Transformer<? extends B, ? super A> f;
 
-		public ComposeTransformer(Transformer<? extends C, ? super B> g, Transformer<? extends B, ? super A> f) {
+		public ComposeTransformer(org.gradle.api.Transformer<? extends C, ? super B> g, org.gradle.api.Transformer<? extends B, ? super A> f) {
 			this.g = Objects.requireNonNull(g);
 			this.f = Objects.requireNonNull(f);
 		}
@@ -220,6 +220,16 @@ public final class TransformerUtils {
 		@Override
 		public String toString() {
 			return "TransformerUtils.compose(" + g + ", " + f + ")";
+		}
+	}
+
+	interface Transformer<OUT, IN> extends org.gradle.api.Transformer<OUT, IN> {
+		default <V> Transformer<OUT, V> compose(Transformer<? extends IN, ? super V> before) {
+			return new ComposeTransformer<>(this, before);
+		}
+
+		default <V> Transformer<V, IN> andThen(Transformer<? extends V, ? super OUT> after) {
+			return new ComposeTransformer<>(after, this);
 		}
 	}
 }
