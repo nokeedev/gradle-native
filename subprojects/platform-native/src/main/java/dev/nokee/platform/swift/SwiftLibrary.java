@@ -13,6 +13,9 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
  * @since 0.5
  */
 public interface SwiftLibrary extends SwiftLibraryExtension, DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<SwiftLibrarySources>, HasSwiftSources, BaseNameAwareComponent {
+	/**
+	 * {@inheritDoc}
+	 */
 	default NativeLibraryComponentDependencies getDependencies() {
 		return ModelNodes.of(this).get(DefaultNativeLibraryComponent.class).getDependencies();
 	}

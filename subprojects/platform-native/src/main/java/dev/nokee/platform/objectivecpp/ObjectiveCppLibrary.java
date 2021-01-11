@@ -13,6 +13,9 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
  * @since 0.5
  */
 public interface ObjectiveCppLibrary extends ObjectiveCppLibraryExtension, DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<ObjectiveCppLibrarySources>, HasPrivateHeaders, HasPublicHeaders, HasObjectiveCppSources, BaseNameAwareComponent {
+	/**
+	 * {@inheritDoc}
+	 */
 	default NativeLibraryComponentDependencies getDependencies() {
 		return ModelNodes.of(this).get(DefaultNativeLibraryComponent.class).getDependencies();
 	}

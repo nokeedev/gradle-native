@@ -14,6 +14,9 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
  * @since 0.5
  */
 public interface CApplication extends CApplicationExtension, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CApplicationSources>, HasPrivateHeaders, HasCSources, BaseNameAwareComponent {
+	/**
+	 * {@inheritDoc}
+	 */
 	default NativeApplicationComponentDependencies getDependencies() {
 		return ModelNodes.of(this).get(DefaultNativeApplicationComponent.class).getDependencies();
 	}

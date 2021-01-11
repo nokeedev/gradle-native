@@ -16,6 +16,9 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
  * @since 0.5
  */
 public interface SwiftApplication extends SwiftApplicationExtension, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<SwiftApplicationSources>, HasSwiftSources, BaseNameAwareComponent {
+	/**
+	 * {@inheritDoc}
+	 */
 	default NativeApplicationComponentDependencies getDependencies() {
 		return ModelNodes.of(this).get(DefaultNativeApplicationComponent.class).getDependencies();
 	}

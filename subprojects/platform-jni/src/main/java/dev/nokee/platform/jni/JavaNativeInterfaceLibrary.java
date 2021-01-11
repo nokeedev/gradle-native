@@ -25,6 +25,9 @@ public interface JavaNativeInterfaceLibrary extends JniLibraryExtension, Depende
 		return ModelNodes.of(this).get(JniLibraryComponentInternal.class).getDependencies();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	default SetProperty<TargetMachine> getTargetMachines() {
 		return ModelNodes.of(this).get(JniLibraryComponentInternal.class).getTargetMachines();
