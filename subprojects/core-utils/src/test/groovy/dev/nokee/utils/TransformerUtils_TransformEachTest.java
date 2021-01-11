@@ -40,6 +40,11 @@ class TransformerUtils_TransformEachTest {
 	}
 
 	@Test
+	void returnsEnhanceTransformer() {
+		assertThat(transformEach(noOpTransformer()), isA(TransformerUtils.Transformer.class));
+	}
+
+	@Test
 	void checkToString() {
 		assertThat(transformEach(noOpTransformer()),
 			hasToString("TransformerUtils.transformEach(TransformerUtils.noOpTransformer())"));

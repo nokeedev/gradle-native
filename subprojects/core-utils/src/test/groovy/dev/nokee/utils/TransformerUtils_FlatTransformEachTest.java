@@ -56,6 +56,11 @@ class TransformerUtils_FlatTransformEachTest {
 	}
 
 	@Test
+	void returnsEnhanceTransformer() {
+		assertThat(flatTransformEach(noOpTransformer()), isA(TransformerUtils.Transformer.class));
+	}
+
+	@Test
 	void checkToString() {
 		assertThat(flatTransformEach(noOpTransformer()),
 			hasToString("TransformerUtils.flatTransformEach(TransformerUtils.noOpTransformer())"));
