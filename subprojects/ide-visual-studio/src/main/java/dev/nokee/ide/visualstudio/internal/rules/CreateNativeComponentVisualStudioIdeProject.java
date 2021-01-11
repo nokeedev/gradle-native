@@ -106,7 +106,7 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 		return component.getVariants().flatMap(new ToVisualStudioIdeTargets(component));
 	}
 
-	private class ToVisualStudioIdeTargets implements Transformer<Iterable<? extends VisualStudioIdeTarget>, Variant> {
+	private class ToVisualStudioIdeTargets implements Transformer<Iterable<VisualStudioIdeTarget>, Variant> {
 		private final BaseComponent<?> component;
 		private final Set<DefaultBinaryLinkage> allLinkages;
 

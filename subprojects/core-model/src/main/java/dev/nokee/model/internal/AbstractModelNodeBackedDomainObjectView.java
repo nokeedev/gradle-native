@@ -115,7 +115,7 @@ abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn
 	}
 
 	@Override
-	public final <S> Provider<List<S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper) {
+	public final <S> Provider<List<S>> flatMap(Transformer<? extends Iterable<S>, ? super T> mapper) {
 		// TODO: rename and move ProviderUtils.flatMap to TransformerUtils.flatTransformEach
 		return getElements().map(ProviderUtils.flatMap(mapper));
 	}

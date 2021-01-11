@@ -74,7 +74,7 @@ public abstract class AbstractDomainObjectView<TYPE, T extends TYPE> extends Gro
 		return elementsProvider.map(ProviderUtils.map(mapper));
 	}
 
-	public <S> Provider<List<S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper) {
+	public <S> Provider<List<S>> flatMap(Transformer<? extends Iterable<S>, ? super T> mapper) {
 		return elementsProvider.map(ProviderUtils.flatMap(mapper));
 	}
 

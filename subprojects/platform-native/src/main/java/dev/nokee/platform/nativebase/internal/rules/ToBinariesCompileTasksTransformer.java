@@ -19,11 +19,11 @@ enum ToBinariesCompileTasksTransformer implements Transformer<Provider<Set<? ext
 		return variant.getBinaries().flatMap(FlatMapBinaryToCompileTasks.INSTANCE).map(TransformerUtils.toSetTransformer());
 	}
 
-	enum FlatMapBinaryToCompileTasks implements Transformer<Iterable<? extends SourceCompile>, Binary> {
+	enum FlatMapBinaryToCompileTasks implements Transformer<Iterable<SourceCompile>, Binary> {
 		INSTANCE;
 
 		@Override
-		public Iterable<? extends SourceCompile> transform(Binary binary) {
+		public Iterable<SourceCompile> transform(Binary binary) {
 			if (binary instanceof NativeBinary) {
 				return ((NativeBinary) binary).getCompileTasks().get();
 			}
