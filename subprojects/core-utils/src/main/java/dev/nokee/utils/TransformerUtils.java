@@ -197,4 +197,29 @@ public final class TransformerUtils {
 			return "TransformerUtils.transformEach(" + mapper + ")";
 		}
 	}
+
+	public static <A, B, C> Transformer<C, A> compose(Transformer<C, B> g, Transformer<? extends B, A> f) {
+		return new ComposeTransformer<>(g, f);
+	}
+
+	@EqualsAndHashCode
+	private static final class ComposeTransformer<A, B, C> implements Transformer<C, A> {
+		private final org.gradle.api.Transformer<? extends C, ? super B> g;
+		private final org.gradle.api.Transformer<? extends B, ? super A> f;
+
+		public ComposeTransformer(Transformer<? extends C, ? super B> g, Transformer<? extends B, ? super A> f) {
+			this.g = Objects.requireNonNull(g);
+			this.f = Objects.requireNonNull(f);
+		}
+
+		@Override
+		public C transform(A in) {
+			return g.transform(f.transform(in));
+		}
+
+		@Override
+		public String toString() {
+			return "TransformerUtils.compose(" + g + ", " + f + ")";
+		}
+	}
 }
