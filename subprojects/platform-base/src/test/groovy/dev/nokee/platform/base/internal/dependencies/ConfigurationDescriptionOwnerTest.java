@@ -17,6 +17,11 @@ import static org.hamcrest.Matchers.hasToString;
 @Subject(ConfigurationDescription.Owner.class)
 class ConfigurationDescriptionOwnerTest {
 	@Test
+	void thisProjectOwner() {
+		assertThat(ofThisProject(), hasToString("this project"));
+	}
+
+	@Test
 	void rootProjectOwner() {
 		assertThat(ofProject(rootProject()), hasToString("project ':'"));
 	}
@@ -76,6 +81,7 @@ class ConfigurationDescriptionOwnerTest {
 			.addEqualityGroup(ofVariant(of("test"), "debug"))
 			.addEqualityGroup(ofVariant(of("test"), "macos"))
 			.addEqualityGroup(ofVariant(ofMain(), "macos"))
+			.addEqualityGroup(ofThisProject(), ofThisProject())
 			.testEquals();
 	}
 }

@@ -67,6 +67,10 @@ public final class ConfigurationDescription implements Supplier<String> {
 	public interface Owner {
 		String get();
 
+		static Owner ofThisProject() {
+			return new DescriptionSegment("this project");
+		}
+
 		static Owner ofProject(Project project) {
 			return new DescriptionSegment("project '" + project.getPath() + "'");
 		}
