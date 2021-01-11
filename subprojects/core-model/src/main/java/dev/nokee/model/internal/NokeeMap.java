@@ -39,14 +39,14 @@ public interface NokeeMap<K extends DomainObjectIdentifier, V> {
 	/**
 	 * Returns the entry of this map.
 	 *
-	 * @return a lazy & live set of entries.
+	 * @return a lazy and live set of entries.
 	 */
 	NokeeSet<Entry<K, V>> entrySet();
 
 	/**
 	 * Returns a lazy and live collection of all the values in this map.
 	 *
-	 * @return a lazy & live collection of values
+	 * @return a lazy and live collection of values
 	 */
 	NokeeCollection<V> values();
 
