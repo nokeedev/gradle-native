@@ -23,7 +23,6 @@ import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
-import dev.nokee.utils.ProviderUtils;
 import lombok.Getter;
 import lombok.val;
 import lombok.var;
@@ -42,6 +41,7 @@ import java.util.List;
 
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public final class NativeLibraryComponentVariants implements ComponentVariants {
@@ -131,7 +131,7 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 					return one(result);
 				}));
 			}
-			dependencies.getOutgoing().getExportedHeaders().from(sourceViewOf(component).filter(it -> (it instanceof NativeHeaderSet) && it.getName().equals("public")).map(ProviderUtils.map(LanguageSourceSet::getSourceDirectories)));
+			dependencies.getOutgoing().getExportedHeaders().from(sourceViewOf(component).filter(it -> (it instanceof NativeHeaderSet) && it.getName().equals("public")).map(transformEach(LanguageSourceSet::getSourceDirectories)));
 		}
 		dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
 	}

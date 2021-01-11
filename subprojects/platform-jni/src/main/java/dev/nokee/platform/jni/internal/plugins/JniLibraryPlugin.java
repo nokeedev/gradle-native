@@ -49,7 +49,6 @@ import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
-import dev.nokee.utils.ProviderUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -107,6 +106,7 @@ import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBase
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.configureUsingProjection;
 import static dev.nokee.platform.objectivec.internal.ObjectiveCSourceSetModelHelpers.configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
 import static dev.nokee.platform.objectivecpp.internal.ObjectiveCppSourceSetModelHelpers.configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static java.util.Collections.emptyList;
@@ -209,7 +209,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 			variant.getSharedLibrary().getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
 				val taskInternal = (AbstractNativeCompileTask) task;
-				taskInternal.getIncludes().from(extension.getSources().filter(it -> it instanceof NativeHeaderSet).map(ProviderUtils.map(LanguageSourceSet::getSourceDirectories)));
+				taskInternal.getIncludes().from(extension.getSources().filter(it -> it instanceof NativeHeaderSet).map(transformEach(LanguageSourceSet::getSourceDirectories)));
 			});
 		});
 

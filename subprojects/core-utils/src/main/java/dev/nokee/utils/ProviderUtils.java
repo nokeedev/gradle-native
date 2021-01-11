@@ -74,32 +74,6 @@ public final class ProviderUtils {
 	}
 
 	/**
-	 * Adapts a collection mapper to a Gradle collection provider transform.
-	 * The result will apply a proper flatMap algorithm to the provided collection.
-	 *
-	 * @param mapper a flatMap mapper
-	 * @param <OUT> output element type resulting from the flat map
-	 * @param <IN> input element type to flat map
-	 * @return a {@link Transformer} instance to flat map the element of Gradle collection provider, never null.
-	 */
-	public static <OUT, IN> Transformer<List<OUT>, Iterable<IN>> flatMap(Transformer<Iterable<? extends OUT>, ? super IN> mapper) {
-		return new GradleCollectionProviderFlatMapAdapter<>(mapper);
-	}
-
-	/**
-	 * Adapts a collection mapper to a Gradle collection provider transform.
-	 * The result will apply a proper map algorithm to the provided collection.
-	 *
-	 * @param mapper a map mapper
-	 * @param <OUT> output element type resulting from the map
-	 * @param <IN> input element type to map
-	 * @return a {@link Transformer} instance to map the element of Gradle collection provider, never null.
-	 */
-	public static <OUT, IN> Transformer<List<OUT>, Iterable<IN>> map(Transformer<? extends OUT, ? super IN> mapper) {
-		return new GradleCollectionProviderMapAdapter<>(mapper);
-	}
-
-	/**
 	 * Adapts a spec to a Gradle collection provider transform.
 	 * The result will apply a filter algorithm to the provided collection.
 	 *
@@ -138,52 +112,6 @@ public final class ProviderUtils {
 		@Override
 		public String toString() {
 			return "ProviderUtils.filter(" + spec + ")";
-		}
-	}
-
-	@EqualsAndHashCode
-	private static final class GradleCollectionProviderFlatMapAdapter<OUT, IN> implements Transformer<List<OUT>, Iterable<IN>> {
-		private final Transformer<Iterable<? extends OUT>, ? super IN> mapper;
-
-		public GradleCollectionProviderFlatMapAdapter(Transformer<Iterable<? extends OUT>, ? super IN> mapper) {
-			this.mapper = requireNonNull(mapper);
-		}
-
-		@Override
-		public List<OUT> transform(Iterable<IN> elements) {
-			ImmutableList.Builder<OUT> result = ImmutableList.builder();
-			for (IN element : elements) {
-				result.addAll(mapper.transform(element));
-			}
-			return result.build();
-		}
-
-		@Override
-		public String toString() {
-			return "ProviderUtils.flatMap(" + mapper + ")";
-		}
-	}
-
-	@EqualsAndHashCode
-	private static final class GradleCollectionProviderMapAdapter<OUT, IN> implements Transformer<List<OUT>, Iterable<IN>> {
-		private final Transformer<? extends OUT, ? super IN> mapper;
-
-		public GradleCollectionProviderMapAdapter(Transformer<? extends OUT, ? super IN> mapper) {
-			this.mapper = requireNonNull(mapper);
-		}
-
-		@Override
-		public List<OUT> transform(Iterable<IN> elements) {
-			ImmutableList.Builder<OUT> result = ImmutableList.builder();
-			for (IN element : elements) {
-				result.add(mapper.transform(element));
-			}
-			return result.build();
-		}
-
-		@Override
-		public String toString() {
-			return "ProviderUtils.map(" + mapper + ")";
 		}
 	}
 

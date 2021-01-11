@@ -1,6 +1,5 @@
 package dev.nokee.platform.nativebase.internal.dependencies;
 
-import dev.nokee.ChainingAction;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ComponentDependenciesInternal;
@@ -15,7 +14,6 @@ import lombok.Getter;
 import lombok.Value;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
 import org.gradle.api.attributes.Attribute;
@@ -163,7 +161,7 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 				val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("headerSearchPaths")),
 					ResolvableDependencyBucket.class, dependenciesInternal.getOwnerIdentifier());
 				val bucket = dependenciesInternal.create("headerSearchPaths",
-					ChainingAction.of(ConfigurationUtilsEx.asIncomingHeaderSearchPathFrom(dependencies.getImplementation()))
+					ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingHeaderSearchPathFrom(dependencies.getImplementation()))
 						.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
 						.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
 						.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
@@ -178,7 +176,7 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 				val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("importSwiftModules")),
 					ResolvableDependencyBucket.class, dependenciesInternal.getOwnerIdentifier());
 				val bucket = dependenciesInternal.create("importSwiftModules",
-					ChainingAction.of(ConfigurationUtilsEx.asIncomingSwiftModuleFrom(dependencies.getImplementation()))
+					ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingSwiftModuleFrom(dependencies.getImplementation()))
 						.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
 						.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
 						.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
@@ -191,14 +189,14 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 			val linkLibrariesBucketIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("linkLibraries")),
 				ResolvableDependencyBucket.class, dependenciesInternal.getOwnerIdentifier());
 			val linkLibrariesBucket = dependenciesInternal.create("linkLibraries",
-				ChainingAction.of(ConfigurationUtilsEx.asIncomingLinkLibrariesFrom(dependencies.getImplementation(), dependencies.getLinkOnly()))
+				ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingLinkLibrariesFrom(dependencies.getImplementation(), dependencies.getLinkOnly()))
 					.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
 					.andThen(it -> it.setDescription(linkLibrariesBucketIdentifier.getDisplayName())));
 			val runtimeLibrariesBucketIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("runtimeLibraries")),
 				ResolvableDependencyBucket.class, dependenciesInternal.getOwnerIdentifier());
 			val runtimeLibrariesBucket = dependenciesInternal.create("runtimeLibraries",
-				ChainingAction.of(ConfigurationUtilsEx.asIncomingRuntimeLibrariesFrom(dependencies.getImplementation(), dependencies.getRuntimeOnly()))
+				ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingRuntimeLibrariesFrom(dependencies.getImplementation(), dependencies.getRuntimeOnly()))
 					.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
 					.andThen(it -> it.setDescription(runtimeLibrariesBucketIdentifier.getDisplayName())));
@@ -206,7 +204,7 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 			return objects.newInstance(DefaultNativeIncomingDependencies.class, incomingHeaders, incomingSwiftModules, linkLibrariesBucket, runtimeLibrariesBucket);
 		}
 
-		private Action<Configuration> extendsFrom(DependencyBucket bucket) {
+		private ActionUtils.Action<Configuration> extendsFrom(DependencyBucket bucket) {
 			return configuration -> configuration.extendsFrom(bucket.getAsConfiguration());
 		}
 	}

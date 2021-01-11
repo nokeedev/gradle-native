@@ -137,7 +137,7 @@ public interface DomainObjectView<T> {
 	 * @param <S> the type of the mapped elements
 	 * @return a provider containing the mapped elements of this view.
 	 */
-	<S> Provider<List<S>> flatMap(Transformer<Iterable<? extends S>, ? super T> mapper);
+	<S> Provider<List<S>> flatMap(Transformer<? extends Iterable<S>, ? super T> mapper);
 
 	/**
 	 * Returns a single list containing all elements matching the given specification.

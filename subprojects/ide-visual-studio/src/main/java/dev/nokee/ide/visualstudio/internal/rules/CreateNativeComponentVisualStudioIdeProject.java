@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.joining;
 
 public final class CreateNativeComponentVisualStudioIdeProject implements Action<KnownDomainObject<BaseComponent<?>>> {
@@ -79,11 +80,11 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			}
 
 			private Provider<List<? extends FileTree>> componentSources(BaseComponent<?> component) {
-				return sourceViewOf(component).filter(Specs.negate(this::forHeaderSets)).map(ProviderUtils.map(LanguageSourceSet::getAsFileTree));
+				return sourceViewOf(component).filter(Specs.negate(this::forHeaderSets)).map(transformEach(LanguageSourceSet::getAsFileTree));
 			}
 
 			private Provider<List<? extends FileTree>> componentHeaders(BaseComponent<?> component) {
-				return sourceViewOf(component).filter(this::forHeaderSets).map(ProviderUtils.map(LanguageSourceSet::getAsFileTree));
+				return sourceViewOf(component).filter(this::forHeaderSets).map(transformEach(LanguageSourceSet::getAsFileTree));
 			}
 
 			private boolean forHeaderSets(LanguageSourceSet sourceSet) {
@@ -106,7 +107,7 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 		return component.getVariants().flatMap(new ToVisualStudioIdeTargets(component));
 	}
 
-	private class ToVisualStudioIdeTargets implements Transformer<Iterable<? extends VisualStudioIdeTarget>, Variant> {
+	private class ToVisualStudioIdeTargets implements Transformer<Iterable<VisualStudioIdeTarget>, Variant> {
 		private final BaseComponent<?> component;
 		private final Set<DefaultBinaryLinkage> allLinkages;
 
