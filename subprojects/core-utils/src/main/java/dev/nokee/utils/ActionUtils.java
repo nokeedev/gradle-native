@@ -1,9 +1,7 @@
 package dev.nokee.utils;
 
-import dev.nokee.ChainingAction;
 import lombok.EqualsAndHashCode;
 import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.specs.Specs;
 
@@ -26,8 +24,7 @@ public final class ActionUtils {
 		return (Action<T>) DoNothingAction.INSTANCE;
 	}
 
-	// TODO: ChainingAction is using it, make private
-	public enum DoNothingAction implements ChainingAction<Object>, Action<Object>, Serializable {
+	private enum DoNothingAction implements Action<Object>, Serializable {
 		INSTANCE;
 
 		@Override
@@ -42,27 +39,27 @@ public final class ActionUtils {
 	}
 
     @SafeVarargs
-    public static <T> Action<? super T> composite(Action<? super T>... actions) {
+    public static <T> Action<T> composite(org.gradle.api.Action<? super T>... actions) {
         return composite(Arrays.stream(actions).filter(ActionUtils::doesSomething).collect(Collectors.toList()));
     }
 
-	public static <T> Action<? super T> composite(Iterable<? extends Action<? super T>> actions) {
-		List<? extends Action<? super T>> filtered = StreamSupport.stream(actions.spliterator(), false).filter(ActionUtils::doesSomething).collect(Collectors.toList());
+	public static <T> Action<T> composite(Iterable<? extends org.gradle.api.Action<? super T>> actions) {
+		val filtered = StreamSupport.stream(actions.spliterator(), false).filter(ActionUtils::doesSomething).collect(Collectors.toList());
 		return composite(filtered);
 	}
 
-	private static <T> Action<? super T> composite(List<? extends Action<? super T>> actions) {
+	private static <T> Action<T> composite(List<? extends org.gradle.api.Action<? super T>> actions) {
 		switch (actions.size()) {
 			case 0: return doNothing();
-			case 1: return actions.get(0);
+			case 1: return Action.of(actions.get(0));
 			default: return new CompositeAction<T>(actions);
 		}
 	}
 
 	private static final class CompositeAction<T> implements Action<T> {
-		private final Iterable<? extends Action<? super T>> actions;
+		private final Iterable<? extends org.gradle.api.Action<? super T>> actions;
 
-		public CompositeAction(Iterable<? extends Action<? super T>> actions) {
+		public CompositeAction(Iterable<? extends org.gradle.api.Action<? super T>> actions) {
 			this.actions = actions;
 		}
 
@@ -74,13 +71,9 @@ public final class ActionUtils {
 		}
 	}
 
-	public static boolean doesSomething(Action<?> action) {
+	public static boolean doesSomething(org.gradle.api.Action<?> action) {
 		return action != DoNothingAction.INSTANCE;
 	}
-
-    public static <T> ChainingAction<? super T> chain(Action<? super T> action) {
-        return ChainingAction.of(action);
-    }
 
 	/**
 	 * Returns an action delegating to the specified action only if the spec is satisfied by the object passed during execution.
@@ -90,11 +83,9 @@ public final class ActionUtils {
 	 * @param <T> the type of the executing objects.
 	 * @return an action delegating to the specified action only if the spec is satisfied at execution, never null.
 	 */
-	public static <T> Action<T> onlyIf(Spec<? super T> spec, Action<? super T> action) {
+	public static <T> Action<T> onlyIf(Spec<? super T> spec, org.gradle.api.Action<? super T> action) {
 		if (Specs.satisfyAll().equals(spec) || SpecUtils.satisfyAll().equals(spec)) {
-			@SuppressWarnings("unchecked")
-			val result = (Action<T>) action;
-			return result;
+			return Action.of(action);
 		} else if (Specs.satisfyNone().equals(spec) || SpecUtils.satisfyNone().equals(spec)) {
 			return doNothing();
 		}
@@ -104,9 +95,9 @@ public final class ActionUtils {
 	@EqualsAndHashCode
 	private static final class SpecFilteringAction<T> implements Action<T> {
 		private final Spec<? super T> spec;
-		private final Action<? super T> action;
+		private final org.gradle.api.Action<? super T> action;
 
-		private SpecFilteringAction(Spec<? super T> spec, Action<? super T> action) {
+		private SpecFilteringAction(Spec<? super T> spec, org.gradle.api.Action<? super T> action) {
 			this.spec = requireNonNull(spec);
 			this.action = requireNonNull(action);
 		}
@@ -121,6 +112,24 @@ public final class ActionUtils {
 		@Override
 		public String toString() {
 			return "ActionUtils.onlyIf(" + spec + ", " + action + ")";
+		}
+	}
+
+	@FunctionalInterface
+	public interface Action<T> extends org.gradle.api.Action<T> {
+		static <T> Action<T> of(org.gradle.api.Action<? super T> action) {
+			if (action instanceof Action) {
+				@SuppressWarnings("unchecked")
+				val result = (Action<T>) action;
+				return result;
+			} else if (doesSomething(action)) {
+				return action::execute;
+			}
+			return doNothing();
+		}
+
+		default Action<T> andThen(Action<? super T> after) {
+			return composite(this, after);
 		}
 	}
 }

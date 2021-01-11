@@ -14,8 +14,7 @@ import static dev.nokee.utils.ActionUtils.onlyIf;
 import static dev.nokee.utils.SpecUtils.satisfyAll;
 import static dev.nokee.utils.SpecUtils.satisfyNone;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.*;
 
 @Subject(ActionUtils.class)
 class ActionUtils_OnlyIfTest {
@@ -38,7 +37,7 @@ class ActionUtils_OnlyIfTest {
 
 	@Test
 	void returnsSpecifiedActionForObviousSatisfyAllSpec() {
-		Action<Object> action = t -> {};
+		ActionUtils.Action<Object> action = t -> {};
 		assertThat(onlyIf(satisfyAll(), action), equalTo(action));
 		assertThat(onlyIf(Specs.satisfyAll(), action), equalTo(action));
 	}
@@ -80,5 +79,10 @@ class ActionUtils_OnlyIfTest {
 			}
 		};
 		assertThat(onlyIf(spec, doSomething), hasToString("ActionUtils.onlyIf(spec, action)"));
+	}
+
+	@Test
+	void returnsEnhanceAction() {
+		assertThat(onlyIf(t -> true, t -> {}), isA(ActionUtils.Action.class));
 	}
 }

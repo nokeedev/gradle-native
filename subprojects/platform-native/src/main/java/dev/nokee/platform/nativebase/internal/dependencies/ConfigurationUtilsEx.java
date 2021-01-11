@@ -7,6 +7,7 @@ import dev.nokee.platform.nativebase.internal.NamedTargetBuildType;
 import dev.nokee.runtime.base.internal.DefaultUsage;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
@@ -71,7 +72,7 @@ public class ConfigurationUtilsEx {
 		return Arrays.stream(buckets).map(DependencyBucket::getAsConfiguration).collect(Collectors.toList());
 	}
 
-	public static Action<Configuration> configureIncomingAttributes(BuildVariantInternal variant, ObjectFactory objects) {
+	public static ActionUtils.Action<Configuration> configureIncomingAttributes(BuildVariantInternal variant, ObjectFactory objects) {
 		return configuration -> {
 			val attributes = configuration.getAttributes();
 			variant.getDimensions().forEach(it -> {

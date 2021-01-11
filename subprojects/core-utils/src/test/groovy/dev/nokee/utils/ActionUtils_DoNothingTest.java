@@ -5,11 +5,9 @@ import org.gradle.api.Action;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
-import static dev.nokee.utils.ActionUtils.doNothing;
-import static dev.nokee.utils.ActionUtils.doesSomething;
+import static dev.nokee.utils.ActionUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @Subject(ActionUtils.class)
@@ -43,5 +41,10 @@ class ActionUtils_DoNothingTest {
 	void canCheckIfActionDoesSomething() {
 		assertThat(doesSomething(doNothing()), equalTo(false));
 		assertThat(doesSomething(t -> {}), equalTo(true));
+	}
+
+	@Test
+	void returnsEnhanceAction() {
+		assertThat(doNothing(), isA(ActionUtils.Action.class));
 	}
 }
