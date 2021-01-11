@@ -27,7 +27,10 @@ import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
-import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
+import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
@@ -40,7 +43,6 @@ import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.nativebase.NativeTestSuite;
-import dev.nokee.utils.ProviderUtils;
 import lombok.Getter;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -72,6 +74,7 @@ import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite, SourceAwareComponent<ComponentSources> {
 	private final DefaultNativeComponentDependencies dependencies;
@@ -294,7 +297,7 @@ public final class DefaultNativeTestSuiteComponent extends BaseNativeComponent<D
 					task.getModules().from(component.getDevelopmentVariant().map(it -> it.getBinaries().withType(NativeBinary.class).getElements().get().stream().flatMap(b -> b.getCompileTasks().withType(SwiftCompileTask.class).get().stream()).map(SwiftCompile::getModuleFile).collect(Collectors.toList())));
 				});
 				binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
-					((AbstractNativeSourceCompileTask)task).getIncludes().from(sourceViewOf(component).filter(instanceOf(NativeHeaderSet.class)::test).map(ProviderUtils.map(LanguageSourceSet::getSourceDirectories)));
+					((AbstractNativeSourceCompileTask)task).getIncludes().from(sourceViewOf(component).filter(instanceOf(NativeHeaderSet.class)::test).map(transformEach(LanguageSourceSet::getSourceDirectories)));
 				});
 			});
 		}

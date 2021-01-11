@@ -161,4 +161,40 @@ public final class TransformerUtils {
 			return "TransformerUtils.flatTransformEach(" + mapper + ")";
 		}
 	}
+
+	/**
+	 * Adapts an element mapper to transform each elements individually of the collection.
+	 * The result will apply a proper map algorithm to the provided collection.
+	 *
+	 * @param mapper  an element mapper
+	 * @param <OUT>  output element type resulting from the transform
+	 * @param <IN>  input element type to transform
+	 * @return a {@link Transformer} instance to transform each the element of an iterable, never null.
+	 */
+	public static <OUT, IN> Transformer<List<OUT>, Iterable<IN>> transformEach(Transformer<? extends OUT, ? super IN> mapper) {
+		return new TransformEachAdapter<>(mapper);
+	}
+
+	@EqualsAndHashCode
+	private static final class TransformEachAdapter<OUT, IN> implements Transformer<List<OUT>, Iterable<IN>> {
+		private final Transformer<? extends OUT, ? super IN> mapper;
+
+		public TransformEachAdapter(Transformer<? extends OUT, ? super IN> mapper) {
+			this.mapper = requireNonNull(mapper);
+		}
+
+		@Override
+		public List<OUT> transform(Iterable<IN> elements) {
+			ImmutableList.Builder<OUT> result = ImmutableList.builder();
+			for (IN element : elements) {
+				result.add(mapper.transform(element));
+			}
+			return result.build();
+		}
+
+		@Override
+		public String toString() {
+			return "TransformerUtils.transformEach(" + mapper + ")";
+		}
+	}
 }
