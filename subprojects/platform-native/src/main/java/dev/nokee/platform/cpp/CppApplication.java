@@ -13,6 +13,9 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
  * @since 0.5
  */
 public interface CppApplication extends CppApplicationExtension, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CppApplicationSources>, HasPrivateHeaders, HasCppSources, BaseNameAwareComponent {
+	/**
+	 * {@inheritDoc}
+	 */
 	default NativeApplicationComponentDependencies getDependencies() {
 		return ModelNodes.of(this).get(DefaultNativeApplicationComponent.class).getDependencies();
 	}

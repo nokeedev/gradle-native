@@ -13,6 +13,9 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
  * @since 0.5
  */
 public interface ObjectiveCLibrary extends ObjectiveCLibraryExtension, DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<ObjectiveCLibrarySources>, HasPrivateHeaders, HasPublicHeaders, HasObjectiveCSources, BaseNameAwareComponent {
+	/**
+	 * {@inheritDoc}
+	 */
 	default NativeLibraryComponentDependencies getDependencies() {
 		return ModelNodes.of(this).get(DefaultNativeLibraryComponent.class).getDependencies();
 	}
