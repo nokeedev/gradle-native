@@ -91,11 +91,11 @@ public final class ActionUtils {
 	 * @return an action delegating to the specified action only if the spec is satisfied at execution, never null.
 	 */
 	public static <T> Action<T> onlyIf(Spec<? super T> spec, Action<? super T> action) {
-		if (Specs.satisfyAll().equals(spec)) {
+		if (Specs.satisfyAll().equals(spec) || SpecUtils.satisfyAll().equals(spec)) {
 			@SuppressWarnings("unchecked")
 			val result = (Action<T>) action;
 			return result;
-		} else if (Specs.satisfyNone().equals(spec)) {
+		} else if (Specs.satisfyNone().equals(spec) || SpecUtils.satisfyNone().equals(spec)) {
 			return doNothing();
 		}
 		return new SpecFilteringAction<>(spec, action);
@@ -121,42 +121,6 @@ public final class ActionUtils {
 		@Override
 		public String toString() {
 			return "ActionUtils.onlyIf(" + spec + ", " + action + ")";
-		}
-	}
-
-	/**
-	 * Returns an action delegating to the specified action only if the object passed during execution is an instance of the specified type.
-	 *
-	 * @param type the type check to satisfy before delegating.
-	 * @param action an action to delegate to if the type matches.
-	 * @param <T> the input type
-	 * @param <S> the output type
-	 * @return an action delegating to the specified action only if the object type matches at execution, never null.
-	 */
-	public static <T, S> Action<T> onlyIf(Class<S> type, Action<? super S> action) {
-		return new TypeFilteringAction<>(type, action);
-	}
-
-	@EqualsAndHashCode
-	private static final class TypeFilteringAction<T, S> implements Action<T> {
-		private final Class<S> type;
-		private final Action<? super S> action;
-
-		public TypeFilteringAction(Class<S> type, Action<? super S> action) {
-			this.type = requireNonNull(type);
-			this.action = requireNonNull(action);
-		}
-
-		@Override
-		public void execute(T t) {
-			if (type.isInstance(t)) {
-				action.execute(type.cast(t));
-			}
-		}
-
-		@Override
-		public String toString() {
-			return "ActionUtils.onlyIf(" + type.getCanonicalName() + ", " + action + ")";
 		}
 	}
 }
