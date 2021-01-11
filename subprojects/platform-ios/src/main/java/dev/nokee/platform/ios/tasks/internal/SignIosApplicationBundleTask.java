@@ -2,8 +2,6 @@ package dev.nokee.platform.ios.tasks.internal;
 
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.GradleWorkerExecutorEngine;
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.FileSystemOperations;
@@ -18,8 +16,8 @@ public class SignIosApplicationBundleTask extends DefaultTask {
 	private final Property<FileSystemLocation> unsignedApplicationBundle;
 	private final Property<FileSystemLocation> signedApplicationBundle;
 	private final Property<CommandLineTool> codeSignatureTool;
-	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final FileSystemOperations fileOperations;
-	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final ObjectFactory objects;
+	private final FileSystemOperations fileOperations;
+	private final ObjectFactory objects;
 
 	@SkipWhenEmpty
 	@InputDirectory
@@ -48,7 +46,7 @@ public class SignIosApplicationBundleTask extends DefaultTask {
 
 	@TaskAction
 	private void sign() {
-		getFileOperations().sync(spec -> {
+		fileOperations.sync(spec -> {
 			spec.from(getUnsignedApplicationBundle());
 			spec.into(getSignedApplicationBundle());
 		});
@@ -61,6 +59,6 @@ public class SignIosApplicationBundleTask extends DefaultTask {
 				getSignedApplicationBundle().get().getAsFile().getAbsolutePath())
 			.newInvocation()
 			.appendStandardStreamToFile(new File(getTemporaryDir(), "outputs.txt"))
-			.buildAndSubmit(getObjects().newInstance(GradleWorkerExecutorEngine.class));
+			.buildAndSubmit(objects.newInstance(GradleWorkerExecutorEngine.class));
 	}
 }

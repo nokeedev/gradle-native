@@ -2,8 +2,6 @@ package dev.nokee.platform.ios.tasks.internal;
 
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.*;
@@ -24,8 +22,8 @@ public class CreateIosApplicationBundleTask extends DefaultTask {
 	private final ConfigurableFileCollection sources;
 	private final ConfigurableFileCollection plugIns;
 	private final ConfigurableFileCollection frameworks;
-	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final FileSystemOperations fileOperations;
-	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final ExecOperations execOperations;
+	private final FileSystemOperations fileOperations;
+	private final ExecOperations execOperations;
 
 	@OutputDirectory
 	public Property<FileSystemLocation> getApplicationBundle() {
@@ -78,7 +76,7 @@ public class CreateIosApplicationBundleTask extends DefaultTask {
 
 	@TaskAction
 	private void create() throws IOException {
-		getFileOperations().sync(spec -> {
+		fileOperations.sync(spec -> {
 			spec.from(getSources().getFiles());
 
 			for (File file : getFrameworks().getFiles()) {
@@ -105,7 +103,7 @@ public class CreateIosApplicationBundleTask extends DefaultTask {
 		// TODO: This could probably be a strategy/policy added to the task.
 		//  It could also be an doLast action added to the task.
 		if (getSwiftSupportRequired().get()) {
-			getExecOperations().exec(spec -> {
+			execOperations.exec(spec -> {
 				File bundleFile = getExecutable().get().getAsFile();
 				File bundleDir = getApplicationBundle().get().getAsFile();
 				spec.executable(getSwiftStdlibTool());

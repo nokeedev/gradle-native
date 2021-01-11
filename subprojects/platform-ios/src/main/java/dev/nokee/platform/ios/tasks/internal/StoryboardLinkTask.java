@@ -2,8 +2,6 @@ package dev.nokee.platform.ios.tasks.internal;
 
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.GradleWorkerExecutorEngine;
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
@@ -23,7 +21,7 @@ public class StoryboardLinkTask extends DefaultTask {
 	private final Property<String> module;
 	private final ConfigurableFileCollection sources;
 	private final Property<CommandLineTool> interfaceBuilderTool;
-	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final ObjectFactory objects;
+	private final ObjectFactory objects;
 
 	@OutputDirectory
 	public DirectoryProperty getDestinationDirectory() {
@@ -81,6 +79,6 @@ public class StoryboardLinkTask extends DefaultTask {
 				"--link", getDestinationDirectory().get().getAsFile().getAbsolutePath(), getInputFiles().stream().map(File::getAbsolutePath).collect(Collectors.joining(" ")))
 			.newInvocation()
 			.appendStandardStreamToFile(new File(getTemporaryDir(), "outputs.txt"))
-			.buildAndSubmit(getObjects().newInstance(GradleWorkerExecutorEngine.class));
+			.buildAndSubmit(objects.newInstance(GradleWorkerExecutorEngine.class));
 	}
 }

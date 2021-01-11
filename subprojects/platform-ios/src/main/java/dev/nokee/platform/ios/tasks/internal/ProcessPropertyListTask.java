@@ -1,7 +1,5 @@
 package dev.nokee.platform.ios.tasks.internal;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.DefaultTask;
@@ -21,7 +19,7 @@ public class ProcessPropertyListTask extends DefaultTask {
 	private final Property<String> module;
 	private final Property<String> identifier;
 	private final RegularFileProperty outputFile;
-	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final ExecOperations execOperations;
+	private final ExecOperations execOperations;
 
 	@Optional
 	@SkipWhenEmpty // TODO: Test no source
@@ -63,7 +61,7 @@ public class ProcessPropertyListTask extends DefaultTask {
 		// Note: There seems to be a limit of how many command can be passed to the tool so we are using several invocation
 
 		// Merge plist files
-		getExecOperations().exec(spec -> {
+		execOperations.exec(spec -> {
 			spec.executable(getPlistBuddyExecutable().getAbsolutePath());
 			for (File source : getSources()) {
 				spec.args("-c", "Merge \"" + source.getAbsolutePath() + "\"");
@@ -78,7 +76,7 @@ public class ProcessPropertyListTask extends DefaultTask {
 		});
 
 		// Add information automatically added by Xcode, part 1
-		getExecOperations().exec(spec -> {
+		execOperations.exec(spec -> {
 			spec.executable(getPlistBuddyExecutable().getAbsolutePath());
 			spec.args("-c", "Add :DTSDKName string iphonesimulator13.2");
 			spec.args("-c", "Add :DTXcode string 1130");
@@ -98,7 +96,7 @@ public class ProcessPropertyListTask extends DefaultTask {
 		});
 
 		// Add information automatically added by Xcode, part 2
-		getExecOperations().exec(spec -> {
+		execOperations.exec(spec -> {
 			spec.executable(getPlistBuddyExecutable().getAbsolutePath());
 			spec.args("-c", "Add :MinimumOSVersion string 13.2");
 			spec.args("-c", "Add :DTPlatformVersion string 13.2");
@@ -121,7 +119,7 @@ public class ProcessPropertyListTask extends DefaultTask {
 		String data = FileUtils.readFileToString(xmlPlist, Charset.defaultCharset()).replace("$(PRODUCT_NAME)", getModule().get()).replace("$(EXECUTABLE_NAME)", getModule().get()).replace("$(PRODUCT_BUNDLE_IDENTIFIER)", getIdentifier().get()).replace("$(DEVELOPMENT_LANGUAGE)", "en").replace("$(PRODUCT_BUNDLE_PACKAGE_TYPE)", "APPL").replace("$(PRODUCT_MODULE_NAME)", getModule().get());
 		FileUtils.write(xmlPlist, data, Charset.defaultCharset());
 
-		getExecOperations().exec(spec -> {
+		execOperations.exec(spec -> {
 			spec.executable(getPlutilExecutable().getAbsolutePath());
 			spec.args("-convert", "binary1", "-o", getOutputFile().get().getAsFile().getAbsolutePath(), xmlPlist.getAbsolutePath());
 			try {
