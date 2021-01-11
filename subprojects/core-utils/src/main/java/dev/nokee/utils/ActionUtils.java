@@ -10,7 +10,6 @@ import org.gradle.api.specs.Specs;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -158,31 +157,6 @@ public final class ActionUtils {
 		@Override
 		public String toString() {
 			return "ActionUtils.onlyIf(" + type.getCanonicalName() + ", " + action + ")";
-		}
-	}
-
-	public static <T, R> Action<T> map(Function<T, R> mapper, Action<? super R> action) {
-		return new MappingAction<>(mapper, action);
-	}
-
-	@EqualsAndHashCode
-	private static final class MappingAction<T, R> implements Action<T> {
-		private final Function<T, R> mapper;
-		private final Action<? super R> action;
-
-		private MappingAction(Function<T, R> mapper, Action<? super R> action) {
-			this.mapper = requireNonNull(mapper);
-			this.action = requireNonNull(action);
-		}
-
-		@Override
-		public void execute(T t) {
-			action.execute(mapper.apply(t));
-		}
-
-		@Override
-		public String toString() {
-			return "ActionUtils.map(" + mapper + ", " + action + ")";
 		}
 	}
 }
