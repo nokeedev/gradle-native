@@ -223,6 +223,7 @@ public final class TransformerUtils {
 		}
 	}
 
+	@FunctionalInterface
 	interface Transformer<OUT, IN> extends org.gradle.api.Transformer<OUT, IN> {
 		default <V> Transformer<OUT, V> compose(Transformer<? extends IN, ? super V> before) {
 			return new ComposeTransformer<>(this, before);
