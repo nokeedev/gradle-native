@@ -1,6 +1,5 @@
 package dev.nokee.utils
 
-import dev.nokee.utils.internal.CompositeAction
 import org.gradle.api.Action
 import spock.lang.Specification
 import spock.lang.Subject
@@ -16,7 +15,7 @@ class ActionUtilsTest extends Specification {
 
 		expect:
 		composite(a) == a
-		composite(a, b) instanceof CompositeAction
+		composite(a, b)
 	}
 
 	def "can execute composite action"() {

@@ -1,7 +1,6 @@
 package dev.nokee.utils;
 
 import dev.nokee.ChainingAction;
-import dev.nokee.utils.internal.CompositeAction;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Action;
@@ -58,6 +57,21 @@ public final class ActionUtils {
 			case 0: return doNothing();
 			case 1: return actions.get(0);
 			default: return new CompositeAction<T>(actions);
+		}
+	}
+
+	private static final class CompositeAction<T> implements Action<T> {
+		private final Iterable<? extends Action<? super T>> actions;
+
+		public CompositeAction(Iterable<? extends Action<? super T>> actions) {
+			this.actions = actions;
+		}
+
+		@Override
+		public void execute(T t) {
+			for (org.gradle.api.Action<? super T> action : actions) {
+				action.execute(t);
+			}
 		}
 	}
 
