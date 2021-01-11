@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
 abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn, PropertyMixIn, DomainObjectView<T> {
@@ -116,8 +117,7 @@ abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn
 
 	@Override
 	public final <S> Provider<List<S>> flatMap(Transformer<? extends Iterable<S>, ? super T> mapper) {
-		// TODO: rename and move ProviderUtils.flatMap to TransformerUtils.flatTransformEach
-		return getElements().map(ProviderUtils.flatMap(mapper));
+		return getElements().map(flatTransformEach(mapper));
 	}
 
 	@Override

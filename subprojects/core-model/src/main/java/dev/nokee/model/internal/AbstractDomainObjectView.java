@@ -17,6 +17,7 @@ import java.util.Set;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.descendentOf;
 import static dev.nokee.utils.ActionUtils.onlyIf;
+import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 
 public abstract class AbstractDomainObjectView<TYPE, T extends TYPE> extends GroovyObjectSupport {
@@ -75,7 +76,7 @@ public abstract class AbstractDomainObjectView<TYPE, T extends TYPE> extends Gro
 	}
 
 	public <S> Provider<List<S>> flatMap(Transformer<? extends Iterable<S>, ? super T> mapper) {
-		return elementsProvider.map(ProviderUtils.flatMap(mapper));
+		return elementsProvider.map(flatTransformEach(mapper));
 	}
 
 	public Provider<List<T>> filter(Spec<? super T> spec) {

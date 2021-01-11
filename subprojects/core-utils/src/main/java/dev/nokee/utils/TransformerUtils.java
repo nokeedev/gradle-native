@@ -9,6 +9,8 @@ import org.gradle.api.Transformer;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNull;
+
 public final class TransformerUtils {
 	private TransformerUtils() {}
 
@@ -121,6 +123,42 @@ public final class TransformerUtils {
 		@Override
 		public String toString() {
 			return "TransformerUtils.configureInPlace(" + action + ")";
+		}
+	}
+
+	/**
+	 * Adapts an flat element mapper to transform each elements individually of the collection.
+	 * The result will apply a proper flatMap algorithm to the provided collection.
+	 *
+	 * @param mapper  an element mapper
+	 * @param <OUT>  output element type resulting from the transform
+	 * @param <IN>  input element type to transform
+	 * @return a {@link Transformer} instance to flat transform each the element of an iterable, never null.
+	 */
+	public static <OUT, IN> Transformer<List<OUT>, Iterable<IN>> flatTransformEach(Transformer<? extends Iterable<OUT>, ? super IN> mapper) {
+		return new FlatTransformEachAdapter<>(mapper);
+	}
+
+	@EqualsAndHashCode
+	private static final class FlatTransformEachAdapter<OUT, IN> implements Transformer<List<OUT>, Iterable<IN>> {
+		private final Transformer<? extends Iterable<OUT>, ? super IN> mapper;
+
+		public FlatTransformEachAdapter(Transformer<? extends Iterable<OUT>, ? super IN> mapper) {
+			this.mapper = requireNonNull(mapper);
+		}
+
+		@Override
+		public List<OUT> transform(Iterable<IN> elements) {
+			ImmutableList.Builder<OUT> result = ImmutableList.builder();
+			for (IN element : elements) {
+				result.addAll(mapper.transform(element));
+			}
+			return result.build();
+		}
+
+		@Override
+		public String toString() {
+			return "TransformerUtils.flatTransformEach(" + mapper + ")";
 		}
 	}
 }
