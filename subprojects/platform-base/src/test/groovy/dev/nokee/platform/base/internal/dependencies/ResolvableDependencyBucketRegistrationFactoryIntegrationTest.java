@@ -42,4 +42,17 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest implements De
 		subject.addDependency(producerProjectB);
 		assertThat(subject.getAsLenientFileCollection(), contains(producerProjectB.file("foo")));
 	}
+
+	@Test
+	void canGetAsFileCollection() {
+		val rootProject = rootProject();
+		val producerProject = createChildProject(rootProject, "project");
+		forProject(producerProject).createIfAbsent("test", asConsumable().andThen(forUsage("bar")).andThen(it -> it.getOutgoing().artifact(producerProject.file("bar"))));
+
+		val subjectProject = createChildProject(rootProject);
+		val subject = createSubject(subjectProject);
+		subject.getAsConfiguration().getAttributes().attribute(Usage.USAGE_ATTRIBUTE, subjectProject.getObjects().named(Usage.class, "bar"));
+		subject.addDependency(producerProject);
+		assertThat(subject.getAsFileCollection(), contains(producerProject.file("bar")));
+	}
 }

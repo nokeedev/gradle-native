@@ -13,4 +13,8 @@ public interface ResolvableDependencyBucket extends DependencyBucket {
 	default FileCollection getAsLenientFileCollection() {
 		return ModelNodes.of(this).get(ResolvableDependencyBucketRegistrationFactory.IncomingArtifacts.class).getAsLenient();
 	}
+
+	default FileCollection getAsFileCollection() {
+		return ModelNodes.of(this).get(ResolvableDependencyBucketRegistrationFactory.IncomingArtifacts.class).get();
+	}
 }
