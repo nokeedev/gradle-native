@@ -4,8 +4,6 @@ plugins {
 	id 'maven-publish'
 }
 
-import static dev.gradleplugins.GradleRuntimeCompatibility.*
-
 dependencies {
 	api project(':runtimeBase')
 	implementation project(':coreExec')
@@ -13,11 +11,6 @@ dependencies {
 
 	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)
-}
-
-java {
-	sourceCompatibility = minimumJavaVersionFor(minimumGradleVersion)
-	targetCompatibility = minimumJavaVersionFor(minimumGradleVersion)
 }
 
 publishing {

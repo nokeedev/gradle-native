@@ -24,6 +24,8 @@
 
 import org.gradle.util.VersionNumber
 
+import static dev.gradleplugins.GradleRuntimeCompatibility.*
+
 class Version {
 	private VersionNumber delegate = null
 	private final ProjectLayout projectLayout
@@ -95,6 +97,12 @@ subprojects {
 				withJavadocJar()
 				withSourcesJar()
 			}
+		}
+	}
+	pluginManager.withPlugin('java-library') {
+		java {
+			sourceCompatibility = minimumJavaVersionFor(minimumGradleVersion)
+			targetCompatibility = minimumJavaVersionFor(minimumGradleVersion)
 		}
 	}
 }

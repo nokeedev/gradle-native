@@ -5,8 +5,6 @@ plugins {
 	id 'java-test-fixtures'
 }
 
-import static dev.gradleplugins.GradleRuntimeCompatibility.*
-
 dependencies {
 	implementation project(':coreUtils')
 	compileOnly gradleApi(minimumGradleVersion)
@@ -25,11 +23,6 @@ dependencies {
 	testFixturesImplementation project(':coreExec')
 	testFixturesApi project(':runtimeBase')
 	testFixturesApi "dev.gradleplugins:gradle-fixtures-file-system:latest.release"
-}
-
-java {
-	sourceCompatibility = minimumJavaVersionFor(minimumGradleVersion)
-	targetCompatibility = minimumJavaVersionFor(minimumGradleVersion)
 }
 
 publishing {

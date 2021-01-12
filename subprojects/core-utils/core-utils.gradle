@@ -4,8 +4,6 @@ plugins {
 	id 'groovy-base'
 }
 
-import static dev.gradleplugins.GradleRuntimeCompatibility.*
-
 dependencies {
 	compileOnly gradleApi(minimumGradleVersion)
 
@@ -16,11 +14,6 @@ dependencies {
 	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72'
-}
-
-java {
-	sourceCompatibility = minimumJavaVersionFor(minimumGradleVersion)
-	targetCompatibility = minimumJavaVersionFor(minimumGradleVersion)
 }
 
 publishing {

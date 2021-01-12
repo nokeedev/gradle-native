@@ -6,8 +6,6 @@ plugins {
 	id 'dev.gradleplugins.gradle-plugin-unit-test'
 }
 
-import static dev.gradleplugins.GradleRuntimeCompatibility.*
-
 dependencies {
 	implementation 'net.rubygrapefruit:ansi-control-sequence-util:0.2'
 	implementation "org.apache.commons:commons-exec:${commonsExecVersion}"
@@ -21,11 +19,6 @@ dependencies {
 	testImplementation 'org.fusesource.jansi:jansi:2.0'
 	testImplementation gradleFixtures()
 	testImplementation gradleApi(minimumGradleVersion)
-}
-
-java {
-	sourceCompatibility = minimumJavaVersionFor(minimumGradleVersion)
-	targetCompatibility = minimumJavaVersionFor(minimumGradleVersion)
 }
 
 publishing {
