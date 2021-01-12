@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal.dependencies;
 
+import com.google.common.annotations.VisibleForTesting;
 import dev.nokee.platform.base.internal.ComponentName;
 import org.gradle.api.Project;
 
@@ -14,6 +15,11 @@ public final class ConfigurationDescriptionScheme {
 
 	public ConfigurationDescription description(ConfigurationDescription.Subject subject, ConfigurationDescription.Bucket bucket) {
 		return new ConfigurationDescription(subject, bucket, owner);
+	}
+
+	@VisibleForTesting
+	static ConfigurationDescriptionScheme forThisProject() {
+		return new ConfigurationDescriptionScheme(ofThisProject());
 	}
 
 	public static ConfigurationDescriptionScheme forProject(Project project) {
