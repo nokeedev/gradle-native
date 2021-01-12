@@ -4,18 +4,11 @@ plugins {
 	id 'maven-publish'
 }
 
-import static dev.gradleplugins.GradleRuntimeCompatibility.*
-
 dependencies {
 	api 'com.google.dagger:dagger:latest.release'
 	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
 
 	compileOnly gradleApi(minimumGradleVersion)
-}
-
-java {
-	sourceCompatibility = minimumJavaVersionFor(minimumGradleVersion)
-	targetCompatibility = minimumJavaVersionFor(minimumGradleVersion)
 }
 
 publishing {
