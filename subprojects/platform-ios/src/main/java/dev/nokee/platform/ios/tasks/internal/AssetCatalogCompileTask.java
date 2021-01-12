@@ -2,8 +2,6 @@ package dev.nokee.platform.ios.tasks.internal;
 
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.GradleWorkerExecutorEngine;
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
@@ -19,7 +17,7 @@ public class AssetCatalogCompileTask extends DefaultTask {
 	private final RegularFileProperty source;
 	private final Property<String> identifier;
 	private final Property<CommandLineTool> assetCompilerTool;
-	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final ObjectFactory objects;
+	private final ObjectFactory objects;
 
 	@OutputDirectory
 	public DirectoryProperty getDestinationDirectory() {
@@ -72,6 +70,6 @@ public class AssetCatalogCompileTask extends DefaultTask {
 				"--compile", getDestinationDirectory().get().getAsFile().getAbsolutePath(), getSource().get().getAsFile().getAbsolutePath())
 			.newInvocation()
 			.appendStandardStreamToFile(new File(getTemporaryDir(), "outputs.txt"))
-			.buildAndSubmit(getObjects().newInstance(GradleWorkerExecutorEngine.class));
+			.buildAndSubmit(objects.newInstance(GradleWorkerExecutorEngine.class));
 	}
 }

@@ -1,7 +1,5 @@
 package dev.nokee.testing.xctest.tasks.internal;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileSystemLocation;
@@ -17,7 +15,7 @@ import javax.inject.Inject;
 public class CreateIosXCTestBundleTask extends DefaultTask {
 	private final Property<FileSystemLocation> xCTestBundle;
 	private final ConfigurableFileCollection sources;
-	@Getter(value=AccessLevel.PROTECTED, onMethod_={@Inject}) private final FileSystemOperations fileOperations;
+	private final FileSystemOperations fileOperations;
 
 	@OutputDirectory
 	public Property<FileSystemLocation> getXCTestBundle() {
@@ -38,7 +36,7 @@ public class CreateIosXCTestBundleTask extends DefaultTask {
 
 	@TaskAction
 	private void create() {
-		getFileOperations().sync(spec -> {
+		fileOperations.sync(spec -> {
 			spec.from(getSources().getFiles());
 			spec.into(getXCTestBundle());
 		});
