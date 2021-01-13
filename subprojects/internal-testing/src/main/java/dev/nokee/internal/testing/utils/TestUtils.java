@@ -1,6 +1,7 @@
 package dev.nokee.internal.testing.utils;
 
 import org.gradle.api.Project;
+import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.testfixtures.ProjectBuilder;
@@ -62,5 +63,9 @@ public final class TestUtils {
 			.withParent(parent)
 			.withProjectDir(projectDirectory)
 			.build();
+	}
+
+	public static Project evaluate(Project project) {
+		return ((ProjectInternal) project).evaluate();
 	}
 }
