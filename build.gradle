@@ -121,6 +121,7 @@ subprojects {
 		functionalTest {
 			testingStrategies = [strategies.coverageForMinimumVersion, strategies.coverageForLatestGlobalAvailableVersion, strategies.coverageForLatestNightlyVersion]
 			dependencies {
+				implementation project(':internalTesting')
 				implementation spockFramework()
 				implementation gradleFixtures()
 			}
@@ -128,15 +129,25 @@ subprojects {
 	}
 }
 
-// Configure test
+// Configure test for java-gradle-plugin
 subprojects {
 	pluginManager.withPlugin('dev.gradleplugins.java-gradle-plugin') {
 		apply plugin: 'dev.gradleplugins.gradle-plugin-unit-test'
 		test {
 			dependencies {
+				implementation project(':internalTesting')
 				implementation spockFramework()
 				implementation groovy()
 			}
+		}
+	}
+}
+
+// Configure test for java-library
+subprojects {
+	pluginManager.withPlugin('java-library') {
+		dependencies {
+			testImplementation project(':internalTesting')
 		}
 	}
 }

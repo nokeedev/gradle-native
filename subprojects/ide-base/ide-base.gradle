@@ -13,7 +13,6 @@ dependencies {
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "com.google.guava:guava:${guavaVersion}"
 
-	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)
 
 

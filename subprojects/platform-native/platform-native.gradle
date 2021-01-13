@@ -85,7 +85,6 @@ gradlePlugin {
 
 test {
 	dependencies {
-		implementation project(':internalTesting')
 		implementation testFixtures(project(':platformBase'))
 		implementation testFixtures(project(':coreModel'))
 	}
@@ -93,7 +92,6 @@ test {
 
 functionalTest {
 	dependencies {
-		implementation project(':internalTesting')
 		implementation project(':runtimeNative')
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation testFixtures(project(':platformNative'))

@@ -41,7 +41,6 @@ gradlePlugin {
 
 test {
 	dependencies {
-		implementation project(':internalTesting')
 		implementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
 	}
 }
@@ -52,7 +51,6 @@ functionalTest {
 		pluginUnderTestMetadata project(':platformIos')
 		pluginUnderTestMetadata project(':platformJni')
 		pluginUnderTestMetadata project(':testingXctest')
-		implementation project(':internalTesting')
 		implementation project(':platformJni')
 		implementation 'com.googlecode.plist:dd-plist:1.23'
 		implementation 'dev.nokee:templates:latest.integration'
