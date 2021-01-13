@@ -32,9 +32,9 @@ class CommandLineToolOutputStreamIntertwineImplTest extends Specification {
 		writeln(out, 'Hello, world!')
 
 		then:
-		streams.standardOutputContent.asString == 'Hello, world!\n'
+		streams.standardOutputContent.asString == "Hello, world!${System.lineSeparator()}"
 		streams.errorOutputContent.asString == ''
-		streams.outputContent.asString == 'Hello, world!\n'
+		streams.outputContent.asString == "Hello, world!${System.lineSeparator()}"
 	}
 
 	def "can capture stderr"() {
@@ -43,8 +43,8 @@ class CommandLineToolOutputStreamIntertwineImplTest extends Specification {
 
 		then:
 		streams.standardOutputContent.asString == ''
-		streams.errorOutputContent.asString == 'Hello, world!\n'
-		streams.outputContent.asString == 'Hello, world!\n'
+		streams.errorOutputContent.asString == "Hello, world!${System.lineSeparator()}"
+		streams.outputContent.asString == "Hello, world!${System.lineSeparator()}"
 	}
 
 	def "can decouple stdout/stderr per lines"() {
@@ -55,9 +55,9 @@ class CommandLineToolOutputStreamIntertwineImplTest extends Specification {
 		writeln(err, 'Oh, world!')
 
 		then:
-		streams.standardOutputContent.asString == 'Hello, world!\nHey, world!\n'
-		streams.errorOutputContent.asString == 'Goodbye, world!\nOh, world!\n'
-		streams.outputContent.asString == 'Hello, world!\nGoodbye, world!\nHey, world!\nOh, world!\n'
+		streams.standardOutputContent.asString == "Hello, world!${System.lineSeparator()}Hey, world!${System.lineSeparator()}"
+		streams.errorOutputContent.asString == "Goodbye, world!${System.lineSeparator()}Oh, world!${System.lineSeparator()}"
+		streams.outputContent.asString == "Hello, world!${System.lineSeparator()}Goodbye, world!${System.lineSeparator()}Hey, world!${System.lineSeparator()}Oh, world!${System.lineSeparator()}"
 	}
 
 	def "can decouple stdout/stderr"() {
@@ -68,9 +68,9 @@ class CommandLineToolOutputStreamIntertwineImplTest extends Specification {
 		writeln(err, 'Oh, world!')
 
 		then:
-		streams.standardOutputContent.asString == 'Hello, world!Hey, world!\n'
-		streams.errorOutputContent.asString == 'Goodbye, world!Oh, world!\n'
-		streams.outputContent.asString == 'Hello, world!Goodbye, world!Hey, world!\nOh, world!\n'
+		streams.standardOutputContent.asString == "Hello, world!Hey, world!${System.lineSeparator()}"
+		streams.errorOutputContent.asString == "Goodbye, world!Oh, world!${System.lineSeparator()}"
+		streams.outputContent.asString == "Hello, world!Goodbye, world!Hey, world!${System.lineSeparator()}Oh, world!${System.lineSeparator()}"
 	}
 
 	def "only commit captured output on flush"() {
@@ -83,8 +83,8 @@ class CommandLineToolOutputStreamIntertwineImplTest extends Specification {
 		out.flush()
 
 		then:
-		streams.standardOutputContent.asString == 'Hello, world!\n'
-		streams.errorOutputContent.asString == 'Goodbye, world!\n'
-		streams.outputContent.asString == 'Goodbye, world!\nHello, world!\n'
+		streams.standardOutputContent.asString == "Hello, world!${System.lineSeparator()}"
+		streams.errorOutputContent.asString == "Goodbye, world!${System.lineSeparator()}"
+		streams.outputContent.asString == "Goodbye, world!${System.lineSeparator()}Hello, world!${System.lineSeparator()}"
 	}
 }
