@@ -14,8 +14,7 @@ import java.nio.file.Path;
 
 import static dev.nokee.internal.testing.utils.TestUtils.rootProject;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @Subject(BintrayPublication.class)
@@ -52,7 +51,7 @@ class BintrayPublicationTest {
 		Files.createFile(testDirectory.resolve("foo/foo.txt"));
 		Files.createFile(testDirectory.resolve("foo/bar/bar.txt"));
 
-		assertThat(createSubject().getArtifacts(), contains(artifact("file.txt"), artifact("foo/foo.txt"), artifact("foo/bar/bar.txt")));
+		assertThat(createSubject().getArtifacts(), containsInAnyOrder(artifact("file.txt"), artifact("foo/foo.txt"), artifact("foo/bar/bar.txt")));
 	}
 
 	@Test
@@ -63,7 +62,7 @@ class BintrayPublicationTest {
 		Files.createFile(testDirectory.resolve("foo/maven-metadata.xml"));
 		Files.createFile(testDirectory.resolve("foo/bar/maven-metadata.xml"));
 
-		assertThat(createSubject().getArtifacts(), contains(artifact("foo.txt")));
+		assertThat(createSubject().getArtifacts(), containsInAnyOrder(artifact("foo.txt")));
 	}
 
 	@ParameterizedTest
@@ -75,7 +74,7 @@ class BintrayPublicationTest {
 		Files.createFile(testDirectory.resolve("foo/" + mavenMetadataHashFilename));
 		Files.createFile(testDirectory.resolve("foo/bar/" + mavenMetadataHashFilename));
 
-		assertThat(createSubject().getArtifacts(), contains(artifact("bar.txt")));
+		assertThat(createSubject().getArtifacts(), containsInAnyOrder(artifact("bar.txt")));
 	}
 
 	@Test
@@ -86,7 +85,7 @@ class BintrayPublicationTest {
 		Files.createFile(testDirectory.resolve("foo/bar/bar.txt"));
 
 		assertThat(createSubject("4.2").getArtifacts(),
-			contains(artifact("file.txt", "4.2"), artifact("foo/foo.txt", "4.2"), artifact("foo/bar/bar.txt", "4.2")));
+			containsInAnyOrder(artifact("file.txt", "4.2"), artifact("foo/foo.txt", "4.2"), artifact("foo/bar/bar.txt", "4.2")));
 	}
 
 	@Test
