@@ -50,12 +50,16 @@ jobs:
             matrix:
                 checkTask: [
                     ':buildAdapterCmake:check',
+                    ':coreExec:check',
+                    ':coreGradle:check',
+                    ':coreModel:check',
                     ':coreScript:check',
                     ':coreUtils:check',
                     ':docs:exemplarKit:check',
                     ':ideBase:check',
                     ':ideVisualStudio:check',
                     ':ideXcode:check',
+                    ':internalTesting:check',
                     ':languageBase:check',
                     ':languageC:check',
                     ':languageCpp:check',
@@ -70,6 +74,7 @@ jobs:
                     ':runtimeBase:check',
                     ':runtimeDarwin:check',
                     ':runtimeNative:check',
+                    ':runtimeWindows:check',
                     ':testingBase:check',
                     ':testingNative:check',
                     ':testingXctest:check']
@@ -97,12 +102,16 @@ jobs:
             matrix:
                 checkTask: [
                     ':buildAdapterCmake:check',
+                    ':coreExec:check',
+                    ':coreGradle:check',
+                    ':coreModel:check',
                     ':coreScript:check',
                     ':coreUtils:check',
                     ':docs:exemplarKit:check',
                     ':ideBase:check',
                     ':ideVisualStudio:check',
                     ':ideXcode:check',
+                    ':internalTesting:check',
                     ':languageBase:check',
                     ':languageC:check',
                     ':languageCpp:check',
@@ -117,6 +126,7 @@ jobs:
                     ':runtimeBase:check',
                     ':runtimeDarwin:check',
                     ':runtimeNative:check',
+                    ':runtimeWindows:check',
                     ':testingBase:check',
                     ':testingNative:check',
                     ':testingXctest:check']
@@ -144,12 +154,16 @@ jobs:
             matrix:
                 checkTask: [
                     ':buildAdapterCmake:check',
+                    ':coreExec:check',
+                    ':coreGradle:check',
+                    ':coreModel:check',
                     ':coreScript:check',
                     ':coreUtils:check',
                     ':docs:exemplarKit:check',
                     ':ideBase:check',
                     ':ideVisualStudio:check',
                     ':ideXcode:check',
+                    ':internalTesting:check',
                     ':languageBase:check',
                     ':languageC:check',
                     ':languageCpp:check',
@@ -164,6 +178,7 @@ jobs:
                     ':runtimeBase:check',
                     ':runtimeDarwin:check',
                     ':runtimeNative:check',
+                    ':runtimeWindows:check',
                     ':testingBase:check',
                     ':testingNative:check',
                     ':testingXctest:check']
