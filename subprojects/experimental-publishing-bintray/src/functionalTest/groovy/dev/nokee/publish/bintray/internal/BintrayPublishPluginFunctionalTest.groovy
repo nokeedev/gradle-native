@@ -1,15 +1,13 @@
 package dev.nokee.publish.bintray.internal
 
 import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
+import spock.lang.IgnoreIf
 import spock.lang.Subject
-
-import static org.junit.Assume.assumeTrue
 
 @Subject(BintrayPublishPlugin)
 class BintrayPublishPluginFunctionalTest extends AbstractGradleSpecification {
+	@IgnoreIf({System.getProperties().getProperty("dev.nokee.env.BINTRAY_USER", null) != null})
 	def "can publish to bintray"() {
-		assumeTrue(System.getProperties().containsKey("dev.nokee.env.BINTRAY_USER"))
-
 		given:
 		buildFile << """
 			plugins {
