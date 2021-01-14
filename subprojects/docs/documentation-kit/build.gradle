@@ -10,3 +10,28 @@ allprojects {
 	group = 'dev.gradleplugins'
 	version = '1.0'
 }
+
+// Unit test configuration
+subprojects {
+	configurations.matching { it.name == 'testImplementation' }.all { Configuration testImplementation ->
+		testImplementation.dependencies.add(project.dependencies.create("org.junit.jupiter:junit-jupiter:${junitVersion}"))
+		testImplementation.dependencies.add(project.dependencies.create("org.junit.vintage:junit-vintage-engine:${junitVersion}"))
+		testImplementation.dependencies.add(project.dependencies.create("org.junit-pioneer:junit-pioneer:1.2.0"))
+		testImplementation.dependencies.add(project.dependencies.create("org.hamcrest:hamcrest:${hamcrestVersion}"))
+	}
+	configurations.matching { it.name == 'functionalTestImplementation' }.all { Configuration functionalTestImplementation ->
+		functionalTestImplementation.dependencies.add(project.dependencies.create("org.junit.jupiter:junit-jupiter:${junitVersion}"))
+		functionalTestImplementation.dependencies.add(project.dependencies.create("org.junit.vintage:junit-vintage-engine:${junitVersion}"))
+	}
+	tasks.withType(Test).configureEach { useJUnitPlatform() }
+}
+
+// Lombok configuration
+subprojects {
+	pluginManager.withPlugin('java-base') {
+		sourceSets.configureEach {
+			dependencies.add(annotationProcessorConfigurationName, "org.projectlombok:lombok:${lombokVersion}")
+			dependencies.add(compileOnlyConfigurationName, "org.projectlombok:lombok:${lombokVersion}")
+		}
+	}
+}

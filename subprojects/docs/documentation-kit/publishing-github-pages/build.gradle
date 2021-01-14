@@ -1,0 +1,41 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'dev.gradleplugins.gradle-plugin-unit-test'
+	id 'dev.gradleplugins.gradle-plugin-functional-test'
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	implementation 'org.eclipse.jgit:org.eclipse.jgit:5.8.0.202006091008-r'
+	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+}
+
+gradlePlugin {
+	plugins {
+		gitHubPagesPublish {
+			id = 'dev.gradleplugins.documentation.github-pages-publish'
+			implementationClass = 'dev.gradleplugins.documentationkit.publish.githubpages.internal.GitHubPagesPublishPlugin'
+		}
+	}
+	compatibility {
+		minimumGradleVersion = project.minimumGradleVersion
+	}
+}
+
+test {
+	dependencies {
+		implementation 'dev.gradleplugins:gradle-fixtures-version-control-system:latest.integration'
+		implementation "commons-io:commons-io:${commonsIoVersion}"
+	}
+}
+
+functionalTest {
+	dependencies {
+		implementation spockFramework()
+		implementation gradleFixtures()
+	}
+}
