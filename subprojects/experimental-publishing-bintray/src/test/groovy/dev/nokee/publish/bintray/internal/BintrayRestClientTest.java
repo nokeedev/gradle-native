@@ -48,7 +48,7 @@ class BintrayRestClientTest {
 		assertThat(parameters.getUsername(), providerOf(equalTo("user")));
 		assertThat(parameters.getPassword(), providerOf(equalTo("key")));
 		assertThat(parameters.getRelativePath(), providerOf(equalTo("some/path")));
-		assertThat(parameters.getFile(), providerOf(fileAt(testDirectory.getAbsolutePath() + "/foo")));
+		assertThat(parameters.getFile(), providerOf(fileAt(testDirectory.getAbsolutePath() + File.separator + "foo")));
 		assertThat(parameters.getUrl(), providerOf(hasToString("https://api.bintray.com/content/nokeedev/examples/foo/4.2/some/path?publish=1&override=0")));
 	}
 
