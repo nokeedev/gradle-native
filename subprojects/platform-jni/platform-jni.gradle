@@ -31,7 +31,6 @@ gradlePlugin {
 
 test {
 	dependencies {
-		implementation project(':internalTesting')
 		implementation testFixtures(project(':platformNative'))
 		implementation testFixtures(project(':platformBase'))
 		implementation "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10"

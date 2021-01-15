@@ -14,7 +14,6 @@ dependencies {
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	compileOnly gradleApi(minimumGradleVersion)
 
-	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
 	testImplementation testFixtures(project(':coreModel'))

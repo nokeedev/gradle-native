@@ -10,7 +10,6 @@ dependencies {
 	implementation project(':coreUtils')
 	implementation "com.google.guava:guava:${guavaVersion}"
 
-	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
 

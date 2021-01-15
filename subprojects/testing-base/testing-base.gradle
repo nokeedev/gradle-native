@@ -8,7 +8,6 @@ dependencies {
 	implementation project(':coreModel')
 	api project(':platformBase')
 
-	testImplementation project(':internalTesting')
 	testImplementation testFixtures(project(':coreModel'))
 	testImplementation testFixtures(project(':platformBase'))
 }

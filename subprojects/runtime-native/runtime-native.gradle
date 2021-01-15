@@ -9,7 +9,6 @@ dependencies {
 	implementation project(':coreExec')
 	compileOnly gradleApi(minimumGradleVersion)
 
-	testImplementation project(':internalTesting')
 	testImplementation gradleApi(minimumGradleVersion)
 }
 
