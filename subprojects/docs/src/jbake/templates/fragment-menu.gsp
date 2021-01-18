@@ -10,6 +10,7 @@ def gitHubLogo = '''<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http:
 	<ul class="navigation-items">
 		<li><a href="/docs/current/manual/user-manual.html">Docs</a></li>
 		<li><a href="/blog">Blog</a></li>
+		<li><a href="/services/consulting.html">Services</a></li>
 		<li>
 			<ul class="navigation-socials">
 				<li class="navigation-twitter"><a href="https://twitter.com/nokeedev" title="Nokee on Twitter">${twitterLogo}</a></li>

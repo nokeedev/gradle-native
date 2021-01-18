@@ -47,6 +47,7 @@
 				}
 			case 'blog_index': return [kBlogCrumb]
 			case 'blog_post': return [kBlogCrumb, kContentCrumb]
+			case 'service_page':
 			case 'landing_page':
 			case 'page':
 			case 'documentation_index': // Inside docs.nokee.dev
