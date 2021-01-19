@@ -61,7 +61,7 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: :docs:bakedDocsTest :docs:publishBakedPublicationToS3Repository --scan --continue --max-workers 2 --info --no-daemon --no-build-cache "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
+                    arguments: :docs:bakedDocsTest :docs:publishBakedPublicationToS3Repository --scan --continue --max-workers 4 --info --no-daemon --no-build-cache "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}" "-DskipAllAsciinemaTasks=true"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
                 env:
