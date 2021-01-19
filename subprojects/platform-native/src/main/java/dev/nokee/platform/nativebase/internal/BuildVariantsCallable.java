@@ -96,8 +96,6 @@ public class BuildVariantsCallable implements Callable<Iterable<BuildVariantInte
 
 	private Iterable<Dimension> sort(Collection<Dimension> dimensionsToOrder) {
 		val result = ImmutableList.<Dimension>builder();
-		System.out.println(dimensions.get());
-		System.out.println(dimensionsToOrder);
 		for (val type : dimensions.get()) {
 			result.add(dimensionsToOrder.stream().filter(it -> it.getType().equals(type)).findFirst().orElseThrow(() -> new IllegalArgumentException("Missing dimension: " + type)));
 		}

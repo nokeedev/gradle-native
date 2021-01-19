@@ -67,7 +67,29 @@ dependencies {
 	docsTestImplementation project(':languageSwift')
 	docsTestImplementation project('exemplarKit')
 	docsTestImplementation testFixtures(project('exemplarKit'))
+
+	content project(':coreModel')
+	content project(':languageBase')
+	content project(':languageNative')
+	content project(':languageC')
+	content project(':languageCpp')
+	content project(':languageObjectiveC')
+	content project(':languageObjectiveCpp')
+	content project(':languageSwift')
+	content project(':platformBase')
+	content project(':platformJni')
+	content project(':platformNative')
+	content project(':runtimeNative')
 }
+
+extensions.components.apiReference {
+	dependencies {
+		(rootProject.allprojects - [project(':docs'), project(':distributions:all'), project(':distributions:bom'), project(':distributions:init'), project(':docs:exemplarKit'), project(':internalTesting')]).each {
+			api.addDependency(it)
+		}
+	}
+}
+extensions.components.apiReference.get().dependencies.api
 
 documentation {
 	samples.configureEach { minimumGradleVersion = project.minimumGradleVersion }
@@ -270,10 +292,3 @@ tasks.named('docsTest', Test) { task ->
 	task.inputs.dir(layout.buildDirectory.dir('generated/zips'))
 	task.systemProperty('sampleArchiveDirectory', layout.buildDirectory.dir('generated/zips').get().asFile.absolutePath)
 }
-
-// Disabled glue coming from docs-gradle-plugins, those will be merged to Nokee directly
-//tasks.named('stageDocumentation', Sync) {
-//	from(tasks.getByPath(':distributions:javadoc')) {
-//		into('docs/nightly/javadoc')
-//	}
-//}

@@ -1,0 +1,6 @@
+<plugins>
+    <plugin id="dev.nokee.xcode-ide-base" description="Xcode IDE Base Plugin">
+    </plugin>
+    <plugin id="dev.nokee.xcode-ide" description="Xcode IDE Plugin">
+    </plugin>
+</plugins>

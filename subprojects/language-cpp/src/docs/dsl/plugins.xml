@@ -1,0 +1,4 @@
+<plugins>
+	<plugin id="dev.nokee.cpp-language" description="C++ Language Plugin">
+	</plugin>
+</plugins>

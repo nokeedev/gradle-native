@@ -1,0 +1,61 @@
+plugins {
+	id 'dev.gradleplugins.groovy-gradle-plugin'
+	id 'dev.gradleplugins.gradle-plugin-unit-test'
+}
+
+repositories {
+	jcenter()
+	mavenCentral()
+//	maven { url = '../../../distributions/build/repository' }
+	maven { url = 'https://dl.bintray.com/nokeedev/distributions-snapshots' }
+	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+}
+
+dependencies {
+	implementation platform('dev.nokee:nokee-gradle-plugins:0.5.0-1616a33a')
+
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "commons-io:commons-io:${commonsIoVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	implementation 'com.github.javaparser:javaparser-core:3.15.18'
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:latest.release'
+	implementation 'com.google.code.gson:gson:2.8.6'
+	implementation 'dev.gradleplugins:gradle-runner-kit:latest.release'
+}
+
+gradlePlugin {
+	plugins {
+		dslReferenceDocumentation {
+			id = 'dev.gradleplugins.documentation.dsl-reference'
+			implementationClass = 'dev.gradleplugins.documentationkit.internal.DslReferenceDocumentationPlugin'
+		}
+		apiReferenceDocumentation {
+			id = 'dev.gradleplugins.documentation.api-reference'
+			implementationClass = 'dev.gradleplugins.documentationkit.internal.ApiReferenceDocumentationPlugin'
+		}
+		javadocRender {
+			id = 'dev.gradleplugins.documentation.javadoc-render'
+			implementationClass = 'dev.gradleplugins.documentationkit.internal.JavadocRenderPlugin'
+		}
+//	id 'dev.gradleplugins.documentation.asciidoc-language'
+//	id 'dev.gradleplugins.documentation.user-manual'
+//	id 'dev.gradleplugins.documentation.samples'
+//	id 'dev.gradleplugins.documentation.guides'
+//	id 'dev.gradleplugins.documentation.site'
+	}
+	compatibility {
+		minimumGradleVersion = project.minimumGradleVersion
+	}
+}
+
+test {
+	dependencies {
+		implementation spockFramework()
+		implementation groovy()
+		runtimeOnly 'net.bytebuddy:byte-buddy:1.10.9'
+		runtimeOnly 'org.objenesis:objenesis:3.1'
+	}
+}
