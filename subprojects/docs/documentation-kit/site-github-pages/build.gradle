@@ -1,0 +1,39 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'dev.gradleplugins.gradle-plugin-unit-test'
+	id 'dev.gradleplugins.gradle-plugin-functional-test'
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	implementation project(':publishing-github-pages')
+	implementation "commons-io:commons-io:${commonsIoVersion}"
+}
+
+gradlePlugin {
+	plugins {
+		gitHubPagesSite {
+			id = 'dev.gradleplugins.documentation.github-pages-site'
+			implementationClass = 'dev.gradleplugins.documentationkit.site.githubpages.internal.GitHubPagesSitePlugin'
+		}
+	}
+	compatibility {
+		minimumGradleVersion = project.minimumGradleVersion
+	}
+}
+
+test {
+	dependencies {
+		implementation "com.google.guava:guava:${guavaVersion}"
+	}
+}
+
+functionalTest {
+	dependencies {
+		implementation spockFramework()
+		implementation gradleFixtures()
+	}
+}
