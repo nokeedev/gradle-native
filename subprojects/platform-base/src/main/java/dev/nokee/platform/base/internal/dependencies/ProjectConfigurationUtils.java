@@ -65,14 +65,14 @@ public final class ProjectConfigurationUtils {
 	}
 
 	/**
-	 * Delegates the configuration for a {@link Configuration} using the specified {@link ObjectFactory}.
+	 * Delegates the configuration action using the specified {@link ObjectFactory}.
 	 * It allows users with a {@link ProjectConfigurationRegistry} instance to configure the attributes without explicitly having access to an {@link ObjectFactory} using {@link #forUsage(String)} and {@link #attribute(Attribute, AttributeFactory)} or to access a {@link ObjectFactory} instance via {@link #withObjectFactory(BiConsumer)}.
 	 *
 	 * @param objectFactory  the object factory to use in the thread context, must not be null
 	 * @param action  a delegate configuration action, must not be null
 	 * @return a configuration action, never null
 	 */
-	public static Action<Configuration> using(ObjectFactory objectFactory, Consumer<? super Configuration> action) {
+	public static <T> Action<T> using(ObjectFactory objectFactory, Consumer<? super T> action) {
 		requireNonNull(objectFactory);
 		requireNonNull(action);
 		return configuration -> {
@@ -93,28 +93,28 @@ public final class ProjectConfigurationUtils {
 	 * @return a configuration action, never null
 	 */
 	public static Consumer<Configuration> withObjectFactory(BiConsumer<? super Configuration, ObjectFactory> action) {
-		return new WithObjectFactoryConfigurationConsumer(action);
+		return new WithObjectFactoryConfigurationConsumer<>(action);
 	}
 
 	@EqualsAndHashCode
-	private static final class WithObjectFactoryConfigurationConsumer implements ConfigurationConsumer {
-		private final BiConsumer<? super Configuration, ObjectFactory> action;
+	private static final class WithObjectFactoryConfigurationConsumer<T> implements AssertableConsumer<T> {
+		private final BiConsumer<? super T, ObjectFactory> action;
 
-		private WithObjectFactoryConfigurationConsumer(BiConsumer<? super Configuration, ObjectFactory> action) {
+		private WithObjectFactoryConfigurationConsumer(BiConsumer<? super T, ObjectFactory> action) {
 			this.action = requireNonNull(action);
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public void assertValue(Configuration value) {
+		public void assertValue(T t) {
 			if (action instanceof Assertable) {
-				((Assertable<Configuration>) action).assertValue(value);
+				((Assertable<T>) action).assertValue(t);
 			}
 		}
 
 		@Override
-		public void accept(Configuration configuration) {
-			action.accept(configuration, getObjectFactory());
+		public void accept(T t) {
+			action.accept(t, getObjectFactory());
 		}
 
 		@Override
@@ -318,7 +318,7 @@ public final class ProjectConfigurationUtils {
 	}
 
 	@EqualsAndHashCode
-	private static final class DescriptionConfigurationConsumer implements ConfigurationConsumer {
+	private static final class DescriptionConfigurationConsumer implements AssertableConsumer<Configuration> {
 		private final Supplier<? extends String> descriptionSupplier;
 
 		private DescriptionConfigurationConsumer(Supplier<? extends String> descriptionSupplier) {
@@ -352,7 +352,7 @@ public final class ProjectConfigurationUtils {
 	}
 
 	@EqualsAndHashCode
-	private static final class ExtendsFromConsumer implements ConfigurationConsumer {
+	private static final class ExtendsFromConsumer implements AssertableConsumer<Configuration> {
 		private final List<Configuration> configurations;
 
 		public ExtendsFromConsumer(List<Configuration> configurations) {
@@ -406,7 +406,7 @@ public final class ProjectConfigurationUtils {
 		return ConfigurationBuckets.RESOLVABLE;
 	}
 
-	private enum ConfigurationBuckets implements ConfigurationConsumer {
+	private enum ConfigurationBuckets implements AssertableConsumer<Configuration> {
 		DECLARABLE(false, false),
 		CONSUMABLE(true, false),
 		RESOLVABLE(false, true);
@@ -441,7 +441,7 @@ public final class ProjectConfigurationUtils {
 		}
 	}
 
-	private static abstract class ConfigurationWithObjectFactoryConsumer implements ConfigurationConsumer {
+	private static abstract class ConfigurationWithObjectFactoryConsumer implements AssertableConsumer<Configuration> {
 		@Override
 		public final void accept(Configuration configuration) {
 			accept(configuration, getObjectFactory());
@@ -450,36 +450,36 @@ public final class ProjectConfigurationUtils {
 		protected abstract void accept(Configuration configuration, ObjectFactory objectFactory);
 	}
 
-	private interface ConfigurationConsumer extends Consumer<Configuration>, Assertable<Configuration> {
-		default Consumer<Configuration> andThen(Consumer<? super Configuration> after) {
-			return new AndThenConfigurationConsumer(this, requireNonNull(after));
+	private interface AssertableConsumer<T> extends Consumer<T>, Assertable<T> {
+		default Consumer<T> andThen(Consumer<? super T> after) {
+			return new AndThenAssertableConsumer<>(this, requireNonNull(after));
 		}
 	}
 
-	private static final class AndThenConfigurationConsumer implements ConfigurationConsumer {
-		private final Consumer<? super Configuration> first;
-		private final Consumer<? super Configuration> second;
+	private static final class AndThenAssertableConsumer<T> implements AssertableConsumer<T> {
+		private final Consumer<? super T> first;
+		private final Consumer<? super T> second;
 
-		private AndThenConfigurationConsumer(Consumer<? super Configuration> first, Consumer<? super Configuration> second) {
+		private AndThenAssertableConsumer(Consumer<? super T> first, Consumer<? super T> second) {
 			this.first = first;
 			this.second = second;
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public void assertValue(Configuration configuration) {
+		public void assertValue(T t) {
 			if (first instanceof Assertable) {
-				((Assertable<Configuration>) first).assertValue(configuration);
+				((Assertable<T>) first).assertValue(t);
 			}
 			if (second instanceof Assertable) {
-				((Assertable<Configuration>) second).assertValue(configuration);
+				((Assertable<T>) second).assertValue(t);
 			}
 		}
 
 		@Override
-		public void accept(Configuration configuration) {
-			first.accept(configuration);
-			second.accept(configuration);
+		public void accept(T t) {
+			first.accept(t);
+			second.accept(t);
 		}
 	}
 }
