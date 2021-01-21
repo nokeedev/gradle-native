@@ -2,20 +2,23 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
+import dev.nokee.utils.ProviderUtils;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.DocsType;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.file.FileSystemLocation;
+import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -296,6 +299,44 @@ public final class ProjectConfigurationUtils {
 //			configuration.getOutgoing().artifact(artifact);
 //		}
 //	}
+
+	public static Consumer<Configuration> artifactIfExists(Provider<? extends FileSystemLocation> fileProvider) {
+		return new ArtifactIfExistsConfigurationConsumer(fileProvider);
+	}
+
+	private static final class ArtifactIfExistsConfigurationConsumer implements AssertableConsumer<Configuration> {
+		private final Provider<? extends FileSystemLocation> fileProvider;
+
+		private ArtifactIfExistsConfigurationConsumer(Provider<? extends FileSystemLocation> fileProvider) {
+			this.fileProvider = fileProvider;
+		}
+
+		@Override
+		public void assertValue(Configuration value) {
+			throw new UnsupportedOperationException("artifact assertion of existing configuration is not supported");
+		}
+
+		@Override
+		public void accept(Configuration configuration) {
+			accept(configuration, getObjectFactory());
+		}
+
+		private void accept(Configuration configuration, ObjectFactory objectFactory) {
+			val artifacts = objectFactory.listProperty(PublishArtifact.class);
+			artifacts.addAll(ProviderUtils.supplied(() -> {
+				if (fileProvider.get().getAsFile().exists()) {
+					return Arrays.asList(new LazyPublishArtifact(fileProvider));
+				}
+				return Collections.emptyList();
+			}));
+			configuration.getOutgoing().getArtifacts().addAllLater(artifacts);
+		}
+
+		@Override
+		public String toString() {
+			return "ProjectConfigurationUtils.artifactIfExists(" + fileProvider + ")";
+		}
+	}
 
 	/**
 	 * Configures the description of a {@link Configuration}.
