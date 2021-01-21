@@ -9,7 +9,7 @@ import org.gradle.api.model.ObjectFactory;
 
 import java.util.function.Consumer;
 
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.assertConfigured;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.assertConfigured;
 
 public final class ProjectConfigurationRegistry {
 	private final ConfigurationContainer configurationContainer;
@@ -29,7 +29,7 @@ public final class ProjectConfigurationRegistry {
 			return assertConfigured(configurationContainer.getByName(name), action);
 		}
 
-		return configurationContainer.create(name, ProjectConfigurationUtils.using(objectFactory, action));
+		return configurationContainer.create(name, ProjectConfigurationActions.using(objectFactory, action));
 	}
 
 	public NamedDomainObjectProvider<Configuration> registerIfAbsent(String name, Consumer<? super Configuration> action) {
@@ -37,7 +37,7 @@ public final class ProjectConfigurationRegistry {
 			return configurationContainer.named(name, configuration -> assertConfigured(configuration, action));
 		}
 
-		return configurationContainer.register(name, ProjectConfigurationUtils.using(objectFactory, action));
+		return configurationContainer.register(name, ProjectConfigurationActions.using(objectFactory, action));
 	}
 
 	// Avoid triggering container rule which realize objects for nothing.

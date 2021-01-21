@@ -13,8 +13,8 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Bucket.ofDeclarable;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Subject.ofName;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.asDeclarable;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.description;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.asDeclarable;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.description;
 
 public final class DeclarableDependencyBucketRegistrationFactory implements NodeRegistrationFactory<DeclarableDependencyBucket> {
 	private final ProjectConfigurationRegistry configurationRegistry;

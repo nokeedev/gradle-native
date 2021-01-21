@@ -20,7 +20,7 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Bucket.ofResolvable;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Subject.ofName;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.*;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.*;
 
 public final class ResolvableDependencyBucketRegistrationFactory implements NodeRegistrationFactory<ResolvableDependencyBucket> {
 	private final ProjectConfigurationRegistry configurationRegistry;

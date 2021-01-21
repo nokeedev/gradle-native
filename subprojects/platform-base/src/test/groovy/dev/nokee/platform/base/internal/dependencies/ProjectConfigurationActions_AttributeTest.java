@@ -13,14 +13,14 @@ import java.util.function.Consumer;
 import static dev.nokee.internal.testing.ConfigurationMatchers.hasAttribute;
 import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
 import static dev.nokee.internal.testing.utils.TestUtils.objectFactory;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.*;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Subject(ProjectConfigurationUtils.class)
-class ProjectConfigurationUtils_AttributeTest {
+@Subject(ProjectConfigurationActions.class)
+class ProjectConfigurationActions_AttributeTest {
 	private static final Attribute<Named> ATTRIBUTE = Attribute.of("com.example.attribute", Named.class);
 
 	@Test

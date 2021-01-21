@@ -5,8 +5,8 @@ import org.gradle.api.attributes.Attribute;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
-@Subject(ProjectConfigurationUtils.class)
-class ProjectConfigurationUtils_NullTest {
+@Subject(ProjectConfigurationActions.class)
+class ProjectConfigurationActions_NullTest {
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkNulls() {

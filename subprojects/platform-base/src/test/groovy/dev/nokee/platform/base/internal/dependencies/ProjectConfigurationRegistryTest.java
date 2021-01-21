@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.internal.testing.utils.TestUtils.rootProject;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationRegistry.forProject;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.withObjectFactory;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.withObjectFactory;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -157,5 +157,5 @@ class ProjectConfigurationRegistryTest {
 		Mockito.verify(action).assertValue(configuration);
 	}
 
-	private interface AssertableConsumer extends Consumer<Configuration>, ProjectConfigurationUtils.Assertable<Configuration> {}
+	private interface AssertableConsumer extends Consumer<Configuration>, ProjectConfigurationActions.Assertable<Configuration> {}
 }

@@ -19,7 +19,7 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Bucket.ofConsumable;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Subject.ofName;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.*;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.*;
 
 public final class ConsumableDependencyBucketRegistrationFactory implements NodeRegistrationFactory<ConsumableDependencyBucket> {
 	private final ProjectConfigurationRegistry configurationRegistry;

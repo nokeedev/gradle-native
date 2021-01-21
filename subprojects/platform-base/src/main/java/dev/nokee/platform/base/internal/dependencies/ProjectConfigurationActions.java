@@ -26,14 +26,14 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
-public final class ProjectConfigurationUtils {
+public final class ProjectConfigurationActions {
 	private static final ThreadLocal<ObjectFactory> OBJECT_FACTORY_THREAD_LOCAL = new ThreadLocal<>();
 
 	private static ObjectFactory getObjectFactory() {
 		return requireNonNull(OBJECT_FACTORY_THREAD_LOCAL.get());
 	}
 
-	private ProjectConfigurationUtils() {}
+	private ProjectConfigurationActions() {}
 
 	/**
 	 * Configures a {@link Configuration} for specified {@link Usage} attribute.

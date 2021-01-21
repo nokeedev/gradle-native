@@ -7,15 +7,15 @@ import spock.lang.Subject;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.assertConfigured;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.extendsFrom;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.assertConfigured;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.extendsFrom;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Subject(ProjectConfigurationUtils.class)
-class ProjectConfigurationUtils_ExtendsFromTest {
+@Subject(ProjectConfigurationActions.class)
+class ProjectConfigurationActions_ExtendsFromTest {
 	@Test
 	void canConfigureExtendsFromSingleConfiguration() {
 		assertThat(testConfiguration(extendsFrom(testConfiguration("foo"))).getExtendsFrom(),
