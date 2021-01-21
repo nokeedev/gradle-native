@@ -5,9 +5,11 @@ import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.Mockito;
 import spock.lang.Subject;
 
 import java.util.function.Consumer;
@@ -15,22 +17,24 @@ import java.util.function.Consumer;
 import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.internal.testing.utils.TestUtils.rootProject;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationRegistry.forProject;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.*;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.withObjectFactory;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 
 @Subject(ProjectConfigurationRegistry.class)
 class ProjectConfigurationRegistryTest {
 	private static final Consumer<Configuration> DO_SOMETHING = t -> {};
 
-	@Test
-	void canCallbackWithObjectFactoryInstance() {
+	@ParameterizedTest
+	@EnumSource(CreateMethod.class)
+	void canCallbackWithObjectFactoryInstance(CreateMethod create) {
 		val capturedConfiguration = new MutableObject<Configuration>();
 		val capturedObjectFactory = new MutableObject<ObjectFactory>();
 		val project = rootProject();
-		forProject(project).createIfAbsent("configuration-0", withObjectFactory((configuration, objectFactory) -> {
+		create.invoke(forProject(project), "configuration-0", withObjectFactory((configuration, objectFactory) -> {
 			capturedConfiguration.setValue(configuration);
 			capturedObjectFactory.setValue(objectFactory);
 		}));
@@ -38,36 +42,63 @@ class ProjectConfigurationRegistryTest {
 		assertThat(capturedObjectFactory.getValue(), equalTo(project.getObjects()));
 	}
 
-	@Test
-	void createsMissingConfiguration() {
+	@ParameterizedTest
+	@EnumSource(CreateMethod.class)
+	void createsMissingConfiguration(CreateMethod create) {
 		val project = rootProject();
-		val configuration = forProject(project).createIfAbsent("configuration-1", DO_SOMETHING);
+		val configuration = create.invoke(forProject(project), "configuration-1", DO_SOMETHING);
 		assertThat(configuration, equalTo(project.getConfigurations().getByName("configuration-1")));
 	}
 
-	@Test
-	void executesActionForMissingConfiguration() {
-		val execution = executeWith(consumer(it -> forProject(rootProject()).createIfAbsent("configuration-1", it)));
+	@ParameterizedTest
+	@EnumSource(CreateMethod.class)
+	void executesActionForMissingConfiguration(CreateMethod create) {
+		val execution = executeWith(consumer(it -> create.invoke(forProject(rootProject()), "configuration-1", it)));
 		assertThat(execution, calledOnce());
 	}
 
 	@Test
-	void returnsExistingConfiguration() {
+	void doesNotExecutesActionForMissingConfigurationWhenRegisteringOnly() {
+		val execution = executeWith(consumer(it -> forProject(rootProject()).registerIfAbsent("configuration-1", it)));
+		assertThat(execution, neverCalled());
+	}
+
+	@ParameterizedTest
+	@EnumSource(CreateMethod.class)
+	void returnsExistingConfiguration(CreateMethod create) {
 		val project = rootProject();
 		val expected = project.getConfigurations().create("configuration-2");
-		val actual = forProject(project).createIfAbsent("configuration-2", DO_SOMETHING);
+		val actual = create.invoke(forProject(project), "configuration-2", DO_SOMETHING);
 		assertThat(actual, equalTo(expected));
 	}
 
 	@Test
-	void doesNotExecuteActionForExistingConfiguration() {
-		val execution = executeWith(consumer(it -> forProject(projectWithExistingConfiguration()).createIfAbsent("existing", it)));
+	void doesNotRealizeExistingConfigurationWhenRegistering() {
+		val execution = executeWith(action(it -> {
+			val project = rootProject();
+			project.getConfigurations().register("existing", it);
+			forProject(project).registerIfAbsent("existing", DO_SOMETHING);
+		}));
+		assertThat(execution, neverCalled());
+	}
+
+	@ParameterizedTest
+	@EnumSource(CreateMethod.class)
+	void doesNotExecuteActionForExistingConfiguration(CreateMethod create) {
+		val execution = executeWith(consumer(it -> create.invoke(forProject(projectWithExistingConfiguration()), "existing", it)));
 		assertThat(execution, neverCalled());
 	}
 
 	@Test
-	void doesNotTriggerConfigurationContainerRulesWhenConfigurationIsAbsent() {
-		assertDoesNotThrow(() -> forProject(projectWithThrowingConfigurationRule()).createIfAbsent("configuration-3", DO_SOMETHING));
+	void doesNotExecuteActionWhenRegisteringNewConfiguration() {
+		val execution = executeWith(consumer(it -> forProject(rootProject()).registerIfAbsent("existing", it)));
+		assertThat(execution, neverCalled());
+	}
+
+	@ParameterizedTest
+	@EnumSource(CreateMethod.class)
+	void doesNotTriggerConfigurationContainerRulesWhenConfigurationIsAbsent(CreateMethod create) {
+		assertDoesNotThrow(() -> create.invoke(forProject(projectWithThrowingConfigurationRule()), "configuration-3", DO_SOMETHING));
 	}
 
 	private static Project projectWithThrowingConfigurationRule() {
@@ -82,41 +113,49 @@ class ProjectConfigurationRegistryTest {
 		new NullPointerTester().testAllPublicStaticMethods(ProjectConfigurationRegistry.class);
 	}
 
-	@Test
-	void throwsExceptionWhenExistingConfigurationIsNotConsumable() {
-		assertThrows(IllegalStateException.class,
-			() -> forProject(projectWithExistingConfiguration()).createIfAbsent("existing", asConsumable()));
-	}
-
-	@Test
-	void throwsExceptionWhenExistingConfigurationIsNotResolvable() {
-		assertThrows(IllegalStateException.class,
-			() -> forProject(projectWithExistingConfiguration()).createIfAbsent("existing", asResolvable()));
-	}
-
-	@Test
-	void throwsExceptionWhenExistingConfigurationIsNotDeclarable() {
-		assertThrows(IllegalStateException.class,
-			() -> forProject(projectWithExistingConfiguration()).createIfAbsent("existing", asDeclarable()));
-	}
-
 	private static Project projectWithExistingConfiguration() {
 		val project = rootProject();
-		project.getConfigurations().create("existing");
+		project.getConfigurations().register("existing");
 		return project;
 	}
 
-	@Test
-	void throwsExceptionWhenExistingConfigurationHasNotTheAttribute() {
-		assertThrows(IllegalStateException.class,
-			() -> forProject(projectWithExistingConfiguration()).createIfAbsent("existing", forUsage("some-usage")));
+	private enum CreateMethod {
+		CreateIfAbsent {
+			@Override
+			Configuration invoke(ProjectConfigurationRegistry registry, String name, Consumer<? super Configuration> action) {
+				return registry.createIfAbsent(name, action);
+			}
+		},
+		RegisterIfAbsent {
+			@Override
+			Configuration invoke(ProjectConfigurationRegistry registry, String name, Consumer<? super Configuration> action) {
+				return registry.registerIfAbsent(name, action).get();
+			}
+		};
+
+		abstract Configuration invoke(ProjectConfigurationRegistry registry, String name, Consumer<? super Configuration> action);
 	}
 
 	@Test
-	void throwsExceptionWhenExistingConfigurationHasWrongAttributeValue() {
-		val project = rootProject();
-		project.getConfigurations().create("existing", configuration -> configuration.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "some-other-usage")));
-		assertThrows(IllegalStateException.class,
-			() -> forProject(project).createIfAbsent("existing", forUsage("some-usage")));
+	void assertExistingConfigurationWhenCreating() {
+		val action = Mockito.mock(AssertableConsumer.class);
+		val configuration = forProject(projectWithExistingConfiguration()).createIfAbsent("existing", action);
+		Mockito.verify(action).assertValue(configuration);
 	}
+
+	@Test
+	void doesNotEagerlyAssertExistingConfigurationWhenRegistering() {
+		val action = Mockito.mock(AssertableConsumer.class);
+		forProject(projectWithExistingConfiguration()).registerIfAbsent("existing", action);
+		Mockito.verify(action, never()).assertValue(any());
+	}
+
+	@Test
+	void assertExistingConfigurationWhenRegisteredConfigurationIsRealized() {
+		val action = Mockito.mock(AssertableConsumer.class);
+		val configuration = forProject(projectWithExistingConfiguration()).registerIfAbsent("existing", action).get();
+		Mockito.verify(action).assertValue(configuration);
+	}
+
+	private interface AssertableConsumer extends Consumer<Configuration>, ProjectConfigurationUtils.Assertable<Configuration> {}
 }

@@ -1,6 +1,7 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import lombok.val;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -29,6 +30,14 @@ public final class ProjectConfigurationRegistry {
 		}
 
 		return configurationContainer.create(name, ProjectConfigurationUtils.using(objectFactory, action));
+	}
+
+	public NamedDomainObjectProvider<Configuration> registerIfAbsent(String name, Consumer<? super Configuration> action) {
+		if (hasConfigurationWithName(name)) {
+			return configurationContainer.named(name, configuration -> assertConfigured(configuration, action));
+		}
+
+		return configurationContainer.register(name, ProjectConfigurationUtils.using(objectFactory, action));
 	}
 
 	// Avoid triggering container rule which realize objects for nothing.

@@ -256,7 +256,7 @@ public final class ProjectConfigurationUtils {
 		}
 	}
 
-	private interface Assertable<T> {
+	interface Assertable<T> {
 		void assertValue(T value);
 	}
 
