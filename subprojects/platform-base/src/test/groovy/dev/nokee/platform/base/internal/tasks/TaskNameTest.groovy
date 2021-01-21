@@ -142,4 +142,9 @@ class TaskNameTest extends Specification {
 		TaskName.of('foo', 'bar').toString() == 'fooBar'
 		TaskName.empty().toString() == ''
 	}
+
+	def "can create task name string using verb and object directly"() {
+		expect:
+		TaskName.taskName('foo', 'bar') == 'fooBar'
+	}
 }
