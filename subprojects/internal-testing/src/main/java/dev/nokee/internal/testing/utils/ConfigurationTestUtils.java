@@ -15,6 +15,10 @@ public final class ConfigurationTestUtils {
 		return rootProject().getConfigurations().create("test");
 	}
 
+	public static Configuration testConfiguration(String name) {
+		return rootProject().getConfigurations().create(name);
+	}
+
 	public static Configuration testConfiguration(Consumer<? super Configuration> action) {
 		val configuration = testConfiguration();
 		action.accept(configuration);

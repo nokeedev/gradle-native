@@ -1,6 +1,7 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -12,10 +13,13 @@ import org.gradle.api.attributes.DocsType;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -334,6 +338,44 @@ public final class ProjectConfigurationUtils {
 		@Override
 		public String toString() {
 			return "ProjectConfigurationUtils.description(" + descriptionSupplier + ")";
+		}
+	}
+
+	/**
+	 * Configures a {@link Configuration} with the specified parent configuration.
+	 *
+	 * @param configurations  the parent configuration to configure, must not be null
+	 * @return  a configuration action, never null
+	 */
+	public static Consumer<Configuration> extendsFrom(Configuration... configurations) {
+		return new ExtendsFromConsumer(ImmutableList.copyOf(configurations));
+	}
+
+	@EqualsAndHashCode
+	private static final class ExtendsFromConsumer implements ConfigurationConsumer {
+		private final List<Configuration> configurations;
+
+		public ExtendsFromConsumer(List<Configuration> configurations) {
+			this.configurations = configurations;
+		}
+
+		@Override
+		public void assertValue(Configuration value) {
+			if (!value.getExtendsFrom().containsAll(configurations)) {
+				val missingConfiguration = new ArrayList<>(configurations);
+				missingConfiguration.removeAll(value.getExtendsFrom());
+				throw new IllegalStateException(String.format("Missing parent configuration: %s", missingConfiguration.stream().map(Configuration::getName).collect(Collectors.joining(", "))));
+			}
+		}
+
+		@Override
+		public void accept(Configuration configuration) {
+			configuration.extendsFrom(configurations.toArray(new Configuration[0]));
+		}
+
+		@Override
+		public String toString() {
+			return "ProjectConfigurationUtils.extendsFrom(" + configurations + ")";
 		}
 	}
 
