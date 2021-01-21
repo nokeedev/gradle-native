@@ -92,15 +92,15 @@ public final class ProjectConfigurationUtils {
 	 * @param action  a configuration action, must not be null
 	 * @return a configuration action, never null
 	 */
-	public static Consumer<Configuration> withObjectFactory(BiConsumer<Configuration, ObjectFactory> action) {
+	public static Consumer<Configuration> withObjectFactory(BiConsumer<? super Configuration, ObjectFactory> action) {
 		return new WithObjectFactoryConfigurationConsumer(action);
 	}
 
 	@EqualsAndHashCode
 	private static final class WithObjectFactoryConfigurationConsumer implements ConfigurationConsumer {
-		private final BiConsumer<Configuration, ObjectFactory> action;
+		private final BiConsumer<? super Configuration, ObjectFactory> action;
 
-		private WithObjectFactoryConfigurationConsumer(BiConsumer<Configuration, ObjectFactory> action) {
+		private WithObjectFactoryConfigurationConsumer(BiConsumer<? super Configuration, ObjectFactory> action) {
 			this.action = requireNonNull(action);
 		}
 
