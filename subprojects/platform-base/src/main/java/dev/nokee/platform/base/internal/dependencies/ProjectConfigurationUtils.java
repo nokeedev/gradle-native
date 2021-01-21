@@ -8,6 +8,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Attribute;
+import org.gradle.api.attributes.DocsType;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
 
@@ -47,6 +48,16 @@ public final class ProjectConfigurationUtils {
 	 */
 	public static Consumer<Configuration> forArtifactFormat(String artifactFormat) {
 		return attribute(ARTIFACT_FORMAT, ofInstance(artifactFormat));
+	}
+
+	/**
+	 * Configures a {@link Configuration} for specified {@link DocsType} attribute.
+	 *
+	 * @param docsType  the documentation type attribute value, must not be null
+	 * @return a configuration action, never null
+	 */
+	public static Consumer<Configuration> forDocsType(String docsType) {
+		return attribute(DocsType.DOCS_TYPE_ATTRIBUTE, named(docsType));
 	}
 
 	/**
