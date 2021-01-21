@@ -28,13 +28,25 @@ public final class ProjectConfigurationUtils {
 	private ProjectConfigurationUtils() {}
 
 	/**
-	 * Configures a {@link Configuration} for specified {@link Usage} attributes.
+	 * Configures a {@link Configuration} for specified {@link Usage} attribute.
 	 *
 	 * @param usage  the usage attribute value, must not be null
-	 * @return  a configuration action, never null
+	 * @return a configuration action, never null
 	 */
 	public static Consumer<Configuration> forUsage(String usage) {
 		return attribute(Usage.USAGE_ATTRIBUTE, named(usage));
+	}
+
+	private static final Attribute<String> ARTIFACT_FORMAT = Attribute.of("artifactType", String.class);
+
+	/**
+	 * Configures a {@link Configuration} for specified artifact format attribute.
+	 *
+	 * @param artifactFormat  the artifact format attribute value, must not be null
+	 * @return a configuration action, never null
+	 */
+	public static Consumer<Configuration> forArtifactFormat(String artifactFormat) {
+		return attribute(ARTIFACT_FORMAT, ofInstance(artifactFormat));
 	}
 
 	/**
@@ -202,6 +214,7 @@ public final class ProjectConfigurationUtils {
 		return new OfInstanceAttributeFactory<>(instance);
 	}
 
+	@EqualsAndHashCode
 	private static final class OfInstanceAttributeFactory<T> implements AttributeFactory<T>, Assertable<T> {
 		private final T instance;
 
