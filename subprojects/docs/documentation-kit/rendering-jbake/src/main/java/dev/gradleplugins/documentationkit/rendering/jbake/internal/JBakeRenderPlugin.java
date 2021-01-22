@@ -117,7 +117,7 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 			.configure(artifactOf(extension.getAssets()));
 		configurationRegistry.registerIfAbsent(CONFIGURATION_ELEMENTS_CONFIGURATION_NAME,
 			asResolvable().andThen(attributes(JBAKE_CONFIGURATION_USAGE_NAME)))
-			.configure(artifactIfExists(extension.getPropertiesFile()));
+			.configure(using(project.getObjects(), artifactIfExists(extension.getPropertiesFile())));
 
 		val stageTask = project.getTasks().register("stageBake", Sync.class, task -> {
 			task.into("content", spec -> spec.from(content).from(extension.getContent()));
