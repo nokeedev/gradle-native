@@ -1,6 +1,5 @@
 package dev.gradleplugins.documentationkit.publish.githubpages.internal;
 
-import dev.gradleplugins.documentationkit.publish.githubpages.GitHubCredentials;
 import lombok.val;
 import lombok.var;
 import org.eclipse.jgit.api.CreateBranchCommand;
@@ -12,13 +11,14 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.gradle.api.credentials.PasswordCredentials;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Optional;
 
 import static org.apache.commons.lang3.exception.ExceptionUtils.rethrow;
 
@@ -54,15 +54,15 @@ public final class GitHubRepositoryUtils {
 		git.clean().setCleanDirectories(true).setForce(true).call();
 	}
 
-	public static void commitAndPushAllFiles(File repositoryDirectory, Optional<GitHubCredentials> credentialsProvider) throws IOException, GitAPIException {
+	public static void commitAndPushAllFiles(File repositoryDirectory, @Nullable PasswordCredentials credentials) throws IOException, GitAPIException {
 		try (Git git = Git.open(repositoryDirectory)) {
 			git.add().addFilepattern(".").call();
 			git.commit().setAuthor("nokeedevbot", "bot@nokee.dev").setMessage("Publish by nokeedevbot").setAll(true).call();
 
 			var pushCommand = git.push();
-			credentialsProvider.ifPresent(credentials -> {
-				pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getGitHubKey(), credentials.getGitHubToken()));
-			});
+			if (credentials != null) {
+				pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUsername(), credentials.getPassword()));
+			}
 			pushCommand.call();
 		}
 	}
