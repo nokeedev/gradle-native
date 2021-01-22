@@ -32,6 +32,8 @@ public class GitHubPagesSitePlugin implements Plugin<Project> {
 
 		project.getTasks().register("site", task -> {
 			task.dependsOn(stageSiteTask);
+			task.setGroup("documentation");
+			task.setDescription("Assemble your site");
 		});
 
 		project.getPluginManager().apply("dev.gradleplugins.documentation.github-pages-publish");
