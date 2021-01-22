@@ -28,6 +28,7 @@ gradlePlugin {
 
 test {
 	dependencies {
+		implementation spockFramework()
 		implementation 'dev.gradleplugins:gradle-fixtures-version-control-system:latest.integration'
 		implementation "commons-io:commons-io:${commonsIoVersion}"
 	}

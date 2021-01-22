@@ -22,7 +22,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.Optional;
 
 import static dev.gradleplugins.documentationkit.publish.githubpages.internal.GitHubRepositoryUtils.commitAndPushAllFiles;
 import static dev.gradleplugins.documentationkit.publish.githubpages.internal.GitHubRepositoryUtils.createOrFetchOrClone;
@@ -96,7 +95,7 @@ class GitHubRepositoryUtilsTest {
 		@Test
 		void canPushAllFilesWithoutPriorGitHubPagesBranches() throws IOException, GitAPIException {
 			repo.file("foo.html").createNewFile();
-			commitAndPushAllFiles(localRepo.getWorkTree(), Optional.empty());
+			commitAndPushAllFiles(localRepo.getWorkTree(), null);
 
 			repo.checkout("gh-pages");
 			assertThat(repo.getWorkTree().listFiles(withoutHiddenFiles()),
@@ -131,7 +130,7 @@ class GitHubRepositoryUtilsTest {
 		@Test
 		void canPushAllFilesOnCheckedOutGitHubPagesBranchFromClone() throws IOException, GitAPIException {
 			pollute(localRepo);
-			commitAndPushAllFiles(localRepo.getWorkTree(), Optional.empty());
+			commitAndPushAllFiles(localRepo.getWorkTree(), null);
 
 			repo.getGit().reset().setMode(ResetCommand.ResetType.HARD).call();
 			assertThat(repo.getWorkTree().listFiles(withoutHiddenFiles()),
