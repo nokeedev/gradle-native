@@ -35,7 +35,7 @@ import static dev.nokee.model.internal.core.ModelActions.discover;
 import static dev.nokee.model.internal.core.ModelActions.mutate;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.*;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.*;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public class DslReferenceDocumentationPlugin implements Plugin<Project> {

@@ -6,13 +6,13 @@ plugins {
 repositories {
 	jcenter()
 	mavenCentral()
-//	maven { url = '../../../distributions/build/repository' }
 	maven { url = 'https://dl.bintray.com/nokeedev/distributions-snapshots' }
 	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+	maven { url = '../../../distributions/build/repository' }
 }
 
 dependencies {
-	implementation platform('dev.nokee:nokee-gradle-plugins:0.5.0-1616a33a')
+	implementation platform("dev.nokee:nokee-gradle-plugins:${nokeeVersion}")
 
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
