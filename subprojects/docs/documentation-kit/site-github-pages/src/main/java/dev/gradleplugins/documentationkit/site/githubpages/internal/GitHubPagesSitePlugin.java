@@ -1,6 +1,8 @@
 package dev.gradleplugins.documentationkit.site.githubpages.internal;
 
 import dev.gradleplugins.documentationkit.publish.githubpages.tasks.PublishToGitHubPages;
+import dev.gradleplugins.documentationkit.site.base.internal.SiteBasePlugin;
+import dev.gradleplugins.documentationkit.site.githubpages.GitHubPagesCustomDomain;
 import dev.gradleplugins.documentationkit.site.githubpages.GitHubPagesSite;
 import dev.gradleplugins.documentationkit.site.githubpages.tasks.GenerateGitHubPagesCustomDomainCanonicalNameRecord;
 import dev.gradleplugins.documentationkit.site.githubpages.tasks.GenerateGitHubPagesNoJekyll;
@@ -14,7 +16,11 @@ import static dev.gradleplugins.documentationkit.publish.githubpages.internal.Gi
 public class GitHubPagesSitePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
+		project.getPluginManager().apply(SiteBasePlugin.class);
+
 		val extension = project.getExtensions().create("site", GitHubPagesSite.class);
+		extension.getHost().value(extension.getCustomDomain().map(GitHubPagesCustomDomain::get)).disallowChanges();
+		extension.getDestinationDirectory().fileProvider(project.getTasks().named("stageSite", Sync.class).map(Sync::getDestinationDir)).disallowChanges();
 
 		val customDomainTask = project.getTasks().register("generateCustomDomainAlias", GenerateGitHubPagesCustomDomainCanonicalNameRecord.class, task -> {
 			task.getOutputFile().value(project.getLayout().getBuildDirectory().file("CNAME")).disallowChanges();
@@ -23,17 +29,9 @@ public class GitHubPagesSitePlugin implements Plugin<Project> {
 
 		val noJekyllTask = project.getTasks().register("generateNoJekyll", GenerateGitHubPagesNoJekyll.class);
 
-		val stageSiteTask = project.getTasks().register("stageSite", Sync.class, task -> {
+		val stageSiteTask = project.getTasks().named("stageSite", Sync.class, task -> {
 			task.from(customDomainTask.map(GenerateGitHubPagesCustomDomainCanonicalNameRecord::getOutputFile));
 			task.from(noJekyllTask.map(GenerateGitHubPagesNoJekyll::getOutputFile));
-			task.from(extension.getSources());
-			task.setDestinationDir(project.getLayout().getBuildDirectory().dir("site").get().getAsFile());
-		});
-
-		project.getTasks().register("site", task -> {
-			task.dependsOn(stageSiteTask);
-			task.setGroup("documentation");
-			task.setDescription("Assemble your site");
 		});
 
 		project.getPluginManager().apply("dev.gradleplugins.documentation.github-pages-publish");

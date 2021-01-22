@@ -9,16 +9,19 @@ repositories {
 }
 
 dependencies {
-	implementation project(':site-base')
-	implementation project(':publishing-github-pages')
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:latest.release'
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 }
 
 gradlePlugin {
 	plugins {
-		gitHubPagesSite {
-			id = 'dev.gradleplugins.documentation.github-pages-site'
-			implementationClass = 'dev.gradleplugins.documentationkit.site.githubpages.internal.GitHubPagesSitePlugin'
+		siteBase {
+			id = 'dev.gradleplugins.documentation.site-base'
+			implementationClass = 'dev.gradleplugins.documentationkit.site.base.internal.SiteBasePlugin'
+		}
+		siteBase {
+			id = 'dev.gradleplugins.documentation.site'
+			implementationClass = 'dev.gradleplugins.documentationkit.site.base.internal.SitePlugin'
 		}
 	}
 	compatibility {

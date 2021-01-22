@@ -1,12 +1,11 @@
 package dev.gradleplugins.documentationkit.site.githubpages;
 
-import org.gradle.api.file.ConfigurableFileCollection;
+import dev.gradleplugins.documentationkit.site.base.SiteExtension;
 import org.gradle.api.provider.Property;
 
-public interface GitHubPagesSite {
+public interface GitHubPagesSite extends SiteExtension {
 	Property<GitHubPagesCustomDomain> getCustomDomain();
 	Property<String> getRepositorySlug();
-	ConfigurableFileCollection getSources();
 
 	static GitHubPagesCustomDomain subdomain(String customSubdomain) {
 		return GitHubPagesCustomDomain.subdomain(customSubdomain);
