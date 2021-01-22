@@ -139,6 +139,10 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 				.from(asciidoctor("2.2.0"))
 				.from(groovyTemplates("3.0.2"))
 				.from(flexmarkTemplates("0.61.0"))
+				.from(freemarkerTemplates("2.3.30"))
+				.from(pegdownTemplates("1.6.0"))
+				.from(thymeleafTemplates("3.0.11.RELEASE"))
+				.from(jade4jTemplates("1.2.7"))
 				;
 		});
 		extension.getDestinationDirectory().value(bakeTask.flatMap(RenderJBake::getDestinationDirectory)).disallowChanges();
@@ -165,6 +169,26 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 	// TODO: Move to flexmark-templates plugin?
 	private FileCollection flexmarkTemplates(String version) {
 		return  configurations.detachedConfiguration(dependencies.create("com.vladsch.flexmark:flexmark:" + version), dependencies.create("com.vladsch.flexmark:flexmark-profile-pegdown:" + version));
+	}
+
+	// TODO: Move to freemarker-templates plugin?
+	private FileCollection freemarkerTemplates(String version) {
+		return  configurations.detachedConfiguration(dependencies.create("org.freemarker:freemarker:" + version));
+	}
+
+	// TODO: Move to pegdown-templates plugin?
+	private FileCollection pegdownTemplates(String version) {
+		return  configurations.detachedConfiguration(dependencies.create("org.pegdown:pegdown:" + version));
+	}
+
+	// TODO: Move to thymeleaf-templates plugin?
+	private FileCollection thymeleafTemplates(String version) {
+		return  configurations.detachedConfiguration(dependencies.create("org.thymeleaf:thymeleaf:" + version));
+	}
+
+	// TODO: Move to jade4j-templates plugin?
+	private FileCollection jade4jTemplates(String version) {
+		return  configurations.detachedConfiguration(dependencies.create("de.neuland-bfi:jade4j:" + version));
 	}
 
 	private static Map<String, Object> loadPropertiesFileIfAvailable(FileSystemLocation propertiesFile) {
