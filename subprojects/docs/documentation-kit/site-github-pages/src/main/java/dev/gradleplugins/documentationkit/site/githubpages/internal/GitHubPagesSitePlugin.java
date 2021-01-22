@@ -14,11 +14,11 @@ import static dev.gradleplugins.documentationkit.publish.githubpages.internal.Gi
 public class GitHubPagesSitePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
-		val site = project.getExtensions().create("site", GitHubPagesSite.class);
+		val extension = project.getExtensions().create("site", GitHubPagesSite.class);
 
 		val customDomainTask = project.getTasks().register("generateCustomDomainAlias", GenerateGitHubPagesCustomDomainCanonicalNameRecord.class, task -> {
 			task.getOutputFile().value(project.getLayout().getBuildDirectory().file("CNAME")).disallowChanges();
-			task.getCustomDomain().convention(site.getCustomDomain());
+			task.getCustomDomain().convention(extension.getCustomDomain());
 		});
 
 		val noJekyllTask = project.getTasks().register("generateNoJekyll", GenerateGitHubPagesNoJekyll.class);
@@ -36,7 +36,7 @@ public class GitHubPagesSitePlugin implements Plugin<Project> {
 		project.getPluginManager().apply("dev.gradleplugins.documentation.github-pages-publish");
 
 		project.getTasks().named(PUBLISH_GITHUB_PAGES_LIFECYCLE_TASK_NAME, PublishToGitHubPages.class, task -> {
-			task.getUri().convention(site.getRepositorySlug().map(it -> project.uri("https://github.com/" + it + ".git")));
+			task.getUri().convention(extension.getRepositorySlug().map(it -> project.uri("https://github.com/" + it + ".git")));
 			task.getPublishDirectory().fileProvider(stageSiteTask.map(Sync::getDestinationDir));
 		});
 	}
