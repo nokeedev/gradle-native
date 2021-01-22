@@ -26,6 +26,7 @@ public class GitHubPagesSitePlugin implements Plugin<Project> {
 		val stageSiteTask = project.getTasks().register("stageSite", Sync.class, task -> {
 			task.from(customDomainTask.map(GenerateGitHubPagesCustomDomainCanonicalNameRecord::getOutputFile));
 			task.from(noJekyllTask.map(GenerateGitHubPagesNoJekyll::getOutputFile));
+			task.from(extension.getSources());
 			task.setDestinationDir(project.getLayout().getBuildDirectory().dir("site").get().getAsFile());
 		});
 
