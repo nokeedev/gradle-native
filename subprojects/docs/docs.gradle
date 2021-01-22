@@ -292,3 +292,8 @@ tasks.named('docsTest', Test) { task ->
 	task.inputs.dir(layout.buildDirectory.dir('generated/zips'))
 	task.systemProperty('sampleArchiveDirectory', layout.buildDirectory.dir('generated/zips').get().asFile.absolutePath)
 }
+
+// Each documentation provides its own navigation fragment
+tasks.named('zipJbakeTemplates', Zip) { task ->
+	task.exclude('fragment-docs-navigation.gsp')
+}
