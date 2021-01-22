@@ -9,15 +9,23 @@ buildscript {
 
 plugins {
 	id 'java-library'
+	id 'maven-publish'
 }
 
 dependencies {
 	implementation project(':build-language-reference')
+	implementation project(':publishing-github-pages')
+	implementation project(':rendering-jbake')
+	implementation project(':site-github-pages')
 }
 
 allprojects {
 	group = 'dev.gradleplugins'
 	version = '1.0.3'
+}
+
+publishing.publications.create('java', MavenPublication) {
+	from components.java
 }
 
 // Unit test configuration
