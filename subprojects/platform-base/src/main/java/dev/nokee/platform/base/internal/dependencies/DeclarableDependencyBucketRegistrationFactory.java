@@ -2,9 +2,8 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactory;
+import dev.nokee.utils.ActionUtils;
 import org.gradle.api.artifacts.Configuration;
-
-import java.util.function.Consumer;
 
 import static dev.nokee.model.internal.core.ModelActions.initialize;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
@@ -41,7 +40,7 @@ public final class DeclarableDependencyBucketRegistrationFactory implements Node
 		return namingScheme.configurationName(name);
 	}
 
-	private Consumer<Configuration> descriptionOf(String name) {
+	private ActionUtils.Action<Configuration> descriptionOf(String name) {
 		return description(descriptionScheme.description(ofName(name), ofDeclarable()));
 	}
 }

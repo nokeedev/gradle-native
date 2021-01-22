@@ -1,8 +1,10 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.testing.NullPointerTester;
+import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
@@ -12,12 +14,10 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
 import spock.lang.Subject;
 
-import java.util.function.Consumer;
-
 import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.internal.testing.utils.TestUtils.rootProject;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationRegistry.forProject;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.withObjectFactory;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationRegistry.forProject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.never;
 
 @Subject(ProjectConfigurationRegistry.class)
 class ProjectConfigurationRegistryTest {
-	private static final Consumer<Configuration> DO_SOMETHING = t -> {};
+	private static final Action<Configuration> DO_SOMETHING = t -> {};
 
 	@ParameterizedTest
 	@EnumSource(CreateMethod.class)
@@ -53,13 +53,13 @@ class ProjectConfigurationRegistryTest {
 	@ParameterizedTest
 	@EnumSource(CreateMethod.class)
 	void executesActionForMissingConfiguration(CreateMethod create) {
-		val execution = executeWith(consumer(it -> create.invoke(forProject(rootProject()), "configuration-1", it)));
+		val execution = executeWith(action(it -> create.invoke(forProject(rootProject()), "configuration-1", it)));
 		assertThat(execution, calledOnce());
 	}
 
 	@Test
 	void doesNotExecutesActionForMissingConfigurationWhenRegisteringOnly() {
-		val execution = executeWith(consumer(it -> forProject(rootProject()).registerIfAbsent("configuration-1", it)));
+		val execution = executeWith(action(it -> forProject(rootProject()).registerIfAbsent("configuration-1", it)));
 		assertThat(execution, neverCalled());
 	}
 
@@ -85,13 +85,13 @@ class ProjectConfigurationRegistryTest {
 	@ParameterizedTest
 	@EnumSource(CreateMethod.class)
 	void doesNotExecuteActionForExistingConfiguration(CreateMethod create) {
-		val execution = executeWith(consumer(it -> create.invoke(forProject(projectWithExistingConfiguration()), "existing", it)));
+		val execution = executeWith(action(it -> create.invoke(forProject(projectWithExistingConfiguration()), "existing", it)));
 		assertThat(execution, neverCalled());
 	}
 
 	@Test
 	void doesNotExecuteActionWhenRegisteringNewConfiguration() {
-		val execution = executeWith(consumer(it -> forProject(rootProject()).registerIfAbsent("existing", it)));
+		val execution = executeWith(action(it -> forProject(rootProject()).registerIfAbsent("existing", it)));
 		assertThat(execution, neverCalled());
 	}
 
@@ -122,18 +122,18 @@ class ProjectConfigurationRegistryTest {
 	private enum CreateMethod {
 		CreateIfAbsent {
 			@Override
-			Configuration invoke(ProjectConfigurationRegistry registry, String name, Consumer<? super Configuration> action) {
+			Configuration invoke(ProjectConfigurationRegistry registry, String name, Action<? super Configuration> action) {
 				return registry.createIfAbsent(name, action);
 			}
 		},
 		RegisterIfAbsent {
 			@Override
-			Configuration invoke(ProjectConfigurationRegistry registry, String name, Consumer<? super Configuration> action) {
+			Configuration invoke(ProjectConfigurationRegistry registry, String name, Action<? super Configuration> action) {
 				return registry.registerIfAbsent(name, action).get();
 			}
 		};
 
-		abstract Configuration invoke(ProjectConfigurationRegistry registry, String name, Consumer<? super Configuration> action);
+		abstract Configuration invoke(ProjectConfigurationRegistry registry, String name, Action<? super Configuration> action);
 	}
 
 	@Test
@@ -157,5 +157,5 @@ class ProjectConfigurationRegistryTest {
 		Mockito.verify(action).assertValue(configuration);
 	}
 
-	private interface AssertableConsumer extends Consumer<Configuration>, ProjectConfigurationActions.Assertable<Configuration> {}
+	private interface AssertableConsumer extends ActionUtils.Action<Configuration>, ProjectConfigurationActions.Assertable<Configuration> {}
 }

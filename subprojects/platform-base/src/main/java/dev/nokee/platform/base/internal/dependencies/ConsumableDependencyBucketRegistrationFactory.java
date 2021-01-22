@@ -3,14 +3,13 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactory;
+import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
-
-import java.util.function.Consumer;
 
 import static dev.nokee.model.internal.core.ModelActions.initialize;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
@@ -48,7 +47,7 @@ public final class ConsumableDependencyBucketRegistrationFactory implements Node
 		return namingScheme.configurationName(name);
 	}
 
-	private Consumer<Configuration> descriptionOf(String name) {
+	private ActionUtils.Action<Configuration> descriptionOf(String name) {
 		return description(descriptionScheme.description(ofName(name), ofConsumable()));
 	}
 
@@ -56,7 +55,7 @@ public final class ConsumableDependencyBucketRegistrationFactory implements Node
 		ListProperty<PublishArtifact> getArtifacts();
 	}
 
-	private static Consumer<Configuration> attachOutgoingArtifactToConfiguration(KnownDomainObject<? extends OutgoingArtifacts> provider) {
+	private static ActionUtils.Action<Configuration> attachOutgoingArtifactToConfiguration(KnownDomainObject<? extends OutgoingArtifacts> provider) {
 		return withObjectFactory((configuration, objectFactory) -> {
 			configuration.getOutgoing().getArtifacts().addAllLater(asCollectionProvider(objectFactory, provider.flatMap(OutgoingArtifacts::getArtifacts)));
 		});

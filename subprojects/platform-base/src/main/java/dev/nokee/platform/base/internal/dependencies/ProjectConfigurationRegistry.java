@@ -1,13 +1,12 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
-
-import java.util.function.Consumer;
 
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.assertConfigured;
 
@@ -24,7 +23,7 @@ public final class ProjectConfigurationRegistry {
 		return new ProjectConfigurationRegistry(project.getConfigurations(), project.getObjects());
 	}
 
-	public Configuration createIfAbsent(String name, Consumer<? super Configuration> action) {
+	public Configuration createIfAbsent(String name, Action<? super Configuration> action) {
 		if (hasConfigurationWithName(name)) {
 			return assertConfigured(configurationContainer.getByName(name), action);
 		}
@@ -32,7 +31,7 @@ public final class ProjectConfigurationRegistry {
 		return configurationContainer.create(name, ProjectConfigurationActions.using(objectFactory, action));
 	}
 
-	public NamedDomainObjectProvider<Configuration> registerIfAbsent(String name, Consumer<? super Configuration> action) {
+	public NamedDomainObjectProvider<Configuration> registerIfAbsent(String name, Action<? super Configuration> action) {
 		if (hasConfigurationWithName(name)) {
 			return configurationContainer.named(name, configuration -> assertConfigured(configuration, action));
 		}

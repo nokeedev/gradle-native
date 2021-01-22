@@ -2,6 +2,7 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
+import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.ProviderUtils;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -20,7 +21,6 @@ import org.gradle.api.provider.Provider;
 
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -41,7 +41,7 @@ public final class ProjectConfigurationActions {
 	 * @param usage  the usage attribute value, must not be null
 	 * @return a configuration action, never null
 	 */
-	public static Consumer<Configuration> forUsage(String usage) {
+	public static ActionUtils.Action<Configuration> forUsage(String usage) {
 		return attribute(Usage.USAGE_ATTRIBUTE, named(usage));
 	}
 
@@ -53,7 +53,7 @@ public final class ProjectConfigurationActions {
 	 * @param artifactFormat  the artifact format attribute value, must not be null
 	 * @return a configuration action, never null
 	 */
-	public static Consumer<Configuration> forArtifactFormat(String artifactFormat) {
+	public static ActionUtils.Action<Configuration> forArtifactFormat(String artifactFormat) {
 		return attribute(ARTIFACT_FORMAT, ofInstance(artifactFormat));
 	}
 
@@ -63,7 +63,7 @@ public final class ProjectConfigurationActions {
 	 * @param docsType  the documentation type attribute value, must not be null
 	 * @return a configuration action, never null
 	 */
-	public static Consumer<Configuration> forDocsType(String docsType) {
+	public static ActionUtils.Action<Configuration> forDocsType(String docsType) {
 		return attribute(DocsType.DOCS_TYPE_ATTRIBUTE, named(docsType));
 	}
 
@@ -75,14 +75,14 @@ public final class ProjectConfigurationActions {
 	 * @param action  a delegate configuration action, must not be null
 	 * @return a configuration action, never null
 	 */
-	public static <T> Action<T> using(ObjectFactory objectFactory, Consumer<? super T> action) {
+	public static <T> ActionUtils.Action<T> using(ObjectFactory objectFactory, Action<? super T> action) {
 		requireNonNull(objectFactory);
 		requireNonNull(action);
 		return configuration -> {
 			val previousValue = OBJECT_FACTORY_THREAD_LOCAL.get();
 			OBJECT_FACTORY_THREAD_LOCAL.set(objectFactory);
 			try {
-				action.accept(configuration);
+				action.execute(configuration);
 			} finally {
 				OBJECT_FACTORY_THREAD_LOCAL.set(previousValue);
 			}
@@ -95,7 +95,7 @@ public final class ProjectConfigurationActions {
 	 * @param action  a configuration action, must not be null
 	 * @return a configuration action, never null
 	 */
-	public static Consumer<Configuration> withObjectFactory(BiConsumer<? super Configuration, ObjectFactory> action) {
+	public static ActionUtils.Action<Configuration> withObjectFactory(BiConsumer<? super Configuration, ObjectFactory> action) {
 		return new WithObjectFactoryConfigurationConsumer<>(action);
 	}
 
@@ -116,7 +116,7 @@ public final class ProjectConfigurationActions {
 		}
 
 		@Override
-		public void accept(T t) {
+		public void execute(T t) {
 			action.accept(t, getObjectFactory());
 		}
 
@@ -143,7 +143,7 @@ public final class ProjectConfigurationActions {
 	 * @param <T>  the attribute type
 	 * @return a configuration action, never null
 	 */
-	public static <T> Consumer<Configuration> attribute(Attribute<T> attribute, AttributeFactory<T> factory) {
+	public static <T> ActionUtils.Action<Configuration> attribute(Attribute<T> attribute, AttributeFactory<T> factory) {
 		return new AttributeConfigurationConsumer<>(attribute, factory);
 	}
 
@@ -173,7 +173,7 @@ public final class ProjectConfigurationActions {
 		}
 
 		@Override
-		protected void accept(Configuration configuration, ObjectFactory objectFactory) {
+		protected void execute(Configuration configuration, ObjectFactory objectFactory) {
 			configuration.getAttributes().attribute(attribute, factory.create(objectFactory, attribute.getType()));
 		}
 
@@ -271,7 +271,7 @@ public final class ProjectConfigurationActions {
 	 * @return the configuration to assert, never null
 	 */
 	@SuppressWarnings("unchecked")
-	public static Configuration assertConfigured(Configuration configuration, Consumer<? super Configuration> action) {
+	public static Configuration assertConfigured(Configuration configuration, Action<? super Configuration> action) {
 		if (action instanceof Assertable) {
 			((Assertable<Configuration>) action).assertValue(configuration);
 		}
@@ -300,7 +300,7 @@ public final class ProjectConfigurationActions {
 //		}
 //	}
 
-	public static Consumer<Configuration> artifactIfExists(Provider<? extends FileSystemLocation> fileProvider) {
+	public static ActionUtils.Action<Configuration> artifactIfExists(Provider<? extends FileSystemLocation> fileProvider) {
 		return new ArtifactIfExistsConfigurationConsumer(fileProvider);
 	}
 
@@ -317,7 +317,7 @@ public final class ProjectConfigurationActions {
 		}
 
 		@Override
-		public void accept(Configuration configuration) {
+		public void execute(Configuration configuration) {
 			accept(configuration, getObjectFactory());
 		}
 
@@ -344,7 +344,7 @@ public final class ProjectConfigurationActions {
 	 * @param description  the description, must not be null
 	 * @return a configuration action, never null
 	 */
-	public static Consumer<Configuration> description(String description) {
+	public static ActionUtils.Action<Configuration> description(String description) {
 		return new DescriptionConfigurationConsumer(Suppliers.ofInstance(requireNonNull(description)));
 	}
 
@@ -354,7 +354,7 @@ public final class ProjectConfigurationActions {
 	 * @param descriptionSupplier  the description supplier, must not be null
 	 * @return a configuration action, never null
 	 */
-	public static Consumer<Configuration> description(Supplier<? extends String> descriptionSupplier) {
+	public static ActionUtils.Action<Configuration> description(Supplier<? extends String> descriptionSupplier) {
 		return new DescriptionConfigurationConsumer(descriptionSupplier);
 	}
 
@@ -372,7 +372,7 @@ public final class ProjectConfigurationActions {
 		}
 
 		@Override
-		public void accept(Configuration configuration) {
+		public void execute(Configuration configuration) {
 			configuration.setDescription(descriptionSupplier.get());
 		}
 
@@ -388,7 +388,7 @@ public final class ProjectConfigurationActions {
 	 * @param configurations  the parent configuration to configure, must not be null
 	 * @return  a configuration action, never null
 	 */
-	public static Consumer<Configuration> extendsFrom(Configuration... configurations) {
+	public static ActionUtils.Action<Configuration> extendsFrom(Configuration... configurations) {
 		return new ExtendsFromConsumer(ImmutableList.copyOf(configurations));
 	}
 
@@ -410,7 +410,7 @@ public final class ProjectConfigurationActions {
 		}
 
 		@Override
-		public void accept(Configuration configuration) {
+		public void execute(Configuration configuration) {
 			configuration.extendsFrom(configurations.toArray(new Configuration[0]));
 		}
 
@@ -425,7 +425,7 @@ public final class ProjectConfigurationActions {
 	 *
 	 * @return a configuration action, never null
 	 */
-	public static Consumer<Configuration> asDeclarable() {
+	public static ActionUtils.Action<Configuration> asDeclarable() {
 		return ConfigurationBuckets.DECLARABLE;
 	}
 
@@ -434,7 +434,7 @@ public final class ProjectConfigurationActions {
 	 *
 	 * @return a configuration action, never null
 	 */
-	public static Consumer<Configuration> asConsumable() {
+	public static ActionUtils.Action<Configuration> asConsumable() {
 		return ConfigurationBuckets.CONSUMABLE;
 	}
 
@@ -443,7 +443,7 @@ public final class ProjectConfigurationActions {
 	 *
 	 * @return a configuration action, never null
 	 */
-	public static Consumer<Configuration> asResolvable() {
+	public static ActionUtils.Action<Configuration> asResolvable() {
 		return ConfigurationBuckets.RESOLVABLE;
 	}
 
@@ -471,7 +471,7 @@ public final class ProjectConfigurationActions {
 		}
 
 		@Override
-		public void accept(Configuration configuration) {
+		public void execute(Configuration configuration) {
 			configuration.setCanBeConsumed(canBeConsumed);
 			configuration.setCanBeResolved(canBeResolved);
 		}
@@ -484,24 +484,24 @@ public final class ProjectConfigurationActions {
 
 	private static abstract class ConfigurationWithObjectFactoryConsumer implements AssertableConsumer<Configuration> {
 		@Override
-		public final void accept(Configuration configuration) {
-			accept(configuration, getObjectFactory());
+		public final void execute(Configuration configuration) {
+			execute(configuration, getObjectFactory());
 		}
 
-		protected abstract void accept(Configuration configuration, ObjectFactory objectFactory);
+		protected abstract void execute(Configuration configuration, ObjectFactory objectFactory);
 	}
 
-	private interface AssertableConsumer<T> extends Consumer<T>, Assertable<T> {
-		default Consumer<T> andThen(Consumer<? super T> after) {
+	private interface AssertableConsumer<T> extends ActionUtils.Action<T>, Assertable<T> {
+		default ActionUtils.Action<T> andThen(ActionUtils.Action<? super T> after) {
 			return new AndThenAssertableConsumer<>(this, requireNonNull(after));
 		}
 	}
 
 	private static final class AndThenAssertableConsumer<T> implements AssertableConsumer<T> {
-		private final Consumer<? super T> first;
-		private final Consumer<? super T> second;
+		private final ActionUtils.Action<? super T> first;
+		private final ActionUtils.Action<? super T> second;
 
-		private AndThenAssertableConsumer(Consumer<? super T> first, Consumer<? super T> second) {
+		private AndThenAssertableConsumer(ActionUtils.Action<? super T> first, ActionUtils.Action<? super T> second) {
 			this.first = first;
 			this.second = second;
 		}
@@ -518,9 +518,9 @@ public final class ProjectConfigurationActions {
 		}
 
 		@Override
-		public void accept(T t) {
-			first.accept(t);
-			second.accept(t);
+		public void execute(T t) {
+			first.execute(t);
+			second.execute(t);
 		}
 	}
 }
