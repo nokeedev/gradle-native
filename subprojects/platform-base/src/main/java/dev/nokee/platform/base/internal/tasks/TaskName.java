@@ -61,6 +61,10 @@ public final class TaskName {
 		return new TaskName(verb, object);
 	}
 
+	public static String taskName(String verb, String object) {
+		return of(verb, object).get();
+	}
+
 	@Override
 	public String toString() {
 		return get();

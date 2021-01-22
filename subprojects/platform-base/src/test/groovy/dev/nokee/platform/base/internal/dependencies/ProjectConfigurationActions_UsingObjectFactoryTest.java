@@ -12,14 +12,14 @@ import java.util.function.BiConsumer;
 
 import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
 import static dev.nokee.internal.testing.utils.TestUtils.objectFactory;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.using;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.withObjectFactory;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.using;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.withObjectFactory;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
 
-@Subject(ProjectConfigurationUtils.class)
-class ProjectConfigurationUtils_UsingObjectFactoryTest {
+@Subject(ProjectConfigurationActions.class)
+class ProjectConfigurationActions_UsingObjectFactoryTest {
 	@Test
 	void canUseObjectFactoryInDelegateConfigurationAction() {
 		val capturedObjectFactory = new MutableObject<ObjectFactory>();

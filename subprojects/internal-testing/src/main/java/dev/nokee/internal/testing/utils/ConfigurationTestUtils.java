@@ -4,8 +4,6 @@ import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 
-import java.util.function.Consumer;
-
 import static dev.nokee.internal.testing.utils.TestUtils.rootProject;
 
 public final class ConfigurationTestUtils {
@@ -15,10 +13,8 @@ public final class ConfigurationTestUtils {
 		return rootProject().getConfigurations().create("test");
 	}
 
-	public static Configuration testConfiguration(Consumer<? super Configuration> action) {
-		val configuration = testConfiguration();
-		action.accept(configuration);
-		return configuration;
+	public static Configuration testConfiguration(String name) {
+		return rootProject().getConfigurations().create(name);
 	}
 
 	public static Configuration testConfiguration(Action<? super Configuration> action) {

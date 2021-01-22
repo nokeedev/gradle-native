@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactory;
+import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.artifacts.ArtifactView;
 import org.gradle.api.artifacts.Configuration;
@@ -11,7 +12,6 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 
 import javax.inject.Inject;
-import java.util.function.Consumer;
 
 import static dev.nokee.model.internal.core.ModelActions.initialize;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
@@ -20,7 +20,8 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Bucket.ofResolvable;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Subject.ofName;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.*;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.asResolvable;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.description;
 
 public final class ResolvableDependencyBucketRegistrationFactory implements NodeRegistrationFactory<ResolvableDependencyBucket> {
 	private final ProjectConfigurationRegistry configurationRegistry;
@@ -55,11 +56,11 @@ public final class ResolvableDependencyBucketRegistrationFactory implements Node
 		return namingScheme.configurationName(name);
 	}
 
-	private Consumer<Configuration> descriptionOf(String name) {
+	private ActionUtils.Action<Configuration> descriptionOf(String name) {
 		return description(descriptionScheme.description(ofName(name), ofResolvable()));
 	}
 
-	private static Consumer<Configuration> realizeNodeBeforeResolve() {
+	private static ActionUtils.Action<Configuration> realizeNodeBeforeResolve() {
 		val node = ModelNodeContext.getCurrentModelNode();
 		return configuration -> {
 			((ConfigurationInternal) configuration).beforeLocking(it -> node.realize());

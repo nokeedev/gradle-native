@@ -16,7 +16,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 import static dev.nokee.model.internal.core.ModelNode.State.Realized;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescriptionScheme.forComponent;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationRegistry.forProject;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.*;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;

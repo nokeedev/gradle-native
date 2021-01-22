@@ -2,25 +2,24 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.testing.EqualsTester;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Attribute;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
-import java.util.function.Consumer;
-
 import static dev.nokee.internal.testing.ConfigurationMatchers.hasAttribute;
 import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
 import static dev.nokee.internal.testing.utils.TestUtils.objectFactory;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.*;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Subject(ProjectConfigurationUtils.class)
-class ProjectConfigurationUtils_AttributeTest {
+@Subject(ProjectConfigurationActions.class)
+class ProjectConfigurationActions_AttributeTest {
 	private static final Attribute<Named> ATTRIBUTE = Attribute.of("com.example.attribute", Named.class);
 
 	@Test
@@ -61,7 +60,7 @@ class ProjectConfigurationUtils_AttributeTest {
 		assertThat(ex.getCause().getMessage(), equalTo("Unexpected attribute value (expecting: some-value, actual: some-other-value)."));
 	}
 
-	private static Consumer<Configuration> withAttribute(String value) {
+	private static Action<Configuration> withAttribute(String value) {
 		return configuration -> configuration.getAttributes().attribute(ATTRIBUTE, objectFactory().named(Named.class, value));
 	}
 

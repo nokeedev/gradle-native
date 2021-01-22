@@ -5,15 +5,15 @@ import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
 import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.assertConfigured;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationUtils.description;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.assertConfigured;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.description;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-@Subject(ProjectConfigurationUtils.class)
-class ProjectConfigurationUtils_DescriptionTest {
+@Subject(ProjectConfigurationActions.class)
+class ProjectConfigurationActions_DescriptionTest {
 	@Test
 	void canConfigureDescriptionProvidedByRawString() {
 		assertThat(testConfiguration(description("foo")).getDescription(), equalTo("foo"));
