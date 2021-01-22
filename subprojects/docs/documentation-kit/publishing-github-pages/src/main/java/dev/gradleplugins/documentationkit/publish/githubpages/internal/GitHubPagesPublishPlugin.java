@@ -8,11 +8,13 @@ import org.gradle.api.Project;
 import org.gradle.api.publish.plugins.PublishingPlugin;
 
 public class GitHubPagesPublishPlugin implements Plugin<Project> {
+	public static final String PUBLISH_GITHUB_PAGES_LIFECYCLE_TASK_NAME = "publishToGitHubPages";
+
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(PublishingPlugin.class);
 		val credentialsFactory = new GitHubCredentialsFactory(project.getProviders());
-		val publishTask = project.getTasks().register("publishToGitHubPages", defaultClass(PublishToGitHubPages.class), task -> {
+		val publishTask = project.getTasks().register(PUBLISH_GITHUB_PAGES_LIFECYCLE_TASK_NAME, defaultClass(PublishToGitHubPages.class), task -> {
 			task.setGroup(PublishingPlugin.PUBLISH_TASK_GROUP);
 			task.setDescription("Publishes site produced by this project to GitHub pages.");
 			task.getCredentials().convention(credentialsFactory.fromEnvironmentVariable());
