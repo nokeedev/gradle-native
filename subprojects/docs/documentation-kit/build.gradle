@@ -13,10 +13,11 @@ plugins {
 }
 
 dependencies {
-	implementation project(':build-language-reference')
-	implementation project(':publishing-github-pages')
-	implementation project(':rendering-jbake')
-	implementation project(':site-github-pages')
+	api project(':build-language-reference')
+	api project(':publishing-github-pages')
+	api project(':rendering-jbake')
+	api project(':site-base')
+	api project(':site-github-pages')
 }
 
 allprojects {
