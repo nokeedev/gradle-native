@@ -69,7 +69,8 @@ public class JavadocRenderPlugin implements Plugin<Project> {
 
 					// Configuration...
 					javadoc.getPermalink().set("javadoc");
-					javadoc.getLinks().set(ImmutableList.of(project.uri("https://docs.oracle.com/javase/8/docs/api"), project.uri("https://docs.gradle.org/" + project.property("minimumGradleVersion") + "/javadoc/")));
+					javadoc.getLinks().add(project.getProviders().gradleProperty("minimumJavaVersion").orElse("8").map(version -> project.uri("https://docs.oracle.com/javase/" + version + "/docs/api")));
+					javadoc.getLinks().addAll(project.getProviders().gradleProperty("minimumGradleVersion").map(version -> ImmutableList.of(project.uri("https://docs.gradle.org/" + version + "/javadoc/"))).orElse(ImmutableList.of()));
 				});
 			});
 		});
