@@ -6,6 +6,7 @@ import lombok.val;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.gradle.api.Action;
+import org.gradle.api.Transformer;
 import org.gradle.internal.Cast;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
@@ -147,6 +148,58 @@ public final class ExecuteWith {
 				Function<T, R> action = Cast.uncheckedCast(Mockito.mock(Function.class));
 				ArgumentCaptor<T> captor = Cast.uncheckedCast(ArgumentCaptor.forClass(Object.class));
 				Mockito.when(action.apply(captor.capture())).thenAnswer(t -> {
+					for (ContextualCaptorAnswer<?> contextCaptor : contextCaptors) {
+						contextCaptor.answer(t);
+					}
+					return answer.answer(t);
+				});
+				execution.accept(action);
+				return new ActionExecutionResult<>(captor.getAllValues());
+			}
+		};
+	}
+
+	public interface TransformerExecutionStrategy<T, R> extends ExecutionStrategy<T> {
+		TransformerExecutionStrategy<T, R> thenReturn(R value);
+		TransformerExecutionStrategy<T, R> thenAnswer(Answer<R> answer);
+		TransformerExecutionStrategy<T, R> thenThrow(Throwable throwable);
+		TransformerExecutionStrategy<T, R> captureUsing(ContextualCaptor<?> captor);
+	}
+
+	public static <T, R> TransformerExecutionStrategy<T, R> transformer(ThrowingConsumer<? super Transformer<? extends R, ? super T>> execution) {
+		return new TransformerExecutionStrategy<T, R>() {
+			private final List<ContextualCaptorAnswer<?>> contextCaptors = new ArrayList<>();
+			private Answer<R> answer = t -> null;
+
+			@Override
+			public TransformerExecutionStrategy<T, R> thenReturn(R value) {
+				answer = t -> value;
+				return this;
+			}
+
+			@Override
+			public TransformerExecutionStrategy<T, R> thenAnswer(Answer<R> answer) {
+				this.answer = answer;
+				return this;
+			}
+
+			@Override
+			public TransformerExecutionStrategy<T, R> thenThrow(Throwable throwable) {
+				answer = t -> { throw throwable; };
+				return this;
+			}
+
+			@Override
+			public TransformerExecutionStrategy<T, R> captureUsing(ContextualCaptor<?> captor) {
+				contextCaptors.add((ContextualCaptorAnswer<?>) captor);
+				return this;
+			}
+
+			@Override
+			public ExecutionResult<T> execute() throws Throwable {
+				Transformer<R, T> action = Cast.uncheckedCast(Mockito.mock(Transformer.class));
+				ArgumentCaptor<T> captor = Cast.uncheckedCast(ArgumentCaptor.forClass(Object.class));
+				Mockito.when(action.transform(captor.capture())).thenAnswer(t -> {
 					for (ContextualCaptorAnswer<?> contextCaptor : contextCaptors) {
 						contextCaptor.answer(t);
 					}
