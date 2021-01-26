@@ -4,8 +4,6 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import dev.gradleplugins.documentationkit.*;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -14,7 +12,6 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import lombok.SneakyThrows;
-import lombok.ToString;
 import lombok.val;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Plugin;
@@ -22,8 +19,6 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.*;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
@@ -34,11 +29,9 @@ import org.gradle.external.javadoc.StandardJavadocDocletOptions;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -58,7 +51,6 @@ public class JavadocRenderPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().withPlugin("dev.gradleplugins.documentation.api-reference", appliedPlugin -> {
 			val components = project.getExtensions().getByType(ComponentContainer.class);
-			val manifestFactory = new ManifestFactory(project.getDependencies());
 			val configurations = project.getConfigurations();
 
 			val lookup = project.getExtensions().getByType(ModelLookup.class);
@@ -72,7 +64,7 @@ public class JavadocRenderPlugin implements Plugin<Project> {
 				javadocArtifact.configure(javadoc -> {
 					javadoc.getSources().from(thisManifestArtifact(component));
 					javadoc.getSources().from(sourcesOfOtherManifestArtifact(component));
-					javadoc.getClasspath().from(classpathOfOtherManifestArtifact(component, manifestFactory, configurations));
+					javadoc.getClasspath().from(classpathOfOtherManifestArtifact(component, DependenciesLoader.forProject(project)));
 					javadoc.getClasspath().from(compileClasspathIfAvailable(configurations));
 
 					// Configuration...
@@ -91,15 +83,10 @@ public class JavadocRenderPlugin implements Plugin<Project> {
 		return component.getDependencies().getManifest().getAsLenientFileCollection().getElements().map(transformEach(it -> new File(it.getAsFile(), "sources")));
 	}
 
-	private static Callable<Object> classpathOfOtherManifestArtifact(ApiReferenceDocumentation component, ManifestFactory manifestFactory, ConfigurationContainer configurations) {
+	private static Callable<Object> classpathOfOtherManifestArtifact(ApiReferenceDocumentation component, DependenciesLoader dependencyLoader) {
 		return memoizeCallable(() -> component.getDependencies().getManifest().getAsLenientFileCollection().getElements()
-			.map(transformEach(manifestFactory::create))
-			.map(flatTransformEach(Manifest::getDependencies))
-			.map(toDetachedConfiguration(configurations)));
-	}
-
-	private static Transformer<Object, List<Dependency>> toDetachedConfiguration(ConfigurationContainer configurations) {
-		return it -> configurations.detachedConfiguration(it.toArray(new Dependency[0])).getIncoming().getFiles();
+			.map(transformEach(it -> new File(it.getAsFile(), "dependencies.manifest")))
+			.map(transformEach(dependencyLoader::load)));
 	}
 
 	private static <T> Callable<T> memoizeCallable(Callable<T> callable) {
@@ -120,53 +107,6 @@ public class JavadocRenderPlugin implements Plugin<Project> {
 			}
 			return compileClasspath;
 		};
-	}
-
-	private static final class ManifestFactory {
-		private final DependencyHandler dependencyFactory;
-
-		ManifestFactory(DependencyHandler dependencyFactory) {
-			this.dependencyFactory = dependencyFactory;
-		}
-
-		public Manifest create(FileSystemLocation location) {
-			return new Manifest(location, dependencyFactory);
-		}
-	}
-
-	@ToString
-	private static final class Manifest {
-		private final File location;
-		private final DependencyHandler dependencyFactory;
-
-		Manifest(FileSystemLocation location, DependencyHandler dependencyFactory) {
-			this.location = location.getAsFile();
-			this.dependencyFactory = dependencyFactory;
-		}
-
-		public List<Dependency> getDependencies() {
-			try {
-				val gson = new GsonBuilder().registerTypeAdapter(Dependency.class, new DependencyDeserializer()).create();
-				return gson.fromJson(getDependenciesManifestContent(), new TypeToken<List<Dependency>>() {}.getType());
-			} catch (IOException e) {
-				return Collections.emptyList();
-			}
-		}
-
-		private String getDependenciesManifestContent() throws IOException {
-			return FileUtils.readFileToString(getDependenciesManifestFile(), StandardCharsets.UTF_8);
-		}
-
-		private File getDependenciesManifestFile() {
-			return new File(location, "dependencies.manifest");
-		}
-
-		private class DependencyDeserializer implements JsonDeserializer<Dependency> {
-			public Dependency deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-				val obj = json.getAsJsonObject();
-				return dependencyFactory.create(String.format("%s:%s:%s", obj.get("group").getAsString(), obj.get("name").getAsString(), obj.get("version").getAsString()));
-			}
-		}
 	}
 
 	private static NodeAction onJavadocArtifactDiscovered(TaskRegistry taskRegistry, ProjectLayout projectLayout, ObjectFactory objects) {
