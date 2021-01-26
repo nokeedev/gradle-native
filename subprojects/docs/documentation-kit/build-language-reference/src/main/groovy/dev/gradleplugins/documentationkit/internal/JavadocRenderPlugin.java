@@ -3,9 +3,11 @@ package dev.gradleplugins.documentationkit.internal;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import dev.gradleplugins.documentationkit.*;
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.NodeAction;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -23,6 +25,7 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.*;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.javadoc.Javadoc;
@@ -30,23 +33,24 @@ import org.gradle.external.javadoc.StandardJavadocDocletOptions;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 import static dev.nokee.model.internal.core.ModelActions.discover;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.utils.TransformerUtils.flatTransformEach;
-import static dev.nokee.utils.TransformerUtils.transformEach;
+import static dev.nokee.utils.TransformerUtils.*;
+import static java.lang.String.join;
 
 // add artifact to API reference component
 public class JavadocRenderPlugin implements Plugin<Project> {
@@ -62,7 +66,7 @@ public class JavadocRenderPlugin implements Plugin<Project> {
 			val taskRegistry = new TaskRegistry(project.getTasks(), TaskNamingScheme.forComponent("apiReference"));
 			val javadocFactory = new JavadocApiReferenceNodeRegistrationFactory(project.getObjects());
 			val javadocArtifact = apiReference.register(javadocFactory.create("javadoc"));
-			ModelNodes.of(javadocArtifact).applyTo(onJavadocArtifactDiscovered(taskRegistry, project.getLayout()));
+			ModelNodes.of(javadocArtifact).applyTo(onJavadocArtifactDiscovered(taskRegistry, project.getLayout(), project.getObjects()));
 
 			components.configure("apiReference", ApiReferenceDocumentation.class, component -> {
 				javadocArtifact.configure(javadoc -> {
@@ -165,97 +169,157 @@ public class JavadocRenderPlugin implements Plugin<Project> {
 		}
 	}
 
-	private static NodeAction onJavadocArtifactDiscovered(TaskRegistry taskRegistry, ProjectLayout projectLayout) {
+	private static NodeAction onJavadocArtifactDiscovered(TaskRegistry taskRegistry, ProjectLayout projectLayout, ObjectFactory objects) {
 		return self(discover(context -> {
-				val artifact = context.projectionOf(of(JavadocApiReference.class));
-				val javadocTask = taskRegistry.register(TaskName.of("generate", "javadoc"), Javadoc.class, new Consumer<Javadoc>() {
-					@Override
-					public void accept(Javadoc task) {
-						val temporaryDirectory = projectLayout.getBuildDirectory().dir("tmp/" + task.getName());
+			val artifact = context.projectionOf(of(JavadocApiReference.class));
+			val javadocTask = taskRegistry.register(TaskName.of("generate", "javadoc"), Javadoc.class, new Consumer<Javadoc>() {
+				@Override
+				public void accept(Javadoc task) {
+					val temporaryDirectory = projectLayout.getBuildDirectory().dir("tmp/" + task.getName());
 
-						task.getInputs().files(artifact.flatMap(it -> it.getSources().getAsFileTree().getElements()));
-						task.source(fromDummyFileToAvoidNoSourceTaskOutcomeBecauseUsingSourcepathJavadocOption(temporaryDirectory.get()));
-						task.setDestinationDir(temporaryDirectory.get().dir("docs").getAsFile());
-						StandardJavadocDocletOptions options = (StandardJavadocDocletOptions) task.getOptions();
-						options.setEncoding("utf-8");
-						options.setDocEncoding("utf-8");
-						options.setCharSet("utf-8");
-						options.setLinks(linksFromArtifact());
-						options.setClasspath(classpathFromArtifact());
-						options.addStringsOption("sourcepath").setValue(sourcePathsFromArtifactSources());
-						options.addStringsOption("subpackages").setValue(guessSubPackages());
-						options.addStringsOption("exclude").setValue(excludesInternalPackages());
-					}
+					val sources = artifact.flatMap(it -> it.getSources().getAsFileTree().getElements());
+					task.getInputs().files(sources);
+					task.source(sources.map(ifNonEmpty(forSupplier(fromDummyFileToAvoidNoSourceTaskOutcomeBecauseUsingSourcepathJavadocOption(temporaryDirectory.get())))));
+					task.setDestinationDir(temporaryDirectory.get().dir("docs").getAsFile());
+					task.setClasspath(objects.fileCollection().from(classpathFromArtifact()));
+					StandardJavadocDocletOptions options = (StandardJavadocDocletOptions) task.getOptions();
+					options.setEncoding("utf-8");
+					options.setDocEncoding("utf-8");
+					options.setCharSet("utf-8");
 
-					@SneakyThrows
-					private File fromDummyFileToAvoidNoSourceTaskOutcomeBecauseUsingSourcepathJavadocOption(Directory temporaryDirectory) {
-						val result = temporaryDirectory.file("Foo.java").getAsFile();
-						FileUtils.write(result, "package internal;\n class Foo {}\n", StandardCharsets.UTF_8);
-						return result;
-					}
+					// Delay the realization while keeping task dependencies
+					val args = objects.listProperty(String.class);
+					args.addAll(linksFromArtifact().map(flatTransformEach(it -> ImmutableList.of("-link", it))));
+					args.addAll(sourcePathsFromArtifactSources().map(ifNonEmpty(it -> ImmutableList.of("-sourcepath", join(File.pathSeparator, it)))));
+					args.addAll(guessSubPackages().map(ifNonEmpty(it -> ImmutableList.of("-subpackages", join(File.pathSeparator, it)))));
+					args.addAll(excludesInternalPackages().map(ifNonEmpty(it -> ImmutableList.of("-exclude", join(File.pathSeparator, it)))));
+					task.getInputs().property("additionalArgs", args);
+					task.doFirst(t -> {
+						try {
+							FileUtils.write(temporaryDirectory.get().file("additionalArgs.options").getAsFile(), join(System.lineSeparator(), args.get()), StandardCharsets.UTF_8);
+							options.optionFiles(temporaryDirectory.get().file("additionalArgs.options").getAsFile());
+						} catch (IOException e) {
+							throw new UncheckedIOException(e);
+						}
+					});
+				}
 
-					private List<String> linksFromArtifact() {
-						return artifact.flatMap(JavadocApiReference::getLinks).map(it -> it.stream().map(URI::toString).collect(Collectors.toList())).get();
-					}
+				private java.util.function.Supplier<Iterable<File>> fromDummyFileToAvoidNoSourceTaskOutcomeBecauseUsingSourcepathJavadocOption(Directory temporaryDirectory) {
+					return new java.util.function.Supplier<Iterable<File>>() {
+						@Override
+						@SneakyThrows
+						public Iterable<File> get() {
+							val result = temporaryDirectory.file("Foo.java").getAsFile();
+							FileUtils.write(result, "package internal;\n class Foo {}\n", StandardCharsets.UTF_8);
+							return ImmutableList.of(result);
+						}
+					};
+				}
 
-					private List<File> classpathFromArtifact() {
-						return ImmutableList.copyOf(artifact.map(JavadocApiReference::getClasspath).get());
-					}
+				private Provider<List<String>> linksFromArtifact() {
+					return artifact.flatMap(JavadocApiReference::getLinks).map(transformEach(URI::toString));
+				}
 
-					private List<String> sourcePathsFromArtifactSources() {
-						return artifact.map(JavadocApiReference::getSources).get().getSourceDirectories().getFiles().stream().map(File::getAbsolutePath).collect(Collectors.toList());
-					}
+				private Provider<Set<FileSystemLocation>> classpathFromArtifact() {
+					return artifact.flatMap(elementsOf(JavadocApiReference::getClasspath));
+				}
 
-					private List<String> guessSubPackages() {
-						val result = new HashSet<String>();
-						artifact.map(JavadocApiReference::getSources).get().getAsFileTree().visit(new FileVisitor() {
-							@Override
-							public void visitDir(FileVisitDetails details) {
-								result.add(details.getRelativePath().getSegments()[0]);
-								details.stopVisiting();
-							}
+				private Provider<List<String>> sourcePathsFromArtifactSources() {
+					return artifact.map(JavadocApiReference::getSources).flatMap(elementsOf(LanguageSourceSet::getSourceDirectories)).map(transformEach(asFile(File::getAbsolutePath)));
+				}
 
-							@Override
-							public void visitFile(FileVisitDetails details) {
-								// ignore
-							}
-						});
-						return ImmutableList.copyOf(result);
-					}
+				private Provider<List<String>> guessSubPackages() {
+					return artifact.map(JavadocApiReference::getSources).map(LanguageSourceSet::getAsFileTree).map(files -> {
+						val visitor = new GuessSubPackageVisitor();
+						files.visit(visitor);
+						return ImmutableList.copyOf(visitor.result);
+					});
+				}
 
-					private List<String> excludesInternalPackages() {
-						val packageToExcludes = new ArrayList<String>();
-						artifact.map(JavadocApiReference::getSources).get().getAsFileTree().visit(new FileVisitor() {
-							@Override
-							public void visitDir(FileVisitDetails details) {
-								if (details.getName().equals("internal")) {
-									packageToExcludes.add(toPackage(details.getRelativePath()));
-								}
-							}
+				private Provider<List<String>> excludesInternalPackages() {
+					return artifact.map(JavadocApiReference::getSources).map(LanguageSourceSet::getAsFileTree).map(files -> {
+						val visitor = new ExcludesInternalPackages();
+						files.visit(visitor);
+						return visitor.packageToExcludes;
+					});
+				}
+			});
 
-							private String toPackage(RelativePath path) {
-								return String.join(".", path.getSegments());
-							}
+			val syncTask = taskRegistry.register(TaskName.of("assemble", "javadoc"), Sync.class, task -> {
+				task.from(javadocTask.map(Javadoc::getDestinationDir), spec -> spec.into(artifact.flatMap(JavadocApiReference::getPermalink)));
+				task.setDestinationDir(projectLayout.getBuildDirectory().dir("tmp/" + task.getName()).get().getAsFile());
+			});
+			artifact.configure(it -> it.getDestinationDirectory().fileProvider(syncTask.map(Sync::getDestinationDir)).disallowChanges());
 
-							@Override
-							public void visitFile(FileVisitDetails details) {
-								// ignore
-							}
-						});
-						return packageToExcludes;
-					}
-				});
+			val assembleTask = taskRegistry.register("assemble", Task.class, task -> {
+				task.dependsOn(syncTask);
+				task.setGroup("documentation");
+			});
+		}));
+	}
 
-				val syncTask = taskRegistry.register(TaskName.of("assemble", "javadoc"), Sync.class, task -> {
-					task.from(javadocTask.map(Javadoc::getDestinationDir), spec -> spec.into(artifact.flatMap(JavadocApiReference::getPermalink)));
-					task.setDestinationDir(projectLayout.getBuildDirectory().dir("tmp/" + task.getName()).get().getAsFile());
-				});
-				artifact.configure(it -> it.getDestinationDirectory().fileProvider(syncTask.map(Sync::getDestinationDir)).disallowChanges());
+	private static final class GuessSubPackageVisitor implements FileVisitor {
+		private final List<String> result = new ArrayList<>();
 
-				val assembleTask = taskRegistry.register("assemble", Task.class, task -> {
-					task.dependsOn(syncTask);
-					task.setGroup("documentation");
-				});
-			}));
+		@Override
+		public void visitDir(FileVisitDetails details) {
+			result.add(details.getRelativePath().getSegments()[0]);
+			details.stopVisiting();
+		}
+
+		@Override
+		public void visitFile(FileVisitDetails details) {
+			// ignore
+		}
+	}
+
+	private static final class ExcludesInternalPackages implements FileVisitor {
+		private final List<String> packageToExcludes = new ArrayList<>();
+
+		@Override
+		public void visitDir(FileVisitDetails details) {
+			if (details.getName().equals("internal")) {
+				packageToExcludes.add(toPackage(details.getRelativePath()));
+			}
+		}
+
+		private String toPackage(RelativePath path) {
+			return join(".", path.getSegments());
+		}
+
+		@Override
+		public void visitFile(FileVisitDetails details) {
+			// ignore
+		}
+	}
+
+	private static <OUT, IN extends FileSystemLocation> Transformer<OUT, IN> asFile(Function<File, ? extends OUT> mapper) {
+		return new Transformer<OUT, IN>() {
+			@Override
+			public OUT transform(IN in) {
+				return mapper.apply(in.getAsFile());
+			}
+		};
+	}
+
+	private static <IN> Transformer<Provider<Set<FileSystemLocation>>, IN> elementsOf(Function<IN, ? extends FileCollection> mapper) {
+		return new Transformer<Provider<Set<FileSystemLocation>>, IN>() {
+			@Override
+			public Provider<Set<FileSystemLocation>> transform(IN in) {
+				return mapper.apply(in).getElements();
+			}
+		};
+	}
+
+	private static <OUT, IN extends Iterable<T>, T> Transformer<Iterable<OUT>, IN> ifNonEmpty(Transformer<? extends Iterable<OUT>, ? super IN> mapper) {
+		return new Transformer<Iterable<OUT>, IN>() {
+			@Override
+			public Iterable<OUT> transform(IN ts) {
+				if (Iterables.isEmpty(ts)) {
+					return ImmutableList.of();
+				}
+				return mapper.transform(ts);
+			}
+		};
 	}
 }
