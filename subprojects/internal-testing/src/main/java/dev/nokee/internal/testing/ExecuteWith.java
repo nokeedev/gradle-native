@@ -18,12 +18,14 @@ import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Suppliers.ofInstance;
+import static com.google.common.collect.Streams.zip;
 import static dev.nokee.internal.testing.utils.ClosureTestUtils.adaptToClosure;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.allOf;
@@ -103,6 +105,70 @@ public final class ExecuteWith {
 				}).when(action).accept(captor.capture());
 				execution.accept(action);
 				return new ActionExecutionResult<>(captor.getAllValues());
+			}
+		};
+	}
+
+	public static final class BiArguments<T, U> {
+		private final T first;
+		private final U second;
+
+		private BiArguments(T first, U second) {
+			this.first = first;
+			this.second = second;
+		}
+
+		public T getFirst() {
+			return first;
+		}
+
+		public U getSecond() {
+			return second;
+		}
+	}
+
+	public interface BiConsumerExecutionStrategy<T, U> extends ExecutionStrategy<BiArguments<T, U>> {
+		BiConsumerExecutionStrategy<T, U> thenAnswer(Answer<Void> answer);
+		BiConsumerExecutionStrategy<T, U> thenThrow(Throwable throwable);
+		BiConsumerExecutionStrategy<T, U> captureUsing(ContextualCaptor<?> captor);
+	}
+
+	public static <T, U> BiConsumerExecutionStrategy<T, U> biConsumer(ThrowingConsumer<? super BiConsumer<? super T, ? super U>> execution) {
+		return new BiConsumerExecutionStrategy<T, U>() {
+			private final List<ContextualCaptorAnswer<?>> contextCaptors = new ArrayList<>();
+			private Answer<Void> answer = t -> null;
+
+			@Override
+			public BiConsumerExecutionStrategy<T, U> thenAnswer(Answer<Void> answer) {
+				this.answer = answer;
+				return this;
+			}
+
+			@Override
+			public BiConsumerExecutionStrategy<T, U> thenThrow(Throwable throwable) {
+				answer = t -> { throw throwable; };
+				return this;
+			}
+
+			@Override
+			public BiConsumerExecutionStrategy<T, U> captureUsing(ContextualCaptor<?> captor) {
+				contextCaptors.add((ContextualCaptorAnswer<?>) captor);
+				return this;
+			}
+
+			@Override
+			public ExecutionResult<BiArguments<T, U>> execute() throws Throwable {
+				BiConsumer<T, U> action = Cast.uncheckedCast(Mockito.mock(BiConsumer.class));
+				ArgumentCaptor<T> captorT = Cast.uncheckedCast(ArgumentCaptor.forClass(Object.class));
+				ArgumentCaptor<U> captorU = Cast.uncheckedCast(ArgumentCaptor.forClass(Object.class));
+				Mockito.doAnswer(t -> {
+					for (ContextualCaptorAnswer<?> contextCaptor : contextCaptors) {
+						contextCaptor.answer(t);
+					}
+					return answer.answer(t);
+				}).when(action).accept(captorT.capture(), captorU.capture());
+				execution.accept(action);
+				return new ActionExecutionResult<>(zip(captorT.getAllValues().stream(), captorU.getAllValues().stream(), BiArguments::new).collect(toList()));
 			}
 		};
 	}
@@ -288,6 +354,24 @@ public final class ExecuteWith {
 
 	public static <T> Matcher<ExecutionResult<T>> calledOnceWith(Matcher<T> matcher) {
 		return allOf(called(equalTo(1)), lastArgument(matcher));
+	}
+
+	public static <T, U> Matcher<BiArguments<T, U>> firstArgumentOf(Matcher<T> matcher) {
+		return new FeatureMatcher<BiArguments<T, U>, T>(matcher, "", "") {
+			@Override
+			protected T featureValueOf(BiArguments<T, U> actual) {
+				return actual.getFirst();
+			}
+		};
+	}
+
+	public static <T, U> Matcher<BiArguments<T, U>> secondArgumentOf(Matcher<U> matcher) {
+		return new FeatureMatcher<BiArguments<T, U>, U>(matcher, "", "") {
+			@Override
+			protected U featureValueOf(BiArguments<T, U> actual) {
+				return actual.getSecond();
+			}
+		};
 	}
 
 	public static <T> Matcher<ExecutionResult<T>> called(Matcher<Integer> matcher) {
