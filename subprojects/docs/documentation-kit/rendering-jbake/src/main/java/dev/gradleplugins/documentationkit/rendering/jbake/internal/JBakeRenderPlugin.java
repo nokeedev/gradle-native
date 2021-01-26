@@ -130,6 +130,7 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 			task.into("assets", spec -> spec.from(assets).from(extension.getAssets()));
 			task.into("templates", spec -> spec.from(templates).from(extension.getTemplates()));
 			task.setDestinationDir(project.getLayout().getBuildDirectory().dir("tmp/" + task.getName()).get().getAsFile());
+			task.setIncludeEmptyDirs(false);
 		});
 
 		val bakeTask = project.getTasks().register("bake", RenderJBake.class, task -> {
