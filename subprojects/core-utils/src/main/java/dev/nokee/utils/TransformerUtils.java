@@ -5,9 +5,11 @@ import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -220,6 +222,37 @@ public final class TransformerUtils {
 		@Override
 		public String toString() {
 			return "TransformerUtils.compose(" + g + ", " + f + ")";
+		}
+	}
+
+	/**
+	 * Returns a transformer that ignores its input and returns the result of {@code supplier.get()}.
+	 *
+	 * @param supplier  the supplier for the transformer's output, must not be null
+	 * @param <T>  the transformer output type
+	 * @return a {@link Transformer} instance that ignores its input and returns the result of the specified supplier, never null
+	 */
+	public static <T> Transformer<T, Object> forSupplier(Supplier<? extends T> supplier) {
+		return new SupplierTransformer<>(supplier);
+	}
+
+	/** @see #forSupplier(Supplier) */
+	@EqualsAndHashCode
+	private static final class SupplierTransformer<T> implements Transformer<T, Object> {
+		private final Supplier<? extends T> supplier;
+
+		private SupplierTransformer(Supplier<? extends T> supplier) {
+			this.supplier = requireNonNull(supplier);
+		}
+
+		@Override
+		public T transform(@Nullable Object input) {
+			return supplier.get();
+		}
+
+		@Override
+		public String toString() {
+			return "TransformerUtils.forSupplier(" + supplier + ")";
 		}
 	}
 
