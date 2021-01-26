@@ -141,6 +141,7 @@ public final class TransformerUtils {
 		return new FlatTransformEachAdapter<>(mapper);
 	}
 
+	/** @see #flatTransformEach(org.gradle.api.Transformer) */
 	@EqualsAndHashCode
 	private static final class FlatTransformEachAdapter<OUT, IN> implements Transformer<List<OUT>, Iterable<IN>> {
 		private final org.gradle.api.Transformer<? extends Iterable<OUT>, ? super IN> mapper;
@@ -177,6 +178,7 @@ public final class TransformerUtils {
 		return new TransformEachAdapter<>(mapper);
 	}
 
+	/** @see #transformEach(org.gradle.api.Transformer) */
 	@EqualsAndHashCode
 	private static final class TransformEachAdapter<OUT, IN> implements Transformer<List<OUT>, Iterable<IN>> {
 		private final org.gradle.api.Transformer<? extends OUT, ? super IN> mapper;
@@ -204,6 +206,7 @@ public final class TransformerUtils {
 		return new ComposeTransformer<>(g, f);
 	}
 
+	/** @see #compose(org.gradle.api.Transformer, org.gradle.api.Transformer) */
 	@EqualsAndHashCode
 	private static final class ComposeTransformer<A, B, C> implements Transformer<C, A> {
 		private final org.gradle.api.Transformer<? extends C, ? super B> g;
