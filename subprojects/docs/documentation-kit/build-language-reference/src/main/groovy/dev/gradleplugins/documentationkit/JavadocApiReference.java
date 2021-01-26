@@ -11,6 +11,7 @@ import java.net.URI;
 public interface JavadocApiReference {
 	LanguageSourceSet getSources();
 	Property<String> getPermalink();
+	Property<String> getTitle();
 	DirectoryProperty getDestinationDirectory();
 	SetProperty<URI> getLinks();
 	ConfigurableFileCollection getClasspath();

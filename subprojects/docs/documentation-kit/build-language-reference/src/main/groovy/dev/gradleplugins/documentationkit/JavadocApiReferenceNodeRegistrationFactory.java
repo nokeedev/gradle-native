@@ -36,6 +36,7 @@ public final class JavadocApiReferenceNodeRegistrationFactory implements NodeReg
 			.action(self(discover(context -> {
 				context.register(sourceSet("sources", LanguageSourceSet.class));
 				context.register(unmanaged("permalink", of(new TypeOf<Property<String>>() {}), () -> configureDisplayName(objects.property(String.class), "permalink")));
+				context.register(unmanaged("title", of(new TypeOf<Property<String>>() {}), () -> configureDisplayName(objects.property(String.class), "title")));
 				context.register(unmanaged("destinationDirectory", of(DirectoryProperty.class), () -> configureDisplayName(objects.directoryProperty(), "destinationDirectory")));
 				context.register(unmanaged("links", of(new TypeOf<SetProperty<URI>>() {}), () -> configureDisplayName(objects.setProperty(URI.class), "links")));
 				context.register(unmanaged("classpath", of(ConfigurableFileCollection.class), () -> objects.fileCollection()));

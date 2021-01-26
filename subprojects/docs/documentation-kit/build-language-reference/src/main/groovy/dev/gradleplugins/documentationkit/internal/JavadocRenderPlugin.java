@@ -133,6 +133,7 @@ public class JavadocRenderPlugin implements Plugin<Project> {
 					args.addAll(sourcePathsFromArtifactSources().map(ifNonEmpty(it -> ImmutableList.of("-sourcepath", join(File.pathSeparator, it)))));
 					args.addAll(guessSubPackages().map(ifNonEmpty(it -> ImmutableList.of("-subpackages", join(File.pathSeparator, it)))));
 					args.addAll(excludesInternalPackages().map(ifNonEmpty(it -> ImmutableList.of("-exclude", join(File.pathSeparator, it)))));
+					args.addAll(artifact.flatMap(JavadocApiReference::getTitle).map(it -> ImmutableList.of("-doctitle", quote(it), "-windowtitle", quote(it))).orElse(ImmutableList.of()));
 					task.getInputs().property("additionalArgs", args);
 					task.doFirst(t -> {
 						try {
@@ -231,6 +232,10 @@ public class JavadocRenderPlugin implements Plugin<Project> {
 		public void visitFile(FileVisitDetails details) {
 			// ignore
 		}
+	}
+
+	private static String quote(String valueToQuote) {
+		return "\"" + valueToQuote + "\"";
 	}
 
 	private static <OUT, IN extends FileSystemLocation> Transformer<OUT, IN> asFile(Function<File, ? extends OUT> mapper) {
