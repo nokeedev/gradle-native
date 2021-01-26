@@ -50,11 +50,13 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 	public static final String TEMPLATES_ELEMENTS_CONFIGURATION_NAME = "templatesElements";
 	public static final String CONTENT_ELEMENTS_CONFIGURATION_NAME = "contentElements";
 	public static final String CONFIGURATION_ELEMENTS_CONFIGURATION_NAME = "configurationElements";
+	public static final String BAKED_ELEMENTS_CONFIGURATION_NAME = "bakedElements";
 
 	static final String JBAKE_ASSETS_USAGE_NAME = "jbake-assets";
 	static final String JBAKE_TEMPLATES_USAGE_NAME = "jbake-templates";
 	static final String JBAKE_CONTENT_USAGE_NAME = "jbake-content";
 	static final String JBAKE_CONFIGURATION_USAGE_NAME = "jbake-properties";
+	static final String JBAKE_BAKED_USAGE_NAME = "jbake-baked";
 
 	private final TaskContainer tasks;
 	private final ProjectLayout layout;
@@ -111,6 +113,8 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 			unzipArtifact(JBAKE_ASSETS_USAGE_NAME, project.getObjects()));
 		project.getDependencies().registerTransform(UnzipTransform.class,
 			unzipArtifact(JBAKE_TEMPLATES_USAGE_NAME, project.getObjects()));
+		project.getDependencies().registerTransform(UnzipTransform.class,
+			unzipArtifact(JBAKE_BAKED_USAGE_NAME, project.getObjects()));
 
 		configurationRegistry.create(CONTENT_ELEMENTS_CONFIGURATION_NAME,
 			asConsumable()
@@ -128,6 +132,10 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 			asConsumable()
 				.andThen(attributes(JBAKE_CONFIGURATION_USAGE_NAME))
 				.andThen(using(project.getObjects(), artifactIfExists(bakePropertiesTask.flatMap(GenerateJBakeProperties::getOutputFile)))));
+		configurationRegistry.create(BAKED_ELEMENTS_CONFIGURATION_NAME,
+			asConsumable()
+				.andThen(attributes(JBAKE_BAKED_USAGE_NAME))
+				.andThen(artifactOf(extension.getDestinationDirectory())));
 
 		val stageTask = project.getTasks().register("stageBake", Sync.class, task -> {
 			task.into("content", spec -> spec.from(content).from(extension.getContent()));
