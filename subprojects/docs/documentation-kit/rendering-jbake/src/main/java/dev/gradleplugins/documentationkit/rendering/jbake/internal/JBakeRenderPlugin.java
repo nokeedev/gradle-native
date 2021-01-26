@@ -2,6 +2,7 @@ package dev.gradleplugins.documentationkit.rendering.jbake.internal;
 
 import com.google.common.collect.ImmutableMap;
 import dev.gradleplugins.documentationkit.rendering.jbake.JBakeExtension;
+import dev.gradleplugins.documentationkit.rendering.jbake.tasks.GenerateJBakeProperties;
 import dev.gradleplugins.documentationkit.rendering.jbake.tasks.RenderJBake;
 import dev.nokee.platform.base.internal.dependencies.ProjectConfigurationRegistry;
 import dev.nokee.utils.ActionUtils;
@@ -76,7 +77,12 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 		extension.getAssets().from("src/jbake/assets");
 		extension.getTemplates().from("src/jbake/templates");
 		extension.getContent().from("src/jbake/content");
-		extension.getPropertiesFile().set(layout.getProjectDirectory().file("src/jbake/jbake.properties"));
+		extension.getConfigurations().putAll(project.provider(() -> loadPropertiesFileIfAvailable(layout.getProjectDirectory().file("src/jbake/jbake.properties"))));
+
+		val bakePropertiesTask = tasks.register("bakeProperties", GenerateJBakeProperties.class, task -> {
+			task.getConfigurations().value(extension.getConfigurations()).disallowChanges();
+			task.getOutputFile().value(layout.getBuildDirectory().file("tmp/" + task.getName() + "/jbake.properties"));
+		});
 
 		val jbake = configurationRegistry.createIfAbsent("jbake", asDeclarable());
 		val content = configurationRegistry.createIfAbsent(CONTENT_CONFIGURATION_NAME,
@@ -117,7 +123,7 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 			.configure(artifactOf(extension.getAssets()));
 		configurationRegistry.registerIfAbsent(CONFIGURATION_ELEMENTS_CONFIGURATION_NAME,
 			asResolvable().andThen(attributes(JBAKE_CONFIGURATION_USAGE_NAME)))
-			.configure(using(project.getObjects(), artifactIfExists(extension.getPropertiesFile())));
+			.configure(using(project.getObjects(), artifactIfExists(bakePropertiesTask.flatMap(GenerateJBakeProperties::getOutputFile))));
 
 		val stageTask = project.getTasks().register("stageBake", Sync.class, task -> {
 			task.into("content", spec -> spec.from(content).from(extension.getContent()));
@@ -133,7 +139,7 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 			task.getDestinationDirectory().set(project.getLayout().getBuildDirectory().dir("jbake"));
 			task.getConfigurations().putAll(configuration.getIncoming().getFiles().getElements().map(transformEach(JBakeRenderPlugin::loadPropertiesFileIfAvailable).andThen(JBakeRenderPlugin::mergeConfigurations)));
 			task.getConfigurations().put("working.directory", stageTask.map(this::relativeToProjectDirectory));
-			task.getConfigurations().putAll(extension.getPropertiesFile().map(JBakeRenderPlugin::loadPropertiesFileIfAvailable));
+			task.getConfigurations().putAll(extension.getConfigurations());
 			task.getClasspath()
 				.from(jbake("2.6.5"))
 				.from(asciidoctor("2.2.0"))
