@@ -1,6 +1,7 @@
 package dev.nokee.internal.testing.utils;
 
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
@@ -28,6 +29,10 @@ public final class TestUtils {
 
 	public static ProviderFactory providerFactory() {
 		return project().getProviders();
+	}
+
+	public static Dependency createDependency(Object notation) {
+		return project().getDependencies().create(notation);
 	}
 
 	public static Project rootProject() {
