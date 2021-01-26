@@ -79,6 +79,7 @@ public class SiteBasePlugin implements Plugin<Project> {
 			task.from(sitemapTask.flatMap(GenerateSitemap::getGeneratedSitemapFile));
 			task.from((Callable<Object>) () -> site(project).map(SiteExtension::getSources).map(Collections::singletonList).orElseGet(Collections::emptyList));
 			task.setDestinationDir(project.getLayout().getBuildDirectory().dir("site").get().getAsFile());
+			task.setIncludeEmptyDirs(false);
 		});
 
 		project.getTasks().register("site", task -> {
