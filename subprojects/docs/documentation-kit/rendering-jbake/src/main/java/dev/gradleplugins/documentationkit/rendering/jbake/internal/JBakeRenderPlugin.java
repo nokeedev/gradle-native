@@ -25,7 +25,6 @@ import org.gradle.api.internal.artifacts.transform.UnzipTransform;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.TaskContainer;
-import org.gradle.api.tasks.bundling.Zip;
 
 import javax.inject.Inject;
 import java.io.FileInputStream;
@@ -36,7 +35,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.*;
-import static dev.nokee.platform.base.internal.tasks.TaskName.taskName;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.DIRECTORY_TYPE;
 import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.ZIP_TYPE;
@@ -243,46 +241,17 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 		return builder.build();
 	}
 
-	private static final Attribute<String> ARTIFACT_FORMAT = Attribute.of("artifactType", String.class);
 	private static ActionUtils.Action<Configuration> attributes(String usage) {
 		return forUsage(usage).andThen(forDocsType(usage));
 	}
 
+	private static final Attribute<String> ARTIFACT_FORMAT = Attribute.of("artifactType", String.class);
 	private static Action<TransformSpec<TransformParameters.None>> unzipArtifact(String targetUsage, ObjectFactory objects) {
 		return variantTransform -> {
 			variantTransform.getFrom().attribute(ARTIFACT_FORMAT, ZIP_TYPE);
 			variantTransform.getFrom().attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.class, targetUsage));
 			variantTransform.getTo().attribute(ARTIFACT_FORMAT, DIRECTORY_TYPE);
 			variantTransform.getTo().attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.class, targetUsage));
-		};
-	}
-
-	private ActionUtils.Action<Configuration> artifactOf(FileCollection files) {
-		return new ActionUtils.Action<Configuration>() {
-			@Override
-			public void execute(Configuration configuration) {
-				val zipTask = tasks.register(taskName("zip", configuration.getName()), Zip.class, task -> {
-					task.from(files);
-					task.getArchiveClassifier().set(classifier(configuration.getName()));
-					task.getDestinationDirectory().set(layout.getBuildDirectory().dir("tmp/" + task.getName()));
-				});
-				configuration.getOutgoing().artifact(zipTask);
-
-				val stageTask = tasks.register(taskName("stage", configuration.getName()), Sync.class, task -> {
-					task.from(files);
-					task.setDestinationDir(layout.getBuildDirectory().dir("tmp/" + task.getName()).get().getAsFile());
-				});
-				configuration.getOutgoing().getVariants().create("directory", variant -> {
-					variant.artifact(stageTask.map(Sync::getDestinationDir), it -> {
-						it.setType(DIRECTORY_TYPE);
-						it.builtBy(stageTask);
-					});
-				});
-			}
-
-			private String classifier(String configurationName) {
-				return configurationName.replace("Elements", "");
-			}
 		};
 	}
 }
