@@ -113,16 +113,16 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 			unzipArtifact(JBAKE_TEMPLATES_USAGE_NAME, project.getObjects()));
 
 		configurationRegistry.registerIfAbsent(CONTENT_ELEMENTS_CONFIGURATION_NAME,
-			asResolvable().andThen(attributes(JBAKE_CONTENT_USAGE_NAME)))
+			asConsumable().andThen(attributes(JBAKE_CONTENT_USAGE_NAME)))
 			.configure(artifactOf(extension.getContent()));
 		configurationRegistry.registerIfAbsent(TEMPLATES_ELEMENTS_CONFIGURATION_NAME,
-			asResolvable().andThen(attributes(JBAKE_TEMPLATES_USAGE_NAME)))
+			asConsumable().andThen(attributes(JBAKE_TEMPLATES_USAGE_NAME)))
 			.configure(artifactOf(extension.getTemplates()));
 		configurationRegistry.registerIfAbsent(ASSETS_ELEMENTS_CONFIGURATION_NAME,
-			asResolvable().andThen(attributes(JBAKE_ASSETS_USAGE_NAME)))
+			asConsumable().andThen(attributes(JBAKE_ASSETS_USAGE_NAME)))
 			.configure(artifactOf(extension.getAssets()));
 		configurationRegistry.registerIfAbsent(CONFIGURATION_ELEMENTS_CONFIGURATION_NAME,
-			asResolvable().andThen(attributes(JBAKE_CONFIGURATION_USAGE_NAME)))
+			asConsumable().andThen(attributes(JBAKE_CONFIGURATION_USAGE_NAME)))
 			.configure(using(project.getObjects(), artifactIfExists(bakePropertiesTask.flatMap(GenerateJBakeProperties::getOutputFile))));
 
 		val stageTask = project.getTasks().register("stageBake", Sync.class, task -> {
