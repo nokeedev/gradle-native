@@ -197,27 +197,27 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 
 	// TODO: Move to flexmark-templates plugin?
 	private FileCollection flexmarkTemplates(String version) {
-		return  configurations.detachedConfiguration(dependencies.create("com.vladsch.flexmark:flexmark:" + version), dependencies.create("com.vladsch.flexmark:flexmark-profile-pegdown:" + version));
+		return configurations.detachedConfiguration(dependencies.create("com.vladsch.flexmark:flexmark:" + version), dependencies.create("com.vladsch.flexmark:flexmark-profile-pegdown:" + version));
 	}
 
 	// TODO: Move to freemarker-templates plugin?
 	private FileCollection freemarkerTemplates(String version) {
-		return  configurations.detachedConfiguration(dependencies.create("org.freemarker:freemarker:" + version));
+		return configurations.detachedConfiguration(dependencies.create("org.freemarker:freemarker:" + version));
 	}
 
 	// TODO: Move to pegdown-templates plugin?
 	private FileCollection pegdownTemplates(String version) {
-		return  configurations.detachedConfiguration(dependencies.create("org.pegdown:pegdown:" + version));
+		return configurations.detachedConfiguration(dependencies.create("org.pegdown:pegdown:" + version));
 	}
 
 	// TODO: Move to thymeleaf-templates plugin?
 	private FileCollection thymeleafTemplates(String version) {
-		return  configurations.detachedConfiguration(dependencies.create("org.thymeleaf:thymeleaf:" + version));
+		return configurations.detachedConfiguration(dependencies.create("org.thymeleaf:thymeleaf:" + version));
 	}
 
 	// TODO: Move to jade4j-templates plugin?
 	private FileCollection jade4jTemplates(String version) {
-		return  configurations.detachedConfiguration(dependencies.create("de.neuland-bfi:jade4j:" + version));
+		return configurations.detachedConfiguration(dependencies.create("de.neuland-bfi:jade4j:" + version));
 	}
 
 	// TODO: Move to pebble-templates plugin?
