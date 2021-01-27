@@ -5,7 +5,9 @@ import lombok.val;
 import org.gradle.api.specs.NotSpec;
 import org.gradle.api.specs.Specs;
 
+import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.Set;
 
 public final class SpecUtils {
 	private SpecUtils() {}
@@ -137,6 +139,53 @@ public final class SpecUtils {
 		}
 	}
 
+	public static <T> Spec<T> or(org.gradle.api.specs.Spec<? super T> first, org.gradle.api.specs.Spec<? super T> second) {
+		if (isSatisfyAll(first) || isSatisfyAll(second)) {
+			return satisfyAll();
+		}
+
+		if (isSatisfyNone(first)) {
+			return Spec.of(second);
+		}
+
+		if (isSatisfyNone(second)) {
+			return Spec.of(first);
+		}
+
+		if (first.equals(second)) {
+			return Spec.of(first);
+		}
+
+		return new OrSpec<>(first, second);
+	}
+
+	/** @see #or(org.gradle.api.specs.Spec, org.gradle.api.specs.Spec) */
+	@EqualsAndHashCode
+	private static final class OrSpec<T> implements Spec<T> {
+		private final Set<org.gradle.api.specs.Spec<? super T>> specs = new LinkedHashSet<>();
+
+		public OrSpec(org.gradle.api.specs.Spec<? super T> first, org.gradle.api.specs.Spec<? super T> second) {
+			specs.add(first);
+			specs.add(second);
+		}
+
+		@Override
+		public boolean isSatisfiedBy(T t) {
+			for (org.gradle.api.specs.Spec<? super T> spec : specs) {
+				if (spec.isSatisfiedBy(t)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public String toString() {
+			val iter = specs.iterator();
+			return "SpecUtils.or(" + iter.next() + ", " + iter.next() + ")";
+		}
+	}
+
 	private static boolean isSatisfyAll(org.gradle.api.specs.Spec<?> spec) {
 		return spec == ObjectSpec.SATISFY_ALL || spec == Specs.SATISFIES_ALL;
 	}
@@ -166,6 +215,10 @@ public final class SpecUtils {
 
 		default Spec<T> negate() {
 			return SpecUtils.negate(this);
+		}
+
+		default Spec<T> or(org.gradle.api.specs.Spec<? super T> other) {
+			return SpecUtils.or(this, other);
 		}
 	}
 
