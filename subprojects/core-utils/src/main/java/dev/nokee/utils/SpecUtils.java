@@ -2,6 +2,7 @@ package dev.nokee.utils;
 
 import lombok.EqualsAndHashCode;
 import lombok.val;
+import org.gradle.api.specs.NotSpec;
 import org.gradle.api.specs.Specs;
 
 import java.util.Optional;
@@ -91,6 +92,51 @@ public final class SpecUtils {
 		}
 	}
 
+	/**
+	 * Returns a specification that negate the specified specification.
+	 *
+	 * @param spec  a specification to negate, must not be null
+	 * @param <T>  the specification input type
+	 * @return a {@link Spec} that negate the specified specification, never null
+	 */
+	public static <T> Spec<T> negate(org.gradle.api.specs.Spec<? super T> spec) {
+		if (isSatisfyAll(spec)) {
+			return satisfyNone();
+		} else if (isSatisfyNone(spec)) {
+			return satisfyAll();
+		} else if (spec instanceof NegateSpec) {
+			@SuppressWarnings("unchecked")
+			NegateSpec<? super T> negateSpec = (NegateSpec<? super T>)spec;
+			return Spec.of(negateSpec.getSourceSpec());
+		} else {
+			return new NegateSpec<>(spec);
+		}
+	}
+
+	/** @see #negate(org.gradle.api.specs.Spec) */
+	@EqualsAndHashCode
+	private static final class NegateSpec<T> implements Spec<T> {
+		private final org.gradle.api.specs.Spec<? super T> sourceSpec;
+
+		public NegateSpec(org.gradle.api.specs.Spec<? super T> spec) {
+			this.sourceSpec = spec;
+		}
+
+		public org.gradle.api.specs.Spec<? super T> getSourceSpec() {
+			return sourceSpec;
+		}
+
+		@Override
+		public boolean isSatisfiedBy(T t) {
+			return !sourceSpec.isSatisfiedBy(t);
+		}
+
+		@Override
+		public String toString() {
+			return "SpecUtils.negate(" + sourceSpec + ")";
+		}
+	}
+
 	private static boolean isSatisfyAll(org.gradle.api.specs.Spec<?> spec) {
 		return spec == ObjectSpec.SATISFY_ALL || spec == Specs.SATISFIES_ALL;
 	}
@@ -116,6 +162,10 @@ public final class SpecUtils {
 				return result;
 			}
 			return new WrappedSpec<>(spec);
+		}
+
+		default Spec<T> negate() {
+			return SpecUtils.negate(this);
 		}
 	}
 
