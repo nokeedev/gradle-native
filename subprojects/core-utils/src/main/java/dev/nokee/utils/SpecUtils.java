@@ -186,6 +186,53 @@ public final class SpecUtils {
 		}
 	}
 
+	public static <T> Spec<T> and(org.gradle.api.specs.Spec<? super T> first, org.gradle.api.specs.Spec<? super T> second) {
+		if (isSatisfyNone(first) || isSatisfyNone(second)) {
+			return satisfyNone();
+		}
+
+		if (isSatisfyAll(first)) {
+			return Spec.of(second);
+		}
+
+		if (isSatisfyAll(second)) {
+			return Spec.of(first);
+		}
+
+		if (first.equals(second)) {
+			return Spec.of(first);
+		}
+
+		return new AndSpec<>(first, second);
+	}
+
+	/** @see #and(org.gradle.api.specs.Spec, org.gradle.api.specs.Spec) */
+	@EqualsAndHashCode
+	private static final class AndSpec<T> implements Spec<T> {
+		private final Set<org.gradle.api.specs.Spec<? super T>> specs = new LinkedHashSet<>();
+
+		public AndSpec(org.gradle.api.specs.Spec<? super T> first, org.gradle.api.specs.Spec<? super T> second) {
+			this.specs.add(first);
+			this.specs.add(second);
+		}
+
+		@Override
+		public boolean isSatisfiedBy(T t) {
+			for (org.gradle.api.specs.Spec<? super T> spec : specs) {
+				if (!spec.isSatisfiedBy(t)) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			val iter = specs.iterator();
+			return "SpecUtils.and(" + iter.next() + ", " + iter.next() + ")";
+		}
+	}
+
 	private static boolean isSatisfyAll(org.gradle.api.specs.Spec<?> spec) {
 		return spec == ObjectSpec.SATISFY_ALL || spec == Specs.SATISFIES_ALL;
 	}
@@ -219,6 +266,10 @@ public final class SpecUtils {
 
 		default Spec<T> or(org.gradle.api.specs.Spec<? super T> other) {
 			return SpecUtils.or(this, other);
+		}
+
+		default Spec<T> and(org.gradle.api.specs.Spec<? super T> other) {
+			return SpecUtils.and(this, other);
 		}
 	}
 
