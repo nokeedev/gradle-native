@@ -98,6 +98,10 @@ public final class SpecUtils {
 		return ObjectSpec.SATISFY_NONE.withNarrowedType();
 	}
 
+	/**
+	 * @see #satisfyAll()
+	 * @see #satisfyNone()
+	 */
 	private enum ObjectSpec implements Spec<Object> {
 		SATISFY_ALL {
 			@Override
