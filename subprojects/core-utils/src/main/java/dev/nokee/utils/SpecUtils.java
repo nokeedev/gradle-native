@@ -46,6 +46,40 @@ public final class SpecUtils {
 		}
 	}
 
+	public static Spec<Object> instanceOf(Class<?> clazz) {
+		if (Object.class.equals(clazz)) {
+			return satisfyAll();
+		}
+		return new InstanceOfSpec(clazz);
+	}
+
+	public static <T> Spec<Object> instanceOf(Class<T> clazz, org.gradle.api.specs.Spec<? super T> andSpec) {
+		if (Object.class.equals(clazz)) {
+			return satisfyAll();
+		}
+		return and(new InstanceOfSpec(clazz), (org.gradle.api.specs.Spec<? super Object>) andSpec);
+	}
+
+	/** @see #instanceOf(Class) */
+	@EqualsAndHashCode
+	private static final class InstanceOfSpec implements Spec<Object> {
+		private final Class<?> clazz;
+
+		public InstanceOfSpec(Class<?> clazz) {
+			this.clazz = clazz;
+		}
+
+		@Override
+		public boolean isSatisfiedBy(Object in) {
+			return clazz.isInstance(in);
+		}
+
+		@Override
+		public String toString() {
+			return "SpecUtils.instanceOf(" + clazz + ")";
+		}
+	}
+
 	/**
 	 * Returns a specification that always evaluates to true.
 	 *
