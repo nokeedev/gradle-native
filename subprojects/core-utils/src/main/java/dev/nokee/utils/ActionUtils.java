@@ -4,7 +4,6 @@ import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Transformer;
 import org.gradle.api.specs.Spec;
-import org.gradle.api.specs.Specs;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -121,9 +120,9 @@ public final class ActionUtils {
 	 * @return an action delegating to the specified action only if the spec is satisfied at execution, never null.
 	 */
 	public static <T> Action<T> onlyIf(Spec<? super T> spec, org.gradle.api.Action<? super T> action) {
-		if (Specs.satisfyAll().equals(spec) || SpecUtils.satisfyAll().equals(spec)) {
+		if (SpecUtils.isSatisfyAll(spec)) {
 			return Action.of(action);
-		} else if (Specs.satisfyNone().equals(spec) || SpecUtils.satisfyNone().equals(spec)) {
+		} else if (SpecUtils.isSatisfyNone(spec)) {
 			return doNothing();
 		}
 		return new SpecFilteringAction<>(spec, action);
