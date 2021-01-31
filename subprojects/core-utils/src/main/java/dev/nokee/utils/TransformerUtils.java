@@ -17,9 +17,8 @@ import static java.util.Objects.requireNonNull;
 public final class TransformerUtils {
 	private TransformerUtils() {}
 
-	@SuppressWarnings("unchecked")
-	public static <T> Transformer<T, T> noOpTransformer() {
-		return (Transformer<T, T>) NoOpTransformer.INSTANCE;
+	public static <OUT, IN extends OUT> Transformer<OUT, IN> noOpTransformer() {
+		return Cast.uncheckedCast("OUT type is statically compatible with IN", NoOpTransformer.INSTANCE);
 	}
 
 	private enum NoOpTransformer implements Transformer<Object, Object> {
