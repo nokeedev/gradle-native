@@ -8,6 +8,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
+import org.gradle.api.specs.Spec;
 import org.gradle.internal.Cast;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
@@ -320,6 +321,58 @@ public final class ExecuteWith {
 				Transformer<R, T> action = Cast.uncheckedCast(Mockito.mock(Transformer.class));
 				ArgumentCaptor<T> captor = Cast.uncheckedCast(ArgumentCaptor.forClass(Object.class));
 				Mockito.when(action.transform(captor.capture())).thenAnswer(t -> {
+					for (ContextualCaptorAnswer<?> contextCaptor : contextCaptors) {
+						contextCaptor.answer(t);
+					}
+					return answer.answer(t);
+				});
+				execution.accept(action);
+				return new ActionExecutionResult<>(captor.getAllValues());
+			}
+		};
+	}
+
+	public interface SpecExecutionStrategy<T> extends ExecutionStrategy<T> {
+		SpecExecutionStrategy<T> thenReturn(boolean value);
+		SpecExecutionStrategy<T> thenAnswer(Answer<Boolean> answer);
+		SpecExecutionStrategy<T> thenThrow(Throwable throwable);
+		SpecExecutionStrategy<T> captureUsing(ContextualCaptor<?> captor);
+	}
+
+	public static <T, R> SpecExecutionStrategy<T> spec(ThrowingConsumer<? super Spec<? super T>> execution) {
+		return new SpecExecutionStrategy<T>() {
+			private final List<ContextualCaptorAnswer<?>> contextCaptors = new ArrayList<>();
+			private Answer<Boolean> answer = t -> null;
+
+			@Override
+			public SpecExecutionStrategy<T> thenReturn(boolean value) {
+				answer = t -> value;
+				return this;
+			}
+
+			@Override
+			public SpecExecutionStrategy<T> thenAnswer(Answer<Boolean> answer) {
+				this.answer = answer;
+				return this;
+			}
+
+			@Override
+			public SpecExecutionStrategy<T> thenThrow(Throwable throwable) {
+				answer = t -> { throw throwable; };
+				return this;
+			}
+
+			@Override
+			public SpecExecutionStrategy<T> captureUsing(ContextualCaptor<?> captor) {
+				contextCaptors.add((ContextualCaptorAnswer<?>) captor);
+				return this;
+			}
+
+			@Override
+			public ExecutionResult<T> execute() throws Throwable {
+				Spec<T> action = Cast.uncheckedCast(Mockito.mock(Spec.class));
+				ArgumentCaptor<T> captor = Cast.uncheckedCast(ArgumentCaptor.forClass(Object.class));
+				Mockito.when(action.isSatisfiedBy(captor.capture())).thenAnswer(t -> {
 					for (ContextualCaptorAnswer<?> contextCaptor : contextCaptors) {
 						contextCaptor.answer(t);
 					}
