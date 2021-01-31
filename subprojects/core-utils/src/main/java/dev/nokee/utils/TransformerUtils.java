@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
+import org.gradle.internal.Transformers;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -33,6 +34,10 @@ public final class TransformerUtils {
 		public String toString() {
 			return "TransformerUtils.noOpTransformer()";
 		}
+	}
+
+	static boolean isNoOpTransformer(org.gradle.api.Transformer<?, ?> transformer) {
+		return transformer == NoOpTransformer.INSTANCE || transformer.equals(Transformers.noOpTransformer());
 	}
 
 	@SuppressWarnings("unchecked")
