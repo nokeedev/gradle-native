@@ -2,7 +2,7 @@ package dev.nokee.utils;
 
 import lombok.EqualsAndHashCode;
 import lombok.val;
-import org.gradle.api.specs.NotSpec;
+import org.gradle.api.Transformer;
 import org.gradle.api.specs.Specs;
 
 import java.util.LinkedHashSet;
@@ -43,6 +43,38 @@ public final class SpecUtils {
 		@Override
 		public String toString() {
 			return "SpecUtils.byType(" + type.getCanonicalName() + ")";
+		}
+	}
+
+	public static <A, B> Spec<A> compose(org.gradle.api.specs.Spec<? super B> spec, Transformer<? extends B, ? super A> transformer) {
+		if (isSatisfyAll(spec)) {
+			return satisfyAll();
+		} else if (isSatisfyNone(spec)) {
+			return satisfyNone();
+		} else if (TransformerUtils.isNoOpTransformer(transformer)) {
+			return Cast.uncheckedCast("no op transformer implies the output type is the same", spec);
+		}
+		return new ComposeSpec<>(spec, transformer);
+	}
+
+	@EqualsAndHashCode
+	private static final class ComposeSpec<A, B> implements Spec<A> {
+		private final org.gradle.api.specs.Spec<? super B> spec;
+		private final Transformer<? extends B, ? super A> transformer;
+
+		public ComposeSpec(org.gradle.api.specs.Spec<? super B> spec, Transformer<? extends B, ? super A> transformer) {
+			this.spec = spec;
+			this.transformer = transformer;
+		}
+
+		@Override
+		public boolean isSatisfiedBy(A in) {
+			return spec.isSatisfiedBy(transformer.transform(in));
+		}
+
+		@Override
+		public String toString() {
+			return "SpecUtils.compose(" + spec + ", " + transformer + ")";
 		}
 	}
 
