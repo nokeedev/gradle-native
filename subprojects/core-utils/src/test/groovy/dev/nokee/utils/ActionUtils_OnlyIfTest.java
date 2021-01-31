@@ -21,7 +21,7 @@ class ActionUtils_OnlyIfTest {
 	@Test
 	void executesActionIfSpecIsSatisfied() {
 		assertThat(executeWith(action(action -> onlyIf(satisfyAll(), action).execute("foo"))),
-			calledOnceWith(equalTo("foo")));
+			calledOnceWith("foo"));
 	}
 
 	@Test

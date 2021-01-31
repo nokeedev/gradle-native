@@ -413,6 +413,10 @@ public final class ExecuteWith {
 		};
 	}
 
+	public static <T> Matcher<ExecutionResult<T>> calledOnceWith(T obj) {
+		return calledOnceWith(equalTo(obj));
+	}
+
 	public static <T> Matcher<ExecutionResult<T>> calledOnceWith(Matcher<T> matcher) {
 		return allOf(called(equalTo(1)), lastArgument(matcher));
 	}
