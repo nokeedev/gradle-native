@@ -71,7 +71,7 @@ public final class ActionUtils {
 		}
 	}
 
-	public static boolean doesSomething(org.gradle.api.Action<?> action) {
+	static boolean doesSomething(org.gradle.api.Action<?> action) {
 		return action != DoNothingAction.INSTANCE;
 	}
 
