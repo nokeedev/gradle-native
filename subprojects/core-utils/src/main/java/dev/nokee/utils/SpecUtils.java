@@ -271,11 +271,11 @@ public final class SpecUtils {
 		}
 	}
 
-	private static boolean isSatisfyAll(org.gradle.api.specs.Spec<?> spec) {
+	static boolean isSatisfyAll(org.gradle.api.specs.Spec<?> spec) {
 		return spec == ObjectSpec.SATISFY_ALL || spec == Specs.SATISFIES_ALL;
 	}
 
-	private static boolean isSatisfyNone(org.gradle.api.specs.Spec<?> spec) {
+	static boolean isSatisfyNone(org.gradle.api.specs.Spec<?> spec) {
 		return spec == ObjectSpec.SATISFY_NONE || spec == Specs.SATISFIES_NONE;
 	}
 
