@@ -18,12 +18,13 @@ abstract class AbstractModelNodeBackedNamedDomainObjectContainer<T> extends Abst
 	private final Projection projection;
 
 	AbstractModelNodeBackedNamedDomainObjectContainer(@Nullable ModelType<T> elementType, ModelNode node) {
-		this(elementType, node, new ModelNodeBackedNamedDomainObjectCollectionDynamicObject(elementType, node) {
+		this(elementType, node, null);
+		elementsDynamicObject = new ModelNodeBackedNamedDomainObjectCollectionDynamicObject(this.elementType, node) {
 			@Override
 			protected boolean canRegister() {
 				return true;
 			}
-		});
+		};
 	}
 
 	AbstractModelNodeBackedNamedDomainObjectContainer(@Nullable ModelType<T> elementType, ModelNode node, DynamicObject elementsDynamicObject) {

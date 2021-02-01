@@ -26,7 +26,7 @@ import static dev.nokee.utils.TransformerUtils.transformEach;
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
 abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn, PropertyMixIn, DomainObjectView<T> {
-	private final DynamicObject elementsDynamicObject;
+	protected DynamicObject elementsDynamicObject;
 	private final Projection projection;
 
 	// Allow sub-implementation to access but not outside the package
