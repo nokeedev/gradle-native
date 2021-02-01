@@ -63,8 +63,8 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 	public static NodeRegistration<NativeLibraryExtension> nativeLibrary(String name, Project project) {
 		return component(name, NativeLibraryExtension.class)
 			.withProjection(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
-			.action(self(discover()).apply(register(componentSourcesOf(NativeLibrarySources.class))))
-			.action(self(discover()).apply(register(sourceSet("public", CHeaderSet.class)))) // TODO: Should be under sources
-			.action(self(discover()).apply(register(sourceSet("headers", CHeaderSet.class)))); // TODO: Should be under sources
+			.action(self(discover()).apply(register(componentSourcesOf(NativeLibrarySources.class)
+				.action(self(discover()).apply(register(sourceSet("public", CHeaderSet.class))))
+				.action(self(discover()).apply(register(sourceSet("headers", CHeaderSet.class)))))));
 	}
 }
