@@ -1,20 +1,6 @@
-buildscript {
-	repositories {
-		maven { url = uri('https://repo.nokeedev.net/snapshot') }
-	}
-	dependencies {
-		classpath 'dev.nokee:coreExec:0.4.0-727859f'
-	}
-}
 plugins {
 	id 'lifecycle-base'
 }
-
-
-
-import dev.nokee.core.exec.CommandLine
-import dev.nokee.core.exec.GradleWorkerExecutorEngine
-import groovy.json.JsonOutput
 
 def allPluginProjectPaths = (rootProject.allprojects - [project(':docs'), project(':docs:exemplarKit'), project(':distributions'), project(':internalTesting')])*.path
 
@@ -40,95 +26,4 @@ allPluginProjectPaths.each { String projectPath ->
 		}
 	}
 	publishToStaging.configure { dependsOn("${projectPath}:publishToDistribution") }
-}
-
-tasks.register('publishToBintray') {
-	dependsOn(publishToStaging)
-	finalizedBy("updateBintrayMetadata")
-	doLast {
-		// Credentials
-		def user = resolveProperty(project, "BINTRAY_USER", "dev.nokee.bintray.user")
-		def key = resolveProperty(project, "BINTRAY_KEY", "dev.nokee.bintray.key")
-
-		// Upload configurations
-		def repository = 'distributions-snapshots'
-		def packageName = 'artifacts'
-		def override = true
-		if (System.getProperties().containsKey('release')) {
-			repository = 'distributions'
-			packageName = 'dev.nokee:nokee-gradle-plugins'
-			override = false
-		}
-
-		// Upload files
-		distributionRepository.get().asFileTree.matching { PatternFilterable p ->
-			p.include("**/${project.version}/**/*")
-		}.each {
-			def publish = true
-			def filePath = distributionRepository.get().asFile.toPath().relativize(it.toPath())
-
-			println "Publishing ${filePath}... "
-			CommandLine.of(['curl', '-T', it, "-u${user}:${key}", "https://api.bintray.com/content/nokeedev/${repository}/${packageName}/${project.version}/${filePath}?publish=${publish?'1':'0'}&override=${override?'1':'0'}"]).execute(objects.newInstance(GradleWorkerExecutorEngine))
-		}
-	}
-}
-
-tasks.register("updateBintrayMetadata") {
-	doLast {
-		// Set attributes
-		if (System.getProperties().containsKey('release')) {
-			// Credentials
-			def user = resolveProperty(project, "BINTRAY_USER", "dev.nokee.bintray.user")
-			def key = resolveProperty(project, "BINTRAY_KEY", "dev.nokee.bintray.key")
-			def repository = 'distributions'
-			def packageName = 'dev.nokee:nokee-gradle-plugins'
-
-			// TODO: Build this metadata automatically
-			def data = ['gradle-plugin': ["dev.nokee.jni-library:${project.group}:platformJni",
-										  "dev.nokee.cpp-language:${project.group}:languageCpp",
-										  "dev.nokee.c-language:${project.group}:languageC",
-										  "dev.nokee.objective-c-language:${project.group}:languageObjectiveC",
-										  "dev.nokee.objective-cpp-language:${project.group}:languagObjectiveCpp",
-										  "dev.nokee.objective-c-ios-application:${project.group}:platformIos",
-										  "dev.nokee.swift-ios-application:${project.group}:platformIos",
-										  "dev.nokee.objective-c-xctest-test-suite:${project.group}:testingXctest",
-										  "dev.nokee.c-application:${project.group}:platformNative",
-										  "dev.nokee.c-library:${project.group}:platformNative",
-										  "dev.nokee.cpp-application:${project.group}:platformNative",
-										  "dev.nokee.cpp-library:${project.group}:platformNative",
-										  "dev.nokee.objective-c-application:${project.group}:platformNative",
-										  "dev.nokee.objective-c-library:${project.group}:platformNative",
-										  "dev.nokee.objective-cpp-application:${project.group}:platformNative",
-										  "dev.nokee.objective-cpp-library:${project.group}:platformNative",
-										  "dev.nokee.swift-application:${project.group}:platformNative",
-										  "dev.nokee.swift-library:${project.group}:platformNative",
-										  "dev.nokee.cmake-build-adapter:${project.group}:buildAdapterCmake",
-										  "dev.nokee.native-unit-testing:${project.group}:testingNative",
-										  "dev.nokee.xcode-ide:${project.group}:ideXcode",
-										  "dev.nokee.xcode-ide-base:${project.group}:ideXcode",
-										  "dev.nokee.visual-studio-ide:${project.group}:ideVisualStudio",
-										  "dev.nokee.visual-studio-ide-base:${project.group}:ideVisualStudio",
-										]]
-			data = data.collect { k, v ->
-				return [name: k, values: v, type: 'string']
-			}
-
-			['curl', '-X', 'POST', '-H', 'Content-Type: application/json', '--data', JsonOutput.toJson(data), "-u${user}:${key}", "https://api.bintray.com/packages/nokeedev/${repository}/${packageName}/versions/${project.version}/attributes"].execute().waitFor()
-		}
-	}
-}
-
-private String resolveProperty(Project project, String envVarKey, String projectPropKey) {
-	Object propValue = System.getenv().get(envVarKey);
-
-	if (propValue != null) {
-		return propValue.toString();
-	}
-
-	propValue = project.findProperty(projectPropKey);
-	if (propValue != null) {
-		return propValue.toString();
-	}
-
-	return null;
 }
