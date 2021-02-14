@@ -1,6 +1,6 @@
 buildscript {
 	repositories {
-		maven { url = uri('https://dl.bintray.com/nokeedev/distributions-snapshots') }
+		maven { url = uri('https://repo.nokeedev.net/snapshot') }
 	}
 	dependencies {
 		classpath 'dev.nokee:coreExec:0.4.0-727859f'

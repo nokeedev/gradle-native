@@ -40,7 +40,7 @@ plugins {
 The plugin provides the following extensions:
 
 `gradlePluginDevelopment()` on RepositoryHandler::
-Adds the Gradle API redistribution repository to the project, e.g. `https://dl.bintray.com/gradle-plugins/distributions`.
+Adds the Gradle API redistribution repository to the project, e.g. `https://repo.nokeedev.net/release`.
 Reads the <<gradle-plugin-development.adoc#sec:gradle-dev-redistributed-gradle-api,redistributed Gradle API section>> to learn more.
 
 `gradleApi(version)` on DependencyHandler::

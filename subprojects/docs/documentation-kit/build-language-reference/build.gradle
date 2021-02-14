@@ -6,8 +6,8 @@ plugins {
 repositories {
 	jcenter()
 	mavenCentral()
-	maven { url = 'https://dl.bintray.com/nokeedev/distributions-snapshots' }
-	maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+	maven { url = 'https://repo.nokeedev.net/snapshot' }
+	maven { url = 'https://repo.nokeedev.net/release' }
 	maven { url = '../../../distributions/build/repository' }
 }
 

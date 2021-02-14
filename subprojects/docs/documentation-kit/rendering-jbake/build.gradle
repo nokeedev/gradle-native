@@ -4,7 +4,7 @@ plugins {
 
 repositories {
 	jcenter()
-	maven { url = 'https://dl.bintray.com/nokeedev/distributions-snapshots' }
+	maven { url = 'https://repo.nokeedev.net/snapshot' }
 	maven { url = '../../../distributions/build/repository' }
 }
 
