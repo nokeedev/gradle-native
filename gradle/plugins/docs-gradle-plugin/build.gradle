@@ -23,6 +23,8 @@ gradlePlugin {
 repositories {
 	mavenCentral()
 	gradlePluginDevelopment()
+	gradlePluginPortal() { mavenContent { it.includeModule('org.jbake', 'jbake-gradle-plugin') } }
+	jcenter { mavenContent { it.includeModule('net.rubygrapefruit', 'ansi-control-sequence-util') } }
 }
 
 dependencies {

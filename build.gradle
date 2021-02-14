@@ -4,6 +4,9 @@ buildscript {
 		maven { url = 'subprojects/distributions/build/repository' }
 		maven { url = 'https://repo.nokeedev.net/snapshot' }
 		maven { url = 'https://repo.nokeedev.net/release' }
+
+		// Because documentation-kit depends on nokee-gradle-plugins which depends on coreExec
+		jcenter { mavenContent { it.includeModule('net.rubygrapefruit', 'ansi-control-sequence-util') } }
 	}
 	dependencies {
 		classpath 'dev.gradleplugins:documentation-kit:latest.integration'
@@ -152,6 +155,9 @@ subprojects {
 	repositories {
 		mavenCentral()
 		gradlePluginDevelopment()
+
+		// Because of dependencies on :coreExec
+		jcenter { mavenContent { it.includeModule('net.rubygrapefruit', 'ansi-control-sequence-util') } }
 	}
 }
 
