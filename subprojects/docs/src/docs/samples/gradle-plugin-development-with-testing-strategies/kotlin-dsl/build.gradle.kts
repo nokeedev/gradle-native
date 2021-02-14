@@ -14,7 +14,7 @@ gradlePlugin {
 
 repositories {
 	mavenCentral()
-	jcenter { mavenContent { it.includeModule('net.rubygrapefruit', 'ansi-control-sequence-util') } }
+	jcenter() // for net.rubygrapefruit:ansi-control-sequence-util
 }
 
 functionalTest {
