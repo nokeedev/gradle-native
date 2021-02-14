@@ -224,16 +224,15 @@ subprojects { prj ->
 			})
 		}
 	}
-
-	// Add lifecycle task to print the published version
-	tasks.register('publishAllPublicationsToNokeeSnapshotRepository') {
-		doLast {
-			println "Published version ${project.version}"
-		}
+}
+// Add lifecycle task to print the published version
+tasks.register('publishAllPublicationsToNokeeSnapshotRepository') {
+	doLast {
+		println "Published version ${project.version}"
 	}
-	tasks.register('publishAllPublicationsToNokeeReleaseRepository') {
-		doLast {
-			println "Published version ${project.version}"
-		}
+}
+tasks.register('publishAllPublicationsToNokeeReleaseRepository') {
+	doLast {
+		println "Published version ${project.version}"
 	}
 }
