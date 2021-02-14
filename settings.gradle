@@ -196,8 +196,6 @@ plugins.withId('com.gradle.enterprise') {
 
 			if (System.getenv('CI')) {
 				tag 'CI'
-				value('Git Commit SHA', System.getenv('CI_COMMIT_SHA'))
-				value('GitLab Runner', System.getenv('CI_RUNNER_DESCRIPTION'))
 			} else {
 				tag 'LOCAL'
 			}
