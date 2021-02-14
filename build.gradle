@@ -183,6 +183,9 @@ subprojects { prj ->
 
 // Configure publishing to Nokee
 subprojects { prj ->
+	if (prj == project(':docs')) {
+		return // ignore this configuration
+	}
 	pluginManager.withPlugin('maven-publish') {
 		// Register Nokee repositories
 		publishing {
