@@ -156,7 +156,7 @@ subprojects {
 		mavenCentral()
 		gradlePluginDevelopment()
 
-		// Because of dependencies on :coreExec
+		// Because of dependencies on `dev.gradleplugins:gradle-fixtures`
 		jcenter { mavenContent { it.includeModule('net.rubygrapefruit', 'ansi-control-sequence-util') } }
 	}
 }
