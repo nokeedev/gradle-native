@@ -1,12 +1,3 @@
-buildscript {
-	repositories {
-		maven { url = 'https://dl.bintray.com/nokeedev/distributions-snapshots' }
-	}
-	dependencies {
-		classpath 'dev.nokee:experimentalPublishingBintray:0.5.0-a7907c13'
-	}
-}
-
 plugins {
 	id 'java-library'
 	id 'maven-publish'
@@ -54,15 +45,14 @@ subprojects {
 	}
 }
 
-// Publish to Bintray
+// Publish to Nokee
 subprojects {
-	apply plugin: 'dev.nokee.experimental.bintray-publish'
 	publishing {
 		repositories {
 			maven {
-				name = 'Bintray'
-				url = 'https://dl.bintray.com/gradle-plugins/distributions'
-				ext.packageName = 'dev.gradleplugins:documentation-kit'
+				name = 'nokeeRelease'
+				url = providers.gradleProperty("${name}Url").forUseAtConfigurationTime().orElse("")
+				credentials(AwsCredentials)
 			}
 		}
 	}
