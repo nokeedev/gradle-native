@@ -1,6 +1,6 @@
 buildscript {
 	repositories {
-		jcenter()
+		mavenCentral()
 		maven { url = 'subprojects/distributions/build/repository' }
 		maven { url = 'https://repo.nokeedev.net/snapshot' }
 		maven { url = 'https://repo.nokeedev.net/release' }
@@ -150,7 +150,6 @@ subprojects { project ->
 // Configure general artifact repositories
 subprojects {
 	repositories {
-		jcenter()
 		mavenCentral()
 		gradlePluginDevelopment()
 	}

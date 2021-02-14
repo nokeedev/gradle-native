@@ -13,7 +13,7 @@ gradlePlugin {
 }
 
 repositories {
-	jcenter()
+	mavenCentral()
 }
 
 functionalTest {

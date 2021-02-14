@@ -22,7 +22,6 @@ gradlePlugin {
 
 repositories {
 	mavenCentral()
-	jcenter()
 	gradlePluginDevelopment()
 }
 
