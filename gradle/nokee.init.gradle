@@ -1,0 +1,26 @@
+initscript {
+	// Utilities
+	def atLeastGradle = { version ->
+		return org.gradle.util.GradleVersion.version(version).compareTo(org.gradle.util.GradleVersion.current()) <= 0
+	}
+
+	if (atLeastGradle('6.2.1')) {
+		repositories {
+			maven { url = 'https://repo.nokeedev.net/release' }
+			mavenLocal {
+				content {
+					it.includeModule('dev.nokee.init', 'init.nokee.dev')
+				}
+			}
+		}
+		// Workaround https://github.com/gradle/gradle/issues/15114
+		configurations.classpath.resolutionStrategy.disableDependencyVerification()
+		dependencies.add('classpath', 'dev.nokee.init:init.nokee.dev:latest.release')
+	}
+}
+
+try {
+	apply plugin: Class.forName('dev.nokee.init.NokeeInitPlugin')
+} catch (Throwable e) {
+	logger.info("Nokee initialization plugin wasn't applied because of an exception.", e)
+}
