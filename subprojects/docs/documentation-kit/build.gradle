@@ -13,7 +13,7 @@ dependencies {
 
 allprojects {
 	group = 'dev.gradleplugins'
-	version = '1.0.3'
+	version = '1.0.4'
 }
 
 publishing.publications.create('java', MavenPublication) {
@@ -46,7 +46,8 @@ subprojects {
 }
 
 // Publish to Nokee
-subprojects {
+allprojects {
+	apply plugin: 'maven-publish'
 	publishing {
 		repositories {
 			maven {
@@ -55,12 +56,5 @@ subprojects {
 				credentials(AwsCredentials)
 			}
 		}
-	}
-}
-
-subprojects {
-	repositories {
-		// Because of dependency on `dev.gradleplugins:gradle-fixtures` and coreExec
-		jcenter { mavenContent { it.includeModule('net.rubygrapefruit', 'ansi-control-sequence-util') } }
 	}
 }
