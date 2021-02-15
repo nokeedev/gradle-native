@@ -1,5 +1,9 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 plugins {
 	id 'lifecycle-base'
+	id 'maven-publish'
 }
 
 def allPluginProjectPaths = (rootProject.allprojects - [project(':docs'), project(':docs:exemplarKit'), project(':distributions'), project(':internalTesting')])*.path
@@ -26,4 +30,26 @@ allPluginProjectPaths.each { String projectPath ->
 		}
 	}
 	publishToStaging.configure { dependsOn("${projectPath}:publishToDistribution") }
+}
+
+def serviceVersionBeaconTask = tasks.register("serviceVersionBeacon") {
+	def outputFile = layout.buildDirectory.file("tmp/${it.name}/version.json")
+	outputs.file(outputFile)
+	doLast {
+		outputFile.get().asFile << """{
+  "version": "${version.toString()}",
+  "snapshot": ${version.toString().contains('-')},
+  "buildTime": "${LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
+}
+"""
+	}
+}
+
+publishing {
+	publications {
+		serviceVersionBeacon(MavenPublication) {
+			artifactId = 'version'
+			artifact(serviceVersionBeaconTask)
+		}
+	}
 }
