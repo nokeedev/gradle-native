@@ -49,7 +49,7 @@ public abstract class WellBehavedPluginTaskConfigurationAvoidanceTester {
 		File buildFile = new File(testDirectory, "build.gradle");
 		FileUtils.writeStringToFile(buildFile, content.toString(), StandardCharsets.UTF_8);
 
-		GradleRunner.create(GradleExecutor.gradleTestKit()).inDirectory(testDirectory).configureUsing(this::configureRunner).withTasks("help").build();
+		GradleRunner.create(GradleExecutor.gradleTestKit()).inDirectory(testDirectory).configure(this::configureRunner).withTasks("help").build();
 	}
 
 	private GradleRunner configureRunner(GradleRunner runner) {

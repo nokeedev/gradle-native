@@ -17,9 +17,6 @@ repositories {
 	mavenLocal()
 	mavenCentral()
 	gradlePluginDevelopment()
-
-	// Because of its usage in gradle-fixtures
-	jcenter { mavenContent { it.includeModule('net.rubygrapefruit', 'ansi-control-sequence-util') } }
 }
 
 dependencies {
