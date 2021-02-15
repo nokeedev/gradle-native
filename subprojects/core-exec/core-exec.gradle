@@ -6,8 +6,21 @@ plugins {
 	id 'dev.gradleplugins.gradle-plugin-unit-test'
 }
 
+repositories {
+	// Waiting for https://github.com/adammurdoch/ansi-control-sequence-util/issues/2
+	jcenter { mavenContent { it.includeModule('net.rubygrapefruit', 'ansi-control-sequence-util') } }
+}
+
+// Caveman dependency shading
+def shadedConfiguration = configurations.create('shaded')
+configurations.compileOnly.extendsFrom(shadedConfiguration)
+configurations.testImplementation.extendsFrom(shadedConfiguration)
+tasks.named('jar', Jar) { task ->
+	task.from({ shadedConfiguration.files.collect { zipTree(it) } })
+}
+
 dependencies {
-	implementation 'net.rubygrapefruit:ansi-control-sequence-util:0.2'
+	shaded 'net.rubygrapefruit:ansi-control-sequence-util:0.2'
 	implementation "org.apache.commons:commons-exec:${commonsExecVersion}"
 	compileOnly gradleApi(minimumGradleVersion)
 	implementation "com.google.guava:guava:${guavaVersion}"

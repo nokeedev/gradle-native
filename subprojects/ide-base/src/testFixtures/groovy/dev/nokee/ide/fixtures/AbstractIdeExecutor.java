@@ -1,15 +1,17 @@
 package dev.nokee.ide.fixtures;
 
+import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.test.fixtures.file.TestFile;
 import dev.gradleplugins.test.fixtures.gradle.executer.ExecutionFailure;
 import dev.gradleplugins.test.fixtures.gradle.executer.ExecutionResult;
-import dev.gradleplugins.test.fixtures.gradle.executer.internal.OutputScrapingExecutionFailure;
-import dev.gradleplugins.test.fixtures.gradle.executer.internal.OutputScrapingExecutionResult;
+import dev.gradleplugins.test.fixtures.gradle.executer.internal.ExecutionResultImpl;
 import dev.nokee.core.exec.CommandLineToolExecutionResult;
 import dev.nokee.core.exec.CommandLineToolInvocationBuilder;
 import dev.nokee.core.exec.CommandLineToolProvider;
 import dev.nokee.core.exec.ProcessBuilderEngine;
-import lombok.*;
+import lombok.Getter;
+import lombok.Value;
+import lombok.val;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 
@@ -101,7 +103,7 @@ public abstract class AbstractIdeExecutor<T extends AbstractIdeExecutor<T>> {
 	}
 
 	protected ExecutionResult asExecutionResult(CommandLineToolExecutionResult result) {
-		return OutputScrapingExecutionResult.from(result.getStandardOutput().getAsString(), result.getErrorOutput().getAsString());
+		return new ExecutionResultImpl(BuildResult.from(result.getOutput().getAsString()));
 	}
 
 	public ExecutionFailure fails() {
@@ -116,7 +118,7 @@ public abstract class AbstractIdeExecutor<T extends AbstractIdeExecutor<T>> {
 	}
 
 	protected ExecutionFailure asExecutionFailure(CommandLineToolExecutionResult result) {
-		return OutputScrapingExecutionFailure.from(result.getStandardOutput().getAsString(), result.getErrorOutput().getAsString());
+		return new ExecutionResultImpl(BuildResult.from(result.getOutput().getAsString()));
 	}
 
 	protected String asArgument(IdeAction action) {

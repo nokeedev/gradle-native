@@ -1,9 +1,9 @@
 buildscript {
 	repositories {
-		jcenter()
+		mavenCentral()
 		maven { url = 'subprojects/distributions/build/repository' }
-		maven { url = 'https://dl.bintray.com/nokeedev/distributions-snapshots' }
-		maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+		maven { url = 'https://repo.nokeedev.net/snapshot' }
+		maven { url = 'https://repo.nokeedev.net/release' }
 	}
 	dependencies {
 		classpath 'dev.gradleplugins:documentation-kit:latest.integration'
@@ -150,7 +150,6 @@ subprojects { project ->
 // Configure general artifact repositories
 subprojects {
 	repositories {
-		jcenter()
 		mavenCentral()
 		gradlePluginDevelopment()
 	}
@@ -173,5 +172,64 @@ subprojects { prj ->
 	}
 	tasks.named('generateDslReference') {
 		templateFile = rootProject.file('subprojects/docs/src/docs/dsl/dsl.template')
+	}
+}
+
+// Configure publishing to Nokee
+subprojects { prj ->
+	if (prj == project(':docs')) {
+		return // ignore this configuration
+	}
+	pluginManager.withPlugin('maven-publish') {
+		// Register Nokee repositories
+		publishing {
+			repositories {
+				maven {
+					name = 'nokeeRelease'
+					url = providers.gradleProperty("${name}Url").forUseAtConfigurationTime().orElse('')
+					credentials(AwsCredentials)
+				}
+				maven {
+					name = 'nokeeSnapshot'
+					url = providers.gradleProperty("${name}Url").forUseAtConfigurationTime().orElse('')
+					credentials(AwsCredentials)
+				}
+			}
+		}
+
+		// Prevent publishing mistakes
+		prj.tasks.withType(PublishToMavenRepository).configureEach {
+			doFirst {
+				if (repository.name == 'nokeeRelease' && publication.version.contains('-')) {
+					throw new UnsupportedOperationException('Please publish snapshot artifacts in snapshot repository')
+				} else if (repository.name == 'nokeeSnapshot' && !publication.version.contains('-')) {
+					throw new UnsupportedOperationException('Please publish release artifacts in release repository')
+				}
+			}
+			doLast {
+				println "Published version ${publication.version}"
+			}
+		}
+
+		// Register lifecycle task to publish into Nokee repositories
+		prj.tasks.register('publishToNokee') {
+			dependsOn({
+				if (prj.version.toString().contains('-')) {
+					return ['publishAllPublicationsToNokeeSnapshotRepository']
+				}
+				return ['publishAllPublicationsToNokeeReleaseRepository']
+			})
+		}
+	}
+}
+// Add lifecycle task to print the published version
+tasks.register('publishAllPublicationsToNokeeSnapshotRepository') {
+	doLast {
+		println "Published version ${project.version}"
+	}
+}
+tasks.register('publishAllPublicationsToNokeeReleaseRepository') {
+	doLast {
+		println "Published version ${project.version}"
 	}
 }

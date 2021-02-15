@@ -28,9 +28,8 @@ To use the Nokee plugins in Gradle, copy the following code to the settings scri
 pluginManagement {
    repositories {
       gradlePluginPortal()
-      maven {
-         url = uri('https://dl.bintray.com/nokeedev/distributions-snapshots')
-      }
+      maven { url = uri('https://repo.nokeedev.net/release') }
+      maven { url = uri('https://repo.nokeedev.net/snapshot') }
    }
    def nokeeVersion = '{jbake-version}'
    resolutionStrategy {
@@ -51,9 +50,8 @@ pluginManagement {
 pluginManagement {
    repositories {
       gradlePluginPortal()
-      maven {
-         url = uri("https://dl.bintray.com/nokeedev/distributions-snapshots")
-      }
+      maven { url = uri("https://repo.nokeedev.net/release") }
+      maven { url = uri("https://repo.nokeedev.net/snapshot") }
    }
    val nokeeVersion = "{jbake-version}"
    resolutionStrategy {

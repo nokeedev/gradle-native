@@ -18,7 +18,7 @@ It is also provide a migration path to <<java-gradle-plugin-plugin.adoc#,`dev.gr
 [source,groovy]
 ----
 plugins {
-   id 'dev.gradleplugins.gradle-plugin-development' version '1.1'
+   id 'dev.gradleplugins.gradle-plugin-development' version '1.2'
 }
 ----
 =====
@@ -28,7 +28,7 @@ plugins {
 [source,kotlin]
 ----
 plugins {
-   id("dev.gradleplugins.gradle-plugin-development") version("1.1")
+   id("dev.gradleplugins.gradle-plugin-development") version("1.2")
 }
 ----
 =====
@@ -40,7 +40,7 @@ plugins {
 The plugin provides the following extensions to all projects:
 
 `gradlePluginDevelopment()` on RepositoryHandler::
-Adds the Gradle API redistribution repository to the project, e.g. `https://dl.bintray.com/gradle-plugins/distributions`.
+Adds the Gradle API redistribution repository to the project, e.g. `https://repo.nokeedev.net/release`.
 Reads the <<gradle-plugin-development.adoc#sec:gradle-dev-redistributed-gradle-api,redistributed Gradle API section>> to learn more.
 
 `gradleApi(version)` on DependencyHandler::

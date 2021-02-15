@@ -35,7 +35,7 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: :distributions:publishToBintray --scan --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
+                    arguments: publishAllPublicationsToNokeeSnapshotRepository --scan --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}" "-PnokeeSnapshotAccessKey=${{ secrets.NOKEE_SNAPSHOT_ACCESS_KEY }}" "-PnokeeSnapshotSecretKey=${{ secrets.NOKEE_SNAPSHOT_SECRET_KEY }}" "-PnokeeSnapshotUrl=${{ secrets.NOKEE_SNAPSHOT_URL }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
                 env:

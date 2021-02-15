@@ -25,7 +25,7 @@
 //}
 
 plugins {
-	id 'dev.gradleplugins.gradle-plugin-development' version '1.1.32'
+	id 'dev.gradleplugins.gradle-plugin-development' version '1.2'
 }
 
 rootProject.name = 'gradle-native'
@@ -73,10 +73,6 @@ project(':distributions:all').buildFileName = 'distributions-all.gradle'
 include 'distributions:bom'
 project(':distributions:bom').projectDir = file('subprojects/distributions/bom')
 project(':distributions:bom').buildFileName = 'distributions-bom.gradle'
-
-include 'distributions:init'
-project(':distributions:init').projectDir = file('subprojects/distributions/init')
-project(':distributions:init').buildFileName = 'distributions-init.gradle'
 
 include 'experimentalPublishingBintray'
 project(':experimentalPublishingBintray').projectDir = file('subprojects/experimental-publishing-bintray')
@@ -200,8 +196,6 @@ plugins.withId('com.gradle.enterprise') {
 
 			if (System.getenv('CI')) {
 				tag 'CI'
-				value('Git Commit SHA', System.getenv('CI_COMMIT_SHA'))
-				value('GitLab Runner', System.getenv('CI_RUNNER_DESCRIPTION'))
 			} else {
 				tag 'LOCAL'
 			}

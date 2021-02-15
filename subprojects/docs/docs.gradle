@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat
 
 buildscript {
 	repositories {
-		maven { url = 'https://dl.bintray.com/gradle-plugins/distributions' }
+		maven { url = 'https://repo.nokeedev.net/release' }
 	}
 	dependencies {
 		classpath 'dev.nokee:templates:latest.integration'
@@ -84,7 +84,7 @@ dependencies {
 
 extensions.components.apiReference {
 	dependencies {
-		(rootProject.allprojects - [project(':docs'), project(':distributions:all'), project(':distributions:bom'), project(':distributions:init'), project(':docs:exemplarKit'), project(':internalTesting')]).each {
+		(rootProject.allprojects - [project(':docs'), project(':distributions:all'), project(':distributions:bom'), project(':docs:exemplarKit'), project(':internalTesting')]).each {
 			api.addDependency(it)
 		}
 	}
