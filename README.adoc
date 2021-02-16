@@ -17,8 +17,8 @@ Copy the following inside your `settings.gradle[.kts]`:
 pluginManagement {
    repositories {
       gradlePluginPortal()
-      maven { url = uri("https://repo.nokeedev.net/release") }
-      maven { url = uri("https://repo.nokeedev.net/snapshot") }
+      maven { url = uri("https://repo.nokee.dev/release") }
+      maven { url = uri("https://repo.nokee.dev/snapshot") }
    }
    resolutionStrategy {
       eachPlugin {

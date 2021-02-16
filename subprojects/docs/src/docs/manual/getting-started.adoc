@@ -21,8 +21,8 @@ First, copy the following `pluginManagement` block to your settings script:
 pluginManagement {
    repositories {
       gradlePluginPortal()
-      maven { url = uri('https://repo.nokeedev.net/release') }
-      maven { url = uri('https://repo.nokeedev.net/snapshot') }
+      maven { url = uri('https://repo.nokee.dev/release') }
+      maven { url = uri('https://repo.nokee.dev/snapshot') }
    }
    def nokeeVersion = '{jbake-version}'
    resolutionStrategy {
@@ -43,8 +43,8 @@ pluginManagement {
 pluginManagement {
    repositories {
       gradlePluginPortal()
-      maven { url = uri("https://repo.nokeedev.net/release") }
-      maven { url = uri("https://repo.nokeedev.net/snapshot") }
+      maven { url = uri("https://repo.nokee.dev/release") }
+      maven { url = uri("https://repo.nokee.dev/snapshot") }
    }
    val nokeeVersion = "{jbake-version}"
    resolutionStrategy {

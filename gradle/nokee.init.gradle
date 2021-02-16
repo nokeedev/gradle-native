@@ -6,7 +6,7 @@ initscript {
 
 	if (atLeastGradle('6.2.1')) {
 		repositories {
-			maven { url = 'https://repo.nokeedev.net/release' }
+			maven { url = 'https://repo.nokee.dev/release' }
 			mavenLocal {
 				content {
 					it.includeModule('dev.nokee.init', 'init.nokee.dev')

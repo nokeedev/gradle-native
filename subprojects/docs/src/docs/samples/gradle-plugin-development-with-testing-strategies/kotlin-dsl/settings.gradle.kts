@@ -1,7 +1,7 @@
 pluginManagement {
 	repositories {
 		gradlePluginPortal()
-		maven { url = uri("https://repo.nokeedev.net/release") }
+		maven { url = uri("https://repo.nokee.dev/release") }
 	}
 }
 
