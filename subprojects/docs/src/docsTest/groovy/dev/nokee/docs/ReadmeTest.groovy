@@ -37,7 +37,7 @@ class ReadmeTest extends Specification {
 	}
 
 	private static String getCurrentNokeeVersion() {
-		return new JsonSlurper().parse(new URL('https://services.nokee.dev/versions/current.json')).version
+		return new JsonSlurper().parse(new URL('https://services.nokee.dev/versions/current.json'), [requestProperties: ['User-Agent': 'Fool-Us-github-pages']]).version
 	}
 
 	@Requires({ os.family == OperatingSystem.Family.MAC_OS })

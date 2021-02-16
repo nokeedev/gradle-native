@@ -2,8 +2,8 @@ buildscript {
 	repositories {
 		mavenCentral()
 		maven { url = 'subprojects/distributions/build/repository' }
-		maven { url = 'https://repo.nokeedev.net/snapshot' }
-		maven { url = 'https://repo.nokeedev.net/release' }
+		maven { url = 'https://repo.nokee.dev/snapshot' }
+		maven { url = 'https://repo.nokee.dev/release' }
 	}
 	dependencies {
 		classpath 'dev.gradleplugins:documentation-kit:latest.integration'

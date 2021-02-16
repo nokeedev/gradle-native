@@ -30,8 +30,8 @@ public abstract class PluginManagementBlock {
 		return builder()
 			.withPluginNamespace("dev.nokee")
 			.withVersion(version)
-			.withRepository("https://repo.nokeedev.net/release")
-			.withRepository("https://repo.nokeedev.net/snapshot")
+			.withRepository("https://repo.nokee.dev/release")
+			.withRepository("https://repo.nokee.dev/snapshot")
 			.withVersionVariableName("nokeeVersion")
 			.build();
 	}

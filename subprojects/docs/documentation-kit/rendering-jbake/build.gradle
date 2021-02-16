@@ -4,7 +4,7 @@ plugins {
 
 repositories {
 	mavenCentral()
-	maven { url = 'https://repo.nokeedev.net/snapshot' }
+	maven { url = 'https://repo.nokee.dev/snapshot' }
 	maven { url = '../../../distributions/build/repository' }
 }
 
