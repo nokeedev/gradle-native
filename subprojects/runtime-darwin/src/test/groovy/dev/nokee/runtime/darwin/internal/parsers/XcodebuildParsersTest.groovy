@@ -8,7 +8,7 @@ class XcodebuildParsersTest extends Specification {
 
 	def "can parse output from Xcode 11.3.1"() {
 		given:
-		String output = XcodebuildParsersTest.'showSdks11.3.1'
+		String output = XcodebuildParsersTest.showSdks11_3_1
 
 		when:
 		def result = XcodebuildParsers.showSdkParser().parse(output)
@@ -18,7 +18,7 @@ class XcodebuildParsersTest extends Specification {
 	}
 
 
-	private static String 'getShowSdks11.3.1'() {
+	private static String getShowSdks11_3_1() {
 		return '''iOS SDKs:
 \tiOS 13.2                      \t-sdk iphoneos13.2
 
@@ -45,7 +45,7 @@ watchOS Simulator SDKs:
 
 	def "can parse output from Xcode 10.3"() {
 		given:
-		String output = XcodebuildParsersTest.'showSdks10.3'
+		String output = XcodebuildParsersTest.showSdks10_3
 
 		when:
 		def result = XcodebuildParsers.showSdkParser().parse(output)
@@ -54,7 +54,7 @@ watchOS Simulator SDKs:
 		result*.identifier == ['iphoneos12.4', 'iphonesimulator12.4', 'macosx10.14', 'appletvos12.4', 'appletvsimulator12.4', 'watchos5.3', 'watchsimulator5.3']
 	}
 
-	private static String 'getShowSdks10.3'() {
+	private static String getShowSdks10_3() {
 		return '''iOS SDKs:
 \tiOS 12.4                      \t-sdk iphoneos12.4
 
