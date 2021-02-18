@@ -17,7 +17,7 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: :docs:publishJbakePublicationToDocsNokeeDevRepository --scan --continue --no-daemon --no-build-cache "-DnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-DnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" "-PdocsNokeeDevAccessKey=${{ secrets.AWS_ACCESS_KEY }}" "-PdocsNokeeDevSecretKey=${{ secrets.AWS_SECRET_KEY }}"
+                    arguments: :docs:publishJbakePublicationToDocsNokeeDevRepository --scan --continue --no-daemon --no-build-cache "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" "-PdocsNokeeDevAccessKey=${{ secrets.AWS_ACCESS_KEY }}" "-PdocsNokeeDevSecretKey=${{ secrets.AWS_SECRET_KEY }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
             -   name: Trigger nokeedev.gitlab.io rebuild (main-only)
