@@ -239,8 +239,6 @@ publishing {
 			from components.baked
 			artifactId = 'docs'
 			group = 'dev.nokee.docs'
-			// Use date/time as the version because commits mess-up the "latest" search
-			version = "${project.version.baseVersion}-${new SimpleDateFormat("yyyyMMddHHmm").format(new Date())}${project.version.qualifier.map {".$it" }.orElse('')}"
 		}
 	}
 	repositories {

@@ -11,10 +11,15 @@ buildscript {
 	}
 }
 
+plugins {
+	id 'org.shipkit.shipkit-auto-version' version '1.1.1'
+}
+
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException
 import org.gradle.util.VersionNumber
 
+import java.text.SimpleDateFormat
 import java.util.stream.Collectors
 
 import static dev.gradleplugins.GradleRuntimeCompatibility.*
@@ -22,8 +27,10 @@ import static dev.gradleplugins.GradleRuntimeCompatibility.*
 class Version {
 	private VersionNumber delegate = null
 	private final ProjectLayout projectLayout
+	private final Object autoVersion
 
-	Version(ProjectLayout projectLayout) {
+	Version(ProjectLayout projectLayout, Object autoVersion) {
+		this.autoVersion = autoVersion
 		this.projectLayout = projectLayout
 	}
 
@@ -48,10 +55,11 @@ class Version {
 			if (System.getProperties().containsKey("release")) {
 				delegate = VersionNumber.parse(loadBaseVersion())
 			} else if (System.getProperties().containsKey('milestone')) {
-				def latestRelease = get(new URL('https://repo.nokee.dev/release/dev/nokee/distributions/maven-metadata.xml')).stream().max(Comparator.naturalOrder()).orElse(VersionNumber.parse('0.4.0'))
-				delegate = new VersionNumber(latestRelease.major, latestRelease.minor, latestRelease.micro + 1, null)
+				delegate = VersionNumber.parse(autoVersion.toString())
+			} else if (System.getProperties().containsKey('integration')) { // Support multiple version of the same commit
+				delegate = VersionNumber.parse("${autoVersion}-${new SimpleDateFormat("yyyyMMddHHmm").format(new Date())}.${loadQualifier()}")
 			} else {
-				delegate = VersionNumber.parse("${loadBaseVersion()}-${loadQualifier()}")
+				delegate = VersionNumber.parse("${loadBaseVersion()}-SNAPSHOT") // stable local
 			}
 		}
 	}
@@ -91,7 +99,8 @@ class Version {
 	}
 }
 
-def v = new Version(layout)
+def v = new Version(layout, version)
+println("Version overridden to ${version}")
 allprojects {
 	version = v
 	group = 'dev.nokee'
