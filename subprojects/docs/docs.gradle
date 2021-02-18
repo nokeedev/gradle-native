@@ -236,29 +236,11 @@ publishing {
 	}
 	repositories {
 		maven {
-			name = 'S3'
-			credentials(AwsCredentials) {
-				it.accessKey = resolveProperty(project, "AWS_ACCESS_KEY", "dev.nokee.aws.user")
-				it.secretKey = resolveProperty(project, "AWS_SECRET_KEY", "dev.nokee.aws.key")
-			}
+			name = 'docsNokeeDev'
+			credentials(AwsCredentials)
 			url = 's3://docs.nokee.dev/'
 		}
 	}
-}
-
-private String resolveProperty(Project project, String envVarKey, String projectPropKey) {
-	Object propValue = System.getenv().get(envVarKey);
-
-	if (propValue != null) {
-		return propValue.toString();
-	}
-
-	propValue = project.findProperty(projectPropKey);
-	if (propValue != null) {
-		return propValue.toString();
-	}
-
-	return null;
 }
 
 afterEvaluate {
