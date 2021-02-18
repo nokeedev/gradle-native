@@ -2,6 +2,7 @@ package dev.nokee.docs.tasks;
 
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.*;
@@ -38,6 +39,7 @@ public abstract class AsciicastCompile extends DefaultTask {
 		getWorkerExecutor().classLoaderIsolation().submit(CompileAction.class, it -> {
 			it.getInputFile().set(getAsciicastFile());
 			it.getOutputFile().set(getGifVideoFile());
+			it.getWorkingDirectory().set(getLayout().getProjectDirectory());
 		});
 	}
 
@@ -45,6 +47,8 @@ public abstract class AsciicastCompile extends DefaultTask {
 		RegularFileProperty getInputFile();
 
 		RegularFileProperty getOutputFile();
+
+		DirectoryProperty getWorkingDirectory();
 	}
 
 	public static abstract class CompileAction implements WorkAction<CompileParameters> {
@@ -54,8 +58,11 @@ public abstract class AsciicastCompile extends DefaultTask {
 			outputFile.getParentFile().mkdirs();
 
 			getExecOperations().exec(spec -> {
-				// NOTE: Needs to quote the output path because the asciicast2git handle spaces in path when passed to gifsicle
-				spec.commandLine("asciicast2gif", getParameters().getInputFile().get().getAsFile().getAbsolutePath(), "'" + outputFile.getAbsolutePath() + "'");
+				spec.workingDir(getParameters().getWorkingDirectory());
+				// NOTE: Needs to quote the output path because the asciicast2gif handle spaces in path when passed to gifsicle
+				spec.commandLine("asciicast2gif",
+					getParameters().getWorkingDirectory().get().getAsFile().toPath().relativize(getParameters().getInputFile().get().getAsFile().toPath()).toString(),
+					"'" + getParameters().getWorkingDirectory().get().getAsFile().toPath().relativize(outputFile.toPath()).toString() + "'");
 			});
 		}
 
