@@ -20,17 +20,6 @@ jobs:
                     arguments: :docs:publishJbakePublicationToS3Repository --scan --continue --no-daemon --no-build-cache "-DnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-DnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" "-PdocsNokeeDevAccessKey=${{ secrets.AWS_ACCESS_KEY }}" "-PdocsNokeeDevSecretKey=${{ secrets.AWS_SECRET_KEY }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
-            -   name: Trigger docs.nokee.dev rebuild (main-only)
-                shell: bash
-                run: |
-                    curl \
-                    --silent \
-                    --show-error \
-                    --fail \
-                    --request POST \
-                    --form "token=${{ secrets.GITLAB_CI_TRIGGER_DOCSNOKEEDEV }}" \
-                    --form ref=master \
-                    --url https://gitlab.com/api/v4/projects/17545900/trigger/pipeline
             -   name: Trigger nokeedev.gitlab.io rebuild (main-only)
                 shell: bash
                 run: |
