@@ -34,11 +34,15 @@ allPluginProjectPaths.each { String projectPath ->
 
 def serviceVersionBeaconTask = tasks.register("serviceVersionBeacon") {
 	def outputFile = layout.buildDirectory.file("tmp/${it.name}/version.json")
+	def isHead = System.properties.containsKey('milestone')
 	outputs.file(outputFile)
+	it.inputs.property('version', { version.toString() })
+	it.inputs.property('head', isHead)
 	doLast {
-		outputFile.get().asFile << """{
+		outputFile.get().asFile.text = """{
   "version": "${version.toString()}",
   "snapshot": ${version.toString().contains('-')},
+  "head": ${isHead == true},
   "buildTime": "${LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
 }
 """
