@@ -225,24 +225,25 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			configuration.attributes(attributes -> {
 				attributes.attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.class, "jbake-assets"));
 			});
-//			//Disabling assets export because it doesn't make any sense at the moment.
-////			project.afterEvaluate(proj -> {
-////				components.withType(JBakeAssetSourceSet.class).stream().map(LanguageSourceSet::getSource).forEach(source -> {
-////					source.getFiles().forEach(file -> {
-////						configuration.getOutgoing().getVariants().maybeCreate("directory").artifact(file, it -> {
-////							it.setType(ArtifactTypeDefinition.DIRECTORY_TYPE);
-////							it.builtBy(source);
-////						});
-////					});
-////				});
-////			});
+			//Disabling assets export because it doesn't make any sense at the moment.
+//			project.afterEvaluate(proj -> {
+//				components.withType(JBakeAssetSourceSet.class).stream().map(LanguageSourceSet::getSource).forEach(source -> {
+//					source.getFiles().forEach(file -> {
+//						configuration.getOutgoing().getVariants().maybeCreate("directory").artifact(file, it -> {
+//							it.setType(ArtifactTypeDefinition.DIRECTORY_TYPE);
+//							it.builtBy(source);
+//						});
+//					});
+//				});
+//			});
 		});
-////		TaskProvider<Zip> zipJbakeAssetsTask = tasks.register("zipJbakeAssets", Zip.class, task ->{
-////			task.from(components.withType(JBakeAssetSourceSet.class).stream().map(LanguageSourceSet::getSource).collect(Collectors.toList()));
-////			task.getArchiveClassifier().set("assets");
-////		});
-////		assetsElements.getOutgoing().artifact(zipJbakeAssetsTask);
-//
+		TaskProvider<Zip> zipJbakeAssetsTask = tasks.register("zipJbakeAssets", Zip.class, task -> {
+			task.dependsOn(stageBakeTask);
+			task.from(stageBakeDirectory.map(it -> it.dir("assets")));
+			task.getArchiveClassifier().set("assets");
+		});
+		assetsElements.getOutgoing().artifact(zipJbakeAssetsTask);
+
 		Configuration templatesElements = configurations.create("templatesElements", configuration -> {
 			configuration.setCanBeConsumed(false);
 			configuration.setCanBeConsumed(true);
