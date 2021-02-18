@@ -21,7 +21,6 @@ jobs:
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
                 env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
                     AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
             -   name: Trigger docs.nokee.dev rebuild (main-only)
@@ -64,7 +63,6 @@ jobs:
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
                 env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
                     AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
             -   name: Trigger nokeedev.gitlab.io rebuild (main-only)
@@ -106,5 +104,3 @@ jobs:
                     arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon --no-build-cache "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

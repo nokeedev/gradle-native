@@ -19,8 +19,6 @@ jobs:
                     arguments: assemble --scan --continue --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     deploy:
         needs: assemble
         runs-on: ubuntu-latest
@@ -89,8 +87,6 @@ jobs:
                     arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     macos:
         needs: assemble
@@ -141,8 +137,6 @@ jobs:
                     arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     linux:
         needs: assemble
@@ -195,5 +189,3 @@ jobs:
                     arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
