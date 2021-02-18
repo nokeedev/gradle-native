@@ -64,7 +64,7 @@ class Version {
 }
 
 def v = new Version(layout, version)
-println("Version overridden to ${version}")
+println("Version overridden to ${v}")
 allprojects {
 	version = v
 	group = 'dev.nokee'
