@@ -1,7 +1,6 @@
 package dev.nokee.docs;
 
 import dev.nokee.docs.tasks.ProcessAsciidoctor;
-import dev.nokee.docs.types.Asciidoctor;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -10,7 +9,6 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
@@ -20,6 +18,7 @@ public abstract class LegacyDocumentationExtension {
 	@Inject
 	public LegacyDocumentationExtension(ObjectFactory objects, TaskContainer tasks, Provider<String> documentationVersion, Provider<String> projectVersion) {
 		getMinimumGradleVersion().convention("6.2.1");
+		getDocumentationVersion().convention(documentationVersion);
 		this.samples = objects.domainObjectContainer(Sample.class, name -> objects.newInstance(Sample.class, name));
 
 		TaskProvider<ProcessAsciidoctor> processDocsTask = tasks.register("processDocsAsciidoctors", ProcessAsciidoctor.class, task -> {
@@ -59,4 +58,6 @@ public abstract class LegacyDocumentationExtension {
 	public abstract ConfigurableFileCollection getContentSourceSet();
 
 	public abstract Property<String> getMinimumGradleVersion();
+
+	public abstract Property<String> getDocumentationVersion();
 }
