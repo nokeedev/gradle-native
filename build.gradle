@@ -7,7 +7,6 @@ buildscript {
 	}
 	dependencies {
 		classpath 'dev.gradleplugins:documentation-kit:latest.integration'
-		classpath 'org.apache.maven:maven-repository-metadata:3.6.3'
 	}
 }
 
@@ -15,12 +14,9 @@ plugins {
 	id 'org.shipkit.shipkit-auto-version' version '1.1.1'
 }
 
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException
 import org.gradle.util.VersionNumber
 
 import java.text.SimpleDateFormat
-import java.util.stream.Collectors
 
 import static dev.gradleplugins.GradleRuntimeCompatibility.*
 
@@ -32,16 +28,6 @@ class Version {
 	Version(ProjectLayout projectLayout, Object autoVersion) {
 		this.autoVersion = autoVersion
 		this.projectLayout = projectLayout
-	}
-
-	VersionNumber getBaseVersion() {
-		maybeLoad()
-		return delegate.baseVersion
-	}
-
-	java.util.Optional<String> getQualifier() {
-		maybeLoad()
-		return java.util.Optional.ofNullable(delegate.qualifier)
 	}
 
 	@Override
@@ -61,28 +47,6 @@ class Version {
 			} else {
 				delegate = VersionNumber.parse("${loadBaseVersion()}-SNAPSHOT") // stable local
 			}
-		}
-	}
-
-	private List<VersionNumber> get(URL url) {
-		try {
-			def connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("GET");
-			connection.setRequestProperty("User-Agent", "non-empty")
-			connection.connect();
-			if (connection.getResponseCode() == 200) {
-				try {
-					// TODO: Make sure distributions also also not a milestone release
-					return new MetadataXpp3Reader().read(connection.getInputStream()).getVersioning().getVersions().stream().map { VersionNumber.parse(it) }.collect(Collectors.toList())
-				} catch (IOException | XmlPullParserException e) {
-					throw new RuntimeException(e);
-				}
-			} else if (connection.getResponseCode() == 404) {
-				return Collections.emptyList()
-			}
-			throw new RuntimeException("Receive '" + connection.getResponseCode() + "' with message '" + connection.getResponseMessage() + "' for url '" + url.toString() + "'.");
-		} catch (IOException e) {
-			throw new java.io.UncheckedIOException(e);
 		}
 	}
 
