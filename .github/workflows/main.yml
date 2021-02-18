@@ -16,7 +16,7 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: assemble --scan --continue --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
+                    arguments: assemble --scan --continue --no-daemon "-DnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-DnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
     deploy:
@@ -32,7 +32,7 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: publishAllPublicationsToNokeeSnapshotRepository --scan --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}" "-PnokeeSnapshotAccessKey=${{ secrets.NOKEE_SNAPSHOT_ACCESS_KEY }}" "-PnokeeSnapshotSecretKey=${{ secrets.NOKEE_SNAPSHOT_SECRET_KEY }}" "-PnokeeSnapshotUrl=${{ secrets.NOKEE_SNAPSHOT_URL }}"
+                    arguments: publishAllPublicationsToNokeeSnapshotRepository --scan --no-daemon "-DnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-DnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" "-PnokeeSnapshotAccessKey=${{ secrets.NOKEE_SNAPSHOT_ACCESS_KEY }}" "-PnokeeSnapshotSecretKey=${{ secrets.NOKEE_SNAPSHOT_SECRET_KEY }}" "-PnokeeSnapshotUrl=${{ secrets.NOKEE_SNAPSHOT_URL }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
                 env:
@@ -84,7 +84,7 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
+                    arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-DnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-DnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
 
@@ -134,7 +134,7 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
+                    arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-DnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-DnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
 
@@ -186,6 +186,6 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-Ddev.nokee.gradle.cache.remote.username=${{ secrets.GRADLE_CACHE_USERNAME }}" "-Ddev.nokee.gradle.cache.remote.password=${{ secrets.GRADLE_CACHE_PASSWORD }}"
+                    arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-DnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-DnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
