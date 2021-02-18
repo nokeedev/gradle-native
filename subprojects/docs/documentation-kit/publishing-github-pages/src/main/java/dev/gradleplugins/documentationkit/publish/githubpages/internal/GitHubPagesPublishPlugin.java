@@ -13,6 +13,7 @@ public class GitHubPagesPublishPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
+		// TODO: Don't apply publishing plugin... it doesn't make sense as it's not a publishing element but it's own different publication
 		project.getPluginManager().apply(PublishingPlugin.class);
 		val publishTask = project.getTasks().register(PUBLISH_GITHUB_PAGES_LIFECYCLE_TASK_NAME, defaultClass(PublishToGitHubPages.class), task -> {
 			task.setGroup(PublishingPlugin.PUBLISH_TASK_GROUP);
