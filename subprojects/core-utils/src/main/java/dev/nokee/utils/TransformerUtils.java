@@ -3,6 +3,7 @@ package dev.nokee.utils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.internal.Transformers;
 
@@ -29,6 +30,10 @@ public final class TransformerUtils {
 			return o;
 		}
 
+		public <OUT, IN> Transformer<OUT, IN> withNarrowTypes() {
+			return Cast.uncheckedCast("types already checked by caller", this);
+		}
+
 		@Override
 		public String toString() {
 			return "TransformerUtils.noOpTransformer()";
@@ -39,19 +44,22 @@ public final class TransformerUtils {
 		return transformer == NoOpTransformer.INSTANCE || transformer.equals(Transformers.noOpTransformer());
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T> Transformer<List<T>, Iterable<T>> toListTransformer() {
-		return (Transformer<List<T>, Iterable<T>>) (Transformer<? extends List<T>, ? super Iterable<T>>) ToListTransformer.INSTANCE;
+	public static <OUT, IN extends OUT, T extends Iterable<? extends IN>> Transformer<List<OUT>, T> toListTransformer() {
+		return ToListTransformer.INSTANCE.withNarrowTypes();
 	}
 
-	private enum ToListTransformer implements Transformer<List<? extends Object>, Iterable<? extends Object>> {
+	/** @see #toListTransformer() */
+	private enum ToListTransformer implements Transformer<List<Object>, Iterable<?>> {
 		INSTANCE;
 
 		@Override
-		public List<?> transform(Iterable<?> objects) {
+		public List<Object> transform(Iterable<?> objects) {
 			return ImmutableList.copyOf(objects);
 		}
 
+		public <OUT, IN, T extends Iterable<? extends IN>> Transformer<List<OUT>, T> withNarrowTypes() {
+			return Cast.uncheckedCast("types already checked by caller", this);
+		}
 
 		@Override
 		public String toString() {
@@ -59,28 +67,88 @@ public final class TransformerUtils {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T> Transformer<Set<T>, Iterable<T>> toSetTransformer() {
-		return (Transformer<Set<T>, Iterable<T>>) (Transformer<? extends Set<T>, ? super Iterable<T>>) ToSetTransformer.INSTANCE;
+	public static <OUT, IN, T extends Iterable<? extends IN>> Transformer<List<OUT>, T> toListTransformer(Class<OUT> type) {
+		if (type.equals(Object.class)) {
+			return ToListTransformer.INSTANCE.withNarrowTypes();
+		}
+		return new ToListTransformerAdapter<>(type);
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <OUT, IN> Transformer<Set<OUT>, Iterable<IN>> toSetTransformer(Class<OUT> type) {
-		return (Transformer<Set<OUT>, Iterable<IN>>) (Transformer<? extends Set<OUT>, ? super Iterable<IN>>) ToSetTransformer.INSTANCE;
+	/** @see #toListTransformer(Class) */
+	@EqualsAndHashCode
+	private static final class ToListTransformerAdapter<OUT, IN, T extends Iterable<? extends IN>> implements Transformer<List<OUT>, T> {
+		private final Class<OUT> type;
+
+		ToListTransformerAdapter(Class<OUT> type) {
+			this.type = type;
+		}
+
+		@Override
+		public List<OUT> transform(T objects) {
+			val builder = ImmutableList.<OUT>builder();
+			for (IN object : objects) {
+				builder.add(type.cast(object));
+			}
+			return builder.build();
+		}
+
+		@Override
+		public String toString() {
+			return "TransformerUtils.toListTransformer(" + type + ")";
+		}
 	}
 
-	private enum ToSetTransformer implements Transformer<Set<? extends Object>, Iterable<? extends Object>> {
+	public static <OUT, IN extends OUT, T extends Iterable<? extends IN>> Transformer<Set<OUT>, T> toSetTransformer() {
+		return ToSetTransformer.INSTANCE.withNarrowTypes();
+	}
+
+	/** @see #toSetTransformer() */
+	private enum ToSetTransformer implements Transformer<Set<Object>, Iterable<?>> {
 		INSTANCE;
 
 		@Override
-		public Set<?> transform(Iterable<?> objects) {
+		public Set<Object> transform(Iterable<?> objects) {
 			return ImmutableSet.copyOf(objects);
 		}
 
+		public <OUT, IN, T extends Iterable<? extends IN>> Transformer<Set<OUT>, T> withNarrowTypes() {
+			return Cast.uncheckedCast("types already checked by caller", this);
+		}
 
 		@Override
 		public String toString() {
 			return "TransformerUtils.toSetTransformer()";
+		}
+	}
+
+	public static <OUT, IN, T extends Iterable<? extends IN>> Transformer<Set<OUT>, T> toSetTransformer(Class<OUT> type) {
+		if (type.equals(Object.class)) {
+			return ToSetTransformer.INSTANCE.withNarrowTypes();
+		}
+		return new ToSetTransformerAdapter<>(type);
+	}
+
+	/** @see #toSetTransformer(Class) */
+	@EqualsAndHashCode
+	private static final class ToSetTransformerAdapter<OUT, IN, T extends Iterable<? extends IN>> implements Transformer<Set<OUT>, T> {
+		private final Class<OUT> type;
+
+		ToSetTransformerAdapter(Class<OUT> type) {
+			this.type = type;
+		}
+
+		@Override
+		public Set<OUT> transform(T objects) {
+			val builder = ImmutableSet.<OUT>builder();
+			for (IN object : objects) {
+				builder.add(type.cast(object));
+			}
+			return builder.build();
+		}
+
+		@Override
+		public String toString() {
+			return "TransformerUtils.toSetTransformer(" + type + ")";
 		}
 	}
 
@@ -141,13 +209,13 @@ public final class TransformerUtils {
 	 * @param <IN>  input element type to transform
 	 * @return a {@link Transformer} instance to flat transform each the element of an iterable, never null.
 	 */
-	public static <OUT, IN> Transformer<List<OUT>, Iterable<IN>> flatTransformEach(org.gradle.api.Transformer<? extends Iterable<OUT>, ? super IN> mapper) {
+	public static <OUT, IN, T extends Iterable<? extends IN>> Transformer<Iterable<OUT>, T> flatTransformEach(org.gradle.api.Transformer<? extends Iterable<OUT>, ? super IN> mapper) {
 		return new FlatTransformEachAdapter<>(mapper);
 	}
 
 	/** @see #flatTransformEach(org.gradle.api.Transformer) */
 	@EqualsAndHashCode
-	private static final class FlatTransformEachAdapter<OUT, IN> implements Transformer<List<OUT>, Iterable<IN>> {
+	private static final class FlatTransformEachAdapter<OUT, IN, T extends Iterable<? extends IN>> implements Transformer<Iterable<OUT>, T> {
 		private final org.gradle.api.Transformer<? extends Iterable<OUT>, ? super IN> mapper;
 
 		public FlatTransformEachAdapter(org.gradle.api.Transformer<? extends Iterable<OUT>, ? super IN> mapper) {
@@ -155,7 +223,7 @@ public final class TransformerUtils {
 		}
 
 		@Override
-		public List<OUT> transform(Iterable<IN> elements) {
+		public Iterable<OUT> transform(T elements) {
 			ImmutableList.Builder<OUT> result = ImmutableList.builder();
 			for (IN element : elements) {
 				result.addAll(mapper.transform(element));
@@ -178,13 +246,16 @@ public final class TransformerUtils {
 	 * @param <IN>  input element type to transform
 	 * @return a {@link Transformer} instance to transform each the element of an iterable, never null.
 	 */
-	public static <OUT, IN> Transformer<List<OUT>, Iterable<IN>> transformEach(org.gradle.api.Transformer<? extends OUT, ? super IN> mapper) {
+	public static <OUT, IN, T extends Iterable<? extends IN>> Transformer<Iterable<OUT>, T> transformEach(org.gradle.api.Transformer<? extends OUT, ? super IN> mapper) {
+		if (isNoOpTransformer(mapper)) {
+			return NoOpTransformer.INSTANCE.withNarrowTypes();
+		}
 		return new TransformEachAdapter<>(mapper);
 	}
 
 	/** @see #transformEach(org.gradle.api.Transformer) */
 	@EqualsAndHashCode
-	private static final class TransformEachAdapter<OUT, IN> implements Transformer<List<OUT>, Iterable<IN>> {
+	private static final class TransformEachAdapter<OUT, IN, T extends Iterable<? extends IN>> implements Transformer<Iterable<OUT>, T> {
 		private final org.gradle.api.Transformer<? extends OUT, ? super IN> mapper;
 
 		public TransformEachAdapter(org.gradle.api.Transformer<? extends OUT, ? super IN> mapper) {
@@ -192,7 +263,7 @@ public final class TransformerUtils {
 		}
 
 		@Override
-		public List<OUT> transform(Iterable<IN> elements) {
+		public Iterable<OUT> transform(T elements) {
 			ImmutableList.Builder<OUT> result = ImmutableList.builder();
 			for (IN element : elements) {
 				result.add(mapper.transform(element));

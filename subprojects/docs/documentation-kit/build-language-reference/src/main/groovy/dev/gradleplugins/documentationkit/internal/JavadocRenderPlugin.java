@@ -159,7 +159,7 @@ public class JavadocRenderPlugin implements Plugin<Project> {
 				}
 
 				private Provider<List<String>> linksFromArtifact() {
-					return artifact.flatMap(JavadocApiReference::getLinks).map(transformEach(URI::toString));
+					return artifact.flatMap(JavadocApiReference::getLinks).map(transformEach(URI::toString).andThen(toListTransformer()));
 				}
 
 				private Provider<Set<FileSystemLocation>> classpathFromArtifact() {
@@ -167,7 +167,7 @@ public class JavadocRenderPlugin implements Plugin<Project> {
 				}
 
 				private Provider<List<String>> sourcePathsFromArtifactSources() {
-					return artifact.map(JavadocApiReference::getSources).flatMap(elementsOf(LanguageSourceSet::getSourceDirectories)).map(transformEach(asFile(File::getAbsolutePath)));
+					return artifact.map(JavadocApiReference::getSources).flatMap(elementsOf(LanguageSourceSet::getSourceDirectories)).map(transformEach(asFile(File::getAbsolutePath)).andThen(toListTransformer()));
 				}
 
 				private Provider<List<String>> guessSubPackages() {

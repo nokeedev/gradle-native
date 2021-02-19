@@ -5,18 +5,19 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.nativebase.NativeBinary;
-import dev.nokee.utils.TransformerUtils;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
 import java.util.Set;
+
+import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 
 enum ToBinariesCompileTasksTransformer implements Transformer<Provider<Set<? extends SourceCompile>>, Variant> {
 	TO_DEVELOPMENT_BINARY_COMPILE_TASKS;
 
 	@Override
 	public Provider<Set<? extends SourceCompile>> transform(Variant variant) {
-		return variant.getBinaries().flatMap(FlatMapBinaryToCompileTasks.INSTANCE).map(TransformerUtils.toSetTransformer());
+		return variant.getBinaries().flatMap(FlatMapBinaryToCompileTasks.INSTANCE).map(toSetTransformer());
 	}
 
 	enum FlatMapBinaryToCompileTasks implements Transformer<Iterable<SourceCompile>, Binary> {

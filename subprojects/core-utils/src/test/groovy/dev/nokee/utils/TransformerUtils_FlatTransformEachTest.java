@@ -7,11 +7,15 @@ import org.gradle.api.Transformer;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
+import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.ImmutableList.of;
-import static dev.nokee.utils.TransformerUtils.*;
+import static dev.nokee.utils.TransformerTestUtils.aTransformer;
+import static dev.nokee.utils.TransformerUtils.flatTransformEach;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,26 +55,53 @@ class TransformerUtils_FlatTransformEachTest {
 
 	@Test
 	void returnsEmptyListForEmptyInput() {
-		assertThat(flatTransformEach(noOpTransformer()).transform(emptyList()),	empty());
-		assertThat(flatTransformEach(noOpTransformer()).transform(emptySet()),	empty());
+		assertThat(flatTransformEach(aTransformer()).transform(emptyList()), emptyIterable());
+		assertThat(flatTransformEach(aTransformer()).transform(emptySet()), emptyIterable());
 	}
 
 	@Test
 	void returnsEnhanceTransformer() {
-		assertThat(flatTransformEach(noOpTransformer()), isA(TransformerUtils.Transformer.class));
+		assertThat(flatTransformEach(aTransformer()), isA(TransformerUtils.Transformer.class));
+	}
+
+	@Test
+	void canUseFlatTransformEachFromList() {
+		Transformer<Iterable<Integer>, List<? extends Integer>> transformer1 = flatTransformEach(ImmutableList::of);
+		assertThat(transformer1.transform(asList(1, 2, 3)), iterableWithSize(3));
+
+		Transformer<Iterable<Integer>, List<Integer>> transformer2 = flatTransformEach(ImmutableList::of);
+		assertThat(transformer2.transform(asList(1, 2, 3)), iterableWithSize(3));
+	}
+
+	@Test
+	void canUseFlatTransformEachFromIterable() {
+		Transformer<Iterable<Integer>, Iterable<? extends Integer>> transformer1 = flatTransformEach(ImmutableList::of);
+		assertThat(transformer1.transform(asList(1, 2, 3)), iterableWithSize(3));
+
+		Transformer<Iterable<Integer>, Iterable<Integer>> transformer2 = flatTransformEach(ImmutableList::of);
+		assertThat(transformer2.transform(ImmutableSet.of(1, 2, 3)), iterableWithSize(3));
+	}
+
+	@Test
+	void canUseFlatTransformEachFromSet() {
+		Transformer<Iterable<Integer>, Set<? extends Integer>> transformer1 = flatTransformEach(ImmutableList::of);
+		assertThat(transformer1.transform(ImmutableSet.of(1, 2, 3)), iterableWithSize(3));
+
+		Transformer<Iterable<Integer>, Set<Integer>> transformer2 = flatTransformEach(ImmutableList::of);
+		assertThat(transformer2.transform(ImmutableSet.of(1, 2, 3)), iterableWithSize(3));
 	}
 
 	@Test
 	void checkToString() {
-		assertThat(flatTransformEach(noOpTransformer()),
-			hasToString("TransformerUtils.flatTransformEach(TransformerUtils.noOpTransformer())"));
+		assertThat(flatTransformEach(aTransformer()),
+			hasToString("TransformerUtils.flatTransformEach(aTransformer())"));
 	}
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(flatTransformEach(noOpTransformer()), flatTransformEach(noOpTransformer()))
+			.addEqualityGroup(flatTransformEach(aTransformer()), flatTransformEach(aTransformer()))
 			.addEqualityGroup(flatTransformEach(ImmutableList::of))
 			.testEquals();
 	}

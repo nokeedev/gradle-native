@@ -23,6 +23,7 @@ import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.NamedTargetBuildType;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.utils.ProviderUtils;
+import dev.nokee.utils.SpecUtils;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
@@ -34,7 +35,6 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.specs.Specs;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.utils.TransformerUtils.toListTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.joining;
 
@@ -80,11 +81,11 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			}
 
 			private Provider<List<? extends FileTree>> componentSources(BaseComponent<?> component) {
-				return sourceViewOf(component).filter(Specs.negate(this::forHeaderSets)).map(transformEach(LanguageSourceSet::getAsFileTree));
+				return sourceViewOf(component).filter(SpecUtils.negate(this::forHeaderSets)).map(transformEach(LanguageSourceSet::getAsFileTree).andThen(toListTransformer()));
 			}
 
 			private Provider<List<? extends FileTree>> componentHeaders(BaseComponent<?> component) {
-				return sourceViewOf(component).filter(this::forHeaderSets).map(transformEach(LanguageSourceSet::getAsFileTree));
+				return sourceViewOf(component).filter(this::forHeaderSets).map(transformEach(LanguageSourceSet::getAsFileTree).andThen(toListTransformer()));
 			}
 
 			private boolean forHeaderSets(LanguageSourceSet sourceSet) {
