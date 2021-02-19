@@ -336,11 +336,11 @@ public final class TransformerUtils {
 
 	@FunctionalInterface
 	public interface Transformer<OUT, IN> extends org.gradle.api.Transformer<OUT, IN> {
-		default <V> Transformer<OUT, V> compose(Transformer<? extends IN, ? super V> before) {
+		default <V> Transformer<OUT, V> compose(org.gradle.api.Transformer<? extends IN, ? super V> before) {
 			return new ComposeTransformer<>(this, before);
 		}
 
-		default <V> Transformer<V, IN> andThen(Transformer<? extends V, ? super OUT> after) {
+		default <V> Transformer<V, IN> andThen(org.gradle.api.Transformer<? extends V, ? super OUT> after) {
 			return new ComposeTransformer<>(after, this);
 		}
 	}
