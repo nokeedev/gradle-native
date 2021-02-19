@@ -162,7 +162,7 @@ public final class TransformerUtils {
 		private final T value;
 
 		public ConstantTransformer(T value) {
-			this.value = value;
+			this.value = requireNonNull(value);
 		}
 
 		@Override
@@ -185,7 +185,7 @@ public final class TransformerUtils {
 		private final Action<? super T> action;
 
 		public ConfigureInPlaceTransformer(Action<? super T> action) {
-			this.action = action;
+			this.action = requireNonNull(action);
 		}
 
 		@Override
