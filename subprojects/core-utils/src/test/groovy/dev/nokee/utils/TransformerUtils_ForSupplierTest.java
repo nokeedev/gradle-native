@@ -3,7 +3,10 @@ package dev.nokee.utils;
 import com.google.common.testing.EqualsTester;
 import dev.nokee.internal.testing.ExecuteWith;
 import lombok.val;
+import org.gradle.api.Transformer;
 import org.junit.jupiter.api.Test;
+
+import java.util.function.Supplier;
 
 import static com.google.common.base.Suppliers.ofInstance;
 import static dev.nokee.internal.testing.ExecuteWith.called;
@@ -34,6 +37,27 @@ class TransformerUtils_ForSupplierTest {
 	void acceptNullInputValues() {
 		val result = assertDoesNotThrow(() -> forSupplier(ofInstance(52)).transform(null));
 		assertThat(result, equalTo(52));
+	}
+
+	@Test
+	void canUseForSupplierWithLambda() {
+		Transformer<String, Object> transformer1 = forSupplier(() -> "foo");
+		Transformer<String, ?> transformer2 = forSupplier(() -> "foo");
+
+		assertThat(transformer1.transform(null), equalTo("foo"));
+		assertThat(transformer2.transform(null), equalTo("foo"));
+	}
+
+	@Test
+	void canUseForSupplierWithSupplierInstance() {
+		Supplier<? extends String> supplier3 = () -> "foo";
+		Transformer<String, ?> transformer3 = forSupplier(supplier3);
+
+		Supplier<String> supplier4 = () -> "foo";
+		Transformer<String, ?> transformer4 = forSupplier(supplier4);
+
+		assertThat(transformer3.transform(null), equalTo("foo"));
+		assertThat(transformer4.transform(null), equalTo("foo"));
 	}
 
 	@Test
