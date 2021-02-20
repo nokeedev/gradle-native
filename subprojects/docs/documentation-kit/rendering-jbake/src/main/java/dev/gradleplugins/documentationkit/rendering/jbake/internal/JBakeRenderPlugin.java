@@ -3,10 +3,12 @@ package dev.gradleplugins.documentationkit.rendering.jbake.internal;
 import com.google.common.collect.ImmutableMap;
 import dev.gradleplugins.documentationkit.rendering.jbake.JBakeExtension;
 import dev.gradleplugins.documentationkit.rendering.jbake.tasks.GenerateJBakeProperties;
+import dev.gradleplugins.documentationkit.rendering.jbake.tasks.GenerateRedirection;
 import dev.gradleplugins.documentationkit.rendering.jbake.tasks.RenderJBake;
 import dev.nokee.platform.base.internal.dependencies.ProjectConfigurationRegistry;
 import dev.nokee.utils.ActionUtils;
 import lombok.val;
+import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -31,6 +33,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -81,6 +84,19 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 		extension.getTemplates().from("src/jbake/templates");
 		extension.getContent().from("src/jbake/content");
 		extension.getConfigurations().putAll(project.provider(() -> loadPropertiesFileIfAvailable(layout.getProjectDirectory().file("src/jbake/jbake.properties"))));
+
+		val redirectionTask = tasks.register("redirections", GenerateRedirection.class, task -> {
+			task.getDestinationDirectory().dir("tmp/" + task.getName());
+		});
+		extension.getContent().from(redirectionTask.flatMap(it -> it.getDestinationDirectory().dir("content")));
+		extension.getTemplates().from(redirectionTask.flatMap(it -> it.getDestinationDirectory().dir("templates")));
+		extension.getConfigurations().putAll(redirectionTask.map(it -> {
+			val result = new HashMap<String, Object>();
+			it.getDestinationDirectory().dir("templates").get().getAsFileTree().visit(details -> {
+				result.put("template." + FilenameUtils.removeExtension(details.getName()) + ".file", details.getName());
+			});
+			return result;
+		}));
 
 		val bakePropertiesTask = tasks.register("bakeProperties", GenerateJBakeProperties.class, task -> {
 			task.getConfigurations().value(extension.getConfigurations()).disallowChanges();
