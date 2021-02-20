@@ -73,6 +73,6 @@ class SampleContentFixture {
 
 	HtmlTestFixture getBakedFile() {
 		def root = new File(System.getProperty('bakedContentDirectory')).toPath()
-		return new HtmlTestFixture(root, root.resolve("docs/nightly/samples/${sampleName}/index.html").toUri(), UriService.INSTANCE)
+		return new HtmlTestFixture(root, root.resolve("samples/${sampleName}/index.html").toUri(), UriService.INSTANCE)
 	}
 }
