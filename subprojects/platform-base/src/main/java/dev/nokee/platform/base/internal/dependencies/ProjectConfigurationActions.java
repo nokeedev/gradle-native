@@ -10,27 +10,44 @@ import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationVariant;
 import org.gradle.api.artifacts.PublishArtifact;
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.DocsType;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.component.ConfigurationVariantDetails;
+import org.gradle.api.file.Directory;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.specs.Spec;
+import org.gradle.api.tasks.Sync;
+import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.tasks.bundling.Zip;
 
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static dev.nokee.platform.base.internal.tasks.TaskName.taskName;
+import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
 import static java.util.Objects.requireNonNull;
+import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.DIRECTORY_TYPE;
 
 public final class ProjectConfigurationActions {
 	private static final ThreadLocal<ObjectFactory> OBJECT_FACTORY_THREAD_LOCAL = new ThreadLocal<>();
+	private static final ThreadLocal<TaskContainer> TASK_CONTAINER_THREAD_LOCAL = new ThreadLocal<>();
 
 	private static ObjectFactory getObjectFactory() {
 		return requireNonNull(OBJECT_FACTORY_THREAD_LOCAL.get());
+	}
+
+	private static TaskContainer getTaskContainer() {
+		return requireNonNull(TASK_CONTAINER_THREAD_LOCAL.get());
 	}
 
 	private ProjectConfigurationActions() {}
@@ -89,21 +106,35 @@ public final class ProjectConfigurationActions {
 		};
 	}
 
+	public static <T> ActionUtils.Action<T> using(TaskContainer taskContainer, Action<? super T> action) {
+		requireNonNull(taskContainer);
+		requireNonNull(action);
+		return configuration -> {
+			val previousValue = TASK_CONTAINER_THREAD_LOCAL.get();
+			TASK_CONTAINER_THREAD_LOCAL.set(taskContainer);
+			try {
+				action.execute(configuration);
+			} finally {
+				TASK_CONTAINER_THREAD_LOCAL.set(previousValue);
+			}
+		};
+	}
+
 	/**
 	 * Configures a {@link Configuration} with access to a {@link ObjectFactory}.
 	 *
 	 * @param action  a configuration action, must not be null
 	 * @return a configuration action, never null
 	 */
-	public static ActionUtils.Action<Configuration> withObjectFactory(BiConsumer<? super Configuration, ObjectFactory> action) {
+	public static ActionUtils.Action<Configuration> withObjectFactory(BiConsumer<? super Configuration, ? super ObjectFactory> action) {
 		return new WithObjectFactoryConfigurationConsumer<>(action);
 	}
 
 	@EqualsAndHashCode
 	private static final class WithObjectFactoryConfigurationConsumer<T> implements AssertableConsumer<T> {
-		private final BiConsumer<? super T, ObjectFactory> action;
+		private final BiConsumer<? super T, ? super ObjectFactory> action;
 
-		private WithObjectFactoryConfigurationConsumer(BiConsumer<? super T, ObjectFactory> action) {
+		private WithObjectFactoryConfigurationConsumer(BiConsumer<? super T, ? super ObjectFactory> action) {
 			this.action = requireNonNull(action);
 		}
 
@@ -123,6 +154,43 @@ public final class ProjectConfigurationActions {
 		@Override
 		public String toString() {
 			return "ProjectConfigurationUtils.withObjectFactory(" + action + ")";
+		}
+	}
+
+	/**
+	 * Configures a {@link Configuration} with access to a {@link TaskContainer}.
+	 *
+	 * @param action  a configuration action, must not be null
+	 * @return a configuration action, never null
+	 */
+	public static ActionUtils.Action<Configuration> withTaskContainer(BiConsumer<? super Configuration, ? super TaskContainer> action) {
+		return new WithTaskContainerConfigurationConsumer<>(action);
+	}
+
+	@EqualsAndHashCode
+	private static final class WithTaskContainerConfigurationConsumer<T> implements AssertableConsumer<T> {
+		private final BiConsumer<? super T, ? super TaskContainer> action;
+
+		private WithTaskContainerConfigurationConsumer(BiConsumer<? super T, ? super TaskContainer> action) {
+			this.action = requireNonNull(action);
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public void assertValue(T t) {
+			if (action instanceof Assertable) {
+				((Assertable<T>) action).assertValue(t);
+			}
+		}
+
+		@Override
+		public void execute(T t) {
+			action.accept(t, getTaskContainer());
+		}
+
+		@Override
+		public String toString() {
+			return "ProjectConfigurationUtils.withTaskContainer(" + action + ")";
 		}
 	}
 
@@ -336,6 +404,97 @@ public final class ProjectConfigurationActions {
 		public String toString() {
 			return "ProjectConfigurationUtils.artifactIfExists(" + fileProvider + ")";
 		}
+	}
+
+	public static ActionUtils.Action<Configuration> artifactOf(FileCollection files) {
+		return new ArtifactOfFileCollectionConfigurationConsumer(files);
+	}
+
+	@EqualsAndHashCode
+	private static final class ArtifactOfFileCollectionConfigurationConsumer implements AssertableConsumer<Configuration> {
+		private final FileCollection files;
+
+		private ArtifactOfFileCollectionConfigurationConsumer(FileCollection files) {
+			this.files = files;
+		}
+
+		@Override
+		public void assertValue(Configuration value) {
+			throw new UnsupportedOperationException("artifact assertion of existing configuration is not supported");
+		}
+
+		@Override
+		public void execute(Configuration configuration) {
+			execute(configuration, getTaskContainer());
+		}
+
+		private void execute(Configuration configuration, TaskContainer tasks) {
+			val zipTask = registerIfAbsent(tasks, taskName("zip", configuration.getName()), Zip.class, task -> {
+				task.getArchiveClassifier().set(guessClassifier(configuration.getName()));
+				task.getDestinationDirectory().fileValue(task.getTemporaryDir()).disallowChanges();
+			});
+			zipTask.configure(task -> task.from(files));
+			configuration.getOutgoing().artifact(zipTask);
+
+			val stageTask = registerIfAbsent(tasks, taskName("stage", configuration.getName()), Sync.class, task -> {
+				task.setDestinationDir(task.getTemporaryDir());
+			});
+			zipTask.configure(task -> task.from(files));
+			configuration.getOutgoing().getVariants().create("directory", variant -> {
+				variant.artifact(stageTask.map(Sync::getDestinationDir), it -> {
+					it.setType(DIRECTORY_TYPE);
+					it.builtBy(stageTask);
+				});
+			});
+		}
+
+		@Override
+		public String toString() {
+			return "ProjectConfigurationActions.artifactOf(" + files + ")";
+		}
+	}
+
+	public static ActionUtils.Action<Configuration> artifactOf(Provider<Directory> directoryProvider) {
+		return new ArtifactOfDirectoryConfigurationConsumer(directoryProvider);
+	}
+
+	@EqualsAndHashCode
+	private static final class ArtifactOfDirectoryConfigurationConsumer implements AssertableConsumer<Configuration> {
+		private final Provider<Directory> directoryProvider;
+
+		private ArtifactOfDirectoryConfigurationConsumer(Provider<Directory> directoryProvider) {
+			this.directoryProvider = directoryProvider;
+		}
+
+		@Override
+		public void assertValue(Configuration value) {
+			throw new UnsupportedOperationException("artifact assertion of existing configuration is not supported");
+		}
+
+		@Override
+		public void execute(Configuration configuration) {
+			execute(configuration, getTaskContainer());
+		}
+
+		private void execute(Configuration configuration, TaskContainer tasks) {
+			val zipTask = registerIfAbsent(tasks, taskName("zip", configuration.getName()), Zip.class, task -> {
+				task.getArchiveClassifier().set(guessClassifier(configuration.getName()));
+				task.getDestinationDirectory().fileValue(task.getTemporaryDir()).disallowChanges();
+			});
+			zipTask.configure(task -> task.from(directoryProvider));
+			configuration.getOutgoing().artifact(zipTask);
+
+			configuration.getOutgoing().getVariants().maybeCreate("directory").artifact(directoryProvider, it -> it.setType(DIRECTORY_TYPE));
+		}
+
+		@Override
+		public String toString() {
+			return "ProjectConfigurationActions.artifactOf(" + directoryProvider + ")";
+		}
+	}
+
+	private static String guessClassifier(String configurationName) {
+		return configurationName.replace("Elements", "");
 	}
 
 	/**
