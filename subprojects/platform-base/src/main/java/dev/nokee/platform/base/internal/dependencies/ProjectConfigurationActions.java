@@ -682,4 +682,35 @@ public final class ProjectConfigurationActions {
 			second.execute(t);
 		}
 	}
+
+	//region TODO: NOT SURE IF IT SHOULD BE HERE
+	public static ActionUtils.Action<ConfigurationVariantDetails> skipIf(Spec<? super ConfigurationVariant> predicate) {
+		return variantDetails -> {
+			if (predicate.isSatisfiedBy(variantDetails.getConfigurationVariant())) {
+				variantDetails.skip();
+			}
+		};
+	}
+
+	public static Spec<ConfigurationVariant> hasUnpublishableArtifactType() {
+		return element -> {
+			for (PublishArtifact artifact : element.getArtifacts()) {
+				if (ArtifactTypeDefinition.DIRECTORY_TYPE.equals(artifact.getType())) {
+					return true;
+				}
+			}
+			return false;
+		};
+	}
+
+	// Note: We return a standard Gradle Action on purpose, instead of the enhanced Action.
+	public static Action<ConfigurationVariantDetails> publishAll() {
+		return ActionUtils.doNothing();
+	}
+
+	// Note: We return a standard Gradle Action on purpose, instead of the enhanced Action.
+	public static Action<ConfigurationVariantDetails> skipAll() {
+		return ConfigurationVariantDetails::skip;
+	}
+	//endregion
 }
