@@ -163,6 +163,7 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 				.from(pegdownTemplates("1.6.0"))
 				.from(thymeleafTemplates("3.0.11.RELEASE"))
 				.from(jade4jTemplates("1.2.7"))
+				.from(pebbleTemplates("3.1.4"))
 				;
 		});
 		extension.getDestinationDirectory().value(bakeTask.flatMap(RenderJBake::getDestinationDirectory)).disallowChanges();
@@ -217,6 +218,11 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 	// TODO: Move to jade4j-templates plugin?
 	private FileCollection jade4jTemplates(String version) {
 		return  configurations.detachedConfiguration(dependencies.create("de.neuland-bfi:jade4j:" + version));
+	}
+
+	// TODO: Move to pebble-templates plugin?
+	private FileCollection pebbleTemplates(String version) {
+		return configurations.detachedConfiguration(dependencies.create("io.pebbletemplates:pebble:" + version));
 	}
 
 	private static Map<String, Object> loadPropertiesFileIfAvailable(FileSystemLocation propertiesFile) {
