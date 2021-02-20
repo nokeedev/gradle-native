@@ -78,6 +78,32 @@ public final class SpecUtils {
 		}
 	}
 
+	public static Spec<Class<?>> subtypeOf(Class<?> clazz) {
+		if (clazz.equals(Object.class)) {
+			return satisfyAll();
+		}
+		return new SubtypeOfSpec(clazz);
+	}
+
+	@EqualsAndHashCode
+	private static final class SubtypeOfSpec implements Spec<Class<?>> {
+		private final Class<?> type;
+
+		SubtypeOfSpec(Class<?> type) {
+			this.type = type;
+		}
+
+		@Override
+		public boolean isSatisfiedBy(Class<?> clazz) {
+			return type.isAssignableFrom(clazz);
+		}
+
+		@Override
+		public String toString() {
+			return "SpecUtils.subtypeOf(" + type + ")";
+		}
+	}
+
 	public static Spec<Object> instanceOf(Class<?> clazz) {
 		if (Object.class.equals(clazz)) {
 			return satisfyAll();
