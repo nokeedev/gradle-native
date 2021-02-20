@@ -1,6 +1,7 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.testing.EqualsTester;
+import dev.nokee.internal.testing.GradleNamedMatchers;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
@@ -9,13 +10,12 @@ import org.gradle.api.attributes.Attribute;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
-import static dev.nokee.internal.testing.ConfigurationMatchers.hasAttribute;
+import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
 import static dev.nokee.internal.testing.utils.TestUtils.objectFactory;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Subject(ProjectConfigurationActions.class)
@@ -25,14 +25,14 @@ class ProjectConfigurationActions_AttributeTest {
 	@Test
 	void canConfigureConfigurationNamedAttribute() {
 		assertThat(testConfiguration(using(objectFactory(), attribute(ATTRIBUTE, named("foo")))),
-			hasAttribute(ATTRIBUTE, "foo"));
+			attributes(hasEntry(equalTo(ATTRIBUTE), GradleNamedMatchers.named("foo"))));
 	}
 
 	@Test
 	void canConfigureConfigurationObjectAttribute() {
 		val myAttribute = Attribute.of(MyAttribute.class);
 		val myValue = objectFactory().newInstance(MyAttribute.class);
-		assertThat(testConfiguration(using(objectFactory(), attribute(myAttribute, ofInstance(myValue)))), hasAttribute(myAttribute, myValue));
+		assertThat(testConfiguration(using(objectFactory(), attribute(myAttribute, ofInstance(myValue)))), attributes(hasEntry(myAttribute, myValue)));
 	}
 
 	interface MyAttribute {}
@@ -40,7 +40,7 @@ class ProjectConfigurationActions_AttributeTest {
 	@Test
 	void canConfigureConfigurationEnumAttribute() {
 		val myAttribute = Attribute.of(MyEnum.class);
-		assertThat(testConfiguration(using(objectFactory(), attribute(myAttribute, ofInstance(MyEnum.VALUE)))), hasAttribute(myAttribute, MyEnum.VALUE));
+		assertThat(testConfiguration(using(objectFactory(), attribute(myAttribute, ofInstance(MyEnum.VALUE)))), attributes(hasEntry(myAttribute, MyEnum.VALUE)));
 	}
 
 	enum MyEnum { VALUE }
