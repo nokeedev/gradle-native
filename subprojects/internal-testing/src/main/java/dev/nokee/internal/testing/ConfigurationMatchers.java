@@ -1,5 +1,6 @@
 package dev.nokee.internal.testing;
 
+import com.google.common.collect.ImmutableMap;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.*;
@@ -11,7 +12,6 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.util.AbstractMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -146,7 +146,7 @@ public final class ConfigurationMatchers {
 		return new FeatureMatcher<Configuration, Map<Attribute<?>, ?>>(matcher, "a configuration with attribute", "attributes") {
 			@Override
 			protected Map<Attribute<?>, ?> featureValueOf(Configuration actual) {
-				return actual.getAttributes().keySet().stream().map(attribute -> new AbstractMap.SimpleImmutableEntry<>(attribute, actual.getAttributes().getAttribute(attribute))).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+				return actual.getAttributes().keySet().stream().map(attribute -> new AbstractMap.SimpleImmutableEntry<>(attribute, actual.getAttributes().getAttribute(attribute))).collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
 			}
 		};
 	}
