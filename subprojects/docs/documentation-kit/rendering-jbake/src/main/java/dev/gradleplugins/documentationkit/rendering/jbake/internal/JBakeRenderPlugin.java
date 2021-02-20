@@ -17,6 +17,7 @@ import org.gradle.api.artifacts.transform.TransformParameters;
 import org.gradle.api.artifacts.transform.TransformSpec;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.DocsType;
+import org.gradle.api.component.SoftwareComponentFactory;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.ProjectLayout;
@@ -62,13 +63,15 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 	private final ProjectLayout layout;
 	private final ConfigurationContainer configurations;
 	private final DependencyHandler dependencies;
+	private final SoftwareComponentFactory softwareComponentFactory;
 
 	@Inject
-	public JBakeRenderPlugin(TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencies) {
+	public JBakeRenderPlugin(TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencies, SoftwareComponentFactory softwareComponentFactory) {
 		this.tasks = tasks;
 		this.layout = layout;
 		this.configurations = configurations;
 		this.dependencies = dependencies;
+		this.softwareComponentFactory = softwareComponentFactory;
 	}
 
 	@Override
@@ -116,23 +119,23 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 		project.getDependencies().registerTransform(UnzipTransform.class,
 			unzipArtifact(JBAKE_BAKED_USAGE_NAME, project.getObjects()));
 
-		configurationRegistry.create(CONTENT_ELEMENTS_CONFIGURATION_NAME,
+		val contentElements = configurationRegistry.create(CONTENT_ELEMENTS_CONFIGURATION_NAME,
 			asConsumable()
 				.andThen(attributes(JBAKE_CONTENT_USAGE_NAME))
 				.andThen(artifactOf(extension.getContent())));
-		configurationRegistry.create(TEMPLATES_ELEMENTS_CONFIGURATION_NAME,
+		val templatesElements = configurationRegistry.create(TEMPLATES_ELEMENTS_CONFIGURATION_NAME,
 			asConsumable()
 				.andThen(attributes(JBAKE_TEMPLATES_USAGE_NAME))
 				.andThen(artifactOf(extension.getTemplates())));
-		configurationRegistry.create(ASSETS_ELEMENTS_CONFIGURATION_NAME,
+		val assetsElements = configurationRegistry.create(ASSETS_ELEMENTS_CONFIGURATION_NAME,
 			asConsumable()
 				.andThen(attributes(JBAKE_ASSETS_USAGE_NAME))
 				.andThen(artifactOf(extension.getAssets())));
-		configurationRegistry.create(CONFIGURATION_ELEMENTS_CONFIGURATION_NAME,
+		val configurationElements = configurationRegistry.create(CONFIGURATION_ELEMENTS_CONFIGURATION_NAME,
 			asConsumable()
 				.andThen(attributes(JBAKE_CONFIGURATION_USAGE_NAME))
 				.andThen(using(project.getObjects(), artifactIfExists(bakePropertiesTask.flatMap(GenerateJBakeProperties::getOutputFile)))));
-		configurationRegistry.create(BAKED_ELEMENTS_CONFIGURATION_NAME,
+		val bakedElements = configurationRegistry.create(BAKED_ELEMENTS_CONFIGURATION_NAME,
 			asConsumable()
 				.andThen(attributes(JBAKE_BAKED_USAGE_NAME))
 				.andThen(artifactOf(extension.getDestinationDirectory())));
@@ -165,6 +168,14 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 				;
 		});
 		extension.getDestinationDirectory().value(bakeTask.flatMap(RenderJBake::getDestinationDirectory)).disallowChanges();
+
+		val jbakeComponent = softwareComponentFactory.adhoc("jbake");
+		jbakeComponent.addVariantsFromConfiguration(contentElements, skipIf(hasUnpublishableArtifactType()));
+		jbakeComponent.addVariantsFromConfiguration(templatesElements, skipIf(hasUnpublishableArtifactType()));
+		jbakeComponent.addVariantsFromConfiguration(assetsElements, skipIf(hasUnpublishableArtifactType()));
+		jbakeComponent.addVariantsFromConfiguration(configurationElements, skipIf(hasUnpublishableArtifactType()));
+		jbakeComponent.addVariantsFromConfiguration(bakedElements, skipIf(hasUnpublishableArtifactType()));
+		project.getComponents().add(jbakeComponent);
 	}
 
 	private String relativeToProjectDirectory(Sync task) {
