@@ -4,6 +4,8 @@ import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
+import static dev.nokee.utils.TransformerTestUtils.aTransformer;
+import static dev.nokee.utils.TransformerTestUtils.anotherTransformer;
 import static dev.nokee.utils.TransformerUtils.compose;
 import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -19,23 +21,26 @@ class TransformerUtils_ComposeTest {
 
 	@Test
 	void returnsEnhanceTransformer() {
-		assertThat(compose(noOpTransformer(), noOpTransformer()), isA(TransformerUtils.Transformer.class));
+		assertThat(compose(aTransformer(), aTransformer()), isA(TransformerUtils.Transformer.class));
 	}
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(compose(noOpTransformer(), noOpTransformer()), compose(noOpTransformer(), noOpTransformer()))
-			.addEqualityGroup(compose(t -> t, noOpTransformer()))
-			.addEqualityGroup(compose(noOpTransformer(), t -> t))
+			.addEqualityGroup(compose(aTransformer(), aTransformer()), compose(aTransformer(), aTransformer()))
+			.addEqualityGroup(compose(anotherTransformer(), aTransformer()))
+			.addEqualityGroup(compose(aTransformer(), anotherTransformer()))
+			.addEqualityGroup(compose(noOpTransformer(), noOpTransformer()), noOpTransformer())
+			.addEqualityGroup(compose(aTransformer(), noOpTransformer()), aTransformer())
+			.addEqualityGroup(compose(noOpTransformer(), anotherTransformer()), anotherTransformer())
 			.testEquals();
 	}
 
 	@Test
 	void checkToString() {
-		assertThat(compose(noOpTransformer(), noOpTransformer()),
-			hasToString("TransformerUtils.compose(TransformerUtils.noOpTransformer(), TransformerUtils.noOpTransformer())"));
+		assertThat(compose(aTransformer(), aTransformer()),
+			hasToString("TransformerUtils.compose(aTransformer(), aTransformer())"));
 	}
 
 	@Test

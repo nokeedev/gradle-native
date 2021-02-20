@@ -280,6 +280,14 @@ public final class TransformerUtils {
 	}
 
 	public static <A, B, C> Transformer<C, A> compose(org.gradle.api.Transformer<C, B> g, org.gradle.api.Transformer<? extends B, A> f) {
+		if (isNoOpTransformer(g)) {
+			return Cast.uncheckedCast("g is a noop transformer, so we can assume the types are matching", f);
+		}
+
+		if (isNoOpTransformer(f)) {
+			return Cast.uncheckedCast("f is a noop transformer, so we can assume the types are matching", g);
+		}
+
 		return new ComposeTransformer<>(g, f);
 	}
 
