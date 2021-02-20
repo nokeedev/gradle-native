@@ -8,7 +8,7 @@ Getting started with Nokee plugins is simple and easy.
 == Method 1: Using PluginManagement block (preferred)
 
 Using the link:{gradle-user-manual}/plugins.html#sec:plugin_management[Plugin Management block] is the preferred way to get started.
-You will lower your maintenance cost when upgrading to a newer version, both released and nightly, as well as aligns all the plugin versions together for maximum compatibility.
+You will lower your maintenance cost when upgrading to a newer version, both released and snapshots, as well as aligns all the plugin versions together for maximum compatibility.
 First, copy the following `pluginManagement` block to your settings script:
 
 .Configuring Gradle plugin resolution
