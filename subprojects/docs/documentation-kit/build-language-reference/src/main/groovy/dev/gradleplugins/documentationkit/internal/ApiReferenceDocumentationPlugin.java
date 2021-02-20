@@ -127,7 +127,6 @@ public class ApiReferenceDocumentationPlugin implements Plugin<Project> {
 						}
 					})));
 				val apiNode = node.getDescendant("dependencies").getDescendant("api");
-				node.getDescendant("dependencies").getDescendant("api").applyTo(self(ModelNodes.discover()).apply(executeUsingProjection(of(Configuration.class), c -> c.getAttributes().attribute(USAGE_ATTRIBUTE, objects.named(Usage.class, "api-reference-sources")))));
 				node.getDescendant("dependencies").getDescendant("manifestElements").applyTo(self(ModelNodes.discover()).apply(executeUsingProjection(of(Configuration.class), c -> {
 							c.getAttributes().attribute(USAGE_ATTRIBUTE, objects.named(Usage.class, "api-reference-manifest"));
 							c.extendsFrom(apiNode.get(Configuration.class));

@@ -1,9 +1,9 @@
 package dev.nokee.platform.ios;
 
 import dev.nokee.fixtures.NativeComponentMatchers;
+import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
-import dev.nokee.language.base.testers.FileSystemWorkspace;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.platform.base.Component;

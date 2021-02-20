@@ -5,7 +5,6 @@ import dev.nokee.model.DomainObjectView;
 import dev.nokee.model.internal.dsl.GroovyDslDefaultInvoker;
 import dev.nokee.model.internal.dsl.GroovyDslInvoker;
 import dev.nokee.model.internal.dsl.GroovyDslViewInvoker;
-import dev.nokee.utils.ProviderUtils;
 import groovy.lang.GroovyObjectSupport;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
@@ -17,9 +16,7 @@ import java.util.Set;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.descendentOf;
 import static dev.nokee.utils.ActionUtils.onlyIf;
-import static dev.nokee.utils.TransformerUtils.flatTransformEach;
-import static dev.nokee.utils.TransformerUtils.transformEach;
-import static dev.nokee.utils.TransformerUtils.toSetTransformer;
+import static dev.nokee.utils.TransformerUtils.*;
 
 public abstract class AbstractDomainObjectView<TYPE, T extends TYPE> extends GroovyObjectSupport {
 	protected final DomainObjectIdentifier viewOwner;
@@ -73,15 +70,15 @@ public abstract class AbstractDomainObjectView<TYPE, T extends TYPE> extends Gro
 	}
 
 	public <S> Provider<List<S>> map(Transformer<? extends S, ? super T> mapper) {
-		return elementsProvider.map(transformEach(mapper));
+		return elementsProvider.map(transformEach(mapper).andThen(toListTransformer()));
 	}
 
 	public <S> Provider<List<S>> flatMap(Transformer<? extends Iterable<S>, ? super T> mapper) {
-		return elementsProvider.map(flatTransformEach(mapper));
+		return elementsProvider.map(flatTransformEach(mapper).andThen(toListTransformer()));
 	}
 
 	public Provider<List<T>> filter(Spec<? super T> spec) {
-		return getElements().map(ProviderUtils.filter(spec));
+		return getElements().map(matching(spec).andThen(toListTransformer(getElementType())));
 	}
 
 	public <S extends T> DomainObjectView<S> withType(Class<S> type) {

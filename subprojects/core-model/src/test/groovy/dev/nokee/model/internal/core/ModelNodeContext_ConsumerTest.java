@@ -22,7 +22,7 @@ class ModelNodeContext_ConsumerTest {
 
 	@Test
 	void calledWithCurrentModelNode() {
-		assertThat(executeWith(function(subject::execute)), calledOnceWith(equalTo(node)));
+		assertThat(executeWith(function(subject::execute)), calledOnceWith(node));
 	}
 
 	@Test

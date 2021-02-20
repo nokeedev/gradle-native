@@ -15,7 +15,11 @@ import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -79,6 +83,31 @@ public class SiteBasePlugin implements Plugin<Project> {
 			task.from(sitemapTask.flatMap(GenerateSitemap::getGeneratedSitemapFile));
 			task.from((Callable<Object>) () -> site(project).map(SiteExtension::getSources).map(Collections::singletonList).orElseGet(Collections::emptyList));
 			task.setDestinationDir(project.getLayout().getBuildDirectory().dir("site").get().getAsFile());
+			task.setIncludeEmptyDirs(false);
+
+			task.doFirst(t -> {
+				site(project).ifPresent(site -> {
+					site.getSymbolicLinks().get().keySet().forEach(src -> {
+						try {
+							Files.deleteIfExists(task.getDestinationDir().toPath().resolve(src));
+						} catch (IOException e) {
+							throw new UncheckedIOException(e);
+						}
+					});
+				});
+			});
+
+			task.doLast(t -> {
+				site(project).ifPresent(site -> {
+					site.getSymbolicLinks().get().forEach((src, dst) -> {
+						try {
+							Files.createSymbolicLink(task.getDestinationDir().toPath().resolve(src), Paths.get(dst));
+						} catch (IOException e) {
+							throw new UncheckedIOException(e);
+						}
+					});
+				});
+			});
 		});
 
 		project.getTasks().register("site", task -> {

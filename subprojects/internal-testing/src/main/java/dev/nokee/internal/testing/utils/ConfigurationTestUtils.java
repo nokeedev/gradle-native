@@ -7,10 +7,11 @@ import org.gradle.api.artifacts.Configuration;
 import static dev.nokee.internal.testing.utils.TestUtils.rootProject;
 
 public final class ConfigurationTestUtils {
+	private static final String TEST_CONFIGURATION_NAME = "test";
 	private ConfigurationTestUtils() {}
 
 	public static Configuration testConfiguration() {
-		return rootProject().getConfigurations().create("test");
+		return testConfiguration(TEST_CONFIGURATION_NAME);
 	}
 
 	public static Configuration testConfiguration(String name) {
@@ -18,7 +19,11 @@ public final class ConfigurationTestUtils {
 	}
 
 	public static Configuration testConfiguration(Action<? super Configuration> action) {
-		val configuration = testConfiguration();
+		return testConfiguration(TEST_CONFIGURATION_NAME, action);
+	}
+
+	public static Configuration testConfiguration(String name, Action<? super Configuration> action) {
+		val configuration = testConfiguration(name);
 		action.execute(configuration);
 		return configuration;
 	}

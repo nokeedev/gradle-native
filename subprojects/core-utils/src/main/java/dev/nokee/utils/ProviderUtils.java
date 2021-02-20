@@ -1,25 +1,16 @@
 package dev.nokee.utils;
 
-import com.google.common.collect.ImmutableList;
-import lombok.EqualsAndHashCode;
-import org.gradle.api.Transformer;
 import org.gradle.api.internal.provider.DefaultProvider;
 import org.gradle.api.internal.provider.ProviderInternal;
 import org.gradle.api.internal.provider.Providers;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.specs.Spec;
-import org.gradle.api.specs.Specs;
 import org.gradle.util.GradleVersion;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.concurrent.Callable;
 
-import static dev.nokee.utils.TransformerUtils.constant;
-import static dev.nokee.utils.TransformerUtils.toListTransformer;
-import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
 public final class ProviderUtils {
@@ -71,48 +62,6 @@ public final class ProviderUtils {
 			return ((ProviderInternal<T>) self).getType();
 		}
 		return null;
-	}
-
-	/**
-	 * Adapts a spec to a Gradle collection provider transform.
-	 * The result will apply a filter algorithm to the provided collection.
-	 *
-	 * @param spec a filter spec
-	 * @param <T> element type to filter
-	 * @return a {@link Transformer} instance to filter the element of Gradle collection provider, never null.
-	 */
-	public static <T> Transformer<List<T>, Iterable<T>> filter(Spec<? super T> spec) {
-		if (Specs.satisfyAll().equals(spec)) {
-			return toListTransformer();
-		} else if (Specs.satisfyNone().equals(spec)) {
-			return constant(emptyList());
-		}
-		return new GradleCollectionProviderFilterAdapter<>(spec);
-	}
-
-	@EqualsAndHashCode
-	private static final class GradleCollectionProviderFilterAdapter<T> implements Transformer<List<T>, Iterable<T>> {
-		private final Spec<? super T> spec;
-
-		public GradleCollectionProviderFilterAdapter(Spec<? super T> spec) {
-			this.spec = requireNonNull(spec);
-		}
-
-		@Override
-		public List<T> transform(Iterable<T> elements) {
-			ImmutableList.Builder<T> result = ImmutableList.builder();
-			for (T element : elements) {
-				if (spec.isSatisfiedBy(element)) {
-					result.add(element);
-				}
-			}
-			return result.build();
-		}
-
-		@Override
-		public String toString() {
-			return "ProviderUtils.filter(" + spec + ")";
-		}
 	}
 
 	public static <S> Provider<S> forUseAtConfigurationTime(Provider<S> provider) {

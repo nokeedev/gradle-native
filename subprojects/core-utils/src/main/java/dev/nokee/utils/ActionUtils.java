@@ -2,8 +2,8 @@ package dev.nokee.utils;
 
 import lombok.EqualsAndHashCode;
 import lombok.val;
+import org.gradle.api.Transformer;
 import org.gradle.api.specs.Spec;
-import org.gradle.api.specs.Specs;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static dev.nokee.utils.TransformerUtils.isNoOpTransformer;
 import static java.util.Objects.requireNonNull;
 
 public final class ActionUtils {
@@ -35,6 +36,37 @@ public final class ActionUtils {
 		@Override
 		public String toString() {
 			return "ActionUtils.doNothing()";
+		}
+	}
+
+	public static <A, B> Action<A> compose(org.gradle.api.Action<? super B> g, Transformer<? extends B, ? super A> f) {
+		if (doesNothing(g)) {
+			return doNothing();
+		} else if (isNoOpTransformer(f)) {
+			return Cast.uncheckedCast("no op transformer implies the output type is the same", g);
+		}
+		return new ComposeAction<>(g, f);
+	}
+
+	/** @see #compose(org.gradle.api.Action, Transformer) */
+	@EqualsAndHashCode
+	private static final class ComposeAction<A, B> implements Action<A> {
+		private final org.gradle.api.Action<? super B> g;
+		private final Transformer<? extends B, ? super A> f;
+
+		public ComposeAction(org.gradle.api.Action<? super B> g, Transformer<? extends B, ? super A> f) {
+			this.g = requireNonNull(g);
+			this.f = requireNonNull(f);
+		}
+
+		@Override
+		public void execute(A in) {
+			g.execute(f.transform(in));
+		}
+
+		@Override
+		public String toString() {
+			return "ActionUtils.compose(" + g + ", " + f + ")";
 		}
 	}
 
@@ -71,8 +103,12 @@ public final class ActionUtils {
 		}
 	}
 
-	public static boolean doesSomething(org.gradle.api.Action<?> action) {
+	static boolean doesSomething(org.gradle.api.Action<?> action) {
 		return action != DoNothingAction.INSTANCE;
+	}
+
+	static boolean doesNothing(org.gradle.api.Action<?> action) {
+		return action == DoNothingAction.INSTANCE;
 	}
 
 	/**
@@ -84,9 +120,9 @@ public final class ActionUtils {
 	 * @return an action delegating to the specified action only if the spec is satisfied at execution, never null.
 	 */
 	public static <T> Action<T> onlyIf(Spec<? super T> spec, org.gradle.api.Action<? super T> action) {
-		if (Specs.satisfyAll().equals(spec) || SpecUtils.satisfyAll().equals(spec)) {
+		if (SpecUtils.isSatisfyAll(spec)) {
 			return Action.of(action);
-		} else if (Specs.satisfyNone().equals(spec) || SpecUtils.satisfyNone().equals(spec)) {
+		} else if (SpecUtils.isSatisfyNone(spec)) {
 			return doNothing();
 		}
 		return new SpecFilteringAction<>(spec, action);

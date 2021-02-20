@@ -84,7 +84,7 @@ dependencies {
 
 extensions.components.apiReference {
 	dependencies {
-		(rootProject.allprojects - [project(':docs'), project(':distributions:all'), project(':distributions:bom'), project(':docs:exemplarKit'), project(':internalTesting')]).each {
+		(rootProject.allprojects - [project(':docs'), project(':distributions'), project(':distributions:all'), project(':distributions:bom'), project(':docs:exemplarKit'), project(':internalTesting')]).each {
 			api.addDependency(it)
 		}
 	}

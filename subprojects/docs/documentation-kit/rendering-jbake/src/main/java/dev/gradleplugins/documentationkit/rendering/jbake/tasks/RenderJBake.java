@@ -7,7 +7,7 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.tasks.*;
-import org.gradle.workers.ClassLoaderWorkerSpec;
+import org.gradle.workers.ProcessWorkerSpec;
 import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
@@ -36,10 +36,10 @@ public abstract class RenderJBake extends DefaultTask {
 	@TaskAction
 	private void doRender() throws IOException {
 		FileUtils.cleanDirectory(getDestinationDirectory().get().getAsFile());
-		workers.classLoaderIsolation(this::configureClasspath).submit(JBakeWorkAction.class, this::configureAction);
+		workers.processIsolation(this::configureClasspath).submit(JBakeWorkAction.class, this::configureAction);
 	}
 
-	private void configureClasspath(ClassLoaderWorkerSpec spec) {
+	private void configureClasspath(ProcessWorkerSpec spec) {
 		spec.getClasspath().from(getClasspath());
 	}
 

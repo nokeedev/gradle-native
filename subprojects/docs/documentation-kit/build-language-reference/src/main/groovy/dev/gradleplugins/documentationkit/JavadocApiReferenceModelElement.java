@@ -5,6 +5,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.type.TypeOf;
+import dev.nokee.utils.ConfigureUtils;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.Property;
@@ -27,6 +28,15 @@ public final class JavadocApiReferenceModelElement implements JavadocApiReferenc
 	@Override
 	public Property<String> getPermalink() {
 		return getNode().getDescendant("permalink").realize().get(of(new TypeOf<Property<String>>() {}));
+	}
+
+	@Override
+	public Property<String> getTitle() {
+		return getNode().getDescendant("title").realize().get(of(new TypeOf<Property<String>>() {}));
+	}
+
+	public void setTitle(Object value) {
+		ConfigureUtils.setPropertyValue(getTitle(), value);
 	}
 
 	@Override

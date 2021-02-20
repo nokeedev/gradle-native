@@ -18,17 +18,22 @@ class GradleNamedMatchersTest {
 	@Test
 	void givesSensibleErrorMessage() {
 		assertThat(description(it -> named("foo").describeMismatch(objectFactory().named(Named.class, "bar"), it)),
-			hasToString("Named's name was \"bar\""));
+			hasToString("the object's name was \"bar\""));
 	}
 
 	@Test
 	void canCheckNamedObject() {
-		assertThat(objectFactory().named(Named.class, "foo"), named("foo"));
+		assertThat(objectFactory().named(Named.class, "aNamedObject"), named("aNamedObject"));
 	}
 
 	@Test
 	void canCheckConfigurationObject() {
-		assertThat(rootProject().getConfigurations().create("bar"), named("bar"));
+		assertThat(rootProject().getConfigurations().create("aConfiguration"), named("aConfiguration"));
+	}
+
+	@Test
+	void canCheckTaskObject() {
+		assertThat(rootProject().getTasks().create("aTask"), named("aTask"));
 	}
 
 	private static Description description(Consumer<? super Description> action) {

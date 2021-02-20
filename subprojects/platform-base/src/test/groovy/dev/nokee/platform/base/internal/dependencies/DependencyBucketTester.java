@@ -13,6 +13,7 @@ import static dev.nokee.internal.testing.utils.TestUtils.rootProject;
 import static dev.nokee.utils.ActionUtils.doNothing;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 
 interface DependencyBucketTester<T extends DependencyBucket> {
 	default T createSubject() {
@@ -43,14 +44,14 @@ interface DependencyBucketTester<T extends DependencyBucket> {
 	default void canAddDependency() {
 		val project = rootProject();
 		createSubject(project).addDependency("com.example:foo:4.2");
-		assertThat(project, hasConfiguration(hasDependency(forCoordinate("com.example:foo:4.2"))));
+		assertThat(project, hasConfiguration(dependencies(hasItem(forCoordinate("com.example:foo:4.2")))));
 	}
 
 	@Test
 	default void canAddDependencyWithConfigurationAction() {
 		val project = rootProject();
 		createSubject(project).addDependency("com.example:foo:4.2", doNothing());
-		assertThat(project, hasConfiguration(hasDependency(forCoordinate("com.example:foo:4.2"))));
+		assertThat(project, hasConfiguration(dependencies(hasItem(forCoordinate("com.example:foo:4.2")))));
 	}
 
 	@Test
