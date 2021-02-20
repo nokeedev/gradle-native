@@ -13,6 +13,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TransformerUtils_ToListTransformerTest {
 	@Test
@@ -26,6 +27,11 @@ class TransformerUtils_ToListTransformerTest {
 		Set<Object> obj = of("a", "b", "c");
 		val result = assertDoesNotThrow(() -> toListTransformer(String.class).transform(obj));
 		assertThat(result, containsInAnyOrder("a", "b", "c"));
+	}
+
+	@Test
+	void throwsExceptionWhenCastingObject() {
+		assertThrows(ClassCastException.class, () -> toListTransformer(Number.class).transform(of("a", "b", "c")));
 	}
 
 	@Test
