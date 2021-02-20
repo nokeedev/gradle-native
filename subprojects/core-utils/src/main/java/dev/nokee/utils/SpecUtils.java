@@ -9,6 +9,8 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNull;
+
 public final class SpecUtils {
 	private SpecUtils() {}
 
@@ -17,6 +19,7 @@ public final class SpecUtils {
 	}
 
 	public static <T> Optional<Class<? extends T>> getTypeFiltered(org.gradle.api.specs.Spec<T> spec) {
+		requireNonNull(spec);
 		if (spec instanceof ByTypeSpec) {
 			return Optional.of(((ByTypeSpec<T>) spec).getType());
 		}
@@ -28,7 +31,7 @@ public final class SpecUtils {
 		private final Class<? extends T> type;
 
 		public ByTypeSpec(Class<? extends T> type) {
-			this.type = type;
+			this.type = requireNonNull(type);
 		}
 
 		public Class<? extends T> getType() {
@@ -63,8 +66,8 @@ public final class SpecUtils {
 		private final Transformer<? extends B, ? super A> transformer;
 
 		public ComposeSpec(org.gradle.api.specs.Spec<? super B> spec, Transformer<? extends B, ? super A> transformer) {
-			this.spec = spec;
-			this.transformer = transformer;
+			this.spec = requireNonNull(spec);
+			this.transformer = requireNonNull(transformer);
 		}
 
 		@Override
@@ -85,6 +88,7 @@ public final class SpecUtils {
 		return new SubtypeOfSpec(clazz);
 	}
 
+	/** @see #subtypeOf(Class) */
 	@EqualsAndHashCode
 	private static final class SubtypeOfSpec implements Spec<Class<?>> {
 		private final Class<?> type;
@@ -112,6 +116,7 @@ public final class SpecUtils {
 	}
 
 	public static <T> Spec<Object> instanceOf(Class<T> clazz, org.gradle.api.specs.Spec<? super T> andSpec) {
+		requireNonNull(andSpec);
 		if (Object.class.equals(clazz)) {
 			return satisfyAll();
 		}
@@ -124,7 +129,7 @@ public final class SpecUtils {
 		private final Class<?> clazz;
 
 		public InstanceOfSpec(Class<?> clazz) {
-			this.clazz = clazz;
+			this.clazz = requireNonNull(clazz);
 		}
 
 		@Override
@@ -217,7 +222,7 @@ public final class SpecUtils {
 		private final org.gradle.api.specs.Spec<? super T> sourceSpec;
 
 		public NegateSpec(org.gradle.api.specs.Spec<? super T> spec) {
-			this.sourceSpec = spec;
+			this.sourceSpec = requireNonNull(spec);
 		}
 
 		public org.gradle.api.specs.Spec<? super T> getSourceSpec() {
@@ -261,8 +266,8 @@ public final class SpecUtils {
 		private final Set<org.gradle.api.specs.Spec<? super T>> specs = new LinkedHashSet<>();
 
 		public OrSpec(org.gradle.api.specs.Spec<? super T> first, org.gradle.api.specs.Spec<? super T> second) {
-			specs.add(first);
-			specs.add(second);
+			specs.add(requireNonNull(first));
+			specs.add(requireNonNull(second));
 		}
 
 		@Override
@@ -308,8 +313,8 @@ public final class SpecUtils {
 		private final Set<org.gradle.api.specs.Spec<? super T>> specs = new LinkedHashSet<>();
 
 		public AndSpec(org.gradle.api.specs.Spec<? super T> first, org.gradle.api.specs.Spec<? super T> second) {
-			this.specs.add(first);
-			this.specs.add(second);
+			this.specs.add(requireNonNull(first));
+			this.specs.add(requireNonNull(second));
 		}
 
 		@Override
@@ -375,7 +380,7 @@ public final class SpecUtils {
 		private final org.gradle.api.specs.Spec<? super T> sourceSpec;
 
 		private WrappedSpec(org.gradle.api.specs.Spec<? super T> sourceSpec) {
-			this.sourceSpec = sourceSpec;
+			this.sourceSpec = requireNonNull(sourceSpec);
 		}
 
 		@Override
