@@ -110,6 +110,7 @@ public class DslReferenceDocumentationPlugin implements Plugin<Project> {
 			.action(self(mutate(of(DslReferenceDocumentation.class), component -> {
 				if (pluginManager.hasPlugin("java")) {
 					component.getDependencies().getDslMetaData().getAsConfiguration().extendsFrom(configurations.getByName("implementation"));
+					component.getDependencies().getDslMetaDataElements().getAsConfiguration().extendsFrom(configurations.getByName("implementation"));
 				}
 
 				component.getDslMetaData().getSources().from(mainJavaSourcesIfAvailable(project.getExtensions()));
