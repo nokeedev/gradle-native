@@ -157,6 +157,9 @@ subprojects {
 
 // Configure Documentation
 subprojects { prj ->
+	if (prj.name == 'internalTesting') {
+		return; // skip
+	}
 	pluginManager.apply('dev.gradleplugins.documentation.dsl-reference')
 	pluginManager.apply('dev.gradleplugins.documentation.api-reference')
 	pluginManager.apply('dev.gradleplugins.documentation.javadoc-render')
