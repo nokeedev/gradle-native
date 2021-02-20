@@ -46,6 +46,7 @@ import org.w3c.dom.Element
 
 import java.nio.charset.Charset
 import java.nio.file.Path
+
 /**
  * Generates the docbook source for the DSL reference guide.
  *
@@ -216,7 +217,7 @@ abstract class AssembleDslDocTask extends DefaultTask {
 
 	private String serialize(ClassDoc element, DocLinkBuilder linkBuilder) {
 		try {
-			def bindings = ImmutableMap.of("content", element, "linkBuilder", linkBuilder, "renderer", AsciidoctorRenderer.INSTANCE)
+			def bindings = ImmutableMap.of("content", element, "linkBuilder", linkBuilder, "renderer", new AsciidoctorRenderer())
 			Binding.metaClass.include << { path ->
 				Path p = getTemplateFile().get().getAsFile().parentFile.toPath().resolve(path)
 				return new GStringTemplateEngine().createTemplate(p.toFile()).make(bindings).toString()
