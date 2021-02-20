@@ -5,7 +5,6 @@ import dev.nokee.model.DomainObjectView;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.utils.ProviderUtils;
 import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
@@ -121,8 +120,7 @@ abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn
 
 	@Override
 	public final Provider<List<T>> filter(Spec<? super T> spec) {
-		// TODO: rename and move ProviderUtils.filter to TransformerUtils.onlyIf ????
-		return getElements().map(ProviderUtils.filter(spec).andThen(toListTransformer(elementType.getConcreteType())));
+		return getElements().map(matching(spec).andThen(toListTransformer(elementType.getConcreteType())));
 	}
 
 	@Override

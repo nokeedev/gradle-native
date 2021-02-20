@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.api.specs.Spec;
 import org.gradle.internal.Transformers;
 
 import javax.annotation.Nullable;
@@ -13,6 +14,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
 public final class TransformerUtils {
@@ -331,6 +333,49 @@ public final class TransformerUtils {
 		@Override
 		public String toString() {
 			return "TransformerUtils.forSupplier(" + supplier + ")";
+		}
+	}
+
+	/**
+	 * Returns a transformer that return an iterable with only the element matching the specified specification.
+	 * The result will apply a filter algorithm to the provided collection.
+	 *
+	 * @param spec  a filter spec, must not be null
+	 * @param <T>  element type to match
+	 * @return a {@link org.gradle.api.Transformer} instance to match the element of an iterable, never null.
+	 */
+	public static <E, T extends Iterable<? extends E>> TransformerUtils.Transformer<Iterable<E>, T> matching(Spec<? super E> spec) {
+		if (SpecUtils.isSatisfyAll(spec)) {
+			return NoOpTransformer.INSTANCE.withNarrowTypes();
+		} else if (SpecUtils.isSatisfyNone(spec)) {
+			return constant(emptyList());
+		}
+		return new MatchingTransformerAdapter<>(spec);
+	}
+
+	/** @see #matching(Spec) */
+	@EqualsAndHashCode
+	private static final class MatchingTransformerAdapter<E, T extends Iterable<? extends E>> implements TransformerUtils.Transformer<Iterable<E>, T> {
+		private final Spec<? super E> spec;
+
+		public MatchingTransformerAdapter(Spec<? super E> spec) {
+			this.spec = requireNonNull(spec);
+		}
+
+		@Override
+		public Iterable<E> transform(T elements) {
+			val result = ImmutableList.<E>builder();
+			for (E element : elements) {
+				if (spec.isSatisfiedBy(element)) {
+					result.add(element);
+				}
+			}
+			return result.build();
+		}
+
+		@Override
+		public String toString() {
+			return "TransformerUtils.matching(" + spec + ")";
 		}
 	}
 

@@ -5,7 +5,6 @@ import dev.nokee.model.DomainObjectView;
 import dev.nokee.model.internal.dsl.GroovyDslDefaultInvoker;
 import dev.nokee.model.internal.dsl.GroovyDslInvoker;
 import dev.nokee.model.internal.dsl.GroovyDslViewInvoker;
-import dev.nokee.utils.ProviderUtils;
 import groovy.lang.GroovyObjectSupport;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
@@ -79,7 +78,7 @@ public abstract class AbstractDomainObjectView<TYPE, T extends TYPE> extends Gro
 	}
 
 	public Provider<List<T>> filter(Spec<? super T> spec) {
-		return getElements().map(ProviderUtils.filter(spec).andThen(toListTransformer(getElementType())));
+		return getElements().map(matching(spec).andThen(toListTransformer(getElementType())));
 	}
 
 	public <S extends T> DomainObjectView<S> withType(Class<S> type) {
