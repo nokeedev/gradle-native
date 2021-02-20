@@ -13,8 +13,7 @@ import static dev.nokee.internal.testing.ExecuteWith.called;
 import static dev.nokee.internal.testing.ExecuteWith.supplier;
 import static dev.nokee.utils.TransformerUtils.forSupplier;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class TransformerUtils_ForSupplierTest {
@@ -73,5 +72,10 @@ class TransformerUtils_ForSupplierTest {
 	void checkToString() {
 		assertThat(forSupplier(ofInstance(42)),
 			hasToString("TransformerUtils.forSupplier(Suppliers.ofInstance(42))"));
+	}
+
+	@Test
+	void returnsEnhanceTransformer() {
+		assertThat(forSupplier(ofInstance(42)), isA(TransformerUtils.Transformer.class));
 	}
 }

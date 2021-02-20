@@ -77,4 +77,9 @@ class TransformerUtils_MatchingTest {
 		assertThat(matching(Specs.satisfyNone()), equalTo(constant(emptyList())));
 		assertThat(matching(SpecUtils.satisfyNone()), equalTo(constant(emptyList())));
 	}
+
+	@Test
+	void returnsEnhanceTransformer() {
+		assertThat(matching(aSpec()), isA(TransformerUtils.Transformer.class));
+	}
 }
