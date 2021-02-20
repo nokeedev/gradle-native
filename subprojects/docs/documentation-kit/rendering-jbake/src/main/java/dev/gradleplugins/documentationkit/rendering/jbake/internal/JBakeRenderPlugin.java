@@ -32,7 +32,6 @@ import javax.inject.Inject;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -167,7 +166,9 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 			task.setDescription("Bakes with JBake");
 			task.getSourceDirectory().fileProvider(stageTask.map(Sync::getDestinationDir));
 			task.getDestinationDirectory().set(project.getLayout().getBuildDirectory().dir("jbake"));
-			task.getConfigurations().putAll(configuration.getIncoming().getFiles().getElements().map(transformEach(JBakeRenderPlugin::loadPropertiesFileIfAvailable).andThen(JBakeRenderPlugin::mergeConfigurations)));
+			task.getConfigurations().putAll(configuration.getIncoming().getFiles().getElements().map(
+				transformEach(JBakeRenderPlugin::loadPropertiesFileIfAvailable)
+					.andThen(JBakeRenderPlugin::mergeConfigurations)));
 			task.getConfigurations().put("working.directory", stageTask.map(this::relativeToProjectDirectory));
 			task.getConfigurations().putAll(extension.getConfigurations());
 			task.getClasspath()
@@ -257,7 +258,7 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 		return builder.build();
 	}
 
-	private static Map<String, Object> mergeConfigurations(List<Map<String, Object>> configurations) {
+	private static Map<String, Object> mergeConfigurations(Iterable<Map<String, Object>> configurations) {
 		val builder = ImmutableMap.<String, Object>builder();
 		configurations.forEach(builder::putAll);
 		return builder.build();
