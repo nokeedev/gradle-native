@@ -1,5 +1,6 @@
 package dev.nokee.language.base.testers;
 
+import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.utils.ClosureTestUtils;
 import dev.nokee.language.base.LanguageSourceSet;
 import lombok.val;
@@ -14,7 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import static dev.nokee.language.base.testers.FileSystemWorkspace.newFiles;
+import static dev.nokee.internal.testing.FileSystemWorkspace.newFiles;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.Mockito.times;

@@ -1,7 +1,7 @@
 package dev.nokee.platform.base.testers;
 
+import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.testers.FileSystemWorkspace;
 import dev.nokee.platform.base.SourceAwareComponent;
 import groovy.lang.Closure;
 import lombok.SneakyThrows;

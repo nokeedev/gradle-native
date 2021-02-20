@@ -1,4 +1,4 @@
-package dev.nokee.language.base.testers;
+package dev.nokee.internal.testing;
 
 import dev.nokee.internal.testing.utils.TestUtils;
 import lombok.val;
@@ -8,6 +8,7 @@ import org.gradle.api.file.ConfigurableFileTree;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public final class FileSystemWorkspace {
 	private Project project = null;
@@ -16,6 +17,10 @@ public final class FileSystemWorkspace {
 	// TODO: Not sure if this should really be public, maybe move bridge test in the fixtures...
 	public FileSystemWorkspace(File workspaceDirectory) throws IOException {
 		this.workspaceDirectory = workspaceDirectory.getCanonicalFile();
+	}
+
+	public FileSystemWorkspace(Path workspaceDirectory) throws IOException {
+		this(workspaceDirectory.toFile());
 	}
 
 	public File file(String path) {

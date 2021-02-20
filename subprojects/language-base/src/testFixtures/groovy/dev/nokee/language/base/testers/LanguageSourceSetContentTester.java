@@ -1,6 +1,7 @@
 package dev.nokee.language.base.testers;
 
 import com.google.common.util.concurrent.Callables;
+import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.language.base.LanguageSourceSet;
 import lombok.val;
@@ -14,7 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static dev.nokee.language.base.testers.FileSystemWorkspace.newFiles;
+import static dev.nokee.internal.testing.FileSystemWorkspace.newFiles;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;

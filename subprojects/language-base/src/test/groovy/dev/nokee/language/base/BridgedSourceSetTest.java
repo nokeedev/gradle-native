@@ -1,8 +1,8 @@
 package dev.nokee.language.base;
 
+import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.language.base.internal.BridgedLanguageSourceSetProjection;
-import dev.nokee.language.base.testers.FileSystemWorkspace;
 import dev.nokee.language.base.testers.LanguageSourceSetTester;
 import lombok.val;
 import org.gradle.api.file.SourceDirectorySet;
@@ -13,10 +13,10 @@ import spock.lang.Subject;
 import java.io.File;
 import java.io.IOException;
 
+import static dev.nokee.internal.testing.FileSystemWorkspace.newFiles;
 import static dev.nokee.internal.testing.utils.TestUtils.createRootProject;
 import static dev.nokee.internal.testing.utils.TestUtils.objectFactory;
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.bridgeSourceSet;
-import static dev.nokee.language.base.testers.FileSystemWorkspace.newFiles;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 import static org.hamcrest.MatcherAssert.assertThat;
