@@ -52,7 +52,7 @@ public abstract class UriService {
 				config.getRequest().setUri(uri);
 
 				Map<String, CharSequence> headers = new HashMap<>();
-				headers.put("User-Agent", "nokee-labs/0.0.0.1");
+				headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36");
 				config.getRequest().setHeaders(headers);
 				config.getResponse().when(404, (a,b) -> { throw new RuntimeException(); });
 			});
