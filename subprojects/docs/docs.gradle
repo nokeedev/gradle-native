@@ -73,6 +73,7 @@ dependencies {
 	docsTestImplementation testFixtures(project('exemplarKit'))
 
 	content project(':coreModel')
+	content project(':ideXcode')
 	content project(':languageBase')
 	content project(':languageNative')
 	content project(':languageC')
