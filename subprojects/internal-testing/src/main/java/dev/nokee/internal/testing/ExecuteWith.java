@@ -1,5 +1,6 @@
 package dev.nokee.internal.testing;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import groovy.lang.Closure;
 import lombok.val;
@@ -173,6 +174,59 @@ public final class ExecuteWith {
 		};
 	}
 
+	public interface SupplierExecutionStrategy<R> extends ExecutionStrategy<Void> {
+		SupplierExecutionStrategy<R> thenReturn(R value);
+		SupplierExecutionStrategy<R> thenAnswer(Answer<R> answer);
+		SupplierExecutionStrategy<R> thenThrow(Throwable throwable);
+		SupplierExecutionStrategy<R> captureUsing(ContextualCaptor<?> captor);
+	}
+
+	public static <T, R> SupplierExecutionStrategy<R> supplier(ThrowingConsumer<? super Supplier<? extends R>> execution) {
+		return new SupplierExecutionStrategy<R>() {
+			private final List<ContextualCaptorAnswer<?>> contextCaptors = new ArrayList<>();
+			private Answer<R> answer = t -> null;
+
+			@Override
+			public SupplierExecutionStrategy<R> thenReturn(R value) {
+				answer = t -> value;
+				return this;
+			}
+
+			@Override
+			public SupplierExecutionStrategy<R> thenAnswer(Answer<R> answer) {
+				this.answer = answer;
+				return this;
+			}
+
+			@Override
+			public SupplierExecutionStrategy<R> thenThrow(Throwable throwable) {
+				answer = t -> { throw throwable; };
+				return this;
+			}
+
+			@Override
+			public SupplierExecutionStrategy<R> captureUsing(ContextualCaptor<?> captor) {
+				contextCaptors.add((ContextualCaptorAnswer<?>) captor);
+				return this;
+			}
+
+			@Override
+			public ExecutionResult<Void> execute() throws Throwable {
+				Supplier<R> action = Cast.uncheckedCast(Mockito.mock(Supplier.class));
+				MutableInt calledCount = new MutableInt(0);
+				Mockito.when(action.get()).thenAnswer(t -> {
+					calledCount.increment();
+					for (ContextualCaptorAnswer<?> contextCaptor : contextCaptors) {
+						contextCaptor.answer(t);
+					}
+					return answer.answer(t);
+				});
+				execution.accept(action);
+				return new ActionExecutionResult<>(calledCount.intValue());
+			}
+		};
+	}
+
 	public interface FunctionExecutionStrategy<T, R> extends ExecutionStrategy<T> {
 		FunctionExecutionStrategy<T, R> thenReturn(R value);
 		FunctionExecutionStrategy<T, R> thenAnswer(Answer<R> answer);
@@ -325,9 +379,16 @@ public final class ExecuteWith {
 
 	private static class ActionExecutionResult<T> implements ExecutionResult<T> {
 		private final List<T> arguments;
+		private final int calledCount;
 
 		private ActionExecutionResult(List<T> arguments) {
 			this.arguments = arguments;
+			this.calledCount = arguments.size();
+		}
+
+		private ActionExecutionResult(int calledCount) {
+			this.arguments = ImmutableList.of();
+			this.calledCount = calledCount;
 		}
 
 		public T getLastArgument() {
@@ -335,7 +396,7 @@ public final class ExecuteWith {
 		}
 
 		public int getCalledCount() {
-			return arguments.size();
+			return calledCount;
 		}
 	}
 
