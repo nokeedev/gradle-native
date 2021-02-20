@@ -1,6 +1,7 @@
 package dev.gradleplugins.documentationkit;
 
 import lombok.Data;
+import lombok.ToString;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.simpleframework.xml.Element;
@@ -49,6 +50,7 @@ public final class DependencySerializer {
 	}
 
 	@Root
+	@ToString
 	public static final class Dependencies {
 		@ElementList(inline = true, type = Dependency.class)
 		private List<Dependency> dependencies;
