@@ -185,12 +185,31 @@ jobs:
                     arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
+    check-baked-documentation:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+            -   uses: actions/setup-java@v1
+                with:
+                    java-version: '8'
+            -   name: (linux) Install documentation dependencies
+                if: matrix.os == 'ubuntu-latest'
+                run: sudo apt-get update && sudo apt-get -y install graphviz asciinema imagemagick gifsicle ffmpeg tree && sudo npm --global install asciicast2gif giflossy --unsafe-perm
+            -   name: (linux) Install gcc dependencies
+                if: matrix.os == 'ubuntu-latest'
+                run: sudo apt-get update && sudo apt-get -y install gobjc-8-multilib gobjc++-8-multilib gcc-8-multilib g++-8-multilib gobjc-9-multilib gobjc++-9-multilib gcc-9-multilib g++-9-multilib libpthread-stubs0-dev
+            -   name: Run all tests
+                id: gradle
+                uses: eskatos/gradle-command-action@v1
+                with:
+                    arguments: :docs:bakedDocsTest --scan --continue --no-daemon --no-build-cache "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
+                    wrapper-cache-enabled: true
+                    dependencies-cache-enabled: true
     check-documentations:
         runs-on: ${{ matrix.os }}
         strategy:
             fail-fast: false
             matrix:
-                checkTask: [':docs:docsTest', ':docs:bakedDocsTest']
                 os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
         steps:
             -   uses: actions/checkout@v2
@@ -210,12 +229,12 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon --no-build-cache "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
+                    arguments: :docs:docsTest --scan --continue --no-daemon --no-build-cache "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
     publish-head-milestone:
         if: github.ref == 'refs/heads/master'
-        needs: [linux, macos, windows, check-documentations]
+        needs: [linux, macos, windows, check-documentations, check-baked-documentation]
         runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v2
