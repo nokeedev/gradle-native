@@ -2,7 +2,7 @@
 	def path='../'
 	if (content.uri.endsWith('release-notes.html')) {
 		path=''
-	} else if (content.uri.contains('/samples/') && !content.uri.endsWith('/samples/index.html')) {
+	} else if (content.uri.startsWith('samples/') && !content.uri.equals('samples/index.html')) {
 		path = '../../'
 	}
 

@@ -11,10 +11,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public final class AsciidoctorRenderer implements Renderer<String> {
-	public static final AsciidoctorRenderer INSTANCE = new AsciidoctorRenderer();
 	private int literalCount = 0;
 
-	private AsciidoctorRenderer() {
+	public AsciidoctorRenderer() {
 	}
 
 	public String render(List<Element> elements) {

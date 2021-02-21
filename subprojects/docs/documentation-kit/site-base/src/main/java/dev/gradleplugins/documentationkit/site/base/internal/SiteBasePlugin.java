@@ -43,6 +43,13 @@ public class SiteBasePlugin implements Plugin<Project> {
 		});
 
 		val sitemapTask = tasks.register("sitemap", GenerateSitemap.class, task -> {
+			task.dependsOn((Callable<Object>) () -> {
+				val extension = site(project);
+				if (extension.isPresent()) {
+					return extension.get().getSources();
+				}
+				return Collections.emptyList();
+			});
 			task.setGroup("documentation");
 			task.getGeneratedSitemapFile().value(project.getLayout().getBuildDirectory().file("tmp/" + task.getName() + "/sitemap.xml")).disallowChanges();
 			task.getSitemapUrls().addAll(project.provider(() -> {

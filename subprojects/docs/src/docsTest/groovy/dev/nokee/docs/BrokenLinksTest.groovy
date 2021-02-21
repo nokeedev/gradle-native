@@ -19,9 +19,16 @@ class BrokenLinksTest extends Specification {
 					return false
 				}
 				if (uri.toString().contains("/docs.gradle.org/")) {
-					return false
+					return uri.toString().contains('/javadoc/org/gradle/internal.metaobject');
 				}
-				return uri.toString().contains("/services") || uri.toString().contains("/blog") || uri.toString().contains('/current/') || uri.toString().endsWith("/baked/index.html") || uri.toString().contains('/api/javax/annotation/Nonnull.html') || uri.toString().contains('/github.com/')
+				return uri.toString().contains("/services") ||
+					uri.toString().contains("/blog") ||
+					uri.toString().contains('/current/') ||
+					uri.toString().endsWith("/baked/index.html") ||
+					uri.toString().contains('/api/javax/annotation/Nullable.html') ||
+					uri.toString().contains('/api/javax/annotation/Nonnull.html') ||
+					uri.toString().contains('/github.com/') ||
+					uri.toString().contains('/javadoc/')
 			}
 		}).reportBrokenLinks(new File(System.getProperty('bakedContentDirectory')))
 		report.assertNoFailures()

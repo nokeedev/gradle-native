@@ -1,15 +1,19 @@
+import dev.gradleplugins.documentationkit.JavadocApiReference
 import dev.gradleplugins.fixtures.sample.JavaBasicGradlePlugin
 import dev.nokee.docs.PluginManagementBlock
 import dev.nokee.docs.tasks.AsciicastCompile
 import dev.nokee.docs.tasks.CreateAsciinema
 import dev.nokee.docs.tasks.ExtractScreenshot
 import dev.nokee.docs.tasks.GifCompile
+import dev.nokee.model.internal.registry.ModelLookup
 import dev.nokee.platform.ios.fixtures.ObjectiveCIosApp
 import dev.nokee.platform.ios.fixtures.SwiftIosApp
 import dev.nokee.platform.jni.fixtures.*
 import dev.nokee.platform.nativebase.fixtures.*
 
 import java.text.SimpleDateFormat
+
+import static dev.nokee.model.internal.core.ModelPath.path
 
 buildscript {
 	repositories {
@@ -69,6 +73,7 @@ dependencies {
 	docsTestImplementation testFixtures(project('exemplarKit'))
 
 	content project(':coreModel')
+	content project(':ideXcode')
 	content project(':languageBase')
 	content project(':languageNative')
 	content project(':languageC')
@@ -90,6 +95,11 @@ extensions.components.apiReference {
 	}
 }
 extensions.components.apiReference.get().dependencies.api
+def lookup = project.getExtensions().getByType(ModelLookup.class);
+def apiReference = lookup.get(path("components.apiReference.javadoc")).get(JavadocApiReference)
+tasks.named('stageDocumentation', Sync) {
+	it.from(apiReference.destinationDirectory) // TODO: We should use some sort of permalink but it's already in it's permalink location
+}
 
 documentation {
 	samples.configureEach { minimumGradleVersion = project.minimumGradleVersion }
@@ -228,37 +238,17 @@ publishing {
 		}
 		baked(MavenPublication) {
 			from components.baked
-			artifactId = 'nightly'
+			artifactId = 'docs'
 			group = 'dev.nokee.docs'
-			// Use date/time as the version because commits mess-up the "latest" search
-			version = new SimpleDateFormat("yyyyMMddHHmm").format(new Date())
 		}
 	}
 	repositories {
 		maven {
-			name = 'S3'
-			credentials(AwsCredentials) {
-				it.accessKey = resolveProperty(project, "AWS_ACCESS_KEY", "dev.nokee.aws.user")
-				it.secretKey = resolveProperty(project, "AWS_SECRET_KEY", "dev.nokee.aws.key")
-			}
+			name = 'docsNokeeDev'
+			credentials(AwsCredentials)
 			url = 's3://docs.nokee.dev/'
 		}
 	}
-}
-
-private String resolveProperty(Project project, String envVarKey, String projectPropKey) {
-	Object propValue = System.getenv().get(envVarKey);
-
-	if (propValue != null) {
-		return propValue.toString();
-	}
-
-	propValue = project.findProperty(projectPropKey);
-	if (propValue != null) {
-		return propValue.toString();
-	}
-
-	return null;
 }
 
 afterEvaluate {

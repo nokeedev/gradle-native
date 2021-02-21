@@ -16,20 +16,14 @@
 		]
 	}
 
-	def m = (content.uri =~ /docs\/(current|nightly|\d+\.\d+\.\d+)\/.+/)
-	def version = 'current'
-	if (m.matches()) {
-		version = m.group(1)
-	}
-
 	def getBreadcrumbs = {
 		def kBlogCrumb = crumb('Blog', "${config.site_host}/blog/")
 		def kContentCrumb = crumb(content.title, "${config.site_host}/${content.uri}")
-		def kUserManualCrumb = crumb('User Manual', "${config.site_host}/docs/${version}/manual/user-manual.html")
-		def kReferencePluginsCrumb = crumb('Reference Plugins', "${config.site_host}/docs/${version}/manual/plugin-references.html")
-		def kSamplesCrumb = crumb('Samples', "${config.site_host}/docs/${version}/samples/")
-		def kReleaseNotesCrumb = crumb('Release Notes', "${config.site_host}/docs/${version}/release-notes.html")
-		def kDslCrumb = crumb('Domain Specific Language', "${config.site_host}/docs/${version}/dsl/")
+		def kUserManualCrumb = crumb('User Manual', "${config.site_host}/manual/user-manual.html")
+		def kReferencePluginsCrumb = crumb('Reference Plugins', "${config.site_host}/manual/plugin-references.html")
+		def kSamplesCrumb = crumb('Samples', "${config.site_host}/samples/")
+		def kReleaseNotesCrumb = crumb('Release Notes', "${config.site_host}/release-notes.html")
+		def kDslCrumb = crumb('Domain Specific Language', "${config.site_host}/dsl/")
 
 		switch (content.type) {
 			case 'reference_chapter': return [kUserManualCrumb, kReferencePluginsCrumb, kContentCrumb]

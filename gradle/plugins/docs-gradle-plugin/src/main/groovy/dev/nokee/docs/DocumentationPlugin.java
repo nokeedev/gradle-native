@@ -93,13 +93,13 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			// Copy images from samples (TODO: it should be done somewhere else)
 			task.from("src/docs/samples", spec -> {
 				spec.include("**/*.gif");
-				spec.into("docs/" + documentationVersion.get() + "/samples");
+				spec.into("samples");
 			});
 
 			// Copy images from manual (TODO: it should be done somewhere else)
 			task.from("src/docs/manual", spec -> {
 				spec.include("**/*.png");
-				spec.into("docs/" + documentationVersion.get() + "/manual");
+				spec.into("manual");
 			});
 		});
 		tasks.named("bakePreview", JBakeServeTask.class, task -> {
@@ -146,7 +146,7 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			task.setIncludeEmptyDirs(false);
 		});
 		stageBakeTask.configure(task -> {
-			task.from(stageSamplesTask.map(Sync::getDestinationDir), spec -> spec.into("content/docs/" + documentationVersion.get() + "/samples"));
+			task.from(stageSamplesTask.map(Sync::getDestinationDir), spec -> spec.into("content/samples"));
 		});
 
 		TaskProvider<Task> assembleSamplesTask = tasks.register("assembleSamples", task -> {
@@ -162,7 +162,7 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			});
 
 			stageDocumentationTask.configure(task -> {
-				task.from(sample.getAsciinemaSourceSet(), spec -> spec.into("docs/" + documentationVersion.get() + "/samples/" + sample.getName()));
+				task.from(sample.getAsciinemaSourceSet(), spec -> spec.into("samples/" + sample.getName()));
 			});
 
 			assembleSampleZipsTask.configure(task -> {
@@ -172,7 +172,7 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 
 		String jbakeTemplatesDirectory = "src/jbake/templates";
 		stageBakeTask.configure(task -> {
-			task.from(extension.getContentSourceSet(), spec -> spec.into(documentationVersion.map(it -> "content/docs/" + it)));
+			task.from(extension.getContentSourceSet(), spec -> spec.into("content"));
 			task.from("src/jbake/content", spec -> spec.into("content"));
 			task.from("src/jbake/assets", spec -> spec.into("assets"));
 			task.from(jbakeTemplatesDirectory, spec -> spec.into("templates"));
@@ -182,7 +182,7 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 		// *.dot -> *.png
 		Provider<Directory> pngSourceSet = compileDotToPng();
 		stageDocumentationTask.configure(task -> {
-			task.from(pngSourceSet, spec -> spec.into(documentationVersion.map(it -> "docs/" + it)));
+			task.from(pngSourceSet);
 		});
 
 		// Configurations (incoming)
@@ -212,7 +212,7 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			task.getInputs().files(assets);
 			task.getInputs().files(templates);
 
-			task.from(content, spec -> spec.into(documentationVersion.map(it -> "content/docs/" + it)));
+			task.from(content, spec -> spec.into("content"));
 			task.from(assets, spec -> spec.into("assets"));
 			task.from(templates, spec -> spec.into("templates"));
 		});
@@ -225,24 +225,25 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 			configuration.attributes(attributes -> {
 				attributes.attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.class, "jbake-assets"));
 			});
-//			//Disabling assets export because it doesn't make any sense at the moment.
-////			project.afterEvaluate(proj -> {
-////				components.withType(JBakeAssetSourceSet.class).stream().map(LanguageSourceSet::getSource).forEach(source -> {
-////					source.getFiles().forEach(file -> {
-////						configuration.getOutgoing().getVariants().maybeCreate("directory").artifact(file, it -> {
-////							it.setType(ArtifactTypeDefinition.DIRECTORY_TYPE);
-////							it.builtBy(source);
-////						});
-////					});
-////				});
-////			});
+			//Disabling assets export because it doesn't make any sense at the moment.
+//			project.afterEvaluate(proj -> {
+//				components.withType(JBakeAssetSourceSet.class).stream().map(LanguageSourceSet::getSource).forEach(source -> {
+//					source.getFiles().forEach(file -> {
+//						configuration.getOutgoing().getVariants().maybeCreate("directory").artifact(file, it -> {
+//							it.setType(ArtifactTypeDefinition.DIRECTORY_TYPE);
+//							it.builtBy(source);
+//						});
+//					});
+//				});
+//			});
 		});
-////		TaskProvider<Zip> zipJbakeAssetsTask = tasks.register("zipJbakeAssets", Zip.class, task ->{
-////			task.from(components.withType(JBakeAssetSourceSet.class).stream().map(LanguageSourceSet::getSource).collect(Collectors.toList()));
-////			task.getArchiveClassifier().set("assets");
-////		});
-////		assetsElements.getOutgoing().artifact(zipJbakeAssetsTask);
-//
+		TaskProvider<Zip> zipJbakeAssetsTask = tasks.register("zipJbakeAssets", Zip.class, task -> {
+			task.dependsOn(stageBakeTask);
+			task.from(stageBakeDirectory.map(it -> it.dir("assets")));
+			task.getArchiveClassifier().set("assets");
+		});
+		assetsElements.getOutgoing().artifact(zipJbakeAssetsTask);
+
 		Configuration templatesElements = configurations.create("templatesElements", configuration -> {
 			configuration.setCanBeConsumed(false);
 			configuration.setCanBeConsumed(true);

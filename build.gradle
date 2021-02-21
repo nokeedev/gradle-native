@@ -10,15 +10,23 @@ buildscript {
 	}
 }
 
+plugins {
+	id 'org.shipkit.shipkit-auto-version' version '1.1.1'
+}
+
 import org.gradle.util.VersionNumber
+
+import java.text.SimpleDateFormat
 
 import static dev.gradleplugins.GradleRuntimeCompatibility.*
 
 class Version {
 	private VersionNumber delegate = null
 	private final ProjectLayout projectLayout
+	private final Object autoVersion
 
-	Version(ProjectLayout projectLayout) {
+	Version(ProjectLayout projectLayout, Object autoVersion) {
+		this.autoVersion = autoVersion
 		this.projectLayout = projectLayout
 	}
 
@@ -32,8 +40,12 @@ class Version {
 		if (delegate == null) {
 			if (System.getProperties().containsKey("release")) {
 				delegate = VersionNumber.parse(loadBaseVersion())
+			} else if (System.getProperties().containsKey('milestone')) {
+				delegate = VersionNumber.parse(autoVersion.toString())
+			} else if (System.getProperties().containsKey('integration')) { // Support multiple version of the same commit
+				delegate = VersionNumber.parse("${autoVersion}-${new SimpleDateFormat("yyyyMMddHHmm").format(new Date())}.${loadQualifier()}")
 			} else {
-				delegate = VersionNumber.parse("${loadBaseVersion()}-${loadQualifier()}")
+				delegate = VersionNumber.parse("${loadBaseVersion()}-SNAPSHOT") // stable local
 			}
 		}
 	}
@@ -51,7 +63,8 @@ class Version {
 	}
 }
 
-def v = new Version(layout)
+def v = new Version(layout, version)
+println("Version overridden to ${v}")
 allprojects {
 	version = v
 	group = 'dev.nokee'

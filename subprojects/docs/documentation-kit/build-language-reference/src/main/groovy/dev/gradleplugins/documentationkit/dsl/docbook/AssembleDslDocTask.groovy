@@ -46,6 +46,7 @@ import org.w3c.dom.Element
 
 import java.nio.charset.Charset
 import java.nio.file.Path
+
 /**
  * Generates the docbook source for the DSL reference guide.
  *
@@ -214,17 +215,37 @@ abstract class AssembleDslDocTask extends DefaultTask {
 		return getDestinationDirectory().file(element.name + ".adoc").get().getAsFile();
 	}
 
+	private static final ThreadLocal<Context> CONTEXT_THREAD_LOCAL = new ThreadLocal<>()
+	private static boolean BINDING_PATCH = false
+	private static final Object BINDING_PATCH_LOCK = new Object()
 	private String serialize(ClassDoc element, DocLinkBuilder linkBuilder) {
 		try {
-			def bindings = ImmutableMap.of("content", element, "linkBuilder", linkBuilder, "renderer", AsciidoctorRenderer.INSTANCE)
-			Binding.metaClass.include << { path ->
-				Path p = getTemplateFile().get().getAsFile().parentFile.toPath().resolve(path)
-				return new GStringTemplateEngine().createTemplate(p.toFile()).make(bindings).toString()
+			def bindings = ImmutableMap.of("content", element, "linkBuilder", linkBuilder, "renderer", new AsciidoctorRenderer())
+			def workingDirectory = getTemplateFile().get().getAsFile().parentFile.toPath()
+			CONTEXT_THREAD_LOCAL.set(new Context(bindings: bindings, workingDirectory: workingDirectory))
+
+			if (!BINDING_PATCH) {
+				synchronized (BINDING_PATCH_LOCK) {
+					if (!BINDING_PATCH) {
+						Binding.metaClass.include << { path ->
+							Path p = CONTEXT_THREAD_LOCAL.get().workingDirectory.resolve(path)
+							return new GStringTemplateEngine().createTemplate(p.toFile()).make(CONTEXT_THREAD_LOCAL.get().bindings).toString()
+						}
+						BINDING_PATCH = true
+					}
+				}
 			}
 			return new GStringTemplateEngine().createTemplate(getTemplateFile().get().getAsFile()).make(bindings).toString();
 		} catch (ClassNotFoundException | IOException e) {
 			throw new RuntimeException(e);
+		} finally {
+			CONTEXT_THREAD_LOCAL.set(null)
 		}
+	}
+
+	private static final class Context {
+		Map bindings
+		Path workingDirectory
 	}
 }
 

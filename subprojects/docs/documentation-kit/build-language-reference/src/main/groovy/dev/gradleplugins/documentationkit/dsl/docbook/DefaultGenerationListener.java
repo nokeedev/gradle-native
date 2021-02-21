@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedList;
 
 public class DefaultGenerationListener implements GenerationListener {
-	public static final GenerationListener INSTANCE = new DefaultGenerationListener();
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultGenerationListener.class);
 	private final LinkedList<String> contextStack = new LinkedList<String>();
 

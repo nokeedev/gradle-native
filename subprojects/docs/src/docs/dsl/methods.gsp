@@ -11,7 +11,7 @@ No methods.
 <% content.classMethods.each { property ->
 def parameters = property.metaData.parameters*.name.join(', ')
 %>
-|`link:#${property.id.replace('(', '-').replace(')', '-').replace(', ', '-')}[${property.name}](${parameters})`
+|`link:#${property.id.replace('(', '-').replace(')', '-').replace(', ', '-').replace('[', '-').replace(']', '-')}[${property.name}](${parameters})`
 |${property.description}
 <% } %>
 |===

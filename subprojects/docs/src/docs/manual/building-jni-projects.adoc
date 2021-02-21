@@ -69,7 +69,7 @@ link:{gradle-user-manual}/groovy_plugin.html[`groovy` (maintained by Gradle)]::
 Provides support for compiling Groovy language.
 Gradle distributes the plugin inside the Gradle distribution.
 
-link:https://kotlinlang.org/docs/reference/using-gradle.html#targeting-the-jvm[`org.jetbrains.kotlin.jvm`] (maintained by Jetbrains)::
+link:https://kotlinlang.org/docs/gradle.html#targeting-the-jvm[`org.jetbrains.kotlin.jvm`] (maintained by Jetbrains)::
 Provides support for compiling Kotlin language.
 Jetbrains distributes the plugin on the link:https://plugins.gradle.org/[plugins portal].
 

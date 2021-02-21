@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -38,24 +36,22 @@ public class HtmlTestFixture {
 
 	public String getCanonicalPath() {
 		String path = getPath();
-		Matcher m = Pattern.compile("docs/(nightly|current|(\\d+\\.\\d+\\.\\d+))(/manual)?/index\\.html").matcher(path);
-		if (m.matches()) {
-			path = String.format("docs/%s/manual/user-manual.html", m.group(1));
-		}
-		return String.format("https://nokee.dev/%s", canonicalize(path));
+		return String.format("https://docs.nokee.dev/%s", canonicalize(path));
 	}
 
 	private String canonicalize(String path) {
 		if (path.endsWith("/index.html")) {
 			return path.substring(0, path.lastIndexOf("/") + 1);
 		}
+		if (path.equals("index.html")) {
+			return "";
+		}
 		return path;
 	}
 
 	public boolean isRedirectionPage() {
 		String path = getPath();
-		Matcher m = Pattern.compile("docs/(nightly|current|(\\d+\\.\\d+\\.\\d+))(/manual)?/index\\.html").matcher(path);
-		if (m.matches()) {
+		if (getPath().equals("index.html") || getPath().equals("manual/index.html")) {
 			return true;
 		}
 		return false;
@@ -63,29 +59,29 @@ public class HtmlTestFixture {
 
 	public boolean isJavadoc() {
 		String path = getPath();
-		return path.contains("/javadoc/");
+		return path.contains("javadoc/");
 	}
 
 	public List<ListItem> getBreadcrumbs() {
 		String path = getPath();
 		if (path.endsWith("/plugin-references.html")) {
-			return asList(new ListItem("User Manual", "https://nokee.dev/docs/nightly/manual/user-manual.html"), new ListItem("Plugin References", "https://nokee.dev/docs/nightly/manual/plugin-references.html"));
+			return asList(new ListItem("User Manual", "https://docs.nokee.dev/manual/user-manual.html"), new ListItem("Plugin References", "https://docs.nokee.dev/manual/plugin-references.html"));
 		} else if (path.endsWith("-plugin.html")) {
-			return asList(new ListItem("User Manual", "https://nokee.dev/docs/nightly/manual/user-manual.html"), new ListItem("Plugin References", "https://nokee.dev/docs/nightly/manual/plugin-references.html"), new ListItem(getPageName(), "https://nokee.dev/" + path));
-		} else if (path.endsWith("/samples/index.html")) {
-			return asList(new ListItem("Samples", "https://nokee.dev/docs/nightly/samples/"));
-		} else if (path.endsWith("/release-notes.html")) {
-			return asList(new ListItem("Release Notes", "https://nokee.dev/docs/nightly/release-notes.html"));
-		} else if (path.contains("/samples/")) {
-			return asList(new ListItem("Samples", "https://nokee.dev/docs/nightly/samples/"), new ListItem(getPageName(), "https://nokee.dev/" + canonicalize(path)));
+			return asList(new ListItem("User Manual", "https://docs.nokee.dev/manual/user-manual.html"), new ListItem("Plugin References", "https://docs.nokee.dev/manual/plugin-references.html"), new ListItem(getPageName(), "https://docs.nokee.dev/" + path));
+		} else if (path.equals("samples/index.html")) {
+			return asList(new ListItem("Samples", "https://docs.nokee.dev/samples/"));
+		} else if (path.equals("release-notes.html")) {
+			return asList(new ListItem("Release Notes", "https://docs.nokee.dev/release-notes.html"));
+		} else if (path.startsWith("samples/")) {
+			return asList(new ListItem("Samples", "https://docs.nokee.dev/samples/"), new ListItem(getPageName(), "https://docs.nokee.dev/" + canonicalize(path)));
 		} else if (path.endsWith("/user-manual.html")) {
-			return asList(new ListItem("User Manual", "https://nokee.dev/docs/nightly/manual/user-manual.html"));
-		} else if (path.contains("/manual/")) {
-			return asList(new ListItem("User Manual", "https://nokee.dev/docs/nightly/manual/user-manual.html"), new ListItem(getPageName(), "https://nokee.dev/" + canonicalize(path)));
-		} else if (path.endsWith("/dsl/index.html")) {
-			return asList(new ListItem("Domain Specific Language", "https://nokee.dev/docs/nightly/dsl/"));
-		} else if (path.contains("/dsl/")) {
-			return asList(new ListItem("Domain Specific Language", "https://nokee.dev/docs/nightly/dsl/"), new ListItem(getPageName(), "https://nokee.dev/" + canonicalize(path)));
+			return asList(new ListItem("User Manual", "https://docs.nokee.dev/manual/user-manual.html"));
+		} else if (path.startsWith("manual/")) {
+			return asList(new ListItem("User Manual", "https://docs.nokee.dev/manual/user-manual.html"), new ListItem(getPageName(), "https://docs.nokee.dev/" + canonicalize(path)));
+		} else if (path.equals("dsl/index.html")) {
+			return asList(new ListItem("Domain Specific Language", "https://docs.nokee.dev/dsl/"));
+		} else if (path.startsWith("dsl/")) {
+			return asList(new ListItem("Domain Specific Language", "https://docs.nokee.dev/dsl/"), new ListItem(getPageName(), "https://docs.nokee.dev/" + canonicalize(path)));
 		}
 		return Collections.emptyList();
 	}
