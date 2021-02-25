@@ -149,11 +149,10 @@ buildCache {
 	remote(HttpBuildCache) {
 		url = 'https://gradle-build-cache.nokee.dev/cache/'
 		credentials {
-			def buildCacheCredentials = settings.providers.credentials(PasswordCredentials, 'nokeeBuildCache').forUseAtConfigurationTime()
-			username = buildCacheCredentials.map { it.username }.orNull
-			password = buildCacheCredentials.map { it.password }.orNull
+			username = System.getProperty('nokeeBuildCacheUsername')
+			password = System.getProperty('nokeeBuildCachePassword')
 		}
-		enabled = true
+		enabled = credentials.username != null && credentials.password != null
 		push = System.getenv().containsKey('CI')
 	}
 }
