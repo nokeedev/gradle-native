@@ -23,6 +23,10 @@ include 'coreModel'
 project(':coreModel').projectDir = file('subprojects/core-model')
 project(':coreModel').buildFileName = 'core-model.gradle'
 
+include 'modelGraph'
+project(':modelGraph').projectDir = file('subprojects/model-graph')
+project(':modelGraph').buildFileName = 'model-graph.gradle'
+
 include 'coreScript'
 project(':coreScript').projectDir = file('subprojects/core-script')
 project(':coreScript').buildFileName = 'core-script.gradle'

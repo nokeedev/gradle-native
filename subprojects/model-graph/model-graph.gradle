@@ -1,0 +1,17 @@
+plugins {
+	id 'java-library'
+	id 'maven-publish'
+}
+
+dependencies {
+	compileOnly gradleApi(minimumGradleVersion)
+	implementation "com.google.guava:guava:${guavaVersion}"
+}
+
+publishing {
+	publications {
+		library(MavenPublication) {
+			from components.java
+		}
+	}
+}
