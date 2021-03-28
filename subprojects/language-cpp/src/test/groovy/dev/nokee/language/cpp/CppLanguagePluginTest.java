@@ -1,13 +1,11 @@
 package dev.nokee.language.cpp;
 
-import dev.nokee.internal.testing.testers.WellBehavedPluginTester;
 import dev.nokee.language.cpp.internal.CppSourceSetExtensible;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
-import org.gradle.api.Plugin;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
@@ -18,17 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Subject(CppLanguagePlugin.class)
-class CppLanguagePluginTest extends WellBehavedPluginTester {
-	@Override
-	protected String getQualifiedPluginIdUnderTest() {
-		return "dev.nokee.cpp-language";
-	}
-
-	@Override
-	protected Class<? extends Plugin<?>> getPluginTypeUnderTest() {
-		return CppLanguagePlugin.class;
-	}
-
+class CppLanguagePluginTest {
 	@Test
 	void appliesCppLanguageBasePlugin() {
 		val project = rootProject();

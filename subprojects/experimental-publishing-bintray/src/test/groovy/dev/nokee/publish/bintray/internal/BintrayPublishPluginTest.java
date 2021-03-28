@@ -1,9 +1,6 @@
 package dev.nokee.publish.bintray.internal;
 
-import dev.nokee.internal.testing.testers.WellBehavedPluginTester;
-import dev.gradleplugins.grava.testing.util.TestCaseUtils;
 import org.gradle.api.Action;
-import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.publish.PublicationContainer;
 import org.gradle.api.publish.PublishingExtension;
@@ -26,7 +23,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @Subject(BintrayPublishPlugin.class)
-class BintrayPublishPluginTest extends WellBehavedPluginTester {
+class BintrayPublishPluginTest {
 	private final Project project = rootProject();
 
 	@BeforeEach
@@ -70,16 +67,6 @@ class BintrayPublishPluginTest extends WellBehavedPluginTester {
 			evaluate(project);
 			realize(project.getTasks().withType(PublishToMavenRepository.class));
 		});
-	}
-
-	@Override
-	protected String getQualifiedPluginIdUnderTest() {
-		return "dev.nokee.experimental.bintray-publish";
-	}
-
-	@Override
-	protected Class<? extends Plugin<?>> getPluginTypeUnderTest() {
-		return BintrayPublishPlugin.class;
 	}
 
 	@Test

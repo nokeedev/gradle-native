@@ -1,13 +1,11 @@
 package dev.nokee.language.objectivec;
 
-import dev.nokee.internal.testing.testers.WellBehavedPluginTester;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetExtensible;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
-import org.gradle.api.Plugin;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
@@ -18,17 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Subject(ObjectiveCLanguagePlugin.class)
-class ObjectiveCLanguagePluginTest extends WellBehavedPluginTester {
-	@Override
-	protected String getQualifiedPluginIdUnderTest() {
-		return "dev.nokee.objective-c-language";
-	}
-
-	@Override
-	protected Class<? extends Plugin<?>> getPluginTypeUnderTest() {
-		return ObjectiveCLanguagePlugin.class;
-	}
-
+class ObjectiveCLanguagePluginTest {
 	@Test
 	void appliesCppLanguageBasePlugin() {
 		val project = rootProject();
