@@ -5,7 +5,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
-import static dev.nokee.internal.testing.utils.TestUtils.objectFactory;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelNodeContext.injectCurrentModelNodeIfAllowed;
 import static dev.nokee.model.internal.core.ModelNodeContext.of;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;

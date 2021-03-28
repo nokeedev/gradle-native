@@ -9,8 +9,8 @@ import org.gradle.api.attributes.Usage;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
-import static dev.nokee.internal.testing.utils.TestUtils.createChildProject;
-import static dev.nokee.internal.testing.utils.TestUtils.rootProject;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.createChildProject;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 import static dev.nokee.model.internal.core.ModelNode.State.Realized;

@@ -1,7 +1,6 @@
 package dev.nokee.platform.base.internal.components;
 
 import dev.nokee.internal.Factories;
-import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -12,6 +11,7 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.gradleplugins.grava.util.ActionUtils.doNothing;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Subject(DefaultComponentContainer.class)
 class DefaultComponentContainerTest {
-	private final ModelRegistry modelRegistry = new DefaultModelRegistry(TestUtils.objectFactory()::newInstance);
+	private final ModelRegistry modelRegistry = new DefaultModelRegistry(objectFactory()::newInstance);
 	private final ComponentContainer subject = modelRegistry.register(namedContainer("components", of(DefaultComponentContainer.class))).get();
 
 	private static <T> DomainObjectFactory<T> alwaysThrow() {

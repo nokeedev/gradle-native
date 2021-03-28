@@ -1,6 +1,6 @@
 package dev.nokee.model.internal
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.util.Path
 import spock.lang.Specification
@@ -50,7 +50,7 @@ class ProjectIdentifierTest extends Specification {
 
 	def "can create identifier from Project instance"() {
 		given:
-		def project = TestUtils.rootProject()
+		def project = ProjectTestUtils.rootProject()
 
 		expect:
 		of(project).name == project.name
@@ -59,8 +59,8 @@ class ProjectIdentifierTest extends Specification {
 
 	def "can create identifier from child Project instance"() {
 		given:
-		def rootProject = TestUtils.rootProject()
-		def childProject = TestUtils.createChildProject(rootProject)
+		def rootProject = ProjectTestUtils.rootProject()
+		def childProject = ProjectTestUtils.createChildProject(rootProject)
 
 		expect:
 		of(childProject).name == childProject.name
@@ -69,7 +69,7 @@ class ProjectIdentifierTest extends Specification {
 
 	def "has no parent identifier"() {
 		given:
-		def project = TestUtils.rootProject()
+		def project = ProjectTestUtils.rootProject()
 
 		expect:
 		!of(project).parentIdentifier.present

@@ -1,7 +1,7 @@
 package dev.nokee.platform.cpp;
 
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.fixtures.NativeComponentMatchers;
-import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
@@ -28,7 +28,7 @@ class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, 
 
 	@Override
 	public CppApplication createSubject(String componentName) {
-		val project = TestUtils.createRootProject(getTestDirectory());
+		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		val component = create(registry(project.getObjects()), cppApplication(componentName, project));
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set

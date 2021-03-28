@@ -1,6 +1,6 @@
 package dev.nokee.platform.swift;
 
-import dev.nokee.internal.testing.utils.TestUtils;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -16,7 +16,7 @@ import static dev.nokee.platform.swift.internal.plugins.SwiftLibraryPlugin.swift
 public class SwiftLibrarySourcesTest implements ComponentSourcesTester<SwiftLibrarySources> {
 	@Override
 	public SwiftLibrarySources createSubject() {
-		val project = TestUtils.rootProject();
+		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		val sources = (SwiftLibrarySources) create(swiftLibrary("main", project)).getSources();
 		sources.get(); // force realize

@@ -1,6 +1,5 @@
 package dev.nokee.model.internal.registry;
 
-import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.ModelNode;
 import org.gradle.api.provider.Provider;
@@ -10,6 +9,7 @@ import spock.lang.Subject;
 
 import java.util.function.Function;
 
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.providerFactory;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -45,7 +45,7 @@ class ModelNodeBackedKnownDomainObjectTest {
 
 		@Override
 		protected <T, R> Provider<R> transform(KnownDomainObject functor, Function<? super T, ? extends R> mapper) {
-			return ((KnownDomainObject<T>)functor).flatMap(t -> TestUtils.providerFactory().provider(() -> mapper.apply(t)));
+			return ((KnownDomainObject<T>)functor).flatMap(t -> providerFactory().provider(() -> mapper.apply(t)));
 		}
 	}
 

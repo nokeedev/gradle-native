@@ -1,6 +1,6 @@
 package dev.nokee.model.internal
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import dev.nokee.model.DomainObjectIdentifier
 import org.apache.commons.lang3.RandomStringUtils
 import spock.lang.Shared
@@ -9,7 +9,7 @@ import spock.lang.Specification
 import java.util.function.Supplier
 
 abstract class DomainObjectSpec<T> extends Specification {
-	@Shared def providerFactory = TestUtils.providerFactory()
+	@Shared def providerFactory = ProjectTestUtils.providerFactory()
 	def eventPublisher = new DomainObjectEventPublisherImpl()
 	def entityRepository = newEntityRepository()
 	def entityConfigurer = newEntityConfigurer()

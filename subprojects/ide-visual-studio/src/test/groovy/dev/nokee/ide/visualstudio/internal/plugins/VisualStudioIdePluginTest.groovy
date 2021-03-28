@@ -1,12 +1,12 @@
 package dev.nokee.ide.visualstudio.internal.plugins
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import spock.lang.Specification
 import spock.lang.Subject
 
 @Subject(VisualStudioIdePlugin)
 class VisualStudioIdePluginTest extends Specification {
-	def project = TestUtils.rootProject()
+	def project = ProjectTestUtils.rootProject()
 
 	def "applies Visual Studio IDE base plugin"() {
 		when:

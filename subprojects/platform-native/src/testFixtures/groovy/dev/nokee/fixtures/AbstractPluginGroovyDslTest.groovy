@@ -1,6 +1,6 @@
 package dev.nokee.fixtures
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
@@ -39,7 +39,7 @@ abstract class AbstractPluginGroovyDslTest extends Specification {
 	}
 
 	private List<PropertyGetter> discoverTypes(String pluginId) {
-		def project = TestUtils.rootProject()
+		def project = ProjectTestUtils.rootProject()
 		project.apply(plugin: pluginId)
 		project.evaluate()
 

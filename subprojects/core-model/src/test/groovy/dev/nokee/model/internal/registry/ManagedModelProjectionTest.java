@@ -2,13 +2,13 @@ package dev.nokee.model.internal.registry;
 
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
-import dev.nokee.internal.testing.utils.TestUtils;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
 import javax.inject.Inject;
 
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -25,7 +25,7 @@ class ManagedModelProjectionTest extends TypeCompatibilityModelProjectionSupport
 	@Test
 	void canBindProjectionToAnInstantiator() {
 		assertAll(() -> {
-			val projection = createSubject(MyType.class).bind(TestUtils.objectFactory()::newInstance);
+			val projection = createSubject(MyType.class).bind(objectFactory()::newInstance);
 			assertTrue(projection.canBeViewedAs(of(MyType.class)));
 			assertFalse(projection.canBeViewedAs(of(WrongType.class)));
 
@@ -35,7 +35,7 @@ class ManagedModelProjectionTest extends TypeCompatibilityModelProjectionSupport
 
 	@Test
 	void canCreateProjectionWithSpecifiedParametersAfterBind() {
-		val projection = createSubject(MyTypeWithParameters.class, "foo", 42).bind(TestUtils.objectFactory()::newInstance);
+		val projection = createSubject(MyTypeWithParameters.class, "foo", 42).bind(objectFactory()::newInstance);
 		val instance = projection.get(of(MyTypeWithParameters.class));
 		assertThat(instance.name, equalTo("foo"));
 		assertThat(instance.answer, equalTo(42));

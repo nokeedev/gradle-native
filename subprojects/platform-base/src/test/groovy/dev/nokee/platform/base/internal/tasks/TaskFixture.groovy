@@ -1,6 +1,6 @@
 package dev.nokee.platform.base.internal.tasks
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.*
 import dev.nokee.platform.base.Component
@@ -13,7 +13,7 @@ import org.gradle.api.Task
 import java.util.function.Supplier
 
 trait TaskFixture {
-	def project = TestUtils.rootProject()
+	def project = ProjectTestUtils.rootProject()
 
     RealizableDomainObjectRepository<Task> newEntityRepository() {
 		def realizer = new RealizableDomainObjectRealizerImpl(eventPublisher)

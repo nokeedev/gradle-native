@@ -1,12 +1,12 @@
 package dev.nokee.ide.xcode.internal.plugins
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import spock.lang.Specification
 import spock.lang.Subject
 
 @Subject(XcodeIdePlugin)
 class XcodeIdePluginTest extends Specification {
-	def project = TestUtils.rootProject()
+	def project = ProjectTestUtils.rootProject()
 
 	def "applies Xcode IDE base plugin"() {
 		when:

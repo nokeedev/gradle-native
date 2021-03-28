@@ -1,7 +1,7 @@
 package dev.nokee.model.internal.plugins;
 
 import dev.nokee.internal.testing.testers.WellBehavedPluginTester;
-import dev.nokee.internal.testing.utils.TestUtils;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -35,7 +35,7 @@ class ModelBasePluginTest {
 		}
 	}
 
-	private final Project project = TestUtils.rootProject();
+	private final Project project = ProjectTestUtils.rootProject();
 
 	@Test
 	void registersEventPublisherService() {

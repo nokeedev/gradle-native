@@ -1,6 +1,5 @@
 package dev.nokee.platform.base.internal.tasks
 
-import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.*
 import dev.nokee.platform.base.Component
@@ -17,7 +16,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-import static dev.nokee.internal.testing.utils.TestUtils.*
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.*
 
 @Subject(TaskRegistryImpl)
 class TaskRegistryTest extends Specification {

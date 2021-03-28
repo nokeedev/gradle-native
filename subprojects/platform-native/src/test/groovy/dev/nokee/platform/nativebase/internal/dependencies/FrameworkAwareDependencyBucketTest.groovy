@@ -1,6 +1,6 @@
 package dev.nokee.platform.nativebase.internal.dependencies
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import dev.nokee.runtime.nativebase.internal.LibraryElements
 import org.gradle.api.Action
 import org.gradle.api.artifacts.ExternalDependency
@@ -63,7 +63,7 @@ class FrameworkAwareDependencyBucketTest extends Specification {
 	@Unroll
 	def "adds additional configuration when magic group is present"(notation) {
 		given:
-		def project = TestUtils.rootProject()
+		def project = ProjectTestUtils.rootProject()
 		ExternalDependency dependency = (ExternalDependency) project.dependencies.create(notation)
 
 		when:
@@ -85,7 +85,7 @@ class FrameworkAwareDependencyBucketTest extends Specification {
 	@Unroll
 	def "adds additional configuration when magic group is present as composite action"(notation) {
 		given:
-		def project = TestUtils.rootProject()
+		def project = ProjectTestUtils.rootProject()
 		ExternalDependency dependency = (ExternalDependency) project.dependencies.create(notation)
 		def action = Mock(Action)
 
@@ -109,7 +109,7 @@ class FrameworkAwareDependencyBucketTest extends Specification {
 	def "can overwrite framwork attributes"() {
 		given:
 		def notation = 'dev.nokee.framework:foo:4.2'
-		def project = TestUtils.rootProject()
+		def project = ProjectTestUtils.rootProject()
 		ExternalDependency dependency = (ExternalDependency) project.dependencies.create(notation)
 
 		when:

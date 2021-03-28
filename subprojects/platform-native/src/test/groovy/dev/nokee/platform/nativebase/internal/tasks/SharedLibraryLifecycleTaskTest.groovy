@@ -1,12 +1,12 @@
 package dev.nokee.platform.nativebase.internal.tasks
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import spock.lang.Specification
 import spock.lang.Subject
 
 @Subject(SharedLibraryLifecycleTask)
 class SharedLibraryLifecycleTaskTest extends Specification {
-	def tasks = TestUtils.rootProject().tasks
+	def tasks = ProjectTestUtils.rootProject().tasks
 
 	def "preconfigures to build group"() {
 		expect:

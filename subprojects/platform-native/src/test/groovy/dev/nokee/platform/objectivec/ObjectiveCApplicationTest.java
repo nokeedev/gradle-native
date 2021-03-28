@@ -1,8 +1,8 @@
 package dev.nokee.platform.objectivec;
 
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.fixtures.NativeComponentMatchers;
 import dev.nokee.internal.testing.FileSystemWorkspace;
-import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
@@ -32,7 +32,7 @@ class ObjectiveCApplicationTest implements SourceAwareComponentTester<ObjectiveC
 
 	@Override
 	public ObjectiveCApplication createSubject(String componentName) {
-		val project = TestUtils.createRootProject(getTestDirectory());
+		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		val component = create(registry(project.getObjects()), objectiveCApplication(componentName, project));
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set

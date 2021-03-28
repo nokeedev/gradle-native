@@ -1,6 +1,5 @@
 package dev.nokee.model;
 
-import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.internal.BaseNamedDomainObjectContainer;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -8,6 +7,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 
 import javax.inject.Inject;
 
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
 import static dev.nokee.model.internal.type.ModelType.of;
 
@@ -15,7 +15,7 @@ class CustomDomainObjectContainerTypeIntegrationTest extends NamedDomainObjectVi
 	@Override
 	protected TestContainerGenerator<MyType> getSubjectGenerator() {
 		return new TestContainerGenerator<MyType>() {
-			private final DefaultModelRegistry modelRegistry = new DefaultModelRegistry(TestUtils.objectFactory()::newInstance);
+			private final DefaultModelRegistry modelRegistry = new DefaultModelRegistry(objectFactory()::newInstance);
 
 			@Override
 			public DomainObjectContainer<MyType> create(String name) {

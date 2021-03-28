@@ -1,6 +1,6 @@
 package dev.nokee.platform.c;
 
-import dev.nokee.internal.testing.utils.TestUtils;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
@@ -17,7 +17,7 @@ import static dev.nokee.platform.c.internal.plugins.CLibraryPlugin.cLibrary;
 class CLibrarySourcesTest implements ComponentSourcesTester<CLibrarySources> {
 	@Override
 	public CLibrarySources createSubject() {
-		val project = TestUtils.rootProject();
+		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		val sources = (CLibrarySources) create(cLibrary("main", project)).getSources();
 		sources.get(); // force realize

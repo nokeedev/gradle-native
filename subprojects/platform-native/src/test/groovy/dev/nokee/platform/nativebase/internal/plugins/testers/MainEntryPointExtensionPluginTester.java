@@ -1,6 +1,6 @@
 package dev.nokee.platform.nativebase.internal.plugins.testers;
 
-import dev.nokee.internal.testing.utils.TestUtils;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionsSchema;
 import org.gradle.api.reflect.TypeOf;
@@ -20,7 +20,7 @@ public abstract class MainEntryPointExtensionPluginTester {
 	protected abstract Class<?> getExtensionType();
 	protected abstract String getQualifiedPluginId();
 
-	private final Project project = TestUtils.rootProject();
+	private final Project project = ProjectTestUtils.rootProject();
 
 	@BeforeEach
 	void applyPlugin() {

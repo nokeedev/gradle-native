@@ -1,6 +1,6 @@
 package dev.nokee.model.internal.core;
 
-import dev.nokee.internal.testing.utils.TestUtils;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -39,7 +39,7 @@ class ModelNodeTest {
 	@ParameterizedTest
 	@EnumSource(Get.class)
 	void returnFirstProjectionMatchingType(GetMethod get) {
-		val expectedInstance = TestUtils.objectFactory().newInstance(MyType.class);
+		val expectedInstance = ProjectTestUtils.objectFactory().newInstance(MyType.class);
 		when(projection2.canBeViewedAs(TYPE)).thenReturn(true);
 		when(projection2.get(TYPE)).thenReturn(expectedInstance);
 

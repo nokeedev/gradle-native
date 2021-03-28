@@ -1,7 +1,6 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -16,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelActions.initialize;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
@@ -28,11 +28,11 @@ public final class ModelTestUtils {
 	private ModelTestUtils() {}
 
 	public static ModelProjection projectionOf(Class<?> projectionType) {
-		return ModelProjections.ofInstance(TestUtils.objectFactory().newInstance(projectionType));
+		return ModelProjections.ofInstance(objectFactory().newInstance(projectionType));
 	}
 
 	public static ModelNode rootNode() {
-		return ModelNode.builder().withPath(ModelPath.root()).withInstantiator(TestUtils.objectFactory()::newInstance).build();
+		return ModelNode.builder().withPath(ModelPath.root()).withInstantiator(objectFactory()::newInstance).build();
 	}
 
 	public static ModelNode node(ModelNodeListener listener) {
@@ -143,7 +143,7 @@ public final class ModelTestUtils {
 				throw new UnsupportedOperationException("This instance always fails.");
 			}
 		});
-		builder.withInstantiator(TestUtils.objectFactory()::newInstance);
+		builder.withInstantiator(objectFactory()::newInstance);
 		builder.withConfigurer(new ModelConfigurer() {
 			@Override
 			public void configure(ModelAction action) {

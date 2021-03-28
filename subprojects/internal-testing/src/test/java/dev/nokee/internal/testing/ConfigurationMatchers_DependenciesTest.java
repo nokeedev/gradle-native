@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import static dev.nokee.internal.testing.ConfigurationMatchers.dependencies;
 import static dev.nokee.internal.testing.ConfigurationMatchers.forCoordinate;
 import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
-import static dev.nokee.internal.testing.utils.TestUtils.createDependency;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.createDependency;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
