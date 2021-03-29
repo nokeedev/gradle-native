@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
 import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.specs.Spec;
 import org.gradle.internal.Transformers;
 
@@ -175,30 +174,6 @@ public final class TransformerUtils {
 		@Override
 		public String toString() {
 			return "TransformerUtils.constant(" + value + ")";
-		}
-	}
-
-	public static <T> Transformer<T, T> configureInPlace(Action<? super T> action) {
-		return new ConfigureInPlaceTransformer<>(action);
-	}
-
-	@EqualsAndHashCode
-	private static final class ConfigureInPlaceTransformer<T> implements Transformer<T, T> {
-		private final Action<? super T> action;
-
-		public ConfigureInPlaceTransformer(Action<? super T> action) {
-			this.action = requireNonNull(action);
-		}
-
-		@Override
-		public T transform(T t) {
-			action.execute(t);
-			return t;
-		}
-
-		@Override
-		public String toString() {
-			return "TransformerUtils.configureInPlace(" + action + ")";
 		}
 	}
 
