@@ -10,7 +10,7 @@ import static dev.nokee.internal.testing.ConfigurationMatchers.*;
 import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.utils.TestUtils.rootProject;
-import static dev.nokee.utils.ActionUtils.doNothing;
+import static dev.gradleplugins.grava.util.ActionUtils.doNothing;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;

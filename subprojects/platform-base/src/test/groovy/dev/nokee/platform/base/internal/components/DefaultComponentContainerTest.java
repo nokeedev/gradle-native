@@ -3,7 +3,6 @@ package dev.nokee.platform.base.internal.components;
 import dev.nokee.internal.Factories;
 import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.DomainObjectFactory;
-import dev.nokee.model.internal.BaseNamedDomainObjectContainer;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
@@ -15,7 +14,7 @@ import spock.lang.Subject;
 
 import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.utils.ActionUtils.doNothing;
+import static dev.gradleplugins.grava.util.ActionUtils.doNothing;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertAll;

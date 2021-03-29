@@ -37,8 +37,8 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import static dev.nokee.utils.DeferredUtils.realize;
-import static dev.nokee.utils.GradleUtils.*;
-import static dev.nokee.utils.ProjectUtils.isRootProject;
+import static dev.gradleplugins.grava.util.GradleUtils.*;
+import static dev.gradleplugins.grava.util.ProjectUtils.isRootProject;
 import static dev.nokee.utils.TaskNameUtils.getShortestName;
 
 public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<Project>, Describable {

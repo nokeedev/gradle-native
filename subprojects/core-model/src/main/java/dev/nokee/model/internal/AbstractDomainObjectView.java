@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Set;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.descendentOf;
-import static dev.nokee.utils.ActionUtils.onlyIf;
-import static dev.nokee.utils.TransformerUtils.*;
+import static dev.gradleplugins.grava.util.ActionUtils.onlyIf;
+import static dev.gradleplugins.grava.util.TransformerUtils.*;
 
 public abstract class AbstractDomainObjectView<TYPE, T extends TYPE> extends GroovyObjectSupport {
 	protected final DomainObjectIdentifier viewOwner;

@@ -11,7 +11,7 @@ import org.gradle.api.artifacts.ModuleDependency;
 import java.util.Map;
 import java.util.Objects;
 
-import static dev.nokee.utils.ActionUtils.composite;
+import static dev.gradleplugins.grava.util.ActionUtils.composite;
 
 public final class FrameworkAwareDependencyBucket implements DependencyBucket {
 	private static final String NOKEE_MAGIC_FRAMEWORK_GROUP = "dev.nokee.framework";

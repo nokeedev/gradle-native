@@ -2,7 +2,7 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.Value;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.utils.TransformerUtils;
+import dev.gradleplugins.grava.util.TransformerUtils;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;

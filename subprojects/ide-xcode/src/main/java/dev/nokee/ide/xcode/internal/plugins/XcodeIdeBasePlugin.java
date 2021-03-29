@@ -17,7 +17,7 @@ import org.gradle.plugins.ide.internal.IdeProjectMetadata;
 
 import javax.inject.Inject;
 
-import static dev.nokee.utils.ProjectUtils.getPrefixableProjectPath;
+import static dev.gradleplugins.grava.util.ProjectUtils.getPrefixableProjectPath;
 
 public abstract class XcodeIdeBasePlugin extends AbstractIdePlugin<XcodeIdeProject> {
 	public static final String XCODE_EXTENSION_NAME = "xcode";

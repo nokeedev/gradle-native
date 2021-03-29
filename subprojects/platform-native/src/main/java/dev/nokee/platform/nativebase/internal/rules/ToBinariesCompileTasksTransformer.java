@@ -10,7 +10,7 @@ import org.gradle.api.provider.Provider;
 
 import java.util.Set;
 
-import static dev.nokee.utils.TransformerUtils.toSetTransformer;
+import static dev.gradleplugins.grava.util.TransformerUtils.toSetTransformer;
 
 enum ToBinariesCompileTasksTransformer implements Transformer<Provider<Set<? extends SourceCompile>>, Variant> {
 	TO_DEVELOPMENT_BINARY_COMPILE_TASKS;

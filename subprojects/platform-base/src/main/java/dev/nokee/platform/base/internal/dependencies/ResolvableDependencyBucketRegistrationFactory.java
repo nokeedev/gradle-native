@@ -4,7 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactory;
-import dev.nokee.utils.ActionUtils;
+import dev.gradleplugins.grava.util.ActionUtils;
 import lombok.val;
 import org.gradle.api.artifacts.ArtifactView;
 import org.gradle.api.artifacts.Configuration;

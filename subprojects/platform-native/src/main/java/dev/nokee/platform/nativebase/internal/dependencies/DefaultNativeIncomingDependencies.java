@@ -8,7 +8,7 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketName;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucket;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.runtime.nativebase.internal.LibraryElements;
-import dev.nokee.utils.ActionUtils;
+import dev.gradleplugins.grava.util.ActionUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Value;
