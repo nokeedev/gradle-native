@@ -6,48 +6,12 @@ import org.gradle.api.Transformer;
 import org.gradle.api.specs.Specs;
 
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 
 public final class SpecUtils {
 	private SpecUtils() {}
-
-	public static <T> Spec<T> byType(Class<? extends T> type) {
-		return new ByTypeSpec<>(type);
-	}
-
-	public static <T> Optional<Class<? extends T>> getTypeFiltered(org.gradle.api.specs.Spec<T> spec) {
-		requireNonNull(spec);
-		if (spec instanceof ByTypeSpec) {
-			return Optional.of(((ByTypeSpec<T>) spec).getType());
-		}
-		return Optional.empty();
-	}
-
-	@EqualsAndHashCode
-	private static class ByTypeSpec<T> implements Spec<T> {
-		private final Class<? extends T> type;
-
-		public ByTypeSpec(Class<? extends T> type) {
-			this.type = requireNonNull(type);
-		}
-
-		public Class<? extends T> getType() {
-			return type;
-		}
-
-		@Override
-		public boolean isSatisfiedBy(T t) {
-			return type.isInstance(t);
-		}
-
-		@Override
-		public String toString() {
-			return "SpecUtils.byType(" + type.getCanonicalName() + ")";
-		}
-	}
 
 	public static <A, B> Spec<A> compose(org.gradle.api.specs.Spec<? super B> spec, Transformer<? extends B, ? super A> transformer) {
 		if (isSatisfyAll(spec)) {
