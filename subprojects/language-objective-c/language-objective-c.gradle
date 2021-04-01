@@ -24,3 +24,9 @@ gradlePlugin {
 		}
 	}
 }
+
+functionalTest {
+	dependencies {
+		pluginUnderTestMetadata project(':coreModel')
+	}
+}
