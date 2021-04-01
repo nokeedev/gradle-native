@@ -16,7 +16,7 @@ import org.gradle.plugins.ide.internal.IdeProjectMetadata;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static dev.nokee.utils.ProjectUtils.getPrefixableProjectPath;
+import static dev.gradleplugins.grava.util.ProjectUtils.getPrefixableProjectPath;
 
 public abstract class VisualStudioIdeBasePlugin extends AbstractIdePlugin<VisualStudioIdeProject> {
 	public static final String VISUAL_STUDIO_EXTENSION_NAME = "visualStudio";

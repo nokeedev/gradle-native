@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Nested;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static dev.nokee.utils.TransformerUtils.noOpTransformer;
+import static dev.gradleplugins.grava.util.TransformerUtils.noOpTransformer;
 
 public abstract class DomainObjectViewMapTester<T> {
 	protected abstract TestViewGenerator<T> getSubjectGenerator();

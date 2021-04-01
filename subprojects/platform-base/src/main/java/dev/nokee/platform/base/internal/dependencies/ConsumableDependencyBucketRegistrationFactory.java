@@ -3,7 +3,7 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactory;
-import dev.nokee.utils.ActionUtils;
+import dev.gradleplugins.grava.util.ActionUtils;
 import lombok.val;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.PublishArtifact;
