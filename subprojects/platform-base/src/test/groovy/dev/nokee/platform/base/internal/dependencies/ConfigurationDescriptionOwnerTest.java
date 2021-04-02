@@ -6,8 +6,8 @@ import dev.nokee.platform.base.internal.ComponentName;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
-import static dev.nokee.internal.testing.utils.TestUtils.createChildProject;
-import static dev.nokee.internal.testing.utils.TestUtils.rootProject;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.createChildProject;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.platform.base.internal.ComponentName.of;
 import static dev.nokee.platform.base.internal.ComponentName.ofMain;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Owner.*;

@@ -1,6 +1,6 @@
 package dev.nokee.model.internal
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import spock.lang.Shared
 
 import java.util.function.Predicate
@@ -8,7 +8,7 @@ import java.util.function.Predicate
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.isDescendent
 
 abstract class AbstractRealizableDomainObjectRepositoryTest<T> extends DomainObjectSpec<T> {
-	@Shared def providerFactory = TestUtils.providerFactory()
+	@Shared def providerFactory = ProjectTestUtils.providerFactory()
 
 	protected RealizableDomainObjectRepository<T> newSubject() {
 		return newSubject(new RealizableDomainObjectRealizerImpl(eventPublisher))

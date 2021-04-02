@@ -1,6 +1,6 @@
 package dev.nokee.platform.cpp;
 
-import dev.nokee.internal.testing.utils.TestUtils;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
@@ -18,7 +18,7 @@ class CppApplicationSourcesTest implements ComponentSourcesTester<CppApplication
 
 	@Override
 	public CppApplicationSources createSubject() {
-		val project = TestUtils.rootProject();
+		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		val sources = (CppApplicationSources) create(cppApplication("main", project)).getSources();
 		sources.get(); // force realize

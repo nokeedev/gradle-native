@@ -1,6 +1,6 @@
 package dev.nokee.platform.objectivec;
 
-import dev.nokee.internal.testing.utils.TestUtils;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
@@ -17,7 +17,7 @@ import static dev.nokee.platform.objectivec.internal.plugins.ObjectiveCApplicati
 class ObjectiveCApplicationSourcesTest implements ComponentSourcesTester<ObjectiveCApplicationSources> {
 	@Override
 	public ObjectiveCApplicationSources createSubject() {
-		val project = TestUtils.rootProject();
+		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		val sources = (ObjectiveCApplicationSources) create(objectiveCApplication("main", project)).getSources();
 		sources.get(); // force realize

@@ -1,6 +1,6 @@
 package dev.nokee.platform.base.internal.dependencies
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import org.gradle.api.Rule
 import spock.lang.Specification
 import spock.lang.Subject
@@ -8,7 +8,7 @@ import spock.lang.Unroll
 
 @Subject(ConfigurationBucketRegistryImpl)
 abstract class ConfigurationBucketRegistry_AbstractCreateIntegrationTest extends Specification {
-	def project = TestUtils.rootProject()
+	def project = ProjectTestUtils.rootProject()
 
 	protected abstract def create(ConfigurationBucketRegistryImpl subject, String name, ConfigurationBucketType type)
 

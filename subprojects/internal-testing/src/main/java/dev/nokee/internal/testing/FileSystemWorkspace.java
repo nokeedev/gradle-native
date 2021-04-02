@@ -1,6 +1,6 @@
 package dev.nokee.internal.testing;
 
-import dev.nokee.internal.testing.utils.TestUtils;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -41,14 +41,14 @@ public final class FileSystemWorkspace {
 
 	public ConfigurableFileCollection fileCollection(Object... path) {
 		if (project == null) {
-			this.project = TestUtils.createRootProject(workspaceDirectory);
+			this.project = ProjectTestUtils.createRootProject(workspaceDirectory);
 		}
 		return project.files(path);
 	}
 
 	public ConfigurableFileTree fileTree(File directory) {
 		if (project == null) {
-			this.project = TestUtils.createRootProject(workspaceDirectory);
+			this.project = ProjectTestUtils.createRootProject(workspaceDirectory);
 		}
 		return project.fileTree(directory);
 	}

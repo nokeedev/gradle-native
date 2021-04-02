@@ -18,8 +18,8 @@ import java.nio.file.Path;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
-import static dev.nokee.internal.testing.utils.TestUtils.objectFactory;
-import static dev.nokee.internal.testing.utils.TestUtils.rootProject;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.*;
 import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.DIRECTORY_TYPE;
 import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.ZIP_TYPE;

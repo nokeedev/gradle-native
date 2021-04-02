@@ -1,8 +1,8 @@
 package dev.nokee.ide.visualstudio.internal.plugins
 
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import dev.nokee.ide.visualstudio.VisualStudioIdeProjectExtension
 import dev.nokee.ide.visualstudio.VisualStudioIdeWorkspaceExtension
-import dev.nokee.internal.testing.utils.TestUtils
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
@@ -12,7 +12,7 @@ import static org.apache.commons.io.FilenameUtils.separatorsToSystem
 
 @Subject(VisualStudioIdeBasePlugin)
 class VisualStudioIdeBasePluginTest extends Specification {
-	def project = TestUtils.rootProject()
+	def project = ProjectTestUtils.rootProject()
 
 	def "registers lifecycle task"() {
 		when:

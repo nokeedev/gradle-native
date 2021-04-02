@@ -1,6 +1,5 @@
 package dev.nokee.model;
 
-import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -10,6 +9,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.times;
 
@@ -17,7 +17,7 @@ import static org.mockito.Mockito.times;
  * It is possible to create custom type of a DomainObjectView.
  */
 class DomainObjectViewInstanceOfCustomTypeIntegrationTest {
-	private final ModelRegistry modelRegistry = new DefaultModelRegistry(TestUtils.objectFactory()::newInstance);
+	private final ModelRegistry modelRegistry = new DefaultModelRegistry(objectFactory()::newInstance);
 
 	@Test
 	@Disabled

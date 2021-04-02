@@ -1,8 +1,6 @@
 package dev.nokee.publish.bintray.internal;
 
-import dev.nokee.internal.testing.testers.WellBehavedPluginTester;
 import org.gradle.api.Action;
-import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.publish.PublicationContainer;
 import org.gradle.api.publish.PublishingExtension;
@@ -16,8 +14,8 @@ import java.util.concurrent.Callable;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static com.google.common.collect.Iterables.getOnlyElement;
-import static dev.nokee.internal.testing.utils.TestUtils.evaluate;
-import static dev.nokee.internal.testing.utils.TestUtils.rootProject;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.evaluate;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.publish.bintray.internal.BintrayTestUtils.*;
 import static dev.nokee.utils.DeferredUtils.realize;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,7 +23,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @Subject(BintrayPublishPlugin.class)
-class BintrayPublishPluginTest extends WellBehavedPluginTester {
+class BintrayPublishPluginTest {
 	private final Project project = rootProject();
 
 	@BeforeEach
@@ -69,16 +67,6 @@ class BintrayPublishPluginTest extends WellBehavedPluginTester {
 			evaluate(project);
 			realize(project.getTasks().withType(PublishToMavenRepository.class));
 		});
-	}
-
-	@Override
-	protected String getQualifiedPluginIdUnderTest() {
-		return "dev.nokee.experimental.bintray-publish";
-	}
-
-	@Override
-	protected Class<? extends Plugin<?>> getPluginTypeUnderTest() {
-		return BintrayPublishPlugin.class;
 	}
 
 	@Test

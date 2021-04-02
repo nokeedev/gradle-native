@@ -15,7 +15,7 @@ import static dev.gradleplugins.grava.util.NamedDomainObjectCollectionUtils.Elem
 import static dev.gradleplugins.grava.util.NamedDomainObjectCollectionUtils.whenElementKnown;
 import static dev.gradleplugins.grava.util.SpecUtils.compose;
 import static dev.gradleplugins.grava.util.SpecUtils.subtypeOf;
-import static dev.nokee.internal.testing.utils.TestUtils.objectFactory;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.utils.Cast.uncheckedCastBecauseOfTypeErasure;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;

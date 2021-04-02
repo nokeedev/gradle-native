@@ -1,6 +1,6 @@
 package dev.nokee.scripts
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.function.Executable
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*
 
 @Subject(DefaultImporter.class)
 class DefaultImporterTest {
-	def project = TestUtils.rootProject()
+	def project = ProjectTestUtils.rootProject()
 
 	@BeforeEach
 	void "import some types"() {

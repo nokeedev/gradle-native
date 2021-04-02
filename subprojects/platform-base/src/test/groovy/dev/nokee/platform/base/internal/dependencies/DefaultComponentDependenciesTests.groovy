@@ -1,6 +1,6 @@
 package dev.nokee.platform.base.internal.dependencies
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.AbstractComponentDependenciesGroovyDslTest
 import dev.nokee.platform.base.DependencyBucket
@@ -11,7 +11,7 @@ import spock.lang.Subject
 
 @Subject(DefaultComponentDependencies)
 class DefaultComponentDependenciesTest extends Specification {
-	def project = TestUtils.rootProject()
+	def project = ProjectTestUtils.rootProject()
 	def factory = Mock(DependencyBucketFactory)
 	def ownerIdentifier = ProjectIdentifier.of('root')
 	def dependencies = project.objects.newInstance(DefaultComponentDependencies, ownerIdentifier, factory)
@@ -149,7 +149,7 @@ class DefaultComponentDependenciesTest extends Specification {
 
 @Subject(DefaultComponentDependencies)
 class DefaultComponentDependenciesGroovyDslTest extends AbstractComponentDependenciesGroovyDslTest {
-	def project = TestUtils.rootProject()
+	def project = ProjectTestUtils.rootProject()
 	def factory = new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)
 	ComponentDependenciesInternal dependenciesUnderTest = project.objects.newInstance(DefaultComponentDependencies, ProjectIdentifier.of('root'), factory)
 

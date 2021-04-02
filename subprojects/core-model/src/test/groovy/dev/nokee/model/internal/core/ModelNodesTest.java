@@ -1,7 +1,7 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.testing.NullPointerTester;
-import dev.nokee.internal.testing.utils.TestUtils;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.plugins.ExtensionAware;
@@ -13,7 +13,8 @@ import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.type.ModelType.untyped;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ModelNodesTest {
 	@Test
@@ -53,14 +54,14 @@ public class ModelNodesTest {
 
 	private static Object decoratedExtensionAwareObjectWithModelNode() {
 		val node = node("a.b.c");
-		val object = TestUtils.objectFactory().newInstance(MyType.class);
+		val object = ProjectTestUtils.objectFactory().newInstance(MyType.class);
 		((ExtensionAware) object).getExtensions().add(ModelNode.class, "__NOKEE_modelNode", node);
 		return object;
 	}
 
 	private static Object decoratedModelNodeAwareObjectWithModelNode() {
 		val node = node("a.b.c");
-		val object = TestUtils.objectFactory().newInstance(MyType.class);
+		val object = ProjectTestUtils.objectFactory().newInstance(MyType.class);
 		((ExtensionAware) object).getExtensions().add(ModelNode.class, "__NOKEE_modelNode", node);
 		return new ModelNodeAware() {
 			@Override
@@ -75,7 +76,7 @@ public class ModelNodesTest {
 	}
 
 	private static Object undecoratedObject() {
-		return TestUtils.objectFactory().newInstance(MyType.class);
+		return ProjectTestUtils.objectFactory().newInstance(MyType.class);
 	}
 
 	interface MyType {}

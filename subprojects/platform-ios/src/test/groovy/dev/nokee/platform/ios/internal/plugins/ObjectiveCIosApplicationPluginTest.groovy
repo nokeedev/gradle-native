@@ -1,10 +1,10 @@
 package dev.nokee.platform.ios.internal.plugins
 
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import dev.nokee.fixtures.AbstractBinaryPluginTest
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTaskPluginTest
 import dev.nokee.fixtures.AbstractVariantPluginTest
-import dev.nokee.internal.testing.utils.TestUtils
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.ios.IosApplication
 import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension
@@ -83,7 +83,7 @@ class ObjectiveCIosApplicationTaskPluginTest extends AbstractTaskPluginTest impl
 @Requires({SystemUtils.IS_OS_MAC})
 @Subject(ObjectiveCIosApplicationPlugin)
 class ObjectiveCIosApplicationPluginTest extends Specification {
-	def project = TestUtils.rootProject()
+	def project = ProjectTestUtils.rootProject()
 
 	def "applies the lifecycle-base plugin"() {
 		when:

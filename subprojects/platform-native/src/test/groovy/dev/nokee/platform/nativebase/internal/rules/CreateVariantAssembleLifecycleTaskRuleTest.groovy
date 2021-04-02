@@ -1,6 +1,6 @@
 package dev.nokee.platform.nativebase.internal.rules
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import org.gradle.api.Project
 import spock.lang.Specification
 import spock.lang.Subject
@@ -10,7 +10,7 @@ import static dev.nokee.utils.TaskUtils.configureGroup
 
 @Subject(CreateVariantAssembleLifecycleTaskRule)
 class CreateVariantAssembleLifecycleTaskRuleTest extends Specification implements TaskEntityFixture, VariantEntityFixture {
-	Project project = TestUtils.rootProject()
+	Project project = ProjectTestUtils.rootProject()
 	def subject = new CreateVariantAssembleLifecycleTaskRule(taskRegistry)
 
 	@Unroll

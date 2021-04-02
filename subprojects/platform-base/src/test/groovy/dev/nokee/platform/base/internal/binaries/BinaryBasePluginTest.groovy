@@ -1,11 +1,11 @@
 package dev.nokee.platform.base.internal.binaries
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import dev.nokee.platform.base.internal.plugins.BinaryBasePlugin
 import spock.lang.Specification
 
 class BinaryBasePluginTest extends Specification {
-	def project = TestUtils.rootProject()
+	def project = ProjectTestUtils.rootProject()
 
 	def "registers binary configurer service"() {
 		when:

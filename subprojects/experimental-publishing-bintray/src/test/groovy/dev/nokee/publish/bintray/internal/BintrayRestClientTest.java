@@ -14,7 +14,7 @@ import spock.lang.Subject;
 import java.io.File;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.internal.testing.utils.TestUtils.objectFactory;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.publish.bintray.internal.BintrayCredentials.of;
 import static dev.nokee.publish.bintray.internal.BintrayPackageName.of;
 import static dev.nokee.publish.bintray.internal.BintrayTestUtils.defaultUrl;

@@ -1,6 +1,6 @@
 package dev.nokee.platform.nativebase.internal.plugins.testers;
 
-import dev.nokee.internal.testing.utils.TestUtils;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentContainer;
 import org.gradle.api.Project;
@@ -16,7 +16,7 @@ public abstract class MainComponentPluginTester {
 	protected abstract Class<? extends Component> getComponentType();
 	protected abstract String getQualifiedPluginId();
 
-	private final Project project = TestUtils.rootProject();
+	private final Project project = ProjectTestUtils.rootProject();
 
 	@BeforeEach
 	void applyPlugin() {

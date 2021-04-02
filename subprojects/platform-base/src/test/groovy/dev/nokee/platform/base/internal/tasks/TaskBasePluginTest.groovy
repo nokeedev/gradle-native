@@ -1,13 +1,13 @@
 package dev.nokee.platform.base.internal.tasks
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import dev.nokee.platform.base.internal.plugins.TaskBasePlugin
 import spock.lang.Specification
 import spock.lang.Subject
 
 @Subject(TaskBasePlugin)
 class TaskBasePluginTest extends Specification {
-	def project = TestUtils.rootProject()
+	def project = ProjectTestUtils.rootProject()
 
 	def "registers task registry service"() {
 		when:

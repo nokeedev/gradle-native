@@ -10,8 +10,8 @@ import spock.lang.Specification
 import java.util.concurrent.Callable
 import java.util.function.Supplier
 
-import static dev.nokee.internal.testing.utils.TestUtils.objectFactory
-import static dev.nokee.internal.testing.utils.TestUtils.providerFactory
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.providerFactory
 
 class DeferredUtils_BaseSpec extends Specification {
 	protected Property<String> propertyOf(String value) {

@@ -1,7 +1,7 @@
 package dev.nokee.model.internal.registry;
 
 import com.google.common.testing.NullPointerTester;
-import dev.nokee.internal.testing.utils.TestUtils;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.*;
 import lombok.val;
 import org.junit.jupiter.api.Nested;
@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class DefaultModelRegistryTest {
-	private final DefaultModelRegistry subject = new DefaultModelRegistry(TestUtils.objectFactory()::newInstance);
+	private final DefaultModelRegistry subject = new DefaultModelRegistry(ProjectTestUtils.objectFactory()::newInstance);
 	private final ModelRegistry modelRegistry = subject;
 
 	@Test

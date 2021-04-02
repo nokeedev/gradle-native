@@ -1,7 +1,7 @@
 package dev.nokee.platform.c;
 
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.fixtures.NativeComponentMatchers;
-import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
@@ -28,7 +28,7 @@ class CLibraryTest implements SourceAwareComponentTester<CLibrary>, BaseNameAwar
 
 	@Override
 	public CLibrary createSubject(String componentName) {
-		val project = TestUtils.createRootProject(getTestDirectory());
+		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		val component = create(registry(project.getObjects()), cLibrary(componentName, project));
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set

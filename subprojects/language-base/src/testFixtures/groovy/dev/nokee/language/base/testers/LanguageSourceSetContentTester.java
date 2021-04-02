@@ -1,8 +1,8 @@
 package dev.nokee.language.base.testers;
 
 import com.google.common.util.concurrent.Callables;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.internal.testing.FileSystemWorkspace;
-import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.language.base.LanguageSourceSet;
 import lombok.val;
 import org.gradle.api.file.ProjectLayout;
@@ -85,7 +85,7 @@ public abstract class LanguageSourceSetContentTester<T extends LanguageSourceSet
 
 		@Override
 		Object[] source(String... paths) {
-			return Arrays.stream(paths).map(a::file).map(it -> TestUtils.providerFactory().provider(() -> it)).toArray();
+			return Arrays.stream(paths).map(a::file).map(it -> ProjectTestUtils.providerFactory().provider(() -> it)).toArray();
 		}
 	}
 
@@ -121,7 +121,7 @@ public abstract class LanguageSourceSetContentTester<T extends LanguageSourceSet
 
 		@BeforeEach
 		void createProjectLayout() {
-			projectLayout = TestUtils.createRootProject(temporaryDirectory).getLayout();
+			projectLayout = ProjectTestUtils.createRootProject(temporaryDirectory).getLayout();
 		}
 
 		@Override

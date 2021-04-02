@@ -9,7 +9,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.function.Consumer;
 
-import static dev.nokee.internal.testing.utils.TestUtils.rootProject;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
 
 public class BintrayTestUtils {
 	private static final Consumer<MavenArtifactRepository> DEFAULT_ACTION = withName("test").andThen(withUrl(defaultUrl())).andThen(withPackageName(defaultPackageName())).andThen(withCredentials(defaultUsername(), defaultPassword()));

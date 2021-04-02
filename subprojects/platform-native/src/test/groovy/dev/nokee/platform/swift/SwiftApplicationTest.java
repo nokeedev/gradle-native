@@ -1,7 +1,7 @@
 package dev.nokee.platform.swift;
 
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.fixtures.NativeComponentMatchers;
-import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.platform.base.Component;
@@ -27,7 +27,7 @@ public class SwiftApplicationTest implements SourceAwareComponentTester<SwiftApp
 
 	@Override
 	public SwiftApplication createSubject(String componentName) {
-		val project = TestUtils.createRootProject(testDirectory);
+		val project = ProjectTestUtils.createRootProject(testDirectory);
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		val component = create(registry(project.getObjects()), swiftApplication(componentName, project));
 		((FunctionalSourceSet) component.getSources()).get(); // force realize

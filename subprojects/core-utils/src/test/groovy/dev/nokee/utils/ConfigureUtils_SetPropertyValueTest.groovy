@@ -1,13 +1,13 @@
 package dev.nokee.utils
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import spock.lang.Shared
 import spock.lang.Specification
 
 import static dev.nokee.utils.ConfigureUtils.setPropertyValue
 
 class ConfigureUtils_SetPropertyValueTest extends Specification {
-	@Shared def project = TestUtils.rootProject()
+	@Shared def project = ProjectTestUtils.rootProject()
 
 	def "can configure property"() {
 		given:

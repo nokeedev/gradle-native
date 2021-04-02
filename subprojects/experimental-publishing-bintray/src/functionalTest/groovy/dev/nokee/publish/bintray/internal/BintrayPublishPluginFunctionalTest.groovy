@@ -1,5 +1,6 @@
 package dev.nokee.publish.bintray.internal
 
+import dev.gradleplugins.grava.testing.WellBehavedPluginTester
 import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import spock.lang.IgnoreIf
 import spock.lang.Subject
@@ -184,6 +185,14 @@ class BintrayPublishPluginFunctionalTest extends AbstractGradleSpecification {
 
 		expect:
 		succeeds('publishAllPublicationsToStagingRepository', '-i')
+	}
+
+	def checkWellBehavedPlugin() {
+		expect:
+		new WellBehavedPluginTester()
+			.qualifiedPluginId("dev.nokee.experimental.bintray-publish")
+			.pluginClass(BintrayPublishPlugin.class)
+			.testWellBehavedPlugin();
 	}
 
 	protected static String[] getBintrayCredentials() {

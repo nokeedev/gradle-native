@@ -1,14 +1,18 @@
 package dev.nokee.platform.nativebase.internal.plugins.testers;
 
-import dev.nokee.internal.testing.testers.WellBehavedPluginTester;
+import dev.gradleplugins.grava.testing.WellBehavedPluginTester;
+import dev.gradleplugins.grava.testing.util.TestCaseUtils;
 import dev.nokee.platform.base.Component;
 import org.gradle.api.Plugin;
 import org.gradle.util.GUtil;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.TestFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public abstract class WellBehavedMultiLanguageSingleEntryPointNokeePluginTest {
 	/**
@@ -73,16 +77,13 @@ public abstract class WellBehavedMultiLanguageSingleEntryPointNokeePluginTest {
 
 	@Nested
 	@DisplayName("a well-behaved plugin")
-	class WellBehavedPluginTest extends WellBehavedPluginTester {
-
-		@Override
-		protected String getQualifiedPluginIdUnderTest() {
-			return WellBehavedMultiLanguageSingleEntryPointNokeePluginTest.this.getQualifiedPluginIdUnderTest();
-		}
-
-		@Override
-		protected Class<? extends Plugin<?>> getPluginTypeUnderTest() {
-			return WellBehavedMultiLanguageSingleEntryPointNokeePluginTest.this.getPluginTypeUnderTest();
+	class WellBehavedPluginTest {
+		@TestFactory
+		Stream<DynamicTest> checkWellBehavedPlugin() {
+			return new WellBehavedPluginTester()
+				.qualifiedPluginId(WellBehavedMultiLanguageSingleEntryPointNokeePluginTest.this.getQualifiedPluginIdUnderTest())
+				.pluginClass(WellBehavedMultiLanguageSingleEntryPointNokeePluginTest.this.getPluginTypeUnderTest())
+				.stream().map(TestCaseUtils::toJUnit5DynamicTest);
 		}
 	}
 

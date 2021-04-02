@@ -1,6 +1,6 @@
 package dev.nokee.platform.nativebase.internal.rules
 
-import dev.nokee.internal.testing.utils.TestUtils
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal
 import org.gradle.api.Project
@@ -12,7 +12,7 @@ import static dev.nokee.utils.TaskUtils.configureGroup
 
 @Subject(CreateVariantAwareComponentAssembleLifecycleTaskRule)
 class CreateVariantAwareComponentAssembleLifecycleTaskRuleTest extends Specification implements TaskEntityFixture, ComponentEntityFixture {
-	Project project = TestUtils.rootProject()
+	Project project = ProjectTestUtils.rootProject()
 	def subject = new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry)
 
 	VariantAwareComponentInternal<?> aComponent(ComponentIdentifier<?> identifier) {

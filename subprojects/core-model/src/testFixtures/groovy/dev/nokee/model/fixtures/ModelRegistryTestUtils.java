@@ -1,6 +1,6 @@
 package dev.nokee.model.fixtures;
 
-import dev.nokee.internal.testing.utils.TestUtils;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
@@ -8,10 +8,11 @@ import org.gradle.api.model.ObjectFactory;
 
 import java.io.File;
 
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelPath.path;
 
 public class ModelRegistryTestUtils {
-	private static final DefaultModelRegistry TEST_MODEL_REGISTRY = new DefaultModelRegistry(TestUtils.objectFactory()::newInstance);
+	private static final DefaultModelRegistry TEST_MODEL_REGISTRY = new DefaultModelRegistry(objectFactory()::newInstance);
 	private static int count = 0;
 
 	public static <T> T create(NodeRegistration<T> registration) {
@@ -25,7 +26,7 @@ public class ModelRegistryTestUtils {
 	}
 
 	public static DefaultModelRegistry registry(File baseDirectory) {
-		return new DefaultModelRegistry(TestUtils.createRootProject(baseDirectory).getObjects()::newInstance);
+		return new DefaultModelRegistry(ProjectTestUtils.createRootProject(baseDirectory).getObjects()::newInstance);
 	}
 
 	public static DefaultModelRegistry registry(ObjectFactory objectFactory) {

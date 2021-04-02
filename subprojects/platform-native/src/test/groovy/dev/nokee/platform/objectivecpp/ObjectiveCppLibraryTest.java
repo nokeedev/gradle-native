@@ -1,8 +1,8 @@
 package dev.nokee.platform.objectivecpp;
 
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.fixtures.NativeComponentMatchers;
 import dev.nokee.internal.testing.FileSystemWorkspace;
-import dev.nokee.internal.testing.utils.TestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
@@ -32,7 +32,7 @@ class ObjectiveCppLibraryTest implements SourceAwareComponentTester<ObjectiveCpp
 
 	@Override
 	public ObjectiveCppLibrary createSubject(String componentName) {
-		val project = TestUtils.createRootProject(getTestDirectory());
+		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		val component = create(registry(project.getObjects()), objectiveCppLibrary(componentName, project));
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set

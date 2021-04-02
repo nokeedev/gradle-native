@@ -1,41 +1,38 @@
 package dev.nokee.model.internal.plugins;
 
-import dev.nokee.internal.testing.testers.WellBehavedPluginTester;
-import dev.nokee.internal.testing.utils.TestUtils;
+import dev.gradleplugins.grava.testing.WellBehavedPluginTester;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
+import dev.gradleplugins.grava.testing.util.TestCaseUtils;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import spock.lang.Subject;
 
+import java.util.stream.Stream;
+
 import static com.google.common.collect.ImmutableMap.of;
-import static dev.nokee.internal.testing.Assumptions.skipCurrentTestExecution;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @Subject(ModelBasePlugin.class)
 class ModelBasePluginTest {
-	@Nested
-	class IsWellBehavingPlugin extends WellBehavedPluginTester {
-		@Override
-		protected String getQualifiedPluginIdUnderTest() {
-			return skipCurrentTestExecution("plugin does not have a plugin id");
-		}
+	private final Project project = ProjectTestUtils.rootProject();
 
-		@Override
-		protected Class<? extends Plugin<?>> getPluginTypeUnderTest() {
-			return ModelBasePlugin.class;
-		}
+	@TestFactory
+	Stream<DynamicTest> checkWellBehavedPlugin() {
+		return new WellBehavedPluginTester()
+			.pluginClass(ModelBasePlugin.class)
+			.stream().map(TestCaseUtils::toJUnit5DynamicTest);
+
 	}
-
-	private final Project project = TestUtils.rootProject();
 
 	@Test
 	void registersEventPublisherService() {

@@ -1,7 +1,7 @@
 package dev.nokee.model.internal.registry;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.internal.testing.utils.TestUtils;
+import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.*;
 import lombok.val;
 import org.gradle.api.provider.Property;
@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DefaultModelRegistryIntegrationTest {
-	private final DefaultModelRegistry modelRegistry = new DefaultModelRegistry(TestUtils.objectFactory()::newInstance);
+	private final DefaultModelRegistry modelRegistry = new DefaultModelRegistry(ProjectTestUtils.objectFactory()::newInstance);
 
 	@Test
 	void modelNodeRegistrationGivesAccessToProviderThatResolvesToTheNodeValue() {
@@ -60,7 +60,7 @@ public class DefaultModelRegistryIntegrationTest {
 
 	@Test
 	void canRegisterManagedInstanceModel() {
-		val provider = modelRegistry.register(unmanagedInstance(of("bar", ManagedType.class), () -> TestUtils.objectFactory().newInstance(ManagedType.class)));
+		val provider = modelRegistry.register(unmanagedInstance(of("bar", ManagedType.class), () -> ProjectTestUtils.objectFactory().newInstance(ManagedType.class)));
 		assertThat(provider.get(), isA(ManagedType.class));
 	}
 
@@ -72,7 +72,7 @@ public class DefaultModelRegistryIntegrationTest {
 
 	@Test
 	void canAccessModelNodeOnManagedType() {
-		val provider = modelRegistry.register(unmanagedInstance(of("a", ModelNodeAccessingType.class), () -> TestUtils.objectFactory().newInstance(ModelNodeAccessingType.class)));
+		val provider = modelRegistry.register(unmanagedInstance(of("a", ModelNodeAccessingType.class), () -> ProjectTestUtils.objectFactory().newInstance(ModelNodeAccessingType.class)));
 		assertEquals("a", provider.get().getModelPathAsString());
 	}
 	interface ModelNodeAccessingType {
