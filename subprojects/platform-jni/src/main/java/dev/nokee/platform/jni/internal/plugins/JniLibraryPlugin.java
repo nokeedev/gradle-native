@@ -106,7 +106,7 @@ import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBase
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.configureUsingProjection;
 import static dev.nokee.platform.objectivec.internal.ObjectiveCSourceSetModelHelpers.configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
 import static dev.nokee.platform.objectivecpp.internal.ObjectiveCppSourceSetModelHelpers.configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
-import static dev.gradleplugins.grava.util.TransformerUtils.transformEach;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static java.util.Collections.emptyList;

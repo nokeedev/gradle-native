@@ -6,7 +6,7 @@ import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.Test;
 
-import static dev.gradleplugins.grava.util.TransformerUtils.noOpTransformer;
+import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 

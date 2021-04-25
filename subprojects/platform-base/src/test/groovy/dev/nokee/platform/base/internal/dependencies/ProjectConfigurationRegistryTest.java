@@ -1,7 +1,7 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.testing.NullPointerTester;
-import dev.gradleplugins.grava.util.ActionUtils;
+import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Project;

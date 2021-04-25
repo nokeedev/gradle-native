@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.gradleplugins.grava.util.TransformerUtils.*;
+import static dev.nokee.utils.TransformerUtils.*;
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
 abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn, PropertyMixIn, DomainObjectView<T> {

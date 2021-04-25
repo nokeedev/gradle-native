@@ -15,7 +15,7 @@ import org.gradle.api.model.ObjectFactory;
 import javax.inject.Inject;
 
 import static dev.nokee.utils.DeferredUtils.realize;
-import static dev.gradleplugins.grava.util.ProjectUtils.getPrefixableProjectPath;
+import static dev.nokee.utils.ProjectUtils.getPrefixableProjectPath;
 
 /**
  * Task rule for bridging Xcode IDE with Gradle.

@@ -2,7 +2,7 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactory;
-import dev.gradleplugins.grava.util.ActionUtils;
+import dev.nokee.utils.ActionUtils;
 import org.gradle.api.artifacts.Configuration;
 
 import static dev.nokee.model.internal.core.ModelActions.initialize;

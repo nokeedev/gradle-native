@@ -1,6 +1,6 @@
 package dev.nokee.model;
 
-import dev.gradleplugins.grava.util.SpecUtils;
+import dev.nokee.utils.SpecUtils;
 import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.Nested;
 
