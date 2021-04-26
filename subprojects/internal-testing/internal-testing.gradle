@@ -21,6 +21,7 @@ dependencies {
 	api "commons-io:commons-io:${commonsIoVersion}"
 	api "com.google.guava:guava:${guavaVersion}"
 	api "com.google.guava:guava-testlib:${guavaVersion}"
+	api "dev.gradleplugins:grava-testing:${gravaVersion}"
 	api gradleRunnerKit()
 	implementation gradleApi(minimumGradleVersion)
 }
