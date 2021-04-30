@@ -21,6 +21,7 @@ import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.HasOutputFile;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -60,6 +61,8 @@ public class NativeApplicationOutgoingDependencies implements NativeOutgoingDepe
 	private Provider<RegularFile> getOutgoingRuntimeLibrary(Binary binary) {
 		if (binary instanceof ExecutableBinaryInternal) {
 			return ((ExecutableBinaryInternal) binary).getLinkTask().flatMap(LinkExecutable::getLinkedFile);
+		} else if (binary instanceof HasOutputFile) {
+			return ((HasOutputFile) binary).getOutputFile();
 		}
 		throw new IllegalArgumentException("Unsupported binary to export");
 	}

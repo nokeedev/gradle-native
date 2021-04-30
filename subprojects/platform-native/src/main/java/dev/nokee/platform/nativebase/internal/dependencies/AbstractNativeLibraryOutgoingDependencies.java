@@ -22,6 +22,7 @@ import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
+import dev.nokee.platform.nativebase.internal.HasOutputFile;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
@@ -80,6 +81,8 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 			return ((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile);
 		} else if (binary instanceof StaticLibraryBinary) {
 			return ((StaticLibraryBinary) binary).getCreateTask().flatMap(CreateStaticLibrary::getOutputFile);
+		} else if (binary instanceof HasOutputFile) {
+			return ((HasOutputFile) binary).getOutputFile();
 		}
 		throw new IllegalArgumentException("Unsupported binary to export");
 	}
@@ -89,6 +92,8 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile))));
 		} else if (binary instanceof StaticLibraryBinary) {
 			return Providers.of(ImmutableList.of());
+		} else if (binary instanceof HasOutputFile) {
+			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((HasOutputFile) binary).getOutputFile())));
 		}
 		throw new IllegalArgumentException("Unsupported binary to export");
 	}
