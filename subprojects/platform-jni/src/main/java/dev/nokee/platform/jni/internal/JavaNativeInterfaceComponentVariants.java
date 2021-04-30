@@ -101,7 +101,7 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 			task.setDescription(String.format("Assembles the '%s' outputs of this project.", BuildVariantNamer.INSTANCE.determineName((BuildVariantInternal)identifier.getBuildVariant())));
 		});
 
-		val result = new JniLibraryInternal(identifier, component.getSources(), component.getGroupId(), variantDependencies, objectFactory, configurationContainer, providerFactory, taskRegistry, assembleTask, eventPublisher, binaryViewFactory, taskViewFactory);
+		val result = objectFactory.newInstance(JniLibraryInternal.class, identifier, component.getSources(), component.getGroupId(), variantDependencies, objectFactory, configurationContainer, providerFactory, taskRegistry, assembleTask, eventPublisher, binaryViewFactory, taskViewFactory);
 		return result;
 	}
 
