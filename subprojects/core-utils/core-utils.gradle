@@ -12,6 +12,7 @@ dependencies {
 	implementation "com.google.guava:guava:${guavaVersion}"
 
 	testImplementation gradleApi(minimumGradleVersion)
+	testImplementation project(':internalTesting')
 	testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72'
 }
 

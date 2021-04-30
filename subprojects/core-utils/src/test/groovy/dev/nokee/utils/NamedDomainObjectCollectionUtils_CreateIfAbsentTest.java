@@ -10,10 +10,10 @@ import org.junit.jupiter.params.provider.EnumSource;
 import javax.inject.Inject;
 import java.util.function.Consumer;
 
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
-import static dev.gradleplugins.grava.testing.util.ActionTestUtils.doSomething;
+import static dev.nokee.utils.ActionTestUtils.doSomething;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.createIfAbsent;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
 import static org.hamcrest.MatcherAssert.assertThat;
