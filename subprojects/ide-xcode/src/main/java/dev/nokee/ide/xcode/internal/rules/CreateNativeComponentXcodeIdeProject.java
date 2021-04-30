@@ -341,6 +341,8 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 								return ((IosApplicationBundleInternal) binary).getApplicationBundleLocation();
 							} else if (binary instanceof IosXCTestBundle) {
 								return ((IosXCTestBundle) binary).getXCTestBundleLocation();
+							} else if (binary instanceof HasOutputFile) {
+								return ((HasOutputFile) binary).getOutputFile();
 							}
 							throw unsupportedBinaryType(binary);
 						}

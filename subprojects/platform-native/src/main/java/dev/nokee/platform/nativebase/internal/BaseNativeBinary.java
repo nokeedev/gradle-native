@@ -75,7 +75,7 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class BaseNativeBinary implements Binary, NativeBinary {
+public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeaderSearchPaths {
 	private final ToolChainSelectorInternal toolChainSelector;
 	@Getter protected final BinaryIdentifier<?> identifier;
 	protected final TaskView<Task> compileTasks; // Until the compile tasks is clean up

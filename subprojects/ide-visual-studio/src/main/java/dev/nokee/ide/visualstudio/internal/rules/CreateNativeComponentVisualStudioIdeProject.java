@@ -30,9 +30,11 @@ import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
+import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
-import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
+import dev.nokee.platform.nativebase.internal.HasHeaderSearchPaths;
+import dev.nokee.platform.nativebase.internal.HasOutputFile;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
@@ -230,13 +232,13 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			return new Transformer<Provider<String>, Binary>() {
 				@Override
 				public Provider<String> transform(Binary binary) {
-					if (binary instanceof BaseNativeBinary) {
-						return cppCompileTask((BaseNativeBinary) binary).map(this::compilerArgsToLanguageStandard).orElse(null);
+					if (binary instanceof NativeBinary) {
+						return cppCompileTask((NativeBinary) binary).map(this::compilerArgsToLanguageStandard).orElse(null);
 					}
 					throw unsupportedBinaryType(binary);
 				}
 
-				private Optional<CppCompile> cppCompileTask(BaseNativeBinary binary) {
+				private Optional<CppCompile> cppCompileTask(NativeBinary binary) {
 					val iter = binary.getCompileTasks().withType(CppCompile.class).get().iterator();
 					if (iter.hasNext()) {
 						return Optional.of(iter.next());
@@ -296,8 +298,8 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			return new Transformer<Provider<String>, Binary>() {
 				@Override
 				public Provider<String> transform(Binary binary) {
-					if (binary instanceof BaseNativeBinary) {
-						return ((BaseNativeBinary) binary).getHeaderSearchPaths().map(this::toSemiColonSeparatedPaths);
+					if (binary instanceof HasHeaderSearchPaths) {
+						return ((HasHeaderSearchPaths) binary).getHeaderSearchPaths().map(this::toSemiColonSeparatedPaths);
 					}
 					throw unsupportedBinaryType(binary);
 				}
@@ -320,6 +322,8 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 					return ((SharedLibraryBinary) binary).getLinkTask().get().getLinkedFile();
 				} else if (binary instanceof StaticLibraryBinary) {
 					return ((StaticLibraryBinary) binary).getCreateTask().get().getOutputFile();
+				} else if (binary instanceof HasOutputFile) {
+					return ((HasOutputFile) binary).getOutputFile();
 				}
 				throw unsupportedBinaryType(binary);
 			};
