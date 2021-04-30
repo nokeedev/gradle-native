@@ -31,7 +31,7 @@ abstract class AbstractIdeGradleBuildFilesFunctionalTest extends AbstractGradleS
 		buildFile << applyIdePlugin() << configureIdeProject('foo')
 
 		when:
-		executer = executer.usingBuildScript(buildFile)
+		executer = executer.usingBuildScript(buildFile).withoutDeprecationChecks()
 		succeeds(tasks.ideLifecycle)
 
 		then:
@@ -45,7 +45,7 @@ abstract class AbstractIdeGradleBuildFilesFunctionalTest extends AbstractGradleS
 		buildFile << applyIdePlugin() << configureIdeProject('foo')
 
 		when:
-		executer = executer.usingSettingsFile(settingsFile)
+		executer = executer.usingSettingsFile(settingsFile).withoutDeprecationChecks()
 		succeeds(tasks.ideLifecycle)
 
 		then:
