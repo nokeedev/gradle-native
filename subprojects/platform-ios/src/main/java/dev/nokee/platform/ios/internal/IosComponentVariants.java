@@ -88,7 +88,7 @@ public final class IosComponentVariants implements ComponentVariants {
 	}
 
 	private DefaultIosApplicationVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeComponentDependencies> variantDependencies, TaskProvider<Task> assembleTask) {
-		val variant = new DefaultIosApplicationVariant(identifier, variantDependencies, objectFactory, providerFactory, assembleTask, binaryViewFactory);
+		val variant = objectFactory.newInstance(DefaultIosApplicationVariant.class, identifier, variantDependencies, objectFactory, providerFactory, assembleTask, binaryViewFactory);
 		variant.getProductBundleIdentifier().convention(component.getGroupId().map(it -> it + "." + component.getModuleName().get()));
 		return variant;
 	}

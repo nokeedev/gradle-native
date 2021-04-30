@@ -114,7 +114,7 @@ public final class NativeTestSuiteComponentVariants implements ComponentVariants
 	}
 
 	private DefaultNativeTestSuiteVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeComponentDependencies> variantDependencies, TaskProvider<Task> assembleTask) {
-		return new DefaultNativeTestSuiteVariant(identifier, variantDependencies, objectFactory, providerFactory, assembleTask, binaryViewFactory);
+		return objectFactory.newInstance(DefaultNativeTestSuiteVariant.class, identifier, variantDependencies, objectFactory, providerFactory, assembleTask, binaryViewFactory);
 	}
 
 	private void onEachVariantDependencies(VariantProvider<DefaultNativeTestSuiteVariant> variant, VariantComponentDependencies<?> dependencies) {

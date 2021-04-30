@@ -132,7 +132,7 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 	}
 
 	private DefaultNativeLibraryVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> variantDependencies, TaskProvider<Task> assembleTask) {
-		return new DefaultNativeLibraryVariant(identifier, variantDependencies, objectFactory, providerFactory, assembleTask, binaryViewFactory);
+		return objectFactory.newInstance(DefaultNativeLibraryVariant.class, identifier, variantDependencies, objectFactory, providerFactory, assembleTask, binaryViewFactory);
 	}
 
 	private void onEachVariantDependencies(VariantProvider<DefaultNativeLibraryVariant> variant, VariantComponentDependencies<?> dependencies) {

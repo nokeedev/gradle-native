@@ -89,7 +89,7 @@ public final class XCTestTestSuiteComponentVariants implements ComponentVariants
 	}
 
 	private DefaultXCTestTestSuiteVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeComponentDependencies> variantDependencies, TaskProvider<Task> assembleTask) {
-		return new DefaultXCTestTestSuiteVariant(identifier, variantDependencies, objectFactory, providerFactory, assembleTask, binaryViewFactory);
+		return objectFactory.newInstance(DefaultXCTestTestSuiteVariant.class, identifier, variantDependencies, objectFactory, providerFactory, assembleTask, binaryViewFactory);
 	}
 
 	private VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultXCTestTestSuiteVariant> variantIdentifier) {

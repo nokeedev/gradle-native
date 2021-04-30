@@ -114,7 +114,7 @@ public final class NativeApplicationComponentVariants implements ComponentVarian
 	}
 
 	private DefaultNativeApplicationVariant createVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeApplicationComponentDependencies> variantDependencies, TaskProvider<Task> assembleTask) {
-		return new DefaultNativeApplicationVariant(identifier, variantDependencies, objectFactory, providerFactory, assembleTask, binaryViewFactory);
+		return objectFactory.newInstance(DefaultNativeApplicationVariant.class, identifier, variantDependencies, objectFactory, providerFactory, assembleTask, binaryViewFactory);
 	}
 
 	private void onEachVariantDependencies(VariantProvider<DefaultNativeApplicationVariant> variant, VariantComponentDependencies<?> dependencies) {
