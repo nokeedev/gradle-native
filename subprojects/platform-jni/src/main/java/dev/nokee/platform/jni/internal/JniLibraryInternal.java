@@ -79,10 +79,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		return groupId.get().map(it -> it.replace('.', '/') + '/').orElse("") + getIdentifier().getAmbiguousDimensions().getAsKebabCase().orElse("");
 	}
 
-	public void setResourcePath(Object value) {
-		ConfigureUtils.setPropertyValue(resourcePath, value);
-	}
-
 	public FunctionalSourceSet getSources() {
 		return sources;
 	}
