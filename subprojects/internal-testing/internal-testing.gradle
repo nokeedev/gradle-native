@@ -15,13 +15,13 @@ dependencies {
 	api "org.mockito:mockito-core:${mockitoVersion}"
 
 	// Support libraries
-	api "dev.gradleplugins:grava-testing:${gravaVersion}"
 	api "org.hamcrest:hamcrest:${hamcrestVersion}"
 	api "com.spotify:hamcrest-optional:${hamcrestOptionalVersion}"
 	api "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	api "commons-io:commons-io:${commonsIoVersion}"
 	api "com.google.guava:guava:${guavaVersion}"
 	api "com.google.guava:guava-testlib:${guavaVersion}"
+	api "dev.gradleplugins:grava-testing:${gravaVersion}"
 	api gradleRunnerKit()
 	implementation gradleApi(minimumGradleVersion)
 }

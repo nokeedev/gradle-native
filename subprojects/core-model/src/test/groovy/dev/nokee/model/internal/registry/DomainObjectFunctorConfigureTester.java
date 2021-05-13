@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
-import static dev.gradleplugins.grava.util.ActionUtils.doNothing;
+import static dev.nokee.utils.ActionUtils.doNothing;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;

@@ -9,7 +9,7 @@ import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.core.ModelTestUtils.projectionOf;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.gradleplugins.grava.util.ActionUtils.doNothing;
+import static dev.nokee.utils.ActionUtils.doNothing;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

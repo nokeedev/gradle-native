@@ -74,7 +74,7 @@ import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static dev.gradleplugins.grava.util.TransformerUtils.transformEach;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite, SourceAwareComponent<ComponentSources> {
 	private final DefaultNativeComponentDependencies dependencies;

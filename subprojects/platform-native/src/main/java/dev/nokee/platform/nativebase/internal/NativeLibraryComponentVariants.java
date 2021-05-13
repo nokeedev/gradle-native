@@ -41,7 +41,7 @@ import java.util.List;
 
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static dev.gradleplugins.grava.util.TransformerUtils.transformEach;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public final class NativeLibraryComponentVariants implements ComponentVariants {

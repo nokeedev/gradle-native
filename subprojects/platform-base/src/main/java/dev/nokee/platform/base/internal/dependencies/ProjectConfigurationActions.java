@@ -2,7 +2,7 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
-import dev.gradleplugins.grava.util.ActionUtils;
+import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.ProviderUtils;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -34,7 +34,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static dev.nokee.platform.base.internal.tasks.TaskName.taskName;
-import static dev.gradleplugins.grava.util.NamedDomainObjectCollectionUtils.registerIfAbsent;
+import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
 import static java.util.Objects.requireNonNull;
 import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.DIRECTORY_TYPE;
 

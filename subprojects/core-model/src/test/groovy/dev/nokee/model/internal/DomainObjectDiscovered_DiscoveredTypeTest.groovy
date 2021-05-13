@@ -1,6 +1,6 @@
 package dev.nokee.model.internal
 
-import dev.gradleplugins.grava.util.ActionUtils
+import dev.nokee.utils.ActionUtils
 import org.gradle.api.Action
 import spock.lang.Specification
 
