@@ -95,6 +95,10 @@ include 'languageSwift'
 project(':languageSwift').projectDir = file('subprojects/language-swift')
 project(':languageSwift').buildFileName = 'language-swift.gradle'
 
+include 'modelCore'
+project(':modelCore').projectDir = file('subprojects/model-core')
+project(':modelCore').buildFileName = 'model-core.gradle'
+
 include 'platformBase'
 project(':platformBase').projectDir = file('subprojects/platform-base')
 project(':platformBase').buildFileName = 'platform-base.gradle'
