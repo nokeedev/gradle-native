@@ -3,6 +3,20 @@ plugins {
 	id 'maven-publish'
 }
 
+dependencies {
+	implementation project(':coreUtils')
+	implementation project(':modelGraph')
+}
+
+gradlePlugin {
+	plugins {
+		modelBase {
+			id = 'dev.nokee.model-base'
+			implementationClass = 'dev.nokee.model.internal.ModelBasePlugin'
+		}
+	}
+}
+
 publishing {
 	publications {
 		library(MavenPublication) {
