@@ -30,6 +30,10 @@ public /*final*/ abstract class ModelBasePlugin<T extends PluginAware & Extensio
 		extension.getModelRegistry().getRoot().newProjection(builder -> builder.type(type).forInstance(target));
 	}
 
+	public static NokeeExtension nokee(ExtensionAware target) {
+		return target.getExtensions().getByType(NokeeExtension.class);
+	}
+
 	private static <T> T computeWhen(Object target, Function<? super Settings, T> settingsAction, Function<? super Project, T> projectAction) {
 		if (target instanceof Settings) {
 			return settingsAction.apply((Settings) target);
