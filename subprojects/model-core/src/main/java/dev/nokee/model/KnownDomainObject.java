@@ -2,6 +2,8 @@ package dev.nokee.model;
 
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
+import groovy.transform.stc.ClosureParams;
+import groovy.transform.stc.FirstParam;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
@@ -14,7 +16,7 @@ public interface KnownDomainObject<T> {
 
 	Class<T> getType();
 
-	default void configure(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void configure(@ClosureParams(FirstParam.FirstGenericType.class) @DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
 		configure(ConfigureUtil.configureUsing(requireNonNull(closure)));
 	}
 	void configure(Action<? super T> action);
