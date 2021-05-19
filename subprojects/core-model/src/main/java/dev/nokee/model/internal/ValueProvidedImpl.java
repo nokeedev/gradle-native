@@ -19,7 +19,7 @@ final class ValueProvidedImpl<T> implements Value<T> {
 
 	@Override
 	public Class<T> getType() {
-		return ProviderUtils.getType(provider);
+		return ProviderUtils.getType(provider).orElse(null);
 	}
 
 	@Override
