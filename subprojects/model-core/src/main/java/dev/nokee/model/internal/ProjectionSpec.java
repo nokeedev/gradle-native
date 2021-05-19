@@ -56,6 +56,11 @@ final class ProjectionSpec implements ModelProjectionSpec {
 		}
 
 		public ProjectionSpec build() {
+			ProviderUtils.getType(provider).ifPresent(type -> {
+				if (!this.type.isAssignableFrom(type)) {
+					throw new RuntimeException();
+				}
+			});
 			return new ProjectionSpec(type, configurationStrategy, provider);
 		}
 	}
