@@ -16,7 +16,7 @@ class ProviderUtils_GetTypeTest extends Specification {
 
 		then:
 		1 * provider.getType() >> Object
-		result == Object
+		result.get() == Object
 	}
 
 	def "can return null if ProviderInternal type is null"() {
@@ -26,7 +26,7 @@ class ProviderUtils_GetTypeTest extends Specification {
 		}
 
 		expect:
-		ProviderUtils.getType(provider) == null
+		!ProviderUtils.getType(provider).present
 	}
 
 	def "returns null if provider is not a ProviderInternal instance"() {
@@ -34,7 +34,7 @@ class ProviderUtils_GetTypeTest extends Specification {
 		def provider = Stub(Provider)
 
 		expect:
-		ProviderUtils.getType(provider) == null
+		!ProviderUtils.getType(provider).present
 	}
 
 	def "throws exception is provider is null"() {

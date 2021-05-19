@@ -9,6 +9,7 @@ import org.gradle.util.GradleVersion;
 import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import static java.util.Objects.requireNonNull;
@@ -55,13 +56,12 @@ public final class ProviderUtils {
 	 * @param <T> the type of object provided
 	 * @return a class representing the object type provided by the provider, or null if we can't figure it out.
 	 */
-	@Nullable
-	public static <T> Class<T> getType(Provider<T> self) {
+	public static <T> Optional<Class<T>> getType(Provider<T> self) {
 		requireNonNull(self);
 		if (self instanceof ProviderInternal) {
-			return ((ProviderInternal<T>) self).getType();
+			return Optional.ofNullable(((ProviderInternal<T>) self).getType());
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	public static <S> Provider<S> forUseAtConfigurationTime(Provider<S> provider) {
