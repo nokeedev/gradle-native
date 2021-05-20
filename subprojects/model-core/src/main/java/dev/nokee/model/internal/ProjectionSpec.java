@@ -26,6 +26,9 @@ final class ProjectionSpec implements ModelProjectionSpec {
 	}
 
 	public <T> T get(Class<T> type) {
+		if (type.isAssignableFrom(Provider.class)) {
+			return type.cast(provider);
+		}
 		return type.cast(provider.get());
 	}
 
