@@ -4,6 +4,10 @@ import dev.nokee.model.core.ModelProjection;
 import dev.nokee.model.graphdb.Graph;
 import dev.nokee.model.graphdb.Node;
 import lombok.EqualsAndHashCode;
+import org.gradle.api.Action;
+import org.gradle.api.provider.Provider;
+
+import static dev.nokee.utils.ProviderUtils.notDefined;
 
 @EqualsAndHashCode
 final class DefaultModelProjection implements ModelProjection {
@@ -20,8 +24,30 @@ final class DefaultModelProjection implements ModelProjection {
 		return ((ProjectionSpec) delegate.getProperty("spec")).canBeViewedAs(type);
 	}
 
+	public <T> Provider<T> as(Class<T> type) {
+		if (canBeViewedAs(type)) {
+			return ((ProjectionSpec) delegate.getProperty("spec")).get(Provider.class);
+		} else {
+			return notDefined();
+		}
+	}
+
+	@Override
+	public <T> void whenRealized(Class<T> type, Action<? super T> action) {
+		if (!canBeViewedAs(type)) {
+			throw new RuntimeException();
+		}
+
+		// TODO: Add configuration node
+		((ProjectionSpec) delegate.getProperty("spec")).configure(action);
+	}
+
 	@Override
 	public <T> T get(Class<T> type) {
-		return ((ProjectionSpec) delegate.getProperty("spec")).get(type);
+		if (canBeViewedAs(type)) {
+			return ((ProjectionSpec) delegate.getProperty("spec")).get(type);
+		} else {
+			throw new RuntimeException(""); // TODO: Throw meaningful exception
+		}
 	}
 }
