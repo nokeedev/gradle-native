@@ -1,12 +1,11 @@
 package dev.nokee.model.internal;
 
-import dev.nokee.model.core.ModelProjectionSpec;
 import dev.nokee.utils.ProviderUtils;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.provider.Provider;
 
-final class ProjectionSpec implements ModelProjectionSpec {
+final class ProjectionSpec {
 	private final Class<?> type;
 	private final ConfigurationStrategy configurationStrategy;
 	private final Provider<?> provider;
@@ -36,7 +35,7 @@ final class ProjectionSpec implements ModelProjectionSpec {
 		return new Builder();
 	}
 
-	public static final class Builder implements ModelProjectionSpec.Builder {
+	public static final class Builder {
 		private Class<?> type;
 		private Provider<?> provider;
 		private ConfigurationStrategy configurationStrategy;
