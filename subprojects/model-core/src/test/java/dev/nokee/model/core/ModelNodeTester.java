@@ -1,5 +1,7 @@
 package dev.nokee.model.core;
 
+import dev.nokee.model.TestProjection;
+import dev.nokee.model.UnknownProjection;
 import lombok.val;
 import org.gradle.api.Named;
 import org.junit.jupiter.api.Test;
@@ -9,6 +11,7 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 public interface ModelNodeTester {
 	ModelNode createSubject();
@@ -83,5 +86,15 @@ public interface ModelNodeTester {
 		public String getName() {
 			return name;
 		}
+	}
+
+	@Test
+	default void canViewNodeAsProjection() {
+		val subject = createSubject();
+		subject.newProjection(builder -> builder.type(TestProjection.class).forInstance(new TestProjection("test")));
+		assertAll(
+			() -> assertThat(subject.canBeViewedAs(TestProjection.class), is(true)),
+			() -> assertThat(subject.canBeViewedAs(UnknownProjection.class), is(false))
+		);
 	}
 }

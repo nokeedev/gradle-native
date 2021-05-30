@@ -6,6 +6,7 @@ plugins {
 dependencies {
 	implementation project(':coreUtils')
 	implementation project(':modelGraph')
+	testImplementation testFixtures(project(':coreUtils'))
 }
 
 gradlePlugin {
