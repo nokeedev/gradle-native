@@ -11,11 +11,11 @@ import static org.hamcrest.Matchers.equalTo;
 
 public final class FunctionalInterfaceMatchers {
 	public static <T extends ExecutionArguments> Matcher<HasExecutionResult<T>> calledOnceWith(Matcher<? super T> matcher) {
-		return allOf(called(Matchers.equalTo(1L)), lastArgument(matcher));
+		return allOf(called(equalTo(1L)), lastArgument(matcher));
 	}
 
 	public static <T> Matcher<ExecutionArgument<T>> singleArgumentOf(T obj) {
-		return singleArgumentOf(Matchers.equalTo(obj));
+		return singleArgumentOf(equalTo(obj));
 	}
 
 	public static <T> Matcher<ExecutionArgument<T>> singleArgumentOf(Matcher<? super T> matcher) {
@@ -41,7 +41,7 @@ public final class FunctionalInterfaceMatchers {
 	}
 
 	public static <T, U> Matcher<ExecutionBiArguments<T, U>> secondArgumentOf(U instance) {
-		return secondArgumentOf(Matchers.equalTo(instance));
+		return secondArgumentOf(equalTo(instance));
 	}
 
 	public static <T, U> Matcher<ExecutionBiArguments<T, U>> secondArgumentOf(Matcher<? super U> matcher) {
@@ -63,11 +63,11 @@ public final class FunctionalInterfaceMatchers {
 	}
 
 	public static <T extends ExecutionArguments> Matcher<HasExecutionResult<T>> calledOnce() {
-		return called(Matchers.equalTo(1L));
+		return called(equalTo(1L));
 	}
 
 	public static <T extends ExecutionArguments> Matcher<HasExecutionResult<T>> neverCalled() {
-		return called(Matchers.equalTo(0L));
+		return called(equalTo(0L));
 	}
 
 	public static <T extends ExecutionArguments> Matcher<HasExecutionResult<T>> lastArgument(Matcher<? super T> matcher) {
@@ -80,7 +80,7 @@ public final class FunctionalInterfaceMatchers {
 	}
 
 	public static Matcher<ClosureExecutionDelegate> delegateOf(Object delegateInstance) {
-		return delegateOf(Matchers.equalTo(delegateInstance));
+		return delegateOf(equalTo(delegateInstance));
 	}
 
 	public static Matcher<ClosureExecutionDelegate> delegateOf(Matcher<? super Object> delegateMatcher) {
@@ -93,7 +93,7 @@ public final class FunctionalInterfaceMatchers {
 	}
 
 	public static Matcher<ClosureExecutionDelegate> delegateFirstStrategy() {
-		return new FeatureMatcher<ClosureExecutionDelegate, Integer>(Matchers.equalTo(Closure.DELEGATE_FIRST), "", "") {
+		return new FeatureMatcher<ClosureExecutionDelegate, Integer>(equalTo(Closure.DELEGATE_FIRST), "", "") {
 			@Override
 			protected Integer featureValueOf(ClosureExecutionDelegate actual) {
 				return actual.getResolveStrategy();
