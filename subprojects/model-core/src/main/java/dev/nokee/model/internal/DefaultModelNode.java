@@ -2,11 +2,11 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.core.ModelNode;
 import dev.nokee.model.core.ModelProjection;
-import dev.nokee.model.core.ModelProjectionSpec;
 import dev.nokee.model.graphdb.*;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Named;
+import org.gradle.api.NamedDomainObjectProvider;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -45,9 +45,27 @@ final class DefaultModelNode implements ModelNode {
 	}
 
 	@Override
-	public ModelProjection newProjection(Consumer<? super ModelProjectionSpec.Builder> builderAction) {
+	public ModelProjection newProjection(Consumer<? super ModelProjection.Builder> builderAction) {
 		val builder = ProjectionSpec.builder();
-		builderAction.accept(builder);
+		builderAction.accept(new ModelProjection.Builder() {
+			@Override
+			public ModelProjection.Builder type(Class<?> type) {
+				builder.type(type);
+				return this;
+			}
+
+			@Override
+			public ModelProjection.Builder forProvider(NamedDomainObjectProvider<?> domainObjectProvider) {
+				builder.forProvider(domainObjectProvider);
+				return this;
+			}
+
+			@Override
+			public ModelProjection.Builder forInstance(Object instance) {
+				builder.forInstance(instance);
+				return this;
+			}
+		});
 		val projectionNode = graph.createNode().property("spec", builder.build());
 //			.property("type", type)
 //			.property("identifier", getIdentifier());

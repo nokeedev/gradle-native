@@ -8,7 +8,8 @@ import java.util.stream.Stream;
 
 public interface ModelNode extends Named {
 	ModelNode newChildNode(Object identity);
-	ModelProjection newProjection(Consumer<? super ModelProjectionSpec.Builder> builderAction);
+
+	ModelProjection newProjection(Consumer<? super ModelProjection.Builder> builderAction);
 
 	Optional<ModelNode> getParent();
 
