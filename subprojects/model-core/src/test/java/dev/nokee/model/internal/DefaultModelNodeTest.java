@@ -1,5 +1,7 @@
 package dev.nokee.model.internal;
 
+import dev.nokee.model.TestProjection;
+import dev.nokee.model.UnknownProjection;
 import dev.nokee.model.core.ModelNode;
 import dev.nokee.model.core.ModelNodeTester;
 import dev.nokee.model.graphdb.Graph;
@@ -25,7 +27,7 @@ class DefaultModelNodeTest implements ModelNodeTester {
 	@Test
 	void canCreateProjectionForInstance() {
 		val subject = createSubject();
-		val instance = new TestProjection();
+		val instance = new TestProjection("test");
 		val projection = subject.newProjection(builder -> builder.type(TestProjection.class).forInstance(instance));
 		assertAll(
 			() -> assertThat(projection, notNullValue()),
@@ -55,8 +57,4 @@ class DefaultModelNodeTest implements ModelNodeTester {
 		val provider = rootProject().getTasks().register("foo", it -> new RuntimeException());
 		assertThrows(RuntimeException.class, () -> subject.newProjection(builder -> builder.type(TestProjection.class).forProvider(provider)));
 	}
-
-	public static class TestProjection {}
-
-	public static class UnknownProjection {}
 }

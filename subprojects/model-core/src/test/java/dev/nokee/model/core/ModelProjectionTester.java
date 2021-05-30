@@ -1,8 +1,8 @@
 package dev.nokee.model.core;
 
+import dev.nokee.model.UnknownProjection;
 import lombok.val;
 import org.gradle.api.Action;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -10,7 +10,8 @@ import org.mockito.Mockito;
 import static dev.nokee.internal.testing.GradleProviderMatchers.absentProvider;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public interface ModelProjectionTester {
@@ -70,6 +71,4 @@ public interface ModelProjectionTester {
 	interface BaseProjection {}
 	interface TestProjection extends BaseProjection {}
 	final class DefaultTestProjection implements TestProjection {}
-
-	interface UnknownProjection {}
 }
