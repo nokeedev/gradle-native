@@ -7,9 +7,10 @@ import groovy.lang.DelegatesTo;
 import groovy.transform.stc.ClosureParams;
 import groovy.transform.stc.SimpleType;
 import org.gradle.api.Action;
+import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.util.ConfigureUtil;
 
-public interface NokeeExtension {
+public interface NokeeExtension extends ExtensionAware {
 	ModelRegistry getModelRegistry();
 
 	ModelNode getModel();
