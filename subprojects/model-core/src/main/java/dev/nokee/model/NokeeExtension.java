@@ -7,11 +7,16 @@ import groovy.lang.DelegatesTo;
 import groovy.transform.stc.ClosureParams;
 import groovy.transform.stc.SimpleType;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.PolymorphicDomainObjectContainer;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.util.ConfigureUtil;
 
 public interface NokeeExtension extends ExtensionAware {
 	ModelRegistry getModelRegistry();
+
+	<T> void bridgeContainer(NamedDomainObjectContainer<T> container);
+	<T> void bridgeContainer(PolymorphicDomainObjectContainer<T> container);
 
 	ModelNode getModel();
 	void model(Action<? super ModelNode> action);
