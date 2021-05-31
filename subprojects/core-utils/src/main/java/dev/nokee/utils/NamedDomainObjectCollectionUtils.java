@@ -95,6 +95,12 @@ public final class NamedDomainObjectCollectionUtils {
 	}
 	//endregion
 
+	//region getType
+	public static <T> Class<?> getType(NamedDomainObjectCollection<T> self) {
+		return ((DefaultNamedDomainObjectCollection<T>) self).getType();
+	}
+	//endregion
+
 	@EqualsAndHashCode
 	public static final class ElementInfo<T> {
 		private final String name;
