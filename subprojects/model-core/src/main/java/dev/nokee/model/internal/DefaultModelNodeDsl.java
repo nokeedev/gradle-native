@@ -60,6 +60,11 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 		return knownObject;
 	}
 
+	@Override
+	public <T> KnownDomainObject<T> node(Object identity, Class<T> type, Closure<?> closure) {
+		return node(identity, type, new ClosureBackedBiAction<>(closure));
+	}
+
 	private ModelNode getOrCreateChildNode(Object identity) {
 		// TODO: Assert identity is same or less info than selected node's identity:
 		//  because if node was created with a String but trying to reference using machines.host... the identity has less information so we may be facing an out-of-order access.
