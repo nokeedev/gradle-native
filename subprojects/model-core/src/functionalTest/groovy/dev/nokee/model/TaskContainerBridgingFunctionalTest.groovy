@@ -41,7 +41,7 @@ class TaskContainerBridgingFunctionalTest extends AbstractModelBasePluginFunctio
 		succeeds()
 	}
 
-	def "can register Configuration domain object as projection on existing model node"() {
+	def "can register Task domain object as projection on existing model node"() {
 		buildFile << applyModelBasePlugin() << '''
 			nokee.modelRegistry.root.newChildNode('foo')
 			nokee.modelRegistry.root.newChildNode('bar')
