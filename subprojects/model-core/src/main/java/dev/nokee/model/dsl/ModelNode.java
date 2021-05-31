@@ -1,7 +1,6 @@
 package dev.nokee.model.dsl;
 
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.ClosureBackedBiAction;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import groovy.transform.stc.ClosureParams;
@@ -51,9 +50,7 @@ public interface ModelNode extends Named {
 
 	<T> KnownDomainObject<T> node(Object identity, Class<T> type);
 	<T> KnownDomainObject<T> node(Object identity, Class<T> type, BiConsumer<? super ModelNode, ? super KnownDomainObject<T>> action);
-	default <T> KnownDomainObject<T> node(Object identity, Class<T> type, @ClosureParams(value = FromString.class, options = { "dev.nokee.model.KnownDomainObject<T>", "dev.nokee.model.dsl.ModelNode,dev.nokee.model.KnownDomainObject<T>" }) @DelegatesTo(value = ModelNode.class, strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
-		return node(identity, type, new ClosureBackedBiAction<>(closure));
-	}
+	<T> KnownDomainObject<T> node(Object identity, Class<T> type, @ClosureParams(value = FromString.class, options = { "dev.nokee.model.KnownDomainObject<T>", "dev.nokee.model.dsl.ModelNode,dev.nokee.model.KnownDomainObject<T>" }) @DelegatesTo(value = ModelNode.class, strategy = Closure.DELEGATE_FIRST) Closure<?> closure);
 	<T> KnownDomainObject<T> projection(Class<T> type);
 	<T> KnownDomainObject<T> projection(Class<T> type, Action<? super T> action); // TODO: action here should be passed to the registerIfAbsent for asserting existing object
 	default <T> KnownDomainObject<T> projection(Class<T> type, @ClosureParams(FirstParam.FirstGenericType.class) @DelegatesTo(target = "T", strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {

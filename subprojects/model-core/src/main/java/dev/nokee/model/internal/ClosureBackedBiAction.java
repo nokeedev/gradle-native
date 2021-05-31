@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 @EqualsAndHashCode
-public final class ClosureBackedBiAction<A, B> implements BiConsumer<A, B> {
+final class ClosureBackedBiAction<A, B> implements BiConsumer<A, B> {
     private final Closure closure;
     private final int resolveStrategy;
 
