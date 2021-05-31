@@ -4,10 +4,15 @@ import org.gradle.api.provider.Provider;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 public final class GradleProviderMatchers {
 	private GradleProviderMatchers() {}
+
+	public static <T> Matcher<Provider<T>> providerOf(T instance) {
+		return providerOf(equalTo(instance));
+	}
 
 	public static <T> Matcher<Provider<T>> providerOf(Matcher<T> matcher) {
 		return new FeatureMatcher<Provider<T>, T>(matcher, "provider of", "providing") {
