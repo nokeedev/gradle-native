@@ -3,6 +3,7 @@ package dev.nokee.utils;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.*;
+import org.gradle.api.internal.DefaultDomainObjectCollection;
 import org.gradle.api.internal.DefaultNamedDomainObjectCollection;
 
 import java.util.HashSet;
@@ -90,30 +91,74 @@ public final class NamedDomainObjectCollectionUtils {
 	//endregion
 
 	//region whenElementKnown
-	public static <T> void whenElementKnown(NamedDomainObjectCollection<T> self, Action<? super ElementInfo<T>> action) {
-		((DefaultNamedDomainObjectCollection<T>) self).whenElementKnown(compose(action, ElementInfo::of));
+	/**
+	 * Adds callback when new element is known to the named collection.
+	 * This API uses the {@link DefaultNamedDomainObjectCollection#whenElementKnown(Action)} internal API.
+	 * The Gradle API can call back twice, once when registering the element and another time when the element is created.
+	 * This API deduplicate callback execution to ensure a single callback per element.
+	 *
+	 * @param self  the collection, must not be null
+	 * @param action  the action to call for each known element, must not be null
+	 * @param <T>  the base element type
+	 */
+	public static <T> void whenElementKnown(NamedDomainObjectCollection<T> self, Action<? super KnownElement<T>> action) {
+		((DefaultNamedDomainObjectCollection<T>) self).whenElementKnown(new ToKnownElementAction<T>(action) {
+			@Override
+			protected KnownElement<T> create(DefaultNamedDomainObjectCollection.ElementInfo<T> elementInfo) {
+				return KnownElement.of(self, elementInfo);
+			}
+		});
+	}
+
+	private static abstract class ToKnownElementAction<T> implements Action<DefaultNamedDomainObjectCollection.ElementInfo<T>> {
+		private final Set<String> deduplicateElements = new HashSet<>();
+		private final Action<? super KnownElement<T>> action;
+
+		ToKnownElementAction(Action<? super KnownElement<T>> action) {
+			this.action = action;
+		}
+
+		@Override
+		public final void execute(DefaultNamedDomainObjectCollection.ElementInfo<T> elementInfo) {
+			if (deduplicateElements.add(elementInfo.getName())) {
+				action.execute(create(elementInfo));
+			}
+		}
+
+		protected abstract KnownElement<T> create(DefaultNamedDomainObjectCollection.ElementInfo<T> elementInfo);
 	}
 	//endregion
 
 	//region getType
-	public static <T> Class<?> getType(NamedDomainObjectCollection<T> self) {
-		return ((DefaultNamedDomainObjectCollection<T>) self).getType();
+
+	/**
+	 * Returns the type of element in the domain object collection.
+	 *
+	 * @param self  the domain object collection, must not be null
+	 * @param <E>  the type of element in the domain object collection
+	 * @return a class representing the type of elements in the domain object collection, never null
+	 */
+	@SuppressWarnings("unchecked")
+	public static <E> Class<E> getElementType(DomainObjectCollection<E> self) {
+		return (Class<E>) ((DefaultDomainObjectCollection<E>) self).getType();
 	}
 	//endregion
 
 	@EqualsAndHashCode
-	public static final class ElementInfo<T> {
+	public static final class KnownElement<T> {
+		private final NamedDomainObjectCollection<T> collection;
 		private final String name;
 		private final Class<T> type;
 
-		private ElementInfo(String name, Class<T> type) {
+		private KnownElement(NamedDomainObjectCollection<T> collection, String name, Class<T> type) {
+			this.collection = collection;
 			this.name = name;
 			this.type = type;
 		}
 
 		@SuppressWarnings("unchecked")
-		private static <T> ElementInfo<T> of(DefaultNamedDomainObjectCollection.ElementInfo<T> elementInfo) {
-			return new ElementInfo<>(elementInfo.getName(), (Class<T>)elementInfo.getType());
+		private static <T> KnownElement<T> of(NamedDomainObjectCollection<T> collection, DefaultNamedDomainObjectCollection.ElementInfo<T> elementInfo) {
+			return new KnownElement<>(collection, elementInfo.getName(), (Class<T>)elementInfo.getType());
 		}
 
 		public String getName() {
@@ -124,9 +169,13 @@ public final class NamedDomainObjectCollectionUtils {
 			return type;
 		}
 
+		public NamedDomainObjectProvider<T> getAsProvider() {
+			return collection.named(name, type);
+		}
+
 		@Override
 		public String toString() {
-			return "ofElementInfo(" + name + ", " + type + ")";
+			return "ofKnownElement(" + name + ", " + type + ")";
 		}
 	}
 
