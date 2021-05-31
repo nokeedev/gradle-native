@@ -1,6 +1,7 @@
 package dev.nokee.model;
 
 import dev.nokee.model.dsl.ModelNode;
+import dev.nokee.model.registry.ModelRegistry;
 import lombok.val;
 import org.gradle.api.plugins.ExtensionAware;
 import org.hamcrest.Matchers;
@@ -35,6 +36,11 @@ public interface NokeeExtensionTester {
 		val closure = mockClosure(ModelNode.class);
 		createSubject().model(closure);
 		assertThat(closure, calledOnceWith(singleArgumentOf(isA(ModelNode.class))));
+	}
+
+	@Test
+	default void canGetModelRegistry() {
+		assertThat(createSubject().getModelRegistry(), isA(ModelRegistry.class));
 	}
 
 	@Test
