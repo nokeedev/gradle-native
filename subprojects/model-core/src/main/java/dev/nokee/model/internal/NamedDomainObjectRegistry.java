@@ -3,7 +3,7 @@ package dev.nokee.model.internal;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 
-public interface NamedDomainObjectRegistry {
+interface NamedDomainObjectRegistry {
 	<S> NamedDomainObjectProvider<S> register(String name, Class<S> type);
 	<S> NamedDomainObjectProvider<S> register(String name, Class<S> type, Action<? super S> action);
 	<S> NamedDomainObjectProvider<S> registerIfAbsent(String name, Class<S> type);
