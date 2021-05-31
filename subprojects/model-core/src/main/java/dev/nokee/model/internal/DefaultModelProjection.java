@@ -4,7 +4,9 @@ import dev.nokee.model.core.ModelProjection;
 import dev.nokee.model.graphdb.Graph;
 import dev.nokee.model.graphdb.Node;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.provider.Provider;
 
 import static dev.nokee.utils.ProviderUtils.notDefined;
@@ -48,6 +50,47 @@ final class DefaultModelProjection implements ModelProjection {
 			return ((ProjectionSpec) delegate.getProperty("spec")).get(type);
 		} else {
 			throw new RuntimeException(""); // TODO: Throw meaningful exception
+		}
+	}
+
+	Node getDelegate() {
+		return delegate;
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static final class Builder implements ModelProjection.Builder {
+		private final ProjectionSpec.Builder builder = ProjectionSpec.builder();
+		private Graph graph;
+
+		public Builder graph(Graph graph) {
+			this.graph = graph;
+			return this;
+		}
+
+		@Override
+		public Builder type(Class<?> type) {
+			builder.type(type);
+			return this;
+		}
+
+		@Override
+		public Builder forProvider(NamedDomainObjectProvider<?> domainObjectProvider) {
+			builder.forProvider(domainObjectProvider);
+			return this;
+		}
+
+		@Override
+		public Builder forInstance(Object instance) {
+			builder.forInstance(instance);
+			return this;
+		}
+
+		public DefaultModelProjection build() {
+			val projectionNode = graph.createNode().property("spec", builder.build());
+			return new DefaultModelProjection(graph, projectionNode);
 		}
 	}
 }

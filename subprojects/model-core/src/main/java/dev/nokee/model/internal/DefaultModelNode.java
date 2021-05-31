@@ -46,31 +46,13 @@ final class DefaultModelNode implements ModelNode {
 
 	@Override
 	public ModelProjection newProjection(Consumer<? super ModelProjection.Builder> builderAction) {
-		val builder = ProjectionSpec.builder();
-		builderAction.accept(new ModelProjection.Builder() {
-			@Override
-			public ModelProjection.Builder type(Class<?> type) {
-				builder.type(type);
-				return this;
-			}
-
-			@Override
-			public ModelProjection.Builder forProvider(NamedDomainObjectProvider<?> domainObjectProvider) {
-				builder.forProvider(domainObjectProvider);
-				return this;
-			}
-
-			@Override
-			public ModelProjection.Builder forInstance(Object instance) {
-				builder.forInstance(instance);
-				return this;
-			}
-		});
-		val projectionNode = graph.createNode().property("spec", builder.build());
-//			.property("type", type)
-//			.property("identifier", getIdentifier());
+		val builder = DefaultModelProjection.builder();
+		builderAction.accept(builder);
+		builder.graph(graph);
+		val projection = builder.build();
+		val projectionNode = projection.getDelegate();
 		delegate.createRelationshipTo(projectionNode, PROJECTION_RELATIONSHIP_TYPE);
-		return new DefaultModelProjection(graph, projectionNode);
+		return projection;
 	}
 
 	@Override
