@@ -5,7 +5,7 @@ import dev.nokee.utils.NamedDomainObjectCollectionUtils;
 import lombok.val;
 import org.gradle.api.Action;
 
-public final class RegisterModelProjection<T> implements Action<NamedDomainObjectCollectionUtils.KnownElement<T>> {
+final class RegisterModelProjection<T> implements Action<NamedDomainObjectCollectionUtils.KnownElement<T>> {
 	private final ModelRegistry modelRegistry;
 
 	RegisterModelProjection(ModelRegistry modelRegistry) {
