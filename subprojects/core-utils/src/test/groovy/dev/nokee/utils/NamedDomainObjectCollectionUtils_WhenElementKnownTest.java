@@ -31,14 +31,14 @@ class NamedDomainObjectCollectionUtils_WhenElementKnownTest {
 
 	@Test
 	void doesNotCallActionOnEmptyCollection() {
-		Action<NamedDomainObjectCollectionUtils.ElementInfo<Element>> action = uncheckedCastBecauseOfTypeErasure(Mockito.mock(Action.class));
+		Action<KnownElement<Element>> action = uncheckedCastBecauseOfTypeErasure(Mockito.mock(Action.class));
 		whenElementKnown(anEmptyContainer(), action);
 		verify(action, never()).execute(any());
 	}
 
 	@Test
 	void callActionOnAnyElementSubsequentlyCreated() {
-		Action<NamedDomainObjectCollectionUtils.ElementInfo<Element>> action = uncheckedCastBecauseOfTypeErasure(Mockito.mock(Action.class));
+		Action<KnownElement<Element>> action = uncheckedCastBecauseOfTypeErasure(Mockito.mock(Action.class));
 		val container = anEmptyContainer();
 		whenElementKnown(container, action);
 		container.create("e0");
@@ -49,7 +49,7 @@ class NamedDomainObjectCollectionUtils_WhenElementKnownTest {
 
 	@Test
 	void callActionOnAnyElementSubsequentlyRegistered() {
-		Action<NamedDomainObjectCollectionUtils.ElementInfo<Element>> action = uncheckedCastBecauseOfTypeErasure(Mockito.mock(Action.class));
+		Action<KnownElement<Element>> action = uncheckedCastBecauseOfTypeErasure(Mockito.mock(Action.class));
 		val container = anEmptyContainer();
 		whenElementKnown(container, action);
 		container.register("e0");
@@ -60,7 +60,7 @@ class NamedDomainObjectCollectionUtils_WhenElementKnownTest {
 
 	@Test
 	void callActionOnAnyElementPreviouslyRegistered() {
-		Action<NamedDomainObjectCollectionUtils.ElementInfo<Element>> action = uncheckedCastBecauseOfTypeErasure(Mockito.mock(Action.class));
+		Action<KnownElement<Element>> action = uncheckedCastBecauseOfTypeErasure(Mockito.mock(Action.class));
 		val container = anEmptyContainer();
 		container.register("e0");
 		container.register("e1", Element.class);
@@ -71,7 +71,7 @@ class NamedDomainObjectCollectionUtils_WhenElementKnownTest {
 
 	@Test
 	void callActionOnAnyElementPreviouslyCreated() {
-		Action<NamedDomainObjectCollectionUtils.ElementInfo<Element>> action = uncheckedCastBecauseOfTypeErasure(Mockito.mock(Action.class));
+		Action<KnownElement<Element>> action = uncheckedCastBecauseOfTypeErasure(Mockito.mock(Action.class));
 		val container = anEmptyContainer();
 		container.create("e0");
 		container.create("e1", Element.class);
@@ -82,7 +82,7 @@ class NamedDomainObjectCollectionUtils_WhenElementKnownTest {
 
 	@Test
 	void canFilterKnownElementsByName() {
-		Action<NamedDomainObjectCollectionUtils.ElementInfo<Element>> action = uncheckedCastBecauseOfTypeErasure(Mockito.mock(Action.class));
+		Action<KnownElement<Element>> action = uncheckedCastBecauseOfTypeErasure(Mockito.mock(Action.class));
 		val container = anEmptyContainer();
 		container.create("e0");
 		container.create("e1", Element.class);
@@ -93,12 +93,12 @@ class NamedDomainObjectCollectionUtils_WhenElementKnownTest {
 
 	@Test
 	void canFilterKnownElementsByType() {
-		Action<NamedDomainObjectCollectionUtils.ElementInfo<Element>> action = uncheckedCastBecauseOfTypeErasure(Mockito.mock(Action.class));
+		Action<KnownElement<Element>> action = uncheckedCastBecauseOfTypeErasure(Mockito.mock(Action.class));
 		val container = anEmptyContainer();
 		container.create("e0");
 		container.create("e1", Element.class);
 		container.create("e2", ChildAElement.class);
-		whenElementKnown(container, onlyIf(compose(subtypeOf(ChildAElement.class), ElementInfo::getType), action));
+		whenElementKnown(container, onlyIf(compose(subtypeOf(ChildAElement.class), KnownElement::getType), action));
 		verify(action, times(1)).execute(any());
 	}
 
