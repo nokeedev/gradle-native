@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-public final class GroovyDslSupport {
+final class GroovyDslSupport {
 	private static final Object[] EMPTY_ARRAY = {};
 	private final MetaClass metaClass;
 	private final PropertyGetter getter;
