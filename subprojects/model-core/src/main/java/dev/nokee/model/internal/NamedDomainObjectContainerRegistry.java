@@ -1,10 +1,16 @@
 package dev.nokee.model.internal;
 
 import dev.nokee.utils.NamedDomainObjectCollectionUtils;
+import lombok.val;
 import org.gradle.api.*;
+import org.gradle.api.component.AdhocComponentWithVariants;
+import org.gradle.api.component.SoftwareComponent;
+import org.gradle.api.component.SoftwareComponentContainer;
+import org.gradle.api.component.SoftwareComponentFactory;
 import org.gradle.api.internal.PolymorphicDomainObjectContainerInternal;
 import org.gradle.api.tasks.TaskContainer;
 
+import javax.inject.Inject;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -190,6 +196,76 @@ abstract class NamedDomainObjectContainerRegistry<T> {
 
 		private static final class TaskContainerRegistrableTypes implements NamedDomainObjectRegistry.RegistrableTypes {
 			private final NamedDomainObjectRegistry.SupportedType registrableTypes = subtypeOf(Task.class);
+
+			@Override
+			public boolean canRegisterType(Class<?> type) {
+				return registrableTypes.supports(type);
+			}
+
+			@Override
+			public Iterator<NamedDomainObjectRegistry.SupportedType> iterator() {
+				return Stream.of(registrableTypes).iterator();
+			}
+		}
+	}
+
+	static class SoftwareComponentContainerRegistry extends NamedDomainObjectContainerRegistry<SoftwareComponent> {
+		private static final NamedDomainObjectRegistry.RegistrableTypes REGISTRABLE_TYPES = new SoftwareComponentContainerRegistrableTypes();
+		private final SoftwareComponentContainer container;
+		private final SoftwareComponentFactory softwareComponentFactory;
+
+		@Inject
+		public SoftwareComponentContainerRegistry(SoftwareComponentContainer container, SoftwareComponentFactory softwareComponentFactory) {
+			this.container = container;
+			this.softwareComponentFactory = softwareComponentFactory;
+		}
+
+		@Override
+		public NamedDomainObjectContainer<SoftwareComponent> getContainer() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public <S extends SoftwareComponent> NamedDomainObjectProvider<S> register(String name, Class<S> type) {
+			container.add(softwareComponentFactory.adhoc(name));
+			return container.named(name, type);
+		}
+
+		@Override
+		public <S extends SoftwareComponent> NamedDomainObjectProvider<S> register(String name, Class<S> type, Action<? super S> action) {
+			val object = softwareComponentFactory.adhoc(name);
+			container.add(object);
+			action.execute((S) object);
+			return container.named(name, type);
+		}
+
+		@Override
+		public <S extends SoftwareComponent> NamedDomainObjectProvider<S> registerIfAbsent(String name, Class<S> type) {
+			val object = container.findByName(name);
+			if (object == null) {
+				container.add(softwareComponentFactory.adhoc(name));
+			}
+			return container.named(name, type);
+		}
+
+		@Override
+		public <S extends SoftwareComponent> NamedDomainObjectProvider<S> registerIfAbsent(String name, Class<S> type, Action<? super S> action) {
+			SoftwareComponent object = container.findByName(name);
+			if (object == null) {
+				object = softwareComponentFactory.adhoc(name);
+				container.add(object);
+				action.execute((S) object);
+			}
+			return container.named(name, type);
+		}
+
+		@Override
+		public NamedDomainObjectRegistry.RegistrableTypes getRegistrableTypes() {
+			return REGISTRABLE_TYPES;
+		}
+
+		private static final class SoftwareComponentContainerRegistrableTypes implements NamedDomainObjectRegistry.RegistrableTypes {
+			private final NamedDomainObjectRegistry.SupportedType registrableTypes = instanceOf(AdhocComponentWithVariants.class);
 
 			@Override
 			public boolean canRegisterType(Class<?> type) {
