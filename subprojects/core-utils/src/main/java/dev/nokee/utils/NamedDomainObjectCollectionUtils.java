@@ -5,12 +5,12 @@ import lombok.val;
 import org.gradle.api.*;
 import org.gradle.api.internal.DefaultNamedDomainObjectCollection;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-
-import static dev.nokee.utils.ActionUtils.compose;
 
 public final class NamedDomainObjectCollectionUtils {
 	private NamedDomainObjectCollectionUtils() {}
@@ -51,6 +51,14 @@ public final class NamedDomainObjectCollectionUtils {
 	}
 
 	//region registerIfAbsent
+	public static <T> NamedDomainObjectProvider<T> registerIfAbsent(NamedDomainObjectContainer<T> self, String name) {
+		if (hasElementWithName(self, name)) {
+			return self.named(name);
+		}
+
+		return self.register(name);
+	}
+
 	public static <T> NamedDomainObjectProvider<T> registerIfAbsent(NamedDomainObjectContainer<T> self, String name, Action<? super T> action) {
 		if (hasElementWithName(self, name)) {
 			// TODO: Wire in assertable
@@ -60,6 +68,16 @@ public final class NamedDomainObjectCollectionUtils {
 		return self.register(name, action);
 	}
 
+	public static <U extends T, T> NamedDomainObjectProvider<U> registerIfAbsent(PolymorphicDomainObjectContainer<T> self, String name, Class<U> type) {
+		if (hasElementWithName(self, name)) {
+			// TODO: Assert type is correct one, be careful with Task and DefaultTask for TaskContainer
+			return self.named(name, type);
+		}
+
+		return self.register(name, type);
+	}
+
+	// TODO: The action here should force to be assertable to make the contract clear that when you registerIfAbsent, the action should match the base configuration of the existing element
 	public static <U extends T, T> NamedDomainObjectProvider<U> registerIfAbsent(PolymorphicDomainObjectContainer<T> self, String name, Class<U> type, Action<? super U> action) {
 		if (hasElementWithName(self, name)) {
 			// TODO: Wire in assertable
