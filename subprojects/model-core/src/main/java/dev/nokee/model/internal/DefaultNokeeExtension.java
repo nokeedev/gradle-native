@@ -29,15 +29,17 @@ import static dev.nokee.utils.NamedDomainObjectCollectionUtils.whenElementKnown;
 	}
 
 	@Override
-	public <T> void bridgeContainer(NamedDomainObjectContainer<T> container) {
+	public <T> DefaultNokeeExtension bridgeContainer(NamedDomainObjectContainer<T> container) {
 		registry.registerContainer(new NamedDomainObjectContainerRegistry.NamedContainerRegistry<>(container));
 		whenElementKnown(container, new RegisterModelProjection<>(modelRegistry));
+		return this;
 	}
 
 	@Override
-	public <T> void bridgeContainer(PolymorphicDomainObjectContainer<T> container) {
+	public <T> DefaultNokeeExtension bridgeContainer(PolymorphicDomainObjectContainer<T> container) {
 		registry.registerContainer(new NamedDomainObjectContainerRegistry.PolymorphicContainerRegistry<>(container));
 		whenElementKnown(container, new RegisterModelProjection<>(modelRegistry));
+		return this;
 	}
 
 	@Override

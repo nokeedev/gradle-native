@@ -44,4 +44,15 @@ public interface NokeeExtensionTester {
 			() -> assertThat(createSubject(), isA(ExtensionAware.class))
 		);
 	}
+
+	@Test
+	default void returnsExtensionOnContainerBridging() {
+		val extension = createSubject();
+		assertAll(
+			() -> assertThat(extension.bridgeContainer(objectFactory().domainObjectContainer(TestProjection.class)),
+				is(extension)),
+			() -> assertThat(extension.bridgeContainer(objectFactory().polymorphicDomainObjectContainer(TestProjection.class)),
+				is(extension))
+		);
+	}
 }
