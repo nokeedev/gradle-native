@@ -8,6 +8,6 @@ import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactor
 class DefaultNokeeExtensionTest implements NokeeExtensionTester {
 	@Override
 	public NokeeExtension createSubject() {
-		return objectFactory().newInstance(DefaultNokeeExtension.class);
+		return objectFactory().newInstance(DefaultNokeeExtension.class, new DefaultNamedDomainObjectRegistry());
 	}
 }

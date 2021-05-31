@@ -11,7 +11,10 @@ import org.gradle.api.plugins.PluginAware;
 import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
+import java.util.function.Consumer;
 import java.util.function.Function;
+
+import static dev.nokee.utils.NamedDomainObjectCollectionUtils.whenElementKnown;
 
 public /*final*/ abstract class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements Plugin<T> {
 	@Inject
@@ -24,10 +27,23 @@ public /*final*/ abstract class ModelBasePlugin<T extends PluginAware & Extensio
 	public void apply(T target) {
 		val type = computeWhen(target, it -> Settings.class, it -> Project.class);
 
-		val extension = getObjects().newInstance(DefaultNokeeExtension.class);
+		val registry = new DefaultNamedDomainObjectRegistry();
+		val extension = getObjects().newInstance(DefaultNokeeExtension.class, registry);
 		target.getExtensions().add(NokeeExtension.class, "nokee", extension);
 
 		extension.getModelRegistry().getRoot().newProjection(builder -> builder.type(type).forInstance(target));
+
+		executeWhen(target,
+			it -> {
+
+			},
+			project -> {
+				registry.registerContainer(new NamedDomainObjectContainerRegistry.TaskContainerRegistry(project.getTasks()));
+				registry.registerContainer(new NamedDomainObjectContainerRegistry.NamedContainerRegistry<>(project.getConfigurations()));
+				whenElementKnown(project.getTasks(), new RegisterModelProjection<>(extension.getModelRegistry()));
+				whenElementKnown(project.getConfigurations(), new RegisterModelProjection<>(extension.getModelRegistry()));
+			}
+		);
 	}
 
 	public static NokeeExtension nokee(ExtensionAware target) {
@@ -39,6 +55,16 @@ public /*final*/ abstract class ModelBasePlugin<T extends PluginAware & Extensio
 			return settingsAction.apply((Settings) target);
 		} else if (target instanceof Project) {
 			return projectAction.apply((Project) target);
+		} else {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private static void executeWhen(Object target, Consumer<? super Settings> settingsAction, Consumer<? super Project> projectAction) {
+		if (target instanceof Settings) {
+			settingsAction.accept((Settings) target);
+		} else if (target instanceof Project) {
+			projectAction.accept((Project) target);
 		} else {
 			throw new UnsupportedOperationException();
 		}

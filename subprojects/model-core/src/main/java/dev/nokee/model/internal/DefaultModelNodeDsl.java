@@ -1,28 +1,28 @@
 package dev.nokee.model.internal;
 
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.dsl.ModelNode;
-import dev.nokee.model.registry.DomainObjectRegistry;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import lombok.EqualsAndHashCode;
 import lombok.val;
+import lombok.var;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
-import org.gradle.api.NamedDomainObjectFactory;
+import org.gradle.api.Task;
 
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode(callSuper = false)
 final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode {
-	private final DomainObjectRegistry registry;
+	private final NamedDomainObjectRegistry registry;
 	@EqualsAndHashCode.Include private final dev.nokee.model.core.ModelNode delegate;
 //	private final NamedDomainObjectFactory<Object> factory = null;
 	@EqualsAndHashCode.Exclude private final GroovyDslSupport dslSupport;
 
-	public DefaultModelNodeDsl(DomainObjectRegistry registry, dev.nokee.model.core.ModelNode delegate) {
+	public DefaultModelNodeDsl(NamedDomainObjectRegistry registry, dev.nokee.model.core.ModelNode delegate) {
 		this.registry = registry;
 		this.delegate = delegate;
 		this.dslSupport = GroovyDslSupport.builder()
@@ -83,8 +83,22 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 	public <T> KnownDomainObject<T> projection(Class<T> type) {
 		// TODO: Connect projection with known domain object
 		val projection = delegate.getProjections().filter(it -> it.canBeViewedAs(type)).findFirst().orElseGet(() -> {
-			val identifier = new DomainObjectIdentifier() {};
-			return delegate.newProjection(builder -> builder.type(type).forProvider(registry.register(identifier, type)));
+			return delegate.newProjection(builder -> {
+				var previous = delegate.getParent();
+				String name = "";
+				while (previous.isPresent()) {
+					name = previous.get().getIdentity().toString() + StringUtils.capitalize(name);
+					previous = previous.get().getParent();
+				}
+
+				if (Task.class.isAssignableFrom(type)) {
+					name = delegate.getIdentity().toString() + StringUtils.capitalize(name);
+				} else {
+					name = name + StringUtils.capitalize(delegate.getIdentity().toString());
+				}
+
+				builder.type(type).forProvider(registry.registerIfAbsent(StringUtils.uncapitalize(name), type));
+			});
 		});
 		return new DefaultKnownDomainObject<>(type);
 	}

@@ -16,6 +16,10 @@ public interface ModelNode extends Named {
 	boolean canBeViewedAs(Class<?> type);
 	<T> T get(Class<T> type);
 
+	ModelNode get(Object identity);
+	Optional<ModelNode> find(Object identity);
+	Object getIdentity();
+
 	Stream<ModelNode> getChildNodes();
 	Stream<ModelProjection> getProjections();
 }

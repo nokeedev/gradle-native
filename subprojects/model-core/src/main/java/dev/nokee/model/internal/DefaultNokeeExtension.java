@@ -1,26 +1,20 @@
 package dev.nokee.model.internal;
 
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.NokeeExtension;
 import dev.nokee.model.dsl.ModelNode;
-import dev.nokee.model.registry.DomainObjectRegistry;
 import dev.nokee.model.registry.ModelRegistry;
 import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectProvider;
 
 import javax.inject.Inject;
 
 /*final*/ abstract class DefaultNokeeExtension implements NokeeExtension {
 	private final ModelRegistry modelRegistry = new DefaultModelRegistry();
-	private final ModelNode model = new DefaultModelNodeDsl(new DomainObjectRegistry() {
-		@Override
-		public <T> NamedDomainObjectProvider<T> register(DomainObjectIdentifier identifier, Class<T> type) {
-			throw new UnsupportedOperationException();
-		}
-	}, modelRegistry.getRoot());
+	private final ModelNode model;
 
 	@Inject
-	public DefaultNokeeExtension() {}
+	public DefaultNokeeExtension(NamedDomainObjectRegistry registry) {
+		this.model = new DefaultModelNodeDsl(registry, modelRegistry.getRoot());
+	}
 
 	@Override
 	public ModelRegistry getModelRegistry() {
