@@ -38,10 +38,10 @@ public /*final*/ abstract class ModelBasePlugin<T extends PluginAware & Extensio
 
 			},
 			project -> {
+				extension.bridgeContainer(project.getConfigurations());
+
 				registry.registerContainer(new NamedDomainObjectContainerRegistry.TaskContainerRegistry(project.getTasks()));
-				registry.registerContainer(new NamedDomainObjectContainerRegistry.NamedContainerRegistry<>(project.getConfigurations()));
 				whenElementKnown(project.getTasks(), new RegisterModelProjection<>(extension.getModelRegistry()));
-				whenElementKnown(project.getConfigurations(), new RegisterModelProjection<>(extension.getModelRegistry()));
 			}
 		);
 	}
