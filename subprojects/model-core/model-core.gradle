@@ -6,6 +6,8 @@ plugins {
 dependencies {
 	implementation project(':coreUtils')
 	implementation project(':modelGraph')
+	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	testImplementation testFixtures(project(':coreUtils'))
 }
 

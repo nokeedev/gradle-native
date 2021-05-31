@@ -97,6 +97,21 @@ final class DefaultModelNode implements ModelNode {
 	}
 
 	@Override
+	public ModelNode get(Object identity) {
+		return find(identity).orElseThrow(RuntimeException::new);
+	}
+
+	@Override
+	public Optional<ModelNode> find(Object identity) {
+		return getChildNodes().filter(it -> it.getIdentity().equals(identity)).findFirst();
+	}
+
+	@Override
+	public Object getIdentity() {
+		return delegate.getProperty("identity", ""); // TODO: Is default value enough for root
+	}
+
+	@Override
 	public Stream<ModelNode> getChildNodes() {
 		return delegate.getRelationships(Direction.OUTGOING, OWNERSHIP_RELATIONSHIP_TYPE)
 			.map(Relationship::getEndNode)
