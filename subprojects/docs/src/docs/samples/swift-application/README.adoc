@@ -7,7 +7,7 @@
 :plugin-language: Swift
 :plugin-language-id: swift
 
-NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer], https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship], or <<../../manual/developing-with-xcode-ide.adoc#, Nokee's Xcode IDE plugin>>
+NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer], https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship], or <<../../manual/developing-with-xcode-ide.adoc#, Nokee's Xcode IDE plugin>>
 
 This sample shows how a native application implemented in {plugin-language} can be built with Gradle.
 The application has no dependencies, and the build has a minimal configuration.

@@ -5,7 +5,7 @@
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how to create an uber JAR containing all buildable Java Native Interface (JNI) shared library binaries with the Gradle Nokee plugins.
 
-NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
 This sample shows how to create a single JAR containing the JVM code and all the buildable shared library binaries of a Java Native Interface (JNI) library.
 The library has no dependencies and targets Windows x64, Linux x86-64 and macOS x86-64.

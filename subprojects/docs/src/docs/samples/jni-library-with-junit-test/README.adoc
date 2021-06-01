@@ -5,7 +5,7 @@
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how to test your Java Native Interface (JNI) library with JUnit4 with the Gradle Nokee plugins.
 
-NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
 This sample shows how to test a Java Native Interface (JNI) library with JUnit.
 The library has a single dependency on the JUnit, and the build has a minimal configuration.
