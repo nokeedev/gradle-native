@@ -11,7 +11,7 @@ If you encounter any problems, please link:https://github.com/nokeedev/gradle-na
 
 NOTE: You can open this sample inside the Xcode IDE using the link:../../manual/xcode-ide-plugin.html[Xcode IDE plugin].
 
-This sample shows how to build an iOS application implemented in Objective-C with Gradle.
+Here is a sample to show how to build an iOS application implemented in Objective-C with Gradle.
 The application has no dependencies and targets only the iPhone Simulator with a minimum iOS version of 13.2.
 
 ====

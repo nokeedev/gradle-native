@@ -7,7 +7,7 @@
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
-This sample shows how to compose a Java Native Interface (JNI) library from pre-built binaries.
+Here is a sample to show how to compose a Java Native Interface (JNI) library from pre-built binaries.
 It may happen that we don't have source code access and all we have are pre-built binaries of the native component.
 This sample will show how to use the pre-built binaries with the JNI Library Plugin to compose a JNI library.
 
