@@ -7,7 +7,7 @@
 :plugin-language: C
 :plugin-language-id: c
 
-NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer], https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship], or <<../../manual/developing-with-xcode-ide.adoc#, Nokee's Xcode IDE plugin>>
+NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer], https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship], or <<../../manual/developing-with-xcode-ide.adoc#, Nokee's Xcode IDE plugin>>
 
 This sample shows how to build a native library implemented in {plugin-language} with Gradle.
 The library has no dependencies, and the build has a minimal configuration.
