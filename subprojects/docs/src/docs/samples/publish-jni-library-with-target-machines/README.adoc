@@ -7,7 +7,7 @@
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
-This sample shows how to publish a JNI library with multiple target machines with Gradle to a binary repository.
+Here is a sample to show how to publish a JNI library with multiple target machines with Gradle to a binary repository.
 The library has no dependencies, and the build has a minimal configuration.
 
 In this sample, we are publishing a JNI library with multiple machines implemented in Java and {cpp}; however, this applies to other JVM and native languages as well.

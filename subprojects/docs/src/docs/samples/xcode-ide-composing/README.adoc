@@ -7,7 +7,7 @@
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
-This sample shows how to use the Xcode IDE Plugin to create an Xcode project for 3rd party plugins.
+Here is a sample to show how to use the Xcode IDE Plugin to create an Xcode project for 3rd party plugins.
 In this sample, we show how to integrate a JNI library implemented in Java and Objective-C with Xcode.
 The library has no dependencies, and the build has a minimal configuration.
 

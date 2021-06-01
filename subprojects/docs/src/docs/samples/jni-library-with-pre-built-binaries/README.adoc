@@ -7,7 +7,7 @@
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
-This sample shows how to use pre-built binaries in a Java Native Interface (JNI) library.
+Here is a sample to show how to use pre-built binaries in a Java Native Interface (JNI) library.
 There are several possible use cases.
 This sample will cover the most common for Java developers.
 It uses a pre-built shared library, say from a continuous integration environment, as a replacement for building the native shared library from source.

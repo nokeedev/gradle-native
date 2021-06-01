@@ -7,7 +7,7 @@
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
-This sample shows how to test a Java Native Interface (JNI) library with JUnit.
+Here is a sample to show how to test a Java Native Interface (JNI) library with JUnit.
 The library has a single dependency on the JUnit, and the build has a minimal configuration.
 
 In this sample, we are testing a JNI library implemented in Java and {cpp} with JUnit4; however, this applies to other JVM and native languages as well.

@@ -7,7 +7,7 @@
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer], https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
-This sample shows how to expand the testing coverage of a Gradle plugin to multiple Gradle distributions.
+Here is a sample to show how to expand the testing coverage of a Gradle plugin to multiple Gradle distributions.
 The project is a simple Gradle plugin implemented in Java with a functional test using Gradle fixtures maintained by the Nokee team.
 
 ====

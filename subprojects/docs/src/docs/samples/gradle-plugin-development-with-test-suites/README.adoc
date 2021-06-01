@@ -7,7 +7,7 @@
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer], https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
-This sample shows how to unit and functional test a Gradle plugin.
+Here is a sample to show how to unit and functional test a Gradle plugin.
 The project is a simple Gradle plugin implemented in Java with a unit test using link:{gradle-api-reference}/org/gradle/testfixtures/ProjectBuilder.html[Gradle's `ProjectBuilder`] and a functional test using link:{gradle-user-manual}/test_kit.html[Gradle Test Kit].
 
 ====
