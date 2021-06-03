@@ -55,10 +55,11 @@ public interface ModelNodeCreateProjectionTester {
 		);
 	}
 
-	@Test
-	default void canCreateProjection_StringProjectionBiAction() {
+	@ParameterizedTest(name = "can create projection [{argumentsWithNames}]")
+	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionAction")
+	default void canCreateProjection_StringProjectionBiAction(NodeMethods.IdentityProjectionAction method) {
 		val action = mockBiConsumer();
-		val knownObject = createSubject().node("test", TestProjection.class, action);
+		val knownObject = method.invoke(createSubject(), "test", TestProjection.class, action);
 		assertAll(
 			() -> assertThat("returns known domain object", knownObject, isA(KnownDomainObject.class)),
 			() -> assertThat(knownObject.getType(), is(TestProjection.class)),

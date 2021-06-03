@@ -30,10 +30,11 @@ public interface ModelNodeCreateChildNodeTester {
 		);
 	}
 
-	@Test // There is no good reason to use Action in Groovy DSL
-	default void canCreateChildNode_StringAction() {
+	@ParameterizedTest(name = "can create child node [{argumentsWithNames}]")
+	@MethodSource("dev.nokee.model.dsl.NodeParams#stringAction")
+	default void canCreateChildNode_StringAction(NodeMethods.IdentityAction method) {
 		val action = mockAction(ModelNode.class);
-		val node = createSubject().node("test", action);
+		val node = method.invoke(createSubject(), "test", action);
 		assertAll(
 			() -> assertThat(node, isA(ModelNode.class)),
 			() -> assertThat(node.getName(), equalTo("test")),
@@ -61,7 +62,8 @@ public interface ModelNodeCreateChildNodeTester {
 		assertDoesNotThrow(() -> method.invoke(createSubject(), "test", TestProjection.class));
 	}
 
-	@Test // There is no good reason to use BiAction in Groovy DSL
+	@ParameterizedTest(name = "can create child node [{argumentsWithNames}]")
+	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionAction")
 	default void canCreateChildNode_StringProjectionBiAction() {
 		val action = mockBiConsumer();
 		assertDoesNotThrow(() -> createSubject().node("test", TestProjection.class, action));

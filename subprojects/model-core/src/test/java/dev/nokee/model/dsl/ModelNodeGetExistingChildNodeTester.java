@@ -32,12 +32,13 @@ public interface ModelNodeGetExistingChildNodeTester {
 		assertThat("returns existing child node", method.invoke(subject, "test"), is(childNode));
 	}
 
-	@Test
-	default void canGetChildNode_StringAction() {
+	@ParameterizedTest(name = "can get child node [{argumentsWithNames}]")
+	@MethodSource("dev.nokee.model.dsl.NodeParams#stringAction")
+	default void canGetChildNode_StringAction(NodeMethods.IdentityAction method) {
 		val action = mockAction(ModelNode.class);
 		val subject = createSubject();
 		val childNode = withExistingChildNode(subject);
-		assertThat("returns existing child node", subject.node("test", action), is(childNode));
+		assertThat("returns existing child node", method.invoke(subject, "test", action), is(childNode));
 	}
 
 	@ParameterizedTest(name = "can get child node [{argumentsWithNames}]")
@@ -62,12 +63,13 @@ public interface ModelNodeGetExistingChildNodeTester {
 		assertDoesNotThrow(() -> method.invoke(subject, "test", TestProjection.class));
 	}
 
-	@Test
-	default void canGetChildNode_StringProjectionBiAction() {
+	@ParameterizedTest(name = "can get child node [{argumentsWithNames}]")
+	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionAction")
+	default void canGetChildNode_StringProjectionBiAction(NodeMethods.IdentityProjectionAction method) {
 		val action = mockBiConsumer();
 		val subject = createSubject();
 		val childNode = withExistingChildNode(subject);
-		assertDoesNotThrow(() -> subject.node("test", TestProjection.class, action));
+		assertDoesNotThrow(() -> method.invoke(subject, "test", TestProjection.class, action));
 		assertThat("calls back with existing child node", action, calledOnceWith(firstArgumentOf(childNode)));
 	}
 
