@@ -156,7 +156,7 @@ abstract class NamedDomainObjectContainerRegistry<T> {
 		}
 	}
 
-	static class TaskContainerRegistry extends NamedDomainObjectContainerRegistry<Task> {
+	static final class TaskContainerRegistry extends NamedDomainObjectContainerRegistry<Task> {
 		private static final NamedDomainObjectRegistry.RegistrableTypes REGISTRABLE_TYPES = new TaskContainerRegistrableTypes();
 		private final TaskContainer container;
 
@@ -209,7 +209,7 @@ abstract class NamedDomainObjectContainerRegistry<T> {
 		}
 	}
 
-	static class SoftwareComponentContainerRegistry extends NamedDomainObjectContainerRegistry<SoftwareComponent> {
+	static /*final*/ class SoftwareComponentContainerRegistry extends NamedDomainObjectContainerRegistry<SoftwareComponent> {
 		private static final NamedDomainObjectRegistry.RegistrableTypes REGISTRABLE_TYPES = new SoftwareComponentContainerRegistrableTypes();
 		private final SoftwareComponentContainer container;
 		private final SoftwareComponentFactory softwareComponentFactory;
