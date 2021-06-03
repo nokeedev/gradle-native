@@ -1,6 +1,8 @@
 package dev.nokee.model.dsl;
 
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.core.NodePredicate;
+import dev.nokee.model.core.NodePredicates;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import groovy.transform.stc.ClosureParams;
@@ -9,6 +11,7 @@ import groovy.transform.stc.FromString;
 import groovy.transform.stc.SimpleType;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
+import org.gradle.api.provider.Provider;
 import org.gradle.util.ConfigureUtil;
 
 import java.util.function.BiConsumer;
@@ -134,4 +137,46 @@ public interface ModelNode extends Named, NodePredicates {
 	default <T> KnownDomainObject<T> projection(Class<T> type, @ClosureParams(FirstParam.FirstGenericType.class) @DelegatesTo(target = "T", strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
 		return projection(type, ConfigureUtil.configureUsing(closure));
 	}
+
+	/**
+	 * Executes action on all objects matching the specified spec for the subgraph with this node as the root.
+	 *
+	 * <pre>
+	 * nokee.model {
+	 *     // Configures component and variant source sets
+	 *     main.all(descendants(ofType(LanguageSourceSet))) { node, knownSourceSet ->
+	 *         // ...
+	 *     }
+	 *
+	 *     // Configures only component source sets
+	 *     main.all(directChildren(ofType(LanguageSourceSet))) { node, knownSourceSet ->
+	 *         // ...
+	 *     }
+	 *
+	 *     // Configures all component's known objects
+	 *     main.all(descendants()) { node, knownSourceSet ->
+	 *     	   // ...
+	 *     	   // Note: there may be many invocation for the same node
+	 *     }
+	 * }
+	 * </pre>
+	 */
+	<T> void all(NodePredicate<T> spec, BiConsumer<? super ModelNode, ? super KnownDomainObject<T>> action);
+
+	/** @see #all(NodePredicate, BiConsumer) */
+	<T> void all(NodePredicate<T> spec, @ClosureParams(value = FromString.class, options = { "dev.nokee.model.KnownDomainObject<T>", "dev.nokee.model.dsl.ModelNode,dev.nokee.model.KnownDomainObject<T>" }) @DelegatesTo(value = ModelNode.class, strategy = Closure.DELEGATE_FIRST) Closure<?> closure);
+
+	/**
+	 * Returns a provider of all objects matching the specified spec for the subgraph with this node as the root.
+	 *
+	 * To register a configuration on each matching objects, use {@link #all(NodePredicate, BiConsumer)}.
+	 *
+	 * <pre>
+	 * nokee.model {
+	 *     // Query all source directories
+	 *     Provider<Iterable<FileTree>> sourceFiles = main.all(descendants(ofType(LanguageSourceSet))).map { it*.asFileTree }
+	 * }
+	 * </pre>
+	 */
+	<T> Provider<Iterable<T>> all(NodePredicate<T> spec);
 }
