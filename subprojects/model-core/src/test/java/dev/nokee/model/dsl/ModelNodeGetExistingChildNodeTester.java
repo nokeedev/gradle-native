@@ -74,12 +74,12 @@ public interface ModelNodeGetExistingChildNodeTester {
 	@ParameterizedTest(name = "can get child node [{argumentsWithNames}]")
 	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionClosure")
 	default void canGetChildNode_StringProjectionClosure(NodeMethods.IdentityProjectionClosure method) {
-		val closure = mockClosure(ModelNode.class);
+		val closure = mockClosure(KnownDomainObject.class);
 		val subject = createSubject();
 		val childNode = withExistingChildNode(subject);
-		assertDoesNotThrow(() -> method.invoke(subject, "test", TestProjection.class, closure));
+		val knownObject = assertDoesNotThrow(() -> method.invoke(subject, "test", TestProjection.class, closure));
 		assertThat("calls back with existing child node",
-			closure, calledOnceWith(allOf(singleArgumentOf(childNode), delegateOf(childNode), delegateFirstStrategy())));
+			closure, calledOnceWith(allOf(singleArgumentOf(knownObject), delegateOf(childNode), delegateFirstStrategy())));
 	}
 
 	@ParameterizedTest(name = "can get child node [{argumentsWithNames} - BiClosure]")
