@@ -24,7 +24,8 @@ public interface NodeMethods {
 	}
 
 	interface IdentityProjectionAction {
-		<T> KnownDomainObject<T> invoke(ModelNode self, Object identity, Class<T> type, BiConsumer<? super ModelNode, ? super KnownDomainObject<T>> closure);
+		<T> KnownDomainObject<T> invoke(ModelNode self, Object identity, Class<T> type, Action<? super T> action);
+		<T> KnownDomainObject<T> invoke(ModelNode self, Object identity, Class<T> type, BiConsumer<? super ModelNode, ? super KnownDomainObject<T>> action);
 	}
 
 	interface IdentityProjectionClosure {

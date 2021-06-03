@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static dev.nokee.utils.ActionTestUtils.mockAction;
 import static dev.nokee.utils.ClosureTestUtils.mockClosure;
 import static dev.nokee.utils.ConsumerTestUtils.mockBiConsumer;
+import static dev.nokee.utils.ConsumerTestUtils.mockConsumer;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -52,6 +53,18 @@ public interface ModelNodeCreateProjectionTester {
 		assertAll(
 			() -> assertThat("returns known domain object", knownObject, isA(KnownDomainObject.class)),
 			() -> assertThat(knownObject.getType(), is(TestProjection.class))
+		);
+	}
+
+	@ParameterizedTest(name = "can create projection [{argumentsWithNames}]")
+	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionAction")
+	default void canCreateProjection_StringProjectionAction(NodeMethods.IdentityProjectionAction method) {
+		val action = mockAction();
+		val knownObject = method.invoke(createSubject(), "test", TestProjection.class, action);
+		assertAll(
+			() -> assertThat("returns known domain object", knownObject, isA(KnownDomainObject.class)),
+			() -> assertThat(knownObject.getType(), is(TestProjection.class)),
+			() -> assertThat("defer projection creation", action, neverCalled())
 		);
 	}
 

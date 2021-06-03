@@ -75,7 +75,23 @@ public interface ModelNode extends Named, NodePredicates {
 	 * @return the known object matching the child identity and type, never null
 	 */
 	<T> KnownDomainObject<T> node(Object identity, Class<T> type);
-//	<T> KnownDomainObject<T> node(Object identity, Class<T> type, Consumer<? super T> action);
+
+	/**
+	 * Returns known object of the specified type and its configuration; creates a new child node and new projection if absent.
+	 *
+	 * If the configuration action is assertable, the projection will be asserted to match the configuration instead of executing the configuration.
+	 * For example, {@code node("runtime", Configuration, declarable())} would assert the configuration of the known object is declarable if the underlying object already exists.
+	 * It's useful when different nodes has overlapping projections, e.g. result in the same domain object name.
+	 *
+	 * Note: this is a short hand version of {@code node(<identity>).projection(<type>, Action)}.
+	 *
+	 * @param identity  a named or to-stringable object that represent the child node, must not be null
+	 * @param type  a projection type representing the known object, must not be null
+	 * @param action  a configuration action for the known object, must not be null
+	 * @param <T>  the known object type
+	 * @return the known object matching the child identity and type, never null
+	 */
+	<T> KnownDomainObject<T> node(Object identity, Class<T> type, Action<? super T> action);
 
 	/**
 	 * Configures child node and its known object of the specified identity and type; creates a new child node and new projection if absent.
@@ -101,9 +117,9 @@ public interface ModelNode extends Named, NodePredicates {
 	<T> KnownDomainObject<T> projection(Class<T> type);
 
 	/**
-	 * Returns known object of this node for the specified type and configuration; creates a new projection if absent.
+	 * Returns known object of this node for the specified type and its configuration; creates a new projection if absent.
 	 *
-	 * If the configuration action is assertable, the projection will be asserted to match the configuration instead of executing the configuration.
+	 * If the configuration action is assertable, the projection will be asserted to match the configuration of the known object instead of executing the configuration.
 	 * For example, {@code projection(Configuration, declarable())} would assert the configuration is declarable if the underlying projection object already exists.
 	 * It's useful when different nodes has overlapping projections, e.g. result in the same domain object name.
 	 *

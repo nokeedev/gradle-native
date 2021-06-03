@@ -11,6 +11,7 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.utils.ActionTestUtils.mockAction;
 import static dev.nokee.utils.ClosureTestUtils.mockClosure;
 import static dev.nokee.utils.ConsumerTestUtils.mockBiConsumer;
+import static dev.nokee.utils.ConsumerTestUtils.mockConsumer;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -64,9 +65,16 @@ public interface ModelNodeCreateChildNodeTester {
 
 	@ParameterizedTest(name = "can create child node [{argumentsWithNames}]")
 	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionAction")
-	default void canCreateChildNode_StringProjectionBiAction() {
+	default void canCreateChildNode_StringProjectionAction(NodeMethods.IdentityProjectionAction method) {
+		val action = mockAction();
+		assertDoesNotThrow(() -> method.invoke(createSubject(), "test", TestProjection.class, action));
+	}
+
+	@ParameterizedTest(name = "can create child node [{argumentsWithNames}]")
+	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionAction")
+	default void canCreateChildNode_StringProjectionBiAction(NodeMethods.IdentityProjectionAction method) {
 		val action = mockBiConsumer();
-		assertDoesNotThrow(() -> createSubject().node("test", TestProjection.class, action));
+		assertDoesNotThrow(() -> method.invoke(createSubject(), "test", TestProjection.class, action));
 		assertThat(action, calledOnceWith(firstArgumentOf(isA(ModelNode.class))));
 	}
 

@@ -32,6 +32,7 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 			.whenInvokeMethod(Action.class, this::node)
 			.whenInvokeMethod(Class.class, this::node)
 			.whenInvokeMethod(Class.class, Closure.class, this::node)
+			.whenInvokeMethod(Class.class, Action.class, this::node)
 			.whenInvokeMethod(Class.class, BiConsumer.class, this::node)
 			.whenGetProperty(this::getOrCreateChildNode)
 			.build();
@@ -52,6 +53,11 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 	@Override
 	public <T> KnownDomainObject<T> node(Object identity, Class<T> type) {
 		return getOrCreateChildNode(identity).projection(type);
+	}
+
+	@Override
+	public <T> KnownDomainObject<T> node(Object identity, Class<T> type, Action<? super T> action) {
+		return getOrCreateChildNode(identity).projection(type, action);
 	}
 
 	@Override
