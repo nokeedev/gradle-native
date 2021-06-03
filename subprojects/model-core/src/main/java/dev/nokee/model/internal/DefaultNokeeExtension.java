@@ -3,7 +3,6 @@ package dev.nokee.model.internal;
 import dev.nokee.model.NokeeExtension;
 import dev.nokee.model.dsl.ModelNode;
 import dev.nokee.model.registry.ModelRegistry;
-import dev.nokee.utils.NamedDomainObjectCollectionUtils;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.PolymorphicDomainObjectContainer;

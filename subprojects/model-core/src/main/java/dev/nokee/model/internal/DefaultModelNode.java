@@ -6,7 +6,6 @@ import dev.nokee.model.graphdb.*;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Named;
-import org.gradle.api.NamedDomainObjectProvider;
 
 import java.util.Optional;
 import java.util.function.Consumer;
