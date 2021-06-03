@@ -12,8 +12,7 @@ import static dev.nokee.utils.ClosureTestUtils.mockClosure;
 import static dev.nokee.utils.ConsumerTestUtils.mockBiConsumer;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
@@ -64,12 +63,13 @@ public interface ModelNodeGetExistingProjectionTester {
 			method.invoke(subject, "test", TestProjection.class), is(existingProjection));
 	}
 
-	@Test
-	default void canGetProjection_StringProjectionBiAction() {
+	@ParameterizedTest(name = "can create projection [{argumentsWithNames}]")
+	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionAction")
+	default void canGetProjection_StringProjectionBiAction(NodeMethods.IdentityProjectionAction method) {
 		val action = mockBiConsumer();
 		val subject = createSubject();
 		val existingProjection = withExistingProjection(subject.node("test"));
-		val knownObject = assertDoesNotThrow(() -> subject.node("test", TestProjection.class, action));
+		val knownObject = assertDoesNotThrow(() -> method.invoke(subject, "test", TestProjection.class, action));
 		assertAll(
 			() -> assertThat("returns existing projection", knownObject, is(existingProjection)),
 			() -> assertThat(action, calledOnceWith(secondArgumentOf(existingProjection)))

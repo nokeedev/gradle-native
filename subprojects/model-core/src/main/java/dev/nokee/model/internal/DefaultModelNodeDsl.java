@@ -29,8 +29,10 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 			.metaClass(getMetaClass())
 			.whenInvokeMethod(this::node)
 			.whenInvokeMethod(Closure.class, this::node)
+			.whenInvokeMethod(Action.class, this::node)
 			.whenInvokeMethod(Class.class, this::node)
 			.whenInvokeMethod(Class.class, Closure.class, this::node)
+			.whenInvokeMethod(Class.class, BiConsumer.class, this::node)
 			.whenGetProperty(this::getOrCreateChildNode)
 			.build();
 	}
