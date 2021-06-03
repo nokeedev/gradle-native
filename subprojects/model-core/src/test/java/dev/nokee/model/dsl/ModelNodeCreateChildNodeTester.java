@@ -71,10 +71,10 @@ public interface ModelNodeCreateChildNodeTester {
 	@ParameterizedTest(name = "can create child node [{argumentsWithNames}]")
 	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionClosure")
 	default void canCreateChildNode_StringProjectionClosure(NodeMethods.IdentityProjectionClosure method) {
-		val closure = mockClosure(ModelNode.class);
+		val closure = mockClosure(KnownDomainObject.class);
 		assertDoesNotThrow(() -> method.invoke(createSubject(), "test", TestProjection.class, closure));
 		assertAll(
-			() -> assertThat(closure, calledOnceWith(singleArgumentOf(isA(ModelNode.class)))),
+			() -> assertThat(closure, calledOnceWith(singleArgumentOf(isA(KnownDomainObject.class)))),
 			() -> assertThat(closure, calledOnceWith(delegateOf(allOf(isA(ModelNode.class), named("test"))))),
 			() -> assertThat(closure, calledOnceWith(delegateFirstStrategy()))
 		);

@@ -34,7 +34,7 @@ final class ClosureBackedBiAction<A, B> implements BiConsumer<A, B> {
 			if (copy.getMaximumNumberOfParameters() == 0) {
 				copy.call();
 			} else if (copy.getMaximumNumberOfParameters() == 1) {
-				copy.call(delegate);
+				copy.call(firstArgument);
 			} else {
 				copy.call(delegate, firstArgument);
 			}
