@@ -1,6 +1,7 @@
 package dev.nokee.model.internal;
 
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.core.NodePredicate;
 import dev.nokee.model.dsl.ModelNode;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
@@ -11,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.Task;
+import org.gradle.api.provider.Provider;
 
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
@@ -153,5 +155,22 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 	@Override
 	public Object invokeMethod(String name, Object args) {
 		return dslSupport.invokeMethod(name, args);
+	}
+
+	@Override
+	public <T> void all(NodePredicate<T> spec, BiConsumer<? super ModelNode, ? super KnownDomainObject<T>> action) {
+		//spec.scope(delegate);
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public <T> void all(NodePredicate<T> spec, Closure<?> closure) {
+		all(spec, new ClosureBackedBiAction<>(closure));
+	}
+
+	@Override
+	public <T> Provider<Iterable<T>> all(NodePredicate<T> spec) {
+		// spec.scope(delegate)
+		throw new UnsupportedOperationException();
 	}
 }
