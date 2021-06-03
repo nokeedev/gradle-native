@@ -214,7 +214,7 @@ abstract class NamedDomainObjectContainerRegistry<T> {
 		private final SoftwareComponentContainer container;
 		private final SoftwareComponentFactory softwareComponentFactory;
 
-		@Inject
+		@Inject // because of SoftwareComponentFactory
 		public SoftwareComponentContainerRegistry(SoftwareComponentContainer container, SoftwareComponentFactory softwareComponentFactory) {
 			this.container = container;
 			this.softwareComponentFactory = softwareComponentFactory;
