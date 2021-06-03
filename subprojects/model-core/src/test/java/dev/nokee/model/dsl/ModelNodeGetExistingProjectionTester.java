@@ -79,11 +79,14 @@ public interface ModelNodeGetExistingProjectionTester {
 	@ParameterizedTest(name = "can get projection [{argumentsWithNames}]")
 	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionClosure")
 	default void canGetProjection_StringProjectionClosure(NodeMethods.IdentityProjectionClosure method) {
-		val closure = mockClosure(ModelNode.class);
+		val closure = mockClosure(KnownDomainObject.class);
 		val subject = createSubject();
 		val existingProjection = withExistingProjection(subject.node("test"));
-		assertThat("returns existing projection",
-			method.invoke(subject, "test", TestProjection.class, closure), is(existingProjection));
+		val knownObject = assertDoesNotThrow(() -> method.invoke(subject, "test", TestProjection.class, closure));
+		assertAll(
+			() -> assertThat("returns existing projection", knownObject, is(existingProjection)),
+			() -> assertThat(closure, calledOnceWith(singleArgumentOf(existingProjection)))
+		);
 	}
 
 	@ParameterizedTest(name = "can get projection [{argumentsWithNames} - BiClosure]")
@@ -95,7 +98,7 @@ public interface ModelNodeGetExistingProjectionTester {
 		val knownObject = assertDoesNotThrow(() -> method.invoke(subject, "test", TestProjection.class, closure));
 		assertAll(
 			() -> assertThat("returns existing projection", knownObject, is(existingProjection)),
-			() -> assertThat(closure, calledOnceWith(allOf(secondArgumentOf(existingProjection))))
+			() -> assertThat(closure, calledOnceWith(secondArgumentOf(existingProjection)))
 		);
 	}
 }

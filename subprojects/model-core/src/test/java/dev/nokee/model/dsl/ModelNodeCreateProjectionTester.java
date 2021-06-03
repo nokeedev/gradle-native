@@ -69,12 +69,12 @@ public interface ModelNodeCreateProjectionTester {
 	@ParameterizedTest(name = "can create projection [{argumentsWithNames}]")
 	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionClosure")
 	default void canCreateProjection_StringProjectionClosure(NodeMethods.IdentityProjectionClosure method) {
-		val closure = mockClosure(ModelNode.class);
+		val closure = mockClosure(KnownDomainObject.class);
 		val knownObject = method.invoke(createSubject(), "test", TestProjection.class, closure);
 		assertAll(
 			() -> assertThat("returns known domain object", knownObject, isA(KnownDomainObject.class)),
 			() -> assertThat(knownObject.getType(), is(TestProjection.class)),
-			() -> assertThat(closure, calledOnce())
+			() -> assertThat(closure, calledOnceWith(singleArgumentOf(knownObject)))
 		);
 	}
 

@@ -74,7 +74,6 @@ public interface ModelNodeCreateChildNodeTester {
 		val closure = mockClosure(KnownDomainObject.class);
 		assertDoesNotThrow(() -> method.invoke(createSubject(), "test", TestProjection.class, closure));
 		assertAll(
-			() -> assertThat(closure, calledOnceWith(singleArgumentOf(isA(KnownDomainObject.class)))),
 			() -> assertThat(closure, calledOnceWith(delegateOf(allOf(isA(ModelNode.class), named("test"))))),
 			() -> assertThat(closure, calledOnceWith(delegateFirstStrategy()))
 		);
