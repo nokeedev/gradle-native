@@ -126,6 +126,11 @@ class NodeParams {
 		return Stream.of(
 			new NodeMethods.IdentityProjectionAction() {
 				@Override
+				<T> KnownDomainObject<T> invoke(ModelNode self, Object identity, Class<T> type, Action<? super T> action) {
+					return self.node(identity, type, action)
+				}
+
+				@Override
 				<T> KnownDomainObject<T> invoke(ModelNode self, Object identity, Class<T> type, BiConsumer<? super ModelNode, ? super KnownDomainObject<T>> action) {
 					return self.node(identity, type, action)
 				}
@@ -136,6 +141,11 @@ class NodeParams {
 				}
 			},
 			new NodeMethods.IdentityProjectionAction() {
+				@Override
+				<T> KnownDomainObject<T> invoke(ModelNode self, Object identity, Class<T> type, Action<? super T> action) {
+					return self."${identity}"(type, action)
+				}
+
 				@Override
 				<T> KnownDomainObject<T> invoke(ModelNode self, Object identity, Class<T> type, BiConsumer<? super ModelNode, ? super KnownDomainObject<T>> action) {
 					return self."${identity}"(type, action)

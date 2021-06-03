@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static dev.nokee.utils.ActionTestUtils.mockAction;
 import static dev.nokee.utils.ClosureTestUtils.mockClosure;
 import static dev.nokee.utils.ConsumerTestUtils.mockBiConsumer;
+import static dev.nokee.utils.ConsumerTestUtils.mockConsumer;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -61,6 +62,15 @@ public interface ModelNodeGetExistingChildNodeTester {
 		val subject = createSubject();
 		withExistingChildNode(subject);
 		assertDoesNotThrow(() -> method.invoke(subject, "test", TestProjection.class));
+	}
+
+	@ParameterizedTest(name = "can get child node [{argumentsWithNames}]")
+	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionAction")
+	default void canGetChildNode_StringProjectionAction(NodeMethods.IdentityProjectionAction method) {
+		val action = mockAction();
+		val subject = createSubject();
+		withExistingChildNode(subject); // can't really assert that invoking the node method the same node is used
+		assertDoesNotThrow(() -> method.invoke(subject, "test", TestProjection.class, action));
 	}
 
 	@ParameterizedTest(name = "can get child node [{argumentsWithNames}]")
