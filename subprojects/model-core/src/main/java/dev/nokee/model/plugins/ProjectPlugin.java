@@ -12,10 +12,14 @@ import javax.inject.Inject;
 
 public abstract class ProjectPlugin extends ModelPlugin<Project> {
 	@Inject
-	protected abstract ProjectLayout getLayout();
+	protected /*final*/ ProjectLayout getLayout() {
+		throw new UnsupportedOperationException();
+	}
 
 	@Inject
-	protected abstract DependencyHandler getDependencies();
+	protected /*final*/ DependencyHandler getDependencies() {
+		throw new UnsupportedOperationException();
+	}
 
 	protected final ModelRegistry getModelRegistry() {
 		return ((ProjectInternal) target).getModelRegistry();

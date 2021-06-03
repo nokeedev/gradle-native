@@ -16,15 +16,18 @@ import javax.inject.Inject;
 
 import static dev.nokee.model.internal.ModelBasePlugin.nokee;
 
-
 public abstract class ModelPlugin<T extends PluginAware & ExtensionAware> implements Plugin<T> {
 	T target; // leave it as package private, we don't want subclass to access it
 
 	@Inject
-	protected abstract ProviderFactory getProviders();
+	protected /*final*/ ProviderFactory getProviders() {
+		throw new UnsupportedOperationException();
+	}
 
 	@Inject
-	protected abstract ObjectFactory getObjects();
+	protected /*final*/ ObjectFactory getObjects() {
+		throw new UnsupportedOperationException();
+	}
 
 	protected final PluginManager getPluginManager() {
 		return target.getPluginManager();

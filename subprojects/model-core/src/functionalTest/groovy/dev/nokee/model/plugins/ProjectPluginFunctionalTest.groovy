@@ -107,7 +107,7 @@ class ProjectPluginFunctionalTest extends AbstractGradleSpecification {
 			import ${ModelNode.canonicalName}
 			import ${ProjectPlugin.canonicalName}
 			import ${KnownDomainObject.canonicalName}
-			abstract class TestPlugin extends ProjectPlugin {
+			class TestPlugin extends ProjectPlugin {
 				${content}
 			}
 		"""

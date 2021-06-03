@@ -73,7 +73,7 @@ class SettingsPluginFunctionalTest extends AbstractGradleSpecification {
 			import ${ModelNode.canonicalName}
 			import ${SettingsPlugin.canonicalName}
 			import ${KnownDomainObject.canonicalName}
-			abstract class TestPlugin extends SettingsPlugin {
+			class TestPlugin extends SettingsPlugin {
 				${content}
 			}
 		"""
