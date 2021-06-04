@@ -220,7 +220,7 @@ class NativeCompilationJavaObjectiveCppJniLibraryFunctionalTest extends Abstract
 
 class NativeCompilationKotlinCppJniLibraryFunctionalTest extends AbstractNativeCompilationAwareComponentFunctionalTest implements CppTaskNames {
 	private static String getKotlinVersion() {
-		return '1.3.72'
+		return '1.5.10'
 	}
 
 	protected void makeSingleProject() {

@@ -68,6 +68,6 @@ class KotlinCppJniLibraryWithJUnitTestingFunctionalTest extends AbstractInstalle
 	}
 
 	private static String getKotlinVersion() {
-		return '1.3.72'
+		return '1.5.10'
 	}
 }
