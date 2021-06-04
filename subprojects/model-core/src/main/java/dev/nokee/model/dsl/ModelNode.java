@@ -154,7 +154,7 @@ public interface ModelNode extends Named, NodePredicates {
 	 *     }
 	 *
 	 *     // Configures all component's known objects
-	 *     main.all(descendants()) { node, knownSourceSet ->
+	 *     main.all(descendants()) { node, knownObject ->
 	 *     	   // ...
 	 *     	   // Note: there may be many invocation for the same node
 	 *     }
