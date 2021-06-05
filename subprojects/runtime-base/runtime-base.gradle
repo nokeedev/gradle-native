@@ -1,6 +1,7 @@
 plugins {
 	id 'dev.gradleplugins.java-gradle-plugin'
 	id 'maven-publish'
+	id 'java-test-fixtures'
 }
 
 dependencies {
@@ -10,4 +11,9 @@ dependencies {
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation 'org.eclipse.jetty:jetty-server:9.4.27.v20200227'
 	implementation 'com.google.code.gson:gson:2.8.6'
+	testImplementation 'uk.co.probablyfine:java-8-matchers:1.9'
+
+	testFixturesApi "org.hamcrest:hamcrest:${hamcrestVersion}"
+	testFixturesApi "org.junit.jupiter:junit-jupiter:${junitVersion}"
+	testFixturesApi "com.google.guava:guava-testlib:30.0-jre"
 }
