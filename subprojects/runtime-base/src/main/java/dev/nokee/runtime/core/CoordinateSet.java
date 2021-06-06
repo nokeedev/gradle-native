@@ -14,6 +14,7 @@ public interface CoordinateSet<T> extends Iterable<Coordinate<T>> {
 		return stream(axis.getType().getEnumConstants()).collect(Coordinates.toCoordinateSet(axis));
 	}
 
+	@SafeVarargs
 	static <T> CoordinateSet<T> of(CoordinateAxis<T> axis, T... values) {
 		return stream(values).collect(Coordinates.toCoordinateSet(axis));
 	}
@@ -22,6 +23,7 @@ public interface CoordinateSet<T> extends Iterable<Coordinate<T>> {
 		return values.stream().collect(Coordinates.toCoordinateSet(axis));
 	}
 
+	@SafeVarargs
 	static <T> CoordinateSet<T> of(Coordinate<T>... coordinates) {
 		return stream(coordinates).collect(Coordinates.toCoordinateSet());
 	}
