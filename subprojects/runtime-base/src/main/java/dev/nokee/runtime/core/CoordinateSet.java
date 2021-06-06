@@ -32,6 +32,10 @@ public interface CoordinateSet<T> extends Iterable<Coordinate<T>> {
 		return coordinates.stream().collect(Coordinates.toCoordinateSet());
 	}
 
+	default CoordinateAxis<T> getAxis() {
+		return iterator().next().getAxis();
+	}
+
 //	public CoordinateSpace multiply(CoordinateSet<?> set) {
 //		throw new UnsupportedOperationException();
 //	}
