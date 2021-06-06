@@ -11,7 +11,9 @@ package dev.nokee.runtime.core;
 public interface CoordinateAxis<T> {
 	Class<T> getType();
 
-	String getName();
+	default String getName() {
+		return Coordinates.inferCoordinateAxisNameFromType(getType());
+	}
 
 	/**
 	 * Creates a coordinate for the specified value on this axis.
