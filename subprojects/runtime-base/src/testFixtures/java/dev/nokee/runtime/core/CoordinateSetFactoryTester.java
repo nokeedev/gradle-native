@@ -25,6 +25,7 @@ public interface CoordinateSetFactoryTester {
 		val subject = createSubject(Axis.class);
 		assertThat(subject, notNullValue(CoordinateSet.class));
 		assertThat(subject, containsInAnyOrder(AXIS.create(Axis.a), AXIS.create(Axis.b), AXIS.create(Axis.c)));
+		assertThat(subject.getAxis(), equalTo(AXIS));
 	}
 
 	@Test
@@ -32,6 +33,7 @@ public interface CoordinateSetFactoryTester {
 		val subject = createSubject(AXIS, Axis.b, Axis.c);
 		assertThat(subject, notNullValue(CoordinateSet.class));
 		assertThat(subject, containsInAnyOrder(AXIS.create(Axis.b), AXIS.create(Axis.c)));
+		assertThat(subject.getAxis(), equalTo(AXIS));
 	}
 
 	@Test
@@ -39,6 +41,7 @@ public interface CoordinateSetFactoryTester {
 		val subject = createSubject(AXIS.create(Axis.b), AXIS.create(Axis.a));
 		assertThat(subject, notNullValue(CoordinateSet.class));
 		assertThat(subject, containsInAnyOrder(AXIS.create(Axis.b), AXIS.create(Axis.a)));
+		assertThat(subject.getAxis(), equalTo(AXIS));
 	}
 
 	@Test
