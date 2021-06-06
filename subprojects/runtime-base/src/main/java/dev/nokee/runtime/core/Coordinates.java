@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
 import lombok.val;
+import org.gradle.util.GUtil;
 
 import java.util.Optional;
 import java.util.Set;
@@ -64,6 +65,10 @@ final class Coordinates {
 		} catch (NoSuchMethodException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static String inferCoordinateAxisNameFromType(Class<?> type) {
+		return GUtil.toWords(type.getSimpleName(), '-');
 	}
 
 	public static <T> Collector<T, ?, CoordinateSet<T>> toCoordinateSet(CoordinateAxis<T> axis) {
