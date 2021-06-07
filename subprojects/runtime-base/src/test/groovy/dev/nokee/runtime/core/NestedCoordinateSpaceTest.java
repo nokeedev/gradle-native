@@ -39,6 +39,14 @@ class NestedCoordinateSpaceTest {
 		assertThat(flattenCoordinates, contains(x, B.b2, C.c1));
 	}
 
+	@Test
+	void canFlattenTupleUsingStream() {
+		val x = xAxis().create(2L);
+		val subject = CoordinateTuple.of(x, A.a3);
+		val flattenCoordinates = Streams.stream(subject).flatMap(Coordinates::flatten).collect(Coordinates.toCoordinateTuple());
+		assertThat(flattenCoordinates, contains(x, B.b3, C.c1));
+	}
+
 	private static final CoordinateAxis<A> aAxis = CoordinateAxis.of(A.class);
 	private static final CoordinateAxis<B> bAxis = CoordinateAxis.of(B.class);
 	private static final CoordinateAxis<C> cAxis = CoordinateAxis.of(C.class);
