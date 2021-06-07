@@ -3,6 +3,7 @@ package dev.nokee.runtime.core;
 import com.google.common.collect.*;
 import com.google.common.reflect.TypeToken;
 import lombok.val;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.util.GUtil;
 
 import java.util.Collections;
@@ -20,6 +21,11 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;
 
 public final class Coordinates {
+	@SuppressWarnings("UnstableApiUsage")
+	public static <T> Class<Coordinate<T>> coordinateTypeOf(Class<T> valueType) {
+		return new TypeOf<Coordinate<T>>() {}.getConcreteClass();
+	}
+
 	public static <T> Optional<T> find(CoordinateTuple self, CoordinateAxis<T> axis, boolean includeNested) {
 		requireNonNull(axis);
 		for (Coordinate<?> coordinate : self) {
