@@ -28,7 +28,7 @@ public interface CoordinateSet<T> extends Iterable<Coordinate<T>> {
 		return stream(coordinates).collect(Coordinates.toCoordinateSet());
 	}
 
-	static <T> CoordinateSet<T> of(Set<Coordinate<T>> coordinates) {
+	static <T> CoordinateSet<T> of(Set<? extends Coordinate<T>> coordinates) {
 		return coordinates.stream().collect(Coordinates.toCoordinateSet());
 	}
 
