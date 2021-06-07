@@ -1,12 +1,11 @@
 package dev.nokee.runtime.core;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Streams;
+import com.google.common.collect.*;
 import com.google.common.reflect.TypeToken;
 import lombok.val;
 import org.gradle.util.GUtil;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -16,7 +15,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.util.Objects.requireNonNull;
 
 final class Coordinates {
@@ -72,6 +70,37 @@ final class Coordinates {
 
 	public static String inferCoordinateAxisNameFromType(Class<?> type) {
 		return GUtil.toWords(type.getSimpleName(), '-');
+	}
+
+	private static final Collector<Coordinate<?>, ?, CoordinateTuple> TO_COORDINATE_TUPLE = new Collector<Coordinate<?>, ImmutableList.Builder<Coordinate<?>>, CoordinateTuple>() {
+		@Override
+		public Supplier<ImmutableList.Builder<Coordinate<?>>> supplier() {
+			return ImmutableList::builder;
+		}
+
+		@Override
+		public BiConsumer<ImmutableList.Builder<Coordinate<?>>, Coordinate<?>> accumulator() {
+			return ImmutableList.Builder::add;
+		}
+
+		@Override
+		public BinaryOperator<ImmutableList.Builder<Coordinate<?>>> combiner() {
+			return (left, right) -> left.addAll(right.build());
+		}
+
+		@Override
+		public Function<ImmutableList.Builder<Coordinate<?>>, CoordinateTuple> finisher() {
+			return builder -> new DefaultCoordinateTuple(builder.build());
+		}
+
+		@Override
+		public Set<Characteristics> characteristics() {
+			return Collections.emptySet();
+		}
+	};
+
+	public static Collector<Coordinate<?>, ?, CoordinateTuple> toCoordinateTuple() {
+		return TO_COORDINATE_TUPLE;
 	}
 
 	public static <T> Collector<T, ?, CoordinateSet<T>> toCoordinateSet(CoordinateAxis<T> axis) {
