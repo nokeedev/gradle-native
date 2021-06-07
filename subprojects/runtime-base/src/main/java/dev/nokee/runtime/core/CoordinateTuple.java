@@ -19,7 +19,7 @@ public interface CoordinateTuple extends Iterable<Coordinate<?>> {
 		return of(Arrays.asList(coordinates));
 	}
 
-	static CoordinateTuple of(List<Coordinate<?>> coordinates) {
+	static CoordinateTuple of(List<? extends Coordinate<?>> coordinates) {
 		return new DefaultCoordinateTuple(coordinates);
 	}
 }
