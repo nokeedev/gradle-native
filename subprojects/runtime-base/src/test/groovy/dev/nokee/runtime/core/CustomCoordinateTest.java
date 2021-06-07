@@ -20,11 +20,19 @@ class CustomCoordinateTest {
 	}
 
 	@Test
+	void infersGetValueImplementationIfClassIsCoordinateValueSupertype() {
+		val subject = new IAxis() {};
+		assertThat(subject.getValue(), equalTo(subject));
+	}
+
+	@Test
 	void throwsExceptionWithInstructionOnCompletingTheCoordinateImplementation() {
 		val subject = new MyCoordinate();
 		val ex = assertThrows(UnsupportedOperationException.class, subject::getValue);
 		assertThat(ex.getMessage(), equalTo("Please implement Coordinate#getValue() for class dev.nokee.runtime.core.CustomCoordinateTest$MyCoordinate."));
 	}
+
+	interface IAxis extends Coordinate<IAxis> {}
 
 	static final class MyAxis implements Coordinate<MyAxis> {}
 
