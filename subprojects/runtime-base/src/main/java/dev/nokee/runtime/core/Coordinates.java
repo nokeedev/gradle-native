@@ -42,7 +42,7 @@ final class Coordinates {
 		return Stream.of(coordinate);
 	}
 
-	public static <T> CoordinateAxis<T> getAxis(Coordinate<T> self) {
+	static <T> CoordinateAxis<T> inferCoordinateAxisFromCoordinateImplementation(Coordinate<T> self) {
 		try {
 			val getAxisMethod = self.getClass().getMethod("getValue");
 			val returnType = getAxisMethod.getGenericReturnType();
@@ -53,7 +53,7 @@ final class Coordinates {
 		}
 	}
 
-	public static <T> T getValue(Coordinate<T> self) {
+	static <T> T inferCoordinateValueFromCoordinateImplementation(Coordinate<T> self) {
 		try {
 			val getAxisMethod = self.getClass().getMethod("getValue");
 			val returnType = getAxisMethod.getGenericReturnType();
@@ -68,7 +68,7 @@ final class Coordinates {
 		}
 	}
 
-	public static String inferCoordinateAxisNameFromType(Class<?> type) {
+	static String inferCoordinateAxisNameFromType(Class<?> type) {
 		return GUtil.toWords(type.getSimpleName(), '-');
 	}
 

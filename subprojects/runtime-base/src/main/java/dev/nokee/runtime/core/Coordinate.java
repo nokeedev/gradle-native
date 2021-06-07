@@ -13,7 +13,7 @@ public interface Coordinate<T> {
 	 * @return the axis, never null
 	 */
 	default CoordinateAxis<T> getAxis() {
-		return Coordinates.getAxis(this);
+		return Coordinates.inferCoordinateAxisFromCoordinateImplementation(this);
 	}
 
 	/**
@@ -22,7 +22,7 @@ public interface Coordinate<T> {
 	 * @return the value, never null
 	 */
 	default T getValue() {
-		return Coordinates.getValue(this);
+		return Coordinates.inferCoordinateValueFromCoordinateImplementation(this);
 	}
 
 	/**
