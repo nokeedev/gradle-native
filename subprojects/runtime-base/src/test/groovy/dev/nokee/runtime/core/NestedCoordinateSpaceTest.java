@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
+import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.runtime.core.CoordinateTestUtils.xAxis;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -13,13 +15,16 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 class NestedCoordinateSpaceTest {
 	@Test
-	void canGetNestedAxisValues() {
+	void canFindNestedAxisValuesUsingCoordinateAlgorithms() {
 		val subject = CoordinateTuple.of(xAxis().create(0L), A.a1);
 		assertAll(
-			() -> assertThat("can get A-axis", subject.get(aAxis), equalTo(A.a1)),
-			() -> assertThat("can get X-axis", subject.get(xAxis()), equalTo(0L)),
-			() -> assertThat("can get nested B-axis", subject.get(bAxis), equalTo(B.b1)),
-			() -> assertThat("can get nested C-axis", subject.get(cAxis), equalTo(C.c2))
+			() -> assertThat("can find A-axis", Coordinates.find(subject, aAxis, true), optionalWithValue(equalTo(A.a1))),
+			() -> assertThat("can find X-axis", Coordinates.find(subject, xAxis(), true), optionalWithValue(equalTo(0L))),
+			() -> assertThat("can find nested B-axis", Coordinates.find(subject, bAxis, true), optionalWithValue(equalTo(B.b1))),
+			() -> assertThat("can find nested C-axis", Coordinates.find(subject, cAxis, true), optionalWithValue(equalTo(C.c2))),
+			() -> assertThat("can find A-axis directly on subject", subject.find(aAxis), optionalWithValue(equalTo(A.a1))),
+			() -> assertThat("cannot find nested B-axis directly on subject", subject.find(bAxis), emptyOptional()),
+			() -> assertThat("cannot find nested C-axis directly on subject", subject.find(cAxis), emptyOptional())
 		);
 	}
 

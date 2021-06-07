@@ -4,9 +4,10 @@ import com.google.common.testing.NullPointerTester;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
+import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
+import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public interface CoordinateTupleTester<T extends CoordinateTuple> {
 	T createSubject();
@@ -21,15 +22,13 @@ public interface CoordinateTupleTester<T extends CoordinateTuple> {
 	default void canAccessEachCoordinates() {
 		val subject = createSubject();
 		subject.forEach(coordinate -> {
-			assertThat(subject.get(coordinate.getAxis()), is(coordinate.getValue()));
+			assertThat(subject.find(coordinate.getAxis()), optionalWithValue(is(coordinate.getValue())));
 		});
 	}
 
 	@Test
-	default void throwsExceptionIfAxisIsNotKnown() {
-		val ex = assertThrows(IllegalArgumentException.class,
-			() -> createSubject().get(CoordinateAxis.of(UnknownAxis.class, "unknown-axis")));
-		assertThat(ex.getMessage(), equalTo("No coordinate exists for axis <unknown-axis>"));
+	default void cannotFindUnknownAxis() {
+		assertThat(createSubject().find(CoordinateAxis.of(UnknownAxis.class, "unknown-axis")), emptyOptional());
 	}
 
 	@Test

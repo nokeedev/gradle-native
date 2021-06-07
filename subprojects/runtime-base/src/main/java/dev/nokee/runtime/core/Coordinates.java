@@ -19,20 +19,15 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.util.Objects.requireNonNull;
 
 final class Coordinates {
-
-	public static <T> T get(CoordinateTuple self, CoordinateAxis<T> axis) {
+	public static <T> Optional<T> find(CoordinateTuple self, CoordinateAxis<T> axis, boolean includeNested) {
 		requireNonNull(axis);
-		return find(self, axis).orElseThrow(() -> new IllegalArgumentException("No coordinate exists for " + axis));
-	}
-
-	private static <T> Optional<T> find(Iterable<Coordinate<?>> coordinates, CoordinateAxis<T> axis) {
-		for (Coordinate<?> coordinate : coordinates) {
-			if (coordinate.getAxis().equals(axis)) {
+		for (Coordinate<?> coordinate : self) {
+			if (axis.equals(coordinate.getAxis())) {
 				@SuppressWarnings("unchecked")
 				T result = (T) coordinate.getValue();
 				return Optional.of(result);
-			} else if (coordinate instanceof CoordinateTuple) {
-				val result = find((CoordinateTuple) coordinate, axis);
+			} else if (includeNested && coordinate instanceof CoordinateTuple) {
+				val result = find((CoordinateTuple) coordinate, axis, true);
 				if (result.isPresent()) {
 					return result;
 				}
