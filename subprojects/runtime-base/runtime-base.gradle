@@ -16,4 +16,5 @@ dependencies {
 	testFixturesApi "org.hamcrest:hamcrest:${hamcrestVersion}"
 	testFixturesApi "org.junit.jupiter:junit-jupiter:${junitVersion}"
 	testFixturesApi "com.google.guava:guava-testlib:30.0-jre"
+	testFixturesApi "com.spotify:hamcrest-optional:${hamcrestOptionalVersion}"
 }
