@@ -58,7 +58,7 @@ final class Coordinates {
 			val getAxisMethod = self.getClass().getMethod("getValue");
 			val returnType = getAxisMethod.getGenericReturnType();
 			val resolvedReturnType = TypeToken.of(self.getClass()).resolveType(returnType);
-			if (resolvedReturnType.isSubtypeOf(self.getClass())) {
+			if (resolvedReturnType.isSupertypeOf(self.getClass())) {
 				return (T) self;
 			} else {
 				throw new UnsupportedOperationException(String.format("Please implement Coordinate#getValue() for %s.", self.getClass()));
