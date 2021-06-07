@@ -1,27 +1,29 @@
 package dev.nokee.runtime.core;
 
-import java.util.stream.Stream;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
-public interface CoordinateSpace /*extends Iterable<CoordinateTuple>*/ {
-//	CoordinateTuple create()
+import java.util.List;
+import java.util.Set;
 
-	Stream<CoordinateTuple> getPoints();
+import static com.google.common.collect.Streams.stream;
+import static java.util.stream.Collectors.toList;
 
-//	// The cardinality
-//	long getDimension();
-
+/**
+ * Represent a coordinate space containing coordinate tuples.
+ */
+public interface CoordinateSpace extends Iterable<CoordinateTuple> {
 	static CoordinateSpace cartesianProduct(CoordinateSet<?>... coordinateSets) {
-		throw new UnsupportedOperationException();
+		return cartesianProduct(ImmutableList.copyOf(coordinateSets));
 	}
-//	static Stream<CoordinateTuple> cartesianProduct(Iterable<DimensionSet<?>> dimensionSets) {
-//		return Sets.cartesianProduct(Streams.stream(dimensionSets).map(ImmutableSet::copyOf).collect(Collectors.toList())).stream().map(it -> {
-//			val builder = CoordinateTuple.builder();
-//			int i = 0;
-//			for (DimensionSet<?> dimensionSet : dimensionSets) {
-//				builder.dimension(dimensionSet.getType(), it.get(i));
-//				i++;
-//			}
-//			return builder.build();
-//		});
-//	}
+
+	static CoordinateSpace cartesianProduct(Iterable<CoordinateSet<?>> coordinateSets) {
+		Set<List<Coordinate<?>>> result = Sets.cartesianProduct(stream(coordinateSets).map(ImmutableSet::copyOf).collect(toList()));
+		return new DefaultCoordinateSpace(result.stream().map(CoordinateTuple::of).collect(ImmutableSet.toImmutableSet()));
+	}
+
+	static CoordinateSpace of(CoordinateTuple... coordinateTuples) {
+		return new DefaultCoordinateSpace(ImmutableSet.copyOf(coordinateTuples));
+	}
 }
