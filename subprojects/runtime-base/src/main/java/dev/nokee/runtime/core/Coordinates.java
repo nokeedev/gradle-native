@@ -2,6 +2,7 @@ package dev.nokee.runtime.core;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Streams;
 import com.google.common.reflect.TypeToken;
 import lombok.val;
 import org.gradle.util.GUtil;
@@ -34,6 +35,13 @@ final class Coordinates {
 			}
 		}
 		return Optional.empty();
+	}
+
+	public static Stream<Coordinate<?>> flatten(Coordinate<?> coordinate) {
+		if (coordinate instanceof CoordinateTuple) {
+			return Streams.stream((CoordinateTuple) coordinate).flatMap(Coordinates::flatten);
+		}
+		return Stream.of(coordinate);
 	}
 
 	public static <T> CoordinateAxis<T> getAxis(Coordinate<T> self) {

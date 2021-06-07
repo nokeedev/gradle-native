@@ -1,15 +1,18 @@
 package dev.nokee.runtime.core;
 
+import com.google.common.collect.Streams;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.stream.Collectors;
 
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.runtime.core.CoordinateTestUtils.xAxis;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -26,6 +29,14 @@ class NestedCoordinateSpaceTest {
 			() -> assertThat("cannot find nested B-axis directly on subject", subject.find(bAxis), emptyOptional()),
 			() -> assertThat("cannot find nested C-axis directly on subject", subject.find(cAxis), emptyOptional())
 		);
+	}
+
+	@Test
+	void canFlattenCoordinateStream() {
+		val x = xAxis().create(1L);
+		val subject = CoordinateTuple.of(x, A.a2);
+		val flattenCoordinates = Streams.stream(subject).flatMap(Coordinates::flatten).collect(Collectors.toList());
+		assertThat(flattenCoordinates, contains(x, B.b2, C.c1));
 	}
 
 	private static final CoordinateAxis<A> aAxis = CoordinateAxis.of(A.class);
