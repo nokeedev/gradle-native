@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
@@ -359,6 +362,39 @@ public final class TransformerUtils {
 		@Override
 		public String toString() {
 			return "TransformerUtils.matching(" + spec + ")";
+		}
+	}
+
+	/**
+	 * Returns a transformer that will perform a {@link Stream#collect(Collector)} on the incoming iterable.
+	 *
+	 * @param collector  the collector to use on the stream, must not be null
+	 * @param <OUT>  the transformer's output type
+	 * @param <IN>  the transformer's input type
+	 * @param <T>  the input's element type
+	 * @return a transformer collecting the input element using a stream {@link Collector}, never null
+	 */
+	public static <OUT, IN extends Iterable<T>, T> Transformer<OUT, IN> collect(Collector<? super T, ?, OUT> collector) {
+		return new CollectTransformer<>(collector);
+	}
+
+	/** @see #collect(Collector) */
+	@EqualsAndHashCode
+	private static final class CollectTransformer<OUT, IN extends Iterable<T>, T> implements Transformer<OUT, IN> {
+		private final Collector<? super T, ?, OUT> collector;
+
+		public CollectTransformer(Collector<? super T, ?, OUT> collector) {
+			this.collector = requireNonNull(collector);
+		}
+
+		@Override
+		public OUT transform(IN ts) {
+			return StreamSupport.stream(ts.spliterator(), false).collect(collector);
+		}
+
+		@Override
+		public String toString() {
+			return "TransformerUtils.collect(" + collector + ")";
 		}
 	}
 
