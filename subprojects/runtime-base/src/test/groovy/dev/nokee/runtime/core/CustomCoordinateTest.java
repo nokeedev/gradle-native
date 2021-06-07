@@ -23,7 +23,7 @@ class CustomCoordinateTest {
 	void throwsExceptionWithInstructionOnCompletingTheCoordinateImplementation() {
 		val subject = new MyCoordinate();
 		val ex = assertThrows(UnsupportedOperationException.class, subject::getValue);
-		assertThat(ex.getMessage(), equalTo("Please implement Coordinate#getValue()."));
+		assertThat(ex.getMessage(), equalTo("Please implement Coordinate#getValue() for class dev.nokee.runtime.core.CustomCoordinateTest$MyCoordinate."));
 	}
 
 	static final class MyAxis implements Coordinate<MyAxis> {}

@@ -60,7 +60,7 @@ final class Coordinates {
 			if (resolvedReturnType.isSubtypeOf(self.getClass())) {
 				return (T) self;
 			} else {
-				throw new UnsupportedOperationException("Please implement Coordinate#getValue().");
+				throw new UnsupportedOperationException(String.format("Please implement Coordinate#getValue() for %s.", self.getClass()));
 			}
 		} catch (NoSuchMethodException e) {
 			throw new RuntimeException(e);
