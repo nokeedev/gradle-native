@@ -80,11 +80,6 @@ public interface CoordinateSetFactoryTester {
 		}
 	}
 
-//	@Test
-//	default void df() {
-//		assertThrows(() -> createSubject());
-//	}
-
 	CoordinateAxis<Axis> AXIS = CoordinateAxis.of(Axis.class);
 	enum Axis { a, b, c}
 }
