@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
-final class Coordinates {
+public final class Coordinates {
 	public static <T> Optional<T> find(CoordinateTuple self, CoordinateAxis<T> axis, boolean includeNested) {
 		requireNonNull(axis);
 		for (Coordinate<?> coordinate : self) {
