@@ -6,6 +6,7 @@ import lombok.val;
 import org.gradle.util.GUtil;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -16,6 +17,7 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.groupingBy;
 
 public final class Coordinates {
 	public static <T> Optional<T> find(CoordinateTuple self, CoordinateAxis<T> axis, boolean includeNested) {
@@ -40,6 +42,18 @@ public final class Coordinates {
 			return Streams.stream((CoordinateTuple) coordinate).flatMap(Coordinates::flatten);
 		}
 		return Stream.of(coordinate);
+	}
+
+	public static Stream<CoordinateAxis<?>> standardBasis(CoordinateSpace space) {
+		return Streams.stream(space)
+			.flatMap(Streams::stream)
+			.flatMap(Coordinates::flatten)
+			.distinct() // Removes coordinate duplicates, i.e. keep only one Windows OS Family, etc.
+			.collect(groupingBy(Coordinate::getAxis))
+			.entrySet()
+			.stream()
+			.filter(it -> it.getValue().size() > 1)
+			.map(Map.Entry::getKey);
 	}
 
 	static <T> CoordinateAxis<T> inferCoordinateAxisFromCoordinateImplementation(Coordinate<T> self) {
