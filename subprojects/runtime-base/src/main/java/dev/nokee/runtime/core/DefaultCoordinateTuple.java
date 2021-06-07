@@ -1,6 +1,7 @@
 package dev.nokee.runtime.core;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 
@@ -15,13 +16,13 @@ import static java.util.stream.Collectors.joining;
 final class DefaultCoordinateTuple implements CoordinateTuple {
 	private final List<Coordinate<?>> list;
 
-	DefaultCoordinateTuple(List<Coordinate<?>> list) {
+	DefaultCoordinateTuple(List<? extends Coordinate<?>> list) {
 		checkArgument(!list.isEmpty(), "coordinates cannot be empty");
 		checkArgument(!hasDuplicatedAxis(list), "coordinates cannot contains duplicated axis");
-		this.list = list;
+		this.list = ImmutableList.copyOf(list);
 	}
 
-	private static boolean hasDuplicatedAxis(Iterable<Coordinate<?>> coordinates) {
+	private static boolean hasDuplicatedAxis(Iterable<? extends Coordinate<?>> coordinates) {
 		val knownAxis = new HashSet<>();
 		for (Coordinate<?> coordinate : coordinates) {
 			if (!knownAxis.add(coordinate.getAxis())) {
