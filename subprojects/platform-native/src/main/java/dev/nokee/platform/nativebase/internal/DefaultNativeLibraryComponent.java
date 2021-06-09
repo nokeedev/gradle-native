@@ -1,6 +1,5 @@
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.Finalizable;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -20,8 +19,6 @@ import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.*;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -46,7 +43,6 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 		super(identifier, DefaultNativeLibraryVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeLibraryComponentDependencies.class, dependencyContainer);
-		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
 		this.taskRegistry = taskRegistry;
 		this.componentVariants = new NativeLibraryComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, modelLookup);
 		this.binaries = binaryViewFactory.create(identifier);

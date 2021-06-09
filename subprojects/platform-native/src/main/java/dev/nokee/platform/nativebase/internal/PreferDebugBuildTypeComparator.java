@@ -1,10 +1,12 @@
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.runtime.nativebase.TargetBuildType;
+
 import java.util.Comparator;
 
-final class PreferDebugBuildTypeComparator implements Comparator<BaseTargetBuildType> {
+final class PreferDebugBuildTypeComparator implements Comparator<TargetBuildType> {
 	@Override
-	public int compare(BaseTargetBuildType lhs, BaseTargetBuildType rhs) {
+	public int compare(TargetBuildType lhs, TargetBuildType rhs) {
 		if (lhs instanceof NamedTargetBuildType) {
 			if (rhs instanceof NamedTargetBuildType) {
 				if (((NamedTargetBuildType) lhs).getName().equalsIgnoreCase(((NamedTargetBuildType) rhs).getName())) {

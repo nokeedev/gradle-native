@@ -112,7 +112,7 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 		expect:
 		fails taskNameToAssembleDevelopmentBinary
 		failure.assertHasDescription("A problem occurred configuring root project '${projectName}'.")
-		failure.assertHasCause("A target machine needs to be specified for the ${componentUnderTestDsl}.")
+		failure.assertHasCause("A target machine needs to be specified for component 'main'.")
 	}
 
 	def "can build for current machine when multiple target machines are specified"() {

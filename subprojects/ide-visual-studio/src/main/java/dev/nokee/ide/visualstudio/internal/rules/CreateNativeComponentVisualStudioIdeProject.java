@@ -21,6 +21,8 @@ import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.NamedTargetBuildType;
+import dev.nokee.runtime.nativebase.MachineArchitecture;
+import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.utils.ProviderUtils;
 import dev.nokee.utils.SpecUtils;
@@ -110,11 +112,11 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 
 	private class ToVisualStudioIdeTargets implements Transformer<Iterable<VisualStudioIdeTarget>, Variant> {
 		private final BaseComponent<?> component;
-		private final Set<DefaultBinaryLinkage> allLinkages;
+		private final Set<TargetLinkage> allLinkages;
 
 		ToVisualStudioIdeTargets(BaseComponent<?> component) {
 			this.component = component;
-			this.allLinkages = component.getBuildVariants().get().stream().map(it -> it.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)).collect(Collectors.toSet());
+			this.allLinkages = component.getBuildVariants().get().stream().map(it -> it.getAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)).collect(Collectors.toSet());
 		}
 
 		@Override
@@ -154,17 +156,17 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 		}
 
 		private NamedTargetBuildType buildType(VariantInternal variantInternal) {
-			if (variantInternal.getBuildVariant().hasAxisValue(BaseTargetBuildType.DIMENSION_TYPE)) {
-				return (NamedTargetBuildType) variantInternal.getBuildVariant().getAxisValue(BaseTargetBuildType.DIMENSION_TYPE);
+			if (variantInternal.getBuildVariant().hasAxisValue(BaseTargetBuildType.BUILD_TYPE_COORDINATE_AXIS)) {
+				return (NamedTargetBuildType) variantInternal.getBuildVariant().getAxisValue(BaseTargetBuildType.BUILD_TYPE_COORDINATE_AXIS);
 			}
 			return new NamedTargetBuildType("default");
 		}
 
-		private DefaultMachineArchitecture machineArchitecture(VariantInternal variantInternal) {
-			return variantInternal.getBuildVariant().getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE);
+		private MachineArchitecture machineArchitecture(VariantInternal variantInternal) {
+			return variantInternal.getBuildVariant().getAxisValue(DefaultMachineArchitecture.MACHINE_ARCHITECTURE_COORDINATE_AXIS);
 		}
 
-		private VisualStudioIdeProjectConfiguration projectConfiguration(NamedTargetBuildType buildType, DefaultMachineArchitecture machineArchitecture) {
+		private VisualStudioIdeProjectConfiguration projectConfiguration(NamedTargetBuildType buildType, MachineArchitecture machineArchitecture) {
 			VisualStudioIdePlatform idePlatform = null;
 			if (machineArchitecture.is64Bit()) {
 				idePlatform = VisualStudioIdePlatforms.X64;

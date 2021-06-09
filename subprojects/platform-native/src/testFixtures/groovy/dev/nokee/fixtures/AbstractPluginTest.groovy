@@ -187,7 +187,7 @@ abstract class AbstractTargetMachineAwarePluginTest extends Specification implem
 		def ex = thrown(ProjectConfigurationException)
 		ex.message == "A problem occurred configuring root project 'test'."
 		ex.cause instanceof IllegalArgumentException
-		ex.cause.message == "A target machine needs to be specified for the ${extensionNameUnderTest}."
+		ex.cause.message == "A target machine needs to be specified for component 'main'."//${extensionNameUnderTest}."
 	}
 
 	def "can reset target machines to host by setting to null"() {

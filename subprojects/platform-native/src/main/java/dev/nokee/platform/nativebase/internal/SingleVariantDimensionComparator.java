@@ -1,16 +1,15 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.runtime.base.internal.Dimension;
-import dev.nokee.runtime.base.internal.DimensionType;
+import dev.nokee.runtime.core.CoordinateAxis;
 
 import java.util.Comparator;
 
-final class SingleVariantDimensionComparator<T extends Dimension> implements Comparator<VariantInternal> {
-	private final DimensionType<T> type;
-	private final Comparator<T> delegate;
+final class SingleVariantDimensionComparator<T> implements Comparator<VariantInternal> {
+	private final CoordinateAxis<T> type;
+	private final Comparator<? super T> delegate;
 
-	protected SingleVariantDimensionComparator(DimensionType<T> type, Comparator<T> delegate) {
+	protected SingleVariantDimensionComparator(CoordinateAxis<T> type, Comparator<? super T> delegate) {
 		this.type = type;
 		this.delegate = delegate;
 	}

@@ -161,18 +161,18 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 
 		ToXcodeIdeTargets(BaseComponent<?> component) {
 			this.component = component;
-			this.hasMultipleLinkages = component.getBuildVariants().get().stream().map(buildVariant -> buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)).distinct().count() > 1;
+			this.hasMultipleLinkages = component.getBuildVariants().get().stream().map(buildVariant -> buildVariant.getAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)).distinct().count() > 1;
 		}
 
 		private OperatingSystemOperations operatingSystemOperations(BuildVariantInternal buildVariant) {
-			return OperatingSystemOperations.of(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE));
+			return OperatingSystemOperations.of(buildVariant.getAxisValue(DefaultOperatingSystemFamily.OPERATING_SYSTEM_FAMILY_COORDINATE_AXIS));
 		}
 
 		@Override
 		public Provider<List<XcodeIdeTarget>> transform(Set<? extends Variant> variants) {
 			val xcodeIdeTargets = new HashMap<String, XcodeIdeTarget>();
 			variants.stream().map(VariantInternal.class::cast).forEach(variantInternal -> {
-				val linkage = variantInternal.getBuildVariant().getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
+				val linkage = (DefaultBinaryLinkage) variantInternal.getBuildVariant().getAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 				val osOperations = operatingSystemOperations(variantInternal.getBuildVariant());
 				val target = xcodeIdeTargets.computeIfAbsent(targetName(component, linkage), createXcodeIdeTarget(osOperations, linkage));
 
@@ -400,8 +400,8 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 				}
 
 				private NamedTargetBuildType buildType(BuildVariantInternal buildVariant) {
-					if (buildVariant.hasAxisValue(BaseTargetBuildType.DIMENSION_TYPE)) {
-						return (NamedTargetBuildType) buildVariant.getAxisValue(BaseTargetBuildType.DIMENSION_TYPE);
+					if (buildVariant.hasAxisValue(BaseTargetBuildType.BUILD_TYPE_COORDINATE_AXIS)) {
+						return (NamedTargetBuildType) buildVariant.getAxisValue(BaseTargetBuildType.BUILD_TYPE_COORDINATE_AXIS);
 					}
 					return new NamedTargetBuildType("Default");
 				}

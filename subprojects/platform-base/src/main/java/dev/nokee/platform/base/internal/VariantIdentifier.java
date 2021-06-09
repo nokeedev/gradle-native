@@ -5,14 +5,17 @@ import dev.nokee.model.internal.NamedDomainObjectIdentifier;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.runtime.base.internal.Dimension;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.val;
+import lombok.var;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Named;
 import org.gradle.util.Path;
 
-import java.util.*;
-import java.util.function.Function;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -26,6 +29,10 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 	private final Dimensions dimensions;
 	@EqualsAndHashCode.Exclude private final BuildVariant buildVariant;
 	@EqualsAndHashCode.Exclude private final String fullName;
+
+	public VariantIdentifier(Class<T> type, ComponentIdentifier<?> componentIdentifier, DefaultBuildVariant buildVariant) {
+		this(buildVariant.getName(), type, componentIdentifier, buildVariant.getAmbiguousDimensions(), buildVariant.getAllDimensions(), buildVariant, buildVariant.getAllDimensions().getAsLowerCamelCase().get());
+	}
 
 	public VariantIdentifier(String unambiguousName, Class<T> type, ComponentIdentifier<?> componentIdentifier, Dimensions ambiguousDimensions, Dimensions dimensions, BuildVariant buildVariant, String fullName) {
 		this.unambiguousName = requireNonNull(unambiguousName);
@@ -105,7 +112,7 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 		private Dimensions allDimensions = Dimensions.empty();
 		private Dimensions dimensions = Dimensions.empty();
 		private ComponentIdentifier<?> componentIdentifier = null;
-		private BuildVariant buildVariant = null;
+		private BuildVariantInternal buildVariant = null;
 		private Class<? extends T> type;
 
 		@SuppressWarnings("unchecked")
@@ -114,10 +121,12 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 			return (Builder<S>) this;
 		}
 
+		@Deprecated // used in tests
 		public <V extends Named> Builder<T> withVariantDimension(V value, Collection<? extends V> allValuesForAxis) {
 			return withVariantDimension(value.getName(), allValuesForAxis);
 		}
 
+		@Deprecated // used in tests
 		public Builder<T> withVariantDimension(String name, Collection<?> allValuesForAxis) {
 			allDimensions = allDimensions.add(name);
 			if (allValuesForAxis.size() == 1) {
@@ -128,29 +137,9 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 			return this;
 		}
 
-		@SuppressWarnings("unchecked")
-		public Builder<T> withUnambiguousNameFromBuildVariants(BuildVariant value, Collection<? extends BuildVariant> allBuildVariants) {
-			return withUnambiguousNameFromBuildVariants((BuildVariantInternal) value, (Collection<? extends BuildVariantInternal>) allBuildVariants);
-		}
-
-		public Builder<T> withUnambiguousNameFromBuildVariants(BuildVariantInternal value, Collection<? extends BuildVariantInternal> allBuildVariants) {
-			buildVariant = value;
-			int index = 0;
-			for (Dimension dimension : value.getDimensions()) {
-				if (dimension instanceof Named) {
-					Set<Named> allValuesForAxis = allBuildVariants.stream().map(extractDimensionAtIndex(index)).collect(Collectors.toSet());
-					withVariantDimension((Named)dimension, allValuesForAxis);
-				} else {
-					throw new IllegalArgumentException("The dimension needs to implement Named, it's an implementation detail at this point");
-				}
-				index++;
-			}
-
+		public Builder<T> withBuildVariant(BuildVariantInternal buildVariant) {
+			this.buildVariant = buildVariant;
 			return this;
-		}
-
-		private Function<BuildVariantInternal, Named> extractDimensionAtIndex(int index) {
-			return buildVariant -> (Named)buildVariant.getDimensions().get(index);
 		}
 
 		public Builder<T> withComponentIdentifier(ComponentIdentifier<?> componentIdentifier) {
@@ -159,12 +148,15 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 		}
 
 		public VariantIdentifier<T> build() {
+			@SuppressWarnings("unchecked")
+			val variantType = (Class<T>) type;
+			if (buildVariant instanceof DefaultBuildVariant) {
+				return new VariantIdentifier<T>(variantType, componentIdentifier, (DefaultBuildVariant) buildVariant);
+			}
 			var allDimensions = this.allDimensions;
 			if (allDimensions.size() == dimensions.size()) {
 				allDimensions = Dimensions.empty();
 			}
-			@SuppressWarnings("unchecked")
-			val variantType = (Class<T>) type;
 			return new VariantIdentifier<T>(dimensions.getAsLowerCamelCase().orElse(""), variantType, componentIdentifier, dimensions, allDimensions, buildVariant, this.allDimensions.getAsLowerCamelCase().orElse(""));
 		}
 	}

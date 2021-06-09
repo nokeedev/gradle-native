@@ -26,6 +26,6 @@ public class DefaultNativeApplicationVariant extends BaseNativeVariant implement
 		this.dependencies = dependencies.getDependencies();
 		this.resolvableDependencies = dependencies.getIncoming();
 
-		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE))));
+		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of((DefaultBinaryLinkage) getBuildVariant().getAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 	}
 }

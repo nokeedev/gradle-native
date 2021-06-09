@@ -16,8 +16,7 @@ import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.utils.ConfigureUtils;
 import lombok.AccessLevel;
@@ -45,7 +44,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	private final TaskProvider<Task> assembleTask;
 	private final DomainObjectEventPublisher eventPublisher;
 	private final TaskViewFactory taskViewFactory;
-	private final DefaultTargetMachine targetMachine;
+	private final TargetMachine targetMachine;
 	private final GroupId groupId;
 	private final TaskRegistry taskRegistry;
 	private AbstractJarBinary jarBinary;
@@ -64,7 +63,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		this.assembleTask = assembleTask;
 		this.eventPublisher = eventPublisher;
 		this.taskViewFactory = taskViewFactory;
-		this.targetMachine = new DefaultTargetMachine((DefaultOperatingSystemFamily)getBuildVariant().getDimensions().get(0), (DefaultMachineArchitecture)getBuildVariant().getDimensions().get(1));
+		this.targetMachine = getBuildVariant().getAxisValue(DefaultTargetMachine.TARGET_MACHINE_COORDINATE_AXIS);
 		this.groupId = groupId;
 		this.resourcePath = objects.property(String.class);
 		this.nativeRuntimeFiles = objects.fileCollection();
@@ -132,7 +131,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, jvmJarBinary));
 	}
 
-	public DefaultTargetMachine getTargetMachine() {
+	public TargetMachine getTargetMachine() {
 		return targetMachine;
 	}
 

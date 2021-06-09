@@ -16,19 +16,15 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
-import java.util.Collection;
-import java.util.Set;
 
 public class TargetBuildTypeRule implements Action<Project> {
 	private final SetProperty<TargetBuildType> targetBuildTypes;
-	private final String componentName;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencies;
 
 	@Inject
 	public TargetBuildTypeRule(SetProperty<TargetBuildType> targetBuildTypes, String componentName, ObjectFactory objects, DependencyHandler dependencies) {
 		this.targetBuildTypes = targetBuildTypes;
-		this.componentName = componentName;
 		this.objects = objects;
 		this.dependencies = dependencies;
 		targetBuildTypes.convention(ImmutableList.of(DefaultTargetBuildTypeFactory.DEFAULT));
@@ -67,13 +63,5 @@ public class TargetBuildTypeRule implements Action<Project> {
 	public void execute(Project project) {
 		this.targetBuildTypes.disallowChanges();
 		this.targetBuildTypes.finalizeValue();
-		Set<TargetBuildType> targetBuildTypes = this.targetBuildTypes.get();
-		assertNonEmpty(targetBuildTypes, "target build types", componentName);
-	}
-
-	private static void assertNonEmpty(Collection<?> values, String propertyName, String componentName) {
-		if (values.isEmpty()) {
-			throw new IllegalArgumentException(String.format("A %s needs to be specified for the %s.", propertyName, componentName));
-		}
 	}
 }

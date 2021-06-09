@@ -1,7 +1,6 @@
 package dev.nokee.testing.xctest.internal;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
@@ -25,14 +24,16 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
+import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.runtime.core.Coordinate;
+import dev.nokee.runtime.core.CoordinateSet;
+import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.utils.Cast;
 import lombok.Getter;
@@ -79,18 +80,14 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 		this.testedComponent = Cast.uncheckedCastBecauseOfTypeErasure(objects.property(BaseNativeComponent.class));
 		this.moduleName = configureDisplayName(objects.property(String.class), "moduleName");
 		this.productBundleIdentifier = configureDisplayName(objects.property(String.class), "productBundleIdentifier");
-		getDimensions().convention(ImmutableSet.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
+
+		getDimensions().add(CoordinateSet.of(DefaultBinaryLinkage.BUNDLE));
+		getDimensions().add(CoordinateSet.of((Coordinate<TargetMachine>) DefaultTargetMachineFactory.INSTANCE.os("ios").getX86_64()));
 
 		// TODO: Move to extension
-		getBuildVariants().convention(providers.provider(this::createBuildVariants));
+		getBuildVariants().convention(getFinalSpace().map(DefaultBuildVariant::fromSpace));
 		getBuildVariants().finalizeValueOnRead();
 		getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
-
-		getDimensions().disallowChanges(); // Let's disallow changing them for now.
-	}
-
-	private Iterable<BuildVariantInternal> createBuildVariants() {
-		return ImmutableList.of(DefaultBuildVariant.of(DefaultBinaryLinkage.BUNDLE, DefaultOperatingSystemFamily.forName("ios"), DefaultMachineArchitecture.X86_64));
 	}
 
 	@Override

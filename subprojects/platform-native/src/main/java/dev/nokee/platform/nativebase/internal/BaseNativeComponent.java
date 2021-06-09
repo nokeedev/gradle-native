@@ -21,8 +21,7 @@ import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;
@@ -57,10 +56,10 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	protected void createBinaries(KnownVariant<T> knownVariant) {
 		val variantIdentifier = knownVariant.getIdentifier();
 		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
-		final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine(buildVariant.getAxisValue(DefaultOperatingSystemFamily.DIMENSION_TYPE), buildVariant.getAxisValue(DefaultMachineArchitecture.DIMENSION_TYPE));
+		final TargetMachine targetMachineInternal = buildVariant.getAxisValue(DefaultTargetMachine.TARGET_MACHINE_COORDINATE_AXIS);
 
-		if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
-			DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
+		if (buildVariant.hasAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
+			val linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 			if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
 				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, variantIdentifier);
 				eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
@@ -80,8 +79,8 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 			val incomingDependencies = (NativeIncomingDependencies) it.getResolvableDependencies();
 			val objectSourceSets = new NativeLanguageRules(taskRegistry, objects, variantIdentifier).apply(sourceViewOf(this));
 			BaseNativeVariant variantInternal = (BaseNativeVariant)it;
-			if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
-				DefaultBinaryLinkage linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
+			if (buildVariant.hasAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
+				val linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 				if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
 					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, variantIdentifier);
 

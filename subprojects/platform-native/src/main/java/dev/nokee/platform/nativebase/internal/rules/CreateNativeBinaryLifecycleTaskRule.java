@@ -10,6 +10,7 @@ import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.tasks.ExecutableLifecycleTask;
 import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask;
 import dev.nokee.platform.nativebase.internal.tasks.StaticLibraryLifecycleTask;
+import dev.nokee.runtime.nativebase.TargetLinkage;
 import lombok.Value;
 import lombok.val;
 import org.gradle.api.Action;
@@ -22,7 +23,7 @@ import static dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTr
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 
 public class CreateNativeBinaryLifecycleTaskRule implements Action<KnownVariant<? extends Variant>> {
-	private static final Map<DefaultBinaryLinkage, LifecycleTaskConfiguration> TASK_CONFIGURATIONS = new HashMap<>();
+	private static final Map<TargetLinkage, LifecycleTaskConfiguration> TASK_CONFIGURATIONS = new HashMap<>();
 
 	static {
 		TASK_CONFIGURATIONS.put(DefaultBinaryLinkage.SHARED, LifecycleTaskConfiguration.of(TaskName.of("sharedLibrary"), SharedLibraryLifecycleTask.class));
@@ -40,15 +41,15 @@ public class CreateNativeBinaryLifecycleTaskRule implements Action<KnownVariant<
 	public void execute(KnownVariant<? extends Variant> knownVariant) {
 		val variantIdentifier = knownVariant.getIdentifier();
 		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
-		if (buildVariant.hasAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE)) {
-			val linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE);
+		if (buildVariant.hasAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
+			val linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 			val taskConfiguration = TASK_CONFIGURATIONS.computeIfAbsent(linkage, CreateNativeBinaryLifecycleTaskRule::throwUnknownLinkageException);
 			taskRegistry.register(TaskIdentifier.of(taskConfiguration.name, taskConfiguration.taskType, variantIdentifier), configureDependsOn(knownVariant.map(TO_DEVELOPMENT_BINARY)));
 		}
 	}
 
-	private static LifecycleTaskConfiguration throwUnknownLinkageException(DefaultBinaryLinkage linkage) {
-		throw new IllegalArgumentException(String.format("Unknown linkage '%s'.", linkage.getName()));
+	private static LifecycleTaskConfiguration throwUnknownLinkageException(TargetLinkage linkage) {
+		throw new IllegalArgumentException(String.format("Unknown linkage '%s'.", ((DefaultBinaryLinkage) linkage).getName()));
 	}
 
 	@Value(staticConstructor = "of")
