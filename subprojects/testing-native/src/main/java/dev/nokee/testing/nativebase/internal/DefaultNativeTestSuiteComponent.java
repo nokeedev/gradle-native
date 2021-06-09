@@ -39,8 +39,7 @@ import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentO
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import lombok.Getter;
@@ -63,10 +62,8 @@ import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
 import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Predicates.instanceOf;
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
@@ -75,6 +72,7 @@ import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.utils.TransformerUtils.transformEach;
+import static java.util.stream.Collectors.toList;
 
 public final class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite, SourceAwareComponent<ComponentSources> {
 	private final DefaultNativeComponentDependencies dependencies;
@@ -97,36 +95,27 @@ public final class DefaultNativeTestSuiteComponent extends BaseNativeComponent<D
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.testedComponent = Cast.uncheckedCast(objects.property(BaseComponent.class));
-		this.getDimensions().convention(ImmutableList.of(DefaultBinaryLinkage.DIMENSION_TYPE, DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE));
+
+		getDimensions().addAll(providers.provider(() -> {
+			if (getTestedComponent().isPresent()) {
+				return getTestedComponent().get().getDimensions().get().stream().map(it -> (CoordinateSet<?>) it).map((CoordinateSet<?> set) -> {
+					if (set.getAxis().equals(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
+						return CoordinateSet.of(DefaultBinaryLinkage.EXECUTABLE);
+					}
+					return set;
+				}).collect(toList());
+			}
+			throw new UnsupportedOperationException();
+		}));
 		this.getBaseName().convention(BaseNameUtils.from(identifier).getAsString());
 
 		this.taskRegistry = taskRegistry;
 		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, modelLookup);
 		this.binaries = binaryViewFactory.create(identifier);
 
-		this.getBuildVariants().convention(providers.provider(this::createBuildVariants));
+		this.getBuildVariants().convention(getFinalSpace().map(DefaultBuildVariant::fromSpace));
 		this.getBuildVariants().finalizeValueOnRead();
 		this.getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
-
-		this.getDimensions().disallowChanges(); // Let's disallow changing them for now.
-	}
-
-	protected Iterable<BuildVariantInternal> createBuildVariants() {
-		if (getTestedComponent().isPresent()) {
-			val buildVariantBuilder = new LinkedHashSet<BuildVariantInternal>();
-			for (val buildVariant : getTestedComponent().get().getBuildVariants().get()) {
-				val dimensionValues = buildVariant.getDimensions().stream().map(it -> {
-					if (it instanceof DefaultBinaryLinkage) {
-						return DefaultBinaryLinkage.EXECUTABLE;
-					}
-					return it;
-				}).collect(Collectors.toList());
-
-				buildVariantBuilder.add(DefaultBuildVariant.of(dimensionValues));
-			}
-			return ImmutableList.copyOf(buildVariantBuilder);
-		}
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -177,7 +166,7 @@ public final class DefaultNativeTestSuiteComponent extends BaseNativeComponent<D
 
 		// HACK: This should really be solve using the variant whenElementKnown API
 		getBuildVariants().get().forEach(buildVariant -> {
-			val variantIdentifier = VariantIdentifier.builder().withType(DefaultNativeTestSuiteVariant.class).withComponentIdentifier(getIdentifier()).withUnambiguousNameFromBuildVariants(buildVariant, getBuildVariants().get()).build();
+			val variantIdentifier = VariantIdentifier.builder().withType(DefaultNativeTestSuiteVariant.class).withComponentIdentifier(getIdentifier()).withBuildVariant(buildVariant).build();
 
 			// TODO: The variant should have give access to the testTask
 			val runTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("run"), RunTestExecutable.class, variantIdentifier), task -> {
@@ -242,19 +231,19 @@ public final class DefaultNativeTestSuiteComponent extends BaseNativeComponent<D
 			}
 			getVariants().configureEach(variant -> {
 				variant.getBinaries().configureEach(ExecutableBinaryInternal.class, binary -> {
-					Provider<List<? extends FileTree>> componentObjects = component.getVariantCollection().filter(it -> ((BuildVariantInternal)it.getBuildVariant()).withoutDimension(DefaultBinaryLinkage.DIMENSION_TYPE).equals(variant.getBuildVariant().withoutDimension(DefaultBinaryLinkage.DIMENSION_TYPE))).map(it -> {
+					Provider<List<? extends FileTree>> componentObjects = component.getVariantCollection().filter(it -> ((BuildVariantInternal)it.getBuildVariant()).withoutDimension(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).equals(variant.getBuildVariant().withoutDimension(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))).map(it -> {
 						ImmutableList.Builder<FileTree> result = ImmutableList.builder();
 						it.stream().flatMap(v -> v.getBinaries().withType(NativeBinary.class).get().stream()).forEach(testedBinary -> {
 							result.addAll(testedBinary.getCompileTasks().withType(NativeSourceCompileTask.class).getElements().map(t -> {
 								return t.stream().map(a -> {
 									return ((AbstractNativeSourceCompileTask) a).getObjectFileDir().getAsFileTree().matching(pattern -> pattern.include("**/*.o", "**/*.obj"));
-								}).collect(Collectors.toList());
+								}).collect(toList());
 							}).get());
 
 							result.addAll(testedBinary.getCompileTasks().withType(SwiftCompileTask.class).getElements().map(t -> {
 								return t.stream().map(a -> {
 									return ((SwiftCompileTask) a).getObjectFileDir().getAsFileTree().matching(pattern -> pattern.include("**/*.o", "**/*.obj"));
-								}).collect(Collectors.toList());
+								}).collect(toList());
 							}).get());
 						});
 						return result.build();
@@ -294,7 +283,7 @@ public final class DefaultNativeTestSuiteComponent extends BaseNativeComponent<D
 
 			getBinaries().configureEach(ExecutableBinary.class, binary -> {
 				binary.getCompileTasks().configureEach(SwiftCompileTask.class, task -> {
-					task.getModules().from(component.getDevelopmentVariant().map(it -> it.getBinaries().withType(NativeBinary.class).getElements().get().stream().flatMap(b -> b.getCompileTasks().withType(SwiftCompileTask.class).get().stream()).map(SwiftCompile::getModuleFile).collect(Collectors.toList())));
+					task.getModules().from(component.getDevelopmentVariant().map(it -> it.getBinaries().withType(NativeBinary.class).getElements().get().stream().flatMap(b -> b.getCompileTasks().withType(SwiftCompileTask.class).get().stream()).map(SwiftCompile::getModuleFile).collect(toList())));
 				});
 				binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
 					((AbstractNativeSourceCompileTask)task).getIncludes().from(sourceViewOf(component).filter(instanceOf(NativeHeaderSet.class)::test).map(transformEach(LanguageSourceSet::getSourceDirectories)));

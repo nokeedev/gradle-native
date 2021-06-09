@@ -1,6 +1,6 @@
 package dev.nokee.platform.jni.internal;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.Finalizable;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -17,18 +17,17 @@ import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
-import dev.nokee.platform.nativebase.internal.BaseTargetBuildType;
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
+import dev.nokee.platform.nativebase.internal.DefaultTargetBuildTypeFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
+import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.utils.ConfigureUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -39,9 +38,11 @@ import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import static dev.nokee.runtime.core.Coordinates.coordinateTypeOf;
+import static dev.nokee.runtime.core.Coordinates.toCoordinateSet;
+import static dev.nokee.utils.TransformerUtils.collect;
+import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 
 public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<JavaNativeInterfaceLibrarySources>, Finalizable {
 	private final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies;
@@ -66,14 +67,27 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		this.componentVariants = new JavaNativeInterfaceComponentVariants(objects, this, configurations, dependencyHandler, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, taskViewFactory, modelLookup);
 		this.binaries = binaryViewFactory.create(identifier);
 
-		getDimensions().convention(ImmutableSet.of(DefaultOperatingSystemFamily.DIMENSION_TYPE, DefaultMachineArchitecture.DIMENSION_TYPE, BaseTargetBuildType.DIMENSION_TYPE));
-		getDimensions().disallowChanges(); // Let's disallow changing them for now.
+		// Order here doesn't align with general native
+		getDimensions().add(getTargetMachines()
+			.map(assertNonEmpty("target machine", identifier.getName().toString()))
+			.map(toSetTransformer(coordinateTypeOf(TargetMachine.class)).andThen(collect(toCoordinateSet()))));
+		// TODO: Missing build type dimension
+		getDimensions().add(CoordinateSet.of(DefaultBinaryLinkage.SHARED));
 
-		getBuildVariants().convention(getProviders().provider(this::createBuildVariants));
+		getBuildVariants().convention(getFinalSpace().map(DefaultBuildVariant::fromSpace));
 		getBuildVariants().finalizeValueOnRead();
 		getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
 
 		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
+	}
+
+	private static <I extends Iterable<T>, T> Transformer<I, I> assertNonEmpty(String propertyName, String componentName) {
+		return values -> {
+			if (Iterables.isEmpty(values)) {
+				throw new IllegalArgumentException(String.format("A %s needs to be specified for component '%s'.", propertyName, componentName));
+			}
+			return values;
+		};
 	}
 
 	@Override
@@ -84,11 +98,6 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	//region Variant-awareness
 	public VariantViewInternal<JniLibraryInternal> getVariants() {
 		return getVariantCollection().getAsView(JniLibraryInternal.class);
-	}
-
-	private List<BuildVariantInternal> createBuildVariants() {
-		Set<TargetMachine> targetMachines = getTargetMachines().get();
-		return targetMachines.stream().map(it -> (DefaultTargetMachine)it).map(it -> DefaultBuildVariant.of(it.getOperatingSystemFamily(), it.getArchitecture(), DefaultBinaryLinkage.SHARED)).collect(Collectors.toList());
 	}
 	//endregion
 

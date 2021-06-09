@@ -23,8 +23,7 @@ import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
-import dev.nokee.runtime.nativebase.MachineArchitecture;
-import dev.nokee.runtime.nativebase.OperatingSystemFamily;
+import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -71,7 +70,7 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 
 	public void calculateVariants() {
 		buildVariants.get().forEach(buildVariant -> {
-			val variantIdentifier = VariantIdentifier.builder().withUnambiguousNameFromBuildVariants(buildVariant, buildVariants.get()).withComponentIdentifier(component.getIdentifier()).withType(JniLibraryInternal.class).build();
+			val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(JniLibraryInternal.class).build();
 
 			val dependencies = newDependencies(buildVariant, component, variantIdentifier);
 			variantCollection.registerVariant(variantIdentifier, (name, bv) -> createVariant(variantIdentifier, dependencies));
@@ -80,9 +79,7 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 
 	private JniLibraryInternal createVariant(VariantIdentifier<JniLibraryInternal> identifier, VariantComponentDependencies variantDependencies) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
-		Preconditions.checkArgument(buildVariant.getDimensions().size() >= 2);
-		Preconditions.checkArgument(buildVariant.getDimensions().get(0) instanceof OperatingSystemFamily);
-		Preconditions.checkArgument(buildVariant.getDimensions().get(1) instanceof MachineArchitecture);
+		Preconditions.checkArgument(buildVariant.hasAxisValue(DefaultTargetMachine.TARGET_MACHINE_COORDINATE_AXIS));
 
 		val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(LifecycleBasePlugin.ASSEMBLE_TASK_NAME), identifier), task -> {
 			task.setGroup(LifecycleBasePlugin.BUILD_GROUP);

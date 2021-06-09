@@ -1,12 +1,13 @@
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 
 import java.util.Comparator;
 
-final class PreferHostOperatingSystemFamilyComparator implements Comparator<DefaultOperatingSystemFamily> {
+final class PreferHostOperatingSystemFamilyComparator implements Comparator<OperatingSystemFamily> {
 	@Override
-	public int compare(DefaultOperatingSystemFamily lhs, DefaultOperatingSystemFamily rhs) {
+	public int compare(OperatingSystemFamily lhs, OperatingSystemFamily rhs) {
 		if (lhs.equals(DefaultOperatingSystemFamily.HOST) && rhs.equals(DefaultOperatingSystemFamily.HOST)) {
 			return 0;
 		} else if (lhs.equals(DefaultOperatingSystemFamily.HOST)) {

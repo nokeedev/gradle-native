@@ -1,16 +1,17 @@
 package dev.nokee.platform.nativebase.internal.rules
 
+import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.DefaultBuildVariant
-import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.internal.VariantIdentifier
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier
 import dev.nokee.platform.base.internal.tasks.TaskName
 import dev.nokee.platform.base.internal.tasks.TaskRegistry
 import dev.nokee.platform.base.internal.variants.KnownVariant
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage
+import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory
 import dev.nokee.platform.nativebase.internal.tasks.ExecutableLifecycleTask
 import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask
 import dev.nokee.platform.nativebase.internal.tasks.StaticLibraryLifecycleTask
@@ -32,7 +33,7 @@ class CreateNativeBinaryLifecycleTaskRuleTest extends Specification {
 	}
 
 	VariantIdentifier<Variant> newIdentifier() {
-		return newIdentifier(DefaultBuildVariant.of())
+		return newIdentifier(DefaultBuildVariant.of(DefaultTargetMachineFactory.host()))
 	}
 
 	VariantIdentifier<Variant> newIdentifier(DefaultBuildVariant buildVariant) {

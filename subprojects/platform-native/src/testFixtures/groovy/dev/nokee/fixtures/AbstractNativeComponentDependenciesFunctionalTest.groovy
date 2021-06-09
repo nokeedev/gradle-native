@@ -68,7 +68,7 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 
 			${componentUnderTestDsl} {
 				targetMachines = [machines.${currentHostOperatingSystemFamilyDsl}, machines.os('foo')]
-				variants.configureEach({it.buildVariant.getAxisValue(${DefaultOperatingSystemFamily.simpleName}.DIMENSION_TYPE).${currentHostOperatingSystemFamilyDsl}}) {
+				variants.configureEach({it.buildVariant.getAxisValue(${DefaultOperatingSystemFamily.simpleName}.OPERATING_SYSTEM_FAMILY_COORDINATE_AXIS).${currentHostOperatingSystemFamilyDsl}}) {
 					dependencies {
 						${implementationBucketNameUnderTest} ${dependencyNotation}
 					}

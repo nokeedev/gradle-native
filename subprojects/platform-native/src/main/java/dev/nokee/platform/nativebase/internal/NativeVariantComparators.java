@@ -8,18 +8,18 @@ import java.util.Comparator;
 
 public class NativeVariantComparators {
 	public static Comparator<VariantInternal> preferDebugBuildType() {
-		return new SingleVariantDimensionComparator<>(BaseTargetBuildType.DIMENSION_TYPE, new PreferDebugBuildTypeComparator());
+		return new SingleVariantDimensionComparator<>(BaseTargetBuildType.BUILD_TYPE_COORDINATE_AXIS, new PreferDebugBuildTypeComparator());
 	}
 
 	public static Comparator<VariantInternal> preferSharedBinaryLinkage() {
-		return new SingleVariantDimensionComparator<>(DefaultBinaryLinkage.DIMENSION_TYPE, new PreferSharedBinaryLinkageComparator());
+		return new SingleVariantDimensionComparator<>(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS, new PreferSharedBinaryLinkageComparator());
 	}
 
 	public static Comparator<VariantInternal> preferHostMachineArchitecture() {
-		return new SingleVariantDimensionComparator<>(DefaultMachineArchitecture.DIMENSION_TYPE, new PreferHostMachineArchitectureComparator());
+		return new SingleVariantDimensionComparator<>(DefaultMachineArchitecture.MACHINE_ARCHITECTURE_COORDINATE_AXIS, new PreferHostMachineArchitectureComparator());
 	}
 
 	public static Comparator<VariantInternal> preferHostOperatingSystemFamily() {
-		return new SingleVariantDimensionComparator<>(DefaultOperatingSystemFamily.DIMENSION_TYPE, new PreferHostOperatingSystemFamilyComparator());
+		return new SingleVariantDimensionComparator<>(DefaultOperatingSystemFamily.OPERATING_SYSTEM_FAMILY_COORDINATE_AXIS, new PreferHostOperatingSystemFamilyComparator());
 	}
 }

@@ -22,6 +22,6 @@ public final class DefaultNativeTestSuiteVariant extends BaseNativeVariant imple
 		super(identifier, objects, providers, assembleTask, binaryViewFactory);
 		this.resolvableDependencies = variantDependencies.getIncoming();
 
-		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(DefaultBinaryLinkage.DIMENSION_TYPE))));
+		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of((DefaultBinaryLinkage) getBuildVariant().getAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 	}
 }

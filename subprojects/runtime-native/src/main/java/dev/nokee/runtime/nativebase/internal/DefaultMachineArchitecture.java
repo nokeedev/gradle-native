@@ -1,8 +1,7 @@
 package dev.nokee.runtime.nativebase.internal;
 
-import dev.nokee.runtime.base.internal.DefaultDimensionType;
-import dev.nokee.runtime.base.internal.Dimension;
-import dev.nokee.runtime.base.internal.DimensionType;
+import dev.nokee.runtime.core.Coordinate;
+import dev.nokee.runtime.core.CoordinateAxis;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import lombok.*;
 import org.gradle.api.Named;
@@ -14,10 +13,10 @@ import static java.util.Arrays.asList;
 @ToString
 @EqualsAndHashCode
 @AllArgsConstructor(access = AccessLevel.PACKAGE) /** Use {@link DefaultMachineArchitecture#forName(String)} instead */
-public abstract class DefaultMachineArchitecture implements MachineArchitecture, Named, Dimension {
+public abstract class DefaultMachineArchitecture implements MachineArchitecture, Named, Coordinate<MachineArchitecture> {
 	@Getter @Nonnull private final String name;
 
-	public static DimensionType<DefaultMachineArchitecture> DIMENSION_TYPE = new DefaultDimensionType<>(DefaultMachineArchitecture.class);
+	public static CoordinateAxis<MachineArchitecture> MACHINE_ARCHITECTURE_COORDINATE_AXIS = CoordinateAxis.of(MachineArchitecture.class);
 	public static DefaultMachineArchitecture X86 = new MachineArchitectureX86();
 	public static DefaultMachineArchitecture X86_64 = new MachineArchitectureX86_64();
 	public static DefaultMachineArchitecture HOST = forName(System.getProperty("os.arch"));
@@ -33,6 +32,11 @@ public abstract class DefaultMachineArchitecture implements MachineArchitecture,
 		}
 	}
 
+	@Override
+	public CoordinateAxis<MachineArchitecture> getAxis() {
+		return MACHINE_ARCHITECTURE_COORDINATE_AXIS;
+	}
+
 	private static final class MachineArchitectureX86 extends DefaultMachineArchitecture {
 		MachineArchitectureX86() {
 			super("x86");
@@ -46,11 +50,6 @@ public abstract class DefaultMachineArchitecture implements MachineArchitecture,
 		@Override
 		public boolean is64Bit() {
 			return false;
-		}
-
-		@Override
-		public DimensionType<DefaultMachineArchitecture> getType() {
-			return DIMENSION_TYPE;
 		}
 	}
 
@@ -68,11 +67,6 @@ public abstract class DefaultMachineArchitecture implements MachineArchitecture,
 		public boolean is64Bit() {
 			return true;
 		}
-
-		@Override
-		public DimensionType<DefaultMachineArchitecture> getType() {
-			return DIMENSION_TYPE;
-		}
 	}
 
 	public static final class UnknownMachineArchitecture extends DefaultMachineArchitecture {
@@ -88,11 +82,6 @@ public abstract class DefaultMachineArchitecture implements MachineArchitecture,
 		@Override
 		public boolean is64Bit() {
 			throw new UnsupportedOperationException("Unknown architecture");
-		}
-
-		@Override
-		public DimensionType<DefaultMachineArchitecture> getType() {
-			return DIMENSION_TYPE;
 		}
 	}
 }

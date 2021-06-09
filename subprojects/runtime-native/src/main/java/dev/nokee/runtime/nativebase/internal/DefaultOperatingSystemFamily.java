@@ -1,18 +1,17 @@
 package dev.nokee.runtime.nativebase.internal;
 
-import dev.nokee.runtime.base.internal.DefaultDimensionType;
-import dev.nokee.runtime.base.internal.Dimension;
-import dev.nokee.runtime.base.internal.DimensionType;
+import dev.nokee.runtime.core.Coordinate;
+import dev.nokee.runtime.core.CoordinateAxis;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import lombok.NonNull;
 import lombok.Value;
 import org.gradle.api.Named;
 
 @Value
-public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Named, Dimension {
+public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Named, Coordinate<OperatingSystemFamily> {
 	@NonNull String name;
 
-	public static final DimensionType<DefaultOperatingSystemFamily> DIMENSION_TYPE = new DefaultDimensionType<>(DefaultOperatingSystemFamily.class);
+	public static final CoordinateAxis<OperatingSystemFamily> OPERATING_SYSTEM_FAMILY_COORDINATE_AXIS = CoordinateAxis.of(OperatingSystemFamily.class);
 	public static final DefaultOperatingSystemFamily WINDOWS = new DefaultOperatingSystemFamily("windows");
 	public static final DefaultOperatingSystemFamily LINUX = new DefaultOperatingSystemFamily("linux");
 	public static final DefaultOperatingSystemFamily MACOS = new DefaultOperatingSystemFamily("macos");
@@ -63,7 +62,7 @@ public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Name
 	}
 
 	@Override
-	public DimensionType getType() {
-		return DIMENSION_TYPE;
+	public CoordinateAxis<OperatingSystemFamily> getAxis() {
+		return OPERATING_SYSTEM_FAMILY_COORDINATE_AXIS;
 	}
 }

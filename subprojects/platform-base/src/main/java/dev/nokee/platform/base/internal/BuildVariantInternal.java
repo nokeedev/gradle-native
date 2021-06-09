@@ -1,17 +1,17 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.runtime.base.internal.Dimension;
-import dev.nokee.runtime.base.internal.DimensionType;
+import dev.nokee.runtime.core.Coordinate;
+import dev.nokee.runtime.core.CoordinateAxis;
 
 import java.util.List;
 
 public interface BuildVariantInternal extends BuildVariant {
-	List<Dimension> getDimensions();
+	List<Coordinate<?>> getDimensions();
 
-	<T extends Dimension> T getAxisValue(DimensionType<T> type);
+	<T> T getAxisValue(CoordinateAxis<T> type);
 
-	boolean hasAxisValue(DimensionType<? extends Dimension> type);
+	boolean hasAxisValue(CoordinateAxis<?> type);
 
-	BuildVariantInternal withoutDimension(DimensionType<?> type);
+	BuildVariantInternal withoutDimension(CoordinateAxis<?> type);
 }

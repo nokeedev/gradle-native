@@ -222,7 +222,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			projection.getVariantCollection().whenElementKnown(knownVariant -> {
 				val buildVariant = knownVariant.getBuildVariant();
 				val variantIdentifier = knownVariant.getIdentifier();
-				final DefaultTargetMachine targetMachineInternal = new DefaultTargetMachine((DefaultOperatingSystemFamily)buildVariant.getDimensions().get(0), (DefaultMachineArchitecture)buildVariant.getDimensions().get(1));
+				final TargetMachine targetMachine = buildVariant.getAxisValue(DefaultTargetMachine.TARGET_MACHINE_COORDINATE_AXIS);
 
 				if (project.getPlugins().stream().anyMatch(appliedPlugin -> isNativeLanguagePlugin(appliedPlugin))) {
 					taskRegistry.register(TaskIdentifier.of(TaskName.of("objects"), ObjectsLifecycleTask.class, variantIdentifier), configureDependsOn(knownVariant.map(it -> it.getSharedLibrary().getCompileTasks())));
@@ -273,7 +273,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					//  We should probably attach at least one of the unbuildable variant to give a better error message.
 					// TODO: We should really be testing: toolChainSelector.canBuild(targetMachineInternal)
 					//  However, since we have to differ everything for testing, we have to approximate the API.
-					if (toolChainSelectorInternal.canBuild(targetMachineInternal)) {
+					if (toolChainSelectorInternal.canBuild(targetMachine)) {
 						// TODO: We could maybe set the shared library directory as secondary variant.
 						//  However, the shared library would requires the resource path to be taken into consideration...
 						getConfigurations().named("runtimeElements", it -> it.getOutgoing().artifact(jarTask.flatMap(Jar::getArchiveFile)));
@@ -282,7 +282,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 
 				// Attach JNI Jar to assemble task
-				if (DefaultTargetMachine.isTargetingHost().test(targetMachineInternal)) {
+				if (DefaultTargetMachine.isTargetingHost().test(targetMachine)) {
 					// Attach JNI Jar to assemble
 					taskRegistry.registerIfAbsent(ASSEMBLE_TASK_NAME).configure(it -> {
 						it.dependsOn(knownVariant.map(l -> l.getJar().getJarTask()));

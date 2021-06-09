@@ -1,6 +1,5 @@
 package dev.nokee.platform.ios.internal.plugins;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
@@ -22,12 +21,9 @@ import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationSources;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
-import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
-import dev.nokee.platform.nativebase.internal.NamedTargetBuildType;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
-import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -94,11 +90,9 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 
 	public static <T, PROJECTION extends BaseComponent<?>> BiConsumer<T, PROJECTION> configureBuildVariants() {
 		return (t, projection) -> {
-			projection.getBuildVariants().set(ProviderUtils.supplied(() -> ImmutableList.of(DefaultBuildVariant.of(DefaultOperatingSystemFamily.forName("ios"), DefaultMachineArchitecture.X86_64, DefaultBinaryLinkage.EXECUTABLE, new NamedTargetBuildType("Default")))));
+			projection.getBuildVariants().set(projection.getFinalSpace().map(DefaultBuildVariant::fromSpace));
 			projection.getBuildVariants().finalizeValueOnRead();
 			projection.getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
-
-			projection.getDimensions().disallowChanges(); // Let's disallow changing them for now.
 		};
 	}
 

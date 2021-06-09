@@ -4,9 +4,12 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.*;
-import dev.nokee.runtime.base.internal.DimensionType;
+import dev.nokee.runtime.core.CoordinateSet;
+import dev.nokee.runtime.core.CoordinateSpace;
+import dev.nokee.utils.Cast;
 import lombok.Getter;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
@@ -16,16 +19,22 @@ public abstract class BaseComponent<T extends Variant> implements Component, Mod
 	@Getter private final ComponentIdentifier<?> identifier;
 
 	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
-	@Getter private final SetProperty<DimensionType> dimensions;
+	@Getter private final ListProperty<CoordinateSet<?>> dimensions;
+	@Getter private final Property<CoordinateSpace> finalSpace;
 
 	@Getter private final Property<String> baseName;
 
 	protected BaseComponent(ComponentIdentifier<?> identifier, ObjectFactory objects) {
 		this.identifier = identifier;
-		this.dimensions = objects.setProperty(DimensionType.class);
+		this.dimensions = Cast.uncheckedCastBecauseOfTypeErasure(objects.listProperty(CoordinateSet.class));
+		this.finalSpace = objects.property(CoordinateSpace.class);
 		this.baseName = objects.property(String.class);
 
 		getDimensions().finalizeValueOnRead();
+
+		getFinalSpace().convention(getDimensions().map(CoordinateSpace::cartesianProduct));
+		getFinalSpace().disallowChanges();
+		getFinalSpace().finalizeValueOnRead();
 	}
 
 	public abstract Provider<T> getDevelopmentVariant();
