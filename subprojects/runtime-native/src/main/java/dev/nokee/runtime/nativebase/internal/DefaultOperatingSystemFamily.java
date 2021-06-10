@@ -57,7 +57,7 @@ public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Name
 		} else if (osName.contains("ios")) {
 			return IOS;
 		} else {
-			throw new UnsupportedOperationException("Unsupported operating system family of name '" + osName + "'");
+			return new DefaultOperatingSystemFamily(osName); // unknown OS family, use as-is
 		}
 	}
 
