@@ -11,7 +11,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-class DefaultTargetMachineFactoryTest {
+class DefaultTargetMachineFactoryTest implements CommonMachineArchitectureTester {
 	private final DefaultTargetMachineFactory factory = new DefaultTargetMachineFactory();
 
 	@Test
@@ -65,5 +65,10 @@ class DefaultTargetMachineFactoryTest {
 	void defaultsToTheRightPreMadeInstances() {
 		// TODO Improve when we test on other architectures
 		assertThat(factory.host().getArchitecture(), equalTo(DefaultMachineArchitecture.X86_64));
+	}
+
+	@Override
+	public MachineArchitecture createSubject(String name) {
+		return factory.os("some-os").architecture(name).getArchitecture();
 	}
 }
