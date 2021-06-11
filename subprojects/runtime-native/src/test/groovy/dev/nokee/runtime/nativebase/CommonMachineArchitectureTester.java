@@ -4,5 +4,6 @@ public interface CommonMachineArchitectureTester extends MachineArchitectureItan
 	MachineArchitecturePowerPC32BitTester, MachineArchitecturePowerPC64BitTester,
 	MachineArchitectureIntel32BitTester, MachineArchitectureIntel64BitTester,
 	MachineArchitectureSparc32BitTester, MachineArchitectureSparc64BitTester,
-	MachineArchitectureHPPARISCTester
+	MachineArchitectureHPPARISCTester,
+	MachineArchitectureUnknownTester
 {}
