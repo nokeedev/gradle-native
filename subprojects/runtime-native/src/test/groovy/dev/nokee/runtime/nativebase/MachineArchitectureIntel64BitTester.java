@@ -21,7 +21,7 @@ interface MachineArchitectureIntel64BitTester {
 		);
 	}
 
-	@ParameterizedTest(name = "has canonical hame [{arguments}]")
+	@ParameterizedTest(name = "has canonical name [{arguments}]")
 	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonIntel64BitNames")
 	default void intel64BitArchitectureHasCanonicalName(String name) {
 		assertThat(createSubject(name), named("x86-64"));

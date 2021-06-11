@@ -21,7 +21,7 @@ interface MachineArchitectureSparc64BitTester {
 		);
 	}
 
-	@ParameterizedTest(name = "has canonical hame [{arguments}]")
+	@ParameterizedTest(name = "has canonical name [{arguments}]")
 	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonSparc64BitNames")
 	default void sparc64BitArchitectureHasCanonicalName(String name) {
 		assertThat(createSubject(name), named("Sparc64"));
