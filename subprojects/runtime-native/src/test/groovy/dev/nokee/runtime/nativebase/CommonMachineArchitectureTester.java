@@ -1,0 +1,8 @@
+package dev.nokee.runtime.nativebase;
+
+public interface CommonMachineArchitectureTester extends MachineArchitectureItaniumTester,
+	MachineArchitecturePowerPC32BitTester, MachineArchitecturePowerPC64BitTester,
+	MachineArchitectureIntel32BitTester, MachineArchitectureIntel64BitTester,
+	MachineArchitectureSparc32BitTester, MachineArchitectureSparc64BitTester,
+	MachineArchitectureHPPARISCTester
+{}

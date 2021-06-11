@@ -17,9 +17,43 @@ public abstract class DefaultMachineArchitecture implements MachineArchitecture,
 	@Getter @Nonnull private final String name;
 
 	public static CoordinateAxis<MachineArchitecture> MACHINE_ARCHITECTURE_COORDINATE_AXIS = CoordinateAxis.of(MachineArchitecture.class);
-	public static DefaultMachineArchitecture X86 = new MachineArchitectureX86();
-	public static DefaultMachineArchitecture X86_64 = new MachineArchitectureX86_64();
+	public static DefaultMachineArchitecture X86 = new KnownMachineArchitecture("x86", PointerSize.BIT32);
+	public static DefaultMachineArchitecture X86_64 = new KnownMachineArchitecture("x86-64", PointerSize.BIT64);
+	public static DefaultMachineArchitecture POWER_PC = new KnownMachineArchitecture("PowerPC", PointerSize.BIT32);
+	public static DefaultMachineArchitecture POWER_PC_64 = new KnownMachineArchitecture("PowerPC64", PointerSize.BIT64);
+	public static DefaultMachineArchitecture SPARC = new KnownMachineArchitecture("Sparc", PointerSize.BIT32);
+	public static DefaultMachineArchitecture SPARC64 = new KnownMachineArchitecture("Sparc64", PointerSize.BIT64);
+	public static DefaultMachineArchitecture ITANIUM = new KnownMachineArchitecture("Itanium", PointerSize.BIT64);
+	public static DefaultMachineArchitecture PA_RISC = new KnownMachineArchitecture("PA-RISC", PointerSize.BIT64);
 	public static DefaultMachineArchitecture HOST = forName(System.getProperty("os.arch"));
+
+	private enum PointerSize {
+		BIT32 {
+			@Override
+			boolean is32Bit() {
+				return true;
+			}
+
+			@Override
+			boolean is64Bit() {
+				return false;
+			}
+		},
+		BIT64 {
+			@Override
+			boolean is32Bit() {
+				return false;
+			}
+
+			@Override
+			boolean is64Bit() {
+				return true;
+			}
+		};
+
+		abstract boolean is32Bit();
+		abstract boolean is64Bit();
+	}
 
 	public static DefaultMachineArchitecture forName(String name) {
 		String archName = name.toLowerCase();
@@ -27,8 +61,25 @@ public abstract class DefaultMachineArchitecture implements MachineArchitecture,
 			return X86;
 		} else if (asList("x86-64", "x86_64", "amd64", "x64").contains(archName)) {
 			return X86_64;
-		} else {
-			throw new UnsupportedOperationException("Unsupported architecture of name '" + archName + "'");
+		} else if (asList("ppc", "powerpc").contains(archName)) {
+			return POWER_PC;
+		} else if (asList("ppc64", "powerpc64").contains(archName)) {
+			return POWER_PC_64;
+		} else if (asList("sparc-v7", "sparc-v8", "sparc", "sparc32").contains(archName)) {
+			return SPARC;
+		} else if (asList("sparc-v9", "sparc64", "ultrasparc").contains(archName)) {
+			return SPARC64;
+		} else if (asList("ia-64", "ia64", "ia64n", "itanium").contains(archName)) {
+			return ITANIUM;
+		} else if (asList("pa-risc", "pa_risc").contains(archName)) {
+			return PA_RISC;
+		}
+
+		// ARM is an umbrella for several different distinct architecture (A32, A64 and T32) which can be dynamically switched.
+		//   It isn't a straight match between os.arch name and machine architecture.
+
+		else {
+			return new UnknownMachineArchitecture(archName); // unknown architecture, use as-is
 		}
 	}
 
@@ -53,19 +104,22 @@ public abstract class DefaultMachineArchitecture implements MachineArchitecture,
 		}
 	}
 
-	private static final class MachineArchitectureX86_64 extends DefaultMachineArchitecture {
-		MachineArchitectureX86_64() {
-			super("x86-64");
+	private static final class KnownMachineArchitecture extends DefaultMachineArchitecture {
+		private final PointerSize pointerSize;
+
+		KnownMachineArchitecture(String canonicalName, PointerSize pointerSize) {
+			super(canonicalName);
+			this.pointerSize = pointerSize;
 		}
 
 		@Override
 		public boolean is32Bit() {
-			return false;
+			return pointerSize.is32Bit();
 		}
 
 		@Override
 		public boolean is64Bit() {
-			return true;
+			return pointerSize.is64Bit();
 		}
 	}
 
