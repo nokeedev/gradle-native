@@ -52,7 +52,7 @@ public class DefaultTargetMachineFactory implements TargetMachineFactory {
 		return new DefaultTargetMachineBuilder(DefaultOperatingSystemFamily.forName(name), HOST);
 	}
 
-	static class DefaultTargetMachineBuilder extends DefaultTargetMachine implements TargetMachineBuilder {
+	public static class DefaultTargetMachineBuilder extends DefaultTargetMachine implements TargetMachineBuilder {
 		public DefaultTargetMachineBuilder(@NonNull DefaultOperatingSystemFamily operatingSystemFamily, @NonNull DefaultMachineArchitecture architecture) {
 			super(operatingSystemFamily, architecture);
 		}
