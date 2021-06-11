@@ -1,13 +1,11 @@
-package dev.nokee.platform.nativebase;
-
-import dev.nokee.runtime.nativebase.TargetMachine;
+package dev.nokee.runtime.nativebase;
 
 /**
  * A builder for configuring the architecture of a {@link TargetMachine} instances.
  *
  * @since 0.1
  */
-public interface TargetMachineBuilder extends TargetMachine {
+public interface TargetMachineBuilder extends TargetMachine, dev.nokee.platform.nativebase.TargetMachineBuilder {
 	/**
 	 * Creates a {@link TargetMachine} for the operating system of this instance and the x86 32-bit architecture.
 	 *

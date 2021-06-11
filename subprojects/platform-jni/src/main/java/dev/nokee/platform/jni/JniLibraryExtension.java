@@ -2,8 +2,8 @@ package dev.nokee.platform.jni;
 
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
-import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.runtime.nativebase.TargetMachineFactory;
 import org.gradle.api.provider.SetProperty;
 
 /**
