@@ -1,13 +1,11 @@
-package dev.nokee.platform.nativebase;
-
-import dev.nokee.runtime.nativebase.TargetMachine;
+package dev.nokee.runtime.nativebase;
 
 /**
  * A factory for creating {@link TargetMachine} instances.
  *
  * @since 0.1
  */
-public interface TargetMachineFactory {
+public interface TargetMachineFactory extends dev.nokee.platform.nativebase.TargetMachineFactory {
 	/**
 	 * Creates a {@link TargetMachineBuilder} for the Windows operating system family and the architecture of the current host.
 	 *

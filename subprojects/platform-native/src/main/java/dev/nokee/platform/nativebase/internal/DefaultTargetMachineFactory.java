@@ -1,8 +1,8 @@
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.platform.nativebase.TargetMachineBuilder;
-import dev.nokee.platform.nativebase.TargetMachineFactory;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.runtime.nativebase.TargetMachineBuilder;
+import dev.nokee.runtime.nativebase.TargetMachineFactory;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;

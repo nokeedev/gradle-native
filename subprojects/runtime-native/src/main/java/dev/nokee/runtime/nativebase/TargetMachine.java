@@ -4,7 +4,7 @@ package dev.nokee.runtime.nativebase;
  * Represents a combination of operating system and cpu architecture that a variant might be built for.
  *
  * <p><b>Note:</b> This interface is not intended for implementation by build script or plugin authors.
- * Use {@link dev.nokee.platform.nativebase.TargetMachineFactory} to create an instance.
+ * Use {@link TargetMachineFactory} to create an instance.
  * </p>
  *
  * @since 0.1
