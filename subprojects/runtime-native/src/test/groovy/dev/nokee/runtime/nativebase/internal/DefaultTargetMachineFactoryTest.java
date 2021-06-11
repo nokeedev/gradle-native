@@ -2,7 +2,10 @@ package dev.nokee.runtime.nativebase.internal;
 
 import com.google.common.testing.EqualsTester;
 import dev.nokee.runtime.nativebase.CommonMachineArchitectureTester;
+import dev.nokee.runtime.nativebase.CommonOperatingSystemFamilyTester;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
+import dev.nokee.runtime.nativebase.OperatingSystemFamily;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -11,7 +14,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-class DefaultTargetMachineFactoryTest implements CommonMachineArchitectureTester {
+class DefaultTargetMachineFactoryTest {
 	private final DefaultTargetMachineFactory factory = new DefaultTargetMachineFactory();
 
 	@Test
@@ -67,8 +70,19 @@ class DefaultTargetMachineFactoryTest implements CommonMachineArchitectureTester
 		assertThat(factory.host().getArchitecture(), equalTo(DefaultMachineArchitecture.X86_64));
 	}
 
-	@Override
-	public MachineArchitecture createSubject(String name) {
-		return factory.os("some-os").architecture(name).getArchitecture();
+	@Nested
+	class CommonMachineArchitectureTest implements CommonMachineArchitectureTester {
+		@Override
+		public MachineArchitecture createSubject(String name) {
+			return factory.os("some-os").architecture(name).getArchitecture();
+		}
+	}
+
+	@Nested
+	class CommonOperatingSystemFamilyTest implements CommonOperatingSystemFamilyTester {
+		@Override
+		public OperatingSystemFamily createSubject(String name) {
+			return factory.os(name).getOperatingSystemFamily();
+		}
 	}
 }

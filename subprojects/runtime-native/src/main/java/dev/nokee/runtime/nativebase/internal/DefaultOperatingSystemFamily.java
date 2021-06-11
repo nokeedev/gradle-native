@@ -17,6 +17,8 @@ public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Name
 	public static final DefaultOperatingSystemFamily MACOS = new DefaultOperatingSystemFamily("macos");
 	public static final DefaultOperatingSystemFamily FREE_BSD = new DefaultOperatingSystemFamily("freebsd");
 	public static final DefaultOperatingSystemFamily IOS = new DefaultOperatingSystemFamily("ios");
+	public static final DefaultOperatingSystemFamily SOLARIS = new DefaultOperatingSystemFamily("solaris");
+	public static final DefaultOperatingSystemFamily HP_UX = new DefaultOperatingSystemFamily("hpux");
 	public static final DefaultOperatingSystemFamily HOST = forName(System.getProperty("os.name"));
 
 	@Override
@@ -44,6 +46,16 @@ public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Name
 		return equals(IOS);
 	}
 
+	@Override
+	public boolean isSolaris() {
+		return equals(SOLARIS);
+	}
+
+	@Override
+	public boolean isHewlettPackardUnix() {
+		return equals(HP_UX);
+	}
+
 	public static DefaultOperatingSystemFamily forName(String name) {
 		String osName = name.toLowerCase();
 		if (osName.contains("windows")) {
@@ -56,6 +68,10 @@ public class DefaultOperatingSystemFamily implements OperatingSystemFamily, Name
 			return FREE_BSD;
 		} else if (osName.contains("ios")) {
 			return IOS;
+		} else if (osName.contains("sunos") || osName.contains("solaris")) {
+			return SOLARIS;
+		} else if (osName.contains("hp-ux") || osName.contains("hpux")) {
+			return HP_UX;
 		} else {
 			return new DefaultOperatingSystemFamily(osName); // unknown OS family, use as-is
 		}
