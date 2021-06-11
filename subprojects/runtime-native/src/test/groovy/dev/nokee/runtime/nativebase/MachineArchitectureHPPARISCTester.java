@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+/** @see dev.nokee.runtime.nativebase.CommonMachineArchitectureTester */
 interface MachineArchitectureHPPARISCTester {
 	MachineArchitecture createSubject(String name);
 
