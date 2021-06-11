@@ -49,7 +49,7 @@ public class DefaultTargetMachineFactory implements TargetMachineFactory {
 	 * @return a {@link TargetMachineBuilder} to further configure the target machine, never null.
 	 */
 	public DefaultTargetMachineBuilder os(String name) {
-		return new DefaultTargetMachineBuilder(new DefaultOperatingSystemFamily(name), HOST);
+		return new DefaultTargetMachineBuilder(DefaultOperatingSystemFamily.forName(name), HOST);
 	}
 
 	static class DefaultTargetMachineBuilder extends DefaultTargetMachine implements TargetMachineBuilder {

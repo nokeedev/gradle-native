@@ -65,4 +65,21 @@ public interface OperatingSystemFamily extends dev.nokee.platform.nativebase.Ope
 	default boolean isiOS() {
 		return isIos();
 	}
+
+	/**
+	 * Check if the operating system family is Solaris.
+	 *
+	 * @return {@code true} if the operating system family is Solaris or {@code false} otherwise.
+	 * @since 0.5
+	 */
+	boolean isSolaris();
+
+
+	/**
+	 * Check if the operating system family is Hewlett Packard Unix (e.g. HP-UX).
+	 *
+	 * @return {@code true} if the operating system family is HP-UX or {@code false} otherwise.
+	 * @since 0.5
+	 */
+	boolean isHewlettPackardUnix();
 }

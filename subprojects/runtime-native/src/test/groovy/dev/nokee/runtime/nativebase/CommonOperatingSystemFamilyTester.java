@@ -1,0 +1,12 @@
+package dev.nokee.runtime.nativebase;
+
+public interface CommonOperatingSystemFamilyTester extends
+	OperatingSystemFamilyWindowsTester,
+	OperatingSystemFamilyLinuxTester,
+	OperatingSystemFamilyMacOSTester,
+	OperatingSystemFamilyFreeBSDTester,
+	OperatingSystemFamilyIosTester,
+	OperatingSystemFamilyHPUXTester,
+	OperatingSystemFamilySolarisTester,
+	OperatingSystemFamilyUnknownTester
+{}
