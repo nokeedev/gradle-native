@@ -48,11 +48,11 @@ public class DefaultTargetMachineFactory implements TargetMachineFactory {
 	 * @param name a operating system family name, no validation is done on the name
 	 * @return a {@link TargetMachineBuilder} to further configure the target machine, never null.
 	 */
-	public TargetMachineBuilder os(String name) {
+	public DefaultTargetMachineBuilder os(String name) {
 		return new DefaultTargetMachineBuilder(new DefaultOperatingSystemFamily(name), HOST);
 	}
 
-	private static class DefaultTargetMachineBuilder extends DefaultTargetMachine implements TargetMachineBuilder {
+	static class DefaultTargetMachineBuilder extends DefaultTargetMachine implements TargetMachineBuilder {
 		public DefaultTargetMachineBuilder(@NonNull DefaultOperatingSystemFamily operatingSystemFamily, @NonNull DefaultMachineArchitecture architecture) {
 			super(operatingSystemFamily, architecture);
 		}
@@ -68,7 +68,7 @@ public class DefaultTargetMachineFactory implements TargetMachineFactory {
 		}
 
 		public TargetMachine architecture(String name) {
-			return new DefaultTargetMachine(getOperatingSystemFamily(), new UnknownMachineArchitecture(name));
+			return new DefaultTargetMachine(getOperatingSystemFamily(), DefaultMachineArchitecture.forName(name));
 		}
 	}
 }
