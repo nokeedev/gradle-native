@@ -21,7 +21,7 @@ interface MachineArchitectureHPPARISCTester {
 		);
 	}
 
-	@ParameterizedTest(name = "has canonical hame [{arguments}]")
+	@ParameterizedTest(name = "has canonical name [{arguments}]")
 	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonHPPARISCNames")
 	default void hpPARISCArchitectureHasCanonicalName(String name) {
 		assertThat(createSubject(name), named("PA-RISC"));

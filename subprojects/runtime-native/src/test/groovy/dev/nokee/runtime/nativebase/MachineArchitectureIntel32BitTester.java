@@ -22,7 +22,7 @@ interface MachineArchitectureIntel32BitTester {
 		);
 	}
 
-	@ParameterizedTest(name = "has canonical hame [{arguments}]")
+	@ParameterizedTest(name = "has canonical name [{arguments}]")
 	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonIntel32BitNames")
 	default void intel32BitArchitectureHasCanonicalName(String name) {
 		assertThat(createSubject(name), named("x86"));

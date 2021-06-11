@@ -25,7 +25,7 @@ interface MachineArchitectureItaniumTester {
 		);
 	}
 
-	@ParameterizedTest(name = "has canonical hame [{arguments}]")
+	@ParameterizedTest(name = "has canonical name [{arguments}]")
 	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonItaniumNames")
 	default void itaniumArchitectureHasCanonicalName(String name) {
 		assertThat(createSubject(name), named("Itanium"));

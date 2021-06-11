@@ -21,7 +21,7 @@ interface MachineArchitecturePowerPC64BitTester {
 		);
 	}
 
-	@ParameterizedTest(name = "has canonical hame [{arguments}]")
+	@ParameterizedTest(name = "has canonical name [{arguments}]")
 	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonPowerPC64BitNames")
 	default void powerPC64BitArchitectureHasCanonicalName(String name) {
 		assertThat(createSubject(name), named("PowerPC64"));
