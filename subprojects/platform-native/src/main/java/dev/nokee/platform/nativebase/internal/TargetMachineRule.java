@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.runtime.nativebase.internal.DefaultTargetMachineFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Action;

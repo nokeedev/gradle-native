@@ -1,6 +1,6 @@
 package dev.nokee.platform.nativebase;
 
-import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory;
+import dev.nokee.runtime.nativebase.internal.DefaultTargetMachineFactory;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.TargetMachineFactory;
 import org.gradle.api.provider.SetProperty;

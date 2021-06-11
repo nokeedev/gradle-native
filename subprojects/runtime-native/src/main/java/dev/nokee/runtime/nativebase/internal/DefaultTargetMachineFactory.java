@@ -1,11 +1,8 @@
-package dev.nokee.platform.nativebase.internal;
+package dev.nokee.runtime.nativebase.internal;
 
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.TargetMachineBuilder;
 import dev.nokee.runtime.nativebase.TargetMachineFactory;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.NonNull;
 
 import static dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture.HOST;

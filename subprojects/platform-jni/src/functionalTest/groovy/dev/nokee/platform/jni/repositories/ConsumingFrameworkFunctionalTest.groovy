@@ -9,7 +9,7 @@ import dev.nokee.core.exec.ProcessBuilderEngine
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCNSSavePanelLib
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils
-import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory
+import dev.nokee.runtime.nativebase.internal.DefaultTargetMachineFactory
 import dev.nokee.runtime.darwin.internal.locators.XcodebuildLocator
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin
 import dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes

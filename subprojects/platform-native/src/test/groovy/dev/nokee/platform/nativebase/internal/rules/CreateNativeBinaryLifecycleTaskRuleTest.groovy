@@ -11,7 +11,7 @@ import dev.nokee.platform.base.internal.tasks.TaskName
 import dev.nokee.platform.base.internal.tasks.TaskRegistry
 import dev.nokee.platform.base.internal.variants.KnownVariant
 import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage
-import dev.nokee.platform.nativebase.internal.DefaultTargetMachineFactory
+import dev.nokee.runtime.nativebase.internal.DefaultTargetMachineFactory
 import dev.nokee.platform.nativebase.internal.tasks.ExecutableLifecycleTask
 import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask
 import dev.nokee.platform.nativebase.internal.tasks.StaticLibraryLifecycleTask
