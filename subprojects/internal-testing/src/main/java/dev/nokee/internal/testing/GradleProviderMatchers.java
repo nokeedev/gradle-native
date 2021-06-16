@@ -10,14 +10,14 @@ import static org.hamcrest.Matchers.is;
 public final class GradleProviderMatchers {
 	private GradleProviderMatchers() {}
 
-	public static <T> Matcher<Provider<T>> providerOf(T instance) {
+	public static <T> Matcher<Provider<? extends T>> providerOf(T instance) {
 		return providerOf(equalTo(instance));
 	}
 
-	public static <T> Matcher<Provider<T>> providerOf(Matcher<T> matcher) {
-		return new FeatureMatcher<Provider<T>, T>(matcher, "provider of", "providing") {
+	public static <T> Matcher<Provider<? extends T>> providerOf(Matcher<T> matcher) {
+		return new FeatureMatcher<Provider<? extends T>, T>(matcher, "provider of", "providing") {
 			@Override
-			protected T featureValueOf(Provider<T> actual) {
+			protected T featureValueOf(Provider<? extends T> actual) {
 				return actual.get();
 			}
 		};
