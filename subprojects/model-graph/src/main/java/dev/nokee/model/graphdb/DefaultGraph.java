@@ -1,6 +1,5 @@
 package dev.nokee.model.graphdb;
 
-import com.google.common.base.Predicates;
 import dev.nokee.model.graphdb.events.EventListener;
 import lombok.val;
 
@@ -31,7 +30,8 @@ final class DefaultGraph implements Graph {
 
 	@Override
 	public Node createNode() {
-		val node = new NodeEntity(createProperties(nextId()), this);
+		val id = nextId();
+		val node = new NodeEntity(createProperties(id), createLabels(id), this);
 		nodeList.add(node);
 		entities.put(node.getId(), node);
 		notifier.fireNodeCreatedEvent(builder -> builder.nodeId(node.getId()));
@@ -51,6 +51,10 @@ final class DefaultGraph implements Graph {
 
 	private EntityProperties createProperties(long id) {
 		return new EntityProperties(id, notifier);
+	}
+
+	private NodeLabels createLabels(long id) {
+		return new NodeLabels(id, notifier);
 	}
 
 	@Override

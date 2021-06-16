@@ -2,6 +2,7 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.core.ModelProjection;
 import dev.nokee.model.graphdb.Graph;
+import dev.nokee.model.graphdb.Label;
 import dev.nokee.model.graphdb.Node;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -89,7 +90,7 @@ final class DefaultModelProjection implements ModelProjection {
 		}
 
 		public DefaultModelProjection build() {
-			val projectionNode = graph.createNode().property("spec", builder.build());
+			val projectionNode = graph.createNode().addLabel(Label.label("PROJECTION")).property("spec", builder.build());
 			return new DefaultModelProjection(graph, projectionNode);
 		}
 	}

@@ -10,12 +10,13 @@ import java.util.stream.Stream;
 import static java.util.Objects.requireNonNull;
 
 final class NodeEntity extends AbstractEntity implements Node {
-	private final Set<Label> labelList = new LinkedHashSet<>();
 	final List<Relationship> relationshipList = new ArrayList<>();
+	private final NodeLabels labels;
 	private final Graph graph;
 
-	NodeEntity(EntityProperties properties, Graph graph) {
+	NodeEntity(EntityProperties properties, NodeLabels labels, Graph graph) {
 		super(properties);
+		this.labels = labels;
 		this.graph = graph;
 	}
 
@@ -96,20 +97,19 @@ final class NodeEntity extends AbstractEntity implements Node {
 	}
 
 	@Override
-	public void addLabel(Label label) {
-		requireNonNull(label);
-		labelList.add(label);
+	public Node addLabel(Label label) {
+		labels.add(label);
+		return this;
 	}
 
 	@Override
 	public Stream<Label> getLabels() {
-		return labelList.stream();
+		return labels.stream();
 	}
 
 	@Override
 	public boolean hasLabel(Label label) {
-		requireNonNull(label);
-		return labelList.contains(label);
+		return labels.has(label);
 	}
 
 	@Override
