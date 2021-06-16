@@ -27,6 +27,7 @@ final class DefaultModelNode implements ModelNode {
 	public ModelNode newChildNode(Object identity) {
 		val name = nameOf(identity);
 		val childNode = graph.createNode()
+			.addLabel(Label.label("NODE"))
 			.property("identity", identity)
 			.property("name", name);
 //			.property("path", getPath().child(name))

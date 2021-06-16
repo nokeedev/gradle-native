@@ -17,7 +17,7 @@ public interface Node extends Entity {
 
 	Optional<Relationship> getSingleRelationship(RelationshipType type, Direction direction);
 
-	void addLabel(Label label);
+	Node addLabel(Label label);
 	Stream<Label> getLabels();
 	boolean hasLabel(Label label);
 

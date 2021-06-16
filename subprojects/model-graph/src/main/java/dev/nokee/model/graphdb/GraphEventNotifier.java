@@ -1,9 +1,6 @@
 package dev.nokee.model.graphdb;
 
-import dev.nokee.model.graphdb.events.EventListener;
-import dev.nokee.model.graphdb.events.NodeCreatedEvent;
-import dev.nokee.model.graphdb.events.PropertyChangedEvent;
-import dev.nokee.model.graphdb.events.RelationshipCreatedEvent;
+import dev.nokee.model.graphdb.events.*;
 import lombok.val;
 
 import java.util.function.Consumer;
@@ -12,6 +9,7 @@ abstract class GraphEventNotifier {
 	public abstract void firePropertyChangedEvent(Consumer<? super PropertyChangedEvent.Builder> builderAction);
 	public abstract void fireNodeCreatedEvent(Consumer<? super NodeCreatedEvent.Builder> builderAction);
 	public abstract void fireRelationshipCreatedEvent(Consumer<? super RelationshipCreatedEvent.Builder> builderAction);
+	public abstract void fireLabelAddedEvent(Consumer<? super LabelAddedEvent.Builder> builderAction);
 
 	public static GraphEventNotifier noOpNotifier() {
 		return new GraphEventNotifier() {
@@ -27,6 +25,11 @@ abstract class GraphEventNotifier {
 
 			@Override
 			public void fireRelationshipCreatedEvent(Consumer<? super RelationshipCreatedEvent.Builder> builderAction) {
+
+			}
+
+			@Override
+			public void fireLabelAddedEvent(Consumer<? super LabelAddedEvent.Builder> builderAction) {
 
 			}
 		};
@@ -71,6 +74,13 @@ abstract class GraphEventNotifier {
 					val builder = RelationshipCreatedEvent.builder();
 					builderAction.accept(builder);
 					listener.relationshipCreated(builder.graph(graph).build());
+				}
+
+				@Override
+				public void fireLabelAddedEvent(Consumer<? super LabelAddedEvent.Builder> builderAction) {
+					val builder = LabelAddedEvent.builder();
+					builderAction.accept(builder);
+					listener.labelAdded(builder.graph(graph).build());
 				}
 			};
 		}

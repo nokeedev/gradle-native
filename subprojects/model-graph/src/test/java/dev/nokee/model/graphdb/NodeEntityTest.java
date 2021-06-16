@@ -2,6 +2,7 @@ package dev.nokee.model.graphdb;
 
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.model.graphdb.testers.EntityTester;
+import dev.nokee.model.graphdb.testers.NodeLabelTester;
 import lombok.val;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,11 +18,16 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class NodeEntityTest implements EntityTester {
+class NodeEntityTest implements EntityTester, NodeLabelTester {
 	private final Graph graph = new DefaultGraph();
 
 	@Override
 	public Entity createEntity() {
+		return graph.createNode();
+	}
+
+	@Override
+	public Node createSubject() {
 		return graph.createNode();
 	}
 
