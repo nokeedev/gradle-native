@@ -16,7 +16,7 @@ public interface KnownDomainObject<T> {
 
 	Class<T> getType();
 
-	default void configure(@ClosureParams(FirstParam.FirstGenericType.class) @DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void configure(@ClosureParams(FirstParam.FirstGenericType.class) @DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
 		configure(ConfigureUtil.configureUsing(requireNonNull(closure)));
 	}
 	void configure(Action<? super T> action);
