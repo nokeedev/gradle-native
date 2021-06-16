@@ -4,7 +4,6 @@ import com.google.common.collect.Iterators;
 import groovy.lang.Closure;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
