@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.SupportedTypes.instanceOf;
 import static dev.nokee.model.internal.SupportedTypes.subtypeOf;
-import static dev.nokee.utils.NamedDomainObjectCollectionUtils.getType;
+import static dev.nokee.utils.NamedDomainObjectCollectionUtils.getElementType;
 
 /**
  * Adapt named domain object containers to an uniform registry.
@@ -40,7 +40,7 @@ abstract class NamedDomainObjectContainerRegistry<T> {
 
 		public NamedContainerRegistry(NamedDomainObjectContainer<T> container) {
 			this.container = container;
-			registrableTypes = new NamedDomainObjectContainerRegistrableTypes(getType(container));
+			registrableTypes = new NamedDomainObjectContainerRegistrableTypes(getElementType(container));
 		}
 
 		@Override
