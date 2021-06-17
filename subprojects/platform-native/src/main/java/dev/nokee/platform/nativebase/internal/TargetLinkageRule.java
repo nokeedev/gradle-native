@@ -2,6 +2,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.runtime.nativebase.TargetLinkage;
+import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Action;

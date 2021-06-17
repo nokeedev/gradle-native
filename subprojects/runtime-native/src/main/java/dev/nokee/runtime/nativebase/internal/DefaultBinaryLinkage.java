@@ -1,4 +1,4 @@
-package dev.nokee.platform.nativebase.internal;
+package dev.nokee.runtime.nativebase.internal;
 
 import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateAxis;

@@ -7,6 +7,7 @@ import dev.nokee.runtime.nativebase.TargetLinkage;
  *
  * @since 0.5
  */
+@Deprecated
 public interface TargetLinkageFactory {
 	/**
 	 * Creates a shared linkage for building shared libraries.

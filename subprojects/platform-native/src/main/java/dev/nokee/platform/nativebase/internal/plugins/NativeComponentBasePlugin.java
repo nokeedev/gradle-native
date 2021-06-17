@@ -24,7 +24,7 @@ import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
-import dev.nokee.platform.nativebase.internal.DefaultTargetBuildTypeFactory;
+import dev.nokee.runtime.nativebase.internal.DefaultTargetBuildTypeFactory;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.Coordinates;
 import dev.nokee.runtime.nativebase.TargetBuildType;
@@ -41,7 +41,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Predicates.not;
-import static dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage.*;
+import static dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage.*;
 import static dev.nokee.runtime.core.Coordinates.coordinateTypeOf;
 import static dev.nokee.utils.TransformerUtils.collect;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;

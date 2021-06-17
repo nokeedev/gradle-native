@@ -2,6 +2,8 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.runtime.nativebase.TargetBuildType;
+import dev.nokee.runtime.nativebase.internal.BaseTargetBuildType;
+import dev.nokee.runtime.nativebase.internal.DefaultTargetBuildTypeFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;

@@ -1,6 +1,7 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.runtime.nativebase.TargetLinkage;
+import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage;
 
 import java.util.Comparator;
 

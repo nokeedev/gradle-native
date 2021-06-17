@@ -2,8 +2,8 @@ package dev.nokee.platform.nativebase.internal.dependencies;
 
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage;
-import dev.nokee.platform.nativebase.internal.NamedTargetBuildType;
+import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage;
+import dev.nokee.runtime.nativebase.internal.NamedTargetBuildType;
 import dev.nokee.runtime.base.internal.DefaultUsage;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;

@@ -22,6 +22,7 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;

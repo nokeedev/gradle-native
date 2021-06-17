@@ -1,6 +1,7 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.runtime.nativebase.TargetBuildType;
+import dev.nokee.runtime.nativebase.internal.NamedTargetBuildType;
 
 import java.util.Comparator;
 
