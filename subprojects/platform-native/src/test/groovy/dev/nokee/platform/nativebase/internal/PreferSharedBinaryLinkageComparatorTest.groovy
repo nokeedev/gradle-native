@@ -1,5 +1,6 @@
 package dev.nokee.platform.nativebase.internal
 
+import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage
 import spock.lang.Specification
 import spock.lang.Subject
 

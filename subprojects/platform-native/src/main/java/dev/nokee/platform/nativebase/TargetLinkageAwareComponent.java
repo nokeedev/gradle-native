@@ -1,7 +1,8 @@
 package dev.nokee.platform.nativebase;
 
-import dev.nokee.platform.nativebase.internal.DefaultTargetLinkageFactory;
 import dev.nokee.runtime.nativebase.TargetLinkage;
+import dev.nokee.runtime.nativebase.TargetLinkageFactory;
+import dev.nokee.runtime.nativebase.internal.DefaultTargetLinkageFactory;
 import org.gradle.api.provider.SetProperty;
 
 /**

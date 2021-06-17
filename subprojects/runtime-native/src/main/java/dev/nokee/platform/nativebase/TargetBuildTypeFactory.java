@@ -7,6 +7,7 @@ import dev.nokee.runtime.nativebase.TargetBuildType;
  *
  * @since 0.5
  */
+@Deprecated
 public interface TargetBuildTypeFactory {
 	/**
 	 * Creates a build type of the specified name.

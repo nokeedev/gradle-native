@@ -4,7 +4,7 @@ import dev.nokee.platform.base.Binary
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.SharedLibraryBinary
 import dev.nokee.platform.nativebase.StaticLibraryBinary
-import dev.nokee.platform.nativebase.internal.DefaultBinaryLinkage
+import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage
 import dev.nokee.utils.ProviderUtils
 import spock.lang.Specification
 

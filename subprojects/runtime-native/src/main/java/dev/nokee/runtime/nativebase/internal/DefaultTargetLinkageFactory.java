@@ -1,6 +1,6 @@
-package dev.nokee.platform.nativebase.internal;
+package dev.nokee.runtime.nativebase.internal;
 
-import dev.nokee.platform.nativebase.TargetLinkageFactory;
+import dev.nokee.runtime.nativebase.TargetLinkageFactory;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 
 public class DefaultTargetLinkageFactory implements TargetLinkageFactory {

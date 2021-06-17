@@ -1,5 +1,7 @@
 package dev.nokee.platform.nativebase.internal
 
+import dev.nokee.runtime.nativebase.internal.BaseTargetBuildType
+import dev.nokee.runtime.nativebase.internal.NamedTargetBuildType
 import spock.lang.Specification
 import spock.lang.Subject
 
