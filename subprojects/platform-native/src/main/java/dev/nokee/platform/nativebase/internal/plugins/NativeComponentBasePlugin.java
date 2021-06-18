@@ -24,13 +24,15 @@ import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
-import dev.nokee.runtime.nativebase.internal.DefaultTargetBuildTypeFactory;
+import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.Coordinates;
-import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetLinkage;
+import dev.nokee.runtime.nativebase.BuildType;
+import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.RuntimeNativePlugin;
+import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -93,7 +95,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 					.map(assertNonEmpty("target build type", projection.getIdentifier().getName().toString()))
 					.map(toSetTransformer(coordinateTypeOf(TargetBuildType.class)).andThen(collect(Coordinates.toCoordinateSet()))));
 			} else {
-				projection.getDimensions().add(CoordinateSet.of(DefaultTargetBuildTypeFactory.DEFAULT));
+				projection.getDimensions().add(CoordinateSet.of(Coordinates.of(TargetBuildTypes.DEFAULT)));
 			}
 
 			// Handle operating system family and machine architecture dimension

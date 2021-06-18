@@ -3,8 +3,9 @@ package dev.nokee.platform.nativebase.internal.dependencies;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage;
-import dev.nokee.runtime.nativebase.internal.NamedTargetBuildType;
 import dev.nokee.runtime.base.internal.DefaultUsage;
+import dev.nokee.runtime.nativebase.BuildType;
+import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.utils.ActionUtils;
@@ -82,8 +83,8 @@ public class ConfigurationUtilsEx {
 					attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture.class, ((DefaultMachineArchitecture) it).getName()));
 				} else if (it instanceof DefaultBinaryLinkage) {
 					// Do not configure this dimension for incoming dependencies
-				} else if (it instanceof NamedTargetBuildType) {
-					attributes.attribute(NamedTargetBuildType.BUILD_TYPE_ATTRIBUTE, ((NamedTargetBuildType) it).getName());
+				} else if (it instanceof TargetBuildType) {
+					attributes.attribute(BuildType.BUILD_TYPE_ATTRIBUTE, BuildType.named(it.toString()));
 				} else {
 					throw new IllegalArgumentException(String.format("Unknown dimension variant '%s'", it.toString()));
 				}

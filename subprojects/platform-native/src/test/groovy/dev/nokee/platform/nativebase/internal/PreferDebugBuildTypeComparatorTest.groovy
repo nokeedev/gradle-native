@@ -1,7 +1,6 @@
 package dev.nokee.platform.nativebase.internal
 
-import dev.nokee.runtime.nativebase.internal.BaseTargetBuildType
-import dev.nokee.runtime.nativebase.internal.NamedTargetBuildType
+import dev.nokee.runtime.nativebase.BuildType
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -33,19 +32,19 @@ class PreferDebugBuildTypeComparatorTest extends Specification {
 		subject.compare(release, buildTypeOf('DeBuG')) == 1
 	}
 
-	private BaseTargetBuildType getDebug() {
-		return new NamedTargetBuildType('debug')
+	private BuildType getDebug() {
+		return BuildType.named('debug')
 	}
 
-	private BaseTargetBuildType getRelease() {
-		return new NamedTargetBuildType('release')
+	private BuildType getRelease() {
+		return BuildType.named('release')
 	}
 
-	private BaseTargetBuildType getNotDebugOrRelease() {
-		return new NamedTargetBuildType('final')
+	private BuildType getNotDebugOrRelease() {
+		return BuildType.named('final')
 	}
 
-	private BaseTargetBuildType buildTypeOf(String name) {
-		return new NamedTargetBuildType(name)
+	private BuildType buildTypeOf(String name) {
+		return BuildType.named(name)
 	}
 }

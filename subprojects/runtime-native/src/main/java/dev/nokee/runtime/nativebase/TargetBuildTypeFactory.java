@@ -6,6 +6,7 @@ package dev.nokee.runtime.nativebase;
  * @since 0.5
  */
 public interface TargetBuildTypeFactory extends dev.nokee.platform.nativebase.TargetBuildTypeFactory {
+
 	/**
 	 * Creates a build type of the specified name.
 	 *

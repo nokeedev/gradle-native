@@ -20,6 +20,7 @@ import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
+import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.ConfigureUtils;
