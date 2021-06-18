@@ -43,7 +43,7 @@ public final class ConfigurationUtils {
 	 * @return a configuration action, never null
 	 */
 	public static ConfigurationAction asDeclarable() {
-		return ConfigurationBuckets.DECLARABLE;
+		return ConfigurationActions.DECLARABLE;
 	}
 
 	/**
@@ -53,7 +53,7 @@ public final class ConfigurationUtils {
 	 * @return a configuration action, never null
 	 */
 	public static ConfigurationAction asConsumable() {
-		return ConfigurationBuckets.CONSUMABLE;
+		return ConfigurationActions.CONSUMABLE;
 	}
 
 	/**
@@ -63,12 +63,39 @@ public final class ConfigurationUtils {
 	 * @return a configuration action, never null
 	 */
 	public static ConfigurationAction asResolvable() {
-		return ConfigurationBuckets.RESOLVABLE;
+		return ConfigurationActions.RESOLVABLE;
 	}
 
 	public interface ConfigurationAction extends ActionUtils.Action<Configuration>, Assertable<Configuration> {}
 
-	private enum ConfigurationBuckets implements ConfigurationAction {
+	private enum ConfigurationActions implements ConfigurationAction {
+		DECLARABLE(ConfigurationBuckets.DECLARABLE),
+		CONSUMABLE(ConfigurationBuckets.CONSUMABLE),
+		RESOLVABLE(ConfigurationBuckets.RESOLVABLE);
+
+		private final ConfigurationBuckets bucket;
+
+		ConfigurationActions(ConfigurationBuckets bucket) {
+			this.bucket = bucket;
+		}
+
+		@Override
+		public String toString() {
+			return "ConfigurationUtils.as" + StringUtils.capitalize(bucket.getConfigurationTypeName()) + "()";
+		}
+
+		@Override
+		public void satisfiedBy(Context<? extends Configuration> context) {
+			bucket.satisfiedBy(context);
+		}
+
+		@Override
+		public void execute(Configuration configuration) {
+			bucket.execute(configuration);
+		}
+	}
+
+	private enum ConfigurationBuckets {
 		DECLARABLE(false, false),
 		CONSUMABLE(true, false),
 		RESOLVABLE(false, true);
@@ -85,23 +112,16 @@ public final class ConfigurationUtils {
 			return name().toLowerCase(Locale.CANADA);
 		}
 
-		@Override
 		public void execute(Configuration configuration) {
 			configuration.setCanBeConsumed(canBeConsumed);
 			configuration.setCanBeResolved(canBeResolved);
 		}
 
-		@Override
-		public String toString() {
-			return "ConfigurationUtils.as" + StringUtils.capitalize(getConfigurationTypeName()) + "()";
+		public void satisfiedBy(Assertable.Context<? extends Configuration> context) {
+			context.assertThat(this::isSatisfiedBy, this::cannotReuseExistingConfiguration);
 		}
 
-		@Override
-		public void satisfiedBy(Context<? extends Configuration> context) {
-			context.assertThat(this::bucketMatches, this::cannotReuseExistingConfiguration);
-		}
-
-		private boolean bucketMatches(Configuration configuration) {
+		public boolean isSatisfiedBy(Configuration configuration) {
 			return configuration.isCanBeConsumed() == canBeConsumed && configuration.isCanBeResolved() == canBeResolved;
 		}
 

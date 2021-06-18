@@ -1,5 +1,6 @@
 package dev.nokee.utils;
 
+import com.google.common.annotations.VisibleForTesting;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -24,13 +25,12 @@ public final class Assertions {
 		return domainObjectProvider;
 	}
 
-	// Visible for tests
+	@VisibleForTesting
 	static <T> void assertConfigured(T instance, Assertable<? super T> spec) {
 		val context = new Context<>(instance);
 		spec.satisfiedBy(context);
 
 		context.throwsIfErrors();
-		// TODO: Throws exception based on context
 	}
 
 	private static final class Context<T> implements Assertable.Context<T> {
