@@ -24,10 +24,11 @@ import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.*;
-import dev.nokee.runtime.nativebase.internal.BaseTargetBuildType;
 import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage;
+import dev.nokee.runtime.nativebase.BuildType;
+import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
-import dev.nokee.runtime.nativebase.internal.NamedTargetBuildType;
+import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.testing.xctest.internal.BaseXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
@@ -60,6 +61,7 @@ import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 
 public final class CreateNativeComponentXcodeIdeProject implements Action<KnownDomainObject<? extends BaseComponent<?>>> {
 	private final XcodeIdeProjectExtension extension;
@@ -402,11 +404,11 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 					return sdkPlatformPath + "/Developer/Library/Frameworks";
 				}
 
-				private NamedTargetBuildType buildType(BuildVariantInternal buildVariant) {
-					if (buildVariant.hasAxisValue(BaseTargetBuildType.BUILD_TYPE_COORDINATE_AXIS)) {
-						return (NamedTargetBuildType) buildVariant.getAxisValue(BaseTargetBuildType.BUILD_TYPE_COORDINATE_AXIS);
+				private BuildType buildType(BuildVariantInternal buildVariant) {
+					if (buildVariant.hasAxisValue(BUILD_TYPE_COORDINATE_AXIS)) {
+						return buildVariant.getAxisValue(BUILD_TYPE_COORDINATE_AXIS);
 					}
-					return new NamedTargetBuildType("Default");
+					return BuildType.named("Default");
 				}
 			});
 		}
