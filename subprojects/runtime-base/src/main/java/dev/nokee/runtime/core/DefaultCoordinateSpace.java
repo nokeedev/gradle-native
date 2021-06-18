@@ -3,7 +3,7 @@ package dev.nokee.runtime.core;
 import java.util.Iterator;
 import java.util.Set;
 
-public final class DefaultCoordinateSpace implements CoordinateSpace {
+final class DefaultCoordinateSpace implements CoordinateSpace {
 	private final Set<CoordinateTuple> coordinatesList;
 
 	DefaultCoordinateSpace(Set<CoordinateTuple> coordinatesList) {
