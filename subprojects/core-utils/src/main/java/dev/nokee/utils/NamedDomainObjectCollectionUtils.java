@@ -60,10 +60,9 @@ public final class NamedDomainObjectCollectionUtils {
 		return self.register(name);
 	}
 
-	public static <T> NamedDomainObjectProvider<T> registerIfAbsent(NamedDomainObjectContainer<T> self, String name, Action<? super T> action) {
+	public static <T, ACTION extends Action<T> & Assertable<T>> NamedDomainObjectProvider<T> registerIfAbsent(NamedDomainObjectContainer<T> self, String name, ACTION action) {
 		if (hasElementWithName(self, name)) {
-			// TODO: Wire in assertable
-			return self.named(name);
+			return Assertions.configure(self.named(name), action);
 		}
 
 		return self.register(name, action);
@@ -79,11 +78,10 @@ public final class NamedDomainObjectCollectionUtils {
 	}
 
 	// TODO: The action here should force to be assertable to make the contract clear that when you registerIfAbsent, the action should match the base configuration of the existing element
-	public static <U extends T, T> NamedDomainObjectProvider<U> registerIfAbsent(PolymorphicDomainObjectContainer<T> self, String name, Class<U> type, Action<? super U> action) {
+	public static <U extends T, T, ACTION extends Action<U> & Assertable<U>> NamedDomainObjectProvider<U> registerIfAbsent(PolymorphicDomainObjectContainer<T> self, String name, Class<U> type, ACTION action) {
 		if (hasElementWithName(self, name)) {
-			// TODO: Wire in assertable
 			// TODO: Assert type is correct one, be careful with Task and DefaultTask for TaskContainer
-			return self.named(name, type);
+			return Assertions.configure(self.named(name, type), action);
 		}
 
 		return self.register(name, type, action);

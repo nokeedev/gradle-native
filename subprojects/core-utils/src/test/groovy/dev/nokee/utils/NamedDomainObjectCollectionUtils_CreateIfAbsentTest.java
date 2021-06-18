@@ -14,6 +14,7 @@ import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactor
 import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
+import static dev.nokee.utils.Assertions.doNothingWhenPresent;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.createIfAbsent;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -152,7 +153,7 @@ class NamedDomainObjectCollectionUtils_CreateIfAbsentTest {
 		RegisterIfAbsent {
 			@Override
 			<T> T invoke(NamedDomainObjectContainer<T> self, String name, Action<? super T> action) {
-				return registerIfAbsent(self, name, action).get();
+				return registerIfAbsent(self, name, doNothingWhenPresent(action)).get();
 			}
 		};
 
