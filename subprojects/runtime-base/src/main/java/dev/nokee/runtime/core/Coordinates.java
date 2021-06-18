@@ -3,22 +3,23 @@ package dev.nokee.runtime.core;
 import com.google.common.collect.*;
 import com.google.common.reflect.TypeToken;
 import lombok.val;
+import org.gradle.api.attributes.Attribute;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.util.GUtil;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.function.*;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.google.common.collect.Iterables.getFirst;
+import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 public final class Coordinates {
 	@SuppressWarnings("UnstableApiUsage")
@@ -180,6 +181,40 @@ public final class Coordinates {
 				return Sets.immutableEnumSet(Characteristics.UNORDERED);
 			}
 		};
+	}
+
+	public static <T> Coordinate<T> of(T obj) {
+		if (obj instanceof Coordinate) {
+			return (Coordinate<T>) obj;
+		} else {
+			val axisFields = stream(obj.getClass().getFields())
+				.filter(isCoordinateAxisField().and(isConstantField())).collect(toList());
+
+			if (axisFields.size() > 1) {
+				throw new IllegalArgumentException(String.format("Multiple coordinate axis found in %s hierarchy. Please use Coordinate.of(CoordinateAxis, T) instead.", obj.getClass()));
+			}
+
+			val it = axisFields.iterator();
+			if (!it.hasNext()) {
+				throw new IllegalArgumentException(String.format("No coordinate axis found in %s hierarchy. Verify a CoordinateAxis constant is accessible in class hierarchy or use Coordinate.of(CoordinateAxis, T).", obj.getClass()));
+			}
+
+			val field = it.next();
+			try {
+				return Coordinate.of((CoordinateAxis<T>) field.get(null), obj);
+			} catch (IllegalAccessException e) {
+				throw new IllegalArgumentException(String.format("Coordinate axis %s is not accessible.", field), e);
+			}
+		}
+	}
+
+	private static Predicate<Field> isCoordinateAxisField() {
+		return field -> field.getType().isAssignableFrom(CoordinateAxis.class);
+	}
+
+	private static final int CONSTANT_FIELD_MODIFIERS = Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL;
+	private static Predicate<Field> isConstantField() {
+		return field -> (field.getModifiers() & CONSTANT_FIELD_MODIFIERS) == CONSTANT_FIELD_MODIFIERS;
 	}
 
 	// TODO: Provide equals implementation
