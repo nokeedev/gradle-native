@@ -49,6 +49,7 @@ import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import dev.nokee.runtime.nativebase.internal.RuntimeNativePlugin;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -150,6 +151,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply("base");
 		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
+		project.getPluginManager().apply(RuntimeNativePlugin.class);
 
 		val extension = registerExtension(project);
 		TaskRegistry taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
