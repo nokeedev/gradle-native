@@ -47,6 +47,15 @@ public final class ConfigurationUtils {
 	}
 
 	/**
+	 * Matches a declarable {@link Configuration} bucket.
+	 *
+	 * @return a configuration spec, never null
+	 */
+	public static SpecUtils.Spec<Configuration> declarable() {
+		return ConfigurationSpecs.DECLARABLE;
+	}
+
+	/**
 	 * Configures a {@link Configuration} as consumable configuration bucket, a.k.a. outgoing dependencies.
 	 * A consumable bucket has {@link Configuration#isCanBeConsumed() canBeConsumed} set to {@code true} and {@link Configuration#isCanBeResolved() canBeResolved} to {@code false}.
 	 *
@@ -54,6 +63,15 @@ public final class ConfigurationUtils {
 	 */
 	public static ConfigurationAction asConsumable() {
 		return ConfigurationActions.CONSUMABLE;
+	}
+
+	/**
+	 * Matches a declarable {@link Configuration} bucket.
+	 *
+	 * @return a configuration spec, never null
+	 */
+	public static SpecUtils.Spec<Configuration> consumable() {
+		return ConfigurationSpecs.CONSUMABLE;
 	}
 
 	/**
@@ -66,7 +84,38 @@ public final class ConfigurationUtils {
 		return ConfigurationActions.RESOLVABLE;
 	}
 
+	/**
+	 * Matches a declarable {@link Configuration} bucket.
+	 *
+	 * @return a configuration spec, never null
+	 */
+	public static SpecUtils.Spec<Configuration> resolvable() {
+		return ConfigurationSpecs.RESOLVABLE;
+	}
+
 	public interface ConfigurationAction extends ActionUtils.Action<Configuration>, Assertable<Configuration> {}
+
+	private enum ConfigurationSpecs implements SpecUtils.Spec<Configuration> {
+		DECLARABLE(ConfigurationBuckets.DECLARABLE),
+		CONSUMABLE(ConfigurationBuckets.CONSUMABLE),
+		RESOLVABLE(ConfigurationBuckets.RESOLVABLE);
+
+		private final ConfigurationBuckets bucket;
+
+		ConfigurationSpecs(ConfigurationBuckets bucket) {
+			this.bucket = bucket;
+		}
+
+		@Override
+		public boolean isSatisfiedBy(Configuration configuration) {
+			return bucket.isSatisfiedBy(configuration);
+		}
+
+		@Override
+		public String toString() {
+			return "ConfigurationUtils." + bucket.getConfigurationTypeName() + "()";
+		}
+	}
 
 	private enum ConfigurationActions implements ConfigurationAction {
 		DECLARABLE(ConfigurationBuckets.DECLARABLE),
