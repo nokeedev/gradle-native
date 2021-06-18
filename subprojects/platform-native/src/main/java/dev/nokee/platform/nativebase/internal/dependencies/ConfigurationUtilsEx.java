@@ -2,10 +2,11 @@ package dev.nokee.platform.nativebase.internal.dependencies;
 
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.runtime.base.internal.DefaultUsage;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.TargetBuildType;
+import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.utils.ActionUtils;
@@ -81,7 +82,7 @@ public class ConfigurationUtilsEx {
 					attributes.attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, objects.named(OperatingSystemFamily.class, ((DefaultOperatingSystemFamily) it).getName()));
 				} else if (it instanceof DefaultMachineArchitecture) {
 					attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture.class, ((DefaultMachineArchitecture) it).getName()));
-				} else if (it instanceof DefaultBinaryLinkage) {
+				} else if (it instanceof TargetLinkage) {
 					// Do not configure this dimension for incoming dependencies
 				} else if (it instanceof TargetBuildType) {
 					attributes.attribute(BuildType.BUILD_TYPE_ATTRIBUTE, BuildType.named(it.toString()));

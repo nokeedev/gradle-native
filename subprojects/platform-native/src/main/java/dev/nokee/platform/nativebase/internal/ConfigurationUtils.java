@@ -3,8 +3,10 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.TargetBuildType;
+import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.internal.*;
 import lombok.*;
 import org.gradle.api.Action;
@@ -201,8 +203,8 @@ public class ConfigurationUtils {
 					attributes.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, getObjects().named(OperatingSystemFamily.class, ((DefaultOperatingSystemFamily) it).getName()));
 				} else if (it instanceof DefaultMachineArchitecture) {
 					attributes.put(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, getObjects().named(MachineArchitecture.class, ((DefaultMachineArchitecture) it).getName()));
-				} else if (it instanceof DefaultBinaryLinkage) {
-					attributes.put(DefaultBinaryLinkage.LINKAGE_ATTRIBUTE, ((DefaultBinaryLinkage) it).getName());
+				} else if (it instanceof TargetLinkage) {
+					attributes.put(BinaryLinkage.BINARY_LINKAGE_ATTRIBUTE, BinaryLinkage.named(it.toString()));
 				} else if (it instanceof TargetBuildType) {
 					attributes.put(BuildType.BUILD_TYPE_ATTRIBUTE, BuildType.named(it.toString()));
 				} else {

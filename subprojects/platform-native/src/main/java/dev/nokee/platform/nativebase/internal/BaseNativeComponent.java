@@ -21,8 +21,8 @@ import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;
@@ -59,18 +59,18 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
 		final TargetMachine targetMachineInternal = buildVariant.getAxisValue(DefaultTargetMachine.TARGET_MACHINE_COORDINATE_AXIS);
 
-		if (buildVariant.hasAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
-			val linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
-			if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
+		if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
+			val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+			if (linkage.isExecutable()) {
 				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, variantIdentifier);
 				eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
-			} else if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
+			} else if (linkage.isShared()) {
 				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, variantIdentifier);
 				eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
-			} else if (linkage.equals(DefaultBinaryLinkage.BUNDLE)) {
+			} else if (linkage.isBundle()) {
 				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("bundle"), BundleBinaryInternal.class, variantIdentifier);
 				eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
-			} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
+			} else if (linkage.isStatic()) {
 				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("staticLibrary"), StaticLibraryBinaryInternal.class, variantIdentifier);
 				eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
 			}
@@ -80,9 +80,9 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 			val incomingDependencies = (NativeIncomingDependencies) it.getResolvableDependencies();
 			val objectSourceSets = new NativeLanguageRules(taskRegistry, objects, variantIdentifier).apply(sourceViewOf(this));
 			BaseNativeVariant variantInternal = (BaseNativeVariant)it;
-			if (buildVariant.hasAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
-				val linkage = buildVariant.getAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
-				if (linkage.equals(DefaultBinaryLinkage.EXECUTABLE)) {
+			if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
+				val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+				if (linkage.isExecutable()) {
 					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, variantIdentifier);
 
 					// Binary factory
@@ -91,7 +91,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, binary));
 
 					binary.getBaseName().convention(getBaseName());
-				} else if (linkage.equals(DefaultBinaryLinkage.SHARED)) {
+				} else if (linkage.isShared()) {
 					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, variantIdentifier);
 
 					// Binary factory
@@ -100,7 +100,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, binary));
 
 					binary.getBaseName().convention(getBaseName());
-				} else if (linkage.equals(DefaultBinaryLinkage.BUNDLE)) {
+				} else if (linkage.isBundle()) {
 					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("bundle"), BundleBinaryInternal.class, variantIdentifier);
 
 					// Binary factory
@@ -109,7 +109,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, binary));
 
 					binary.getBaseName().convention(getBaseName());
-				} else if (linkage.equals(DefaultBinaryLinkage.STATIC)) {
+				} else if (linkage.isStatic()) {
 					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("staticLibrary"), StaticLibraryBinaryInternal.class, variantIdentifier);
 
 					// Binary factory

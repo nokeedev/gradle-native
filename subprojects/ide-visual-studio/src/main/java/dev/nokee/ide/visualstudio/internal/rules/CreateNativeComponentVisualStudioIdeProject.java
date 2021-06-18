@@ -18,11 +18,11 @@ import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
-import dev.nokee.runtime.nativebase.TargetLinkage;
-import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
+import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ProviderUtils;
 import dev.nokee.utils.SpecUtils;
 import lombok.val;
@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.BuildType.DEFAULT;
 import static dev.nokee.utils.TransformerUtils.toListTransformer;
@@ -113,17 +114,17 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 
 	private class ToVisualStudioIdeTargets implements Transformer<Iterable<VisualStudioIdeTarget>, Variant> {
 		private final BaseComponent<?> component;
-		private final Set<TargetLinkage> allLinkages;
+		private final Set<BinaryLinkage> allLinkages;
 
 		ToVisualStudioIdeTargets(BaseComponent<?> component) {
 			this.component = component;
-			this.allLinkages = component.getBuildVariants().get().stream().map(it -> it.getAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)).collect(Collectors.toSet());
+			this.allLinkages = component.getBuildVariants().get().stream().map(it -> it.getAxisValue(BINARY_LINKAGE_COORDINATE_AXIS)).collect(Collectors.toSet());
 		}
 
 		@Override
 		public Iterable<VisualStudioIdeTarget> transform(Variant variant) {
 			// Ignore non-shared linkage variant when multiple linkage are available
-			if (allLinkages.size() > 1 && !variant.getBuildVariant().hasAxisOf(DefaultBinaryLinkage.SHARED)) {
+			if (allLinkages.size() > 1 && !variant.getBuildVariant().hasAxisOf(TargetLinkages.SHARED)) {
 				return Collections.emptyList();
 			}
 

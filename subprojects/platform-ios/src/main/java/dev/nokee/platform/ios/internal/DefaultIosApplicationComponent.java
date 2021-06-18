@@ -35,10 +35,11 @@ import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.Coordinates;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachineFactory;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
+import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.artifacts.Configuration;
@@ -88,7 +89,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.groupId = objects.property(GroupId.class);
 
-		getDimensions().add(CoordinateSet.of(DefaultBinaryLinkage.EXECUTABLE));
+		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetLinkages.EXECUTABLE)));
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetBuildTypes.named("Default"))));
 		getDimensions().add(CoordinateSet.of((Coordinate<TargetMachine>) DefaultTargetMachineFactory.INSTANCE.os("ios").getX86_64()));
 		this.taskRegistry = taskRegistry;

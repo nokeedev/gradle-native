@@ -10,11 +10,12 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier
 import dev.nokee.platform.base.internal.tasks.TaskName
 import dev.nokee.platform.base.internal.tasks.TaskRegistry
 import dev.nokee.platform.base.internal.variants.KnownVariant
-import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachineFactory
 import dev.nokee.platform.nativebase.internal.tasks.ExecutableLifecycleTask
 import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask
 import dev.nokee.platform.nativebase.internal.tasks.StaticLibraryLifecycleTask
+import dev.nokee.runtime.core.Coordinates
+import dev.nokee.runtime.nativebase.internal.DefaultTargetMachineFactory
+import dev.nokee.runtime.nativebase.internal.TargetLinkages
 import org.gradle.api.provider.Provider
 import spock.lang.Specification
 import spock.lang.Subject
@@ -61,7 +62,7 @@ class CreateNativeBinaryLifecycleTaskRuleTest extends Specification {
 		def subject = new CreateNativeBinaryLifecycleTaskRule(taskRegistry)
 
 		and:
-		def identifier = newIdentifier(DefaultBuildVariant.of(DefaultBinaryLinkage.SHARED))
+		def identifier = newIdentifier(DefaultBuildVariant.of(Coordinates.of(TargetLinkages.SHARED)))
 		def knownVariant = newSubject(identifier)
 
 		when:
@@ -76,7 +77,7 @@ class CreateNativeBinaryLifecycleTaskRuleTest extends Specification {
 		def taskRegistry = Mock(TaskRegistry)
 		def subject = new CreateNativeBinaryLifecycleTaskRule(taskRegistry)
 
-		def identifier = newIdentifier(DefaultBuildVariant.of(DefaultBinaryLinkage.STATIC))
+		def identifier = newIdentifier(DefaultBuildVariant.of(Coordinates.of(TargetLinkages.STATIC)))
 		def knownVariant = newSubject(identifier)
 
 		when:
@@ -92,7 +93,7 @@ class CreateNativeBinaryLifecycleTaskRuleTest extends Specification {
 		def subject = new CreateNativeBinaryLifecycleTaskRule(taskRegistry)
 
 		and:
-		def identifier = newIdentifier(DefaultBuildVariant.of(DefaultBinaryLinkage.EXECUTABLE))
+		def identifier = newIdentifier(DefaultBuildVariant.of(Coordinates.of(TargetLinkages.EXECUTABLE)))
 		def knownVariant = newSubject(identifier)
 
 		when:
@@ -122,7 +123,7 @@ class CreateNativeBinaryLifecycleTaskRuleTest extends Specification {
 		1 * value.map(ToDevelopmentBinaryTransformer.TO_DEVELOPMENT_BINARY) >> valueMapProvider // because provider don't have equals
 
 		where:
-		linkage << [DefaultBinaryLinkage.SHARED, DefaultBinaryLinkage.STATIC, DefaultBinaryLinkage.EXECUTABLE]
+		linkage << [TargetLinkages.SHARED, TargetLinkages.STATIC, TargetLinkages.EXECUTABLE]
 	}
 
 	def "throws exception for unknown linkage"() {
@@ -131,7 +132,7 @@ class CreateNativeBinaryLifecycleTaskRuleTest extends Specification {
 		def subject = new CreateNativeBinaryLifecycleTaskRule(taskRegistry)
 
 		and:
-		def identifier = newIdentifier(DefaultBuildVariant.of(new DefaultBinaryLinkage('foo')))
+		def identifier = newIdentifier(DefaultBuildVariant.of(Coordinates.of(TargetLinkages.BUNDLE)))
 		def value = Mock(Provider)
 		def knownVariant = newSubject(identifier, value)
 
@@ -140,7 +141,7 @@ class CreateNativeBinaryLifecycleTaskRuleTest extends Specification {
 
 		then:
 		def ex = thrown(IllegalArgumentException)
-		ex.message == "Unknown linkage 'foo'."
+		ex.message == "Unknown linkage 'bundle'."
 
 		and:
 		0 * taskRegistry._

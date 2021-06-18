@@ -1,6 +1,6 @@
 package dev.nokee.platform.nativebase.internal
 
-import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage
+import dev.nokee.runtime.nativebase.BinaryLinkage
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -25,15 +25,15 @@ class PreferSharedBinaryLinkageComparatorTest extends Specification {
 		subject.compare(getStatic(), getStatic()) == 0
 	}
 
-	private DefaultBinaryLinkage getShared() {
-		return DefaultBinaryLinkage.SHARED
+	private BinaryLinkage getShared() {
+		return BinaryLinkage.named(BinaryLinkage.SHARED)
 	}
 
-	private DefaultBinaryLinkage getStatic() {
-		return DefaultBinaryLinkage.STATIC
+	private BinaryLinkage getStatic() {
+		return BinaryLinkage.named(BinaryLinkage.STATIC)
 	}
 
-	private DefaultBinaryLinkage getNotSharedAndStatic() {
-		return new DefaultBinaryLinkage('some-linkage')
+	private BinaryLinkage getNotSharedAndStatic() {
+		return BinaryLinkage.named('some-linkage')
 	}
 }
