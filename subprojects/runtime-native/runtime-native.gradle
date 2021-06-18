@@ -1,15 +1,21 @@
 plugins {
-	id 'java-library'
+	id 'dev.gradleplugins.java-gradle-plugin'
 	id 'groovy-base'
 	id 'maven-publish'
+}
+
+gradlePlugin {
+	plugins {
+		runtimeNative {
+			id = 'dev.nokee.runtime-native'
+			implementationClass = 'dev.nokee.runtime.nativebase.internal.RuntimeNativePlugin'
+		}
+	}
 }
 
 dependencies {
 	api project(':runtimeBase')
 	implementation project(':coreExec')
-	compileOnly gradleApi(minimumGradleVersion)
-
-	testImplementation gradleApi(minimumGradleVersion)
 }
 
 publishing {

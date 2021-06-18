@@ -30,6 +30,7 @@ import dev.nokee.runtime.core.Coordinates;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.runtime.nativebase.internal.RuntimeNativePlugin;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -50,6 +51,7 @@ import static java.util.stream.Collectors.joining;
 public class NativeComponentBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
+		project.getPluginManager().apply(RuntimeNativePlugin.class);
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 	}
 
