@@ -23,8 +23,9 @@ import dev.nokee.platform.ios.internal.*;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
-import dev.nokee.platform.nativebase.internal.*;
-import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage;
+import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
+import dev.nokee.platform.nativebase.internal.OperatingSystemOperations;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
@@ -166,7 +167,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 
 		ToXcodeIdeTargets(BaseComponent<?> component) {
 			this.component = component;
-			this.hasMultipleLinkages = component.getBuildVariants().get().stream().map(buildVariant -> buildVariant.getAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)).distinct().count() > 1;
+			this.hasMultipleLinkages = component.getBuildVariants().get().stream().map(buildVariant -> buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)).distinct().count() > 1;
 		}
 
 		private OperatingSystemOperations operatingSystemOperations(BuildVariantInternal buildVariant) {
@@ -177,7 +178,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 		public Provider<List<XcodeIdeTarget>> transform(Set<? extends Variant> variants) {
 			val xcodeIdeTargets = new HashMap<String, XcodeIdeTarget>();
 			variants.stream().map(VariantInternal.class::cast).forEach(variantInternal -> {
-				val linkage = (DefaultBinaryLinkage) variantInternal.getBuildVariant().getAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+				val linkage = variantInternal.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 				val osOperations = operatingSystemOperations(variantInternal.getBuildVariant());
 				val target = xcodeIdeTargets.computeIfAbsent(targetName(component, linkage), createXcodeIdeTarget(osOperations, linkage));
 
@@ -413,7 +414,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 			});
 		}
 
-		private Function<String, XcodeIdeTarget> createXcodeIdeTarget(OperatingSystemOperations osOperations, DefaultBinaryLinkage linkage) {
+		private Function<String, XcodeIdeTarget> createXcodeIdeTarget(OperatingSystemOperations osOperations, BinaryLinkage linkage) {
 			return name -> {
 				val target = new DefaultXcodeIdeTarget(name, objectFactory);
 
@@ -439,7 +440,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 			};
 		}
 
-		private Transformer<String, String> toProductReference(OperatingSystemOperations osOperations, DefaultBinaryLinkage linkage) {
+		private Transformer<String, String> toProductReference(OperatingSystemOperations osOperations, BinaryLinkage linkage) {
 			return baseName -> {
 				if (linkage.isShared()) {
 					return osOperations.getSharedLibraryName(baseName);
@@ -452,7 +453,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 			};
 		}
 
-		private XcodeIdeProductType toProductType(DefaultBinaryLinkage linkage) {
+		private XcodeIdeProductType toProductType(BinaryLinkage linkage) {
 			if (linkage.isShared()) {
 				return XcodeIdeProductTypes.DYNAMIC_LIBRARY;
 			} else if (linkage.isStatic()) {
@@ -463,11 +464,11 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 			throw unsupportedLinkage(linkage);
 		}
 
-		private IllegalArgumentException unsupportedLinkage(DefaultBinaryLinkage linkage) {
+		private IllegalArgumentException unsupportedLinkage(BinaryLinkage linkage) {
 			return new IllegalArgumentException(String.format("Unsupported linkage '%s'.", linkage));
 		}
 
-		private String targetName(BaseComponent<?> component, DefaultBinaryLinkage linkage) {
+		private String targetName(BaseComponent<?> component, BinaryLinkage linkage) {
 			if (hasMultipleLinkages) {
 				return component.getBaseName().get() + StringUtils.capitalize(linkage.getName());
 			}

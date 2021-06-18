@@ -17,12 +17,14 @@ import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
-import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateSet;
+import dev.nokee.runtime.core.Coordinates;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ConfigureUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -72,7 +74,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 			.map(assertNonEmpty("target machine", identifier.getName().toString()))
 			.map(toSetTransformer(coordinateTypeOf(TargetMachine.class)).andThen(collect(toCoordinateSet()))));
 		// TODO: Missing build type dimension
-		getDimensions().add(CoordinateSet.of(DefaultBinaryLinkage.SHARED));
+		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetLinkages.SHARED)));
 
 		getBuildVariants().convention(getFinalSpace().map(DefaultBuildVariant::fromSpace));
 		getBuildVariants().finalizeValueOnRead();

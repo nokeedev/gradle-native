@@ -27,7 +27,7 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.Coordinates;
-import dev.nokee.runtime.nativebase.TargetLinkage;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -44,8 +44,8 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Predicates.not;
-import static dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage.*;
 import static dev.nokee.runtime.core.Coordinates.coordinateTypeOf;
+import static dev.nokee.runtime.nativebase.internal.TargetLinkages.*;
 import static dev.nokee.utils.TransformerUtils.collect;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 import static java.util.stream.Collectors.joining;
@@ -82,11 +82,11 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				projection.getDimensions().add(((TargetLinkageAwareComponent) component).getTargetLinkages()
 					.map(assertNonEmpty("target linkage", projection.getIdentifier().getName().toString()))
 					.map(assertSupportedValues(SHARED, STATIC))
-					.map(toSetTransformer(coordinateTypeOf(TargetLinkage.class)).andThen(collect(Coordinates.toCoordinateSet()))));
+					.map(toSetTransformer(coordinateTypeOf(BinaryLinkage.class)).andThen(collect(Coordinates.toCoordinateSet()))));
 			} else if (projection instanceof DefaultNativeApplicationComponent) {
-				projection.getDimensions().add(CoordinateSet.of(EXECUTABLE));
+				projection.getDimensions().add(CoordinateSet.of(Coordinates.of(EXECUTABLE)));
 			} else if (projection instanceof DefaultNativeLibraryComponent) {
-				projection.getDimensions().add(CoordinateSet.of(SHARED));
+				projection.getDimensions().add(CoordinateSet.of(Coordinates.of(SHARED)));
 			}
 
 			// Handle build type dimension

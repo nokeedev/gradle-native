@@ -5,9 +5,9 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
-import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import lombok.Getter;
 import org.gradle.api.Task;
@@ -22,6 +22,6 @@ public final class DefaultNativeTestSuiteVariant extends BaseNativeVariant imple
 		super(identifier, objects, providers, assembleTask, binaryViewFactory);
 		this.resolvableDependencies = variantDependencies.getIncoming();
 
-		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of((DefaultBinaryLinkage) getBuildVariant().getAxisValue(DefaultBinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
+		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 	}
 }

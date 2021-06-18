@@ -4,34 +4,31 @@ import dev.nokee.platform.base.Binary
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.SharedLibraryBinary
 import dev.nokee.platform.nativebase.StaticLibraryBinary
-import dev.nokee.runtime.nativebase.internal.DefaultBinaryLinkage
+import dev.nokee.runtime.nativebase.BinaryLinkage
 import dev.nokee.utils.ProviderUtils
 import spock.lang.Specification
 
-import static dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention.EXECUTABLE
-import static dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention.SHARED
-import static dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention.STATIC
-import static dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention.of
+import static dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention.*
 
 class NativeDevelopmentBinaryConventionTest extends Specification {
 	def "select EXECUTABLE convention on executable linkage"() {
 		expect:
-		of(DefaultBinaryLinkage.EXECUTABLE) == EXECUTABLE
+		of(BinaryLinkage.named(BinaryLinkage.EXECUTABLE)) == EXECUTABLE
 	}
 
 	def "select SHARED convention on shared linkage"() {
 		expect:
-		of(DefaultBinaryLinkage.SHARED) == SHARED
+		of(BinaryLinkage.named(BinaryLinkage.SHARED)) == SHARED
 	}
 
 	def "select STATIC convention on static linkage"() {
 		expect:
-		of(DefaultBinaryLinkage.STATIC) == STATIC
+		of(BinaryLinkage.named(BinaryLinkage.STATIC)) == STATIC
 	}
 
 	def "throws exception for unsupported linkage"() {
 		when:
-		of(DefaultBinaryLinkage.BUNDLE)
+		of(BinaryLinkage.named(BinaryLinkage.BUNDLE))
 
 		then:
 		def ex = thrown(IllegalArgumentException)
