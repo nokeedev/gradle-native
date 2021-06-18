@@ -3,6 +3,7 @@ package dev.nokee.platform.base.internal.dependencies;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.utils.ActionUtils;
+import dev.nokee.utils.ConfigurationUtils;
 import dev.nokee.utils.ProviderUtils;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -585,7 +586,7 @@ public final class ProjectConfigurationActions {
 	 * @return a configuration action, never null
 	 */
 	public static ActionUtils.Action<Configuration> asDeclarable() {
-		return ConfigurationBuckets.DECLARABLE;
+		return ConfigurationUtils.asDeclarable();
 	}
 
 	/**
@@ -594,7 +595,7 @@ public final class ProjectConfigurationActions {
 	 * @return a configuration action, never null
 	 */
 	public static ActionUtils.Action<Configuration> asConsumable() {
-		return ConfigurationBuckets.CONSUMABLE;
+		return ConfigurationUtils.asConsumable();
 	}
 
 	/**
@@ -603,42 +604,7 @@ public final class ProjectConfigurationActions {
 	 * @return a configuration action, never null
 	 */
 	public static ActionUtils.Action<Configuration> asResolvable() {
-		return ConfigurationBuckets.RESOLVABLE;
-	}
-
-	private enum ConfigurationBuckets implements AssertableConsumer<Configuration> {
-		DECLARABLE(false, false),
-		CONSUMABLE(true, false),
-		RESOLVABLE(false, true);
-
-		private final boolean canBeConsumed;
-		private final boolean canBeResolved;
-
-		ConfigurationBuckets(boolean canBeConsumed, boolean canBeResolved) {
-			this.canBeConsumed = canBeConsumed;
-			this.canBeResolved = canBeResolved;
-		}
-
-		private String getConfigurationTypeName() {
-			return name().toLowerCase(Locale.CANADA);
-		}
-
-		public void assertValue(Configuration configuration) {
-			if (configuration.isCanBeConsumed() != canBeConsumed || configuration.isCanBeResolved() != canBeResolved) {
-				throw new IllegalStateException(String.format("Cannot reuse existing configuration named '%s' as a %s configuration because it does not match the expected configuration (expecting: [canBeConsumed: %s, canBeResolved: %s], actual: [canBeConsumed: %s, canBeResolved: %s]).", configuration.getName(), getConfigurationTypeName(), canBeConsumed, canBeResolved, configuration.isCanBeConsumed(), configuration.isCanBeResolved()));
-			}
-		}
-
-		@Override
-		public void execute(Configuration configuration) {
-			configuration.setCanBeConsumed(canBeConsumed);
-			configuration.setCanBeResolved(canBeResolved);
-		}
-
-		@Override
-		public String toString() {
-			return "ProjectConfigurationUtils.as" + StringUtils.capitalize(getConfigurationTypeName()) + "()";
-		}
+		return ConfigurationUtils.asResolvable();
 	}
 
 	private static abstract class ConfigurationWithObjectFactoryConsumer implements AssertableConsumer<Configuration> {
