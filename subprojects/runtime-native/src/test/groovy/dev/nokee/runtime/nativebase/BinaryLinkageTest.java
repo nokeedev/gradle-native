@@ -50,18 +50,18 @@ class BinaryLinkageTest {
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEqualityAgainstObjectFactoryNamedInstance() {
 		new EqualsTester()
-			.addEqualityGroup((Object[]) equalityGroupFor(named(BinaryLinkage.STATIC)))
-			.addEqualityGroup((Object[]) equalityGroupFor(named(BinaryLinkage.SHARED)))
-			.addEqualityGroup((Object[]) equalityGroupFor(named(BinaryLinkage.BUNDLE)))
-			.addEqualityGroup((Object[]) equalityGroupFor(named(BinaryLinkage.EXECUTABLE)))
+			.addEqualityGroup((Object[]) equalityGroupFor(BinaryLinkage.STATIC))
+			.addEqualityGroup((Object[]) equalityGroupFor(BinaryLinkage.SHARED))
+			.addEqualityGroup((Object[]) equalityGroupFor(BinaryLinkage.BUNDLE))
+			.addEqualityGroup((Object[]) equalityGroupFor(BinaryLinkage.EXECUTABLE))
 			.testEquals();
 	}
 
-	private static BinaryLinkage[] equalityGroupFor(BinaryLinkage v) {
+	private static BinaryLinkage[] equalityGroupFor(String name) {
 		return new BinaryLinkage[] {
-			objectFactory().named(BinaryLinkage.class, v.getName()),
-			v,
-			objectFactory().named(BinaryLinkage.class, v.getName())
+			objectFactory().named(BinaryLinkage.class, name),
+			named(name),
+			objectFactory().named(BinaryLinkage.class, name)
 		};
 	}
 }

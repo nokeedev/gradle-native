@@ -5,7 +5,6 @@ import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.runtime.base.internal.DefaultUsage;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
-import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.utils.ActionUtils;
@@ -80,7 +79,7 @@ public class ConfigurationUtilsEx {
 					attributes.attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, objects.named(OperatingSystemFamily.class, ((DefaultOperatingSystemFamily) it).getName()));
 				} else if (it.getAxis().equals(MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS)) {
 					attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, (MachineArchitecture) it.getValue());
-				} else if (it instanceof TargetLinkage) {
+				} else if (it.getAxis().equals(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
 					// Do not configure this dimension for incoming dependencies
 				} else if (it.getAxis().equals(BuildType.BUILD_TYPE_COORDINATE_AXIS)) {
 					attributes.attribute(BuildType.BUILD_TYPE_ATTRIBUTE, (BuildType) it.getValue());

@@ -200,8 +200,8 @@ public class ConfigurationUtils {
 					attributes.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, getObjects().named(OperatingSystemFamily.class, ((DefaultOperatingSystemFamily) it).getName()));
 				} else if (it.getAxis().equals(MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS)) {
 					attributes.put(ARCHITECTURE_ATTRIBUTE, it.getValue());
-				} else if (it instanceof TargetLinkage) {
-					attributes.put(BinaryLinkage.BINARY_LINKAGE_ATTRIBUTE, BinaryLinkage.named(it.toString()));
+				} else if (it.getAxis().equals(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
+					attributes.put(BinaryLinkage.BINARY_LINKAGE_ATTRIBUTE, it.getValue());
 				} else if (it.getAxis().equals(BuildType.BUILD_TYPE_COORDINATE_AXIS)) {
 					attributes.put(BuildType.BUILD_TYPE_ATTRIBUTE, it.getValue());
 				} else {
