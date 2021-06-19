@@ -1,8 +1,9 @@
 package dev.nokee.runtime.nativebase.internal;
 
 import com.google.common.testing.EqualsTester;
-import dev.nokee.runtime.nativebase.CommonOperatingSystemFamilyTester;
+import dev.nokee.runtime.nativebase.KnownOperatingSystemFamilyTester;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
+import dev.nokee.runtime.nativebase.UnknownOperatingSystemFamilyTester;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.condition.OS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-class DefaultOperatingSystemFamilyTest implements CommonOperatingSystemFamilyTester {
+class DefaultOperatingSystemFamilyTest implements KnownOperatingSystemFamilyTester, UnknownOperatingSystemFamilyTester {
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void canCompareOperatingSystemFamilyInstance() {

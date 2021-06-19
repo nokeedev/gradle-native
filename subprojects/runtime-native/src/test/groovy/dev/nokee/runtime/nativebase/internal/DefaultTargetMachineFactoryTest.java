@@ -76,7 +76,7 @@ class DefaultTargetMachineFactoryTest {
 	}
 
 	@Nested
-	class CommonOperatingSystemFamilyTest implements CommonOperatingSystemFamilyTester {
+	class CommonOperatingSystemFamilyTest implements KnownOperatingSystemFamilyTester, UnknownOperatingSystemFamilyTester {
 		@Override
 		public OperatingSystemFamily createSubject(String name) {
 			return factory.os(name).getOperatingSystemFamily();
