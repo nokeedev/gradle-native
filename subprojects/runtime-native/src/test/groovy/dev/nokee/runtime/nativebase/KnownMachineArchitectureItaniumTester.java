@@ -5,6 +5,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -24,6 +25,6 @@ interface KnownMachineArchitectureItaniumTester {
 	@ParameterizedTest(name = "has canonical name [{arguments}]")
 	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonItaniumNames")
 	default void itaniumArchitectureHasCanonicalName(String name) {
-		assertThat(createSubject(name), named("Itanium"));
+		assertThat(createSubject(name).getCanonicalName(), equalTo("ia-64"));
 	}
 }

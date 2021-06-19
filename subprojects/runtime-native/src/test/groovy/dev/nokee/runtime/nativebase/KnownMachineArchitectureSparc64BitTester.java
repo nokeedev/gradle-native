@@ -5,6 +5,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -24,6 +25,6 @@ interface KnownMachineArchitectureSparc64BitTester {
 	@ParameterizedTest(name = "has canonical name [{arguments}]")
 	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonSparc64BitNames")
 	default void sparc64BitArchitectureHasCanonicalName(String name) {
-		assertThat(createSubject(name), named("Sparc64"));
+		assertThat(createSubject(name).getCanonicalName(), equalTo("sparc64"));
 	}
 }

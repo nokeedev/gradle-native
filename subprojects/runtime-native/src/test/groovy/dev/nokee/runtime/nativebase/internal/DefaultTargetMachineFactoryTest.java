@@ -18,9 +18,9 @@ class DefaultTargetMachineFactoryTest {
 	void defaultsToTheCurrentArchitecture() {
 		// TODO Improve when we test on other architectures
 		assertAll(
-			() -> assertThat(factory.getWindows().getArchitecture(), equalTo(DefaultMachineArchitecture.X86_64)),
-			() -> assertThat(factory.getLinux().getArchitecture(), equalTo(DefaultMachineArchitecture.X86_64)),
-			() -> assertThat(factory.getMacOS().getArchitecture(), equalTo(DefaultMachineArchitecture.X86_64))
+			() -> assertThat(factory.getWindows().getArchitecture().getCanonicalName(), equalTo(MachineArchitecture.X86_64)),
+			() -> assertThat(factory.getLinux().getArchitecture().getCanonicalName(), equalTo(MachineArchitecture.X86_64)),
+			() -> assertThat(factory.getMacOS().getArchitecture().getCanonicalName(), equalTo(MachineArchitecture.X86_64))
 		);
 	}
 
@@ -39,7 +39,7 @@ class DefaultTargetMachineFactoryTest {
 		new EqualsTester()
 			.addEqualityGroup(factory.getWindows(), factory.getWindows())
 			.addEqualityGroup(factory.getLinux())
-			.addEqualityGroup(factory.getMacOS(), new DefaultTargetMachine(DefaultOperatingSystemFamily.MACOS, DefaultMachineArchitecture.HOST))
+			.addEqualityGroup(factory.getMacOS(), new DefaultTargetMachine(DefaultOperatingSystemFamily.MACOS, MachineArchitecture.forName(System.getProperty("os.arch"))))
 			.testEquals();
 	}
 
@@ -64,7 +64,7 @@ class DefaultTargetMachineFactoryTest {
 	@Test
 	void defaultsToTheRightPreMadeInstances() {
 		// TODO Improve when we test on other architectures
-		assertThat(factory.host().getArchitecture(), equalTo(DefaultMachineArchitecture.X86_64));
+		assertThat(factory.host().getArchitecture().getCanonicalName(), equalTo(MachineArchitecture.X86_64));
 	}
 
 	@Nested

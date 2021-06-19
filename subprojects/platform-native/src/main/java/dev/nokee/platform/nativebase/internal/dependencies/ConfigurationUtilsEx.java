@@ -7,7 +7,7 @@ import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetLinkage;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
+import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.utils.ActionUtils;
 import lombok.val;
@@ -16,7 +16,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.language.cpp.CppBinary;
-import org.gradle.nativeplatform.MachineArchitecture;
 import org.gradle.nativeplatform.OperatingSystemFamily;
 
 import java.util.Arrays;
@@ -80,8 +79,8 @@ public class ConfigurationUtilsEx {
 			variant.getDimensions().forEach(it -> {
 				if (it instanceof DefaultOperatingSystemFamily) {
 					attributes.attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, objects.named(OperatingSystemFamily.class, ((DefaultOperatingSystemFamily) it).getName()));
-				} else if (it instanceof DefaultMachineArchitecture) {
-					attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture.class, ((DefaultMachineArchitecture) it).getName()));
+				} else if (it.getAxis().equals(MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS)) {
+					attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, (MachineArchitecture) it.getValue());
 				} else if (it instanceof TargetLinkage) {
 					// Do not configure this dimension for incoming dependencies
 				} else if (it instanceof TargetBuildType) {

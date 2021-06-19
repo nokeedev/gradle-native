@@ -8,9 +8,9 @@ import dev.nokee.runtime.base.internal.repositories.GradleModuleMetadata;
 import dev.nokee.runtime.base.internal.tools.CommandLineToolDescriptor;
 import dev.nokee.runtime.base.internal.tools.ToolRepository;
 import dev.nokee.runtime.darwin.internal.parsers.XcodebuildParsers;
+import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import org.gradle.api.attributes.Usage;
-import org.gradle.nativeplatform.MachineArchitecture;
 import org.gradle.nativeplatform.OperatingSystemFamily;
 
 import javax.inject.Inject;

@@ -3,7 +3,6 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
@@ -17,7 +16,7 @@ public class NativePlatformFactory {
 	}
 
 	private static String architecturePlatformNameFor(MachineArchitecture architecture) {
-		return ((DefaultMachineArchitecture)architecture).getName();
+		return architecture.getCanonicalName();
 	}
 
 	private static String operatingSystemPlatformNameFor(OperatingSystemFamily operatingSystemFamily) {
@@ -32,6 +31,6 @@ public class NativePlatformFactory {
 	}
 
 	public static String platformNameFor(OperatingSystemFamily osFamily, MachineArchitecture architecture) {
-		return ((DefaultOperatingSystemFamily)osFamily).getName() + ((DefaultMachineArchitecture)architecture).getName();
+		return ((DefaultOperatingSystemFamily)osFamily).getName() + architecture.getCanonicalName();
 	}
 }

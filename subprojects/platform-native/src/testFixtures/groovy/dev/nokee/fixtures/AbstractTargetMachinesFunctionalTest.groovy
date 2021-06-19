@@ -4,7 +4,7 @@ import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture
+import dev.nokee.runtime.nativebase.MachineArchitecture
 import org.gradle.nativeplatform.OperatingSystemFamily
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin
@@ -138,9 +138,9 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 		buildFile << configureTargetMachines("machines.${currentHostOperatingSystemFamilyDsl}.x86", "machines.${currentHostOperatingSystemFamilyDsl}.x86_64")
 
 		expect:
-		succeeds getTaskNameToAssembleDevelopmentBinaryWithArchitecture(DefaultMachineArchitecture.X86.name), getTaskNameToAssembleDevelopmentBinaryWithArchitecture(DefaultMachineArchitecture.X86_64.name)
-		assertComponentUnderTestWasBuilt(DefaultMachineArchitecture.X86.name)
-		assertComponentUnderTestWasBuilt(DefaultMachineArchitecture.X86_64.name)
+		succeeds getTaskNameToAssembleDevelopmentBinaryWithArchitecture(MachineArchitecture.X86), getTaskNameToAssembleDevelopmentBinaryWithArchitecture(MachineArchitecture.X86_64)
+		assertComponentUnderTestWasBuilt(MachineArchitecture.X86)
+		assertComponentUnderTestWasBuilt(MachineArchitecture.X86_64)
 	}
 
 	def "fails when no target architecture can be built"() {

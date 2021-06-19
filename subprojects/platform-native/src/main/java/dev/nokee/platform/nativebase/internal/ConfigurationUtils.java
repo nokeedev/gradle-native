@@ -3,10 +3,7 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.runtime.nativebase.BinaryLinkage;
-import dev.nokee.runtime.nativebase.BuildType;
-import dev.nokee.runtime.nativebase.TargetBuildType;
-import dev.nokee.runtime.nativebase.TargetLinkage;
+import dev.nokee.runtime.nativebase.*;
 import dev.nokee.runtime.nativebase.internal.*;
 import lombok.*;
 import org.gradle.api.Action;
@@ -17,7 +14,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.internal.Cast;
 import org.gradle.language.cpp.CppBinary;
 import org.gradle.nativeplatform.Linkage;
-import org.gradle.nativeplatform.MachineArchitecture;
 import org.gradle.nativeplatform.OperatingSystemFamily;
 
 import javax.inject.Inject;
@@ -27,6 +23,7 @@ import java.util.function.Consumer;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static dev.nokee.platform.nativebase.internal.ConfigurationUtils.ConfigurationSpec.Type.*;
+import static dev.nokee.runtime.nativebase.MachineArchitecture.ARCHITECTURE_ATTRIBUTE;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
@@ -176,7 +173,7 @@ public class ConfigurationUtils {
 				spec.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 					.putAll(spec.attributes)
 					.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, getObjects().named(OperatingSystemFamily.class, targetMachine.getOperatingSystemFamily().getName()))
-					.put(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, getObjects().named(MachineArchitecture.class, targetMachine.getArchitecture().getName()))
+					.put(ARCHITECTURE_ATTRIBUTE, targetMachine.getArchitecture())
 					.build()));
 		}
 
@@ -201,8 +198,8 @@ public class ConfigurationUtils {
 			variant.getDimensions().forEach(it -> {
 				if (it instanceof DefaultOperatingSystemFamily) {
 					attributes.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, getObjects().named(OperatingSystemFamily.class, ((DefaultOperatingSystemFamily) it).getName()));
-				} else if (it instanceof DefaultMachineArchitecture) {
-					attributes.put(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, getObjects().named(MachineArchitecture.class, ((DefaultMachineArchitecture) it).getName()));
+				} else if (it.getAxis().equals(MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS)) {
+					attributes.put(ARCHITECTURE_ATTRIBUTE, it.getValue());
 				} else if (it instanceof TargetLinkage) {
 					attributes.put(BinaryLinkage.BINARY_LINKAGE_ATTRIBUTE, BinaryLinkage.named(it.toString()));
 				} else if (it instanceof TargetBuildType) {
@@ -328,7 +325,7 @@ public class ConfigurationUtils {
 				spec.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 					.putAll(spec.attributes)
 					.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, getObjects().named(OperatingSystemFamily.class, targetMachine.getOperatingSystemFamily().getName()))
-					.put(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, getObjects().named(MachineArchitecture.class, targetMachine.getArchitecture().getName()))
+					.put(ARCHITECTURE_ATTRIBUTE, targetMachine.getArchitecture())
 					.build()));
 		}
 	}

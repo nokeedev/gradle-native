@@ -1,6 +1,6 @@
 package dev.nokee.platform.nativebase.internal
 
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture
+import dev.nokee.runtime.nativebase.MachineArchitecture
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -25,16 +25,16 @@ class PreferHostMachineArchitectureComparatorTest extends Specification {
 		subject.compare(someOtherArchitecture, someOtherArchitecture) == 0
 	}
 
-	private DefaultMachineArchitecture getHost() {
-		return DefaultMachineArchitecture.HOST
+	private MachineArchitecture getHost() {
+		return MachineArchitecture.forName(System.getProperty('os.arch'))
 	}
 
-	private DefaultMachineArchitecture getNotHost() {
-		assert DefaultMachineArchitecture.X86 != DefaultMachineArchitecture.HOST
-		return DefaultMachineArchitecture.X86
+	private MachineArchitecture getNotHost() {
+		assert MachineArchitecture.X86 != MachineArchitecture.forName(System.getProperty('os.arch')).canonicalName
+		return MachineArchitecture.forName(MachineArchitecture.X86);
 	}
 
-	private DefaultMachineArchitecture getSomeOtherArchitecture() {
-		return new DefaultMachineArchitecture.UnknownMachineArchitecture('some-other-architecture')
+	private MachineArchitecture getSomeOtherArchitecture() {
+		return MachineArchitecture.forName('some-other-architecture')
 	}
 }
