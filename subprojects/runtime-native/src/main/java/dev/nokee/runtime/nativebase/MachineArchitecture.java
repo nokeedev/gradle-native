@@ -15,17 +15,27 @@ import java.util.Objects;
  * @since 0.1
  */
 public abstract class MachineArchitecture implements Named, dev.nokee.platform.nativebase.MachineArchitecture {
+	/**
+	 * The architecture attribute for dependency resolution.
+	 * @since 0.5
+	 */
 	public static final Attribute<MachineArchitecture> ARCHITECTURE_ATTRIBUTE = Attribute.of("dev.nokee.architecture", MachineArchitecture.class);
 
+	/**
+	 * The architecture coordinate axis for variant calculation.
+	 * @since 0.5
+	 */
 	public static final CoordinateAxis<MachineArchitecture> ARCHITECTURE_COORDINATE_AXIS = CoordinateAxis.of(MachineArchitecture.class, "machine-architecture");
 
 	/**
 	 * The intel x86 32-bit architecture canonical name.
+	 * @since 0.5
 	 */
 	public static final String X86 = "x86";
 
 	/**
 	 * The intel x86 64-bit architecture canonical name.
+	 * @since 0.5
 	 */
 	public static final String X86_64 = "x86-64";
 
