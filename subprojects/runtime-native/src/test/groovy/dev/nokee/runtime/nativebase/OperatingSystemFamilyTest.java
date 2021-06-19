@@ -19,6 +19,11 @@ class OperatingSystemFamilyTest {
 		public OperatingSystemFamily createSubject(String name) {
 			return objectFactory().named(OperatingSystemFamily.class, name);
 		}
+
+		@Override
+		public Stream<String> knownValues() {
+			return knownOperatingSystemFamilies();
+		}
 	}
 
 	@Nested
@@ -27,6 +32,23 @@ class OperatingSystemFamilyTest {
 		public OperatingSystemFamily createSubject(String name) {
 			return forName(name);
 		}
+
+		@Override
+		public Stream<String> knownValues() {
+			return knownOperatingSystemFamilies();
+		}
+	}
+
+	private static Stream<String> knownOperatingSystemFamilies() {
+		return Streams.concat(
+			OperatingSystemFamilyTestUtils.commonFreeBSDNames(),
+			OperatingSystemFamilyTestUtils.commonHPUXNames(),
+			OperatingSystemFamilyTestUtils.commonIosNames(),
+			OperatingSystemFamilyTestUtils.commonLinuxNames(),
+			OperatingSystemFamilyTestUtils.commonMacOSNames(),
+			OperatingSystemFamilyTestUtils.commonSolarisNames(),
+			OperatingSystemFamilyTestUtils.commonWindowsNames()
+		);
 	}
 
 	@Test

@@ -1,9 +1,11 @@
 package dev.nokee.runtime.nativebase;
 
-
+import com.google.common.collect.Streams;
 import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.util.stream.Stream;
 
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.runtime.nativebase.MachineArchitecture.forName;
@@ -17,6 +19,11 @@ class MachineArchitectureTest {
 		public MachineArchitecture createSubject(String name) {
 			return objectFactory().named(MachineArchitecture.class, name);
 		}
+
+		@Override
+		public Stream<String> knownValues() {
+			return knownMachineArchitectures();
+		}
 	}
 
 	@Nested
@@ -25,6 +32,24 @@ class MachineArchitectureTest {
 		public MachineArchitecture createSubject(String name) {
 			return forName(name);
 		}
+
+		@Override
+		public Stream<String> knownValues() {
+			return knownMachineArchitectures();
+		}
+	}
+
+	private static Stream<String> knownMachineArchitectures() {
+		return Streams.concat(
+			MachineArchitectureTestUtils.commonHPPARISCNames(),
+			MachineArchitectureTestUtils.commonIntel32BitNames(),
+			MachineArchitectureTestUtils.commonIntel64BitNames(),
+			MachineArchitectureTestUtils.commonItaniumNames(),
+			MachineArchitectureTestUtils.commonPowerPC32BitNames(),
+			MachineArchitectureTestUtils.commonPowerPC64BitNames(),
+			MachineArchitectureTestUtils.commonSparc32BitNames(),
+			MachineArchitectureTestUtils.commonSparc64BitNames()
+		);
 	}
 
 	@Test
