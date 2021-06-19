@@ -4,6 +4,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -23,5 +24,11 @@ interface KnownOperatingSystemFamilySolarisTester {
 			() -> assertThat("HP-UX family", createSubject(name).isHewlettPackardUnix(), is(false)),
 			() -> assertThat("solaris family", createSubject(name).isSolaris(), is(true))
 		);
+	}
+
+	@ParameterizedTest(name = "has canonical name [{arguments}]")
+	@MethodSource("dev.nokee.runtime.nativebase.OperatingSystemFamilyTestUtils#commonSolarisNames")
+	default void solarisArchitectureHasCanonicalName(String name) {
+		assertThat(createSubject(name).getCanonicalName(), equalTo("solaris"));
 	}
 }

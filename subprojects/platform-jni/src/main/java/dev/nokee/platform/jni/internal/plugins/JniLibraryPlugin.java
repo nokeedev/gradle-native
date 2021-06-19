@@ -45,8 +45,8 @@ import dev.nokee.platform.nativebase.internal.tasks.ObjectsLifecycleTask;
 import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
+import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.runtime.nativebase.internal.RuntimeNativePlugin;
 import lombok.AccessLevel;
@@ -402,7 +402,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				//    - Single variant where no toolchain is found to build the binary (unbuildable) => fail
 				//    - Single variant where toolchain is found to build the binary (buildable) => build (and hopefully succeed)
 				if (task.getName().equals("jar")) {
-					if (it.getTargetMachine().getOperatingSystemFamily().equals(DefaultOperatingSystemFamily.HOST)) {
+					if (it.getTargetMachine().getOperatingSystemFamily().equals(OperatingSystemFamily.forName(System.getProperty("os.name")))) {
 						return it.getNativeRuntimeFiles();
 					} else {
 						runnableLogger.run();
@@ -431,7 +431,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	private void assertTargetMachinesAreKnown(Collection<TargetMachine> targetMachines) {
 		List<TargetMachine> unknownTargetMachines = targetMachines.stream().filter(it -> !toolChainSelectorInternal.isKnown(it)).collect(Collectors.toList());
 		if (!unknownTargetMachines.isEmpty()) {
-			throw new IllegalArgumentException("The following target machines are not know by the defined tool chains:\n" + unknownTargetMachines.stream().map(it -> " * " + ((DefaultOperatingSystemFamily)it.getOperatingSystemFamily()).getName() + " " + it.getArchitecture().getCanonicalName()).collect(joining("\n")));
+			throw new IllegalArgumentException("The following target machines are not know by the defined tool chains:\n" + unknownTargetMachines.stream().map(it -> " * " + it.getOperatingSystemFamily().getCanonicalName() + " " + it.getArchitecture().getCanonicalName()).collect(joining("\n")));
 		}
 	}
 

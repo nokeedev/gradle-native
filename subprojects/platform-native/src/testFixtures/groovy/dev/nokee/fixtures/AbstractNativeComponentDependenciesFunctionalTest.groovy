@@ -2,7 +2,6 @@ package dev.nokee.fixtures
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.nokee.language.NativeProjectTasks
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily
 import org.gradle.nativeplatform.OperatingSystemFamily
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin
@@ -64,11 +63,11 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 		given:
 		makeComponentWithLibrary()
 		buildFile << configureToolChainSupport('foo') << """
-			import ${DefaultOperatingSystemFamily.canonicalName}
+			import ${OperatingSystemFamily.canonicalName}
 
 			${componentUnderTestDsl} {
 				targetMachines = [machines.${currentHostOperatingSystemFamilyDsl}, machines.os('foo')]
-				variants.configureEach({it.buildVariant.getAxisValue(${DefaultOperatingSystemFamily.simpleName}.OPERATING_SYSTEM_FAMILY_COORDINATE_AXIS).${currentHostOperatingSystemFamilyDsl}}) {
+				variants.configureEach({it.buildVariant.getAxisValue(${OperatingSystemFamily.simpleName}.OPERATING_SYSTEM_COORDINATE_AXIS).${currentHostOperatingSystemFamilyDsl}}) {
 					dependencies {
 						${implementationBucketNameUnderTest} ${dependencyNotation}
 					}

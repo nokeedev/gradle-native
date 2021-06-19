@@ -1,6 +1,6 @@
 package dev.nokee.platform.nativebase.internal
 
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily
+import dev.nokee.runtime.nativebase.OperatingSystemFamily
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -25,15 +25,15 @@ class PreferHostOperatingSystemFamilyComparatorTest extends Specification {
 		subject.compare(someOtherFamily, someOtherFamily) == 0
 	}
 
-	private DefaultOperatingSystemFamily getHost() {
-		return DefaultOperatingSystemFamily.HOST
+	private OperatingSystemFamily getHost() {
+		return OperatingSystemFamily.forName(System.getProperty("os.name"))
 	}
 
-	private DefaultOperatingSystemFamily getNotHost() {
-		return new DefaultOperatingSystemFamily('not-host')
+	private OperatingSystemFamily getNotHost() {
+		return OperatingSystemFamily.forName('not-host')
 	}
 
-	private DefaultOperatingSystemFamily getSomeOtherFamily() {
-		return new DefaultOperatingSystemFamily('some-other-family')
+	private OperatingSystemFamily getSomeOtherFamily() {
+		return OperatingSystemFamily.forName('some-other-family')
 	}
 }

@@ -6,7 +6,7 @@ import dev.nokee.runtime.base.internal.DefaultUsage;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.Action;
@@ -14,7 +14,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.language.cpp.CppBinary;
-import org.gradle.nativeplatform.OperatingSystemFamily;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -75,8 +74,8 @@ public class ConfigurationUtilsEx {
 		return configuration -> {
 			val attributes = configuration.getAttributes();
 			variant.getDimensions().forEach(it -> {
-				if (it instanceof DefaultOperatingSystemFamily) {
-					attributes.attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, objects.named(OperatingSystemFamily.class, ((DefaultOperatingSystemFamily) it).getName()));
+				if (it.getAxis().equals(OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS)) {
+					attributes.attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, (OperatingSystemFamily) it.getValue());
 				} else if (it.getAxis().equals(MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS)) {
 					attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, (MachineArchitecture) it.getValue());
 				} else if (it.getAxis().equals(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {

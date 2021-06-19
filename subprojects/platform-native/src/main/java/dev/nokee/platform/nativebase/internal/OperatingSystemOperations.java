@@ -1,7 +1,6 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import org.gradle.internal.os.OperatingSystem;
 
 public class OperatingSystemOperations {
@@ -12,7 +11,7 @@ public class OperatingSystemOperations {
 	}
 
 	public static OperatingSystemOperations ofHost() {
-		return of(DefaultOperatingSystemFamily.HOST);
+		return of(OperatingSystemFamily.forName(System.getProperty("os.name")));
 	}
 
 	public static OperatingSystemOperations of(OperatingSystemFamily osFamily) {

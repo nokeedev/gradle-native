@@ -7,7 +7,7 @@ import dev.nokee.language.MixedLanguageTaskNames
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import dev.nokee.platform.nativebase.SharedLibraryBinary
 import dev.nokee.runtime.nativebase.MachineArchitecture
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily
+import dev.nokee.runtime.nativebase.OperatingSystemFamily
 
 class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunctionalTest implements MixedLanguageTaskNames {
 	@Override
@@ -117,7 +117,7 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
             task verifyBinariesPlatformType {
                 doLast {
                     ${componentUnderTestDsl}.variants.elements.get().each {
-                        assert it.targetMachine.operatingSystemFamily == ${DefaultOperatingSystemFamily.canonicalName}.forName('${currentOsFamilyName}')
+                        assert it.targetMachine.operatingSystemFamily == ${OperatingSystemFamily.canonicalName}.forName('${currentOsFamilyName}')
                         assert it.targetMachine.architecture == ${MachineArchitecture.canonicalName}.forName('${currentArchitecture}')
                     }
                 }

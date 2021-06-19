@@ -27,9 +27,6 @@ import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.OperatingSystemOperations;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
-import dev.nokee.runtime.nativebase.TargetBuildType;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
-import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.testing.xctest.internal.BaseXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
@@ -63,6 +60,7 @@ import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
+import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 
 public final class CreateNativeComponentXcodeIdeProject implements Action<KnownDomainObject<? extends BaseComponent<?>>> {
 	private final XcodeIdeProjectExtension extension;
@@ -171,7 +169,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 		}
 
 		private OperatingSystemOperations operatingSystemOperations(BuildVariantInternal buildVariant) {
-			return OperatingSystemOperations.of(buildVariant.getAxisValue(DefaultOperatingSystemFamily.OPERATING_SYSTEM_FAMILY_COORDINATE_AXIS));
+			return OperatingSystemOperations.of(buildVariant.getAxisValue(OPERATING_SYSTEM_COORDINATE_AXIS));
 		}
 
 		@Override
