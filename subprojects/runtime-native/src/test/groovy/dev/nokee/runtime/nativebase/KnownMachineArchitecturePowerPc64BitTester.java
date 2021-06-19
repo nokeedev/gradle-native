@@ -8,13 +8,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-/** @see dev.nokee.runtime.nativebase.CommonMachineArchitectureTester */
-interface MachineArchitectureIntel64BitTester {
+/** @see KnownMachineArchitectureTester */
+interface KnownMachineArchitecturePowerPc64BitTester {
 	MachineArchitecture createSubject(String name);
 
 	@ParameterizedTest(name = "has 64-bit pointer size [{arguments}]")
-	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonIntel64BitNames")
-	default void intel64BitArchitectureHas64BitPointerSize(String name) {
+	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonPowerPC64BitNames")
+	default void powerPC64BitArchitectureHas64BitPointerSize(String name) {
 		assertAll(
 			() -> assertThat(createSubject(name).is32Bit(), is(false)),
 			() -> assertThat(createSubject(name).is64Bit(), is(true))
@@ -22,8 +22,8 @@ interface MachineArchitectureIntel64BitTester {
 	}
 
 	@ParameterizedTest(name = "has canonical name [{arguments}]")
-	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonIntel64BitNames")
-	default void intel64BitArchitectureHasCanonicalName(String name) {
-		assertThat(createSubject(name), named("x86-64"));
+	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonPowerPC64BitNames")
+	default void powerPC64BitArchitectureHasCanonicalName(String name) {
+		assertThat(createSubject(name), named("PowerPC64"));
 	}
 }

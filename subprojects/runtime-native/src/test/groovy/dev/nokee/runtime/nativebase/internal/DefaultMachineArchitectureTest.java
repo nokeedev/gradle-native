@@ -1,14 +1,15 @@
 package dev.nokee.runtime.nativebase.internal;
 
-import dev.nokee.runtime.nativebase.CommonMachineArchitectureTester;
+import dev.nokee.runtime.nativebase.KnownMachineArchitectureTester;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
+import dev.nokee.runtime.nativebase.UnknownMachineArchitectureTester;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 
-class DefaultMachineArchitectureTest implements CommonMachineArchitectureTester {
+class DefaultMachineArchitectureTest implements KnownMachineArchitectureTester, UnknownMachineArchitectureTester {
 	@Test
 	void canCompareMachineArchitectureInstance() {
 		assertThat(DefaultMachineArchitecture.X86, equalTo(DefaultMachineArchitecture.X86));

@@ -1,10 +1,7 @@
 package dev.nokee.runtime.nativebase.internal;
 
 import com.google.common.testing.EqualsTester;
-import dev.nokee.runtime.nativebase.CommonMachineArchitectureTester;
-import dev.nokee.runtime.nativebase.CommonOperatingSystemFamilyTester;
-import dev.nokee.runtime.nativebase.MachineArchitecture;
-import dev.nokee.runtime.nativebase.OperatingSystemFamily;
+import dev.nokee.runtime.nativebase.*;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -71,7 +68,7 @@ class DefaultTargetMachineFactoryTest {
 	}
 
 	@Nested
-	class CommonMachineArchitectureTest implements CommonMachineArchitectureTester {
+	class CommonMachineArchitectureTest implements KnownMachineArchitectureTester, UnknownMachineArchitectureTester {
 		@Override
 		public MachineArchitecture createSubject(String name) {
 			return factory.os("some-os").architecture(name).getArchitecture();
