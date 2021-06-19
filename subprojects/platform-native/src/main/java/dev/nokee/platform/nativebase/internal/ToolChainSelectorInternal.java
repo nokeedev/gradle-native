@@ -1,8 +1,8 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.runtime.nativebase.MachineArchitecture;
+import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import lombok.val;
 import org.apache.commons.lang3.SystemUtils;
 import org.gradle.internal.os.OperatingSystem;
@@ -64,7 +64,7 @@ public class ToolChainSelectorInternal {
 		NativePlatformInternal targetPlatform = nativePlatformFactory.create(targetMachine);
 		// HACK(daniel): Supa hacka! The way native platform match with the toolchain for Swift is a bit special.
 		//  By using the "host" platform we can have the Swift toolchain selection happen. ;-)
-		if (targetMachine.getOperatingSystemFamily().equals(DefaultOperatingSystemFamily.IOS)) {
+		if (targetMachine.getOperatingSystemFamily().getCanonicalName().equals(OperatingSystemFamily.IOS)) {
 			targetPlatform = DefaultNativePlatform.host();
 		}
 		NativeToolChainRegistryInternal registry = modelRegistry.realize("toolChains", NativeToolChainRegistryInternal.class);
@@ -172,7 +172,7 @@ public class ToolChainSelectorInternal {
 		public boolean canBuild(TargetMachine targetMachine) {
 			// Shortcut, we need to model target host for the tool chain and their target platform
 			//    We assume the same host should always be buildable and supported
-			if (DefaultNativePlatform.getCurrentOperatingSystem().toFamilyName().equals(((DefaultOperatingSystemFamily)targetMachine.getOperatingSystemFamily()).getName())) {
+			if (DefaultNativePlatform.getCurrentOperatingSystem().toFamilyName().equals(targetMachine.getOperatingSystemFamily().getCanonicalName())) {
 				return true;
 			}
 			return false;

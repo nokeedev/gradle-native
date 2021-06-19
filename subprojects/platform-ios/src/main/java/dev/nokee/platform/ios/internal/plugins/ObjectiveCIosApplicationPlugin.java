@@ -23,7 +23,7 @@ import dev.nokee.platform.ios.ObjectiveCIosApplicationSources;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -76,7 +76,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		@Mutate
 		public void configureToolchain(NativeToolChainRegistry toolchains) {
 			toolchains.withType(Clang.class, toolchain -> {
-				toolchain.target(platformNameFor(DefaultOperatingSystemFamily.IOS, MachineArchitecture.forName(MachineArchitecture.X86_64)), platform -> {
+				toolchain.target(platformNameFor(OperatingSystemFamily.forName(OperatingSystemFamily.IOS), MachineArchitecture.forName(MachineArchitecture.X86_64)), platform -> {
 					// Although this should be correct, clearing the args to remove the -m64 (which is not technically, exactly, required in this instance) and adding the target with the correct sysroot...
 					// Gradle forcefully append the macOS SDK sysroot to the configured args.
 					// The sysroot used is the macOS not the iPhoneSimulator.

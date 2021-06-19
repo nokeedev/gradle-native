@@ -4,6 +4,7 @@ import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateAxis;
 import dev.nokee.runtime.core.CoordinateTuple;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
+import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -19,24 +20,27 @@ import java.util.stream.Stream;
 @AllArgsConstructor()
 public class DefaultTargetMachine implements TargetMachine, Coordinate<TargetMachine>, CoordinateTuple {
 	public static CoordinateAxis<TargetMachine> TARGET_MACHINE_COORDINATE_AXIS = CoordinateAxis.of(TargetMachine.class);
-	private static final MachineArchitecture HOST = MachineArchitecture.forName(System.getProperty("os.arch"));
-	@NonNull DefaultOperatingSystemFamily operatingSystemFamily;
+	private static final MachineArchitecture HOST_ARCH = MachineArchitecture.forName(System.getProperty("os.arch"));
+	private static final OperatingSystemFamily HOST_OS = OperatingSystemFamily.forName(System.getProperty("os.name"));
+	@NonNull OperatingSystemFamily operatingSystemFamily;
 	@NonNull MachineArchitecture architecture;
 	private final Coordinate<MachineArchitecture> architectureCoordinate;
+	private final Coordinate<OperatingSystemFamily> operatingSystemCoordinate;
 
-	DefaultTargetMachine(DefaultOperatingSystemFamily operatingSystemFamily, MachineArchitecture architecture) {
+	DefaultTargetMachine(OperatingSystemFamily operatingSystemFamily, MachineArchitecture architecture) {
 		this.operatingSystemFamily = operatingSystemFamily;
 		this.architecture = architecture;
 		this.architectureCoordinate = Coordinate.of(MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS, architecture);
+		this.operatingSystemCoordinate = Coordinate.of(OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS, operatingSystemFamily);
 	}
 
 	public static Predicate<TargetMachine> isTargetingHost() {
-		return targetMachine -> DefaultOperatingSystemFamily.HOST.equals(targetMachine.getOperatingSystemFamily()) && HOST.equals(targetMachine.getArchitecture());
+		return targetMachine -> HOST_OS.equals(targetMachine.getOperatingSystemFamily()) && HOST_ARCH.equals(targetMachine.getArchitecture());
 	}
 
 	@Override
 	public Iterator<Coordinate<?>> iterator() {
-		return Stream.<Coordinate<?>>of(operatingSystemFamily, architectureCoordinate).iterator();
+		return Stream.<Coordinate<?>>of(operatingSystemCoordinate, architectureCoordinate).iterator();
 	}
 
 	@Override

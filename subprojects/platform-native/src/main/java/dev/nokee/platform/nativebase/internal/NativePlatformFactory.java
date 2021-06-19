@@ -3,7 +3,6 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
 
@@ -23,7 +22,7 @@ public class NativePlatformFactory {
 		if (operatingSystemFamily.isMacOs()) {
 			return "osx";
 		}
-		return ((DefaultOperatingSystemFamily)operatingSystemFamily).getName();
+		return operatingSystemFamily.getName();
 	}
 
 	public static String platformNameFor(TargetMachine targetMachine) {
@@ -31,6 +30,6 @@ public class NativePlatformFactory {
 	}
 
 	public static String platformNameFor(OperatingSystemFamily osFamily, MachineArchitecture architecture) {
-		return ((DefaultOperatingSystemFamily)osFamily).getName() + architecture.getCanonicalName();
+		return osFamily.getCanonicalName() + architecture.getCanonicalName();
 	}
 }

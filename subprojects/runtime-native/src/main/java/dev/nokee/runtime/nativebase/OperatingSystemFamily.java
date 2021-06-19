@@ -1,5 +1,11 @@
 package dev.nokee.runtime.nativebase;
 
+import dev.nokee.runtime.core.CoordinateAxis;
+import org.gradle.api.Named;
+import org.gradle.api.attributes.Attribute;
+
+import java.util.Objects;
+
 /**
  * Represents the operating system family of a configuration.
  * Typical operating system family include Windows, Linux, and macOS.
@@ -8,27 +14,73 @@ package dev.nokee.runtime.nativebase;
  *
  * @since 0.1
  */
-public interface OperatingSystemFamily extends dev.nokee.platform.nativebase.OperatingSystemFamily {
+public abstract class OperatingSystemFamily implements Named, dev.nokee.platform.nativebase.OperatingSystemFamily {
+	/**
+	 * The operating system attribute for dependency resolution.
+	 * @since 0.5
+	 */
+	public static final Attribute<OperatingSystemFamily> OPERATING_SYSTEM_ATTRIBUTE = Attribute.of("dev.nokee.operatingSystem", OperatingSystemFamily.class);
+
+	/**
+	 * The operating system coordinate axis for variant calculation.
+	 * @since 0.5
+	 */
+	public static final CoordinateAxis<OperatingSystemFamily> OPERATING_SYSTEM_COORDINATE_AXIS = CoordinateAxis.of(OperatingSystemFamily.class);
+
+	public static OperatingSystemFamily forName(String name) {
+		return KnownOperatingSystemFamilies.forName(name);
+	}
+
+	public abstract String getName();
+
+	public String getCanonicalName() {
+		return KnownOperatingSystemFamilies.canonical(getName());
+	}
+
+	/**
+	 * The Windows operating system family.
+	 * @since 0.5
+	 */
+	public static final String WINDOWS = "windows";
+
 	/**
 	 * Checks if the operating system family is Windows.
 	 *
 	 * @return {@code true} if the operating system family is Windows or {@code false} otherwise.
 	 */
-	boolean isWindows();
+	public boolean isWindows() {
+		return is(WINDOWS);
+	}
+
+	/**
+	 * The Windows operating system family.
+	 * @since 0.5
+	 */
+	public static final String LINUX = "linux";
 
 	/**
 	 * Checks if the operating system family is Linux.
 	 *
 	 * @return {@code true} if the operating system family is Linux or {@code false} otherwise.
 	 */
-	boolean isLinux();
+	public boolean isLinux() {
+		return is(LINUX);
+	}
+
+	/**
+	 * The macOS operating system family.
+	 * @since 0.5
+	 */
+	public static final String MACOS = "macos";
 
 	/**
 	 * Checks if the operating system family is macOS.
 	 *
 	 * @return {@code true} if the operating system family is macOS or {@code false} otherwise.
 	 */
-	boolean isMacOs();
+	public boolean isMacOs() {
+		return is(MACOS);
+	}
 
 	/**
 	 * Check if the operating system family is macOS.
@@ -36,9 +88,15 @@ public interface OperatingSystemFamily extends dev.nokee.platform.nativebase.Ope
 	 * @return {@code true} if the operating system family is macOS or {@code false} otherwise.
 	 * @since 0.2
 	 */
-	default boolean isMacOS() {
+	public final boolean isMacOS() {
 		return isMacOs();
 	}
+
+	/**
+	 * The FreeBSD operating system family.
+	 * @since 0.5
+	 */
+	public static final String FREE_BSD = "freebsd";
 
 	/**
 	 * Checks if the operating system family is FreeBSD.
@@ -46,7 +104,15 @@ public interface OperatingSystemFamily extends dev.nokee.platform.nativebase.Ope
 	 * @return {@code true} if the operating system family is FreeBSD or {@code false} otherwise.
 	 * @since 0.2
 	 */
-	boolean isFreeBSD();
+	public boolean isFreeBSD() {
+		return is(FREE_BSD);
+	}
+
+	/**
+	 * The iOS operating system family.
+	 * @since 0.5
+	 */
+	public static final String IOS = "ios";
 
 	/**
 	 * Check if the operating system family is iOS.
@@ -54,7 +120,9 @@ public interface OperatingSystemFamily extends dev.nokee.platform.nativebase.Ope
 	 * @return {@code true} if the operating system family is iOS or {@code false} otherwise.
 	 * @since 0.4
 	 */
-	boolean isIos();
+	public boolean isIos() {
+		return is(IOS);
+	}
 
 	/**
 	 * Check if the operating system family is iOS.
@@ -62,9 +130,15 @@ public interface OperatingSystemFamily extends dev.nokee.platform.nativebase.Ope
 	 * @return {@code true} if the operating system family is iOS or {@code false} otherwise.
 	 * @since 0.4
 	 */
-	default boolean isiOS() {
+	public final boolean isiOS() {
 		return isIos();
 	}
+
+	/**
+	 * The Solaris operating system family.
+	 * @since 0.5
+	 */
+	public static final String SOLARIS = "solaris";
 
 	/**
 	 * Check if the operating system family is Solaris.
@@ -72,8 +146,15 @@ public interface OperatingSystemFamily extends dev.nokee.platform.nativebase.Ope
 	 * @return {@code true} if the operating system family is Solaris or {@code false} otherwise.
 	 * @since 0.5
 	 */
-	boolean isSolaris();
+	public boolean isSolaris() {
+		return is(SOLARIS);
+	}
 
+	/**
+	 * The FreeBSD operating system family.
+	 * @since 0.5
+	 */
+	public static final String HP_UX = "hpux";
 
 	/**
 	 * Check if the operating system family is Hewlett Packard Unix (e.g. HP-UX).
@@ -81,5 +162,33 @@ public interface OperatingSystemFamily extends dev.nokee.platform.nativebase.Ope
 	 * @return {@code true} if the operating system family is HP-UX or {@code false} otherwise.
 	 * @since 0.5
 	 */
-	boolean isHewlettPackardUnix();
+	public boolean isHewlettPackardUnix() {
+		return is(HP_UX);
+	}
+
+	private boolean is(String osFamily) {
+		return getCanonicalName().equals(osFamily);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		} else if (!(obj instanceof OperatingSystemFamily)) {
+			return false;
+		}
+
+		OperatingSystemFamily other = (OperatingSystemFamily) obj;
+		return Objects.equals(getCanonicalName(), other.getCanonicalName());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getCanonicalName());
+	}
+
+	@Override
+	public String toString() {
+		return getName();
+	}
 }

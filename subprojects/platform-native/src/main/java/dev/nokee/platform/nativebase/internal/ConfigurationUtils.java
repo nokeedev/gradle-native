@@ -14,7 +14,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.internal.Cast;
 import org.gradle.language.cpp.CppBinary;
 import org.gradle.nativeplatform.Linkage;
-import org.gradle.nativeplatform.OperatingSystemFamily;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -24,6 +23,7 @@ import java.util.function.Consumer;
 import static com.google.common.collect.ImmutableMap.of;
 import static dev.nokee.platform.nativebase.internal.ConfigurationUtils.ConfigurationSpec.Type.*;
 import static dev.nokee.runtime.nativebase.MachineArchitecture.ARCHITECTURE_ATTRIBUTE;
+import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
@@ -196,8 +196,8 @@ public class ConfigurationUtils {
 			val attributes = ImmutableMap.<Attribute<?>, Object>builder().putAll(spec.attributes);
 
 			variant.getDimensions().forEach(it -> {
-				if (it instanceof DefaultOperatingSystemFamily) {
-					attributes.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, getObjects().named(OperatingSystemFamily.class, ((DefaultOperatingSystemFamily) it).getName()));
+				if (it.getAxis().equals(OPERATING_SYSTEM_COORDINATE_AXIS)) {
+					attributes.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, it.getValue());
 				} else if (it.getAxis().equals(MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS)) {
 					attributes.put(ARCHITECTURE_ATTRIBUTE, it.getValue());
 				} else if (it.getAxis().equals(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {

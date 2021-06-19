@@ -1,7 +1,8 @@
 package dev.nokee.platform.nativebase.internal.rules;
 
 import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
+import dev.nokee.runtime.core.Coordinate;
+import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import lombok.val;
 
 import java.util.concurrent.Callable;
@@ -24,6 +25,6 @@ public class BuildableDevelopmentVariantConvention<T extends VariantInternal> im
 	}
 
 	public boolean isBuildable(T variant) {
-		return variant.getBuildVariant().hasAxisOf(DefaultOperatingSystemFamily.HOST);
+		return variant.getBuildVariant().hasAxisOf(Coordinate.of(OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS, OperatingSystemFamily.forName(System.getProperty("os.name"))));
 	}
 }

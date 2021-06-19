@@ -27,9 +27,9 @@ class DefaultTargetMachineFactoryTest {
 	@Test
 	void configureTheRightOperatingSystemFamily() {
 		assertAll(
-			() -> assertThat(factory.getWindows().getOperatingSystemFamily(), equalTo(DefaultOperatingSystemFamily.WINDOWS)),
-			() -> assertThat(factory.getLinux().getOperatingSystemFamily(), equalTo(DefaultOperatingSystemFamily.LINUX)),
-			() -> assertThat(factory.getMacOS().getOperatingSystemFamily(), equalTo(DefaultOperatingSystemFamily.MACOS))
+			() -> assertThat(factory.getWindows().getOperatingSystemFamily().getCanonicalName(), equalTo(OperatingSystemFamily.WINDOWS)),
+			() -> assertThat(factory.getLinux().getOperatingSystemFamily().getCanonicalName(), equalTo(OperatingSystemFamily.LINUX)),
+			() -> assertThat(factory.getMacOS().getOperatingSystemFamily().getCanonicalName(), equalTo(OperatingSystemFamily.MACOS))
 		);
 	}
 
@@ -39,26 +39,26 @@ class DefaultTargetMachineFactoryTest {
 		new EqualsTester()
 			.addEqualityGroup(factory.getWindows(), factory.getWindows())
 			.addEqualityGroup(factory.getLinux())
-			.addEqualityGroup(factory.getMacOS(), new DefaultTargetMachine(DefaultOperatingSystemFamily.MACOS, MachineArchitecture.forName(System.getProperty("os.arch"))))
+			.addEqualityGroup(factory.getMacOS(),new DefaultTargetMachine(OperatingSystemFamily.forName(OperatingSystemFamily.MACOS), MachineArchitecture.forName(System.getProperty("os.arch"))))
 			.testEquals();
 	}
 
 	@Test
 	@EnabledOnOs(OS.LINUX)
 	void defaultsToTheRightPreMadeInstancesOnLinux() {
-		assertThat(factory.host().getOperatingSystemFamily(), equalTo(DefaultOperatingSystemFamily.LINUX));
+		assertThat(factory.host().getOperatingSystemFamily().getCanonicalName(), equalTo(OperatingSystemFamily.LINUX));
 	}
 
 	@Test
 	@EnabledOnOs(OS.WINDOWS)
 	void defaultsToTheRightPreMadeInstancesOnWindows() {
-		assertThat(factory.host().getOperatingSystemFamily(), equalTo(DefaultOperatingSystemFamily.WINDOWS));
+		assertThat(factory.host().getOperatingSystemFamily().getCanonicalName(), equalTo(OperatingSystemFamily.WINDOWS));
 	}
 
 	@Test
 	@EnabledOnOs(OS.MAC)
 	void defaultsToTheRightPreMadeInstancesOnMacOS() {
-		assertThat(factory.host().getOperatingSystemFamily(), equalTo(DefaultOperatingSystemFamily.MACOS));
+		assertThat(factory.host().getOperatingSystemFamily().getCanonicalName(), equalTo(OperatingSystemFamily.MACOS));
 	}
 
 	@Test

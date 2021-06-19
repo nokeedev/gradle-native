@@ -2,12 +2,12 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.runtime.nativebase.BuildType;
-import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 
 import java.util.Comparator;
 
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS;
+import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 
 public class NativeVariantComparators {
 	public static Comparator<VariantInternal> preferDebugBuildType() {
@@ -23,6 +23,6 @@ public class NativeVariantComparators {
 	}
 
 	public static Comparator<VariantInternal> preferHostOperatingSystemFamily() {
-		return new SingleVariantDimensionComparator<>(DefaultOperatingSystemFamily.OPERATING_SYSTEM_FAMILY_COORDINATE_AXIS, new PreferHostOperatingSystemFamilyComparator());
+		return new SingleVariantDimensionComparator<>(OPERATING_SYSTEM_COORDINATE_AXIS, new PreferHostOperatingSystemFamilyComparator());
 	}
 }
