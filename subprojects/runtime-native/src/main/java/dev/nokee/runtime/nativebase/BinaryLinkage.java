@@ -93,8 +93,8 @@ public abstract class BinaryLinkage implements Named {
 			return false;
 		}
 
-		BinaryLinkage lhs = (BinaryLinkage) obj;
-		return Objects.equals(getName(), lhs.getName());
+		BinaryLinkage other = (BinaryLinkage) obj;
+		return Objects.equals(getName(), other.getName());
 	}
 
 	@Override

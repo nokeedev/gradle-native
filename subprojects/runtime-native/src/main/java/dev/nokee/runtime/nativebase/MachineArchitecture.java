@@ -78,8 +78,8 @@ public abstract class MachineArchitecture implements Named, dev.nokee.platform.n
 			return false;
 		}
 
-		MachineArchitecture lhs = (MachineArchitecture) obj;
-		return Objects.equals(getCanonicalName(), lhs.getCanonicalName());
+		MachineArchitecture other = (MachineArchitecture) obj;
+		return Objects.equals(getCanonicalName(), other.getCanonicalName());
 	}
 
 	@Override
