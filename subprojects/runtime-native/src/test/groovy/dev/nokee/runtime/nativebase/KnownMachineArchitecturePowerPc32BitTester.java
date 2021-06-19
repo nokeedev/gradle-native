@@ -8,13 +8,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-/** @see dev.nokee.runtime.nativebase.CommonMachineArchitectureTester */
-interface MachineArchitectureSparc32BitTester {
+/** @see KnownMachineArchitectureTester */
+interface KnownMachineArchitecturePowerPc32BitTester {
 	MachineArchitecture createSubject(String name);
 
 	@ParameterizedTest(name = "has 32-bit pointer size [{arguments}]")
-	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonSparc32BitNames")
-	default void sparc32BitArchitectureHas32BitPointerSize(String name) {
+	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonPowerPC32BitNames")
+	default void powerPC32BitArchitectureHas32BitPointerSize(String name) {
 		assertAll(
 			() -> assertThat(createSubject(name).is32Bit(), is(true)),
 			() -> assertThat(createSubject(name).is64Bit(), is(false))
@@ -22,8 +22,8 @@ interface MachineArchitectureSparc32BitTester {
 	}
 
 	@ParameterizedTest(name = "has canonical name [{arguments}]")
-	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonSparc32BitNames")
-	default void sparc32BitArchitectureHasCanonicalName(String name) {
-		assertThat(createSubject(name), named("Sparc"));
+	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonPowerPC32BitNames")
+	default void powerPC32BitArchitectureHasCanonicalName(String name) {
+		assertThat(createSubject(name), named("PowerPC"));
 	}
 }

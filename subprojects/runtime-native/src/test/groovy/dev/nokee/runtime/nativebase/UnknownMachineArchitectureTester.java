@@ -1,16 +1,13 @@
 package dev.nokee.runtime.nativebase;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-/** @see dev.nokee.runtime.nativebase.CommonMachineArchitectureTester */
-interface MachineArchitectureUnknownTester {
+public interface UnknownMachineArchitectureTester {
 	MachineArchitecture createSubject(String name);
 
 	@Test

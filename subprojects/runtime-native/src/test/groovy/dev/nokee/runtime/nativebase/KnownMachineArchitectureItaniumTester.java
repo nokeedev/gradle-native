@@ -8,13 +8,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-/** @see dev.nokee.runtime.nativebase.CommonMachineArchitectureTester */
-interface MachineArchitectureHPPARISCTester {
+/** @see KnownMachineArchitectureTester */
+interface KnownMachineArchitectureItaniumTester {
 	MachineArchitecture createSubject(String name);
 
 	@ParameterizedTest(name = "has 64-bit pointer size [{arguments}]")
-	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonHPPARISCNames")
-	default void hpPARISCArchitectureHas64BitPointerSize(String name) {
+	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonItaniumNames")
+	default void itaniumArchitectureHas64BitPointerSize(String name) {
 		assertAll(
 			() -> assertThat(createSubject(name).is32Bit(), is(false)),
 			() -> assertThat(createSubject(name).is64Bit(), is(true))
@@ -22,8 +22,8 @@ interface MachineArchitectureHPPARISCTester {
 	}
 
 	@ParameterizedTest(name = "has canonical name [{arguments}]")
-	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonHPPARISCNames")
-	default void hpPARISCArchitectureHasCanonicalName(String name) {
-		assertThat(createSubject(name), named("PA-RISC"));
+	@MethodSource("dev.nokee.runtime.nativebase.MachineArchitectureTestUtils#commonItaniumNames")
+	default void itaniumArchitectureHasCanonicalName(String name) {
+		assertThat(createSubject(name), named("Itanium"));
 	}
 }
