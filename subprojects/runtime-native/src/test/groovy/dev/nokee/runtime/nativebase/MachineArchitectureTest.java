@@ -11,7 +11,7 @@ import static dev.nokee.runtime.nativebase.MachineArchitecture.forName;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-public class MachineArchitectureTest {
+class MachineArchitectureTest {
 	@Nested
 	class ObjectFactoryTest implements NamedValueTester<MachineArchitecture>, KnownMachineArchitectureTester, UnknownMachineArchitectureTester {
 		@Override
