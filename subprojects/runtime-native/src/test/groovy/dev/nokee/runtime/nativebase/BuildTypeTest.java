@@ -27,11 +27,6 @@ class BuildTypeTest {
 	}
 
 	@Test
-	void hasDefaultBuildTypeName() {
-		assertThat(BuildType.DEFAULT, equalTo("default"));
-	}
-
-	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEqualityAgainstObjectFactoryNamedInstance() {
 		new EqualsTester()

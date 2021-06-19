@@ -23,8 +23,6 @@ public abstract class BuildType implements Named {
 	 */
 	public static final CoordinateAxis<BuildType> BUILD_TYPE_COORDINATE_AXIS = CoordinateAxis.of(BuildType.class, "build-type");
 
-	public static final String DEFAULT = "default";
-
 	/**
 	 * Creates an build type instance of the specified name.
 	 *

@@ -47,7 +47,6 @@ import java.util.stream.StreamSupport;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
-import static dev.nokee.runtime.nativebase.BuildType.DEFAULT;
 import static dev.nokee.utils.TransformerUtils.toListTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.joining;
@@ -160,7 +159,7 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			if (variantInternal.getBuildVariant().hasAxisValue(BUILD_TYPE_COORDINATE_AXIS)) {
 				return variantInternal.getBuildVariant().getAxisValue(BUILD_TYPE_COORDINATE_AXIS);
 			}
-			return BuildType.named(DEFAULT);
+			return BuildType.named("default");
 		}
 
 		private MachineArchitecture machineArchitecture(VariantInternal variantInternal) {
