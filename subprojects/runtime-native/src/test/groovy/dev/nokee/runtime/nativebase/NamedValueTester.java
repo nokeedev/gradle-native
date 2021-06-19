@@ -93,9 +93,11 @@ public interface NamedValueTester<T extends Named> {
 
 	static <T extends Named> Attribute<T> attributeType(NamedValueTester<T> self) {
 		val type = namedValueTypeUnderTest(self);
-		val field = Arrays.stream(type.getDeclaredFields()).filter(it -> Attribute.class.isAssignableFrom(it.getType())).findFirst(); // TODO: check only for public one
+		val field = findAllPublicConstantFieldOf(type).filter(it -> Attribute.class.isAssignableFrom(it.getType())).findFirst();
 		try {
-			return (Attribute<T>) field.orElseThrow(RuntimeException::new).get(null);
+			@SuppressWarnings("unchecked")
+			val result = (Attribute<T>) field.orElseThrow(RuntimeException::new).get(null);
+			return result;
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException();
 		}
