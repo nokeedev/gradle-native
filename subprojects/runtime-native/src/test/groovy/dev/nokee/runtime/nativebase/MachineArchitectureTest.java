@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
-import static dev.nokee.runtime.nativebase.BuildType.named;
 import static dev.nokee.runtime.nativebase.MachineArchitecture.forName;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
