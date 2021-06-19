@@ -202,8 +202,8 @@ public class ConfigurationUtils {
 					attributes.put(ARCHITECTURE_ATTRIBUTE, it.getValue());
 				} else if (it instanceof TargetLinkage) {
 					attributes.put(BinaryLinkage.BINARY_LINKAGE_ATTRIBUTE, BinaryLinkage.named(it.toString()));
-				} else if (it instanceof TargetBuildType) {
-					attributes.put(BuildType.BUILD_TYPE_ATTRIBUTE, BuildType.named(it.toString()));
+				} else if (it.getAxis().equals(BuildType.BUILD_TYPE_COORDINATE_AXIS)) {
+					attributes.put(BuildType.BUILD_TYPE_ATTRIBUTE, it.getValue());
 				} else {
 					throw new IllegalArgumentException(String.format("Unknown dimension variant '%s'", it.toString()));
 				}
