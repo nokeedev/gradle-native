@@ -16,6 +16,7 @@ gradlePlugin {
 dependencies {
 	api project(':runtimeBase')
 	implementation project(':coreExec')
+	functionalTestImplementation project(':runtimeBase')
 }
 
 publishing {
