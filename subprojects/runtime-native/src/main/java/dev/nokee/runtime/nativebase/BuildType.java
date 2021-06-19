@@ -41,8 +41,8 @@ public abstract class BuildType implements Named {
 			return false;
 		}
 
-		BuildType lhs = (BuildType) obj;
-		return Objects.equals(getName(), lhs.getName());
+		BuildType other = (BuildType) obj;
+		return Objects.equals(getName(), other.getName());
 	}
 
 	@Override
