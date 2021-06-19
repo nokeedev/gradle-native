@@ -7,10 +7,13 @@ import lombok.val;
 import org.gradle.api.Named;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.reflect.ObjectInstantiationException;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.createChildProject;
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
@@ -39,8 +42,7 @@ public interface NamedValueTester<T extends Named> {
 			ex, anyOf(isA(ObjectInstantiationException.class), isA(NullPointerException.class)));
 	}
 
-	@Test
-	default void canResolveConfigurationUsingNamedValueAsAttribute() {
+	default void canResolveConfigurationUsingNamedValueAsAttribute(String name) {
 		val consumer = rootProject();
 		val producer = createChildProject(consumer);
 		val attribute = Attribute.of(namedValueTypeUnderTest(this));
@@ -49,7 +51,7 @@ public interface NamedValueTester<T extends Named> {
 			configuration.setCanBeConsumed(true);
 			configuration.setCanBeResolved(false);
 			configuration.attributes(attributes -> {
-				attributes.attribute(attribute, createSubject("test"));
+				attributes.attribute(attribute, createSubject(name));
 			});
 			configuration.getOutgoing().artifact(new File("my-file"));
 		});
@@ -57,12 +59,21 @@ public interface NamedValueTester<T extends Named> {
 			configuration.setCanBeConsumed(false);
 			configuration.setCanBeResolved(true);
 			configuration.attributes(attributes -> {
-				attributes.attribute(attribute, createSubject("test"));
+				attributes.attribute(attribute, createSubject(name));
 			});
 		});
 		consumer.getDependencies().add(test.getName(), producer);
 
 		assertThat(test.resolve(), contains(aFileNamed(equalTo("my-file"))));
+	}
+
+	@TestFactory
+	default Stream<DynamicTest> canResolveConfigurationUsingNamedValueAsAttribute() {
+		return Stream.concat(Stream.of("test"), knownValues()).map(it -> DynamicTest.dynamicTest("can resolve configuration using named value as attribute [" + it + "]", () -> canResolveConfigurationUsingNamedValueAsAttribute(it)));
+	}
+
+	default Stream<String> knownValues() {
+		return Stream.empty();
 	}
 
 	@Test
