@@ -1,13 +1,13 @@
 package dev.nokee.platform.jni
 
-import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.test.fixtures.archive.JarTestFixture
+import dev.nokee.fixtures.AbstractTargetMachinesFunctionalTest
 import dev.nokee.language.MixedLanguageTaskNames
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import dev.nokee.platform.nativebase.SharedLibraryBinary
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture
+import dev.nokee.runtime.nativebase.MachineArchitecture
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily
-import dev.nokee.fixtures.AbstractTargetMachinesFunctionalTest
 
 class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunctionalTest implements MixedLanguageTaskNames {
 	@Override
@@ -118,7 +118,7 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
                 doLast {
                     ${componentUnderTestDsl}.variants.elements.get().each {
                         assert it.targetMachine.operatingSystemFamily == ${DefaultOperatingSystemFamily.canonicalName}.forName('${currentOsFamilyName}')
-                        assert it.targetMachine.architecture == ${DefaultMachineArchitecture.canonicalName}.forName('${currentArchitecture}')
+                        assert it.targetMachine.architecture == ${MachineArchitecture.canonicalName}.forName('${currentArchitecture}')
                     }
                 }
             }

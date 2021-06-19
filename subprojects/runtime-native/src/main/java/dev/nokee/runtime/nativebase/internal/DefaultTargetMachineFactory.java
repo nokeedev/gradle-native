@@ -1,16 +1,16 @@
 package dev.nokee.runtime.nativebase.internal;
 
+import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.TargetMachineBuilder;
 import dev.nokee.runtime.nativebase.TargetMachineFactory;
 import lombok.NonNull;
 
-import static dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture.HOST;
-import static dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture.*;
 import static dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily.*;
 
 public class DefaultTargetMachineFactory implements TargetMachineFactory {
 	public static final DefaultTargetMachineFactory INSTANCE = new DefaultTargetMachineFactory();
+	private static final MachineArchitecture HOST = MachineArchitecture.forName(System.getProperty("os.arch"));
 
 	@Override
 	public TargetMachineBuilder getWindows() {
@@ -53,7 +53,10 @@ public class DefaultTargetMachineFactory implements TargetMachineFactory {
 	}
 
 	public static class DefaultTargetMachineBuilder extends DefaultTargetMachine implements TargetMachineBuilder {
-		public DefaultTargetMachineBuilder(@NonNull DefaultOperatingSystemFamily operatingSystemFamily, @NonNull DefaultMachineArchitecture architecture) {
+		private static final MachineArchitecture X86 = MachineArchitecture.forName(MachineArchitecture.X86);
+		private static final MachineArchitecture X86_64 = MachineArchitecture.forName(MachineArchitecture.X86_64);
+
+		public DefaultTargetMachineBuilder(@NonNull DefaultOperatingSystemFamily operatingSystemFamily, MachineArchitecture architecture) {
 			super(operatingSystemFamily, architecture);
 		}
 
@@ -68,7 +71,7 @@ public class DefaultTargetMachineFactory implements TargetMachineFactory {
 		}
 
 		public TargetMachine architecture(String name) {
-			return new DefaultTargetMachine(getOperatingSystemFamily(), DefaultMachineArchitecture.forName(name));
+			return new DefaultTargetMachine(getOperatingSystemFamily(), MachineArchitecture.forName(name));
 		}
 	}
 }

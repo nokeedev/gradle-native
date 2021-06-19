@@ -21,7 +21,6 @@ import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ProviderUtils;
 import dev.nokee.utils.SpecUtils;
@@ -165,7 +164,7 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 		}
 
 		private MachineArchitecture machineArchitecture(VariantInternal variantInternal) {
-			return variantInternal.getBuildVariant().getAxisValue(DefaultMachineArchitecture.MACHINE_ARCHITECTURE_COORDINATE_AXIS);
+			return variantInternal.getBuildVariant().getAxisValue(MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS);
 		}
 
 		private VisualStudioIdeProjectConfiguration projectConfiguration(BuildType buildType, MachineArchitecture machineArchitecture) {

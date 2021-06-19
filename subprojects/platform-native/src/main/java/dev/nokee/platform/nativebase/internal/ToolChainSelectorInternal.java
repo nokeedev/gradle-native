@@ -1,7 +1,7 @@
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.DefaultMachineArchitecture;
 import dev.nokee.runtime.nativebase.internal.DefaultOperatingSystemFamily;
 import lombok.val;
 import org.apache.commons.lang3.SystemUtils;
@@ -149,7 +149,7 @@ public class ToolChainSelectorInternal {
 		}
 
 		private static boolean isKnownArchitecture(TargetMachine targetMachine) {
-			return asList(DefaultMachineArchitecture.X86, DefaultMachineArchitecture.X86_64).contains(targetMachine.getArchitecture());
+			return asList(MachineArchitecture.X86, MachineArchitecture.X86_64).contains(targetMachine.getArchitecture().getCanonicalName());
 		}
 
 		private static boolean isTargetingMacOsButNotMacOs(TargetMachine targetMachine) {
