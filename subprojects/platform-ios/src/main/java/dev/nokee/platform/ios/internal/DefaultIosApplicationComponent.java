@@ -91,7 +91,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetLinkages.EXECUTABLE)));
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetBuildTypes.named("Default"))));
-		getDimensions().add(CoordinateSet.of((Coordinate<TargetMachine>) DefaultTargetMachineFactory.INSTANCE.os("ios").getX86_64()));
+		getDimensions().add(CoordinateSet.of(Coordinates.of(DefaultTargetMachineFactory.INSTANCE.os("ios").getX86_64())));
 		this.taskRegistry = taskRegistry;
 		this.componentVariants = new IosComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, sourceViewOf(this));
 		this.binaries = binaryViewFactory.create(identifier);

@@ -83,7 +83,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 		this.productBundleIdentifier = configureDisplayName(objects.property(String.class), "productBundleIdentifier");
 
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetLinkages.BUNDLE)));
-		getDimensions().add(CoordinateSet.of((Coordinate<TargetMachine>) DefaultTargetMachineFactory.INSTANCE.os("ios").getX86_64()));
+		getDimensions().add(CoordinateSet.of(Coordinates.of(DefaultTargetMachineFactory.INSTANCE.os("ios").getX86_64())));
 
 		// TODO: Move to extension
 		getBuildVariants().convention(getFinalSpace().map(DefaultBuildVariant::fromSpace));
