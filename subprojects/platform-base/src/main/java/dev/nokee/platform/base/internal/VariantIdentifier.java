@@ -5,6 +5,7 @@ import dev.nokee.model.internal.NamedDomainObjectIdentifier;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
+import dev.nokee.runtime.core.Coordinate;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.val;
@@ -55,11 +56,11 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 	}
 
 	private static String createUnambiguousName(BuildVariant buildVariant) {
-		return StringUtils.uncapitalize(((BuildVariantInternal)buildVariant).getDimensions().stream().map(Named.class::cast).map(Named::getName).map(StringUtils::capitalize).collect(Collectors.joining()));
+		return StringUtils.uncapitalize(((BuildVariantInternal)buildVariant).getDimensions().stream().map(Coordinate::getValue).map(Named.class::cast).map(Named::getName).map(StringUtils::capitalize).collect(Collectors.joining()));
 	}
 
 	private static List<String> createAmbiguousDimensionNames(BuildVariant buildVariant) {
-		return ((BuildVariantInternal)buildVariant).getDimensions().stream().map(Named.class::cast).map(Named::getName).collect(Collectors.toList());
+		return ((BuildVariantInternal)buildVariant).getDimensions().stream().map(Coordinate::getValue).map(Named.class::cast).map(Named::getName).collect(Collectors.toList());
 	}
 
 	public String getName() {

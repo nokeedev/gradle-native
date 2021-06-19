@@ -81,7 +81,7 @@ public class DefaultBuildVariant implements BuildVariantInternal {
 	public boolean hasAxisOf(Object axisValue) {
 		if (axisValue instanceof Coordinate) {
 			val type = ((Coordinate<?>) axisValue).getAxis();
-			Optional<Boolean> result = Coordinates.find(coordinates, type, true).map(it -> Objects.equals(it, axisValue));
+			Optional<Boolean> result = Coordinates.find(coordinates, type, true).map(it -> Objects.equals(it, ((Coordinate<?>) axisValue).getValue()));
 			return result.orElse(false);
 		}
 		return false;
