@@ -4,7 +4,6 @@ import dev.nokee.runtime.core.CoordinateAxis;
 import org.gradle.api.Named;
 import org.gradle.api.attributes.Attribute;
 
-import java.util.Comparator;
 import java.util.Objects;
 
 /**

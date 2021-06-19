@@ -35,17 +35,17 @@ class BuildTypeTest {
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEqualityAgainstObjectFactoryNamedInstance() {
 		new EqualsTester()
-			.addEqualityGroup((Object[]) equalityGroupFor(named("debug")))
-			.addEqualityGroup((Object[]) equalityGroupFor(named("release")))
-			.addEqualityGroup((Object[]) equalityGroupFor(named("RelWithDebug")))
+			.addEqualityGroup((Object[]) equalityGroupFor("debug"))
+			.addEqualityGroup((Object[]) equalityGroupFor("release"))
+			.addEqualityGroup((Object[]) equalityGroupFor("RelWithDebug"))
 			.testEquals();
 	}
 
-	private static BuildType[] equalityGroupFor(BuildType v) {
+	private static BuildType[] equalityGroupFor(String name) {
 		return new BuildType[] {
-			objectFactory().named(BuildType.class, v.getName()),
-			v,
-			objectFactory().named(BuildType.class, v.getName())
+			objectFactory().named(BuildType.class, name),
+			named(name),
+			objectFactory().named(BuildType.class, name)
 		};
 	}
 }
