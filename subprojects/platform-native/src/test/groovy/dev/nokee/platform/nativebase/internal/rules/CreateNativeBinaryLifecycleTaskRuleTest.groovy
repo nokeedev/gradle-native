@@ -14,8 +14,8 @@ import dev.nokee.platform.nativebase.internal.tasks.ExecutableLifecycleTask
 import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask
 import dev.nokee.platform.nativebase.internal.tasks.StaticLibraryLifecycleTask
 import dev.nokee.runtime.core.Coordinates
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachineFactory
 import dev.nokee.runtime.nativebase.internal.TargetLinkages
+import dev.nokee.runtime.nativebase.internal.TargetMachines
 import org.gradle.api.provider.Provider
 import spock.lang.Specification
 import spock.lang.Subject
@@ -34,7 +34,7 @@ class CreateNativeBinaryLifecycleTaskRuleTest extends Specification {
 	}
 
 	VariantIdentifier<Variant> newIdentifier() {
-		return newIdentifier(DefaultBuildVariant.of(DefaultTargetMachineFactory.host()))
+		return newIdentifier(DefaultBuildVariant.of(Coordinates.of(TargetMachines.host())))
 	}
 
 	VariantIdentifier<Variant> newIdentifier(DefaultBuildVariant buildVariant) {

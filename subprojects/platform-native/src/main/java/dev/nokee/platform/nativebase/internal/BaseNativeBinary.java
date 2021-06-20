@@ -24,7 +24,6 @@ import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -66,7 +65,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	@Getter protected final BinaryIdentifier<?> identifier;
 	protected final TaskView<Task> compileTasks; // Until the compile tasks is clean up
 	private final DomainObjectSet<ObjectSourceSet> objectSourceSets;
-	@Getter private final DefaultTargetMachine targetMachine;
+	@Getter private final TargetMachine targetMachine;
 	@Getter private final NativeIncomingDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
@@ -74,7 +73,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter private final Property<String> baseName;
 
-	public BaseNativeBinary(BinaryIdentifier<?> identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskViewFactory taskViewFactory) {
+	public BaseNativeBinary(BinaryIdentifier<?> identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskViewFactory taskViewFactory) {
 		this.identifier = identifier;
 		this.compileTasks = taskViewFactory.create(identifier.getOwnerIdentifier(), Task.class);
 		this.objectSourceSets = objectSourceSets;

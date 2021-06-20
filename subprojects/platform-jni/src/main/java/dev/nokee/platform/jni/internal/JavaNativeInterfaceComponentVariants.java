@@ -23,7 +23,6 @@ import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -36,6 +35,7 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
 public final class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<JniLibraryInternal> variantCollection;
@@ -79,7 +79,7 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 
 	private JniLibraryInternal createVariant(VariantIdentifier<JniLibraryInternal> identifier, VariantComponentDependencies variantDependencies) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
-		Preconditions.checkArgument(buildVariant.hasAxisValue(DefaultTargetMachine.TARGET_MACHINE_COORDINATE_AXIS));
+		Preconditions.checkArgument(buildVariant.hasAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
 
 		val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(LifecycleBasePlugin.ASSEMBLE_TASK_NAME), identifier), task -> {
 			task.setGroup(LifecycleBasePlugin.BUILD_GROUP);

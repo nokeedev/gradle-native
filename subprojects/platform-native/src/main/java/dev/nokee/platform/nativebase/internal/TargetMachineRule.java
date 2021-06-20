@@ -2,7 +2,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachineFactory;
+import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Action;
@@ -28,7 +28,7 @@ public class TargetMachineRule implements Action<Project> {
 		this.targetMachines = targetMachines;
 		this.objects = objects;
 		this.toolChainSelector = objects.newInstance(ToolChainSelectorInternal.class);
-		targetMachines.convention(ImmutableList.of(DefaultTargetMachineFactory.host()));
+		targetMachines.convention(ImmutableList.of(TargetMachines.host()));
 	}
 
 	@Override

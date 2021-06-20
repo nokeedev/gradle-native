@@ -4,8 +4,8 @@ import dev.nokee.platform.base.*
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachineFactory
 import dev.nokee.runtime.nativebase.TargetMachineFactory
+import dev.nokee.runtime.nativebase.internal.TargetMachines
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project
 import org.gradle.api.ProjectConfigurationException
@@ -205,7 +205,7 @@ abstract class AbstractTargetMachineAwarePluginTest extends Specification implem
 		noExceptionThrown()
 
 		and:
-		project."${extensionNameUnderTest}".targetMachines.get() == [DefaultTargetMachineFactory.host()] as Set
+		project."${extensionNameUnderTest}".targetMachines.get() == [TargetMachines.host()] as Set
 	}
 
 	def "extensions has target machine factory"() {

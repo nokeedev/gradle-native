@@ -1,8 +1,8 @@
 package dev.nokee.platform.nativebase;
 
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachineFactory;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.TargetMachineFactory;
+import dev.nokee.runtime.nativebase.internal.RuntimeNativePlugin;
 import org.gradle.api.provider.SetProperty;
 
 /**
@@ -29,6 +29,6 @@ public interface TargetMachineAwareComponent {
 	 * @return a {@link TargetMachineFactory} for creating {@link TargetMachine} instance, never null.
 	 */
 	default TargetMachineFactory getMachines() {
-		return DefaultTargetMachineFactory.INSTANCE;
+		return RuntimeNativePlugin.TARGET_MACHINE_FACTORY;
 	}
 }

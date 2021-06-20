@@ -19,4 +19,13 @@ public interface TargetMachineBuilder extends TargetMachine, dev.nokee.platform.
 	 * @return a {@link TargetMachine} instance, never null.
 	 */
 	TargetMachine getX86_64();
+
+	/**
+	 * Creates a target machine for the operating system of this instance and with whatever architecture string will be passed.
+	 *
+	 * @param architectureName  an architecture name, must not be null
+	 * @return a {@link TargetMachine} instance, never null
+	 * @since 0.5
+	 */
+	TargetMachine architecture(String architectureName);
 }

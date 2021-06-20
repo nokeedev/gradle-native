@@ -3,8 +3,12 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.runtime.nativebase.*;
-import dev.nokee.runtime.nativebase.internal.*;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
+import dev.nokee.runtime.nativebase.BuildType;
+import dev.nokee.runtime.nativebase.MachineArchitecture;
+import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.runtime.nativebase.internal.ArtifactTypes;
+import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import lombok.*;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
@@ -23,6 +27,7 @@ import java.util.function.Consumer;
 import static com.google.common.collect.ImmutableMap.of;
 import static dev.nokee.platform.nativebase.internal.ConfigurationUtils.ConfigurationSpec.Type.*;
 import static dev.nokee.runtime.nativebase.MachineArchitecture.ARCHITECTURE_ATTRIBUTE;
+import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -168,11 +173,11 @@ public class ConfigurationUtils {
 					.build()));
 		}
 
-		public IncomingConfigurationAction forTargetMachine(DefaultTargetMachine targetMachine) {
+		public IncomingConfigurationAction forTargetMachine(TargetMachine targetMachine) {
 			return getObjects().newInstance(IncomingConfigurationAction.class,
 				spec.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 					.putAll(spec.attributes)
-					.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, getObjects().named(OperatingSystemFamily.class, targetMachine.getOperatingSystemFamily().getName()))
+					.put(OPERATING_SYSTEM_ATTRIBUTE, targetMachine.getOperatingSystemFamily())
 					.put(ARCHITECTURE_ATTRIBUTE, targetMachine.getArchitecture())
 					.build()));
 		}
@@ -197,7 +202,7 @@ public class ConfigurationUtils {
 
 			variant.getDimensions().forEach(it -> {
 				if (it.getAxis().equals(OPERATING_SYSTEM_COORDINATE_AXIS)) {
-					attributes.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, it.getValue());
+					attributes.put(OPERATING_SYSTEM_ATTRIBUTE, it.getValue());
 				} else if (it.getAxis().equals(MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS)) {
 					attributes.put(ARCHITECTURE_ATTRIBUTE, it.getValue());
 				} else if (it.getAxis().equals(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
@@ -320,11 +325,11 @@ public class ConfigurationUtils {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class, spec.withDescription(description));
 		}
 
-		public VariantAwareOutgoingConfigurationAction forTargetMachine(DefaultTargetMachine targetMachine) {
+		public VariantAwareOutgoingConfigurationAction forTargetMachine(TargetMachine targetMachine) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
 				spec.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 					.putAll(spec.attributes)
-					.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, getObjects().named(OperatingSystemFamily.class, targetMachine.getOperatingSystemFamily().getName()))
+					.put(OPERATING_SYSTEM_ATTRIBUTE, targetMachine.getOperatingSystemFamily())
 					.put(ARCHITECTURE_ATTRIBUTE, targetMachine.getArchitecture())
 					.build()));
 		}

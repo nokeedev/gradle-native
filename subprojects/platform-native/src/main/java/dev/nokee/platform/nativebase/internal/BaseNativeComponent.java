@@ -23,13 +23,13 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
 public abstract class BaseNativeComponent<T extends VariantInternal> extends BaseComponent<T> implements VariantAwareComponentInternal<T> {
 	private final Class<T> variantType;
@@ -57,7 +57,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	protected void createBinaries(KnownVariant<T> knownVariant) {
 		val variantIdentifier = knownVariant.getIdentifier();
 		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
-		final TargetMachine targetMachineInternal = buildVariant.getAxisValue(DefaultTargetMachine.TARGET_MACHINE_COORDINATE_AXIS);
+		final TargetMachine targetMachineInternal = buildVariant.getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
 
 		if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
 			val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
