@@ -2,7 +2,7 @@ package dev.nokee.fixtures
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.nokee.language.NativeProjectTasks
-import org.gradle.nativeplatform.OperatingSystemFamily
+import dev.nokee.runtime.nativebase.OperatingSystemFamily
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin
 import org.hamcrest.CoreMatchers
