@@ -6,6 +6,7 @@ import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
+import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.ArtifactTypes;
 import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import lombok.*;
@@ -26,6 +27,7 @@ import java.util.function.Consumer;
 import static com.google.common.collect.ImmutableMap.of;
 import static dev.nokee.platform.nativebase.internal.ConfigurationUtils.ConfigurationSpec.Type.*;
 import static dev.nokee.runtime.nativebase.MachineArchitecture.ARCHITECTURE_ATTRIBUTE;
+import static dev.nokee.runtime.nativebase.MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 import static java.util.Collections.emptyList;
@@ -193,8 +195,12 @@ public class ConfigurationUtils {
 			variant.getDimensions().forEach(it -> {
 				if (it.getAxis().equals(OPERATING_SYSTEM_COORDINATE_AXIS)) {
 					attributes.put(OPERATING_SYSTEM_ATTRIBUTE, it.getValue());
-				} else if (it.getAxis().equals(MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS)) {
+					attributes.put(org.gradle.nativeplatform.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE,
+						objects.named(org.gradle.nativeplatform.OperatingSystemFamily.class, ((OperatingSystemFamily)it.getValue()).getCanonicalName()));
+				} else if (it.getAxis().equals(ARCHITECTURE_COORDINATE_AXIS)) {
 					attributes.put(ARCHITECTURE_ATTRIBUTE, it.getValue());
+					attributes.put(org.gradle.nativeplatform.MachineArchitecture.ARCHITECTURE_ATTRIBUTE,
+						objects.named(org.gradle.nativeplatform.MachineArchitecture.class, ((MachineArchitecture) it.getValue()).getCanonicalName()));
 				} else if (it.getAxis().equals(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
 					attributes.put(BinaryLinkage.BINARY_LINKAGE_ATTRIBUTE, it.getValue());
 				} else if (it.getAxis().equals(BuildType.BUILD_TYPE_COORDINATE_AXIS)) {
