@@ -22,6 +22,11 @@ final class TargetMachineFactoryTestUtils {
 			public void assertOperatingSystem(TargetMachine machine) {
 				assertThat(machine.getOperatingSystemFamily(), equalTo(OperatingSystemFamily.forName(OperatingSystemFamily.WINDOWS)));
 			}
+
+			@Override
+			public String getName() {
+				return OperatingSystemFamily.WINDOWS;
+			}
 		},
 		LINUX {
 			@Override
@@ -32,6 +37,11 @@ final class TargetMachineFactoryTestUtils {
 			@Override
 			public void assertOperatingSystem(TargetMachine machine) {
 				assertThat(machine.getOperatingSystemFamily(), equalTo(OperatingSystemFamily.forName(OperatingSystemFamily.LINUX)));
+			}
+
+			@Override
+			public String getName() {
+				return OperatingSystemFamily.LINUX;
 			}
 		},
 		MACOS {
@@ -44,6 +54,11 @@ final class TargetMachineFactoryTestUtils {
 			public void assertOperatingSystem(TargetMachine machine) {
 				assertThat(machine.getOperatingSystemFamily(), equalTo(OperatingSystemFamily.forName(OperatingSystemFamily.MACOS)));
 			}
+
+			@Override
+			public String getName() {
+				return OperatingSystemFamily.MACOS;
+			}
 		},
 		FREE_BSD {
 			@Override
@@ -55,11 +70,18 @@ final class TargetMachineFactoryTestUtils {
 			public void assertOperatingSystem(TargetMachine machine) {
 				assertThat(machine.getOperatingSystemFamily(), equalTo(OperatingSystemFamily.forName(OperatingSystemFamily.FREE_BSD)));
 			}
+
+			@Override
+			public String getName() {
+				return OperatingSystemFamily.FREE_BSD;
+			}
 		};
 
 		public abstract TargetMachineBuilder apply(TargetMachineFactory factory);
 
 		public abstract void assertOperatingSystem(TargetMachine machine);
+
+		public abstract String getName();
 	}
 
 	enum MachineArchitectureConfigurer {
@@ -73,6 +95,11 @@ final class TargetMachineFactoryTestUtils {
 			public void assertMachineArchitecture(TargetMachine machine) {
 				assertThat(machine.getArchitecture(), equalTo(MachineArchitecture.forName(MachineArchitecture.X86)));
 			}
+
+			@Override
+			public String getName() {
+				return MachineArchitecture.X86;
+			}
 		},
 		X86_64 {
 			@Override
@@ -83,6 +110,11 @@ final class TargetMachineFactoryTestUtils {
 			@Override
 			public void assertMachineArchitecture(TargetMachine machine) {
 				assertThat(machine.getArchitecture(), equalTo(MachineArchitecture.forName(MachineArchitecture.X86_64)));
+			}
+
+			@Override
+			public String getName() {
+				return MachineArchitecture.X86_64;
 			}
 		},
 		HOST {
@@ -95,11 +127,18 @@ final class TargetMachineFactoryTestUtils {
 			public void assertMachineArchitecture(TargetMachine machine) {
 				assertThat(machine.getArchitecture(), equalTo(MachineArchitecture.forName(System.getProperty("os.arch"))));
 			}
+
+			@Override
+			public String getName() {
+				return MachineArchitecture.forName(System.getProperty("os.arch")).getCanonicalName();
+			}
 		};
 
 		public abstract TargetMachine apply(TargetMachineBuilder builder);
 
 		public abstract void assertMachineArchitecture(TargetMachine machine);
+
+		public abstract String getName();
 	}
 
 	static Stream<Arguments> configurers() {
