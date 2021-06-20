@@ -18,6 +18,11 @@ import org.gradle.language.cpp.CppBinary;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import static dev.nokee.runtime.nativebase.MachineArchitecture.ARCHITECTURE_ATTRIBUTE;
+import static dev.nokee.runtime.nativebase.MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS;
+import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE;
+import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
+
 public class ConfigurationUtilsEx {
 	public static void configureAsIncoming(Configuration configuration) {
 		configuration.setCanBeResolved(true);
@@ -74,10 +79,14 @@ public class ConfigurationUtilsEx {
 		return configuration -> {
 			val attributes = configuration.getAttributes();
 			variant.getDimensions().forEach(it -> {
-				if (it.getAxis().equals(OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS)) {
-					attributes.attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, (OperatingSystemFamily) it.getValue());
-				} else if (it.getAxis().equals(MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS)) {
-					attributes.attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, (MachineArchitecture) it.getValue());
+				if (it.getAxis().equals(OPERATING_SYSTEM_COORDINATE_AXIS)) {
+					attributes.attribute(OPERATING_SYSTEM_ATTRIBUTE, (OperatingSystemFamily) it.getValue());
+					attributes.attribute(org.gradle.nativeplatform.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE,
+						objects.named(org.gradle.nativeplatform.OperatingSystemFamily.class, ((OperatingSystemFamily) it.getValue()).getCanonicalName()));
+				} else if (it.getAxis().equals(ARCHITECTURE_COORDINATE_AXIS)) {
+					attributes.attribute(ARCHITECTURE_ATTRIBUTE, (MachineArchitecture) it.getValue());
+					attributes.attribute(org.gradle.nativeplatform.MachineArchitecture.ARCHITECTURE_ATTRIBUTE,
+						objects.named(org.gradle.nativeplatform.MachineArchitecture.class, ((MachineArchitecture) it.getValue()).getCanonicalName()));
 				} else if (it.getAxis().equals(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
 					// Do not configure this dimension for incoming dependencies
 				} else if (it.getAxis().equals(BuildType.BUILD_TYPE_COORDINATE_AXIS)) {
