@@ -13,7 +13,7 @@ import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
+import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.commons.io.FilenameUtils;
@@ -41,7 +41,7 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public ExecutableBinaryInternal(BinaryIdentifier<?> identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, DefaultTargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskViewFactory taskViewFactory) {
+	public ExecutableBinaryInternal(BinaryIdentifier<?> identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskViewFactory taskViewFactory) {
 		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations, taskViewFactory);
 		this.linkTask = linkTask;
 		this.tasks = tasks;

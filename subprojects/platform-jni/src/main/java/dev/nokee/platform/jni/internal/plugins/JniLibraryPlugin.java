@@ -47,8 +47,8 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.DefaultTargetMachine;
 import dev.nokee.runtime.nativebase.internal.RuntimeNativePlugin;
+import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -106,6 +106,7 @@ import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBase
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.configureUsingProjection;
 import static dev.nokee.platform.objectivec.internal.ObjectiveCSourceSetModelHelpers.configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
 import static dev.nokee.platform.objectivecpp.internal.ObjectiveCppSourceSetModelHelpers.configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
+import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TransformerUtils.transformEach;
@@ -223,7 +224,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			projection.getVariantCollection().whenElementKnown(knownVariant -> {
 				val buildVariant = knownVariant.getBuildVariant();
 				val variantIdentifier = knownVariant.getIdentifier();
-				final TargetMachine targetMachine = buildVariant.getAxisValue(DefaultTargetMachine.TARGET_MACHINE_COORDINATE_AXIS);
+				val targetMachine = buildVariant.getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
 
 				if (project.getPlugins().stream().anyMatch(appliedPlugin -> isNativeLanguagePlugin(appliedPlugin))) {
 					taskRegistry.register(TaskIdentifier.of(TaskName.of("objects"), ObjectsLifecycleTask.class, variantIdentifier), configureDependsOn(knownVariant.map(it -> it.getSharedLibrary().getCompileTasks())));
@@ -283,7 +284,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 
 				// Attach JNI Jar to assemble task
-				if (DefaultTargetMachine.isTargetingHost().test(targetMachine)) {
+				if (TargetMachines.isTargetingHost(targetMachine)) {
 					// Attach JNI Jar to assemble
 					taskRegistry.registerIfAbsent(ASSEMBLE_TASK_NAME).configure(it -> {
 						it.dependsOn(knownVariant.map(l -> l.getJar().getJarTask()));
