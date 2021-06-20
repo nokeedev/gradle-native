@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.*;
 
 class DefaultTargetBuildTypeTest {
 	TargetBuildType createSubject(String name) {
-		return DefaultTargetBuildTypeFactory.INSTANCE.named(name);
+		return RuntimeNativePlugin.TARGET_BUILD_TYPE_FACTORY.named(name);
 	}
 
 	@Test
