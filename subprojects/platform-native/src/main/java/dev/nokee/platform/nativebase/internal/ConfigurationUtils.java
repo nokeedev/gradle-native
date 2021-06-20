@@ -6,7 +6,6 @@ import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
-import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.ArtifactTypes;
 import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import lombok.*;
@@ -173,15 +172,6 @@ public class ConfigurationUtils {
 					.build()));
 		}
 
-		public IncomingConfigurationAction forTargetMachine(TargetMachine targetMachine) {
-			return getObjects().newInstance(IncomingConfigurationAction.class,
-				spec.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
-					.putAll(spec.attributes)
-					.put(OPERATING_SYSTEM_ATTRIBUTE, targetMachine.getOperatingSystemFamily())
-					.put(ARCHITECTURE_ATTRIBUTE, targetMachine.getArchitecture())
-					.build()));
-		}
-
 		@Override
 		public IncomingConfigurationAction withDescription(String description) {
 			return getObjects().newInstance(IncomingConfigurationAction.class, spec.withDescription(description));
@@ -323,15 +313,6 @@ public class ConfigurationUtils {
 		@Override
 		public VariantAwareOutgoingConfigurationAction withDescription(String description) {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class, spec.withDescription(description));
-		}
-
-		public VariantAwareOutgoingConfigurationAction forTargetMachine(TargetMachine targetMachine) {
-			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
-				spec.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
-					.putAll(spec.attributes)
-					.put(OPERATING_SYSTEM_ATTRIBUTE, targetMachine.getOperatingSystemFamily())
-					.put(ARCHITECTURE_ATTRIBUTE, targetMachine.getArchitecture())
-					.build()));
 		}
 	}
 
