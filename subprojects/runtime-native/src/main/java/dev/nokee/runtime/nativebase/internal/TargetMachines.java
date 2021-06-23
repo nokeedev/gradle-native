@@ -32,5 +32,10 @@ public final class TargetMachines {
 		DefaultHostTargetMachine() {
 			super(OperatingSystemFamily.forName(getProperty("os.name")), MachineArchitecture.forName(getProperty("os.arch")));
 		}
+
+		@Override
+		public String toString() {
+			return "host";
+		}
 	}
 }
