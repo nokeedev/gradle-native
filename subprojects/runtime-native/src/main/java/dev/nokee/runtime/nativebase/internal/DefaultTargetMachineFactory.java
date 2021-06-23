@@ -36,7 +36,7 @@ final class DefaultTargetMachineFactory implements TargetMachineFactory {
 	}
 
 	@Override
-	public DefaultTargetMachineBuilder os(String name) {
+	public TargetMachineBuilder os(String name) {
 		return new DefaultTargetMachineBuilder(OperatingSystemFamily.forName(name));
 	}
 
