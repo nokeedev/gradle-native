@@ -18,7 +18,7 @@ public final class ActionTestUtils {
 	 *
 	 * @return an action that does something meaningless, never null.
 	 */
-	public static <T> ActionUtils.Action<T> doSomething() {
+	public static <T> Action<T> doSomething() {
 		return new DoSomethingAction<>();
 	}
 
@@ -50,7 +50,7 @@ public final class ActionTestUtils {
 	 *
 	 * @return an action that does something else meaningless than {@link #doSomething()}, never null.
 	 */
-	public static <T> ActionUtils.Action<T> doSomethingElse() {
+	public static <T> Action<T> doSomethingElse() {
 		return new DoSomethingElseAction<>(null);
 	}
 
@@ -67,7 +67,7 @@ public final class ActionTestUtils {
 	 * @param what  the differentiator for the work to be done
 	 * @return an action that does something else meaningless than {@link #doSomething()} and {@link #doSomethingElse()}, never null.
 	 */
-	public static <T> ActionUtils.Action<T> doSomethingElse(Object what) {
+	public static <T> Action<T> doSomethingElse(Object what) {
 		return new DoSomethingElseAction<>(requireNonNull(what));
 	}
 

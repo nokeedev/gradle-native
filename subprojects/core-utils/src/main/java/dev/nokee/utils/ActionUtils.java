@@ -164,7 +164,7 @@ public final class ActionUtils {
 			return doNothing();
 		}
 
-		default Action<T> andThen(Action<? super T> after) {
+		default Action<T> andThen(org.gradle.api.Action<? super T> after) {
 			return composite(this, after);
 		}
 	}
