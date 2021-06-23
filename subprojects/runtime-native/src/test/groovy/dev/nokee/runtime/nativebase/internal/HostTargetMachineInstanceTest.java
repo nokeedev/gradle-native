@@ -1,5 +1,6 @@
 package dev.nokee.runtime.nativebase.internal;
 
+import dev.nokee.runtime.core.Coordinates;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -35,5 +36,11 @@ class HostTargetMachineInstanceTest {
 			() -> assertThat(subject.getAxis(), is(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)),
 			() -> assertThat(subject.getValue(), is(subject))
 		);
+	}
+
+	@Test
+	void hasOperatingSystemAndArchitectureCoordinate() {
+		val subject = TargetMachines.host();
+		assertThat(subject, contains(Coordinates.of(subject.getOperatingSystemFamily()), Coordinates.of(subject.getArchitecture())));
 	}
 }
