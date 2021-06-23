@@ -9,14 +9,14 @@ import static java.lang.System.getProperty;
 public final class TargetMachines {
 	private TargetMachines() {}
 
-	private static final TargetMachine HOST = new HostTargetMachine();
+	private static final HostTargetMachine HOST = new DefaultHostTargetMachine();
 
 	/**
 	 * Creates an {@link TargetMachine} with the host's operating system family and architecture.
 	 *
 	 * @return the {@link TargetMachine} for the host, never null.
 	 */
-	public static TargetMachine host() {
+	public static HostTargetMachine host() {
 		return HOST;
 	}
 
@@ -24,8 +24,12 @@ public final class TargetMachines {
 		return HOST.equals(targetMachine);
 	}
 
-	private static final class HostTargetMachine extends AbstractTargetMachine {
-		HostTargetMachine() {
+	// Declare host target machine to help internal APIs
+	public interface HostTargetMachine extends TargetMachine {}
+
+	/** @see #host() */
+	private static final class DefaultHostTargetMachine extends AbstractTargetMachine implements HostTargetMachine {
+		DefaultHostTargetMachine() {
 			super(OperatingSystemFamily.forName(getProperty("os.name")), MachineArchitecture.forName(getProperty("os.arch")));
 		}
 	}
