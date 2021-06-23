@@ -5,7 +5,7 @@ import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 
 class HostTargetMachineInstanceTest {
 	@Test
@@ -18,5 +18,10 @@ class HostTargetMachineInstanceTest {
 	void hasHostMachineArchitecture() {
 		assertThat(TargetMachines.host().getArchitecture(),
 			equalTo(MachineArchitecture.forName(System.getProperty("os.arch"))));
+	}
+
+	@Test
+	void checkToString() {
+		assertThat(TargetMachines.host(), hasToString("host"));
 	}
 }
