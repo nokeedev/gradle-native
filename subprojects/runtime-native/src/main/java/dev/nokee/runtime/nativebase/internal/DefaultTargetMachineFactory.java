@@ -29,6 +29,12 @@ final class DefaultTargetMachineFactory implements TargetMachineFactory {
 		return new DefaultTargetMachineBuilder(FREE_BSD);
 	}
 
+	// Internal, exposed for convenience.
+	// Host is just a placeholder, not a target machine.
+	public TargetMachine getHost() {
+		return TargetMachines.host();
+	}
+
 	@Override
 	public DefaultTargetMachineBuilder os(String name) {
 		return new DefaultTargetMachineBuilder(OperatingSystemFamily.forName(name));
