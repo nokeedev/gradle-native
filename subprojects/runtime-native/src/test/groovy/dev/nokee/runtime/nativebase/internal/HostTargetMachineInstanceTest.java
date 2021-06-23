@@ -2,10 +2,13 @@ package dev.nokee.runtime.nativebase.internal;
 
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
+import dev.nokee.runtime.nativebase.TargetMachine;
+import lombok.val;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 class HostTargetMachineInstanceTest {
 	@Test
@@ -23,5 +26,14 @@ class HostTargetMachineInstanceTest {
 	@Test
 	void checkToString() {
 		assertThat(TargetMachines.host(), hasToString("host"));
+	}
+
+	@Test
+	void hasCoordinateAxisAndValue() {
+		val subject = TargetMachines.host();
+		assertAll(
+			() -> assertThat(subject.getAxis(), is(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)),
+			() -> assertThat(subject.getValue(), is(subject))
+		);
 	}
 }

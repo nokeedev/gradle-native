@@ -1,5 +1,6 @@
 package dev.nokee.runtime.nativebase.internal;
 
+import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -25,7 +26,7 @@ public final class TargetMachines {
 	}
 
 	// Declare host target machine to help internal APIs
-	public interface HostTargetMachine extends TargetMachine {}
+	public interface HostTargetMachine extends TargetMachine, Coordinate<TargetMachine> {}
 
 	/** @see #host() */
 	private static final class DefaultHostTargetMachine extends AbstractTargetMachine implements HostTargetMachine {
