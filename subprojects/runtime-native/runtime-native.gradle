@@ -7,8 +7,8 @@ plugins {
 gradlePlugin {
 	plugins {
 		runtimeNative {
-			id = 'dev.nokee.runtime-native'
-			implementationClass = 'dev.nokee.runtime.nativebase.internal.RuntimeNativePlugin'
+			id = 'dev.nokee.native-runtime'
+			implementationClass = 'dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin'
 		}
 	}
 }
