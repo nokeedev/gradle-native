@@ -2,6 +2,7 @@ plugins {
 	id 'dev.gradleplugins.java-gradle-plugin'
 	id 'dev.gradleplugins.gradle-plugin-unit-test'
 	id 'dev.gradleplugins.gradle-plugin-functional-test'
+	id 'nokeebuild.maven-publish'
 }
 
 description = 'Generate basic site.'

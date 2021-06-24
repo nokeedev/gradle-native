@@ -1,6 +1,6 @@
 plugins {
 	id 'java-library'
-	id 'maven-publish'
+	id 'nokeebuild.maven-publish'
 }
 
 description = 'Suite of Gradle plugins to generate documentation and site.'
