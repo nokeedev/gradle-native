@@ -18,7 +18,7 @@ public final class ConfigurationUtils {
 	}
 
 	@EqualsAndHashCode
-	private static final class ConfigureDescriptionAction implements Action<Configuration> {
+	private static final class ConfigureDescriptionAction implements ActionUtils.Action<Configuration> {
 		private final Supplier<String> description;
 
 		public ConfigureDescriptionAction(Supplier<String> description) {
@@ -42,7 +42,7 @@ public final class ConfigurationUtils {
 	 *
 	 * @return a configuration action, never null
 	 */
-	public static ConfigurationAction asDeclarable() {
+	public static ActionUtils.Action<Configuration> asDeclarable() {
 		return ConfigurationActions.DECLARABLE;
 	}
 
@@ -61,7 +61,7 @@ public final class ConfigurationUtils {
 	 *
 	 * @return a configuration action, never null
 	 */
-	public static ConfigurationAction asConsumable() {
+	public static ActionUtils.Action<Configuration> asConsumable() {
 		return ConfigurationActions.CONSUMABLE;
 	}
 
@@ -80,7 +80,7 @@ public final class ConfigurationUtils {
 	 *
 	 * @return a configuration action, never null
 	 */
-	public static ConfigurationAction asResolvable() {
+	public static ActionUtils.Action<Configuration> asResolvable() {
 		return ConfigurationActions.RESOLVABLE;
 	}
 
@@ -93,8 +93,11 @@ public final class ConfigurationUtils {
 		return ConfigurationSpecs.RESOLVABLE;
 	}
 
-	public interface ConfigurationAction extends ActionUtils.Action<Configuration>, Assertable<Configuration> {}
-
+	/**
+	 * @see #declarable()
+	 * @see #consumable()
+	 * @see #resolvable()
+	 */
 	private enum ConfigurationSpecs implements SpecUtils.Spec<Configuration> {
 		DECLARABLE(ConfigurationBuckets.DECLARABLE),
 		CONSUMABLE(ConfigurationBuckets.CONSUMABLE),
@@ -117,7 +120,12 @@ public final class ConfigurationUtils {
 		}
 	}
 
-	private enum ConfigurationActions implements ConfigurationAction {
+	/**
+	 * @see #asDeclarable()
+	 * @see #asConsumable()
+	 * @see #asResolvable()
+	 */
+	private enum ConfigurationActions implements ActionUtils.Action<Configuration> {
 		DECLARABLE(ConfigurationBuckets.DECLARABLE),
 		CONSUMABLE(ConfigurationBuckets.CONSUMABLE),
 		RESOLVABLE(ConfigurationBuckets.RESOLVABLE);
@@ -129,18 +137,13 @@ public final class ConfigurationUtils {
 		}
 
 		@Override
-		public String toString() {
-			return "ConfigurationUtils.as" + StringUtils.capitalize(bucket.getConfigurationTypeName()) + "()";
-		}
-
-		@Override
-		public void satisfiedBy(Context<? extends Configuration> context) {
-			bucket.satisfiedBy(context);
-		}
-
-		@Override
 		public void execute(Configuration configuration) {
 			bucket.execute(configuration);
+		}
+
+		@Override
+		public String toString() {
+			return "ConfigurationUtils.as" + StringUtils.capitalize(bucket.getConfigurationTypeName()) + "()";
 		}
 	}
 
@@ -166,16 +169,8 @@ public final class ConfigurationUtils {
 			configuration.setCanBeResolved(canBeResolved);
 		}
 
-		public void satisfiedBy(Assertable.Context<? extends Configuration> context) {
-			context.assertThat(this::isSatisfiedBy, this::cannotReuseExistingConfiguration);
-		}
-
 		public boolean isSatisfiedBy(Configuration configuration) {
 			return configuration.isCanBeConsumed() == canBeConsumed && configuration.isCanBeResolved() == canBeResolved;
-		}
-
-		private String cannotReuseExistingConfiguration(Configuration configuration) {
-			return String.format("Cannot reuse existing configuration named '%s' as a %s configuration because it does not match the expected configuration (expecting: [canBeConsumed: %s, canBeResolved: %s], actual: [canBeConsumed: %s, canBeResolved: %s]).", configuration.getName(), getConfigurationTypeName(), canBeConsumed, canBeResolved, configuration.isCanBeConsumed(), configuration.isCanBeResolved());
 		}
 	}
 }
