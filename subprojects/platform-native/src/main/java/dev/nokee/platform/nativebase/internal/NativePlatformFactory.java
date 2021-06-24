@@ -22,7 +22,7 @@ public class NativePlatformFactory {
 		if (operatingSystemFamily.isMacOs()) {
 			return "osx";
 		}
-		return operatingSystemFamily.getName();
+		return operatingSystemFamily.getCanonicalName();
 	}
 
 	public static String platformNameFor(TargetMachine targetMachine) {
