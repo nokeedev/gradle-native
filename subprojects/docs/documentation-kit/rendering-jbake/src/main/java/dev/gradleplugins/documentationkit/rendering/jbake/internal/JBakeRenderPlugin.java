@@ -85,7 +85,7 @@ public class JBakeRenderPlugin implements Plugin<Project> {
 		extension.getConfigurations().putAll(project.provider(() -> loadPropertiesFileIfAvailable(layout.getProjectDirectory().file("src/jbake/jbake.properties"))));
 
 		val redirectionTask = tasks.register("redirections", GenerateRedirection.class, task -> {
-			task.getDestinationDirectory().dir("tmp/" + task.getName());
+			task.getDestinationDirectory().convention(layout.getBuildDirectory().dir("tmp/" + task.getName()));
 		});
 		extension.getContent().from(redirectionTask.flatMap(it -> it.getDestinationDirectory().dir("content")));
 		extension.getTemplates().from(redirectionTask.flatMap(it -> it.getDestinationDirectory().dir("templates")));
