@@ -5,6 +5,7 @@ import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.*;
 import org.gradle.api.attributes.Attribute;
+import org.gradle.api.attributes.AttributeContainer;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
@@ -146,6 +147,39 @@ public final class ConfigurationMatchers {
 		return new FeatureMatcher<Configuration, Map<Attribute<?>, ?>>(matcher, "a configuration with attribute", "attributes") {
 			@Override
 			protected Map<Attribute<?>, ?> featureValueOf(Configuration actual) {
+				return actual.getAttributes().keySet().stream().map(attribute -> new AbstractMap.SimpleImmutableEntry<>(attribute, actual.getAttributes().getAttribute(attribute))).collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+			}
+		};
+	}
+
+	/**
+	 * Matches an attribute for key and value matchers.
+	 *
+	 * @param keyMatcher  the attribute key matcher, must not be null
+	 * @param valueMatcher  the attribute value matcher, must not be null
+	 * @param <T>  the attribute type
+	 * @return an attribute container matcher for the specified key/value matchers, never null
+	 */
+	public static <T> Matcher<AttributeContainer> hasAttribute(Matcher<? super Attribute<T>> keyMatcher, Matcher<? super T> valueMatcher) {
+		return new FeatureMatcher<AttributeContainer, Map<? extends Attribute<?>, ?>>(hasEntry((Matcher<? super Attribute<?>>) keyMatcher, (Matcher<? super Object>) valueMatcher), "an attribute", "the attribute") {
+			@Override
+			protected Map<? extends Attribute<?>, ?> featureValueOf(AttributeContainer actual) {
+				return actual.getAttributes().keySet().stream().map(attribute -> new AbstractMap.SimpleImmutableEntry<>(attribute, actual.getAttributes().getAttribute(attribute))).collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+			}
+		};
+	}
+
+	/**
+	 * Matches an attribute key.
+	 *
+	 * @param attribute  the attribute key, must not be null
+	 * @param <T>  the attribute type
+	 * @return an attribute container matcher for the specified key, never null
+	 */
+	public static <T> Matcher<AttributeContainer> hasAttribute(Attribute<T> attribute) {
+		return new FeatureMatcher<AttributeContainer, Map<? extends Attribute<?>, ?>>(hasKey(equalTo(attribute)), "an attribute", "the attribute") {
+			@Override
+			protected Map<? extends Attribute<?>, ?> featureValueOf(AttributeContainer actual) {
 				return actual.getAttributes().keySet().stream().map(attribute -> new AbstractMap.SimpleImmutableEntry<>(attribute, actual.getAttributes().getAttribute(attribute))).collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
 			}
 		};
