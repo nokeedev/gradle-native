@@ -34,7 +34,7 @@ import java.util.Date;
 
 /**
  * Extracts meta-data from the Groovy and Java source files which make up the Gradle API. Persists the meta-data to a file
- * for later use in generating documentation for the DSL, such as by {@link org.gradle.build.docs.dsl.docbook.AssembleDslDocTask}.
+ * for later use in generating documentation for the DSL, such as by {@link dev.gradleplugins.documentationkit.dsl.docbook.AssembleDslDocTask}.
  */
 @CacheableTask
 public abstract class ExtractDslMetaDataTask extends SourceTask {
