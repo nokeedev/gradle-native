@@ -10,6 +10,10 @@ gradlePlugin {
 			id = 'dev.nokee.native-runtime'
 			implementationClass = 'dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin'
 		}
+		runtimeNativeBase {
+			id = 'dev.nokee.native-runtime-base'
+			implementationClass = 'dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin'
+		}
 	}
 }
 
