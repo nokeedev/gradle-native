@@ -3,6 +3,8 @@ plugins {
 	id 'maven-publish'
 }
 
+description = 'Suite of Gradle plugins to generate documentation and site.'
+
 dependencies {
 	api project(':build-language-reference')
 	api project(':publishing-github-pages')
