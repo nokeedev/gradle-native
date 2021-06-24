@@ -18,6 +18,11 @@ allprojects {
 	version = '1.0.5'
 }
 
+java {
+	withJavadocJar()
+	withSourcesJar()
+}
+
 publishing.publications.create('java', MavenPublication) {
 	from components.java
 }

@@ -31,4 +31,8 @@ gradlePlugin {
 	compatibility {
 		minimumGradleVersion = project.minimumGradleVersion
 	}
+	java {
+		withJavadocJar()
+		withSourcesJar()
+	}
 }
