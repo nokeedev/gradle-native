@@ -31,7 +31,7 @@ import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentO
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.Coordinates;
-import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
+import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.utils.Cast;
@@ -81,7 +81,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 		this.productBundleIdentifier = configureDisplayName(objects.property(String.class), "productBundleIdentifier");
 
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetLinkages.BUNDLE)));
-		getDimensions().add(CoordinateSet.of(Coordinates.of(NativeRuntimePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())));
+		getDimensions().add(CoordinateSet.of(Coordinates.of(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())));
 
 		// TODO: Move to extension
 		getBuildVariants().convention(getFinalSpace().map(DefaultBuildVariant::fromSpace));
