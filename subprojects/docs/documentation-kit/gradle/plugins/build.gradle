@@ -1,0 +1,3 @@
+plugins {
+	id 'dev.gradleplugins.groovy-gradle-plugin' version '1.3'
+}

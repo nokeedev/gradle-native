@@ -1,6 +1,7 @@
 plugins {
 	id 'dev.gradleplugins.groovy-gradle-plugin'
 	id 'dev.gradleplugins.gradle-plugin-unit-test'
+	id 'nokeebuild.maven-publish'
 }
 
 description = 'Generate build language reference documentation.'
