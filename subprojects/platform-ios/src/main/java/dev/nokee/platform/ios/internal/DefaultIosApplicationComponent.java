@@ -34,7 +34,7 @@ import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycl
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.Coordinates;
-import dev.nokee.runtime.nativebase.internal.RuntimeNativePlugin;
+import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import lombok.Getter;
@@ -88,7 +88,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetLinkages.EXECUTABLE)));
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetBuildTypes.named("Default"))));
-		getDimensions().add(CoordinateSet.of(Coordinates.of(RuntimeNativePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())));
+		getDimensions().add(CoordinateSet.of(Coordinates.of(NativeRuntimePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())));
 		this.taskRegistry = taskRegistry;
 		this.componentVariants = new IosComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, sourceViewOf(this));
 		this.binaries = binaryViewFactory.create(identifier);

@@ -5,7 +5,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.attributes.AttributeMatchingStrategy;
 
-public /*final*/ abstract class RuntimeNativePlugin implements Plugin<Project> {
+public /*final*/ abstract class NativeRuntimePlugin implements Plugin<Project> {
 	public static final TargetMachineFactory TARGET_MACHINE_FACTORY = new DefaultTargetMachineFactory();
 	public static final TargetLinkageFactory TARGET_LINKAGE_FACTORY = new DefaultTargetLinkageFactory();
 	public static final TargetBuildTypeFactory TARGET_BUILD_TYPE_FACTORY = new DefaultTargetBuildTypeFactory();

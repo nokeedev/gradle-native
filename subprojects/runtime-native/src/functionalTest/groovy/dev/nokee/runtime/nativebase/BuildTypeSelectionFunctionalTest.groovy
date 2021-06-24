@@ -13,7 +13,7 @@ class BuildTypeSelectionFunctionalTest extends AbstractGradleSpecification {
 		"""
 		buildFile << """
 			plugins {
-				id 'dev.nokee.runtime-native'
+				id 'dev.nokee.native-runtime'
 			}
 
 			import ${BuildType.canonicalName}

@@ -47,7 +47,7 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.RuntimeNativePlugin;
+import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -151,7 +151,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply("base");
 		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(StandardToolChainsPlugin.class);
-		project.getPluginManager().apply(RuntimeNativePlugin.class);
+		project.getPluginManager().apply(NativeRuntimePlugin.class);
 
 		val extension = registerExtension(project);
 		TaskRegistry taskRegistry = project.getExtensions().getByType(TaskRegistry.class);

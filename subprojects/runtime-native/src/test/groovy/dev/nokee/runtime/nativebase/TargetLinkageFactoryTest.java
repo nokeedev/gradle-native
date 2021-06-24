@@ -1,6 +1,6 @@
 package dev.nokee.runtime.nativebase;
 
-import dev.nokee.runtime.nativebase.internal.RuntimeNativePlugin;
+import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +10,7 @@ import static org.hamcrest.Matchers.isA;
 
 class TargetLinkageFactoryTest {
 	TargetLinkageFactory createSubject() {
-		return RuntimeNativePlugin.TARGET_LINKAGE_FACTORY;
+		return NativeRuntimePlugin.TARGET_LINKAGE_FACTORY;
 	}
 
 	@Test

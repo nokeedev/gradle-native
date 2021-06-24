@@ -1,13 +1,12 @@
 package dev.nokee.runtime.nativebase;
 
-import dev.nokee.runtime.nativebase.internal.RuntimeNativePlugin;
+import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 
 class TargetMachineFactoryTest implements TargetMachineFactoryTester{
 	@Override
 	public TargetMachineFactory createSubject() {
-		return RuntimeNativePlugin.TARGET_MACHINE_FACTORY;
+		return NativeRuntimePlugin.TARGET_MACHINE_FACTORY;
 	}
 
 	@Nested
