@@ -1,9 +1,14 @@
 plugins {
 	id 'java-library'
 	id 'nokeebuild.maven-publish'
+	id 'io.github.gradle-nexus.publish-plugin' version '1.0.0'
 }
 
 description = 'Suite of Gradle plugins to generate documentation and site.'
+
+repositories {
+	gradlePluginDevelopment()
+}
 
 dependencies {
 	api project(':build-language-reference')
@@ -52,16 +57,9 @@ subprojects {
 	}
 }
 
-// Publish to Nokee
-allprojects {
-	apply plugin: 'maven-publish'
-	publishing {
-		repositories {
-			maven {
-				name = 'nokeeRelease'
-				url = providers.gradleProperty("${name}Url").forUseAtConfigurationTime().orElse("")
-				credentials(AwsCredentials)
-			}
-		}
+// Publish to Maven Central
+nexusPublishing {
+	repositories {
+		sonatype()
 	}
 }
