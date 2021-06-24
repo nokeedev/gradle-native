@@ -7,7 +7,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
-import static dev.nokee.utils.Assertions.assertConfigured;
 import static dev.nokee.utils.ConfigurationUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -20,13 +19,6 @@ class ConfigurationUtils_AsDeclarableTest {
 		val configuration = testConfiguration(asDeclarable());
 		assertThat("should not be consumable", configuration.isCanBeConsumed(), equalTo(false));
 		assertThat("should not be resolvable", configuration.isCanBeResolved(), equalTo(false));
-	}
-
-	@Test
-	void canCheckWhenConfigurationIsNotDeclarable() {
-		val ex = assertThrows(IllegalStateException.class,
-			() -> assertConfigured(testConfiguration(), asDeclarable()));
-		assertThat(ex.getMessage(), equalTo("Cannot reuse existing configuration named 'test' as a declarable configuration because it does not match the expected configuration (expecting: [canBeConsumed: false, canBeResolved: false], actual: [canBeConsumed: true, canBeResolved: true])."));
 	}
 
 	@Test

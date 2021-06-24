@@ -7,7 +7,6 @@ import dev.nokee.utils.ConfigurationUtils;
 import dev.nokee.utils.ProviderUtils;
 import lombok.EqualsAndHashCode;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.artifacts.Configuration;
@@ -29,13 +28,15 @@ import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.bundling.Zip;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static dev.nokee.platform.base.internal.tasks.TaskName.taskName;
-import static dev.nokee.utils.Assertions.doNothingWhenPresent;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
 import static java.util.Objects.requireNonNull;
 import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.DIRECTORY_TYPE;
@@ -431,16 +432,16 @@ public final class ProjectConfigurationActions {
 		}
 
 		private void execute(Configuration configuration, TaskContainer tasks) {
-			val zipTask = registerIfAbsent(tasks, taskName("zip", configuration.getName()), Zip.class, doNothingWhenPresent(task -> {
+			val zipTask = registerIfAbsent(tasks, taskName("zip", configuration.getName()), Zip.class, task -> {
 				task.getArchiveClassifier().set(guessClassifier(configuration.getName()));
 				task.getDestinationDirectory().fileValue(task.getTemporaryDir()).disallowChanges();
-			}));
+			});
 			zipTask.configure(task -> task.from(files));
 			configuration.getOutgoing().artifact(zipTask);
 
-			val stageTask = registerIfAbsent(tasks, taskName("stage", configuration.getName()), Sync.class, doNothingWhenPresent(task -> {
+			val stageTask = registerIfAbsent(tasks, taskName("stage", configuration.getName()), Sync.class, task -> {
 				task.setDestinationDir(task.getTemporaryDir());
-			}));
+			});
 			zipTask.configure(task -> task.from(files));
 			configuration.getOutgoing().getVariants().create("directory", variant -> {
 				variant.artifact(stageTask.map(Sync::getDestinationDir), it -> {
@@ -479,10 +480,10 @@ public final class ProjectConfigurationActions {
 		}
 
 		private void execute(Configuration configuration, TaskContainer tasks) {
-			val zipTask = registerIfAbsent(tasks, taskName("zip", configuration.getName()), Zip.class, doNothingWhenPresent(task -> {
+			val zipTask = registerIfAbsent(tasks, taskName("zip", configuration.getName()), Zip.class, task -> {
 				task.getArchiveClassifier().set(guessClassifier(configuration.getName()));
 				task.getDestinationDirectory().fileValue(task.getTemporaryDir()).disallowChanges();
-			}));
+			});
 			zipTask.configure(task -> task.from(directoryProvider));
 			configuration.getOutgoing().artifact(zipTask);
 

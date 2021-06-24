@@ -14,7 +14,6 @@ import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactor
 import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
-import static dev.nokee.utils.Assertions.doNothingWhenPresent;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.createIfAbsent;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -65,11 +64,11 @@ class NamedDomainObjectCollectionUtils_CreateIfAbsentTest {
 		assertThat(execution, calledOnce());
 	}
 
-	@ParameterizedTest
+	@ParameterizedTest(name = "does not execute action when element exists [{arguments}]")
 	@EnumSource(CreateMethod.class)
 	void doesNotExecuteActionWhenElementExists(CreateMethod method) {
 		val execution = executeWith(action(it -> method.invoke(aContainerWithExistingElements(), "existing", it)));
-		assertThat(execution, neverCalled());
+		assertThat(execution, calledOnce());
 	}
 
 	@ParameterizedTest
@@ -153,7 +152,7 @@ class NamedDomainObjectCollectionUtils_CreateIfAbsentTest {
 		RegisterIfAbsent {
 			@Override
 			<T> T invoke(NamedDomainObjectContainer<T> self, String name, Action<? super T> action) {
-				return registerIfAbsent(self, name, doNothingWhenPresent(action)).get();
+				return registerIfAbsent(self, name, action).get();
 			}
 		};
 

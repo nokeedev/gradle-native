@@ -6,26 +6,20 @@ import org.gradle.api.*;
 import org.gradle.api.internal.DefaultDomainObjectCollection;
 import org.gradle.api.internal.DefaultNamedDomainObjectCollection;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
+import java.util.*;
+import java.util.function.*;
 
 public final class NamedDomainObjectCollectionUtils {
 	private NamedDomainObjectCollectionUtils() {}
 
 	//region createIfAbsent
 	public static <T> T createIfAbsent(NamedDomainObjectContainer<T> self, String name, Action<? super T> action) {
-		// TODO: Wire in assertable
 		// TODO: Should assert the type base type
-		return (T) findElement(self, name).map(byName(self)).orElseGet(createUsing(self, name, action));
+		return (T) findElement(self, name).map(byName(self, action)).orElseGet(createUsing(self, name, action));
 	}
 
 	public static <U extends T, T> T createIfAbsent(PolymorphicDomainObjectContainer<T> self, String name, Class<U> type, Action<? super U> action) {
-		// TODO: Wire in assertable
-		return (U) findElement(self, name).map(assertNoMismatch(self, type)).map(byName(self)).orElseGet(createUsing(self, name, type, action));
+		return (U) findElement(self, name).map(assertNoMismatch(self, type)).map(byName(self, action)).orElseGet(createUsing(self, name, type, action));
 	}
 	//endregion
 
@@ -47,8 +41,8 @@ public final class NamedDomainObjectCollectionUtils {
 		};
 	}
 
-	private static <U extends T, T> Function<NamedDomainObjectCollectionSchema.NamedDomainObjectSchema, U> byName(NamedDomainObjectCollection<T> self) {
-		return element -> (U) self.getByName(element.getName());
+	private static <U extends T, T> Function<NamedDomainObjectCollectionSchema.NamedDomainObjectSchema, U> byName(NamedDomainObjectCollection<T> self, Action<? super U> action) {
+		return element -> (U) self.withType((Class<U>) element.getPublicType().getConcreteClass()).getByName(element.getName(), action);
 	}
 
 	//region registerIfAbsent
@@ -60,9 +54,9 @@ public final class NamedDomainObjectCollectionUtils {
 		return self.register(name);
 	}
 
-	public static <T, ACTION extends Action<T> & Assertable<T>> NamedDomainObjectProvider<T> registerIfAbsent(NamedDomainObjectContainer<T> self, String name, ACTION action) {
+	public static <T> NamedDomainObjectProvider<T> registerIfAbsent(NamedDomainObjectContainer<T> self, String name, Action<? super T> action) {
 		if (hasElementWithName(self, name)) {
-			return Assertions.configure(self.named(name), action);
+			return self.named(name, action);
 		}
 
 		return self.register(name, action);
@@ -77,11 +71,10 @@ public final class NamedDomainObjectCollectionUtils {
 		return self.register(name, type);
 	}
 
-	// TODO: The action here should force to be assertable to make the contract clear that when you registerIfAbsent, the action should match the base configuration of the existing element
-	public static <U extends T, T, ACTION extends Action<U> & Assertable<U>> NamedDomainObjectProvider<U> registerIfAbsent(PolymorphicDomainObjectContainer<T> self, String name, Class<U> type, ACTION action) {
+	public static <U extends T, T> NamedDomainObjectProvider<U> registerIfAbsent(PolymorphicDomainObjectContainer<T> self, String name, Class<U> type, Action<? super U> action) {
 		if (hasElementWithName(self, name)) {
 			// TODO: Assert type is correct one, be careful with Task and DefaultTask for TaskContainer
-			return Assertions.configure(self.named(name, type), action);
+			return self.named(name, type, action);
 		}
 
 		return self.register(name, type, action);
