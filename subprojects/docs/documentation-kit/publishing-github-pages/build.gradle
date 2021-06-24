@@ -4,6 +4,8 @@ plugins {
 	id 'dev.gradleplugins.gradle-plugin-functional-test'
 }
 
+description = 'Publish to GitHub pages.'
+
 repositories {
 	mavenCentral()
 }

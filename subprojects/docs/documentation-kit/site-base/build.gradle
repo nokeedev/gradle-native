@@ -4,6 +4,8 @@ plugins {
 	id 'dev.gradleplugins.gradle-plugin-functional-test'
 }
 
+description = 'Generate basic site.'
+
 repositories {
 	mavenCentral()
 }

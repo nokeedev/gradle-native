@@ -3,6 +3,8 @@ plugins {
 	id 'dev.gradleplugins.gradle-plugin-unit-test'
 }
 
+description = 'Generate build language reference documentation.'
+
 repositories {
 	mavenCentral()
 	maven { url = 'https://repo.nokee.dev/snapshot' }

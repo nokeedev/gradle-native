@@ -2,6 +2,8 @@ plugins {
 	id 'dev.gradleplugins.java-gradle-plugin'
 }
 
+description = 'Render documentation using JBake.'
+
 repositories {
 	mavenCentral()
 	maven { url = 'https://repo.nokee.dev/snapshot' }
