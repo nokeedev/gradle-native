@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.attributes.Attribute;
 
 import java.util.Locale;
 import java.util.function.Supplier;
@@ -12,6 +13,8 @@ import static java.util.Objects.requireNonNull;
 
 public final class ConfigurationUtils {
 	private ConfigurationUtils() {}
+
+	public static final Attribute<String> ARTIFACT_TYPE_ATTRIBUTE = Attribute.of("artifactType", String.class);
 
 	public static Action<Configuration> configureDescription(Supplier<String> description) {
 		return new ConfigureDescriptionAction(description);
