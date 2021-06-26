@@ -24,6 +24,12 @@ dependencies {
 	functionalTestImplementation project(':runtimeBase')
 }
 
+test {
+	dependencies {
+		implementation testFixtures(project(':runtimeBase'))
+	}
+}
+
 publishing {
 	publications {
 		library(MavenPublication) {
