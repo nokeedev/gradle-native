@@ -14,8 +14,6 @@ dependencies {
 	implementation 'com.google.code.gson:gson:2.8.6'
 	testImplementation 'uk.co.probablyfine:java-8-matchers:1.9'
 
-	testFixturesApi "org.hamcrest:hamcrest:${hamcrestVersion}"
-	testFixturesApi "org.junit.jupiter:junit-jupiter:${junitVersion}"
-	testFixturesApi "com.google.guava:guava-testlib:30.0-jre"
-	testFixturesApi "com.spotify:hamcrest-optional:${hamcrestOptionalVersion}"
+	testFixturesCompileOnly gradleApi(minimumGradleVersion)
+	testFixturesImplementation project(':internalTesting')
 }
