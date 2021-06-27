@@ -12,12 +12,15 @@ class DirectoryArtifactTypeSelectionFunctionalTest extends AbstractGradleSpecifi
 			configurations.create('test') {
 				canBeConsumed = false
 				canBeResolved = true
-				attributes {
-					attribute(Attribute.of('artifactType', String), ArtifactTypeDefinition.DIRECTORY_TYPE)
-				}
 			}
 
-			def verifyTask = tasks.register('verify')
+			def verifyTask = tasks.register('verify') {
+				ext.resolvedFiles = configurations.test.incoming.artifactView {
+					attributes {
+						attribute(Attribute.of('artifactType', String), ArtifactTypeDefinition.DIRECTORY_TYPE)
+					}
+				}.files
+			}
 		"""
 	}
 
@@ -30,7 +33,7 @@ class DirectoryArtifactTypeSelectionFunctionalTest extends AbstractGradleSpecifi
 
 			verifyTask.configure {
 				doLast {
-					assert configurations.test.singleFile.name == 'test-directory'
+					assert resolvedFiles.singleFile.name == 'test-directory'
 				}
 			}
 		'''
@@ -48,12 +51,13 @@ class DirectoryArtifactTypeSelectionFunctionalTest extends AbstractGradleSpecifi
 
 			verifyTask.configure {
 				doLast {
-					configurations.test.singleFile
+					resolvedFiles.singleFile
 				}
 			}
 		'''
 
 		expect:
-		fails('verify')
+		def failure = fails('verify')
+		failure.assertOutputContains("Expected configuration ':test' files to contain exactly one file, however, it contains no files.")
 	}
 }
