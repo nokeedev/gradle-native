@@ -15,7 +15,8 @@ import java.util.function.Supplier;
 final class BuildTypeAttributeSchema implements Action<AttributeMatchingStrategy<BuildType>> {
 	@Override
 	public void execute(AttributeMatchingStrategy<BuildType> strategy) {
-
+		strategy.getCompatibilityRules().add(CompatibilityRules.class);
+		strategy.getDisambiguationRules().add(SelectionRules.class);
 	}
 
 	static /*final*/ class CompatibilityRules implements AttributeCompatibilityRule<BuildType> {
