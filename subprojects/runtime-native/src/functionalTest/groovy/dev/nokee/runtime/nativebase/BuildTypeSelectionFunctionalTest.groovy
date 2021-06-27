@@ -40,7 +40,7 @@ class BuildTypeSelectionFunctionalTest extends AbstractGradleSpecification {
 			dependencies {
 				test(project(':lib')) {
 					attributes {
-						attribute(BuildType.BUILD_TYPE_ATTRIBUTE, BuildType.named('${buildType}'))
+						attribute(BuildType.BUILD_TYPE_ATTRIBUTE, objects.named(BuildType, '${buildType}'))
 					}
 				}
 			}
@@ -65,7 +65,7 @@ class BuildTypeSelectionFunctionalTest extends AbstractGradleSpecification {
 			dependencies {
 				test(project(':lib')) {
 					attributes {
-						attribute(BuildType.BUILD_TYPE_ATTRIBUTE, BuildType.named('debug'))
+						attribute(BuildType.BUILD_TYPE_ATTRIBUTE, objects.named(BuildType, 'debug'))
 					}
 				}
 			}
@@ -91,7 +91,7 @@ class BuildTypeSelectionFunctionalTest extends AbstractGradleSpecification {
 			dependencies {
 				test(project(':lib')) {
 					attributes {
-						attribute(BuildType.BUILD_TYPE_ATTRIBUTE, BuildType.named('${buildType}'))
+						attribute(BuildType.BUILD_TYPE_ATTRIBUTE, objects.named(BuildType, '${buildType}'))
 					}
 				}
 			}
@@ -143,7 +143,7 @@ class BuildTypeSelectionFunctionalTest extends AbstractGradleSpecification {
 				canBeConsumed = true
 				canBeResolved = false
 				attributes {
-					attribute(BuildType.BUILD_TYPE_ATTRIBUTE, BuildType.named('${name}'))
+					attribute(BuildType.BUILD_TYPE_ATTRIBUTE, objects.named(BuildType, '${name}'))
 				}
 				outgoing.artifact(file('${name}'))
 			}
