@@ -1,12 +1,8 @@
 package dev.nokee.runtime.darwin.internal.plugins;
 
-import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.attributes.AttributeCompatibilityRule;
-import org.gradle.api.attributes.AttributeDisambiguationRule;
-import org.gradle.api.attributes.CompatibilityCheckDetails;
-import org.gradle.api.attributes.MultipleCandidatesDetails;
+import org.gradle.api.attributes.*;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.language.cpp.CppBinary;
@@ -18,8 +14,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static dev.nokee.runtime.nativebase.internal.ArtifactTypes.FRAMEWORK_TYPE;
-import static dev.nokee.runtime.nativebase.internal.LibraryElements.DYNAMIC_LIB;
-import static dev.nokee.runtime.nativebase.internal.LibraryElements.FRAMEWORK_BUNDLE;
+import static dev.nokee.runtime.darwin.internal.DarwinLibraryElements.FRAMEWORK_BUNDLE;
+import static org.gradle.api.attributes.LibraryElements.DYNAMIC_LIB;
 
 public class CompatibilityRules implements Plugin<Project> {
 	private static final Logger LOGGER = Logging.getLogger(CompatibilityRules.class);

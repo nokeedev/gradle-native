@@ -7,7 +7,7 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketName;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucket;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.runtime.nativebase.internal.LibraryElements;
+import dev.nokee.runtime.darwin.internal.DarwinLibraryElements;
 import dev.nokee.utils.ActionUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
 import org.gradle.api.attributes.Attribute;
+import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
@@ -214,7 +215,7 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 		Optional<Attribute<?>> attribute = result.getVariant().getAttributes().keySet().stream().filter(it -> it.getName().equals(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE.getName())).findFirst();
 		if (attribute.isPresent()) {
 			String v = result.getVariant().getAttributes().getAttribute(attribute.get()).toString();
-			if (v.equals(LibraryElements.FRAMEWORK_BUNDLE)) {
+			if (v.equals(DarwinLibraryElements.FRAMEWORK_BUNDLE)) {
 				return true;
 			}
 			return false;
