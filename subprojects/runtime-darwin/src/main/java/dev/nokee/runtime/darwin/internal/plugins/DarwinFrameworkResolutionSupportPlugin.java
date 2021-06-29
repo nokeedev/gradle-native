@@ -78,7 +78,6 @@ public class DarwinFrameworkResolutionSupportPlugin implements Plugin<Project> {
 	public void configure(DependencyHandler dependencies) {
 		dependencies.artifactTypes(it -> {
 			it.create("localpath", type -> type.getAttributes().attribute(ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, SERIALIZED));
-			it.create(FRAMEWORK_TYPE);
 		});
 		dependencies.registerTransform(DeserializeLocalFramework.class, variantTransform -> {
 			variantTransform.getFrom()
