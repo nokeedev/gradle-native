@@ -30,10 +30,8 @@ test {
 	}
 }
 
-publishing {
-	publications {
-		library(MavenPublication) {
-			from components.java
-		}
+functionalTest {
+	dependencies {
+		implementation 'dev.nokee:templates:latest.integration'
 	}
 }
