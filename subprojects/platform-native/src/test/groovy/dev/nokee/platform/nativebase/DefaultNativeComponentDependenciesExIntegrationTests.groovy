@@ -10,11 +10,13 @@ import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponen
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory
 import spock.lang.Subject
 
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory
+
 @Subject(DefaultNativeComponentDependencies)
 class DefaultNativeComponentDependenciesIntegrationTest extends AbstractComponentDependenciesIntegrationTest {
 	@Override
 	protected newDependencies(DomainObjectIdentifierInternal identifier) {
-		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)))
+		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(objectFactory(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)))
 		return project.objects.newInstance(DefaultNativeComponentDependencies, dependencyContainer)
 	}
 
@@ -28,7 +30,7 @@ class DefaultNativeComponentDependenciesIntegrationTest extends AbstractComponen
 class DefaultNativeComponentDependenciesLocalDarwinFrameworkIntegrationTest extends AbstractLocalDarwinFrameworkDependenciesIntegrationTest {
 	@Override
 	protected newDependencies(DomainObjectIdentifierInternal identifier) {
-		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)))
+		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(objectFactory(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)))
 		return project.objects.newInstance(DefaultNativeComponentDependencies, dependencyContainer)
 	}
 

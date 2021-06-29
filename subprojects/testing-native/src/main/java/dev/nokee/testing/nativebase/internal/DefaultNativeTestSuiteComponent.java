@@ -96,7 +96,7 @@ public final class DefaultNativeTestSuiteComponent extends BaseNativeComponent<D
 		this.tasks = tasks;
 		this.modelLookup = modelLookup;
 
-		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
+		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(objects, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.testedComponent = Cast.uncheckedCast(objects.property(BaseComponent.class));
 

@@ -10,11 +10,13 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory
 import spock.lang.Subject
 
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory
+
 @Subject(DefaultJavaNativeInterfaceLibraryComponentDependencies)
 class DefaultJavaNativeInterfaceLibraryComponentDependenciesIntegrationTest extends AbstractComponentDependenciesIntegrationTest {
 	@Override
 	protected newDependencies(DomainObjectIdentifierInternal identifier) {
-		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)))
+		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(objectFactory(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)))
 		return project.objects.newInstance(DefaultJavaNativeInterfaceLibraryComponentDependencies, dependencyContainer)
 	}
 
@@ -28,7 +30,7 @@ class DefaultJavaNativeInterfaceLibraryComponentDependenciesIntegrationTest exte
 class DefaultJavaNativeInterfaceLibraryComponentDependenciesLocalDarwinFrameworkIntegrationTest extends AbstractLocalDarwinFrameworkDependenciesIntegrationTest {
 	@Override
 	protected newDependencies(DomainObjectIdentifierInternal identifier) {
-		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)))
+		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(objectFactory(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)))
 		return project.objects.newInstance(DefaultJavaNativeInterfaceLibraryComponentDependencies, dependencyContainer)
 	}
 
@@ -43,7 +45,7 @@ class DefaultJavaNativeInterfaceLibraryComponentDependenciesLocalDarwinFramework
 class DefaultJavaNativeInterfaceLibraryComponentDependenciesApiBucketIntegrationTest extends AbstractLibraryComponentDependenciesIntegrationTest {
 	@Override
 	protected newDependencies(DomainObjectIdentifierInternal identifier) {
-		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)))
+		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(objectFactory(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)))
 		return project.objects.newInstance(DefaultJavaNativeInterfaceLibraryComponentDependencies, dependencyContainer)
 	}
 
