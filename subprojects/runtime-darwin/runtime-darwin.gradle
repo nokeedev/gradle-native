@@ -16,3 +16,24 @@ dependencies {
 	implementation "org.antlr:antlr4:${antlrVersion}"
 	antlr "org.antlr:antlr4:${antlrVersion}"
 }
+
+gradlePlugin {
+	plugins {
+		runtimeDarwin {
+			id = 'dev.nokee.darwin-runtime'
+			implementationClass = 'dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin'
+		}
+	}
+}
+
+test {
+	dependencies {
+		implementation testFixtures(project(':runtimeBase'))
+	}
+}
+
+functionalTest {
+	dependencies {
+		implementation 'dev.nokee:templates:latest.integration'
+	}
+}
