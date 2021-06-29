@@ -6,6 +6,8 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.*;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.AttributeContainer;
+import org.gradle.api.attributes.HasAttributes;
+import org.gradle.api.attributes.HasConfigurableAttributes;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
@@ -143,10 +145,10 @@ public final class ConfigurationMatchers {
 	 * @param matcher  matcher for all of the configuration's attributes, must not be null
 	 * @return a configuration matcher for its attributes, never null
 	 */
-	public static Matcher<Configuration> attributes(Matcher<Map<? extends Attribute<?>, ?>> matcher) {
-		return new FeatureMatcher<Configuration, Map<Attribute<?>, ?>>(matcher, "a configuration with attribute", "attributes") {
+	public static Matcher<HasAttributes> attributes(Matcher<Map<? extends Attribute<?>, ?>> matcher) {
+		return new FeatureMatcher<HasAttributes, Map<Attribute<?>, ?>>(matcher, "a configuration with attribute", "attributes") {
 			@Override
-			protected Map<Attribute<?>, ?> featureValueOf(Configuration actual) {
+			protected Map<Attribute<?>, ?> featureValueOf(HasAttributes actual) {
 				return actual.getAttributes().keySet().stream().map(attribute -> new AbstractMap.SimpleImmutableEntry<>(attribute, actual.getAttributes().getAttribute(attribute))).collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
 			}
 		};
