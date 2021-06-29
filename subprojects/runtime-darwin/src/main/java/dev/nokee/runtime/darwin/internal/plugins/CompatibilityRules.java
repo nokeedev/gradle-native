@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static dev.nokee.runtime.nativebase.internal.ArtifactTypes.FRAMEWORK_TYPE;
 import static dev.nokee.runtime.darwin.internal.DarwinLibraryElements.FRAMEWORK_BUNDLE;
 import static org.gradle.api.attributes.LibraryElements.DYNAMIC_LIB;
 
@@ -86,7 +85,7 @@ public class CompatibilityRules implements Plugin<Project> {
 			}
 			if (candidates.containsKey(FRAMEWORK_BUNDLE)) {
 				LOGGER.debug("Pick framework " + candidates.get(FRAMEWORK_BUNDLE).getName());
-				details.closestMatch(candidates.get(FRAMEWORK_TYPE));
+				details.closestMatch(candidates.get(FRAMEWORK_BUNDLE));
 			} else if (candidates.containsKey(DYNAMIC_LIB)) {
 				LOGGER.debug("Pick dynamic library " + candidates.get(DYNAMIC_LIB).getName());
 				details.closestMatch(candidates.get(DYNAMIC_LIB));
