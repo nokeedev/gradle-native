@@ -26,4 +26,8 @@ public final class DarwinArtifactTypes {
 	 * @see #FRAMEWORK_TYPE
 	 */
 	public static final String LINKABLE_ELEMENT_OR_FRAMEWORK_TYPE = "linkable-element-or-framework";
+
+	public static boolean isFramework(String name) {
+		return name.equals(FRAMEWORK_TYPE);
+	}
 }
