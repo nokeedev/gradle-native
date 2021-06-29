@@ -26,8 +26,6 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 				canBeResolved = true
 				attributes {
 					attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.C_PLUS_PLUS_API))
-//					attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.HEADERS_CPLUSPLUS))
-//					attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, "framework-bundle"))
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
 			}
