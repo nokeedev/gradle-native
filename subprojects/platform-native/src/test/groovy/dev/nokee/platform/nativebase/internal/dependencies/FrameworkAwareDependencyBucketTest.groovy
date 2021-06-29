@@ -9,13 +9,14 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory
 import static dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE
 import static dev.nokee.runtime.nativebase.internal.LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE
 
 @Subject(FrameworkAwareDependencyBucket)
 class FrameworkAwareDependencyBucketTest extends Specification {
 	def delegate = Mock(dev.nokee.platform.base.DependencyBucket)
-	def subject = new FrameworkAwareDependencyBucket(delegate)
+	def subject = new FrameworkAwareDependencyBucket(objectFactory(), delegate)
 
 	def "forwards getName() to delegate"() {
 		when:
