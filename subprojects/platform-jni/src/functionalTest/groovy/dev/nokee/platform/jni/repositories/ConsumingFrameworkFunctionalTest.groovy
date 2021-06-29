@@ -9,10 +9,10 @@ import dev.nokee.core.exec.ProcessBuilderEngine
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCNSSavePanelLib
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils
+import dev.nokee.runtime.darwin.internal.DarwinLibraryElements
 import dev.nokee.runtime.darwin.internal.locators.XcodebuildLocator
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin
 import dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes
-import org.gradle.api.attributes.LibraryElements
 import spock.lang.Ignore
 import spock.lang.Requires
 import spock.lang.Unroll
@@ -155,7 +155,7 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 		buildFile << configurePluginClasspathAsBuildScriptDependencies() << """
 			import ${DarwinFrameworkResolutionSupportPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
-			import ${LibraryElements.canonicalName}
+			import ${DarwinLibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
 
 			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
@@ -167,7 +167,7 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 			dependencies {
 				framework('non.magic.group:JavaVM:${sdkVersion}') {
 					attributes {
-						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
+						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, DarwinLibraryElements.FRAMEWORK_BUNDLE))
 						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
 					}
 				}
@@ -197,7 +197,7 @@ Required by:
 		buildFile << configurePluginClasspathAsBuildScriptDependencies() << """
 			import ${DarwinFrameworkResolutionSupportPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
-			import ${LibraryElements.canonicalName}
+			import ${DarwinLibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
 
 			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
@@ -209,7 +209,7 @@ Required by:
 			dependencies {
 				framework('dev.nokee.framework:NonExistantFramework:${sdkVersion}') {
 					attributes {
-						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
+						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, DarwinLibraryElements.FRAMEWORK_BUNDLE))
 						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
 					}
 				}
@@ -240,7 +240,7 @@ Searched in the following locations:
 		buildFile << configurePluginClasspathAsBuildScriptDependencies() << """
 			import ${DarwinFrameworkResolutionSupportPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
-			import ${LibraryElements.canonicalName}
+			import ${DarwinLibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
 
 			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
@@ -252,7 +252,7 @@ Searched in the following locations:
 			dependencies {
 				framework('dev.nokee.framework:Foundation:4.2') {
 					attributes {
-						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
+						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, DarwinLibraryElements.FRAMEWORK_BUNDLE))
 						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
 					}
 				}
@@ -284,7 +284,7 @@ Searched in the following locations:
 			import ${DarwinFrameworkResolutionSupportPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
 			import ${Files.canonicalName}
-			import ${LibraryElements.canonicalName}
+			import ${DarwinLibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
 
 			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
@@ -296,7 +296,7 @@ Searched in the following locations:
 			dependencies {
 				framework('dev.nokee.framework:Foundation:${sdkVersion}') {
 					attributes {
-						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
+						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, DarwinLibraryElements.FRAMEWORK_BUNDLE))
 						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
 					}
 				}
@@ -321,7 +321,7 @@ Searched in the following locations:
 			import ${DarwinFrameworkResolutionSupportPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
 			import ${Files.canonicalName}
-			import ${LibraryElements.canonicalName}
+			import ${DarwinLibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
 
 			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
@@ -333,7 +333,7 @@ Searched in the following locations:
 			dependencies {
 				framework('dev.nokee.framework:Foundation:${sdkVersion}') {
 					attributes {
-						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
+						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, DarwinLibraryElements.FRAMEWORK_BUNDLE))
 						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
 					}
 				}
@@ -360,7 +360,7 @@ Searched in the following locations:
 			import ${DarwinFrameworkResolutionSupportPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
 			import ${Files.canonicalName}
-			import ${LibraryElements.canonicalName}
+			import ${DarwinLibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
 
 			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
@@ -372,7 +372,7 @@ Searched in the following locations:
 			dependencies {
 				framework('dev.nokee.framework:Foundation:$versionNotation') {
 					attributes {
-						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
+						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, DarwinLibraryElements.FRAMEWORK_BUNDLE))
 						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
 					}
 				}
@@ -406,7 +406,7 @@ Searched in the following locations:
 			import ${DarwinFrameworkResolutionSupportPlugin.canonicalName}
 			import ${ConfigurationUtils.canonicalName}
 			import ${Files.canonicalName}
-			import ${LibraryElements.canonicalName}
+			import ${DarwinLibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
 
 			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
@@ -418,7 +418,7 @@ Searched in the following locations:
 			dependencies {
 				framework('dev.nokee.framework:Foundation:${sdkVersion}') {
 					attributes {
-						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.FRAMEWORK_BUNDLE))
+						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, DarwinLibraryElements.FRAMEWORK_BUNDLE))
 						attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED)
 					}
 				}
