@@ -3,11 +3,11 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.runtime.darwin.internal.DarwinArtifactTypes;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
-import dev.nokee.runtime.nativebase.internal.ArtifactTypes;
 import dev.nokee.runtime.nativebase.internal.NativeLibraryElements;
 import lombok.*;
 import org.gradle.api.Action;
@@ -254,7 +254,7 @@ public class ConfigurationUtils {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
 				spec.withArtifacts(ImmutableList.<OutgoingArtifact>builder().
 					addAll(spec.artifacts)
-					.add(new OutgoingArtifact(ArtifactTypes.FRAMEWORK_TYPE, notation))
+					.add(new OutgoingArtifact(DarwinArtifactTypes.FRAMEWORK_TYPE, notation))
 					.build())
 					.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 						.putAll(spec.attributes)
