@@ -12,6 +12,7 @@ import dev.nokee.runtime.nativebase.internal.NativeLibraryElements;
 import lombok.*;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
@@ -265,7 +266,7 @@ public class ConfigurationUtils {
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class,
 				spec.withArtifacts(ImmutableList.<OutgoingArtifact>builder().
 					addAll(spec.artifacts)
-					.add(new OutgoingArtifact(ArtifactTypes.DIRECTORY_TYPE, notation))
+					.add(new OutgoingArtifact(ArtifactTypeDefinition.DIRECTORY_TYPE, notation))
 					.build())
 					.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 						.putAll(spec.attributes).put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.HEADERS_CPLUSPLUS))
@@ -274,7 +275,7 @@ public class ConfigurationUtils {
 
 		public VariantAwareOutgoingConfigurationAction headerDirectoryArtifacts(Iterable<Object> notations) {
 			val artifacts = ImmutableList.<OutgoingArtifact>builder().addAll(spec.artifacts);
-			notations.forEach(notation -> artifacts.add(new OutgoingArtifact(ArtifactTypes.DIRECTORY_TYPE, notation)));
+			notations.forEach(notation -> artifacts.add(new OutgoingArtifact(ArtifactTypeDefinition.DIRECTORY_TYPE, notation)));
 
 			return getObjects().newInstance(VariantAwareOutgoingConfigurationAction.class, spec.withArtifacts(artifacts.build())
 				.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
