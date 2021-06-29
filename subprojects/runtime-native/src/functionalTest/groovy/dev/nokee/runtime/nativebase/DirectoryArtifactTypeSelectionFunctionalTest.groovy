@@ -58,6 +58,6 @@ class DirectoryArtifactTypeSelectionFunctionalTest extends AbstractGradleSpecifi
 
 		expect:
 		def failure = fails('verify')
-		failure.assertOutputContains("Expected configuration ':test' files to contain exactly one file, however, it contains no files.")
+		failure.output =~ /Expected configuration ':test' (files )?to contain exactly one file, however, it contains no files./
 	}
 }
