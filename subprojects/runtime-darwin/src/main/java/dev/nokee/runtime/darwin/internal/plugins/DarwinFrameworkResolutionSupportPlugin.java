@@ -33,9 +33,9 @@ import java.nio.file.Files;
 
 import static dev.nokee.runtime.base.internal.plugins.FakeMavenRepositoryPlugin.NOKEE_SERVER_SERVICE_NAME;
 import static dev.nokee.runtime.base.internal.repositories.NokeeServerService.NOKEE_LOCAL_REPOSITORY_NAME;
+import static dev.nokee.runtime.darwin.internal.DarwinArtifactTypes.FRAMEWORK_TYPE;
 import static dev.nokee.runtime.darwin.internal.DarwinLibraryElements.FRAMEWORK_BUNDLE;
 import static dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes.*;
-import static dev.nokee.runtime.nativebase.internal.ArtifactTypes.FRAMEWORK_TYPE;
 import static dev.nokee.utils.ConfigurationUtils.ARTIFACT_TYPE_ATTRIBUTE;
 
 public class DarwinFrameworkResolutionSupportPlugin implements Plugin<Project> {
