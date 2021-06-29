@@ -25,7 +25,7 @@ final class VerifyTask {
 
 	@Override
 	String toString() {
-		return verifySegments.join('\n')
+		return verifySegments.join(System.lineSeparator())
 	}
 
 	static class Verification {
