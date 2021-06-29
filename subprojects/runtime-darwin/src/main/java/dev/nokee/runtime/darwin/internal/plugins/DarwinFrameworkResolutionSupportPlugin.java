@@ -35,8 +35,8 @@ import static dev.nokee.runtime.base.internal.plugins.FakeMavenRepositoryPlugin.
 import static dev.nokee.runtime.base.internal.repositories.NokeeServerService.NOKEE_LOCAL_REPOSITORY_NAME;
 import static dev.nokee.runtime.darwin.internal.DarwinLibraryElements.FRAMEWORK_BUNDLE;
 import static dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes.*;
-import static dev.nokee.runtime.nativebase.internal.ArtifactTypes.ARTIFACT_TYPES_ATTRIBUTE;
 import static dev.nokee.runtime.nativebase.internal.ArtifactTypes.FRAMEWORK_TYPE;
+import static dev.nokee.utils.ConfigurationUtils.ARTIFACT_TYPE_ATTRIBUTE;
 
 public class DarwinFrameworkResolutionSupportPlugin implements Plugin<Project> {
 	private static final Logger LOGGER = Logging.getLogger(DarwinFrameworkResolutionSupportPlugin.class);
@@ -80,11 +80,11 @@ public class DarwinFrameworkResolutionSupportPlugin implements Plugin<Project> {
 		});
 		dependencies.registerTransform(DeserializeLocalFramework.class, variantTransform -> {
 			variantTransform.getFrom()
-				.attribute(ARTIFACT_TYPES_ATTRIBUTE, "localpath")
+				.attribute(ARTIFACT_TYPE_ATTRIBUTE, "localpath")
 				.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, FRAMEWORK_BUNDLE))
 				.attribute(ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, SERIALIZED);
 			variantTransform.getTo()
-				.attribute(ARTIFACT_TYPES_ATTRIBUTE, FRAMEWORK_TYPE)
+				.attribute(ARTIFACT_TYPE_ATTRIBUTE, FRAMEWORK_TYPE)
 				.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, FRAMEWORK_BUNDLE))
 				.attribute(ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, DESERIALIZED);
 		});
