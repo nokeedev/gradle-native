@@ -2,6 +2,7 @@ package dev.nokee.runtime.darwin.internal.plugins;
 
 import dev.nokee.runtime.base.internal.plugins.FakeMavenRepositoryPlugin;
 import dev.nokee.runtime.base.internal.repositories.NokeeServerService;
+import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
 import dev.nokee.runtime.darwin.internal.FrameworkRouteHandler;
 import dev.nokee.runtime.darwin.internal.locators.XcodebuildLocator;
 import dev.nokee.runtime.darwin.internal.locators.XcrunLocator;
@@ -49,6 +50,7 @@ public class DarwinFrameworkResolutionSupportPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
+		project.getPluginManager().apply(DarwinRuntimePlugin.class);
 		project.getPluginManager().apply(CompatibilityRules.class);
 
 		if (SystemUtils.IS_OS_MAC) {
