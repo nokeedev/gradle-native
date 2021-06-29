@@ -1,12 +1,12 @@
 package dev.nokee.platform.nativebase.internal.dependencies;
 
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.runtime.darwin.internal.DarwinLibraryElements;
 import dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes;
-import dev.nokee.runtime.nativebase.internal.DefaultLibraryElements;
-import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.model.ObjectFactory;
 
 import java.util.Map;
@@ -62,7 +62,7 @@ public final class FrameworkAwareDependencyBucket implements DependencyBucket {
 		@Override
 		public void execute(ModuleDependency dependency) {
 			dependency.attributes(attributes -> {
-				attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, new DefaultLibraryElements(LibraryElements.FRAMEWORK_BUNDLE));
+				attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, DarwinLibraryElements.FRAMEWORK_BUNDLE));
 				attributes.attribute(ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE, ArtifactSerializationTypes.DESERIALIZED);
 			});
 		}

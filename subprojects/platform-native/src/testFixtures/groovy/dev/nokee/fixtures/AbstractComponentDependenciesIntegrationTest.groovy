@@ -7,12 +7,12 @@ import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.VariantIdentifier
-import dev.nokee.runtime.nativebase.internal.LibraryElements
 import org.gradle.api.Action
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ExternalDependency
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.attributes.Attribute
+import org.gradle.api.attributes.LibraryElements
 import org.gradle.api.attributes.Usage
 import org.gradle.testfixtures.ProjectBuilder
 import org.hamcrest.Matchers
@@ -22,7 +22,7 @@ import spock.lang.Unroll
 
 import static dev.nokee.fixtures.CollectionTestFixture.one
 import static dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE
-import static dev.nokee.runtime.nativebase.internal.LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE
+import static org.gradle.api.attributes.LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE
 import static org.junit.Assert.assertThat
 
 abstract class AbstractComponentDependenciesIntegrationTest extends Specification {

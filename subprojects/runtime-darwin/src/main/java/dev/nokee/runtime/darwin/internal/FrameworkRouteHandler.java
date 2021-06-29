@@ -9,7 +9,7 @@ import dev.nokee.runtime.base.internal.tools.CommandLineToolDescriptor;
 import dev.nokee.runtime.base.internal.tools.ToolRepository;
 import dev.nokee.runtime.darwin.internal.parsers.XcodebuildParsers;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
-import dev.nokee.runtime.nativebase.internal.LibraryElements;
+import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.nativeplatform.OperatingSystemFamily;
 
@@ -160,7 +160,7 @@ public class FrameworkRouteHandler extends AbstractRouteHandler {
 	GradleModuleMetadata.Variant compileVariant(String name, GradleModuleMetadata.Variant.File file, List<GradleModuleMetadata.Variant.Capability> capabilities) {
 		Map<String, Object> attributes = ImmutableMap.<String, Object>builder()
 			.put("org.gradle.usage", Usage.C_PLUS_PLUS_API)
-			.put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE.getName(), LibraryElements.FRAMEWORK_BUNDLE)
+			.put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE.getName(), DarwinLibraryElements.FRAMEWORK_BUNDLE)
 			.build();
 		return new GradleModuleMetadata.Variant(name, attributes, singletonList(file), capabilities);
 	}
@@ -168,7 +168,7 @@ public class FrameworkRouteHandler extends AbstractRouteHandler {
 	GradleModuleMetadata.Variant linkVariant(String name, GradleModuleMetadata.Variant.File file, List<GradleModuleMetadata.Variant.Capability> capabilities) {
 		Map<String, Object> attributes = ImmutableMap.<String, Object>builder()
 			.put("org.gradle.usage", Usage.NATIVE_LINK)
-			.put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE.getName(), LibraryElements.FRAMEWORK_BUNDLE)
+			.put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE.getName(), DarwinLibraryElements.FRAMEWORK_BUNDLE)
 			.putAll(CURRENT_PLATFORM_ATTRIBUTES)
 			.build();
 		return new GradleModuleMetadata.Variant(name, attributes, singletonList(file), capabilities);

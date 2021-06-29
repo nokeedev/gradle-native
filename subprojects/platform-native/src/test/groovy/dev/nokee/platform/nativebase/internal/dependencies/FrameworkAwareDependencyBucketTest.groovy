@@ -1,17 +1,17 @@
 package dev.nokee.platform.nativebase.internal.dependencies
 
 import dev.gradleplugins.grava.testing.util.ProjectTestUtils
-import dev.nokee.runtime.nativebase.internal.LibraryElements
 import org.gradle.api.Action
 import org.gradle.api.artifacts.ExternalDependency
 import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.attributes.LibraryElements
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory
 import static dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE
-import static dev.nokee.runtime.nativebase.internal.LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE
+import static org.gradle.api.attributes.LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE
 
 @Subject(FrameworkAwareDependencyBucket)
 class FrameworkAwareDependencyBucketTest extends Specification {

@@ -33,10 +33,10 @@ import java.nio.file.Files;
 
 import static dev.nokee.runtime.base.internal.plugins.FakeMavenRepositoryPlugin.NOKEE_SERVER_SERVICE_NAME;
 import static dev.nokee.runtime.base.internal.repositories.NokeeServerService.NOKEE_LOCAL_REPOSITORY_NAME;
+import static dev.nokee.runtime.darwin.internal.DarwinLibraryElements.FRAMEWORK_BUNDLE;
 import static dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes.*;
 import static dev.nokee.runtime.nativebase.internal.ArtifactTypes.ARTIFACT_TYPES_ATTRIBUTE;
 import static dev.nokee.runtime.nativebase.internal.ArtifactTypes.FRAMEWORK_TYPE;
-import static dev.nokee.runtime.nativebase.internal.LibraryElements.FRAMEWORK_BUNDLE;
 
 public class DarwinFrameworkResolutionSupportPlugin implements Plugin<Project> {
 	private static final Logger LOGGER = Logging.getLogger(DarwinFrameworkResolutionSupportPlugin.class);

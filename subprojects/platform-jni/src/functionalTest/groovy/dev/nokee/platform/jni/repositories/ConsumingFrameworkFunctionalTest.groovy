@@ -12,7 +12,7 @@ import dev.nokee.platform.nativebase.internal.ConfigurationUtils
 import dev.nokee.runtime.darwin.internal.locators.XcodebuildLocator
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin
 import dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes
-import dev.nokee.runtime.nativebase.internal.LibraryElements
+import org.gradle.api.attributes.LibraryElements
 import spock.lang.Ignore
 import spock.lang.Requires
 import spock.lang.Unroll

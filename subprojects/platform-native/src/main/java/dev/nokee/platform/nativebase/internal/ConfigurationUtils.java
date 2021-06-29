@@ -8,11 +8,12 @@ import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.ArtifactTypes;
-import dev.nokee.runtime.nativebase.internal.LibraryElements;
+import dev.nokee.runtime.nativebase.internal.NativeLibraryElements;
 import lombok.*;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Attribute;
+import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.internal.Cast;
@@ -26,6 +27,7 @@ import java.util.function.Consumer;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static dev.nokee.platform.nativebase.internal.ConfigurationUtils.ConfigurationSpec.Type.*;
+import static dev.nokee.runtime.darwin.internal.DarwinLibraryElements.FRAMEWORK_BUNDLE;
 import static dev.nokee.runtime.nativebase.MachineArchitecture.ARCHITECTURE_ATTRIBUTE;
 import static dev.nokee.runtime.nativebase.MachineArchitecture.ARCHITECTURE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE;
@@ -255,7 +257,7 @@ public class ConfigurationUtils {
 					.build())
 					.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
 						.putAll(spec.attributes)
-						.put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.FRAMEWORK_BUNDLE))
+						.put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, FRAMEWORK_BUNDLE))
 						.build()));
 		}
 
@@ -308,7 +310,7 @@ public class ConfigurationUtils {
 					.add(new OutgoingArtifact(null, notation))
 					.build())
 					.withAttributes(ImmutableMap.<Attribute<?>, Object>builder()
-						.putAll(spec.attributes).put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.IMPORT_LIB))
+						.putAll(spec.attributes).put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, NativeLibraryElements.IMPORT_LIB))
 						.build()));
 		}
 
