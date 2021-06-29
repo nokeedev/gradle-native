@@ -7,6 +7,7 @@ import dev.nokee.runtime.nativebase.internal.LibraryElements;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.model.ObjectFactory;
 
 import java.util.Map;
 import java.util.Objects;
@@ -15,10 +16,11 @@ import static dev.nokee.utils.ActionUtils.composite;
 
 public final class FrameworkAwareDependencyBucket implements DependencyBucket {
 	private static final String NOKEE_MAGIC_FRAMEWORK_GROUP = "dev.nokee.framework";
-	private static final RequestFrameworkAction REQUEST_FRAMEWORK_ACTION = new RequestFrameworkAction();
+	private final RequestFrameworkAction requestFrameworkAction;
 	private final DependencyBucket delegate;
 
-	public FrameworkAwareDependencyBucket(DependencyBucket delegate) {
+	public FrameworkAwareDependencyBucket(ObjectFactory objects, DependencyBucket delegate) {
+		this.requestFrameworkAction = new RequestFrameworkAction(objects);
 		this.delegate = delegate;
 	}
 
@@ -30,7 +32,7 @@ public final class FrameworkAwareDependencyBucket implements DependencyBucket {
 	@Override
 	public void addDependency(Object notation) {
 		if (isFrameworkNotation(notation)) {
-			delegate.addDependency(notation, REQUEST_FRAMEWORK_ACTION);
+			delegate.addDependency(notation, requestFrameworkAction);
 		} else {
 			delegate.addDependency(notation);
 		}
@@ -39,7 +41,7 @@ public final class FrameworkAwareDependencyBucket implements DependencyBucket {
 	@Override
 	public void addDependency(Object notation, Action<? super ModuleDependency> action) {
 		if (isFrameworkNotation(notation)) {
-			delegate.addDependency(notation, composite(REQUEST_FRAMEWORK_ACTION, action));
+			delegate.addDependency(notation, composite(requestFrameworkAction, action));
 		} else {
 			delegate.addDependency(notation, action);
 		}
@@ -51,6 +53,12 @@ public final class FrameworkAwareDependencyBucket implements DependencyBucket {
 	}
 
 	private static class RequestFrameworkAction implements Action<ModuleDependency> {
+		private final ObjectFactory objects;
+
+		private RequestFrameworkAction(ObjectFactory objects) {
+			this.objects = objects;
+		}
+
 		@Override
 		public void execute(ModuleDependency dependency) {
 			dependency.attributes(attributes -> {
