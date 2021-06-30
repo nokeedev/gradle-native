@@ -71,15 +71,15 @@ final class VerifyTask {
 				result << """
 				|		assert resolvedFile.name == '${fileName}'
 				|		assert resolvedFile.parentFile.name == 'transformed' ||
-				|			resolvedFile.path.contains('/.transforms/') ||
-				|			resolvedFile.path.contains('/transforms-')
+				|			resolvedFile.path.contains('.transforms') ||
+				|			resolvedFile.path.contains('transforms-')
 				|""".stripMargin()
 			} else {
 				result << """
 				|		assert resolvedFile.name == '${fileName}'
 				|		assert resolvedFile.parentFile.name != 'transformed' &&
-				|			!resolvedFile.path.contains('/.transforms/') &&
-				|			!resolvedFile.path.contains('/transforms-')
+				|			!resolvedFile.path.contains('.transforms') &&
+				|			!resolvedFile.path.contains('transforms-')
 				|""".stripMargin()
 			}
 			result << '''

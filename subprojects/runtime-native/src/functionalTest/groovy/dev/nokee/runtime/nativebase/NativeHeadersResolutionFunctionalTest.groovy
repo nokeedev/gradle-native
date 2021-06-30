@@ -194,8 +194,8 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 				doLast {
 					assert resolvedFiles.singleFile.name == '${fileName}'
 					assert resolvedFiles.singleFile.parentFile.name == 'transformed' ||
-						resolvedFiles.singleFile.path.contains('/.transforms/') ||
-						resolvedFiles.singleFile.path.contains('/transforms-')
+						resolvedFiles.singleFile.path.contains('.transforms') ||
+						resolvedFiles.singleFile.path.contains('transforms-')
 				}
 			}
 		"""
@@ -207,8 +207,8 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 				doLast {
 					assert resolvedFiles.singleFile == file('${separatorsToUnix(path.absolutePath)}')
 					assert resolvedFiles.singleFile.parentFile.name != 'transformed' &&
-						!resolvedFiles.singleFile.path.contains('/.transforms/') &&
-						!resolvedFiles.singleFile.path.contains('/transforms-')
+						!resolvedFiles.singleFile.path.contains('.transforms') &&
+						!resolvedFiles.singleFile.path.contains('transforms-')
 				}
 			}
 		"""
