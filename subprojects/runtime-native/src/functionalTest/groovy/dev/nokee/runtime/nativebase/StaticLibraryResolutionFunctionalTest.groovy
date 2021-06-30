@@ -5,8 +5,13 @@ import org.gradle.api.attributes.Usage
 import spock.lang.Unroll
 
 import static dev.nokee.runtime.nativebase.VerifyTask.verifyTask
+import static org.apache.commons.io.FilenameUtils.separatorsToUnix
 
 class StaticLibraryResolutionFunctionalTest extends AbstractGradleSpecification {
+	protected String filePath(Object... path) {
+		return separatorsToUnix(file(path).path)
+	}
+
 	def setup() {
 		buildFile << """
 			plugins {
@@ -47,7 +52,7 @@ class StaticLibraryResolutionFunctionalTest extends AbstractGradleSpecification 
 
 		// NOTE: We have to verify artifact by type for adhoc files
 		buildFile << verifyTask()
-			.that { "testLink.${it.artifactType(staticLibraryExtension)}.singleFile.path == '${file("libtest.${staticLibraryExtension}")}'" }
+			.that { "testLink.${it.artifactType(staticLibraryExtension)}.singleFile == file('${filePath("libtest.${staticLibraryExtension}")}')" }
 			.that { "testRuntime.${it.artifactType(staticLibraryExtension)}.empty" }
 		buildFile << """
 			dependencies {
@@ -83,7 +88,7 @@ class StaticLibraryResolutionFunctionalTest extends AbstractGradleSpecification 
 			}
 		"""
 		buildFile << verifyTask()
-			.that { "testLink.${it.allFiles()}.singleFile.path == '${file("lib/test.${staticLibraryExtension}")}'" }
+			.that { "testLink.${it.allFiles()}.singleFile == file('${filePath("lib/test.${staticLibraryExtension}")}')" }
 			.that { "testRuntime.${it.allFiles()}.empty" }
 		buildFile << """
 			dependencies {

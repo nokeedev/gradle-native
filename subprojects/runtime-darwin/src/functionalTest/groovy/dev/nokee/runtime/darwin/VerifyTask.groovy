@@ -3,6 +3,8 @@ package dev.nokee.runtime.darwin
 
 import java.util.function.Consumer
 
+import static org.apache.commons.io.FilenameUtils.separatorsToUnix
+
 final class VerifyTask {
 	private final List<String> verifySegments = new ArrayList<>()
 
@@ -62,7 +64,7 @@ final class VerifyTask {
 			|""".stripMargin()
 			if (path != null) {
 				result << """
-				|		assert resolvedFile.absolutePath == '${path}'
+				|		assert resolvedFile == file('${separatorsToUnix(path.absolutePath)}')
 				|""".stripMargin()
 			}
 			if (transformed) {
