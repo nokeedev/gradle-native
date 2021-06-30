@@ -4,10 +4,10 @@ import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
+import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin
 import dev.nokee.runtime.nativebase.MachineArchitecture
 import org.gradle.nativeplatform.OperatingSystemFamily
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
-import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin
 import org.junit.Assume
 import spock.lang.Unroll
 
@@ -269,8 +269,8 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 					}
 				}
 			}
-			import ${StandardToolChainsPlugin.canonicalName}
-			plugins.withType(StandardToolChainsPlugin) {
+			import ${NokeeStandardToolChainsPlugin.canonicalName}
+			plugins.withType(NokeeStandardToolChainsPlugin) {
 				// TODO: Applies after the Stardard tool chain plugin
 				plugins.apply(${className})
 			}

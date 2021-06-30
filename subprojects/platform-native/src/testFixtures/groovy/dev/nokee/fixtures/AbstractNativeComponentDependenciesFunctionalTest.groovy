@@ -2,9 +2,9 @@ package dev.nokee.fixtures
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.nokee.language.NativeProjectTasks
+import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin
 import dev.nokee.runtime.nativebase.OperatingSystemFamily
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
-import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin
 import org.hamcrest.CoreMatchers
 import spock.lang.Unroll
 
@@ -184,8 +184,8 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 					}
 				}
 			}
-			import ${StandardToolChainsPlugin.canonicalName}
-			plugins.withType(StandardToolChainsPlugin) {
+			import ${NokeeStandardToolChainsPlugin.canonicalName}
+			plugins.withType(NokeeStandardToolChainsPlugin) {
 				// TODO: Applies after the Stardard tool chain plugin
 				plugins.apply(${className})
 			}
