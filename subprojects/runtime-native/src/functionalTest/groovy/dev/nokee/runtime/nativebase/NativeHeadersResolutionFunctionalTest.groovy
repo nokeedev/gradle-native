@@ -3,7 +3,10 @@ package dev.nokee.runtime.nativebase
 import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.platform.jni.fixtures.CGreeter
+import org.apache.commons.io.FilenameUtils
 import spock.lang.Unroll
+
+import static org.apache.commons.io.FilenameUtils.separatorsToUnix
 
 class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification {
 	def setup() {
@@ -49,7 +52,7 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 		def headersLocation = createTestHeaders(testDirectory)
 		buildFile << verifyTransformed('headers') << """
 			def zipTask = tasks.register('zipHeaders', Zip) {
-				from('${headersLocation}')
+				from('${separatorsToUnix(headersLocation.absolutePath)}')
 				destinationDirectory = buildDir
 				archiveBaseName = 'headers'
 			}
@@ -67,7 +70,7 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 		def headersLocation = createTestHeaders(testDirectory)
 		buildFile << verifyDirectory(headersLocation) << """
 			dependencies {
-				test files('${headersLocation}')
+				test files('${separatorsToUnix(headersLocation.absolutePath)}')
 			}
 		"""
 
@@ -82,7 +85,7 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 		def headersLocation = createTestHeaders(testDirectory)
 		file('lib/build.gradle') << """
 			def zipTask = tasks.register('zipTestHeaders', Zip) {
-				from('${headersLocation}')
+				from('${separatorsToUnix(headersLocation.absolutePath)}')
 				destinationDirectory = buildDir
 				archiveBaseName = 'headers'
 			}
@@ -125,7 +128,7 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 					attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.HEADERS_CPLUSPLUS))
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
-				outgoing.artifact(file('${headersLocation}')) {
+				outgoing.artifact(file('${separatorsToUnix(headersLocation.absolutePath)}')) {
 					type = '${directoryType}'
 				}
 			}
@@ -150,7 +153,7 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 		def headersLocation = createTestHeaders(file('lib'))
 		file('lib/build.gradle') << """
 			def zipTask = tasks.register('zipHeaders', Zip) {
-				from('${headersLocation}')
+				from('${separatorsToUnix(headersLocation.absolutePath)}')
 				destinationDirectory = buildDir
 				archiveBaseName = 'headers'
 			}
@@ -164,7 +167,7 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
 				outgoing {
-					artifact(file('${headersLocation}')) {
+					artifact(file('${separatorsToUnix(headersLocation.absolutePath)}')) {
 						type = 'native-headers-directory'
 					}
 					variants.create('zip') {
@@ -202,7 +205,7 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 		return """
 			verifyTask.configure {
 				doLast {
-					assert resolvedFiles.singleFile.absolutePath == '${path}'
+					assert resolvedFiles.singleFile == file('${separatorsToUnix(path.absolutePath)}')
 					assert resolvedFiles.singleFile.parentFile.name != 'transformed' &&
 						!resolvedFiles.singleFile.path.contains('/.transforms/') &&
 						!resolvedFiles.singleFile.path.contains('/transforms-')

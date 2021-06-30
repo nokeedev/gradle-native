@@ -5,8 +5,13 @@ import org.gradle.api.attributes.Usage
 import spock.lang.Unroll
 
 import static dev.nokee.runtime.nativebase.VerifyTask.verifyTask
+import static org.apache.commons.io.FilenameUtils.separatorsToUnix
 
 class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification {
+	protected String filePath(Object... path) {
+		return separatorsToUnix(file(path).path)
+	}
+
 	def setup() {
 		buildFile << """
 			plugins {
@@ -47,8 +52,8 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 
 		// NOTE: We have to verify artifact by type for adhoc files
 		buildFile << verifyTask()
-			.that { "testLink.${it.artifactType(sharedLibraryExtension)}.singleFile.path == '${file("libtest.${sharedLibraryExtension}")}'" }
-			.that { "testRuntime.${it.artifactType(sharedLibraryExtension)}.singleFile.path == '${file("libtest.${sharedLibraryExtension}")}'" }
+			.that { "testLink.${it.artifactType(sharedLibraryExtension)}.singleFile == file('${filePath("libtest.${ sharedLibraryExtension}")}')" }
+			.that { "testRuntime.${it.artifactType(sharedLibraryExtension)}.singleFile == file('${filePath("libtest.${sharedLibraryExtension}")}')" }
 		buildFile << """
 			dependencies {
 				test files('${sharedLib}')
@@ -68,7 +73,7 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 		// NOTE: We have to verify artifact by type for adhoc files
 		buildFile << verifyTask()
 			.that { "testLink.${it.artifactType('dll')}.empty" }
-			.that { "testRuntime.${it.artifactType('dll')}.singleFile.path == '${file('test.dll')}'" }
+			.that { "testRuntime.${it.artifactType('dll')}.singleFile == file('${filePath('test.dll')}')" }
 		buildFile << """
 			dependencies {
 				test files('${sharedLib}')
@@ -100,8 +105,8 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 			}
 		"""
 		buildFile << verifyTask()
-			.that { "testLink.${it.allFiles()}.singleFile.path == '${file("lib/libtest.${sharedLibraryExtension}")}'" }
-			.that { "testRuntime.${it.allFiles()}.singleFile.path == '${file("lib/libtest.${sharedLibraryExtension}")}'" }
+			.that { "testLink.${it.allFiles()}.singleFile == file('${filePath("lib/libtest.${sharedLibraryExtension}")}')" }
+			.that { "testRuntime.${it.allFiles()}.singleFile == file('${filePath("lib/libtest.${sharedLibraryExtension}")}')" }
 		buildFile << """
 			dependencies {
 				test project(':lib')
@@ -136,7 +141,7 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 		"""
 		buildFile << verifyTask()
 			.that { "testLink.${it.allFiles()}.empty" }
-			.that { "testRuntime.${it.allFiles()}.singleFile.path == '${file('lib/test.dll')}'" }
+			.that { "testRuntime.${it.allFiles()}.singleFile == file('${filePath('lib/test.dll')}')" }
 		buildFile << """
 			dependencies {
 				test project(':lib')
@@ -153,8 +158,8 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 
 		// NOTE: We have to verify artifact by type for adhoc files
 		buildFile << verifyTask()
-			.that { "testLink.${it.artifactType('lib')}.singleFile.path == '${file('test.lib')}'" }
-			.that { "testRuntime.${it.artifactType('dll')}.singleFile.path == '${file('test.dll')}'" }
+			.that { "testLink.${it.artifactType('lib')}.singleFile == file('${filePath('test.lib')}')" }
+			.that { "testRuntime.${it.artifactType('dll')}.singleFile == file('${filePath('test.dll')}')" }
 			.that { "testRuntime.${it.artifactType('lib')}.empty" } // import lib doesn't leak in runtime
 		buildFile << """
 			dependencies {
@@ -200,8 +205,8 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 			}
 		"""
 		buildFile << verifyTask()
-			.that { "testLink.incoming.files.singleFile.path == '${file('lib/test.lib')}'" } // only file resolved
-			.that { "testRuntime.incoming.files.singleFile.path == '${file('lib/test.dll')}'" } // only file resolved
+			.that { "testLink.incoming.files.singleFile == file('${filePath('lib/test.lib')}')" } // only file resolved
+			.that { "testRuntime.incoming.files.singleFile == file('${filePath('lib/test.dll')}')" } // only file resolved
 			.that { "testRuntime.${it.artifactType('lib')}.empty" } // import lib doesn't leak in runtime
 		buildFile << """
 			dependencies {
