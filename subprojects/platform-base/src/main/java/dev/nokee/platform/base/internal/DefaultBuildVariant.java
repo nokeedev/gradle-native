@@ -1,5 +1,6 @@
 package dev.nokee.platform.base.internal;
 
+import com.google.common.collect.Streams;
 import dev.nokee.runtime.core.*;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
@@ -83,8 +84,9 @@ public class DefaultBuildVariant implements BuildVariantInternal {
 			val type = ((Coordinate<?>) axisValue).getAxis();
 			Optional<Boolean> result = Coordinates.find(coordinates, type, true).map(it -> Objects.equals(it, ((Coordinate<?>) axisValue).getValue()));
 			return result.orElse(false);
+		} else {
+			return Streams.stream(coordinates).flatMap(Coordinates::flatten).anyMatch(it -> Objects.equals(it.getValue(), axisValue));
 		}
-		return false;
 	}
 
 	@Override
