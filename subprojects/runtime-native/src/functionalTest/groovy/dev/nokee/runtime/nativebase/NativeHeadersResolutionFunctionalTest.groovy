@@ -3,7 +3,6 @@ package dev.nokee.runtime.nativebase
 import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.platform.jni.fixtures.CGreeter
-import org.apache.commons.io.FilenameUtils
 import spock.lang.Unroll
 
 import static org.apache.commons.io.FilenameUtils.separatorsToUnix
