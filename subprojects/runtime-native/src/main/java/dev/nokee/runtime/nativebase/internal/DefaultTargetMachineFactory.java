@@ -62,11 +62,21 @@ final class DefaultTargetMachineFactory implements TargetMachineFactory {
 		public TargetMachine architecture(String name) {
 			return new DefaultTargetMachine(getOperatingSystemFamily(), MachineArchitecture.forName(name));
 		}
+
+		@Override
+		public String toString() {
+			return getOperatingSystemFamily().toString() + ":host";
+		}
 	}
 
 	private static final class DefaultTargetMachine extends AbstractTargetMachine {
 		DefaultTargetMachine(OperatingSystemFamily operatingSystemFamily, MachineArchitecture architecture) {
 			super(operatingSystemFamily, architecture);
+		}
+
+		@Override
+		public String toString() {
+			return getOperatingSystemFamily().toString() + ":" + getArchitecture().toString();
 		}
 	}
 }
