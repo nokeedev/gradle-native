@@ -73,8 +73,8 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 
 		expect:
 		def result = succeeds('verify')
-		result.assertOutputContains('Transforming Test.framework.zip with UnzipTransform')
-		result.assertOutputContains('Transforming Test.framework.zip with FrameworkToCompilerReady')
+		result.output =~ /Transforming( artifact)? Test.framework.zip with UnzipTransform/
+		result.output =~ /Transforming( artifact)? Test.framework.zip with FrameworkToCompilerReady/
 	}
 
 	def "can resolve adhoc framework bundle from disk"() {
@@ -94,8 +94,8 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 
 		expect:
 		def result = succeeds('verify')
-		result.assertOutputContains('Transforming Test.framework with DirectoryToFramework')
-		result.assertOutputContains('Transforming Test.framework with FrameworkToCompilerReady')
+		result.output =~ /Transforming( artifact)? Test.framework with DirectoryToFramework/
+		result.output =~ /Transforming( artifact)? Test.framework with FrameworkToCompilerReady/
 	}
 
 	def "can resolve compressed framework bundle from subproject"() {
@@ -111,7 +111,9 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 		'''
 
 		expect:
-		succeeds('verify')
+		def result = succeeds('verify')
+		result.output =~ /Transform(ing artifact)? Test.framework.zip \(project :lib\) with UnzipTransform/
+		result.output =~ /Transform(ing artifact)? Test.framework.zip \(project :lib\) with HeaderSearchPathToCompilerReady/
 	}
 
 	@Unroll
@@ -140,9 +142,9 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 		expect:
 		def result = succeeds('verify')
 		if (directoryType == 'directory') {
-			result.assertOutputContains('Transform Test.framework (project :lib) with DirectoryToFramework')
+			result.output =~ /Transform(ing artifact)? Test.framework \(project :lib\) with DirectoryToFramework/
 		}
-		result.assertOutputContains('Transform Test.framework (project :lib) with FrameworkToCompilerReady')
+		result.output =~ /Transform(ing artifact)? Test.framework \(project :lib\) with FrameworkToCompilerReady/
 
 		where:
 		directoryType << ['directory', 'framework']
@@ -165,7 +167,7 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 
 		expect:
 		def result = succeeds('verify')
-		result.assertOutputContains('Transform Test.framework (project :lib) with FrameworkToCompilerReady')
+		result.output =~ /Transform(ing artifact)? Test.framework \(project :lib\) with FrameworkToCompilerReady/
 	}
 
 
@@ -196,9 +198,9 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 		expect:
 		def result = succeeds('verify')
 		if (headerType == 'directory') {
-			result.assertOutputContains('Transform includes (project :lib) with DirectoryToHeaderSearchPath')
+			result.output =~ /Transform(ing artifact)? includes \(project :lib\) with DirectoryToHeaderSearchPath/
 		}
-		result.assertOutputContains('Transform includes (project :lib) with HeaderSearchPathToCompilerReady')
+		result.output =~ /Transform(ing artifact)? includes \(project :lib\) with HeaderSearchPathToCompilerReady/
 
 		where:
 		[headerType, frameworkType] << collectEachCombination([['directory', 'native-headers-directory'], ['directory', 'framework']])
@@ -227,9 +229,9 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 		expect:
 		def result = succeeds('verify')
 		if (frameworkType == 'directory') {
-			result.assertOutputContains('Transform Test.framework (project :lib) with DirectoryToFramework')
+			result.output =~ /Transform(ing artifact)? Test.framework \(project :lib\) with DirectoryToFramework/
 		}
-		result.assertOutputContains('Transform Test.framework (project :lib) with FrameworkToCompilerReady')
+		result.output =~ /Transform(ing artifact)? Test.framework \(project :lib\) with FrameworkToCompilerReady/
 
 		where:
 		[headerType, frameworkType] << collectEachCombination([['directory', 'native-headers-directory'], ['directory', 'framework']])
@@ -270,7 +272,7 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 
 		expect:
 		def result = succeeds('verify')
-		result.assertOutputContains('Transform Test.framework (project :lib) with FrameworkToCompilerReady')
+		result.output =~ /Transform(ing artifact)? Test.framework \(project :lib\) with FrameworkToCompilerReady/
 	}
 
 	def "can resolve framework for native-link usage from subproject when dual artifact variant exists"() {
@@ -299,7 +301,7 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 
 		expect:
 		def result = succeeds('verify')
-		result.assertOutputContains('Transform Test.framework (project :lib) with FrameworkToLinkerReady')
+		result.output =~ /Transform(ing artifact)? Test.framework \(project :lib\) with FrameworkToLinkerReady/
 	}
 
 	// TODO: dual import-lib and framework
