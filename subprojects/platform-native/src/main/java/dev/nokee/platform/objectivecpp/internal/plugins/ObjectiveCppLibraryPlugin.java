@@ -9,7 +9,10 @@ import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
+import dev.nokee.platform.nativebase.internal.TargetLinkageRule;
+import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibrary;
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibrarySources;
@@ -31,7 +34,6 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.componentSourcesOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.configureBuildVariants;
 import static dev.nokee.platform.objectivecpp.internal.ObjectiveCppSourceSetModelHelpers.configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
 
 public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
