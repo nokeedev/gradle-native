@@ -23,8 +23,7 @@ import static dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin.FrameworkToL
 import static dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin.HeaderSearchPathToCompilerReady.headerSearchPathToCompilerReady;
 import static dev.nokee.utils.ConfigurationUtils.ARTIFACT_TYPE_ATTRIBUTE;
 import static org.gradle.api.attributes.LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE;
-import static org.gradle.api.attributes.Usage.C_PLUS_PLUS_API;
-import static org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE;
+import static org.gradle.api.attributes.Usage.*;
 
 public /*final*/ abstract class DarwinRuntimePlugin implements Plugin<Project> {
 	@Inject
@@ -107,11 +106,9 @@ public /*final*/ abstract class DarwinRuntimePlugin implements Plugin<Project> {
 
 	private void unzipFrameworkArtifact(TransformSpec<TransformParameters.None> spec) {
 		spec.getFrom()
-			.attribute(USAGE_ATTRIBUTE, getObjects().named(Usage.class, C_PLUS_PLUS_API))
 			.attribute(LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, DarwinLibraryElements.FRAMEWORK_BUNDLE))
 			.attribute(ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.ZIP_TYPE);
 		spec.getTo()
-			.attribute(USAGE_ATTRIBUTE, getObjects().named(Usage.class, C_PLUS_PLUS_API))
 			.attribute(LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, DarwinLibraryElements.FRAMEWORK_BUNDLE))
 			.attribute(ARTIFACT_TYPE_ATTRIBUTE, DarwinArtifactTypes.FRAMEWORK_TYPE);
 	}
