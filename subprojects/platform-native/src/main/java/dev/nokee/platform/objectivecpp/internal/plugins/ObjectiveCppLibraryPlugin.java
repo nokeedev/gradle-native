@@ -1,6 +1,7 @@
 package dev.nokee.platform.objectivecpp.internal.plugins;
 
 import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -18,7 +19,6 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
 
 import javax.inject.Inject;
 
@@ -45,7 +45,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		project.getPluginManager().apply(StandardToolChainsPlugin.class);
+		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);

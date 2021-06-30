@@ -1,5 +1,6 @@
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.language.nativebase.internal.toolchains.KnownAwareToolChain;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -9,12 +10,14 @@ import org.gradle.internal.os.OperatingSystem;
 import org.gradle.model.internal.registry.ModelRegistry;
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
+import org.gradle.nativeplatform.toolchain.Clang;
 import org.gradle.nativeplatform.toolchain.internal.NativeLanguage;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import org.gradle.nativeplatform.toolchain.internal.msvcpp.VisualCppToolChain;
 import org.gradle.nativeplatform.toolchain.internal.swift.SwiftcToolChain;
+import org.gradle.platform.base.ToolChain;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -98,22 +101,26 @@ public class ToolChainSelectorInternal {
 		public boolean knows(TargetMachine targetMachine) {
 			NativePlatformInternal targetPlatform = nativePlatformFactory.create(targetMachine);
 
-			NativeLanguage nativeLanguage = NativeLanguage.CPP;
-			if (delegate instanceof SwiftcToolChain) {
-				nativeLanguage = NativeLanguage.SWIFT;
-			}
+			if (delegate instanceof KnownAwareToolChain) {
+				return ((KnownAwareToolChain) delegate).isKnown(targetPlatform);
+			} else {
+				NativeLanguage nativeLanguage = NativeLanguage.CPP;
+				if (delegate instanceof SwiftcToolChain) {
+					nativeLanguage = NativeLanguage.SWIFT;
+				}
 
-			PlatformToolProvider toolProvider = delegate.select(nativeLanguage, targetPlatform);
-			if (toolProvider.isAvailable()) {
+				PlatformToolProvider toolProvider = delegate.select(nativeLanguage, targetPlatform);
+				if (toolProvider.isAvailable()) {
+					return true;
+				}
+
+				// Code an exception here as VisualCpp will return an unavailable (not unsupported) when the tool is not available
+				// For VisualCpp toolchain where target is not Windows, return not supported.
+				if (!toolProvider.isSupported() || (!targetPlatform.getOperatingSystem().isWindows() && delegate instanceof VisualCppToolChain)) {
+					return false;
+				}
 				return true;
 			}
-
-			// Code an exception here as VisualCpp will return an unavailable (not unsupported) when the tool is not available
-			// For VisualCpp toolchain where target is not Windows, return not supported.
-			if (!toolProvider.isSupported() || (!targetPlatform.getOperatingSystem().isWindows() && delegate instanceof VisualCppToolChain)) {
-				return false;
-			}
-			return true;
 		}
 
 		@Override

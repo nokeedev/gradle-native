@@ -1,6 +1,7 @@
 package dev.nokee.platform.ios.internal.plugins;
 
 import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
@@ -32,7 +33,6 @@ import org.gradle.model.RuleSource;
 import org.gradle.nativeplatform.toolchain.Clang;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
 import org.gradle.nativeplatform.toolchain.internal.gcc.DefaultGccPlatformToolChain;
-import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
 import org.gradle.util.GUtil;
 
 import java.util.Arrays;
@@ -54,7 +54,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		project.getPluginManager().apply(StandardToolChainsPlugin.class);
+		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 		project.getPluginManager().apply(ToolChainMetadataRules.class);
 		project.getPluginManager().apply(DarwinRuntimePlugin.class);
 

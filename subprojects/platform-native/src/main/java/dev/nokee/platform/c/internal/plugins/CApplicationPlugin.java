@@ -3,6 +3,7 @@ package dev.nokee.platform.c.internal.plugins;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
+import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
@@ -19,7 +20,6 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.nativeplatform.toolchain.internal.plugins.StandardToolChainsPlugin;
 
 import javax.inject.Inject;
 
@@ -44,7 +44,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		project.getPluginManager().apply(StandardToolChainsPlugin.class);
+		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
