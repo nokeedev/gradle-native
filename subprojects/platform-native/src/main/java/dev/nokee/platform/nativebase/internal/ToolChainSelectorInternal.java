@@ -10,14 +10,12 @@ import org.gradle.internal.os.OperatingSystem;
 import org.gradle.model.internal.registry.ModelRegistry;
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
-import org.gradle.nativeplatform.toolchain.Clang;
 import org.gradle.nativeplatform.toolchain.internal.NativeLanguage;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import org.gradle.nativeplatform.toolchain.internal.msvcpp.VisualCppToolChain;
 import org.gradle.nativeplatform.toolchain.internal.swift.SwiftcToolChain;
-import org.gradle.platform.base.ToolChain;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -125,18 +123,22 @@ public class ToolChainSelectorInternal {
 
 		@Override
 		public boolean canBuild(TargetMachine targetMachine) {
-			NativePlatformInternal targetPlatform = nativePlatformFactory.create(targetMachine);
+			try {
+				NativePlatformInternal targetPlatform = nativePlatformFactory.create(targetMachine);
 
-			NativeLanguage nativeLanguage = NativeLanguage.CPP;
-			if (delegate instanceof SwiftcToolChain) {
-				nativeLanguage = NativeLanguage.SWIFT;
-			}
+				NativeLanguage nativeLanguage = NativeLanguage.CPP;
+				if (delegate instanceof SwiftcToolChain) {
+					nativeLanguage = NativeLanguage.SWIFT;
+				}
 
-			PlatformToolProvider toolProvider = delegate.select(nativeLanguage, targetPlatform);
-			if (toolProvider.isAvailable()) {
-				return true;
+				PlatformToolProvider toolProvider = delegate.select(nativeLanguage, targetPlatform);
+				if (toolProvider.isAvailable()) {
+					return true;
+				}
+				return false;
+			} catch (Throwable ex) {
+				return false;
 			}
-			return false;
 		}
 	}
 
