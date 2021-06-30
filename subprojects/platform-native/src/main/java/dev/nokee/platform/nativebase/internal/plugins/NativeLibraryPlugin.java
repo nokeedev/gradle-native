@@ -9,7 +9,10 @@ import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
 import dev.nokee.platform.nativebase.NativeLibrarySources;
-import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
+import dev.nokee.platform.nativebase.internal.TargetLinkageRule;
+import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -28,7 +31,6 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.componentSourcesOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.configureBuildVariants;
 
 public class NativeLibraryPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "library";
