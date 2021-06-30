@@ -5,6 +5,8 @@ import org.gradle.api.attributes.Usage
 
 import java.util.function.Consumer
 
+import static org.apache.commons.io.FilenameUtils.separatorsToUnix
+
 final class OutgoingElements {
 	private final String name
 	private final List<String> segment = new ArrayList<>()
@@ -94,7 +96,7 @@ final class OutgoingElements {
 		@Override
 		String toString() {
 			return """
-				|artifact(file('${location}')) {
+				|artifact(file('${separatorsToUnix(location.absolutePath)}')) {
 				|	type = '${artifactType}'
 				|}
 				|""".stripMargin()
