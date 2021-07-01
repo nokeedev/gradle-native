@@ -1,7 +1,8 @@
 plugins {
-	id("dev.gradleplugins.java-gradle-plugin") version("1.2")
-	id("dev.gradleplugins.gradle-plugin-unit-test") version("1.2")
-	id("dev.gradleplugins.gradle-plugin-functional-test") version("1.2")
+	id("dev.gradleplugins.java-gradle-plugin") version("1.4.1")
+	id("dev.gradleplugins.gradle-plugin-unit-test") version("1.4.1")
+	id("dev.gradleplugins.gradle-plugin-functional-test") version("1.4.1")
+	id("groovy-base") // for Spock testing
 }
 
 gradlePlugin {
@@ -19,15 +20,17 @@ repositories {
 
 test {
 	dependencies {
-		implementation(spockFramework())
-		implementation(groovy())
+		implementation(platform("org.spockframework:spock-bom:2.0-groovy-2.5"))
+		implementation("org.spockframework:spock-core")
 	}
+	testTasks.configureEach { useJUnitPlatform() }
 }
 
 functionalTest {
 	dependencies {
-		implementation(spockFramework())
-		implementation(groovy())
+		implementation(platform("org.spockframework:spock-bom:2.0-groovy-2.5"))
+		implementation("org.spockframework:spock-core")
 		implementation(gradleTestKit())
 	}
+	testTasks.configureEach { useJUnitPlatform() }
 }

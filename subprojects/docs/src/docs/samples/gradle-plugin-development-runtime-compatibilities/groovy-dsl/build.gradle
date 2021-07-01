@@ -6,8 +6,8 @@ plugins {
 import static dev.gradleplugins.GradleRuntimeCompatibility.*
 
 java {
-	targetCompatibility = minimumJavaVersionFor('4.9')	// <1>
-	sourceCompatibility = minimumJavaVersionFor('4.9')	// <1>
+	targetCompatibility = minimumJavaVersionFor('5.1')	// <1>
+	sourceCompatibility = minimumJavaVersionFor('5.1')	// <1>
 }
 
 repositories {
@@ -16,15 +16,15 @@ repositories {
 }
 
 dependencies {
-	compileOnly gradleApi('4.9')						// <4>
+	compileOnly gradleApi('5.1')						// <4>
 
-	testImplementation gradleApi('4.9')					// <5>
-	testImplementation platform('org.spockframework:spock-bom:1.2-groovy-2.4')
+	testImplementation gradleApi('5.1')					// <5>
+	testImplementation platform('org.spockframework:spock-bom:2.0-groovy-2.5')
 	testImplementation 'org.spockframework:spock-core'
 }
 
 tasks.register('gradleCompatibility') {
-	def gradleVersion = '4.9'
+	def gradleVersion = '5.1'
 	doLast {
 		println "=== Gradle ${gradleVersion} Compatibility Information ==="
 		println "Minimum Java version: ${minimumJavaVersionFor(gradleVersion)}"
@@ -32,3 +32,5 @@ tasks.register('gradleCompatibility') {
 		println "Kotlin version: ${kotlinVersionOf(gradleVersion).orElse('N/A')}"
 	}
 }
+
+tasks.withType(Test).configureEach { useJUnitPlatform() }
