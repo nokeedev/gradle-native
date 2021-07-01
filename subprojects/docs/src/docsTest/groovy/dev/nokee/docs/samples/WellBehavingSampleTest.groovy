@@ -316,11 +316,11 @@ abstract class WellBehavingSampleTest extends Specification {
 
 			def initScript = new File(context.currentWorkingDirectory, "init.gradle") << """
 				allprojects { p ->
-					apply plugin: ${toolChain.pluginClass}
-
-					model {
-						toolChains {
-							${toolChain.buildScriptConfig}
+					plugins.withType(NativeComponentModelPlugin) {
+						model {
+							toolChains {
+								${toolChain.buildScriptConfig}
+							}
 						}
 					}
 				}
