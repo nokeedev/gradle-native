@@ -1,11 +1,11 @@
 plugins {
-	id 'dev.gradleplugins.java-gradle-plugin' version '1.2'
+	id 'dev.gradleplugins.java-gradle-plugin' version '1.4.1'
 	id 'groovy-base' // for Spock testing
 }
 
 gradlePlugin {
 	compatibility {
-		minimumGradleVersion = '4.9'
+		minimumGradleVersion = '5.1'
 	}
 
 	testSourceSets sourceSets.test
@@ -22,7 +22,9 @@ repositories {
 }
 
 dependencies { // <1>
-	testImplementation platform('org.spockframework:spock-bom:1.2-groovy-2.5')
+	testImplementation platform('org.spockframework:spock-bom:2.0-groovy-2.5')
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation gradleTestKit()
 }
+
+tasks.withType(Test).configureEach { useJUnitPlatform() }

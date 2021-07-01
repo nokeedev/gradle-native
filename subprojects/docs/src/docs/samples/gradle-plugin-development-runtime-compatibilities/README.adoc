@@ -44,17 +44,17 @@ include::kotlin-dsl/build.gradle.kts[]
 <4> Add compile only dependency to the specified Gradle API.
 <5> Add compile and runtime dependency to the specified Gradle API.
 
-To query the information about Gradle 4.9:
+To query the information about Gradle 5.1:
 
 [listing.terminal]
 ----
 $ ./gradlew gradleCompatibility
 
 > Task :gradleCompatibility
-=== Gradle 4.9 Compatibility Information ===
-Minimum Java version: 1.7
-Groovy version: 2.4.12
-Kotlin version: 1.2.41
+=== Gradle 5.1 Compatibility Information ===
+Minimum Java version: 1.8
+Groovy version: 2.5.4
+Kotlin version: 1.3.11
 
 BUILD SUCCESSFUL
 1 actionable task: 1 executed
@@ -78,30 +78,172 @@ The important point here is the compile vs runtime dependencies:
 $ ./gradlew dependencies
 ...
 compileClasspath - Compile classpath for source set 'main'.
-\--- dev.gradleplugins:gradle-api:4.9
-     \--- org.codehaus.groovy:groovy:2.4.12
+\--- dev.gradleplugins:gradle-api:5.1
+     \--- org.codehaus.groovy:groovy:2.5.4
 ...
 testCompileClasspath - Compile classpath for source set 'test'.
-+--- dev.gradleplugins:gradle-api:4.9
-|    \--- org.codehaus.groovy:groovy:2.4.12
-+--- org.spockframework:spock-bom:1.2-groovy-2.4
-|    \--- org.spockframework:spock-core:1.2-groovy-2.4 (c)
-\--- org.spockframework:spock-core -> 1.2-groovy-2.4
-     +--- org.codehaus.groovy:groovy-all:2.4.15
-     \--- junit:junit:4.12
-          \--- org.hamcrest:hamcrest-core:1.3
++--- dev.gradleplugins:gradle-api:5.1
+|    \--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
++--- org.spockframework:spock-bom:2.0-groovy-2.5
+|    +--- org.spockframework:spock-core:2.0-groovy-2.5 (c)
+|    \--- org.spockframework:spock-groovy2-compat:2.0-groovy-2.5 (c)
+\--- org.spockframework:spock-core -> 2.0-groovy-2.5
+     +--- org.junit:junit-bom:5.7.2
+     |    +--- org.junit.platform:junit-platform-engine:1.7.2 (c)
+     |    +--- org.junit.platform:junit-platform-testkit:1.7.2 (c)
+     |    +--- org.junit.platform:junit-platform-commons:1.7.2 (c)
+     |    \--- org.junit.platform:junit-platform-launcher:1.7.2 (c)
+     +--- org.codehaus.groovy:groovy:2.5.14
+     +--- org.junit.platform:junit-platform-engine -> 1.7.2
+     |    +--- org.junit:junit-bom:5.7.2 (*)
+     |    +--- org.apiguardian:apiguardian-api:1.1.0
+     |    +--- org.opentest4j:opentest4j:1.2.0
+     |    \--- org.junit.platform:junit-platform-commons:1.7.2
+     |         +--- org.junit:junit-bom:5.7.2 (*)
+     |         \--- org.apiguardian:apiguardian-api:1.1.0
+     +--- org.junit.platform:junit-platform-testkit -> 1.7.2
+     |    +--- org.junit:junit-bom:5.7.2 (*)
+     |    +--- org.apiguardian:apiguardian-api:1.1.0
+     |    +--- org.assertj:assertj-core:3.16.1
+     |    +--- org.opentest4j:opentest4j:1.2.0
+     |    \--- org.junit.platform:junit-platform-launcher:1.7.2
+     |         +--- org.junit:junit-bom:5.7.2 (*)
+     |         +--- org.apiguardian:apiguardian-api:1.1.0
+     |         \--- org.junit.platform:junit-platform-engine:1.7.2 (*)
+     +--- org.hamcrest:hamcrest:2.2
+     +--- org.jetbrains:annotations:20.1.0
+     +--- org.ow2.asm:asm:9.1
+     +--- net.bytebuddy:byte-buddy:1.11.0
+     +--- cglib:cglib-nodep:3.3.0
+     +--- org.objenesis:objenesis:3.2
+     \--- org.spockframework:spock-groovy2-compat:2.0-groovy-2.5
+          +--- org.junit:junit-bom:5.7.2 (*)
+          \--- org.codehaus.groovy:groovy:2.5.14
 ...
 testRuntimeClasspath - Runtime classpath of source set 'test'.
-+--- dev.gradleplugins:gradle-api:4.9
-|    +--- org.codehaus.groovy:groovy-all:2.4.12 -> 2.4.15
-|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.2.41
-|         \--- org.jetbrains:annotations:13.0
-+--- org.spockframework:spock-bom:1.2-groovy-2.4
-|    \--- org.spockframework:spock-core:1.2-groovy-2.4 (c)
-\--- org.spockframework:spock-core -> 1.2-groovy-2.4
-     +--- org.codehaus.groovy:groovy-all:2.4.15
-     \--- junit:junit:4.12
-          \--- org.hamcrest:hamcrest-core:1.3
++--- dev.gradleplugins:gradle-api:5.1
+|    +--- org.codehaus.groovy:groovy-all:2.5.4
+|    |    +--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    +--- org.codehaus.groovy:groovy-ant:2.5.4
+|    |    |    +--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    |    +--- org.apache.ant:ant:1.9.13
+|    |    |    |    \--- org.apache.ant:ant-launcher:1.9.13
+|    |    |    +--- org.codehaus.groovy:groovy-groovydoc:2.5.4
+|    |    |    |    +--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    |    |    +--- org.codehaus.groovy:groovy-cli-picocli:2.5.4
+|    |    |    |    |    +--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    |    |    |    \--- info.picocli:picocli:3.7.0
+|    |    |    |    +--- org.codehaus.groovy:groovy-templates:2.5.4
+|    |    |    |    |    +--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    |    |    |    \--- org.codehaus.groovy:groovy-xml:2.5.4
+|    |    |    |    |         \--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    |    |    \--- org.codehaus.groovy:groovy-docgenerator:2.5.4
+|    |    |    |         +--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    |    |         +--- org.codehaus.groovy:groovy-cli-picocli:2.5.4 (*)
+|    |    |    |         +--- org.codehaus.groovy:groovy-templates:2.5.4 (*)
+|    |    |    |         \--- com.thoughtworks.qdox:qdox:1.12.1
+|    |    |    +--- org.apache.ant:ant-junit:1.9.13
+|    |    |    |    \--- org.apache.ant:ant:1.9.13 (*)
+|    |    |    +--- org.apache.ant:ant-launcher:1.9.13
+|    |    |    \--- org.apache.ant:ant-antlr:1.9.13
+|    |    +--- org.codehaus.groovy:groovy-cli-commons:2.5.4
+|    |    |    +--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    |    \--- commons-cli:commons-cli:1.4
+|    |    +--- org.codehaus.groovy:groovy-cli-picocli:2.5.4 (*)
+|    |    +--- org.codehaus.groovy:groovy-console:2.5.4
+|    |    |    +--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    |    +--- org.codehaus.groovy:groovy-cli-picocli:2.5.4 (*)
+|    |    |    +--- org.codehaus.groovy:groovy-swing:2.5.4
+|    |    |    |    \--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    |    \--- org.codehaus.groovy:groovy-templates:2.5.4 (*)
+|    |    +--- org.codehaus.groovy:groovy-datetime:2.5.4
+|    |    |    \--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    +--- org.codehaus.groovy:groovy-docgenerator:2.5.4 (*)
+|    |    +--- org.codehaus.groovy:groovy-groovydoc:2.5.4 (*)
+|    |    +--- org.codehaus.groovy:groovy-groovysh:2.5.4
+|    |    |    +--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    |    +--- org.codehaus.groovy:groovy-cli-picocli:2.5.4 (*)
+|    |    |    +--- org.codehaus.groovy:groovy-console:2.5.4 (*)
+|    |    |    \--- jline:jline:2.14.6
+|    |    +--- org.codehaus.groovy:groovy-jmx:2.5.4
+|    |    |    \--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    +--- org.codehaus.groovy:groovy-json:2.5.4
+|    |    |    \--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    +--- org.codehaus.groovy:groovy-jsr223:2.5.4
+|    |    |    \--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    +--- org.codehaus.groovy:groovy-macro:2.5.4
+|    |    |    \--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    +--- org.codehaus.groovy:groovy-nio:2.5.4
+|    |    |    \--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    +--- org.codehaus.groovy:groovy-servlet:2.5.4
+|    |    |    +--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    |    +--- org.codehaus.groovy:groovy-xml:2.5.4 (*)
+|    |    |    \--- org.codehaus.groovy:groovy-templates:2.5.4 (*)
+|    |    +--- org.codehaus.groovy:groovy-sql:2.5.4
+|    |    |    \--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    +--- org.codehaus.groovy:groovy-swing:2.5.4 (*)
+|    |    +--- org.codehaus.groovy:groovy-templates:2.5.4 (*)
+|    |    +--- org.codehaus.groovy:groovy-test:2.5.4
+|    |    |    +--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    |    \--- junit:junit:4.12
+|    |    |         \--- org.hamcrest:hamcrest-core:1.3
+|    |    +--- org.codehaus.groovy:groovy-test-junit5:2.5.4
+|    |    |    +--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    |    +--- org.junit.platform:junit-platform-launcher:1.3.1 -> 1.7.2
+|    |    |    |    +--- org.junit:junit-bom:5.7.2
+|    |    |    |    |    +--- org.junit.platform:junit-platform-engine:1.7.2 (c)
+|    |    |    |    |    +--- org.junit.platform:junit-platform-testkit:1.7.2 (c)
+|    |    |    |    |    +--- org.junit.platform:junit-platform-launcher:1.7.2 (c)
+|    |    |    |    |    +--- org.junit.jupiter:junit-jupiter-engine:5.7.2 (c)
+|    |    |    |    |    +--- org.junit.platform:junit-platform-commons:1.7.2 (c)
+|    |    |    |    |    \--- org.junit.jupiter:junit-jupiter-api:5.7.2 (c)
+|    |    |    |    +--- org.apiguardian:apiguardian-api:1.1.0
+|    |    |    |    \--- org.junit.platform:junit-platform-engine:1.7.2
+|    |    |    |         +--- org.junit:junit-bom:5.7.2 (*)
+|    |    |    |         +--- org.apiguardian:apiguardian-api:1.1.0
+|    |    |    |         +--- org.opentest4j:opentest4j:1.2.0
+|    |    |    |         \--- org.junit.platform:junit-platform-commons:1.7.2
+|    |    |    |              +--- org.junit:junit-bom:5.7.2 (*)
+|    |    |    |              \--- org.apiguardian:apiguardian-api:1.1.0
+|    |    |    \--- org.junit.jupiter:junit-jupiter-engine:5.3.1 -> 5.7.2
+|    |    |         +--- org.junit:junit-bom:5.7.2 (*)
+|    |    |         +--- org.apiguardian:apiguardian-api:1.1.0
+|    |    |         +--- org.junit.platform:junit-platform-engine:1.7.2 (*)
+|    |    |         \--- org.junit.jupiter:junit-jupiter-api:5.7.2
+|    |    |              +--- org.junit:junit-bom:5.7.2 (*)
+|    |    |              +--- org.apiguardian:apiguardian-api:1.1.0
+|    |    |              +--- org.opentest4j:opentest4j:1.2.0
+|    |    |              \--- org.junit.platform:junit-platform-commons:1.7.2 (*)
+|    |    +--- org.codehaus.groovy:groovy-testng:2.5.4
+|    |    |    +--- org.codehaus.groovy:groovy:2.5.4 -> 2.5.14
+|    |    |    \--- org.testng:testng:6.13.1
+|    |    |         \--- com.beust:jcommander:1.72
+|    |    \--- org.codehaus.groovy:groovy-xml:2.5.4 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.3.11
+|         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.3.11
+|         \--- org.jetbrains:annotations:13.0 -> 20.1.0
++--- org.spockframework:spock-bom:2.0-groovy-2.5
+|    +--- org.spockframework:spock-core:2.0-groovy-2.5 (c)
+|    \--- org.spockframework:spock-groovy2-compat:2.0-groovy-2.5 (c)
+\--- org.spockframework:spock-core -> 2.0-groovy-2.5
+     +--- org.junit:junit-bom:5.7.2 (*)
+     +--- org.codehaus.groovy:groovy:2.5.14
+     +--- org.junit.platform:junit-platform-engine -> 1.7.2 (*)
+     +--- org.junit.platform:junit-platform-testkit -> 1.7.2
+     |    +--- org.junit:junit-bom:5.7.2 (*)
+     |    +--- org.apiguardian:apiguardian-api:1.1.0
+     |    +--- org.assertj:assertj-core:3.16.1
+     |    +--- org.opentest4j:opentest4j:1.2.0
+     |    \--- org.junit.platform:junit-platform-launcher:1.7.2 (*)
+     +--- org.hamcrest:hamcrest:2.2
+     +--- org.jetbrains:annotations:20.1.0
+     +--- org.ow2.asm:asm:9.1
+     +--- net.bytebuddy:byte-buddy:1.11.0
+     +--- cglib:cglib-nodep:3.3.0
+     +--- org.objenesis:objenesis:3.2
+     \--- org.spockframework:spock-groovy2-compat:2.0-groovy-2.5
+          +--- org.junit:junit-bom:5.7.2 (*)
+          \--- org.codehaus.groovy:groovy:2.5.14
 ...
 ----
 
@@ -125,7 +267,7 @@ Capabilities
 Attributes
     - org.gradle.category            = library
     - org.gradle.dependency.bundling = external
-    - org.gradle.jvm.version         = 7
+    - org.gradle.jvm.version         = 8
     - org.gradle.libraryelements     = jar
     - org.gradle.usage               = java-api
 ...

@@ -28,7 +28,6 @@ include::kotlin-dsl/build.gradle.kts[]
 ----
 =====
 ====
-<1> The Nokee team maintains the Gradle fixtures which cover common testing scenarios and are testing strategy aware.
 The Gradle executer will honour the selected testing strategy for the `Test` task.
 Read the <<../../manual/gradle-plugin-development.adoc#sec:gradle-dev-testing-strategies,testing strategy section>> to learn more.
 
