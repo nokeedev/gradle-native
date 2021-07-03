@@ -5,6 +5,7 @@ import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
+import dev.nokee.runtime.nativebase.internal.NativeArtifactTypes;
 import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -27,6 +28,9 @@ public class NativeLibraryOutgoingDependencies extends AbstractNativeLibraryOutg
 		val apiElements = configurationRegistry.createIfAbsent(identifier.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingHeaderSearchPathFrom(dependencies.getApi().getAsConfiguration()).withVariant(buildVariant).withDescription(identifier.getDisplayName()));
 
 		// See https://github.com/gradle/gradle/issues/15146 to learn more about splitting the implicit dependencies
-		apiElements.getOutgoing().artifact(getExportedHeaders().getElements().flatMap(it -> ProviderUtils.fixed(Iterables.getOnlyElement(it))), it -> it.builtBy(getExportedHeaders()));
+		apiElements.getOutgoing().artifact(getExportedHeaders().getElements().flatMap(it -> ProviderUtils.fixed(Iterables.getOnlyElement(it))), it -> {
+			it.builtBy(getExportedHeaders());
+			it.setType(NativeArtifactTypes.NATIVE_HEADERS_DIRECTORY);
+		});
 	}
 }
