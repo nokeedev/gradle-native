@@ -3,18 +3,18 @@ package dev.nokee.runtime.darwin
 import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.platform.jni.fixtures.CGreeter
+import dev.nokee.runtime.base.ArtifactTransformFixture
 import spock.lang.Unroll
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
+import static dev.nokee.runtime.base.VerifyTask.uncompressedFiles
 import static dev.nokee.runtime.darwin.OutgoingElements.outgoingFrameworkElements
 import static dev.nokee.runtime.darwin.OutgoingElements.outgoingHeadersElements
-import static dev.nokee.runtime.darwin.VerifyTask.verifyTask
-import static dev.nokee.runtime.darwin.internal.DarwinArtifactTypes.LINKABLE_ELEMENT_OR_FRAMEWORK_TYPE
-import static dev.nokee.runtime.darwin.internal.DarwinArtifactTypes.NATIVE_HEADERS_DIRECTORY_OR_FRAMEWORK_TYPE
+import static dev.nokee.runtime.base.VerifyTask.verifyTask
 
-class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecification {
+class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecification implements ArtifactTransformFixture {
 	def setup() {
 		buildFile << """
 			plugins {
@@ -58,7 +58,9 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 
 	def "can resolve adhoc compressed framework bundle from disk"() {
 		def frameworkLocation = compress(createTestFramework(testDirectory))
-		buildFile << verifyTask().that { it.artifactType(NATIVE_HEADERS_DIRECTORY_OR_FRAMEWORK_TYPE).transformed('Test.framework') }
+		buildFile << verifyTask()
+			.that { "configurations.test.${uncompressedFiles()}.singleFile.name == 'Test.framework'" }
+			.that { "transformed(configurations.test.${uncompressedFiles()})" }
 		buildFile << """
 			configurations.test {
 				attributes {
@@ -74,12 +76,13 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 		expect:
 		def result = succeeds('verify')
 		result.output =~ /Transforming( artifact)? Test.framework.zip with UnzipTransform/
-		result.output =~ /Transforming( artifact)? Test.framework.zip with FrameworkToCompilerReady/
 	}
 
 	def "can resolve adhoc framework bundle from disk"() {
 		def frameworkLocation = createTestFramework(testDirectory)
-		buildFile << verifyTask().that { it.artifactType(NATIVE_HEADERS_DIRECTORY_OR_FRAMEWORK_TYPE).directory(file('Test.framework')) }
+		buildFile << verifyTask()
+			.that { "configurations.test.singleFile == file('Test.framework')" }
+			.that { "!transformed(configurations.test)" }
 		buildFile << """
 			configurations.test {
 				attributes {
@@ -94,16 +97,17 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 
 		expect:
 		def result = succeeds('verify')
-		result.output =~ /Transforming( artifact)? Test.framework with DirectoryToFramework/
-		result.output =~ /Transforming( artifact)? Test.framework with FrameworkToCompilerReady/
+		doesNotTransformArtifacts(result.output)
 	}
 
 	def "can resolve compressed framework bundle from subproject"() {
 		settingsFile << '''
 			include 'lib'
 		'''
-		file('lib/build.gradle') << outgoingFrameworkElements().mainVariant { it.artifact(compress(createTestFramework(file('lib')))) }
-		buildFile << verifyTask().that { it.artifactType(NATIVE_HEADERS_DIRECTORY_OR_FRAMEWORK_TYPE).transformed('Test.framework') }
+		file('lib/build.gradle') << outgoingFrameworkElements().mainVariant { it.artifact(compress(createTestFramework(file('lib')))).type('framework-zip') }
+		buildFile << verifyTask()
+			.that { "configurations.test.${uncompressedFiles()}.singleFile.name == 'Test.framework'" }
+			.that { "transformed(configurations.test.${uncompressedFiles()})" }
 		buildFile << '''
 			dependencies {
 				test project(':lib')
@@ -112,27 +116,18 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 
 		expect:
 		def result = succeeds('verify')
-		result.output =~ /Transform(ing artifact)? Test.framework.zip \(project :lib\) with UnzipTransform/
-		result.output =~ /Transform(ing artifact)? Test.framework.zip \(project :lib\) with HeaderSearchPathToCompilerReady/
+		result.output =~ /Transform(ing artifact)? Test.framework.zip \(project :lib\) with FrameworkArchiveToFramework/
 	}
 
-	@Unroll
-	def "can resolve framework bundle from subproject [#directoryType]"(String directoryType) {
+	def "can resolve framework bundle from subproject"() {
 		settingsFile << '''
 			include 'lib'
 		'''
 		file('lib/build.gradle') << outgoingFrameworkElements()
-			.mainVariant { it.artifact(createTestFramework(file('lib'))).type(directoryType) }
-		buildFile << verifyTask().that { it.artifactType(NATIVE_HEADERS_DIRECTORY_OR_FRAMEWORK_TYPE).directory(file('lib/Test.framework')) }
-		if (directoryType == 'directory') {
-			buildFile << '''
-				configurations.test {
-					attributes {
-						attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, "framework-bundle"))
-					}
-				}
-			'''
-		}
+			.mainVariant { it.artifact(createTestFramework(file('lib'))).type('framework') }
+		buildFile << verifyTask()
+			.that { "configurations.test.singleFile == file('lib/Test.framework')" }
+			.that { "!transformed(configurations.test)" }
 		buildFile << '''
 			dependencies {
 				test project(':lib')
@@ -141,13 +136,7 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 
 		expect:
 		def result = succeeds('verify')
-		if (directoryType == 'directory') {
-			result.output =~ /Transform(ing artifact)? Test.framework \(project :lib\) with DirectoryToFramework/
-		}
-		result.output =~ /Transform(ing artifact)? Test.framework \(project :lib\) with FrameworkToCompilerReady/
-
-		where:
-		directoryType << ['directory', 'framework']
+		doesNotTransformArtifacts(result.output)
 	}
 
 	def "resolve uncompressed framework bundle from subproject when dual artifact variant exists"() {
@@ -157,8 +146,10 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 		def frameworkLocation = createTestFramework(file('lib'))
 		file('lib/build.gradle') << outgoingFrameworkElements()
 			.mainVariant { it.artifact(frameworkLocation) }
-			.variant('zip') { it.artifact(compress(frameworkLocation)) }
-		buildFile << verifyTask().that { it.artifactType(NATIVE_HEADERS_DIRECTORY_OR_FRAMEWORK_TYPE).directory(file('lib/Test.framework')) }
+			.variant('zip') { it.artifact(compress(frameworkLocation)).type('framework-zip') }
+		buildFile << verifyTask()
+			.that { "configurations.test.singleFile == file('lib/Test.framework')" }
+			.that { "!transformed(configurations.test)" }
 		buildFile << '''
 			dependencies {
 				test project(':lib')
@@ -167,7 +158,7 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 
 		expect:
 		def result = succeeds('verify')
-		result.output =~ /Transform(ing artifact)? Test.framework \(project :lib\) with FrameworkToCompilerReady/
+		doesNotTransformArtifacts(result.output)
 	}
 
 
@@ -187,8 +178,10 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 		file('lib/build.gradle') << outgoingHeadersElements('testHeadersElements')
 			.mainVariant {it.artifact(createTestHeaders(file('lib'))).type(headerType) }
 		file('lib/build.gradle') << outgoingFrameworkElements('testFrameworkElements')
-			.mainVariant { it.artifact(createTestFramework(file('lib'))).type(frameworkType) }
-		buildFile << verifyTask().that { it.artifactType(NATIVE_HEADERS_DIRECTORY_OR_FRAMEWORK_TYPE).directory(file('lib/includes')) }
+			.mainVariant { it.artifact(createTestFramework(file('lib'))).type('framework') }
+		buildFile << verifyTask()
+			.that { "configurations.test.singleFile == file('lib/includes')" }
+			.that { "!transformed(configurations.test)" }
 		buildFile << """
 			dependencies {
 				test project(':lib')
@@ -200,7 +193,6 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 		if (headerType == 'directory') {
 			result.output =~ /Transform(ing artifact)? includes \(project :lib\) with DirectoryToHeaderSearchPath/
 		}
-		result.output =~ /Transform(ing artifact)? includes \(project :lib\) with HeaderSearchPathToCompilerReady/
 
 		where:
 		[headerType, frameworkType] << collectEachCombination([['directory', 'native-headers-directory'], ['directory', 'framework']])
@@ -214,8 +206,10 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 		file('lib/build.gradle') << outgoingHeadersElements('testHeadersElements')
 			.mainVariant { it.artifact(createTestHeaders(file('lib'))).type(headerType) }
 		file('lib/build.gradle') << outgoingFrameworkElements('testFrameworkElements')
-			.mainVariant { it.artifact(createTestFramework(file('lib'))).type(frameworkType) }
-		buildFile << verifyTask().that { it.artifactType(NATIVE_HEADERS_DIRECTORY_OR_FRAMEWORK_TYPE).directory(file('lib/Test.framework')) }
+			.mainVariant { it.artifact(createTestFramework(file('lib'))).type('framework') }
+		buildFile << verifyTask()
+			.that { "configurations.test.singleFile == file('lib/Test.framework')" }
+			.that { "!transformed(configurations.test)" }
 		buildFile << """
 			dependencies {
 				test(project(':lib')) {
@@ -228,10 +222,7 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 
 		expect:
 		def result = succeeds('verify')
-		if (frameworkType == 'directory') {
-			result.output =~ /Transform(ing artifact)? Test.framework \(project :lib\) with DirectoryToFramework/
-		}
-		result.output =~ /Transform(ing artifact)? Test.framework \(project :lib\) with FrameworkToCompilerReady/
+		doesNotTransformArtifacts(result.output)
 
 		where:
 		[headerType, frameworkType] << collectEachCombination([['directory', 'native-headers-directory'], ['directory', 'framework']])
@@ -252,14 +243,16 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 		'''
 		def includesLocation = createTestHeaders(file('lib'))
 		file('lib/build.gradle') << outgoingHeadersElements('testHeadersElements')
-			.mainVariant { it.artifact(includesLocation) }
-			.variant('zip') { it.artifact(compress(includesLocation)) }
+			.mainVariant { it.artifact(includesLocation).type('native-headers-directory') }
+			.variant('zip') { it.artifact(compress(includesLocation)).type('native-headers-zip') }
 		def frameworkLocation = createTestFramework(file('lib'))
 		file('lib/build.gradle') << outgoingFrameworkElements('testFrameworkElements')
-			.mainVariant { it.artifact(frameworkLocation) }
-			.variant('zip') { it.artifact(compress(frameworkLocation)) }
+			.mainVariant { it.artifact(frameworkLocation).type('framework') }
+			.variant('zip') { it.artifact(compress(frameworkLocation)).type('framework-zip') }
 
-		buildFile << verifyTask().that { it.artifactType(NATIVE_HEADERS_DIRECTORY_OR_FRAMEWORK_TYPE).directory(file('lib/Test.framework')) }
+		buildFile << verifyTask()
+			.that { "configurations.test.singleFile == file('lib/Test.framework')" }
+			.that { "!transformed(configurations.test)" }
 		buildFile << """
 			dependencies {
 				test(project(':lib')) {
@@ -272,7 +265,7 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 
 		expect:
 		def result = succeeds('verify')
-		result.output =~ /Transform(ing artifact)? Test.framework \(project :lib\) with FrameworkToCompilerReady/
+		doesNotTransformArtifacts(result.output)
 	}
 
 	def "can resolve framework for native-link usage from subproject when dual artifact variant exists"() {
@@ -281,13 +274,15 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 		'''
 		def includesLocation = createTestHeaders(file('lib'))
 		file('lib/build.gradle') << outgoingHeadersElements('testHeadersElements')
-			.mainVariant { it.artifact(includesLocation) }
-			.variant('zip') { it.artifact(compress(includesLocation)) }
+			.mainVariant { it.artifact(includesLocation).type('native-headers-directory') }
+			.variant('zip') { it.artifact(compress(includesLocation)).type('native-headers-zip') }
 		def frameworkLocation = createTestFramework(file('lib'))
 		file('lib/build.gradle') << outgoingFrameworkElements('testFrameworkElements')
-			.mainVariant { it.artifact(frameworkLocation) }
-			.variant('zip') { it.artifact(compress(frameworkLocation)) }
-		buildFile << verifyTask().that { it.artifactType(LINKABLE_ELEMENT_OR_FRAMEWORK_TYPE).directory(file('lib/Test.framework')) }
+			.mainVariant { it.artifact(frameworkLocation).type('framework') }
+			.variant('zip') { it.artifact(compress(frameworkLocation)).type('framework-zip') }
+		buildFile << verifyTask()
+			.that { "configurations.test.singleFile == file('lib/Test.framework')" }
+			.that { "!transformed(configurations.test)" }
 		buildFile << """
 			configurations.test {
 				attributes {
@@ -301,7 +296,7 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 
 		expect:
 		def result = succeeds('verify')
-		result.output =~ /Transform(ing artifact)? Test.framework \(project :lib\) with FrameworkToLinkerReady/
+		doesNotTransformArtifacts(result.output)
 	}
 
 	// TODO: dual import-lib and framework

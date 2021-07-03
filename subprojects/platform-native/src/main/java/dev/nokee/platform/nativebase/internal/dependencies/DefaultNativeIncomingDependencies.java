@@ -7,10 +7,9 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketName;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucket;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.runtime.darwin.internal.DarwinArtifactTypes;
 import dev.nokee.runtime.darwin.internal.DarwinLibraryElements;
+import dev.nokee.runtime.nativebase.internal.ArtifactCompressionState;
 import dev.nokee.utils.ActionUtils;
-import dev.nokee.utils.ConfigurationUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Value;
@@ -33,6 +32,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static dev.nokee.runtime.nativebase.internal.ArtifactCompressionState.ARTIFACT_COMPRESSION_STATE_ATTRIBUTE;
+import static dev.nokee.runtime.nativebase.internal.ArtifactCompressionState.UNCOMPRESSED;
 
 public class DefaultNativeIncomingDependencies implements NativeIncomingDependencies {
 	private static final Logger LOGGER = Logger.getLogger(DefaultNativeIncomingDependencies.class.getCanonicalName());
@@ -89,7 +91,7 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 	}
 
 	private Provider<List<LinkerInput>> fromLinkConfiguration() {
-		return getProviders().provider(() -> linkLibrariesBucket.getAsConfiguration().getIncoming().artifactView(it -> it.getAttributes().attribute(ConfigurationUtils.ARTIFACT_TYPE_ATTRIBUTE, DarwinArtifactTypes.LINKABLE_ELEMENT_OR_FRAMEWORK_TYPE)).getArtifacts().getArtifacts().stream().map(LinkerInput::of).collect(Collectors.toList()));
+		return getProviders().provider(() -> linkLibrariesBucket.getAsConfiguration().getIncoming().artifactView(it -> it.getAttributes().attribute(ARTIFACT_COMPRESSION_STATE_ATTRIBUTE, UNCOMPRESSED)).getArtifacts().getArtifacts().stream().map(LinkerInput::of).collect(Collectors.toList()));
 	}
 
 	@Getter private final ListProperty<LinkerInput> linkerInputs;
@@ -284,7 +286,7 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 		@Getter(AccessLevel.PROTECTED) private final ListProperty<CompilerInput> nativeCompilerInputs;
 
 		private Provider<List<CompilerInput>> fromNativeCompileConfiguration() {
-			return getProviders().provider(() -> headerSearchPathsBucket.getAsConfiguration().getIncoming().artifactView(it -> it.getAttributes().attribute(ConfigurationUtils.ARTIFACT_TYPE_ATTRIBUTE, DarwinArtifactTypes.NATIVE_HEADERS_DIRECTORY_OR_FRAMEWORK_TYPE)).getArtifacts().getArtifacts().stream().map(CompilerInput::of).collect(Collectors.toList()));
+			return getProviders().provider(() -> headerSearchPathsBucket.getAsConfiguration().getIncoming().artifactView(it -> it.getAttributes().attribute(ARTIFACT_COMPRESSION_STATE_ATTRIBUTE, UNCOMPRESSED)).getArtifacts().getArtifacts().stream().map(CompilerInput::of).collect(Collectors.toList()));
 		}
 
 		private List<File> toHeaderSearchPaths(List<CompilerInput> inputs) {

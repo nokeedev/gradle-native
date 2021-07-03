@@ -1,6 +1,5 @@
 package dev.nokee.runtime.nativebase.internal;
 
-import dev.nokee.runtime.base.internal.IdentityTransform;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -18,8 +17,9 @@ import javax.inject.Inject;
 
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_ATTRIBUTE;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_ATTRIBUTE;
+import static dev.nokee.runtime.nativebase.internal.ArtifactCompressionState.*;
 import static dev.nokee.runtime.nativebase.internal.NativeArtifactTypes.*;
-import static dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin.DirectoryToHeaderSearchPath.directoryToHeaderSearchPath;
+import static dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin.HeadersArchiveToHeaderSearchPath.unzipHeadersArtifactToSearchPath;
 import static dev.nokee.utils.ConfigurationUtils.ARTIFACT_TYPE_ATTRIBUTE;
 import static org.gradle.api.attributes.Category.CATEGORY_ATTRIBUTE;
 import static org.gradle.api.attributes.LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE;
@@ -33,8 +33,10 @@ public /*final*/ abstract class NativeRuntimePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(NativeRuntimeBasePlugin.class);
 		project.getDependencies().attributesSchema(this::configureAttributesSchema);
-		project.getDependencies().registerTransform(UnzipTransform.class, this::unzipHeadersArtifactToSearchPaths);
-		project.getDependencies().registerTransform(DirectoryToHeaderSearchPath.class, directoryToHeaderSearchPath(getObjects()));
+		project.getDependencies().registerTransform(UnzipTransform.class, this::unzipArtifactToDirectory);
+		project.getDependencies().registerTransform(HeadersArchiveToHeaderSearchPath.class, unzipHeadersArtifactToSearchPath(getObjects()));
+
+		project.getDependencies().artifactTypes(ArtifactCompressionState::configureArtifactsCompressionState);
 
 		project.getDependencies().artifactTypes(it -> {
 			it.create(SHARED_OBJECTS_LIBRARY, this::nixSharedLibraryAttributes);
@@ -75,29 +77,29 @@ public /*final*/ abstract class NativeRuntimePlugin implements Plugin<Project> {
 		schema.attribute(USAGE_ATTRIBUTE, new UsageAttributeSchema());
 	}
 
-	public static /*final*/ abstract class DirectoryToHeaderSearchPath extends IdentityTransform {
-		public static Action<TransformSpec<TransformParameters.None>> directoryToHeaderSearchPath(ObjectFactory objects) {
+	public static /*final*/ abstract class HeadersArchiveToHeaderSearchPath implements UnzipTransform {
+		public static Action<TransformSpec<TransformParameters.None>> unzipHeadersArtifactToSearchPath(ObjectFactory objects) {
 			return spec -> {
 				spec.getFrom()
 					.attribute(USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.C_PLUS_PLUS_API))
 					.attribute(LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LibraryElements.HEADERS_CPLUSPLUS))
-					.attribute(ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.DIRECTORY_TYPE);
+					.attribute(ARTIFACT_TYPE_ATTRIBUTE, NativeArtifactTypes.NATIVE_HEADERS_ZIP)
+					.attribute(ARTIFACT_COMPRESSION_STATE_ATTRIBUTE, COMPRESSED);
 				spec.getTo()
 					.attribute(USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.C_PLUS_PLUS_API))
 					.attribute(LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LibraryElements.HEADERS_CPLUSPLUS))
-					.attribute(ARTIFACT_TYPE_ATTRIBUTE, NativeArtifactTypes.NATIVE_HEADERS_DIRECTORY);
+					.attribute(ARTIFACT_TYPE_ATTRIBUTE, NativeArtifactTypes.NATIVE_HEADERS_DIRECTORY)
+					.attribute(ARTIFACT_COMPRESSION_STATE_ATTRIBUTE, UNCOMPRESSED);
 			};
 		}
 	}
 
-	private void unzipHeadersArtifactToSearchPaths(TransformSpec<TransformParameters.None> spec) {
+	private void unzipArtifactToDirectory(TransformSpec<TransformParameters.None> spec) {
 		spec.getFrom()
-			.attribute(USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))
-			.attribute(LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.HEADERS_CPLUSPLUS))
-			.attribute(ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.ZIP_TYPE);
+			.attribute(ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.ZIP_TYPE)
+			.attribute(ARTIFACT_COMPRESSION_STATE_ATTRIBUTE, COMPRESSED);
 		spec.getTo()
-			.attribute(USAGE_ATTRIBUTE, getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))
-			.attribute(LIBRARY_ELEMENTS_ATTRIBUTE, getObjects().named(LibraryElements.class, LibraryElements.HEADERS_CPLUSPLUS))
-			.attribute(ARTIFACT_TYPE_ATTRIBUTE, NativeArtifactTypes.NATIVE_HEADERS_DIRECTORY);
+			.attribute(ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.DIRECTORY_TYPE)
+			.attribute(ARTIFACT_COMPRESSION_STATE_ATTRIBUTE, UNCOMPRESSED);
 	}
 }

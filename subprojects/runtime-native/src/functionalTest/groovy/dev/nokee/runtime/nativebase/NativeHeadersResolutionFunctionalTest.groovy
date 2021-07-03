@@ -3,11 +3,17 @@ package dev.nokee.runtime.nativebase
 import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.platform.jni.fixtures.CGreeter
+import dev.nokee.runtime.base.ArtifactTransformFixture
 import spock.lang.Unroll
 
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+
+import static dev.nokee.runtime.base.VerifyTask.uncompressedFiles
+import static dev.nokee.runtime.base.VerifyTask.verifyTask
 import static org.apache.commons.io.FilenameUtils.separatorsToUnix
 
-class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification {
+class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification implements ArtifactTransformFixture {
 	def setup() {
 		buildFile << """
 			plugins {
@@ -22,20 +28,6 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
 			}
-
-			def verifyTask = tasks.register('verify') {
-				ext.resolvedFiles = configurations.test.incoming.artifactView {
-					attributes {
-						attribute(Attribute.of('artifactType', String), 'native-headers-directory')
-					}
-				}.files
-				dependsOn(resolvedFiles)
-
-				doLast {
-					println resolvedFiles.singleFile
-					assert resolvedFiles.singleFile.directory
-				}
-			}
 		"""
 		executer = executer.withArgument('-i')
 	}
@@ -48,47 +40,40 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 	}
 
 	def "can resolve adhoc headers from zip archive"() {
-		def headersLocation = createTestHeaders(testDirectory)
-		buildFile << verifyTransformed('headers') << """
-			def zipTask = tasks.register('zipHeaders', Zip) {
-				from('${separatorsToUnix(headersLocation.absolutePath)}')
-				destinationDirectory = buildDir
-				archiveBaseName = 'headers'
-			}
-
+		buildFile << verifyTask()
+			.that { "configurations.test.${uncompressedFiles()}.singleFile.name == 'includes'" }
+			.that { "transformed(configurations.test.${uncompressedFiles()})" }
+		buildFile << """
 			dependencies {
-				test files(zipTask)
+				test files('${separatorsToUnix(compress(createTestHeaders(testDirectory)).absolutePath)}')
 			}
 		"""
 
 		expect:
-		succeeds('verify')
+		def result = succeeds('verify')
+		result.output =~ /Transforming( artifact)? includes.zip with UnzipTransform/
 	}
 
 	def "can resolve adhoc header search directories"() {
-		def headersLocation = createTestHeaders(testDirectory)
-		buildFile << verifyDirectory(headersLocation) << """
+		buildFile << verifyTask()
+			.that { "configurations.test.singleFile == file('includes')" }
+			.that { "!transformed(configurations.test)" }
+		buildFile << """
 			dependencies {
-				test files('${separatorsToUnix(headersLocation.absolutePath)}')
+				test files('${separatorsToUnix(createTestHeaders(testDirectory).absolutePath)}')
 			}
 		"""
 
 		expect:
-		succeeds('verify')
+		def result = succeeds('verify')
+		doesNotTransformArtifacts(result.output)
 	}
 
 	def "can resolve compressed headers from project"() {
 		settingsFile << '''
 			include 'lib'
 		'''
-		def headersLocation = createTestHeaders(testDirectory)
 		file('lib/build.gradle') << """
-			def zipTask = tasks.register('zipTestHeaders', Zip) {
-				from('${separatorsToUnix(headersLocation.absolutePath)}')
-				destinationDirectory = buildDir
-				archiveBaseName = 'headers'
-			}
-
 			configurations.create('testElements') {
 				canBeConsumed = true
 				canBeResolved = false
@@ -97,19 +82,23 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 					attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.HEADERS_CPLUSPLUS))
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
-				outgoing.artifact(zipTask) {
-					type = 'zip'
+				outgoing.artifact(file('${separatorsToUnix(compress(createTestHeaders(testDirectory)).absolutePath)}')) {
+					type = 'native-headers-zip'
 				}
 			}
 		"""
-		buildFile << verifyTransformed('headers') << """
+		buildFile << verifyTask()
+			.that { "configurations.test.${uncompressedFiles()}.singleFile.name == 'includes'" }
+			.that { "transformed(configurations.test.${uncompressedFiles()})" }
+		buildFile << """
 			dependencies {
 				test project(':lib')
 			}
 		"""
 
 		expect:
-		succeeds('verify')
+		def result = succeeds('verify')
+		result.output =~ /Transform(ing artifact)? includes.zip \(project :lib\) with HeadersArchiveToHeaderSearchPath/
 	}
 
 	@Unroll
@@ -117,7 +106,6 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 		settingsFile << '''
 			include 'lib'
 		'''
-		def headersLocation = createTestHeaders(file('lib'))
 		file('lib/build.gradle') << """
 			configurations.create('testElements') {
 				canBeConsumed = true
@@ -127,12 +115,15 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 					attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.HEADERS_CPLUSPLUS))
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
-				outgoing.artifact(file('${separatorsToUnix(headersLocation.absolutePath)}')) {
+				outgoing.artifact(file('${separatorsToUnix(createTestHeaders(file('lib')).absolutePath)}')) {
 					type = '${directoryType}'
 				}
 			}
 		"""
-		buildFile << verifyDirectory(file('lib/includes')) << """
+		buildFile << verifyTask()
+			.that { "configurations.test.singleFile == file('lib/includes')" }
+			.that { "!transformed(configurations.test)" }
+		buildFile << """
 			dependencies {
 				test project(':lib')
 			}
@@ -171,13 +162,16 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 					}
 					variants.create('zip') {
 						artifact(zipTask) {
-							type = 'zip'
+							type = 'native-headers-zip'
 						}
 					}
 				}
 			}
 		"""
-		buildFile << verifyDirectory(file('lib/includes')) << """
+		buildFile << verifyTask()
+			.that { "configurations.test.singleFile == file('lib/includes')" }
+			.that { "!transformed(configurations.test)" }
+		buildFile << """
 			dependencies {
 				test project(':lib')
 			}
@@ -187,29 +181,15 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 		succeeds('verify')
 	}
 
-	private static String verifyTransformed(String fileName) {
-		return """
-			verifyTask.configure {
-				doLast {
-					assert resolvedFiles.singleFile.name == '${fileName}'
-					assert resolvedFiles.singleFile.parentFile.name == 'transformed' ||
-						resolvedFiles.singleFile.path.contains('.transforms') ||
-						resolvedFiles.singleFile.path.contains('transforms-')
-				}
-			}
-		"""
-	}
-
-	private static String verifyDirectory(File path) {
-		return """
-			verifyTask.configure {
-				doLast {
-					assert resolvedFiles.singleFile == file('${separatorsToUnix(path.absolutePath)}')
-					assert resolvedFiles.singleFile.parentFile.name != 'transformed' &&
-						!resolvedFiles.singleFile.path.contains('.transforms') &&
-						!resolvedFiles.singleFile.path.contains('transforms-')
-				}
-			}
-		"""
+	private static File compress(TestFile srcDir) {
+		File zipFile = new File(srcDir.getAbsolutePath() + ".zip")
+		ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))
+		srcDir.eachFileRecurse({
+			zos.putNextEntry(new ZipEntry(it.path - srcDir.path + (it.directory ? "/" : "")))
+			if(it.file) { zos << it.bytes }
+			zos.closeEntry()
+		})
+		zos.close()
+		return zipFile
 	}
 }
