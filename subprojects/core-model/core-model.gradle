@@ -12,6 +12,7 @@ dependencies {
 
 	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
+	testImplementation gradleTestKit()
 
 	testFixturesApi project(':internalTesting')
 	testFixturesImplementation project(':coreUtils')
