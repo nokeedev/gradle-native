@@ -18,6 +18,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_ATTRIBUTE;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_ATTRIBUTE;
+import static dev.nokee.runtime.nativebase.internal.NativeArtifactTypes.*;
 import static dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin.DirectoryToHeaderSearchPath.directoryToHeaderSearchPath;
 import static dev.nokee.utils.ConfigurationUtils.ARTIFACT_TYPE_ATTRIBUTE;
 import static org.gradle.api.attributes.Category.CATEGORY_ATTRIBUTE;
@@ -36,14 +37,14 @@ public /*final*/ abstract class NativeRuntimePlugin implements Plugin<Project> {
 		project.getDependencies().registerTransform(DirectoryToHeaderSearchPath.class, directoryToHeaderSearchPath(getObjects()));
 
 		project.getDependencies().artifactTypes(it -> {
-			it.create("so", this::nixSharedLibraryAttributes);
-			it.create("dylib", this::nixSharedLibraryAttributes);
-			it.create("dll", this::windowsSharedLibraryAttributes);
-			it.create("a", this::staticLibraryAttributes);
+			it.create(SHARED_OBJECTS_LIBRARY, this::nixSharedLibraryAttributes);
+			it.create(MACH_OBJECT_DYNAMIC_LIBRARY, this::nixSharedLibraryAttributes);
+			it.create(DYNAMIC_LINK_LIBRARY, this::windowsSharedLibraryAttributes);
+			it.create(STATIC_LIBRARY_ARCHIVE, this::staticLibraryAttributes);
 
 			// Technically, there should be a differentiation between static and import library.
 			// However, both have the same extension and usage so declaring them as static library is good enough.
-			it.create("lib", this::staticLibraryAttributes);
+			it.create(STATIC_OR_IMPORT_LIBRARY, this::staticLibraryAttributes);
 		});
 	}
 
