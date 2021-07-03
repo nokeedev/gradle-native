@@ -4,14 +4,9 @@ import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import org.gradle.api.attributes.Usage
 import spock.lang.Unroll
 
-import static dev.nokee.runtime.nativebase.VerifyTask.verifyTask
-import static org.apache.commons.io.FilenameUtils.separatorsToUnix
+import static dev.nokee.runtime.base.VerifyTask.*
 
 class StaticLibraryResolutionFunctionalTest extends AbstractGradleSpecification {
-	protected String filePath(Object... path) {
-		return separatorsToUnix(file(path).path)
-	}
-
 	def setup() {
 		buildFile << """
 			plugins {
@@ -47,13 +42,13 @@ class StaticLibraryResolutionFunctionalTest extends AbstractGradleSpecification 
 	}
 
 	@Unroll
-	def "can resolve adhoc static library file only for link usage [#staticLibraryExtension]"(String staticLibraryExtension) {
-		def staticLib = file("libtest.${staticLibraryExtension}").createFile()
+	def "can resolve adhoc static library file only for link usage [#ext]"(String ext) {
+		def staticLib = file("libtest.${ext}").createFile()
 
 		// NOTE: We have to verify artifact by type for adhoc files
 		buildFile << verifyTask()
-			.that { "testLink.${it.artifactType(staticLibraryExtension)}.singleFile == file('${filePath("libtest.${staticLibraryExtension}")}')" }
-			.that { "testRuntime.${it.artifactType(staticLibraryExtension)}.empty" }
+			.that { "configurations.testLink.${artifactType(ext)}.singleFile == file('${file("libtest.${ext}")}')" }
+			.that { "configurations.testRuntime.${artifactType(ext)}.empty" }
 		buildFile << """
 			dependencies {
 				test files('${staticLib}')
@@ -64,12 +59,12 @@ class StaticLibraryResolutionFunctionalTest extends AbstractGradleSpecification 
 		succeeds('verify')
 
 		where:
-		staticLibraryExtension << ['lib', 'a']
+		ext << ['lib', 'a']
 	}
 
 	@Unroll
-	def "can resolve static library from remote project only for link usage [#staticLibraryExtension]"(String staticLibraryExtension) {
-		def staticLib = file("lib/test.${staticLibraryExtension}").createFile()
+	def "can resolve static library from remote project only for link usage [#ext]"(String ext) {
+		def staticLib = file("lib/test.${ext}").createFile()
 		settingsFile << '''
 			include 'lib'
 		'''
@@ -83,13 +78,13 @@ class StaticLibraryResolutionFunctionalTest extends AbstractGradleSpecification 
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
 				outgoing.artifact(file('${staticLib}')) {
-					type = '${staticLibraryExtension}'
+					type = '${ext}'
 				}
 			}
 		"""
 		buildFile << verifyTask()
-			.that { "testLink.${it.allFiles()}.singleFile == file('${filePath("lib/test.${staticLibraryExtension}")}')" }
-			.that { "testRuntime.${it.allFiles()}.empty" }
+			.that { "configurations.testLink.${allFiles()}.singleFile == file('${file("lib/test.${ext}")}')" }
+			.that { "configurations.testRuntime.${allFiles()}.empty" }
 		buildFile << """
 			dependencies {
 				test project(':lib')
@@ -100,6 +95,6 @@ class StaticLibraryResolutionFunctionalTest extends AbstractGradleSpecification 
 		succeeds('verify')
 
 		where:
-		staticLibraryExtension << ['lib', 'a']
+		ext << ['lib', 'a']
 	}
 }

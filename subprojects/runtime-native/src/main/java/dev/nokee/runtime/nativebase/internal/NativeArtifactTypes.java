@@ -9,9 +9,14 @@ public final class NativeArtifactTypes {
 	private NativeArtifactTypes() {}
 
 	/**
-	 * Represent a directory tree containing native headers, often referred to as header search path or include root.
+	 * Represents a directory tree containing native headers, often referred to as header search path or include root.
 	 */
 	public static final String NATIVE_HEADERS_DIRECTORY = "native-headers-directory";
+
+	/**
+	 * Represents a compressed directory tree containing native headers when published inside a remote artifact repository.
+	 */
+	public static final String NATIVE_HEADERS_ZIP = "native-headers-zip";
 
 	/**
 	 * Represents shared objects library file, mostly used on Unix-like system for shared library at link-time and runtime.

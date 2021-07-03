@@ -1,17 +1,15 @@
 package dev.nokee.runtime.nativebase
 
 import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
+import dev.nokee.runtime.base.ArtifactTransformFixture
 import org.gradle.api.attributes.Usage
 import spock.lang.Unroll
 
-import static dev.nokee.runtime.nativebase.VerifyTask.verifyTask
-import static org.apache.commons.io.FilenameUtils.separatorsToUnix
+import static dev.nokee.runtime.base.VerifyTask.allFiles
+import static dev.nokee.runtime.base.VerifyTask.artifactType
+import static dev.nokee.runtime.base.VerifyTask.verifyTask
 
-class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification {
-	protected String filePath(Object... path) {
-		return separatorsToUnix(file(path).path)
-	}
-
+class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification implements ArtifactTransformFixture {
 	def setup() {
 		buildFile << """
 			plugins {
@@ -47,13 +45,13 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 	}
 
 	@Unroll
-	def "can resolve adhoc nix shared library file for link and runtime [#sharedLibraryExtension]"(String sharedLibraryExtension) {
-		def sharedLib = file("libtest.${sharedLibraryExtension}").createFile()
+	def "can resolve adhoc nix shared library file for link and runtime [#sharedLibraryExtension]"(String ext) {
+		def sharedLib = file("libtest.${ext}").createFile()
 
 		// NOTE: We have to verify artifact by type for adhoc files
 		buildFile << verifyTask()
-			.that { "testLink.${it.artifactType(sharedLibraryExtension)}.singleFile == file('${filePath("libtest.${ sharedLibraryExtension}")}')" }
-			.that { "testRuntime.${it.artifactType(sharedLibraryExtension)}.singleFile == file('${filePath("libtest.${sharedLibraryExtension}")}')" }
+			.that { "configurations.testLink.${artifactType(ext)}.singleFile == file('${file("libtest.${ext}")}')" }
+			.that { "configurations.testRuntime.${artifactType(ext)}.singleFile == file('${file("libtest.${ext}")}')" }
 		buildFile << """
 			dependencies {
 				test files('${sharedLib}')
@@ -61,10 +59,11 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 		"""
 
 		expect:
-		succeeds('verify')
+		def result = succeeds('verify')
+		doesNotTransformArtifacts(result.output)
 
 		where:
-		sharedLibraryExtension << ['so', 'dylib']
+		ext << ['so', 'dylib']
 	}
 
 	def "can resolve adhoc windows shared library file only for runtime usage"() {
@@ -72,8 +71,8 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 
 		// NOTE: We have to verify artifact by type for adhoc files
 		buildFile << verifyTask()
-			.that { "testLink.${it.artifactType('dll')}.empty" }
-			.that { "testRuntime.${it.artifactType('dll')}.singleFile == file('${filePath('test.dll')}')" }
+			.that { "configurations.testLink.${artifactType('dll')}.empty" }
+			.that { "configurations.testRuntime.${artifactType('dll')}.singleFile == file('${file('test.dll')}')" }
 		buildFile << """
 			dependencies {
 				test files('${sharedLib}')
@@ -81,12 +80,13 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 		"""
 
 		expect:
-		succeeds('verify')
+		def result = succeeds('verify')
+		doesNotTransformArtifacts(result.output)
 	}
 
 	@Unroll
-	def "can resolve nix shared library from remote project for link and runtime usage [#sharedLibraryExtension]"(String sharedLibraryExtension) {
-		def sharedLib = file("lib/libtest.${sharedLibraryExtension}").createFile()
+	def "can resolve nix shared library from remote project for link and runtime usage [#sharedLibraryExtension]"(String ext) {
+		def sharedLib = file("lib/libtest.${ext}").createFile()
 		settingsFile << '''
 			include 'lib'
 		'''
@@ -100,13 +100,13 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
 				outgoing.artifact(file('${sharedLib}')) {
-					type = '${sharedLibraryExtension}'
+					type = '${ext}'
 				}
 			}
 		"""
 		buildFile << verifyTask()
-			.that { "testLink.${it.allFiles()}.singleFile == file('${filePath("lib/libtest.${sharedLibraryExtension}")}')" }
-			.that { "testRuntime.${it.allFiles()}.singleFile == file('${filePath("lib/libtest.${sharedLibraryExtension}")}')" }
+			.that { "configurations.testLink.${allFiles()}.singleFile == file('${file("lib/libtest.${ext}")}')" }
+			.that { "configurations.testRuntime.${allFiles()}.singleFile == file('${file("lib/libtest.${ext}")}')" }
 		buildFile << """
 			dependencies {
 				test project(':lib')
@@ -114,10 +114,11 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 		"""
 
 		expect:
-		succeeds('verify')
+		def result = succeeds('verify')
+		doesNotTransformArtifacts(result.output)
 
 		where:
-		sharedLibraryExtension << ['so', 'dylib']
+		ext << ['so', 'dylib']
 	}
 
 	def "can resolve windows shared library from remote project only for runtime usage"() {
@@ -140,8 +141,8 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 			}
 		"""
 		buildFile << verifyTask()
-			.that { "testLink.${it.allFiles()}.empty" }
-			.that { "testRuntime.${it.allFiles()}.singleFile == file('${filePath('lib/test.dll')}')" }
+			.that { "configurations.testLink.${allFiles()}.empty" }
+			.that { "configurations.testRuntime.${allFiles()}.singleFile == file('${file('lib/test.dll')}')" }
 		buildFile << """
 			dependencies {
 				test project(':lib')
@@ -149,7 +150,8 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 		"""
 
 		expect:
-		succeeds('verify')
+		def result = succeeds('verify')
+		doesNotTransformArtifacts(result.output)
 	}
 
 	def "can resolve adhoc windows shared library with import library files"() {
@@ -158,9 +160,9 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 
 		// NOTE: We have to verify artifact by type for adhoc files
 		buildFile << verifyTask()
-			.that { "testLink.${it.artifactType('lib')}.singleFile == file('${filePath('test.lib')}')" }
-			.that { "testRuntime.${it.artifactType('dll')}.singleFile == file('${filePath('test.dll')}')" }
-			.that { "testRuntime.${it.artifactType('lib')}.empty" } // import lib doesn't leak in runtime
+			.that { "configurations.testLink.${artifactType('lib')}.singleFile == file('${file('test.lib')}')" }
+			.that { "configurations.testRuntime.${artifactType('dll')}.singleFile == file('${file('test.dll')}')" }
+			.that { "configurations.testRuntime.${artifactType('lib')}.empty" } // import lib doesn't leak in runtime
 		buildFile << """
 			dependencies {
 				test files('${sharedLib}', '${importLib}')
@@ -168,7 +170,8 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 		"""
 
 		expect:
-		succeeds('verify')
+		def result = succeeds('verify')
+		doesNotTransformArtifacts(result.output)
 	}
 
 	def "can resolve windows shared library with import library from remote project"() {
@@ -205,9 +208,9 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 			}
 		"""
 		buildFile << verifyTask()
-			.that { "testLink.incoming.files.singleFile == file('${filePath('lib/test.lib')}')" } // only file resolved
-			.that { "testRuntime.incoming.files.singleFile == file('${filePath('lib/test.dll')}')" } // only file resolved
-			.that { "testRuntime.${it.artifactType('lib')}.empty" } // import lib doesn't leak in runtime
+			.that { "configurations.testLink.incoming.files.singleFile == file('${file('lib/test.lib')}')" } // only file resolved
+			.that { "configurations.testRuntime.incoming.files.singleFile == file('${file('lib/test.dll')}')" } // only file resolved
+			.that { "configurations.testRuntime.${artifactType('lib')}.empty" } // import lib doesn't leak in runtime
 		buildFile << """
 			dependencies {
 				test project(':lib')
@@ -215,6 +218,7 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 		"""
 
 		expect:
-		succeeds('verify')
+		def result = succeeds('verify')
+		doesNotTransformArtifacts(result.output)
 	}
 }

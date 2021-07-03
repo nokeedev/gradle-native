@@ -35,5 +35,6 @@ test {
 functionalTest {
 	dependencies {
 		implementation 'dev.nokee:templates:latest.integration'
+		implementation testFixtures(project(':runtimeBase'))
 	}
 }
