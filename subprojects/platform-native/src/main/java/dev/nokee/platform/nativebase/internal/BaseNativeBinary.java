@@ -265,8 +265,12 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	protected static boolean isBuildable(NativeToolChain toolchain, NativePlatform platform) {
 		NativeToolChainInternal toolchainInternal = (NativeToolChainInternal)toolchain;
 		NativePlatformInternal platformInternal = (NativePlatformInternal)platform;
-		PlatformToolProvider toolProvider = toolchainInternal.select(platformInternal);
-		return toolProvider.isAvailable();
+		try {
+			PlatformToolProvider toolProvider = toolchainInternal.select(platformInternal);
+			return toolProvider.isAvailable();
+		} catch (Throwable ex) { // because toolchain selection calls xcrun for macOS which doesn't exists on non-mac system
+			return false;
+		}
 	}
 
 	public Object getObjectFiles() {
