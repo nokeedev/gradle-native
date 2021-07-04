@@ -1,5 +1,6 @@
 package dev.nokee.model.graphdb;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicates;
 import lombok.val;
 
@@ -8,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -119,5 +121,14 @@ final class NodeEntity extends AbstractEntity implements Node {
 	public Node property(String key, Object value) {
 		super.property(key, value);
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper("Node")
+			.add("id", getId())
+			.add("properties", getAllProperties())
+			.add("labels", getLabels().collect(Collectors.toList()))
+			.toString();
 	}
 }
