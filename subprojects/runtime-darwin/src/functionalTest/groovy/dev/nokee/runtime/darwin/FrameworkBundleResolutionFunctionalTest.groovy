@@ -10,9 +10,9 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 import static dev.nokee.runtime.base.VerifyTask.uncompressedFiles
+import static dev.nokee.runtime.base.VerifyTask.verifyTask
 import static dev.nokee.runtime.darwin.OutgoingElements.outgoingFrameworkElements
 import static dev.nokee.runtime.darwin.OutgoingElements.outgoingHeadersElements
-import static dev.nokee.runtime.base.VerifyTask.verifyTask
 
 class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecification implements ArtifactTransformFixture {
 	def setup() {
@@ -69,7 +69,7 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 			}
 
 			dependencies {
-				test files('${frameworkLocation}')
+				test files('${frameworkLocation.name}')
 			}
 		"""
 
@@ -91,7 +91,7 @@ class FrameworkBundleResolutionFunctionalTest extends AbstractGradleSpecificatio
 			}
 
 			dependencies {
-				test files('${frameworkLocation}')
+				test files('${frameworkLocation.name}')
 			}
 		"""
 
