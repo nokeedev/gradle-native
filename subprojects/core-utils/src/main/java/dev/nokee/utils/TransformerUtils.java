@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
@@ -395,6 +396,39 @@ public final class TransformerUtils {
 		@Override
 		public String toString() {
 			return "TransformerUtils.collect(" + collector + ")";
+		}
+	}
+
+	/**
+	 * Returns a transformer that will perform operation on the incoming iterable as a {@link Stream}.
+	 *
+	 * @param mapper  the stream mapper, must not be null
+	 * @param <OUT>  the output type
+	 * @param <IN>  the iterable input type
+	 * @param <T>  the element type
+	 * @return a iterable stream transfomrer, never null
+	 */
+	public static <OUT, IN extends Iterable<T>, T> Transformer<OUT, IN> stream(Function<? super Stream<T>, OUT> mapper) {
+		return new JavaStreamTransformer<>(mapper);
+	}
+
+	/** @see #stream(Function)  */
+	@EqualsAndHashCode
+	private static final class JavaStreamTransformer<OUT, IN extends Iterable<T>, T> implements Transformer<OUT, IN> {
+		private final Function<? super Stream<T>, OUT> mapper;
+
+		private JavaStreamTransformer(Function<? super Stream<T>, OUT> mapper) {
+			this.mapper = requireNonNull(mapper);
+		}
+
+		@Override
+		public OUT transform(IN ts) {
+			return mapper.apply(StreamSupport.stream(ts.spliterator(), false));
+		}
+
+		@Override
+		public String toString() {
+			return "TransformerUtils.stream(" + mapper + ")";
 		}
 	}
 
