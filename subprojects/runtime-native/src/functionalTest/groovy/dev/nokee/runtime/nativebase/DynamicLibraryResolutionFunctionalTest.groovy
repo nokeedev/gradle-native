@@ -45,7 +45,7 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 	}
 
 	@Unroll
-	def "can resolve adhoc nix shared library file for link and runtime [#sharedLibraryExtension]"(String ext) {
+	def "can resolve adhoc nix shared library file for link and runtime [#ext]"(String ext) {
 		def sharedLib = file("libtest.${ext}").createFile()
 
 		// NOTE: We have to verify artifact by type for adhoc files
@@ -85,7 +85,7 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 	}
 
 	@Unroll
-	def "can resolve nix shared library from remote project for link and runtime usage [#sharedLibraryExtension]"(String ext) {
+	def "can resolve nix shared library from remote project for link and runtime usage [#ext]"(String ext) {
 		def sharedLib = file("lib/libtest.${ext}").createFile()
 		settingsFile << '''
 			include 'lib'
