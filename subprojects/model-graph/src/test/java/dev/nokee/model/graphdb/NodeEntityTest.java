@@ -225,4 +225,11 @@ class NodeEntityTest implements EntityTester, NodeLabelTester {
 			assertThat(subject.getLabels().collect(toList()), contains(label("foo")));
 		}
 	}
+
+	@Test
+	void checkToString() {
+		assertThat(graph.createNode(), hasToString("Node{id=0, properties={}, labels=[]}"));
+		assertThat(graph.createNode().addLabel(Label.label("foo")), hasToString("Node{id=1, properties={}, labels=[foo]}"));
+		assertThat(graph.createNode().property("a", "b"), hasToString("Node{id=2, properties={a=b}, labels=[]}"));
+	}
 }
