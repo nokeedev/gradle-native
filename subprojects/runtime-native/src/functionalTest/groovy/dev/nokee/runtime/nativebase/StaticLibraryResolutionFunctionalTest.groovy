@@ -51,7 +51,7 @@ class StaticLibraryResolutionFunctionalTest extends AbstractGradleSpecification 
 			.that { "configurations.testRuntime.${artifactType(ext)}.empty" }
 		buildFile << """
 			dependencies {
-				test files('${staticLib}')
+				test files('${staticLib.name}')
 			}
 		"""
 
@@ -77,7 +77,7 @@ class StaticLibraryResolutionFunctionalTest extends AbstractGradleSpecification 
 					attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.LINK_ARCHIVE))
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
-				outgoing.artifact(file('${staticLib}')) {
+				outgoing.artifact(file('${staticLib.name}')) {
 					type = '${ext}'
 				}
 			}

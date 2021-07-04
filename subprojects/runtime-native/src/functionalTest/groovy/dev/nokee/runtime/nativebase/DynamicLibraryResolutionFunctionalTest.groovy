@@ -54,7 +54,7 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 			.that { "configurations.testRuntime.${artifactType(ext)}.singleFile == file('${file("libtest.${ext}")}')" }
 		buildFile << """
 			dependencies {
-				test files('${sharedLib}')
+				test files('${sharedLib.name}')
 			}
 		"""
 
@@ -75,7 +75,7 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 			.that { "configurations.testRuntime.${artifactType('dll')}.singleFile == file('${file('test.dll')}')" }
 		buildFile << """
 			dependencies {
-				test files('${sharedLib}')
+				test files('${sharedLib.name}')
 			}
 		"""
 
@@ -99,7 +99,7 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 					attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.DYNAMIC_LIB))
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
-				outgoing.artifact(file('${sharedLib}')) {
+				outgoing.artifact(file('${sharedLib.name}')) {
 					type = '${ext}'
 				}
 			}
@@ -135,7 +135,7 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 					attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.DYNAMIC_LIB))
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
-				outgoing.artifact(file('${sharedLib}')) {
+				outgoing.artifact(file('${sharedLib.name}')) {
 					type = 'dll'
 				}
 			}
@@ -165,7 +165,7 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 			.that { "configurations.testRuntime.${artifactType('lib')}.empty" } // import lib doesn't leak in runtime
 		buildFile << """
 			dependencies {
-				test files('${sharedLib}', '${importLib}')
+				test files('${sharedLib.name}', '${importLib.name}')
 			}
 		"""
 
@@ -189,7 +189,7 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 					attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, 'import-lib'))
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
-				outgoing.artifact(file('${importLib}')) {
+				outgoing.artifact(file('${importLib.name}')) {
 					type = 'lib'
 				}
 			}
@@ -202,7 +202,7 @@ class DynamicLibraryResolutionFunctionalTest extends AbstractGradleSpecification
 					attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.DYNAMIC_LIB))
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
-				outgoing.artifact(file('${sharedLib}')) {
+				outgoing.artifact(file('${sharedLib.name}')) {
 					type = 'dll'
 				}
 			}
