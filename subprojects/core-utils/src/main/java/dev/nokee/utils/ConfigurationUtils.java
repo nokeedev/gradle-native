@@ -24,6 +24,8 @@ public final class ConfigurationUtils {
 	}
 
 	public static ActionUtils.Action<Configuration> configureDescription(String format, Object... args) {
+		requireNonNull(format);
+		requireNonNull(args);
 		return new ConfigureDescriptionAction(() -> String.format(format, args));
 	}
 
@@ -205,6 +207,7 @@ public final class ConfigurationUtils {
 	 * @see #configureAttributes(Consumer)
 	 */
 	public static <T extends HasConfigurableAttributes<T>> ActionUtils.Action<T> attributesOf(Object obj) {
+		requireNonNull(obj);
 		return new ConfigureAttributesAction<>(it -> it.from(obj));
 	}
 
