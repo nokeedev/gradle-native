@@ -11,7 +11,6 @@ import java.util.zip.ZipOutputStream
 
 import static dev.nokee.runtime.base.VerifyTask.uncompressedFiles
 import static dev.nokee.runtime.base.VerifyTask.verifyTask
-import static org.apache.commons.io.FilenameUtils.separatorsToUnix
 
 class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification implements ArtifactTransformFixture {
 	def setup() {
@@ -45,7 +44,7 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 			.that { "transformed(configurations.test.${uncompressedFiles()})" }
 		buildFile << """
 			dependencies {
-				test files('${separatorsToUnix(compress(createTestHeaders(testDirectory)).absolutePath)}')
+				test files('${compress(createTestHeaders(testDirectory)).name}')
 			}
 		"""
 
@@ -60,7 +59,7 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 			.that { "!transformed(configurations.test)" }
 		buildFile << """
 			dependencies {
-				test files('${separatorsToUnix(createTestHeaders(testDirectory).absolutePath)}')
+				test files('${createTestHeaders(testDirectory).name}')
 			}
 		"""
 
@@ -82,7 +81,7 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 					attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.HEADERS_CPLUSPLUS))
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
-				outgoing.artifact(file('${separatorsToUnix(compress(createTestHeaders(testDirectory)).absolutePath)}')) {
+				outgoing.artifact(file('${compress(createTestHeaders(file('lib'))).name}')) {
 					type = 'native-headers-zip'
 				}
 			}
@@ -115,7 +114,7 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 					attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.HEADERS_CPLUSPLUS))
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
-				outgoing.artifact(file('${separatorsToUnix(createTestHeaders(file('lib')).absolutePath)}')) {
+				outgoing.artifact(file('${createTestHeaders(file('lib')).name}')) {
 					type = '${directoryType}'
 				}
 			}
@@ -143,7 +142,7 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 		def headersLocation = createTestHeaders(file('lib'))
 		file('lib/build.gradle') << """
 			def zipTask = tasks.register('zipHeaders', Zip) {
-				from('${separatorsToUnix(headersLocation.absolutePath)}')
+				from('${headersLocation.name}')
 				destinationDirectory = buildDir
 				archiveBaseName = 'headers'
 			}
@@ -157,7 +156,7 @@ class NativeHeadersResolutionFunctionalTest extends AbstractGradleSpecification 
 					attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
 				}
 				outgoing {
-					artifact(file('${separatorsToUnix(headersLocation.absolutePath)}')) {
+					artifact(file('${headersLocation.name}')) {
 						type = 'native-headers-directory'
 					}
 					variants.create('zip') {
