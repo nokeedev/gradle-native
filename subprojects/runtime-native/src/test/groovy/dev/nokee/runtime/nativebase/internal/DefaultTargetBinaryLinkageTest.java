@@ -8,9 +8,7 @@ import org.junit.jupiter.api.Test;
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
-import static dev.nokee.runtime.base.internal.ProvideAttributes.attributesOf;
-import static dev.nokee.utils.ConfigurationUtils.asConsumable;
-import static dev.nokee.utils.ConfigurationUtils.asResolvable;
+import static dev.nokee.utils.ConfigurationUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 

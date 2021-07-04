@@ -1,15 +1,15 @@
 package dev.nokee.runtime.nativebase.internal;
 
-import dev.nokee.runtime.base.internal.ProvideAttributes;
 import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateAxis;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetLinkage;
+import dev.nokee.utils.ConfigurationUtils;
 import org.gradle.api.attributes.AttributeContainer;
 
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 
-final class DefaultTargetLinkage implements TargetLinkage, ProvideAttributes, Coordinate<BinaryLinkage> {
+final class DefaultTargetLinkage implements TargetLinkage, Coordinate<BinaryLinkage>, ConfigurationUtils.AttributesProvider {
 	private final BinaryLinkage binaryLinkage;
 
 	DefaultTargetLinkage(BinaryLinkage binaryLinkage) {

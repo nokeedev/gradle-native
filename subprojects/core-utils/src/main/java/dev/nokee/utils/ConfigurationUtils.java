@@ -2,11 +2,14 @@ package dev.nokee.utils;
 
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Attribute;
+import org.gradle.api.attributes.AttributeContainer;
+import org.gradle.api.attributes.HasConfigurableAttributes;
+import org.gradle.api.attributes.Usage;
 
 import java.util.Locale;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
@@ -175,5 +178,95 @@ public final class ConfigurationUtils {
 		public boolean isSatisfiedBy(Configuration configuration) {
 			return configuration.isCanBeConsumed() == canBeConsumed && configuration.isCanBeResolved() == canBeResolved;
 		}
+	}
+
+	/**
+	 * Configures a {@link Configuration}'s attributes.
+	 *
+	 * @param action  an action to configure attributes details, must not be null
+	 * @param <T>  the attributes configurable type
+	 * @return a configuration action, never null
+	 */
+	public static <T extends HasConfigurableAttributes<T>> ActionUtils.Action<T> configureAttributes(Consumer<? super AttributesDetails> action) {
+		return new ConfigureAttributesAction<>(action);
+	}
+
+	/**
+	 * Configures a {@link Configuration}'s attributes from the specified {@link AttributesProvider} object.
+	 * It's a short hand version of {@literal configureAttributes(it -> it.from(obj))}.
+	 *
+	 * @param obj  an attributes provider object, must not be null
+	 * @param <T>  the attributes configurable type
+	 * @return a configuration action, never null
+	 * @see #configureAttributes(Consumer)
+	 */
+	public static <T extends HasConfigurableAttributes<T>> ActionUtils.Action<T> attributesOf(Object obj) {
+		return new ConfigureAttributesAction<>(it -> it.from(obj));
+	}
+
+	public interface AttributesDetails {
+		AttributesDetails usage(Usage usage);
+		AttributesDetails from(Object obj);
+		AttributesDetails artifactType(String artifactType);
+	}
+
+	/** @see #configureAttributes(Consumer) */
+	@EqualsAndHashCode
+	private static final class ConfigureAttributesAction<T extends HasConfigurableAttributes<T>> implements ActionUtils.Action<T> {
+		private final Consumer<? super AttributesDetails> action;
+
+		public ConfigureAttributesAction(Consumer<? super AttributesDetails> action) {
+			this.action = action;
+		}
+
+		@Override
+		public void execute(T configuration) {
+			action.accept(new DefaultConfigurationAttributeBuilder(configuration));
+		}
+
+		@Override
+		public String toString() {
+			return "ConfigurationUtils.configureAttributes(" + action + ")";
+		}
+
+		private static final class DefaultConfigurationAttributeBuilder implements AttributesDetails {
+			private final HasConfigurableAttributes<?> configuration;
+
+			public DefaultConfigurationAttributeBuilder(HasConfigurableAttributes<?> configuration) {
+				this.configuration = configuration;
+			}
+
+			public AttributesDetails usage(Usage usage) {
+				configuration.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, usage);
+				return this;
+			}
+
+			public AttributesDetails from(Object obj) {
+				if (configuration instanceof Configuration && obj instanceof AttributesProvider) {
+					if (ConfigurationBuckets.RESOLVABLE.isSatisfiedBy((Configuration) configuration)) {
+						((AttributesProvider) obj).forResolving(configuration.getAttributes());
+					} else if (ConfigurationBuckets.CONSUMABLE.isSatisfiedBy((Configuration) configuration)) {
+						((AttributesProvider) obj).forConsuming(configuration.getAttributes());
+					} else {
+						throw new IllegalStateException(String.format("Configuration '%s' must be either consumable or resolvable.", ((Configuration) configuration).getName()));
+					}
+				}
+				return this;
+			}
+
+			public AttributesDetails artifactType(String artifactType) {
+				configuration.getAttributes().attribute(ARTIFACT_TYPE_ATTRIBUTE, artifactType);
+				return this;
+			}
+		}
+	}
+
+	/**
+	 * Provides attributes on {@link HasConfigurableAttributes} object.
+	 * @see #configureAttributes(Consumer)
+	 */
+	public interface AttributesProvider {
+		void forConsuming(AttributeContainer attributes);
+		void forResolving(AttributeContainer attributes);
 	}
 }

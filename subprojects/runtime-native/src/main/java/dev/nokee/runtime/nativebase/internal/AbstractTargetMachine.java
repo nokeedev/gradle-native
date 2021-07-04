@@ -1,23 +1,18 @@
 package dev.nokee.runtime.nativebase.internal;
 
-import dev.nokee.runtime.base.internal.ProvideAttributes;
 import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateAxis;
 import dev.nokee.runtime.core.CoordinateTuple;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import lombok.AllArgsConstructor;
+import dev.nokee.utils.ConfigurationUtils;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
-import lombok.Value;
-import lombok.experimental.NonFinal;
 import org.gradle.api.attributes.AttributeContainer;
 
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static dev.nokee.runtime.nativebase.MachineArchitecture.ARCHITECTURE_ATTRIBUTE;
@@ -26,7 +21,7 @@ import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTE
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 
 @EqualsAndHashCode
-abstract class AbstractTargetMachine implements TargetMachine, Coordinate<TargetMachine>, CoordinateTuple, ProvideAttributes {
+abstract class AbstractTargetMachine implements TargetMachine, Coordinate<TargetMachine>, CoordinateTuple, ConfigurationUtils.AttributesProvider {
 	private final Coordinate<MachineArchitecture> architectureCoordinate;
 	private final Coordinate<OperatingSystemFamily> operatingSystemCoordinate;
 
