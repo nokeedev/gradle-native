@@ -242,10 +242,10 @@ abstract class AbstractTaskPluginTest extends Specification implements ProjectTe
 		evaluateProject('plugin registers lifecycle tasks in afterEvaluate')
 
 		then:
-		tasks*.name as Set == [
+		(tasks*.name as Set).containsAll([
 			*expectedVariantAwareTaskNames,
 			'assemble', 'clean', 'build', 'check' /* general lifecycle */
-		] as Set
+		] as Set) // additional javaToolchains on later Gradle
 	}
 }
 
