@@ -19,15 +19,19 @@ public final class ConfigurationUtils {
 
 	public static final Attribute<String> ARTIFACT_TYPE_ATTRIBUTE = Attribute.of("artifactType", String.class);
 
-	public static Action<Configuration> configureDescription(Supplier<String> description) {
+	public static ActionUtils.Action<Configuration> configureDescription(Supplier<? extends String> description) {
 		return new ConfigureDescriptionAction(description);
+	}
+
+	public static ActionUtils.Action<Configuration> configureDescription(String format, Object... args) {
+		return new ConfigureDescriptionAction(() -> String.format(format, args));
 	}
 
 	@EqualsAndHashCode
 	private static final class ConfigureDescriptionAction implements ActionUtils.Action<Configuration> {
-		private final Supplier<String> description;
+		private final Supplier<? extends String> description;
 
-		public ConfigureDescriptionAction(Supplier<String> description) {
+		public ConfigureDescriptionAction(Supplier<? extends String> description) {
 			this.description = requireNonNull(description);
 		}
 
@@ -216,7 +220,7 @@ public final class ConfigurationUtils {
 		private final Consumer<? super AttributesDetails> action;
 
 		public ConfigureAttributesAction(Consumer<? super AttributesDetails> action) {
-			this.action = action;
+			this.action = requireNonNull(action);
 		}
 
 		@Override
