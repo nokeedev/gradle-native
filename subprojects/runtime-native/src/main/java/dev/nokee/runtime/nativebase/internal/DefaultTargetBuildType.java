@@ -1,16 +1,15 @@
 package dev.nokee.runtime.nativebase.internal;
 
-import dev.nokee.runtime.base.internal.ProvideAttributes;
 import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateAxis;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.TargetBuildType;
+import dev.nokee.utils.ConfigurationUtils;
 import org.gradle.api.attributes.AttributeContainer;
 
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 
-// TODO: Maybe coordinate should be of the BuildType instead
-final class DefaultTargetBuildType implements TargetBuildType, ProvideAttributes, Coordinate<BuildType> {
+final class DefaultTargetBuildType implements TargetBuildType, Coordinate<BuildType>, ConfigurationUtils.AttributesProvider {
 	private final BuildType buildType;
 
 	DefaultTargetBuildType(BuildType buildType) {

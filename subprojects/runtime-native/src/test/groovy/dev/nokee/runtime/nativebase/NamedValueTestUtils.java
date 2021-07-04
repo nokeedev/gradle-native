@@ -2,8 +2,11 @@ package dev.nokee.runtime.nativebase;
 
 import com.google.common.reflect.TypeToken;
 import dev.nokee.runtime.core.CoordinateAxis;
+import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.Named;
+import org.gradle.api.attributes.Attribute;
+import org.gradle.api.attributes.AttributeContainer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -48,5 +51,19 @@ final class NamedValueTestUtils {
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static <T extends Named> ActionUtils.Action<AttributeContainer> of(T obj) {
+		return attributes -> {
+			for (Field declaredField : obj.getClass().getSuperclass().getDeclaredFields()) {
+				if (declaredField.getType().isAssignableFrom(Attribute.class)) {
+					try {
+						attributes.attribute((Attribute<T>) declaredField.get(null), obj);
+					} catch (IllegalAccessException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
+		};
 	}
 }
