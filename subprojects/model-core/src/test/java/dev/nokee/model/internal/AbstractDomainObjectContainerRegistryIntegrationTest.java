@@ -1,6 +1,6 @@
 package dev.nokee.model.internal;
 
-import dev.nokee.internal.testing.ExecuteWith;
+import dev.nokee.utils.ActionTestUtils;
 import lombok.val;
 import org.apache.commons.lang3.Functions;
 import org.gradle.api.Action;
@@ -8,10 +8,10 @@ import org.gradle.api.NamedDomainObjectProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
-import static dev.nokee.internal.testing.ExecuteWith.calledOnceWith;
-import static dev.nokee.internal.testing.ExecuteWith.executeWith;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.calledOnceWith;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -44,8 +44,9 @@ abstract class AbstractDomainObjectContainerRegistryIntegrationTest<T> {
 	}
 	private Executable assertActionExecuted(Functions.FailableBiFunction<NamedDomainObjectContainerRegistry<T>, Action<? super T>, NamedDomainObjectProvider<T>, Throwable> executable) {
 		return () -> {
-			assertThat(executeWith(ExecuteWith.<T>action(action -> executable.apply(createSubject(), action).get())),
-				calledOnceWith(isA(getType())));
+			val action = ActionTestUtils.mockAction();
+			executable.apply(createSubject(), action).get();
+			assertThat(action, calledOnceWith(singleArgumentOf(isA(getType()))));
 		};
 	}
 
