@@ -8,10 +8,12 @@ import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
+import java.util.concurrent.Callable;
+
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-final class DefaultKnownDomainObject<T> implements KnownDomainObject<T> {
+final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, Callable<Object> {
 	private final Class<T> type;
 	private final ModelProjection projection;
 
@@ -46,5 +48,10 @@ final class DefaultKnownDomainObject<T> implements KnownDomainObject<T> {
 	public <S> Provider<S> flatMap(Transformer<? extends Provider<? extends S>, ? super T> transformer) {
 		requireNonNull(transformer);
 		return projection.as(type).flatMap(transformer);
+	}
+
+	@Override
+	public Object call() throws Exception {
+		return projection.as(type);
 	}
 }
