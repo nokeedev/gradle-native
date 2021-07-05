@@ -222,7 +222,7 @@ abstract class NamedDomainObjectContainerRegistry<T> {
 
 		@Override
 		public NamedDomainObjectContainer<SoftwareComponent> getContainer() {
-			throw new UnsupportedOperationException();
+			throw new UnsupportedOperationException("SoftwareComponentContainer does not behave like a NamedDomainObjectContainer.");
 		}
 
 		@Override
