@@ -29,8 +29,8 @@ final class DefaultKnownDomainObject<T> implements KnownDomainObject<T> {
 	}
 
 	@Override
-	public void configure(Action<? super T> action) {
-		throw new UnsupportedOperationException();
+	public KnownDomainObject<T> configure(Action<? super T> action) {
+		return this;
 	}
 
 	@Override
