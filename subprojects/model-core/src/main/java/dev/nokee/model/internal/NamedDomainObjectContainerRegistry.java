@@ -227,16 +227,16 @@ abstract class NamedDomainObjectContainerRegistry<T> {
 
 		@Override
 		public <S extends SoftwareComponent> NamedDomainObjectProvider<S> register(String name, Class<S> type) {
+			assertCanAdd(name);
 			container.add(softwareComponentFactory.adhoc(name));
 			return container.named(name, type);
 		}
 
 		@Override
 		public <S extends SoftwareComponent> NamedDomainObjectProvider<S> register(String name, Class<S> type, Action<? super S> action) {
-			val object = softwareComponentFactory.adhoc(name);
-			container.add(object);
-			action.execute((S) object);
-			return container.named(name, type);
+			assertCanAdd(name);
+			container.add(softwareComponentFactory.adhoc(name));
+			return container.named(name, type, action);
 		}
 
 		@Override
@@ -254,9 +254,26 @@ abstract class NamedDomainObjectContainerRegistry<T> {
 			if (object == null) {
 				object = softwareComponentFactory.adhoc(name);
 				container.add(object);
-				action.execute((S) object);
 			}
-			return container.named(name, type);
+			return container.named(name, type, action);
+		}
+
+
+		/**
+		 * Asserts that an item with the given name can be added to this collection.
+		 */
+		private void assertCanAdd(String name) {
+			if (hasWithName(name)) {
+				throw new InvalidUserDataException(String.format("Cannot add a %s with name '%s' as a %s with that name already exists.", getTypeDisplayName(), name, getTypeDisplayName()));
+			}
+		}
+
+		private String getTypeDisplayName() {
+			return SoftwareComponent.class.getSimpleName();
+		}
+
+		private boolean hasWithName(String name) {
+			return container.findByName(name) != null;
 		}
 
 		@Override
