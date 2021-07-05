@@ -13,8 +13,8 @@ import java.util.stream.Stream;
 
 @EqualsAndHashCode
 final class DefaultModelNode implements ModelNode {
-	private static final RelationshipType OWNERSHIP_RELATIONSHIP_TYPE = RelationshipType.withName("OWNS");
-	private static final RelationshipType PROJECTION_RELATIONSHIP_TYPE = RelationshipType.withName("PROJECTIONS");
+	static final RelationshipType OWNERSHIP_RELATIONSHIP_TYPE = RelationshipType.withName("OWNS");
+	static final RelationshipType PROJECTION_RELATIONSHIP_TYPE = RelationshipType.withName("PROJECTIONS");
 	@EqualsAndHashCode.Exclude private final Graph graph;
 	@EqualsAndHashCode.Include private final Node delegate;
 
