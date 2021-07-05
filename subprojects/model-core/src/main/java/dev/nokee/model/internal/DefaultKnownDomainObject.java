@@ -8,6 +8,8 @@ import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
+import static java.util.Objects.requireNonNull;
+
 @EqualsAndHashCode
 final class DefaultKnownDomainObject<T> implements KnownDomainObject<T> {
 	private final Class<T> type;
@@ -30,16 +32,19 @@ final class DefaultKnownDomainObject<T> implements KnownDomainObject<T> {
 
 	@Override
 	public KnownDomainObject<T> configure(Action<? super T> action) {
+		projection.whenRealized(type, action);
 		return this;
 	}
 
 	@Override
 	public <S> Provider<S> map(Transformer<? extends S, ? super T> transformer) {
+		requireNonNull(transformer);
 		return projection.as(type).map(transformer);
 	}
 
 	@Override
 	public <S> Provider<S> flatMap(Transformer<? extends Provider<? extends S>, ? super T> transformer) {
+		requireNonNull(transformer);
 		return projection.as(type).flatMap(transformer);
 	}
 }

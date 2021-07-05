@@ -6,7 +6,7 @@ import dev.nokee.model.TestProjection;
 import dev.nokee.model.graphdb.Graph;
 import lombok.val;
 
-public class DefaultKnownDomainObjectTest implements KnownDomainObjectTester {
+public class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<TestProjection> {
 	@Override
 	public KnownDomainObject<TestProjection> createSubject() {
 		val graph = Graph.builder().build();
