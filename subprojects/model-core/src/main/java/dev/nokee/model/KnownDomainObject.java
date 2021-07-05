@@ -16,10 +16,13 @@ public interface KnownDomainObject<T> {
 
 	Class<T> getType();
 
-	default void configure(@ClosureParams(FirstParam.FirstGenericType.class) @DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
+	KnownDomainObject<T> configure(Action<? super T> action);
+
+	/** @see #configure(Action) */
+	default KnownDomainObject<T> configure(@ClosureParams(FirstParam.FirstGenericType.class) @DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
 		configure(ConfigureUtil.configureUsing(requireNonNull(closure)));
+		return this;
 	}
-	void configure(Action<? super T> action);
 
 	<S> Provider<S> map(Transformer<? extends S, ? super T> transformer);
 	<S> Provider<S> flatMap(Transformer<? extends Provider<? extends S>, ? super T> transformer);
