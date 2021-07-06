@@ -18,7 +18,7 @@ import static dev.nokee.utils.NamedDomainObjectCollectionUtils.whenElementKnown;
 
 	@Inject
 	public DefaultNokeeExtension(DefaultNamedDomainObjectRegistry registry) {
-		this.model = new DefaultModelNodeDsl(registry, modelRegistry.getRoot());
+		this.model = new DefaultModelNodeDslFactory(registry).create(modelRegistry.getRoot());
 		this.registry = registry;
 	}
 
