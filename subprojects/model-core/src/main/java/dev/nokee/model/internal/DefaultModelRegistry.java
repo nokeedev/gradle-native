@@ -11,8 +11,8 @@ import dev.nokee.model.streams.Topic;
 final class DefaultModelRegistry implements ModelRegistry {
 	private final GraphTopics topics = new GraphTopics();
 	private final Graph graph = Graph.builder().listener(topics).build();
-	private final ModelProjectionFactory projectionFactory = new DefaultModelProjectionFactory(graph);
-	private final ModelNode root = new DefaultModelNodeFactory(graph).create(graph.createNode()); // TODO: Maybe we will want the root node to have the name of the target (project or settings)
+	private final ModelFactory factory = new DefaultModelFactory(graph);
+	private final ModelNode root = factory.createNode(graph.createNode()); // TODO: Maybe we will want the root node to have the name of the target (project or settings)
 
 	@Override
 	public ModelNode getRoot() {
@@ -25,7 +25,7 @@ final class DefaultModelRegistry implements ModelRegistry {
 	}
 
 	private final class GraphTopics implements EventListener {
-		private final Topic<ModelProjection> projectionRelationships = Topic.of(() -> graph.getAllRelationships().filter(it -> it.isType(DefaultModelNode.PROJECTION_RELATIONSHIP_TYPE)).map(it -> projectionFactory.create(it.getEndNode())));
+		private final Topic<ModelProjection> projectionRelationships = Topic.of(() -> graph.getAllRelationships().filter(it -> it.isType(DefaultModelNode.PROJECTION_RELATIONSHIP_TYPE)).map(it -> factory.createProjection(it.getEndNode())));
 
 
 		@Override
@@ -36,7 +36,7 @@ final class DefaultModelRegistry implements ModelRegistry {
 		@Override
 		public void relationshipCreated(RelationshipCreatedEvent event) {
 			if (event.getRelationship().isType(DefaultModelNode.PROJECTION_RELATIONSHIP_TYPE)) {
-				projectionRelationships.accept(projectionFactory.create(event.getRelationship().getEndNode()));
+				projectionRelationships.accept(factory.createProjection(event.getRelationship().getEndNode()));
 			}
 		}
 

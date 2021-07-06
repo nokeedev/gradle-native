@@ -13,14 +13,12 @@ import static dev.nokee.utils.ProviderUtils.notDefined;
 
 @EqualsAndHashCode
 final class DefaultModelProjection implements ModelProjection {
-	@EqualsAndHashCode.Exclude private final Graph graph;
 	@EqualsAndHashCode.Include private final Node delegate;
-	@EqualsAndHashCode.Exclude private final ModelNodeFactory nodeFactory;
+	@EqualsAndHashCode.Exclude private final ModelFactory factory;
 
-	public DefaultModelProjection(Graph graph, Node delegate) {
-		this.graph = graph;
+	public DefaultModelProjection(ModelFactory factory, Node delegate) {
 		this.delegate = delegate;
-		this.nodeFactory = new DefaultModelNodeFactory(graph);
+		this.factory = factory;
 	}
 
 	@Override
@@ -38,7 +36,7 @@ final class DefaultModelProjection implements ModelProjection {
 
 	@Override
 	public ModelNode getOwner() {
-		return nodeFactory.create(delegate.getSingleRelationship(DefaultModelNode.PROJECTION_RELATIONSHIP_TYPE, Direction.INCOMING).map(Relationship::getStartNode).orElseThrow(this::noProjectionOwnerException));
+		return factory.createNode(delegate.getSingleRelationship(DefaultModelNode.PROJECTION_RELATIONSHIP_TYPE, Direction.INCOMING).map(Relationship::getStartNode).orElseThrow(this::noProjectionOwnerException));
 	}
 
 	private RuntimeException noProjectionOwnerException() {
@@ -106,7 +104,7 @@ final class DefaultModelProjection implements ModelProjection {
 
 		public DefaultModelProjection build() {
 			val projectionNode = graph.createNode().addLabel(Label.label("PROJECTION")).property("spec", builder.build());
-			return new DefaultModelProjection(graph, projectionNode);
+			return new DefaultModelProjection(new DefaultModelFactory(graph), projectionNode);
 		}
 	}
 }
