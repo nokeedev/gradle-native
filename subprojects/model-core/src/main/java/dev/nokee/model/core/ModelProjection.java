@@ -6,10 +6,10 @@ import org.gradle.api.provider.Provider;
 
 public interface ModelProjection {
 
-	// TODO: Not sure
+	// TODO: Should probably use type instead
 	<T> boolean canBeViewedAs(Class<T> type);
 
-	<T> T get(Class<T> type);
+	<T> T get(Class<T> type); // TODO: Definitely not!
 
 	<T> Provider<T> as(Class<T> type);
 
@@ -20,6 +20,8 @@ public interface ModelProjection {
 	 */
 	ModelNode getOwner();
 
+	// TODO: It seems this may be overkill, maybe something more like whenRealized(Action<?> action)
+	//   ... Maybe not... unsure
 	<T> void whenRealized(Class<T> type, Action<? super T> action);
 
 	/**
