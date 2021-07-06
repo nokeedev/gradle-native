@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.absentProvider;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.utils.ActionTestUtils.doSomething;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
@@ -65,7 +66,7 @@ public interface ModelProjectionTester {
 	@Test
 	default void throwsExceptionWhenConfiguringNonViewableType() {
 		val subject = createSubject();
-		assertThrows(RuntimeException.class, () -> subject.whenRealized(UnknownProjection.class, it -> {})); // TODO Use ActionTestUtils.doSomething()
+		assertThrows(RuntimeException.class, () -> subject.whenRealized(UnknownProjection.class, doSomething()));
 	}
 
 	interface BaseProjection {}
