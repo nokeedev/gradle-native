@@ -1,9 +1,8 @@
 package dev.nokee.model.internal;
 
+import dev.nokee.model.core.ModelNode;
 import dev.nokee.model.core.ModelProjection;
-import dev.nokee.model.graphdb.Graph;
-import dev.nokee.model.graphdb.Label;
-import dev.nokee.model.graphdb.Node;
+import dev.nokee.model.graphdb.*;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Action;
@@ -33,6 +32,15 @@ final class DefaultModelProjection implements ModelProjection {
 		} else {
 			return notDefined();
 		}
+	}
+
+	@Override
+	public ModelNode getOwner() {
+		return new DefaultModelNode(graph, delegate.getSingleRelationship(DefaultModelNode.PROJECTION_RELATIONSHIP_TYPE, Direction.INCOMING).map(Relationship::getStartNode).orElseThrow(this::noProjectionOwnerException));
+	}
+
+	private RuntimeException noProjectionOwnerException() {
+		return new RuntimeException("Projection is not attached to any node.");
 	}
 
 	@Override

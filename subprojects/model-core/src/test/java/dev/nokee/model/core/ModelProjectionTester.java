@@ -69,6 +69,11 @@ public interface ModelProjectionTester {
 		assertThrows(RuntimeException.class, () -> subject.whenRealized(UnknownProjection.class, doSomething()));
 	}
 
+	@Test
+	default void hasOwnerNode() {
+		assertThat(createSubject().getOwner(), isA(ModelNode.class));
+	}
+
 	interface BaseProjection {}
 	interface TestProjection extends BaseProjection {}
 	final class DefaultTestProjection implements TestProjection {}
