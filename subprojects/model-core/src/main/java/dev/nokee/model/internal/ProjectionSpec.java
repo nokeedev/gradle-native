@@ -58,6 +58,9 @@ final class ProjectionSpec {
 		}
 
 		public ProjectionSpec build() {
+			if (type == null) {
+				type = ProviderUtils.getType(provider).orElse(null);
+			}
 			ProviderUtils.getType(provider).ifPresent(type -> {
 				if (!this.type.isAssignableFrom(type)) {
 					throw new RuntimeException();

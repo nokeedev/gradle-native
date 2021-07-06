@@ -7,6 +7,7 @@ import org.gradle.api.Named;
 import org.junit.jupiter.api.Test;
 
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -103,5 +104,16 @@ public interface ModelNodeTester {
 		val subject = createSubject();
 		val projection = subject.newProjection(builder -> builder.type(TestProjection.class).forInstance(new TestProjection("test")));
 		assertThat(projection.getOwner(), is(subject));
+	}
+
+	@Test
+	default void inferTypeFromInstanceWhenCreatingProjectionByInstanceOnly() {
+		assertThat(createSubject().newProjection(builder -> builder.forInstance(new TestProjection("test"))).canBeViewedAs(TestProjection.class), is(true));
+	}
+
+	@Test
+	default void inferTypeFromProviderWhenCreatingProjectionByProvider() {
+		val container = objectFactory().domainObjectContainer(TestProjection.class);
+		assertThat(createSubject().newProjection(builder -> builder.forProvider(container.register("test"))).canBeViewedAs(TestProjection.class), is(true));
 	}
 }
