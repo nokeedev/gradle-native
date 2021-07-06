@@ -12,7 +12,7 @@ final class DefaultModelRegistry implements ModelRegistry {
 	private final GraphTopics topics = new GraphTopics();
 	private final Graph graph = Graph.builder().listener(topics).build();
 	private final ModelProjectionFactory projectionFactory = new DefaultModelProjectionFactory(graph);
-	private final ModelNode root = new DefaultModelNode(graph, graph.createNode()); // TODO: Maybe we will want the root node to have the name of the target (project or settings)
+	private final ModelNode root = new DefaultModelNodeFactory(graph).create(graph.createNode()); // TODO: Maybe we will want the root node to have the name of the target (project or settings)
 
 	@Override
 	public ModelNode getRoot() {
