@@ -12,7 +12,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 public final class FunctionalInterfaceMatchers {
 	public static <T extends ExecutionArguments> Matcher<HasExecutionResult<T>> calledOnceWith(Matcher<? super T> matcher) {
-		return allOf(called(equalTo(1L)), lastArgument(matcher));
+		return allOf(called(1L), lastArgument(matcher));
 	}
 
 	public static <T extends ExecutionArguments> Matcher<HasExecutionResult<T>> calledWith(Matcher<? super Iterable<T>> matcher) {
@@ -58,6 +58,10 @@ public final class FunctionalInterfaceMatchers {
 		};
 	}
 
+	public static <T extends ExecutionArguments> Matcher<HasExecutionResult<T>> called(long callCount) {
+		return called(equalTo(callCount));
+	}
+
 	public static <T extends ExecutionArguments> Matcher<HasExecutionResult<T>> called(Matcher<? super Long> callCountMatcher) {
 		return new FeatureMatcher<HasExecutionResult<T>, Long>(callCountMatcher, "", "") {
 			@Override
@@ -68,11 +72,11 @@ public final class FunctionalInterfaceMatchers {
 	}
 
 	public static <T extends ExecutionArguments> Matcher<HasExecutionResult<T>> calledOnce() {
-		return called(equalTo(1L));
+		return called(1L);
 	}
 
 	public static <T extends ExecutionArguments> Matcher<HasExecutionResult<T>> neverCalled() {
-		return called(equalTo(0L));
+		return called(0L);
 	}
 
 	public static <T extends ExecutionArguments> Matcher<HasExecutionResult<T>> lastArgument(Matcher<? super T> matcher) {
