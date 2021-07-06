@@ -11,6 +11,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import static java.util.Objects.requireNonNull;
+
 @EqualsAndHashCode
 final class DefaultModelNode implements ModelNode {
 	static final RelationshipType OWNERSHIP_RELATIONSHIP_TYPE = RelationshipType.withName("OWNS");
@@ -69,11 +71,13 @@ final class DefaultModelNode implements ModelNode {
 
 	@Override
 	public boolean canBeViewedAs(Class<?> type) {
+		requireNonNull(type);
 		return getProjections().anyMatch(it -> it.canBeViewedAs(type));
 	}
 
 	@Override
 	public <T> T get(Class<T> type) {
+		requireNonNull(type);
 		return getProjections().filter(it -> it.canBeViewedAs(type))
 			.findFirst()
 			.map(it -> it.get(type))
@@ -87,6 +91,7 @@ final class DefaultModelNode implements ModelNode {
 
 	@Override
 	public Optional<ModelNode> find(Object identity) {
+		requireNonNull(identity);
 		return getChildNodes().filter(it -> it.getIdentity().equals(identity)).findFirst();
 	}
 

@@ -1,5 +1,6 @@
 package dev.nokee.model.core;
 
+import com.google.common.testing.NullPointerTester;
 import dev.nokee.model.UnknownProjection;
 import lombok.val;
 import org.gradle.api.Action;
@@ -77,6 +78,12 @@ public interface ModelProjectionTester {
 	@Test
 	default void hasType() {
 		assertThat(createSubject().getType(), is(TestProjection.class));
+	}
+
+	@Test
+	@SuppressWarnings("UnstableApiUsage")
+	default void checkNulls() {
+		new NullPointerTester().testAllPublicInstanceMethods(createSubject());
 	}
 
 	interface BaseProjection {}
