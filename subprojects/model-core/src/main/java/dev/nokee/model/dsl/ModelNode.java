@@ -11,6 +11,7 @@ import groovy.transform.stc.FromString;
 import groovy.transform.stc.SimpleType;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.util.ConfigureUtil;
 
@@ -139,7 +140,7 @@ public interface ModelNode extends Named, NodePredicates {
 	}
 
 	/**
-	 * Executes action on all objects matching the specified spec for the subgraph with this node as the root.
+	 * Executes action on all objects matching the specified predicate scoped to this node as the root.
 	 *
 	 * <pre>
 	 * nokee.model {
@@ -160,11 +161,25 @@ public interface ModelNode extends Named, NodePredicates {
 	 *     }
 	 * }
 	 * </pre>
+	 *
+	 * @param predicate  the predicate to match model projection, must not be null
+	 * @param action  the action to execute, must not be null
+	 * @param <T>  the projection type
 	 */
-	<T> void all(NodePredicate<T> spec, BiConsumer<? super ModelNode, ? super KnownDomainObject<T>> action);
+	<T> void all(NodePredicate<? super T> predicate, BiConsumer<? super ModelNode, ? super KnownDomainObject<T>> action);
+
+	/**
+	 * Executes action on all objects matching the specified predicate scoped to this node as the root.
+	 * An instance of the action class is created using the {@link ObjectFactory#newInstance(Class, Object...)}.
+	 *
+	 * @param predicate  the predicate to match model projection, must not be null
+	 * @param rule  the rule class, must not be null
+	 * @param <T>  the projection type
+	 */
+	<T> void all(NodePredicate<T> predicate, Class<? extends BiConsumer<? super ModelNode, ? super KnownDomainObject<T>>> rule);
 
 	/** @see #all(NodePredicate, BiConsumer) */
-	<T> void all(NodePredicate<T> spec, @ClosureParams(value = FromString.class, options = { "dev.nokee.model.KnownDomainObject<T>", "dev.nokee.model.dsl.ModelNode,dev.nokee.model.KnownDomainObject<T>" }) @DelegatesTo(value = ModelNode.class, strategy = Closure.DELEGATE_FIRST) Closure<?> closure);
+	<T> void all(NodePredicate<T> predicate, @ClosureParams(value = FromString.class, options = { "dev.nokee.model.KnownDomainObject<T>", "dev.nokee.model.dsl.ModelNode,dev.nokee.model.KnownDomainObject<T>" }) @DelegatesTo(value = ModelNode.class, strategy = Closure.DELEGATE_FIRST) Closure<?> closure);
 
 	/**
 	 * Returns a provider of all objects matching the specified spec for the subgraph with this node as the root.
@@ -178,5 +193,5 @@ public interface ModelNode extends Named, NodePredicates {
 	 * }
 	 * </pre>
 	 */
-	<T> Provider<Iterable<T>> all(NodePredicate<T> spec);
+	<T> Provider<? extends Iterable<T>> all(NodePredicate<T> predicate);
 }
