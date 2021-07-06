@@ -20,11 +20,13 @@ final class DefaultModelNode implements ModelNode {
 	@EqualsAndHashCode.Exclude private final Graph graph;
 	@EqualsAndHashCode.Include private final Node delegate;
 	@EqualsAndHashCode.Exclude private final ModelProjectionFactory projectionFactory;
+	@EqualsAndHashCode.Exclude private final ModelNodeFactory nodeFactory;
 
 	public DefaultModelNode(Graph graph, Node delegate) {
 		this.graph = graph;
 		this.delegate = delegate;
 		this.projectionFactory = new DefaultModelProjectionFactory(graph);
+		this.nodeFactory = new DefaultModelNodeFactory(graph);
 	}
 
 	@Override
@@ -37,7 +39,7 @@ final class DefaultModelNode implements ModelNode {
 //			.property("path", getPath().child(name))
 //			.property("identifier", getIdentifier().child(identity));
 		delegate.createRelationshipTo(childNode, OWNERSHIP_RELATIONSHIP_TYPE);
-		return new DefaultModelNode(graph, childNode);
+		return nodeFactory.create(childNode);
 	}
 
 	private static String nameOf(Object identity) {
@@ -66,7 +68,7 @@ final class DefaultModelNode implements ModelNode {
 
 	@Override
 	public Optional<ModelNode> getParent() {
-		return delegate.getSingleRelationship(OWNERSHIP_RELATIONSHIP_TYPE, Direction.INCOMING).map(it -> new DefaultModelNode(graph, it.getStartNode()));
+		return delegate.getSingleRelationship(OWNERSHIP_RELATIONSHIP_TYPE, Direction.INCOMING).map(it -> nodeFactory.create(it.getStartNode()));
 	}
 
 	@Override
@@ -104,7 +106,7 @@ final class DefaultModelNode implements ModelNode {
 	public Stream<ModelNode> getChildNodes() {
 		return delegate.getRelationships(Direction.OUTGOING, OWNERSHIP_RELATIONSHIP_TYPE)
 			.map(Relationship::getEndNode)
-			.map(it -> new DefaultModelNode(graph, it));
+			.map(nodeFactory::create);
 	}
 
 	@Override

@@ -21,7 +21,7 @@ class DefaultModelNodeTest implements ModelNodeTester {
 
 	@Override
 	public ModelNode createSubject() {
-		return new DefaultModelNode(graph, graph.createNode());
+		return new DefaultModelNodeFactory(graph).create(graph.createNode());
 	}
 
 	@Test

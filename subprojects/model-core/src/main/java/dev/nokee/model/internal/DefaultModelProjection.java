@@ -15,10 +15,12 @@ import static dev.nokee.utils.ProviderUtils.notDefined;
 final class DefaultModelProjection implements ModelProjection {
 	@EqualsAndHashCode.Exclude private final Graph graph;
 	@EqualsAndHashCode.Include private final Node delegate;
+	@EqualsAndHashCode.Exclude private final ModelNodeFactory nodeFactory;
 
 	public DefaultModelProjection(Graph graph, Node delegate) {
 		this.graph = graph;
 		this.delegate = delegate;
+		this.nodeFactory = new DefaultModelNodeFactory(graph);
 	}
 
 	@Override
@@ -36,7 +38,7 @@ final class DefaultModelProjection implements ModelProjection {
 
 	@Override
 	public ModelNode getOwner() {
-		return new DefaultModelNode(graph, delegate.getSingleRelationship(DefaultModelNode.PROJECTION_RELATIONSHIP_TYPE, Direction.INCOMING).map(Relationship::getStartNode).orElseThrow(this::noProjectionOwnerException));
+		return nodeFactory.create(delegate.getSingleRelationship(DefaultModelNode.PROJECTION_RELATIONSHIP_TYPE, Direction.INCOMING).map(Relationship::getStartNode).orElseThrow(this::noProjectionOwnerException));
 	}
 
 	private RuntimeException noProjectionOwnerException() {
