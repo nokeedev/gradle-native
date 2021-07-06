@@ -140,6 +140,7 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 				builder.type(type).forProvider(registry.registerIfAbsent(StringUtils.uncapitalize(name), type));
 			});
 		});
+		projection.whenRealized(type, action);
 		return new DefaultKnownDomainObject<>(type, projection);
 	}
 
