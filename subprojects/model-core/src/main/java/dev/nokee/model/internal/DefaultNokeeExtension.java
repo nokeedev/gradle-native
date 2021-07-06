@@ -6,6 +6,7 @@ import dev.nokee.model.registry.ModelRegistry;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.PolymorphicDomainObjectContainer;
+import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
@@ -17,8 +18,8 @@ import static dev.nokee.utils.NamedDomainObjectCollectionUtils.whenElementKnown;
 	private final ModelNode model;
 
 	@Inject
-	public DefaultNokeeExtension(DefaultNamedDomainObjectRegistry registry) {
-		this.model = new DefaultModelNodeDslFactory(registry).create(modelRegistry.getRoot());
+	public DefaultNokeeExtension(DefaultNamedDomainObjectRegistry registry, ObjectFactory objectFactory) {
+		this.model = new DefaultModelNodeDslFactory(registry, modelRegistry.allProjections(), objectFactory).create(modelRegistry.getRoot());
 		this.registry = registry;
 	}
 

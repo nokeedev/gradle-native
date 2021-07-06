@@ -1,8 +1,11 @@
 package dev.nokee.model.internal;
 
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.core.ModelProjection;
+import dev.nokee.model.core.ModelSpec;
 import dev.nokee.model.core.NodePredicate;
 import dev.nokee.model.dsl.ModelNode;
+import dev.nokee.model.streams.ModelStream;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import lombok.EqualsAndHashCode;
@@ -12,22 +15,28 @@ import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.Task;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = false)
 final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode {
 	private final NamedDomainObjectRegistry registry;
 	@EqualsAndHashCode.Include private final dev.nokee.model.core.ModelNode delegate;
 	@EqualsAndHashCode.Exclude private final ModelNodeFactory factory;
+	@EqualsAndHashCode.Exclude private final ModelStream<ModelProjection> stream;
+	@EqualsAndHashCode.Exclude private final ObjectFactory objectFactory;
 	@EqualsAndHashCode.Exclude private final GroovyDslSupport dslSupport;
 
-	public DefaultModelNodeDsl(NamedDomainObjectRegistry registry, dev.nokee.model.core.ModelNode delegate, ModelNodeFactory factory) {
+	public DefaultModelNodeDsl(NamedDomainObjectRegistry registry, dev.nokee.model.core.ModelNode delegate, ModelNodeFactory factory, ModelStream<ModelProjection> stream, ObjectFactory objectFactory) {
 		this.registry = registry;
 		this.delegate = delegate;
 		this.factory = factory;
+		this.stream = stream;
+		this.objectFactory = objectFactory;
 		this.dslSupport = GroovyDslSupport.builder()
 			.metaClass(getMetaClass())
 			.whenInvokeMethod(this::node)
@@ -160,13 +169,15 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 	}
 
 	@Override
-	public <T> void all(NodePredicate<T> spec, BiConsumer<? super ModelNode, ? super KnownDomainObject<T>> action) {
-		throw new UnsupportedOperationException();
+	public <T> void all(NodePredicate<? super T> spec, BiConsumer<? super ModelNode, ? super KnownDomainObject<T>> action) {
+		stream.filter(spec.scope(delegate)::isSatisfiedBy).forEach(it -> {
+			action.accept(factory.create(it.getOwner()), new DefaultKnownDomainObject<>((Class<T>) it.getType(), it));
+		});
 	}
 
 	@Override
 	public <T> void all(NodePredicate<T> spec, Class<? extends BiConsumer<? super ModelNode, ? super KnownDomainObject<T>>> rule) {
-		throw new UnsupportedOperationException();
+		all(spec, objectFactory.newInstance(rule));
 	}
 
 	@Override
@@ -176,6 +187,15 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 
 	@Override
 	public <T> Provider<? extends Iterable<T>> all(NodePredicate<T> predicate) {
-		throw new UnsupportedOperationException();
+		val spec = predicate.scope(delegate);
+		return stream.filter(toPredicate(spec)).map(it -> it.get(spec.getProjectionType())).collect(Collectors.toList());
+	}
+
+	private static Predicate<ModelProjection> toPredicate(ModelSpec<?> spec) {
+		if (spec instanceof Predicate) {
+			return (Predicate<ModelProjection>) spec;
+		} else {
+			return spec::isSatisfiedBy;
+		}
 	}
 }
