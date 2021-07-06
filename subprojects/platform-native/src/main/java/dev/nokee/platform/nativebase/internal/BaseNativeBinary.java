@@ -245,13 +245,17 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 
 	@Override
 	public boolean isBuildable() {
-		if (!compileTasks.withType(AbstractNativeCompileTask.class).get().stream().allMatch(BaseNativeBinary::isBuildable)) {
+		try {
+			if (!compileTasks.withType(AbstractNativeCompileTask.class).get().stream().allMatch(BaseNativeBinary::isBuildable)) {
+				return false;
+			}
+			if (!compileTasks.withType(SwiftCompileTask.class).get().stream().allMatch(BaseNativeBinary::isBuildable)) {
+				return false;
+			}
+			return true;
+		} catch (Throwable ex) { // because toolchain selection calls xcrun for macOS which doesn't exists on non-mac system
 			return false;
 		}
-		if (!compileTasks.withType(SwiftCompileTask.class).get().stream().allMatch(BaseNativeBinary::isBuildable)) {
-			return false;
-		}
-		return true;
 	}
 
 	private static boolean isBuildable(AbstractNativeCompileTask compileTask) {
@@ -265,12 +269,8 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary {
 	protected static boolean isBuildable(NativeToolChain toolchain, NativePlatform platform) {
 		NativeToolChainInternal toolchainInternal = (NativeToolChainInternal)toolchain;
 		NativePlatformInternal platformInternal = (NativePlatformInternal)platform;
-		try {
-			PlatformToolProvider toolProvider = toolchainInternal.select(platformInternal);
-			return toolProvider.isAvailable();
-		} catch (Throwable ex) { // because toolchain selection calls xcrun for macOS which doesn't exists on non-mac system
-			return false;
-		}
+		PlatformToolProvider toolProvider = toolchainInternal.select(platformInternal);
+		return toolProvider.isAvailable();
 	}
 
 	public Object getObjectFiles() {

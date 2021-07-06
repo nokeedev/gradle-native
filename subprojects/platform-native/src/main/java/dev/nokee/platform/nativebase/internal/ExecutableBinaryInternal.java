@@ -109,7 +109,11 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 
 	@Override
 	public boolean isBuildable() {
-		return super.isBuildable() && isBuildable(linkTask.get());
+		try {
+			return super.isBuildable() && isBuildable(linkTask.get());
+		} catch (Throwable ex) { // because toolchain selection calls xcrun for macOS which doesn't exists on non-mac system
+			return false;
+		}
 	}
 
 	private static boolean isBuildable(LinkExecutable linkTask) {
