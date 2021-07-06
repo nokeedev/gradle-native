@@ -4,7 +4,10 @@ import dev.nokee.model.registry.ModelRegistry;
 import org.junit.jupiter.api.Test;
 
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.notNullValue;
 
 class DefaultModelRegistryTest {
@@ -18,5 +21,10 @@ class DefaultModelRegistryTest {
 	@Test
 	void rootNodeDoesNotHaveParent() {
 		assertThat(subject.getRoot().getParent(), emptyOptional());
+	}
+
+	@Test /** @see dev.nokee.model.internal.DefaultModelRegistryAllProjectionsStreamTest */
+	void newRegistryHasNoProjectionInStream() {
+		assertThat(subject.allProjections().collect(toList()), providerOf(emptyIterable()));
 	}
 }
