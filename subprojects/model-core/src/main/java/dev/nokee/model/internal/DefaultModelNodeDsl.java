@@ -159,7 +159,11 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 
 	@Override
 	public <T> void all(NodePredicate<T> spec, BiConsumer<? super ModelNode, ? super KnownDomainObject<T>> action) {
-		//spec.scope(delegate);
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public <T> void all(NodePredicate<T> spec, Class<? extends BiConsumer<? super ModelNode, ? super KnownDomainObject<T>>> rule) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -169,8 +173,7 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 	}
 
 	@Override
-	public <T> Provider<Iterable<T>> all(NodePredicate<T> spec) {
-		// spec.scope(delegate)
+	public <T> Provider<? extends Iterable<T>> all(NodePredicate<T> predicate) {
 		throw new UnsupportedOperationException();
 	}
 }
