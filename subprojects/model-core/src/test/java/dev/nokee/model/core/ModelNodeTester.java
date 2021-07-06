@@ -1,5 +1,6 @@
 package dev.nokee.model.core;
 
+import com.google.common.testing.NullPointerTester;
 import dev.nokee.model.TestProjection;
 import dev.nokee.model.UnknownProjection;
 import lombok.val;
@@ -115,5 +116,11 @@ public interface ModelNodeTester {
 	default void inferTypeFromProviderWhenCreatingProjectionByProvider() {
 		val container = objectFactory().domainObjectContainer(TestProjection.class);
 		assertThat(createSubject().newProjection(builder -> builder.forProvider(container.register("test"))).canBeViewedAs(TestProjection.class), is(true));
+	}
+
+	@Test
+	@SuppressWarnings("UnstableApiUsage")
+	default void checkNulls() {
+		new NullPointerTester().testAllPublicInstanceMethods(createSubject());
 	}
 }
