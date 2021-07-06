@@ -97,4 +97,11 @@ public interface ModelNodeTester {
 			() -> assertThat(subject.canBeViewedAs(UnknownProjection.class), is(false))
 		);
 	}
+
+	@Test
+	default void newProjectionHasCurrentNodeAsOwner() {
+		val subject = createSubject();
+		val projection = subject.newProjection(builder -> builder.type(TestProjection.class).forInstance(new TestProjection("test")));
+		assertThat(projection.getOwner(), is(subject));
+	}
 }

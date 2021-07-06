@@ -13,6 +13,8 @@ public interface ModelProjection {
 
 	<T> Provider<T> as(Class<T> type);
 
+	ModelNode getOwner();
+
 	<T> void whenRealized(Class<T> type, Action<? super T> action);
 
 	interface Builder {
