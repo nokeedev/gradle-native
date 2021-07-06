@@ -2,13 +2,15 @@ package dev.nokee.runtime.darwin.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.hash.Hashing;
 import dev.nokee.core.exec.*;
+import dev.nokee.publishing.internal.metadata.GradleModuleMetadata;
 import dev.nokee.runtime.base.internal.repositories.AbstractRouteHandler;
-import dev.nokee.runtime.base.internal.repositories.GradleModuleMetadata;
 import dev.nokee.runtime.base.internal.tools.CommandLineToolDescriptor;
 import dev.nokee.runtime.base.internal.tools.ToolRepository;
 import dev.nokee.runtime.darwin.internal.parsers.XcodebuildParsers;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
+import lombok.val;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.nativeplatform.OperatingSystemFamily;
@@ -17,15 +19,22 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.Charset;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static dev.nokee.publishing.internal.metadata.GradleModuleMetadata.Attribute.ofAttribute;
+import static dev.nokee.publishing.internal.metadata.GradleModuleMetadata.Capability.ofCapability;
+import static dev.nokee.publishing.internal.metadata.GradleModuleMetadata.Component.ofComponent;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.io.FilenameUtils.removeExtension;
 
 public class FrameworkRouteHandler extends AbstractRouteHandler {
 	private static final Logger LOGGER = Logger.getLogger(FrameworkRouteHandler.class.getName());
@@ -126,59 +135,65 @@ public class FrameworkRouteHandler extends AbstractRouteHandler {
 	}
 
 	GradleModuleMetadata getValue(String frameworkName, String version) {
-		GradleModuleMetadata.Variant.File file = GradleModuleMetadata.Variant.File.ofLocalFile(getLocalPath(frameworkName));
-		ImmutableList.Builder<GradleModuleMetadata.Variant> l = ImmutableList.<GradleModuleMetadata.Variant>builder()
-			.add(compileVariant("compile", file, emptyList()))
-			.add(linkVariant("link", file, emptyList()))
-			.add(runtimeVariant("runtime", emptyList()));
+		val frameworkPath = getLocalPath(frameworkName).toPath();
+		val builder = GradleModuleMetadata.builder();
+		builder.formatVersion("1.1");
+		builder.component(ofComponent("dev.nokee.framework", frameworkName, version, singletonList(ofAttribute("org.gradle.status", "release"))));
+		builder.localVariant(framework("default", frameworkPath, ImmutableList.of()));
+		builder.localVariant(runtimeEntry("default", ImmutableList.of()));
 
-		findSubFrameworks(getLocalPath(frameworkName)).forEach(it -> {
-			l.add(compileVariant("compileCapable", GradleModuleMetadata.Variant.File.ofLocalFile(it), toCapabilities(frameworkName, it)));
-			l.add(linkVariant("linkCapable", GradleModuleMetadata.Variant.File.ofLocalFile(it), toCapabilities(frameworkName, it)));
-			l.add(runtimeVariant("runtimeCapable", toCapabilities(frameworkName, it)));
+		findSubFrameworks(frameworkPath).forEach(it -> {
+			builder.localVariant(framework(frameworkName(it), it, toCapabilities(frameworkName, it)));
+			builder.localVariant(runtimeEntry(frameworkName(it), toCapabilities(frameworkName, it)));
 		});
 
-		List<GradleModuleMetadata.Variant> v = l.build();
-		return GradleModuleMetadata.of(GradleModuleMetadata.Component.of("dev.nokee.framework", frameworkName, version), v);
+		return builder.build();
 	}
 
-	List<GradleModuleMetadata.Variant.Capability> toCapabilities(String frameworkName, File subframework) {
-		return singletonList(new GradleModuleMetadata.Variant.Capability(frameworkName, subframework.getName().substring(0, subframework.getName().lastIndexOf(".")), findSdkVersion(findMacOsSdks())));
+	private static String frameworkName(Path frameworkPath) {
+		return removeExtension(frameworkPath.getFileName().toString());
 	}
 
-	List<File> findSubFrameworks(File framework) {
-		if (!new File(framework, "Frameworks").exists()) {
+	private static final String FRAMEWORK_USAGE = Usage.C_PLUS_PLUS_API + "+" + Usage.NATIVE_LINK;
+
+	private static Consumer<GradleModuleMetadata.LocalVariant.Builder> framework(String name, Path frameworkPath, List<GradleModuleMetadata.Capability> capabilities) {
+		return builder -> {
+			builder.name(name);
+			builder.file(it -> it.name(frameworkPath.getFileName().toString() + ".localpath")
+				.url(frameworkPath.getFileName().toString() + ".localpath")
+				.size(frameworkPath.toString().getBytes().length)
+				.sha1(Hashing.sha1().hashString(frameworkPath.toString(), Charset.defaultCharset()).toString())
+				.md5(Hashing.md5().hashString(frameworkPath.toString(), Charset.defaultCharset()).toString()));
+			builder.attribute(ofAttribute("org.gradle.usage", FRAMEWORK_USAGE))
+				.attribute(ofAttribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE.getName(), DarwinLibraryElements.FRAMEWORK_BUNDLE));
+			CURRENT_PLATFORM_ATTRIBUTES.entrySet().forEach(it -> builder.attribute(ofAttribute(it.getKey(), it.getValue())));
+			capabilities.forEach(builder::capability);
+		};
+	}
+
+	private static Consumer<GradleModuleMetadata.LocalVariant.Builder> runtimeEntry(String name, List<GradleModuleMetadata.Capability> capabilities) {
+		return builder -> {
+			builder.name(name + "Runtime");
+			builder.attribute(ofAttribute("org.gradle.usage", Usage.NATIVE_RUNTIME))
+				.attribute(ofAttribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE.getName(), DarwinLibraryElements.FRAMEWORK_BUNDLE));
+			CURRENT_PLATFORM_ATTRIBUTES.entrySet().forEach(it -> builder.attribute(ofAttribute(it.getKey(), it.getValue())));
+			capabilities.forEach(builder::capability);
+		};
+	}
+
+	List<GradleModuleMetadata.Capability> toCapabilities(String frameworkName, Path subframework) {
+		val subframeworkName = frameworkName(subframework);
+		return singletonList(ofCapability(frameworkName, subframeworkName.substring(0, subframeworkName.lastIndexOf(".")), findSdkVersion(findMacOsSdks())));
+	}
+
+	List<Path> findSubFrameworks(Path frameworkPath) {
+		if (!Files.exists(frameworkPath.resolve("Frameworks"))) {
 			return emptyList();
 		}
 		try {
-			return Files.walk(new File(framework, "Frameworks").toPath(), 1, FileVisitOption.FOLLOW_LINKS).filter(it -> Files.isDirectory(it) && it.getFileName().toString().endsWith(".framework")).map(java.nio.file.Path::toFile).collect(Collectors.toList());
+			return Files.walk(frameworkPath.resolve("Frameworks"), 1, FileVisitOption.FOLLOW_LINKS).filter(it -> Files.isDirectory(it) && it.getFileName().toString().endsWith(".framework")).collect(Collectors.toList());
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
-	}
-
-	GradleModuleMetadata.Variant compileVariant(String name, GradleModuleMetadata.Variant.File file, List<GradleModuleMetadata.Variant.Capability> capabilities) {
-		Map<String, Object> attributes = ImmutableMap.<String, Object>builder()
-			.put("org.gradle.usage", Usage.C_PLUS_PLUS_API)
-			.put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE.getName(), DarwinLibraryElements.FRAMEWORK_BUNDLE)
-			.build();
-		return new GradleModuleMetadata.Variant(name, attributes, singletonList(file), capabilities);
-	}
-
-	GradleModuleMetadata.Variant linkVariant(String name, GradleModuleMetadata.Variant.File file, List<GradleModuleMetadata.Variant.Capability> capabilities) {
-		Map<String, Object> attributes = ImmutableMap.<String, Object>builder()
-			.put("org.gradle.usage", Usage.NATIVE_LINK)
-			.put(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE.getName(), DarwinLibraryElements.FRAMEWORK_BUNDLE)
-			.putAll(CURRENT_PLATFORM_ATTRIBUTES)
-			.build();
-		return new GradleModuleMetadata.Variant(name, attributes, singletonList(file), capabilities);
-	}
-
-	GradleModuleMetadata.Variant runtimeVariant(String name, List<GradleModuleMetadata.Variant.Capability> capabilities) {
-		Map<String, Object> attributes = ImmutableMap.<String, Object>builder()
-			.put("org.gradle.usage", Usage.NATIVE_RUNTIME)
-			.putAll(CURRENT_PLATFORM_ATTRIBUTES)
-			.build();
-		return new GradleModuleMetadata.Variant(name, attributes, emptyList(), capabilities);
 	}
 }

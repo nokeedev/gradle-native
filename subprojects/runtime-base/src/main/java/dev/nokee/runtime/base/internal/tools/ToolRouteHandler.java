@@ -1,21 +1,23 @@
 package dev.nokee.runtime.base.internal.tools;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import com.google.gson.*;
+import dev.nokee.publishing.internal.metadata.GradleModuleMetadata;
 import dev.nokee.runtime.base.internal.repositories.AbstractRouteHandler;
-import dev.nokee.runtime.base.internal.repositories.GradleModuleMetadata;
+import lombok.val;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static dev.nokee.publishing.internal.metadata.GradleModuleMetadata.Attribute.ofAttribute;
+import static dev.nokee.publishing.internal.metadata.GradleModuleMetadata.Capability.ofCapability;
+import static dev.nokee.publishing.internal.metadata.GradleModuleMetadata.Component.ofComponent;
 import static java.util.Collections.singletonList;
 
 public class ToolRouteHandler extends AbstractRouteHandler {
@@ -40,31 +42,42 @@ public class ToolRouteHandler extends AbstractRouteHandler {
 
 	@Override
 	public boolean isKnownVersion(String moduleName, String version) {
-		return toolRepository.findAll(moduleName).stream().anyMatch(it -> it.getPath().getName().equals(moduleName) && it.getVersion().toString().equals(version));
+		return toolRepository.findAll(moduleName).stream().anyMatch(it -> it.getPath().getName().equals(moduleName) && it.getVersion().equals(version));
 	}
 
 	@Override
 	public List<String> findVersions(String moduleName) {
-		return toolRepository.findAll(moduleName).stream().filter(it -> it.getPath().getName().equals(moduleName)).map(it -> it.getVersion().toString()).collect(Collectors.toList());
+		return toolRepository.findAll(moduleName).stream().filter(it -> it.getPath().getName().equals(moduleName)).map(CommandLineToolDescriptor::getVersion).collect(Collectors.toList());
 	}
 
 	@Override
 	public GradleModuleMetadata getResourceMetadata(String moduleName, String version) {
-		CommandLineToolDescriptor descriptor = toolRepository.findAll(moduleName).stream().filter(it -> it.getPath().getName().equals(moduleName) && it.getVersion().toString().equals(version)).findFirst().get();
+		CommandLineToolDescriptor descriptor = toolRepository.findAll(moduleName).stream().filter(it -> it.getPath().getName().equals(moduleName) && it.getVersion().equals(version)).findFirst().get();
 
 		String content = serialize(descriptor);
-		GradleModuleMetadata.Variant.File file = new GradleModuleMetadata.Variant.File(moduleName + ".tooldescriptor", moduleName + ".tooldescriptor", String.valueOf(content.getBytes().length), Hashing.sha1().hashString(content, Charset.defaultCharset()).toString(), Hashing.md5().hashString(content, Charset.defaultCharset()).toString());
+		val builder = GradleModuleMetadata.builder();
+		builder.formatVersion("1.1");
+		builder.component(ofComponent("dev.nokee.tool", moduleName, version, singletonList(ofAttribute("org.gradle.status", "release"))));
+		builder.localVariant(it -> {
+			it.name(moduleName);
+			it.file(fileBuilder -> {
+				fileBuilder
+					.name(moduleName + ".tooldescriptor")
+					.url(moduleName + ".tooldescriptor")
+					.size(content.getBytes().length)
+					.sha1(Hashing.sha1().hashString(content, Charset.defaultCharset()).toString())
+					.md5(Hashing.md5().hashString(content, Charset.defaultCharset()).toString());
+			});
+			it.capability(ofCapability("dev.nokee.tool", moduleName, version));
+		});
 
-		List<GradleModuleMetadata.Variant.Capability> capabilities = singletonList(new GradleModuleMetadata.Variant.Capability("dev.nokee.tool", moduleName, version));
-
-		Map<String, Object> attributes = ImmutableMap.<String, Object>builder().build();
-		return GradleModuleMetadata.of(GradleModuleMetadata.Component.of("dev.nokee.tool", moduleName, version), ImmutableList.of(new GradleModuleMetadata.Variant(moduleName, attributes, singletonList(file), capabilities)));
+		return builder.build();
 	}
 
 	@Override
 	public String handle(String moduleName, String version, String target) {
 		if (target.endsWith(".tooldescriptor")) {
-			CommandLineToolDescriptor descriptor = toolRepository.findAll(moduleName).stream().filter(it -> it.getPath().getName().equals(moduleName) && it.getVersion().toString().equals(version)).findFirst().get();
+			CommandLineToolDescriptor descriptor = toolRepository.findAll(moduleName).stream().filter(it -> it.getPath().getName().equals(moduleName) && it.getVersion().equals(version)).findFirst().get();
 			return serialize(descriptor);
 		}
 		return null;
