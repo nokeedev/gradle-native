@@ -16,15 +16,17 @@ import static java.util.Objects.requireNonNull;
 final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, Callable<Object> {
 	private final Class<T> type;
 	private final ModelProjection projection;
+	@EqualsAndHashCode.Exclude private final DomainObjectIdentifier identifier;
 
 	DefaultKnownDomainObject(Class<T> type, ModelProjection projection) {
 		this.type = type;
 		this.projection = projection;
+		this.identifier = new DefaultDomainObjectIdentifier(projection);
 	}
 
 	@Override
 	public DomainObjectIdentifier getIdentifier() {
-		return new DomainObjectIdentifier() {};
+		return identifier;
 	}
 
 	@Override

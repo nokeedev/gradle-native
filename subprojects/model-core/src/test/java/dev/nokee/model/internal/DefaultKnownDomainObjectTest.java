@@ -1,11 +1,11 @@
 package dev.nokee.model.internal;
 
-import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.KnownDomainObjectTester;
-import dev.nokee.model.TestProjection;
+import dev.nokee.model.*;
+import dev.nokee.model.core.ModelProjection;
 import dev.nokee.model.graphdb.Graph;
 import lombok.val;
 import org.gradle.api.provider.Provider;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
@@ -34,5 +34,13 @@ public class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<Tes
 			() -> assertThat("returns a provider for the object",
 				((Callable<Provider<?>>) createSubject()).call(), providerOf(isA(TestProjection.class)))
 		);
+	}
+
+	@Nested
+	class DomainObjectIdentifierTest implements DomainObjectIdentifierTester {
+		@Override
+		public DomainObjectIdentifier createSubject(ModelProjection projection) {
+			return new DefaultKnownDomainObject<>(projection.getType(), projection).getIdentifier();
+		}
 	}
 }
