@@ -14,6 +14,7 @@ import static dev.nokee.utils.ConsumerTestUtils.mockConsumer;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
@@ -73,8 +74,19 @@ public interface ModelNodeGetExistingProjectionTester {
 		val knownObject = assertDoesNotThrow(() -> method.invoke(subject, "test", TestProjection.class, action));
 		assertAll(
 			() -> assertThat("returns existing projection", knownObject, is(existingProjection)),
-			() -> assertThat("does not call back when projection already exists", action, neverCalled())
+			() -> assertThat("defer projection creation", action, neverCalled())
 		);
+	}
+
+	@ParameterizedTest(name = "registers configure action on existing projection [{argumentsWithNames}]")
+	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionAction")
+	default void registersConfigureActionOnExistingProjection_StringProjectionAction(NodeMethods.IdentityProjectionAction method) {
+		val action = mockAction();
+		val subject = createSubject();
+		withExistingProjection(subject.node("test"));
+		val knownObject = method.invoke(subject, "test", TestProjection.class, action);
+		knownObject.map(it -> it).get(); // realize
+		assertThat(action, calledOnceWith(singleArgumentOf(isA(TestProjection.class))));
 	}
 
 	@ParameterizedTest(name = "can create projection [{argumentsWithNames}]")

@@ -68,6 +68,15 @@ public interface ModelNodeCreateProjectionTester {
 		);
 	}
 
+	@ParameterizedTest(name = "registers configure action on projection [{argumentsWithNames}]")
+	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionAction")
+	default void registersConfigureActionOnProjection_StringProjectionAction(NodeMethods.IdentityProjectionAction method) {
+		val action = mockAction();
+		val knownObject = method.invoke(createSubject(), "test", TestProjection.class, action);
+		knownObject.map(it -> it).get(); // realize
+		assertThat(action, calledOnceWith(singleArgumentOf(isA(TestProjection.class))));
+	}
+
 	@ParameterizedTest(name = "can create projection [{argumentsWithNames}]")
 	@MethodSource("dev.nokee.model.dsl.NodeParams#stringProjectionAction")
 	default void canCreateProjection_StringProjectionBiAction(NodeMethods.IdentityProjectionAction method) {
