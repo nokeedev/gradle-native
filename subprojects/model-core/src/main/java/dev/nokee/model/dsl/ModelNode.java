@@ -132,7 +132,7 @@ public interface ModelNode extends Named, NodePredicates {
 	 * @param <T>  the known object type
 	 * @return the known object of the specified type, never null
 	 */
-	<T> KnownDomainObject<T> projection(Class<T> type, Action<? super T> action); // TODO: action here should be passed to the registerIfAbsent for asserting existing object
+	<T> KnownDomainObject<T> projection(Class<T> type, Action<? super T> action);
 
 	/** @see #projection(Class, Action) */
 	default <T> KnownDomainObject<T> projection(Class<T> type, @ClosureParams(FirstParam.FirstGenericType.class) @DelegatesTo(target = "T", strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
