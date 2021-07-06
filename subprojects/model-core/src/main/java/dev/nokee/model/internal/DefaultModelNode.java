@@ -19,14 +19,12 @@ final class DefaultModelNode implements ModelNode {
 	static final RelationshipType PROJECTION_RELATIONSHIP_TYPE = RelationshipType.withName("PROJECTIONS");
 	@EqualsAndHashCode.Exclude private final Graph graph;
 	@EqualsAndHashCode.Include private final Node delegate;
-	@EqualsAndHashCode.Exclude private final ModelProjectionFactory projectionFactory;
-	@EqualsAndHashCode.Exclude private final ModelNodeFactory nodeFactory;
+	@EqualsAndHashCode.Exclude private final ModelFactory factory;
 
-	public DefaultModelNode(Graph graph, Node delegate) {
+	public DefaultModelNode(ModelFactory factory, Graph graph, Node delegate) {
 		this.graph = graph;
 		this.delegate = delegate;
-		this.projectionFactory = new DefaultModelProjectionFactory(graph);
-		this.nodeFactory = new DefaultModelNodeFactory(graph);
+		this.factory = factory;
 	}
 
 	@Override
@@ -39,7 +37,7 @@ final class DefaultModelNode implements ModelNode {
 //			.property("path", getPath().child(name))
 //			.property("identifier", getIdentifier().child(identity));
 		delegate.createRelationshipTo(childNode, OWNERSHIP_RELATIONSHIP_TYPE);
-		return nodeFactory.create(childNode);
+		return factory.createNode(childNode);
 	}
 
 	private static String nameOf(Object identity) {
@@ -68,7 +66,7 @@ final class DefaultModelNode implements ModelNode {
 
 	@Override
 	public Optional<ModelNode> getParent() {
-		return delegate.getSingleRelationship(OWNERSHIP_RELATIONSHIP_TYPE, Direction.INCOMING).map(it -> nodeFactory.create(it.getStartNode()));
+		return delegate.getSingleRelationship(OWNERSHIP_RELATIONSHIP_TYPE, Direction.INCOMING).map(it -> factory.createNode(it.getStartNode()));
 	}
 
 	@Override
@@ -106,13 +104,13 @@ final class DefaultModelNode implements ModelNode {
 	public Stream<ModelNode> getChildNodes() {
 		return delegate.getRelationships(Direction.OUTGOING, OWNERSHIP_RELATIONSHIP_TYPE)
 			.map(Relationship::getEndNode)
-			.map(nodeFactory::create);
+			.map(factory::createNode);
 	}
 
 	@Override
 	public Stream<ModelProjection> getProjections() {
 		return delegate.getRelationships(PROJECTION_RELATIONSHIP_TYPE)
 			.map(Relationship::getEndNode)
-			.map(projectionFactory::create);
+			.map(factory::createProjection);
 	}
 }
