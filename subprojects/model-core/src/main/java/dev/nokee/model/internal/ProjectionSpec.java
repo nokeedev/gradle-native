@@ -31,6 +31,10 @@ final class ProjectionSpec {
 		return type.cast(provider.get());
 	}
 
+	public Class<?> getType() {
+		return type;
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}

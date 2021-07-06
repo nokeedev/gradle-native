@@ -74,6 +74,11 @@ public interface ModelProjectionTester {
 		assertThat(createSubject().getOwner(), isA(ModelNode.class));
 	}
 
+	@Test
+	default void hasType() {
+		assertThat(createSubject().getType(), is(TestProjection.class));
+	}
+
 	interface BaseProjection {}
 	interface TestProjection extends BaseProjection {}
 	final class DefaultTestProjection implements TestProjection {}

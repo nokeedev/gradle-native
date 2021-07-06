@@ -66,6 +66,11 @@ final class DefaultModelProjection implements ModelProjection {
 		return delegate;
 	}
 
+	@Override
+	public Class<?> getType() {
+		return ((ProjectionSpec) delegate.getProperty("spec")).getType();
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}
