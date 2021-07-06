@@ -1,7 +1,13 @@
 package dev.nokee.runtime.base.internal.repositories;
 
-import com.google.gson.Gson;
+import dev.nokee.publishing.internal.metadata.GradleModuleMetadata;
+import dev.nokee.publishing.internal.metadata.GradleModuleMetadataWriter;
+import lombok.val;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -50,7 +56,13 @@ public abstract class AbstractRouteHandler implements RouteHandler {
 		}
 
 		if (target.endsWith(".module")) {
-			return Optional.of(new StringResponse(new Gson().toJson(getResourceMetadata(moduleName, version))));
+			val outStream = new ByteArrayOutputStream();
+			try (val writer = new GradleModuleMetadataWriter(new OutputStreamWriter(outStream))) {
+				writer.write(getResourceMetadata(moduleName, version));
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
+			return Optional.of(new StringResponse(outStream.toString()));
 		}
 		String result = handle(moduleName, version, target);
 		if (result != null) {
