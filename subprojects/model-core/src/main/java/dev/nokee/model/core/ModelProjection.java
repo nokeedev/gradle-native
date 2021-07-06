@@ -17,6 +17,8 @@ public interface ModelProjection {
 
 	<T> void whenRealized(Class<T> type, Action<? super T> action);
 
+	Class<?> getType();
+
 	interface Builder {
 		Builder type(Class<?> type);
 
