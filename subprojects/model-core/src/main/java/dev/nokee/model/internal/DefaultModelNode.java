@@ -17,10 +17,12 @@ final class DefaultModelNode implements ModelNode {
 	static final RelationshipType PROJECTION_RELATIONSHIP_TYPE = RelationshipType.withName("PROJECTIONS");
 	@EqualsAndHashCode.Exclude private final Graph graph;
 	@EqualsAndHashCode.Include private final Node delegate;
+	@EqualsAndHashCode.Exclude private final ModelProjectionFactory projectionFactory;
 
 	public DefaultModelNode(Graph graph, Node delegate) {
 		this.graph = graph;
 		this.delegate = delegate;
+		this.projectionFactory = new DefaultModelProjectionFactory(graph);
 	}
 
 	@Override
@@ -104,6 +106,6 @@ final class DefaultModelNode implements ModelNode {
 	public Stream<ModelProjection> getProjections() {
 		return delegate.getRelationships(PROJECTION_RELATIONSHIP_TYPE)
 			.map(Relationship::getEndNode)
-			.map(it -> new DefaultModelProjection(graph, it));
+			.map(projectionFactory::create);
 	}
 }
