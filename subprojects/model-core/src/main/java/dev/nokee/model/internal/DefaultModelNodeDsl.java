@@ -21,12 +21,13 @@ import java.util.function.Predicate;
 final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode {
 	private final NamedDomainObjectRegistry registry;
 	@EqualsAndHashCode.Include private final dev.nokee.model.core.ModelNode delegate;
-//	private final NamedDomainObjectFactory<Object> factory = null;
+	@EqualsAndHashCode.Exclude private final ModelNodeFactory factory;
 	@EqualsAndHashCode.Exclude private final GroovyDslSupport dslSupport;
 
-	public DefaultModelNodeDsl(NamedDomainObjectRegistry registry, dev.nokee.model.core.ModelNode delegate) {
+	public DefaultModelNodeDsl(NamedDomainObjectRegistry registry, dev.nokee.model.core.ModelNode delegate, ModelNodeFactory factory) {
 		this.registry = registry;
 		this.delegate = delegate;
+		this.factory = factory;
 		this.dslSupport = GroovyDslSupport.builder()
 			.metaClass(getMetaClass())
 			.whenInvokeMethod(this::node)
@@ -78,7 +79,7 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 	private ModelNode getOrCreateChildNode(Object identity) {
 		// TODO: Assert identity is same or less info than selected node's identity:
 		//  because if node was created with a String but trying to reference using machines.host... the identity has less information so we may be facing an out-of-order access.
-		return new DefaultModelNodeDsl(registry, delegate.getChildNodes().filter(ofName(identity)).findFirst().orElseGet(() -> delegate.newChildNode(identity)));
+		return factory.create(delegate.getChildNodes().filter(ofName(identity)).findFirst().orElseGet(() -> delegate.newChildNode(identity)));
 	}
 
 	private static Predicate<dev.nokee.model.core.ModelNode> ofName(Object identity) {

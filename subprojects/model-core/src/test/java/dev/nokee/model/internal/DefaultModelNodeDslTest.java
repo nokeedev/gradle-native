@@ -12,6 +12,7 @@ class DefaultModelNodeDslTest implements ModelNodeTester, ModelNodeCreateChildNo
 	public ModelNode createSubject() {
 		val graph = Graph.builder().build();
 		val container = objectFactory().domainObjectContainer(TestProjection.class);
-		return new DefaultModelNodeDsl(new DefaultNamedDomainObjectRegistry().registerContainer(new NamedDomainObjectContainerRegistry.NamedContainerRegistry<>(container)), new DefaultModelNode(graph, graph.createNode()));
+		val registry = new DefaultNamedDomainObjectRegistry().registerContainer(new NamedDomainObjectContainerRegistry.NamedContainerRegistry<>(container));
+		return new DefaultModelNodeDslFactory(registry).create(new DefaultModelFactory(graph).createNode(graph.createNode()));
 	}
 }
