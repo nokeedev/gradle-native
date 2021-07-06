@@ -1,0 +1,17 @@
+plugins {
+	id 'java-library'
+	id 'maven-publish'
+}
+
+dependencies {
+	compileOnly gradleApi(minimumGradleVersion)
+	implementation 'com.google.code.gson:gson:2.8.6'
+}
+
+publishing {
+	publications {
+		library(MavenPublication) {
+			from components.java
+		}
+	}
+}

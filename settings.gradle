@@ -107,6 +107,10 @@ include 'platformJni'
 project(':platformJni').projectDir = file('subprojects/platform-jni')
 project(':platformJni').buildFileName = 'platform-jni.gradle'
 
+include 'publishingCore'
+project(':publishingCore').projectDir = file('subprojects/publishing-core')
+project(':publishingCore').buildFileName = 'publishing-core.gradle'
+
 include 'runtimeBase'
 project(':runtimeBase').projectDir = file('subprojects/runtime-base')
 project(':runtimeBase').buildFileName = 'runtime-base.gradle'
