@@ -17,7 +17,7 @@ public interface NodeLabelTester {
 
 	@Test
 	default void newNodeHasNoLabel() {
-		assertThat(createSubject().getLabels().count(), is(0));
+		assertThat(createSubject().getLabels().count(), is(0L));
 	}
 
 	@Test
