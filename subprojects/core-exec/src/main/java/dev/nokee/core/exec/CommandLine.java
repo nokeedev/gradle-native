@@ -50,7 +50,8 @@ public interface CommandLine {
 
 	/**
 	 * Convenience for {@code newInvocation().build().submit(engine)}.
-	 * @param engine the executing engine to use, cannot be null
+	 * @param engine  the executing engine to use, cannot be null
+	 * @param <T>  the execution handle type
 	 * @return a {@link CommandLineToolExecutionHandle} representing the execution in progress, never null.
 	 */
 	<T extends CommandLineToolExecutionHandle> T execute(CommandLineToolExecutionEngine<T> engine);

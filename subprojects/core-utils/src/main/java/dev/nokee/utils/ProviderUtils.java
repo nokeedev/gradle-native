@@ -32,7 +32,7 @@ public final class ProviderUtils {
 	 * Creates a Gradle {@link Provider} provided by the specified callable without a {@link org.gradle.api.provider.ProviderFactory}.
 	 *
 	 * @param callable a value provider
-	 * @param <T> the type of the value.
+	 * @param <T>  the type of object provided
 	 * @return a {@link Provider} instance of the specified callable provider.
 	 */
 	public static <T> Provider<T> supplied(Callable<T> callable) {
@@ -43,6 +43,7 @@ public final class ProviderUtils {
 	 * Returned an undefined provider.
 	 * It will always return null, throw an exception on get and returns false when querying for presence.
 	 *
+	 * @param <T>  the type of object provided
 	 * @return a {@link Provider} instance without any value.
 	 */
 	public static <T> Provider<T> notDefined() {
@@ -53,7 +54,7 @@ public final class ProviderUtils {
 	 * Returns the object type provided by the Gradle provider.
 	 *
 	 * @param self the provider to query the provided type.
-	 * @param <T> the type of object provided
+	 * @param <T>  the type of object provided
 	 * @return a class representing the object type provided by the provider, or null if we can't figure it out.
 	 */
 	public static <T> Optional<Class<T>> getType(Provider<T> self) {
