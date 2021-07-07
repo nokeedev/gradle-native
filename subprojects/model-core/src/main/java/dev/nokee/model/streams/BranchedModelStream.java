@@ -37,13 +37,13 @@ import java.util.function.Predicate;
  *
  * For example:
  * <code>
- * Map<String, ModelStream<...>> result =
+ * Map&lt;String, ModelStream&lt;...&gt;&gt; result =
  *   source.split()
- *     .branch(predicate1, Branched.as("bar"))							// "bar": a name is provided
- *     .branch(predicate2, Branched.withConsumer(s->s.forEach(...))) 	// "2": name defaults to branch position for the stream passed to the consumer
- *     .branch(predicate3, Branched.withFunction(s->null))           	// no entry: chain function returns null
- *     .branch(predicate4)											 	// "4": name defaults to branch position
- *     .defaultBranch()													// "0": "0" is the default name for the default branch
+ *     .branch(predicate1, Branched.as("bar"))								// "bar": a name is provided
+ *     .branch(predicate2, Branched.withConsumer(s -&gt; s.forEach(...))) 	// "2": name defaults to branch position for the stream passed to the consumer
+ *     .branch(predicate3, Branched.withFunction(s -&gt; null))           	// no entry: chain function returns null
+ *     .branch(predicate4)											 		// "4": name defaults to branch position
+ *     .defaultBranch()														// "0": "0" is the default name for the default branch
  * </code>
  *
  * <h2><a name="examples">Usage examples</a></h2>
@@ -55,9 +55,9 @@ import java.util.function.Predicate;
  *
  * <code>
  * stream.split()
- * 		.branch(predicate1, Branched.withConsumer(s -> s.forEach(...))
- * 		.branch(predicate2, Branched.withConsumer(s -> s.forEach(...))
- * 		.defaultBranch(Branched.withConsumer(s -> s.forEach(...))
+ * 		.branch(predicate1, Branched.withConsumer(s -&gt; s.forEach(...))
+ * 		.branch(predicate2, Branched.withConsumer(s -&gt; s.forEach(...))
+ * 		.defaultBranch(Branched.withConsumer(s -&gt; s.forEach(...))
  * </code>
  *
  * <h3>Collecting branches in a single scope</h3>
@@ -66,12 +66,12 @@ import java.util.function.Predicate;
  * The map returned by {@link #defaultBranch(Branched)} or {@link #noDefaultBranch()} methods provides access to all the branches in the same scope:
  *
  * <code>
- * Map<String, ModelStream> branches = stream.split()
- * 		.branch(isDebugBinaries(), Branched.withFunction(s -> s.map(toLinkedFile()).withName("debug"))
+ * Map&lt;String, ModelStream&gt; branches = stream.split()
+ * 		.branch(isDebugBinaries(), Branched.withFunction(s -&gt; s.map(toLinkedFile()).withName("debug"))
  * 		.defaultBranch(Branched.as("release"))
  *
- * Provider<List> debugBinaries = branches.get("debug").collect(Collectors.toList())
- * Provider<List> releaseBinaries = branches.get("release").collect(Collectors.toList())
+ * Provider&lt;List&gt; debugBinaries = branches.get("debug").collect(Collectors.toList())
+ * Provider&lt;List&gt; releaseBinaries = branches.get("release").collect(Collectors.toList())
  * </code>
  *
  * <h3>Dynamic branching</h3>
@@ -81,7 +81,7 @@ import java.util.function.Predicate;
  * <code>
  *  BranchedModelStream branched = stream.split();
  *  for (BuildType buildType : BuildType.values())
- *      branched.branch(it -> it.getBuildType() == buildType,
+ *      branched.branch(it -&gt; it.getBuildType() == buildType,
  *          Branched.withConsumer(buildType::processBinaries));
  * </code>
  *
@@ -94,7 +94,7 @@ import java.util.function.Predicate;
 public interface BranchedModelStream<T> {
 	/**
 	 * Define a branch for records that match the predicate.
-	 * The branch name will default to its index within the branch definition, see <rules of forming branch>.
+	 * The branch name will default to its index within the branch definition, see <a href="#maprules">rules of forming branch</a>.
 	 *
 	 * @param predicate  A {@link Predicate} instance, against which each element will be evaluated.
 	 *                   If this predicate returns {@code true} for a given element, the element will be routed to the current branch and will not be evaluated against the predicates for the remaining branches.

@@ -19,4 +19,6 @@ public class PropertyChangedEvent {
 	public Entity getEntity() {
 		return graph.getEntityById(entityId);
 	}
+
+	public static final class Builder {}
 }

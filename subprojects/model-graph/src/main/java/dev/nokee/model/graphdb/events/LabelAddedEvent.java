@@ -16,4 +16,6 @@ public class LabelAddedEvent {
 	public Node getNode() {
 		return graph.getNodeById(nodeId);
 	}
+
+	public static final class Builder {}
 }
