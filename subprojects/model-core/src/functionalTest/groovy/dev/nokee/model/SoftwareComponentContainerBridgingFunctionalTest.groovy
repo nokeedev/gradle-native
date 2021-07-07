@@ -60,6 +60,7 @@ class SoftwareComponentContainerBridgingFunctionalTest extends AbstractModelBase
 
 	private static String declareSoftwareComponentFactoryProvider() {
 		return '''
+			import javax.inject.Inject
 			class SoftwareComponentFactoryProvider {
 				private final SoftwareComponentFactory factory
 
