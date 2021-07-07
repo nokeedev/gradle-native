@@ -12,6 +12,7 @@ import dev.nokee.platform.nativebase.internal.ConfigurationUtils
 import dev.nokee.runtime.darwin.internal.DarwinLibraryElements
 import dev.nokee.runtime.darwin.internal.locators.XcodebuildLocator
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin
+import dev.nokee.runtime.nativebase.MachineArchitecture
 import dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes
 import spock.lang.Ignore
 import spock.lang.Requires
@@ -157,11 +158,17 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 			import ${ConfigurationUtils.canonicalName}
 			import ${DarwinLibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
+			import ${MachineArchitecture.canonicalName}
 
 			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
 
 			configurations {
 				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())
+				framework {
+					attributes {
+						attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, MachineArchitecture.X86_64))
+					}
+				}
 			}
 
 			dependencies {
@@ -199,11 +206,17 @@ Required by:
 			import ${ConfigurationUtils.canonicalName}
 			import ${DarwinLibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
+			import ${MachineArchitecture.canonicalName}
 
 			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
 
 			configurations {
 				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())
+				framework {
+					attributes {
+						attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, MachineArchitecture.X86_64))
+					}
+				}
 			}
 
 			dependencies {
@@ -242,11 +255,17 @@ Searched in the following locations:
 			import ${ConfigurationUtils.canonicalName}
 			import ${DarwinLibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
+			import ${MachineArchitecture.canonicalName}
 
 			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
 
 			configurations {
 				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())
+				framework {
+					attributes {
+						attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, MachineArchitecture.X86_64))
+					}
+				}
 			}
 
 			dependencies {
@@ -286,11 +305,17 @@ Searched in the following locations:
 			import ${Files.canonicalName}
 			import ${DarwinLibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
+			import ${MachineArchitecture.canonicalName}
 
 			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
 
 			configurations {
 				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())
+				framework {
+					attributes {
+						attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, MachineArchitecture.X86_64))
+					}
+				}
 			}
 
 			dependencies {
@@ -323,11 +348,17 @@ Searched in the following locations:
 			import ${Files.canonicalName}
 			import ${DarwinLibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
+			import ${MachineArchitecture.canonicalName}
 
 			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
 
 			configurations {
 				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())
+				framework {
+					attributes {
+						attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, MachineArchitecture.X86_64))
+					}
+				}
 			}
 
 			dependencies {
@@ -362,11 +393,17 @@ Searched in the following locations:
 			import ${Files.canonicalName}
 			import ${DarwinLibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
+			import ${MachineArchitecture.canonicalName}
 
 			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
 
 			configurations {
 				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())
+				framework {
+					attributes {
+						attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, MachineArchitecture.X86_64))
+					}
+				}
 			}
 
 			dependencies {
@@ -408,11 +445,17 @@ Searched in the following locations:
 			import ${Files.canonicalName}
 			import ${DarwinLibraryElements.canonicalName}
 			import ${ArtifactSerializationTypes.canonicalName}
+			import ${MachineArchitecture.canonicalName}
 
 			apply plugin: ${DarwinFrameworkResolutionSupportPlugin.name}
 
 			configurations {
 				create('framework', objects.newInstance(${ConfigurationUtils.name}).asIncomingHeaderSearchPath())
+				framework {
+					attributes {
+						attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, MachineArchitecture.X86_64))
+					}
+				}
 			}
 
 			dependencies {

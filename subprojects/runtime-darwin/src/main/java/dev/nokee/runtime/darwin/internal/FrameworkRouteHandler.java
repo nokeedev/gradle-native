@@ -8,12 +8,14 @@ import dev.nokee.publishing.internal.metadata.GradleModuleMetadata;
 import dev.nokee.runtime.base.internal.repositories.AbstractRouteHandler;
 import dev.nokee.runtime.base.internal.tools.CommandLineToolDescriptor;
 import dev.nokee.runtime.base.internal.tools.ToolRepository;
+import dev.nokee.runtime.darwin.internal.parsers.TextAPI;
+import dev.nokee.runtime.darwin.internal.parsers.TextAPIReader;
 import dev.nokee.runtime.darwin.internal.parsers.XcodebuildParsers;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
+import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import lombok.val;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
-import org.gradle.nativeplatform.OperatingSystemFamily;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -39,10 +41,6 @@ import static org.apache.commons.io.FilenameUtils.removeExtension;
 public class FrameworkRouteHandler extends AbstractRouteHandler {
 	private static final Logger LOGGER = Logger.getLogger(FrameworkRouteHandler.class.getName());
 	public static final String CONTEXT_PATH = "/dev/nokee/framework";
-	private static final Map<String, Object> CURRENT_PLATFORM_ATTRIBUTES = ImmutableMap.<String, Object>builder()
-		.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE.getName(), OperatingSystemFamily.MACOS)
-		.put(MachineArchitecture.ARCHITECTURE_ATTRIBUTE.getName(), MachineArchitecture.X86_64)
-		.build();
 	private final ToolRepository toolRepository;
 	private final CommandLineToolExecutionEngine<CachingProcessBuilderEngine.Handle> engine = new CachingProcessBuilderEngine(LoggingEngine.wrap(new ProcessBuilderEngine()));
 
@@ -139,15 +137,45 @@ public class FrameworkRouteHandler extends AbstractRouteHandler {
 		val builder = GradleModuleMetadata.builder();
 		builder.formatVersion("1.1");
 		builder.component(ofComponent("dev.nokee.framework", frameworkName, version, singletonList(ofAttribute("org.gradle.status", "release"))));
-		builder.localVariant(framework("default", frameworkPath, ImmutableList.of()));
-		builder.localVariant(runtimeEntry("default", ImmutableList.of()));
+
+		forEachSupportedArchitectures(frameworkPath, supportedArchitecture -> {
+			builder.localVariant(framework("default" + supportedArchitecture, frameworkPath, ImmutableList.of(), platformAttributes(supportedArchitecture)));
+			builder.localVariant(runtimeEntry("default" + supportedArchitecture, ImmutableList.of(), platformAttributes(supportedArchitecture)));
+		});
 
 		findSubFrameworks(frameworkPath).forEach(it -> {
-			builder.localVariant(framework(frameworkName(it), it, toCapabilities(frameworkName, it)));
-			builder.localVariant(runtimeEntry(frameworkName(it), toCapabilities(frameworkName, it)));
+			forEachSupportedArchitectures(it, supportedArchitecture -> {
+				builder.localVariant(framework(frameworkName(it) + supportedArchitecture, it, toCapabilities(frameworkName, it), platformAttributes(supportedArchitecture)));
+				builder.localVariant(runtimeEntry(frameworkName(it) + supportedArchitecture, toCapabilities(frameworkName, it), platformAttributes(supportedArchitecture)));
+			});
 		});
 
 		return builder.build();
+	}
+
+	private static void forEachSupportedArchitectures(Path frameworkPath, Consumer<? super String> action) {
+		List<String> supportedArchitectures = ImmutableList.of(MachineArchitecture.X86_64);
+		val tbdPath = frameworkPath.resolve(frameworkName(frameworkPath) + ".tbd");
+		if (Files.exists(tbdPath)) {
+			try {
+				val tbd = TextAPI.read(tbdPath);
+				supportedArchitectures = tbd.getTargets().stream().filter(it -> "macos".equals(it.getOperatingSystem())).map(TextAPI.Target::getArchitecture).collect(ImmutableList.toImmutableList());
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
+		}
+
+		supportedArchitectures.forEach(action);
+	}
+
+	private static Map<String, Object> platformAttributes(String architecture) {
+		val canonicalArchitecture = MachineArchitecture.forName(architecture).getCanonicalName();
+		return ImmutableMap.<String, Object>builder()
+			.put(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE.getName(), OperatingSystemFamily.MACOS)
+			.put(org.gradle.nativeplatform.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE.getName(), org.gradle.nativeplatform.OperatingSystemFamily.MACOS)
+			.put(MachineArchitecture.ARCHITECTURE_ATTRIBUTE.getName(), canonicalArchitecture)
+			.put(org.gradle.nativeplatform.MachineArchitecture.ARCHITECTURE_ATTRIBUTE.getName(), canonicalArchitecture)
+			.build();
 	}
 
 	private static String frameworkName(Path frameworkPath) {
@@ -156,7 +184,7 @@ public class FrameworkRouteHandler extends AbstractRouteHandler {
 
 	private static final String FRAMEWORK_USAGE = Usage.C_PLUS_PLUS_API + "+" + Usage.NATIVE_LINK;
 
-	private static Consumer<GradleModuleMetadata.LocalVariant.Builder> framework(String name, Path frameworkPath, List<GradleModuleMetadata.Capability> capabilities) {
+	private static Consumer<GradleModuleMetadata.LocalVariant.Builder> framework(String name, Path frameworkPath, List<GradleModuleMetadata.Capability> capabilities, Map<String, Object> platformAttributes) {
 		return builder -> {
 			builder.name(name);
 			builder.file(it -> it.name(frameworkPath.getFileName().toString() + ".localpath")
@@ -166,17 +194,17 @@ public class FrameworkRouteHandler extends AbstractRouteHandler {
 				.md5(Hashing.md5().hashString(frameworkPath.toString(), Charset.defaultCharset()).toString()));
 			builder.attribute(ofAttribute("org.gradle.usage", FRAMEWORK_USAGE))
 				.attribute(ofAttribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE.getName(), DarwinLibraryElements.FRAMEWORK_BUNDLE));
-			CURRENT_PLATFORM_ATTRIBUTES.entrySet().forEach(it -> builder.attribute(ofAttribute(it.getKey(), it.getValue())));
+			platformAttributes.entrySet().forEach(it -> builder.attribute(ofAttribute(it.getKey(), it.getValue())));
 			capabilities.forEach(builder::capability);
 		};
 	}
 
-	private static Consumer<GradleModuleMetadata.LocalVariant.Builder> runtimeEntry(String name, List<GradleModuleMetadata.Capability> capabilities) {
+	private static Consumer<GradleModuleMetadata.LocalVariant.Builder> runtimeEntry(String name, List<GradleModuleMetadata.Capability> capabilities, Map<String, Object> platformAttributes) {
 		return builder -> {
 			builder.name(name + "Runtime");
 			builder.attribute(ofAttribute("org.gradle.usage", Usage.NATIVE_RUNTIME))
 				.attribute(ofAttribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE.getName(), DarwinLibraryElements.FRAMEWORK_BUNDLE));
-			CURRENT_PLATFORM_ATTRIBUTES.entrySet().forEach(it -> builder.attribute(ofAttribute(it.getKey(), it.getValue())));
+			platformAttributes.entrySet().forEach(it -> builder.attribute(ofAttribute(it.getKey(), it.getValue())));
 			capabilities.forEach(builder::capability);
 		};
 	}
