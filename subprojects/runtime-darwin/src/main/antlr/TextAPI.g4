@@ -28,7 +28,7 @@ reexportedLibrariesEntry: '-' reexportedLibrariesTargets reexportedLibrariesLibr
 reexportedLibrariesTargets: 'targets:' array;
 reexportedLibrariesLibraries: 'libraries:' array;
 
-version: VERSION;
+version: VERSION | NUMBER;
 
 START_ARRAY: '[';
 ARRAY_COMMA: ',' ' '?;
