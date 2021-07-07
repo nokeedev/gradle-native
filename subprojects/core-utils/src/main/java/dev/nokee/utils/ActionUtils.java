@@ -18,6 +18,7 @@ public final class ActionUtils {
 	/**
 	 * Creates an action implementation that simply does nothing.
 	 *
+	 * @param <T> the type of the executing objects.
 	 * @return an action object with an empty implementation, never null.
 	 */
 	@SuppressWarnings("unchecked")

@@ -110,6 +110,7 @@ public final class SpecUtils {
 	/**
 	 * Returns a specification that always evaluates to true.
 	 *
+	 * @param <T>  the type of the input to the spec
 	 * @return a {@link Spec} that always evaluates to true, never null.
 	 */
 	public static <T> Spec<T> satisfyAll() {
@@ -119,6 +120,7 @@ public final class SpecUtils {
 	/**
 	 * Returns a specification that always evaluates to false.
 	 *
+	 * @param <T>  the type of the input to the spec
 	 * @return a {@link Spec} that always evaluates to false, never null.
 	 */
 	public static <T> Spec<T> satisfyNone() {

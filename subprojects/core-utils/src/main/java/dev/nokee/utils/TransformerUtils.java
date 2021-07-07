@@ -188,6 +188,7 @@ public final class TransformerUtils {
 	 * @param mapper  an element mapper
 	 * @param <OUT>  output element type resulting from the transform
 	 * @param <IN>  input element type to transform
+	 * @param <T>  input iterable type
 	 * @return a {@link Transformer} instance to flat transform each the element of an iterable, never null.
 	 */
 	public static <OUT, IN, T extends Iterable<? extends IN>> Transformer<Iterable<OUT>, T> flatTransformEach(org.gradle.api.Transformer<? extends Iterable<OUT>, ? super IN> mapper) {
@@ -225,6 +226,7 @@ public final class TransformerUtils {
 	 * @param mapper  an element mapper
 	 * @param <OUT>  output element type resulting from the transform
 	 * @param <IN>  input element type to transform
+	 * @param <T>  input iterable type
 	 * @return a {@link Transformer} instance to transform each the element of an iterable, never null.
 	 */
 	public static <OUT, IN, T extends Iterable<? extends IN>> Transformer<Iterable<OUT>, T> transformEach(org.gradle.api.Transformer<? extends OUT, ? super IN> mapper) {
@@ -328,7 +330,8 @@ public final class TransformerUtils {
 	 * The result will apply a filter algorithm to the provided collection.
 	 *
 	 * @param spec  a filter spec, must not be null
-	 * @param <T>  element type to match
+	 * @param <T>  input iterable type
+	 * @param <E>  element type to match
 	 * @return a {@link org.gradle.api.Transformer} instance to match the element of an iterable, never null.
 	 */
 	public static <E, T extends Iterable<? extends E>> TransformerUtils.Transformer<Iterable<E>, T> matching(Spec<? super E> spec) {

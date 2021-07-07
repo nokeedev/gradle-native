@@ -20,6 +20,9 @@ public final class DeferredUtils {
 	/**
 	 * Successively unpacks a deferred value until it is resolved to null or something other than Callable (including Groovy Closure) or Kotlin lambda or Supplier
 	 * then unpacks the remaining Provider or Factory.
+	 *
+	 * @param deferred  the deferred object to unpack, may be null
+	 * @return the unpacked object
 	 */
 	@Nullable
 	public static Object unpack(@Nullable Object deferred) {
