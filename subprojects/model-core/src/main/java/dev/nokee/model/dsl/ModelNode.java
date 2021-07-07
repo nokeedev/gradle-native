@@ -146,17 +146,17 @@ public interface ModelNode extends Named, NodePredicates {
 	 * <pre>
 	 * nokee.model {
 	 *     // Configures component and variant source sets
-	 *     main.all(descendants(ofType(LanguageSourceSet))) { node, knownSourceSet ->
+	 *     main.all(descendants(ofType(LanguageSourceSet))) { node, knownSourceSet -&gt;
 	 *         // ...
 	 *     }
 	 *
 	 *     // Configures only component source sets
-	 *     main.all(directChildren(ofType(LanguageSourceSet))) { node, knownSourceSet ->
+	 *     main.all(directChildren(ofType(LanguageSourceSet))) { node, knownSourceSet -&gt;
 	 *         // ...
 	 *     }
 	 *
 	 *     // Configures all component's known objects
-	 *     main.all(descendants()) { node, knownObject ->
+	 *     main.all(descendants()) { node, knownObject -&gt;
 	 *     	   // ...
 	 *     	   // Note: there may be many invocation for the same node
 	 *     }
@@ -190,9 +190,13 @@ public interface ModelNode extends Named, NodePredicates {
 	 * <pre>
 	 * nokee.model {
 	 *     // Query all source directories
-	 *     Provider<Iterable<FileTree>> sourceFiles = main.all(descendants(ofType(LanguageSourceSet))).map { it*.asFileTree }
+	 *     Provider&lt;Iterable&lt;FileTree&gt;&gt; sourceFiles = main.all(descendants(ofType(LanguageSourceSet))).map { it*.asFileTree }
 	 * }
 	 * </pre>
+	 *
+	 * @param predicate  the predicate to match model projection, must not be null
+	 * @param <T>  the objects type
+	 * @return a provider of objects matching the predicate, never null
 	 */
 	<T> Provider<? extends Iterable<T>> all(NodePredicate<T> predicate);
 }

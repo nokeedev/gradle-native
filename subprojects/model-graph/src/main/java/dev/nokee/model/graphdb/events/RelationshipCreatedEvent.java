@@ -14,4 +14,6 @@ public class RelationshipCreatedEvent {
 	public Relationship getRelationship() {
 		return graph.getRelationshipById(relationshipId);
 	}
+
+	public static final class Builder {}
 }

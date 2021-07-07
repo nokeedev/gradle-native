@@ -29,7 +29,7 @@ public interface KnownDomainObject<T> {
 	/**
 	 * Returns the known object type.
 	 *
-	 * @return the known objec type, never null
+	 * @return the known object type, never null
 	 */
 	Class<T> getType();
 
@@ -38,6 +38,7 @@ public interface KnownDomainObject<T> {
 	 * Actions are run in the order added.
 	 *
 	 * @param action  a {@link Action} that can configure the known object when required, must not be null
+	 * @return this known object, never null
 	 */
 	KnownDomainObject<T> configure(Action<? super T> action);
 
