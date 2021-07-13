@@ -1,8 +1,6 @@
 package dev.nokee.model.dsl;
 
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.core.NodePredicate;
-import dev.nokee.model.core.NodePredicates;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import groovy.transform.stc.ClosureParams;

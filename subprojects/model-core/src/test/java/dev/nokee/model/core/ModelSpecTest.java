@@ -4,7 +4,6 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static dev.nokee.model.core.ModelNodeTestUtils.specOf;
 import static dev.nokee.utils.Cast.uncheckedCast;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -91,6 +90,25 @@ class ModelSpecTest implements ModelSpecTester<Object> {
 			@Override
 			public Class<Object> getProjectionType() {
 				return Object.class;
+			}
+		};
+	}
+
+	private static <T> ModelSpec<T> specOf(Class<T> type) {
+		return new ModelSpec<T>() {
+			@Override
+			public boolean isSatisfiedBy(ModelProjection node) {
+				return true;
+			}
+
+			@Override
+			public Class<T> getProjectionType() {
+				return type;
+			}
+
+			@Override
+			public String toString() {
+				return "test spec for '" + type.getCanonicalName() + "'";
 			}
 		};
 	}

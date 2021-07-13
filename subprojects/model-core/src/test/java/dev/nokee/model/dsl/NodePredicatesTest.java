@@ -1,14 +1,15 @@
-package dev.nokee.model.core;
+package dev.nokee.model.dsl;
 
 import dev.nokee.internal.testing.Assumptions;
+import dev.nokee.model.core.*;
 import lombok.val;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static dev.nokee.model.core.ModelNodeTestUtils.*;
-import static dev.nokee.model.core.ModelNodeTestUtils.projectionOf;
-import static dev.nokee.model.core.NodePredicates.*;
+import static dev.nokee.model.dsl.ModelNodeTestUtils.*;
+import static dev.nokee.model.dsl.ModelNodeTestUtils.projectionOf;
+import static dev.nokee.model.dsl.NodePredicates.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 import static org.hamcrest.Matchers.is;
@@ -130,13 +131,13 @@ class NodePredicatesTest {
 			}
 		}
 
-		/** @see dev.nokee.model.core.NodePredicateTester#hasProjectionTypeOfUnderlyingSpec() */
+		/** @see NodePredicateTester#hasProjectionTypeOfUnderlyingSpec() */
 		@Test
 		void projectionTypeFromPredicate() {
 			assertThat(NodePredicates.ofType(String.class).scope(rootNode()).getProjectionType(), is(String.class));
 		}
 
-		/** @see dev.nokee.model.core.NodePredicateAllTester#returnsSpecResultWhenProjectionIsInScope() */
+		/** @see NodePredicateAllTester#returnsSpecResultWhenProjectionIsInScope() */
 		@Test
 		void returnsSpecSatisfiedBy() {
 			val ancestor = rootNode();

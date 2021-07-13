@@ -1,5 +1,8 @@
-package dev.nokee.model.core;
+package dev.nokee.model.dsl;
 
+import dev.nokee.model.core.ModelNode;
+import dev.nokee.model.core.ModelProjection;
+import dev.nokee.model.core.ModelSpec;
 import lombok.val;
 import org.gradle.api.specs.Spec;
 import org.mockito.Mockito;
@@ -11,14 +14,14 @@ import static org.mockito.ArgumentMatchers.any;
 final class ModelNodeTestUtils {
 	private ModelNodeTestUtils() {}
 
-	public static ModelNode rootNode() {
-		val result = Mockito.mock(ModelNode.class);
+	public static dev.nokee.model.core.ModelNode rootNode() {
+		val result = Mockito.mock(dev.nokee.model.core.ModelNode.class);
 		Mockito.when(result.getParent()).thenReturn(Optional.empty());
 		return result;
 	}
 
-	public static ModelNode childNodeOf(ModelNode node) {
-		val result = Mockito.mock(ModelNode.class);
+	public static dev.nokee.model.core.ModelNode childNodeOf(dev.nokee.model.core.ModelNode node) {
+		val result = Mockito.mock(dev.nokee.model.core.ModelNode.class);
 		Mockito.when(result.getParent()).thenReturn(Optional.of(node));
 		return result;
 	}

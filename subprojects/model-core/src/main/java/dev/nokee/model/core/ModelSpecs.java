@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-final class ModelSpecs {
+public final class ModelSpecs {
 	public static <S> ModelSpec<S> and(ModelSpec<? super S> first, ModelSpec<S> second) {
 		if (first.equals(second)) {
 			return second;

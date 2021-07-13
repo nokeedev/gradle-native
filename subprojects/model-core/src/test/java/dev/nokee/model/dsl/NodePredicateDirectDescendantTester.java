@@ -1,9 +1,10 @@
-package dev.nokee.model.core;
+package dev.nokee.model.dsl;
 
+import dev.nokee.model.core.ModelProjection;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.model.core.ModelNodeTestUtils.*;
+import static dev.nokee.model.dsl.ModelNodeTestUtils.*;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.calledOnceWith;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static dev.nokee.utils.SpecTestUtils.mockSpec;
