@@ -12,7 +12,12 @@ class ModelBasePluginSettingsFunctionalTest extends AbstractModelBasePluginFunct
 	}
 
 	@Override
-	protected File getBuildscriptFile() {
+	protected String getScriptDslDelegate() {
+		return 'settings'
+	}
+
+	@Override
+	protected File getBuildScriptFile() {
 		return settingsFile
 	}
 }

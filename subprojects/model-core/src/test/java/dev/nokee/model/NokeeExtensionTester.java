@@ -15,7 +15,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-public interface NokeeExtensionTester {
+public interface NokeeExtensionTester extends ConfigurableTester<NokeeExtension> {
 	NokeeExtension createSubject();
 
 	@Test
