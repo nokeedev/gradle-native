@@ -1,6 +1,8 @@
 package dev.nokee.model
 
-class SoftwareComponentContainerBridgingFunctionalTest extends AbstractModelBasePluginFunctionalTest {
+import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
+
+class SoftwareComponentContainerBridgingFunctionalTest extends AbstractGradleSpecification implements ModelBasePluginSpec {
 	def "registers SoftwareComponent domain object from other plugins in the model"() {
 		buildFile << applyModelBasePlugin() << '''
 			apply plugin: 'java'

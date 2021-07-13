@@ -1,6 +1,8 @@
 package dev.nokee.model
 
-class TaskContainerBridgingFunctionalTest extends AbstractModelBasePluginFunctionalTest {
+import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
+
+class TaskContainerBridgingFunctionalTest extends AbstractGradleSpecification implements ModelBasePluginSpec {
 	def "registers Task domain object from other plugins in the model"() {
 		buildFile << applyModelBasePlugin() << '''
 			apply plugin: 'lifecycle-base'

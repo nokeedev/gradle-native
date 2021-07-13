@@ -1,6 +1,8 @@
 package dev.nokee.model
 
-class ConfigurationContainerBridgingFunctionalTest extends AbstractModelBasePluginFunctionalTest {
+import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
+
+class ConfigurationContainerBridgingFunctionalTest extends AbstractGradleSpecification implements ModelBasePluginSpec {
 	def "registers Configuration domain object from other plugins in the model"() {
 		buildFile << applyModelBasePlugin() << '''
 			apply plugin: 'java'
