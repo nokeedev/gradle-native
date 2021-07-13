@@ -1,16 +1,6 @@
 package dev.nokee.model
 
 class ModelBasePluginProjectFunctionalTest extends AbstractModelBasePluginFunctionalTest {
-	def "registers nokee extension"() {
-		buildFile << applyModelBasePlugin() << '''
-			assert nokee instanceof NokeeExtension
-			assert nokee.modelRegistry instanceof ModelRegistry
-		'''
-
-		expect:
-		succeeds()
-	}
-
 	def "registers Project projection on root node"() {
 		buildFile << applyModelBasePlugin() << '''
 			assert nokee.modelRegistry.root.canBeViewedAs(Project)
@@ -19,5 +9,10 @@ class ModelBasePluginProjectFunctionalTest extends AbstractModelBasePluginFuncti
 
 		expect:
 		succeeds()
+	}
+
+	@Override
+	protected File getBuildscriptFile() {
+		return buildFile
 	}
 }
