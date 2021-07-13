@@ -1,4 +1,9 @@
-package dev.nokee.model.core;
+package dev.nokee.model.dsl;
+
+import dev.nokee.model.core.ModelNode;
+import dev.nokee.model.core.ModelProjection;
+import dev.nokee.model.core.ModelSpec;
+import dev.nokee.model.core.ModelSpecs;
 
 public interface NodePredicates {
 	static NodePredicate<Object> descendants() {

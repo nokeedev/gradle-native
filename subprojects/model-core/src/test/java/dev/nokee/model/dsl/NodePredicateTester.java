@@ -1,9 +1,10 @@
-package dev.nokee.model.core;
+package dev.nokee.model.dsl;
 
+import dev.nokee.model.core.ModelSpec;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.model.core.ModelNodeTestUtils.*;
+import static dev.nokee.model.dsl.ModelNodeTestUtils.*;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.neverCalled;
 import static dev.nokee.utils.SpecTestUtils.mockSpec;
 import static org.hamcrest.MatcherAssert.assertThat;

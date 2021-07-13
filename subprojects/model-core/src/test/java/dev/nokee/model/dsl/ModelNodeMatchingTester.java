@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.util.function.BiConsumer;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.model.core.NodePredicates.ofType;
+import static dev.nokee.model.dsl.NodePredicates.ofType;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;

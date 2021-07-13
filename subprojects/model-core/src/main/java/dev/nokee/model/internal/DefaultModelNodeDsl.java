@@ -3,7 +3,7 @@ package dev.nokee.model.internal;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.core.ModelProjection;
 import dev.nokee.model.core.ModelSpec;
-import dev.nokee.model.core.NodePredicate;
+import dev.nokee.model.dsl.NodePredicate;
 import dev.nokee.model.dsl.ModelNode;
 import dev.nokee.model.streams.ModelStream;
 import groovy.lang.Closure;

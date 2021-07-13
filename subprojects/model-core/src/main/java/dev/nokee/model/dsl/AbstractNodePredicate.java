@@ -1,4 +1,7 @@
-package dev.nokee.model.core;
+package dev.nokee.model.dsl;
+
+import dev.nokee.model.core.ModelNode;
+import dev.nokee.model.core.ModelSpec;
 
 import static java.util.Objects.requireNonNull;
 

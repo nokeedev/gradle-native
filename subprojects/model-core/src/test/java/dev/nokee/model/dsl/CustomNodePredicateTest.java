@@ -1,4 +1,7 @@
-package dev.nokee.model.core;
+package dev.nokee.model.dsl;
+
+import dev.nokee.model.core.ModelProjection;
+import dev.nokee.model.core.ModelSpec;
 
 class CustomNodePredicateTest implements NodePredicateAllTester {
 	@Override
