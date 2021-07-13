@@ -2,7 +2,7 @@ package dev.nokee.model.core;
 
 import static dev.nokee.model.core.ModelSpecs.*;
 
-public enum NodePredicateScopeStrategy {
+enum NodePredicateScopeStrategy {
 	ALL {
 		@Override
 		<T> ModelSpec<T> scope(ModelNode node, ModelSpec<T> matcher) {
