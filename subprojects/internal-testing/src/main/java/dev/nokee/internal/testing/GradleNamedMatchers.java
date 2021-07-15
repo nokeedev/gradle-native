@@ -28,7 +28,7 @@ public final class GradleNamedMatchers {
 					return ((Task) actual).getName();
 				}
 
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException(String.format("Object '%s' of type %s is not named-able.", actual, actual.getClass().getCanonicalName()));
 			}
 		};
 	}

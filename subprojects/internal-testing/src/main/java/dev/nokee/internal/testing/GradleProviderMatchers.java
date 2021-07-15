@@ -23,8 +23,16 @@ public final class GradleProviderMatchers {
 		};
 	}
 
+	public static <T> Matcher<Provider<T>> presentProvider() {
+		return providerState(ProviderState.present);
+	}
+
 	public static <T> Matcher<Provider<T>> absentProvider() {
-		return new FeatureMatcher<Provider<T>, ProviderState>(is(ProviderState.absent), "provider", "provider") {
+		return providerState(ProviderState.absent);
+	}
+
+	private static <T> Matcher<Provider<T>> providerState(ProviderState state) {
+		return new FeatureMatcher<Provider<T>, ProviderState>(is(state), "provider", "provider") {
 			@Override
 			protected ProviderState featureValueOf(Provider<T> actual) {
 				if (actual.isPresent()) {

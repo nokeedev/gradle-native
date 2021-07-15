@@ -1,6 +1,7 @@
 package dev.nokee.utils;
 
 import groovy.lang.Closure;
+import lombok.EqualsAndHashCode;
 
 import static dev.nokee.utils.ExecutionArgumentsFactory.create;
 
@@ -36,6 +37,32 @@ public final class ClosureTestUtils {
 		protected R doCall(T t, U u) {
 			result.record(create(this, t, u));
 			return null;
+		}
+	}
+
+	/**
+	 * Returns a closure that do something meaningless.
+	 * All instance created are equal to each other.
+	 *
+	 * @return a closure that does something meaningless, never null.
+	 */
+	public static <R, T> Closure<R> doSomething(Class<T> firstArgumentType) {
+		return new DoSomethingClosure<>();
+	}
+
+	@EqualsAndHashCode(callSuper = false)
+	private static final class DoSomethingClosure<R, T> extends Closure<R> {
+		DoSomethingClosure() {
+			super(new Object());
+		}
+
+		protected R doCall(T t) {
+			return null;
+		}
+
+		@Override
+		public String toString() {
+			return "doSomething()";
 		}
 	}
 }

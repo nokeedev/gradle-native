@@ -1,0 +1,29 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'maven-publish'
+}
+
+dependencies {
+	implementation project(':coreUtils')
+	implementation project(':modelGraph')
+	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	testImplementation testFixtures(project(':coreUtils'))
+}
+
+gradlePlugin {
+	plugins {
+		modelBase {
+			id = 'dev.nokee.model-base'
+			implementationClass = 'dev.nokee.model.internal.ModelBasePlugin'
+		}
+	}
+}
+
+publishing {
+	publications {
+		library(MavenPublication) {
+			from components.java
+		}
+	}
+}

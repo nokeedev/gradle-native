@@ -23,6 +23,10 @@ include 'coreModel'
 project(':coreModel').projectDir = file('subprojects/core-model')
 project(':coreModel').buildFileName = 'core-model.gradle'
 
+include 'modelGraph'
+project(':modelGraph').projectDir = file('subprojects/model-graph')
+project(':modelGraph').buildFileName = 'model-graph.gradle'
+
 include 'coreScript'
 project(':coreScript').projectDir = file('subprojects/core-script')
 project(':coreScript').buildFileName = 'core-script.gradle'
@@ -90,6 +94,10 @@ project(':languageObjectiveCpp').buildFileName = 'language-objective-cpp.gradle'
 include 'languageSwift'
 project(':languageSwift').projectDir = file('subprojects/language-swift')
 project(':languageSwift').buildFileName = 'language-swift.gradle'
+
+include 'modelCore'
+project(':modelCore').projectDir = file('subprojects/model-core')
+project(':modelCore').buildFileName = 'model-core.gradle'
 
 include 'platformBase'
 project(':platformBase').projectDir = file('subprojects/platform-base')
