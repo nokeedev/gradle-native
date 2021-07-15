@@ -2,6 +2,7 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.core.ModelProjection;
+import dev.nokee.model.core.TypeAwareModelProjection;
 import dev.nokee.model.dsl.NodePredicate;
 import dev.nokee.model.dsl.ModelNode;
 import dev.nokee.model.streams.ModelStream;
@@ -110,8 +111,7 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 
 	@Override
 	public <T> KnownDomainObject<T> projection(Class<T> type) {
-		// TODO: Connect projection with known domain object
-		val projection = delegate.getProjections().filter(it -> it.canBeViewedAs(type)).findFirst().orElseGet(() -> {
+		val projection = delegate.getProjections().filter(it -> it.canBeViewedAs(type)).map(it -> (TypeAwareModelProjection<T>) it).findFirst().orElseGet(() -> {
 			return delegate.newProjection(builder -> {
 				var previous = delegate.getParent();
 				String name = "";
@@ -126,7 +126,7 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 					name = name + StringUtils.capitalize(delegate.getIdentity().toString());
 				}
 
-				builder.type(type).forProvider(registry.registerIfAbsent(StringUtils.uncapitalize(name), type));
+				return builder.type(type).forProvider(registry.registerIfAbsent(StringUtils.uncapitalize(name), type));
 			});
 		});
 		return new DefaultKnownDomainObject<>(type, projection);
@@ -134,8 +134,7 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 
 	@Override
 	public <T> KnownDomainObject<T> projection(Class<T> type, Action<? super T> action) {
-		// TODO: Connect projection with known domain object
-		val projection = delegate.getProjections().filter(it -> it.canBeViewedAs(type)).findFirst().orElseGet(() -> {
+		val projection = delegate.getProjections().filter(it -> it.canBeViewedAs(type)).map(it -> (TypeAwareModelProjection<T>) it).findFirst().orElseGet(() -> {
 			return delegate.newProjection(builder -> {
 				var previous = delegate.getParent();
 				String name = "";
@@ -150,10 +149,10 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 					name = name + StringUtils.capitalize(delegate.getIdentity().toString());
 				}
 
-				builder.type(type).forProvider(registry.registerIfAbsent(StringUtils.uncapitalize(name), type));
+				return builder.type(type).forProvider(registry.registerIfAbsent(StringUtils.uncapitalize(name), type));
 			});
 		});
-		projection.whenRealized(type, action);
+		projection.whenRealized(action);
 		return new DefaultKnownDomainObject<>(type, projection);
 	}
 

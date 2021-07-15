@@ -3,6 +3,8 @@ package dev.nokee.model.internal;
 import com.google.common.base.Preconditions;
 import dev.nokee.model.core.ModelNode;
 import dev.nokee.model.core.ModelProjection;
+import dev.nokee.model.core.ModelProjectionBuilderAction;
+import dev.nokee.model.core.TypeAwareModelProjection;
 import dev.nokee.model.graphdb.*;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -10,7 +12,7 @@ import org.gradle.api.Named;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -53,10 +55,8 @@ final class DefaultModelNode implements ModelNode {
 	}
 
 	@Override
-	public ModelProjection newProjection(Consumer<? super ModelProjection.Builder> builderAction) {
-		val builder = DefaultModelProjection.builder();
-		builderAction.accept(builder);
-		builder.graph(graph);
+	public <S> TypeAwareModelProjection<S> newProjection(ModelProjectionBuilderAction<S> builderAction) {
+		val builder = (DefaultModelProjection.Builder.TypeAwareBuilder<S>) builderAction.apply(DefaultModelProjection.builder().graph(graph));
 		val projection = builder.build();
 		val projectionNode = projection.getDelegate();
 		delegate.createRelationshipTo(projectionNode, PROJECTION_RELATIONSHIP_TYPE);

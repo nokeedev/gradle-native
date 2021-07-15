@@ -2,6 +2,7 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.core.ModelNode;
 import dev.nokee.model.core.ModelProjection;
+import dev.nokee.model.core.TypeAwareModelProjection;
 import dev.nokee.model.graphdb.*;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -12,7 +13,7 @@ import org.gradle.api.provider.Provider;
 import static dev.nokee.utils.ProviderUtils.notDefined;
 
 @EqualsAndHashCode
-final class DefaultModelProjection implements ModelProjection {
+final class DefaultModelProjection<T> implements TypeAwareModelProjection<T>, ModelProjection {
 	@EqualsAndHashCode.Include private final Node delegate;
 	@EqualsAndHashCode.Exclude private final ModelFactory factory;
 
@@ -75,6 +76,16 @@ final class DefaultModelProjection implements ModelProjection {
 		return new Builder();
 	}
 
+	@Override
+	public T get() {
+		return (T) get(getType());
+	}
+
+	@Override
+	public void whenRealized(Action<? super T> action) {
+		whenRealized((Class<T>) getType(), action);
+	}
+
 	public static final class Builder implements ModelProjection.Builder {
 		private final ProjectionSpec.Builder builder = ProjectionSpec.builder();
 		private Graph graph;
@@ -85,21 +96,46 @@ final class DefaultModelProjection implements ModelProjection {
 		}
 
 		@Override
-		public Builder type(Class<?> type) {
+		public <S> TypeAwareBuilder<S> type(Class<S> type) {
 			builder.type(type);
-			return this;
+			return new TypeAwareBuilder<>();
 		}
 
 		@Override
-		public Builder forProvider(NamedDomainObjectProvider<?> domainObjectProvider) {
-			builder.forProvider(domainObjectProvider);
-			return this;
+		public <S> TypeAwareBuilder<S> forProvider(NamedDomainObjectProvider<? extends S> provider) {
+			builder.forProvider(provider);
+			return new TypeAwareBuilder<>();
 		}
 
 		@Override
-		public Builder forInstance(Object instance) {
+		public <S> TypeAwareBuilder<S> forInstance(S instance) {
 			builder.forInstance(instance);
-			return this;
+			return new TypeAwareBuilder<>();
+		}
+
+		public final class TypeAwareBuilder<T> implements TypeAwareModelProjection.Builder<T> {
+			@Override
+			public <S> TypeAwareBuilder<S> type(Class<S> type) {
+				builder.type(type);
+				return new TypeAwareBuilder<>();
+			}
+
+			@Override
+			public TypeAwareBuilder<T> forProvider(NamedDomainObjectProvider<? extends T> provider) {
+				builder.forProvider(provider);
+				return this;
+			}
+
+			@Override
+			public TypeAwareBuilder<T> forInstance(T instance) {
+				builder.forInstance(instance);
+				return this;
+			}
+
+			public DefaultModelProjection<T> build() {
+				val projectionNode = graph.createNode().addLabel(Label.label("PROJECTION")).property("spec", builder.build());
+				return new DefaultModelProjection<T>(new DefaultModelFactory(graph), projectionNode);
+			}
 		}
 
 		public DefaultModelProjection build() {

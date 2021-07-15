@@ -5,6 +5,7 @@ import dev.nokee.model.UnknownProjection;
 import dev.nokee.model.core.ModelNode;
 import dev.nokee.model.core.ModelNodeTester;
 import dev.nokee.model.graphdb.Graph;
+import dev.nokee.utils.Cast;
 import lombok.val;
 import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,7 @@ class DefaultModelNodeTest implements ModelNodeTester {
 	void throwsExceptionWhenProjectionTypeDoesNotMatchProviderTypeIfAvailable() {
 		val subject = createSubject();
 		val provider = rootProject().getTasks().register("foo", it -> new RuntimeException());
-		assertThrows(RuntimeException.class, () -> subject.newProjection(builder -> builder.type(TestProjection.class).forProvider(provider)));
+		assertThrows(RuntimeException.class, () -> subject.newProjection(builder -> builder.type(TestProjection.class).forProvider(Cast.uncheckedCast("forcing type erasure scenario", provider))));
 	}
 
 	@Test
