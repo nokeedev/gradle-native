@@ -7,8 +7,7 @@ import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 class DefaultModelRegistryTest {
 	private final ModelRegistry subject = new DefaultModelRegistry();
@@ -16,6 +15,11 @@ class DefaultModelRegistryTest {
 	@Test
 	void hasRootNode() {
 		assertThat(subject.getRoot(), notNullValue());
+	}
+
+	@Test
+	void rootNodeHasRootIdentity() {
+		assertThat(subject.getRoot().getIdentity(), equalTo(DomainObjectIdentities.root()));
 	}
 
 	@Test
