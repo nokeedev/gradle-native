@@ -5,22 +5,26 @@ import com.google.common.testing.NullPointerTester;
 import dev.nokee.utils.ConsumerTestUtils;
 import lombok.val;
 import org.gradle.api.provider.Provider;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.google.common.collect.ImmutableList.builder;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.calledWith;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 public interface ModelStreamTester<T> extends BranchedModelStreamTester<T> {
@@ -124,6 +128,47 @@ public interface ModelStreamTester<T> extends BranchedModelStreamTester<T> {
 		}));
 		expectedElements.add(createElement());
 		assertThat(ImmutableList.copyOf(result), contains(expectedElements.toArray()));
+	}
+
+	@ParameterizedTest(name = "can terminate parent stream during process action [{argumentsWithNames}]")
+	@EnumSource(TerminalOperator.class)
+	default void canTerminateParentStreamDuringProcessAction(TerminalOperator operator) {
+		val subject = createSubject();
+		val expectedElements = new ArrayList<>();
+		expectedElements.add(createElement());
+		val result = operator.apply(subject.map(new Function<T, T>() {
+			@Override
+			public T apply(T it) {
+				subject.forEach(t -> {});
+				return it;
+			}
+		}));
+		expectedElements.add(createElement());
+		assertThat(ImmutableList.copyOf(result), contains(expectedElements.toArray()));
+	}
+
+	@ParameterizedTest(name = "respect ordering during nested processing [{argumentsWithNames}]")
+	@EnumSource(TerminalOperator.class)
+	default void respectOrderingDuringNestedProcessing(TerminalOperator operator) {
+		val actions = new ArrayList<ConsumerTestUtils.MockConsumer>();
+		val subject = createSubject();
+		val expectedElements = new ArrayList<>();
+		expectedElements.add(createElement());
+		val result = operator.apply(subject.map(new Function<T, T>() {
+			@Override
+			public T apply(T it) {
+				val action = ConsumerTestUtils.mockConsumer();
+				actions.add(action);
+				subject.forEach(action);
+				return it;
+			}
+		}));
+		expectedElements.add(createElement());
+		val elements = ImmutableList.copyOf(result); // resolve once (provider can resolve multiple time)
+		assertThat("matches the number of element created", actions, iterableWithSize(2));
+		val matchers = elements.stream().map(it -> (Matcher<?>) singleArgumentOf(it)).toArray(Matcher[]::new);
+		assertThat(actions.get(0), calledWith(contains(matchers)));
+		assertThat(actions.get(1), calledWith(contains(matchers)));
 	}
 
 	@Test
