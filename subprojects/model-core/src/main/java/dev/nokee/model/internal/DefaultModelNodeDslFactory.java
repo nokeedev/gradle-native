@@ -5,7 +5,7 @@ import dev.nokee.model.dsl.ModelNode;
 import dev.nokee.model.streams.ModelStream;
 import org.gradle.api.model.ObjectFactory;
 
-public final class DefaultModelNodeDslFactory implements ModelNodeFactory {
+final class DefaultModelNodeDslFactory implements ModelNodeFactory {
 	private final NamedDomainObjectRegistry registry;
 	private final ModelStream<ModelProjection> stream;
 	private final ObjectFactory objectFactory;
