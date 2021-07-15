@@ -2,13 +2,12 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.TestProjection;
 import dev.nokee.model.core.ModelProjection;
+import dev.nokee.model.core.ModelProjectionBuilderAction;
 import dev.nokee.model.registry.ModelRegistry;
 import dev.nokee.model.streams.ModelStream;
 import dev.nokee.model.streams.ModelStreamTester;
 import lombok.val;
 import org.junit.jupiter.api.Test;
-
-import java.util.function.Consumer;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static java.util.stream.Collectors.toList;
@@ -41,7 +40,7 @@ class DefaultModelRegistryAllProjectionsStreamTest implements ModelStreamTester<
 			providerOf(contains(childProjectionA, childProjectionB, grandChildProjectionC, grandChildProjectionD)));
 	}
 
-	private static Consumer<ModelProjection.Builder> projection(String name) {
+	private static <S> ModelProjectionBuilderAction<TestProjection> projection(String name) {
 		return builder -> builder.forInstance(new TestProjection(name));
 	}
 }

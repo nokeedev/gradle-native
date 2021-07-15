@@ -13,7 +13,6 @@ import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.whenElementKnown;
 
@@ -26,7 +25,7 @@ public /*final*/ abstract class ModelBasePlugin<T extends PluginAware & Extensio
 
 	@Override
 	public void apply(T target) {
-		val type = computeWhen(target, it -> Settings.class, it -> Project.class);
+		val type = publicTypeOf(target);
 
 		val registry = new DefaultNamedDomainObjectRegistry();
 		val extension = getObjects().newInstance(DefaultNokeeExtension.class, registry);
@@ -50,7 +49,7 @@ public /*final*/ abstract class ModelBasePlugin<T extends PluginAware & Extensio
 				registry.registerContainer(getObjects().newInstance(NamedDomainObjectContainerRegistry.SoftwareComponentContainerRegistry.class, project.getComponents()));
 				project.getComponents().whenObjectAdded(it -> {
 					val node = extension.getModelRegistry().getRoot().find(it.getName()).orElseGet(() -> extension.getModelRegistry().getRoot().newChildNode(it.getName()));
-					node.newProjection(builder -> builder.type(it.getClass()).forInstance(it));
+					node.newProjection(builder -> builder.type((Class<SoftwareComponent>) it.getClass()).forInstance(it));
 				});
 			}
 		);
@@ -60,11 +59,12 @@ public /*final*/ abstract class ModelBasePlugin<T extends PluginAware & Extensio
 		return target.getExtensions().getByType(NokeeExtension.class);
 	}
 
-	private static <T> T computeWhen(Object target, Function<? super Settings, T> settingsAction, Function<? super Project, T> projectAction) {
+	@SuppressWarnings("unchecked")
+	private static <T> Class<T> publicTypeOf(T target) {
 		if (target instanceof Settings) {
-			return settingsAction.apply((Settings) target);
+			return (Class<T>) Settings.class;
 		} else if (target instanceof Project) {
-			return projectAction.apply((Project) target);
+			return (Class<T>) Project.class;
 		} else {
 			throw new UnsupportedOperationException();
 		}

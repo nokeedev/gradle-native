@@ -3,7 +3,7 @@ package dev.nokee.model.core;
 import org.gradle.api.Named;
 
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -27,7 +27,7 @@ public interface ModelNode extends Named {
 	 * @return a new projection, never null
 	 */
 	// TODO: Test and document failure point
-	ModelProjection newProjection(Consumer<? super ModelProjection.Builder> builderAction);
+	<S> TypeAwareModelProjection<S> newProjection(ModelProjectionBuilderAction<S> builderAction);
 
 	/**
 	 * Returns the parent node of this node, if present.

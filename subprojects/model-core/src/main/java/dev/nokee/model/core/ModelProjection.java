@@ -34,10 +34,11 @@ public interface ModelProjection {
 	Class<?> getType();
 
 	interface Builder {
-		Builder type(Class<?> type);
+		<S> TypeAwareModelProjection.Builder<S> type(Class<S> type);
 
-		Builder forProvider(NamedDomainObjectProvider<?> domainObjectProvider);
+		<S> TypeAwareModelProjection.Builder<S> forProvider(NamedDomainObjectProvider<? extends S> domainObjectProvider);
 
-		Builder forInstance(Object instance);
+		// TODO: If passing instance but no type and instance is a Gradle generated type, throw exception saying that you must specify a type (Gradle erase some generic information).
+		<S> TypeAwareModelProjection.Builder<S> forInstance(S instance);
 	}
 }
