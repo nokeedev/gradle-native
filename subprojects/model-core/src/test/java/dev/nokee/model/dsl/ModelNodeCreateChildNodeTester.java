@@ -2,6 +2,7 @@ package dev.nokee.model.dsl;
 
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.TestProjection;
+import groovy.lang.MissingPropertyException;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,8 +16,7 @@ import static dev.nokee.utils.ConsumerTestUtils.mockConsumer;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 
 public interface ModelNodeCreateChildNodeTester {
 	ModelNode createSubject();
@@ -29,6 +29,12 @@ public interface ModelNodeCreateChildNodeTester {
 			() -> assertThat(node, isA(ModelNode.class)),
 			() -> assertThat(node.getName(), equalTo("test"))
 		);
+	}
+
+	@ParameterizedTest(name = "throws missing property exception when accessing non-existing node as property [{argumentsWithNames}]")
+	@MethodSource("dev.nokee.model.dsl.NodeParams#property")
+	default void throwsMissingPropertyExceptionWhenAccessingNonExistingNodeIdentity(NodeMethods.Identity method) {
+		assertThrows(MissingPropertyException.class, () -> method.invoke(createSubject(), "test"));
 	}
 
 	@ParameterizedTest(name = "can create child node [{argumentsWithNames}]")

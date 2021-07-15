@@ -13,8 +13,8 @@ import static dev.nokee.utils.ConsumerTestUtils.mockBiConsumer;
 import static dev.nokee.utils.ConsumerTestUtils.mockConsumer;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
@@ -28,6 +28,14 @@ public interface ModelNodeGetExistingChildNodeTester {
 	@ParameterizedTest(name = "can get child node [{argumentsWithNames}]")
 	@MethodSource("dev.nokee.model.dsl.NodeParams#string")
 	default void canGetChildNode(NodeMethods.Identity method) {
+		val subject = createSubject();
+		val childNode = withExistingChildNode(subject);
+		assertThat("returns existing child node", method.invoke(subject, "test"), is(childNode));
+	}
+
+	@ParameterizedTest(name = "can get child node as property [{argumentsWithNames}]")
+	@MethodSource("dev.nokee.model.dsl.NodeParams#property")
+	default void canGetChildNodeAsProperty(NodeMethods.Identity method) {
 		val subject = createSubject();
 		val childNode = withExistingChildNode(subject);
 		assertThat("returns existing child node", method.invoke(subject, "test"), is(childNode));
