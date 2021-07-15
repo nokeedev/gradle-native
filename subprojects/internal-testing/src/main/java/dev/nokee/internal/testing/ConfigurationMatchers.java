@@ -140,6 +140,21 @@ public final class ConfigurationMatchers {
 	}
 
 	/**
+	 * Matches extends from of the configuration.
+	 *
+	 * @param matcher  an extends from matcher, must not be null
+	 * @return a configuration matcher for its extends from, never null
+	 */
+	public static Matcher<Configuration> extendsFrom(Matcher<? super Iterable<Configuration>> matcher) {
+		return new FeatureMatcher<Configuration, Iterable<Configuration>>(requireNonNull(matcher), "configuration's extends from is", "configuration's extends from") {
+			@Override
+			protected Iterable<Configuration> featureValueOf(Configuration actual) {
+				return actual.getExtendsFrom();
+			}
+		};
+	}
+
+	/**
 	 * Matches a attributes of the configuration.
 	 *
 	 * @param matcher  matcher for all of the configuration's attributes, must not be null
