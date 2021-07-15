@@ -90,7 +90,7 @@ final class DefaultModelNode implements ModelNode {
 
 	@Override
 	public ModelNode get(Object identity) {
-		return find(identity).orElseThrow(RuntimeException::new);
+		return find(identity).orElseThrow(() -> new RuntimeException(String.format("No child node with identity '%s'.", identity)));
 	}
 
 	@Override

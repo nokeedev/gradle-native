@@ -40,6 +40,12 @@ public interface ModelNodeTester {
 	}
 
 	@Test
+	default void throwsExceptionWhenAccessingNonExistantChildNode() {
+		val ex = assertThrows(RuntimeException.class, () -> createSubject().get("non-existent"));
+		assertThat(ex.getMessage(), is("No child node with identity 'non-existent'."));
+	}
+
+	@Test
 	default void childNodesAreAccessibleFromParent() {
 		val subject = createSubject();
 		val childNode0 = subject.newChildNode("test0");
