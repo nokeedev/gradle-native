@@ -57,4 +57,10 @@ class DefaultModelNodeTest implements ModelNodeTester {
 		val provider = rootProject().getTasks().register("foo", it -> new RuntimeException());
 		assertThrows(RuntimeException.class, () -> subject.newProjection(builder -> builder.type(TestProjection.class).forProvider(provider)));
 	}
+
+	@Test
+	void doesNotAllowCreatingChildNodeUsingRootIdentity() {
+		val ex = assertThrows(IllegalArgumentException.class, () -> createSubject().newChildNode(DomainObjectIdentities.root()));
+		assertThat(ex.getMessage(), equalTo("Cannot use known root identity as child node identity."));
+	}
 }

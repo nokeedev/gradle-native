@@ -1,5 +1,6 @@
 package dev.nokee.model.internal;
 
+import com.google.common.base.Preconditions;
 import dev.nokee.model.core.ModelNode;
 import dev.nokee.model.core.ModelProjection;
 import dev.nokee.model.graphdb.*;
@@ -7,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Named;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -29,6 +31,7 @@ final class DefaultModelNode implements ModelNode {
 
 	@Override
 	public ModelNode newChildNode(Object identity) {
+		Preconditions.checkArgument(!Objects.equals(identity, DomainObjectIdentities.root()), "Cannot use known root identity as child node identity.");
 		val name = nameOf(identity);
 		val childNode = graph.createNode()
 			.addLabel(Label.label("NODE"))
