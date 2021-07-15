@@ -1,6 +1,8 @@
 package dev.nokee.model.core;
 
+import org.gradle.api.Action;
 import org.gradle.api.Named;
+import org.gradle.api.provider.Provider;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -54,7 +56,13 @@ public interface ModelNode extends Named {
 	Optional<ModelNode> find(Object identity);
 	Object getIdentity();
 
-	// TODO: Maybe use Stream here
+	// TODO: Maybe use ModelStream here
 	Stream<ModelNode> getChildNodes();
 	Stream<ModelProjection> getProjections();
+
+	// TODO: Test and document
+	<T> Provider<T> as(Class<T> type);
+
+	// TODO: Test and document
+	<T> void whenRealized(Class<T> type, Action<? super T> action);
 }
