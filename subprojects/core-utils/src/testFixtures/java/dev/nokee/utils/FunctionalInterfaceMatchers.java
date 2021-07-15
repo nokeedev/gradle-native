@@ -5,12 +5,18 @@ import groovy.lang.Closure;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
+import java.util.stream.Collectors;
+
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 
 public final class FunctionalInterfaceMatchers {
 	public static <T extends ExecutionArguments> Matcher<HasExecutionResult<T>> calledOnceWith(Matcher<? super T> matcher) {
 		return allOf(called(equalTo(1L)), lastArgument(matcher));
+	}
+
+	public static <T extends ExecutionArguments> Matcher<HasExecutionResult<T>> calledWith(Matcher<? super Iterable<T>> matcher) {
+		return allArguments(matcher);
 	}
 
 	public static <T> Matcher<ExecutionArgument<T>> singleArgumentOf(T obj) {
@@ -74,6 +80,15 @@ public final class FunctionalInterfaceMatchers {
 			@Override
 			protected T featureValueOf(HasExecutionResult<T> actual) {
 				return Iterators.getLast(ExecutionResult.from(actual).getArguments().iterator());
+			}
+		};
+	}
+
+	public static <T extends ExecutionArguments> Matcher<HasExecutionResult<T>> allArguments(Matcher<? super Iterable<T>> matcher) {
+		return new FeatureMatcher<HasExecutionResult<T>, Iterable<T>>(matcher, "", "") {
+			@Override
+			protected Iterable<T> featureValueOf(HasExecutionResult<T> actual) {
+				return ExecutionResult.from(actual).getArguments().collect(Collectors.toList());
 			}
 		};
 	}
