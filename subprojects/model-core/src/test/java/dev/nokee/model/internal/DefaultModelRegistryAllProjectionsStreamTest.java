@@ -9,14 +9,14 @@ import dev.nokee.model.streams.ModelStreamTester;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.emptyIterable;
 
 class DefaultModelRegistryAllProjectionsStreamTest implements ModelStreamTester<ModelProjection> {
-	private final ModelRegistry registry = new DefaultModelRegistry();
+	private final ModelRegistry registry = new DefaultModelRegistry(objectFactory());
 
 	@Override
 	public ModelStream<ModelProjection> createSubject() {
