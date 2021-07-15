@@ -13,7 +13,7 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.*;
 
 public interface ModelNodeTester {
 	ModelNode createSubject();
@@ -29,6 +29,14 @@ public interface ModelNodeTester {
 		val childNode = createSubject().newChildNode("test");
 		assertThat(childNode, notNullValue());
 		assertThat(childNode, named("test"));
+	}
+
+	@Test
+	default void throwsExceptionWhenNewChildNodeAlreadyExists() {
+		val subject = createSubject();
+		subject.newChildNode("existing");
+		val ex = assertThrows(RuntimeException.class, () -> subject.newChildNode("existing"));
+		assertThat(ex.getMessage(), is("Child node with identity 'existing' already exists."));
 	}
 
 	@Test
