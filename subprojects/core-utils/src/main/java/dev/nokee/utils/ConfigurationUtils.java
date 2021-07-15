@@ -1,6 +1,8 @@
 package dev.nokee.utils;
 
+import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Attribute;
@@ -8,9 +10,13 @@ import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.attributes.HasConfigurableAttributes;
 import org.gradle.api.attributes.Usage;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -282,5 +288,40 @@ public final class ConfigurationUtils {
 	public interface AttributesProvider {
 		void forConsuming(AttributeContainer attributes);
 		void forResolving(AttributeContainer attributes);
+	}
+
+	/**
+	 * Configures a {@link Configuration} with the specified parent configuration.
+	 *
+	 * @param configurations  the parent configuration to configure, must not be null
+	 * @return  a configuration action, never null
+	 */
+	public static ActionUtils.Action<Configuration> configureExtendsFrom(Object... configurations) {
+		return new ConfigureExtendsFromAction(ImmutableList.copyOf(configurations));
+	}
+
+	@EqualsAndHashCode
+	private static final class ConfigureExtendsFromAction implements ActionUtils.Action<Configuration> {
+		private final List<Object> configurations;
+
+		public ConfigureExtendsFromAction(List<Object> configurations) {
+			this.configurations = configurations;
+		}
+
+		private List<Configuration> getConfigurations() {
+			return DeferredUtils.flatUnpackUntil(configurations, Configuration.class);
+		}
+
+		@Override
+		public void execute(Configuration configuration) {
+			val configurations = new ArrayList<>(getConfigurations());
+			configurations.remove(configuration);
+			configuration.extendsFrom(configurations.toArray(new Configuration[0]));
+		}
+
+		@Override
+		public String toString() {
+			return "ConfigurationUtils.configureExtendsFrom(" + configurations.stream().map(Objects::toString).collect(Collectors.joining(", ")) + ")";
+		}
 	}
 }
