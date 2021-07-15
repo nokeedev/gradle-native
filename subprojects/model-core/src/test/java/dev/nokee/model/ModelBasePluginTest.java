@@ -18,8 +18,6 @@ class ModelBasePluginTest {
 		return project;
 	}
 
-	// TODO: wellbehaving test
-
 	@Test
 	void registersNokeeExtension() {
 		assertThat(createSubject(), hasExtensionOf(NokeeExtension.class));
