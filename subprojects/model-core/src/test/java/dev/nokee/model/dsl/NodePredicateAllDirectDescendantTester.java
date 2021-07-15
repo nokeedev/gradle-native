@@ -13,12 +13,12 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-public interface NodePredicateDirectDescendantTester extends NodePredicateTester {
+public interface NodePredicateAllDirectDescendantTester extends NodePredicateTester {
 	@Test
 	default void doesNotMatchProjectionOfSelfNode() {
 		val root = rootNode();
 		val child = childNodeOf(root);
-		assertThat(createSubject().scope(child).isSatisfiedBy(projectionOf(child)), is(false));
+		assertThat(createSubject().scope(child).test(projectionOf(child)), is(false));
 	}
 
 	@Test
@@ -26,7 +26,7 @@ public interface NodePredicateDirectDescendantTester extends NodePredicateTester
 		val root = rootNode();
 		val child = childNodeOf(root);
 		val directChild = childNodeOf(child);
-		assertThat(createSubject().scope(child).isSatisfiedBy(projectionOf(directChild)), is(true));
+		assertThat(createSubject().scope(child).test(projectionOf(directChild)), is(true));
 	}
 
 	@Test
@@ -35,7 +35,7 @@ public interface NodePredicateDirectDescendantTester extends NodePredicateTester
 		val child = childNodeOf(root);
 		val directChild = childNodeOf(child);
 		val grandChild = childNodeOf(directChild);
-		assertThat(createSubject().scope(child).isSatisfiedBy(projectionOf(grandChild)), is(false));
+		assertThat(createSubject().scope(child).test(projectionOf(grandChild)), is(false));
 	}
 
 
@@ -45,7 +45,7 @@ public interface NodePredicateDirectDescendantTester extends NodePredicateTester
 		val ancestor = rootNode();
 		val inScope = childNodeOf(ancestor);
 		val child = childNodeOf(inScope);
-		createSubject(specOf(String.class, spec)).scope(inScope).isSatisfiedBy(projectionOf(child));
+		createSubject(specOf(String.class, spec)).scope(inScope).test(projectionOf(child));
 		assertThat(spec, calledOnceWith(singleArgumentOf(isA(ModelProjection.class))));
 	}
 
@@ -55,8 +55,8 @@ public interface NodePredicateDirectDescendantTester extends NodePredicateTester
 		val child = childNodeOf(inScope);
 		val spec = createSubject(specOf(String.class, mockSpec().thenReturn(true, false))).scope(inScope);
 		assertAll(
-			() -> assertThat(spec.isSatisfiedBy(projectionOf(child)), is(true)),
-			() -> assertThat(spec.isSatisfiedBy(projectionOf(child)), is(false))
+			() -> assertThat(spec.test(projectionOf(child)), is(true)),
+			() -> assertThat(spec.test(projectionOf(child)), is(false))
 		);
 	}
 }

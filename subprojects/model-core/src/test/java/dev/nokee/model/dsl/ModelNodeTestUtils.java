@@ -2,9 +2,9 @@ package dev.nokee.model.dsl;
 
 import dev.nokee.model.core.ModelNode;
 import dev.nokee.model.core.ModelProjection;
-import dev.nokee.model.core.ModelSpec;
 import lombok.val;
 import org.gradle.api.specs.Spec;
+import org.gradle.internal.Cast;
 import org.mockito.Mockito;
 
 import java.util.Optional;
@@ -30,13 +30,14 @@ final class ModelNodeTestUtils {
 		val result = Mockito.mock(ModelProjection.class);
 		Mockito.when(result.getOwner()).thenReturn(node);
 		Mockito.when(result.canBeViewedAs(any())).thenReturn(true);
+		Mockito.when(result.getType()).thenReturn(Cast.<Class>uncheckedCast(Object.class));
 		return result;
 	}
 
 	public static <T> ModelSpec<T> specOf(Class<T> type) {
 		return new ModelSpec<T>() {
 			@Override
-			public boolean isSatisfiedBy(ModelProjection node) {
+			public boolean test(ModelProjection node) {
 				return true;
 			}
 
@@ -55,7 +56,7 @@ final class ModelNodeTestUtils {
 	public static <T> ModelSpec<T> specOf(Class<T> type, Spec<? super ModelProjection> spec) {
 		return new ModelSpec<T>() {
 			@Override
-			public boolean isSatisfiedBy(ModelProjection node) {
+			public boolean test(ModelProjection node) {
 				return spec.isSatisfiedBy(node);
 			}
 

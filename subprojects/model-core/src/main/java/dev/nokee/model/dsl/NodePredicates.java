@@ -1,9 +1,8 @@
 package dev.nokee.model.dsl;
 
+import dev.nokee.model.core.*;
 import dev.nokee.model.core.ModelNode;
-import dev.nokee.model.core.ModelProjection;
-import dev.nokee.model.core.ModelSpec;
-import dev.nokee.model.core.ModelSpecs;
+import dev.nokee.model.internal.ModelSpecs;
 
 public interface NodePredicates {
 	static NodePredicate<Object> descendants() {
@@ -34,11 +33,11 @@ public interface NodePredicates {
 
 	static <T> OfTypeSpec<T> ofType(Class<T> type) {
 		return new OfTypeSpec<T>() {
-			private final ModelSpec<T> spec = ModelSpecs.ofType(type);
+			private final ModelSpecs.ProjectionOfSpec<T> spec = ModelSpecs.projectionOf(type);
 
 			@Override
-			public boolean isSatisfiedBy(ModelProjection node) {
-				return spec.isSatisfiedBy(node);
+			public boolean test(ModelProjection modelProjection) {
+				return spec.test(modelProjection);
 			}
 
 			@Override

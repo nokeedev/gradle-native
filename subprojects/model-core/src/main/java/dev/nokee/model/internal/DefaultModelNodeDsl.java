@@ -2,7 +2,6 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.core.ModelProjection;
-import dev.nokee.model.core.ModelSpec;
 import dev.nokee.model.dsl.NodePredicate;
 import dev.nokee.model.dsl.ModelNode;
 import dev.nokee.model.streams.ModelStream;
@@ -175,7 +174,7 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 
 	@Override
 	public <T> void all(NodePredicate<? super T> spec, BiConsumer<? super ModelNode, ? super KnownDomainObject<T>> action) {
-		stream.filter(spec.scope(delegate)::isSatisfiedBy).forEach(it -> {
+		stream.filter(spec.scope(delegate)).forEach(it -> {
 			action.accept(factory.create(it.getOwner()), new DefaultKnownDomainObject<>((Class<T>) it.getType(), it));
 		});
 	}
@@ -193,14 +192,6 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 	@Override
 	public <T> Provider<? extends Iterable<T>> all(NodePredicate<T> predicate) {
 		val spec = predicate.scope(delegate);
-		return stream.filter(toPredicate(spec)).map(it -> it.get(spec.getProjectionType())).collect(Collectors.toList());
-	}
-
-	private static Predicate<ModelProjection> toPredicate(ModelSpec<?> spec) {
-		if (spec instanceof Predicate) {
-			return (Predicate<ModelProjection>) spec;
-		} else {
-			return spec::isSatisfiedBy;
-		}
+		return stream.filter(spec).map(it -> it.get(spec.getProjectionType())).collect(Collectors.toList());
 	}
 }

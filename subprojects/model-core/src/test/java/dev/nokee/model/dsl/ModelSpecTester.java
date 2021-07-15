@@ -1,5 +1,7 @@
-package dev.nokee.model.core;
+package dev.nokee.model.dsl;
 
+import dev.nokee.model.core.ModelPredicateTester;
+import dev.nokee.model.core.ModelProjection;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
@@ -7,7 +9,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-public interface ModelSpecTester<T> {
+public interface ModelSpecTester<T> extends ModelPredicateTester {
 	ModelSpec<T> createSubject();
 
 	ModelProjection trueObject();
@@ -24,18 +26,18 @@ public interface ModelSpecTester<T> {
 
 	@Test
 	default void returnsFalseWhenOneOfTheAndSpecsReturnsFalse() {
-		assertThat(createSubject().and(alwaysFalseSpec()).isSatisfiedBy(trueObject()), equalTo(false));
-		assertThat(createSubject().and(alwaysTrueSpec()).isSatisfiedBy(falseObject()), equalTo(false));
+		assertThat(createSubject().and(alwaysFalseSpec()).test(trueObject()), equalTo(false));
+		assertThat(createSubject().and(alwaysTrueSpec()).test(falseObject()), equalTo(false));
 	}
 
 	@Test
 	default void returnsTrueWhenBothAndSpecsReturnsTrue() {
-		assertThat(createSubject().and(alwaysTrueSpec()).isSatisfiedBy(trueObject()), equalTo(true));
+		assertThat(createSubject().and(alwaysTrueSpec()).test(trueObject()), equalTo(true));
 	}
 
 	@Test
 	default void returnsFalseWhenBothAndSpecsReturnsFalse() {
-		assertThat(createSubject().and(alwaysTrueSpec()).isSatisfiedBy(falseObject()), equalTo(false));
+		assertThat(createSubject().and(alwaysTrueSpec()).test(falseObject()), equalTo(false));
 	}
 
 	@Test
@@ -46,17 +48,17 @@ public interface ModelSpecTester<T> {
 
 	@Test
 	default void returnsTrueWhenOneOfTheOrSpecsReturnsTrue() {
-		assertThat(createSubject().or(alwaysFalseSpec()).isSatisfiedBy(trueObject()), equalTo(true));
-		assertThat(createSubject().or(alwaysTrueSpec()).isSatisfiedBy(falseObject()), equalTo(true));
+		assertThat(createSubject().or(alwaysFalseSpec()).test(trueObject()), equalTo(true));
+		assertThat(createSubject().or(alwaysTrueSpec()).test(falseObject()), equalTo(true));
 	}
 
 	@Test
 	default void returnsTrueWhenBothOrSpecsReturnsTrue() {
-		assertThat(createSubject().or(alwaysTrueSpec()).isSatisfiedBy(trueObject()), equalTo(true));
+		assertThat(createSubject().or(alwaysTrueSpec()).test(trueObject()), equalTo(true));
 	}
 
 	@Test
 	default void returnsFalseWhenBothOrSpecsReturnsFalse() {
-		assertThat(createSubject().or(alwaysFalseSpec()).isSatisfiedBy(falseObject()), equalTo(false));
+		assertThat(createSubject().or(alwaysFalseSpec()).test(falseObject()), equalTo(false));
 	}
 }

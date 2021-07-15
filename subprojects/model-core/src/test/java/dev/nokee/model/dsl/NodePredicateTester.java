@@ -1,6 +1,5 @@
 package dev.nokee.model.dsl;
 
-import dev.nokee.model.core.ModelSpec;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +23,7 @@ public interface NodePredicateTester {
 		val spec = mockSpec();
 		val ancestor = rootNode();
 		val inScope = childNodeOf(ancestor);
-		createSubject(specOf(String.class, spec)).scope(inScope).isSatisfiedBy(projectionOf(ancestor));
+		createSubject(specOf(String.class, spec)).scope(inScope).test(projectionOf(ancestor));
 		assertThat(spec, neverCalled());
 	}
 
@@ -38,13 +37,13 @@ public interface NodePredicateTester {
 		val ancestor = rootNode();
 		val directAncestor = childNodeOf(ancestor);
 		val inScope = childNodeOf(directAncestor);
-		assertThat(createSubject().scope(inScope).isSatisfiedBy(projectionOf(ancestor)), is(false));
+		assertThat(createSubject().scope(inScope).test(projectionOf(ancestor)), is(false));
 	}
 
 	@Test
 	default void doesNotMatchProjectionOfDirectAncestor() {
 		val directAncestor = rootNode();
 		val inScope = childNodeOf(directAncestor);
-		assertThat(createSubject().scope(inScope).isSatisfiedBy(projectionOf(directAncestor)), is(false));
+		assertThat(createSubject().scope(inScope).test(projectionOf(directAncestor)), is(false));
 	}
 }

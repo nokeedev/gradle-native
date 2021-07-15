@@ -1,9 +1,8 @@
 package dev.nokee.model.dsl;
 
 import dev.nokee.model.core.ModelNode;
-import dev.nokee.model.core.ModelSpec;
 
-import static dev.nokee.model.core.ModelSpecs.*;
+import static dev.nokee.model.internal.ModelSpecs.*;
 
 enum NodePredicateScopeStrategy {
 	ALL {
