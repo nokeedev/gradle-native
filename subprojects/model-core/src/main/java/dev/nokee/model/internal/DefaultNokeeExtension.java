@@ -15,13 +15,14 @@ import javax.inject.Inject;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.whenElementKnown;
 
 /*final*/ abstract class DefaultNokeeExtension implements NokeeExtension {
-	private final ModelRegistry modelRegistry = new DefaultModelRegistry();
+	private final ModelRegistry modelRegistry;
 	private final ObjectFactory objectFactory;
 	private final DefaultNamedDomainObjectRegistry registry;
 	private final ModelNode model;
 
 	@Inject
 	public DefaultNokeeExtension(DefaultNamedDomainObjectRegistry registry, ObjectFactory objectFactory) {
+		this.modelRegistry = new DefaultModelRegistry(objectFactory);
 		this.objectFactory = objectFactory;
 		this.model = new DefaultModelNodeDslFactory(registry, modelRegistry.allProjections(), objectFactory).create(modelRegistry.getRoot());
 		this.registry = registry;
