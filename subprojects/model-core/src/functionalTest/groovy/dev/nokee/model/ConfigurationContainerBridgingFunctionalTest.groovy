@@ -67,7 +67,7 @@ class ConfigurationContainerBridgingFunctionalTest extends AbstractModelBasePlug
 
 	def "derives Configuration domain object name from owners when creating projection"() {
 		buildFile << applyModelBasePlugin() << '''
-			nokee.model.test.c.headerSearchPaths(Configuration)
+			nokee.model.node('test').node('c').headerSearchPaths(Configuration)
 
 			assert configurations.findByName('testCHeaderSearchPaths') != null
 		'''

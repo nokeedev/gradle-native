@@ -49,7 +49,7 @@ class SoftwareComponentContainerBridgingFunctionalTest extends AbstractModelBase
 
 	def "derives SoftwareComponent domain object name from owners when creating projection"() {
 		buildFile << applyModelBasePlugin() << '''
-			nokee.model.test.windows(AdhocComponentWithVariants)
+			nokee.model.node('test').windows(AdhocComponentWithVariants)
 
 			assert components.findByName('testWindows') != null
 		'''

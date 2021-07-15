@@ -18,6 +18,7 @@ import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -46,7 +47,7 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 			.whenInvokeMethod(Class.class, Closure.class, this::node)
 			.whenInvokeMethod(Class.class, Action.class, this::node)
 			.whenInvokeMethod(Class.class, BiConsumer.class, this::node)
-			.whenGetProperty(this::getOrCreateChildNode)
+			.whenGetProperty(identity -> findChildNode(identity).map(it -> it))
 			.build();
 	}
 
@@ -89,6 +90,10 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 		// TODO: Assert identity is same or less info than selected node's identity:
 		//  because if node was created with a String but trying to reference using machines.host... the identity has less information so we may be facing an out-of-order access.
 		return factory.create(delegate.getChildNodes().filter(ofName(identity)).findFirst().orElseGet(() -> delegate.newChildNode(identity)));
+	}
+
+	private Optional<ModelNode> findChildNode(Object identity) {
+		return delegate.getChildNodes().filter(ofName(identity)).findFirst().map(factory::create);
 	}
 
 	private static Predicate<dev.nokee.model.core.ModelNode> ofName(Object identity) {

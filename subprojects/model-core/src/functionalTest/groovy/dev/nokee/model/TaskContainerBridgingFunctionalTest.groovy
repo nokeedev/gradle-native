@@ -79,7 +79,7 @@ class TaskContainerBridgingFunctionalTest extends AbstractModelBasePluginFunctio
 
 	def "derives Task domain object name from owners when creating projection"() {
 		buildFile << applyModelBasePlugin() << '''
-			nokee.model.test.c.compile(Sync)
+			nokee.model.node('test').node('c').compile(Sync)
 		'''
 
 		expect:
