@@ -7,6 +7,22 @@ import java.util.function.BiConsumer
 import java.util.stream.Stream
 
 class NodeParams {
+	static Stream<NodeMethods.Identity> property() {
+		return Stream.of(
+			new NodeMethods.Identity() {
+				@Override
+				ModelNode invoke(ModelNode self, Object identity) {
+					return self."${identity}"
+				}
+
+				@Override
+				String toString() {
+					return "ModelNode#<identity>";
+				}
+			}
+		);
+	}
+
 	static Stream<NodeMethods.Identity> string() {
 		return Stream.of(
 			new NodeMethods.Identity() {
@@ -18,17 +34,6 @@ class NodeParams {
 				@Override
 				String toString() {
 					return "ModelNode#node(<identity>)";
-				}
-			},
-			new NodeMethods.Identity() {
-				@Override
-				ModelNode invoke(ModelNode self, Object identity) {
-					return self."${identity}"
-				}
-
-				@Override
-				String toString() {
-					return "ModelNode#<identity>";
 				}
 			},
 			new NodeMethods.Identity() {
