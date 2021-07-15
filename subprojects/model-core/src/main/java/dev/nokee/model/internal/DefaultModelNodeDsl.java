@@ -23,6 +23,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.ModelSpecs.projectionOf;
+
 @EqualsAndHashCode(callSuper = false)
 final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode {
 	private final NamedDomainObjectRegistry registry;
@@ -111,7 +113,7 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 
 	@Override
 	public <T> KnownDomainObject<T> projection(Class<T> type) {
-		val projection = delegate.getProjections().filter(it -> it.canBeViewedAs(type)).map(it -> (TypeAwareModelProjection<T>) it).findFirst().orElseGet(() -> {
+		val projection = delegate.getProjections().filter(projectionOf(type)).map(it -> (TypeAwareModelProjection<T>) it).findFirst().orElseGet(() -> {
 			return delegate.newProjection(builder -> {
 				var previous = delegate.getParent();
 				String name = "";
@@ -134,7 +136,7 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 
 	@Override
 	public <T> KnownDomainObject<T> projection(Class<T> type, Action<? super T> action) {
-		val projection = delegate.getProjections().filter(it -> it.canBeViewedAs(type)).map(it -> (TypeAwareModelProjection<T>) it).findFirst().orElseGet(() -> {
+		val projection = delegate.getProjections().filter(projectionOf(type)).map(it -> (TypeAwareModelProjection<T>) it).findFirst().orElseGet(() -> {
 			return delegate.newProjection(builder -> {
 				var previous = delegate.getParent();
 				String name = "";

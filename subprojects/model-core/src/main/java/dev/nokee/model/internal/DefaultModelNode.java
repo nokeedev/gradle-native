@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static dev.nokee.model.internal.ModelSpecs.projectionOf;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
@@ -76,13 +77,13 @@ final class DefaultModelNode implements ModelNode {
 	@Override
 	public boolean canBeViewedAs(Class<?> type) {
 		requireNonNull(type);
-		return getProjections().anyMatch(it -> it.canBeViewedAs(type));
+		return getProjections().anyMatch(projectionOf(type));
 	}
 
 	@Override
 	public <T> T get(Class<T> type) {
 		requireNonNull(type);
-		return getProjections().filter(it -> it.canBeViewedAs(type))
+		return getProjections().filter(projectionOf(type))
 			.findFirst()
 			.map(it -> it.get(type))
 			.orElseThrow(RuntimeException::new);
