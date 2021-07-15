@@ -2,6 +2,7 @@ package dev.nokee.utils;
 
 import com.google.common.testing.EqualsTester;
 import lombok.val;
+import org.gradle.api.Named;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.AttributeContainer;
@@ -84,5 +85,36 @@ class ConfigurationUtils_ConfigureAttributesTest {
 	@Test
 	void checkToString() {
 		assertThat(configureAttributes(aConsumer()), hasToString(startsWith("ConfigurationUtils.configureAttributes(aConsumer())")));
+	}
+
+	private static final Attribute<String> STRING_ATTRIBUTE = Attribute.of("string-attribute", String.class);
+	private static final Attribute<Boolean> BOOLEAN_ATTRIBUTE = Attribute.of("boolean-attribute", Boolean.class);
+	private static final Attribute<EnumObject> ENUM_ATTRIBUTE = Attribute.of("enum-attribute", EnumObject.class);
+	public enum EnumObject {TEST }
+	private static final Attribute<NamedObject> NAMED_ATTRIBUTE = Attribute.of("named-attribute", NamedObject.class);
+	public interface NamedObject extends Named {}
+
+	@Test
+	void canConfigureStringAttributes() {
+		val subject = testConfiguration(configureAttributes(it -> it.attribute(STRING_ATTRIBUTE, "test")));
+		assertThat(subject, attributes(hasEntry(STRING_ATTRIBUTE, "test")));
+	}
+
+	@Test
+	void canConfigureBooleanAttributes() {
+		val subject = testConfiguration(configureAttributes(it -> it.attribute(BOOLEAN_ATTRIBUTE, Boolean.TRUE)));
+		assertThat(subject, attributes(hasEntry(BOOLEAN_ATTRIBUTE, Boolean.TRUE)));
+	}
+
+	@Test
+	void canConfigureEnumAttributes() {
+		val subject = testConfiguration(configureAttributes(it -> it.attribute(ENUM_ATTRIBUTE, EnumObject.TEST)));
+		assertThat(subject, attributes(hasEntry(ENUM_ATTRIBUTE, EnumObject.TEST)));
+	}
+
+	@Test
+	void canConfigureNamedAttributes() {
+		val subject = testConfiguration(configureAttributes(it -> it.attribute(NAMED_ATTRIBUTE, objectFactory().named(NamedObject.class, "test"))));
+		assertThat(subject, attributes(hasEntry(is(NAMED_ATTRIBUTE), named("test"))));
 	}
 }

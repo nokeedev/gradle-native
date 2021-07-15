@@ -215,6 +215,7 @@ public final class ConfigurationUtils {
 		AttributesDetails usage(Usage usage);
 		AttributesDetails from(Object obj);
 		AttributesDetails artifactType(String artifactType);
+		<T> AttributesDetails attribute(Attribute<T> key, T value);
 	}
 
 	/** @see #configureAttributes(Consumer) */
@@ -263,6 +264,12 @@ public final class ConfigurationUtils {
 
 			public AttributesDetails artifactType(String artifactType) {
 				configuration.getAttributes().attribute(ARTIFACT_TYPE_ATTRIBUTE, artifactType);
+				return this;
+			}
+
+			@Override
+			public <T> AttributesDetails attribute(Attribute<T> key, T value) {
+				configuration.getAttributes().attribute(key, value);
 				return this;
 			}
 		}
