@@ -1,7 +1,6 @@
 package dev.nokee.model.dsl;
 
 import dev.nokee.model.core.ModelProjection;
-import dev.nokee.model.core.ModelSpec;
 
 class CustomNodePredicateTest implements NodePredicateAllTester {
 	@Override
@@ -26,8 +25,8 @@ class CustomNodePredicateTest implements NodePredicateAllTester {
 		}
 
 		@Override
-		public boolean isSatisfiedBy(ModelProjection node) {
-			return delegate.isSatisfiedBy(node);
+		public boolean test(ModelProjection node) {
+			return delegate.test(node);
 		}
 
 		@Override

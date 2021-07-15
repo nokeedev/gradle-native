@@ -1,5 +1,7 @@
-package dev.nokee.model.core;
+package dev.nokee.model.dsl;
 
+import dev.nokee.model.core.ModelPredicate;
+import dev.nokee.model.core.ModelProjection;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -43,7 +45,7 @@ class ModelSpecTest implements ModelSpecTester<Object> {
 	public ModelSpec<Object> createSubject() {
 		return new ModelSpec<Object>() {
 			@Override
-			public boolean isSatisfiedBy(ModelProjection projection) {
+			public boolean test(ModelProjection projection) {
 				return projection == TRUE_OBJECT;
 			}
 
@@ -65,10 +67,20 @@ class ModelSpecTest implements ModelSpecTester<Object> {
 	}
 
 	@Override
+	public ModelPredicate alwaysTruePredicate() {
+		return it -> true;
+	}
+
+	@Override
+	public ModelPredicate alwaysFalsePredicate() {
+		return it -> false;
+	}
+
+	@Override
 	public ModelSpec<Object> alwaysTrueSpec() {
 		return new ModelSpec<Object>() {
 			@Override
-			public boolean isSatisfiedBy(ModelProjection projection) {
+			public boolean test(ModelProjection projection) {
 				return true;
 			}
 
@@ -83,7 +95,7 @@ class ModelSpecTest implements ModelSpecTester<Object> {
 	public ModelSpec<Object> alwaysFalseSpec() {
 		return new ModelSpec<Object>() {
 			@Override
-			public boolean isSatisfiedBy(ModelProjection projection) {
+			public boolean test(ModelProjection projection) {
 				return false;
 			}
 
@@ -97,7 +109,7 @@ class ModelSpecTest implements ModelSpecTester<Object> {
 	private static <T> ModelSpec<T> specOf(Class<T> type) {
 		return new ModelSpec<T>() {
 			@Override
-			public boolean isSatisfiedBy(ModelProjection node) {
+			public boolean test(ModelProjection node) {
 				return true;
 			}
 

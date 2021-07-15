@@ -3,6 +3,7 @@ package dev.nokee.model.dsl;
 import dev.nokee.internal.testing.Assumptions;
 import dev.nokee.model.core.*;
 import lombok.val;
+import org.gradle.internal.Cast;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,7 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 class NodePredicatesTest {
 	@Nested
-	class DirectDescendantPredicate implements NodePredicateDirectDescendantTester {
+	class AllDirectDescendantPredicate implements NodePredicateAllDirectDescendantTester {
 		@Override
 		public NodePredicate<Object> createSubject() {
 			return directChildren();
@@ -41,7 +42,7 @@ class NodePredicatesTest {
 	}
 
 	@Nested
-	class DescendantPredicate implements NodePredicateDescendantTester {
+	class AllDescendantPredicate implements NodePredicateAllDescendantTester {
 		@Override
 		public NodePredicate<Object> createSubject() {
 			return descendants();
@@ -75,22 +76,32 @@ class NodePredicatesTest {
 			@Override
 			public ModelProjection trueObject() {
 				val result = Mockito.mock(ModelProjection.class);
-				Mockito.when(result.canBeViewedAs(Child.class)).thenReturn(true);
+				Mockito.when(result.getType()).thenReturn(Cast.uncheckedCast(Child.class));
 				return result;
 			}
 
 			@Override
 			public ModelProjection falseObject() {
 				val result = Mockito.mock(ModelProjection.class);
-				Mockito.when(result.canBeViewedAs(Child.class)).thenReturn(false);
+				Mockito.when(result.getType()).thenReturn(Cast.uncheckedCast(Base.class));
 				return result;
+			}
+
+			@Override
+			public ModelPredicate alwaysTruePredicate() {
+				return it -> true;
+			}
+
+			@Override
+			public ModelPredicate alwaysFalsePredicate() {
+				return it -> false;
 			}
 
 			@Override
 			public ModelSpec<Child> alwaysTrueSpec() {
 				return new ModelSpec<Child>() {
 					@Override
-					public boolean isSatisfiedBy(ModelProjection node) {
+					public boolean test(ModelProjection node) {
 						return true;
 					}
 
@@ -105,7 +116,7 @@ class NodePredicatesTest {
 			public ModelSpec<Child> alwaysFalseSpec() {
 				return new ModelSpec<Child>() {
 					@Override
-					public boolean isSatisfiedBy(ModelProjection node) {
+					public boolean test(ModelProjection node) {
 						return false;
 					}
 
@@ -142,12 +153,12 @@ class NodePredicatesTest {
 		void returnsSpecSatisfiedBy() {
 			val ancestor = rootNode();
 			val inScope = childNodeOf(ancestor);
-			val spec = NodePredicates.ofType(String.class).scope(inScope);
+			val spec = NodePredicates.ofType(Child.class).scope(inScope);
 			val projection = projectionOf(inScope);
-			Mockito.when(projection.canBeViewedAs(any())).thenReturn(true, false);
+			Mockito.when(projection.getType()).thenReturn(Cast.<Class>uncheckedCast(Child.class), Cast.<Class>uncheckedCast(Base.class));
 			assertAll(
-				() -> assertThat(spec.isSatisfiedBy(projection), is(true)),
-				() -> assertThat(spec.isSatisfiedBy(projection), is(false))
+				() -> assertThat(spec.test(projection), is(true)),
+				() -> assertThat(spec.test(projection), is(false))
 			);
 		}
 	}

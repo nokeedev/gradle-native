@@ -1,8 +1,8 @@
 package dev.nokee.model.dsl;
 
 import dev.nokee.model.core.ModelNode;
-import dev.nokee.model.core.ModelSpec;
-import dev.nokee.model.core.ModelSpecs;
+import dev.nokee.model.core.ModelPredicate;
+import dev.nokee.model.internal.ModelSpecs;
 
 /**
  * Represents a predicate scoped to a specific {@link ModelNode}.
@@ -14,7 +14,7 @@ public interface NodePredicate<T> {
 		if (this instanceof ModelSpec) {
 			return NodePredicateScopeStrategy.ALL.scope(node, (ModelSpec) this);
 		} else {
-			return (ModelSpec<T>) NodePredicateScopeStrategy.ALL.scope(node, ModelSpecs.alwaysTrue());
+			return NodePredicateScopeStrategy.ALL.scope(node, ModelSpecs.alwaysTrue().withNarrowedType());
 		}
 	}
 }

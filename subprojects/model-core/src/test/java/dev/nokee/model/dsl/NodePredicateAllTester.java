@@ -18,7 +18,7 @@ public interface NodePredicateAllTester extends NodePredicateTester {
 	default void matchesProjectionOfSelfNode() {
 		val root = rootNode();
 		val inScope = childNodeOf(root);
-		assertThat(createSubject().scope(inScope).isSatisfiedBy(projectionOf(inScope)), is(true));
+		assertThat(createSubject().scope(inScope).test(projectionOf(inScope)), is(true));
 	}
 
 	@Test
@@ -26,7 +26,7 @@ public interface NodePredicateAllTester extends NodePredicateTester {
 		val root = rootNode();
 		val inScope = childNodeOf(root);
 		val directChild = childNodeOf(inScope);
-		assertThat(createSubject().scope(inScope).isSatisfiedBy(projectionOf(directChild)), is(true));
+		assertThat(createSubject().scope(inScope).test(projectionOf(directChild)), is(true));
 	}
 
 	@Test
@@ -35,7 +35,7 @@ public interface NodePredicateAllTester extends NodePredicateTester {
 		val inScope = childNodeOf(root);
 		val directChild = childNodeOf(inScope);
 		val grandchild = childNodeOf(directChild);
-		assertThat(createSubject().scope(inScope).isSatisfiedBy(projectionOf(grandchild)), is(true));
+		assertThat(createSubject().scope(inScope).test(projectionOf(grandchild)), is(true));
 	}
 
 	@Test
@@ -43,7 +43,7 @@ public interface NodePredicateAllTester extends NodePredicateTester {
 		val spec = mockSpec();
 		val ancestor = rootNode();
 		val inScope = childNodeOf(ancestor);
-		createSubject(specOf(String.class, spec)).scope(inScope).isSatisfiedBy(projectionOf(inScope));
+		createSubject(specOf(String.class, spec)).scope(inScope).test(projectionOf(inScope));
 		assertThat(spec, calledOnceWith(singleArgumentOf(isA(ModelProjection.class))));
 	}
 
@@ -52,8 +52,8 @@ public interface NodePredicateAllTester extends NodePredicateTester {
 		val inScope = rootNode();
 		val spec = createSubject(specOf(String.class, mockSpec().thenReturn(true, false))).scope(inScope);
 		assertAll(
-			() -> assertThat(spec.isSatisfiedBy(projectionOf(inScope)), is(true)),
-			() -> assertThat(spec.isSatisfiedBy(projectionOf(inScope)), is(false))
+			() -> assertThat(spec.test(projectionOf(inScope)), is(true)),
+			() -> assertThat(spec.test(projectionOf(inScope)), is(false))
 		);
 	}
 }

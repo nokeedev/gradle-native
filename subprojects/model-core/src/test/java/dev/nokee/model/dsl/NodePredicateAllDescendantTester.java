@@ -13,12 +13,12 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-public interface NodePredicateDescendantTester extends NodePredicateTester {
+public interface NodePredicateAllDescendantTester extends NodePredicateTester {
 	@Test
 	default void doesNotMatchProjectionOfSelfNode() {
 		val root = rootNode();
 		val inScope = childNodeOf(root);
-		assertThat(createSubject().scope(inScope).isSatisfiedBy(projectionOf(inScope)), is(false));
+		assertThat(createSubject().scope(inScope).test(projectionOf(inScope)), is(false));
 	}
 
 	@Test
@@ -26,7 +26,7 @@ public interface NodePredicateDescendantTester extends NodePredicateTester {
 		val root = rootNode();
 		val inScope = childNodeOf(root);
 		val directChild = childNodeOf(inScope);
-		assertThat(createSubject().scope(inScope).isSatisfiedBy(projectionOf(directChild)), is(true));
+		assertThat(createSubject().scope(inScope).test(projectionOf(directChild)), is(true));
 	}
 
 	@Test
@@ -35,7 +35,7 @@ public interface NodePredicateDescendantTester extends NodePredicateTester {
 		val inScope = childNodeOf(root);
 		val directChild = childNodeOf(inScope);
 		val grandchild = childNodeOf(directChild);
-		assertThat(createSubject().scope(inScope).isSatisfiedBy(projectionOf(grandchild)), is(true));
+		assertThat(createSubject().scope(inScope).test(projectionOf(grandchild)), is(true));
 	}
 
 
@@ -46,7 +46,7 @@ public interface NodePredicateDescendantTester extends NodePredicateTester {
 		val inScope = childNodeOf(ancestor);
 		val child = childNodeOf(inScope);
 		val grandchild = childNodeOf(child);
-		createSubject(specOf(String.class, spec)).scope(inScope).isSatisfiedBy(projectionOf(grandchild));
+		createSubject(specOf(String.class, spec)).scope(inScope).test(projectionOf(grandchild));
 		assertThat(spec, calledOnceWith(singleArgumentOf(isA(ModelProjection.class))));
 	}
 
@@ -57,8 +57,8 @@ public interface NodePredicateDescendantTester extends NodePredicateTester {
 		val grandchild = childNodeOf(child);
 		val spec = createSubject(specOf(String.class, mockSpec().thenReturn(true, false))).scope(inScope);
 		assertAll(
-			() -> assertThat(spec.isSatisfiedBy(projectionOf(grandchild)), is(true)),
-			() -> assertThat(spec.isSatisfiedBy(projectionOf(grandchild)), is(false))
+			() -> assertThat(spec.test(projectionOf(grandchild)), is(true)),
+			() -> assertThat(spec.test(projectionOf(grandchild)), is(false))
 		);
 	}
 }
