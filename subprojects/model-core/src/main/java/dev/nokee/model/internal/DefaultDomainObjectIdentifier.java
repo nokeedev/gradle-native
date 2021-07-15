@@ -8,9 +8,10 @@ import dev.nokee.model.core.ModelProjection;
 import lombok.val;
 import org.gradle.util.GUtil;
 
+import java.util.Iterator;
 import java.util.Optional;
 
-final class DefaultDomainObjectIdentifier implements DomainObjectIdentifier {
+final class DefaultDomainObjectIdentifier implements DomainObjectIdentifier, Iterable<Object> {
 	private final ModelProjection projection;
 
 	DefaultDomainObjectIdentifier(ModelProjection projection) {
@@ -41,5 +42,16 @@ final class DefaultDomainObjectIdentifier implements DomainObjectIdentifier {
 	@Override
 	public String toString() {
 		return Optional.ofNullable(projection.getType().getAnnotation(DisplayName.class)).map(DisplayName::value).orElseGet(this::getDefaultDisplayName) + " '" + getPath() + "'";
+	}
+
+	@Override
+	public Iterator<Object> iterator() {
+		val result = ImmutableList.builder();
+		ModelNode node = projection.getOwner();
+		do {
+			result.add(node.getIdentity());
+			node = node.getParent().orElse(null);
+		} while (node != null);
+		return result.build().reverse().iterator();
 	}
 }

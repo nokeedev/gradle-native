@@ -97,7 +97,7 @@ final class DefaultModelNode implements ModelNode {
 
 	@Override
 	public Object getIdentity() {
-		return delegate.getProperty("identity", ""); // TODO: Is default value enough for root
+		return delegate.getProperty("identity", DomainObjectIdentities.root());
 	}
 
 	@Override
