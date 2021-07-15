@@ -32,6 +32,7 @@ final class DefaultModelNode implements ModelNode {
 	@Override
 	public ModelNode newChildNode(Object identity) {
 		Preconditions.checkArgument(!Objects.equals(identity, DomainObjectIdentities.root()), "Cannot use known root identity as child node identity.");
+		Preconditions.checkArgument(!find(identity).isPresent(), "Child node with identity '%s' already exists.", identity);
 		val name = nameOf(identity);
 		val childNode = graph.createNode()
 			.addLabel(Label.label("NODE"))
