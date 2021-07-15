@@ -2,13 +2,11 @@ package dev.nokee.model.internal;
 
 import groovy.lang.MetaClass;
 import groovy.lang.MissingMethodException;
+import groovy.lang.MissingPropertyException;
 import groovy.lang.Tuple;
 import lombok.val;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 
 final class GroovyDslSupport {
@@ -58,7 +56,7 @@ final class GroovyDslSupport {
 			return property.getProperty(this);
 		}
 
-		return getter.get(name);
+		return getter.get(name).orElseThrow(() -> new MissingPropertyException(name, metaClass.getTheClass()));
 	}
 
 	public static Builder builder() {
@@ -82,7 +80,7 @@ final class GroovyDslSupport {
 	}
 
 	interface PropertyGetter {
-		Object get(String propertyName);
+		Optional<Object> get(String propertyName);
 	}
 
 	public static final class Builder {
