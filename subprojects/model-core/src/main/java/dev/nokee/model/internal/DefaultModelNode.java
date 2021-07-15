@@ -6,9 +6,12 @@ import dev.nokee.model.core.ModelProjection;
 import dev.nokee.model.core.ModelProjectionBuilderAction;
 import dev.nokee.model.core.TypeAwareModelProjection;
 import dev.nokee.model.graphdb.*;
+import dev.nokee.utils.ProviderUtils;
 import lombok.EqualsAndHashCode;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.Named;
+import org.gradle.api.provider.Provider;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -117,5 +120,18 @@ final class DefaultModelNode implements ModelNode {
 		return delegate.getRelationships(PROJECTION_RELATIONSHIP_TYPE)
 			.map(Relationship::getEndNode)
 			.map(factory::createProjection);
+	}
+
+	@Override
+	public <T> Provider<T> as(Class<T> type) {
+		requireNonNull(type);
+		return getProjections().filter(projectionOf(type)).findFirst().map(it -> it.as(type)).orElseGet(ProviderUtils::notDefined);
+	}
+
+	@Override
+	public <T> void whenRealized(Class<T> type, Action<? super T> action) {
+		requireNonNull(type);
+		requireNonNull(action);
+		getProjections().filter(projectionOf(type)).findFirst().orElseThrow(RuntimeException::new).whenRealized(type, action);
 	}
 }
