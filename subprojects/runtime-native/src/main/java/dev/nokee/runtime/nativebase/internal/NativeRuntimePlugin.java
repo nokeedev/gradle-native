@@ -1,5 +1,6 @@
 package dev.nokee.runtime.nativebase.internal;
 
+import dev.nokee.runtime.base.internal.UnzipTransform;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -10,7 +11,6 @@ import org.gradle.api.attributes.AttributesSchema;
 import org.gradle.api.attributes.Category;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
-import org.gradle.api.internal.artifacts.transform.UnzipTransform;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
@@ -77,7 +77,7 @@ public /*final*/ abstract class NativeRuntimePlugin implements Plugin<Project> {
 		schema.attribute(USAGE_ATTRIBUTE, new UsageAttributeSchema());
 	}
 
-	public static /*final*/ abstract class HeadersArchiveToHeaderSearchPath implements UnzipTransform {
+	public static /*final*/ abstract class HeadersArchiveToHeaderSearchPath extends UnzipTransform {
 		public static Action<TransformSpec<TransformParameters.None>> unzipHeadersArtifactToSearchPath(ObjectFactory objects) {
 			return spec -> {
 				spec.getFrom()
