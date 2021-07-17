@@ -1,5 +1,6 @@
 package dev.nokee.runtime.darwin.internal;
 
+import dev.nokee.runtime.base.internal.UnzipTransform;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -8,7 +9,6 @@ import org.gradle.api.artifacts.transform.TransformParameters;
 import org.gradle.api.artifacts.transform.TransformSpec;
 import org.gradle.api.attributes.AttributesSchema;
 import org.gradle.api.attributes.LibraryElements;
-import org.gradle.api.internal.artifacts.transform.UnzipTransform;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
@@ -33,7 +33,7 @@ public /*final*/ abstract class DarwinRuntimePlugin implements Plugin<Project> {
 		schema.attribute(LIBRARY_ELEMENTS_ATTRIBUTE, new FrameworkElementAttributeSchema(getObjects()));
 	}
 
-	public static /*final*/ abstract class FrameworkArchiveToFramework implements UnzipTransform {
+	public static /*final*/ abstract class FrameworkArchiveToFramework extends UnzipTransform {
 		public static Action<TransformSpec<TransformParameters.None>> unzipFrameworkArtifact(ObjectFactory objects) {
 			return spec -> {
 				spec.getFrom()
