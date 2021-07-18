@@ -43,12 +43,23 @@ gradlePlugin {
 test {
 	dependencies {
 		implementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
+		implementation project(':platformC')
+		implementation project(':platformCpp')
+		implementation project(':platformObjectiveC')
+		implementation project(':platformObjectiveCpp')
+		implementation project(':platformSwift')
 	}
 }
 
 functionalTest {
 	dependencies {
 		pluginUnderTestMetadata project(':languageNative')
+		pluginUnderTestMetadata project(':platformNative')
+		pluginUnderTestMetadata project(':platformC')
+		pluginUnderTestMetadata project(':platformCpp')
+		pluginUnderTestMetadata project(':platformObjectiveC')
+		pluginUnderTestMetadata project(':platformObjectiveCpp')
+		pluginUnderTestMetadata project(':platformSwift')
 		pluginUnderTestMetadata project(':platformIos')
 		pluginUnderTestMetadata project(':platformJni')
 		pluginUnderTestMetadata project(':testingXctest')

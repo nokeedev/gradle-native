@@ -35,12 +35,22 @@ gradlePlugin {
 test {
 	dependencies {
 		implementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
+		implementation project(':platformC')
+		implementation project(':platformCpp')
+		implementation project(':platformObjectiveC')
+		implementation project(':platformObjectiveCpp')
+		implementation project(':platformSwift')
 	}
 }
 
 functionalTest {
 	dependencies {
 		pluginUnderTestMetadata project(':platformNative')
+		pluginUnderTestMetadata project(':platformC')
+		pluginUnderTestMetadata project(':platformCpp')
+		pluginUnderTestMetadata project(':platformObjectiveC')
+		pluginUnderTestMetadata project(':platformObjectiveCpp')
+		pluginUnderTestMetadata project(':platformSwift')
 		pluginUnderTestMetadata project(':platformJni')
 		pluginUnderTestMetadata project(':testingNative')
 		implementation 'dev.nokee:templates:latest.integration'

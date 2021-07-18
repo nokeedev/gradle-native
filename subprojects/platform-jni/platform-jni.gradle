@@ -14,6 +14,8 @@ dependencies {
 	implementation project(':languageObjectiveC')
 	implementation project(':languageObjectiveCpp')
 	implementation project(':languageSwift')
+	implementation project(':platformObjectiveC')
+	implementation project(':platformObjectiveCpp')
 
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "com.google.guava:guava:${guavaVersion}"
