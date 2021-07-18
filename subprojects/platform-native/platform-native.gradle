@@ -41,14 +41,6 @@ gradlePlugin {
 			id = 'dev.nokee.native-library'
 			implementationClass = 'dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin'
 		}
-		objcppApplication {
-			id = 'dev.nokee.objective-cpp-application'
-			implementationClass = 'dev.nokee.platform.objectivecpp.internal.plugins.ObjectiveCppApplicationPlugin'
-		}
-		objcppLibrary {
-			id = 'dev.nokee.objective-cpp-library'
-			implementationClass = 'dev.nokee.platform.objectivecpp.internal.plugins.ObjectiveCppLibraryPlugin'
-		}
 		swiftApplication {
 			id = 'dev.nokee.swift-application'
 			implementationClass = 'dev.nokee.platform.swift.internal.plugins.SwiftApplicationPlugin'

@@ -1,8 +1,8 @@
 package dev.nokee.platform.objectivecpp
 
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
-import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.fixtures.AbstractNativeApplicationComponentFunctionalTest
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCppGreeterApp
 import spock.lang.Requires

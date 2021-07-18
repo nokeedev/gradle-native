@@ -111,6 +111,10 @@ include 'platformObjectiveC'
 project(':platformObjectiveC').projectDir = file('subprojects/platform-objective-c')
 project(':platformObjectiveC').buildFileName = 'platform-objective-c.gradle'
 
+include 'platformObjectiveCpp'
+project(':platformObjectiveCpp').projectDir = file('subprojects/platform-objective-cpp')
+project(':platformObjectiveCpp').buildFileName = 'platform-objective-cpp.gradle'
+
 include 'platformIos'
 project(':platformIos').projectDir = file('subprojects/platform-ios')
 project(':platformIos').buildFileName = 'platform-ios.gradle'
