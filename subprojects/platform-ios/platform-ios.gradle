@@ -11,6 +11,9 @@ dependencies {
 	implementation project(':coreExec')
 	implementation project(':runtimeDarwin')
 	implementation project(':runtimeNative')
+	implementation project(':platformObjectiveC')
+	implementation project(':platformObjectiveCpp')
+	implementation project(':platformSwift')
 	api project(':platformBase')
 	implementation project(':platformNative')
 	implementation "com.google.guava:guava:${guavaVersion}"
