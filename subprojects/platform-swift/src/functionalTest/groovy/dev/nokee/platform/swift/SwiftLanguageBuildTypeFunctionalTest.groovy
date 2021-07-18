@@ -1,15 +1,11 @@
 package dev.nokee.platform.swift
 
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.fixtures.AbstractNativeComponentBuildTypeFunctionalTest
 import dev.nokee.language.swift.SwiftTaskNames
-import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
-import dev.nokee.platform.jni.fixtures.elements.SwiftGreeter
-import dev.nokee.platform.nativebase.fixtures.CCompileGreeter
-import dev.nokee.platform.nativebase.fixtures.CGreeterApp
 import dev.nokee.platform.nativebase.fixtures.SwiftCompileGreeter
 import dev.nokee.platform.nativebase.fixtures.SwiftGreeterApp
 import dev.nokee.platform.nativebase.fixtures.SwiftGreeterLib
