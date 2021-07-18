@@ -29,6 +29,7 @@ gradlePlugin {
 functionalTest {
 	dependencies {
 		pluginUnderTestMetadata project(':platformNative')
+		pluginUnderTestMetadata project(':platformC')
 		pluginUnderTestMetadata project(':buildAdapterCmake')
 		implementation project(':platformNative')
 		implementation project(':testingBase')

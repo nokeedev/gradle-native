@@ -1,7 +1,7 @@
 package dev.nokee.platform.c
 
-import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.fixtures.AbstractNativeComponentBuildTypeFunctionalTest
 import dev.nokee.language.c.CTaskNames
 import dev.nokee.platform.nativebase.fixtures.CCompileGreeter
