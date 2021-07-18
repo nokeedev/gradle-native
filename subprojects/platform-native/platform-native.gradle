@@ -49,14 +49,6 @@ gradlePlugin {
 			id = 'dev.nokee.cpp-library'
 			implementationClass = 'dev.nokee.platform.cpp.internal.plugins.CppLibraryPlugin'
 		}
-		cApplication {
-			id = 'dev.nokee.c-application'
-			implementationClass = 'dev.nokee.platform.c.internal.plugins.CApplicationPlugin'
-		}
-		cLibrary {
-			id = 'dev.nokee.c-library'
-			implementationClass = 'dev.nokee.platform.c.internal.plugins.CLibraryPlugin'
-		}
 		objcApplication {
 			id = 'dev.nokee.objective-c-application'
 			implementationClass = 'dev.nokee.platform.objectivec.internal.plugins.ObjectiveCApplicationPlugin'

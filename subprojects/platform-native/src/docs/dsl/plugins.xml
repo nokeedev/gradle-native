@@ -1,10 +1,4 @@
 <plugins>
-    <plugin id="dev.nokee.c-library" description="C Library Plugin">
-        <extends targetClass="org.gradle.api.Project" id="library" extensionClass="dev.nokee.platform.c.CLibraryExtension"/>
-    </plugin>
-	<plugin id="dev.nokee.c-application" description="C Application Plugin">
-		<extends targetClass="org.gradle.api.Project" id="application" extensionClass="dev.nokee.platform.c.CApplicationExtension"/>
-	</plugin>
 	<plugin id="dev.nokee.cpp-library" description="C++ Library Plugin">
 		<extends targetClass="org.gradle.api.Project" id="library" extensionClass="dev.nokee.platform.cpp.CppLibraryExtension"/>
 	</plugin>

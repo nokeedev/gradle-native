@@ -95,6 +95,10 @@ include 'platformBase'
 project(':platformBase').projectDir = file('subprojects/platform-base')
 project(':platformBase').buildFileName = 'platform-base.gradle'
 
+include 'platformC'
+project(':platformC').projectDir = file('subprojects/platform-c')
+project(':platformC').buildFileName = 'platform-c.gradle'
+
 include 'platformNative'
 project(':platformNative').projectDir = file('subprojects/platform-native')
 project(':platformNative').buildFileName = 'platform-native.gradle'
