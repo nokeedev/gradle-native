@@ -1,14 +1,11 @@
 package dev.nokee.platform.objectivec
 
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.fixtures.AbstractNativeComponentBuildTypeFunctionalTest
 import dev.nokee.language.objectivec.ObjectiveCTaskNames
-import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
-import dev.nokee.platform.nativebase.fixtures.CCompileGreeter
-import dev.nokee.platform.nativebase.fixtures.CGreeterApp
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCCompileGreeter
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCGreeterApp
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCGreeterLib
