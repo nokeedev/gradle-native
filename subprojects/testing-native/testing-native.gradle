@@ -30,6 +30,7 @@ functionalTest {
 	dependencies {
 		pluginUnderTestMetadata project(':platformNative')
 		pluginUnderTestMetadata project(':platformC')
+		pluginUnderTestMetadata project(':platformCpp')
 		pluginUnderTestMetadata project(':buildAdapterCmake')
 		implementation project(':platformNative')
 		implementation project(':testingBase')

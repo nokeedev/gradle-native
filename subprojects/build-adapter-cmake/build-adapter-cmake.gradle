@@ -28,7 +28,7 @@ gradlePlugin {
 
 functionalTest {
 	dependencies {
-		pluginUnderTestMetadata project(':platformNative')
+		pluginUnderTestMetadata project(':platformCpp')
 		implementation project(':platformNative')
 		implementation project(':testingBase')
 		implementation 'dev.nokee:templates:latest.integration'

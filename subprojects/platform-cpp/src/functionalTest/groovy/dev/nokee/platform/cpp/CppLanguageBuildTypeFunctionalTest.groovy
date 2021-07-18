@@ -1,12 +1,9 @@
 package dev.nokee.platform.cpp
 
-import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.fixtures.sources.SourceElement
+import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.fixtures.AbstractNativeComponentBuildTypeFunctionalTest
 import dev.nokee.language.cpp.CppTaskNames
-import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
-import dev.nokee.platform.nativebase.fixtures.CCompileGreeter
-import dev.nokee.platform.nativebase.fixtures.CGreeterApp
 import dev.nokee.platform.nativebase.fixtures.CppCompileGreeter
 import dev.nokee.platform.nativebase.fixtures.CppGreeterApp
 import dev.nokee.platform.nativebase.fixtures.CppGreeterLib
