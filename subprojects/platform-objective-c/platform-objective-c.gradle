@@ -1,0 +1,46 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'maven-publish'
+}
+
+dependencies {
+	api project(':platformNative')
+	implementation project(':coreUtils')
+	implementation project(':languageObjectiveC')
+	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	implementation "commons-io:commons-io:${commonsIoVersion}"
+	implementation project(':coreExec')
+	implementation project(':runtimeDarwin')
+}
+
+gradlePlugin {
+	plugins {
+		objcApplication {
+			id = 'dev.nokee.objective-c-application'
+			implementationClass = 'dev.nokee.platform.objectivec.internal.plugins.ObjectiveCApplicationPlugin'
+		}
+		objcLibrary {
+			id = 'dev.nokee.objective-c-library'
+			implementationClass = 'dev.nokee.platform.objectivec.internal.plugins.ObjectiveCLibraryPlugin'
+		}
+	}
+}
+
+test {
+	dependencies {
+		implementation testFixtures(project(':platformBase'))
+		implementation testFixtures(project(':platformNative'))
+		implementation testFixtures(project(':coreModel'))
+		implementation gradleTestKit()
+	}
+}
+
+functionalTest {
+	dependencies {
+		implementation project(':runtimeNative')
+		implementation 'dev.nokee:templates:latest.integration'
+		implementation testFixtures(project(':platformNative'))
+		implementation testFixtures(project(':languageObjectiveC'))
+	}
+}

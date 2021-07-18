@@ -1,0 +1,8 @@
+<plugins>
+	<plugin id="dev.nokee.objective-c-library" description="Objective-C Library Plugin">
+		<extends targetClass="org.gradle.api.Project" id="library" extensionClass="dev.nokee.platform.objectivec.ObjectiveCLibraryExtension"/>
+	</plugin>
+	<plugin id="dev.nokee.objective-c-application" description="Objective-C Application Plugin">
+		<extends targetClass="org.gradle.api.Project" id="application" extensionClass="dev.nokee.platform.objectivec.ObjectiveCApplicationExtension"/>
+	</plugin>
+</plugins>
