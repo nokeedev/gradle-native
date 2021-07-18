@@ -42,6 +42,7 @@ functionalTest {
 	dependencies {
 		pluginUnderTestMetadata project(':languageNative')
 		pluginUnderTestMetadata project(':platformC')
+		pluginUnderTestMetadata project(':platformCpp')
 
 		implementation project(':platformBase')
 		implementation project(':platformNative')
