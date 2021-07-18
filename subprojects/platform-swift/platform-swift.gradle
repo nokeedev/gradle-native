@@ -1,0 +1,46 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'maven-publish'
+}
+
+dependencies {
+	api project(':platformNative')
+	implementation project(':coreUtils')
+	implementation project(':languageSwift')
+	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	implementation "commons-io:commons-io:${commonsIoVersion}"
+	implementation project(':coreExec')
+	implementation project(':runtimeDarwin')
+}
+
+gradlePlugin {
+	plugins {
+		swiftApplication {
+			id = 'dev.nokee.swift-application'
+			implementationClass = 'dev.nokee.platform.swift.internal.plugins.SwiftApplicationPlugin'
+		}
+		swiftLibrary {
+			id = 'dev.nokee.swift-library'
+			implementationClass = 'dev.nokee.platform.swift.internal.plugins.SwiftLibraryPlugin'
+		}
+	}
+}
+
+test {
+	dependencies {
+		implementation testFixtures(project(':platformBase'))
+		implementation testFixtures(project(':platformNative'))
+		implementation testFixtures(project(':coreModel'))
+		implementation gradleTestKit()
+	}
+}
+
+functionalTest {
+	dependencies {
+		implementation project(':runtimeNative')
+		implementation 'dev.nokee:templates:latest.integration'
+		implementation testFixtures(project(':platformNative'))
+		implementation testFixtures(project(':languageSwift'))
+	}
+}
