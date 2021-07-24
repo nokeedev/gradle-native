@@ -339,4 +339,19 @@ public final class ConfigurationMatchers {
 		}
 		throw new UnsupportedOperationException();
 	}
+
+	/**
+	 * Matches a configuration description using the specified matcher.
+	 *
+	 * @param matcher  a configuration description to matcher, must not be null
+	 * @return a configuration matcher, never null
+	 */
+	public static Matcher<Configuration> description(Matcher<? super String> matcher) {
+		return new FeatureMatcher<Configuration, String>(matcher, "a configuration with description of", "configuration description") {
+			@Override
+			protected String featureValueOf(Configuration actual) {
+				return actual.getDescription();
+			}
+		};
+	}
 }
