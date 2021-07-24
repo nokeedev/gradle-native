@@ -109,12 +109,14 @@ public final class TaskUtils {
 	 * @param args  string format arguments, must not be null
 	 * @return an action that configures the {@link Task}'s description, never null
 	 */
-	public static ActionUtils.Action<Task> configureDescription(String format, Object... args) {
-		return new ConfigureDescriptionAction(new StringFormatSupplier(format, args));
+	// We use a generic task type to help with chaining
+	//  TaskUtils.<SomeTask>configureDescription(...).andThen(specificTaskConfiguration())
+	public static <T extends Task> ActionUtils.Action<T> configureDescription(String format, Object... args) {
+		return new ConfigureDescriptionAction<>(new StringFormatSupplier(format, args));
 	}
 
 	@EqualsAndHashCode
-	private static final class ConfigureDescriptionAction implements ActionUtils.Action<Task> {
+	private static final class ConfigureDescriptionAction<T extends Task> implements ActionUtils.Action<T> {
 		private final Supplier<? extends String> descriptionSupplier;
 
 		public ConfigureDescriptionAction(Supplier<? extends String> descriptionSupplier) {
@@ -122,7 +124,7 @@ public final class TaskUtils {
 		}
 
 		@Override
-		public void execute(Task task) {
+		public void execute(T task) {
 			task.setDescription(descriptionSupplier.get());
 		}
 
