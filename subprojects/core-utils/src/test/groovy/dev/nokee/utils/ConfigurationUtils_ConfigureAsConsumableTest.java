@@ -12,27 +12,27 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
 
-class ConfigurationUtils_AsResolvableTest {
+class ConfigurationUtils_ConfigureAsConsumableTest {
 	@Test
-	void canConfigureConfigurationAsResolvableBucket()  {
-		val configuration = testConfiguration(asResolvable());
-		assertThat("should not be consumable", configuration.isCanBeConsumed(), equalTo(false));
-		assertThat("should be resolvable", configuration.isCanBeResolved(), equalTo(true));
+	void canConfigureConfigurationAsConsumableBucket()  {
+		val configuration = testConfiguration(configureAsConsumable());
+		assertThat("should be consumable", configuration.isCanBeConsumed(), equalTo(true));
+		assertThat("should not be resolvable", configuration.isCanBeResolved(), equalTo(false));
 	}
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(asResolvable(), asResolvable())
-			.addEqualityGroup(asDeclarable())
-			.addEqualityGroup(asConsumable())
+			.addEqualityGroup(configureAsConsumable(), configureAsConsumable())
+			.addEqualityGroup(configureAsResolvable())
+			.addEqualityGroup(configureAsDeclarable())
 			.addEqualityGroup((Action<Configuration>) it -> {})
 			.testEquals();
 	}
 
 	@Test
 	void checkToString() {
-		assertThat(asResolvable(), hasToString("ConfigurationUtils.asResolvable()"));
+		assertThat(configureAsConsumable(), hasToString("ConfigurationUtils.configureAsConsumable()"));
 	}
 }

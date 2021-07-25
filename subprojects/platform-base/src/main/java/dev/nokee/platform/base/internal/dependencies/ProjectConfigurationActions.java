@@ -588,7 +588,7 @@ public final class ProjectConfigurationActions {
 	 * @return a configuration action, never null
 	 */
 	public static ActionUtils.Action<Configuration> asDeclarable() {
-		return ConfigurationUtils.asDeclarable();
+		return ConfigurationUtils.configureAsDeclarable();
 	}
 
 	/**
@@ -597,7 +597,7 @@ public final class ProjectConfigurationActions {
 	 * @return a configuration action, never null
 	 */
 	public static ActionUtils.Action<Configuration> asConsumable() {
-		return ConfigurationUtils.asConsumable();
+		return ConfigurationUtils.configureAsConsumable();
 	}
 
 	/**
@@ -606,7 +606,7 @@ public final class ProjectConfigurationActions {
 	 * @return a configuration action, never null
 	 */
 	public static ActionUtils.Action<Configuration> asResolvable() {
-		return ConfigurationUtils.asResolvable();
+		return ConfigurationUtils.configureAsResolvable();
 	}
 
 	private static abstract class ConfigurationWithObjectFactoryConsumer implements AssertableConsumer<Configuration> {

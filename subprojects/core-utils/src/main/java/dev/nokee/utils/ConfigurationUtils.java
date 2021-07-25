@@ -61,7 +61,7 @@ public final class ConfigurationUtils {
 	 *
 	 * @return a configuration action, never null
 	 */
-	public static ActionUtils.Action<Configuration> asDeclarable() {
+	public static ActionUtils.Action<Configuration> configureAsDeclarable() {
 		return ConfigurationActions.DECLARABLE;
 	}
 
@@ -80,7 +80,7 @@ public final class ConfigurationUtils {
 	 *
 	 * @return a configuration action, never null
 	 */
-	public static ActionUtils.Action<Configuration> asConsumable() {
+	public static ActionUtils.Action<Configuration> configureAsConsumable() {
 		return ConfigurationActions.CONSUMABLE;
 	}
 
@@ -99,7 +99,7 @@ public final class ConfigurationUtils {
 	 *
 	 * @return a configuration action, never null
 	 */
-	public static ActionUtils.Action<Configuration> asResolvable() {
+	public static ActionUtils.Action<Configuration> configureAsResolvable() {
 		return ConfigurationActions.RESOLVABLE;
 	}
 
@@ -140,9 +140,9 @@ public final class ConfigurationUtils {
 	}
 
 	/**
-	 * @see #asDeclarable()
-	 * @see #asConsumable()
-	 * @see #asResolvable()
+	 * @see #configureAsDeclarable()
+	 * @see #configureAsConsumable()
+	 * @see #configureAsResolvable()
 	 */
 	private enum ConfigurationActions implements ActionUtils.Action<Configuration> {
 		DECLARABLE(ConfigurationBuckets.DECLARABLE),
@@ -162,7 +162,7 @@ public final class ConfigurationUtils {
 
 		@Override
 		public String toString() {
-			return "ConfigurationUtils.as" + StringUtils.capitalize(bucket.getConfigurationTypeName()) + "()";
+			return "ConfigurationUtils.configureAs" + StringUtils.capitalize(bucket.getConfigurationTypeName()) + "()";
 		}
 	}
 
