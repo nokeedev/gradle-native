@@ -15,9 +15,9 @@ class ConfigurationUtils_ResolvableTest {
 	@Test
 	void onlyMatchResolvableBucket() {
 		assertAll(
-			() -> assertThat(resolvable().isSatisfiedBy(testConfiguration(asConsumable())), is(false)),
-			() -> assertThat(resolvable().isSatisfiedBy(testConfiguration(asResolvable())), is(true)),
-			() -> assertThat(resolvable().isSatisfiedBy(testConfiguration(asDeclarable())), is(false))
+			() -> assertThat(resolvable().isSatisfiedBy(testConfiguration(configureAsConsumable())), is(false)),
+			() -> assertThat(resolvable().isSatisfiedBy(testConfiguration(configureAsResolvable())), is(true)),
+			() -> assertThat(resolvable().isSatisfiedBy(testConfiguration(configureAsDeclarable())), is(false))
 		);
 	}
 

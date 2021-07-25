@@ -11,12 +11,13 @@ import static dev.nokee.utils.ConfigurationUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class ConfigurationUtils_AsConsumableTest {
+class ConfigurationUtils_ConfigureAsDeclarableTest {
 	@Test
-	void canConfigureConfigurationAsConsumableBucket()  {
-		val configuration = testConfiguration(asConsumable());
-		assertThat("should be consumable", configuration.isCanBeConsumed(), equalTo(true));
+	void canConfigureConfigurationAsDeclarableBucket()  {
+		val configuration = testConfiguration(configureAsDeclarable());
+		assertThat("should not be consumable", configuration.isCanBeConsumed(), equalTo(false));
 		assertThat("should not be resolvable", configuration.isCanBeResolved(), equalTo(false));
 	}
 
@@ -24,15 +25,15 @@ class ConfigurationUtils_AsConsumableTest {
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(asConsumable(), asConsumable())
-			.addEqualityGroup(asResolvable())
-			.addEqualityGroup(asDeclarable())
+			.addEqualityGroup(configureAsDeclarable(), configureAsDeclarable())
+			.addEqualityGroup(configureAsResolvable())
+			.addEqualityGroup(configureAsConsumable())
 			.addEqualityGroup((Action<Configuration>) it -> {})
 			.testEquals();
 	}
 
 	@Test
 	void checkToString() {
-		assertThat(asConsumable(), hasToString("ConfigurationUtils.asConsumable()"));
+		assertThat(configureAsDeclarable(), hasToString("ConfigurationUtils.configureAsDeclarable()"));
 	}
 }

@@ -15,9 +15,9 @@ class ConfigurationUtils_DeclarableTest {
 	@Test
 	void onlyMatchDeclarableBucket() {
 		assertAll(
-			() -> assertThat(declarable().isSatisfiedBy(testConfiguration(asConsumable())), is(false)),
-			() -> assertThat(declarable().isSatisfiedBy(testConfiguration(asResolvable())), is(false)),
-			() -> assertThat(declarable().isSatisfiedBy(testConfiguration(asDeclarable())), is(true))
+			() -> assertThat(declarable().isSatisfiedBy(testConfiguration(configureAsConsumable())), is(false)),
+			() -> assertThat(declarable().isSatisfiedBy(testConfiguration(configureAsResolvable())), is(false)),
+			() -> assertThat(declarable().isSatisfiedBy(testConfiguration(configureAsDeclarable())), is(true))
 		);
 	}
 
