@@ -2,6 +2,7 @@ package dev.nokee.utils;
 
 import groovy.lang.Closure;
 import lombok.EqualsAndHashCode;
+import org.gradle.api.Action;
 
 import static dev.nokee.utils.ExecutionArgumentsFactory.create;
 
@@ -63,6 +64,24 @@ public final class ClosureTestUtils {
 		@Override
 		public String toString() {
 			return "doSomething()";
+		}
+	}
+
+	public static <T> Closure<Void> adapt(Action<? super T> action) {
+		return new ActionClosure<>(action);
+	}
+
+	private static final class ActionClosure<T> extends Closure<Void> {
+		private final Action<? super T> action;
+
+		public ActionClosure(Action<? super T> action) {
+			super(new Object());
+			this.action = action;
+		}
+
+		public Void doCall(T t) {
+			action.execute(t);
+			return null;
 		}
 	}
 }
