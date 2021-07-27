@@ -33,13 +33,13 @@ public final class TaskUtils {
 	 * @param paths an array of task dependency path as describe by {@link Task#dependsOn(Object...)}.
 	 * @return an action that configures the task's dependencies.
 	 */
-	public static Action<Task> configureDependsOn(Object path, Object... paths) {
+	public static ActionUtils.Action<Task> configureDependsOn(Object path, Object... paths) {
 		// At least one dependency must be specified.
 		return new ConfigureDependsOnAction(ImmutableList.builder().add(path).add(paths).build());
 	}
 
 	@EqualsAndHashCode
-	private static final class ConfigureDependsOnAction implements Action<Task> {
+	private static final class ConfigureDependsOnAction implements ActionUtils.Action<Task> {
 		private final Iterable<Object> paths;
 
 		public ConfigureDependsOnAction(Iterable<Object> paths) {
@@ -63,12 +63,12 @@ public final class TaskUtils {
 	 * @param group a task group string.
 	 * @return an action that configures the task's group.
 	 */
-	public static Action<Task> configureGroup(String group) {
+	public static ActionUtils.Action<Task> configureGroup(String group) {
 		return new ConfigureGroupAction(group);
 	}
 
 	@EqualsAndHashCode
-	private static final class ConfigureGroupAction implements Action<Task> {
+	private static final class ConfigureGroupAction implements ActionUtils.Action<Task> {
 		private final String group;
 
 		public ConfigureGroupAction(String group) {
