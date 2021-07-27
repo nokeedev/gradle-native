@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.ProjectLayout;
+import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 import java.util.List;
 import java.util.Objects;
@@ -61,13 +62,24 @@ public final class TaskUtils {
 	}
 
 	/**
-	 * Returns an action that configures the {@link Task#setGroup(String)}.
+	 * Returns an action that configures the task group to the specified group.
+	 * The action uses {@link Task#setGroup(String)} to configure the group.
 	 *
-	 * @param group a task group string.
-	 * @return an action that configures the task's group.
+	 * @param group  a task group string.
+	 * @return an action that configures the task's group, never null
 	 */
 	public static ActionUtils.Action<Task> configureGroup(String group) {
 		return new ConfigureGroupAction(group);
+	}
+
+	/**
+	 * Returns an action that configures the task group as {@literal build} group.
+	 * Short hand version of {@code TaskUtils.configureGroup("group")}.
+	 *
+	 * @return an action that configures the task's group, never null
+	 */
+	public static ActionUtils.Action<Task> configureBuildGroup() {
+		return new ConfigureGroupAction(LifecycleBasePlugin.BUILD_GROUP);
 	}
 
 	@EqualsAndHashCode
