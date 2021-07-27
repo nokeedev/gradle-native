@@ -1,6 +1,7 @@
 package dev.nokee.internal.testing;
 
 import org.gradle.api.file.FileSystemLocation;
+import org.gradle.api.provider.Provider;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -26,8 +27,10 @@ public final class FileSystemMatchers {
 					return (File) actual;
 				} else if (actual instanceof Path) {
 					return ((Path) actual).toFile();
+				} else if (actual instanceof Provider) {
+					throw new IllegalArgumentException("Please make sure there is not confusion between Provider#map vs Provider#flatMap. Otherwise, use GradleProviderMatchers#providerOf.");
 				}
-				throw new UnsupportedOperationException();
+				throw new UnsupportedOperationException(String.format("Unsupported file-like type of '%s'.", actual.getClass().getSimpleName()));
 			}
 		};
 	}
