@@ -7,9 +7,10 @@ import org.gradle.api.artifacts.*;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.attributes.HasAttributes;
-import org.gradle.api.attributes.HasConfigurableAttributes;
+import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -252,5 +253,90 @@ public final class ConfigurationMatchers {
 				return actual.getVersion();
 			}
 		};
+	}
+
+	/**
+	 * Matches a declarable configuration, that is a configuration where {@link Configuration#isCanBeConsumed()} is {@literal false} and {@link Configuration#isCanBeResolved()} is {@literal false}.
+	 *
+	 * @return a configuration matcher, never null
+	 */
+	public static Matcher<Configuration> declarable() {
+		return new TypeSafeMatcher<Configuration>() {
+			@Override
+			protected boolean matchesSafely(Configuration item) {
+				return !item.isCanBeConsumed() && !item.isCanBeResolved();
+			}
+
+			@Override
+			protected void describeMismatchSafely(Configuration item, Description description) {
+				description.appendText("was a ").appendText(configurationType(item)).appendText(" configuration");
+			}
+
+			@Override
+			public void describeTo(Description description) {
+				description.appendText("a declarable configuration");
+			}
+		};
+	}
+
+	/**
+	 * Matches a consumable configuration, that is a configuration where {@link Configuration#isCanBeConsumed()} is {@literal true} and {@link Configuration#isCanBeResolved()} is {@literal false}.
+	 *
+	 * @return a configuration matcher, never null
+	 */
+	public static Matcher<Configuration> consumable() {
+		return new TypeSafeMatcher<Configuration>() {
+			@Override
+			protected boolean matchesSafely(Configuration item) {
+				return item.isCanBeConsumed() && !item.isCanBeResolved();
+			}
+
+			@Override
+			protected void describeMismatchSafely(Configuration item, Description description) {
+				description.appendText("was a ").appendText(configurationType(item)).appendText(" configuration");
+			}
+
+			@Override
+			public void describeTo(Description description) {
+				description.appendText("a consumable configuration");
+			}
+		};
+	}
+
+	/**
+	 * Matches a resolvable configuration, that is a configuration where {@link Configuration#isCanBeConsumed()} is {@literal false} and {@link Configuration#isCanBeResolved()} is {@literal true}.
+	 *
+	 * @return a configuration matcher, never null
+	 */
+	public static Matcher<Configuration> resolvable() {
+		return new TypeSafeMatcher<Configuration>() {
+			@Override
+			protected boolean matchesSafely(Configuration item) {
+				return !item.isCanBeConsumed() && item.isCanBeResolved();
+			}
+
+			@Override
+			protected void describeMismatchSafely(Configuration item, Description description) {
+				description.appendText("was a ").appendText(configurationType(item)).appendText(" configuration");
+			}
+
+			@Override
+			public void describeTo(Description description) {
+				description.appendText("a resolvable configuration");
+			}
+		};
+	}
+
+	private static String configurationType(Configuration item) {
+		if (item.isCanBeConsumed() && item.isCanBeResolved()) {
+			return "legacy";
+		} else if (item.isCanBeConsumed() && !item.isCanBeResolved()) {
+			return "consumable";
+		} else if (!item.isCanBeConsumed() && item.isCanBeResolved()) {
+			return "resolvable";
+		} else if (!item.isCanBeConsumed() && !item.isCanBeResolved()) {
+			return "declarable";
+		}
+		throw new UnsupportedOperationException();
 	}
 }
