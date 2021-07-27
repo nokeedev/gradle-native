@@ -10,6 +10,7 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
@@ -98,6 +99,36 @@ public final class TaskUtils {
 		@Override
 		public String toString() {
 			return "TaskUtils.configureGroup(" + group + ")";
+		}
+	}
+
+	/**
+	 * Returns an action that configures the {@link Task} description as formatted string.
+	 *
+	 * @param format  string format, must not be null
+	 * @param args  string format arguments, must not be null
+	 * @return an action that configures the {@link Task}'s description, never null
+	 */
+	public static ActionUtils.Action<Task> configureDescription(String format, Object... args) {
+		return new ConfigureDescriptionAction(new StringFormatSupplier(format, args));
+	}
+
+	@EqualsAndHashCode
+	private static final class ConfigureDescriptionAction implements ActionUtils.Action<Task> {
+		private final Supplier<? extends String> descriptionSupplier;
+
+		public ConfigureDescriptionAction(Supplier<? extends String> descriptionSupplier) {
+			this.descriptionSupplier = requireNonNull(descriptionSupplier);
+		}
+
+		@Override
+		public void execute(Task task) {
+			task.setDescription(descriptionSupplier.get());
+		}
+
+		@Override
+		public String toString() {
+			return "TaskUtils.configureDescription(" + descriptionSupplier.get() + ")";
 		}
 	}
 }

@@ -27,6 +27,7 @@ class ConfigurationUtils_ConfigureDescriptionTest {
 	@SuppressWarnings("UnstableApiUsage")
 	void canCompareConfigurationAction() {
 		new EqualsTester()
+			.addEqualityGroup(configureDescription("Dependencies for '%s'.", "foo"), configureDescription("Dependencies for '%s'.", "foo"))
 			.addEqualityGroup(configureDescription(ofInstance("description")), configureDescription(ofInstance("description")))
 			.addEqualityGroup(configureDescription(ofInstance("another description")))
 			.testEquals();
@@ -35,6 +36,8 @@ class ConfigurationUtils_ConfigureDescriptionTest {
 	@Test
 	void checkToString() {
 		assertThat(configureDescription(ofInstance("description")),
-			hasToString("ConfigurationUtils.configureDescription(Suppliers.ofInstance(description))"));
+			hasToString("ConfigurationUtils.configureDescription(description)"));
+		assertThat(configureDescription("Dependencies for '%s'.", "foo"),
+			hasToString("ConfigurationUtils.configureDescription(Dependencies for 'foo'.)"));
 	}
 }

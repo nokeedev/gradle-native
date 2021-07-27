@@ -26,32 +26,43 @@ public final class ConfigurationUtils {
 
 	public static final Attribute<String> ARTIFACT_TYPE_ATTRIBUTE = Attribute.of("artifactType", String.class);
 
-	public static ActionUtils.Action<Configuration> configureDescription(Supplier<? extends String> description) {
-		return new ConfigureDescriptionAction(description);
+	/**
+	 * Returns an action that configures the {@link Configuration} description from supplier.
+	 *
+	 * @param descriptionSupplier  a description supplier, must not be null
+	 * @return an action that configures the {@link Configuration}'s description, never null
+	 */
+	public static ActionUtils.Action<Configuration> configureDescription(Supplier<? extends String> descriptionSupplier) {
+		return new ConfigureDescriptionAction(descriptionSupplier);
 	}
 
+	/**
+	 * Returns an action that configures the {@link Configuration} description as formatted string.
+	 *
+	 * @param format  string format, must not be null
+	 * @param args  string format arguments, must not be null
+	 * @return an action that configures the {@link Configuration}'s description, never null
+	 */
 	public static ActionUtils.Action<Configuration> configureDescription(String format, Object... args) {
-		requireNonNull(format);
-		requireNonNull(args);
-		return new ConfigureDescriptionAction(() -> String.format(format, args));
+		return new ConfigureDescriptionAction(new StringFormatSupplier(format, args));
 	}
 
 	@EqualsAndHashCode
 	private static final class ConfigureDescriptionAction implements ActionUtils.Action<Configuration> {
-		private final Supplier<? extends String> description;
+		private final Supplier<? extends String> descriptionSupplier;
 
-		public ConfigureDescriptionAction(Supplier<? extends String> description) {
-			this.description = requireNonNull(description);
+		public ConfigureDescriptionAction(Supplier<? extends String> descriptionSupplier) {
+			this.descriptionSupplier = requireNonNull(descriptionSupplier);
 		}
 
 		@Override
 		public void execute(Configuration configuration) {
-			configuration.setDescription(description.get());
+			configuration.setDescription(descriptionSupplier.get());
 		}
 
 		@Override
 		public String toString() {
-			return "ConfigurationUtils.configureDescription(" + description + ")";
+			return "ConfigurationUtils.configureDescription(" + descriptionSupplier.get() + ")";
 		}
 	}
 
