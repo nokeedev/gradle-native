@@ -3,12 +3,15 @@ package dev.nokee.utils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import lombok.EqualsAndHashCode;
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.ProjectLayout;
 
+import java.util.List;
+import java.util.Objects;
+
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.joining;
 
 /**
  * Utilities for Gradle {@link Task} instances.
@@ -40,9 +43,9 @@ public final class TaskUtils {
 
 	@EqualsAndHashCode
 	private static final class ConfigureDependsOnAction implements ActionUtils.Action<Task> {
-		private final Iterable<Object> paths;
+		private final List<Object> paths;
 
-		public ConfigureDependsOnAction(Iterable<Object> paths) {
+		public ConfigureDependsOnAction(List<Object> paths) {
 			this.paths = paths;
 		}
 
@@ -53,7 +56,7 @@ public final class TaskUtils {
 
 		@Override
 		public String toString() {
-			return "TaskUtils.configureDependsOn(" + paths + ")";
+			return "TaskUtils.configureDependsOn(" + paths.stream().map(Objects::toString).collect(joining(", ")) + ")";
 		}
 	}
 
