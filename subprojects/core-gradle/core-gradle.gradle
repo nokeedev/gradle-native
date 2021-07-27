@@ -5,9 +5,6 @@ plugins {
 }
 
 dependencies {
-	api 'com.google.dagger:dagger:latest.release'
-	annotationProcessor 'com.google.dagger:dagger-compiler:latest.release'
-
 	compileOnly gradleApi(minimumGradleVersion)
 }
 
