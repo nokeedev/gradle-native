@@ -251,7 +251,7 @@ public final class ConfigurationUtils {
 			}
 
 			public AttributesDetails usage(Usage usage) {
-				configuration.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, usage);
+				configuration.attributes(it -> it.attribute(Usage.USAGE_ATTRIBUTE, usage));
 				return this;
 			}
 
@@ -269,13 +269,13 @@ public final class ConfigurationUtils {
 			}
 
 			public AttributesDetails artifactType(String artifactType) {
-				configuration.getAttributes().attribute(ARTIFACT_TYPE_ATTRIBUTE, artifactType);
+				configuration.attributes(it -> it.attribute(ARTIFACT_TYPE_ATTRIBUTE, artifactType));
 				return this;
 			}
 
 			@Override
 			public <T> AttributesDetails attribute(Attribute<T> key, T value) {
-				configuration.getAttributes().attribute(key, value);
+				configuration.attributes(it -> it.attribute(key, value));
 				return this;
 			}
 		}
