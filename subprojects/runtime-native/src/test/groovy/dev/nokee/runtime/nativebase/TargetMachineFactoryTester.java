@@ -39,7 +39,7 @@ public interface TargetMachineFactoryTester {
 		val machine = arch.apply(os.apply(createSubject()));
 		val project = rootProject();
 		val test = project.getConfigurations().create("test",
-			asConsumable().andThen(attributesOf(machine)));
+			asConsumable().andThen(configureAttributesFrom(machine)));
 
 		assertAll(
 			() -> assertThat(test, attributes(hasEntry(equalTo(OPERATING_SYSTEM_ATTRIBUTE), named(os.getName())))),
@@ -55,7 +55,7 @@ public interface TargetMachineFactoryTester {
 		val machine = arch.apply(os.apply(createSubject()));
 		val project = rootProject();
 		val test = project.getConfigurations().create("test",
-			asResolvable().andThen(attributesOf(machine)));
+			asResolvable().andThen(configureAttributesFrom(machine)));
 
 		assertAll(
 			() -> assertThat(test, attributes(hasEntry(equalTo(OPERATING_SYSTEM_ATTRIBUTE), named(os.getName())))),

@@ -9,7 +9,7 @@ import org.gradle.api.attributes.AttributeContainer;
 
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 
-final class DefaultTargetBuildType implements TargetBuildType, Coordinate<BuildType>, ConfigurationUtils.AttributesProvider {
+final class DefaultTargetBuildType implements TargetBuildType, Coordinate<BuildType>, ConfigurationUtils.ConfigurationAttributesProvider {
 	private final BuildType buildType;
 
 	DefaultTargetBuildType(BuildType buildType) {
