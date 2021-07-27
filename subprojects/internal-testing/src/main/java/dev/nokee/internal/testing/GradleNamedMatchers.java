@@ -13,18 +13,22 @@ public final class GradleNamedMatchers {
 	private GradleNamedMatchers() {}
 
 	public static <T> Matcher<T> named(String name) {
-		return new FeatureMatcher<T, String>(equalTo(requireNonNull(name)), "an object named", "the object's name") {
+		return named(equalTo(requireNonNull(name)));
+	}
+
+	public static <T> Matcher<T> named(Matcher<? super String> matcher) {
+		return new FeatureMatcher<T, String>(requireNonNull(matcher), "an object named", "the object's name") {
 			@Override
 			protected String featureValueOf(T actual) {
 				if (actual instanceof Named) {
 					return ((Named) actual).getName();
-
+				}
 				// Configuration class somewhat behave like a Named class
-				} else if (actual instanceof Configuration) {
+				else if (actual instanceof Configuration) {
 					return ((Configuration) actual).getName();
-
+				}
 				// Task class somewhat behave like a Named class
-				} else if (actual instanceof Task) {
+				else if (actual instanceof Task) {
 					return ((Task) actual).getName();
 				}
 
