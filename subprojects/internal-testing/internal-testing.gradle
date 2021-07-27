@@ -24,4 +24,6 @@ dependencies {
 	api "dev.gradleplugins:grava-testing:${gravaVersion}"
 	api gradleRunnerKit()
 	implementation gradleApi(minimumGradleVersion)
+
+	testImplementation project(':coreUtils')
 }
