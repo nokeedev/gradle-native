@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
+import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.AttributeContainer;
@@ -204,22 +205,47 @@ public final class ConfigurationUtils {
 	}
 
 	/**
-	 * Configures a {@link Configuration}'s attributes from the specified {@link AttributesProvider} object.
-	 * It's a short hand version of {@literal configureAttributes(it -> it.from(obj))}.
+	 * Configures a {@link Configuration}'s attributes from the specified {@link ConfigurationAttributesProvider} object.
 	 *
 	 * @param obj  an attributes provider object, must not be null
-	 * @param <T>  the attributes configurable type
 	 * @return a configuration action, never null
 	 * @see #configureAttributes(Consumer)
 	 */
-	public static <T extends HasConfigurableAttributes<T>> ActionUtils.Action<T> attributesOf(Object obj) {
+	public static ActionUtils.Action<Configuration> configureAttributesFrom(Object obj) {
 		requireNonNull(obj);
-		return new ConfigureAttributesAction<>(it -> it.from(obj));
+		if (obj instanceof ConfigurationAttributesProvider) {
+			return new ConfigureAttributesFromAction((ConfigurationAttributesProvider) obj);
+		}
+		return ActionUtils.doNothing();
+	}
+
+	@EqualsAndHashCode
+	private static final class ConfigureAttributesFromAction implements ActionUtils.Action<Configuration> {
+		private final ConfigurationAttributesProvider provider;
+
+		private ConfigureAttributesFromAction(ConfigurationAttributesProvider provider) {
+			this.provider = provider;
+		}
+
+		@Override
+		public void execute(Configuration configuration) {
+			if (ConfigurationBuckets.RESOLVABLE.isSatisfiedBy(configuration)) {
+				configuration.attributes(provider::forResolving);
+			} else if (ConfigurationBuckets.CONSUMABLE.isSatisfiedBy(configuration)) {
+				configuration.attributes(provider::forConsuming);
+			} else {
+				throw new IllegalStateException(String.format("Configuration '%s' must be either consumable or resolvable.", configuration.getName()));
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "ConfigurationUtils.configureAttributesFrom(" + provider + ")";
+		}
 	}
 
 	public interface AttributesDetails {
 		AttributesDetails usage(Usage usage);
-		AttributesDetails from(Object obj);
 		AttributesDetails artifactType(String artifactType);
 		<T> AttributesDetails attribute(Attribute<T> key, T value);
 	}
@@ -234,8 +260,8 @@ public final class ConfigurationUtils {
 		}
 
 		@Override
-		public void execute(T configuration) {
-			action.accept(new DefaultConfigurationAttributeBuilder(configuration));
+		public void execute(T t) {
+			t.attributes(new DefaultConfigurationAttributeBuilder(action));
 		}
 
 		@Override
@@ -243,39 +269,38 @@ public final class ConfigurationUtils {
 			return "ConfigurationUtils.configureAttributes(" + action + ")";
 		}
 
-		private static final class DefaultConfigurationAttributeBuilder implements AttributesDetails {
-			private final HasConfigurableAttributes<?> configuration;
+		private static final class DefaultConfigurationAttributeBuilder implements AttributesDetails, Action<AttributeContainer> {
+			private final Consumer<? super AttributesDetails> action;
+			private AttributeContainer attributes;
 
-			public DefaultConfigurationAttributeBuilder(HasConfigurableAttributes<?> configuration) {
-				this.configuration = configuration;
+			public DefaultConfigurationAttributeBuilder(Consumer<? super AttributesDetails> action) {
+				this.action = action;
+			}
+
+			@Override
+			public void execute(AttributeContainer attributes) {
+				assert this.attributes == null;
+				this.attributes = attributes;
+				try {
+					action.accept(this);
+				} finally {
+					this.attributes = null;
+				}
 			}
 
 			public AttributesDetails usage(Usage usage) {
-				configuration.attributes(it -> it.attribute(Usage.USAGE_ATTRIBUTE, usage));
-				return this;
-			}
-
-			public AttributesDetails from(Object obj) {
-				if (configuration instanceof Configuration && obj instanceof AttributesProvider) {
-					if (ConfigurationBuckets.RESOLVABLE.isSatisfiedBy((Configuration) configuration)) {
-						((AttributesProvider) obj).forResolving(configuration.getAttributes());
-					} else if (ConfigurationBuckets.CONSUMABLE.isSatisfiedBy((Configuration) configuration)) {
-						((AttributesProvider) obj).forConsuming(configuration.getAttributes());
-					} else {
-						throw new IllegalStateException(String.format("Configuration '%s' must be either consumable or resolvable.", ((Configuration) configuration).getName()));
-					}
-				}
+				attributes.attribute(Usage.USAGE_ATTRIBUTE, usage);
 				return this;
 			}
 
 			public AttributesDetails artifactType(String artifactType) {
-				configuration.attributes(it -> it.attribute(ARTIFACT_TYPE_ATTRIBUTE, artifactType));
+				attributes.attribute(ARTIFACT_TYPE_ATTRIBUTE, artifactType);
 				return this;
 			}
 
 			@Override
 			public <T> AttributesDetails attribute(Attribute<T> key, T value) {
-				configuration.attributes(it -> it.attribute(key, value));
+				attributes.attribute(key, value);
 				return this;
 			}
 		}
@@ -285,7 +310,7 @@ public final class ConfigurationUtils {
 	 * Provides attributes on {@link HasConfigurableAttributes} object.
 	 * @see #configureAttributes(Consumer)
 	 */
-	public interface AttributesProvider {
+	public interface ConfigurationAttributesProvider {
 		void forConsuming(AttributeContainer attributes);
 		void forResolving(AttributeContainer attributes);
 	}

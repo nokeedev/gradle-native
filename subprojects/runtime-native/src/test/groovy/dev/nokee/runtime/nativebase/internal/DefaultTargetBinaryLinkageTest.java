@@ -21,7 +21,7 @@ class DefaultTargetBinaryLinkageTest {
 	void doesNotProvideAttributeForConsumableConfiguration() {
 		val project = rootProject();
 		val test = project.getConfigurations().create("test",
-			asConsumable().andThen(attributesOf(createSubject("my-linkage"))));
+			asConsumable().andThen(configureAttributesFrom(createSubject("my-linkage"))));
 		assertThat(test, attributes(not(hasEntry(equalTo(BinaryLinkage.BINARY_LINKAGE_ATTRIBUTE), named("my-linkage")))));
 	}
 
@@ -29,7 +29,7 @@ class DefaultTargetBinaryLinkageTest {
 	void providesAttributeForResolvableConfiguration() {
 		val project = rootProject();
 		val test = project.getConfigurations().create("test",
-			asResolvable().andThen(attributesOf(createSubject("my-linkage"))));
+			asResolvable().andThen(configureAttributesFrom(createSubject("my-linkage"))));
 		assertThat(test, attributes(hasEntry(equalTo(BinaryLinkage.BINARY_LINKAGE_ATTRIBUTE), named("my-linkage"))));
 	}
 

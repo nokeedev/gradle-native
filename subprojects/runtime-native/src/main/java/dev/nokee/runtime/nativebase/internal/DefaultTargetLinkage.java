@@ -9,7 +9,7 @@ import org.gradle.api.attributes.AttributeContainer;
 
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 
-final class DefaultTargetLinkage implements TargetLinkage, Coordinate<BinaryLinkage>, ConfigurationUtils.AttributesProvider {
+final class DefaultTargetLinkage implements TargetLinkage, Coordinate<BinaryLinkage>, ConfigurationUtils.ConfigurationAttributesProvider {
 	private final BinaryLinkage binaryLinkage;
 
 	DefaultTargetLinkage(BinaryLinkage binaryLinkage) {

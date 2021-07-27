@@ -21,7 +21,7 @@ import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTE
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 
 @EqualsAndHashCode
-abstract class AbstractTargetMachine implements TargetMachine, Coordinate<TargetMachine>, CoordinateTuple, ConfigurationUtils.AttributesProvider {
+abstract class AbstractTargetMachine implements TargetMachine, Coordinate<TargetMachine>, CoordinateTuple, ConfigurationUtils.ConfigurationAttributesProvider {
 	private final Coordinate<MachineArchitecture> architectureCoordinate;
 	private final Coordinate<OperatingSystemFamily> operatingSystemCoordinate;
 

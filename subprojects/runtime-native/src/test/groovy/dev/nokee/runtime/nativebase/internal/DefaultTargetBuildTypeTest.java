@@ -21,7 +21,7 @@ class DefaultTargetBuildTypeTest {
 	void providesAttributeForConsumableConfiguration() {
 		val project = rootProject();
 		val test = project.getConfigurations().create("test",
-			asConsumable().andThen(attributesOf(createSubject("my-build-type"))));
+			asConsumable().andThen(configureAttributesFrom(createSubject("my-build-type"))));
 		assertThat(test, attributes(hasEntry(equalTo(BuildType.BUILD_TYPE_ATTRIBUTE), named("my-build-type"))));
 	}
 
@@ -29,7 +29,7 @@ class DefaultTargetBuildTypeTest {
 	void providesAttributeForResolvableConfiguration() {
 		val project = rootProject();
 		val test = project.getConfigurations().create("test",
-			asResolvable().andThen(attributesOf(createSubject("my-build-type"))));
+			asResolvable().andThen(configureAttributesFrom(createSubject("my-build-type"))));
 		assertThat(test, attributes(hasEntry(equalTo(BuildType.BUILD_TYPE_ATTRIBUTE), named("my-build-type"))));
 	}
 
