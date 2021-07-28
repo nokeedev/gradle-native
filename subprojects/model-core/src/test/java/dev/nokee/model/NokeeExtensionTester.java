@@ -6,6 +6,7 @@ import lombok.val;
 import org.gradle.api.plugins.ExtensionAware;
 import org.junit.jupiter.api.Test;
 
+import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.utils.ActionTestUtils.mockAction;
 import static dev.nokee.utils.ClosureTestUtils.mockClosure;
@@ -91,5 +92,24 @@ public interface NokeeExtensionTester extends ConfigurableTester<NokeeExtension>
 			() -> assertThat(modelRegistry.getRoot().get("bar").canBeViewedAs(TestProjection.class), is(true)),
 			() -> assertThat(container.findByName("far"), notNullValue(TestProjection.class))
 		);
+	}
+
+	@Test
+	default void deduplicateAutomaticModelRegistrationFromNamedContainer() {
+		val container = objectFactory().domainObjectContainer(TestProjection.class);
+		val extension = createSubject().bridgeContainer(container);
+		val modelRegistry = extension.getModelRegistry();
+		extension.getModel().node("far").node("bar").projection(TestProjection.class);
+		assertThat(modelRegistry.getRoot().find("farBar"), emptyOptional());
+	}
+
+	@Test
+	default void deduplicateAutomaticModelRegistrationFromNPolymorphicContainer() {
+		val container = objectFactory().polymorphicDomainObjectContainer(TestProjection.class);
+		container.registerFactory(TestProjection.class, TestProjection::new);
+		val extension = createSubject().bridgeContainer(container);
+		val modelRegistry = extension.getModelRegistry();
+		extension.getModel().node("far").node("bar").projection(TestProjection.class);
+		assertThat(modelRegistry.getRoot().find("farBar"), emptyOptional());
 	}
 }
