@@ -50,6 +50,13 @@ public abstract class MachineArchitecture implements Named, dev.nokee.platform.n
 		return KnownMachineArchitectures.forName(name);
 	}
 
+	/**
+	 * Creates a machine architecture using the specified name.
+	 *
+	 * @param name  a machine architecture name, must not be null
+	 * @return a machine architecture, never null
+	 * @since 0.5
+	 */
 	public static MachineArchitecture named(String name) {
 		return new DefaultMachineArchitecture(name);
 	}
