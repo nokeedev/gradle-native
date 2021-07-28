@@ -55,10 +55,6 @@ public abstract /*final*/ class ModelBasePlugin<T extends PluginAware & Extensio
 		);
 	}
 
-	public static NokeeExtension nokee(ExtensionAware target) {
-		return target.getExtensions().getByType(NokeeExtension.class);
-	}
-
 	@SuppressWarnings("unchecked")
 	private static <T> Class<T> publicTypeOf(T target) {
 		if (target instanceof Settings) {
