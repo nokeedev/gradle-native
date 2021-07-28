@@ -15,33 +15,23 @@ import static org.hamcrest.Matchers.equalTo;
 
 class MachineArchitectureTest {
 	@Nested
-	class ObjectFactoryTest implements NamedValueTester<MachineArchitecture>, MachineArchitectureTester {
+	class ObjectFactoryTest implements MachineArchitectureTester {
 		@Override
 		public MachineArchitecture createSubject(String name) {
 			return objectFactory().named(MachineArchitecture.class, name);
 		}
-
-		@Override
-		public Stream<String> knownValues() {
-			return knownMachineArchitectures();
-		}
 	}
 
 	@Nested
-	class MethodFactoryTest implements NamedValueTester<MachineArchitecture>, MachineArchitectureTester {
+	class MethodFactoryTest implements MachineArchitectureTester {
 		@Override
 		public MachineArchitecture createSubject(String name) {
 			return named(name);
 		}
-
-		@Override
-		public Stream<String> knownValues() {
-			return knownMachineArchitectures();
-		}
 	}
 
 	@Nested
-	class CanonicalMethodFactoryTest implements NamedValueTester<MachineArchitecture>, MachineArchitectureTester {
+	class CanonicalMethodFactoryTest implements MachineArchitectureTester {
 		@Override
 		public MachineArchitecture createSubject(String name) {
 			return forName(name);
@@ -53,24 +43,6 @@ class MachineArchitectureTest {
 			return MachineArchitectureTester.super.provideMachineArchitecturesUnderTest()
 				.map(it -> it.withName(it.getCanonicalName()));
 		}
-
-		@Override
-		public Stream<String> knownValues() {
-			return knownMachineArchitectures();
-		}
-	}
-
-	private static Stream<String> knownMachineArchitectures() {
-		return Streams.concat(
-			MachineArchitectureTestUtils.commonHPPARISCArchitectures(),
-			MachineArchitectureTestUtils.commonIntel32BitArchitectures(),
-			MachineArchitectureTestUtils.commonIntel64BitArchitectures(),
-			MachineArchitectureTestUtils.commonItaniumArchitectures(),
-			MachineArchitectureTestUtils.commonPowerPC32BitArchitectures(),
-			MachineArchitectureTestUtils.commonPowerPC64BitArchitectures(),
-			MachineArchitectureTestUtils.commonSparc32BitArchitectures(),
-			MachineArchitectureTestUtils.commonSparc64BitArchitectures()
-		).map(MachineArchitectureUnderTest::getName);
 	}
 
 	@Test

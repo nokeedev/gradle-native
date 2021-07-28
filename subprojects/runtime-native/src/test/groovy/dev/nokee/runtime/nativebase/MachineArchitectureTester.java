@@ -13,8 +13,12 @@ import static dev.nokee.runtime.nativebase.MachineArchitectureTestUtils.common64
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public interface MachineArchitectureTester extends KnownMachineArchitecture32BitTester, KnownMachineArchitecture64BitTester, UnknownMachineArchitectureTester {
+public interface MachineArchitectureTester extends NamedValueTester<MachineArchitecture>, KnownMachineArchitecture32BitTester, KnownMachineArchitecture64BitTester, UnknownMachineArchitectureTester {
 	MachineArchitecture createSubject(String name);
+
+	default Stream<String> knownValues() {
+		return provideMachineArchitecturesUnderTest().map(MachineArchitectureUnderTest::getName);
+	}
 
 	default Stream<MachineArchitectureUnderTest> provideMachineArchitecturesUnderTest() {
 		return Streams.concat(common32BitMachineArchitectures(), common64BitMachineArchitectures());
