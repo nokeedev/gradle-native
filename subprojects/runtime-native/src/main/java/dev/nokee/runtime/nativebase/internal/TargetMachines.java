@@ -23,7 +23,8 @@ public final class TargetMachines {
 	}
 
 	public static boolean isTargetingHost(TargetMachine targetMachine) {
-		return HOST.equals(targetMachine);
+		return HOST.getOperatingSystemFamily().equals(targetMachine.getOperatingSystemFamily())
+			&& HOST.getArchitecture().equals(targetMachine.getArchitecture());
 	}
 
 	// Declare host target machine to help internal APIs
