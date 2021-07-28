@@ -1,6 +1,7 @@
 package dev.nokee.model.internal;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Suppliers;
 import dev.nokee.model.core.ModelNode;
 import dev.nokee.model.core.ModelProjection;
 import dev.nokee.model.core.ModelProjectionBuilderAction;
@@ -15,7 +16,7 @@ import org.gradle.api.provider.Provider;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.ModelSpecs.projectionOf;
@@ -28,6 +29,7 @@ final class DefaultModelNode implements ModelNode {
 	@EqualsAndHashCode.Exclude private final Graph graph;
 	@EqualsAndHashCode.Include private final Node delegate;
 	@EqualsAndHashCode.Exclude private final ModelFactory factory;
+	@EqualsAndHashCode.Exclude private Supplier<Optional<ModelNode>> parent = Suppliers.memoize(this::computeParentNode);
 
 	public DefaultModelNode(ModelFactory factory, Graph graph, Node delegate) {
 		this.graph = graph;
@@ -74,7 +76,12 @@ final class DefaultModelNode implements ModelNode {
 
 	@Override
 	public Optional<ModelNode> getParent() {
-		return delegate.getSingleRelationship(OWNERSHIP_RELATIONSHIP_TYPE, Direction.INCOMING).map(it -> factory.createNode(it.getStartNode()));
+		return parent.get();
+	}
+
+	private Optional<ModelNode> computeParentNode() {
+		return delegate.getSingleRelationship(OWNERSHIP_RELATIONSHIP_TYPE, Direction.INCOMING)
+			.map(it -> factory.createNode(it.getStartNode()));
 	}
 
 	@Override
