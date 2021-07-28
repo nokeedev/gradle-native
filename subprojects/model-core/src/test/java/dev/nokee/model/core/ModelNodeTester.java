@@ -133,6 +133,18 @@ public interface ModelNodeTester {
 	}
 
 	@Test
+	default void inferTypeFromInstanceCreatedViaObjectFactoryOfClassWhenCreatingProjectionByInstanceOnly() {
+		assertThat(createSubject().newProjection(builder -> builder.forInstance(objectFactory().newInstance(TestProjection.class, "test"))).getType(), is(TestProjection.class));
+	}
+
+	@Test
+	default void inferTypeFromInstanceCreatedViaObjectFactoryOfInterfaceWhenCreatingProjectionByInstanceOnly() {
+		assertThat(createSubject().newProjection(builder -> builder.forInstance(objectFactory().newInstance(ITestProjection.class))).getType(), is(ITestProjection.class));
+	}
+
+	interface ITestProjection {}
+
+	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	default void checkNulls() {
 		new NullPointerTester().testAllPublicInstanceMethods(createSubject());

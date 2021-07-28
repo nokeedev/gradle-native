@@ -61,9 +61,20 @@ final class ProjectionSpec {
 			return this;
 		}
 
+		private Class<?> toUndecoratedType(Class<?> type) {
+			if (type.getSimpleName().endsWith("_Decorated")) {
+				if (type.getSuperclass().equals(Object.class)) {
+					return type.getInterfaces()[0];
+				} else {
+					return type.getSuperclass();
+				}
+			}
+			return type;
+		}
+
 		public ProjectionSpec build() {
 			if (type == null) {
-				type = ProviderUtils.getType(provider).orElse(null);
+				type = ProviderUtils.getType(provider).map(this::toUndecoratedType).orElse(null);
 			}
 			ProviderUtils.getType(provider).ifPresent(type -> {
 				if (!this.type.isAssignableFrom(type)) {
