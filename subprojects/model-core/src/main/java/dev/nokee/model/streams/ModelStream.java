@@ -91,7 +91,7 @@ public interface ModelStream<T> {
 	 * @param <T>  type of elements
 	 * @return a {@code ModelStream} processing elements from the specified topic, never null
 	 */
-	static <T> ModelStream<T> of(Topic<T> topic) {
+	static <T> ModelStream<T> of(Topic<? extends T> topic) {
 		return new DefaultModelStream<>(topic);
 	}
 
