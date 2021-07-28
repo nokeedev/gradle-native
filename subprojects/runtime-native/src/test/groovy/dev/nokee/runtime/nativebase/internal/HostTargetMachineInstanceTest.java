@@ -25,6 +25,16 @@ class HostTargetMachineInstanceTest {
 	}
 
 	@Test
+	void canRenameHostTargetMachine() {
+		val subject = TargetMachines.host().named("foo");
+		assertAll(
+			() -> assertThat(subject.getOperatingSystemFamily(), equalTo(OperatingSystemFamily.forName(System.getProperty("os.name")))),
+			() -> assertThat(subject.getArchitecture(), equalTo(MachineArchitecture.forName(System.getProperty("os.arch")))),
+			() -> assertThat(subject, hasToString("foo"))
+		);
+	}
+
+	@Test
 	void checkToString() {
 		assertThat(TargetMachines.host(), hasToString("host"));
 	}
