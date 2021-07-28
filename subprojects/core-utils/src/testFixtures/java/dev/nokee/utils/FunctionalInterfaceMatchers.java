@@ -97,23 +97,23 @@ public final class FunctionalInterfaceMatchers {
 		};
 	}
 
-	public static <T> Matcher<ClosureExecutionDelegate<T>> delegateOf(T delegateInstance) {
+	public static <T> Matcher<ClosureExecutionDelegate<? extends T>> delegateOf(T delegateInstance) {
 		return delegateOf(equalTo(delegateInstance));
 	}
 
-	public static <T> Matcher<ClosureExecutionDelegate<T>> delegateOf(Matcher<? super T> delegateMatcher) {
-		return new FeatureMatcher<ClosureExecutionDelegate<T>, T>(delegateMatcher, "", "") {
+	public static <T> Matcher<ClosureExecutionDelegate<? extends T>> delegateOf(Matcher<? super T> delegateMatcher) {
+		return new FeatureMatcher<ClosureExecutionDelegate<? extends T>, T>(delegateMatcher, "", "") {
 			@Override
-			protected T featureValueOf(ClosureExecutionDelegate<T> actual) {
+			protected T featureValueOf(ClosureExecutionDelegate<? extends T> actual) {
 				return actual.getDelegate();
 			}
 		};
 	}
 
-	public static Matcher<ClosureExecutionDelegate> delegateFirstStrategy() {
-		return new FeatureMatcher<ClosureExecutionDelegate, Integer>(equalTo(Closure.DELEGATE_FIRST), "", "") {
+	public static Matcher<ClosureExecutionDelegate<?>> delegateFirstStrategy() {
+		return new FeatureMatcher<ClosureExecutionDelegate<?>, Integer>(equalTo(Closure.DELEGATE_FIRST), "", "") {
 			@Override
-			protected Integer featureValueOf(ClosureExecutionDelegate actual) {
+			protected Integer featureValueOf(ClosureExecutionDelegate<?> actual) {
 				return actual.getResolveStrategy();
 			}
 		};
