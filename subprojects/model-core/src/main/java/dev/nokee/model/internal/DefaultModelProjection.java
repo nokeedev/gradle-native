@@ -72,6 +72,11 @@ final class DefaultModelProjection<T> implements TypeAwareModelProjection<T>, Mo
 		return ((ProjectionSpec) delegate.getProperty("spec")).getType();
 	}
 
+	@Override
+	public void realize() {
+		get(getType());
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}

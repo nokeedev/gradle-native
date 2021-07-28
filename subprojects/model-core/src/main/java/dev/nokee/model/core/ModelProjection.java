@@ -33,6 +33,8 @@ public interface ModelProjection {
 	 */
 	Class<?> getType();
 
+	void realize();
+
 	interface Builder {
 		<S> TypeAwareModelProjection.Builder<S> type(Class<S> type);
 
