@@ -43,6 +43,12 @@ final class DefaultGraph implements Graph {
 		val relationship = new RelationshipEntity(createProperties(nextId()), from, type, to);
 		((NodeEntity) from).relationshipList.add(relationship);
 		((NodeEntity) to).relationshipList.add(relationship);
+
+		((NodeEntity) from).relationshipByTypeAndDirection.put(new NodeEntity.TypeDirection(type, Direction.OUTGOING), relationship);
+		((NodeEntity) to).relationshipByTypeAndDirection.put(new NodeEntity.TypeDirection(type, Direction.INCOMING), relationship);
+		((NodeEntity) from).relationshipByTypeAndDirection.put(new NodeEntity.TypeDirection(type, Direction.BOTH), relationship);
+		((NodeEntity) to).relationshipByTypeAndDirection.put(new NodeEntity.TypeDirection(type, Direction.BOTH), relationship);
+
 		relationshipList.add(relationship);
 		entities.put(relationship.getId(), relationship);
 		notifier.fireRelationshipCreatedEvent(builder -> builder.relationshipId(relationship.getId()));

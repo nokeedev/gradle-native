@@ -2,6 +2,10 @@ package dev.nokee.model.graphdb;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicates;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
+import lombok.Value;
 import lombok.val;
 
 import java.util.ArrayList;
@@ -16,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 final class NodeEntity extends AbstractEntity implements Node {
 	final List<Relationship> relationshipList = new ArrayList<>();
+	final Multimap<TypeDirection, Relationship> relationshipByTypeAndDirection = ArrayListMultimap.create();
 	private final NodeLabels labels;
 	private final Graph graph;
 
@@ -42,7 +47,11 @@ final class NodeEntity extends AbstractEntity implements Node {
 
 	@Override
 	public Stream<Relationship> getRelationships(Direction direction, RelationshipType... types) {
-		return relationshipList.stream().filter(forDirection(direction).and(forTypes(types)));
+		if (types.length == 1) {
+			return relationshipByTypeAndDirection.get(new TypeDirection(types[0], direction)).stream();
+		} else {
+			return relationshipList.stream().filter(forDirection(direction).and(forTypes(types)));
+		}
 	}
 
 	@Override
@@ -90,7 +99,8 @@ final class NodeEntity extends AbstractEntity implements Node {
 	public Optional<Relationship> getSingleRelationship(RelationshipType type, Direction direction) {
 		requireNonNull(type);
 		requireNonNull(direction);
-		val iter = getRelationships(direction, type).iterator();
+
+		val iter = relationshipByTypeAndDirection.get(new TypeDirection(type, direction)).iterator();
 		if (!iter.hasNext()) {
 			return Optional.empty();
 		}
@@ -130,5 +140,11 @@ final class NodeEntity extends AbstractEntity implements Node {
 			.add("properties", getAllProperties())
 			.add("labels", getLabels().collect(Collectors.toList()))
 			.toString();
+	}
+
+	@Value
+	static class TypeDirection {
+		RelationshipType type;
+		Direction direction;
 	}
 }
