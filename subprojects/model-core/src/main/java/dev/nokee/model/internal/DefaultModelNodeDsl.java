@@ -118,14 +118,14 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 				var previous = delegate.getParent();
 				String name = "";
 				while (previous.isPresent()) {
-					name = previous.get().getIdentity().toString() + StringUtils.capitalize(name);
+					name = nameOf(previous.get().getIdentity()) + StringUtils.capitalize(name);
 					previous = previous.get().getParent();
 				}
 
 				if (Task.class.isAssignableFrom(type)) {
-					name = delegate.getIdentity().toString() + StringUtils.capitalize(name);
+					name = nameOf(delegate.getIdentity()) + StringUtils.capitalize(name);
 				} else {
-					name = name + StringUtils.capitalize(delegate.getIdentity().toString());
+					name = name + StringUtils.capitalize(nameOf(delegate.getIdentity()));
 				}
 
 				return builder.type(type).forProvider(registry.registerIfAbsent(StringUtils.uncapitalize(name), type));
@@ -141,14 +141,14 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 				var previous = delegate.getParent();
 				String name = "";
 				while (previous.isPresent()) {
-					name = previous.get().getIdentity().toString() + StringUtils.capitalize(name);
+					name = nameOf(previous.get().getIdentity()) + StringUtils.capitalize(name);
 					previous = previous.get().getParent();
 				}
 
 				if (Task.class.isAssignableFrom(type)) {
-					name = delegate.getIdentity().toString() + StringUtils.capitalize(name);
+					name = nameOf(delegate.getIdentity()) + StringUtils.capitalize(name);
 				} else {
-					name = name + StringUtils.capitalize(delegate.getIdentity().toString());
+					name = name + StringUtils.capitalize(nameOf(delegate.getIdentity()));
 				}
 
 				return builder.type(type).forProvider(registry.registerIfAbsent(StringUtils.uncapitalize(name), type));
