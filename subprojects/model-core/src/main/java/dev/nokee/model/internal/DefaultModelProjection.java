@@ -16,6 +16,7 @@ import static dev.nokee.utils.ProviderUtils.notDefined;
 final class DefaultModelProjection<T> implements TypeAwareModelProjection<T>, ModelProjection {
 	@EqualsAndHashCode.Include private final Node delegate;
 	@EqualsAndHashCode.Exclude private final ModelFactory factory;
+	@EqualsAndHashCode.Exclude private ModelNode owner = null;
 
 	public DefaultModelProjection(ModelFactory factory, Node delegate) {
 		this.delegate = delegate;
@@ -37,7 +38,10 @@ final class DefaultModelProjection<T> implements TypeAwareModelProjection<T>, Mo
 
 	@Override
 	public ModelNode getOwner() {
-		return factory.createNode(delegate.getSingleRelationship(DefaultModelNode.PROJECTION_RELATIONSHIP_TYPE, Direction.INCOMING).map(Relationship::getStartNode).orElseThrow(this::noProjectionOwnerException));
+		if (owner == null) {
+			owner = factory.createNode(delegate.getSingleRelationship(DefaultModelNode.PROJECTION_RELATIONSHIP_TYPE, Direction.INCOMING).map(Relationship::getStartNode).orElseThrow(this::noProjectionOwnerException));
+		}
+		return owner;
 	}
 
 	private RuntimeException noProjectionOwnerException() {
