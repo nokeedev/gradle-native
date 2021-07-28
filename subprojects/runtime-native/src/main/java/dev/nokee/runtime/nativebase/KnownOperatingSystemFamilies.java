@@ -22,7 +22,6 @@ final class KnownOperatingSystemFamilies {
 	);
 
 	public static OperatingSystemFamily forName(String name) {
-		name = name.toLowerCase(Locale.CANADA);
 		for (KnownOperatingSystem knownOperatingSystem : KNOWN_OPERATING_SYSTEMS) {
 			if (knownOperatingSystem.isAlias(name)) {
 				return knownOperatingSystem;
@@ -32,13 +31,12 @@ final class KnownOperatingSystemFamilies {
 	}
 
 	public static String canonical(String name) {
-		name = name.toLowerCase(Locale.CANADA);
-		for (KnownOperatingSystem knownArchitecture : KNOWN_OPERATING_SYSTEMS) {
-			if (knownArchitecture.isAlias(name)) {
-				return knownArchitecture.getCanonicalName();
+		for (KnownOperatingSystem knownOperatingSystem : KNOWN_OPERATING_SYSTEMS) {
+			if (knownOperatingSystem.isAlias(name)) {
+				return knownOperatingSystem.getCanonicalName();
 			}
 		}
-		return name;
+		return name.toLowerCase(Locale.CANADA);
 	}
 
 	private static final class KnownOperatingSystem extends OperatingSystemFamily implements Serializable {
@@ -61,6 +59,7 @@ final class KnownOperatingSystemFamilies {
 		}
 
 		public boolean isAlias(String input) {
+			input = input.toLowerCase(Locale.CANADA);
 			return input.contains(canonicalName) || aliases.stream().anyMatch(input::contains);
 		}
 	}
@@ -79,7 +78,7 @@ final class KnownOperatingSystemFamilies {
 
 		@Override
 		public String getCanonicalName() {
-			return name;
+			return name.toLowerCase(Locale.CANADA);
 		}
 
 		@Override
