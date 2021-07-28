@@ -48,7 +48,7 @@ class TargetMachineFactoryTest implements TargetMachineFactoryTester{
 	}
 
 	@Nested
-	class AdhocOperatingSystemFamilyTest implements KnownOperatingSystemFamilyTester, UnknownOperatingSystemFamilyTester {
+	class AdhocOperatingSystemFamilyTest implements OperatingSystemFamilyTester {
 		@Override
 		public OperatingSystemFamily createSubject(String name) {
 			return TargetMachineFactoryTest.this.createSubject().os(name).getOperatingSystemFamily();

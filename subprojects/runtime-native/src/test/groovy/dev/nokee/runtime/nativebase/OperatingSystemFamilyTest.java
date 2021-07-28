@@ -1,6 +1,5 @@
 package dev.nokee.runtime.nativebase;
 
-import com.google.common.collect.Streams;
 import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,46 +8,40 @@ import java.util.stream.Stream;
 
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.forName;
+import static dev.nokee.runtime.nativebase.OperatingSystemFamily.named;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 class OperatingSystemFamilyTest {
 	@Nested
-	class ObjectFactoryTest implements NamedValueTester<OperatingSystemFamily>, KnownOperatingSystemFamilyTester, UnknownOperatingSystemFamilyTester {
+	class ObjectFactoryTest implements OperatingSystemFamilyTester {
 		@Override
 		public OperatingSystemFamily createSubject(String name) {
 			return objectFactory().named(OperatingSystemFamily.class, name);
 		}
+	}
 
+	@Nested
+	class MethodFactoryTest implements OperatingSystemFamilyTester {
 		@Override
-		public Stream<String> knownValues() {
-			return knownOperatingSystemFamilies();
+		public OperatingSystemFamily createSubject(String name) {
+			return named(name);
 		}
 	}
 
 	@Nested
-	class MethodFactoryTest implements NamedValueTester<OperatingSystemFamily>, KnownOperatingSystemFamilyTester, UnknownOperatingSystemFamilyTester {
+	class CanonicalMethodFactoryTest implements OperatingSystemFamilyTester {
 		@Override
 		public OperatingSystemFamily createSubject(String name) {
 			return forName(name);
 		}
 
 		@Override
-		public Stream<String> knownValues() {
-			return knownOperatingSystemFamilies();
+		public Stream<OperatingSystemFamilyUnderTest> provideOperatingSystemFamiliesUnderTest() {
+			// OperatingSystemFamily#forName use canonical name as operating system family name
+			return OperatingSystemFamilyTester.super.provideOperatingSystemFamiliesUnderTest()
+				.map(it -> it.withName(it.getCanonicalName()));
 		}
-	}
-
-	private static Stream<String> knownOperatingSystemFamilies() {
-		return Streams.concat(
-			OperatingSystemFamilyTestUtils.commonFreeBSDNames(),
-			OperatingSystemFamilyTestUtils.commonHPUXNames(),
-			OperatingSystemFamilyTestUtils.commonIosNames(),
-			OperatingSystemFamilyTestUtils.commonLinuxNames(),
-			OperatingSystemFamilyTestUtils.commonMacOSNames(),
-			OperatingSystemFamilyTestUtils.commonSolarisNames(),
-			OperatingSystemFamilyTestUtils.commonWindowsNames()
-		);
 	}
 
 	@Test
