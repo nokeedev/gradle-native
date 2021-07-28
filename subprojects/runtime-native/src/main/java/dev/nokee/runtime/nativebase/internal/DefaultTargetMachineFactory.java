@@ -1,6 +1,8 @@
 package dev.nokee.runtime.nativebase.internal;
 
 import dev.nokee.runtime.nativebase.*;
+import org.apache.commons.lang3.StringUtils;
+import org.gradle.api.Named;
 
 final class DefaultTargetMachineFactory implements TargetMachineFactory {
 	private static final MachineArchitecture HOST_ARCH = MachineArchitecture.forName(System.getProperty("os.arch"));
@@ -40,12 +42,17 @@ final class DefaultTargetMachineFactory implements TargetMachineFactory {
 		return new DefaultTargetMachineBuilder(OperatingSystemFamily.named(name));
 	}
 
-	private static final class DefaultTargetMachineBuilder extends AbstractTargetMachine implements TargetMachineBuilder {
+	private static final class DefaultTargetMachineBuilder extends AbstractTargetMachine implements TargetMachineBuilder, Named {
 		private static final MachineArchitecture X86 = MachineArchitecture.forName(MachineArchitecture.X86);
 		private static final MachineArchitecture X86_64 = MachineArchitecture.forName(MachineArchitecture.X86_64);
 
 		public DefaultTargetMachineBuilder(OperatingSystemFamily operatingSystemFamily) {
 			super(operatingSystemFamily, HOST_ARCH);
+		}
+
+		@Override
+		public String getName() {
+			return getOperatingSystemFamily().toString();
 		}
 
 		@Override
@@ -69,7 +76,7 @@ final class DefaultTargetMachineFactory implements TargetMachineFactory {
 		}
 	}
 
-	private static final class DefaultTargetMachine extends AbstractTargetMachine {
+	private static final class DefaultTargetMachine extends AbstractTargetMachine implements Named {
 		DefaultTargetMachine(OperatingSystemFamily operatingSystemFamily, MachineArchitecture architecture) {
 			super(operatingSystemFamily, architecture);
 		}
@@ -77,6 +84,11 @@ final class DefaultTargetMachineFactory implements TargetMachineFactory {
 		@Override
 		public String toString() {
 			return getOperatingSystemFamily().toString() + ":" + getArchitecture().toString();
+		}
+
+		@Override
+		public String getName() {
+			return getOperatingSystemFamily().toString() + StringUtils.capitalize(getArchitecture().toString());
 		}
 	}
 }
