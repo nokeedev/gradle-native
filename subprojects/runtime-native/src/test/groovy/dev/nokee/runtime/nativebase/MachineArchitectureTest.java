@@ -40,6 +40,26 @@ class MachineArchitectureTest {
 		}
 	}
 
+	@Nested
+	class CanonicalMethodFactoryTest implements NamedValueTester<MachineArchitecture>, MachineArchitectureTester {
+		@Override
+		public MachineArchitecture createSubject(String name) {
+			return forName(name);
+		}
+
+		@Override
+		public Stream<MachineArchitectureUnderTest> provideMachineArchitecturesUnderTest() {
+			// MachineArchitecture#forName use canonical name as machine architecture name
+			return MachineArchitectureTester.super.provideMachineArchitecturesUnderTest()
+				.map(it -> it.withName(it.getCanonicalName()));
+		}
+
+		@Override
+		public Stream<String> knownValues() {
+			return knownMachineArchitectures();
+		}
+	}
+
 	private static Stream<String> knownMachineArchitectures() {
 		return Streams.concat(
 			MachineArchitectureTestUtils.commonHPPARISCArchitectures(),
