@@ -8,7 +8,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public interface UnknownMachineArchitectureTester {
+interface UnknownMachineArchitectureTester {
 	MachineArchitecture createSubject(String name);
 
 	@Test

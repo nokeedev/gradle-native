@@ -54,16 +54,16 @@ abstract class AbstractTargetMachine implements TargetMachine, Coordinate<Target
 	public void forConsuming(AttributeContainer attributes) {
 		attributes.attribute(OPERATING_SYSTEM_ATTRIBUTE, getOperatingSystemFamily());
 		attributes.attribute(ARCHITECTURE_ATTRIBUTE, getArchitecture());
-		attributes.attribute(org.gradle.nativeplatform.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, new StandaloneOperatingSystemFamily(getOperatingSystemFamily().getCanonicalName()));
-		attributes.attribute(org.gradle.nativeplatform.MachineArchitecture.ARCHITECTURE_ATTRIBUTE, new StandaloneMachineArchitecture(getArchitecture().getCanonicalName()));
+		attributes.attribute(org.gradle.nativeplatform.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, new StandaloneOperatingSystemFamily(getOperatingSystemFamily().getName()));
+		attributes.attribute(org.gradle.nativeplatform.MachineArchitecture.ARCHITECTURE_ATTRIBUTE, new StandaloneMachineArchitecture(getArchitecture().getName()));
 	}
 
 	@Override
 	public void forResolving(AttributeContainer attributes) {
 		attributes.attribute(OPERATING_SYSTEM_ATTRIBUTE, getOperatingSystemFamily());
 		attributes.attribute(ARCHITECTURE_ATTRIBUTE, getArchitecture());
-		attributes.attribute(org.gradle.nativeplatform.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, new StandaloneOperatingSystemFamily(getOperatingSystemFamily().getCanonicalName()));
-		attributes.attribute(org.gradle.nativeplatform.MachineArchitecture.ARCHITECTURE_ATTRIBUTE, new StandaloneMachineArchitecture(getArchitecture().getCanonicalName()));
+		attributes.attribute(org.gradle.nativeplatform.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, new StandaloneOperatingSystemFamily(getOperatingSystemFamily().getName()));
+		attributes.attribute(org.gradle.nativeplatform.MachineArchitecture.ARCHITECTURE_ATTRIBUTE, new StandaloneMachineArchitecture(getArchitecture().getName()));
 	}
 
 	private static final class StandaloneOperatingSystemFamily extends org.gradle.nativeplatform.OperatingSystemFamily implements Serializable {

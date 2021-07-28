@@ -9,12 +9,13 @@ import java.util.stream.Stream;
 
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.runtime.nativebase.MachineArchitecture.forName;
+import static dev.nokee.runtime.nativebase.MachineArchitecture.named;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 class MachineArchitectureTest {
 	@Nested
-	class ObjectFactoryTest implements NamedValueTester<MachineArchitecture>, KnownMachineArchitectureTester, UnknownMachineArchitectureTester {
+	class ObjectFactoryTest implements NamedValueTester<MachineArchitecture>, MachineArchitectureTester {
 		@Override
 		public MachineArchitecture createSubject(String name) {
 			return objectFactory().named(MachineArchitecture.class, name);
@@ -27,10 +28,10 @@ class MachineArchitectureTest {
 	}
 
 	@Nested
-	class MethodFactoryTest implements NamedValueTester<MachineArchitecture>, KnownMachineArchitectureTester, UnknownMachineArchitectureTester {
+	class MethodFactoryTest implements NamedValueTester<MachineArchitecture>, MachineArchitectureTester {
 		@Override
 		public MachineArchitecture createSubject(String name) {
-			return forName(name);
+			return named(name);
 		}
 
 		@Override
@@ -41,15 +42,15 @@ class MachineArchitectureTest {
 
 	private static Stream<String> knownMachineArchitectures() {
 		return Streams.concat(
-			MachineArchitectureTestUtils.commonHPPARISCNames(),
-			MachineArchitectureTestUtils.commonIntel32BitNames(),
-			MachineArchitectureTestUtils.commonIntel64BitNames(),
-			MachineArchitectureTestUtils.commonItaniumNames(),
-			MachineArchitectureTestUtils.commonPowerPC32BitNames(),
-			MachineArchitectureTestUtils.commonPowerPC64BitNames(),
-			MachineArchitectureTestUtils.commonSparc32BitNames(),
-			MachineArchitectureTestUtils.commonSparc64BitNames()
-		);
+			MachineArchitectureTestUtils.commonHPPARISCArchitectures(),
+			MachineArchitectureTestUtils.commonIntel32BitArchitectures(),
+			MachineArchitectureTestUtils.commonIntel64BitArchitectures(),
+			MachineArchitectureTestUtils.commonItaniumArchitectures(),
+			MachineArchitectureTestUtils.commonPowerPC32BitArchitectures(),
+			MachineArchitectureTestUtils.commonPowerPC64BitArchitectures(),
+			MachineArchitectureTestUtils.commonSparc32BitArchitectures(),
+			MachineArchitectureTestUtils.commonSparc64BitArchitectures()
+		).map(MachineArchitectureUnderTest::getName);
 	}
 
 	@Test
