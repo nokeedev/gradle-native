@@ -1,8 +1,0 @@
-package dev.nokee.runtime.nativebase;
-
-public interface KnownMachineArchitectureTester extends KnownMachineArchitectureItaniumTester,
-	KnownMachineArchitecturePowerPc32BitTester, KnownMachineArchitecturePowerPc64BitTester,
-	KnownMachineArchitectureIntel32BitTester, KnownMachineArchitectureIntel64BitTester,
-	KnownMachineArchitectureSparc32BitTester, KnownMachineArchitectureSparc64BitTester,
-	KnownMachineArchitecturePaRiscTester
-{}

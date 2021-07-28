@@ -40,7 +40,7 @@ class TargetMachineFactoryTest implements TargetMachineFactoryTester{
 	}
 
 	@Nested
-	class AdhocMachineArchitectureTest implements KnownMachineArchitectureTester, UnknownMachineArchitectureTester {
+	class AdhocMachineArchitectureTest implements MachineArchitectureTester {
 		@Override
 		public MachineArchitecture createSubject(String name) {
 			return TargetMachineFactoryTest.this.createSubject().os("some-os").architecture(name).getArchitecture();

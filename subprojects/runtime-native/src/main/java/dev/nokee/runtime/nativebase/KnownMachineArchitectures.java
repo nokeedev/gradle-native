@@ -3,7 +3,9 @@ package dev.nokee.runtime.nativebase;
 import com.google.common.collect.ImmutableSet;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import static dev.nokee.runtime.nativebase.KnownMachineArchitectures.PointerSize.BIT32;
 import static dev.nokee.runtime.nativebase.KnownMachineArchitectures.PointerSize.BIT64;
@@ -27,7 +29,6 @@ final class KnownMachineArchitectures {
 	);
 
 	public static MachineArchitecture forName(String name) {
-		name = name.toLowerCase(Locale.CANADA);
 		for (KnownArchitecture knownArchitecture : KNOWN_ARCHITECTURES) {
 			if (knownArchitecture.isAlias(name)) {
 				return knownArchitecture;
@@ -45,17 +46,15 @@ final class KnownMachineArchitectures {
 	}
 
 	public static String canonical(String name) {
-		name = name.toLowerCase(Locale.CANADA);
 		for (KnownArchitecture knownArchitecture : KNOWN_ARCHITECTURES) {
 			if (knownArchitecture.isAlias(name)) {
 				return knownArchitecture.getCanonicalName();
 			}
 		}
-		return name;
+		return name.toLowerCase(Locale.CANADA);
 	}
 
 	private static PointerSize pointerSizeForName(String name) {
-		name = name.toLowerCase(Locale.CANADA);
 		for (KnownArchitecture knownArchitecture : KNOWN_ARCHITECTURES) {
 			if (knownArchitecture.isAlias(name)) {
 				return knownArchitecture.pointerSize;
@@ -124,7 +123,7 @@ final class KnownMachineArchitectures {
 		}
 
 		public boolean isAlias(String input) {
-			return canonicalName.equals(input) || aliases.contains(input);
+			return canonicalName.equalsIgnoreCase(input) || aliases.contains(input.toLowerCase(Locale.CANADA));
 		}
 	}
 
@@ -142,7 +141,7 @@ final class KnownMachineArchitectures {
 
 		@Override
 		public String getCanonicalName() {
-			return name;
+			return name.toLowerCase(Locale.CANADA);
 		}
 
 		@Override

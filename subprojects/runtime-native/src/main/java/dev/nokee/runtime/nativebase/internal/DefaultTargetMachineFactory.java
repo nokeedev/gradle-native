@@ -60,7 +60,7 @@ final class DefaultTargetMachineFactory implements TargetMachineFactory {
 
 		@Override
 		public TargetMachine architecture(String name) {
-			return new DefaultTargetMachine(getOperatingSystemFamily(), MachineArchitecture.forName(name));
+			return new DefaultTargetMachine(getOperatingSystemFamily(), MachineArchitecture.named(name));
 		}
 
 		@Override
