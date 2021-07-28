@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.whenElementKnown;
 
-public /*final*/ abstract class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements Plugin<T> {
+public abstract /*final*/ class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements Plugin<T> {
 	@Inject
 	protected abstract ObjectFactory getObjects();
 

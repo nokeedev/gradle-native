@@ -14,7 +14,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.whenElementKnown;
 
-/*final*/ abstract class DefaultNokeeExtension implements NokeeExtension {
+abstract /*final*/ class DefaultNokeeExtension implements NokeeExtension {
 	private final ModelRegistry modelRegistry;
 	private final ObjectFactory objectFactory;
 	private final DefaultNamedDomainObjectRegistry registry;
