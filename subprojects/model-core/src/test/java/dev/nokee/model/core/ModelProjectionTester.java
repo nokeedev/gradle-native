@@ -4,6 +4,7 @@ import com.google.common.testing.NullPointerTester;
 import dev.nokee.model.UnknownProjection;
 import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -27,6 +28,11 @@ public interface ModelProjectionTester {
 	@Test
 	default void canViewAsProjectionBaseType() {
 		assertThat(createSubject().canBeViewedAs(BaseProjection.class), is(true));
+	}
+
+	@Test
+	default void canViewProjectionAsProvider() {
+		assertThat(createSubject().canBeViewedAs(Provider.class), is(true));
 	}
 
 	@Test

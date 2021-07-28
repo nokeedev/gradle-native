@@ -21,6 +21,9 @@ final class ProjectionSpec {
 	}
 
 	public boolean canBeViewedAs(Class<?> type) {
+		if (Provider.class.isAssignableFrom(type)) {
+			return true;
+		}
 		return type.isAssignableFrom(this.type);
 	}
 
