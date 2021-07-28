@@ -28,16 +28,23 @@ public abstract class OperatingSystemFamily implements Named, dev.nokee.platform
 	public static final CoordinateAxis<OperatingSystemFamily> OPERATING_SYSTEM_COORDINATE_AXIS = CoordinateAxis.of(OperatingSystemFamily.class);
 
 	/**
-	 * Creates a operating system family using the canonical name of the specified operating system family name.
+	 * Creates an operating system family using the canonical name of the specified operating system family name.
 	 *
 	 * @param name an operating system family name, must not be null
-	 * @return a operating system family, never null
+	 * @return an operating system family, never null
 	 * @since 0.5
 	 */
 	public static OperatingSystemFamily forName(String name) {
 		return KnownOperatingSystemFamilies.forName(name);
 	}
 
+	/**
+	 * Creates an operating system family using the specified name.
+	 *
+	 * @param name  an operating system family name, must not be null
+	 * @return an operating system family, never null
+	 * @since 0.5
+	 */
 	public static OperatingSystemFamily named(String name) {
 		return new DefaultOperatingSystemFamily(name);
 	}
