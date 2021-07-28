@@ -21,6 +21,7 @@ dependencies {
 	api project(':runtimeBase')
 	implementation project(':coreExec')
 	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	functionalTestImplementation project(':runtimeBase')
 }
 

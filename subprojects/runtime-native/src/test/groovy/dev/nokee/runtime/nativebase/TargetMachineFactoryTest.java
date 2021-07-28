@@ -6,6 +6,7 @@ import dev.nokee.runtime.nativebase.TargetMachineFactoryTestUtils.OperatingSyste
 import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import lombok.val;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -14,12 +15,13 @@ import java.util.stream.Stream;
 
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.ImmutableSet.of;
+import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.runtime.nativebase.TargetMachineFactoryTestUtils.MachineArchitectureConfigurer.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-class TargetMachineFactoryTest implements TargetMachineFactoryTester{
+class TargetMachineFactoryTest implements TargetMachineFactoryTester {
 	@Override
 	public TargetMachineFactory createSubject() {
 		return NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY;
@@ -53,5 +55,33 @@ class TargetMachineFactoryTest implements TargetMachineFactoryTester{
 		public OperatingSystemFamily createSubject(String name) {
 			return TargetMachineFactoryTest.this.createSubject().os(name).getOperatingSystemFamily();
 		}
+	}
+
+	@Test
+	void checkKnownOperatingSystemAndHostArchitectureTargetMachineName() {
+		assertAll(
+			() -> assertThat(createSubject().getFreeBSD(), named(OperatingSystemFamily.FREE_BSD)),
+			() -> assertThat(createSubject().getLinux(), named(OperatingSystemFamily.LINUX)),
+			() -> assertThat(createSubject().getMacOS(), named(OperatingSystemFamily.MACOS)),
+			() -> assertThat(createSubject().getWindows(), named(OperatingSystemFamily.WINDOWS))
+		);
+	}
+
+	@Test
+	void checkAdhocOperatingSystemAndHostArchitectureTargetMachineName() {
+		assertAll(
+			() -> assertThat(createSubject().os("foo"), named("foo")),
+			() -> assertThat(createSubject().os("bar"), named("bar")),
+			() -> assertThat(createSubject().os("foo-bar"), named("foo-bar"))
+		);
+	}
+
+	@Test
+	void checkTargetMachineName() {
+		assertAll(
+			() -> assertThat(createSubject().getWindows().getX86(), named("windowsX86")),
+			() -> assertThat(createSubject().getMacOS().getX86_64(), named("macosX86-64")),
+			() -> assertThat(createSubject().getLinux().architecture("foo"), named("linuxFoo"))
+		);
 	}
 }
