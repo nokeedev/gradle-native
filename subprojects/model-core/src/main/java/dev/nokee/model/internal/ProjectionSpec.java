@@ -28,8 +28,12 @@ final class ProjectionSpec {
 	}
 
 	public <T> T get(Class<T> type) {
-		if (type.isAssignableFrom(Provider.class)) {
-			return type.cast(provider);
+		if (Provider.class.isAssignableFrom(type)) {
+			if (configurationStrategy instanceof ProvidedConfigurationStrategy) {
+				return type.cast(((ProvidedConfigurationStrategy) configurationStrategy).target);
+			} else if (configurationStrategy instanceof ExistingConfigurationStrategy) {
+				return type.cast(provider);
+			}
 		}
 		return type.cast(provider.get());
 	}

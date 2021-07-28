@@ -5,6 +5,7 @@ import dev.nokee.model.UnknownProjection;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.reflect.TypeOf;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -59,6 +60,11 @@ public interface ModelProjectionTester {
 	@Test
 	default void canResolveProjectionForViewableType() {
 		assertThat(createSubject().get(TestProjection.class), isA(TestProjection.class));
+	}
+
+	@Test
+	default void canGetProjectionAsProvider() {
+		assertThat(createSubject().get(new TypeOf<Provider<TestProjection>>() {}.getConcreteClass()), isA(Provider.class));
 	}
 
 	@Test
