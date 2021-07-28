@@ -84,7 +84,7 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 	}
 
 	@Override
-	public <T> KnownDomainObject<T> node(Object identity, Class<T> type, Closure<?> closure) {
+	public <T> KnownDomainObject<T> node(Object identity, Class<T> type, @SuppressWarnings("rawtypes") Closure closure) {
 		return node(identity, type, new ClosureBackedBiAction<>(closure));
 	}
 
@@ -186,7 +186,7 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 	}
 
 	@Override
-	public <T> void all(NodePredicate<T> spec, Closure<?> closure) {
+	public <T> void all(NodePredicate<T> spec, @SuppressWarnings("rawtypes") Closure closure) {
 		all(spec, new ClosureBackedBiAction<>(closure));
 	}
 

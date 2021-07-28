@@ -63,7 +63,7 @@ public interface ModelNode extends Named, NodePredicates {
 	ModelNode node(Object identity, Action<? super ModelNode> action);
 
 	/** @see #node(Object, Action) */
-	default ModelNode node(Object identity, @ClosureParams(value = SimpleType.class, options = "dev.nokee.model.dsl.ModelNode") @DelegatesTo(value = ModelNode.class, strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
+	default ModelNode node(Object identity, @ClosureParams(value = SimpleType.class, options = "dev.nokee.model.dsl.ModelNode") @DelegatesTo(value = ModelNode.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		return node(identity, ConfigureUtil.configureUsing(closure));
 	}
 
@@ -108,7 +108,7 @@ public interface ModelNode extends Named, NodePredicates {
 	<T> KnownDomainObject<T> node(Object identity, Class<T> type, BiConsumer<? super ModelNode, ? super KnownDomainObject<T>> action);
 
 	/** @see #node(Object, Class, BiConsumer) */
-	<T> KnownDomainObject<T> node(Object identity, Class<T> type, @ClosureParams(value = FromString.class, options = { "dev.nokee.model.KnownDomainObject<T>", "dev.nokee.model.dsl.ModelNode,dev.nokee.model.KnownDomainObject<T>" }) @DelegatesTo(value = ModelNode.class, strategy = Closure.DELEGATE_FIRST) Closure<?> closure);
+	<T> KnownDomainObject<T> node(Object identity, Class<T> type, @ClosureParams(value = FromString.class, options = { "dev.nokee.model.KnownDomainObject<T>", "dev.nokee.model.dsl.ModelNode,dev.nokee.model.KnownDomainObject<T>" }) @DelegatesTo(value = ModelNode.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 
 	/**
 	 * Returns known object of this node for the specified type; creates a new projection if absent.
@@ -134,7 +134,7 @@ public interface ModelNode extends Named, NodePredicates {
 	<T> KnownDomainObject<T> projection(Class<T> type, Action<? super T> action);
 
 	/** @see #projection(Class, Action) */
-	default <T> KnownDomainObject<T> projection(Class<T> type, @ClosureParams(FirstParam.FirstGenericType.class) @DelegatesTo(target = "T", strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
+	default <T> KnownDomainObject<T> projection(Class<T> type, @ClosureParams(FirstParam.FirstGenericType.class) @DelegatesTo(target = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		return projection(type, ConfigureUtil.configureUsing(closure));
 	}
 
@@ -178,7 +178,7 @@ public interface ModelNode extends Named, NodePredicates {
 	<T> void all(NodePredicate<T> predicate, Class<? extends BiConsumer<? super ModelNode, ? super KnownDomainObject<T>>> rule);
 
 	/** @see #all(NodePredicate, BiConsumer) */
-	<T> void all(NodePredicate<T> predicate, @ClosureParams(value = FromString.class, options = { "dev.nokee.model.KnownDomainObject<T>", "dev.nokee.model.dsl.ModelNode,dev.nokee.model.KnownDomainObject<T>" }) @DelegatesTo(value = ModelNode.class, strategy = Closure.DELEGATE_FIRST) Closure<?> closure);
+	<T> void all(NodePredicate<T> predicate, @ClosureParams(value = FromString.class, options = { "dev.nokee.model.KnownDomainObject<T>", "dev.nokee.model.dsl.ModelNode,dev.nokee.model.KnownDomainObject<T>" }) @DelegatesTo(value = ModelNode.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 
 	/**
 	 * Returns a provider of all objects matching the specified spec for the subgraph with this node as the root.

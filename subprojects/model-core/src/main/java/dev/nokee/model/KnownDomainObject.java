@@ -43,7 +43,7 @@ public interface KnownDomainObject<T> {
 	KnownDomainObject<T> configure(Action<? super T> action);
 
 	/** @see #configure(Action) */
-	default KnownDomainObject<T> configure(@ClosureParams(FirstParam.FirstGenericType.class) @DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
+	default KnownDomainObject<T> configure(@ClosureParams(FirstParam.FirstGenericType.class) @DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		configure(ConfigureUtil.configureUsing(requireNonNull(closure)));
 		return this;
 	}

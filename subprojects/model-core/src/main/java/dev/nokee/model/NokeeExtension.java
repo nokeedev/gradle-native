@@ -72,7 +72,7 @@ public interface NokeeExtension extends ExtensionAware, Configurable<NokeeExtens
 
 	ModelNode getModel();
 	void model(Action<? super ModelNode> action);
-	default void model(@ClosureParams(value = SimpleType.class, options = "dev.nokee.model.dsl.ModelNode") @DelegatesTo(value = ModelNode.class, strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
+	default void model(@ClosureParams(value = SimpleType.class, options = "dev.nokee.model.dsl.ModelNode") @DelegatesTo(value = ModelNode.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		model(ConfigureUtil.configureUsing(closure));
 	}
 
