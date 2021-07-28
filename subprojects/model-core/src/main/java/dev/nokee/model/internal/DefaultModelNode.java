@@ -93,7 +93,7 @@ final class DefaultModelNode implements ModelNode {
 	@Override
 	public <T> T get(Class<T> type) {
 		requireNonNull(type);
-		return getProjections().filter(projectionOf(type))
+		return getProjections().filter(projectionOf(type)) // TODO: Wrong, doesn't account for provider
 			.findFirst()
 			.map(it -> it.get(type))
 			.orElseThrow(() -> new RuntimeException(String.format("No projection of '%s' found.", type.getCanonicalName())));
