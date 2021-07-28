@@ -1,6 +1,9 @@
 package dev.nokee.model.internal;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.KnownDomainObject;
@@ -16,9 +19,7 @@ import org.gradle.api.Action;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -176,17 +177,28 @@ public final class ModelSpecs {
 	 */
 	@SuppressWarnings("UnstableApiUsage")
 	public static Predicate<Type> subtypeOf(Type type) {
-		return new SubtypeOfPredicate(TypeToken.of(type));
+		return SUBTYPE_PREDICATE_CACHE.getUnchecked(TypeToken.of(type));
 	}
 
 	@SuppressWarnings("UnstableApiUsage")
+	private static final LoadingCache<TypeToken<?>, Predicate<Type>> SUBTYPE_PREDICATE_CACHE = CacheBuilder.newBuilder()
+		.maximumSize(1000)
+		.build(
+			new CacheLoader<TypeToken<?>, Predicate<Type>>() {
+				public Predicate<Type> load(TypeToken<?> type) {
+					return new SubtypeOfPredicate(type);
+				}
+			});
+
+	@SuppressWarnings("UnstableApiUsage")
 	public static Predicate<Type> subtypeOf(TypeToken<?> type) {
-		return new SubtypeOfPredicate(type);
+		return SUBTYPE_PREDICATE_CACHE.getUnchecked(type);
 	}
 
 	@EqualsAndHashCode
 	@SuppressWarnings("UnstableApiUsage")
 	private static final class SubtypeOfPredicate implements Predicate<Type> {
+		@EqualsAndHashCode.Exclude private final Map<Type, Boolean> cache = new HashMap<>();
 		private final TypeToken<?> type;
 
 		public SubtypeOfPredicate(TypeToken<?> type) {
@@ -195,7 +207,7 @@ public final class ModelSpecs {
 
 		@Override
 		public boolean test(Type aType) {
-			return type.isSupertypeOf(aType);
+			return cache.computeIfAbsent(aType, t -> type.isSupertypeOf(aType));
 		}
 
 		@Override
@@ -236,8 +248,30 @@ public final class ModelSpecs {
 		}
 	}
 
+	@SuppressWarnings({"rawtypes", "UnstableApiUsage"})
+	private static final LoadingCache<TypeToken, Class> RAW_TYPES = CacheBuilder.newBuilder()
+		.maximumSize(1000)
+		.build(
+			new CacheLoader<TypeToken, Class>() {
+				public Class load(TypeToken type) {
+					return type.getRawType();
+				}
+			});
+
 	@SuppressWarnings("UnstableApiUsage")
 	private static final class SubtypeWithParametersPredicate implements Predicate<Type> {
+		@SuppressWarnings("rawtypes")
+		private static final LoadingCache<Type, Set<TypeToken>> TYPE_SET_CACHE = CacheBuilder.newBuilder()
+			.maximumSize(1000)
+			.build(
+				new CacheLoader<Type, Set<TypeToken>>() {
+					public Set<TypeToken> load(Type type) {
+						TypeToken.TypeSet set = TypeToken.of(type).getTypes();
+						Set<TypeToken> result = set;
+						return result;
+					}
+				});
+		private final Map<Type, Boolean> cache = new HashMap<>();
 		private final Class<?> rawType;
 		private final Predicate<? super ParameterizedType> predicate;
 
@@ -248,14 +282,14 @@ public final class ModelSpecs {
 
 		@Override
 		public boolean test(Type type) {
-			return TypeToken.of(type).getTypes().stream()
-				.map(TypeToken.class::cast)
-				.filter(this::hasRawType)
-				.anyMatch(this::hasTypeParameters);
+			return cache.computeIfAbsent(type,
+				t -> TYPE_SET_CACHE.getUnchecked(type).stream()
+					.filter(this::hasRawType)
+					.anyMatch(this::hasTypeParameters));
 		}
 
 		private boolean hasRawType(@SuppressWarnings("rawtypes") TypeToken it) {
-			return it.getRawType().equals(rawType);
+			return RAW_TYPES.getUnchecked(it).equals(rawType);
 		}
 
 		private boolean hasTypeParameters(@SuppressWarnings("rawtypes") TypeToken it) {
