@@ -96,7 +96,7 @@ final class DefaultModelNode implements ModelNode {
 		return getProjections().filter(projectionOf(type))
 			.findFirst()
 			.map(it -> it.get(type))
-			.orElseThrow(RuntimeException::new);
+			.orElseThrow(() -> new RuntimeException(String.format("No projection of '%s' found.", type.getCanonicalName())));
 	}
 
 	@Override

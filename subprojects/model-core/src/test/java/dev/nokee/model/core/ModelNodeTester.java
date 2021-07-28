@@ -115,6 +115,14 @@ public interface ModelNodeTester {
 	}
 
 	@Test
+	default void throwsExceptionWhenGettingProjectionAsUnknownType() {
+		val subject = createSubject();
+		subject.newProjection(builder -> builder.type(TestProjection.class).forInstance(new TestProjection("test")));
+		val ex = assertThrows(RuntimeException.class, () -> subject.get(UnknownProjection.class));
+		assertThat(ex.getMessage(), equalTo("No projection of 'dev.nokee.model.UnknownProjection' found."));
+	}
+
+	@Test
 	default void newProjectionHasCurrentNodeAsOwner() {
 		val subject = createSubject();
 		val projection = subject.newProjection(builder -> builder.type(TestProjection.class).forInstance(new TestProjection("test")));
