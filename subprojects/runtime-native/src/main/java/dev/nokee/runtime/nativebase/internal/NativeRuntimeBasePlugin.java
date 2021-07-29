@@ -7,7 +7,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.attributes.AttributesSchema;
 
-import static dev.nokee.model.internal.ModelBasePlugin.nokee;
+import static dev.nokee.model.NokeeExtension.nokee;
 
 public /*final*/ abstract class NativeRuntimeBasePlugin implements Plugin<Project> {
 	public static final TargetMachineFactory TARGET_MACHINE_FACTORY = new DefaultTargetMachineFactory();
