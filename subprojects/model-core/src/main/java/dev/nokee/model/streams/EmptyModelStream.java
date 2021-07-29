@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 /** @see ModelStream#empty() */
 enum EmptyModelStream implements ModelStream<Object> {
@@ -54,6 +55,6 @@ enum EmptyModelStream implements ModelStream<Object> {
 
 	@Override
 	public <R, A> Provider<R> collect(Collector<? super Object, A, R> collector) {
-		return ProviderUtils.notDefined();
+		return ProviderUtils.supplied(() -> Stream.empty().collect(collector));
 	}
 }
