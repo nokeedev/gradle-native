@@ -5,10 +5,16 @@ import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.provider.Provider;
 
+import java.util.ArrayList;
+import java.util.List;
+
 final class ProjectionSpec {
 	private final Class<?> type;
 	private final ConfigurationStrategy configurationStrategy;
 	private final Provider<?> provider;
+	private final List<Action<?>> finalizeActions = new ArrayList<>();
+	private boolean finalized = false;
+	private boolean realizeOnFinalize = false;
 
 	private ProjectionSpec(Class<?> type, ConfigurationStrategy configurationStrategy, Provider<?> provider) {
 		this.type = type;
@@ -18,6 +24,35 @@ final class ProjectionSpec {
 
 	public <T> void configure(Action<? super T> action) {
 		configurationStrategy.configure(action);
+	}
+
+	public <T> void finalize(Action<? super T> action) {
+		if (finalized) {
+			configurationStrategy.configure(action);
+		} else {
+			finalizeActions.add(action);
+		}
+	}
+
+	public void realizeProjection() {
+		provider.get();
+	}
+
+	public void finalizeProjection() {
+		finalizeActions.forEach(it -> configure((Action<? super Object>) it));
+		finalizeActions.clear();
+
+		if (realizeOnFinalize) {
+			realizeProjection();
+		}
+		finalized = true;
+	}
+
+	public void realizeOnFinalize() {
+		realizeOnFinalize = true;
+		if (finalized) {
+			realizeProjection();
+		}
 	}
 
 	public boolean canBeViewedAs(Class<?> type) {

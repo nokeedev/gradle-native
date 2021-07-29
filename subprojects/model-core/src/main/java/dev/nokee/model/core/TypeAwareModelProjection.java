@@ -7,6 +7,10 @@ public interface TypeAwareModelProjection<T> extends ModelProjection {
 	T get();
 	void whenRealized(Action<? super T> action);
 
+	@Override
+	TypeAwareModelProjection<T> realizeOnFinalize();
+	void whenFinalized(Action<? super T> action);
+
 	interface Builder<T> {
 		<S> Builder<S> type(Class<S> type);
 		Builder<T> forProvider(NamedDomainObjectProvider<? extends T> provider);

@@ -24,7 +24,7 @@ class DefaultModelProjectionTest implements ModelProjectionTester {
 	@Override
 	public ModelProjection createSubject() {
 		val node = new DefaultModelFactory(graph).createNode(graph.createNode());
-		return node.newProjection(builder -> builder.type(TestProjection.class).forInstance(new DefaultTestProjection()));
+		return node.newProjection(builder -> builder.type(TestProjection.class).forInstance(new DefaultTestProjection("test")));
 	}
 
 	@Test

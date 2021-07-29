@@ -11,6 +11,7 @@ import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.provider.Provider;
 
 import static dev.nokee.utils.ProviderUtils.notDefined;
+import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
 final class DefaultModelProjection<T> implements TypeAwareModelProjection<T>, ModelProjection {
@@ -50,6 +51,8 @@ final class DefaultModelProjection<T> implements TypeAwareModelProjection<T>, Mo
 
 	@Override
 	public <T> void whenRealized(Class<T> type, Action<? super T> action) {
+		requireNonNull(type);
+		requireNonNull(action);
 		if (!canBeViewedAs(type)) {
 			throw new RuntimeException();
 		}
@@ -81,6 +84,34 @@ final class DefaultModelProjection<T> implements TypeAwareModelProjection<T>, Mo
 		get(getType());
 	}
 
+	@Override
+	public void finalizeProjection() {
+		((ProjectionSpec) delegate.getProperty("spec")).finalizeProjection();
+	}
+
+	@Override
+	public TypeAwareModelProjection<T> realizeOnFinalize() {
+		((ProjectionSpec) delegate.getProperty("spec")).realizeOnFinalize();
+		return this;
+	}
+
+	@Override
+	public void whenFinalized(Action<? super T> action) {
+		requireNonNull(action);
+		((ProjectionSpec) delegate.getProperty("spec")).finalize(action);
+	}
+
+	@Override
+	public <T> void whenFinalized(Class<T> type, Action<? super T> action) {
+		requireNonNull(type);
+		requireNonNull(action);
+		if (!canBeViewedAs(type)) {
+			throw new RuntimeException(String.format("Projection cannot be viewed as '%s'.", type.getSimpleName()));
+		}
+
+		((ProjectionSpec) delegate.getProperty("spec")).finalize(action);
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}
@@ -92,6 +123,7 @@ final class DefaultModelProjection<T> implements TypeAwareModelProjection<T>, Mo
 
 	@Override
 	public void whenRealized(Action<? super T> action) {
+		requireNonNull(action);
 		whenRealized((Class<T>) getType(), action);
 	}
 

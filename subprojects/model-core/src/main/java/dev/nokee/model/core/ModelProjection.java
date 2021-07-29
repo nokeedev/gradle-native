@@ -35,6 +35,10 @@ public interface ModelProjection {
 
 	void realize();
 
+	void finalizeProjection();
+	ModelProjection realizeOnFinalize();
+	<T> void whenFinalized(Class<T> type, Action<? super T> action);
+
 	interface Builder {
 		<S> TypeAwareModelProjection.Builder<S> type(Class<S> type);
 
