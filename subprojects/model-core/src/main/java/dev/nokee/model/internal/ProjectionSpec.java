@@ -1,10 +1,17 @@
 package dev.nokee.model.internal;
 
+import dev.nokee.model.core.ModelNode;
 import dev.nokee.utils.ProviderUtils;
+import lombok.var;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
+import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.Task;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,6 +92,9 @@ final class ProjectionSpec {
 		private Class<?> type;
 		private Provider<?> provider;
 		private ConfigurationStrategy configurationStrategy;
+		@Nullable private NamedDomainObjectRegistry registry;
+		private ModelNode ownedBy;
+		@Nullable private ObjectFactory objectFactory;
 
 		public Builder type(Class<?> type) {
 			this.type = type;
@@ -114,9 +124,30 @@ final class ProjectionSpec {
 			return type;
 		}
 
+		public Builder registry(@Nullable NamedDomainObjectRegistry registry) {
+			this.registry = registry;
+			return this;
+		}
+
+		public Builder objectFactory(@Nullable ObjectFactory objectFactory) {
+			this.objectFactory = objectFactory;
+			return this;
+		}
+
+		public Builder ownedBy(ModelNode ownedBy) {
+			this.ownedBy = ownedBy;
+			return this;
+		}
+
 		public ProjectionSpec build() {
 			if (type == null) {
 				type = ProviderUtils.getType(provider).map(this::toUndecoratedType).orElse(null);
+			} else if (provider == null) {
+				if (registry != null && ownedBy != null && registry.getRegistrableTypes().canRegisterType(type)) {
+					forProvider(registry.registerIfAbsent(calculateName(), type));
+				} else if (objectFactory != null) {
+					forInstance(objectFactory.newInstance(type));
+				}
 			}
 			ProviderUtils.getType(provider).ifPresent(type -> {
 				if (!this.type.isAssignableFrom(type)) {
@@ -125,6 +156,39 @@ final class ProjectionSpec {
 			});
 			return new ProjectionSpec(type, configurationStrategy, provider);
 		}
+
+		private String calculateName() {
+			var previous = ownedBy.getParent();
+			String name = "";
+			while (previous.isPresent()) {
+				name = maybeNameOf(previous.get().getIdentity()) + StringUtils.capitalize(name);
+				previous = previous.get().getParent();
+			}
+
+			if (Task.class.isAssignableFrom(type)) {
+				name = nameOf(ownedBy.getIdentity()) + StringUtils.capitalize(name);
+			} else {
+				name = name + StringUtils.capitalize(nameOf(ownedBy.getIdentity()));
+			}
+
+			return StringUtils.uncapitalize(name);
+		}
+	}
+
+	private static String nameOf(Object identity) {
+		if (identity instanceof Named) {
+			return ((Named) identity).getName();
+		} else {
+			return identity.toString();
+		}
+	}
+
+	// TODO:
+	private static String maybeNameOf(Object identity) {
+		if (identity instanceof NameProvider) {
+			return ((NameProvider) identity).getProvidedName().orElse("");
+		}
+		return nameOf(identity);
 	}
 
 	private interface ConfigurationStrategy {

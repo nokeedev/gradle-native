@@ -10,12 +10,15 @@ import lombok.val;
 import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nullable;
+import java.util.Optional;
+
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DefaultModelNodeTest implements ModelNodeTester {
 	private final Graph graph = Graph.builder().build();
@@ -63,5 +66,44 @@ class DefaultModelNodeTest implements ModelNodeTester {
 	void doesNotAllowCreatingChildNodeUsingRootIdentity() {
 		val ex = assertThrows(IllegalArgumentException.class, () -> createSubject().newChildNode(DomainObjectIdentities.root()));
 		assertThat(ex.getMessage(), equalTo("Cannot use known root identity as child node identity."));
+	}
+
+	@Test
+	void canCreateProjectionByRegisteringElementInContainerByType() {
+		val container = objectFactory().domainObjectContainer(TestProjection.class, TestProjection::new);
+		val registry = new DefaultNamedDomainObjectRegistry().registerContainer(new NamedDomainObjectContainerRegistry.NamedContainerRegistry<>(container));
+		val modelRegistry = new DefaultModelRegistry(objectFactory(), registry);
+		assertDoesNotThrow(() -> modelRegistry.getRoot().newChildNode("foo").newChildNode("bar").newProjection(builder -> builder.type(TestProjection.class)));
+		assertThat(container.findByName("fooBar"), isA(TestProjection.class));
+	}
+
+	@Test
+	void canCreateTrivialProjectionUsingObjectFactoryByType() {
+		val modelRegistry = new DefaultModelRegistry(objectFactory());
+		val projection = assertDoesNotThrow(() -> modelRegistry.getRoot().newChildNode("foo").newChildNode("bar").newProjection(builder -> builder.type(ITestProjection.class)));
+		assertThat(projection.get(), isA(ITestProjection.class));
+	}
+
+	@Test
+	void canCreateProjectionByIgnoringNameProviderNode() {
+		val container = objectFactory().domainObjectContainer(TestProjection.class, TestProjection::new);
+		val registry = new DefaultNamedDomainObjectRegistry().registerContainer(new NamedDomainObjectContainerRegistry.NamedContainerRegistry<>(container));
+		val modelRegistry = new DefaultModelRegistry(objectFactory(), registry);
+		assertDoesNotThrow(() -> modelRegistry.getRoot().newChildNode(named("foo", null)).newChildNode(named("b", "bar")).newChildNode("far").newProjection(builder -> builder.type(TestProjection.class)));
+		assertThat(container.findByName("barFar"), isA(TestProjection.class));
+	}
+
+	static NameProvider named(String toString, @Nullable String name) {
+		return new NameProvider() {
+			@Override
+			public Optional<String> getProvidedName() {
+				return Optional.ofNullable(name);
+			}
+
+			@Override
+			public String toString() {
+				return toString;
+			}
+		};
 	}
 }

@@ -8,7 +8,10 @@ import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
+
+import javax.annotation.Nullable;
 
 import static dev.nokee.utils.ProviderUtils.notDefined;
 import static java.util.Objects.requireNonNull;
@@ -130,6 +133,7 @@ final class DefaultModelProjection<T> implements TypeAwareModelProjection<T>, Mo
 	public static final class Builder implements ModelProjection.Builder {
 		private final ProjectionSpec.Builder builder = ProjectionSpec.builder();
 		private Graph graph;
+		private ModelFactory modelFactory;
 
 		public Builder graph(Graph graph) {
 			this.graph = graph;
@@ -154,6 +158,26 @@ final class DefaultModelProjection<T> implements TypeAwareModelProjection<T>, Mo
 			return new TypeAwareBuilder<>();
 		}
 
+		public Builder owner(ModelNode owner) {
+			builder.ownedBy(owner);
+			return this;
+		}
+
+		public Builder registry(@Nullable NamedDomainObjectRegistry registry) {
+			builder.registry(registry);
+			return this;
+		}
+
+		public Builder modelFactory(ModelFactory modelFactory) {
+			this.modelFactory = modelFactory;
+			return this;
+		}
+
+		public Builder objectFactory(@Nullable ObjectFactory objectFactory) {
+			builder.objectFactory(objectFactory);
+			return this;
+		}
+
 		public final class TypeAwareBuilder<T> implements TypeAwareModelProjection.Builder<T> {
 			@Override
 			public <S> TypeAwareBuilder<S> type(Class<S> type) {
@@ -174,14 +198,13 @@ final class DefaultModelProjection<T> implements TypeAwareModelProjection<T>, Mo
 			}
 
 			public DefaultModelProjection<T> build() {
-				val projectionNode = graph.createNode().addLabel(Label.label("PROJECTION")).property("spec", builder.build());
-				return new DefaultModelProjection<T>(new DefaultModelFactory(graph), projectionNode);
+				return (DefaultModelProjection<T>) Builder.this.build();
 			}
 		}
 
-		public DefaultModelProjection build() {
+		public DefaultModelProjection<?> build() {
 			val projectionNode = graph.createNode().addLabel(Label.label("PROJECTION")).property("spec", builder.build());
-			return new DefaultModelProjection(new DefaultModelFactory(graph), projectionNode);
+			return new DefaultModelProjection(modelFactory, projectionNode);
 		}
 	}
 }

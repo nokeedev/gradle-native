@@ -21,6 +21,7 @@ public class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<Tes
 		val graph = Graph.builder().build();
 		val projection = DefaultModelProjection.builder()
 			.graph(graph)
+			.modelFactory(new DefaultModelFactory(graph))
 			.forInstance(new TestProjection("test"))
 			.type(TestProjection.class)
 			.build();

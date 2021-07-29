@@ -20,10 +20,11 @@ import static org.hamcrest.Matchers.isA;
 
 class DefaultModelProjectionTest implements ModelProjectionTester {
 	private final Graph graph = Graph.builder().build();
+	private final ModelFactory factory = new DefaultModelFactory(graph);
 
 	@Override
 	public ModelProjection createSubject() {
-		val node = new DefaultModelFactory(graph).createNode(graph.createNode());
+		val node = factory.createNode(graph.createNode());
 		return node.newProjection(builder -> builder.type(TestProjection.class).forInstance(new DefaultTestProjection("test")));
 	}
 
@@ -31,7 +32,7 @@ class DefaultModelProjectionTest implements ModelProjectionTester {
 	void canRealizeProjectionForNamedProvider() {
 		val action = ActionTestUtils.mockAction();
 		val container = objectFactory().domainObjectContainer(dev.nokee.model.TestProjection.class);
-		val node = new DefaultModelFactory(graph).createNode(graph.createNode());
+		val node = factory.createNode(graph.createNode());
 		val subject = node.newProjection(builder -> builder.forProvider(container.register("test", action)));
 		subject.realize();
 		assertThat(action, calledOnceWith(singleArgumentOf(isA(dev.nokee.model.TestProjection.class))));
@@ -41,7 +42,7 @@ class DefaultModelProjectionTest implements ModelProjectionTester {
 	void canGetProjectionAsProviderWithoutRealizing() {
 		val action = ActionTestUtils.mockAction();
 		val container = objectFactory().domainObjectContainer(dev.nokee.model.TestProjection.class);
-		val node = new DefaultModelFactory(graph).createNode(graph.createNode());
+		val node = factory.createNode(graph.createNode());
 		val subject = node.newProjection(builder -> builder.forProvider(container.register("test", action)));
 		val provider = subject.get(new TypeOf<NamedDomainObjectProvider<dev.nokee.model.TestProjection>>() {}.getConcreteClass());
 		assertThat(provider, isA(Provider.class));
@@ -53,7 +54,7 @@ class DefaultModelProjectionTest implements ModelProjectionTester {
 	void canGetProjectionAsNamedProviderWithoutRealizing() {
 		val action = ActionTestUtils.mockAction();
 		val container = objectFactory().domainObjectContainer(dev.nokee.model.TestProjection.class);
-		val node = new DefaultModelFactory(graph).createNode(graph.createNode());
+		val node = factory.createNode(graph.createNode());
 		val subject = node.newProjection(builder -> builder.forProvider(container.register("test", action)));
 		val provider = subject.get(new TypeOf<NamedDomainObjectProvider<dev.nokee.model.TestProjection>>() {}.getConcreteClass());
 		assertThat(provider, isA(NamedDomainObjectProvider.class));

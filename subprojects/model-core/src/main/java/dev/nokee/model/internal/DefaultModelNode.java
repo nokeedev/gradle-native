@@ -12,8 +12,10 @@ import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -28,13 +30,17 @@ final class DefaultModelNode implements ModelNode {
 	static final RelationshipType PROJECTION_RELATIONSHIP_TYPE = RelationshipType.withName("PROJECTIONS");
 	@EqualsAndHashCode.Exclude private final Graph graph;
 	@EqualsAndHashCode.Include private final Node delegate;
-	@EqualsAndHashCode.Exclude private final ModelFactory factory;
+	@EqualsAndHashCode.Exclude private final ModelFactory modelFactory;
+	@EqualsAndHashCode.Exclude private final ObjectFactory objectFactory;
 	@EqualsAndHashCode.Exclude private Supplier<Optional<ModelNode>> parent = Suppliers.memoize(this::computeParentNode);
+	@EqualsAndHashCode.Exclude private final NamedDomainObjectRegistry registry;
 
-	public DefaultModelNode(ModelFactory factory, Graph graph, Node delegate) {
+	public DefaultModelNode(ModelFactory modelFactory, @Nullable ObjectFactory objectFactory, Graph graph, Node delegate, @Nullable NamedDomainObjectRegistry registry) {
 		this.graph = graph;
 		this.delegate = delegate;
-		this.factory = factory;
+		this.modelFactory = modelFactory;
+		this.objectFactory = objectFactory;
+		this.registry = registry;
 	}
 
 	@Override
@@ -49,7 +55,7 @@ final class DefaultModelNode implements ModelNode {
 //			.property("path", getPath().child(name))
 //			.property("identifier", getIdentifier().child(identity));
 		delegate.createRelationshipTo(childNode, OWNERSHIP_RELATIONSHIP_TYPE);
-		return factory.createNode(childNode);
+		return modelFactory.createNode(childNode);
 	}
 
 	private static String nameOf(Object identity) {
@@ -62,7 +68,7 @@ final class DefaultModelNode implements ModelNode {
 
 	@Override
 	public <S> TypeAwareModelProjection<S> newProjection(ModelProjectionBuilderAction<S> builderAction) {
-		val builder = (DefaultModelProjection.Builder.TypeAwareBuilder<S>) builderAction.apply(DefaultModelProjection.builder().graph(graph));
+		val builder = (DefaultModelProjection.Builder.TypeAwareBuilder<S>) builderAction.apply(DefaultModelProjection.builder().registry(registry).modelFactory(modelFactory).objectFactory(objectFactory).graph(graph).owner(this));
 		val projection = builder.build();
 		val projectionNode = projection.getDelegate();
 		delegate.createRelationshipTo(projectionNode, PROJECTION_RELATIONSHIP_TYPE);
@@ -81,7 +87,7 @@ final class DefaultModelNode implements ModelNode {
 
 	private Optional<ModelNode> computeParentNode() {
 		return delegate.getSingleRelationship(OWNERSHIP_RELATIONSHIP_TYPE, Direction.INCOMING)
-			.map(it -> factory.createNode(it.getStartNode()));
+			.map(it -> modelFactory.createNode(it.getStartNode()));
 	}
 
 	@Override
@@ -119,14 +125,14 @@ final class DefaultModelNode implements ModelNode {
 	public Stream<ModelNode> getChildNodes() {
 		return delegate.getRelationships(Direction.OUTGOING, OWNERSHIP_RELATIONSHIP_TYPE)
 			.map(Relationship::getEndNode)
-			.map(factory::createNode);
+			.map(modelFactory::createNode);
 	}
 
 	@Override
 	public Stream<ModelProjection> getProjections() {
 		return delegate.getRelationships(PROJECTION_RELATIONSHIP_TYPE)
 			.map(Relationship::getEndNode)
-			.map(factory::createProjection);
+			.map(modelFactory::createProjection);
 	}
 
 	@Override

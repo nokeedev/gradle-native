@@ -13,13 +13,19 @@ import org.gradle.api.model.ObjectFactory;
 final class DefaultModelRegistry implements ModelRegistry {
 	private final GraphTopics topics = new GraphTopics();
 	private final Graph graph = Graph.builder().listener(topics).build();
-	private final ModelFactory factory = new DefaultModelFactory(graph);
-	private final ModelNode root = factory.createNode(graph.createNode()); // TODO: Maybe we will want the root node to have the name of the target (project or settings)
+	private final ModelFactory factory;
+	private final ModelNode root;
 	private final ModelStream<ModelProjection> allProjections = ModelStream.of(topics.projectionRelationships);
 	private final ObjectFactory objects;
 
 	DefaultModelRegistry(ObjectFactory objects) {
+		this(objects, new DefaultNamedDomainObjectRegistry());
+	}
+
+	DefaultModelRegistry(ObjectFactory objects, NamedDomainObjectRegistry registry) {
 		this.objects = objects;
+		this.factory = new DefaultModelFactory(graph, objects, registry);
+		this.root = factory.createNode(graph.createNode()); // TODO: Maybe we will want the root node to have the name of the target (project or settings)
 	}
 
 	@Override

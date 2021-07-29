@@ -3,18 +3,15 @@ package dev.nokee.model.internal;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.core.ModelProjection;
 import dev.nokee.model.core.TypeAwareModelProjection;
-import dev.nokee.model.dsl.NodePredicate;
 import dev.nokee.model.dsl.ModelNode;
+import dev.nokee.model.dsl.NodePredicate;
 import dev.nokee.model.streams.ModelStream;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import lombok.EqualsAndHashCode;
 import lombok.val;
-import lombok.var;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
-import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 
@@ -27,15 +24,13 @@ import static dev.nokee.model.internal.ModelSpecs.projectionOf;
 
 @EqualsAndHashCode(callSuper = false)
 final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode {
-	private final NamedDomainObjectRegistry registry;
 	@EqualsAndHashCode.Include private final dev.nokee.model.core.ModelNode delegate;
 	@EqualsAndHashCode.Exclude private final ModelNodeFactory factory;
 	@EqualsAndHashCode.Exclude private final ModelStream<ModelProjection> stream;
 	@EqualsAndHashCode.Exclude private final ObjectFactory objectFactory;
 	@EqualsAndHashCode.Exclude private final GroovyDslSupport dslSupport;
 
-	public DefaultModelNodeDsl(NamedDomainObjectRegistry registry, dev.nokee.model.core.ModelNode delegate, ModelNodeFactory factory, ModelStream<ModelProjection> stream, ObjectFactory objectFactory) {
-		this.registry = registry;
+	public DefaultModelNodeDsl(dev.nokee.model.core.ModelNode delegate, ModelNodeFactory factory, ModelStream<ModelProjection> stream, ObjectFactory objectFactory) {
 		this.delegate = delegate;
 		this.factory = factory;
 		this.stream = stream;
@@ -113,49 +108,16 @@ final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode
 
 	@Override
 	public <T> KnownDomainObject<T> projection(Class<T> type) {
-		val projection = delegate.getProjections().filter(projectionOf(type)).map(it -> (TypeAwareModelProjection<T>) it).findFirst().orElseGet(() -> {
-			return delegate.newProjection(builder -> {
-				var previous = delegate.getParent();
-				String name = "";
-				while (previous.isPresent()) {
-					name = nameOf(previous.get().getIdentity()) + StringUtils.capitalize(name);
-					previous = previous.get().getParent();
-				}
-
-				if (Task.class.isAssignableFrom(type)) {
-					name = nameOf(delegate.getIdentity()) + StringUtils.capitalize(name);
-				} else {
-					name = name + StringUtils.capitalize(nameOf(delegate.getIdentity()));
-				}
-
-				return builder.type(type).forProvider(registry.registerIfAbsent(StringUtils.uncapitalize(name), type));
-			});
-		});
+		val projection = delegate.getProjections().filter(projectionOf(type))
+			.map(it -> (TypeAwareModelProjection<T>) it)
+			.findFirst()
+			.orElseGet(() -> delegate.newProjection(builder -> builder.type(type)));
 		return new DefaultKnownDomainObject<>(type, projection);
 	}
 
 	@Override
 	public <T> KnownDomainObject<T> projection(Class<T> type, Action<? super T> action) {
-		val projection = delegate.getProjections().filter(projectionOf(type)).map(it -> (TypeAwareModelProjection<T>) it).findFirst().orElseGet(() -> {
-			return delegate.newProjection(builder -> {
-				var previous = delegate.getParent();
-				String name = "";
-				while (previous.isPresent()) {
-					name = nameOf(previous.get().getIdentity()) + StringUtils.capitalize(name);
-					previous = previous.get().getParent();
-				}
-
-				if (Task.class.isAssignableFrom(type)) {
-					name = nameOf(delegate.getIdentity()) + StringUtils.capitalize(name);
-				} else {
-					name = name + StringUtils.capitalize(nameOf(delegate.getIdentity()));
-				}
-
-				return builder.type(type).forProvider(registry.registerIfAbsent(StringUtils.uncapitalize(name), type));
-			});
-		});
-		projection.whenRealized(action);
-		return new DefaultKnownDomainObject<>(type, projection);
+		return projection(type).configure(action);
 	}
 
 	@Override

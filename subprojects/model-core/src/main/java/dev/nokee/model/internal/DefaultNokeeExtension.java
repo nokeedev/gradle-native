@@ -30,9 +30,9 @@ abstract /*final*/ class DefaultNokeeExtension implements NokeeExtension {
 
 	@Inject
 	public DefaultNokeeExtension(DefaultNamedDomainObjectRegistry registry, ObjectFactory objectFactory) {
-		this.modelRegistry = new DefaultModelRegistry(objectFactory);
+		this.modelRegistry = new DefaultModelRegistry(objectFactory, registry);
 		this.objectFactory = objectFactory;
-		this.model = new DefaultModelNodeDslFactory(registry, modelRegistry.allProjections(), objectFactory).create(modelRegistry.getRoot());
+		this.model = new DefaultModelNodeDslFactory(modelRegistry.allProjections(), objectFactory).create(modelRegistry.getRoot());
 		this.registry = registry;
 	}
 
