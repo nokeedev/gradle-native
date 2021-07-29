@@ -1,8 +1,10 @@
 package dev.nokee.model.streams;
 
+import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.provider.Provider;
 
+import java.util.Comparator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -48,7 +50,9 @@ abstract class AbstractModelStream<E_IN, E_OUT> extends Pipeline<E_OUT> implemen
 			if (items.size() == 0) {
 				return;
 			}
+			wrappedSink.begin(items.size());
 			items.forEach(wrappedSink);
+			wrappedSink.end();
 			skipCount += items.size();
 		}
 	}
@@ -128,6 +132,17 @@ abstract class AbstractModelStream<E_IN, E_OUT> extends Pipeline<E_OUT> implemen
 						downstream.accept(mapper.apply(e));
 					}
 				};
+			}
+		};
+	}
+
+	@Override
+	public ModelStream<E_OUT> sorted(Comparator<? super E_OUT> comparator) {
+		requireNonNull(comparator);
+		return new AbstractModelStream<E_OUT, E_OUT>(this) {
+			@Override
+			Sink<E_OUT> opWrapSink(Sink<E_OUT> sink) {
+				return new Sink.Sorting<>(sink, comparator);
 			}
 		};
 	}

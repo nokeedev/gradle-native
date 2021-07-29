@@ -3,6 +3,7 @@ package dev.nokee.model.streams;
 import dev.nokee.utils.ProviderUtils;
 import org.gradle.api.provider.Provider;
 
+import java.util.Comparator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -34,6 +35,11 @@ enum EmptyModelStream implements ModelStream<Object> {
 	@Override
 	public <R> ModelStream<R> map(Function<? super Object, ? extends R> mapper) {
 		return withNarrowedType();
+	}
+
+	@Override
+	public ModelStream<Object> sorted(Comparator<? super Object> comparator) {
+		return this;
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package dev.nokee.model.streams;
 
 import org.gradle.api.provider.Provider;
 
+import java.util.Comparator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -60,6 +61,17 @@ public interface ModelStream<T> {
 	 * @return a {@code ModelStream} that contains new elements (possibly of different type), never null
 	 */
 	<R> ModelStream<R> map(Function<? super T, ? extends R> mapper);
+
+	/**
+	 * Returns a stream consisting of the elements of this stream, sorted according to the provided {@code Comparator}.
+	 *
+	 * Stream sorting is a stateful operation.
+	 * The operation will batches available elements together.
+	 *
+	 * @param comparator a non-interfering, stateless {@code Comparator} to be used to compare stream elements, must not be null
+	 * @return a {@code ModelStream} with sorted elements, never null
+	 */
+	ModelStream<T> sorted(Comparator<? super T> comparator);
 
 	/**
 	 * Perform an action on each element of {@code ModelStream}.

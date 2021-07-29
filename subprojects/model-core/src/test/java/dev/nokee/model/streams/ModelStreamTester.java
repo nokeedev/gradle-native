@@ -1,27 +1,30 @@
 package dev.nokee.model.streams;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.utils.ConsumerTestUtils;
 import lombok.val;
 import org.gradle.api.provider.Provider;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableList.builder;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.calledWith;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static java.util.Collections.emptyList;
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -89,6 +92,44 @@ public interface ModelStreamTester<T> extends BranchedModelStreamTester<T> {
 			() -> assertThat(result1, contains(e0, e1, e2)),
 			() -> assertThat(result2, contains(e0, e1, e2))
 		);
+	}
+
+	@Test
+	default void canReuseSortedStream() {
+		val subject = createSubject().sorted(comparingInt(Objects::hashCode));
+		val e0 = createElement();
+		val result1 = subject.collect(toList());
+		val e1 = createElement();
+		val result2 = subject.collect(toImmutableSet());
+		val e2 = createElement();
+		assertAll(
+			() -> assertThat(result1, providerOf(contains(sortedByHashCode(e0, e1, e2)))),
+			() -> assertThat(result2, providerOf(contains(sortedByHashCode(e0, e1, e2))))
+		);
+	}
+
+	@Test
+	default void canCollectSortedStream() {
+		val subject = createSubject();
+		val e0 = createElement();
+		val result1 = subject.sorted(comparingInt(Objects::hashCode)).collect(toList());
+		val e1 = createElement();
+		val result2 = subject.sorted(comparing(Objects::toString)).collect(toList());
+		val e2 = createElement();
+		assertAll(
+			() -> assertThat(result1, providerOf(contains(sortedByHashCode(e0, e1, e2)))),
+			() -> assertThat(result2, providerOf(contains(sortedByToString(e0, e1, e2))))
+		);
+	}
+
+	@SafeVarargs
+	static <T> List<Matcher<? super T>> sortedByHashCode(T... items) {
+		return Arrays.stream(items).sorted(comparingInt(Objects::hashCode)).map(Matchers::is).collect(toList());
+	}
+
+	@SafeVarargs
+	static <T> List<Matcher<? super T>> sortedByToString(T... items) {
+		return Arrays.stream(items).sorted(comparing(Objects::toString)).map(Matchers::is).collect(toList());
 	}
 
 	@Test
