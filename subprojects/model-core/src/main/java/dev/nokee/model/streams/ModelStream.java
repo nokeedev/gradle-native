@@ -74,6 +74,16 @@ public interface ModelStream<T> {
 	ModelStream<T> sorted(Comparator<? super T> comparator);
 
 	/**
+	 * Returns a {@link Provider} describing the first element of this stream, or an absent {@code Provider} if the stream is empty.
+	 * If the stream has no encounter order, then any element may be returned.
+	 *
+	 * Finding the first element of a stream is a short-circuiting terminal operation.
+	 *
+	 * @return a {@code Provider} describing the first element of this stream, or an absent {@code Provider} if the stream is empty, never null
+	 */
+	Provider<T> findFirst();
+
+	/**
 	 * Perform an action on each element of {@code ModelStream}.
 	 * Stream peeking is a stateless element-by-element operation.
 	 *

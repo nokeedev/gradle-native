@@ -147,6 +147,11 @@ abstract class AbstractModelStream<E_IN, E_OUT> extends Pipeline<E_OUT> implemen
 		};
 	}
 
+	@Override
+	public Provider<E_OUT> findFirst() {
+		return evaluate(new FindOp<>(Sink.Find::new));
+	}
+
 	// TODO: Test return value
 	@Override
 	public ModelStream<E_OUT> peek(Consumer<? super E_OUT> action) {

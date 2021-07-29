@@ -16,6 +16,10 @@ interface Sink<T> extends Consumer<T> {
 
 	default void end() {}
 
+	default boolean cancellationRequested() {
+		return false;
+	}
+
 	static abstract class Chained<T, E_OUT> implements Sink<T> {
 		protected final Sink<? super E_OUT> downstream;
 
@@ -32,11 +36,17 @@ interface Sink<T> extends Consumer<T> {
 		public void end() {
 			downstream.end();
 		}
+
+		@Override
+		public boolean cancellationRequested() {
+			return downstream.cancellationRequested();
+		}
 	}
 
 	static final class Sorting<T> extends Chained<T, T> {
 		private final Comparator<? super T> comparator;
 		private ArrayList<T> list;
+		private boolean cancellationWasRequested;
 
 		public Sorting(Sink<? super T> downstream, Comparator<? super T> comparator) {
 			super(downstream);
@@ -46,21 +56,63 @@ interface Sink<T> extends Consumer<T> {
 		@Override
 		public void begin(long size) {
 			assert list == null; // Quick fix to ensure no reuse are done... for now.
-			list = (size >= 0) ? new ArrayList<T>((int) size) : new ArrayList<T>();
+			list = (size >= 0) ? new ArrayList<>((int) size) : new ArrayList<>();
 		}
 
 		@Override
 		public void end() {
 			list.sort(comparator);
 			downstream.begin(list.size());
-			list.forEach(downstream::accept);
+			if (!cancellationWasRequested) {
+				list.forEach(downstream::accept);
+			} else {
+				for (int i = 0; i < list.size() && !downstream.cancellationRequested(); ++i) {
+					downstream.accept(list.get(i));
+				}
+			}
 			downstream.end();
 			list = null;
+		}
+
+		/**
+		 * Records is cancellation is requested so short-circuiting behaviour can be preserved when the sorted elements are pushed downstream.
+		 *
+		 * @return false, as this sink never short-circuits.
+		 */
+		@Override
+		public boolean cancellationRequested() {
+			cancellationWasRequested = true;
+			return false;
 		}
 
 		@Override
 		public void accept(T t) {
 			list.add(t);
+		}
+	}
+
+	static final class Find<T> implements TerminalSink<T, T> {
+		boolean hasValue;
+		T value;
+
+		Find() {} // Avoid creation of special accessor
+
+		@Override
+		public void accept(T value) {
+			if (!hasValue) {
+				hasValue = true;
+				this.value = value;
+			}
+		}
+
+		@Override
+		public boolean cancellationRequested() {
+			return hasValue;
+		}
+
+		@Override
+		public T get() {
+			return value;
 		}
 	}
 }

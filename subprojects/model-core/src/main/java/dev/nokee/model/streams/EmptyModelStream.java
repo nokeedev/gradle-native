@@ -44,6 +44,11 @@ enum EmptyModelStream implements ModelStream<Object> {
 	}
 
 	@Override
+	public Provider<Object> findFirst() {
+		return ProviderUtils.notDefined(); // No element in the stream
+	}
+
+	@Override
 	public ModelStream<Object> peek(Consumer<? super Object> action) {
 		return this;
 	}

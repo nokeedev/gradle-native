@@ -2,6 +2,7 @@ package dev.nokee.model.streams;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.utils.ConsumerTestUtils;
 import lombok.val;
@@ -95,6 +96,36 @@ public interface ModelStreamTester<T> extends BranchedModelStreamTester<T> {
 	}
 
 	@Test
+	default void canFindFirstElementOfUnsortedStream() {
+		val subject = createSubject();
+		val e0 = createElement();
+		val result1 = subject.findFirst();
+		val e1 = createElement();
+		val result2 = subject.findFirst();
+		val e2 = createElement();
+		assertAll(
+			() -> assertThat(result1, providerOf(e0)),
+			() -> assertThat(result2, providerOf(e0))
+		);
+	}
+
+	@Test
+	default void canFindFirstElementOfSortedStream() {
+		val subject = createSubject().sorted(comparingInt(Objects::hashCode));
+		val e0 = createElement();
+		val result1 = subject.findFirst();
+		val e1 = createElement();
+		val result2 = subject.findFirst();
+		val e2 = createElement();
+		val firstElementMatcher = Iterables.getFirst(sortedByHashCode(e0, e1, e2), null);
+		assertAll(
+			() -> assertThat(result1, providerOf(firstElementMatcher)),
+			() -> assertThat(result2, providerOf(firstElementMatcher))
+		);
+	}
+
+	//region sorted
+	@Test
 	default void canReuseSortedStream() {
 		val subject = createSubject().sorted(comparingInt(Objects::hashCode));
 		val e0 = createElement();
@@ -131,6 +162,7 @@ public interface ModelStreamTester<T> extends BranchedModelStreamTester<T> {
 	static <T> List<Matcher<? super T>> sortedByToString(T... items) {
 		return Arrays.stream(items).sorted(comparing(Objects::toString)).map(Matchers::is).collect(toList());
 	}
+	//endregion
 
 	@Test
 	default void canFilterOutAllElements() {
