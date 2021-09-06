@@ -14,7 +14,11 @@ public final class TaskMatchers {
 	 * @return a task matcher, never null
 	 */
 	public static Matcher<Task> group(String group) {
-		return new FeatureMatcher<Task, String>(equalTo(group), "a task with group", "task group") {
+		return group(equalTo(group));
+	}
+
+	public static Matcher<Task> group(Matcher<String> matcher) {
+		return new FeatureMatcher<Task, String>(matcher, "a task with group", "task group") {
 			@Override
 			protected String featureValueOf(Task actual) {
 				return actual.getGroup();
