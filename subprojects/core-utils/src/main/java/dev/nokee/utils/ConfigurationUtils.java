@@ -264,47 +264,6 @@ public final class ConfigurationUtils {
 	}
 
 	/**
-	 * Configures a {@link Configuration}'s attributes from the specified {@link ConfigurationAttributesProvider} object.
-	 *
-	 * @param obj  an attributes provider object, must not be null
-	 * @return a configuration action, never null
-	 * @see #configureAttributes(Consumer)
-	 */
-	@Deprecated
-	public static ActionUtils.Action<Configuration> configureAttributesFrom(Object obj) {
-		requireNonNull(obj);
-		if (obj instanceof ConfigurationAttributesProvider) {
-			return new ConfigureAttributesFromAction((ConfigurationAttributesProvider) obj);
-		}
-		return ActionUtils.doNothing();
-	}
-
-	@EqualsAndHashCode
-	private static final class ConfigureAttributesFromAction implements ActionUtils.Action<Configuration> {
-		private final ConfigurationAttributesProvider provider;
-
-		private ConfigureAttributesFromAction(ConfigurationAttributesProvider provider) {
-			this.provider = provider;
-		}
-
-		@Override
-		public void execute(Configuration configuration) {
-			if (ConfigurationBuckets.RESOLVABLE.isSatisfiedBy(configuration)) {
-				configuration.attributes(provider::forResolving);
-			} else if (ConfigurationBuckets.CONSUMABLE.isSatisfiedBy(configuration)) {
-				configuration.attributes(provider::forConsuming);
-			} else {
-				throw new IllegalStateException(String.format("Configuration '%s' must be either consumable or resolvable.", configuration.getName()));
-			}
-		}
-
-		@Override
-		public String toString() {
-			return "ConfigurationUtils.configureAttributesFrom(" + provider + ")";
-		}
-	}
-
-	/**
 	 * Configures the usage attribute with the specified value.
 	 *
 	 * @param usage  the usage attribute value, must not be null
