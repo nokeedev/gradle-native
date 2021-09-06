@@ -128,6 +128,7 @@ public final class TaskUtils {
 		return new ConfigureDescriptionAction<>(new StringFormatSupplier(format, args));
 	}
 
+	/** @see #configureDescription(String, Object...) */
 	@EqualsAndHashCode
 	private static final class ConfigureDescriptionAction<T extends Task> implements ActionUtils.Action<T> {
 		private final Supplier<? extends String> descriptionSupplier;
