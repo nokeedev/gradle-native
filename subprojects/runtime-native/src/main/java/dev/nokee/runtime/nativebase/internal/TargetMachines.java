@@ -5,6 +5,7 @@ import dev.nokee.runtime.core.CoordinateTuple;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import lombok.EqualsAndHashCode;
 
 import static java.lang.System.getProperty;
 
@@ -33,6 +34,7 @@ public final class TargetMachines {
 	}
 
 	/** @see #host() */
+	@EqualsAndHashCode(callSuper = true)
 	private static final class DefaultHostTargetMachine extends AbstractTargetMachine implements HostTargetMachine {
 		private final String name;
 
