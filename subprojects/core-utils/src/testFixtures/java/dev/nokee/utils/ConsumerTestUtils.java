@@ -70,6 +70,65 @@ public final class ConsumerTestUtils {
 		}
 	}
 
+	/**
+	 * Returns a consumer that do something meaningless.
+	 * All instance created are equal to each other.
+	 * <p>
+	 * Because the implementation here should not be considered a no-op but rather some work that we don't really care for the purpose of the test.
+	 *
+	 * @return a consumer that does something meaningless, never null.
+	 */
+	public static <T, U> BiConsumer<T, U> aBiConsumer() {
+		return new ABiConsumer<>();
+	}
+
+	/** @see #aBiConsumer() */
+	@EqualsAndHashCode
+	private static final class ABiConsumer<T, U> implements BiConsumer<T, U> {
+		@Override
+		public void accept(T t, U u) {
+			// doing something meaningless
+		}
+
+		@Override
+		public String toString() {
+			return "aBiConsumer()";
+		}
+	}
+
+	/**
+	 * Returns a consumer that do something meaningless different than {@link #aBiConsumer()}.
+	 * All instance created are equal to each other.
+	 * <p>
+	 * Why not use {@link #aBiConsumer()}?
+	 * Because the implementation here convey that it's some work that is different than its counterpart.
+	 *
+	 * @return a consumer that does something else meaningless than {@link #aBiConsumer()}, never null.
+	 */
+	public static <T, U> BiConsumer<T, U> anotherBiConsumer() {
+		return new AnotherBiConsumer<>(null);
+	}
+
+	@EqualsAndHashCode
+	private static final class AnotherBiConsumer<T, U> implements BiConsumer<T, U> {
+		@Nullable
+		private final Object what;
+
+		public AnotherBiConsumer(@Nullable Object what) {
+			this.what = what;
+		}
+
+		@Override
+		public void accept(T t, U u) {
+			// doing something else meaningless
+		}
+
+		@Override
+		public String toString() {
+			return "anotherBiConsumer(" + (what == null ? "" : what) + ")";
+		}
+	}
+
 	public static <T> MockConsumer<T> mockConsumer() {
 		return new MockConsumer<>();
 	}
