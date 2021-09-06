@@ -1,8 +1,11 @@
 package dev.nokee.utils;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import lombok.EqualsAndHashCode;
+import org.gradle.api.Action;
+import org.gradle.api.Named;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.ProjectLayout;
@@ -142,5 +145,46 @@ public final class TaskUtils {
 		public String toString() {
 			return "TaskUtils.configureDescription(" + descriptionSupplier.get() + ")";
 		}
+	}
+
+	/**
+	 * Adds the specified action to the target task's do first action list.
+	 *
+	 * @param action  the do first action to add, must not be null
+	 * @param <SELF>  the target task type
+	 * @return an action that adds the specified action to the task's do first action list, never null
+	 */
+	public static <SELF extends Task> ActionUtils.Action<SELF> configureDoFirst(Action<? super SELF> action) {
+		requireNonNull(action);
+		Preconditions.checkArgument(!isJavaLambda(action)); // lambda's breaks task caching, so we just disallow them
+		return new ConfigureDoFirstAction<>(action);
+	}
+
+	/** @see #configureDoFirst(Action) */
+	@EqualsAndHashCode
+	private static final class ConfigureDoFirstAction<T extends Task> implements ActionUtils.Action<T> {
+		private final Action<? super T> action;
+
+		private ConfigureDoFirstAction(Action<? super T> action) {
+			this.action = requireNonNull(action);
+		}
+
+		@Override
+		public void execute(T task) {
+			if (action instanceof Named) {
+				task.doFirst(((Named) action).getName(), (Action<? super Task>) action);
+			} else {
+				task.doFirst((Action<? super Task>) action);
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "TaskUtils.configureDoFirst(" + action + ")";
+		}
+	}
+
+	private static boolean isJavaLambda(Object obj) {
+		return obj.getClass().getSimpleName().contains("$$Lambda$");
 	}
 }
