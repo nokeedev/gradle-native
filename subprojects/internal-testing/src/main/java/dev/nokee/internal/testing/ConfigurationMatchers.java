@@ -340,6 +340,10 @@ public final class ConfigurationMatchers {
 		throw new UnsupportedOperationException();
 	}
 
+	public static Matcher<Configuration> description(String description) {
+		return description(equalTo(description));
+	}
+
 	/**
 	 * Matches a configuration description using the specified matcher.
 	 *
