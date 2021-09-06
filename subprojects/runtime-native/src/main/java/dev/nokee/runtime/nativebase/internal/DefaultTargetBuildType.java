@@ -7,6 +7,8 @@ import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.utils.ConfigurationUtils;
 import org.gradle.api.attributes.AttributeContainer;
 
+import java.util.Objects;
+
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 
 final class DefaultTargetBuildType implements TargetBuildType, Coordinate<BuildType>, ConfigurationUtils.ConfigurationAttributesProvider {
@@ -34,6 +36,23 @@ final class DefaultTargetBuildType implements TargetBuildType, Coordinate<BuildT
 	@Override
 	public CoordinateAxis<BuildType> getAxis() {
 		return BUILD_TYPE_COORDINATE_AXIS;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		}
+		if (other instanceof Coordinate) {
+			return Objects.equals(getAxis(), ((Coordinate<?>) other).getAxis())
+				&& Objects.equals(getValue(), ((Coordinate<?>) other).getValue());
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getAxis(), getValue());
 	}
 
 	@Override
