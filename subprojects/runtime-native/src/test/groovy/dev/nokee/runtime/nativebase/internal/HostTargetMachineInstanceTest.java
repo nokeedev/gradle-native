@@ -1,5 +1,6 @@
 package dev.nokee.runtime.nativebase.internal;
 
+import com.google.common.testing.EqualsTester;
 import dev.nokee.runtime.core.Coordinates;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
@@ -52,5 +53,14 @@ class HostTargetMachineInstanceTest {
 	void hasOperatingSystemAndArchitectureCoordinate() {
 		val subject = TargetMachines.host();
 		assertThat(subject, contains(Coordinates.of(subject.getOperatingSystemFamily()), Coordinates.of(subject.getArchitecture())));
+	}
+
+	@Test
+	@SuppressWarnings("UnstableApiUsage")
+	void checkEquals() {
+		new EqualsTester()
+			.addEqualityGroup(TargetMachines.host(), TargetMachines.host())
+			.addEqualityGroup(TargetMachines.host().named("foo"))
+			.testEquals();
 	}
 }
