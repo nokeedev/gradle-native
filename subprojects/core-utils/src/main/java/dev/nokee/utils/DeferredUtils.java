@@ -178,12 +178,8 @@ public final class DeferredUtils {
 	private static Object unpackKotlinFunction0(Object value) {
 		try {
 			return KOTLIN_FUNCTION0_CLASS.orElseThrow(() -> new RuntimeException("kotlin.jvm.functions.Function0 not found in classpath.")).getMethod("invoke").invoke(value);
-		} catch (IllegalAccessException e) {
+		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			throw new RuntimeException(String.format("Could not access kotlin.jvm.functions.Function0#invoke() method on object of type '%s'.", value.getClass().getCanonicalName()), e);
-		} catch (InvocationTargetException e) {
-			throw new RuntimeException(String.format("Could not invoke kotlin.jvm.functions.Function0#invoke() method on object of type '%s'.", value.getClass().getCanonicalName()), e);
-		} catch (NoSuchMethodException e) {
-			throw new RuntimeException(String.format("Could not find kotlin.jvm.functions.Function0#invoke() method on object of type '%s'.", value.getClass().getCanonicalName()), e);
 		}
 	}
 
