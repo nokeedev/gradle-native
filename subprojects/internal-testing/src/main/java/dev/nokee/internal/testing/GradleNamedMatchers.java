@@ -2,6 +2,7 @@ package dev.nokee.internal.testing;
 
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectCollectionSchema;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.SourceSet;
@@ -37,6 +38,12 @@ public final class GradleNamedMatchers {
 				// SourceSet class somewhat behave like a Named class
 				else if (actual instanceof SourceSet) {
 					return ((SourceSet) actual).getName();
+				}
+
+				// NamedDomainObjectProvider class somewhare behave like a Named class
+				//   in theory, all default implementation implements Named class
+				else if (actual instanceof NamedDomainObjectProvider) {
+					return ((NamedDomainObjectProvider) actual).getName();
 				}
 
 				// NamedDomainObjectSchema class somewhat behave like a Named class
