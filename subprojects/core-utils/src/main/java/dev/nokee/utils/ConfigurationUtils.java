@@ -300,6 +300,42 @@ public final class ConfigurationUtils {
 		}
 	}
 
+	/**
+	 * Configures the usage attribute with the specified value.
+	 *
+	 * @param usage  the usage attribute value, must not be null
+	 * @param <T>  the attribute target type
+	 * @return a configuration action, never null
+	 * @see #configureAttributes(Consumer)
+	 */
+	public static <T> Consumer<AttributesDetails<? extends T>> forUsage(Usage usage) {
+		return new ForAttributeConsumer<T, Usage>(Usage.USAGE_ATTRIBUTE, usage) {
+			@Override
+			public String toString() {
+				return "forUsage(" + usage + ")";
+			}
+		};
+	}
+
+	/** @see #forUsage(Usage) */
+	@EqualsAndHashCode
+	private static abstract class ForAttributeConsumer<T, A> implements Consumer<AttributesDetails<? extends T>> {
+		private final Attribute<A> attribute;
+		private final A value;
+
+		private ForAttributeConsumer(Attribute<A> attribute, A value) {
+			this.attribute = attribute;
+			this.value = value;
+		}
+
+		@Override
+		public final void accept(AttributesDetails<? extends T> details) {
+			details.attribute(attribute, value);
+		}
+
+		// Implement this class to override toString()
+	}
+
 	public interface AttributesDetails<T> {
 		AttributesDetails<T> usage(Usage usage);
 		AttributesDetails<T> artifactType(String artifactType);

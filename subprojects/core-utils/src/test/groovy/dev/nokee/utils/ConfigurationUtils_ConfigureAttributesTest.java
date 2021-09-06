@@ -173,4 +173,31 @@ class ConfigurationUtils_ConfigureAttributesTest {
 			return "attribute provider";
 		}
 	}
+
+	@Nested
+	class ForUsageTest {
+		@Test
+		void canConfigureUsageUsingShortHandAction() {
+			val subject = testConfiguration(configureAttributes(forUsage(of("some-usage"))));
+			assertThat(subject, attributes(hasEntry(equalTo(Usage.USAGE_ATTRIBUTE), named("some-usage"))));
+		}
+
+		@Test
+		@SuppressWarnings("UnstableApiUsage")
+		void checkEquals() {
+			new EqualsTester()
+				.addEqualityGroup(forUsage(of("some-usage")), forUsage(of("some-usage")))
+				.addEqualityGroup(forUsage(of("some-other-usage")))
+				.testEquals();
+		}
+
+		@Test
+		void checkToString() {
+			assertThat(forUsage(of("some-usage")), hasToString("forUsage(some-usage)"));
+		}
+
+		private Usage of(String usage) {
+			return objectFactory().named(Usage.class, usage);
+		}
+	}
 }
