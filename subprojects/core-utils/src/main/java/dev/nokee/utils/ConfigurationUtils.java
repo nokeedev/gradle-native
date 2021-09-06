@@ -234,7 +234,7 @@ public final class ConfigurationUtils {
 		private final Object obj;
 
 		private AttributeOfConsumer(Object obj) {
-			this.obj = obj;
+			this.obj = requireNonNull(obj);
 		}
 
 		@Override
