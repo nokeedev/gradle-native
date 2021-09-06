@@ -36,6 +36,15 @@ public final class FileSystemMatchers {
 		};
 	}
 
+	public static Matcher<File> parentFile(Matcher<File> matcher) {
+		return new FeatureMatcher<File, File>(matcher, "a parent file", "the parent file") {
+			@Override
+			protected File featureValueOf(File actual) {
+				return actual.getParentFile();
+			}
+		};
+	}
+
 	/**
 	 * Matches unix-normalized absolute path of the {@literal File}.
 	 *
