@@ -14,7 +14,7 @@ public final class GradleProviderMatchers {
 		return providerOf(equalTo(instance));
 	}
 
-	public static <T> Matcher<Provider<? extends T>> providerOf(Matcher<T> matcher) {
+	public static <T> Matcher<Provider<? extends T>> providerOf(Matcher<? super T> matcher) {
 		return new FeatureMatcher<Provider<? extends T>, T>(matcher, "provider of", "providing") {
 			@Override
 			protected T featureValueOf(Provider<? extends T> actual) {
