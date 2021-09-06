@@ -1,5 +1,6 @@
 package dev.nokee.internal.testing;
 
+import dev.nokee.utils.DeferredUtils;
 import org.gradle.api.Task;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
@@ -41,6 +42,15 @@ public final class TaskMatchers {
 			@Override
 			protected String featureValueOf(Task actual) {
 				return actual.getDescription();
+			}
+		};
+	}
+
+	public static Matcher<Task> dependsOn(Matcher<? super Iterable<Object>> matcher) {
+		return new FeatureMatcher<Task, Iterable<Object>>(matcher, "a task with dependency on", "task dependency") {
+			@Override
+			protected Iterable<Object> featureValueOf(Task actual) {
+				return DeferredUtils.flatUnpackWhile(actual.getDependsOn(), DeferredUtils::isDeferred);
 			}
 		};
 	}
