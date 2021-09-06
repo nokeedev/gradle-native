@@ -144,7 +144,7 @@ public final class DeferredUtils {
 		}
 	}
 
-	static boolean isDeferred(Object value) {
+	public static boolean isDeferred(Object value) {
 		return value instanceof Provider
 			|| isNestableDeferred(value);
 	}
