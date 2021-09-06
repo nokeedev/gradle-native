@@ -211,7 +211,7 @@ public final class ConfigurationUtils {
 	 * @param <T>  the attributes configurable type
 	 * @return a configuration action, never null
 	 */
-	public static <T extends HasConfigurableAttributes<T>> ActionUtils.Action<T> configureAttributes(Consumer<? super AttributesDetails> action) {
+	public static <T extends HasConfigurableAttributes<T>> ActionUtils.Action<T> configureAttributes(Consumer<? super AttributesDetails<T>> action) {
 		return new ConfigureAttributesAction<>(action);
 	}
 
@@ -255,24 +255,28 @@ public final class ConfigurationUtils {
 		}
 	}
 
-	public interface AttributesDetails {
-		AttributesDetails usage(Usage usage);
-		AttributesDetails artifactType(String artifactType);
-		<T> AttributesDetails attribute(Attribute<T> key, T value);
+	public interface AttributesDetails<T> {
+		AttributesDetails<T> usage(Usage usage);
+		AttributesDetails<T> artifactType(String artifactType);
+		<S> AttributesDetails<T> attribute(Attribute<S> key, S value);
+	}
+
+	public interface AttributesDetailsInternal<T> extends AttributesDetails<T> {
+		T get();
 	}
 
 	/** @see #configureAttributes(Consumer) */
 	@EqualsAndHashCode
 	private static final class ConfigureAttributesAction<T extends HasConfigurableAttributes<T>> implements ActionUtils.Action<T> {
-		private final Consumer<? super AttributesDetails> action;
+		private final Consumer<? super AttributesDetails<T>> action;
 
-		public ConfigureAttributesAction(Consumer<? super AttributesDetails> action) {
+		public ConfigureAttributesAction(Consumer<? super AttributesDetails<T>> action) {
 			this.action = requireNonNull(action);
 		}
 
 		@Override
 		public void execute(T t) {
-			t.attributes(new DefaultConfigurationAttributeBuilder(action));
+			t.attributes(new DefaultConfigurationAttributeBuilder<>(action));
 		}
 
 		@Override
@@ -280,11 +284,11 @@ public final class ConfigurationUtils {
 			return "ConfigurationUtils.configureAttributes(" + action + ")";
 		}
 
-		private static final class DefaultConfigurationAttributeBuilder implements AttributesDetails, Action<AttributeContainer> {
-			private final Consumer<? super AttributesDetails> action;
+		private static final class DefaultConfigurationAttributeBuilder<T> implements AttributesDetails<T>, Action<AttributeContainer> {
+			private final Consumer<? super AttributesDetails<T>> action;
 			private AttributeContainer attributes;
 
-			public DefaultConfigurationAttributeBuilder(Consumer<? super AttributesDetails> action) {
+			public DefaultConfigurationAttributeBuilder(Consumer<? super AttributesDetails<T>> action) {
 				this.action = action;
 			}
 
@@ -299,18 +303,18 @@ public final class ConfigurationUtils {
 				}
 			}
 
-			public AttributesDetails usage(Usage usage) {
+			public AttributesDetails<T> usage(Usage usage) {
 				attributes.attribute(Usage.USAGE_ATTRIBUTE, usage);
 				return this;
 			}
 
-			public AttributesDetails artifactType(String artifactType) {
+			public AttributesDetails<T> artifactType(String artifactType) {
 				attributes.attribute(ARTIFACT_TYPE_ATTRIBUTE, artifactType);
 				return this;
 			}
 
 			@Override
-			public <T> AttributesDetails attribute(Attribute<T> key, T value) {
+			public <S> AttributesDetails<T> attribute(Attribute<S> key, S value) {
 				attributes.attribute(key, value);
 				return this;
 			}
