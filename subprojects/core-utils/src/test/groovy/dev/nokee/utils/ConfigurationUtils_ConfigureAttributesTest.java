@@ -102,6 +102,18 @@ class ConfigurationUtils_ConfigureAttributesTest {
 		}
 
 		@Test
+		void canConfigureAttributesFromNonProviderOnConsumableConfiguration() {
+			val subject = testConfiguration(configureAsConsumable().andThen(configureAttributes(attributesOf(new Object()))));
+			assertThat(subject, attributes(anEmptyMap()));
+		}
+
+		@Test
+		void canConfigureAttributesFromNonProviderOnResolvableConfiguration() {
+			val subject = testConfiguration(configureAsConsumable().andThen(configureAttributes(attributesOf(new Object()))));
+			assertThat(subject, attributes(anEmptyMap()));
+		}
+
+		@Test
 		void canConfigureAttributesFromProviderOfProvider() {
 			val subject = testConfiguration(configureAsConsumable().andThen(configureAttributes(attributesOf(providerFactory().provider(TestAttributesProvider::new)))));
 			assertThat(subject, attributes(hasEntry(TestAttributesProvider.TEST_ATTRIBUTE, "consumer-value")));
