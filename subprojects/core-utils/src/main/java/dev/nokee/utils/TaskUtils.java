@@ -8,7 +8,9 @@ import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.provider.Provider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 import java.util.List;
@@ -32,6 +34,18 @@ public final class TaskUtils {
 	 */
 	public static String temporaryDirectoryPath(Task task) {
 		return "tmp/" + task.getName();
+	}
+
+	/**
+	 * Returns the temporary task directory as a directory provider.
+	 * Calling {@link Task#getTemporaryDir()} creates the directory immediately.
+	 * To avoid unnecessary directory creation during the configuration phase, we can use this method.
+	 *
+	 * @param task  the task to return the temporary task directory, must not be null
+	 * @return the task's temporary directory as {@link Provider}, never null
+	 */
+	public static Provider<Directory> temporaryTaskDirectory(Task task) {
+		return task.getProject().getLayout().getBuildDirectory().dir("tmp/" + task.getName());
 	}
 
 	/**
