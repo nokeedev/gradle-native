@@ -6,6 +6,8 @@ import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.attributes.HasConfigurableAttributes;
@@ -15,7 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -451,5 +455,40 @@ public final class ConfigurationUtils {
 		public String toString() {
 			return "ConfigurationUtils.configureExtendsFrom(" + configurations.stream().map(Objects::toString).collect(Collectors.joining(", ")) + ")";
 		}
+	}
+
+	/**
+	 * Configures the dependencies of a {@link Configuration} using the specified action.
+	 *
+	 * @param action  the configuration action, must not be null
+	 * @return a configuration action, never null
+	 */
+	public static ActionUtils.Action<Configuration> configureDependencies(BiConsumer<? super Configuration, ? super DependencySet> action) {
+		return new ConfigureDependenciesAction(action);
+	}
+
+	/** @see #configureDependencies(BiConsumer) */
+	@EqualsAndHashCode
+	private static final class ConfigureDependenciesAction implements ActionUtils.Action<Configuration> {
+		private final BiConsumer<? super Configuration, ? super DependencySet> action;
+
+		public ConfigureDependenciesAction(BiConsumer<? super Configuration, ? super DependencySet> action) {
+			this.action = requireNonNull(action);
+		}
+
+		@Override
+		public void execute(Configuration configuration) {
+			action.accept(configuration, configuration.getDependencies());
+		}
+
+		@Override
+		public String toString() {
+			return "ConfigurationUtils.configureDependencies(" + action + ")";
+		}
+	}
+
+	/** @see #configureDependencies(BiConsumer) */
+	public static BiConsumer<Configuration, DependencySet> add(Function<? super Configuration, ? extends Dependency> mapper) {
+		return (configuration, dependencies) -> dependencies.add(mapper.apply(configuration));
 	}
 }
