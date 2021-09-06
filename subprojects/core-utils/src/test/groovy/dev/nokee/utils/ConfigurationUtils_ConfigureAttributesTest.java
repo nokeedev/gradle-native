@@ -1,22 +1,25 @@
 package dev.nokee.utils;
 
 import com.google.common.testing.EqualsTester;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Named;
 import org.gradle.api.attributes.Attribute;
+import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.attributes.Usage;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
-import static dev.nokee.utils.ConfigurationUtils.ARTIFACT_TYPE_ATTRIBUTE;
-import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
+import static dev.nokee.utils.ConfigurationUtils.*;
 import static dev.nokee.utils.ConsumerTestUtils.aConsumer;
 import static dev.nokee.utils.ConsumerTestUtils.anotherConsumer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ConfigurationUtils_ConfigureAttributesTest {
 	@Test
@@ -79,5 +82,68 @@ class ConfigurationUtils_ConfigureAttributesTest {
 	void canConfigureNamedAttributes() {
 		val subject = testConfiguration(configureAttributes(it -> it.attribute(NAMED_ATTRIBUTE, objectFactory().named(NamedObject.class, "test"))));
 		assertThat(subject, attributes(hasEntry(is(NAMED_ATTRIBUTE), named("test"))));
+	}
+
+	@Nested
+	class AttributesOfTest {
+		@Test
+		void canConfigureAttributesFromProviderOnConsumableConfiguration() {
+			val subject = testConfiguration(configureAsConsumable().andThen(configureAttributes(attributesOf(new TestAttributesProvider()))));
+			assertThat(subject, attributes(hasEntry(TestAttributesProvider.TEST_ATTRIBUTE, "consumer-value")));
+		}
+
+		@Test
+		void canConfigureAttributesFromProviderOnResolvableConfiguration() {
+			val subject = testConfiguration(configureAsResolvable().andThen(configureAttributes(attributesOf(new TestAttributesProvider()))));
+			assertThat(subject, attributes(hasEntry(TestAttributesProvider.TEST_ATTRIBUTE, "resolver-value")));
+		}
+
+		@Test
+		void throwsExceptionWhenConfigurationIsNeitherConsumableAndResolvable() {
+			val ex = assertThrows(IllegalStateException.class,
+				() -> testConfiguration("test", configureAttributes(attributesOf(new TestAttributesProvider()))));
+			assertThat(ex.getMessage(), equalTo("Configuration 'test' must be either consumable or resolvable."));
+		}
+
+		@Test
+		@SuppressWarnings("UnstableApiUsage")
+		void checkEquals() {
+			new EqualsTester()
+				.addEqualityGroup(attributesOf(new TestAttributesProvider()), attributesOf(new TestAttributesProvider()))
+				.addEqualityGroup(attributesOf(new ConfigurationAttributesProvider() {
+					@Override
+					public void forConsuming(AttributeContainer attributes) {}
+
+					@Override
+					public void forResolving(AttributeContainer attributes) {}
+				}))
+				.testEquals();
+		}
+
+		@Test
+		void checkToString() {
+			assertThat(attributesOf(new TestAttributesProvider()),
+				hasToString("ConfigurationUtils.attributesOf(attribute provider)"));
+		}
+	}
+
+	@EqualsAndHashCode
+	private static final class TestAttributesProvider implements ConfigurationAttributesProvider {
+		public static final Attribute<String> TEST_ATTRIBUTE = Attribute.of("test-attribute", String.class);
+
+		@Override
+		public void forConsuming(AttributeContainer attributes) {
+			attributes.attribute(TEST_ATTRIBUTE, "consumer-value");
+		}
+
+		@Override
+		public void forResolving(AttributeContainer attributes) {
+			attributes.attribute(TEST_ATTRIBUTE, "resolver-value");
+		}
+
+		@Override
+		public String toString() {
+			return "attribute provider";
+		}
 	}
 }

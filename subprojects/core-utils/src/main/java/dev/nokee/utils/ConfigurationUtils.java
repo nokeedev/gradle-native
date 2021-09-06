@@ -217,11 +217,54 @@ public final class ConfigurationUtils {
 
 	/**
 	 * Configures a {@link Configuration}'s attributes from the specified {@link ConfigurationAttributesProvider} object.
+	 * If the specified object does not provide attributes, the returned configuration action will be no-op.
 	 *
 	 * @param obj  an attributes provider object, must not be null
 	 * @return a configuration action, never null
 	 * @see #configureAttributes(Consumer)
 	 */
+	public static Consumer<AttributesDetails<Configuration>> attributesOf(Object obj) {
+		return new AttributeOfConsumer(obj);
+	}
+
+	/** @see #attributesOf(Object) */
+	@EqualsAndHashCode
+	private static final class AttributeOfConsumer implements Consumer<AttributesDetails<Configuration>> {
+		private final Object obj;
+
+		private AttributeOfConsumer(Object obj) {
+			this.obj = obj;
+		}
+
+		@Override
+		public void accept(AttributesDetails<Configuration> attributesDetails) {
+			if (obj instanceof ConfigurationAttributesProvider) {
+				val provider = (ConfigurationAttributesProvider) obj;
+				val configuration = ((AttributesDetailsInternal<Configuration>) attributesDetails).get();
+				if (ConfigurationBuckets.RESOLVABLE.isSatisfiedBy(configuration)) {
+					configuration.attributes(provider::forResolving);
+				} else if (ConfigurationBuckets.CONSUMABLE.isSatisfiedBy(configuration)) {
+					configuration.attributes(provider::forConsuming);
+				} else {
+					throw new IllegalStateException(String.format("Configuration '%s' must be either consumable or resolvable.", configuration.getName()));
+				}
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "ConfigurationUtils.attributesOf(" + obj + ")";
+		}
+	}
+
+	/**
+	 * Configures a {@link Configuration}'s attributes from the specified {@link ConfigurationAttributesProvider} object.
+	 *
+	 * @param obj  an attributes provider object, must not be null
+	 * @return a configuration action, never null
+	 * @see #configureAttributes(Consumer)
+	 */
+	@Deprecated
 	public static ActionUtils.Action<Configuration> configureAttributesFrom(Object obj) {
 		requireNonNull(obj);
 		if (obj instanceof ConfigurationAttributesProvider) {
@@ -276,7 +319,7 @@ public final class ConfigurationUtils {
 
 		@Override
 		public void execute(T t) {
-			t.attributes(new DefaultConfigurationAttributeBuilder<>(action));
+			t.attributes(new DefaultConfigurationAttributeBuilder<>(t, action));
 		}
 
 		@Override
@@ -284,12 +327,19 @@ public final class ConfigurationUtils {
 			return "ConfigurationUtils.configureAttributes(" + action + ")";
 		}
 
-		private static final class DefaultConfigurationAttributeBuilder<T> implements AttributesDetails<T>, Action<AttributeContainer> {
+		private static final class DefaultConfigurationAttributeBuilder<T> implements AttributesDetailsInternal<T>, Action<AttributeContainer> {
+			private final T target;
 			private final Consumer<? super AttributesDetails<T>> action;
 			private AttributeContainer attributes;
 
-			public DefaultConfigurationAttributeBuilder(Consumer<? super AttributesDetails<T>> action) {
+			public DefaultConfigurationAttributeBuilder(T target, Consumer<? super AttributesDetails<T>> action) {
+				this.target = target;
 				this.action = action;
+			}
+
+			@Override
+			public T get() {
+				return target;
 			}
 
 			@Override
