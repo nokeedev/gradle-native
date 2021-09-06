@@ -9,6 +9,7 @@ import org.hamcrest.Matchers;
 import org.hamcrest.io.FileMatchers;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 
 import static org.hamcrest.Matchers.is;
@@ -32,6 +33,12 @@ public final class FileSystemMatchers {
 					return ((Path) actual).toFile();
 				} else if (actual instanceof Provider) {
 					throw new IllegalArgumentException("Please make sure there is not confusion between Provider#map vs Provider#flatMap. Otherwise, use GradleProviderMatchers#providerOf.");
+				} else {
+					try {
+						return (File) actual.getClass().getMethod("getAsFile").invoke(actual);
+					} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+						// ignores
+					}
 				}
 				throw new UnsupportedOperationException(String.format("Unsupported file-like type of '%s'.", actual.getClass().getSimpleName()));
 			}
