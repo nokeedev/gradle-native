@@ -1,11 +1,18 @@
 package dev.nokee.internal.testing;
 
+import org.gradle.api.NamedDomainObjectCollectionSchema;
+import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.plugins.ExtensionsSchema;
 import org.gradle.api.plugins.PluginAware;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
 import org.hamcrest.Description;
+import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 import static java.util.Objects.requireNonNull;
+import static org.hamcrest.Matchers.equalTo;
 
 public final class ProjectMatchers {
 	private ProjectMatchers() {}
@@ -26,6 +33,41 @@ public final class ProjectMatchers {
 			@Override
 			public void describeTo(Description description) {
 				description.appendText("a plugin aware object has plugin ").appendValue(id).appendText(" applied");
+			}
+		};
+	}
+
+	/**
+	 * Returns a matcher for {@link ExtensionAware} objects.
+	 * Note the matcher will throw an exception if the actual object is not extension aware.
+	 *
+	 * @param matcher  the extensions matcher, must not be null
+	 * @return an extensions matcher, never null
+	 */
+	public static Matcher<Object> extensions(Matcher<? super Iterable<ExtensionsSchema.ExtensionSchema>> matcher) {
+		return new FeatureMatcher<Object, Iterable<ExtensionsSchema.ExtensionSchema>>(matcher, "a extension aware object", "extension aware object") {
+			@Override
+			protected Iterable<ExtensionsSchema.ExtensionSchema> featureValueOf(Object actual) {
+				return ((ExtensionAware) actual).getExtensions().getExtensionsSchema().getElements();
+			}
+		};
+	}
+
+	public static <T> Matcher<T> publicType(TypeOf<?> instance) {
+		return publicType(equalTo(instance));
+	}
+
+	public static <T> Matcher<T> publicType(Matcher<? super TypeOf<?>> matcher) {
+		return new FeatureMatcher<T, TypeOf<?>>(matcher, "an object with public type", "object with public type") {
+			@Override
+			protected TypeOf<?> featureValueOf(T actual) {
+				if (actual instanceof HasPublicType) {
+					return ((HasPublicType) actual).getPublicType();
+				} else if (actual instanceof NamedDomainObjectCollectionSchema.NamedDomainObjectSchema) {
+					return ((NamedDomainObjectCollectionSchema.NamedDomainObjectSchema) actual).getPublicType();
+				}
+
+				throw new UnsupportedOperationException(String.format("Object '%s' of type %s is not public type aware.", actual, actual.getClass().getCanonicalName()));
 			}
 		};
 	}
