@@ -358,4 +358,13 @@ public final class ConfigurationMatchers {
 			}
 		};
 	}
+
+	public static Matcher<Dependency> module(Matcher<? super ModuleDependency> matcher) {
+		return new FeatureMatcher<Dependency, ModuleDependency>(matcher, "a module dependency", "module dependency") {
+			@Override
+			protected ModuleDependency featureValueOf(Dependency actual) {
+				return (ModuleDependency) actual;
+			}
+		};
+	}
 }
