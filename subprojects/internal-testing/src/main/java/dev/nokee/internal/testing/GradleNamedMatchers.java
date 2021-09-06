@@ -1,6 +1,7 @@
 package dev.nokee.internal.testing;
 
 import org.gradle.api.Named;
+import org.gradle.api.NamedDomainObjectCollectionSchema;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.hamcrest.FeatureMatcher;
@@ -30,6 +31,11 @@ public final class GradleNamedMatchers {
 				// Task class somewhat behave like a Named class
 				else if (actual instanceof Task) {
 					return ((Task) actual).getName();
+				}
+
+				// NamedDomainObjectSchema class somewhat behave like a Named class
+				else if (actual instanceof NamedDomainObjectCollectionSchema.NamedDomainObjectSchema) {
+					return ((NamedDomainObjectCollectionSchema.NamedDomainObjectSchema) actual).getName();
 				}
 
 				throw new UnsupportedOperationException(String.format("Object '%s' of type %s is not named-able.", actual, actual.getClass().getCanonicalName()));
