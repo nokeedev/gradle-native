@@ -77,10 +77,20 @@ public final class TaskUtils {
 	 * Returns an action that configures the task group as {@literal build} group.
 	 * Short hand version of {@code TaskUtils.configureGroup("group")}.
 	 *
-	 * @return an action that configures the task's group, never null
+	 * @return an action that configures the task's group to {@literal build}, never null
 	 */
 	public static ActionUtils.Action<Task> configureBuildGroup() {
 		return new ConfigureGroupAction(LifecycleBasePlugin.BUILD_GROUP);
+	}
+
+	/**
+	 * Returns an action that configures the task group as {@literal verification} group.
+	 * Show hand version of {@code TaskUtils.configureGroup("verification")}.
+	 *
+	 * @return an action that configures the task's group to {@literal verification}, never null
+	 */
+	public static ActionUtils.Action<Task> configureVerificationGroup() {
+		return new ConfigureGroupAction(LifecycleBasePlugin.VERIFICATION_GROUP);
 	}
 
 	@EqualsAndHashCode

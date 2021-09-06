@@ -6,8 +6,7 @@ import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static dev.nokee.utils.TaskUtils.configureBuildGroup;
-import static dev.nokee.utils.TaskUtils.configureGroup;
+import static dev.nokee.utils.TaskUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 import static org.hamcrest.Matchers.isA;
@@ -25,6 +24,13 @@ class TaskUtils_ConfigureGroupTest {
 		val task = Mockito.mock(Task.class);
 		configureBuildGroup().execute(task);
 		Mockito.verify(task).setGroup("build");
+	}
+
+	@Test
+	void canConfigureVerificationGroup() {
+		val task = Mockito.mock(Task.class);
+		configureVerificationGroup().execute(task);
+		Mockito.verify(task).setGroup("verification");
 	}
 
 	@Test
@@ -48,5 +54,6 @@ class TaskUtils_ConfigureGroupTest {
 		assertThat(configureGroup("foo"), hasToString("TaskUtils.configureGroup(foo)"));
 		assertThat(configureBuildGroup(), hasToString("TaskUtils.configureGroup(build)"));
 		assertThat(configureGroup("verification"), hasToString("TaskUtils.configureGroup(verification)"));
+		assertThat(configureVerificationGroup(), hasToString("TaskUtils.configureGroup(verification)"));
 	}
 }
