@@ -11,6 +11,8 @@ import org.hamcrest.io.FileMatchers;
 import java.io.File;
 import java.nio.file.Path;
 
+import static org.hamcrest.Matchers.is;
+
 public final class FileSystemMatchers {
 	/**
 	 * Matches a file-like object with the specified {@link File} matcher.
@@ -34,6 +36,10 @@ public final class FileSystemMatchers {
 				throw new UnsupportedOperationException(String.format("Unsupported file-like type of '%s'.", actual.getClass().getSimpleName()));
 			}
 		};
+	}
+
+	public static Matcher<Object> aFile(File instance) {
+		return aFile(is(instance));
 	}
 
 	public static Matcher<File> parentFile(Matcher<File> matcher) {
