@@ -26,6 +26,10 @@ public final class TaskMatchers {
 		};
 	}
 
+	public static Matcher<Task> description(String description) {
+		return description(equalTo(description));
+	}
+
 	/**
 	 * Matches a task description using the specified matcher.
 	 *
