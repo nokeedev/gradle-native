@@ -3,7 +3,12 @@ package dev.nokee.utils;
 import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Callable;
+
 import static com.google.common.base.Suppliers.ofInstance;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.providerFactory;
 import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
 import static dev.nokee.utils.ConfigurationUtils.configureDescription;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -21,6 +26,24 @@ class ConfigurationUtils_ConfigureDescriptionTest {
 	void canConfigureConfigurationDescriptionUsingFormatMessage() {
 		assertThat(testConfiguration(configureDescription("Value '%s'", "test")).getDescription(),
 			equalTo("Value 'test'"));
+	}
+
+	@Test
+	void canUseProviderAsFormatArguments() {
+		assertThat(testConfiguration(configureDescription("Value '%s'", providerFactory().provider(() -> "foat"))).getDescription(),
+			equalTo("Value 'foat'"));
+	}
+
+	@Test
+	void canUseCallableAsFormatArguments() {
+		assertThat(testConfiguration(configureDescription("Value '%s'", (Callable<String>) () -> "quot")).getDescription(),
+			equalTo("Value 'quot'"));
+	}
+
+	@Test
+	void doesNotProvideAdditionalArgumentsWhenUnpacking() {
+		assertThat(testConfiguration(configureDescription("Value '%s'", (Callable<List<String>>) () -> Arrays.asList("aaaa", "bbbb"))).getDescription(),
+			equalTo("Value '[aaaa, bbbb]'"));
 	}
 
 	@Test
