@@ -6,6 +6,7 @@ import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 
 import static java.lang.System.getProperty;
 
@@ -51,6 +52,17 @@ public final class TargetMachines {
 		@Override
 		public HostTargetMachine named(String name) {
 			return new DefaultHostTargetMachine(name);
+		}
+	}
+
+	public static TargetMachine of(String machine) {
+		val machineTuple = machine.split("-");
+		return new DefaultTargetMachine(OperatingSystemFamily.named(machineTuple[0]), MachineArchitecture.named(machineTuple[1]));
+	}
+
+	private static final class DefaultTargetMachine extends AbstractTargetMachine {
+		DefaultTargetMachine(OperatingSystemFamily operatingSystemFamily, MachineArchitecture architecture) {
+			super(operatingSystemFamily, architecture);
 		}
 	}
 }
