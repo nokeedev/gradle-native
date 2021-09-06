@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static dev.nokee.utils.DeferredUtils.unpack;
 import static java.util.Objects.requireNonNull;
 
 public final class ConfigurationUtils {
@@ -238,8 +239,9 @@ public final class ConfigurationUtils {
 
 		@Override
 		public void accept(AttributesDetails<Configuration> attributesDetails) {
-			if (obj instanceof ConfigurationAttributesProvider) {
-				val provider = (ConfigurationAttributesProvider) obj;
+			val unpackedObj = requireNonNull(unpack(obj));
+			if (unpackedObj instanceof ConfigurationAttributesProvider) {
+				val provider = (ConfigurationAttributesProvider) unpackedObj;
 				val configuration = ((AttributesDetailsInternal<Configuration>) attributesDetails).get();
 				if (ConfigurationBuckets.RESOLVABLE.isSatisfiedBy(configuration)) {
 					configuration.attributes(provider::forResolving);

@@ -10,7 +10,10 @@ import org.gradle.api.attributes.Usage;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.Callable;
+
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.providerFactory;
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
@@ -95,6 +98,18 @@ class ConfigurationUtils_ConfigureAttributesTest {
 		@Test
 		void canConfigureAttributesFromProviderOnResolvableConfiguration() {
 			val subject = testConfiguration(configureAsResolvable().andThen(configureAttributes(attributesOf(new TestAttributesProvider()))));
+			assertThat(subject, attributes(hasEntry(TestAttributesProvider.TEST_ATTRIBUTE, "resolver-value")));
+		}
+
+		@Test
+		void canConfigureAttributesFromProviderOfProvider() {
+			val subject = testConfiguration(configureAsConsumable().andThen(configureAttributes(attributesOf(providerFactory().provider(TestAttributesProvider::new)))));
+			assertThat(subject, attributes(hasEntry(TestAttributesProvider.TEST_ATTRIBUTE, "consumer-value")));
+		}
+
+		@Test
+		void canConfigureAttributesFromCallableOfProvider() {
+			val subject = testConfiguration(configureAsResolvable().andThen(configureAttributes(attributesOf((Callable<Object>) TestAttributesProvider::new))));
 			assertThat(subject, attributes(hasEntry(TestAttributesProvider.TEST_ATTRIBUTE, "resolver-value")));
 		}
 
