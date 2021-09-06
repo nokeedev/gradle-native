@@ -4,6 +4,7 @@ import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectCollectionSchema;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.tasks.SourceSet;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
@@ -31,6 +32,11 @@ public final class GradleNamedMatchers {
 				// Task class somewhat behave like a Named class
 				else if (actual instanceof Task) {
 					return ((Task) actual).getName();
+				}
+
+				// SourceSet class somewhat behave like a Named class
+				else if (actual instanceof SourceSet) {
+					return ((SourceSet) actual).getName();
 				}
 
 				// NamedDomainObjectSchema class somewhat behave like a Named class
