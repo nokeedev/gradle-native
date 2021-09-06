@@ -329,7 +329,7 @@ public final class ConfigurationUtils {
 
 		private ForAttributeConsumer(Attribute<A> attribute, A value) {
 			this.attribute = attribute;
-			this.value = value;
+			this.value = requireNonNull(value);
 		}
 
 		@Override
@@ -489,6 +489,7 @@ public final class ConfigurationUtils {
 
 	/** @see #configureDependencies(BiConsumer) */
 	public static BiConsumer<Configuration, DependencySet> add(Function<? super Configuration, ? extends Dependency> mapper) {
+		requireNonNull(mapper);
 		return (configuration, dependencies) -> dependencies.add(mapper.apply(configuration));
 	}
 }
