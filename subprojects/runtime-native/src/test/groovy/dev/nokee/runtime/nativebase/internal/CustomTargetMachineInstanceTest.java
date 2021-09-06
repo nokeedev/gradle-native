@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasToString;
 
 class CustomTargetMachineInstanceTest {
 	@Nested
@@ -25,6 +26,11 @@ class CustomTargetMachineInstanceTest {
 		@Test
 		public void hasMachineArchitecture() {
 			assertThat(subject().getArchitecture(), named("x64"));
+		}
+
+		@Test
+		void checkToString() {
+			assertThat(subject(), hasToString("windowsX64"));
 		}
 	}
 
@@ -44,6 +50,34 @@ class CustomTargetMachineInstanceTest {
 		public void hasMachineArchitecture() {
 			assertThat(subject().getArchitecture(), named("aarch64"));
 		}
+
+		@Test
+		void checkToString() {
+			assertThat(subject(), hasToString("munixAarch64"));
+		}
+	}
+
+	@Nested
+	class NamedWindowsX86Test implements TargetMachineTester {
+		@Override
+		public TargetMachine subject() {
+			return TargetMachines.of("windows-x86").named("foo");
+		}
+
+		@Test
+		public void hasOperatingSystemFamily() {
+			assertThat(subject().getOperatingSystemFamily(), named("windows"));
+		}
+
+		@Test
+		public void hasMachineArchitecture() {
+			assertThat(subject().getArchitecture(), named("x86"));
+		}
+
+		@Test
+		void checkToString() {
+			assertThat(subject(), hasToString("foo"));
+		}
 	}
 
 	@Test
@@ -53,6 +87,7 @@ class CustomTargetMachineInstanceTest {
 			.addEqualityGroup(TargetMachines.of("windows-x64"), TargetMachines.of("windows-x64"))
 			.addEqualityGroup(TargetMachines.of("linux-x86"))
 			.addEqualityGroup(TargetMachines.of("macos-x64"))
+			.addEqualityGroup(TargetMachines.of("macos-x64").named("foo"))
 			.testEquals();
 	}
 }
