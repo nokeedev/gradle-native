@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.declarable;
 import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
-import static dev.nokee.utils.ConfigurationUtils.asDeclarable;
+import static dev.nokee.utils.ConfigurationUtils.configureAsDeclarable;
 
 class ConfigurationMatchers_DeclarableTest extends AbstractMatcherTest {
 	@Override
@@ -15,7 +15,7 @@ class ConfigurationMatchers_DeclarableTest extends AbstractMatcherTest {
 
 	@Test
 	void canCheckMatchingConfiguration() {
-		assertMatches(declarable(), testConfiguration(asDeclarable()),
+		assertMatches(declarable(), testConfiguration(configureAsDeclarable()),
 			"matches declarable configuration");
 	}
 

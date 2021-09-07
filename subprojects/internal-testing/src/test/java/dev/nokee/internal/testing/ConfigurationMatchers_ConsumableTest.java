@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.consumable;
 import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
-import static dev.nokee.utils.ConfigurationUtils.asConsumable;
+import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
 
 class ConfigurationMatchers_ConsumableTest extends AbstractMatcherTest {
 	@Override
@@ -15,7 +15,7 @@ class ConfigurationMatchers_ConsumableTest extends AbstractMatcherTest {
 
 	@Test
 	void canCheckMatchingConfiguration() {
-		assertMatches(consumable(), testConfiguration(asConsumable()),
+		assertMatches(consumable(), testConfiguration(configureAsConsumable()),
 			"matches consumable configuration");
 	}
 
