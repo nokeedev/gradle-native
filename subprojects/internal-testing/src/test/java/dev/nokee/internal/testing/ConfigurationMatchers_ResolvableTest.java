@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.resolvable;
 import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
-import static dev.nokee.utils.ConfigurationUtils.asResolvable;
+import static dev.nokee.utils.ConfigurationUtils.configureAsResolvable;
 
 class ConfigurationMatchers_ResolvableTest extends AbstractMatcherTest {
 	@Override
@@ -15,7 +15,7 @@ class ConfigurationMatchers_ResolvableTest extends AbstractMatcherTest {
 
 	@Test
 	void canCheckMatchingConfiguration() {
-		assertMatches(resolvable(), testConfiguration(asResolvable()),
+		assertMatches(resolvable(), testConfiguration(configureAsResolvable()),
 			"matches resolvable configuration");
 	}
 
