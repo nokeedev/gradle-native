@@ -1,5 +1,6 @@
 package dev.nokee.internal.testing;
 
+import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
 import org.hamcrest.FeatureMatcher;
@@ -35,8 +36,19 @@ public final class FileSystemMatchers {
 		};
 	}
 
+	/**
+	 * Matches unix-normalized absolute path of the {@literal File}.
+	 *
+	 * @param matcher a absolute path matcher, must not be null
+	 * @return a matcher for file's absolute path, never null
+	 */
 	public static Matcher<File> withAbsolutePath(Matcher<String> matcher) {
-		return FileMatchers.aFileWithAbsolutePath(matcher);
+		return new FeatureMatcher<File, String>(matcher, "a file with absolute path", "path") {
+			@Override
+			protected String featureValueOf(File actual) {
+				return FilenameUtils.separatorsToUnix(actual.getAbsolutePath());
+			}
+		};
 	}
 
 	public static Matcher<Object> aFileNamed(String fileName) {
