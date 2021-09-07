@@ -8,6 +8,9 @@ public interface TypeAwareModelProjection<T> extends ModelProjection {
 	void whenRealized(Action<? super T> action);
 
 	@Override
+	Class<T> getType();
+
+	@Override
 	TypeAwareModelProjection<T> realizeOnFinalize();
 	void whenFinalized(Action<? super T> action);
 
