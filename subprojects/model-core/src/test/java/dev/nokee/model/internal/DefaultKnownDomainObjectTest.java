@@ -5,6 +5,7 @@ import dev.nokee.model.core.ModelProjection;
 import dev.nokee.model.graphdb.Graph;
 import lombok.val;
 import org.gradle.api.provider.Provider;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -16,8 +17,10 @@ import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 public class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<TestProjection> {
-	@Override
-	public KnownDomainObject<TestProjection> createSubject() {
+	private KnownDomainObject<TestProjection> subject;
+
+	@BeforeEach
+	void setup() {
 		val graph = Graph.builder().build();
 		val projection = DefaultModelProjection.builder()
 			.graph(graph)
@@ -25,16 +28,21 @@ public class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<Tes
 			.forInstance(new TestProjection("test"))
 			.type(TestProjection.class)
 			.build();
-		return new DefaultKnownDomainObject<>(TestProjection.class, projection);
+		subject = new DefaultKnownDomainObject<>(TestProjection.class, projection);
+	}
+
+	@Override
+	public KnownDomainObject<TestProjection> subject() {
+		return subject;
 	}
 
 	@Test
 	void canResolveAsCallable() {
 		assertAll(
-			() -> assertThat("is callable", createSubject(), isA(Callable.class)),
-			() -> assertThat("returns a provider object", ((Callable<?>) createSubject()).call(), isA(Provider.class)),
+			() -> assertThat("is callable", subject(), isA(Callable.class)),
+			() -> assertThat("returns a provider object", ((Callable<?>) subject()).call(), isA(Provider.class)),
 			() -> assertThat("returns a provider for the object",
-				((Callable<Provider<?>>) createSubject()).call(), providerOf(isA(TestProjection.class)))
+				((Callable<Provider<?>>) subject()).call(), providerOf(isA(TestProjection.class)))
 		);
 	}
 
