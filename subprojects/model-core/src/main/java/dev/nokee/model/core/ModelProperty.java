@@ -26,4 +26,10 @@ public interface ModelProperty<T> extends ModelObject<T> {
 	 */
 	@Override
 	ModelProperty<T> configure(Consumer<? super ModelObject<? extends T>> action);
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	<S> ModelProperty<S> as(Class<S> type);
 }

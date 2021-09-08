@@ -10,6 +10,15 @@ import java.util.function.Consumer;
 
 public interface ModelObject<T> extends KnownDomainObject<T> {
 	/**
+	 * Cast this model object into an model object of the specified type.
+	 *
+	 * @param type  the type to cast, must not be null
+	 * @param <S>  the type to cast
+	 * @return a model object casted to specified type, never null
+	 */
+	<S> ModelObject<S> as(Class<S> type);
+
+	/**
 	 * Returns {@literal true} if this object is an instance of the specified type.
 	 *
 	 * @param type  the type, must not be null

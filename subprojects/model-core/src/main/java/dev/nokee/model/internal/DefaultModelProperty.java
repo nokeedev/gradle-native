@@ -78,6 +78,11 @@ final class DefaultModelProperty<T> implements ModelProperty<T>, Callable<Object
 	}
 
 	@Override
+	public <S> ModelProperty<S> as(Class<S> type) {
+		return new DefaultModelProperty<>(delegate.as(type));
+	}
+
+	@Override
 	public Object call() throws Exception {
 		return ((DefaultModelObject<T>) delegate).asProvider();
 	}

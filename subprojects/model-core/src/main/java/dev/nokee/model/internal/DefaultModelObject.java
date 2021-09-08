@@ -58,6 +58,15 @@ final class DefaultModelObject<T> implements ModelObject<T>, Callable<Object> {
 	}
 
 	@Override
+	public <S> ModelObject<S> as(Class<S> type) {
+		val projection = node.getProjections().filter(projectionOf(type))
+			.map(it -> (TypeAwareModelProjection<S>) it)
+			.findFirst()
+			.orElseThrow(() -> new RuntimeException(String.format("Object is not of type '%s'.", type.getSimpleName())));
+		return factory.createObject(projection);
+	}
+
+	@Override
 	public boolean instanceOf(Class<?> type) {
 		return projection.canBeViewedAs(type); // FIXME: not exactly right
 	}
