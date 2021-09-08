@@ -1,12 +1,12 @@
 package dev.nokee.model;
 
+import com.google.common.reflect.TypeToken;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.utils.ActionTestUtils;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.model.KnownDomainObjectTestUtils.getType;
 import static dev.nokee.model.KnownDomainObjectTestUtils.realize;
 import static dev.nokee.utils.ActionTestUtils.mockAction;
 import static dev.nokee.utils.ClosureTestUtils.mockClosure;
@@ -26,7 +26,7 @@ public interface KnownDomainObjectTester<T> {
 
 	@Test
 	default void hasType() {
-		assertThat(subject().getType(), is(getType(this)));
+		assertThat(subject().getType(), is(type()));
 	}
 
 	@Test
@@ -44,7 +44,7 @@ public interface KnownDomainObjectTester<T> {
 		val subject = subject();
 		assertAll(
 			() -> assertThat(subject.configure(mockAction()), is(subject)),
-			() -> assertThat(subject.configure(mockClosure(getType(this))), is(subject))
+			() -> assertThat(subject.configure(mockClosure(type())), is(subject))
 		);
 	}
 
@@ -52,15 +52,20 @@ public interface KnownDomainObjectTester<T> {
 	default void canConfigureKnownObjectUsingAction() {
 		val action = ActionTestUtils.mockAction();
 		realize(subject().configure(action));
-		assertThat(action, calledOnceWith(singleArgumentOf(isA(getType(this)))));
+		assertThat(action, calledOnceWith(singleArgumentOf(isA(type()))));
 	}
 
 	@Test
 	default void canConfigureKnownObjectUsingClosure() {
-		val closure = mockClosure(getType(this));
+		val closure = mockClosure(type());
 		realize(subject().configure(closure));
-		assertThat(closure, calledOnceWith(singleArgumentOf(isA(getType(this)))));
-		assertThat(closure, calledOnceWith(allOf(delegateFirstStrategy(), delegateOf(isA(getType(this))))));
+		assertThat(closure, calledOnceWith(singleArgumentOf(isA(type()))));
+		assertThat(closure, calledOnceWith(allOf(delegateFirstStrategy(), delegateOf(isA(type())))));
+	}
+
+	@SuppressWarnings("UnstableApiUsage")
+	default Class<? super T> type() {
+		return new TypeToken<T>(getClass()) {}.getRawType();
 	}
 
 	@Test
