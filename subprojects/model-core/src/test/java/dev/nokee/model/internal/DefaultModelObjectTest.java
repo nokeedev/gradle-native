@@ -8,15 +8,18 @@ import dev.nokee.model.graphdb.Graph;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 
+import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+
 class DefaultModelObjectTest implements ModelObjectTester<TestProjection> {
 	private ModelObject<TestProjection> subject;
 
 	@BeforeEach
 	void setup() {
 		val graph = Graph.builder().build();
-		val node = new DefaultModelFactory(graph).createNode(graph.createNode());
+		val factory = new DefaultModelFactory(graph, objectFactory(), null);
+		val node = factory.createNode(graph.createNode());
 		val projection = node.newProjection(builder -> builder.type(TestProjection.class).forInstance(new TestProjection("test")));
-		subject = new DefaultModelObject<>(projection);
+		subject = factory.createObject(projection);
 	}
 
 	@Override
