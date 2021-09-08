@@ -5,13 +5,14 @@ import dev.nokee.model.core.ModelNode;
 import dev.nokee.model.core.ModelObject;
 import dev.nokee.model.core.ModelProperty;
 import dev.nokee.model.core.TypeAwareModelProjection;
-import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -19,10 +20,9 @@ import java.util.function.Predicate;
 import static dev.nokee.model.internal.ModelSpecs.projectionOf;
 import static java.util.Objects.requireNonNull;
 
-@EqualsAndHashCode(callSuper = false)
 final class DefaultModelObject<T> implements ModelObject<T>, Callable<Object> {
-	@EqualsAndHashCode.Exclude private final ModelNode node;
-	@EqualsAndHashCode.Include private final TypeAwareModelProjection<T> projection;
+	private final ModelNode node;
+	private final TypeAwareModelProjection<T> projection;
 
 	public DefaultModelObject(TypeAwareModelProjection<T> projection) {
 		this.node = projection.getOwner();
@@ -34,9 +34,17 @@ final class DefaultModelObject<T> implements ModelObject<T>, Callable<Object> {
 		requireNonNull(name);
 		requireNonNull(type);
 		@SuppressWarnings("unchecked")
-		val projection = (TypeAwareModelProjection<S>) node.get(name).getProjections().filter(it -> it.canBeViewedAs(type)).findFirst()
+		val projection = (TypeAwareModelProjection<S>) node.get(name).getProjections().filter(projectionOf(type)).findFirst()
 			.orElseThrow(() -> new RuntimeException("Property is not known on this object."));
 		return new DefaultModelProperty<>(new DefaultModelObject<>(projection));
+	}
+
+	@Override
+	public Optional<ModelObject<?>> getParent() {
+		@SuppressWarnings("unchecked")
+		val result = (Optional<ModelObject<?>>) node.getParent().flatMap(it -> it.getProjections().findFirst())
+			.map(TypeAwareModelProjection.class::cast).map(DefaultModelObject::new);
+		return result;
 	}
 
 	@Override
@@ -108,5 +116,24 @@ final class DefaultModelObject<T> implements ModelObject<T>, Callable<Object> {
 	@Override
 	public Object call() throws Exception {
 		return asProvider();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		} else if (o instanceof DefaultModelObject) {
+			DefaultModelObject<?> that = (DefaultModelObject<?>) o;
+			return Objects.equals(projection, that.projection);
+		} else if (o instanceof DefaultModelProperty) {
+			return equals(((DefaultModelProperty)o).delegate); // unwrap
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(projection);
 	}
 }

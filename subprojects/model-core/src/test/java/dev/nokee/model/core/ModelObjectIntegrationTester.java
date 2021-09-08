@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -30,6 +31,11 @@ public abstract class ModelObjectIntegrationTester<T> implements ModelObjectTest
 		@Test
 		public void hasIdentifier() {
 			assertThat(Iterables.getLast(subject().getIdentifier()), equalTo("foo"));
+		}
+
+		@Test
+		public void hasParent() {
+			assertThat(subject().getParent(), optionalWithValue(is(ModelObjectIntegrationTester.this.subject())));
 		}
 
 		@Test

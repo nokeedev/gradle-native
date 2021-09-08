@@ -4,9 +4,17 @@ import dev.nokee.model.KnownDomainObject;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public interface ModelObject<T> extends KnownDomainObject<T> {
+	/**
+	 * Returns the parent object of this object if available.
+	 *
+	 * @return the parent object for this object, never null
+	 */
+	Optional<ModelObject<?>> getParent();
+
 	/**
 	 * Create a new property on the schema of this model object.
 	 *

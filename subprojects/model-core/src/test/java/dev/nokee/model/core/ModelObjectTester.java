@@ -46,4 +46,9 @@ public interface ModelObjectTester<T> extends KnownDomainObjectTester<T> {
 		subject().newProperty("p1", UnknownProjection.class);
 		assertThrows(RuntimeException.class, () -> subject().property("p1", BaseProjection.class));
 	}
+
+	@Test
+	default void hasParent() {
+		assertThat(subject().getParent(), notNullValue());
+	}
 }

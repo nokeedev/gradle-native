@@ -3,17 +3,17 @@ package dev.nokee.model.internal;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.core.ModelObject;
 import dev.nokee.model.core.ModelProperty;
-import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
-@EqualsAndHashCode
 final class DefaultModelProperty<T> implements ModelProperty<T>, Callable<Object> {
-	@EqualsAndHashCode.Include private final ModelObject<T> delegate;
+	final ModelObject<T> delegate;
 
 	public DefaultModelProperty(ModelObject<T> delegate) {
 		this.delegate = delegate;
@@ -37,6 +37,11 @@ final class DefaultModelProperty<T> implements ModelProperty<T>, Callable<Object
 	@Override
 	public <S> Provider<S> flatMap(Transformer<? extends Provider<? extends S>, ? super T> transformer) {
 		return delegate.flatMap(transformer);
+	}
+
+	@Override
+	public Optional<ModelObject<?>> getParent() {
+		return delegate.getParent();
 	}
 
 	@Override
@@ -64,5 +69,24 @@ final class DefaultModelProperty<T> implements ModelProperty<T>, Callable<Object
 	@Override
 	public Object call() throws Exception {
 		return ((DefaultModelObject<T>) delegate).asProvider();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		} else if (o instanceof DefaultModelObject) {
+			return delegate.equals(o);
+		} else if (o instanceof DefaultModelProperty) {
+			DefaultModelProperty<?> that = (DefaultModelProperty<?>) o;
+			return Objects.equals(delegate, that.delegate);
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(delegate);
 	}
 }
