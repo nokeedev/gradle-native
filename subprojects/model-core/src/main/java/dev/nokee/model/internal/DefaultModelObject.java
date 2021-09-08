@@ -21,10 +21,12 @@ import static dev.nokee.model.internal.ModelSpecs.projectionOf;
 import static java.util.Objects.requireNonNull;
 
 final class DefaultModelObject<T> implements ModelObject<T>, Callable<Object> {
+	private final ModelFactory factory;
 	private final ModelNode node;
 	private final TypeAwareModelProjection<T> projection;
 
-	public DefaultModelObject(TypeAwareModelProjection<T> projection) {
+	public DefaultModelObject(ModelFactory factory, TypeAwareModelProjection<T> projection) {
+		this.factory = factory;
 		this.node = projection.getOwner();
 		this.projection = projection;
 	}
@@ -36,14 +38,14 @@ final class DefaultModelObject<T> implements ModelObject<T>, Callable<Object> {
 		@SuppressWarnings("unchecked")
 		val projection = (TypeAwareModelProjection<S>) node.get(name).getProjections().filter(projectionOf(type)).findFirst()
 			.orElseThrow(() -> new RuntimeException("Property is not known on this object."));
-		return new DefaultModelProperty<>(new DefaultModelObject<>(projection));
+		return new DefaultModelProperty<>(factory.createObject(projection));
 	}
 
 	@Override
 	public Optional<ModelObject<?>> getParent() {
 		@SuppressWarnings("unchecked")
 		val result = (Optional<ModelObject<?>>) node.getParent().flatMap(it -> it.getProjections().findFirst())
-			.map(TypeAwareModelProjection.class::cast).map(DefaultModelObject::new);
+			.map(TypeAwareModelProjection.class::cast).map(factory::createObject);
 		return result;
 	}
 
@@ -54,7 +56,7 @@ final class DefaultModelObject<T> implements ModelObject<T>, Callable<Object> {
 			.map(it -> (TypeAwareModelProjection<S>) it)
 			.findFirst()
 			.orElseGet(() -> node.newProjection(builder -> builder.type(type)));
-		return new DefaultModelProperty<>(new DefaultModelObject<>(projection));
+		return new DefaultModelProperty<>(factory.createObject(projection));
 	}
 
 	private ModelNode getOrCreateChildNode(Object identity) {

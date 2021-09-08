@@ -43,7 +43,7 @@ public final class DefaultModelFactory implements ModelFactory {
 	@Override
 	public <T> ModelObject<T> createObject(TypeAwareModelProjection<T> projection) {
 		@SuppressWarnings("unchecked")
-		val result = (ModelObject<T>) objectCache.computeIfAbsent(projection, ignored -> new DefaultModelObject<>(projection));
+		val result = (ModelObject<T>) objectCache.computeIfAbsent(projection, ignored -> new DefaultModelObject<>(this, projection));
 		return result;
 	}
 }
