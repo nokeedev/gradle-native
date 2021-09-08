@@ -70,7 +70,7 @@ public interface NokeeExtensionTester extends ConfigurableTester<NokeeExtension>
 		val modelRegistry = extension.getModelRegistry();
 		container.register("foo");
 		container.create("bar");
-		extension.getModel().node("far").projection(TestProjection.class);
+		modelRegistry.getRoot().newChildNode("far").newProjection(builder -> builder.type(TestProjection.class));
 		assertAll(
 			() -> assertThat(modelRegistry.getRoot().get("foo").canBeViewedAs(TestProjection.class), is(true)),
 			() -> assertThat(modelRegistry.getRoot().get("bar").canBeViewedAs(TestProjection.class), is(true)),
@@ -86,7 +86,7 @@ public interface NokeeExtensionTester extends ConfigurableTester<NokeeExtension>
 		val modelRegistry = extension.getModelRegistry();
 		container.register("foo", TestProjection.class);
 		container.create("bar", TestProjection.class);
-		extension.getModel().node("far").projection(TestProjection.class);
+		modelRegistry.getRoot().newChildNode("far").newProjection(builder -> builder.type(TestProjection.class));
 		assertAll(
 			() -> assertThat(modelRegistry.getRoot().get("foo").canBeViewedAs(TestProjection.class), is(true)),
 			() -> assertThat(modelRegistry.getRoot().get("bar").canBeViewedAs(TestProjection.class), is(true)),
@@ -99,7 +99,7 @@ public interface NokeeExtensionTester extends ConfigurableTester<NokeeExtension>
 		val container = objectFactory().domainObjectContainer(TestProjection.class);
 		val extension = createSubject().bridgeContainer(container);
 		val modelRegistry = extension.getModelRegistry();
-		extension.getModel().node("far").node("bar").projection(TestProjection.class);
+		modelRegistry.getRoot().newChildNode("far").newChildNode("bar").newProjection(builder -> builder.type(TestProjection.class));
 		assertThat(modelRegistry.getRoot().find("farBar"), emptyOptional());
 	}
 
@@ -109,7 +109,7 @@ public interface NokeeExtensionTester extends ConfigurableTester<NokeeExtension>
 		container.registerFactory(TestProjection.class, TestProjection::new);
 		val extension = createSubject().bridgeContainer(container);
 		val modelRegistry = extension.getModelRegistry();
-		extension.getModel().node("far").node("bar").projection(TestProjection.class);
+		modelRegistry.getRoot().newChildNode("far").newChildNode("bar").newProjection(builder -> builder.type(TestProjection.class));
 		assertThat(modelRegistry.getRoot().find("farBar"), emptyOptional());
 	}
 }
