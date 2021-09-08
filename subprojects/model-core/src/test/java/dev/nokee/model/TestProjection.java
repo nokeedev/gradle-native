@@ -4,7 +4,7 @@ import org.gradle.api.Named;
 
 import javax.inject.Inject;
 
-public class TestProjection implements Named {
+public class TestProjection implements BaseProjection, Named {
 	private final String name;
 
 	@Inject
