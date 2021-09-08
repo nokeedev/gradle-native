@@ -58,6 +58,11 @@ final class DefaultModelObject<T> implements ModelObject<T>, Callable<Object> {
 	}
 
 	@Override
+	public boolean instanceOf(Class<?> type) {
+		return projection.canBeViewedAs(type); // FIXME: not exactly right
+	}
+
+	@Override
 	public Optional<ModelObject<?>> getParent() {
 		@SuppressWarnings("unchecked")
 		val result = (Optional<ModelObject<?>>) node.getParent().flatMap(it -> it.getProjections().findFirst())

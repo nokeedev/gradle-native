@@ -41,6 +41,11 @@ final class DefaultModelProperty<T> implements ModelProperty<T>, Callable<Object
 	}
 
 	@Override
+	public boolean instanceOf(Class<?> type) {
+		return delegate.instanceOf(type);
+	}
+
+	@Override
 	public Optional<ModelObject<?>> getParent() {
 		return delegate.getParent();
 	}

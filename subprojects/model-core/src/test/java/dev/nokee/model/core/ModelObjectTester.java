@@ -56,4 +56,19 @@ public interface ModelObjectTester<T> extends KnownDomainObjectTester<T> {
 	default void hasProperties() {
 		assertThat(subject().getProperties(), notNullValue());
 	}
+
+	@Test
+	default void returnsTrueForObjectTypeInstanceTest() {
+		assertThat(subject().instanceOf(Object.class), is(true));
+	}
+
+	@Test
+	default void returnsFalseForWrongTypeInstanceTest() {
+		assertThat(subject().instanceOf(UnknownProjection.class), is(false));
+	}
+
+	@Test
+	default void returnsTrueForExactTypeInstanceTest() {
+		assertThat(subject().instanceOf(type()), is(true));
+	}
 }

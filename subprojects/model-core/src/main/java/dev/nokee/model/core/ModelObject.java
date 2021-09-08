@@ -10,6 +10,14 @@ import java.util.function.Consumer;
 
 public interface ModelObject<T> extends KnownDomainObject<T> {
 	/**
+	 * Returns {@literal true} if this object is an instance of the specified type.
+	 *
+	 * @param type  the type, must not be null
+	 * @return {@literal true} if this object is an instance of the specified type, never null
+	 */
+	boolean instanceOf(Class<?> type);
+
+	/**
 	 * Returns the parent object of this object if available.
 	 *
 	 * @return the parent object for this object, never null

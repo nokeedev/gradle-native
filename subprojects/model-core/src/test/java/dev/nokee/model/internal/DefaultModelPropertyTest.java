@@ -1,5 +1,6 @@
 package dev.nokee.model.internal;
 
+import dev.nokee.model.BaseProjection;
 import dev.nokee.model.TestProjection;
 import dev.nokee.model.core.ModelObject;
 import dev.nokee.model.core.ModelObjectIntegrationTester;
@@ -16,6 +17,7 @@ import java.util.concurrent.Callable;
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 
 class DefaultModelPropertyTest extends ModelObjectIntegrationTester<TestProjection> implements ModelPropertyTester<TestProjection> {
@@ -46,5 +48,10 @@ class DefaultModelPropertyTest extends ModelObjectIntegrationTester<TestProjecti
 		assertThat(subject(), isA(Callable.class));
 		assertThat(((Callable<Object>) subject()).call(), isA(Provider.class));
 		assertThat((Provider<Object>) ((Callable<Object>) subject()).call(), providerOf(object));
+	}
+
+	@Test
+	void returnsTrueForBaseTypeInstanceTest() {
+		assertThat(subject().instanceOf(BaseProjection.class), is(true));
 	}
 }

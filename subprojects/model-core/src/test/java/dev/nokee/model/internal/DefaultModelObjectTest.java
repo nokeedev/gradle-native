@@ -1,11 +1,13 @@
 package dev.nokee.model.internal;
 
+import dev.nokee.model.BaseProjection;
 import dev.nokee.model.TestProjection;
 import dev.nokee.model.core.ModelObject;
 import dev.nokee.model.core.ModelObjectIntegrationTester;
 import dev.nokee.model.graphdb.Graph;
 import lombok.val;
 import org.gradle.api.provider.Provider;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +16,7 @@ import java.util.concurrent.Callable;
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 
 class DefaultModelObjectTest extends ModelObjectIntegrationTester<TestProjection> {
@@ -39,5 +42,10 @@ class DefaultModelObjectTest extends ModelObjectIntegrationTester<TestProjection
 		assertThat(subject(), isA(Callable.class));
 		assertThat(((Callable<Object>) subject()).call(), isA(Provider.class));
 		assertThat((Provider<Object>) ((Callable<Object>) subject()).call(), providerOf(object));
+	}
+
+	@Test
+	void returnsTrueForBaseTypeInstanceTest() {
+		assertThat(subject().instanceOf(BaseProjection.class), is(true));
 	}
 }
