@@ -1,43 +1,57 @@
 package dev.nokee.model.internal;
 
-import dev.nokee.model.core.ModelNode;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.core.ModelObject;
 import dev.nokee.model.core.ModelProperty;
-import dev.nokee.model.core.TypeAwareModelProjection;
+import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
+import org.gradle.api.Transformer;
+import org.gradle.api.provider.Provider;
 
 import java.util.function.Consumer;
 
-final class DefaultModelProperty<T> extends AbstractModelObject<T> implements ModelProperty<T> {
-	private final ModelNode node;
-	private final TypeAwareModelProjection<T> projection;
+@EqualsAndHashCode
+final class DefaultModelProperty<T> implements ModelProperty<T> {
+	@EqualsAndHashCode.Include private final ModelObject<T> delegate;
 
-	public DefaultModelProperty(TypeAwareModelProjection<T> projection) {
-		this.node = projection.getOwner();
-		this.projection = projection;
+	public DefaultModelProperty(ModelObject<T> delegate) {
+		this.delegate = delegate;
 	}
 
 	@Override
-	protected ModelNode getNode() {
-		return node;
+	public DomainObjectIdentifier getIdentifier() {
+		return delegate.getIdentifier();
 	}
 
 	@Override
-	public TypeAwareModelProjection<T> getProjection() {
-		if (projection == null) {
-			return super.getProjection();
-		} else {
-			return projection;
-		}
+	public Class<T> getType() {
+		return delegate.getType();
+	}
+
+	@Override
+	public <S> Provider<S> map(Transformer<? extends S, ? super T> transformer) {
+		return delegate.map(transformer);
+	}
+
+	@Override
+	public <S> Provider<S> flatMap(Transformer<? extends Provider<? extends S>, ? super T> transformer) {
+		return delegate.flatMap(transformer);
+	}
+
+	@Override
+	public <S> ModelProperty<S> newProperty(Object identity, Class<S> type) {
+		return delegate.newProperty(identity, type);
 	}
 
 	@Override
 	public ModelProperty<T> configure(Action<? super T> action) {
-		return (ModelProperty<T>) super.configure(action);
+		delegate.configure(action);
+		return this;
 	}
 
 	@Override
 	public ModelProperty<T> configure(Consumer<? super ModelObject<? extends T>> action) {
-		return (ModelProperty<T>) super.configure(action);
+		action.accept(this);
+		return this;
 	}
 }

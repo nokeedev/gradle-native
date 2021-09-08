@@ -25,7 +25,7 @@ abstract class AbstractModelObject<T> implements ModelObject<T> {
 			.map(it -> (TypeAwareModelProjection<S>) it)
 			.findFirst()
 			.orElseGet(() -> node.newProjection(builder -> builder.type(type)));
-		return new DefaultModelProperty<>(projection);
+		return new DefaultModelProperty<>(new DefaultModelObject<>(projection));
 	}
 
 	private ModelNode getOrCreateChildNode(Object identity) {

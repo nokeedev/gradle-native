@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 public abstract class ModelObjectIntegrationTester<T> implements ModelObjectTester<T> {
 	public abstract ModelObject<T> subject();
@@ -29,6 +30,11 @@ public abstract class ModelObjectIntegrationTester<T> implements ModelObjectTest
 		@Test
 		public void hasIdentifier() {
 			assertThat(Iterables.getLast(subject().getIdentifier()), equalTo("foo"));
+		}
+
+		@Test
+		void canReturnsSameModelObjectWhenCreatingTheSameProperty() {
+			assertThat(ModelObjectIntegrationTester.this.subject().newProperty("foo", BaseProjection.class), is(subject()));
 		}
 	}
 }

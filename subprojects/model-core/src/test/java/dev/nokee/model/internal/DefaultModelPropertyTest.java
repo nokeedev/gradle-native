@@ -25,7 +25,7 @@ class DefaultModelPropertyTest extends ModelObjectIntegrationTester<TestProjecti
 
 		val node = parentNode.newChildNode("gery");
 		val projection = parentNode.newProjection(builder -> builder.forInstance(new TestProjection("gery")));
-		subject = new DefaultModelProperty<>(projection);
+		subject = new DefaultModelProperty<>(factory.createObject(projection));
 	}
 
 	@Override

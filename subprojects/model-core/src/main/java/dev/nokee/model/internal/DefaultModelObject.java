@@ -3,10 +3,12 @@ package dev.nokee.model.internal;
 import dev.nokee.model.core.ModelNode;
 import dev.nokee.model.core.ModelObject;
 import dev.nokee.model.core.TypeAwareModelProjection;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = false)
 final class DefaultModelObject<T> extends AbstractModelObject<T> implements ModelObject<T> {
-	private final ModelNode node;
-	private final TypeAwareModelProjection<T> projection;
+	@EqualsAndHashCode.Exclude private final ModelNode node;
+	@EqualsAndHashCode.Include private final TypeAwareModelProjection<T> projection;
 
 	public DefaultModelObject(TypeAwareModelProjection<T> projection) {
 		this.node = projection.getOwner();
