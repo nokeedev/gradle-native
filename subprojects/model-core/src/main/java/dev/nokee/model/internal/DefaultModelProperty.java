@@ -44,6 +44,11 @@ final class DefaultModelProperty<T> implements ModelProperty<T> {
 	}
 
 	@Override
+	public <S> ModelProperty<S> property(String name, Class<S> type) {
+		return delegate.property(name, type);
+	}
+
+	@Override
 	public ModelProperty<T> configure(Action<? super T> action) {
 		delegate.configure(action);
 		return this;

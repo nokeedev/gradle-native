@@ -29,6 +29,16 @@ final class DefaultModelObject<T> implements ModelObject<T> {
 	}
 
 	@Override
+	public <S> ModelProperty<S> property(String name, Class<S> type) {
+		requireNonNull(name);
+		requireNonNull(type);
+		@SuppressWarnings("unchecked")
+		val projection = (TypeAwareModelProjection<S>) node.get(name).getProjections().filter(it -> it.canBeViewedAs(type)).findFirst()
+			.orElseThrow(() -> new RuntimeException("Property is not known on this object."));
+		return new DefaultModelProperty<>(new DefaultModelObject<>(projection));
+	}
+
+	@Override
 	public <S> ModelProperty<S> newProperty(Object identity, Class<S> type) {
 		val node = getOrCreateChildNode(identity);
 		val projection = node.getProjections().filter(projectionOf(type))

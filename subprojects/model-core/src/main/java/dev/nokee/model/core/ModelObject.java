@@ -18,6 +18,16 @@ public interface ModelObject<T> extends KnownDomainObject<T> {
 	<S> ModelProperty<S> newProperty(Object identity, Class<S> type);
 
 	/**
+	 * Return a property from the schema of this model object.
+	 *
+	 * @param name  the property name, must not be null
+	 * @param type  the property type, must not be null
+	 * @param <S>  the property type
+	 * @return a property from the schema of this model object, never null
+	 */
+	<S> ModelProperty<S> property(String name, Class<S> type);
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
