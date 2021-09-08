@@ -51,4 +51,9 @@ public interface ModelObjectTester<T> extends KnownDomainObjectTester<T> {
 	default void hasParent() {
 		assertThat(subject().getParent(), notNullValue());
 	}
+
+	@Test
+	default void hasProperties() {
+		assertThat(subject().getProperties(), notNullValue());
+	}
 }

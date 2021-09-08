@@ -1,6 +1,7 @@
 package dev.nokee.model.core;
 
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.streams.ModelStream;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 
@@ -34,6 +35,13 @@ public interface ModelObject<T> extends KnownDomainObject<T> {
 	 * @return a property from the schema of this model object, never null
 	 */
 	<S> ModelProperty<S> property(String name, Class<S> type);
+
+	/**
+	 * Returns a stream of all the property of this object.
+	 *
+	 * @return the properties stream, never null
+	 */
+	ModelStream<ModelProperty<?>> getProperties();
 
 	/**
 	 * {@inheritDoc}

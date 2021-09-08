@@ -5,6 +5,8 @@ import dev.nokee.model.core.ModelNode;
 import dev.nokee.model.core.ModelObject;
 import dev.nokee.model.core.ModelProperty;
 import dev.nokee.model.core.TypeAwareModelProjection;
+import dev.nokee.model.streams.ModelStream;
+import dev.nokee.model.streams.Topic;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
@@ -16,6 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.ModelSpecs.projectionOf;
 import static java.util.Objects.requireNonNull;
@@ -24,11 +27,24 @@ final class DefaultModelObject<T> implements ModelObject<T>, Callable<Object> {
 	private final ModelFactory factory;
 	private final ModelNode node;
 	private final TypeAwareModelProjection<T> projection;
+	private final Topic<ModelProperty<?>> propertiesTopic = new Topic<ModelProperty<?>>() {
+		@Override
+		public Stream<ModelProperty<?>> get() {
+			@SuppressWarnings("unchecked")
+			val result = node.getChildNodes().flatMap(ModelNode::getProjections).map(TypeAwareModelProjection.class::cast).map(factory::createObject).map(it -> new DefaultModelProperty<>((ModelObject<? extends Object>) it));
+			return result;
+		}
+	};
 
 	public DefaultModelObject(ModelFactory factory, TypeAwareModelProjection<T> projection) {
 		this.factory = factory;
 		this.node = projection.getOwner();
 		this.projection = projection;
+	}
+
+	@Override
+	public ModelStream<ModelProperty<?>> getProperties() {
+		return ModelStream.of(propertiesTopic);
 	}
 
 	@Override
@@ -56,7 +72,9 @@ final class DefaultModelObject<T> implements ModelObject<T>, Callable<Object> {
 			.map(it -> (TypeAwareModelProjection<S>) it)
 			.findFirst()
 			.orElseGet(() -> node.newProjection(builder -> builder.type(type)));
-		return new DefaultModelProperty<>(factory.createObject(projection));
+		val result = new DefaultModelProperty<>(factory.createObject(projection));
+		propertiesTopic.accept(result);
+		return result;
 	}
 
 	private ModelNode getOrCreateChildNode(Object identity) {

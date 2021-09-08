@@ -3,6 +3,7 @@ package dev.nokee.model.internal;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.core.ModelObject;
 import dev.nokee.model.core.ModelProperty;
+import dev.nokee.model.streams.ModelStream;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
@@ -52,6 +53,11 @@ final class DefaultModelProperty<T> implements ModelProperty<T>, Callable<Object
 	@Override
 	public <S> ModelProperty<S> property(String name, Class<S> type) {
 		return delegate.property(name, type);
+	}
+
+	@Override
+	public ModelStream<ModelProperty<?>> getProperties() {
+		return delegate.getProperties();
 	}
 
 	@Override
