@@ -8,6 +8,16 @@ import java.util.function.Consumer;
 
 public interface ModelObject<T> extends KnownDomainObject<T> {
 	/**
+	 * Create a new property on the schema of this model object.
+	 *
+	 * @param identity  the identity of the object represented by the new property, must not be null
+	 * @param type  the property type, must not be null
+	 * @param <S>  the property type
+	 * @return a model property, never null
+	 */
+	<S> ModelProperty<S> newProperty(Object identity, Class<S> type);
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

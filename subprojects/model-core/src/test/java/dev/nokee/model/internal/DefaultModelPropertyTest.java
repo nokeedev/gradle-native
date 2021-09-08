@@ -2,6 +2,7 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.TestProjection;
 import dev.nokee.model.core.ModelObject;
+import dev.nokee.model.core.ModelObjectIntegrationTester;
 import dev.nokee.model.core.ModelProperty;
 import dev.nokee.model.core.ModelPropertyTester;
 import dev.nokee.model.graphdb.Graph;
@@ -10,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 
-class DefaultModelPropertyTest implements ModelPropertyTester<TestProjection> {
+class DefaultModelPropertyTest extends ModelObjectIntegrationTester<TestProjection> implements ModelPropertyTester<TestProjection> {
 	private ModelObject<?> parent;
 	private ModelProperty<TestProjection> subject;
 

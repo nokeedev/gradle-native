@@ -14,6 +14,11 @@ final class DefaultModelObject<T> extends AbstractModelObject<T> implements Mode
 	}
 
 	@Override
+	protected ModelNode getNode() {
+		return node;
+	}
+
+	@Override
 	public TypeAwareModelProjection<T> getProjection() {
 		if (projection == null) {
 			return super.getProjection();

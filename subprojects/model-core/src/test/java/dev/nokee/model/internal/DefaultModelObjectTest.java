@@ -1,16 +1,15 @@
 package dev.nokee.model.internal;
 
-import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.TestProjection;
 import dev.nokee.model.core.ModelObject;
-import dev.nokee.model.core.ModelObjectTester;
+import dev.nokee.model.core.ModelObjectIntegrationTester;
 import dev.nokee.model.graphdb.Graph;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 
-class DefaultModelObjectTest implements ModelObjectTester<TestProjection> {
+class DefaultModelObjectTest extends ModelObjectIntegrationTester<TestProjection> {
 	private ModelObject<TestProjection> subject;
 
 	@BeforeEach
