@@ -7,6 +7,8 @@ import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
+import java.util.function.Consumer;
+
 import static java.util.Objects.requireNonNull;
 
 abstract class AbstractModelObject<T> implements ModelObject<T> {
@@ -43,6 +45,12 @@ abstract class AbstractModelObject<T> implements ModelObject<T> {
 	@Override
 	public ModelObject<T> configure(Action<? super T> action) {
 		getProjection().whenRealized(action);
+		return this;
+	}
+
+	@Override
+	public ModelObject<T> configure(Consumer<? super ModelObject<? extends T>> action) {
+		action.accept(this);
 		return this;
 	}
 }
