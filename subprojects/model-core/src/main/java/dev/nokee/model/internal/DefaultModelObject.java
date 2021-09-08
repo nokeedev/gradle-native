@@ -12,6 +12,7 @@ import org.gradle.api.Named;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -19,7 +20,7 @@ import static dev.nokee.model.internal.ModelSpecs.projectionOf;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode(callSuper = false)
-final class DefaultModelObject<T> implements ModelObject<T> {
+final class DefaultModelObject<T> implements ModelObject<T>, Callable<Object> {
 	@EqualsAndHashCode.Exclude private final ModelNode node;
 	@EqualsAndHashCode.Include private final TypeAwareModelProjection<T> projection;
 
@@ -102,5 +103,10 @@ final class DefaultModelObject<T> implements ModelObject<T> {
 	public ModelObject<T> configure(Consumer<? super ModelObject<? extends T>> action) {
 		action.accept(this);
 		return this;
+	}
+
+	@Override
+	public Object call() throws Exception {
+		return asProvider();
 	}
 }

@@ -8,10 +8,11 @@ import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 @EqualsAndHashCode
-final class DefaultModelProperty<T> implements ModelProperty<T> {
+final class DefaultModelProperty<T> implements ModelProperty<T>, Callable<Object> {
 	@EqualsAndHashCode.Include private final ModelObject<T> delegate;
 
 	public DefaultModelProperty(ModelObject<T> delegate) {
@@ -58,5 +59,10 @@ final class DefaultModelProperty<T> implements ModelProperty<T> {
 	public ModelProperty<T> configure(Consumer<? super ModelObject<? extends T>> action) {
 		action.accept(this);
 		return this;
+	}
+
+	@Override
+	public Object call() throws Exception {
+		return ((DefaultModelObject<T>) delegate).asProvider();
 	}
 }
