@@ -1,107 +1,25 @@
 package dev.nokee.model.internal;
 
-import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
-import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.NokeeExtension;
-import dev.nokee.model.core.ModelNode;
+import dev.nokee.model.core.ModelPredicate;
 import dev.nokee.model.core.ModelProjection;
-import dev.nokee.model.dsl.ModelSpec;
 import dev.nokee.model.core.TypeAwareModelProjection;
-import dev.nokee.model.dsl.NodePredicate;
 import lombok.EqualsAndHashCode;
 import lombok.val;
-import org.gradle.api.Action;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.joining;
 
-// TODO: Move to internal and mostly make public
 public final class ModelSpecs {
-	@Deprecated
-	public static <S> ModelSpec<S> and(ModelSpec<? super S> first, ModelSpec<S> second) {
-		if (first.equals(second)) {
-			return second;
-		} else {
-			return new AndModelSpec<>(first, second);
-		}
-	}
-
-	/** @see #and(ModelSpec, ModelSpec) */
-	@EqualsAndHashCode
-	private static final class AndModelSpec<T> implements ModelSpec<T>, Predicate<ModelProjection> {
-		private final ModelSpec<? super T> first;
-		private final ModelSpec<T> second;
-
-		private AndModelSpec(ModelSpec<? super T> first, ModelSpec<T> second) {
-			Preconditions.checkArgument(first.getProjectionType().isAssignableFrom(second.getProjectionType()), "projection type '%s' needs to be the same or subtype of '%s'", second.getProjectionType().getCanonicalName(), first.getProjectionType().getCanonicalName());
-			this.first = first;
-			this.second = second;
-		}
-
-		@Override
-		public boolean test(ModelProjection subject) {
-			return first.test(subject) && second.test(subject);
-		}
-
-		@Override
-		public Class<T> getProjectionType() {
-			return second.getProjectionType();
-		}
-
-		@Override
-		public String toString() {
-			return "ModelSpecs.and(" + first + ", " + second + ")";
-		}
-	}
-
-	@Deprecated
-	public static <T> ModelSpec<T> or(ModelSpec<T> first, ModelSpec<? super T> second) {
-		if (first.equals(second)) {
-			return first;
-		}
-
-		return new OrModelSpec<>(first, second);
-	}
-
-	/** @see #and(ModelSpec, ModelSpec) */
-	@EqualsAndHashCode
-	private static final class OrModelSpec<T> implements ModelSpec<T>, Predicate<ModelProjection> {
-		private final ModelSpec<T> first;
-		private final ModelSpec<? super T> second;
-
-		private OrModelSpec(ModelSpec<T> first, ModelSpec<? super T> second) {
-			this.first = first;
-			this.second = second;
-		}
-
-		@Override
-		public boolean test(ModelProjection subject) {
-			return first.test(subject) || second.test(subject);
-		}
-
-		@Override
-		public Class<T> getProjectionType() {
-			return first.getProjectionType(); // TODO: Projection type should be richer than just a class
-		}
-
-		@Override
-		public String toString() {
-			return "ModelSpecs.or(" + first + ", " + second + ")";
-		}
-	}
-
 	@SuppressWarnings("UnstableApiUsage")
 	public static <T> ProjectionOfSpec<T> projectionOf(Class<T> type) {
 		return new ProjectionOfSpec<>(type, subtypeOf(TypeToken.of(type)));
@@ -113,7 +31,7 @@ public final class ModelSpecs {
 	}
 
 	/** @see #projectionOf(Class) */
-	public static final class ProjectionOfSpec<T> implements ModelSpec<T>, NodePredicate<T>, Function<ModelProjection, Iterable<TypeAwareModelProjection<T>>>, NokeeRuleFactory<T> {
+	public static final class ProjectionOfSpec<T> implements ModelPredicate, Function<ModelProjection, Iterable<TypeAwareModelProjection<T>>> {
 		private final Class<T> rawType;
 		private final Predicate<? super Type> predicate;
 
@@ -136,11 +54,6 @@ public final class ModelSpecs {
 			return predicate.test(subject.getType());
 		}
 
-		@Override
-		public Class<T> getProjectionType() {
-			return rawType;
-		}
-
 		@SafeVarargs
 		public final ProjectionOfSpec<T> withTypeParametersOf(Predicate<? super Type>... typeParameters) {
 			return new ProjectionOfSpec<T>(rawType, new SubtypeWithParametersPredicate(rawType, typeParametersOf(typeParameters)));
@@ -149,17 +62,6 @@ public final class ModelSpecs {
 		@Override
 		public String toString() {
 			return "ModelSpecs.projectionOf(" + predicate + ")";
-		}
-
-		@Override
-		public Action<NokeeExtension> apply(Consumer<? super TypeAwareModelProjection<T>> action) {
-			return nokee -> nokee.getModelRegistry().allProjections().flatMap(this).forEach(action);
-		}
-
-		@Override
-		@Deprecated
-		public Action<NokeeExtension> apply(BiConsumer<? super dev.nokee.model.dsl.ModelNode, ? super KnownDomainObject<T>> action) {
-			return nokee -> nokee.getModel().all(this, action);
 		}
 	}
 
@@ -306,113 +208,6 @@ public final class ModelSpecs {
 		@Override
 		public String toString() {
 			return "subtypeOf(" + rawType.getName() + ").and(" + predicate + ")";
-		}
-	}
-
-	@Deprecated
-	public interface NokeeRuleFactory<T> {
-		@Deprecated
-		Action<NokeeExtension> apply(Consumer<? super TypeAwareModelProjection<T>> action);
-		@Deprecated
-		Action<NokeeExtension> apply(BiConsumer<? super dev.nokee.model.dsl.ModelNode, ? super KnownDomainObject<T>> action);
-	}
-
-	public static AnyTypeModelSpec alwaysTrue() {
-		return AlwaysTrueSpec.INSTANCE;
-	}
-
-	@Deprecated
-	public static abstract class AnyTypeModelSpec implements ModelSpec<Object> {
-		@SuppressWarnings("unchecked")
-		public final <T> ModelSpec<T> withNarrowedType() {
-			return (ModelSpec<T>) this;
-		}
-
-		@Override
-		public final Class<Object> getProjectionType() {
-			return Object.class; // TODO: Projection type should be richer than just a class
-		}
-	}
-
-	@Deprecated
-	private static final class AlwaysTrueSpec extends AnyTypeModelSpec {
-		private static final AlwaysTrueSpec INSTANCE = new AlwaysTrueSpec();
-
-		@Override
-		public boolean test(ModelProjection node) {
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return ""; // empty string on purpose
-		}
-	};
-
-	@Deprecated
-	public static AnyTypeModelSpec isSelf(ModelNode node) {
-		return new IsSelfSpec(node);
-	}
-
-	/** @see #isSelf(ModelNode) */
-	@EqualsAndHashCode(callSuper = false)
-	private static final class IsSelfSpec extends AnyTypeModelSpec {
-		private final ModelNode node;
-
-		private IsSelfSpec(ModelNode node) {
-			this.node = node;
-		}
-
-		@Override
-		public boolean test(ModelProjection subject) {
-			return subject.getOwner().equals(node);
-		}
-	}
-
-	@Deprecated
-	public static AnyTypeModelSpec withAncestor(ModelNode node) {
-		return new WithAncestorSpec(node);
-	}
-
-	/** @see #withAncestor(ModelNode) */
-	@EqualsAndHashCode(callSuper = false)
-	private static final class WithAncestorSpec extends AnyTypeModelSpec {
-		private final ModelNode node;
-
-		private WithAncestorSpec(ModelNode node) {
-			this.node = node;
-		}
-
-		@Override
-		public boolean test(ModelProjection subject) {
-			Optional<ModelNode> parent = subject.getOwner().getParent();
-			while (parent.isPresent()) {
-				if (parent.get().equals(node)) {
-					return true;
-				}
-				parent = parent.get().getParent();
-			}
-			return false;
-		}
-	}
-
-	@Deprecated
-	public static AnyTypeModelSpec withParent(ModelNode node) {
-		return new WithParentSpec(node);
-	}
-
-	/** @see #withParent(ModelNode) */
-	@EqualsAndHashCode(callSuper = false)
-	private static final class WithParentSpec extends AnyTypeModelSpec {
-		private final ModelNode node;
-
-		private WithParentSpec(ModelNode node) {
-			this.node = node;
-		}
-
-		@Override
-		public boolean test(ModelProjection subject) {
-			return subject.getOwner().getParent().map(it -> it.equals(node)).orElse(false);
 		}
 	}
 }

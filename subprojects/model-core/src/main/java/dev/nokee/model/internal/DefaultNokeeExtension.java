@@ -1,7 +1,6 @@
 package dev.nokee.model.internal;
 
 import dev.nokee.model.NokeeExtension;
-import dev.nokee.model.dsl.ModelNode;
 import dev.nokee.model.registry.ModelRegistry;
 import dev.nokee.utils.NamedDomainObjectCollectionUtils;
 import dev.nokee.utils.SpecUtils;
@@ -26,13 +25,11 @@ abstract /*final*/ class DefaultNokeeExtension implements NokeeExtension {
 	private final ModelRegistry modelRegistry;
 	private final ObjectFactory objectFactory;
 	private final DefaultNamedDomainObjectRegistry registry;
-	private final ModelNode model;
 
 	@Inject
 	public DefaultNokeeExtension(DefaultNamedDomainObjectRegistry registry, ObjectFactory objectFactory) {
 		this.modelRegistry = new DefaultModelRegistry(objectFactory, registry);
 		this.objectFactory = objectFactory;
-		this.model = new DefaultModelNodeDslFactory(modelRegistry.allProjections(), objectFactory).create(modelRegistry.getRoot());
 		this.registry = registry;
 	}
 
@@ -129,16 +126,6 @@ abstract /*final*/ class DefaultNokeeExtension implements NokeeExtension {
 				return element.getName().equals(name) && element.getType().equals(type);
 			}
 		}
-	}
-
-	@Override
-	public ModelNode getModel() {
-		return model;
-	}
-
-	@Override
-	public void model(Action<? super ModelNode> action) {
-		action.execute(model);
 	}
 
 	@Override

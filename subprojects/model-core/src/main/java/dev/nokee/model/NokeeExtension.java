@@ -1,19 +1,12 @@
 package dev.nokee.model;
 
-import dev.nokee.model.dsl.ModelNode;
 import dev.nokee.model.registry.ModelRegistry;
 import dev.nokee.model.util.Configurable;
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
-import groovy.transform.stc.ClosureParams;
-import groovy.transform.stc.SimpleType;
-import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.PolymorphicDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.plugins.ExtensionAware;
-import org.gradle.util.ConfigureUtil;
 
 public interface NokeeExtension extends ExtensionAware, Configurable<NokeeExtension> {
 	ModelRegistry getModelRegistry();
@@ -69,12 +62,6 @@ public interface NokeeExtension extends ExtensionAware, Configurable<NokeeExtens
 	 * @return this extension instance, never null
 	 */
 	<T> NokeeExtension bridgeContainer(PolymorphicDomainObjectContainer<T> container);
-
-	ModelNode getModel();
-	void model(Action<? super ModelNode> action);
-	default void model(@ClosureParams(value = SimpleType.class, options = "dev.nokee.model.dsl.ModelNode") @DelegatesTo(value = ModelNode.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		model(ConfigureUtil.configureUsing(closure));
-	}
 
 	// Note: We duplicate the methods here for Project and Settings to provide compile-time validation.
 

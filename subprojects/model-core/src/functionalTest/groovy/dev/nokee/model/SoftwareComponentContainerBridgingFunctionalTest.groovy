@@ -40,7 +40,7 @@ class SoftwareComponentContainerBridgingFunctionalTest extends AbstractGradleSpe
 
 	def "can create SoftwareComponent projection in the model"() {
 		buildFile << applyModelBasePlugin() << '''
-			nokee.model.foo(AdhocComponentWithVariants)
+			nokee.modelRegistry.root.newChildNode('foo').newProjection { it.type(AdhocComponentWithVariants) }
 
 			assert components.findByName('foo') != null
 		'''
@@ -51,7 +51,7 @@ class SoftwareComponentContainerBridgingFunctionalTest extends AbstractGradleSpe
 
 	def "derives SoftwareComponent domain object name from owners when creating projection"() {
 		buildFile << applyModelBasePlugin() << '''
-			nokee.model.node('test').windows(AdhocComponentWithVariants)
+			nokee.modelRegistry.root.newChildNode('test').newChildNode('windows').newProjection { it.type(AdhocComponentWithVariants) }
 
 			assert components.findByName('testWindows') != null
 		'''

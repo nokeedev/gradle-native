@@ -72,7 +72,7 @@ class TaskContainerBridgingFunctionalTest extends AbstractGradleSpecification im
 
 	def "can create Task projection in the model"() {
 		buildFile << applyModelBasePlugin() << '''
-			nokee.model.foo(Sync)
+			nokee.modelRegistry.root.newChildNode('foo').newProjection { it.type(Sync) }
 		'''
 
 		expect:
@@ -81,7 +81,7 @@ class TaskContainerBridgingFunctionalTest extends AbstractGradleSpecification im
 
 	def "derives Task domain object name from owners when creating projection"() {
 		buildFile << applyModelBasePlugin() << '''
-			nokee.model.node('test').node('c').compile(Sync)
+			nokee.modelRegistry.root.newChildNode('test').newChildNode('c').newChildNode('compile').newProjection { it.type(Sync) }
 		'''
 
 		expect:

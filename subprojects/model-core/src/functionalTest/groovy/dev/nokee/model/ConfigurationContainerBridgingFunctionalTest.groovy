@@ -58,7 +58,7 @@ class ConfigurationContainerBridgingFunctionalTest extends AbstractGradleSpecifi
 
 	def "can create Configuration projection in the model"() {
 		buildFile << applyModelBasePlugin() << '''
-			nokee.model.foo(Configuration)
+			nokee.modelRegistry.root.newChildNode('foo').newProjection { it.type(Configuration) }
 
 			assert configurations.findByName('foo') != null
 		'''
@@ -69,7 +69,7 @@ class ConfigurationContainerBridgingFunctionalTest extends AbstractGradleSpecifi
 
 	def "derives Configuration domain object name from owners when creating projection"() {
 		buildFile << applyModelBasePlugin() << '''
-			nokee.model.node('test').node('c').headerSearchPaths(Configuration)
+			nokee.modelRegistry.root.newChildNode('test').newChildNode('c').newChildNode('headerSearchPaths').newProjection { it.type(Configuration) }
 
 			assert configurations.findByName('testCHeaderSearchPaths') != null
 		'''
