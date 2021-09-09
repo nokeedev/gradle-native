@@ -5,7 +5,7 @@ import lombok.val;
 import java.util.ArrayList;
 import java.util.List;
 
-class DefaultModelStreamTest implements ModelStreamTester<Object> {
+class DefaultModelStreamTest implements ModelStreamIntegrationTester<Object> {
 	private final List<Object> list = new ArrayList<>();
 	private final Topic<Object> topic = Topic.of(list::stream);
 

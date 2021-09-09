@@ -4,7 +4,7 @@ import com.google.common.collect.Iterables;
 import dev.nokee.internal.testing.SequentialTestNames;
 import dev.nokee.model.BaseProjection;
 import dev.nokee.model.streams.ModelStream;
-import dev.nokee.model.streams.ModelStreamTester;
+import dev.nokee.model.streams.ModelStreamIntegrationTester;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -54,7 +54,7 @@ public abstract class ModelObjectIntegrationTester<T> implements ModelObjectTest
 		}
 
 		@Nested
-		class PropertiesStreamTest implements ModelStreamTester<ModelProperty<?>> {
+		class PropertiesStreamTest implements ModelStreamIntegrationTester<ModelProperty<?>> {
 			private final SequentialTestNames names = new SequentialTestNames();
 			@Override
 			public ModelStream<ModelProperty<?>> createSubject() {
@@ -69,7 +69,7 @@ public abstract class ModelObjectIntegrationTester<T> implements ModelObjectTest
 	}
 
 	@Nested
-	class PropertiesStreamTest implements ModelStreamTester<ModelProperty<?>> {
+	class PropertiesStreamTest implements ModelStreamIntegrationTester<ModelProperty<?>> {
 		private final SequentialTestNames names = new SequentialTestNames();
 		@Override
 		public ModelStream<ModelProperty<?>> createSubject() {

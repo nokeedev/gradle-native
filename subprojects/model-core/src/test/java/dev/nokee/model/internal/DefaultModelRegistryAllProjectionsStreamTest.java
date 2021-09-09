@@ -5,7 +5,7 @@ import dev.nokee.model.core.ModelProjection;
 import dev.nokee.model.core.ModelProjectionBuilderAction;
 import dev.nokee.model.registry.ModelRegistry;
 import dev.nokee.model.streams.ModelStream;
-import dev.nokee.model.streams.ModelStreamTester;
+import dev.nokee.model.streams.ModelStreamIntegrationTester;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +15,7 @@ import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
-class DefaultModelRegistryAllProjectionsStreamTest implements ModelStreamTester<ModelProjection> {
+class DefaultModelRegistryAllProjectionsStreamTest implements ModelStreamIntegrationTester<ModelProjection> {
 	private final ModelRegistry registry = new DefaultModelRegistry(objectFactory());
 
 	@Override

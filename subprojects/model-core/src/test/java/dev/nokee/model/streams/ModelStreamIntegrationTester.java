@@ -31,7 +31,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-public interface ModelStreamTester<T> extends BranchedModelStreamTester<T> {
+public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTester<T> {
 	ModelStream<T> createSubject();
 
 	T createElement();
@@ -193,7 +193,7 @@ public interface ModelStreamTester<T> extends BranchedModelStreamTester<T> {
 			@Override
 			public T apply(T it) {
 				if (!added) {
-					expectedElements.add(ModelStreamTester.this.createElement());
+					expectedElements.add(ModelStreamIntegrationTester.this.createElement());
 					added = true;
 				}
 				return it;
