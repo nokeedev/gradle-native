@@ -1,7 +1,5 @@
 package dev.nokee.model.streams;
 
-import lombok.val;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -26,7 +24,7 @@ public abstract class Topic<E_IN> implements Sink<E_IN>, Source<E_IN> {
 	public void accept(E_IN t) {
 		long size = sinks.size(); // nested sink will already be processed
 		for (int i = 0; i < size; ++i) {
-			val sink = sinks.get(i);
+			Sink<E_IN> sink = sinks.get(i);
 			sink.begin(1);
 			sink.accept(t);
 			sink.end();
