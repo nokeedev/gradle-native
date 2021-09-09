@@ -56,15 +56,21 @@ public abstract class ModelObjectIntegrationTester<T> implements ModelObjectTest
 		@Nested
 		class PropertiesStreamTest implements ModelStreamIntegrationTester<ModelProperty<?>> {
 			private final SequentialTestNames names = new SequentialTestNames();
+			private ModelStream<ModelProperty<?>> subject;
+
+			@BeforeEach
+			void setup() {
+				subject = ModelObjectIntegrationTester.this.subject().property("foo", BaseProjection.class).getProperties();
+			}
 
 			@Override
 			public ModelStream<ModelProperty<?>> subject() {
-				return ModelObjectIntegrationTester.this.subject().property("foo", BaseProjection.class).getProperties();
+				return subject;
 			}
 
 			@Override
 			public ModelProperty<?> createElement() {
-				return ModelObjectIntegrationTester.this.subject().newProperty(names.next(), BaseProjection.class);
+				return CanCreateProperty.this.subject().newProperty(names.next(), BaseProjection.class);
 			}
 		}
 	}
@@ -72,10 +78,16 @@ public abstract class ModelObjectIntegrationTester<T> implements ModelObjectTest
 	@Nested
 	class PropertiesStreamTest implements ModelStreamIntegrationTester<ModelProperty<?>> {
 		private final SequentialTestNames names = new SequentialTestNames();
+		private ModelStream<ModelProperty<?>> subject;
+
+		@BeforeEach
+		void setup() {
+			subject = ModelObjectIntegrationTester.this.subject().getProperties();
+		}
 
 		@Override
 		public ModelStream<ModelProperty<?>> subject() {
-			return ModelObjectIntegrationTester.this.subject().getProperties();
+			return subject;
 		}
 
 		@Override
