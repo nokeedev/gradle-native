@@ -8,10 +8,11 @@ import java.util.List;
 class DefaultModelStreamTest implements ModelStreamIntegrationTester<Object> {
 	private final List<Object> list = new ArrayList<>();
 	private final Topic<Object> topic = Topic.of(list::stream);
+	private final ModelStream<Object> subject = new DefaultModelStream<>(topic);
 
 	@Override
-	public ModelStream<Object> createSubject() {
-		return new DefaultModelStream<>(topic);
+	public ModelStream<Object> subject() {
+		return subject;
 	}
 
 	@Override

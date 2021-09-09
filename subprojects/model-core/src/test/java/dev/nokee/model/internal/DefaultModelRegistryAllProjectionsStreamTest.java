@@ -19,7 +19,7 @@ class DefaultModelRegistryAllProjectionsStreamTest implements ModelStreamIntegra
 	private final ModelRegistry registry = new DefaultModelRegistry(objectFactory());
 
 	@Override
-	public ModelStream<ModelProjection> createSubject() {
+	public ModelStream<ModelProjection> subject() {
 		return registry.allProjections();
 	}
 

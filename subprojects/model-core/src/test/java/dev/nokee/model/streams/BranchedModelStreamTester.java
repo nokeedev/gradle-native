@@ -13,13 +13,13 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 interface BranchedModelStreamTester<T> {
-	ModelStream<T> createSubject();
+	ModelStream<T> subject();
 
 	T createElement();
 
 	@Test
 	default void defaultBranchNameToIndexWhereDefaultBranchIsZero() {
-		val branches = createSubject().split().branch(alwaysTrue()).branch(alwaysTrue()).defaultBranch();
+		val branches = subject().split().branch(alwaysTrue()).branch(alwaysTrue()).defaultBranch();
 		assertAll(
 			() -> assertThat(branches, aMapWithSize(3)),
 			() -> assertThat("default branch", branches, hasEntry(equalTo("0"), isA(ModelStream.class))),
@@ -30,19 +30,19 @@ interface BranchedModelStreamTester<T> {
 
 	@Test
 	default void defaultBranchNameStartsAtOneWhenNoDefaultBranch() {
-		val branches = createSubject().split().branch(alwaysTrue()).branch(alwaysTrue()).noDefaultBranch();
+		val branches = subject().split().branch(alwaysTrue()).branch(alwaysTrue()).noDefaultBranch();
 		assertThat(branches, not(hasKey("0")));
 	}
 
 	@Test
 	default void defaultBranchNameAreNotReused() {
-		val branches = createSubject().split().branch(alwaysTrue(), Branched.as("first")).branch(alwaysTrue()).noDefaultBranch();
+		val branches = subject().split().branch(alwaysTrue(), Branched.as("first")).branch(alwaysTrue()).noDefaultBranch();
 		assertThat(branches, allOf(not(hasKey("1")), hasKey("first")));
 	}
 
 	@Test
 	default void sendElementsToFirstMatchingBranch() {
-		val branches = createSubject().split().branch(alwaysTrue()).branch(alwaysTrue()).noDefaultBranch();
+		val branches = subject().split().branch(alwaysTrue()).branch(alwaysTrue()).noDefaultBranch();
 		val e0 = createElement();
 		val e1 = createElement();
 		val e2 = createElement();
@@ -57,7 +57,7 @@ interface BranchedModelStreamTester<T> {
 		val e0 = createElement();
 		val e1 = createElement();
 		val e2 = createElement();
-		val branches = createSubject().split().branch(e0::equals).branch(asList(e1, e2)::contains).noDefaultBranch();
+		val branches = subject().split().branch(e0::equals).branch(asList(e1, e2)::contains).noDefaultBranch();
 		assertAll(
 			() -> assertThat(branches.get("1").collect(toList()), providerOf(contains(e0))),
 			() -> assertThat(branches.get("2").collect(toList()), providerOf(contains(e1, e2)))
@@ -69,7 +69,7 @@ interface BranchedModelStreamTester<T> {
 		val e0 = createElement();
 		val e1 = createElement();
 		val e2 = createElement(); // dropped
-		val branches = createSubject().split().branch(e0::equals).branch(e1::equals).noDefaultBranch();
+		val branches = subject().split().branch(e0::equals).branch(e1::equals).noDefaultBranch();
 		assertAll(
 			() -> assertThat(branches.get("1").collect(toList()), providerOf(contains(e0))),
 			() -> assertThat(branches.get("2").collect(toList()), providerOf(contains(e1)))
@@ -79,7 +79,7 @@ interface BranchedModelStreamTester<T> {
 	@Test
 	default void captureElementsNotMatchedByAnyBranchesInDefaultBranch() {
 		val e0 = createElement();
-		val branches = createSubject().split().branch(e0::equals).branch(alwaysFalse()).defaultBranch();
+		val branches = subject().split().branch(e0::equals).branch(alwaysFalse()).defaultBranch();
 		val e1 = createElement();
 		val e2 = createElement();
 		assertAll(

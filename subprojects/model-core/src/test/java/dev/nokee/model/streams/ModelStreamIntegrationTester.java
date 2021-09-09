@@ -32,21 +32,21 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTester<T> {
-	ModelStream<T> createSubject();
+	ModelStream<T> subject();
 
 	T createElement();
 
 	@ParameterizedTest(name = "can apply filter [{argumentsWithNames}]")
 	@EnumSource(TerminalOperator.class)
 	default void emptyTopicHasNoElementToIterate(TerminalOperator operator) {
-		val result = operator.apply(createSubject());
+		val result = operator.apply(subject());
 		assertThat(result, emptyIterable());
 	}
 
 	@ParameterizedTest(name = "can apply filter [{argumentsWithNames}]")
 	@EnumSource(TerminalOperator.class)
 	default void canApplyFilterOnStream(TerminalOperator operator) {
-		val subject = createSubject();
+		val subject = subject();
 		val e0 = createElement();
 		val e1 = createElement();
 		val result = operator.apply(subject.filter(it -> !it.equals(e0)));
@@ -59,7 +59,7 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 	@ParameterizedTest(name = "can apply map [{argumentsWithNames}]")
 	@EnumSource(TerminalOperator.class)
 	default void canApplyMapOnStream(TerminalOperator operator) {
-		val subject = createSubject();
+		val subject = subject();
 		val e0 = createElement();
 		val result = operator.apply(subject.map(Object::toString));
 		val e1 = createElement();
@@ -71,7 +71,7 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 	@ParameterizedTest(name = "can apply flatMap [{argumentsWithNames}]")
 	@EnumSource(TerminalOperator.class)
 	default void canApplyFlatMapOnStream(TerminalOperator operator) {
-		val subject = createSubject();
+		val subject = subject();
 		val e0 = createElement();
 		val result = operator.apply(subject.flatMap(it -> flatMapElement(it)));
 		val e1 = createElement();
@@ -83,7 +83,7 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 	@ParameterizedTest(name = "can terminate stream multiple times [{argumentsWithNames}]")
 	@EnumSource(TerminalOperator.class)
 	default void canTerminateStreamMultipleTimes(TerminalOperator operator) {
-		val subject = createSubject();
+		val subject = subject();
 		val e0 = createElement();
 		val result1 = operator.apply(subject);
 		val e1 = createElement();
@@ -97,7 +97,7 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 
 	@Test
 	default void canFindFirstElementOfUnsortedStream() {
-		val subject = createSubject();
+		val subject = subject();
 		val e0 = createElement();
 		val result1 = subject.findFirst();
 		val e1 = createElement();
@@ -111,7 +111,7 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 
 	@Test
 	default void canFindFirstElementOfSortedStream() {
-		val subject = createSubject().sorted(comparingInt(Objects::hashCode));
+		val subject = subject().sorted(comparingInt(Objects::hashCode));
 		val e0 = createElement();
 		val result1 = subject.findFirst();
 		val e1 = createElement();
@@ -127,7 +127,7 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 	//region sorted
 	@Test
 	default void canReuseSortedStream() {
-		val subject = createSubject().sorted(comparingInt(Objects::hashCode));
+		val subject = subject().sorted(comparingInt(Objects::hashCode));
 		val e0 = createElement();
 		val result1 = subject.collect(toList());
 		val e1 = createElement();
@@ -141,7 +141,7 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 
 	@Test
 	default void canCollectSortedStream() {
-		val subject = createSubject();
+		val subject = subject();
 		val e0 = createElement();
 		val result1 = subject.sorted(comparingInt(Objects::hashCode)).collect(toList());
 		val e1 = createElement();
@@ -166,7 +166,7 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 
 	@Test
 	default void canFilterOutAllElements() {
-		val subject = createSubject();
+		val subject = subject();
 		val e0 = createElement();
 		val result = subject.filter(it -> false).collect(toList());
 		val e1 = createElement();
@@ -175,7 +175,7 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 
 	@Test
 	default void canFlatMapAllElementsToEmptyIterables() {
-		val subject = createSubject();
+		val subject = subject();
 		val e0 = createElement();
 		val result = subject.flatMap(it -> emptyList()).collect(toList());
 		val e1 = createElement();
@@ -185,7 +185,7 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 	@ParameterizedTest(name = "can create element during process action [{argumentsWithNames}]")
 	@EnumSource(TerminalOperator.class)
 	default void canCreateElementDuringProcessAction(TerminalOperator operator) {
-		val subject = createSubject();
+		val subject = subject();
 		val expectedElements = new ArrayList<>();
 		expectedElements.add(createElement());
 		val result = operator.apply(subject.map(new Function<T, T>() {
@@ -206,7 +206,7 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 	@ParameterizedTest(name = "can terminate parent stream during process action [{argumentsWithNames}]")
 	@EnumSource(TerminalOperator.class)
 	default void canTerminateParentStreamDuringProcessAction(TerminalOperator operator) {
-		val subject = createSubject();
+		val subject = subject();
 		val expectedElements = new ArrayList<>();
 		expectedElements.add(createElement());
 		val result = operator.apply(subject.map(new Function<T, T>() {
@@ -224,7 +224,7 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 	@EnumSource(TerminalOperator.class)
 	default void respectOrderingDuringNestedProcessing(TerminalOperator operator) {
 		val actions = new ArrayList<ConsumerTestUtils.MockConsumer>();
-		val subject = createSubject();
+		val subject = subject();
 		val expectedElements = new ArrayList<>();
 		expectedElements.add(createElement());
 		val result = operator.apply(subject.map(new Function<T, T>() {
@@ -247,7 +247,7 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	default void checkNulls() {
-		new NullPointerTester().testAllPublicInstanceMethods(createSubject());
+		new NullPointerTester().testAllPublicInstanceMethods(subject());
 	}
 
 	static <T> Iterable<String> flatMapElement(T t) {
