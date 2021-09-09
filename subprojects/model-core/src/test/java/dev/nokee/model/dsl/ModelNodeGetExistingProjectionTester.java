@@ -18,6 +18,7 @@ import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
+@Deprecated
 public interface ModelNodeGetExistingProjectionTester {
 	ModelNode createSubject();
 

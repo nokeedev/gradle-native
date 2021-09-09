@@ -6,6 +6,7 @@ import org.gradle.api.Action;
 
 import java.util.function.BiConsumer;
 
+@Deprecated
 public interface NodeMethods {
 	interface Identity {
 		ModelNode invoke(ModelNode self, Object identity);

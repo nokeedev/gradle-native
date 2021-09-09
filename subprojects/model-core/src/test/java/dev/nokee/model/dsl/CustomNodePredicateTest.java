@@ -2,6 +2,7 @@ package dev.nokee.model.dsl;
 
 import dev.nokee.model.core.ModelProjection;
 
+@Deprecated
 class CustomNodePredicateTest implements NodePredicateAllTester {
 	@Override
 	public NodePredicate<Object> createSubject() {

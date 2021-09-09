@@ -16,6 +16,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+@Deprecated
 public interface ModelNodeCreateProjectionTester {
 	ModelNode createSubject();
 

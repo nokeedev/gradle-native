@@ -4,6 +4,7 @@ import dev.nokee.model.core.ModelNode;
 
 import static java.util.Objects.requireNonNull;
 
+@Deprecated
 abstract class AbstractNodePredicate<T> implements NodePredicate<T> {
 	private final ModelSpec<T> matcher;
 	private final NodePredicateScopeStrategy scopeStrategy;

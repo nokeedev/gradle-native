@@ -29,6 +29,7 @@ import static java.util.stream.Collectors.joining;
 
 // TODO: Move to internal and mostly make public
 public final class ModelSpecs {
+	@Deprecated
 	public static <S> ModelSpec<S> and(ModelSpec<? super S> first, ModelSpec<S> second) {
 		if (first.equals(second)) {
 			return second;
@@ -65,6 +66,7 @@ public final class ModelSpecs {
 		}
 	}
 
+	@Deprecated
 	public static <T> ModelSpec<T> or(ModelSpec<T> first, ModelSpec<? super T> second) {
 		if (first.equals(second)) {
 			return first;
@@ -155,6 +157,7 @@ public final class ModelSpecs {
 		}
 
 		@Override
+		@Deprecated
 		public Action<NokeeExtension> apply(BiConsumer<? super dev.nokee.model.dsl.ModelNode, ? super KnownDomainObject<T>> action) {
 			return nokee -> nokee.getModel().all(this, action);
 		}
@@ -306,8 +309,11 @@ public final class ModelSpecs {
 		}
 	}
 
+	@Deprecated
 	public interface NokeeRuleFactory<T> {
+		@Deprecated
 		Action<NokeeExtension> apply(Consumer<? super TypeAwareModelProjection<T>> action);
+		@Deprecated
 		Action<NokeeExtension> apply(BiConsumer<? super dev.nokee.model.dsl.ModelNode, ? super KnownDomainObject<T>> action);
 	}
 
@@ -315,6 +321,7 @@ public final class ModelSpecs {
 		return AlwaysTrueSpec.INSTANCE;
 	}
 
+	@Deprecated
 	public static abstract class AnyTypeModelSpec implements ModelSpec<Object> {
 		@SuppressWarnings("unchecked")
 		public final <T> ModelSpec<T> withNarrowedType() {
@@ -327,6 +334,7 @@ public final class ModelSpecs {
 		}
 	}
 
+	@Deprecated
 	private static final class AlwaysTrueSpec extends AnyTypeModelSpec {
 		private static final AlwaysTrueSpec INSTANCE = new AlwaysTrueSpec();
 
@@ -341,6 +349,7 @@ public final class ModelSpecs {
 		}
 	};
 
+	@Deprecated
 	public static AnyTypeModelSpec isSelf(ModelNode node) {
 		return new IsSelfSpec(node);
 	}
@@ -360,6 +369,7 @@ public final class ModelSpecs {
 		}
 	}
 
+	@Deprecated
 	public static AnyTypeModelSpec withAncestor(ModelNode node) {
 		return new WithAncestorSpec(node);
 	}
@@ -386,6 +396,7 @@ public final class ModelSpecs {
 		}
 	}
 
+	@Deprecated
 	public static AnyTypeModelSpec withParent(ModelNode node) {
 		return new WithParentSpec(node);
 	}

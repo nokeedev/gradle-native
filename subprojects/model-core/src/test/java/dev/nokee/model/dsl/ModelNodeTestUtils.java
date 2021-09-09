@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 
+@Deprecated
 final class ModelNodeTestUtils {
 	private ModelNodeTestUtils() {}
 

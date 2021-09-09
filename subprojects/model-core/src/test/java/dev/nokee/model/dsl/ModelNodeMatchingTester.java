@@ -16,6 +16,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 
+@Deprecated
 public interface ModelNodeMatchingTester {
 	ModelNode createSubject();
 

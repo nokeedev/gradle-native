@@ -9,6 +9,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+@Deprecated
 public interface ModelSpecTester<T> extends ModelPredicateTester {
 	ModelSpec<T> createSubject();
 

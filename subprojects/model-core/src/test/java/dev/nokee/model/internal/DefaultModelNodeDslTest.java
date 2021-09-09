@@ -6,6 +6,7 @@ import lombok.val;
 
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 
+@Deprecated
 class DefaultModelNodeDslTest implements ModelNodeTester, ModelNodeCreateChildNodeTester, ModelNodeCreateProjectionTester, ModelNodeGetExistingChildNodeTester, ModelNodeGetExistingProjectionTester, ModelNodeMatchingTester {
 	@Override
 	public ModelNode createSubject() {

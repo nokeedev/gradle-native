@@ -4,6 +4,7 @@ import dev.nokee.model.core.ModelNode;
 
 import static dev.nokee.model.internal.ModelSpecs.*;
 
+@Deprecated
 enum NodePredicateScopeStrategy {
 	ALL {
 		@Override

@@ -16,6 +16,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+@Deprecated
 public interface ModelNodeTester {
 	ModelNode createSubject();
 

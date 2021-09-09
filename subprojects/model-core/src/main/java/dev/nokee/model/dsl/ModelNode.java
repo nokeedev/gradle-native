@@ -44,6 +44,7 @@ import java.util.function.BiConsumer;
 // TODO: Given BiAction is not public API, maybe we should consider using Java Consumer instead of Gradle Action
 //   Gradle Action usually signal the decoration of Closure methods, but given that it gives a very bad experience in static/type-checked Groovy, we implement our own Closure method variants.
 // TODO: The name of the class is "wrong" in the sense it should be different than core.ModelNode.
+@Deprecated
 public interface ModelNode extends Named, NodePredicates {
 	/**
 	 * Returns child node matching the specified identity or create a new child node if absent.

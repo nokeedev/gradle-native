@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 
+@Deprecated
 class NodePredicatesTest {
 	@Nested
 	class AllDirectDescendantPredicate implements NodePredicateAllDirectDescendantTester {

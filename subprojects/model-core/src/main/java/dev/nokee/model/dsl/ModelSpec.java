@@ -8,6 +8,7 @@ import dev.nokee.model.internal.ModelSpecs;
  *
  * @param <T>  the model projection type
  */
+@Deprecated
 public interface ModelSpec<T> extends ModelPredicate {
 	Class<T> getProjectionType();
 

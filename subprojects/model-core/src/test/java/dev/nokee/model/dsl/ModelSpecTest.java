@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@Deprecated
 class ModelSpecTest implements ModelSpecTester<Object> {
 	@Test
 	void throwsExceptionIfAndSpecProjectionTypeIsNotAssignableToFirstSpec() {

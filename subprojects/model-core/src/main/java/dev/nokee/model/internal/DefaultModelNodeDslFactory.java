@@ -5,6 +5,7 @@ import dev.nokee.model.dsl.ModelNode;
 import dev.nokee.model.streams.ModelStream;
 import org.gradle.api.model.ObjectFactory;
 
+@Deprecated
 final class DefaultModelNodeDslFactory implements ModelNodeFactory {
 	private final ModelStream<ModelProjection> stream;
 	private final ObjectFactory objectFactory;

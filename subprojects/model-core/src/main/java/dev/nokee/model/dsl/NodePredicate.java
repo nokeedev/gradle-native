@@ -9,6 +9,7 @@ import dev.nokee.model.internal.ModelSpecs;
  *
  * @param <T> the projection type matched by this predicate
  */
+@Deprecated
 public interface NodePredicate<T> {
 	default ModelSpec<T> scope(ModelNode node) {
 		if (this instanceof ModelSpec) {

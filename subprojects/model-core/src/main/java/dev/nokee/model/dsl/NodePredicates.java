@@ -4,6 +4,7 @@ import dev.nokee.model.core.*;
 import dev.nokee.model.core.ModelNode;
 import dev.nokee.model.internal.ModelSpecs;
 
+@Deprecated
 public interface NodePredicates {
 	static NodePredicate<Object> descendants() {
 		return descendants(ModelSpecs.alwaysTrue());

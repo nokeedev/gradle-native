@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.ModelSpecs.projectionOf;
 
+@Deprecated
 @EqualsAndHashCode(callSuper = false)
 final class DefaultModelNodeDsl extends GroovyObjectSupport implements ModelNode {
 	@EqualsAndHashCode.Include private final dev.nokee.model.core.ModelNode delegate;
