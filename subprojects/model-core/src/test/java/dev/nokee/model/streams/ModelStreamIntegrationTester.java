@@ -242,12 +242,6 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 		assertThat(actions.get(1), calledWith(contains(matchers)));
 	}
 
-	@Test
-	@SuppressWarnings("UnstableApiUsage")
-	default void checkNulls() {
-		new NullPointerTester().testAllPublicInstanceMethods(subject());
-	}
-
 	static <T> Iterable<String> flatMapElement(T t) {
 		return Arrays.asList(t.toString() + "[0]", t.toString() + "[1]");
 	}
