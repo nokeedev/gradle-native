@@ -3,6 +3,7 @@ package dev.nokee.model.streams;
 import org.gradle.api.provider.Provider;
 
 import java.util.Comparator;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -82,6 +83,36 @@ public interface ModelStream<T> {
 	 * @return a {@code Provider} describing the first element of this stream, or an absent {@code Provider} if the stream is empty, never null
 	 */
 	Provider<T> findFirst();
+
+	/**
+	 * Performs a reduction on the elements of this stream, and returns an {@code Provider} describing the reduced value, if any.
+	 * The reduction executes only when the provider is queried.
+	 * Stream reduction is a stateful terminal operation.
+	 *
+	 * @param accumulator  an associative, non-interfering, stateless function for combining two values, must not be null
+	 * @return an {@link Provider} describing the result of the reduction, never null
+	 */
+	Provider<T> reduce(BinaryOperator<T> accumulator);
+
+	/**
+	 * Returns the maximum element of this stream according to the provided {@code Comparator}.
+	 * This is a special case of a reduction.
+	 * It is a stateful terminal operation.
+	 *
+	 * @param comparator  a non-interfering, stateless {@code Comparator} to compare elements of this stream, must not be null
+	 * @return an {@link Provider} describing the maximum element of this stream, or an undefined {@code Provider} if the stream is empty, never null
+	 */
+	Provider<T> max(Comparator<? super T> comparator);
+
+	/**
+	 * Returns the minimum element of this stream according to the provided {@code Comparator}.
+	 * This is a special case of a reduction.
+	 * It is a stateful terminal operation.
+	 *
+	 * @param comparator  a non-interfering, stateless {@code Comparator} to compare elements of this stream, must not be null
+	 * @return an {@link Provider} describing the minimum element of this stream, or an undefined {@code Provider} if the stream is empty, never null
+	 */
+	Provider<T> min(Comparator<? super T> comparator);
 
 	/**
 	 * Perform an action on each element of {@code ModelStream}.

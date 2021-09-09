@@ -5,6 +5,7 @@ import lombok.val;
 import org.gradle.api.provider.Provider;
 
 import java.util.Comparator;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -167,5 +168,20 @@ abstract class AbstractModelStream<E_IN, E_OUT> extends Pipeline<E_OUT> implemen
 	@Override
 	public <R, A> Provider<R> collect(Collector<? super E_OUT, A, R> collector) {
 		return evaluate(new CollectorOp<>(collector));
+	}
+
+	@Override
+	public Provider<E_OUT> reduce(BinaryOperator<E_OUT> accumulator) {
+		return evaluate(ReduceOps.makeRef(accumulator));
+	}
+
+	@Override
+	public Provider<E_OUT> min(Comparator<? super E_OUT> comparator) {
+		return reduce(BinaryOperator.minBy(comparator));
+	}
+
+	@Override
+	public Provider<E_OUT> max(Comparator<? super E_OUT> comparator) {
+		return reduce(BinaryOperator.maxBy(comparator));
 	}
 }

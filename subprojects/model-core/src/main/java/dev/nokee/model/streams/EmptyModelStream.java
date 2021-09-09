@@ -4,6 +4,7 @@ import dev.nokee.utils.ProviderUtils;
 import org.gradle.api.provider.Provider;
 
 import java.util.Comparator;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -46,6 +47,21 @@ enum EmptyModelStream implements ModelStream<Object> {
 	@Override
 	public Provider<Object> findFirst() {
 		return ProviderUtils.notDefined(); // No element in the stream
+	}
+
+	@Override
+	public Provider<Object> reduce(BinaryOperator<Object> accumulator) {
+		return ProviderUtils.notDefined();
+	}
+
+	@Override
+	public Provider<Object> min(Comparator<? super Object> comparator) {
+		return ProviderUtils.notDefined();
+	}
+
+	@Override
+	public Provider<Object> max(Comparator<? super Object> comparator) {
+		return ProviderUtils.notDefined();
 	}
 
 	@Override
