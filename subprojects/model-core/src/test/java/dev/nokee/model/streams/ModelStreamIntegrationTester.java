@@ -2,6 +2,7 @@ package dev.nokee.model.streams;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.utils.ConsumerTestUtils;
 import lombok.val;
@@ -13,6 +14,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.*;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -277,6 +279,40 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 		}
 	}
 
+	static abstract class ReduceOperatorResult<T> implements TerminalResult<T> {
+		private static final Set<Object> ALL_ELEMENT_SEEN_BY_REDUCTION_OPERATION = new LinkedHashSet<>();
+		private final Provider<T> provider;
+
+		public ReduceOperatorResult() {
+			this.provider = reduce();
+		}
+
+		protected static <T> BinaryOperator<T> accumulator() {
+			return (a, b) -> {
+				ALL_ELEMENT_SEEN_BY_REDUCTION_OPERATION.add(a);
+				ALL_ELEMENT_SEEN_BY_REDUCTION_OPERATION.add(b);
+				return b;
+			};
+		}
+
+		protected static <T> Comparator<T> comparator() {
+			return (a, b) -> {
+				ALL_ELEMENT_SEEN_BY_REDUCTION_OPERATION.add(a);
+				ALL_ELEMENT_SEEN_BY_REDUCTION_OPERATION.add(b);
+				return 0;
+			};
+		}
+
+		protected abstract Provider<T> reduce();
+
+		@Override
+		public final Iterator<T> iterator() {
+			ALL_ELEMENT_SEEN_BY_REDUCTION_OPERATION.clear();
+			provider.getOrNull();
+			return (Iterator<T>) ALL_ELEMENT_SEEN_BY_REDUCTION_OPERATION.iterator();
+		}
+	}
+
 	enum TerminalOperator {
 		FOR_EACH {
 			@Override
@@ -298,6 +334,39 @@ public interface ModelStreamIntegrationTester<T> extends BranchedModelStreamTest
 			@Override
 			<T> TerminalResult<T> apply(ModelStream<T> subject) {
 				return new CollectOperatorResult<>(subject.collect(toList()));
+			}
+		},
+		REDUCE {
+			@Override
+			<T> TerminalResult<T> apply(ModelStream<T> subject) {
+				return new ReduceOperatorResult<T>() {
+					@Override
+					protected Provider<T> reduce() {
+						return subject.reduce(accumulator());
+					}
+				};
+			}
+		},
+		MIN {
+			@Override
+			<T> TerminalResult<T> apply(ModelStream<T> subject) {
+				return new ReduceOperatorResult<T>() {
+					@Override
+					protected Provider<T> reduce() {
+						return subject.min(comparator());
+					}
+				};
+			}
+		},
+		MAX {
+			@Override
+			<T> TerminalResult<T> apply(ModelStream<T> subject) {
+				return new ReduceOperatorResult<T>() {
+					@Override
+					protected Provider<T> reduce() {
+						return subject.max(comparator());
+					}
+				};
 			}
 		};
 
