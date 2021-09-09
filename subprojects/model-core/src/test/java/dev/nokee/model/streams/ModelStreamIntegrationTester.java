@@ -1,7 +1,6 @@
 package dev.nokee.model.streams;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.utils.ConsumerTestUtils;
@@ -16,7 +15,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableList.builder;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
