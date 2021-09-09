@@ -19,7 +19,7 @@ class BranchedFactory_WithFunctionTest implements BranchedFactoryTester<Object>,
 
 	@Override
 	public BranchedModelStream<Object> createStream() {
-		return new DefaultBranchedModelStream<>(new DefaultModelStream<>(Topic.of(Stream::of)));
+		return new DefaultBranchedModelStream<>(new DefaultModelStream<>(Topic.of(Stream::empty)));
 	}
 
 	@Test
