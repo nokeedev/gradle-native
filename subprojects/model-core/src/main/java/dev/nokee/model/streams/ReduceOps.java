@@ -40,13 +40,8 @@ public class ReduceOps {
 	public static <T> TerminalOp<T, Provider<T>> makeRef(BinaryOperator<T> operator) {
 		Objects.requireNonNull(operator);
 		class ReducingSink implements AccumulatingSink<T, T, ReducingSink> {
-			private boolean empty;
-			private T state;
-
-			public void begin(long size) {
-				empty = true;
-				state = null;
-			}
+			private boolean empty = true;
+			private T state = null;
 
 			@Override
 			public void accept(T t) {
