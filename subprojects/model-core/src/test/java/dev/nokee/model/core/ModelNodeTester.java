@@ -105,6 +105,13 @@ public interface ModelNodeTester {
 	}
 
 	@Test
+	default void canFindNodeUsingStringRepresentationOfIdentity() {
+		val subject = createSubject();
+		val childNode = subject.newChildNode(new NamedTestIdentity("far"));
+		assertThat(subject.find("far"), optionalWithValue(is(childNode)));
+	}
+
+	@Test
 	default void canViewNodeAsProjection() {
 		val subject = createSubject();
 		subject.newProjection(builder -> builder.type(TestProjection.class).forInstance(new TestProjection("test")));

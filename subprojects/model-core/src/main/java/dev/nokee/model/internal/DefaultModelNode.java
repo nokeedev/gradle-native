@@ -18,6 +18,7 @@ import org.gradle.api.provider.Provider;
 import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -113,7 +114,11 @@ final class DefaultModelNode implements ModelNode {
 	@Override
 	public Optional<ModelNode> find(Object identity) {
 		requireNonNull(identity);
-		return getChildNodes().filter(it -> it.getIdentity().equals(identity)).findFirst();
+		Predicate<ModelNode> predicate = it -> it.getIdentity().equals(identity);
+		if (identity instanceof String) {
+			predicate = it -> it.getName().equals(identity);
+		}
+		return getChildNodes().filter(predicate).findFirst();
 	}
 
 	@Override
