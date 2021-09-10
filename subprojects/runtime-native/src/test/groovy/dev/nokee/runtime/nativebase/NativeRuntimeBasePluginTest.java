@@ -7,7 +7,7 @@ import org.gradle.api.Project;
 import org.junit.jupiter.api.Test;
 
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
-import static dev.nokee.model.internal.ModelBasePlugin.nokee;
+import static dev.nokee.model.NokeeExtension.nokee;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
