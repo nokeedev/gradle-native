@@ -1,9 +1,10 @@
 package dev.nokee.model.internal;
 
 import dev.nokee.model.NokeeExtension;
+import dev.nokee.model.core.ModelProjection;
 import lombok.val;
-import org.gradle.api.*;
-import org.gradle.api.component.AdhocComponentWithVariants;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
 import org.gradle.api.component.SoftwareComponent;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.model.ObjectFactory;
@@ -50,6 +51,10 @@ public abstract /*final*/ class ModelBasePlugin<T extends PluginAware & Extensio
 				project.getComponents().whenObjectAdded(it -> {
 					val node = extension.getModelRegistry().getRoot().find(it.getName()).orElseGet(() -> extension.getModelRegistry().getRoot().newChildNode(it.getName()));
 					node.newProjection(builder -> builder.type((Class<SoftwareComponent>) it.getClass()).forInstance(it));
+				});
+
+				project.afterEvaluate(proj -> {
+					extension.getModelRegistry().allProjections().forEach(ModelProjection::finalizeProjection);
 				});
 			}
 		);
