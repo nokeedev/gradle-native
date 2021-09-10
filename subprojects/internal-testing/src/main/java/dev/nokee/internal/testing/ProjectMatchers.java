@@ -53,6 +53,10 @@ public final class ProjectMatchers {
 		};
 	}
 
+	public static <T> Matcher<T> publicType(Class<? super T> type) {
+		return publicType(TypeOf.typeOf(type));
+	}
+
 	public static <T> Matcher<T> publicType(TypeOf<?> instance) {
 		return publicType(equalTo(instance));
 	}

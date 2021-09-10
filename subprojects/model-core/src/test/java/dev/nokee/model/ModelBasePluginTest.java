@@ -2,14 +2,15 @@ package dev.nokee.model;
 
 import lombok.val;
 import org.gradle.api.Project;
-import org.gradle.api.plugins.ExtensionAware;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.Test;
 
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.internal.testing.ProjectMatchers.extensions;
+import static dev.nokee.internal.testing.ProjectMatchers.publicType;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.hasItem;
 
 class ModelBasePluginTest {
 	private Project createSubject() {
@@ -20,21 +21,6 @@ class ModelBasePluginTest {
 
 	@Test
 	void registersNokeeExtension() {
-		assertThat(createSubject(), hasExtensionOf(NokeeExtension.class));
-	}
-
-	// TODO: Move to common place
-	private static Matcher<ExtensionAware> hasExtensionOf(Class<?> extensionType) {
-		return new TypeSafeMatcher<ExtensionAware>() {
-			@Override
-			public void describeTo(Description description) {
-				description.appendText("extension of type " + extensionType);
-			}
-
-			@Override
-			protected boolean matchesSafely(ExtensionAware item) {
-				return item.getExtensions().findByType(extensionType) != null;
-			}
-		};
+		assertThat(createSubject(), extensions(hasItem(allOf(named("nokee"), publicType(NokeeExtension.class)))));
 	}
 }
