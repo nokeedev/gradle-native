@@ -77,4 +77,14 @@ class ConfigurationContainerBridgingFunctionalTest extends AbstractGradleSpecifi
 		expect:
 		succeeds()
 	}
+
+	def "does not register nested configuration created via the model as owned by the project"() {
+		buildFile << applyModelBasePlugin() << '''
+			nokee.modelRegistry.root.newChildNode('c').newChildNode('headerSearchPaths').newProjection { it.type(Configuration) }
+			assert !nokee.modelRegistry.root.find('cHeaderSearchPaths').present
+		'''
+
+		expect:
+		succeeds('help')
+	}
 }

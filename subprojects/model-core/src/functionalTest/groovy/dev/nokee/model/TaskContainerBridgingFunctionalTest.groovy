@@ -87,4 +87,14 @@ class TaskContainerBridgingFunctionalTest extends AbstractGradleSpecification im
 		expect:
 		succeeds('compileTestC')
 	}
+
+	def "does not register nested task created via the model as owned by the project"() {
+		buildFile << applyModelBasePlugin() << '''
+			nokee.modelRegistry.root.newChildNode('c').newChildNode('compile').newProjection { it.type(Task) }
+			assert !nokee.modelRegistry.root.find('compileC').present
+		'''
+
+		expect:
+		succeeds('help')
+	}
 }

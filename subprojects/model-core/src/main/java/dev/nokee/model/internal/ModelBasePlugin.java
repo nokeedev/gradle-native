@@ -42,8 +42,9 @@ public abstract /*final*/ class ModelBasePlugin<T extends PluginAware & Extensio
 				extension.bridgeContainer(project.getConfigurations());
 
 				// Special handling for Task container, because it supports any subtype of Task
-				registry.registerContainer(new NamedDomainObjectContainerRegistry.TaskContainerRegistry(project.getTasks()));
-				whenElementKnown(project.getTasks(), new RegisterModelProjection<>(extension.getModelRegistry()));
+				val bridgedContainer = new BridgedDomainObjectContainerRegistry<>(new NamedDomainObjectContainerRegistry.TaskContainerRegistry(project.getTasks()), extension.getModelRegistry());
+				registry.registerContainer(bridgedContainer);
+				whenElementKnown(project.getTasks(), bridgedContainer);
 
 				// Special handling for SoftwareComponent container, because it's a two-part container (the named set and factory)
 				//   Here, we shim the "special" container into a normal container.
