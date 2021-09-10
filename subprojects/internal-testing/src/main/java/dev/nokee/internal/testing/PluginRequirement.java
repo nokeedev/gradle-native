@@ -40,12 +40,13 @@ public final class PluginRequirement {
 		}
 
 		private void applyPlugin(ExtensionContext context, Require require) {
-			val project = (Project) context.getRequiredTestInstances().getAllInstances().stream().flatMap(it -> {
-				val method = ReflectionUtils.findMethod(it.getClass(), "project");
+			val project = (Project) context.getRequiredTestInstances().getAllInstances().stream().flatMap(instance -> {
+				val method = ReflectionUtils.findMethod(instance.getClass(), "project");
 				if (method.isPresent()) {
-					return Stream.of(ReflectionUtils.invokeMethod(method.get(), it));
+					return Stream.of(ReflectionUtils.invokeMethod(method.get(), instance));
 				} else {
-					return Stream.empty();
+					return ReflectionUtils.tryToReadFieldValue((Class<Object>) instance.getClass(), "project", instance)
+						.toOptional().map(Stream::of).orElse(Stream.empty());
 				}
 			}).findFirst().orElseThrow(RuntimeException::new);
 
