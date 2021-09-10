@@ -2,6 +2,7 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.core.ModelNode;
 import dev.nokee.utils.ProviderUtils;
+import lombok.val;
 import lombok.var;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
@@ -14,6 +15,7 @@ import org.gradle.api.provider.Provider;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 final class ProjectionSpec {
 	private final Class<?> type;
@@ -161,17 +163,20 @@ final class ProjectionSpec {
 			var previous = ownedBy.getParent();
 			String name = "";
 			while (previous.isPresent()) {
-				name = maybeNameOf(previous.get().getIdentity()) + StringUtils.capitalize(name);
+				val n = name;
+				name = maybeNameOf(previous.get().getIdentity()).map(it -> it + StringUtils.capitalize(n)).orElse(name);
 				previous = previous.get().getParent();
 			}
 
 			if (Task.class.isAssignableFrom(type)) {
 				name = nameOf(ownedBy.getIdentity()) + StringUtils.capitalize(name);
+			} else if (name.isEmpty()) {
+				name = nameOf(ownedBy.getIdentity());
 			} else {
 				name = name + StringUtils.capitalize(nameOf(ownedBy.getIdentity()));
 			}
 
-			return StringUtils.uncapitalize(name);
+			return name;
 		}
 	}
 
@@ -183,12 +188,11 @@ final class ProjectionSpec {
 		}
 	}
 
-	// TODO:
-	private static String maybeNameOf(Object identity) {
+	private static Optional<String> maybeNameOf(Object identity) {
 		if (identity instanceof NameProvider) {
-			return ((NameProvider) identity).getProvidedName().orElse("");
+			return ((NameProvider) identity).getProvidedName();
 		}
-		return nameOf(identity);
+		return Optional.of(nameOf(identity)).filter(it -> !it.isEmpty());
 	}
 
 	private interface ConfigurationStrategy {
