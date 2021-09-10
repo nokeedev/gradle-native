@@ -1,10 +1,12 @@
 package dev.nokee.model.internal;
 
 import dev.nokee.model.core.ModelNode;
+import dev.nokee.model.core.ModelProjection;
 import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import lombok.var;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -91,6 +93,7 @@ final class ProjectionSpec {
 	}
 
 	public static final class Builder {
+		private static final NamedDomainObjectProviderSelfMutationDecoratorFactory DECORATOR_FACTORY = new DefaultNamedDomainObjectSelfMutationDecoratorFactory();
 		private Class<?> type;
 		private Provider<?> provider;
 		private ConfigurationStrategy configurationStrategy;
@@ -146,7 +149,9 @@ final class ProjectionSpec {
 				type = ProviderUtils.getType(provider).map(this::toUndecoratedType).orElse(null);
 			} else if (provider == null) {
 				if (registry != null && ownedBy != null && registry.getRegistrableTypes().canRegisterType(type)) {
-					forProvider(registry.registerIfAbsent(calculateName(), type));
+					val provider = registry.registerIfAbsent(calculateName(), type);
+					val container = ((NamedDomainObjectRegistryInternal) registry).registry(type).getContainer();
+					forProvider(DECORATOR_FACTORY.forContainer(container).decorate(provider));
 				} else if (objectFactory != null) {
 					forInstance(objectFactory.newInstance(type));
 				}
@@ -156,7 +161,19 @@ final class ProjectionSpec {
 					throw new RuntimeException();
 				}
 			});
+
+			if (ownedBy != null) {
+				configurationStrategy.onRealize(() -> {
+					realize(ownedBy);
+				});
+			}
+
 			return new ProjectionSpec(type, configurationStrategy, provider);
+		}
+
+		private void realize(ModelNode node) {
+			node.getParent().ifPresent(this::realize);
+			node.getProjections().forEach(ModelProjection::realize);
 		}
 
 		private String calculateName() {
@@ -197,6 +214,8 @@ final class ProjectionSpec {
 
 	private interface ConfigurationStrategy {
 		<T> void configure(Action<? super T> action);
+
+		void onRealize(Runnable callback);
 	}
 
 	private static final class ExistingConfigurationStrategy implements ConfigurationStrategy {
@@ -211,19 +230,40 @@ final class ProjectionSpec {
 		public <T> void configure(Action<? super T> action) {
 			action.execute((T) target);
 		}
+
+		@Override
+		public void onRealize(Runnable callback) {
+			// do nothing...
+		}
+
+		@Override
+		public String toString() {
+			return target.toString();
+		}
 	}
 
 	private static final class ProvidedConfigurationStrategy implements ConfigurationStrategy {
 		private final NamedDomainObjectProvider<?> target;
+		private final MutableBoolean realized = new MutableBoolean(false);
+		private Runnable onRealize = () -> {};
 
 		private ProvidedConfigurationStrategy(NamedDomainObjectProvider<?> target) {
 			this.target = target;
+			target.configure(it -> {
+				realized.setTrue();
+				onRealize.run();
+			});
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
 		public <T> void configure(Action<? super T> action) {
 			((NamedDomainObjectProvider<T>) target).configure(action);
+		}
+
+		@Override
+		public void onRealize(Runnable callback) {
+			onRealize = callback;
 		}
 	}
 }

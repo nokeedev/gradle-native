@@ -10,7 +10,7 @@ import java.util.List;
 
 import static dev.nokee.model.internal.RegistrableTypeAssertions.unregistrableTypeException;
 
-final class DefaultNamedDomainObjectRegistry implements NamedDomainObjectRegistry {
+final class DefaultNamedDomainObjectRegistry implements NamedDomainObjectRegistry, NamedDomainObjectRegistryInternal {
 	private final RegistrableTypes registrableTypes = new DefaultRegistrableTypes();
 	private final List<NamedDomainObjectContainerRegistry<?>> registries = new ArrayList<>();
 
@@ -38,7 +38,8 @@ final class DefaultNamedDomainObjectRegistry implements NamedDomainObjectRegistr
 		return registry(type).registerIfAbsent(name, type, action);
 	}
 
-	private <T> NamedDomainObjectContainerRegistry<T> registry(Class<T> type) {
+	@Override
+	public <T> NamedDomainObjectContainerRegistry<T> registry(Class<T> type) {
 		return registries.stream()
 			.filter(it -> it.getRegistrableTypes().canRegisterType(type))
 			.map(it -> (NamedDomainObjectContainerRegistry<T>) it)

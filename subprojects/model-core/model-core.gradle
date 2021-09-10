@@ -20,6 +20,36 @@ gradlePlugin {
 	}
 }
 
+test {
+	testingStrategies = [
+		strategies.coverageForMinimumVersion,
+		strategies.coverageForGradleVersion('6.3'),
+		strategies.coverageForGradleVersion('6.4'),
+		strategies.coverageForGradleVersion('6.5.1'),
+		strategies.coverageForGradleVersion('6.6.1'),
+		strategies.coverageForGradleVersion('6.7.1'),
+		strategies.coverageForGradleVersion('6.8.3'),
+		strategies.coverageForGradleVersion('6.9')
+	]
+	testTasks.configureEach {
+		def runtimeClasspath = project.configurations.create("${it.name}RuntimeClasspath") { configuration ->
+			def testRuntimeClasspath = project.configurations.getByName(sourceSets.test.runtimeClasspathConfigurationName)
+			attributes {
+				testRuntimeClasspath.attributes.keySet().forEach { key ->
+					attribute(key, testRuntimeClasspath.attributes.getAttribute(key))
+				}
+			}
+			extendsFrom(project.configurations.getByName(sourceSets.test.implementationConfigurationName),
+				project.configurations.getByName(sourceSets.test.runtimeOnlyConfigurationName))
+			canBeResolved = true
+			canBeConsumed = false
+		}
+		project.dependencies.add(runtimeClasspath.name, testingStrategy.map { "dev.gradleplugins:gradle-api:${it.version}" })
+
+		classpath = sourceSets.main.output + sourceSets.test.output + runtimeClasspath
+	}
+}
+
 publishing {
 	publications {
 		library(MavenPublication) {
