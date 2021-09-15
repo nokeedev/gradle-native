@@ -6,6 +6,7 @@ import lombok.val;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.junit.jupiter.api.Test;
 
+import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.SupportedTypes.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,6 +32,6 @@ class NamedContainerRegistryIntegrationTest extends AbstractDomainObjectContaine
 
 	@Test
 	void canAccessContainerAssociatedToRegistry() {
-		assertThat(createSubject().getContainer(), isA(NamedDomainObjectContainer.class));
+		assertThat(createSubject().getContainer(), optionalWithValue(isA(NamedDomainObjectContainer.class)));
 	}
 }

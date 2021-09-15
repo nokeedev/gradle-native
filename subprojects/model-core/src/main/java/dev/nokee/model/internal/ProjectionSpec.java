@@ -159,9 +159,10 @@ final class ProjectionSpec {
 				type = ProviderUtils.getType(provider).map(this::toUndecoratedType).orElse(null);
 			} else if (provider == null) {
 				if (registry != null && ownedBy != null && registry.getRegistrableTypes().canRegisterType(type)) {
-					val provider = registry.registerIfAbsent(calculateName(), type);
-					val container = ((NamedDomainObjectRegistryInternal) registry).registry(type).getContainer();
-					forProvider(DECORATOR_FACTORY.forContainer(container).decorate(provider));
+					@SuppressWarnings("unchecked")
+					val provider = (NamedDomainObjectProvider<Object>) registry.registerIfAbsent(calculateName(), type);
+					val container = ((NamedDomainObjectRegistryInternal) registry).registry((Class<Object>) type).getContainer();
+					forProvider(container.map(it -> DECORATOR_FACTORY.forContainer(it).decorate(provider)).orElse(provider));
 				} else if (objectFactory != null) {
 					forInstance(objectFactory.newInstance(type));
 				}

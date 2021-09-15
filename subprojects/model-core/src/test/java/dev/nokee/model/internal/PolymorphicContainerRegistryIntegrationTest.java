@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.api.function.ThrowingSupplier;
 
+import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.model.internal.SupportedTypes.instanceOf;
@@ -55,6 +56,6 @@ class PolymorphicContainerRegistryIntegrationTest extends AbstractDomainObjectCo
 
 	@Test
 	void canAccessContainerAssociatedToRegistry() {
-		assertThat(createSubject().getContainer(), isA(PolymorphicDomainObjectContainer.class));
+		assertThat(createSubject().getContainer(), optionalWithValue(isA(PolymorphicDomainObjectContainer.class)));
 	}
 }

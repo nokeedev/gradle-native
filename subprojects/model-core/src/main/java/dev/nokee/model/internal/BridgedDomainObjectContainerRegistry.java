@@ -59,7 +59,7 @@ final class BridgedDomainObjectContainerRegistry<T> extends NamedDomainObjectCon
 	}
 
 	@Override
-	public NamedDomainObjectContainer<T> getContainer() {
+	public Optional<NamedDomainObjectContainer<T>> getContainer() {
 		return delegate.getContainer();
 	}
 

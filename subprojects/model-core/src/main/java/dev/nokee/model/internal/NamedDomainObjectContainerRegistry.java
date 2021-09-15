@@ -12,6 +12,7 @@ import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -32,7 +33,7 @@ abstract class NamedDomainObjectContainerRegistry<T> {
 
 	public abstract NamedDomainObjectRegistry.RegistrableTypes getRegistrableTypes();
 
-	public abstract NamedDomainObjectContainer<T> getContainer();
+	public abstract Optional<NamedDomainObjectContainer<T>> getContainer();
 
 	static final class NamedContainerRegistry<T> extends NamedDomainObjectContainerRegistry<T> {
 		private final NamedDomainObjectRegistry.RegistrableTypes registrableTypes;
@@ -74,8 +75,8 @@ abstract class NamedDomainObjectContainerRegistry<T> {
 		}
 
 		@Override
-		public NamedDomainObjectContainer<T> getContainer() {
-			return container;
+		public Optional<NamedDomainObjectContainer<T>> getContainer() {
+			return Optional.of(container);
 		}
 
 		private static final class NamedDomainObjectContainerRegistrableTypes implements NamedDomainObjectRegistry.RegistrableTypes {
@@ -131,8 +132,8 @@ abstract class NamedDomainObjectContainerRegistry<T> {
 		}
 
 		@Override
-		public NamedDomainObjectContainer<T> getContainer() {
-			return container;
+		public Optional<NamedDomainObjectContainer<T>> getContainer() {
+			return Optional.of(container);
 		}
 
 		private final class PolymorphicDomainObjectContainerRegistrableTypes implements NamedDomainObjectRegistry.RegistrableTypes {
@@ -165,8 +166,8 @@ abstract class NamedDomainObjectContainerRegistry<T> {
 		}
 
 		@Override
-		public NamedDomainObjectContainer<Task> getContainer() {
-			return container;
+		public Optional<NamedDomainObjectContainer<Task>> getContainer() {
+			return Optional.of(container);
 		}
 
 		@Override
@@ -221,8 +222,8 @@ abstract class NamedDomainObjectContainerRegistry<T> {
 		}
 
 		@Override
-		public NamedDomainObjectContainer<SoftwareComponent> getContainer() {
-			throw new UnsupportedOperationException("SoftwareComponentContainer does not behave like a NamedDomainObjectContainer.");
+		public Optional<NamedDomainObjectContainer<SoftwareComponent>> getContainer() {
+			return Optional.empty(); // because SoftwareComponentContainer does not behave like a NamedDomainObjectContainer
 		}
 
 		@Override
