@@ -11,10 +11,14 @@ import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
+import org.gradle.api.internal.provider.ProviderInternal;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 
 import javax.annotation.Nullable;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,7 +50,7 @@ final class ProjectionSpec {
 	}
 
 	public void realizeProjection() {
-		provider.get();
+		configurationStrategy.realize();
 	}
 
 	public void finalizeProjection() {
@@ -77,6 +81,8 @@ final class ProjectionSpec {
 		if (Provider.class.isAssignableFrom(type)) {
 			if (configurationStrategy instanceof ProvidedConfigurationStrategy) {
 				return type.cast(((ProvidedConfigurationStrategy) configurationStrategy).target);
+			} else if (configurationStrategy instanceof ConfigurationProvidedConfigurationStrategy) {
+				return type.cast(((ConfigurationProvidedConfigurationStrategy) configurationStrategy).target);
 			} else if (configurationStrategy instanceof ExistingConfigurationStrategy) {
 				return type.cast(provider);
 			}
@@ -107,7 +113,11 @@ final class ProjectionSpec {
 		}
 
 		public Builder forProvider(NamedDomainObjectProvider<?> provider) {
-			this.configurationStrategy = new ProvidedConfigurationStrategy(provider);
+			if (Configuration.class.isAssignableFrom(((ProviderInternal<?>)provider).getType())) {
+				this.configurationStrategy = new ConfigurationProvidedConfigurationStrategy(provider);
+			} else {
+				this.configurationStrategy = new ProvidedConfigurationStrategy(provider);
+			}
 			this.provider = provider;
 			return this;
 		}
@@ -215,6 +225,7 @@ final class ProjectionSpec {
 	private interface ConfigurationStrategy {
 		<T> void configure(Action<? super T> action);
 
+		void realize();
 		void onRealize(Runnable callback);
 	}
 
@@ -229,6 +240,11 @@ final class ProjectionSpec {
 		@SuppressWarnings("unchecked")
 		public <T> void configure(Action<? super T> action) {
 			action.execute((T) target);
+		}
+
+		@Override
+		public void realize() {
+			// do nothing...
 		}
 
 		@Override
@@ -259,6 +275,62 @@ final class ProjectionSpec {
 		@SuppressWarnings("unchecked")
 		public <T> void configure(Action<? super T> action) {
 			((NamedDomainObjectProvider<T>) target).configure(action);
+		}
+
+		@Override
+		public void realize() {
+			target.get();
+		}
+
+		@Override
+		public void onRealize(Runnable callback) {
+			onRealize = callback;
+		}
+	}
+
+	private static final class ConfigurationProvidedConfigurationStrategy implements ConfigurationStrategy {
+		private final NamedDomainObjectProvider<?> target;
+		private final MutableBoolean realized = new MutableBoolean(false);
+		private Runnable onRealize = () -> {};
+		private final ArrayDeque<Action> actions = new ArrayDeque<>();
+
+		private ConfigurationProvidedConfigurationStrategy(NamedDomainObjectProvider<?> target) {
+			this.target = target;
+			target.configure(it -> {
+				((ConfigurationInternal) it).beforeLocking(c -> {
+					if (!realized.booleanValue()) {
+						realized.setTrue();
+						onRealize.run();
+						while (!actions.isEmpty()) {
+							val action = actions.removeFirst();
+							target.configure(action);
+						}
+					}
+				});
+			});
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public <T> void configure(Action<? super T> action) {
+			if (realized.booleanValue() && actions.isEmpty()) {
+				((NamedDomainObjectProvider<T>) target).configure(action);
+			} else {
+				actions.add(action);
+			}
+		}
+
+		@Override
+		public void realize() {
+			if (realized.isFalse()) {
+				target.get();
+				realized.setTrue();
+				onRealize.run();
+				while (!actions.isEmpty()) {
+					val action = actions.removeFirst();
+					target.configure(action);
+				}
+			}
 		}
 
 		@Override

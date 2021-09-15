@@ -84,7 +84,7 @@ final class DefaultModelProjection<T> implements TypeAwareModelProjection<T>, Mo
 
 	@Override
 	public void realize() {
-		get(getType());
+		((ProjectionSpec) delegate.getProperty("spec")).realizeProjection();
 	}
 
 	@Override
