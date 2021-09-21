@@ -59,8 +59,7 @@ final class ConfigureSpotlessLicenseHeaderAction implements Action<AppliedPlugin
 					+ Arrays.stream(s.split("\n"))
 						.map(this::prependMultilineCommentChars)
 						.collect(Collectors.joining("\n"))
-					+ "\n */" // closing multiline comment
-					+ "\n"; // extra newline to better align with IntelliJ behavior
+					+ "\n */"; // closing multiline comment
 			}
 
 			private String prependMultilineCommentChars(String line) {
