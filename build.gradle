@@ -15,19 +15,63 @@ plugins {
 	id 'org.shipkit.shipkit-auto-version' version '1.1.1'
 }
 
+class LicenseFileHeader {
+	private final File file;
+
+	private LicenseFileHeader(File file) {
+		this.file = file;
+	}
+
+	static LicenseFileHeader from(File file) {
+		return new LicenseFileHeader(file);
+	}
+
+	public String get() {
+		return file.text
+	}
+
+	public String getAsMultilineJavaComment() {
+		return '/*\n' + file.readLines().collect {
+			if (!it.empty) {
+				return " * $it"
+			} else {
+				return it
+			}
+		}.join('\n') + '\n */'
+	}
+}
+
+def licenseFileHeader = LicenseFileHeader.from(rootProject.file('gradle/spotless.license-header.txt'))
 allprojects {
 	apply plugin: 'com.diffplug.spotless'
 	spotless {
 		pluginManager.withPlugin('java-base') {
 			java {
 				targetExclude files('build/generated-src').asFileTree
-				licenseHeaderFile rootProject.file('gradle/spotless.license-header.txt')
+				licenseHeader licenseFileHeader.asMultilineJavaComment
 			}
 		}
 		pluginManager.withPlugin('groovy-base') {
 			groovy {
-				//targetExclude files('build/generated-src').asFileTree
-				licenseHeaderFile rootProject.file('gradle/spotless.license-header.txt')
+				licenseHeader licenseFileHeader.asMultilineJavaComment
+			}
+		}
+	}
+
+	pluginManager.withPlugin("org.jetbrains.gradle.plugin.idea-ext") {
+		plugins.withType(IdeaPlugin) {
+			idea {
+				project {
+					settings {
+						copyright {
+							def defaultProfile = profiles.create('Apache-2.0') {
+								notice = licenseFileHeader.get()
+								keyword = "Copyright"
+							}
+							useDefault = defaultProfile.name
+						}
+					}
+				}
 			}
 		}
 	}
