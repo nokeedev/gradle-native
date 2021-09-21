@@ -1,0 +1,15 @@
+plugins {
+	id 'dev.gradleplugins.gradle-plugin-development' version '1.4.2'
+}
+
+rootProject.name = 'license-gradle-plugin'
+
+gradle.rootProject {
+	def properties = new Properties()
+	file('../../../gradle.properties').withInputStream {
+		properties.load(it)
+	}
+	properties.each { key, value ->
+		project.ext."$key" = value
+	}
+}
