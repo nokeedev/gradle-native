@@ -8,6 +8,8 @@ buildscript {
 	dependencies {
 		classpath 'dev.gradleplugins:documentation-kit:latest.integration'
 		classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.15.1'
+		classpath 'gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.0.1'
+		classpath 'dev.nokeebuild:license-gradle-plugin:latest.integration'
 	}
 }
 
@@ -15,63 +17,14 @@ plugins {
 	id 'org.shipkit.shipkit-auto-version' version '1.1.1'
 }
 
-class LicenseFileHeader {
-	private final File file;
-
-	private LicenseFileHeader(File file) {
-		this.file = file;
-	}
-
-	static LicenseFileHeader from(File file) {
-		return new LicenseFileHeader(file);
-	}
-
-	public String get() {
-		return file.text
-	}
-
-	public String getAsMultilineJavaComment() {
-		return '/*\n' + file.readLines().collect {
-			if (!it.empty) {
-				return " * $it"
-			} else {
-				return it
-			}
-		}.join('\n') + '\n */'
-	}
-}
-
-def licenseFileHeader = LicenseFileHeader.from(rootProject.file('gradle/spotless.license-header.txt'))
 allprojects {
+	apply plugin: 'org.jetbrains.gradle.plugin.idea-ext'
 	apply plugin: 'com.diffplug.spotless'
+	apply plugin: 'dev.nokeebuild.license'
 	spotless {
 		pluginManager.withPlugin('java-base') {
 			java {
 				targetExclude files('build/generated-src').asFileTree
-				licenseHeader licenseFileHeader.asMultilineJavaComment
-			}
-		}
-		pluginManager.withPlugin('groovy-base') {
-			groovy {
-				licenseHeader licenseFileHeader.asMultilineJavaComment
-			}
-		}
-	}
-
-	pluginManager.withPlugin("org.jetbrains.gradle.plugin.idea-ext") {
-		plugins.withType(IdeaPlugin) {
-			idea {
-				project {
-					settings {
-						copyright {
-							def defaultProfile = profiles.create('Apache-2.0') {
-								notice = licenseFileHeader.get()
-								keyword = "Copyright"
-							}
-							useDefault = defaultProfile.name
-						}
-					}
-				}
 			}
 		}
 	}

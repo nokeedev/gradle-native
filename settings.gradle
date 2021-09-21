@@ -6,6 +6,7 @@ rootProject.name = 'gradle-native'
 
 includeBuild 'subprojects/templates'
 includeBuild 'gradle/plugins/docs-gradle-plugin'
+includeBuild 'gradle/plugins/license-gradle-plugin'
 
 include 'buildAdapterCmake'
 project(':buildAdapterCmake').projectDir = file('subprojects/build-adapter-cmake')

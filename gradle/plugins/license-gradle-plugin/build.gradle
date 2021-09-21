@@ -1,0 +1,27 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+group = 'dev.nokeebuild'
+version = '0.1'
+
+gradlePlugin {
+	plugins {
+		licensing {
+			id = 'dev.nokeebuild.license'
+			implementationClass = 'dev.nokeebuild.licensing.NokeeLicensePlugin'
+		}
+	}
+	compatibility {
+		minimumGradleVersion = project.minimumGradleVersion
+	}
+}
+
+repositories {
+	gradlePluginPortal()
+}
+
+dependencies {
+	compileOnly 'gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.0.1'
+	compileOnly 'com.diffplug.spotless:spotless-plugin-gradle:5.15.1'
+}
