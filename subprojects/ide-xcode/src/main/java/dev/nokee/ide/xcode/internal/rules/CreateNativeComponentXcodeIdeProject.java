@@ -39,6 +39,7 @@ import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
+import dev.nokee.platform.nativebase.internal.HasOutputFile;
 import dev.nokee.platform.nativebase.internal.OperatingSystemOperations;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
