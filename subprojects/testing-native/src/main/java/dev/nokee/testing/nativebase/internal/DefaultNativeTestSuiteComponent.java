@@ -93,7 +93,7 @@ import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINA
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.toList;
 
-public final class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite, SourceAwareComponent<ComponentSources> {
+public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite, SourceAwareComponent<ComponentSources> {
 	private final DefaultNativeComponentDependencies dependencies;
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
