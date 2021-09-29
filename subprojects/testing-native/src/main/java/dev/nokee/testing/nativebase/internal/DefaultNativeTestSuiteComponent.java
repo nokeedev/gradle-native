@@ -80,6 +80,7 @@ import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
 import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -104,6 +105,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final NativeTestSuiteComponentVariants componentVariants;
 	private final BinaryView<Binary> binaries;
 
+	@Inject
 	public DefaultNativeTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
 		super(identifier, DefaultNativeTestSuiteVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.objects = objects;
