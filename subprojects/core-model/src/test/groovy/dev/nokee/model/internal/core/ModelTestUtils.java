@@ -188,6 +188,11 @@ public final class ModelTestUtils {
 				execute(actions, node);
 			}
 
+			@Override
+			public void projectionAdded(ModelNode node) {
+				// do nothing for now.
+			}
+
 			private void execute(List<ModelAction> actions, ModelNode node) {
 				val size = actions.size();
 				for (int i = 0; i < size; ++i) {

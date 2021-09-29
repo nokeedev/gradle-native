@@ -86,6 +86,7 @@ public final class ModelNode {
 	void addProjection(ModelProjection projection) {
 		assert state == State.Created : "can only add projection before the node is initialized";
 		projections.add(projection);
+		listener.projectionAdded(this);
 	}
 
 	private void initialize() {

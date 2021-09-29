@@ -18,6 +18,7 @@ package dev.nokee.model.internal.registry;
 import com.google.common.collect.ImmutableList;
 import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.provider.Property;
 import org.junit.jupiter.api.Test;
@@ -354,6 +355,20 @@ public class DefaultModelRegistryIntegrationTest {
 	}
 
 	interface MyChild {}
+
+	@Test
+	void canExecuteActionWithComponentInputs() {
+		val result = new ArrayList<ModelPath>();
+		modelRegistry.configure(ModelActionWithInputs.of(ModelType.of(MyFooComponent.class), (node, i) -> {
+			result.add(node.getPath());
+		}));
+		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo", Object.class), new Object()));
+		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo.bar", Object.class), new Object()));
+		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo.far", MyFooComponent.class), new MyFooComponent()));
+		assertThat(result, contains(ModelPath.path("foo.far")));
+	}
+
+	static class MyFooComponent {}
 
 //	@Test
 //	void canAccessModelNodeOnManagedType() {
