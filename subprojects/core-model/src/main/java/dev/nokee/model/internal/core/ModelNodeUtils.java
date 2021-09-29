@@ -15,11 +15,23 @@
  */
 package dev.nokee.model.internal.core;
 
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.ModelType;
+
+// TODO: Remove "maybe add" custom logic to favour dedup within ModelProjection adding logic
 public final class ModelNodeUtils {
+	private static final ModelProjection CREATED_TAG = ModelProjections.ofInstance(new ModelState.Created() {});
+	private static final ModelProjection REALIZED_TAG = ModelProjections.ofInstance(new ModelState.Realized() {});
+	private static final ModelProjection INITIALIZED_TAG = ModelProjections.ofInstance(new ModelState.Initialized() {});
+	private static final ModelProjection REGISTERED_TAG = ModelProjections.ofInstance(new ModelState.Registered() {});
+
 	private ModelNodeUtils() {}
 
 	static ModelNode create(ModelNode self) {
-		self.create();
+		if (!self.canBeViewedAs(ModelType.of(ModelState.Created.class))) {
+			self.create();
+			self.add(CREATED_TAG);
+		}
 		return self;
 	}
 
@@ -30,16 +42,27 @@ public final class ModelNodeUtils {
 	 * @return this model node, never null
 	 */
 	public static ModelNode realize(ModelNode self) {
-		return self.realize();
+		if (!self.canBeViewedAs(ModelType.of(ModelState.Realized.class))) {
+			self.realize();
+			self.add(REALIZED_TAG);
+		}
+		return self;
 	}
 
 	static ModelNode initialize(ModelNode self) {
-		self.initialize();
+		if (!self.canBeViewedAs(ModelType.of(ModelState.Initialized.class))) {
+			self.initialize();
+			self.add(INITIALIZED_TAG);
+		}
 		return self;
 	}
 
 	public static ModelNode register(ModelNode self) {
-		return self.register();
+		if (!self.canBeViewedAs(ModelType.of(ModelState.Registered.class))) {
+			self.register();
+			self.add(REGISTERED_TAG);
+		}
+		return self;
 	}
 
 	/**

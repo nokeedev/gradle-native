@@ -89,6 +89,11 @@ public final class ModelNode {
 		listener.projectionAdded(this);
 	}
 
+	void add(ModelProjection projection) {
+		projections.add(projection);
+		listener.projectionAdded(this);
+	}
+
 	void create() {
 		listener.created(this);
 	}
