@@ -17,6 +17,7 @@ package dev.nokee.model;
 
 import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import groovy.lang.MissingMethodException;
 import groovy.lang.MissingPropertyException;
 import lombok.val;
@@ -50,14 +51,14 @@ public abstract class AbstractNamedDomainObjectViewGetByNameOnlyTester<T> extend
 	void doesNotRealizeNode() {
 		element("e2");
 		get(subject, "e2");
-		assertThat(node("e2").getState(), lessThan(ModelNode.State.Realized));
+		assertThat(ModelNodeUtils.getState(node("e2")), lessThan(ModelNode.State.Realized));
 	}
 
 	@Test
 	void canRealizeNodeViaProvider() {
 		element("e3");
 		get(subject, "e3").get();
-		assertThat(node("e3").getState(), equalTo(ModelNode.State.Realized));
+		assertThat(ModelNodeUtils.getState(node("e3")), equalTo(ModelNode.State.Realized));
 	}
 
 	@Test

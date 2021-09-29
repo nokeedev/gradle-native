@@ -81,10 +81,10 @@ class ModelMutateActionTest {
 	interface MyType {}
 
 	private static ModelNode node(ModelAction... action) {
-		return ModelTestUtils.childNode(ModelTestUtils.rootNode(), "test", ImmutableList.copyOf(action), builder -> {}).realize();
+		return ModelNodeUtils.realize(ModelTestUtils.childNode(ModelTestUtils.rootNode(), "test", ImmutableList.copyOf(action), builder -> {}));
 	}
 
 	private static ModelNode node(String name, ModelAction... action) {
-		return ModelTestUtils.childNode(ModelTestUtils.rootNode(), name, ImmutableList.copyOf(action), builder -> {}).realize();
+		return ModelNodeUtils.realize(ModelTestUtils.childNode(ModelTestUtils.rootNode(), name, ImmutableList.copyOf(action), builder -> {}));
 	}
 }

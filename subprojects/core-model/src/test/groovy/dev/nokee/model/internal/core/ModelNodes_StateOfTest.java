@@ -46,23 +46,23 @@ public class ModelNodes_StateOfTest {
 	void canCreatePredicateFilterForModelNodeForStateOfInitialized() {
 		val predicate = stateOf(ModelNode.State.Initialized);
 		assertTrue(predicate.test(node()));
-		assertFalse(predicate.test(node().register()));
-		assertFalse(predicate.test(node().realize()));
+		assertFalse(predicate.test(ModelNodeUtils.register(node())));
+		assertFalse(predicate.test(ModelNodeUtils.realize(node())));
 	}
 
 	@Test
 	void canCreatePredicateFilterForModelNodeForStateOfRegistered() {
 		val predicate = stateOf(ModelNode.State.Registered);
 		assertFalse(predicate.test(node()));
-		assertTrue(predicate.test(node().register()));
-		assertFalse(predicate.test(node().realize()));
+		assertTrue(predicate.test(ModelNodeUtils.register(node())));
+		assertFalse(predicate.test(ModelNodeUtils.realize(node())));
 	}
 
 	@Test
 	void canCreatePredicateFilterForModelNodeByStateAtLeastRealized() {
 		val predicate = stateOf(ModelNode.State.Realized);
 		assertFalse(predicate.test(node()));
-		assertFalse(predicate.test(node().register()));
-		assertTrue(predicate.test(node().realize()));
+		assertFalse(predicate.test(ModelNodeUtils.register(node())));
+		assertTrue(predicate.test(ModelNodeUtils.realize(node())));
 	}
 }

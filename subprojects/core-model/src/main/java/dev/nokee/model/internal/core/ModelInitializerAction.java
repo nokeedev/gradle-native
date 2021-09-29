@@ -24,7 +24,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public abstract class ModelInitializerAction implements ModelAction {
 	@Override
 	public final void execute(ModelNode node) {
-		if (node.getState().equals(ModelNode.State.Created)) {
+		if (ModelNodeUtils.getState(node).equals(ModelNode.State.Created)) {
 			// NOTE: The contextual node should not be accessed from the action, it's simply for contextualizing the action execution.
 			ModelNodeContext.of(node).execute(() -> execute(new Context(node)));
 		}

@@ -73,12 +73,13 @@ public class DefaultModelRegistryTest {
 
 		@Test
 		void rootNodeIsAlwaysRegistered() {
-			assertEquals(ModelNode.State.Registered, modelLookup.get(ModelPath.root()).getState());
+			assertEquals(ModelNode.State.Registered, ModelNodeUtils.getState(modelLookup.get(ModelPath.root())));
 		}
 
 		@Test
 		void registeredNodeAreAtRegisteredState() {
-			assertEquals(ModelNode.State.Registered, modelLookup.get(register("woot")).getState(), "new node state should be registered");
+			assertEquals(ModelNode.State.Registered, ModelNodeUtils.getState(modelLookup.get(register("woot"))),
+				"new node state should be registered");
 		}
 
 		@Test
@@ -95,7 +96,7 @@ public class DefaultModelRegistryTest {
 				assertThrows(IllegalArgumentException.class, () -> modelLookup.get(path("foo")));
 				return null;
 			}).when(action).execute(any());
-			subject.configure(matching(it -> it.getState().equals(ModelNode.State.Initialized), action));
+			subject.configure(matching(it -> ModelNodeUtils.getState(it).equals(ModelNode.State.Initialized), action));
 			register("foo");
 			verify(action, times(1)).execute(any());
 		}
@@ -108,7 +109,7 @@ public class DefaultModelRegistryTest {
 				assertDoesNotThrow(() -> modelLookup.get(path("bar")));
 				return null;
 			}).when(action).execute(any());
-			subject.configure(matching(it -> it.getState().equals(ModelNode.State.Registered) && it.getPath().equals(path("bar")), action));
+			subject.configure(matching(it -> ModelNodeUtils.getState(it).equals(ModelNode.State.Registered) && it.getPath().equals(path("bar")), action));
 			register("bar");
 			verify(action, times(1)).execute(any());
 		}

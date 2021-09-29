@@ -25,7 +25,7 @@ public abstract class ModelDiscoverAction implements ModelAction {
 	@Override
 	public final void execute(ModelNode node) {
 		// TODO: Should be discovered
-		if (node.getState().equals(ModelNode.State.Registered)) {
+		if (ModelNodeUtils.getState(node).equals(ModelNode.State.Registered)) {
 			// NOTE: The contextual node should not be accessed from the action, it's simply for contextualizing the action execution.
 			ModelNodeContext.of(node).execute(() -> execute(new Context(node)));
 		}

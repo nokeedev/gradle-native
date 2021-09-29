@@ -157,7 +157,7 @@ public final class ModelNodes {
 
 		@Override
 		public boolean test(ModelNode node) {
-			return node.isAtLeast(state);
+			return ModelNodeUtils.isAtLeast(node, state);
 		}
 
 		@Override
@@ -180,7 +180,7 @@ public final class ModelNodes {
 
 		@Override
 		public boolean test(ModelNode node) {
-			return node.getState().equals(state);
+			return ModelNodeUtils.getState(node).equals(state);
 		}
 
 		@Override

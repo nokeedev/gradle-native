@@ -33,7 +33,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	public DefaultModelRegistry(Instantiator instantiator) {
 		this.instantiator = instantiator;
-		rootNode = createRootNode().register();
+		rootNode = ModelNodeUtils.register(createRootNode());
 		nodes.put(ModelPath.root(), rootNode);
 	}
 
@@ -70,7 +70,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		}
 
 		registration.getActions().forEach(configurations::add);
-		val node = newNode(registration).register();
+		val node = ModelNodeUtils.register(newNode(registration));
 		return new ModelNodeBackedProvider<>(registration.getDefaultProjectionType(), node);
 	}
 

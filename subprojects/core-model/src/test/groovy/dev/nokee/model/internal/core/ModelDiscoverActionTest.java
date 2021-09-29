@@ -65,7 +65,7 @@ class ModelDiscoverActionTest {
 		val captor = new ModelTestActions.CaptureNodeTransitionAction();
 		val node = node("foo", discover(context -> context.applyTo(self().apply(captor))));
 		assertThat(captor.getAllTransitions(), contains(registered("foo")));
-		node.realize();
+		ModelNodeUtils.realize(node);
 		assertThat(captor.getAllTransitions(), contains(registered("foo"), realized("foo")));
 	}
 
@@ -101,10 +101,10 @@ class ModelDiscoverActionTest {
 	interface MyType {}
 
 	private static ModelNode node(ModelAction... action) {
-		return ModelTestUtils.childNode(ModelTestUtils.rootNode(), "test", ImmutableList.copyOf(action), builder -> {}).register();
+		return ModelNodeUtils.register(ModelTestUtils.childNode(ModelTestUtils.rootNode(), "test", ImmutableList.copyOf(action), builder -> {}));
 	}
 
 	private static ModelNode node(String name, ModelAction... action) {
-		return ModelTestUtils.childNode(ModelTestUtils.rootNode(), name, ImmutableList.copyOf(action), builder -> {}).register();
+		return ModelNodeUtils.register(ModelTestUtils.childNode(ModelTestUtils.rootNode(), name, ImmutableList.copyOf(action), builder -> {}));
 	}
 }

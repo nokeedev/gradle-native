@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public abstract class ModelMutateAction implements ModelAction {
 	@Override
 	public void execute(ModelNode node) {
-		if (node.getState().equals(ModelNode.State.Realized)) {
+		if (ModelNodeUtils.getState(node).equals(ModelNode.State.Realized)) {
 			ModelNodeContext.of(node).execute(() -> execute(new Context(node)));
 		}
 	}

@@ -79,8 +79,8 @@ public final class ModelNode {
 		this.listener = listener;
 		this.modelLookup = modelLookup;
 		this.modelRegistry = modelRegistry;
-		listener.created(this);
-		initialize();
+		ModelNodeUtils.create(this);
+		ModelNodeUtils.initialize(this);
 	}
 
 	void addProjection(ModelProjection projection) {
@@ -89,13 +89,17 @@ public final class ModelNode {
 		listener.projectionAdded(this);
 	}
 
-	private void initialize() {
+	void create() {
+		listener.created(this);
+	}
+
+	void initialize() {
 		assert state == State.Created;
 		state = State.Initialized;
 		listener.initialized(this);
 	}
 
-	public ModelNode register() {
+	ModelNode register() {
 		if (!isAtLeast(State.Registered)) {
 			state = State.Registered;
 			listener.registered(this);
@@ -108,8 +112,8 @@ public final class ModelNode {
 	 *
 	 * @return this model node, never null
 	 */
-	public ModelNode realize() {
-		register();
+	ModelNode realize() {
+		ModelNodeUtils.register(this);
 		if (!isAtLeast(State.Realized)) {
 			changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback();
 			listener.realized(this);
@@ -119,7 +123,7 @@ public final class ModelNode {
 
 	private void changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback() {
 		state = State.Realized;
-		getParent().ifPresent(ModelNode::realize);
+		getParent().ifPresent(ModelNodeUtils::realize);
 	}
 
 	/**
@@ -146,7 +150,7 @@ public final class ModelNode {
 	 *
 	 * @return a {@link ModelNode.State} representing the state of this model node, never null.
 	 */
-	public State getState() {
+	State getState() {
 		return state;
 	}
 
@@ -165,7 +169,7 @@ public final class ModelNode {
 	 * @param state  the state to compare
 	 * @return true if the state of the node is at or later that the specified state or false otherwise.
 	 */
-	public boolean isAtLeast(State state) {
+	boolean isAtLeast(State state) {
 		return this.state.compareTo(state) >= 0;
 	}
 
