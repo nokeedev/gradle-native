@@ -50,7 +50,7 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 	@Override
 	public T get() {
 		// TODO: We should prevent realizing the provider before a certain gate is achieved (maybe not registered)
-		return node.realize().get(type);
+		return ModelNodeUtils.realize(node).get(type);
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 	}
 
 	private Provider<T> getAsProvider() {
-		return ProviderUtils.supplied(() -> node.realize().get(type));
+		return ProviderUtils.supplied(() -> ModelNodeUtils.realize(node).get(type));
 	}
 
 	@Override

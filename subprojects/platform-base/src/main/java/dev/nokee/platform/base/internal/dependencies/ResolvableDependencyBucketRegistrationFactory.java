@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.annotations.VisibleForTesting;
 import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactory;
 import dev.nokee.utils.ActionUtils;
@@ -78,7 +79,7 @@ public final class ResolvableDependencyBucketRegistrationFactory implements Node
 	private static ActionUtils.Action<Configuration> realizeNodeBeforeResolve() {
 		val node = ModelNodeContext.getCurrentModelNode();
 		return configuration -> {
-			((ConfigurationInternal) configuration).beforeLocking(it -> node.realize());
+			((ConfigurationInternal) configuration).beforeLocking(it -> ModelNodeUtils.realize(node));
 		};
 	}
 

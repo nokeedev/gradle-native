@@ -46,8 +46,8 @@ public class ModelNodes_StateAtLeastTest {
 		val predicate = stateAtLeast(ModelNode.State.Initialized);
 		assertAll(() -> {
 			assertTrue(predicate.test(node()));
-			assertTrue(predicate.test(node().register()));
-			assertTrue(predicate.test(node().realize()));
+			assertTrue(predicate.test(ModelNodeUtils.register(node())));
+			assertTrue(predicate.test(ModelNodeUtils.realize(node())));
 		});
 	}
 
@@ -56,8 +56,8 @@ public class ModelNodes_StateAtLeastTest {
 		val predicate = stateAtLeast(ModelNode.State.Registered);
 		assertAll(() -> {
 			assertFalse(predicate.test(node()));
-			assertTrue(predicate.test(node().register()));
-			assertTrue(predicate.test(node().realize()));
+			assertTrue(predicate.test(ModelNodeUtils.register(node())));
+			assertTrue(predicate.test(ModelNodeUtils.realize(node())));
 		});
 	}
 
@@ -66,8 +66,8 @@ public class ModelNodes_StateAtLeastTest {
 		val predicate = stateAtLeast(ModelNode.State.Realized);
 		assertAll(() -> {
 			assertFalse(predicate.test(node()));
-			assertFalse(predicate.test(node().register()));
-			assertTrue(predicate.test(node().realize()));
+			assertFalse(predicate.test(ModelNodeUtils.register(node())));
+			assertTrue(predicate.test(ModelNodeUtils.realize(node())));
 		});
 	}
 }

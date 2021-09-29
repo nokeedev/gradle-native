@@ -15,10 +15,7 @@
  */
 package dev.nokee.testing.base.internal.plugins;
 
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelSpecs;
-import dev.nokee.model.internal.core.NodeRegistration;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
@@ -43,7 +40,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 
 		project.afterEvaluate(proj -> {
 			// Force realize all test suite... until we solve the differing problem.
-			project.getExtensions().getByType(ModelLookup.class).query(ModelSpecs.of(ModelNodes.withType(of(TestSuiteComponent.class)))).forEach(ModelNode::realize);
+			project.getExtensions().getByType(ModelLookup.class).query(ModelSpecs.of(ModelNodes.withType(of(TestSuiteComponent.class)))).forEach(ModelNodeUtils::realize);
 		});
 	}
 

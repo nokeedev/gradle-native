@@ -167,7 +167,7 @@ public class DefaultModelRegistryIntegrationTest {
 		val action = new ModelTestActions.CaptureNodeTransitionAction();
 
 		modelRegistry.register(ModelRegistration.of("i", MyType.class));
-		modelRegistry.configure(matching(node -> node.isAtLeast(Realized), action));
+		modelRegistry.configure(matching(node -> ModelNodeUtils.isAtLeast(node, Realized), action));
 		modelRegistry.register(ModelRegistration.of("j", MyType.class)).get();
 
 		assertThat(action.getAllTransitions(), contains(realized(root()), realized("j")));
@@ -323,7 +323,7 @@ public class DefaultModelRegistryIntegrationTest {
 		modelRegistry.register(NodeRegistration.of("a", of(MyParent.class))
 			.action(self(discover(ctx -> ctx.register(NodeRegistration.of("child", of(MyChild.class))))))
 			.action(self(mutate(of(MyParent.class), MyParent::getChild))));
-		modelRegistry.get(path("a")).realize();
+		ModelNodeUtils.realize(modelRegistry.get(path("a")));
 
 		assertThat(action.getAllTransitions(), contains(registered(root()),
 			created("a"), initialized("a"), registered("a"),
@@ -339,7 +339,7 @@ public class DefaultModelRegistryIntegrationTest {
 		modelRegistry.register(NodeRegistration.of("a", of(MyParent.class))
 			.action(self(discover(ctx -> ctx.register(NodeRegistration.of("child", of(MyChild.class))))))
 			.action(self(mutate(of(MyParent.class), MyParent::getChild))));
-		modelRegistry.get(path("a.child")).realize();
+		ModelNodeUtils.realize(modelRegistry.get(path("a.child")));
 
 		assertThat(action.getAllTransitions(), contains(registered(root()),
 			created("a"), initialized("a"), registered("a"),
@@ -350,7 +350,7 @@ public class DefaultModelRegistryIntegrationTest {
 	interface MyParent {
 		default MyChild getChild() {
 			// When querying descendant node, it's best practice to realize the node.
-			return ModelNodes.of(this).getDescendant("child").realize().get(MyChild.class);
+			return ModelNodeUtils.realize(ModelNodes.of(this).getDescendant("child")).get(MyChild.class);
 		}
 	}
 

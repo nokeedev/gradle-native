@@ -103,33 +103,33 @@ class ModelNodeTest {
 
 	@Test
 	void stateOfNewlyCreatedNodeIsInitialized() {
-		assertEquals(ModelNode.State.Initialized, node().getState());
+		assertEquals(ModelNode.State.Initialized, ModelNodeUtils.getState(node()));
 	}
 
 	@Test
 	void nodeTransitionToRegisteredWhenRegistered() {
-		assertEquals(ModelNode.State.Registered, node().register().getState());
+		assertEquals(ModelNode.State.Registered, ModelNodeUtils.getState(ModelNodeUtils.register(node())));
 	}
 
 	@Test
 	void newNodesAreOnlyInitialized() {
-		assertTrue(node().isAtLeast(ModelNode.State.Initialized));
-		assertFalse(node().isAtLeast(ModelNode.State.Registered));
-		assertFalse(node().isAtLeast(ModelNode.State.Realized));
+		assertTrue(ModelNodeUtils.isAtLeast(node(), ModelNode.State.Initialized));
+		assertFalse(ModelNodeUtils.isAtLeast(node(), ModelNode.State.Registered));
+		assertFalse(ModelNodeUtils.isAtLeast(node(), ModelNode.State.Realized));
 	}
 
 	@Test
 	void registeredNodesAreAtMostRegistered() {
-		assertTrue(node().register().isAtLeast(ModelNode.State.Initialized));
-		assertTrue(node().register().isAtLeast(ModelNode.State.Registered));
-		assertFalse(node().register().isAtLeast(ModelNode.State.Realized));
+		assertTrue(ModelNodeUtils.isAtLeast(ModelNodeUtils.register(node()), ModelNode.State.Initialized));
+		assertTrue(ModelNodeUtils.isAtLeast(ModelNodeUtils.register(node()), ModelNode.State.Registered));
+		assertFalse(ModelNodeUtils.isAtLeast(ModelNodeUtils.register(node()), ModelNode.State.Realized));
 	}
 
 	@Test
 	void realizedNodesAreAtMostRealized() {
-		assertTrue(node().realize().isAtLeast(ModelNode.State.Initialized));
-		assertTrue(node().realize().isAtLeast(ModelNode.State.Registered));
-		assertTrue(node().realize().isAtLeast(ModelNode.State.Realized));
+		assertTrue(ModelNodeUtils.isAtLeast(ModelNodeUtils.realize(node()), ModelNode.State.Initialized));
+		assertTrue(ModelNodeUtils.isAtLeast(ModelNodeUtils.realize(node()), ModelNode.State.Registered));
+		assertTrue(ModelNodeUtils.isAtLeast(ModelNodeUtils.realize(node()), ModelNode.State.Realized));
 	}
 
 	@Nested
@@ -163,12 +163,12 @@ class ModelNodeTest {
 
 			@Test
 			void callsBackWhenTheNodeIsRegistered() {
-				node.register();
+				ModelNodeUtils.register(node);
 			}
 
 			@Test
 			void callsBackOnlyOnceWhenMultipleRegister() {
-				node.register().register().register();
+				ModelNodeUtils.register(ModelNodeUtils.register(ModelNodeUtils.register(node)));
 			}
 
 			@AfterEach
@@ -182,23 +182,23 @@ class ModelNodeTest {
 		class Realize {
 			@BeforeEach
 			void resetListenerMock() {
-				node.register();
+				ModelNodeUtils.register(node);
 				Mockito.reset(listener);
 			}
 
 			@Test
 			void callsBackWhenTheNodeIsRealized() {
-				node.realize();
+				ModelNodeUtils.realize(node);
 			}
 
 			@Test
 			void callsBackOnlyOnceWhenMultipleRealize() {
-				node.realize().realize().realize();
+				ModelNodeUtils.realize(ModelNodeUtils.realize(ModelNodeUtils.realize(node)));
 			}
 
 			@Test
 			void stayAsRealizeWhenRegisterIsCalledAfter() {
-				assertEquals(ModelNode.State.Realized, node.realize().register().getState());
+				assertEquals(ModelNode.State.Realized, ModelNodeUtils.getState(ModelNodeUtils.register(ModelNodeUtils.realize(node))));
 			}
 
 			@AfterEach
@@ -212,12 +212,12 @@ class ModelNodeTest {
 			@BeforeEach
 			void realizeNode() {
 				Mockito.reset(listener);
-				node.realize();
+				ModelNodeUtils.realize(node);
 			}
 
 			@Test
 			void stateIsRealized() {
-				assertEquals(ModelNode.State.Realized, node.getState());
+				assertEquals(ModelNode.State.Realized, ModelNodeUtils.getState(node));
 			}
 
 			@Test
@@ -245,10 +245,10 @@ class ModelNodeTest {
 	void parentNodesAreRealize() {
 		val parentNode = node();
 		val childNode = childNode(parentNode);
-		childNode.realize();
+		ModelNodeUtils.realize(childNode);
 		assertAll(() -> {
-			assertThat(parentNode.getState(), equalTo(ModelNode.State.Realized));
-			assertThat(childNode.getState(), equalTo(ModelNode.State.Realized));
+			assertThat(ModelNodeUtils.getState(parentNode), equalTo(ModelNode.State.Realized));
+			assertThat(ModelNodeUtils.getState(childNode), equalTo(ModelNode.State.Realized));
 		});
 	}
 

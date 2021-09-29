@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.DomainObjectView;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
@@ -59,7 +60,7 @@ public class BaseDomainObjectViewProjection implements AbstractModelNodeBackedDo
 		return node.getDirectDescendants()
 			.stream()
 			.filter(it -> it.canBeViewedAs(type))
-			.map(it -> it.realize().get(type))
+			.map(it -> ModelNodeUtils.realize(it).get(type))
 			.collect(ImmutableSet.toImmutableSet());
 	}
 
