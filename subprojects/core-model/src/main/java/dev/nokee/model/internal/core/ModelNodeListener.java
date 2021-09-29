@@ -45,6 +45,11 @@ public interface ModelNodeListener {
 			public void realized(ModelNode node) {
 				// do nothing
 			}
+
+			@Override
+			public void projectionAdded(ModelNode node) {
+				// do nothing
+			}
 		};
 	}
 
@@ -75,4 +80,11 @@ public interface ModelNodeListener {
 	 * @param node  the model node that transitioned to the realized state
 	 */
 	void realized(ModelNode node);
+
+	/**
+	 * When the model node has new projection.
+	 *
+	 * @param node  the model node that has a new projection
+	 */
+	void projectionAdded(ModelNode node);
 }

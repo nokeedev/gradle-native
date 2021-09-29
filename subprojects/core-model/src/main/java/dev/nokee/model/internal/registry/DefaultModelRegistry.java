@@ -141,6 +141,17 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			notify(node);
 		}
 
+		@Override
+		public void projectionAdded(ModelNode node) {
+			// Splitting the execution until we reconcile ModelAction with the concept of System and Observer.
+			for (int i = 0; i < configurations.size(); ++i) {
+				val configuration = configurations.get(i);
+				if (configuration instanceof ModelActionWithInputs) {
+					configuration.execute(node);
+				}
+			}
+		}
+
 		private void notify(ModelNode node) {
 			for (int i = 0; i < configurations.size(); ++i) {
 				val configuration = configurations.get(i);
