@@ -53,4 +53,4 @@ Look at link:https://nokee.dev/docs/{jbake-version}/samples[all the samples demo
 * Have a look at the link:https://nokee.dev/docs/current/samples[Samples]
 * Join the link:https://gradle.com/slack-invite[#native Slack Channel]
 
-====== Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+====== Licensed under Apache License 2.0 - https://www.apache.org/licenses/LICENSE-2.0
