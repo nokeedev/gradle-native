@@ -26,7 +26,7 @@ import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.providerFact
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
-import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
+import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;

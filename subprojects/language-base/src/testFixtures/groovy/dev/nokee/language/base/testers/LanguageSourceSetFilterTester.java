@@ -16,7 +16,7 @@
 package dev.nokee.language.base.testers;
 
 import dev.nokee.internal.testing.FileSystemWorkspace;
-import dev.nokee.internal.testing.utils.ClosureTestUtils;
+import dev.nokee.internal.testing.util.ClosureTestUtils;
 import dev.nokee.language.base.LanguageSourceSet;
 import lombok.val;
 import org.gradle.api.Action;

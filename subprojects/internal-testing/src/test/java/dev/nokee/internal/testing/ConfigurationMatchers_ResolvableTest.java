@@ -19,7 +19,7 @@ import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.resolvable;
-import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
+import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;
 import static dev.nokee.utils.ConfigurationUtils.configureAsResolvable;
 
 class ConfigurationMatchers_ResolvableTest extends AbstractMatcherTest {

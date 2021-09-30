@@ -24,7 +24,7 @@ import java.util.concurrent.Callable;
 
 import static com.google.common.base.Suppliers.ofInstance;
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.providerFactory;
-import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
+import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;
 import static dev.nokee.utils.ConfigurationUtils.configureDescription;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -19,12 +19,11 @@ import com.google.common.testing.EqualsTester;
 import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import lombok.val;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.forCoordinate;
-import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
+import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;
 import static dev.nokee.utils.ConfigurationUtils.add;
 import static dev.nokee.utils.ConfigurationUtils.configureDependencies;
 import static dev.nokee.utils.ConsumerTestUtils.*;

@@ -25,7 +25,7 @@ import spock.lang.Subject;
 
 import java.util.function.BiConsumer;
 
-import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
+import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.using;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.withObjectFactory;
