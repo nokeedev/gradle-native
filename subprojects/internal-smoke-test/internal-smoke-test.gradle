@@ -3,11 +3,12 @@ plugins {
 }
 
 def smokeTestSourceSet = sourceSets.create('smokeTest')
-tasks.register(smokeTestSourceSet.name, Test) {
+def testTask = tasks.register(smokeTestSourceSet.name, Test) {
 	group = "Verification"
 	testClassesDirs = smokeTestSourceSet.output.classesDirs
 	classpath = smokeTestSourceSet.runtimeClasspath
 }
+tasks.named('check') { it.dependsOn(testTask) }
 
 dependencies {
 	smokeTestImplementation project(':internalTesting')
