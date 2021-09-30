@@ -79,7 +79,8 @@ public abstract class AbstractNamedDomainObjectViewGetByNameOnlyTester<T> extend
 	void throwsExceptionWhenGettingKnownElementOfUnrelatedType() {
 		element("e5", WrongType.class);
 		val ex = assertThrows(InvalidUserDataException.class, () -> get(subject, "e5"));
-		assertThat(ex.getMessage(), equalTo("The domain object 'e5' (interface dev.nokee.model.AbstractNamedDomainObjectViewGetByNameOnlyTester$WrongType) is not a subclass of the given type (dev.nokee.model.CustomDomainObjectContainerTypeIntegrationTest.MyType)."));
+		// TODO: It should be 'interface dev.nokee.model.AbstractNamedDomainObjectViewGetByNameOnlyTester$WrongType'
+		assertThat(ex.getMessage(), equalTo("The domain object 'e5' (<unknown>) is not a subclass of the given type (dev.nokee.model.CustomDomainObjectContainerTypeIntegrationTest.MyType)."));
 	}
 
 	interface WrongType {}

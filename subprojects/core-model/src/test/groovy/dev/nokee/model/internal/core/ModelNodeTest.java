@@ -302,6 +302,7 @@ class ModelNodeTest {
 	}
 
 	@Test
+	@Disabled // there should be a better way to describe the type as projections are more like data now.
 	void canGetTypeDescriptionOfNode() {
 		assertThat(node("a", MyType.class).getTypeDescription(), optionalWithValue(equalTo("interface dev.nokee.model.internal.core.ModelNodeTest$MyType")));
 	}
