@@ -22,7 +22,7 @@ import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
-import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
+import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;
 import static org.hamcrest.Matchers.hasEntry;
 
 class ConfigurationMatchers_AttributesTest extends AbstractMatcherTest {

@@ -17,7 +17,7 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.testing.EqualsTester;
 import dev.nokee.internal.testing.FileSystemWorkspace;
-import dev.nokee.internal.testing.utils.ConfigurationTestUtils;
+import dev.nokee.internal.testing.util.ConfigurationTestUtils;
 import lombok.val;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.Directory;

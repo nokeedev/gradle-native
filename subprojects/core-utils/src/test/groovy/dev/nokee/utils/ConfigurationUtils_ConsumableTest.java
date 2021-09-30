@@ -20,7 +20,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.specs.Spec;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
+import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;
 import static dev.nokee.utils.ConfigurationUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;

@@ -19,7 +19,7 @@ import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
-import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
+import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.assertConfigured;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.description;
 import static org.hamcrest.MatcherAssert.assertThat;

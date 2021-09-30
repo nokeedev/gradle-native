@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.outgoingVariants;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
-import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
+import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;
 import static org.hamcrest.Matchers.hasItem;
 
 class ConfigurationMatchers_OutgoingVariantsTest extends AbstractMatcherTest {

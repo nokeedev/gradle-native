@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 
 import static com.google.common.base.Suppliers.ofInstance;
 import static com.google.common.collect.Streams.zip;
-import static dev.nokee.internal.testing.utils.ClosureTestUtils.adaptToClosure;
+import static dev.nokee.internal.testing.util.ClosureTestUtils.adaptToClosure;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;

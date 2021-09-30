@@ -31,7 +31,7 @@ import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactor
 import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.providerFactory;
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
-import static dev.nokee.internal.testing.utils.ConfigurationTestUtils.testConfiguration;
+import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;
 import static dev.nokee.utils.ConfigurationUtils.*;
 import static dev.nokee.utils.ConsumerTestUtils.aConsumer;
 import static dev.nokee.utils.ConsumerTestUtils.anotherConsumer;
