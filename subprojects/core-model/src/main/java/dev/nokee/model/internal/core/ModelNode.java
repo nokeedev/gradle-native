@@ -264,6 +264,10 @@ public final class ModelNode {
 		return projections.getTypeDescription();
 	}
 
+	public Optional<String> getTypeDescription(ModelType<?> type) {
+		return projections.getTypeDescription(type);
+	}
+
 	@Override
 	public String toString() {
 		return path.toString();
@@ -307,7 +311,11 @@ public final class ModelNode {
 		}
 
 		public Optional<String> getTypeDescription() {
-			return Optional.ofNullable(Iterables.getFirst(projections, null))
+			return getTypeDescription(ModelType.of(Object.class));
+		}
+
+		public Optional<String> getTypeDescription(ModelType<?> type) {
+			return projections.stream().filter(it -> it.canBeViewedAs(type)).findFirst()
 				.map(ModelProjection::getTypeDescriptions)
 				.map(it -> String.join(", ", it));
 		}
