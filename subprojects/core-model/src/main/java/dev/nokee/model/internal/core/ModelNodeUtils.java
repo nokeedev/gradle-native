@@ -83,6 +83,6 @@ public final class ModelNodeUtils {
 	 * @return a {@link ModelNode.State} representing the state of this model node, never null.
 	 */
 	public static ModelNode.State getState(ModelNode self) {
-		return self.getState();
+		return self.get(ModelNode.State.class);
 	}
 }

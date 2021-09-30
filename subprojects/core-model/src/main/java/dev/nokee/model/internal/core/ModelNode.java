@@ -171,15 +171,6 @@ public final class ModelNode {
 	}
 
 	/**
-	 * Returns the state of this model node.
-	 *
-	 * @return a {@link ModelNode.State} representing the state of this model node, never null.
-	 */
-	State getState() {
-		return get(State.class);
-	}
-
-	/**
 	 * Returns the path of this model node.
 	 *
 	 * @return a {@link ModelPath} representing this model node, never null.
