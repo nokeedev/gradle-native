@@ -34,4 +34,9 @@ public final class InstanceModelProjection<M> extends TypeCompatibilityModelProj
 	public void set(M newInstance) {
 		instance = newInstance;
 	}
+
+	@Override
+	public String toString() {
+		return "ModelProjections.ofInstance(" + instance + ")";
+	}
 }
