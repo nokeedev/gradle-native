@@ -73,7 +73,7 @@ public final class ModelNodeUtils {
 	 * @return {@literal true} if the state of the node is at or later that the specified state or {@literal false} otherwise.
 	 */
 	public static boolean isAtLeast(ModelNode self, ModelNode.State state) {
-		return self.isAtLeast(state);
+		return self.get(ModelNode.State.class).compareTo(state) >= 0;
 	}
 
 	/**

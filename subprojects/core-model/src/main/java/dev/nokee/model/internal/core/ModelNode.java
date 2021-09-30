@@ -117,7 +117,7 @@ public final class ModelNode {
 	}
 
 	ModelNode register() {
-		if (!isAtLeast(State.Registered)) {
+		if (!ModelNodeUtils.isAtLeast(this, State.Registered)) {
 			if (canBeViewedAs(ModelType.of(State.class))) {
 				set(ModelType.of(State.class), State.Registered);
 			} else {
@@ -135,7 +135,7 @@ public final class ModelNode {
 	 */
 	ModelNode realize() {
 		ModelNodeUtils.register(this);
-		if (!isAtLeast(State.Realized)) {
+		if (!ModelNodeUtils.isAtLeast(this, State.Realized)) {
 			changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback();
 			listener.realized(this);
 		}
@@ -186,16 +186,6 @@ public final class ModelNode {
 	 */
 	public ModelPath getPath() {
 		return path;
-	}
-
-	/**
-	 * Checks the state of the node is at or later that the specified state.
-	 *
-	 * @param state  the state to compare
-	 * @return true if the state of the node is at or later that the specified state or false otherwise.
-	 */
-	boolean isAtLeast(State state) {
-		return get(State.class).compareTo(state) >= 0;
 	}
 
 	/**
