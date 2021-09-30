@@ -103,6 +103,10 @@ public final class ModelNode {
 		} else {
 			add(ModelProjections.ofInstance(State.Created));
 		}
+		notifyCreated();
+	}
+
+	void notifyCreated() {
 		listener.created(this);
 	}
 
@@ -113,6 +117,10 @@ public final class ModelNode {
 		} else {
 			add(ModelProjections.ofInstance(State.Initialized));
 		}
+		notifyInitialized();
+	}
+
+	void notifyInitialized() {
 		listener.initialized(this);
 	}
 
@@ -123,9 +131,13 @@ public final class ModelNode {
 			} else {
 				add(ModelProjections.ofInstance(State.Registered));
 			}
-			listener.registered(this);
+			notifyRegistered();
 		}
 		return this;
+	}
+
+	void notifyRegistered() {
+		listener.registered(this);
 	}
 
 	/**
@@ -137,9 +149,13 @@ public final class ModelNode {
 		ModelNodeUtils.register(this);
 		if (!ModelNodeUtils.isAtLeast(this, State.Realized)) {
 			changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback();
-			listener.realized(this);
+			notifyRealized();
 		}
 		return this;
+	}
+
+	void notifyRealized() {
+		listener.realized(this);
 	}
 
 	private void changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback() {
