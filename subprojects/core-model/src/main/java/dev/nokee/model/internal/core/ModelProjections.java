@@ -38,7 +38,7 @@ public final class ModelProjections {
 	 * @see ModelNodeContext#injectCurrentModelNodeIfAllowed(Object) for decoration information
 	 */
 	public static <T> TypeCompatibilityModelProjectionSupport<T> ofInstance(T instance) {
-		return createdUsing(typeOf(instance), constant(instance));
+		return new InstanceModelProjection<>(typeOf(instance), instance);
 	}
 
 	/**
