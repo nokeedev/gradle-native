@@ -185,7 +185,7 @@ Artifacts
 		and:
 		buildFile << '''
 			repositories {
-				gradlePluginPortal()
+				mavenCentral()
 			}
 
 			def configuredVariants = []
