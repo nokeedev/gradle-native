@@ -29,7 +29,12 @@ public final class ModelNodeUtils {
 
 	static ModelNode create(ModelNode self) {
 		if (!self.canBeViewedAs(ModelType.of(ModelState.Created.class))) {
-			self.create();
+			if (self.canBeViewedAs(ModelType.of(ModelNode.State.class))) {
+				self.set(ModelType.of(ModelNode.State.class), ModelNode.State.Created);
+			} else {
+				self.add(ModelProjections.ofInstance(ModelNode.State.Created));
+			}
+			self.notifyCreated();
 			self.add(CREATED_TAG);
 		}
 		return self;
@@ -43,15 +48,34 @@ public final class ModelNodeUtils {
 	 */
 	public static ModelNode realize(ModelNode self) {
 		if (!self.canBeViewedAs(ModelType.of(ModelState.Realized.class))) {
-			self.realize();
+			ModelNodeUtils.register(self);
+			if (!ModelNodeUtils.isAtLeast(self, ModelNode.State.Realized)) {
+				changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(self);
+				self.notifyRealized();
+			}
 			self.add(REALIZED_TAG);
 		}
 		return self;
 	}
 
+	private static void changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(ModelNode self) {
+		if (self.canBeViewedAs(ModelType.of(ModelNode.State.class))) {
+			self.set(ModelType.of(ModelNode.State.class), ModelNode.State.Realized);
+		} else {
+			self.add(ModelProjections.ofInstance(ModelNode.State.Realized));
+		}
+		self.getParent().ifPresent(ModelNodeUtils::realize);
+	}
+
 	static ModelNode initialize(ModelNode self) {
 		if (!self.canBeViewedAs(ModelType.of(ModelState.Initialized.class))) {
-			self.initialize();
+			assert self.get(ModelNode.State.class) == ModelNode.State.Created;
+			if (self.canBeViewedAs(ModelType.of(ModelNode.State.class))) {
+				self.set(ModelType.of(ModelNode.State.class), ModelNode.State.Initialized);
+			} else {
+				self.add(ModelProjections.ofInstance(ModelNode.State.Initialized));
+			}
+			self.notifyInitialized();
 			self.add(INITIALIZED_TAG);
 		}
 		return self;
@@ -59,7 +83,14 @@ public final class ModelNodeUtils {
 
 	public static ModelNode register(ModelNode self) {
 		if (!self.canBeViewedAs(ModelType.of(ModelState.Registered.class))) {
-			self.register();
+			if (!isAtLeast(self, ModelNode.State.Registered)) {
+				if (self.canBeViewedAs(ModelType.of(ModelNode.State.class))) {
+					self.set(ModelType.of(ModelNode.State.class), ModelNode.State.Registered);
+				} else {
+					self.add(ModelProjections.ofInstance(ModelNode.State.Registered));
+				}
+				self.notifyRegistered();
+			}
 			self.add(REGISTERED_TAG);
 		}
 		return self;
