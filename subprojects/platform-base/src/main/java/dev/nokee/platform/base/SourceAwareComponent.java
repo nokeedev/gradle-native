@@ -38,7 +38,7 @@ public interface SourceAwareComponent<T extends ComponentSources> extends Compon
 	 * @return the component sources of this component, never null
 	 */
 	default T getSources() {
-		return (T) ModelNodes.of(this).getDescendant("sources").get(Object.class);
+		return (T) ModelNodes.of(this).getDescendant("sources").get(ComponentSources.class);
 	}
 
 	/**
@@ -48,7 +48,7 @@ public interface SourceAwareComponent<T extends ComponentSources> extends Compon
 	 */
 	default void sources(Action<? super T> action) {
 		ModelNodes.of(this).getDescendant("sources")
-			.applyTo(self(stateAtLeast(ModelNode.State.Realized)).apply(node -> action.execute((T) node.get(Object.class))));
+			.applyTo(self(stateAtLeast(ModelNode.State.Realized)).apply(node -> action.execute((T) node.get(ComponentSources.class))));
 	}
 
 	/**
