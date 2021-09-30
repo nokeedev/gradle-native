@@ -1,0 +1,15 @@
+plugins {
+	id 'java-base'
+}
+
+def smokeTestSourceSet = sourceSets.create('smokeTest')
+tasks.register(smokeTestSourceSet.name, Test) {
+	group = "Verification"
+	testClassesDirs = smokeTestSourceSet.output.classesDirs
+	classpath = smokeTestSourceSet.runtimeClasspath
+}
+
+dependencies {
+	smokeTestImplementation project(':internalTesting')
+	smokeTestImplementation gradleTestKit()
+}
