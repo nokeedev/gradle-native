@@ -97,74 +97,20 @@ public final class ModelNode {
 		((InstanceModelProjection<T>) projections.projections.stream().filter(it -> it.canBeViewedAs(componentType)).findFirst().orElseThrow(RuntimeException::new)).set(component);
 	}
 
-	void create() {
-		if (canBeViewedAs(ModelType.of(State.class))) {
-			set(ModelType.of(State.class), State.Created);
-		} else {
-			add(ModelProjections.ofInstance(State.Created));
-		}
-		notifyCreated();
-	}
-
 	void notifyCreated() {
 		listener.created(this);
-	}
-
-	void initialize() {
-		assert get(State.class) == State.Created;
-		if (canBeViewedAs(ModelType.of(State.class))) {
-			set(ModelType.of(State.class), State.Initialized);
-		} else {
-			add(ModelProjections.ofInstance(State.Initialized));
-		}
-		notifyInitialized();
 	}
 
 	void notifyInitialized() {
 		listener.initialized(this);
 	}
 
-	ModelNode register() {
-		if (!ModelNodeUtils.isAtLeast(this, State.Registered)) {
-			if (canBeViewedAs(ModelType.of(State.class))) {
-				set(ModelType.of(State.class), State.Registered);
-			} else {
-				add(ModelProjections.ofInstance(State.Registered));
-			}
-			notifyRegistered();
-		}
-		return this;
-	}
-
 	void notifyRegistered() {
 		listener.registered(this);
 	}
 
-	/**
-	 * Realize this node.
-	 *
-	 * @return this model node, never null
-	 */
-	ModelNode realize() {
-		ModelNodeUtils.register(this);
-		if (!ModelNodeUtils.isAtLeast(this, State.Realized)) {
-			changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback();
-			notifyRealized();
-		}
-		return this;
-	}
-
 	void notifyRealized() {
 		listener.realized(this);
-	}
-
-	private void changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback() {
-		if (canBeViewedAs(ModelType.of(State.class))) {
-			set(ModelType.of(State.class), State.Realized);
-		} else {
-			add(ModelProjections.ofInstance(State.Realized));
-		}
-		getParent().ifPresent(ModelNodeUtils::realize);
 	}
 
 	/**
