@@ -94,7 +94,12 @@ public final class ModelNode {
 		listener.projectionAdded(this);
 	}
 
+	<T> void set(ModelType<T> componentType, T component) {
+		((InstanceModelProjection<T>) projections.projections.stream().filter(it -> it.canBeViewedAs(componentType)).findFirst().orElseThrow(RuntimeException::new)).set(component);
+	}
+
 	void create() {
+		state = State.Created;
 		listener.created(this);
 	}
 
@@ -107,6 +112,11 @@ public final class ModelNode {
 	ModelNode register() {
 		if (!isAtLeast(State.Registered)) {
 			state = State.Registered;
+			if (canBeViewedAs(ModelType.of(State.class))) {
+				set(ModelType.of(State.class), state);
+			} else {
+				add(ModelProjections.ofInstance(state));
+			}
 			listener.registered(this);
 		}
 		return this;
@@ -128,6 +138,11 @@ public final class ModelNode {
 
 	private void changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback() {
 		state = State.Realized;
+		if (canBeViewedAs(ModelType.of(State.class))) {
+			set(ModelType.of(State.class), state);
+		} else {
+			add(ModelProjections.ofInstance(state));
+		}
 		getParent().ifPresent(ModelNodeUtils::realize);
 	}
 
