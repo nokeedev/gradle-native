@@ -73,7 +73,7 @@ public abstract class AbstractDomainObjectViewElementProcessTester<T> extends Ab
 			process(subject, action).get();
 		});
 		assertThat("unscoped elements should not be mapped",
-			(Iterable<Object>)captor.getAllValues(), not(hasItem(e("foo")))); // TODO: Remove cast
+			(Iterable<Object>)captor.getAllValues(), not(hasItem(e("foo", WrongType.class)))); // TODO: Remove cast
 	}
 
 	interface WrongType {}

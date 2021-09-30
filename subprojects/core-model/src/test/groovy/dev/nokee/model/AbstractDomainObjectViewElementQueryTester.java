@@ -44,7 +44,7 @@ public abstract class AbstractDomainObjectViewElementQueryTester<T> extends Abst
 	void doesNotReturnsWrongElementTypesWhenProviderIsQueried() {
 		element("foo", WrongType.class);
 		assertThat("all registered elements should be returned",
-			(Iterable<Object>)query(subject), not(hasItem(e("foo"))));
+			(Iterable<Object>)query(subject), not(hasItem(e("foo", WrongType.class))));
 		// TODO: Remove cast, maybe map (or whatever generic provider returning method) should return Provider<Iterable<Object>>
 	}
 

@@ -80,7 +80,11 @@ public abstract class AbstractDomainObjectViewTester<T> {
 	//region TODO: Rewrite the following with better names
 	// Get default projection for element name
 	protected final Object e(String name) {
-		return subjectGenerator.getModelLookup().get(path("myTypes." + name)).get(Object.class);
+		return subjectGenerator.getModelLookup().get(path("myTypes." + name)).get(getElementType());
+	}
+
+	protected final Object e(String name, Class<?> type) {
+		return subjectGenerator.getModelLookup().get(path("myTypes." + name)).get(type);
 	}
 
 	protected final KnownDomainObject<T> known(String name) {
