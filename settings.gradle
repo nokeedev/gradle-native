@@ -60,6 +60,10 @@ include 'ideXcode'
 project(':ideXcode').projectDir = file('subprojects/ide-xcode')
 project(':ideXcode').buildFileName = 'ide-xcode.gradle'
 
+include 'internalSmokeTest'
+project(':internalSmokeTest').projectDir = file('subprojects/internal-smoke-test')
+project(':internalSmokeTest').buildFileName = 'internal-smoke-test.gradle'
+
 include 'internalTesting'
 project(':internalTesting').projectDir = file('subprojects/internal-testing')
 project(':internalTesting').buildFileName = 'internal-testing.gradle'
