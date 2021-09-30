@@ -19,6 +19,8 @@ import dev.gradleplugins.grava.testing.file.TestNameTestDirectoryProvider;
 import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleExecutor;
 import dev.gradleplugins.runnerkit.GradleRunner;
+import dev.nokee.internal.testing.runnerkit.GradleDsl;
+import dev.nokee.internal.testing.runnerkit.InitscriptSectionBuilder;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.gradle.api.Plugin;
@@ -32,6 +34,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.hasFailureCause;
+import static dev.nokee.internal.testing.runnerkit.DependenciesSectionBuilder.DependencyNotation.files;
+import static dev.nokee.internal.testing.runnerkit.DependenciesSectionBuilder.classpath;
 import static java.lang.String.join;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.write;
@@ -220,11 +224,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		protected GradleRunner newRunner() {
 			val runner = GradleRunner.create(GradleExecutor.gradleTestKit()).inDirectory(getWorkingDirectory().toFile()).configure(this::configureRunnerPluginDslClasspath).configure(this::configureRunnerBuildscriptClasspath).usingInitScript(getInitFile().toFile());
 			getInitFile().append(
-				"initscript {",
-				"  dependencies {",
-				"    classpath files(" + runner.getPluginClasspath().stream().map(File::toURI).map(Objects::toString).map(this::quote).collect(Collectors.joining(", ")) + ")",
-				"  }",
-				"}"
+				new InitscriptSectionBuilder().dependencies(classpath(files(runner.getPluginClasspath()))).toString(GradleDsl.GROOVY)
 			);
 			return runner;
 		}
@@ -273,11 +273,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		private GradleRunner configureRunnerBuildscriptClasspath(GradleRunner runner) {
 			val initScript = new BuildScript(getWorkingDirectory().resolve("classpath.init.gradle"));
 			initScript.append(
-				"initscript {",
-				"  dependencies {",
-				"    classpath files(" + runner.getPluginClasspath().stream().map(File::toURI).map(Objects::toString).map(this::quote).collect(Collectors.joining(", ")) + ")",
-				"  }",
-				"}",
+				new InitscriptSectionBuilder().dependencies(classpath(files(runner.getPluginClasspath()))).toString(GradleDsl.GROOVY),
 				"beforeSettings { settings ->",
 				"  settings.buildscript.dependencies {",
 				"    classpath files(" + runner.getPluginClasspath().stream().map(File::toURI).map(Objects::toString).map(this::quote).collect(Collectors.joining(", ")) + ")",
