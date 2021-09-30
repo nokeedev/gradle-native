@@ -56,7 +56,6 @@ public final class ModelNode {
 	private final ModelNodeListener listener;
 	private final Projections projections;
 	private final ModelConfigurer configurer;
-	private State state = State.Created;
 	private final ModelRegistry modelRegistry;
 
 	public void finalizeValue() {
@@ -84,7 +83,7 @@ public final class ModelNode {
 	}
 
 	void addProjection(ModelProjection projection) {
-		assert state == State.Created : "can only add projection before the node is initialized";
+		assert get(State.class) == State.Created : "can only add projection before the node is initialized";
 		projections.add(projection);
 		listener.projectionAdded(this);
 	}
@@ -99,23 +98,30 @@ public final class ModelNode {
 	}
 
 	void create() {
-		state = State.Created;
+		if (canBeViewedAs(ModelType.of(State.class))) {
+			set(ModelType.of(State.class), State.Created);
+		} else {
+			add(ModelProjections.ofInstance(State.Created));
+		}
 		listener.created(this);
 	}
 
 	void initialize() {
-		assert state == State.Created;
-		state = State.Initialized;
+		assert get(State.class) == State.Created;
+		if (canBeViewedAs(ModelType.of(State.class))) {
+			set(ModelType.of(State.class), State.Initialized);
+		} else {
+			add(ModelProjections.ofInstance(State.Initialized));
+		}
 		listener.initialized(this);
 	}
 
 	ModelNode register() {
 		if (!isAtLeast(State.Registered)) {
-			state = State.Registered;
 			if (canBeViewedAs(ModelType.of(State.class))) {
-				set(ModelType.of(State.class), state);
+				set(ModelType.of(State.class), State.Registered);
 			} else {
-				add(ModelProjections.ofInstance(state));
+				add(ModelProjections.ofInstance(State.Registered));
 			}
 			listener.registered(this);
 		}
@@ -137,11 +143,10 @@ public final class ModelNode {
 	}
 
 	private void changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback() {
-		state = State.Realized;
 		if (canBeViewedAs(ModelType.of(State.class))) {
-			set(ModelType.of(State.class), state);
+			set(ModelType.of(State.class), State.Realized);
 		} else {
-			add(ModelProjections.ofInstance(state));
+			add(ModelProjections.ofInstance(State.Realized));
 		}
 		getParent().ifPresent(ModelNodeUtils::realize);
 	}
@@ -171,7 +176,7 @@ public final class ModelNode {
 	 * @return a {@link ModelNode.State} representing the state of this model node, never null.
 	 */
 	State getState() {
-		return state;
+		return get(State.class);
 	}
 
 	/**
@@ -190,7 +195,7 @@ public final class ModelNode {
 	 * @return true if the state of the node is at or later that the specified state or false otherwise.
 	 */
 	boolean isAtLeast(State state) {
-		return this.state.compareTo(state) >= 0;
+		return get(State.class).compareTo(state) >= 0;
 	}
 
 	/**
