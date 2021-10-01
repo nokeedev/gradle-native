@@ -274,7 +274,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		@SneakyThrows // TODO: GradleRunner#configure should accept functional that throws exception
 		private GradleRunner configureRunnerBuildscriptClasspath(GradleRunner runner) {
 			val initScript = new BuildScriptFile(getWorkingDirectory().resolve("classpath.init.gradle"));
-			initScript.append(new InitscriptSectionBuilder().dependencies(classpath(files(runner.getPluginClasspath()))))
+			initScript.append(new InitscriptSectionBuilder().dependencies(classpath(files(runner.getPluginClasspath()))).toString(GradleDsl.GROOVY))
 				.append(String.join(System.lineSeparator(),
 					"beforeSettings { settings ->",
 					"  settings.buildscript.dependencies {",
