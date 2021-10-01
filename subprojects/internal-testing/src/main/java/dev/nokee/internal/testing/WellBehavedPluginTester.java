@@ -27,6 +27,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.plugins.PluginAware;
+import org.gradle.util.GradleVersion;
 import org.opentest4j.TestAbortedException;
 
 import java.io.File;
@@ -481,7 +482,11 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		}
 
 		protected List<String> getRealizedTaskPaths() {
-			return Collections.singletonList(":help");
+			if (GradleVersion.version("7.3").compareTo(GradleVersion.version(System.getProperty("dev.gradleplugins.defaultGradleVersion"))) > 0) {
+				return Collections.singletonList(":help");
+			} else {
+				return Arrays.asList(":help", ":clean"); // see https://github.com/gradle/gradle/issues/18214
+			}
 		}
 
 		private List<String> getRealizedQuotedTaskPaths() {
