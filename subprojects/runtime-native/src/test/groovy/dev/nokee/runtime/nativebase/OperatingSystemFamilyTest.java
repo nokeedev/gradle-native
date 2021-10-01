@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.forName;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.named;
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.cpp;
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;

@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.AbstractComponentDependenciesGroovyDslTest
 import dev.nokee.platform.base.DependencyBucket

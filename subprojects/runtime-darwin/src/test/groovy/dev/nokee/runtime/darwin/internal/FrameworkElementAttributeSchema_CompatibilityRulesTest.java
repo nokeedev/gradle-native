@@ -19,7 +19,7 @@ import dev.nokee.runtime.base.CompatibilityRulesTester;
 import org.gradle.api.attributes.LibraryElements;
 import org.junit.jupiter.api.Test;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.runtime.darwin.internal.DarwinLibraryElements.FRAMEWORK_BUNDLE;
 import static org.gradle.api.attributes.LibraryElements.HEADERS_CPLUSPLUS;
 

@@ -27,7 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.*;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;

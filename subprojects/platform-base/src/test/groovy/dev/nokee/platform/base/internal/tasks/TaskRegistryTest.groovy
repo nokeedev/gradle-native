@@ -31,7 +31,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.*
+import static dev.nokee.internal.testing.util.ProjectTestUtils.*
 
 @Subject(TaskRegistryImpl)
 class TaskRegistryTest extends Specification {

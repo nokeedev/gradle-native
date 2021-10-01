@@ -16,7 +16,7 @@
 package dev.nokee.utils;
 
 import com.google.common.testing.EqualsTester;
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import lombok.val;
 import org.junit.jupiter.api.Nested;

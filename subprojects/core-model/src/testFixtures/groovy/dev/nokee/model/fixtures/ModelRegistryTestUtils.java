@@ -15,7 +15,7 @@
  */
 package dev.nokee.model.fixtures;
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
@@ -23,7 +23,7 @@ import org.gradle.api.model.ObjectFactory;
 
 import java.io.File;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelPath.path;
 
 public class ModelRegistryTestUtils {

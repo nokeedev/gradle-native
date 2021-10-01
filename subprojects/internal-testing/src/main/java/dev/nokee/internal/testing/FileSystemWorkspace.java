@@ -15,7 +15,7 @@
  */
 package dev.nokee.internal.testing;
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;

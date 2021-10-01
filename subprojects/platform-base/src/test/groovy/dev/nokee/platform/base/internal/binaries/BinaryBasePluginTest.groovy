@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base.internal.binaries
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.platform.base.internal.plugins.BinaryBasePlugin
 import spock.lang.Specification
 

@@ -15,7 +15,7 @@
  */
 package dev.nokee.runtime.base;
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import org.gradle.api.Named;
 import org.gradle.api.attributes.AttributeCompatibilityRule;
 import org.gradle.api.attributes.CompatibilityCheckDetails;
@@ -23,9 +23,6 @@ import org.mockito.Mockito;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
-import static org.mockito.Mockito.*;
 
 
 // TODO: Move to runtime-base fixtures

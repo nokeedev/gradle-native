@@ -20,7 +20,7 @@ import org.gradle.api.Project;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.internal.testing.ProjectMatchers.hasPlugin;
 import static org.hamcrest.MatcherAssert.assertThat;
 

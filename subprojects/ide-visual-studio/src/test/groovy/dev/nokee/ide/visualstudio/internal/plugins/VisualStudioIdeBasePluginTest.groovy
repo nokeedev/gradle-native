@@ -15,7 +15,7 @@
  */
 package dev.nokee.ide.visualstudio.internal.plugins
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.ide.visualstudio.VisualStudioIdeProjectExtension
 import dev.nokee.ide.visualstudio.VisualStudioIdeWorkspaceExtension
 import org.gradle.testfixtures.ProjectBuilder

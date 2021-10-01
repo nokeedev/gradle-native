@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.providerFactory;
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;

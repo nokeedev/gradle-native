@@ -20,7 +20,7 @@ import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;

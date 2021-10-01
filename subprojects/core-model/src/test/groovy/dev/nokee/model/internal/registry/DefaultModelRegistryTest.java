@@ -16,7 +16,7 @@
 package dev.nokee.model.internal.registry;
 
 import com.google.common.testing.NullPointerTester;
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.*;
 import lombok.val;
 import org.junit.jupiter.api.Nested;

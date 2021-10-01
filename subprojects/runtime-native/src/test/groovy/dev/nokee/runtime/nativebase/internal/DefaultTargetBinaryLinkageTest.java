@@ -20,7 +20,7 @@ import dev.nokee.runtime.nativebase.TargetLinkage;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.utils.ConfigurationUtils.*;

@@ -19,7 +19,7 @@ package dev.nokee.utils
 import spock.lang.Subject
 import spock.lang.Unroll
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory
 import static dev.nokee.utils.DeferredUtils.*
 
 @Subject(DeferredUtils)

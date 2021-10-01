@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.objectivecpp;
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.fixtures.NativeComponentMatchers;
 import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.language.base.FunctionalSourceSet;

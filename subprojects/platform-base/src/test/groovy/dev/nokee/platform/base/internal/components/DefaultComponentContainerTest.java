@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal.components;
 
 import dev.nokee.internal.Factories;
 import dev.nokee.model.DomainObjectFactory;
-import dev.nokee.model.internal.BaseNamedDomainObjectContainer;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
@@ -27,7 +26,7 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ActionUtils.doNothing;

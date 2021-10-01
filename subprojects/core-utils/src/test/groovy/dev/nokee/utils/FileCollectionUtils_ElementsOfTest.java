@@ -19,8 +19,8 @@ import lombok.val;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.junit.jupiter.api.Test;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.providerFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFileNamed;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.utils.FileCollectionUtils.elementsOf;

@@ -19,7 +19,7 @@ import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 
 public final class ConfigurationTestUtils {
 	private static final String TEST_CONFIGURATION_NAME = "test";

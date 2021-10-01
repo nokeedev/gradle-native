@@ -20,7 +20,7 @@ import org.gradle.api.Task;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.internal.testing.TaskMatchers.group;
 
 class TaskMatchers_GroupTest extends AbstractMatcherTest {

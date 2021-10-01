@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelActions.initialize;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;

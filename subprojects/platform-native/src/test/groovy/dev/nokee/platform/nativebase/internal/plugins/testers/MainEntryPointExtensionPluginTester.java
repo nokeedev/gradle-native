@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins.testers;
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionsSchema;
 import org.gradle.api.reflect.TypeOf;

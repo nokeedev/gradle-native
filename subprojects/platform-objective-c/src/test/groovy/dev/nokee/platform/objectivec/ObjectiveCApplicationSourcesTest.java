@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.objectivec;
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;

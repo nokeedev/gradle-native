@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.ios.internal.plugins
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.fixtures.AbstractBinaryPluginTest
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTaskPluginTest

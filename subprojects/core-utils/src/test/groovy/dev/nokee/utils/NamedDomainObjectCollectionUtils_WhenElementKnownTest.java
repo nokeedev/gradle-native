@@ -25,7 +25,7 @@ import org.mockito.Mockito;
 
 import javax.inject.Inject;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.utils.ActionUtils.onlyIf;
 import static dev.nokee.utils.Cast.uncheckedCastBecauseOfTypeErasure;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.*;

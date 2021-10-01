@@ -15,14 +15,13 @@
  */
 package dev.nokee.runtime.nativebase;
 
-import com.google.common.collect.Streams;
 import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.runtime.nativebase.MachineArchitecture.forName;
 import static dev.nokee.runtime.nativebase.MachineArchitecture.named;
 import static org.hamcrest.MatcherAssert.assertThat;

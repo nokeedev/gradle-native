@@ -31,7 +31,7 @@ import spock.lang.Subject;
 
 import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.withObjectFactory;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.withTaskContainer;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationRegistry.forProject;

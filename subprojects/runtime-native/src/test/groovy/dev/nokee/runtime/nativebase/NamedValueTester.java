@@ -29,8 +29,8 @@ import org.junit.jupiter.api.TestFactory;
 import java.io.File;
 import java.util.stream.Stream;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.createChildProject;
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.createChildProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.runtime.nativebase.NamedValueTestUtils.*;

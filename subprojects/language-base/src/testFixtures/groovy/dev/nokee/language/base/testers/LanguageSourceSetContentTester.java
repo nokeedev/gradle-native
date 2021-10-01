@@ -16,7 +16,7 @@
 package dev.nokee.language.base.testers;
 
 import com.google.common.util.concurrent.Callables;
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.language.base.LanguageSourceSet;
 import lombok.val;

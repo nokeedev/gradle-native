@@ -15,7 +15,7 @@
  */
 package dev.nokee.model.internal
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.model.DomainObjectIdentifier
 import org.apache.commons.lang3.RandomStringUtils
 import spock.lang.Shared

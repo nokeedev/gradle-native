@@ -19,7 +19,7 @@ import dev.nokee.runtime.base.DisambiguationRulesTester;
 import org.gradle.api.attributes.LibraryElements;
 import org.junit.jupiter.api.Test;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.runtime.darwin.internal.DarwinLibraryElements.FRAMEWORK_BUNDLE;
 
 class FrameworkElementAttributeSchema_SelectionRulesTest {
