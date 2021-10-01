@@ -15,7 +15,7 @@
  */
 package dev.gradleplugins.grava.testing.file;
 
-import dev.gradleplugins.grava.testing.util.RetryUtils;
+import dev.nokee.internal.testing.util.RetryUtils;
 import lombok.val;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
