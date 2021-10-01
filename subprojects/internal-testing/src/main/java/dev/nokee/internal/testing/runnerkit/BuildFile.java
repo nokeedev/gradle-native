@@ -42,6 +42,11 @@ public final class BuildFile {
 		private final List<Section> sections = new ArrayList<>();
 		private final Set<String> alreadyCreatedConfigurations = new HashSet<>();
 
+		public Builder apply(ApplySection.ApplySectionNotation notation) {
+			sections.add(ApplySection.apply(notation));
+			return this;
+		}
+
 		public Builder repositories(Consumer<? super RepositoriesSectionBuilder> builderAction) {
 			val builder = new RepositoriesSectionBuilder();
 			builderAction.accept(builder);
