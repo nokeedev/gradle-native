@@ -15,7 +15,7 @@
  */
 package dev.nokee.runtime.darwin;
 
-import dev.gradleplugins.grava.testing.WellBehavedPluginTester;
+import dev.nokee.internal.testing.WellBehavedPluginTester;
 import dev.nokee.internal.testing.util.TestCaseUtils;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
 import org.junit.jupiter.api.DynamicTest;

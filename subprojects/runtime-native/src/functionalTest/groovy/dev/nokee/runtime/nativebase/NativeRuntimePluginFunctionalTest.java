@@ -15,7 +15,7 @@
  */
 package dev.nokee.runtime.nativebase;
 
-import dev.gradleplugins.grava.testing.WellBehavedPluginTester;
+import dev.nokee.internal.testing.WellBehavedPluginTester;
 import dev.nokee.internal.testing.util.TestCaseUtils;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import org.junit.jupiter.api.DynamicTest;
