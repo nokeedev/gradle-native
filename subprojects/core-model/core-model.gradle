@@ -1,12 +1,11 @@
 plugins {
-	id 'java-library'
+	id 'dev.gradleplugins.java-gradle-plugin'
 	id 'groovy-base'
 	id 'maven-publish'
 	id 'java-test-fixtures'
 }
 
 dependencies {
-	compileOnly gradleApi(minimumGradleVersion)
 	implementation project(':coreUtils')
 	implementation "com.google.guava:guava:${guavaVersion}"
 

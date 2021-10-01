@@ -35,14 +35,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 class ModelBasePluginTest {
 	private final Project project = ProjectTestUtils.rootProject();
 
-	@TestFactory
-	Stream<DynamicTest> checkWellBehavedPlugin() {
-		return new WellBehavedPluginTester()
-			.pluginClass(ModelBasePlugin.class)
-			.stream().map(TestCaseUtils::toJUnit5DynamicTest);
-
-	}
-
 	@Test
 	void registersEventPublisherService() {
 		project.apply(of("plugin", ModelBasePlugin.class));
