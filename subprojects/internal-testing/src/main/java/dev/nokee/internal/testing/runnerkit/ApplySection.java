@@ -28,7 +28,7 @@ public class ApplySection extends AbstractSection {
 		return new ApplySection(notation);
 	}
 
-	public interface ApplySectionNotation {
+	public interface ApplySectionNotation extends CodeSegment {
 		static ApplySectionNotation plugin(String pluginId) {
 			return new PluginIdApplyNotation(pluginId);
 		}
@@ -58,6 +58,16 @@ public class ApplySection extends AbstractSection {
 		protected String getKotlin() {
 			return "plugin = \"" + pluginId + "\"";
 		}
+
+		@Override
+		public String toString(GradleDsl dsl) {
+			return generateSection(dsl);
+		}
+
+		@Override
+		public String toString() {
+			return toString(GradleDsl.GROOVY);
+		}
 	}
 
 	private static final class PluginTypeApplyNotation extends AbstractSection implements ApplySectionNotation {
@@ -76,6 +86,16 @@ public class ApplySection extends AbstractSection {
 		protected String getKotlin() {
 			return "plugin = Class.forName(\"" + pluginType.getTypeName() + "\")";
 		}
+
+		@Override
+		public String toString(GradleDsl dsl) {
+			return generateSection(dsl);
+		}
+
+		@Override
+		public String toString() {
+			return toString(GradleDsl.GROOVY);
+		}
 	}
 
 	private static final class FromApplyNotation extends AbstractSection implements ApplySectionNotation {
@@ -92,7 +112,17 @@ public class ApplySection extends AbstractSection {
 
 		@Override
 		protected String getKotlin() {
-			return "from = \"" + GradleDsl.GROOVY.fileName(path) + "\"";
+			return "from = \"" + GradleDsl.KOTLIN.fileName(path) + "\"";
+		}
+
+		@Override
+		public String toString(GradleDsl dsl) {
+			return generateSection(dsl);
+		}
+
+		@Override
+		public String toString() {
+			return toString(GradleDsl.GROOVY);
 		}
 	}
 
