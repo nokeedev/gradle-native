@@ -34,15 +34,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.hasFailureCause;
+import static dev.nokee.internal.testing.runnerkit.ApplySection.ApplySectionNotation.plugin;
+import static dev.nokee.internal.testing.runnerkit.ApplySection.apply;
 import static dev.nokee.internal.testing.runnerkit.DependenciesSectionBuilder.DependencyNotation.files;
 import static dev.nokee.internal.testing.runnerkit.DependenciesSectionBuilder.classpath;
+import static dev.nokee.internal.testing.runnerkit.PluginsSection.plugins;
 import static java.lang.String.join;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.write;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
 
 /**
  * Test Gradle plugin behaviour deemed of a good plugin.
@@ -167,9 +169,9 @@ public final class WellBehavedPluginTester extends AbstractTester {
 	// TODO: move to Supported target?
 	private String appliesPluginToTarget(SupportedTarget target) {
 		if (target == SupportedTarget.Init || qualifiedPluginId == null) {
-			return "apply plugin: Class.forName('" + getPluginTypeUnderTest().getTypeName() + "')";
+			return apply(plugin(getPluginTypeUnderTest())).generateSection(GradleDsl.GROOVY);
 		} else {
-			return "apply plugin: '" + getQualifiedPluginIdUnderTest() + "'";
+			return apply(plugin(getQualifiedPluginIdUnderTest())).generateSection(GradleDsl.GROOVY);
 		}
 	}
 
@@ -328,7 +330,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		public void doExecute() throws Throwable {
 			buildScript(target.getBuildScriptName()).append(
 				"assert plugins.withType(Class.forName('" + getPluginTypeUnderTest().getTypeName() + "')).size() == 0",
-				"apply plugin: '" + getQualifiedPluginIdUnderTest() + "'",
+				apply(plugin(getQualifiedPluginIdUnderTest())).generateSection(GradleDsl.GROOVY),
 				"assert plugins.withType(Class.forName('" + getPluginTypeUnderTest().getTypeName() + "')).size() == 1"
 			);
 
@@ -355,7 +357,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		@Override
 		public void doExecute() throws Throwable {
 			buildScript(target.getBuildScriptName()).append(
-				"apply plugin: '" + getQualifiedPluginIdUnderTest() + "'"
+				apply(plugin(getQualifiedPluginIdUnderTest())).generateSection(GradleDsl.GROOVY)
 			);
 
 			succeeds();
@@ -381,7 +383,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		@Override
 		public void doExecute() throws Throwable {
 			buildScript(target.getBuildScriptName()).append(
-				"apply plugin: Class.forName('" + getPluginTypeUnderTest().getTypeName() + "')"
+				apply(plugin(getPluginTypeUnderTest())).generateSection(GradleDsl.GROOVY)
 			);
 			succeeds();
 		}
@@ -405,9 +407,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		@Override
 		public void doExecute() throws Throwable {
 			buildScript(target.getBuildScriptName()).append(
-				"plugins {",
-				"  id '" + getQualifiedPluginIdUnderTest() + "'",
-				"}"
+				plugins(it -> it.id(getQualifiedPluginIdUnderTest())).generateSection(GradleDsl.GROOVY)
 			);
 
 			succeeds();
