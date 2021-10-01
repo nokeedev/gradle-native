@@ -16,7 +16,7 @@
 package dev.gradleplugins.grava.testing;
 
 import dev.gradleplugins.grava.testing.fixtures.WellBehavedTestPlugin;
-import dev.gradleplugins.grava.testing.util.TestCaseUtils;
+import dev.nokee.internal.testing.util.TestCaseUtils;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 

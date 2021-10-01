@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.gradleplugins.grava.testing.util;
+package dev.nokee.internal.testing.util;
 
 import dev.gradleplugins.grava.testing.TestCase;
 import org.junit.jupiter.api.DynamicTest;

@@ -15,7 +15,7 @@
  */
 package dev.gradleplugins.grava.testing;
 
-import dev.gradleplugins.grava.testing.util.TestCaseUtils;
+import dev.nokee.internal.testing.util.TestCaseUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.initialization.Settings;
 import org.junit.jupiter.api.DynamicTest;

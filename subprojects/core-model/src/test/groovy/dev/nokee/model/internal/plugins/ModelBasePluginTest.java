@@ -15,9 +15,7 @@
  */
 package dev.nokee.model.internal.plugins;
 
-import dev.gradleplugins.grava.testing.WellBehavedPluginTester;
 import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
-import dev.gradleplugins.grava.testing.util.TestCaseUtils;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -27,12 +25,8 @@ import org.gradle.api.Project;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
 import spock.lang.Subject;
-
-import java.util.stream.Stream;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static org.hamcrest.MatcherAssert.assertThat;

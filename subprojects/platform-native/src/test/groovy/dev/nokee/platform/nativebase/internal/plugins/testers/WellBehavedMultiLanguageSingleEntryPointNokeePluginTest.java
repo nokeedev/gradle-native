@@ -16,7 +16,7 @@
 package dev.nokee.platform.nativebase.internal.plugins.testers;
 
 import dev.gradleplugins.grava.testing.WellBehavedPluginTester;
-import dev.gradleplugins.grava.testing.util.TestCaseUtils;
+import dev.nokee.internal.testing.util.TestCaseUtils;
 import dev.nokee.platform.base.Component;
 import org.gradle.api.Plugin;
 import org.gradle.util.GUtil;
