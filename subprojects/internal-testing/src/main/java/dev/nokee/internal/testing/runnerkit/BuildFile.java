@@ -42,7 +42,7 @@ public final class BuildFile {
 		private final List<Section> sections = new ArrayList<>();
 		private final Set<String> alreadyCreatedConfigurations = new HashSet<>();
 
-		public Builder apply(ApplySection.ApplySectionNotation notation) {
+		public Builder apply(ApplyNotation notation) {
 			sections.add(ApplySection.apply(notation));
 			return this;
 		}

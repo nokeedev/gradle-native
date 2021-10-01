@@ -21,10 +21,10 @@ import org.junit.jupiter.api.Nested;
 
 class ApplyNotationTest {
 	@Nested
-	class PluginIdNotationTest extends AbstractCodeSegmentTester<ApplySection.ApplySectionNotation> {
+	class PluginIdNotationTest extends AbstractCodeSegmentTester<ApplyNotation> {
 		@Override
-		public ApplySection.ApplySectionNotation subject() {
-			return ApplySection.ApplySectionNotation.plugin("some.plugin.id");
+		public ApplyNotation subject() {
+			return ApplyNotation.plugin("some.plugin.id");
 		}
 
 		@Override
@@ -39,10 +39,10 @@ class ApplyNotationTest {
 	}
 
 	@Nested
-	class PluginTypeNotationTest extends AbstractCodeSegmentTester<ApplySection.ApplySectionNotation> {
+	class PluginTypeNotationTest extends AbstractCodeSegmentTester<ApplyNotation> {
 		@Override
-		public ApplySection.ApplySectionNotation subject() {
-			return ApplySection.ApplySectionNotation.plugin(SomePlugin.class);
+		public ApplyNotation subject() {
+			return ApplyNotation.plugin(SomePlugin.class);
 		}
 
 		@Override
@@ -59,10 +59,10 @@ class ApplyNotationTest {
 	private interface SomePlugin extends Plugin<Project> {}
 
 	@Nested
-	class FromNotationTest extends AbstractCodeSegmentTester<ApplySection.ApplySectionNotation> {
+	class FromNotationTest extends AbstractCodeSegmentTester<ApplyNotation> {
 		@Override
-		public ApplySection.ApplySectionNotation subject() {
-			return ApplySection.ApplySectionNotation.from("some/path/to/script");
+		public ApplyNotation subject() {
+			return ApplyNotation.from("some/path/to/script");
 		}
 
 		@Override
