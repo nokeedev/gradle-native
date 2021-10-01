@@ -15,8 +15,6 @@
  */
 package dev.gradleplugins.grava.testing;
 
-import org.gradle.util.Path;
-
 public interface TestCase {
 	default String getDisplayName() {
 		return this.getClass().getSimpleName();
