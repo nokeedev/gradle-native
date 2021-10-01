@@ -15,6 +15,7 @@
  */
 package dev.gradleplugins.grava.testing.util;
 
+import dev.nokee.internal.testing.util.RetryUtils;
 import lombok.val;
 import org.apache.commons.lang3.function.FailableRunnable;
 import org.junit.jupiter.api.Test;
