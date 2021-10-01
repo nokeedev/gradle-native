@@ -30,12 +30,12 @@ final class NamedSection implements Section {
 	@Override
 	public String generateSection(GradleDsl dsl) {
 		return String.join(System.lineSeparator(),
-			sectionName + "{",
+			sectionName + " {",
 			innerDsl(dsl),
 			"}");
 	}
 
 	protected String innerDsl(GradleDsl dsl) {
-		return sections.stream().map(it -> it.generateSection(dsl)).collect(Collectors.joining(System.lineSeparator()));
+		return sections.stream().map(it -> "  " + it.generateSection(dsl)).collect(Collectors.joining(System.lineSeparator()));
 	}
 }
