@@ -15,7 +15,7 @@
  */
 package dev.nokee.language.objectivec;
 
-import dev.gradleplugins.grava.testing.WellBehavedPluginTester;
+import dev.nokee.internal.testing.WellBehavedPluginTester;
 import dev.nokee.internal.testing.util.TestCaseUtils;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
 import org.junit.jupiter.api.DynamicTest;

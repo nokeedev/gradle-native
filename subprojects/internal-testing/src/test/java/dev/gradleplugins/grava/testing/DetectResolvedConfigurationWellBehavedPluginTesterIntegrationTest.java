@@ -15,6 +15,7 @@
  */
 package dev.gradleplugins.grava.testing;
 
+import dev.nokee.internal.testing.WellBehavedPluginTester;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

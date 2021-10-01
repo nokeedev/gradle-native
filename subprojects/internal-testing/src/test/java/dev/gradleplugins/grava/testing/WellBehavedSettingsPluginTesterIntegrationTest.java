@@ -15,6 +15,7 @@
  */
 package dev.gradleplugins.grava.testing;
 
+import dev.nokee.internal.testing.WellBehavedPluginTester;
 import dev.nokee.internal.testing.util.TestCaseUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.initialization.Settings;
@@ -23,7 +24,7 @@ import org.junit.jupiter.api.TestFactory;
 
 import java.util.stream.Stream;
 
-import static dev.gradleplugins.grava.testing.WellBehavedPluginTester.SupportedTarget.Settings;
+import static dev.nokee.internal.testing.WellBehavedPluginTester.SupportedTarget.Settings;
 
 class WellBehavedSettingsPluginTesterIntegrationTest {
 	@TestFactory

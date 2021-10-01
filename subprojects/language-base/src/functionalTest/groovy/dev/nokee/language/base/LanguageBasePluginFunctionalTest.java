@@ -15,7 +15,7 @@
  */
 package dev.nokee.language.base;
 
-import dev.gradleplugins.grava.testing.WellBehavedPluginTester;
+import dev.nokee.internal.testing.WellBehavedPluginTester;
 import dev.nokee.internal.testing.util.TestCaseUtils;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import org.junit.jupiter.api.DynamicTest;

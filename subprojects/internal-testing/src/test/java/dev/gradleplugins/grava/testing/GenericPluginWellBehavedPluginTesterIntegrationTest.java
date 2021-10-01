@@ -15,6 +15,7 @@
  */
 package dev.gradleplugins.grava.testing;
 
+import dev.nokee.internal.testing.WellBehavedPluginTester;
 import org.gradle.api.Plugin;
 import org.gradle.api.plugins.PluginAware;
 import org.junit.jupiter.api.Test;

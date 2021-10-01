@@ -17,6 +17,7 @@ package dev.gradleplugins.grava.testing;
 
 import dev.gradleplugins.grava.testing.fixtures.ThrowingTestPlugin;
 import dev.gradleplugins.grava.testing.fixtures.WellBehavedTestPlugin;
+import dev.nokee.internal.testing.WellBehavedPluginTester;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.MultipleFailuresError;

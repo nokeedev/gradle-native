@@ -15,7 +15,7 @@
  */
 package dev.nokee.language.swift;
 
-import dev.gradleplugins.grava.testing.WellBehavedPluginTester;
+import dev.nokee.internal.testing.WellBehavedPluginTester;
 import dev.nokee.internal.testing.util.TestCaseUtils;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import org.junit.jupiter.api.DynamicTest;
