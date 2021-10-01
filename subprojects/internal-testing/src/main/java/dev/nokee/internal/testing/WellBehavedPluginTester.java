@@ -225,7 +225,13 @@ public final class WellBehavedPluginTester extends AbstractTester {
 	private abstract class AbstractWellBehavedIntegrationTest extends FileTesterTestCase {
 		@SneakyThrows
 		protected GradleRunner newRunner() {
-			val runner = GradleRunner.create(GradleExecutor.gradleTestKit()).inDirectory(getWorkingDirectory().toFile()).configure(this::configureRunnerPluginDslClasspath).configure(this::configureRunnerBuildscriptClasspath).usingInitScript(getInitFile().toFile());
+			GradleRunner runner = GradleRunner.create(GradleExecutor.gradleTestKit()).inDirectory(getWorkingDirectory().toFile()).configure(this::configureRunnerPluginDslClasspath).configure(this::configureRunnerBuildscriptClasspath).usingInitScript(getInitFile().toFile());
+
+			val distributionUnderTest = System.getProperty("dev.gradleplugins.defaultGradleVersion", null);
+			if (distributionUnderTest != null) {
+			        runner = runner.withGradleVersion(distributionUnderTest);
+			}
+
 			getInitFile().append(
 				new InitscriptSectionBuilder().dependencies(classpath(files(runner.getPluginClasspath()))).toString(GradleDsl.GROOVY)
 			);
