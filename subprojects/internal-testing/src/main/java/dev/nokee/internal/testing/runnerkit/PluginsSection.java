@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package dev.nokee.internal.testing.runnerkit;
 
-public enum GradleDsl {
-	GROOVY("gradle"), KOTLIN("gradle.kts");
+import lombok.experimental.Delegate;
+import lombok.val;
 
-	private final String fileExtension;
+import java.util.function.Consumer;
 
-	GradleDsl(String fileExtension) {
-		this.fileExtension = fileExtension;
+public final class PluginsSection implements Section {
+	@Delegate private final Section delegate;
+
+	public PluginsSection(Section delegate) {
+		this.delegate = delegate;
 	}
 
-	public String fileName(String pathWithoutExtension) {
-		return pathWithoutExtension + "." + fileExtension;
+	public static PluginsSection plugins(Consumer<? super PluginsSectionBuilder> builderAction) {
+		val builder = new PluginsSectionBuilder();
+		builderAction.accept(builder);
+		return builder.build();
 	}
 }
