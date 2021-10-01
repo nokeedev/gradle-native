@@ -41,7 +41,7 @@ class NokeePluginPortalCoordinateResolutionSmokeTest {
 		createProject(nokeeVersion).generate(GradleDsl.GROOVY, testDirectory);
 		val result = GradleRunner.create(GradleExecutor.gradleTestKit()).inDirectory(testDirectory)
 			.withArguments("dependencyInsight", "--configuration", "pluginClasspath", "--dependency",
-				"dev.nokee:platformJni:" + nokeeVersion)
+				"dev.nokee:platformJni:" + nokeeVersion, "--refresh-dependencies")
 			.build();
 		assertThat(result.task(":dependencyInsight").getOutput(), containsString(String.join("\n",
 			"dev.nokee:platformJni:" + nokeeVersion,
