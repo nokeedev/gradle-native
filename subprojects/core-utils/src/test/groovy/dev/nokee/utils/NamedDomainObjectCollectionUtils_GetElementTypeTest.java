@@ -20,8 +20,8 @@ import org.gradle.api.Named;
 import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.getElementType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;

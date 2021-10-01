@@ -24,7 +24,7 @@ import spock.lang.Subject;
 
 import java.util.function.Function;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.providerFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;

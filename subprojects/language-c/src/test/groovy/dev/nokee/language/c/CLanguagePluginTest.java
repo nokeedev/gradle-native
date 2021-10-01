@@ -24,7 +24,7 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

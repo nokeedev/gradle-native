@@ -22,7 +22,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 
 import javax.inject.Inject;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
 import static dev.nokee.model.internal.type.ModelType.of;
 

@@ -15,23 +15,16 @@
  */
 package dev.nokee.utils;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.testing.EqualsTester;
-import com.google.common.util.concurrent.Callables;
-import lombok.val;
 import org.gradle.api.Task;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.TaskDependency;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import javax.annotation.Nullable;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static com.google.common.util.concurrent.Callables.returning;
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.providerFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory;
 import static dev.nokee.utils.TaskDependencyUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;

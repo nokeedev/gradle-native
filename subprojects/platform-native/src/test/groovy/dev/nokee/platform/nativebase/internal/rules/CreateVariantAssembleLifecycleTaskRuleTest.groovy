@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal.rules
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import org.gradle.api.Project
 import spock.lang.Specification
 import spock.lang.Subject

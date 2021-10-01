@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal.rules
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal
 import org.gradle.api.Project

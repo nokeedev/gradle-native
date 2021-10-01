@@ -15,7 +15,7 @@
  */
 package dev.nokee.model.internal.plugins;
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
 import dev.nokee.model.internal.registry.ModelConfigurer;

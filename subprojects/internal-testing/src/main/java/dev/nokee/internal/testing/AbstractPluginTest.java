@@ -18,7 +18,7 @@ package dev.nokee.internal.testing;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 
 public class AbstractPluginTest {
 	protected final Project project = rootProject();

@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base.internal.variants
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.platform.base.internal.plugins.VariantBasePlugin
 import spock.lang.Specification
 

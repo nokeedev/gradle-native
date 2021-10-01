@@ -15,7 +15,7 @@
  */
 package dev.nokee.runtime.base.internal.repositories
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.runtime.base.internal.plugins.FakeMavenRepositoryPlugin
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Requires

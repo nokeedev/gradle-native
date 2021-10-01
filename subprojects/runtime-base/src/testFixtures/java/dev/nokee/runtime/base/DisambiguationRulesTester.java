@@ -16,7 +16,7 @@
 package dev.nokee.runtime.base;
 
 import com.google.common.collect.ImmutableSet;
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import org.gradle.api.Named;
 import org.gradle.api.attributes.AttributeDisambiguationRule;
 import org.gradle.api.attributes.MultipleCandidatesDetails;
@@ -26,9 +26,6 @@ import org.mockito.Mockito;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
-import static org.mockito.Mockito.*;
 
 // TODO: Move to runtime-base fixture
 public final class DisambiguationRulesTester<T extends Named> {

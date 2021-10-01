@@ -20,7 +20,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.internal.testing.ConfigurationMatchers.description;
 import static org.hamcrest.Matchers.*;
 

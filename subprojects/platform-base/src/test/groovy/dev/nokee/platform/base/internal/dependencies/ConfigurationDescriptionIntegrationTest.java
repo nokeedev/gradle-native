@@ -22,8 +22,8 @@ import spock.lang.Subject;
 
 import java.util.function.Supplier;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.createChildProject;
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.createChildProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.platform.base.internal.ComponentName.of;
 import static dev.nokee.platform.base.internal.ComponentName.ofMain;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Bucket.*;

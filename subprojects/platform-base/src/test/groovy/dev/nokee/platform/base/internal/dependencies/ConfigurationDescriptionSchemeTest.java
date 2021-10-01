@@ -18,7 +18,7 @@ package dev.nokee.platform.base.internal.dependencies;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.platform.base.internal.ComponentName.ofMain;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Bucket.*;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Owner.*;

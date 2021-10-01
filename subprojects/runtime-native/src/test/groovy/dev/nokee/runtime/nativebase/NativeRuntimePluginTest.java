@@ -24,7 +24,7 @@ import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.junit.jupiter.api.Test;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static org.hamcrest.MatcherAssert.assertThat;

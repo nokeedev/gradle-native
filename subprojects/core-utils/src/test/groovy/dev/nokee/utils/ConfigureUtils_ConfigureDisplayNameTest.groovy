@@ -15,7 +15,7 @@
  */
 package dev.nokee.utils
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import spock.lang.Shared
 import spock.lang.Specification
 

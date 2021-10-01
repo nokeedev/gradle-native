@@ -26,7 +26,7 @@ import spock.lang.Subject;
 import java.util.function.BiConsumer;
 
 import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.using;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.withObjectFactory;
 import static org.hamcrest.MatcherAssert.assertThat;

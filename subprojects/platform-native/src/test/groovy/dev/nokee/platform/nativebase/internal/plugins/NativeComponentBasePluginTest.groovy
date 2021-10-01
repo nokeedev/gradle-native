@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin
 import spock.lang.Specification
 

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.*;
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationRegistry.forProject;

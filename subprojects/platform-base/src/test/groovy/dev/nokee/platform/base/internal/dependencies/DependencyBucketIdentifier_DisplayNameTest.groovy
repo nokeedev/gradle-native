@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.model.internal.DomainObjectIdentifierInternal
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.DependencyBucket
@@ -24,7 +24,6 @@ import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.internal.VariantIdentifier
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll

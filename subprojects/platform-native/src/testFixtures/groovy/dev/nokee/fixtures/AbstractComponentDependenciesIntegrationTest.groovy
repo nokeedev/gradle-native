@@ -15,7 +15,7 @@
  */
 package dev.nokee.fixtures
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.model.internal.DomainObjectIdentifierInternal
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.Component

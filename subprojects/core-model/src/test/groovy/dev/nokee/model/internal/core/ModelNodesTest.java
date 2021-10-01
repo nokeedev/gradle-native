@@ -16,7 +16,7 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.testing.NullPointerTester;
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.plugins.ExtensionAware;

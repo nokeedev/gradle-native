@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base.internal.tasks
 
-import dev.gradleplugins.grava.testing.util.ProjectTestUtils
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.*
 import dev.nokee.platform.base.Component

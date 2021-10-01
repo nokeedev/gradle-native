@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import static dev.nokee.internal.testing.ConfigurationMatchers.*;
 import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.utils.ActionUtils.doNothing;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;

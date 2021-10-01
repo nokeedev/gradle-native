@@ -23,7 +23,7 @@ import spock.lang.Subject;
 
 import javax.inject.Inject;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;

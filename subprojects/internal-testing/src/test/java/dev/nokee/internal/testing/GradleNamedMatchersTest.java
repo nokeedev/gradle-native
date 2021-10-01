@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Consumer;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasToString;

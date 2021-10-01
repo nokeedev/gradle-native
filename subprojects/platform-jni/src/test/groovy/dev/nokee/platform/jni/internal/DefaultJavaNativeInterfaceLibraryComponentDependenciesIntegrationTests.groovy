@@ -25,7 +25,7 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory
 import spock.lang.Subject
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory
 
 @Subject(DefaultJavaNativeInterfaceLibraryComponentDependencies)
 class DefaultJavaNativeInterfaceLibraryComponentDependenciesIntegrationTest extends AbstractComponentDependenciesIntegrationTest {
