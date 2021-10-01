@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.jni
+package dev.nokee.platform.jni;
 
-import dev.gradleplugins.integtests.fixtures.WellBehavedPluginTest
+import dev.nokee.internal.testing.WellBehavedPluginTester;
+import dev.nokee.internal.testing.util.TestCaseUtils;
+import dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 
-class JniLibraryWellBehavedPluginTest extends WellBehavedPluginTest {
-   @Override
-   String getQualifiedPluginId() {
-		   return 'dev.nokee.jni-library'
-   }
+import java.util.stream.Stream;
+
+class JniLibraryWellBehavedPluginTest {
+	@TestFactory
+	Stream<DynamicTest> checkWellBehavedPlugin() {
+		return new WellBehavedPluginTester()
+			.qualifiedPluginId("dev.nokee.jni-library")
+			.pluginClass(JniLibraryPlugin.class)
+			.stream().map(TestCaseUtils::toJUnit5DynamicTest);
+	}
 }
