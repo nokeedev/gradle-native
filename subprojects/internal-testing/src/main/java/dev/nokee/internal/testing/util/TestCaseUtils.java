@@ -15,7 +15,7 @@
  */
 package dev.nokee.internal.testing.util;
 
-import dev.gradleplugins.grava.testing.TestCase;
+import dev.nokee.internal.testing.TestCase;
 import org.junit.jupiter.api.DynamicTest;
 
 public final class TestCaseUtils {

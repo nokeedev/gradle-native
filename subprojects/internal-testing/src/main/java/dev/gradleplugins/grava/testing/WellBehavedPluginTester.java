@@ -19,6 +19,7 @@ import dev.gradleplugins.grava.testing.file.TestNameTestDirectoryProvider;
 import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleExecutor;
 import dev.gradleplugins.runnerkit.GradleRunner;
+import dev.nokee.internal.testing.TestCase;
 import dev.nokee.internal.testing.runnerkit.ApplySection;
 import dev.nokee.internal.testing.runnerkit.BuildScriptFile;
 import dev.nokee.internal.testing.runnerkit.GradleDsl;
