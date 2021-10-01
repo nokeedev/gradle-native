@@ -15,7 +15,7 @@
  */
 package dev.gradleplugins.grava.testing;
 
-import dev.gradleplugins.grava.testing.file.TestNameTestDirectoryProvider;
+import dev.nokee.internal.testing.file.TestNameTestDirectoryProvider;
 import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleExecutor;
 import dev.gradleplugins.runnerkit.GradleRunner;
