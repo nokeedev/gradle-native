@@ -19,6 +19,7 @@ import dev.gradleplugins.grava.testing.file.TestNameTestDirectoryProvider;
 import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleExecutor;
 import dev.gradleplugins.runnerkit.GradleRunner;
+import dev.nokee.internal.testing.runnerkit.ApplySection;
 import dev.nokee.internal.testing.runnerkit.BuildScriptFile;
 import dev.nokee.internal.testing.runnerkit.GradleDsl;
 import dev.nokee.internal.testing.runnerkit.InitscriptSectionBuilder;
@@ -166,11 +167,11 @@ public final class WellBehavedPluginTester extends AbstractTester {
 	}
 
 	// TODO: move to Supported target?
-	private String appliesPluginToTarget(SupportedTarget target) {
+	private ApplySection appliesPluginToTarget(SupportedTarget target) {
 		if (target == SupportedTarget.Init || qualifiedPluginId == null) {
-			return apply(plugin(getPluginTypeUnderTest())).generateSection(GradleDsl.GROOVY);
+			return apply(plugin(getPluginTypeUnderTest()));
 		} else {
-			return apply(plugin(getQualifiedPluginIdUnderTest())).generateSection(GradleDsl.GROOVY);
+			return apply(plugin(getQualifiedPluginIdUnderTest()));
 		}
 	}
 
