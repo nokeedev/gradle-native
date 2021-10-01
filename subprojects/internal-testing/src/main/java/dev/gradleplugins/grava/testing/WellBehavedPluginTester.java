@@ -32,12 +32,12 @@ import org.opentest4j.TestAbortedException;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.hasFailureCause;
-import static dev.nokee.internal.testing.runnerkit.ApplySection.ApplySectionNotation.plugin;
+import static dev.nokee.internal.testing.runnerkit.ApplyNotation.plugin;
 import static dev.nokee.internal.testing.runnerkit.ApplySection.apply;
-import static dev.nokee.internal.testing.runnerkit.DependenciesSectionBuilder.DependencyNotation.files;
+import static dev.nokee.internal.testing.runnerkit.DependenciesSection.dependencies;
+import static dev.nokee.internal.testing.runnerkit.DependencyNotation.files;
 import static dev.nokee.internal.testing.runnerkit.DependenciesSectionBuilder.classpath;
 import static dev.nokee.internal.testing.runnerkit.PluginsSection.plugins;
 import static java.lang.String.join;
@@ -277,17 +277,11 @@ public final class WellBehavedPluginTester extends AbstractTester {
 			initScript.append(new InitscriptSectionBuilder().dependencies(classpath(files(runner.getPluginClasspath()))).toString(GradleDsl.GROOVY))
 				.append(String.join(System.lineSeparator(),
 					"beforeSettings { settings ->",
-					"  settings.buildscript.dependencies {",
-					"    classpath files(" + runner.getPluginClasspath().stream().map(File::toURI).map(Objects::toString).map(this::quote).collect(Collectors.joining(", ")) + ")",
-					"  }",
+					"  settings.buildscript." + dependencies(classpath(files(runner.getPluginClasspath()))),
 					"  settings.include('a', 'b', 'c')", // Include sub-projects in-case the plugin misbehave on sub-projects
 					"}"
 				));
 			return runner.usingInitScript(initScript.toFile());
-		}
-
-		private String quote(String s) {
-			return "\"" + s + "\"";
 		}
 	}
 
