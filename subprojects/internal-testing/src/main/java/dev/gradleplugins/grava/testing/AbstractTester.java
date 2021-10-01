@@ -15,6 +15,7 @@
  */
 package dev.gradleplugins.grava.testing;
 
+import dev.nokee.internal.testing.TestCase;
 import lombok.val;
 import org.opentest4j.MultipleFailuresError;
 import org.opentest4j.TestAbortedException;
