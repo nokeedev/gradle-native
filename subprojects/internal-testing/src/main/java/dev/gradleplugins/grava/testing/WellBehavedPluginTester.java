@@ -19,6 +19,7 @@ import dev.gradleplugins.grava.testing.file.TestNameTestDirectoryProvider;
 import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleExecutor;
 import dev.gradleplugins.runnerkit.GradleRunner;
+import dev.nokee.internal.testing.runnerkit.BuildScriptFile;
 import dev.nokee.internal.testing.runnerkit.GradleDsl;
 import dev.nokee.internal.testing.runnerkit.InitscriptSectionBuilder;
 import lombok.SneakyThrows;
@@ -29,7 +30,6 @@ import org.opentest4j.TestAbortedException;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,11 +40,10 @@ import static dev.nokee.internal.testing.runnerkit.DependenciesSectionBuilder.De
 import static dev.nokee.internal.testing.runnerkit.DependenciesSectionBuilder.classpath;
 import static dev.nokee.internal.testing.runnerkit.PluginsSection.plugins;
 import static java.lang.String.join;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.write;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 
 /**
  * Test Gradle plugin behaviour deemed of a good plugin.
@@ -247,20 +246,20 @@ public final class WellBehavedPluginTester extends AbstractTester {
 			return runner.withTasks(tasks).buildAndFail();
 		}
 
-		protected final BuildScript getBuildFile() {
-			return new BuildScript(getWorkingDirectory().resolve("build.gradle"));
+		protected final BuildScriptFile getBuildFile() {
+			return new BuildScriptFile(getWorkingDirectory().resolve("build.gradle"));
 		}
 
-		protected final BuildScript getSettingsFile() {
-			return new BuildScript(getWorkingDirectory().resolve("settings.gradle"));
+		protected final BuildScriptFile getSettingsFile() {
+			return new BuildScriptFile(getWorkingDirectory().resolve("settings.gradle"));
 		}
 
-		protected final BuildScript getInitFile() {
-			return new BuildScript(getWorkingDirectory().resolve("init.gradle"));
+		protected final BuildScriptFile getInitFile() {
+			return new BuildScriptFile(getWorkingDirectory().resolve("init.gradle"));
 		}
 
-		protected BuildScript buildScript(String path) {
-			return new BuildScript(getWorkingDirectory().resolve(path));
+		protected BuildScriptFile buildScript(String path) {
+			return new BuildScriptFile(getWorkingDirectory().resolve(path));
 		}
 
 		private GradleRunner configureRunnerPluginDslClasspath(GradleRunner runner) {
@@ -273,39 +272,21 @@ public final class WellBehavedPluginTester extends AbstractTester {
 
 		@SneakyThrows // TODO: GradleRunner#configure should accept functional that throws exception
 		private GradleRunner configureRunnerBuildscriptClasspath(GradleRunner runner) {
-			val initScript = new BuildScript(getWorkingDirectory().resolve("classpath.init.gradle"));
-			initScript.append(
-				new InitscriptSectionBuilder().dependencies(classpath(files(runner.getPluginClasspath()))).toString(GradleDsl.GROOVY),
-				"beforeSettings { settings ->",
-				"  settings.buildscript.dependencies {",
-				"    classpath files(" + runner.getPluginClasspath().stream().map(File::toURI).map(Objects::toString).map(this::quote).collect(Collectors.joining(", ")) + ")",
-				"  }",
-				"  settings.include('a', 'b', 'c')", // Include sub-projects in-case the plugin misbehave on sub-projects
-				"}"
-			);
+			val initScript = new BuildScriptFile(getWorkingDirectory().resolve("classpath.init.gradle"));
+			initScript.append(new InitscriptSectionBuilder().dependencies(classpath(files(runner.getPluginClasspath()))))
+				.append(String.join(System.lineSeparator(),
+					"beforeSettings { settings ->",
+					"  settings.buildscript.dependencies {",
+					"    classpath files(" + runner.getPluginClasspath().stream().map(File::toURI).map(Objects::toString).map(this::quote).collect(Collectors.joining(", ")) + ")",
+					"  }",
+					"  settings.include('a', 'b', 'c')", // Include sub-projects in-case the plugin misbehave on sub-projects
+					"}"
+				));
 			return runner.usingInitScript(initScript.toFile());
 		}
 
 		private String quote(String s) {
 			return "\"" + s + "\"";
-		}
-	}
-
-	private static class BuildScript {
-		private final Path buildScriptPath;
-
-		private BuildScript(Path buildScriptPath) {
-			this.buildScriptPath = buildScriptPath;
-		}
-
-		@SneakyThrows
-		public BuildScript append(String... l) {
-			write(buildScriptPath, Arrays.asList(l), UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-			return this;
-		}
-
-		public File toFile() {
-			return buildScriptPath.toFile();
 		}
 	}
 
@@ -328,11 +309,10 @@ public final class WellBehavedPluginTester extends AbstractTester {
 
 		@Override
 		public void doExecute() throws Throwable {
-			buildScript(target.getBuildScriptName()).append(
-				"assert plugins.withType(Class.forName('" + getPluginTypeUnderTest().getTypeName() + "')).size() == 0",
-				apply(plugin(getQualifiedPluginIdUnderTest())).generateSection(GradleDsl.GROOVY),
-				"assert plugins.withType(Class.forName('" + getPluginTypeUnderTest().getTypeName() + "')).size() == 1"
-			);
+			buildScript(target.getBuildScriptName())
+				.append("assert plugins.withType(Class.forName('" + getPluginTypeUnderTest().getTypeName() + "')).size() == 0")
+				.append(apply(plugin(getQualifiedPluginIdUnderTest())).generateSection(GradleDsl.GROOVY))
+				.append("assert plugins.withType(Class.forName('" + getPluginTypeUnderTest().getTypeName() + "')).size() == 1");
 
 			succeeds();
 		}
@@ -522,7 +502,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 			// Applies the plugin however possible
 			buildScript(target.getBuildScriptName()).append(appliesPluginToTarget(target));
 
-			getBuildFile().append(
+			getBuildFile().append(String.join(System.lineSeparator(),
 				"def configuredTasks = []",
 				"allprojects {",
 				"  tasks.configureEach {",
@@ -537,7 +517,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 				"  configuredTaskPaths.removeAll([" + join(", ", getRealizedQuotedTaskPaths()) + "])",
 				"  assert configuredTaskPaths == []",
 				"}"
-			);
+			));
 
 			succeeds("help");
 		}
@@ -563,7 +543,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 			// Applies the plugin however possible
 			buildScript(target.getBuildScriptName()).append(appliesPluginToTarget(target));
 
-			getBuildFile().append(
+			getBuildFile().append(String.join(System.lineSeparator(),
 				"def resolvedDependenciesPaths = []",
 				"allprojects {",
 				"  configurations.all { configuration ->",
@@ -581,7 +561,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 				"gradle.buildFinished {",
 				"    assert resolvedDependenciesPaths == [] : 'some configuration were resolved'",
 				"}"
-			);
+			));
 
 			succeeds();
 		}
@@ -607,12 +587,12 @@ public final class WellBehavedPluginTester extends AbstractTester {
 			// Applies the plugin however possible
 			buildScript(target.getBuildScriptName()).append(appliesPluginToTarget(target));
 
-			getBuildFile().append(
+			getBuildFile().append(String.join(System.lineSeparator(),
 				"allprojects {",
 				"  tasks.all { /* TaskContainer#all force all object to realize */ }",
 				"  configurations.all { /* ConfigurationContainer#all force all object to realize */ }",
 				"}"
-			);
+			));
 
 			succeeds();
 		}
