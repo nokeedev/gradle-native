@@ -16,7 +16,24 @@
 package dev.nokee.internal.testing.runnerkit;
 
 public enum GradleDsl {
-	GROOVY("gradle"), KOTLIN("gradle.kts");
+	GROOVY("gradle") {
+		@Override
+		Section newSection(Object text) {
+			return new GenericSection(
+				() -> text.toString(),
+				() -> { throw new UnsupportedOperationException("No Kotlin code equivalent"); }
+			);
+		}
+	},
+	KOTLIN("gradle.kts") {
+		@Override
+		Section newSection(Object text) {
+			return new GenericSection(
+				() -> { throw new UnsupportedOperationException("No Groovy code equivalent"); },
+				() -> text.toString()
+			);
+		}
+	};
 
 	private final String fileExtension;
 
@@ -24,7 +41,13 @@ public enum GradleDsl {
 		this.fileExtension = fileExtension;
 	}
 
+	public String getFileExtension() {
+		return fileExtension;
+	}
+
 	public String fileName(String pathWithoutExtension) {
 		return pathWithoutExtension + "." + fileExtension;
 	}
+
+	abstract Section newSection(Object text);
 }
