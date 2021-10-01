@@ -15,21 +15,17 @@
  */
 package dev.nokee.internal.testing.runnerkit;
 
-import com.google.common.collect.Streams;
 import lombok.val;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public final class DependenciesSectionBuilder {
 	private final List<Section> sections = new ArrayList<>();
 
 	public DependenciesSectionBuilder add(String name, String notation) {
-		sections.add(new DependencySpec(name, new StringLiteralDependencyNotation(notation)));
+		sections.add(new DependencySpec(name, DependencyNotation.fromString(notation)));
 		return this;
 	}
 
@@ -40,56 +36,6 @@ public final class DependenciesSectionBuilder {
 
 	public static Consumer<? super DependenciesSectionBuilder> classpath(DependencyNotation notation) {
 		return dependencies -> dependencies.add("classpath", notation);
-	}
-
-	public interface DependencyNotation {
-		static DependencyNotation files(Iterable<? extends File> files) {
-			return new FileCollectionDependencyNotation(files);
-		}
-	}
-
-	private static final class StringLiteralDependencyNotation extends AbstractSection implements DependencyNotation {
-		private final String s;
-
-		private StringLiteralDependencyNotation(String s) {
-			this.s = s;
-		}
-
-		@Override
-		protected String getGroovy() {
-			return quote(s);
-		}
-
-		@Override
-		protected String getKotlin() {
-			return quote(s);
-		}
-
-		private String quote(String s) {
-			return "\"" + s + "\"";
-		}
-	}
-
-	private static final class FileCollectionDependencyNotation extends AbstractSection implements DependencyNotation {
-		private final Iterable<? extends File> files;
-
-		public FileCollectionDependencyNotation(Iterable<? extends File> files) {
-			this.files = files;
-		}
-
-		@Override
-		protected String getGroovy() {
-			return "files(" + Streams.stream(files).map(File::toURI).map(Objects::toString).map(this::quote).collect(Collectors.joining(", ")) + ")";
-		}
-
-		@Override
-		protected String getKotlin() {
-			return "files(" + Streams.stream(files).map(File::toURI).map(Objects::toString).map(this::quote).collect(Collectors.joining(", ")) + ")";
-		}
-
-		private String quote(String s) {
-			return "\"" + s + "\"";
-		}
 	}
 
 	Section build() {
@@ -106,7 +52,7 @@ public final class DependenciesSectionBuilder {
 		}
 
 		private String formatNotation(GradleDsl dsl) {
-			val string = ((Section) notation).generateSection(dsl);
+			val string = notation.toString(dsl);
 			switch (dsl) {
 				case GROOVY:
 					return string;
