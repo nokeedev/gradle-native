@@ -17,6 +17,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.internal.state.ModelState;
 
+import java.util.List;
 import java.util.Optional;
 
 // TODO: Remove "maybe add" custom logic to favour dedup within ModelProjection adding logic
@@ -125,5 +126,14 @@ public final class ModelNodeUtils {
 	 */
 	public static Optional<ModelNode> getParent(ModelNode self) {
 		return self.findComponent(ParentNode.class).map(ParentNode::get);
+	}
+
+	/**
+	 * Returns the direct descending nodes.
+	 *
+	 * @return a list of directly descending nodes, never null.
+	 */
+	public static List<ModelNode> getDirectDescendants(ModelNode self) {
+		return self.getComponent(DescendantNodes.class).getDirectDescendants();
 	}
 }

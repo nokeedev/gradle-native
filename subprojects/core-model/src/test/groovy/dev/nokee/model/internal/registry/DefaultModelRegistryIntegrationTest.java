@@ -189,7 +189,7 @@ public class DefaultModelRegistryIntegrationTest {
 		registerNode("a.b2.c1");
 
 		assertThat("direct descendant of a should be only b*",
-			modelRegistry.get(path("a")).getDirectDescendants(),
+			ModelNodeUtils.getDirectDescendants(modelRegistry.get(path("a"))),
 			contains(expectedNodes.toArray()));
 	}
 
