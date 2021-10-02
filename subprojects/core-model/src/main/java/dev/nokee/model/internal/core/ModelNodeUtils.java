@@ -131,6 +131,10 @@ public final class ModelNodeUtils {
 		return self.findComponent(ParentNode.class).map(ParentNode::get);
 	}
 
+	public static void setParent(ModelNode self, ModelNode parent) {
+		self.addComponent(new ParentNode(parent));
+	}
+
 	/**
 	 * Returns the direct descending nodes.
 	 *
