@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.objectivec;
 
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;
@@ -32,6 +33,6 @@ public interface ObjectiveCApplication extends ObjectiveCApplicationExtension, D
 	 * {@inheritDoc}
 	 */
 	default NativeApplicationComponentDependencies getDependencies() {
-		return ModelNodes.of(this).get(DefaultNativeApplicationComponent.class).getDependencies();
+		return ModelNodeUtils.get(ModelNodes.of(this), DefaultNativeApplicationComponent.class).getDependencies();
 	}
 }

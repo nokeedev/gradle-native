@@ -21,6 +21,7 @@ import com.google.common.collect.Streams;
 import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.Component;
@@ -83,7 +84,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 	}
 
 	public static <T extends Component, PROJECTION> Action<T> configureUsingProjection(Class<PROJECTION> type, BiConsumer<? super T, ? super PROJECTION> action) {
-		return t -> action.accept(t, ModelNodes.of(t).get(type));
+		return t -> action.accept(t, ModelNodeUtils.get(ModelNodes.of(t), type));
 	}
 
 	public static <T extends Component, PROJECTION extends BaseComponent<?>> BiConsumer<T, PROJECTION> baseNameConvention(String baseName) {

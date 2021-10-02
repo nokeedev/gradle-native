@@ -18,6 +18,7 @@ package dev.nokee.model.internal;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactoryLookup;
 import dev.nokee.model.internal.type.ModelType;
@@ -41,8 +42,9 @@ public class BaseNamedDomainObjectContainerProjection implements AbstractModelNo
 
 	@Override
 	public <U> DomainObjectProvider<U> register(String name, ModelType<U> type) {
-		if (node.get(NodeRegistrationFactoryLookup.class).getSupportedTypes().contains(type)) {
-			return node.register(node.get(NodeRegistrationFactoryLookup.class).get(type).create(name));
+		val registrationFactoryLookup = ModelNodeUtils.get(node, NodeRegistrationFactoryLookup.class);
+		if (registrationFactoryLookup.getSupportedTypes().contains(type)) {
+			return node.register(registrationFactoryLookup.get(type).create(name));
 		}
 		if (instantiator.getCreatableTypes().contains(type.getRawType())) {
 			return node.register(NodeRegistration.unmanaged(name, ModelType.of(toImplementationType(type.getConcreteType())), () -> instantiator.newInstance(new NameAwareDomainObjectIdentifier() {

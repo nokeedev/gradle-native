@@ -76,13 +76,13 @@ class ModelNodeTest {
 		GET_USING_MODEL_TYPE() {
 			@Override
 			public <T> T invoke(ModelNode target, Class<T> type) {
-				return target.get(of(type));
+				return ModelNodeUtils.get(target, of(type));
 			}
 		},
 		GET_USING_CLASS() {
 			@Override
 			public <T> T invoke(ModelNode target, Class<T> type) {
-				return target.get(type);
+				return ModelNodeUtils.get(target, type);
 			}
 		};
 	}

@@ -170,7 +170,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		if (component instanceof BaseComponent) {
 			getTestedComponent().set((BaseComponent) component);
 		} else if (ModelNodeUtils.canBeViewedAs(ModelNodes.of(component), of(BaseComponent.class))) {
-			getTestedComponent().set(ModelNodes.of(component).get(BaseComponent.class));
+			getTestedComponent().set(ModelNodeUtils.get(ModelNodes.of(component), BaseComponent.class));
 		} else {
 			throw new UnsupportedOperationException();
 		}
@@ -233,7 +233,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 				// TODO: should have a way to report the public type of the "main" projection
 				//   The known and provider should use the public type of the projection... instead of the "assumed type"
 				//   BUT should it... seems a bit hacky... check what Software Model did.
-				val sourceSetType = ModelNodes.of(knownSourceSet).get(LanguageSourceSet.class).getClass();
+				val sourceSetType = ModelNodeUtils.get(ModelNodes.of(knownSourceSet), LanguageSourceSet.class).getClass();
 				// If source set don't already exists on test suite
 				if (!modelLookup.anyMatch(ModelSpecs.of(descendantOf(getNode().getPath()).and(withType(of(sourceSetType)))))) {
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.

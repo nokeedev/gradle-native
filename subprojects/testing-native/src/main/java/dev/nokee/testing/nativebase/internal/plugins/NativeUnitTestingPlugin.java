@@ -17,10 +17,7 @@ package dev.nokee.testing.nativebase.internal.plugins;
 
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.NodeRegistration;
-import dev.nokee.model.internal.core.NodeRegistrationFactory;
-import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
@@ -54,7 +51,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(TestingBasePlugin.class);
 
 		val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);
-		val registry = ModelNodes.of(testSuites).get(NodeRegistrationFactoryRegistry.class);
+		val registry = ModelNodeUtils.get(ModelNodes.of(testSuites), NodeRegistrationFactoryRegistry.class);
 		registry.registerFactory(of(NativeTestSuite.class), (NodeRegistrationFactory<? extends DefaultNativeTestSuiteComponent>) name -> nativeTestSuite(name, project));
 
 		project.afterEvaluate(proj -> {

@@ -152,29 +152,6 @@ public final class ModelNode {
 		return path;
 	}
 
-	/**
-	 * Returns the first projection matching the specified type.
-	 *
-	 * @param type  the type of the requested projection
-	 * @param <T>  the type of the requested projection
-	 * @return an instance of the projected node into the specified instance
-	 * @see #get(ModelType)
-	 */
-	public <T> T get(Class<T> type) {
-		return get(ModelType.of(type));
-	}
-
-	/**
-	 * Returns the first projection matching the specified type.
-	 *
-	 * @param type  the type of the requested projection
-	 * @param <T>  the type of the requested projection
-	 * @return an instance of the projected node into the specified instance
-	 */
-	public <T> T get(ModelType<T> type) {
-		return ModelNodeContext.of(this).execute(node -> { return projections.get(type); });
-	}
-
 	public void applyTo(NodeAction action) {
 		configurer.configure(action.scope(getPath()));
 	}

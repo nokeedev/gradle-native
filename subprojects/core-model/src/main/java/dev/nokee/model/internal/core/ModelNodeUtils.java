@@ -176,4 +176,34 @@ public final class ModelNodeUtils {
 	public static Optional<String> getTypeDescription(ModelNode self) {
 		return getProjections(self).findFirst().map(ModelProjection::getTypeDescriptions).map(it -> String.join(", ", it));
 	}
+
+	/**
+	 * Returns the first projection matching the specified type.
+	 *
+	 * @param self  the node to query projection, must not be null
+	 * @param type  the type of the requested projection
+	 * @param <T>  the type of the requested projection
+	 * @return an instance of the projected node into the specified instance
+	 * @see #get(ModelNode, ModelType)
+	 */
+	public static <T> T get(ModelNode self, Class<T> type) {
+		return get(self, ModelType.of(type));
+	}
+
+	/**
+	 * Returns the first projection matching the specified type.
+	 *
+	 * @param self  the node to query projection, must not be null
+	 * @param type  the type of the requested projection
+	 * @param <T>  the type of the requested projection
+	 * @return an instance of the projected node into the specified instance
+	 */
+	public static <T> T get(ModelNode self, ModelType<T> type) {
+		return ModelNodeContext.of(self).execute(node -> {
+			return getProjections(node)
+				.filter(it -> it.canBeViewedAs(type))
+				.findFirst().map(it -> it.get(type))
+				.orElseThrow(() -> new IllegalStateException("no projection for " + type));
+		});
+	}
 }

@@ -61,7 +61,7 @@ public class ModelNodeBackedKnownDomainObject<T> implements KnownDomainObject<T>
 
 	private Provider<T> getAsProvider() {
 		// TODO: We should prevent realizing the provider before a certain gate is achieved (maybe not registered)
-		return ProviderUtils.supplied(() -> ModelNodeUtils.realize(node).get(type));
+		return ProviderUtils.supplied(() -> ModelNodeUtils.get(ModelNodeUtils.realize(node), type));
 	}
 
 	@Override

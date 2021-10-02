@@ -16,6 +16,7 @@
 package dev.nokee.model;
 
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
@@ -80,11 +81,11 @@ public abstract class AbstractDomainObjectViewTester<T> {
 	//region TODO: Rewrite the following with better names
 	// Get default projection for element name
 	protected final Object e(String name) {
-		return subjectGenerator.getModelLookup().get(path("myTypes." + name)).get(getElementType());
+		return ModelNodeUtils.get(subjectGenerator.getModelLookup().get(path("myTypes." + name)), getElementType());
 	}
 
 	protected final Object e(String name, Class<?> type) {
-		return subjectGenerator.getModelLookup().get(path("myTypes." + name)).get(type);
+		return ModelNodeUtils.get(subjectGenerator.getModelLookup().get(path("myTypes." + name)), type);
 	}
 
 	protected final KnownDomainObject<T> known(String name) {

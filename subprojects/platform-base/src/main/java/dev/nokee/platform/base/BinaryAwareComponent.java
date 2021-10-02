@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base;
 
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.internal.BaseComponent;
 
@@ -30,6 +31,6 @@ public interface BinaryAwareComponent {
 	 * @return a {@link BinaryView} for configuring each binary, never null.
 	 */
 	default BinaryView<Binary> getBinaries() {
-		return ModelNodes.of(this).get(BaseComponent.class).getBinaries();
+		return ModelNodeUtils.get(ModelNodes.of(this), BaseComponent.class).getBinaries();
 	}
 }
