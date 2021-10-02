@@ -20,6 +20,7 @@ import dev.nokee.model.internal.type.ModelType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 // TODO: Remove "maybe add" custom logic to favour dedup within ModelProjection adding logic
 public final class ModelNodeUtils {
@@ -156,6 +157,10 @@ public final class ModelNodeUtils {
 	 * @return true if the node can be projected into the specified type, or false otherwise.
 	 */
 	public static boolean canBeViewedAs(ModelNode self, ModelType<?> type) {
-		return self.getComponents().filter(ModelProjection.class::isInstance).anyMatch(it -> ((ModelProjection) it).canBeViewedAs(type));
+		return getProjections(self).anyMatch(it -> ((ModelProjection) it).canBeViewedAs(type));
+	}
+
+	public static Stream<ModelProjection> getProjections(ModelNode self) {
+		return self.getComponents().filter(ModelProjection.class::isInstance).map(ModelProjection.class::cast);
 	}
 }
