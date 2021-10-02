@@ -44,10 +44,6 @@ include 'distributions:bom'
 project(':distributions:bom').projectDir = file('subprojects/distributions/bom')
 project(':distributions:bom').buildFileName = 'distributions-bom.gradle'
 
-include 'experimentalPublishingBintray'
-project(':experimentalPublishingBintray').projectDir = file('subprojects/experimental-publishing-bintray')
-project(':experimentalPublishingBintray').buildFileName = 'experimental-publishing-bintray.gradle'
-
 include 'ideBase'
 project(':ideBase').projectDir = file('subprojects/ide-base')
 project(':ideBase').buildFileName = 'ide-base.gradle'
