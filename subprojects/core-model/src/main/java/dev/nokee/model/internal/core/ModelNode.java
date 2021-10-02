@@ -54,7 +54,6 @@ import static java.util.Objects.requireNonNull;
 //    Instead users should go through the ModelRegistry for that and access a thin layer that gives access to the allowed query and apply methods
 public final class ModelNode {
 	private final ModelPath path;
-	private final ModelLookup modelLookup;
 	private final ModelNodeListener listener;
 	private final Projections projections;
 	private final ModelConfigurer configurer;
@@ -79,7 +78,6 @@ public final class ModelNode {
 		this.projections = new Projections(instantiator);
 		this.configurer = configurer;
 		this.listener = listener;
-		this.modelLookup = modelLookup;
 		this.modelRegistry = modelRegistry;
 		addComponent(new DescendantNodes(modelLookup, path));
 		path.getParent().ifPresent(parentPath -> {
