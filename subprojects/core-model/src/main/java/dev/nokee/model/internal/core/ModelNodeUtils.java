@@ -16,6 +16,7 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.ModelType;
 
 import java.util.List;
 import java.util.Optional;
@@ -122,6 +123,7 @@ public final class ModelNodeUtils {
 	/**
 	 * Returns the parent node of the specified node, if available.
 	 *
+	 * @param self  the node to query parent, must not be null
 	 * @return the parent model node, never null but can be absent
 	 */
 	public static Optional<ModelNode> getParent(ModelNode self) {
@@ -131,6 +133,7 @@ public final class ModelNodeUtils {
 	/**
 	 * Returns the direct descending nodes.
 	 *
+	 * @param self  the node to query direct descendants, must not be null
 	 * @return a list of directly descending nodes, never null.
 	 */
 	public static List<ModelNode> getDirectDescendants(ModelNode self) {
@@ -143,5 +146,16 @@ public final class ModelNodeUtils {
 
 	public static boolean hasDescendant(ModelNode self, String name) {
 		return self.getComponent(DescendantNodes.class).hasDescendant(name);
+	}
+
+	/**
+	 * Returns if the current node can be viewed as the specified type.
+	 *
+	 * @param self  the node to check viewing, must not be null
+	 * @param type  the type to query this model node
+	 * @return true if the node can be projected into the specified type, or false otherwise.
+	 */
+	public static boolean canBeViewedAs(ModelNode self, ModelType<?> type) {
+		return self.getComponents().filter(ModelProjection.class::isInstance).anyMatch(it -> ((ModelProjection) it).canBeViewedAs(type));
 	}
 }

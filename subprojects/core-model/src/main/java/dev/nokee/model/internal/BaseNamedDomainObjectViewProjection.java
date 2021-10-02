@@ -63,7 +63,7 @@ public class BaseNamedDomainObjectViewProjection implements AbstractModelNodeBac
 
 	private static UnaryOperator<ModelNode> checkType(String name, ModelType<?> expected) {
 		return node -> {
-			if (node.canBeViewedAs(expected)) {
+			if (ModelNodeUtils.canBeViewedAs(node, expected)) {
 				return node;
 			}
 			throw createWrongTypeException(name, expected.getConcreteType(), node.getTypeDescription().orElse("<unknown>"));

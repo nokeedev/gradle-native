@@ -15,6 +15,7 @@
  */
 package dev.nokee.model.internal.core;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
@@ -26,6 +27,7 @@ import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static java.util.Objects.requireNonNull;
@@ -121,6 +123,10 @@ public final class ModelNode {
 		components.set(index, component);
 	}
 
+	public Stream<ModelComponent> getComponents() {
+		return components.stream();
+	}
+
 	void notifyCreated() {
 		listener.created(this);
 	}
@@ -135,16 +141,6 @@ public final class ModelNode {
 
 	void notifyRealized() {
 		listener.realized(this);
-	}
-
-	/**
-	 * Returns if the current node can be viewed as the specified type.
-	 *
-	 * @param type  the type to query this model node
-	 * @return true if the node can be projected into the specified type, or false otherwise.
-	 */
-	public boolean canBeViewedAs(ModelType<?> type) {
-		return projections.canBeViewedAs(type);
 	}
 
 	/**
@@ -241,15 +237,6 @@ public final class ModelNode {
 				}
 			}
 			throw new IllegalStateException("no projection for " + type);
-		}
-
-		public boolean canBeViewedAs(ModelType<?> type) {
-			for (ModelProjection projection : projections) {
-				if (projection.canBeViewedAs(type)) {
-					return true;
-				}
-			}
-			return false;
 		}
 
 		public Optional<String> getTypeDescription() {

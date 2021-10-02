@@ -128,7 +128,7 @@ public final class ModelNodes {
 
 		@Override
 		public boolean test(ModelNode node) {
-			return node.canBeViewedAs(type);
+			return ModelNodeUtils.canBeViewedAs(node, type);
 		}
 
 		@Override
@@ -212,7 +212,7 @@ public final class ModelNodes {
 
 		@Override
 		public boolean test(ModelNode node) {
-			return node.canBeViewedAs(type) && spec.isSatisfiedBy(node.get(type));
+			return ModelNodeUtils.canBeViewedAs(node, type) && spec.isSatisfiedBy(node.get(type));
 		}
 
 		@Override

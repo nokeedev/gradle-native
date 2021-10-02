@@ -46,7 +46,7 @@ public abstract class ModelMutateAction implements ModelAction {
 		}
 
 		public <T> T projectionOf(ModelType<T> type) {
-			checkArgument(node.canBeViewedAs(type));
+			checkArgument(ModelNodeUtils.canBeViewedAs(node, type));
 			return node.get(type);
 		}
 	}

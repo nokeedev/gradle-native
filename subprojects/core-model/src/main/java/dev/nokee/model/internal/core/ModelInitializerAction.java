@@ -59,7 +59,7 @@ public abstract class ModelInitializerAction implements ModelAction {
 		}
 
 		public <T> KnownDomainObject<T> projectionOf(ModelType<T> type) {
-			checkArgument(node.canBeViewedAs(type));
+			checkArgument(ModelNodeUtils.canBeViewedAs(node, type));
 			return new ModelNodeBackedKnownDomainObject<>(type, node);
 		}
 	}

@@ -36,7 +36,7 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 	@EqualsAndHashCode.Exclude private final ModelNode node;
 
 	public ModelNodeBackedProvider(ModelType<T> type, ModelNode node) {
-		Preconditions.checkArgument(node.canBeViewedAs(type), "node '%s' cannot be viewed as %s", node, type);
+		Preconditions.checkArgument(ModelNodeUtils.canBeViewedAs(node, type), "node '%s' cannot be viewed as %s", node, type);
 		this.identifier = ModelIdentifier.of(node.getPath(), type);
 		this.type = type;
 		this.node = node;

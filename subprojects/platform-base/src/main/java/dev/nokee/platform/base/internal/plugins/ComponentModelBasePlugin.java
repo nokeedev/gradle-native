@@ -18,10 +18,7 @@ package dev.nokee.platform.base.internal.plugins;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
-import dev.nokee.model.internal.core.ModelAction;
-import dev.nokee.model.internal.core.NodeAction;
-import dev.nokee.model.internal.core.NodePredicate;
-import dev.nokee.model.internal.core.NodeRegistration;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
@@ -81,7 +78,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 	public static <T extends LanguageSourceSet> ModelAction configureEachSourceSet(ModelType<T> type, Consumer<? super T> action) {
 		return node -> {
-			assert node.canBeViewedAs(of(ComponentSources.class)) : "should only apply to ComponentSources";
+			assert ModelNodeUtils.canBeViewedAs(node, of(ComponentSources.class)) : "should only apply to ComponentSources";
 			node.applyTo(allDirectDescendants(mutate(type)).apply(executeUsingProjection(type, action::accept)));
 		};
 	}

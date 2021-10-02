@@ -51,7 +51,7 @@ class ModelInitializerActionTest {
 		val myType = new MyType();
 		val node = node(
 			initialize(context -> capturedValue.setValue(context.withProjection(ofInstance(myType)))));
-		assertTrue(node.canBeViewedAs(of(MyType.class)));
+		assertTrue(ModelNodeUtils.canBeViewedAs(node, of(MyType.class)));
 		assertThat(node.get(MyType.class), equalTo(myType));
 		assertThat(capturedValue.getValue().getType(), equalTo(MyType.class));
 	}
@@ -61,7 +61,7 @@ class ModelInitializerActionTest {
 		val capturedValue = new MutableObject<KnownDomainObject<MyManagedType>>();
 		val node = node(
 			initialize(context -> capturedValue.setValue(context.withProjection(managed(of(MyManagedType.class))))));
-		assertTrue(node.canBeViewedAs(of(MyManagedType.class)));
+		assertTrue(ModelNodeUtils.canBeViewedAs(node, of(MyManagedType.class)));
 		assertThat(node.get(MyManagedType.class), isA(MyManagedType.class));
 		assertThat(capturedValue.getValue().getType(), equalTo(MyManagedType.class));
 	}
@@ -71,7 +71,7 @@ class ModelInitializerActionTest {
 		ModelProjection projection = managed(of(MyManagedType.class));
 		val node = node(
 			initialize(context -> assertThat(context.withProjection(projection), equalTo(context))));
-		assertTrue(node.canBeViewedAs(of(MyManagedType.class)));
+		assertTrue(ModelNodeUtils.canBeViewedAs(node, of(MyManagedType.class)));
 		assertThat(node.get(MyManagedType.class), isA(MyManagedType.class));
 	}
 
