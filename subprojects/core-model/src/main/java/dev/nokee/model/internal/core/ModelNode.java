@@ -113,12 +113,7 @@ public final class ModelNode {
 		listener.realized(this);
 	}
 
-	/**
-	 * Returns the parent node of this model node, if available.
-	 *
-	 * @return the parent model node, never null but can be absent.
-	 */
-	public Optional<ModelNode> getParent() {
+	Optional<ModelNode> getParent() {
 		return path.getParent().map(modelLookup::get);
 	}
 

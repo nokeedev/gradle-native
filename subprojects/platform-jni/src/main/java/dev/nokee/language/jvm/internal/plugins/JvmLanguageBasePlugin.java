@@ -22,6 +22,7 @@ import dev.nokee.language.jvm.KotlinSourceSet;
 import dev.nokee.language.jvm.internal.JvmSourceSetExtensible;
 import dev.nokee.model.internal.core.ModelActions;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentSources;
@@ -74,9 +75,9 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 	private static ModelNode componentOf(ModelNode sources) {
 		// We assume it's a ComponentSources model node
 		assert sources.canBeViewedAs(of(ComponentSources.class));
-		assert sources.getParent().isPresent();
-		assert sources.getParent().get().canBeViewedAs(of(Component.class));
-		return sources.getParent().get();
+		assert ModelNodeUtils.getParent(sources).isPresent();
+		assert ModelNodeUtils.getParent(sources).get().canBeViewedAs(of(Component.class));
+		return ModelNodeUtils.getParent(sources).get();
 	}
 
 	private static Spec<? super SourceSet> nameOf(ModelNode component) {

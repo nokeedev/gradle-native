@@ -18,6 +18,8 @@ package dev.nokee.model.internal.core;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 
+import java.util.Optional;
+
 // TODO: Remove "maybe add" custom logic to favour dedup within ModelProjection adding logic
 public final class ModelNodeUtils {
 	private static final ModelProjection CREATED_TAG = ModelProjections.ofInstance(new ModelState.Created() {});
@@ -115,5 +117,14 @@ public final class ModelNodeUtils {
 	 */
 	public static ModelNode.State getState(ModelNode self) {
 		return self.get(ModelNode.State.class);
+	}
+
+	/**
+	 * Returns the parent node of the specified node, if available.
+	 *
+	 * @return the parent model node, never null but can be absent
+	 */
+	public static Optional<ModelNode> getParent(ModelNode self) {
+		return self.getParent();
 	}
 }

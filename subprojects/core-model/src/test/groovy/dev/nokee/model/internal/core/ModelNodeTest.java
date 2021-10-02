@@ -230,12 +230,12 @@ class ModelNodeTest {
 	void canAccessParentNode() {
 		val parentNode = node();
 		val childNode = childNode(parentNode);
-		assertThat(childNode.getParent(), optionalWithValue(equalTo(parentNode)));
+		assertThat(ModelNodeUtils.getParent(childNode), optionalWithValue(equalTo(parentNode)));
 	}
 
 	@Test
 	void rootNodeHasNoParentNode() {
-		assertThat(rootNode().getParent(), emptyOptional());
+		assertThat(ModelNodeUtils.getParent(rootNode()), emptyOptional());
 	}
 
 	@Test
