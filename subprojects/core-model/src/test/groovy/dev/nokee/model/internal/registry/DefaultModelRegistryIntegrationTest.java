@@ -257,13 +257,13 @@ public class DefaultModelRegistryIntegrationTest {
 	void canGetExistingDescendantNode() {
 		val parent = registerNode("foo");
 		val child = registerNode("foo.bar");
-		assertThat("existing child node can query from parent node", parent.getDescendant("bar"), equalTo(child));
+		assertThat("existing child node can query from parent node", ModelNodeUtils.getDescendant(parent, "bar"), equalTo(child));
 	}
 
 	@Test
 	void throwsExceptionWhenGettingNonExistingDescendantNode() {
 		val parent = registerNode("foo");
-		assertThrows(IllegalArgumentException.class, () -> parent.getDescendant("bar"),
+		assertThrows(IllegalArgumentException.class, () -> ModelNodeUtils.getDescendant(parent, "bar"),
 			"non-existing child node cannot be queried from parent node");
 	}
 
@@ -350,7 +350,7 @@ public class DefaultModelRegistryIntegrationTest {
 	interface MyParent {
 		default MyChild getChild() {
 			// When querying descendant node, it's best practice to realize the node.
-			return ModelNodeUtils.realize(ModelNodes.of(this).getDescendant("child")).get(MyChild.class);
+			return ModelNodeUtils.realize(ModelNodeUtils.getDescendant(ModelNodes.of(this), "child")).get(MyChild.class);
 		}
 	}
 
