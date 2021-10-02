@@ -80,6 +80,7 @@ public final class ModelNode {
 		this.listener = listener;
 		this.modelLookup = modelLookup;
 		this.modelRegistry = modelRegistry;
+		addComponent(new DescendantNodes(modelLookup, path));
 		path.getParent().ifPresent(parentPath -> {
 			addComponent(new ParentNode(modelLookup.get(parentPath)));
 		});
@@ -203,15 +204,15 @@ public final class ModelNode {
 	 * @return a list of directly descending nodes, never null.
 	 */
 	public List<ModelNode> getDirectDescendants() {
-		return modelLookup.query(allDirectDescendants().scope(path)).get();
+		return getComponent(DescendantNodes.class).getDirectDescendants();
 	}
 
 	public ModelNode getDescendant(String name) {
-		return modelLookup.get(path.child(name));
+		return getComponent(DescendantNodes.class).getDescendant(name);
 	}
 
 	public boolean hasDescendant(String name) {
-		return modelLookup.has(path.child(name));
+		return getComponent(DescendantNodes.class).hasDescendant(name);
 	}
 
 	/**
