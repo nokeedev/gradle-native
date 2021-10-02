@@ -194,18 +194,6 @@ public final class ModelNode {
 		return modelRegistry.register(registration.scope(path));
 	}
 
-	/**
-	 * Returns the main projection type description of this node.
-	 * In practice, this describes the type of the Object projection of this node.
-	 *
-	 * @return the type description of this node, if present.
-	 */
-	// TODO: This is used to generating descriptive message. We should find a better way to do this.
-	//  In the end, this fits in the reporting APIs.
-	public Optional<String> getTypeDescription() {
-		return projections.getTypeDescription();
-	}
-
 	@Override
 	public String toString() {
 		return path.toString();
@@ -237,12 +225,6 @@ public final class ModelNode {
 				}
 			}
 			throw new IllegalStateException("no projection for " + type);
-		}
-
-		public Optional<String> getTypeDescription() {
-			return Optional.ofNullable(Iterables.getFirst(projections, null))
-				.map(ModelProjection::getTypeDescriptions)
-				.map(it -> String.join(", ", it));
 		}
 
 		public void finalizeValues() {

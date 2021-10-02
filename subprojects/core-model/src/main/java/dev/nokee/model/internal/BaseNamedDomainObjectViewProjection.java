@@ -66,7 +66,7 @@ public class BaseNamedDomainObjectViewProjection implements AbstractModelNodeBac
 			if (ModelNodeUtils.canBeViewedAs(node, expected)) {
 				return node;
 			}
-			throw createWrongTypeException(name, expected.getConcreteType(), node.getTypeDescription().orElse("<unknown>"));
+			throw createWrongTypeException(name, expected.getConcreteType(), ModelNodeUtils.getTypeDescription(node).orElse("<unknown>"));
 		};
 	}
 

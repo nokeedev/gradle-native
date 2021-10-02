@@ -303,13 +303,13 @@ class ModelNodeTest {
 
 	@Test
 	void canGetTypeDescriptionOfNode() {
-		assertThat(node("a", MyType.class).getTypeDescription(), optionalWithValue(equalTo("interface dev.nokee.model.internal.core.ModelNodeTest$MyType")));
+		assertThat(ModelNodeUtils.getTypeDescription(node("a", MyType.class)), optionalWithValue(equalTo("interface dev.nokee.model.internal.core.ModelNodeTest$MyType")));
 	}
 
 	@Test
 	@Disabled // until we completely split the state from the ModelNode because state now "tag" the node using projections...
 	void returnsEmptyTypeDescriptionForNodeWithoutProjection() {
-		assertThat(node("a").getTypeDescription(), emptyOptional());
+		assertThat(ModelNodeUtils.getTypeDescription(node("a")), emptyOptional());
 	}
 
 	interface MyType {}
