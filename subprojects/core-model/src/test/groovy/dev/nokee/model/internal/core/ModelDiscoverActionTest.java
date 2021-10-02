@@ -50,7 +50,7 @@ class ModelDiscoverActionTest {
 	@Test
 	void canRegisterChildNode() {
 		val node = node(discover(context -> context.register(NodeRegistration.of("bar", of(MyType.class)))));
-		assertThat(node.hasDescendant("bar"), equalTo(true));
+		assertThat(ModelNodeUtils.hasDescendant(node, "bar"), equalTo(true));
 	}
 
 	@Test

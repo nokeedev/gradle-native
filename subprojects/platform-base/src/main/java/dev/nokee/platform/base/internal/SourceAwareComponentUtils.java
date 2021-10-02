@@ -29,7 +29,7 @@ public class SourceAwareComponentUtils {
 			return (FunctionalSourceSet) target;
 		} else {
 			val node = ModelNodes.of(target);
-			if (node.hasDescendant("sources")) {
+			if (ModelNodeUtils.hasDescendant(node, "sources")) {
 				return ModelNodeUtils.getDescendant(node, "sources").get(FunctionalSourceSet.class);
 			}
 		}

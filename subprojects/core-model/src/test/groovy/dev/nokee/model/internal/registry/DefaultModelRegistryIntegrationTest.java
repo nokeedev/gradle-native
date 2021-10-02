@@ -244,13 +244,13 @@ public class DefaultModelRegistryIntegrationTest {
 	void canCheckExistingDescendantNode() {
 		val parent = registerNode("foo");
 		registerNode("foo.bar");
-		assertTrue(parent.hasDescendant("bar"), "existing child node can be checked from parent node");
+		assertTrue(ModelNodeUtils.hasDescendant(parent, "bar"), "existing child node can be checked from parent node");
 	}
 
 	@Test
 	void canCheckNonExistingDescendantNode() {
 		val parent = registerNode("foo");
-		assertFalse(parent.hasDescendant("bar"), "non-existing child node can be checked from parent node");
+		assertFalse(ModelNodeUtils.hasDescendant(parent, "bar"), "non-existing child node can be checked from parent node");
 	}
 
 	@Test
