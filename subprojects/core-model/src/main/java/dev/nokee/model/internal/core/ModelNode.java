@@ -78,6 +78,9 @@ public final class ModelNode {
 		this.listener = listener;
 		this.modelLookup = modelLookup;
 		this.modelRegistry = modelRegistry;
+		path.getParent().ifPresent(parentPath -> {
+			add(ModelProjections.ofInstance(new ParentNode(modelLookup.get(parentPath))));
+		});
 		ModelNodeUtils.create(this);
 		ModelNodeUtils.initialize(this);
 	}
@@ -114,7 +117,10 @@ public final class ModelNode {
 	}
 
 	Optional<ModelNode> getParent() {
-		return path.getParent().map(modelLookup::get);
+		return projections.projections.stream()
+			.filter(it -> it.canBeViewedAs(ModelType.of(ParentNode.class)))
+			.findFirst()
+			.map(it -> it.get(ModelType.of(ParentNode.class)).get());
 	}
 
 	/**
