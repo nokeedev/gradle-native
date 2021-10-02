@@ -85,16 +85,16 @@ public final class ModelNode {
 
 	void addProjection(ModelProjection projection) {
 		assert getComponent(State.class) == State.Created : "can only add projection before the node is initialized";
-		projections.add(projection);
-		components.add(projection);
+		components.add(projections.add(projection));
 		listener.projectionAdded(this);
 	}
 
-	void addComponent(ModelComponent component) {
+	public void addComponent(ModelComponent component) {
 		if (component instanceof ModelProjection) {
-			projections.add((ModelProjection) component);
+			components.add(projections.add((ModelProjection) component));
+		} else {
+			components.add(component);
 		}
-		components.add(component);
 		listener.projectionAdded(this);
 	}
 
@@ -177,8 +177,10 @@ public final class ModelNode {
 			this.instantiator = instantiator;
 		}
 
-		public void add(ModelProjection projection) {
-			projections.add(bindManagedProjectionWithInstantiator(projection));
+		public ModelProjection add(ModelProjection projection) {
+			projection = bindManagedProjectionWithInstantiator(projection);
+			projections.add(projection);
+			return projection;
 		}
 
 		private ModelProjection bindManagedProjectionWithInstantiator(ModelProjection projection) {
