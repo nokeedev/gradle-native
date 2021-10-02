@@ -297,7 +297,7 @@ class ModelNodeTest {
 	void canHasDescendantNode() {
 		val modelLookup = mock(ModelLookup.class);
 		val node = node("foo", builder -> builder.withLookup(modelLookup));
-		node.hasDescendant("bar");
+		ModelNodeUtils.hasDescendant(node, "bar");
 		verify(modelLookup, times(1)).has(path("foo.bar"));
 	}
 

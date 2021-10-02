@@ -17,6 +17,7 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.type.ModelType;
 
 import java.util.Map;
@@ -37,7 +38,7 @@ public abstract class ModelNodeBackedNamedDomainObjectCollectionDynamicObject ex
 
 	@Override
 	protected boolean hasElement(String name) {
-		return node.hasDescendant(name);
+		return ModelNodeUtils.hasDescendant(node, name);
 	}
 
 	@Override

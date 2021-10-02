@@ -140,4 +140,8 @@ public final class ModelNodeUtils {
 	public static ModelNode getDescendant(ModelNode self, String name) {
 		return self.getComponent(DescendantNodes.class).getDescendant(name);
 	}
+
+	public static boolean hasDescendant(ModelNode self, String name) {
+		return self.getComponent(DescendantNodes.class).hasDescendant(name);
+	}
 }

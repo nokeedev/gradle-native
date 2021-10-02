@@ -198,10 +198,6 @@ public final class ModelNode {
 		return modelRegistry.register(registration.scope(path));
 	}
 
-	public boolean hasDescendant(String name) {
-		return getComponent(DescendantNodes.class).hasDescendant(name);
-	}
-
 	/**
 	 * Returns the main projection type description of this node.
 	 * In practice, this describes the type of the Object projection of this node.
