@@ -195,15 +195,6 @@ public final class ModelNode {
 			return projection;
 		}
 
-		public <T> T get(ModelType<T> type) {
-			for (ModelProjection projection : projections) {
-				if (projection.canBeViewedAs(type)) {
-					return projection.get(type);
-				}
-			}
-			throw new IllegalStateException("no projection for " + type);
-		}
-
 		public void finalizeValues() {
 			projections.stream().filter(it -> it.canBeViewedAs(ModelType.of(Finalizable.class))).forEach(it -> it.get(ModelType.of(Finalizable.class)).finalizeValue());
 		}
