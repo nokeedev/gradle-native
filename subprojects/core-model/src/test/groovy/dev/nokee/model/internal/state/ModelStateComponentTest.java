@@ -37,7 +37,7 @@ class ModelStateComponentTest {
 
 		@Test
 		void hasRegisteredState() {
-			assertThat(subject.get(ModelNode.State.class), equalTo(ModelNode.State.Registered));
+			assertThat(subject.getComponent(ModelNode.State.class), equalTo(ModelNode.State.Registered));
 		}
 	}
 
@@ -50,7 +50,7 @@ class ModelStateComponentTest {
 
 		@Test
 		void hasRealizedState() {
-			assertThat(subject.get(ModelNode.State.class), equalTo(ModelNode.State.Realized));
+			assertThat(subject.getComponent(ModelNode.State.class), equalTo(ModelNode.State.Realized));
 		}
 	}
 }

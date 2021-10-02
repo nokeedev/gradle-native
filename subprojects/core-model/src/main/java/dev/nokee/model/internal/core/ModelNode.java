@@ -15,7 +15,6 @@
  */
 package dev.nokee.model.internal.core;
 
-import com.google.common.collect.Iterables;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.registry.ManagedModelProjection;
@@ -23,6 +22,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.val;
 
 import java.util.*;
 
@@ -57,12 +57,13 @@ public final class ModelNode {
 	private final Projections projections;
 	private final ModelConfigurer configurer;
 	private final ModelRegistry modelRegistry;
+	private final List<ModelComponent> components = new ArrayList<>();
 
 	public void finalizeValue() {
 		projections.finalizeValues();
 	}
 
-	public enum State {
+	public enum State implements ModelComponent {
 		Created, // Node instance created, can now add projections
 		Initialized, // All projection added
 		Registered, // Node attached to registry
@@ -79,25 +80,43 @@ public final class ModelNode {
 		this.modelLookup = modelLookup;
 		this.modelRegistry = modelRegistry;
 		path.getParent().ifPresent(parentPath -> {
-			add(ModelProjections.ofInstance(new ParentNode(modelLookup.get(parentPath))));
+			addComponent(new ParentNode(modelLookup.get(parentPath)));
 		});
 		ModelNodeUtils.create(this);
 		ModelNodeUtils.initialize(this);
 	}
 
 	void addProjection(ModelProjection projection) {
-		assert get(State.class) == State.Created : "can only add projection before the node is initialized";
+		assert getComponent(State.class) == State.Created : "can only add projection before the node is initialized";
 		projections.add(projection);
+		components.add(projection);
 		listener.projectionAdded(this);
 	}
 
-	void add(ModelProjection projection) {
-		projections.add(projection);
+	void addComponent(ModelComponent component) {
+		if (component instanceof ModelProjection) {
+			projections.add((ModelProjection) component);
+		}
+		components.add(component);
 		listener.projectionAdded(this);
 	}
 
-	<T> void set(ModelType<T> componentType, T component) {
-		((InstanceModelProjection<T>) projections.projections.stream().filter(it -> it.canBeViewedAs(componentType)).findFirst().orElseThrow(RuntimeException::new)).set(component);
+	public <T extends ModelComponent> T getComponent(Class<T> type) {
+		return findComponent(type).orElseThrow(RuntimeException::new);
+	}
+
+	<T extends ModelComponent> Optional<T> findComponent(Class<T> type) {
+		return components.stream().filter(type::isInstance).map(type::cast).findFirst();
+	}
+
+	public boolean hasComponent(Class<? extends ModelComponent> type) {
+		return components.stream().anyMatch(type::isInstance);
+	}
+
+	<T extends ModelComponent> void setComponent(Class<T> componentType, T component) {
+		val existingComponent = getComponent(componentType);
+		val index = components.indexOf(existingComponent);
+		components.set(index, component);
 	}
 
 	void notifyCreated() {
@@ -117,10 +136,7 @@ public final class ModelNode {
 	}
 
 	Optional<ModelNode> getParent() {
-		return projections.projections.stream()
-			.filter(it -> it.canBeViewedAs(ModelType.of(ParentNode.class)))
-			.findFirst()
-			.map(it -> it.get(ModelType.of(ParentNode.class)).get());
+		return findComponent(ParentNode.class).map(ParentNode::get);
 	}
 
 	/**

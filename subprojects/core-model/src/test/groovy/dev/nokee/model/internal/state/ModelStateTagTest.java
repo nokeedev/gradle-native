@@ -17,7 +17,6 @@ package dev.nokee.model.internal.state;
 
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.type.ModelType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,28 +35,28 @@ class ModelStateTagTest {
 	interface ModelStateCreatedTester extends ModelStateTester {
 		@Test
 		default void tagsEntityWhenCreated() {
-			assertTrue(subject().canBeViewedAs(ModelType.of(ModelState.Created.class)));
+			assertTrue(subject().hasComponent(ModelState.Created.class));
 		}
 	}
 
 	interface ModelStateInitializedTester extends ModelStateTester {
 		@Test
 		default void tagsEntityWhenInitialized() {
-			assertTrue(subject().canBeViewedAs(ModelType.of(ModelState.Initialized.class)));
+			assertTrue(subject().hasComponent(ModelState.Initialized.class));
 		}
 	}
 
 	interface ModelStateRegisteredTester extends ModelStateTester {
 		@Test
 		default void tagsEntityWhenRegistered() {
-			assertTrue(subject().canBeViewedAs(ModelType.of(ModelState.Registered.class)));
+			assertTrue(subject().hasComponent(ModelState.Registered.class));
 		}
 	}
 
 	interface ModelStateRealizedTester extends ModelStateTester {
 		@Test
 		default void tagsEntityWhenRealized() {
-			assertTrue(subject().canBeViewedAs(ModelType.of(ModelState.Realized.class)));
+			assertTrue(subject().hasComponent(ModelState.Realized.class));
 		}
 	}
 
@@ -75,7 +74,7 @@ class ModelStateTagTest {
 
 		@Test
 		void doesNotHaveRealizedTag() {
-			assertFalse(subject().canBeViewedAs(ModelType.of(ModelState.Realized.class)));
+			assertFalse(subject().hasComponent(ModelState.Realized.class));
 		}
 	}
 
