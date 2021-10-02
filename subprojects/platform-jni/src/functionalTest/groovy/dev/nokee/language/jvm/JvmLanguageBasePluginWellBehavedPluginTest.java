@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.objectivecpp;
+package dev.nokee.language.jvm;
 
 import dev.nokee.internal.testing.WellBehavedPluginTester;
 import dev.nokee.internal.testing.util.TestCaseUtils;
-import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
+import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
 import java.util.stream.Stream;
 
-class ObjectiveCppLanguagePluginFunctionalTest {
+public class JvmLanguageBasePluginWellBehavedPluginTest {
 	@TestFactory
 	Stream<DynamicTest> checkWellBehavedPlugin() {
 		return new WellBehavedPluginTester()
-			.qualifiedPluginId("dev.nokee.objective-cpp-language")
-			.pluginClass(ObjectiveCppLanguagePlugin.class)
+			.pluginClass(JvmLanguageBasePlugin.class)
 			.stream().map(TestCaseUtils::toJUnit5DynamicTest);
 	}
 }

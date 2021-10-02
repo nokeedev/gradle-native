@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.runtime.base;
+package dev.nokee.model;
 
 import dev.nokee.internal.testing.WellBehavedPluginTester;
 import dev.nokee.internal.testing.util.TestCaseUtils;
-import dev.nokee.runtime.base.internal.RuntimeBasePlugin;
+import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
 import java.util.stream.Stream;
 
-class RuntimeBasePluginFunctionalTest {
+class ModelBasePluginWellBehavedPluginTest {
 	@TestFactory
 	Stream<DynamicTest> checkWellBehavedPlugin() {
 		return new WellBehavedPluginTester()
-			.pluginClass(RuntimeBasePlugin.class)
+			.pluginClass(ModelBasePlugin.class)
 			.stream().map(TestCaseUtils::toJUnit5DynamicTest);
 	}
 }

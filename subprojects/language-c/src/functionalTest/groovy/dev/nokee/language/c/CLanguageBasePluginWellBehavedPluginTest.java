@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.runtime.darwin;
+package dev.nokee.language.c;
 
 import dev.nokee.internal.testing.WellBehavedPluginTester;
 import dev.nokee.internal.testing.util.TestCaseUtils;
-import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
+import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
 import java.util.stream.Stream;
 
-class DarwinRuntimePluginFunctionalTest {
+class CLanguageBasePluginWellBehavedPluginTest {
 	@TestFactory
 	Stream<DynamicTest> checkWellBehavedPlugin() {
 		return new WellBehavedPluginTester()
-			.qualifiedPluginId("dev.nokee.darwin-runtime")
-			.pluginClass(DarwinRuntimePlugin.class)
+			.pluginClass(CLanguageBasePlugin.class)
 			.stream().map(TestCaseUtils::toJUnit5DynamicTest);
 	}
 }
