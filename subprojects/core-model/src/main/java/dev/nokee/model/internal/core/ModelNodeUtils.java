@@ -65,7 +65,7 @@ public final class ModelNodeUtils {
 		} else {
 			self.addComponent(ModelNode.State.Realized);
 		}
-		self.getParent().ifPresent(ModelNodeUtils::realize);
+		getParent(self).ifPresent(ModelNodeUtils::realize);
 	}
 
 	static ModelNode initialize(ModelNode self) {
@@ -124,6 +124,6 @@ public final class ModelNodeUtils {
 	 * @return the parent model node, never null but can be absent
 	 */
 	public static Optional<ModelNode> getParent(ModelNode self) {
-		return self.getParent();
+		return self.findComponent(ParentNode.class).map(ParentNode::get);
 	}
 }
