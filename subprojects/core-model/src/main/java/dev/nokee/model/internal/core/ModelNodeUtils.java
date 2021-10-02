@@ -16,28 +16,27 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.type.ModelType;
 
 import java.util.Optional;
 
 // TODO: Remove "maybe add" custom logic to favour dedup within ModelProjection adding logic
 public final class ModelNodeUtils {
-	private static final ModelProjection CREATED_TAG = ModelProjections.ofInstance(new ModelState.Created() {});
-	private static final ModelProjection REALIZED_TAG = ModelProjections.ofInstance(new ModelState.Realized() {});
-	private static final ModelProjection INITIALIZED_TAG = ModelProjections.ofInstance(new ModelState.Initialized() {});
-	private static final ModelProjection REGISTERED_TAG = ModelProjections.ofInstance(new ModelState.Registered() {});
+	private static final ModelComponent CREATED_TAG = new ModelState.Created();
+	private static final ModelComponent REALIZED_TAG = new ModelState.Realized();
+	private static final ModelComponent INITIALIZED_TAG = new ModelState.Initialized();
+	private static final ModelComponent REGISTERED_TAG = new ModelState.Registered();
 
 	private ModelNodeUtils() {}
 
 	static ModelNode create(ModelNode self) {
-		if (!self.canBeViewedAs(ModelType.of(ModelState.Created.class))) {
-			if (self.canBeViewedAs(ModelType.of(ModelNode.State.class))) {
-				self.set(ModelType.of(ModelNode.State.class), ModelNode.State.Created);
+		if (!self.hasComponent(ModelState.Created.class)) {
+			if (self.hasComponent(ModelNode.State.class)) {
+				self.setComponent(ModelNode.State.class, ModelNode.State.Created);
 			} else {
-				self.add(ModelProjections.ofInstance(ModelNode.State.Created));
+				self.addComponent(ModelNode.State.Created);
 			}
 			self.notifyCreated();
-			self.add(CREATED_TAG);
+			self.addComponent(CREATED_TAG);
 		}
 		return self;
 	}
@@ -49,51 +48,51 @@ public final class ModelNodeUtils {
 	 * @return this model node, never null
 	 */
 	public static ModelNode realize(ModelNode self) {
-		if (!self.canBeViewedAs(ModelType.of(ModelState.Realized.class))) {
+		if (!self.hasComponent(ModelState.Realized.class)) {
 			ModelNodeUtils.register(self);
 			if (!ModelNodeUtils.isAtLeast(self, ModelNode.State.Realized)) {
 				changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(self);
 				self.notifyRealized();
 			}
-			self.add(REALIZED_TAG);
+			self.addComponent(REALIZED_TAG);
 		}
 		return self;
 	}
 
 	private static void changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(ModelNode self) {
-		if (self.canBeViewedAs(ModelType.of(ModelNode.State.class))) {
-			self.set(ModelType.of(ModelNode.State.class), ModelNode.State.Realized);
+		if (self.hasComponent(ModelNode.State.class)) {
+			self.setComponent(ModelNode.State.class, ModelNode.State.Realized);
 		} else {
-			self.add(ModelProjections.ofInstance(ModelNode.State.Realized));
+			self.addComponent(ModelNode.State.Realized);
 		}
 		self.getParent().ifPresent(ModelNodeUtils::realize);
 	}
 
 	static ModelNode initialize(ModelNode self) {
-		if (!self.canBeViewedAs(ModelType.of(ModelState.Initialized.class))) {
-			assert self.get(ModelNode.State.class) == ModelNode.State.Created;
-			if (self.canBeViewedAs(ModelType.of(ModelNode.State.class))) {
-				self.set(ModelType.of(ModelNode.State.class), ModelNode.State.Initialized);
+		if (!self.hasComponent(ModelState.Initialized.class)) {
+			assert self.getComponent(ModelNode.State.class) == ModelNode.State.Created;
+			if (self.hasComponent(ModelNode.State.class)) {
+				self.setComponent(ModelNode.State.class, ModelNode.State.Initialized);
 			} else {
-				self.add(ModelProjections.ofInstance(ModelNode.State.Initialized));
+				self.addComponent(ModelNode.State.Initialized);
 			}
 			self.notifyInitialized();
-			self.add(INITIALIZED_TAG);
+			self.addComponent(INITIALIZED_TAG);
 		}
 		return self;
 	}
 
 	public static ModelNode register(ModelNode self) {
-		if (!self.canBeViewedAs(ModelType.of(ModelState.Registered.class))) {
+		if (!self.hasComponent(ModelState.Registered.class)) {
 			if (!isAtLeast(self, ModelNode.State.Registered)) {
-				if (self.canBeViewedAs(ModelType.of(ModelNode.State.class))) {
-					self.set(ModelType.of(ModelNode.State.class), ModelNode.State.Registered);
+				if (self.hasComponent(ModelNode.State.class)) {
+					self.setComponent(ModelNode.State.class, ModelNode.State.Registered);
 				} else {
-					self.add(ModelProjections.ofInstance(ModelNode.State.Registered));
+					self.addComponent(ModelNode.State.Registered);
 				}
 				self.notifyRegistered();
 			}
-			self.add(REGISTERED_TAG);
+			self.addComponent(REGISTERED_TAG);
 		}
 		return self;
 	}
@@ -106,7 +105,7 @@ public final class ModelNodeUtils {
 	 * @return {@literal true} if the state of the node is at or later that the specified state or {@literal false} otherwise.
 	 */
 	public static boolean isAtLeast(ModelNode self, ModelNode.State state) {
-		return self.get(ModelNode.State.class).compareTo(state) >= 0;
+		return self.getComponent(ModelNode.State.class).compareTo(state) >= 0;
 	}
 
 	/**
@@ -116,7 +115,7 @@ public final class ModelNodeUtils {
 	 * @return a {@link ModelNode.State} representing the state of this model node, never null.
 	 */
 	public static ModelNode.State getState(ModelNode self) {
-		return self.get(ModelNode.State.class);
+		return self.getComponent(ModelNode.State.class);
 	}
 
 	/**

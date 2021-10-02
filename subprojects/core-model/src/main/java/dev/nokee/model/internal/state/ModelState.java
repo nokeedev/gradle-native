@@ -15,9 +15,11 @@
  */
 package dev.nokee.model.internal.state;
 
+import dev.nokee.model.internal.core.ModelComponent;
+
 public interface ModelState {
-	interface Created {}
-	interface Initialized {}
-	interface Registered {}
-	interface Realized {}
+	final class Created implements ModelComponent {}
+	final class Initialized implements ModelComponent {}
+	final class Registered implements ModelComponent {}
+	final class Realized implements ModelComponent {}
 }
