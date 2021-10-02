@@ -206,4 +206,9 @@ public final class ModelNodeUtils {
 				.orElseThrow(() -> new IllegalStateException("no projection for " + type));
 		});
 	}
+
+	public static void finalizeProjections(ModelNode self) {
+		getProjections(self).filter(it -> it.canBeViewedAs(ModelType.of(Finalizable.class)))
+			.forEach(it -> it.get(ModelType.of(Finalizable.class)).finalizeValue());
+	}
 }

@@ -60,10 +60,6 @@ public final class ModelNode {
 	private final ModelRegistry modelRegistry;
 	private final List<ModelComponent> components = new ArrayList<>();
 
-	public void finalizeValue() {
-		projections.finalizeValues();
-	}
-
 	public enum State implements ModelComponent {
 		Created, // Node instance created, can now add projections
 		Initialized, // All projection added
@@ -190,10 +186,6 @@ public final class ModelNode {
 				return ((ManagedModelProjection<?>) projection).bind(instantiator);
 			}
 			return projection;
-		}
-
-		public void finalizeValues() {
-			projections.stream().filter(it -> it.canBeViewedAs(ModelType.of(Finalizable.class))).forEach(it -> it.get(ModelType.of(Finalizable.class)).finalizeValue());
 		}
 	}
 
