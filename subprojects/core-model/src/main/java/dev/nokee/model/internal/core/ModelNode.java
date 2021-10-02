@@ -21,7 +21,6 @@ import dev.nokee.model.internal.registry.ManagedModelProjection;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
 import java.util.ArrayList;
