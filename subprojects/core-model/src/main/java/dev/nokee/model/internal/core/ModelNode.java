@@ -15,8 +15,6 @@
  */
 package dev.nokee.model.internal.core;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.registry.ManagedModelProjection;
@@ -26,10 +24,11 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static java.util.Objects.requireNonNull;
 
 /**
