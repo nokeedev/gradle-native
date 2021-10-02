@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.internal.type.ModelType;
-
-public interface ModelProjection extends ModelComponent {
-
-	// TODO: Not sure here
-	<T> boolean canBeViewedAs(ModelType<T> type);
-
-	<T> T get(ModelType<T> type);
-
-	// Use only for reporting
-	Iterable<String> getTypeDescriptions();
-}
+public interface ModelComponent {}
