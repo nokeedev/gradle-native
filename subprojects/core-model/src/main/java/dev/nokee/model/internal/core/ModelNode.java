@@ -136,10 +136,6 @@ public final class ModelNode {
 		listener.realized(this);
 	}
 
-	Optional<ModelNode> getParent() {
-		return findComponent(ParentNode.class).map(ParentNode::get);
-	}
-
 	/**
 	 * Returns if the current node can be viewed as the specified type.
 	 *
