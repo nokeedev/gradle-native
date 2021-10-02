@@ -198,10 +198,6 @@ public final class ModelNode {
 		return modelRegistry.register(registration.scope(path));
 	}
 
-	public ModelNode getDescendant(String name) {
-		return getComponent(DescendantNodes.class).getDescendant(name);
-	}
-
 	public boolean hasDescendant(String name) {
 		return getComponent(DescendantNodes.class).hasDescendant(name);
 	}

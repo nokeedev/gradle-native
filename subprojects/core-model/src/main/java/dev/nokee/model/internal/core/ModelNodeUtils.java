@@ -136,4 +136,8 @@ public final class ModelNodeUtils {
 	public static List<ModelNode> getDirectDescendants(ModelNode self) {
 		return self.getComponent(DescendantNodes.class).getDirectDescendants();
 	}
+
+	public static ModelNode getDescendant(ModelNode self, String name) {
+		return self.getComponent(DescendantNodes.class).getDescendant(name);
+	}
 }
