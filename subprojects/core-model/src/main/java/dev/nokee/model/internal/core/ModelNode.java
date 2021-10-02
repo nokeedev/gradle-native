@@ -68,6 +68,14 @@ public final class ModelNode {
 		// Finalized, // Node data should not mutate any more, can now compute additional data on child nodes
 	}
 
+	public ModelNode() {
+		this.path = null;
+		this.listener = ModelNodeListener.noOpListener();
+		this.projections = null;
+		this.configurer = null;
+		this.modelRegistry = null;
+	}
+
 	private ModelNode(ModelPath path, ModelConfigurer configurer, ModelNodeListener listener, ModelLookup modelLookup, ModelRegistry modelRegistry, Instantiator instantiator) {
 		this.path = path;
 		this.projections = new Projections(instantiator);
