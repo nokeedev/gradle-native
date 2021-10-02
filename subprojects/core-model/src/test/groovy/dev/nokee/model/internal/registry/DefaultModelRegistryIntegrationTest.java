@@ -364,11 +364,15 @@ public class DefaultModelRegistryIntegrationTest {
 		}));
 		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo", Object.class), new Object()));
 		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo.bar", Object.class), new Object()));
-		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo.far", MyFooComponent.class), new MyFooComponent()));
+		modelRegistry.register(ModelRegistration.unmanagedInstanceBuilder(ModelIdentifier.of("foo.far", Object.class), Object::new).action(entity -> {
+			if (!entity.hasComponent(MyFooComponent.class)) {
+				entity.addComponent(new MyFooComponent());
+			}
+		}).build());
 		assertThat(result, contains(ModelPath.path("foo.far")));
 	}
 
-	static class MyFooComponent {}
+	static class MyFooComponent implements ModelComponent {}
 
 //	@Test
 //	void canAccessModelNodeOnManagedType() {
