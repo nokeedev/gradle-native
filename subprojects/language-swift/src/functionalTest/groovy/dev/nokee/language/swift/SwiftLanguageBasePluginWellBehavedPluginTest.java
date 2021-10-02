@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.runtime.nativebase;
+package dev.nokee.language.swift;
 
 import dev.nokee.internal.testing.WellBehavedPluginTester;
 import dev.nokee.internal.testing.util.TestCaseUtils;
-import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
+import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
 import java.util.stream.Stream;
 
-class NativeRuntimeBasePluginFunctionalTest {
+class SwiftLanguageBasePluginWellBehavedPluginTest {
 	@TestFactory
 	Stream<DynamicTest> checkWellBehavedPlugin() {
 		return new WellBehavedPluginTester()
-			.qualifiedPluginId("dev.nokee.native-runtime-base")
-			.pluginClass(NativeRuntimeBasePlugin.class)
+			.pluginClass(SwiftLanguageBasePlugin.class)
 			.stream().map(TestCaseUtils::toJUnit5DynamicTest);
 	}
 }
