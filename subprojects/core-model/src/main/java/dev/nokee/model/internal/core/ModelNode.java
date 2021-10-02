@@ -198,15 +198,6 @@ public final class ModelNode {
 		return modelRegistry.register(registration.scope(path));
 	}
 
-	/**
-	 * Returns the direct descending nodes.
-	 *
-	 * @return a list of directly descending nodes, never null.
-	 */
-	public List<ModelNode> getDirectDescendants() {
-		return getComponent(DescendantNodes.class).getDirectDescendants();
-	}
-
 	public ModelNode getDescendant(String name) {
 		return getComponent(DescendantNodes.class).getDescendant(name);
 	}

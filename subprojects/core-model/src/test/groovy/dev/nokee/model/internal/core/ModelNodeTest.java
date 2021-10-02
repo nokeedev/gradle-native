@@ -264,7 +264,7 @@ class ModelNodeTest {
 		val modelLookup = mock(ModelLookup.class);
 		val parentNode = childNode(rootNode(), "parent", builder -> builder.withLookup(modelLookup));
 		when(modelLookup.query(any())).thenReturn(ModelLookup.Result.empty());
-		parentNode.getDirectDescendants();
+		ModelNodeUtils.getDirectDescendants(parentNode);
 		verify(modelLookup, times(1)).query(allDirectDescendants().scope(path("parent")));
 	}
 
