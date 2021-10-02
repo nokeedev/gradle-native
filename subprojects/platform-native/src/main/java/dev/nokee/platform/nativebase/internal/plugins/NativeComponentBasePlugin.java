@@ -151,6 +151,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 	}
 
 	public static Action<Project> finalizeModelNodeOf(Object target) {
-		return project -> ModelNodes.of(target).finalizeValue();
+		return project -> ModelNodeUtils.finalizeProjections(ModelNodes.of(target));
 	}
 }

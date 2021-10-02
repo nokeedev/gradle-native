@@ -232,7 +232,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
 			val projection = ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class);
 
-			ModelNodes.of(extension).finalizeValue();
+			ModelNodeUtils.finalizeProjections(ModelNodes.of(extension));
 			projection.getVariantCollection().whenElementKnown(knownVariant -> {
 				val buildVariant = knownVariant.getBuildVariant();
 				val variantIdentifier = knownVariant.getIdentifier();
