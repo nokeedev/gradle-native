@@ -94,8 +94,8 @@ class ModelNodeTest {
 
 	@Test
 	void canCheckProjectedTypeCompatibility() {
-		assertTrue(node(projectionOf(MyType.class)).canBeViewedAs(TYPE));
-		assertFalse(node(projectionOf(MyType.class)).canBeViewedAs(WRONG_TYPE));
+		assertTrue(ModelNodeUtils.canBeViewedAs(node(projectionOf(MyType.class)), TYPE));
+		assertFalse(ModelNodeUtils.canBeViewedAs(node(projectionOf(MyType.class)), WRONG_TYPE));
 	}
 
 	@Test

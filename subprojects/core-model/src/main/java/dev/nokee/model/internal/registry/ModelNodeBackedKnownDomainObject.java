@@ -38,7 +38,7 @@ public class ModelNodeBackedKnownDomainObject<T> implements KnownDomainObject<T>
 
 	public ModelNodeBackedKnownDomainObject(ModelType<T> type, ModelNode node) {
 		// TODO: Align exception with the one in ModelNode#get(ModelType). It's throwing an illegal state exception...
-		Preconditions.checkArgument(node.canBeViewedAs(type), "node '%s' cannot be viewed as %s", node, type);
+		Preconditions.checkArgument(ModelNodeUtils.canBeViewedAs(node, type), "node '%s' cannot be viewed as %s", node, type);
 		this.identifier = ModelIdentifier.of(node.getPath(), type);
 		this.type = type;
 		this.node = node;

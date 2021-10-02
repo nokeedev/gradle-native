@@ -28,7 +28,7 @@ public abstract class ModelActionWithInputs implements ModelAction {
 
 	@Override
 	public void execute(ModelNode node) {
-		if (getInputs().stream().allMatch(node::canBeViewedAs)) {
+		if (getInputs().stream().allMatch(it -> ModelNodeUtils.canBeViewedAs(node, it))) {
 			// Guard against duplicated execution
 			// TODO: Find a better way to do this.
 			if (alreadyExecuted.add(node.getPath())) {

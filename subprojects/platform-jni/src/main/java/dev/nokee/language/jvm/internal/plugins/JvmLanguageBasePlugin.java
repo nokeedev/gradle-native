@@ -74,15 +74,15 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 
 	private static ModelNode componentOf(ModelNode sources) {
 		// We assume it's a ComponentSources model node
-		assert sources.canBeViewedAs(of(ComponentSources.class));
+		assert ModelNodeUtils.canBeViewedAs(sources, of(ComponentSources.class));
 		assert ModelNodeUtils.getParent(sources).isPresent();
-		assert ModelNodeUtils.getParent(sources).get().canBeViewedAs(of(Component.class));
+		assert ModelNodeUtils.canBeViewedAs(ModelNodeUtils.getParent(sources).get(), of(Component.class));
 		return ModelNodeUtils.getParent(sources).get();
 	}
 
 	private static Spec<? super SourceSet> nameOf(ModelNode component) {
 		// We assume it's a Component model node
-		assert component.canBeViewedAs(of(Component.class));
+		assert ModelNodeUtils.canBeViewedAs(component, of(Component.class));
 		String componentName = component.getPath().getName();
 		return sourceSet -> sourceSet.getName().equals(componentName);
 	}

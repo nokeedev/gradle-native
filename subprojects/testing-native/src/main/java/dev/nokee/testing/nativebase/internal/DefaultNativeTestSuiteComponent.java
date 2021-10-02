@@ -22,6 +22,7 @@ import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -168,7 +169,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	public TestSuiteComponent testedComponent(Object component) {
 		if (component instanceof BaseComponent) {
 			getTestedComponent().set((BaseComponent) component);
-		} else if (ModelNodes.of(component).canBeViewedAs(of(BaseComponent.class))) {
+		} else if (ModelNodeUtils.canBeViewedAs(ModelNodes.of(component), of(BaseComponent.class))) {
 			getTestedComponent().set(ModelNodes.of(component).get(BaseComponent.class));
 		} else {
 			throw new UnsupportedOperationException();
