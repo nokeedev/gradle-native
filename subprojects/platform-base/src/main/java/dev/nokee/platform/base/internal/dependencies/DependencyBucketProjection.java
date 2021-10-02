@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
@@ -52,6 +53,6 @@ public class DependencyBucketProjection {
 	}
 
 	private Configuration getAsConfiguration() {
-		return node.get(Configuration.class);
+		return ModelNodeUtils.get(node, Configuration.class);
 	}
 }

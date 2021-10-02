@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.swift;
 
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -35,6 +36,6 @@ public interface SwiftApplication extends SwiftApplicationExtension, DependencyA
 	 * {@inheritDoc}
 	 */
 	default NativeApplicationComponentDependencies getDependencies() {
-		return ModelNodes.of(this).get(DefaultNativeApplicationComponent.class).getDependencies();
+		return ModelNodeUtils.get(ModelNodes.of(this), DefaultNativeApplicationComponent.class).getDependencies();
 	}
 }

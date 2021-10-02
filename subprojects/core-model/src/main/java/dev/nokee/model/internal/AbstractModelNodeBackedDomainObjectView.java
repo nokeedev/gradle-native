@@ -19,6 +19,7 @@ import com.google.common.collect.Iterables;
 import dev.nokee.model.DomainObjectView;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.type.ModelType;
 import groovy.lang.Closure;
 import lombok.val;
@@ -56,7 +57,7 @@ abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn
 			this.elementType = elementType;
 		}
 		this.elementsDynamicObject = elementsDynamicObject;
-		this.projection = node.get(Projection.class);
+		this.projection = ModelNodeUtils.get(node, Projection.class);
 	}
 
 	private static <V, E> ModelType<E> inferElementType(ModelType<V> viewType) {

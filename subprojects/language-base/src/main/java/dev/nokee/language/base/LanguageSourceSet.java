@@ -16,6 +16,7 @@
 package dev.nokee.language.base;
 
 import dev.nokee.language.base.internal.LanguageSourceSetProjection;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
@@ -51,7 +52,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @return this source set, never null
 	 */
 	default LanguageSourceSet from(Object... paths) {
-		ModelNodes.of(this).get(LanguageSourceSetProjection.class).from(paths);
+		ModelNodeUtils.get(ModelNodes.of(this), LanguageSourceSetProjection.class).from(paths);
 		return this;
 	}
 
@@ -66,7 +67,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @return a {@link FileCollection} instance of all the source directories from this source set, never null
 	 */
 	default FileCollection getSourceDirectories() {
-		return ModelNodes.of(this).get(LanguageSourceSetProjection.class).getSourceDirectories();
+		return ModelNodeUtils.get(ModelNodes.of(this), LanguageSourceSetProjection.class).getSourceDirectories();
 	}
 
 	/**
@@ -98,7 +99,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @return the filter patterns, never null
 	 */
 	default PatternFilterable getFilter() {
-		return ModelNodes.of(this).get(LanguageSourceSetProjection.class).getFilter();
+		return ModelNodeUtils.get(ModelNodes.of(this), LanguageSourceSetProjection.class).getFilter();
 	}
 
 	/**
@@ -107,7 +108,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @return a {@link FileTree} instance representing all the files included in this source set, never null
 	 */
 	default FileTree getAsFileTree() {
-		return ModelNodes.of(this).get(LanguageSourceSetProjection.class).getAsFileTree();
+		return ModelNodeUtils.get(ModelNodes.of(this), LanguageSourceSetProjection.class).getAsFileTree();
 	}
 
 	/**
@@ -115,7 +116,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 */
 	@Override
 	default TaskDependency getBuildDependencies() {
-		return ModelNodes.of(this).get(LanguageSourceSetProjection.class).getBuildDependencies();
+		return ModelNodeUtils.get(ModelNodes.of(this), LanguageSourceSetProjection.class).getBuildDependencies();
 	}
 
 	/**
@@ -126,7 +127,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @return this source set, never null
 	 */
 	default LanguageSourceSet convention(Object... path) {
-		ModelNodes.of(this).get(LanguageSourceSetProjection.class).convention(path);
+		ModelNodeUtils.get(ModelNodes.of(this), LanguageSourceSetProjection.class).convention(path);
 		return this;
 	}
 }

@@ -20,6 +20,7 @@ import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
@@ -69,9 +70,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(TestingBasePlugin.class);
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
-			BaseNativeComponent<?> application = ModelNodes.of(project.getExtensions().getByType(ObjectiveCIosApplication.class)).get(BaseNativeComponent.class);
+			BaseNativeComponent<?> application = ModelNodeUtils.get(ModelNodes.of(project.getExtensions().getByType(ObjectiveCIosApplication.class)), BaseNativeComponent.class);
 			val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);
-			val registry = ModelNodes.of(testSuites).get(NodeRegistrationFactoryRegistry.class);
+			val registry = ModelNodeUtils.get(ModelNodes.of(testSuites), NodeRegistrationFactoryRegistry.class);
 			registry.registerFactory(of(DefaultUnitTestXCTestTestSuiteComponent.class), name -> unitTestXCTestTestSuite(name, project));
 			registry.registerFactory(of(DefaultUiTestXCTestTestSuiteComponent.class), name -> uiTestXCTestTestSuite(name, project));
 

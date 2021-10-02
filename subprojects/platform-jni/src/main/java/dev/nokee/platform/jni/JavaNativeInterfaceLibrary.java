@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.jni;
 
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
@@ -37,7 +38,7 @@ public interface JavaNativeInterfaceLibrary extends JniLibraryExtension, Depende
 	 * @since 0.1
 	 */
 	default JavaNativeInterfaceLibraryComponentDependencies getDependencies() {
-		return ModelNodes.of(this).get(JniLibraryComponentInternal.class).getDependencies();
+		return ModelNodeUtils.get(ModelNodes.of(this), JniLibraryComponentInternal.class).getDependencies();
 	}
 
 	/**
@@ -45,6 +46,6 @@ public interface JavaNativeInterfaceLibrary extends JniLibraryExtension, Depende
 	 */
 	@Override
 	default SetProperty<TargetMachine> getTargetMachines() {
-		return ModelNodes.of(this).get(JniLibraryComponentInternal.class).getTargetMachines();
+		return ModelNodeUtils.get(ModelNodes.of(this), JniLibraryComponentInternal.class).getTargetMachines();
 	}
 }

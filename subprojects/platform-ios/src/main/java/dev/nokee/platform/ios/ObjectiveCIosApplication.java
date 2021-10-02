@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.ios;
 
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
@@ -27,6 +28,6 @@ public interface ObjectiveCIosApplication extends ObjectiveCIosApplicationExtens
 	 * {@inheritDoc}
 	 */
 	default NativeComponentDependencies getDependencies() {
-		return ModelNodes.of(this).get(DefaultIosApplicationComponent.class).getDependencies();
+		return ModelNodeUtils.get(ModelNodes.of(this), DefaultIosApplicationComponent.class).getDependencies();
 	}
 }

@@ -43,16 +43,16 @@ public abstract class ModelNodeBackedNamedDomainObjectCollectionDynamicObject ex
 
 	@Override
 	protected DomainObjectProvider<?> getElement(String name, ModelType<?> type) {
-		return node.get(BaseNamedDomainObjectViewProjection.class).get(name, type);
+		return ModelNodeUtils.get(node, BaseNamedDomainObjectViewProjection.class).get(name, type);
 	}
 
 	@Override
 	protected Map<String, ? extends DomainObjectProvider<?>> getElementsAsMap() {
-		return node.get(BaseNamedDomainObjectViewProjection.class).getAsMap(getElementType());
+		return ModelNodeUtils.get(node, BaseNamedDomainObjectViewProjection.class).getAsMap(getElementType());
 	}
 
 	@Override
 	protected DomainObjectProvider<?> doRegister(String name, ModelType<?> type) {
-		return node.get(BaseNamedDomainObjectContainerProjection.class).register(name, type);
+		return ModelNodeUtils.get(node, BaseNamedDomainObjectContainerProjection.class).register(name, type);
 	}
 }

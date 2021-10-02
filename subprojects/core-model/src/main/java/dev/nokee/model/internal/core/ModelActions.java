@@ -66,7 +66,7 @@ public final class ModelActions {
 
 		@Override
 		public void execute(ModelNode node) {
-			action.execute(node.get(type));
+			action.execute(ModelNodeUtils.get(node, type));
 		}
 
 		@Override

@@ -30,7 +30,7 @@ public class SourceAwareComponentUtils {
 		} else {
 			val node = ModelNodes.of(target);
 			if (ModelNodeUtils.hasDescendant(node, "sources")) {
-				return ModelNodeUtils.getDescendant(node, "sources").get(FunctionalSourceSet.class);
+				return ModelNodeUtils.get(ModelNodeUtils.getDescendant(node, "sources"), FunctionalSourceSet.class);
 			}
 		}
 		throw new UnsupportedOperationException("Target '" + target + "' is not source aware or a language source set view itself.");

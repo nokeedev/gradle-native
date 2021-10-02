@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base;
 
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.internal.BaseComponent;
 
@@ -31,6 +32,6 @@ public interface VariantAwareComponent<T extends Variant> {
 	 * @return a {@link VariantView} for configuring each variant of type {@code <T>}, never null.
 	 */
 	default VariantView<T> getVariants() {
-		return (VariantView<T>) ModelNodes.of(this).get(BaseComponent.class).getVariants();
+		return (VariantView<T>) ModelNodeUtils.get(ModelNodes.of(this), BaseComponent.class).getVariants();
 	}
 }

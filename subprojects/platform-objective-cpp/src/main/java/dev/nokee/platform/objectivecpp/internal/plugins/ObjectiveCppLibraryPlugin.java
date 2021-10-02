@@ -19,6 +19,7 @@ import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
@@ -68,7 +69,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCppLanguageBasePlugin.class);
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodes.of(components).get(NodeRegistrationFactoryRegistry.class).registerFactory(of(ObjectiveCppLibrary.class), name -> objectiveCppLibrary(name, project));
+		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(ObjectiveCppLibrary.class), name -> objectiveCppLibrary(name, project));
 		val componentProvider = components.register("main", ObjectiveCppLibrary.class, configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
 		val extension = componentProvider.get();
 

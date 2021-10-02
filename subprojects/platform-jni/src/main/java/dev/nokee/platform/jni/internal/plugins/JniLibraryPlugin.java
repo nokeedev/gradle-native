@@ -32,10 +32,7 @@ import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlug
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProjections;
-import dev.nokee.model.internal.core.NodeRegistration;
-import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
@@ -182,7 +179,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			}
 		});
 
-		ModelNodes.of(extension).get(JniLibraryComponentInternal.class).getVariants().whenElementKnown(JniLibraryInternal.class, knownVariant -> {
+		ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getVariants().whenElementKnown(JniLibraryInternal.class, knownVariant -> {
 			val eventPublisher = project.getExtensions().getByType(DomainObjectEventPublisher.class);
 			val sharedLibraryBinaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, knownVariant.getIdentifier());
 			eventPublisher.publish(new DomainObjectDiscovered<>(sharedLibraryBinaryIdentifier));
@@ -230,10 +227,10 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			});
 		});
 
-		val unbuildableMainComponentLogger = new WarnUnbuildableLogger(ModelNodes.of(extension).get(JniLibraryComponentInternal.class).getIdentifier());
+		val unbuildableMainComponentLogger = new WarnUnbuildableLogger(ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getIdentifier());
 		project.afterEvaluate(proj -> {
 			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
-			val projection = ModelNodes.of(extension).get(JniLibraryComponentInternal.class);
+			val projection = ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class);
 
 			ModelNodes.of(extension).finalizeValue();
 			projection.getVariantCollection().whenElementKnown(knownVariant -> {
@@ -312,20 +309,20 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			// Ensure the variants are resolved so all tasks are registered.
 			getTasks().named("tasks", task -> {
 				task.dependsOn((Callable) () -> {
-					ModelNodes.of(extension).get(JniLibraryComponentInternal.class).getVariantCollection().realize();
+					ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getVariantCollection().realize();
 					return emptyList();
 				});
 			});
 			// Ensure the variants are resolved so all configurations and dependencies are registered.
 			getTasks().named("dependencies", task -> {
 				task.dependsOn((Callable) () -> {
-					ModelNodes.of(extension).get(JniLibraryComponentInternal.class).getVariantCollection().realize();
+					ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getVariantCollection().realize();
 					return emptyList();
 				});
 			});
 			getTasks().named("outgoingVariants", task -> {
 				task.dependsOn((Callable) () -> {
-					ModelNodes.of(extension).get(JniLibraryComponentInternal.class).getVariantCollection().realize();
+					ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getVariantCollection().realize();
 					return emptyList();
 				});
 			});
@@ -334,7 +331,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(proj -> {
 			// The previous trick doesn't work for dependencyInsight task and vice-versa.
 			project.getConfigurations().addRule("Java Native Interface (JNI) variants are resolved only when needed.", it -> {
-				ModelNodes.of(extension).get(JniLibraryComponentInternal.class).getVariantCollection().realize();
+				ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getVariantCollection().realize();
 			});
 		});
 	}
@@ -458,7 +455,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 		// TODO: Use the ComponentContainer instead of ModelRegistry
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		val registry = ModelNodes.of(components).get(NodeRegistrationFactoryRegistry.class);
+		val registry = ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class);
 		registry.registerFactory(of(JavaNativeInterfaceLibrary.class), name -> javaNativeInterfaceLibrary(name, project));
 		val componentProvider = components.register("main", JavaNativeInterfaceLibrary.class, configureUsingProjection(JniLibraryComponentInternal.class, baseNameConvention(project.getName())));
 		val library = componentProvider.get();
@@ -570,7 +567,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private void configureJavaJniRuntime(Project project, JavaNativeInterfaceLibrary library) {
-		val projection = ModelNodes.of(library).get(JniLibraryComponentInternal.class);
+		val projection = ModelNodeUtils.get(ModelNodes.of(library), JniLibraryComponentInternal.class);
 
 		// Wire JVM to JniLibrary
 		project.getConfigurations().getByName("implementation").extendsFrom(projection.getJvmImplementationDependencies());

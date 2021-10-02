@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.DependencyBucket;
 import org.gradle.api.file.FileCollection;
@@ -26,10 +27,10 @@ import org.gradle.api.file.FileCollection;
  */
 public interface ResolvableDependencyBucket extends DependencyBucket {
 	default FileCollection getAsLenientFileCollection() {
-		return ModelNodes.of(this).get(ResolvableDependencyBucketRegistrationFactory.IncomingArtifacts.class).getAsLenient();
+		return ModelNodeUtils.get(ModelNodes.of(this), ResolvableDependencyBucketRegistrationFactory.IncomingArtifacts.class).getAsLenient();
 	}
 
 	default FileCollection getAsFileCollection() {
-		return ModelNodes.of(this).get(ResolvableDependencyBucketRegistrationFactory.IncomingArtifacts.class).get();
+		return ModelNodeUtils.get(ModelNodes.of(this), ResolvableDependencyBucketRegistrationFactory.IncomingArtifacts.class).get();
 	}
 }

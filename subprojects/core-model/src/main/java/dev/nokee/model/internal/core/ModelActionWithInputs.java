@@ -32,7 +32,7 @@ public abstract class ModelActionWithInputs implements ModelAction {
 			// Guard against duplicated execution
 			// TODO: Find a better way to do this.
 			if (alreadyExecuted.add(node.getPath())) {
-				execute(node, getInputs().stream().map(node::get).collect(Collectors.toList()));
+				execute(node, getInputs().stream().map(it -> ModelNodeUtils.get(node, it)).collect(Collectors.toList()));
 			}
 		}
 	}

@@ -350,7 +350,7 @@ public class DefaultModelRegistryIntegrationTest {
 	interface MyParent {
 		default MyChild getChild() {
 			// When querying descendant node, it's best practice to realize the node.
-			return ModelNodeUtils.realize(ModelNodeUtils.getDescendant(ModelNodes.of(this), "child")).get(MyChild.class);
+			return ModelNodeUtils.get(ModelNodeUtils.realize(ModelNodeUtils.getDescendant(ModelNodes.of(this), "child")), MyChild.class);
 		}
 	}
 

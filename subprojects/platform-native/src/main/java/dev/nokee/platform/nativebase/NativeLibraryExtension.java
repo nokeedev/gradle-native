@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.nativebase;
 
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
@@ -24,6 +25,6 @@ public interface NativeLibraryExtension extends DependencyAwareComponent<NativeL
 	 * {@inheritDoc}
 	 */
 	default NativeLibraryComponentDependencies getDependencies() {
-		return ModelNodes.of(this).get(DefaultNativeLibraryComponent.class).getDependencies();
+		return ModelNodeUtils.get(ModelNodes.of(this), DefaultNativeLibraryComponent.class).getDependencies();
 	}
 }

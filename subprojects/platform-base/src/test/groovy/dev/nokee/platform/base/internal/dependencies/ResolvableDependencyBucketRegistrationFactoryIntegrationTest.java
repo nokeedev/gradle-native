@@ -80,7 +80,7 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest implements De
 		val project = rootProject();
 		val factory = new ResolvableDependencyBucketRegistrationFactory(forProject(project));
 		val bucketProvider = registry(project.getObjects()).register(factory.create("test"));
-		ModelNodes.of(bucketProvider).get(Configuration.class).resolve(); // Force resolve the configuration
+		ModelNodeUtils.get(ModelNodes.of(bucketProvider), Configuration.class).resolve(); // Force resolve the configuration
 		assertThat(ModelNodeUtils.getState(ModelNodes.of(bucketProvider)), equalTo(Realized));
 	}
 
@@ -92,7 +92,7 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest implements De
 		bucketProvider.configure(bucket -> {
 			using(project.getObjects(), forUsage(Usage.JAVA_API)).execute(bucket.getAsConfiguration());
 		});
-		ModelNodes.of(bucketProvider).get(Configuration.class).resolve();
+		ModelNodeUtils.get(ModelNodes.of(bucketProvider), Configuration.class).resolve();
 		assertThat(ModelNodeUtils.getState(ModelNodes.of(bucketProvider)), equalTo(Realized));
 	}
 }

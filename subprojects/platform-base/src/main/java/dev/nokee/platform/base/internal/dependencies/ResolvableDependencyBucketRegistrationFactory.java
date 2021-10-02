@@ -84,7 +84,7 @@ public final class ResolvableDependencyBucketRegistrationFactory implements Node
 	}
 
 	static class IncomingArtifacts {
-		private final Configuration delegate = ModelNodeContext.getCurrentModelNode().get(Configuration.class);
+		private final Configuration delegate = ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), Configuration.class);
 
 		@Inject
 		public IncomingArtifacts() {}
