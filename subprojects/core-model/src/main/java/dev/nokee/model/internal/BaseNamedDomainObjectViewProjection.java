@@ -43,13 +43,13 @@ public class BaseNamedDomainObjectViewProjection implements AbstractModelNodeBac
 	}
 
 	@Override
-	public <T> DomainObjectProvider<T> get(String name, ModelType<? super T> elementType, ModelType<T> type) {
-		return new ModelNodeBackedProvider<>(type, checkType(name, elementType, type).apply(node.getDescendant(name)));
+	public <T> DomainObjectProvider<T> get(String name, ModelType<T> type) {
+		return new ModelNodeBackedProvider<>(type, checkType(name, type).apply(node.getDescendant(name)));
 	}
 
 	@Override
-	public <T> void configure(String name, ModelType<? super T> elementType, ModelType<T> type, Action<? super T> action) {
-		checkType(name, elementType, type).apply(node.getDescendant(name)).applyTo(self(stateAtLeast(ModelNode.State.Realized)).apply(executeUsingProjection(type, action)));
+	public <T> void configure(String name, ModelType<T> type, Action<? super T> action) {
+		checkType(name, type).apply(node.getDescendant(name)).applyTo(self(stateAtLeast(ModelNode.State.Realized)).apply(executeUsingProjection(type, action)));
 	}
 
 //	protected String getTypeDisplayName() {
@@ -60,12 +60,12 @@ public class BaseNamedDomainObjectViewProjection implements AbstractModelNodeBac
 		return new InvalidUserDataException(String.format("The domain object '%s' (%s) is not a subclass of the given type (%s).", name, actual, expected.getCanonicalName()));
 	}
 
-	private static UnaryOperator<ModelNode> checkType(String name, ModelType<?> elementType, ModelType<?> expected) {
+	private static UnaryOperator<ModelNode> checkType(String name, ModelType<?> expected) {
 		return node -> {
 			if (node.canBeViewedAs(expected)) {
 				return node;
 			}
-			throw createWrongTypeException(name, expected.getConcreteType(), node.getTypeDescription(elementType).orElse("<unknown>"));
+			throw createWrongTypeException(name, expected.getConcreteType(), node.getTypeDescription().orElse("<unknown>"));
 		};
 	}
 

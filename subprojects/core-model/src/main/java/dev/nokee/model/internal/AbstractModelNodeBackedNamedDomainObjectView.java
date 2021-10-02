@@ -49,17 +49,17 @@ abstract class AbstractModelNodeBackedNamedDomainObjectView<T> extends AbstractM
 
 	@Override
 	public final void configure(String name, Action<? super T> action) {
-		projection.configure(name, elementType, elementType, action);
+		projection.configure(name, elementType, action);
 	}
 
 	@Override
 	public final void configure(String name, Closure<Void> closure) {
-		projection.configure(name, elementType, elementType, configureUsing(closure));
+		projection.configure(name, elementType, configureUsing(closure));
 	}
 
 	@Override
 	public <S extends T> void configure(String name, Class<S> type, Action<? super S> action) {
-		projection.configure(name, elementType, of(type), action);
+		projection.configure(name, of(type), action);
 	}
 
 	@Override
@@ -69,17 +69,17 @@ abstract class AbstractModelNodeBackedNamedDomainObjectView<T> extends AbstractM
 
 	@Override
 	public final DomainObjectProvider<T> get(String name) {
-		return projection.get(name, elementType, elementType);
+		return projection.get(name, elementType);
 	}
 
 	@Override
 	public final <S extends T> DomainObjectProvider<S> get(String name, Class<S> type) {
-		return projection.get(name, elementType, of(type));
+		return projection.get(name, of(type));
 	}
 
 	interface Projection {
-		<T> DomainObjectProvider<T> get(String name, ModelType<? super T> elementType, ModelType<T> type);
-		<T> void configure(String name, ModelType<? super T> elementType, ModelType<T> type, Action<? super T> action);
+		<T> DomainObjectProvider<T> get(String name, ModelType<T> type);
+		<T> void configure(String name, ModelType<T> type, Action<? super T> action);
 		<T> Map<String, DomainObjectProvider<T>> getAsMap(ModelType<T> type);
 		<T> NamedDomainObjectView<T> createSubView(ModelType<T> type);
 	}

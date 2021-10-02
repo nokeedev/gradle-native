@@ -15,6 +15,7 @@
  */
 package dev.nokee.model.internal.core;
 
+import com.google.common.collect.Iterables;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.registry.ManagedModelProjection;
@@ -229,10 +230,6 @@ public final class ModelNode {
 		return projections.getTypeDescription();
 	}
 
-	public Optional<String> getTypeDescription(ModelType<?> type) {
-		return projections.getTypeDescription(type);
-	}
-
 	@Override
 	public String toString() {
 		return path.toString();
@@ -276,11 +273,7 @@ public final class ModelNode {
 		}
 
 		public Optional<String> getTypeDescription() {
-			return getTypeDescription(ModelType.of(Object.class));
-		}
-
-		public Optional<String> getTypeDescription(ModelType<?> type) {
-			return projections.stream().filter(it -> it.canBeViewedAs(type)).findFirst()
+			return Optional.ofNullable(Iterables.getFirst(projections, null))
 				.map(ModelProjection::getTypeDescriptions)
 				.map(it -> String.join(", ", it));
 		}
