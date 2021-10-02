@@ -18,7 +18,6 @@ package dev.nokee.model.internal;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.utils.Cast;
 
 import java.util.Map;
 
@@ -43,7 +42,7 @@ public abstract class ModelNodeBackedNamedDomainObjectCollectionDynamicObject ex
 
 	@Override
 	protected DomainObjectProvider<?> getElement(String name, ModelType<?> type) {
-		return node.get(BaseNamedDomainObjectViewProjection.class).get(name, Cast.uncheckedCastBecauseOfTypeErasure(elementType), type);
+		return node.get(BaseNamedDomainObjectViewProjection.class).get(name, type);
 	}
 
 	@Override
