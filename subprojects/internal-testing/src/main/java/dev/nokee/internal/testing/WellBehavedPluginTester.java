@@ -488,7 +488,8 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		}
 
 		protected List<String> getRealizedTaskPaths() {
-			if (GradleVersion.version("7.3").compareTo(GradleVersion.version(System.getProperty("dev.gradleplugins.defaultGradleVersion"))) > 0) {
+			GradleVersion distributionUnderTest = Optional.ofNullable(System.getProperty("dev.gradleplugins.defaultGradleVersion", null)).map(GradleVersion::version).orElseGet(GradleVersion::current);
+			if (GradleVersion.version("7.3").compareTo(distributionUnderTest) > 0) {
 				return Collections.singletonList(":help");
 			} else {
 				return Arrays.asList(":help", ":clean"); // see https://github.com/gradle/gradle/issues/18214
