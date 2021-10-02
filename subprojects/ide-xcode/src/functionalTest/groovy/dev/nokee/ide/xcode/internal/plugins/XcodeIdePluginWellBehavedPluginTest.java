@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal.tasks
+package dev.nokee.ide.xcode.internal.plugins;
 
-import dev.gradleplugins.fixtures.WellBehavedPluginTest
-import dev.nokee.platform.base.internal.plugins.TaskBasePlugin
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.junit.Assume
+import dev.nokee.internal.testing.WellBehavedPluginTester;
+import dev.nokee.internal.testing.util.TestCaseUtils;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 
-class TaskBaseWellBehavedPluginTest extends WellBehavedPluginTest {
-	@Override
-	protected String getQualifiedPluginId() {
-		Assume.assumeTrue(false) // no qualified plugin id
-		throw new UnsupportedOperationException()
-	}
+import java.util.stream.Stream;
 
-	@Override
-	protected Class<? extends Plugin<Project>> getPluginType() {
-		return TaskBasePlugin
+class XcodeIdePluginWellBehavedPluginTest {
+	@TestFactory
+	Stream<DynamicTest> checkWellBehavedPlugin() {
+		return new WellBehavedPluginTester()
+			.qualifiedPluginId("dev.nokee.xcode-ide")
+			.pluginClass(XcodeIdePlugin.class)
+			.stream().map(TestCaseUtils::toJUnit5DynamicTest);
 	}
 }

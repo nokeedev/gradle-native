@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal.binaries
+package dev.nokee.ide.visualstudio.internal.plugins;
 
-import dev.gradleplugins.fixtures.WellBehavedPluginTest
-import dev.nokee.platform.base.internal.plugins.BinaryBasePlugin
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.junit.Assume
+import dev.nokee.internal.testing.WellBehavedPluginTester;
+import dev.nokee.internal.testing.util.TestCaseUtils;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 
-class BinaryBaseWellBehavedPluginTest extends WellBehavedPluginTest {
-	@Override
-	protected String getQualifiedPluginId() {
-		Assume.assumeTrue(false) // no qualified plugin id
-		throw new UnsupportedOperationException()
-	}
+import java.util.stream.Stream;
 
-	@Override
-	protected Class<? extends Plugin<Project>> getPluginType() {
-		return BinaryBasePlugin
+class VisualStudioIdePluginWellBehavedPluginTest {
+	@TestFactory
+	Stream<DynamicTest> checkWellBehavedPlugin() {
+		return new WellBehavedPluginTester()
+			.qualifiedPluginId("dev.nokee.visual-studio-ide")
+			.pluginClass(VisualStudioIdePlugin.class)
+			.stream().map(TestCaseUtils::toJUnit5DynamicTest);
 	}
 }

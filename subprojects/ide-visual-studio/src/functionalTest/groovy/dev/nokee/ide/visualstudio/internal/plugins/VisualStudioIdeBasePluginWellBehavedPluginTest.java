@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.ide.xcode.internal.plugins
+package dev.nokee.ide.visualstudio.internal.plugins;
 
-import dev.gradleplugins.fixtures.WellBehavedPluginTest
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import spock.lang.Subject
+import dev.nokee.internal.testing.WellBehavedPluginTester;
+import dev.nokee.internal.testing.util.TestCaseUtils;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 
-@Subject(XcodeIdeBasePlugin)
-class XcodeIdeBaseWellBehavedPluginTest extends WellBehavedPluginTest {
-	@Override
-	protected String getQualifiedPluginId() {
-		return 'dev.nokee.xcode-ide-base'
-	}
+import java.util.stream.Stream;
 
-	@Override
-	protected Class<? extends Plugin<Project>> getPluginType() {
-		return XcodeIdeBasePlugin
+class VisualStudioIdeBasePluginWellBehavedPluginTest {
+	@TestFactory
+	Stream<DynamicTest> checkWellBehavedPlugin() {
+		return new WellBehavedPluginTester()
+			.qualifiedPluginId("dev.nokee.visual-studio-ide-base")
+			.pluginClass(VisualStudioIdeBasePlugin.class)
+			.stream().map(TestCaseUtils::toJUnit5DynamicTest);
 	}
 }

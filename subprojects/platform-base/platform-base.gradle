@@ -1,5 +1,5 @@
 plugins {
-	id 'java-library'
+	id 'dev.gradleplugins.java-gradle-plugin'
 	id 'groovy-base'
 	id 'maven-publish'
 	id 'java-test-fixtures'
@@ -24,12 +24,4 @@ dependencies {
 	testFixturesImplementation gradleFixtures()
 	testFixturesImplementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.release"
 	testFixturesImplementation testFixtures(project(':coreModel'))
-}
-
-publishing {
-	publications {
-		library(MavenPublication) {
-			from components.java
-		}
-	}
 }
