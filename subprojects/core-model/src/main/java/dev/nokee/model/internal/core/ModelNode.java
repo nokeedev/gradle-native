@@ -67,7 +67,11 @@ public final class ModelNode {
 
 	public void addComponent(Object component) {
 		components.add(component);
-		listener.projectionAdded(this);
+		notifyComponentAdded(component);
+	}
+
+	private void notifyComponentAdded(Object newComponent) {
+		listener.projectionAdded(this, newComponent);
 	}
 
 	public <T> T getComponent(Class<T> type) {

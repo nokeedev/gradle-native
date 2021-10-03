@@ -189,7 +189,7 @@ public final class ModelTestUtils {
 			}
 
 			@Override
-			public void projectionAdded(ModelNode node) {
+			public void projectionAdded(ModelNode node, Object newComponent) {
 				// do nothing for now.
 			}
 
