@@ -236,4 +236,13 @@ public final class ModelNodeUtils {
 	public static void applyTo(ModelNode self, NodeAction action) {
 		self.getComponent(RelativeConfigurationService.class).applyTo(action);
 	}
+
+	/**
+	 * Returns the path of this model node.
+	 *
+	 * @return a {@link ModelPath} representing this model node, never null.
+	 */
+	public static ModelPath getPath(ModelNode self) {
+		return self.getComponent(ModelPath.class);
+	}
 }

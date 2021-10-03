@@ -46,7 +46,7 @@ class ModelNodes_AndTest {
 
 	@Test
 	void canCreatePredicateFilterForModelNodeByParent() {
-		val predicate = and(it -> it.getPath().get().endsWith("a"), it -> it.getPath().get().startsWith("foo"));
+		val predicate = and(it -> ModelNodeUtils.getPath(it).get().endsWith("a"), it -> ModelNodeUtils.getPath(it).get().startsWith("foo"));
 		assertTrue(predicate.test(node("foo.a")));
 		assertFalse(predicate.test(node("bar.a")));
 		assertFalse(predicate.test(node("foo.b")));

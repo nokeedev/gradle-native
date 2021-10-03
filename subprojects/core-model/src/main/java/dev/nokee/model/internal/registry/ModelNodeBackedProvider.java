@@ -37,7 +37,7 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 
 	public ModelNodeBackedProvider(ModelType<T> type, ModelNode node) {
 		Preconditions.checkArgument(ModelNodeUtils.canBeViewedAs(node, type), "node '%s' cannot be viewed as %s", node, type);
-		this.identifier = ModelIdentifier.of(node.getPath(), type);
+		this.identifier = ModelIdentifier.of(ModelNodeUtils.getPath(node), type);
 		this.type = type;
 		this.node = node;
 	}
@@ -79,7 +79,7 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 
 	@Override
 	public String toString() {
-		return "provider(node '" + node.getPath() + "', " + type + ")";
+		return "provider(node '" + ModelNodeUtils.getPath(node) + "', " + type + ")";
 	}
 
 	@Override

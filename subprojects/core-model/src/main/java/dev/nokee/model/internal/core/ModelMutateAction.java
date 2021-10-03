@@ -37,7 +37,7 @@ public abstract class ModelMutateAction implements ModelAction {
 		}
 
 		public ModelPath getPath() {
-			return node.getPath();
+			return ModelNodeUtils.getPath(node);
 		}
 
 		public Context applyTo(NodeAction action) {

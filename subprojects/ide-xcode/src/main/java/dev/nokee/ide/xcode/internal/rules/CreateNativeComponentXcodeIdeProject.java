@@ -26,6 +26,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.Binary;
@@ -323,7 +324,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 				}
 
 				private boolean hasSwiftCapability() {
-					return modelLookup.anyMatch(ModelSpecs.of(descendantOf(component.getNode().getPath()).and(withType(of(SwiftSourceSet.class)))));
+					return modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(component.getNode())).and(withType(of(SwiftSourceSet.class)))));
 				}
 
 				public Transformer<Provider<? extends FileSystemLocation>, Binary> toProductLocation() {

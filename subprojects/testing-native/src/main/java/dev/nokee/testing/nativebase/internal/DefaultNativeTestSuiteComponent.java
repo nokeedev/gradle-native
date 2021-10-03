@@ -223,7 +223,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 			// TODO: Map name to something close to what is expected
 			getBaseName().convention(component.getBaseName().map(it -> {
 				// if the tested component has a SwiftSourceSet
-				if (!modelLookup.anyMatch(ModelSpecs.of(descendantOf(component.getNode().getPath()).and(withType(of(SwiftSourceSet.class)))))) {
+				if (!modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(component.getNode())).and(withType(of(SwiftSourceSet.class)))))) {
 					return it + "-" + getIdentifier().getName().get();
 				}
 				return it + StringUtils.capitalize(getIdentifier().getName().get());
@@ -235,13 +235,13 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 				//   BUT should it... seems a bit hacky... check what Software Model did.
 				val sourceSetType = ModelNodeUtils.get(ModelNodes.of(knownSourceSet), LanguageSourceSet.class).getClass();
 				// If source set don't already exists on test suite
-				if (!modelLookup.anyMatch(ModelSpecs.of(descendantOf(getNode().getPath()).and(withType(of(sourceSetType)))))) {
+				if (!modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(getNode())).and(withType(of(sourceSetType)))))) {
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
 					if (NativeHeaderSet.class.isAssignableFrom(sourceSetType)) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
 						ModelNodeUtils.register(ModelNodes.of(sourceViewOf(this)), sourceSet("headers", sourceSetType));
 					} else {
-						ModelNodeUtils.register(ModelNodes.of(sourceViewOf(this)), sourceSet(ModelNodes.of(knownSourceSet).getPath().getName(), sourceSetType));
+						ModelNodeUtils.register(ModelNodes.of(sourceViewOf(this)), sourceSet(ModelNodeUtils.getPath(ModelNodes.of(knownSourceSet)).getName(), sourceSetType));
 					}
 				}
 			});

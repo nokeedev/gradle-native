@@ -242,7 +242,7 @@ public final class ModelNodes {
 
 		@Override
 		public boolean test(ModelNode node) {
-			val parentPath = node.getPath().getParent();
+			val parentPath = ModelNodeUtils.getPath(node).getParent();
 			return parentPath.isPresent() && parentPath.get().equals(this.parentPath);
 		}
 
@@ -266,7 +266,7 @@ public final class ModelNodes {
 
 		@Override
 		public boolean test(ModelNode node) {
-			return ancestorPath.isDescendant(node.getPath());
+			return ancestorPath.isDescendant(ModelNodeUtils.getPath(node));
 		}
 
 		@Override
@@ -308,7 +308,7 @@ public final class ModelNodes {
 
 		@Override
 		public boolean test(ModelNode node) {
-			return node.getPath().equals(path);
+			return ModelNodeUtils.getPath(node).equals(path);
 		}
 
 		@Override

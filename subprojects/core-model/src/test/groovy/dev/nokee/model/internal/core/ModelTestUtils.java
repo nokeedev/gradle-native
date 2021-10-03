@@ -131,11 +131,11 @@ public final class ModelTestUtils {
 		val children = new HashMap<ModelPath, ModelNode>();
 		val builder = ModelNode.builder();
 		val actions = new ArrayList<>(providedActions);
-		builder.withPath(parent.getPath().child(name));
+		builder.withPath(ModelNodeUtils.getPath(parent).child(name));
 		builder.withLookup(new ModelLookup() {
 			@Override
 			public ModelNode get(ModelPath path) {
-				if (parent.getPath().equals(path)) {
+				if (ModelNodeUtils.getPath(parent).equals(path)) {
 					return parent;
 				}
 				return children.computeIfAbsent(path, key -> {

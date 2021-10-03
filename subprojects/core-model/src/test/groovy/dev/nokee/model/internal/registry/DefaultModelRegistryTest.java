@@ -76,7 +76,7 @@ public class DefaultModelRegistryTest {
 		@Test
 		void canAccessRootNode() {
 			val rootNode = assertDoesNotThrow(() -> modelLookup.get(root()));
-			assertEquals(root(), rootNode.getPath(), "node path should be root path");
+			assertEquals(root(), ModelNodeUtils.getPath(rootNode), "node path should be root path");
 		}
 
 		@Test
@@ -100,7 +100,7 @@ public class DefaultModelRegistryTest {
 		void failsLookupForInitializedNode() {
 			val action = Mockito.mock(ModelAction.class);
 			doAnswer(invocation -> {
-				assertEquals(path("foo"), invocation.getArgument(0, ModelNode.class).getPath());
+				assertEquals(path("foo"), ModelNodeUtils.getPath(invocation.getArgument(0, ModelNode.class)));
 				assertThrows(IllegalArgumentException.class, () -> modelLookup.get(path("foo")));
 				return null;
 			}).when(action).execute(any());
@@ -113,11 +113,11 @@ public class DefaultModelRegistryTest {
 		void succeedLookupForRegisteredNode() {
 			val action = Mockito.mock(ModelAction.class);
 			doAnswer(invocation -> {
-				assertEquals(path("bar"), invocation.getArgument(0, ModelNode.class).getPath());
+				assertEquals(path("bar"), ModelNodeUtils.getPath(invocation.getArgument(0, ModelNode.class)));
 				assertDoesNotThrow(() -> modelLookup.get(path("bar")));
 				return null;
 			}).when(action).execute(any());
-			subject.configure(matching(it -> ModelNodeUtils.getState(it).equals(ModelNode.State.Registered) && it.getPath().equals(path("bar")), action));
+			subject.configure(matching(it -> ModelNodeUtils.getState(it).equals(ModelNode.State.Registered) && ModelNodeUtils.getPath(it).equals(path("bar")), action));
 			register("bar");
 			verify(action, times(1)).execute(any());
 		}
