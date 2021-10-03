@@ -237,7 +237,7 @@ class ModelNodeTest {
 	void canApplyConfigurationToSelf() {
 		val modelConfigurer = mock(ModelConfigurer.class);
 		val node = node("foo", builder -> builder.withConfigurer(modelConfigurer));
-		node.applyTo(self().apply(doSomething()));
+		ModelNodeUtils.applyTo(node, self().apply(doSomething()));
 		verify(modelConfigurer, times(1))
 			.configure(self().apply(doSomething()).scope(path("foo")));
 	}

@@ -44,7 +44,7 @@ public abstract class ModelInitializerAction implements ModelAction {
 		}
 
 		public Context applyTo(NodeAction action) {
-			node.applyTo(action);
+			ModelNodeUtils.applyTo(node, action);
 			return this;
 		}
 
