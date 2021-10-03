@@ -155,7 +155,7 @@ public class DefaultModelRegistryTest {
 	void canRegisterNodeRelativeToNestedNode() {
 		subject.register(ModelRegistration.of("a", MyType.class));
 		assertThat("relative registration can also be performed from an arbitrary node",
-			subject.get(path("a")).register(NodeRegistration.of("foo", of(MyType.class))),
+			ModelNodeUtils.register(subject.get(path("a")), NodeRegistration.of("foo", of(MyType.class))),
 			equalTo(modelRegistry.get("a.foo", MyType.class)));
 	}
 

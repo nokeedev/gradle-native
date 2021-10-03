@@ -59,7 +59,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	@Override
 	public <T> DomainObjectProvider<T> register(NodeRegistration<T> registration) {
-		return rootNode.register(registration);
+		return ModelNodeUtils.register(rootNode, registration);
 	}
 
 	@Override

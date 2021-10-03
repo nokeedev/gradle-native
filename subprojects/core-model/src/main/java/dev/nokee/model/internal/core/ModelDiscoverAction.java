@@ -50,7 +50,7 @@ public abstract class ModelDiscoverAction implements ModelAction {
 		}
 
 		public <T> KnownDomainObject<T> register(NodeRegistration<T> registration) {
-			return new ModelNodeBackedKnownDomainObject<>(registration.getDefaultProjectionType(), ModelNodes.of(node.register(registration)));
+			return new ModelNodeBackedKnownDomainObject<>(registration.getDefaultProjectionType(), ModelNodes.of(ModelNodeUtils.register(node, registration)));
 		}
 
 		public <T> KnownDomainObject<T> projectionOf(ModelType<T> type) {

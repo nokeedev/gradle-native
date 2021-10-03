@@ -291,7 +291,7 @@ public class DefaultModelRegistryIntegrationTest {
 		modelRegistry.configure(matching(ModelSpecs.of(stateOf(Registered)), node -> {
 			paths.add(node.getPath());
 			if (node.getPath().equals(path("foo"))) {
-				node.register(NodeRegistration.of("bar", of(MyType.class)));
+				ModelNodeUtils.register(node, NodeRegistration.of("bar", of(MyType.class)));
 			}
 		}));
 
@@ -307,7 +307,7 @@ public class DefaultModelRegistryIntegrationTest {
 		modelRegistry.configure(matching(ModelSpecs.of(stateOf(Registered)), node -> {
 			paths.add(node.getPath());
 			if (node.getPath().equals(path("foo"))) {
-				node.register(NodeRegistration.of("bar", of(MyType.class)));
+				ModelNodeUtils.register(node, NodeRegistration.of("bar", of(MyType.class)));
 			}
 		}));
 

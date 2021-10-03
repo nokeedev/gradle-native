@@ -137,7 +137,7 @@ public final class ModelActions {
 
 		@Override
 		public void execute(ModelNode node) {
-			node.register(registration.get());
+			ModelNodeUtils.register(node, registration.get());
 		}
 
 		@Override

@@ -44,17 +44,17 @@ public class BaseNamedDomainObjectContainerProjection implements AbstractModelNo
 	public <U> DomainObjectProvider<U> register(String name, ModelType<U> type) {
 		val registrationFactoryLookup = ModelNodeUtils.get(node, NodeRegistrationFactoryLookup.class);
 		if (registrationFactoryLookup.getSupportedTypes().contains(type)) {
-			return node.register(registrationFactoryLookup.get(type).create(name));
+			return ModelNodeUtils.register(node, registrationFactoryLookup.get(type).create(name));
 		}
 		if (instantiator.getCreatableTypes().contains(type.getRawType())) {
-			return node.register(NodeRegistration.unmanaged(name, ModelType.of(toImplementationType(type.getConcreteType())), () -> instantiator.newInstance(new NameAwareDomainObjectIdentifier() {
+			return ModelNodeUtils.register(node, NodeRegistration.unmanaged(name, ModelType.of(toImplementationType(type.getConcreteType())), () -> instantiator.newInstance(new NameAwareDomainObjectIdentifier() {
 				@Override
 				public Object getName() {
 					return name;
 				}
 			}, toImplementationType(type.getConcreteType()))));
 		}
-		return node.register(NodeRegistration.of(name, type));
+		return ModelNodeUtils.register(node, NodeRegistration.of(name, type));
 	}
 
 	@Override
