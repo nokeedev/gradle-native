@@ -25,15 +25,15 @@ import java.util.stream.Stream;
 
 // TODO: Remove "maybe add" custom logic to favour dedup within ModelProjection adding logic
 public final class ModelNodeUtils {
-	private static final Object CREATED_TAG = new ModelState.Created();
-	private static final Object REALIZED_TAG = new ModelState.Realized();
-	private static final Object INITIALIZED_TAG = new ModelState.Initialized();
-	private static final Object REGISTERED_TAG = new ModelState.Registered();
+	private static final Object CREATED_TAG = new ModelState.IsAtLeastCreated();
+	private static final Object REALIZED_TAG = new ModelState.IsAtLeastRealized();
+	private static final Object INITIALIZED_TAG = new ModelState.IsAtLeastInitialized();
+	private static final Object REGISTERED_TAG = new ModelState.IsAtLeastRegistered();
 
 	private ModelNodeUtils() {}
 
 	public static ModelNode create(ModelNode self) {
-		if (!self.hasComponent(ModelState.Created.class)) {
+		if (!self.hasComponent(ModelState.IsAtLeastCreated.class)) {
 			if (self.hasComponent(ModelNode.State.class)) {
 				self.setComponent(ModelNode.State.class, ModelNode.State.Created);
 			} else {
@@ -52,7 +52,7 @@ public final class ModelNodeUtils {
 	 * @return this model node, never null
 	 */
 	public static ModelNode realize(ModelNode self) {
-		if (!self.hasComponent(ModelState.Realized.class)) {
+		if (!self.hasComponent(ModelState.IsAtLeastRealized.class)) {
 			register(self);
 			if (!ModelNodeUtils.isAtLeast(self, ModelNode.State.Realized)) {
 				changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(self);
@@ -73,7 +73,7 @@ public final class ModelNodeUtils {
 	}
 
 	public static ModelNode initialize(ModelNode self) {
-		if (!self.hasComponent(ModelState.Initialized.class)) {
+		if (!self.hasComponent(ModelState.IsAtLeastInitialized.class)) {
 			create(self);
 			if (self.hasComponent(ModelNode.State.class)) {
 				self.setComponent(ModelNode.State.class, ModelNode.State.Initialized);
@@ -87,7 +87,7 @@ public final class ModelNodeUtils {
 	}
 
 	public static ModelNode register(ModelNode self) {
-		if (!self.hasComponent(ModelState.Registered.class)) {
+		if (!self.hasComponent(ModelState.IsAtLeastRegistered.class)) {
 			initialize(self);
 			if (!isAtLeast(self, ModelNode.State.Registered)) {
 				if (self.hasComponent(ModelNode.State.class)) {

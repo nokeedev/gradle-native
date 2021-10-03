@@ -16,8 +16,8 @@
 package dev.nokee.model.internal.state;
 
 public interface ModelState {
-	final class Created {}
-	final class Initialized {}
-	final class Registered {}
-	final class Realized {}
+	final class IsAtLeastCreated {}
+	final class IsAtLeastInitialized {}
+	final class IsAtLeastRegistered {}
+	final class IsAtLeastRealized {}
 }
