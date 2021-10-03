@@ -17,9 +17,9 @@ package dev.nokee.ide.visualstudio.internal.plugins;
 
 import dev.nokee.ide.visualstudio.VisualStudioIdeProjectExtension;
 import dev.nokee.ide.visualstudio.internal.rules.CreateNativeComponentVisualStudioIdeProject;
-import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -46,7 +46,7 @@ public abstract class VisualStudioIdePlugin implements Plugin<Project> {
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
 				val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
 				val action = new CreateNativeComponentVisualStudioIdeProject(extension, project.getLayout(), project.getObjects(), project.getProviders());
-				modelConfigurer.configure(matching(ModelNodes.stateAtLeast(ModelNode.State.Registered).and(withType(getComponentImplementationType()))::test, once(executeAsKnownProjection(getComponentImplementationType(), action))));
+				modelConfigurer.configure(matching(ModelNodes.stateAtLeast(ModelState.Registered).and(withType(getComponentImplementationType()))::test, once(executeAsKnownProjection(getComponentImplementationType(), action))));
 			}
 
 			private ModelType<BaseComponent<?>> getComponentImplementationType() {

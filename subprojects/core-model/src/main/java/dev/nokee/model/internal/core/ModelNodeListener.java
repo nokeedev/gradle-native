@@ -15,6 +15,8 @@
  */
 package dev.nokee.model.internal.core;
 
+import dev.nokee.model.internal.state.ModelState;
+
 /**
  * A model node state listener.
  */
@@ -54,28 +56,28 @@ public interface ModelNodeListener {
 	}
 
 	/**
-	 * When the model node transition to {@link ModelNode.State#Created}.
+	 * When the model node transition to {@link ModelState#Created}.
 	 *
 	 * @param node  the model node that transitioned to the created state
 	 */
 	void created(ModelNode node);
 
 	/**
-	 * When the model node transition to {@link ModelNode.State#Initialized}.
+	 * When the model node transition to {@link ModelState#Initialized}.
 	 *
 	 * @param node  the model node that transitioned to the initialized state
 	 */
 	void initialized(ModelNode node);
 
 	/**
-	 * When the model node transition to {@link ModelNode.State#Registered}.
+	 * When the model node transition to {@link ModelState#Registered}.
 	 *
 	 * @param node  the model node that transitioned to the registered state
 	 */
 	void registered(ModelNode node);
 
 	/**
-	 * When the model node transition to {@link ModelNode.State#Realized}.
+	 * When the model node transition to {@link ModelState#Realized}.
 	 *
 	 * @param node  the model node that transitioned to the realized state
 	 */

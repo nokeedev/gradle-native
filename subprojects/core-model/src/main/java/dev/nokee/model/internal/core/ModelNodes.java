@@ -15,6 +15,7 @@
  */
 package dev.nokee.model.internal.core;
 
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -23,8 +24,8 @@ import org.gradle.api.specs.Spec;
 
 import java.util.function.Predicate;
 
-import static dev.nokee.model.internal.core.ModelNode.State.Realized;
-import static dev.nokee.model.internal.core.ModelNode.State.Registered;
+import static dev.nokee.model.internal.state.ModelState.Realized;
+import static dev.nokee.model.internal.state.ModelState.Registered;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -143,15 +144,15 @@ public final class ModelNodes {
 	 * @param state  the state to filter model node
 	 * @return a predicate matching model node by state, never null.
 	 */
-	public static Predicate<ModelNode> stateAtLeast(ModelNode.State state) {
+	public static Predicate<ModelNode> stateAtLeast(ModelState state) {
 		return new StateAtLeastPredicate(state);
 	}
 
 	@EqualsAndHashCode
 	private static final class StateAtLeastPredicate implements Predicate<ModelNode> {
-		private final ModelNode.State state;
+		private final ModelState state;
 
-		private StateAtLeastPredicate(ModelNode.State state) {
+		private StateAtLeastPredicate(ModelState state) {
 			this.state = requireNonNull(state);
 		}
 
@@ -166,15 +167,15 @@ public final class ModelNodes {
 		}
 	}
 
-	public static Predicate<ModelNode> stateOf(ModelNode.State state) {
+	public static Predicate<ModelNode> stateOf(ModelState state) {
 		return new StateOfPredicate(state);
 	}
 
 	@EqualsAndHashCode(callSuper = false)
 	private static final class StateOfPredicate extends AbstractModelNodePredicate {
-		private final ModelNode.State state;
+		private final ModelState state;
 
-		private StateOfPredicate(ModelNode.State state) {
+		private StateOfPredicate(ModelState state) {
 			this.state = requireNonNull(state);
 		}
 

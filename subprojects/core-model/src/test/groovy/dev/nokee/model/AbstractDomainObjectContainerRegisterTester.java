@@ -15,8 +15,8 @@
  */
 package dev.nokee.model;
 
-import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.state.ModelState;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
@@ -36,12 +36,12 @@ public abstract class AbstractDomainObjectContainerRegisterTester<T> extends Abs
 	@Test
 	void canRegisterManagedType() {
 		val provider = register(subject, "foo", getElementType());
-		assertThat(ModelNodeUtils.getState(node("foo")), equalTo(ModelNode.State.Registered));
+		assertThat(ModelNodeUtils.getState(node("foo")), equalTo(ModelState.Registered));
 		assertThat(e("foo"), isA(getElementType()));
 
 		// Realize through provider
 		assertThat(provider.get(), isA(getElementType()));
-		assertThat(ModelNodeUtils.getState(node("foo")), equalTo(ModelNode.State.Realized));
+		assertThat(ModelNodeUtils.getState(node("foo")), equalTo(ModelState.Realized));
 	}
 
 	// TODO: Can create element without factory that is creatable via ObjectFactory (managed)
