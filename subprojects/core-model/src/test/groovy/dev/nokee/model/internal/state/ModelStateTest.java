@@ -16,11 +16,24 @@
 package dev.nokee.model.internal.state;
 
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeListener;
+import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 
 class ModelStateTest implements ModelStateTester.None {
 	private final ModelNode subject = new ModelNode();
+	private final ModelNodeListener listener = Mockito.mock(ModelNodeListener.class);
+
+	@BeforeEach
+	void setUpListener() {
+		subject.addComponent(listener);
+	}
 
 	@Override
 	public ModelNode subject() {
@@ -38,6 +51,13 @@ class ModelStateTest implements ModelStateTester.None {
 		public ModelNode subject() {
 			return subject;
 		}
+
+		@Test
+		void changeStateBeforeAddingTag() {
+			val inOrder = Mockito.inOrder(listener);
+			inOrder.verify(listener).projectionAdded(subject, ModelState.Created);
+			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastCreated.class));
+		}
 	}
 
 	@Nested
@@ -50,6 +70,13 @@ class ModelStateTest implements ModelStateTester.None {
 		@Override
 		public ModelNode subject() {
 			return subject;
+		}
+
+		@Test
+		void changeStateBeforeAddingTag() {
+			val inOrder = Mockito.inOrder(listener);
+			inOrder.verify(listener).projectionAdded(subject, ModelState.Initialized);
+			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastInitialized.class));
 		}
 	}
 
@@ -64,6 +91,13 @@ class ModelStateTest implements ModelStateTester.None {
 		public ModelNode subject() {
 			return subject;
 		}
+
+		@Test
+		void changeStateBeforeAddingTag() {
+			val inOrder = Mockito.inOrder(listener);
+			inOrder.verify(listener).projectionAdded(subject, ModelState.Registered);
+			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastRegistered.class));
+		}
 	}
 
 	@Nested
@@ -76,6 +110,13 @@ class ModelStateTest implements ModelStateTester.None {
 		@Override
 		public ModelNode subject() {
 			return subject;
+		}
+
+		@Test
+		void changeStateBeforeAddingTag() {
+			val inOrder = Mockito.inOrder(listener);
+			inOrder.verify(listener).projectionAdded(subject, ModelState.Realized);
+			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastRealized.class));
 		}
 	}
 }
