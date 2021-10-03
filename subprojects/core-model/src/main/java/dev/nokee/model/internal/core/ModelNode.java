@@ -52,16 +52,11 @@ import static java.util.Objects.requireNonNull;
 //    Actually, we shouldn't allow attaching configuration (applyTo, applyToSelf).
 //    Instead users should go through the ModelRegistry for that and access a thin layer that gives access to the allowed query and apply methods
 public final class ModelNode {
-	private final ModelNodeListener listener;
 	private final List<Object> components = new ArrayList<>();
 
-	public ModelNode() {
-		this.listener = ModelNodeListener.noOpListener();
-		addComponent(listener);
-	}
+	public ModelNode() {}
 
 	private ModelNode(ModelNodeListener listener) {
-		this.listener = listener;
 		addComponent(listener);
 	}
 
@@ -71,7 +66,7 @@ public final class ModelNode {
 	}
 
 	private void notifyComponentAdded(Object newComponent) {
-		listener.projectionAdded(this, newComponent);
+		findComponent(ModelNodeListener.class).ifPresent(listener -> listener.projectionAdded(this, newComponent));
 	}
 
 	public <T> T getComponent(Class<T> type) {
