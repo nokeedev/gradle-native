@@ -19,38 +19,64 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 
-import static dev.nokee.model.internal.core.ModelTestUtils.node;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+class ModelStateTagTest implements ModelStateTester.None {
+	private final ModelNode subject = new ModelNode();
 
-class ModelStateComponentTest {
-	private final ModelNode subject = node();
+	@Override
+	public ModelNode subject() {
+		return subject;
+	}
 
 	@Nested
-	class RegisterTest {
+	class CreateTest implements ModelStateTester.Created {
+		@BeforeEach
+		void transitionNodeToCreated() {
+			ModelNodeUtils.create(subject);
+		}
+
+		@Override
+		public ModelNode subject() {
+			return subject;
+		}
+	}
+
+	@Nested
+	class InitializeTest implements ModelStateTester.Initialized {
+		@BeforeEach
+		void transitionNodeToInitialized() {
+			ModelNodeUtils.initialize(subject);
+		}
+
+		@Override
+		public ModelNode subject() {
+			return subject;
+		}
+	}
+
+	@Nested
+	class RegisterTest implements ModelStateTester.Registered {
 		@BeforeEach
 		void transitionNodeToRegistered() {
 			ModelNodeUtils.register(subject);
 		}
 
-		@Test
-		void hasRegisteredState() {
-			assertThat(subject.getComponent(ModelNode.State.class), equalTo(ModelNode.State.Registered));
+		@Override
+		public ModelNode subject() {
+			return subject;
 		}
 	}
 
 	@Nested
-	class RealizedTest {
+	class RealizedTest implements ModelStateTester.Realized {
 		@BeforeEach
 		void transitionNodeToRealized() {
 			ModelNodeUtils.realize(subject);
 		}
 
-		@Test
-		void hasRealizedState() {
-			assertThat(subject.getComponent(ModelNode.State.class), equalTo(ModelNode.State.Realized));
+		@Override
+		public ModelNode subject() {
+			return subject;
 		}
 	}
 }
