@@ -39,10 +39,10 @@ public abstract class ModelActionWithInputs implements ModelAction {
 
 	public abstract void execute(ModelNode node, List<?> inputs);
 
-	public abstract List<? extends ModelType<? extends ModelComponent>> getInputs();
+	public abstract List<? extends ModelType<?>> getInputs();
 
 
-	public static <I0 extends ModelComponent> ModelAction of(ModelType<I0> i0, A1<? super I0> action) {
+	public static <I0> ModelAction of(ModelType<I0> i0, A1<? super I0> action) {
 		return new ModelActionWithInputs() {
 			@Override
 			public void execute(ModelNode node, List<?> inputs) {
@@ -50,7 +50,7 @@ public abstract class ModelActionWithInputs implements ModelAction {
 			}
 
 			@Override
-			public List<? extends ModelType<? extends ModelComponent>> getInputs() {
+			public List<? extends ModelType<?>> getInputs() {
 				return ImmutableList.of(i0);
 			}
 		};
@@ -60,7 +60,7 @@ public abstract class ModelActionWithInputs implements ModelAction {
 		void execute(ModelNode node, I0 i0);
 	}
 
-	public static <I0 extends ModelComponent, I1 extends ModelComponent> ModelAction of(ModelType<I0> i0, ModelType<I1> i1, A2<? super I0, ? super I1> action) {
+	public static <I0, I1> ModelAction of(ModelType<I0> i0, ModelType<I1> i1, A2<? super I0, ? super I1> action) {
 		return new ModelActionWithInputs() {
 			@Override
 			public void execute(ModelNode node, List<?> inputs) {
@@ -68,7 +68,7 @@ public abstract class ModelActionWithInputs implements ModelAction {
 			}
 
 			@Override
-			public List<? extends ModelType<? extends ModelComponent>> getInputs() {
+			public List<? extends ModelType<?>> getInputs() {
 				return ImmutableList.of(i0, i1);
 			}
 		};
@@ -78,7 +78,7 @@ public abstract class ModelActionWithInputs implements ModelAction {
 		void execute(ModelNode node, I0 i0, I1 i1);
 	}
 
-	public static <I0 extends ModelComponent, I1 extends ModelComponent, I2 extends ModelComponent> ModelAction of(ModelType<I0> i0, ModelType<I1> i1, ModelType<I2> i2, A3<? super I0, ? super I1, ? super I2> action) {
+	public static <I0, I1, I2> ModelAction of(ModelType<I0> i0, ModelType<I1> i1, ModelType<I2> i2, A3<? super I0, ? super I1, ? super I2> action) {
 		return new ModelActionWithInputs() {
 			@Override
 			public void execute(ModelNode node, List<?> inputs) {
@@ -86,7 +86,7 @@ public abstract class ModelActionWithInputs implements ModelAction {
 			}
 
 			@Override
-			public List<? extends ModelType<? extends ModelComponent>> getInputs() {
+			public List<? extends ModelType<?>> getInputs() {
 				return ImmutableList.of(i0, i1, i2);
 			}
 		};
