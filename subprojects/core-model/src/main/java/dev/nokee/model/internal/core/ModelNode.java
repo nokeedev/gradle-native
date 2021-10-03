@@ -67,18 +67,8 @@ public final class ModelNode {
 		this.listener = ModelNodeListener.noOpListener();
 	}
 
-	private ModelNode(ModelPath path, ModelConfigurer configurer, ModelNodeListener listener, ModelLookup modelLookup, ModelRegistry modelRegistry, Instantiator instantiator) {
+	private ModelNode(ModelNodeListener listener) {
 		this.listener = listener;
-		addComponent(path);
-		addComponent(new DescendantNodes(modelLookup, path));
-		addComponent(new RelativeRegistrationService(path, modelRegistry));
-		addComponent(new RelativeConfigurationService(path, configurer));
-		addComponent(new BindManagedProjectionService(instantiator));
-		path.getParent().ifPresent(parentPath -> {
-			addComponent(new ParentNode(modelLookup.get(parentPath)));
-		});
-		ModelNodeUtils.create(this);
-		ModelNodeUtils.initialize(this);
 	}
 
 	void addProjection(ModelProjection projection) {
@@ -183,7 +173,18 @@ public final class ModelNode {
 		}
 
 		public ModelNode build() {
-			return new ModelNode(path, configurer, listener, lookup, registry, requireNonNull(instantiator));
+			val entity = new ModelNode(listener);
+			entity.addComponent(path);
+			entity.addComponent(new DescendantNodes(lookup, path));
+			entity.addComponent(new RelativeRegistrationService(path, registry));
+			entity.addComponent(new RelativeConfigurationService(path, configurer));
+			entity.addComponent(new BindManagedProjectionService(instantiator));
+			path.getParent().ifPresent(parentPath -> {
+				entity.addComponent(new ParentNode(lookup.get(parentPath)));
+			});
+			ModelNodeUtils.create(entity);
+			ModelNodeUtils.initialize(entity);
+			return entity;
 		}
 
 		private static ModelRegistry failingRegistry() {
