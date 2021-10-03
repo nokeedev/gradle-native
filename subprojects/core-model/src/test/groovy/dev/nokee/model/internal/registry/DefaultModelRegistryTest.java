@@ -200,6 +200,17 @@ public class DefaultModelRegistryTest {
 		}
 	}
 
+	@Test
+	void rootEntityHasDescendantNodesComponent() {
+		assertTrue(subject.get(root()).hasComponent(DescendantNodes.class));
+	}
+
+	@Test
+	void newEntityHasDescendantNodesComponent() {
+		modelRegistry.register(ModelRegistration.of("kled", MyType.class));
+		assertTrue(subject.get(path("kled")).hasComponent(DescendantNodes.class));
+	}
+
 	interface MyType {}
 	interface WrongType {}
 }
