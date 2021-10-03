@@ -49,7 +49,7 @@ public interface ModelNodeListener {
 			}
 
 			@Override
-			public void projectionAdded(ModelNode node) {
+			public void projectionAdded(ModelNode node, Object newComponent) {
 				// do nothing
 			}
 		};
@@ -87,6 +87,7 @@ public interface ModelNodeListener {
 	 * When the model node has new projection.
 	 *
 	 * @param node  the model node that has a new projection
+	 * @param newComponent
 	 */
-	void projectionAdded(ModelNode node);
+	void projectionAdded(ModelNode node, Object newComponent);
 }

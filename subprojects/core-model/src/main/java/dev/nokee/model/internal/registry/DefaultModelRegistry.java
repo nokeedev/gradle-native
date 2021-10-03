@@ -143,7 +143,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		}
 
 		@Override
-		public void projectionAdded(ModelNode node) {
+		public void projectionAdded(ModelNode node, Object newComponent) {
 			// Splitting the execution until we reconcile ModelAction with the concept of System and Observer.
 			for (int i = 0; i < configurations.size(); ++i) {
 				val configuration = configurations.get(i);
