@@ -98,37 +98,6 @@ class ModelNodeTest {
 		assertFalse(ModelNodeUtils.canBeViewedAs(node(projectionOf(MyType.class)), WRONG_TYPE));
 	}
 
-	@Test
-	void stateOfNewlyCreatedNodeIsInitialized() {
-		assertEquals(ModelNode.State.Initialized, ModelNodeUtils.getState(node()));
-	}
-
-	@Test
-	void nodeTransitionToRegisteredWhenRegistered() {
-		assertEquals(ModelNode.State.Registered, ModelNodeUtils.getState(ModelNodeUtils.register(node())));
-	}
-
-	@Test
-	void newNodesAreOnlyInitialized() {
-		assertTrue(ModelNodeUtils.isAtLeast(node(), ModelNode.State.Initialized));
-		assertFalse(ModelNodeUtils.isAtLeast(node(), ModelNode.State.Registered));
-		assertFalse(ModelNodeUtils.isAtLeast(node(), ModelNode.State.Realized));
-	}
-
-	@Test
-	void registeredNodesAreAtMostRegistered() {
-		assertTrue(ModelNodeUtils.isAtLeast(ModelNodeUtils.register(node()), ModelNode.State.Initialized));
-		assertTrue(ModelNodeUtils.isAtLeast(ModelNodeUtils.register(node()), ModelNode.State.Registered));
-		assertFalse(ModelNodeUtils.isAtLeast(ModelNodeUtils.register(node()), ModelNode.State.Realized));
-	}
-
-	@Test
-	void realizedNodesAreAtMostRealized() {
-		assertTrue(ModelNodeUtils.isAtLeast(ModelNodeUtils.realize(node()), ModelNode.State.Initialized));
-		assertTrue(ModelNodeUtils.isAtLeast(ModelNodeUtils.realize(node()), ModelNode.State.Registered));
-		assertTrue(ModelNodeUtils.isAtLeast(ModelNodeUtils.realize(node()), ModelNode.State.Realized));
-	}
-
 	@Nested
 	class ModelNodeListenerContractTest {
 		private final ModelNodeListener listener = mock(ModelNodeListener.class);
@@ -224,18 +193,6 @@ class ModelNodeTest {
 				inOrder.verify(listener, times(1)).realized(node);
 			}
 		}
-	}
-
-	@Test
-	void canAccessParentNode() {
-		val parentNode = node();
-		val childNode = childNode(parentNode);
-		assertThat(ModelNodeUtils.getParent(childNode), optionalWithValue(equalTo(parentNode)));
-	}
-
-	@Test
-	void rootNodeHasNoParentNode() {
-		assertThat(ModelNodeUtils.getParent(rootNode()), emptyOptional());
 	}
 
 	@Test
