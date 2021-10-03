@@ -49,12 +49,13 @@ public abstract class ModelInitializerAction implements ModelAction {
 		}
 
 		public Context withProjection(ModelProjection projection) {
-			node.addProjection(projection);
+			assert ModelNodeUtils.getState(node) == ModelNode.State.Created : "can only add projection before the node is initialized";
+			node.addComponent(node.getComponent(BindManagedProjectionService.class).bindManagedProjectionWithInstantiator(projection));
 			return this;
 		}
 
 		public <T> KnownDomainObject<T> withProjection(TypeCompatibilityModelProjectionSupport<T> projection) {
-			node.addProjection(projection);
+			withProjection((ModelProjection) projection);
 			return new ModelNodeBackedKnownDomainObject<>(projection.getType(), node);
 		}
 
