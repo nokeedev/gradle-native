@@ -15,6 +15,7 @@
  */
 package dev.nokee.model.internal.core;
 
+import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 
@@ -215,5 +216,20 @@ public final class ModelNodeUtils {
 	public static void finalizeProjections(ModelNode self) {
 		getProjections(self).filter(it -> it.canBeViewedAs(ModelType.of(Finalizable.class)))
 			.forEach(it -> it.get(ModelType.of(Finalizable.class)).finalizeValue());
+	}
+
+	/**
+	 * Returns a model provider of the relative registration.
+	 *
+	 * @param registration  registration request relative to this model node
+	 * @param <T>  the default projection type of this registration
+	 * @return a provider to the default projection of this registration.
+	 */
+	// TODO: Should we return a provider here?
+	//  We should return a provider here so the caller can chain a configuration on the object itself when realized.
+	//  We should not return a provider here, it's crossing wires in the implementation. It should return only the ModelNode
+	//  On ModelRegistry, we can return a provider for NodeRegistration which would be a convenience only to bridge with the ModelRegistration API.
+	public static <T> DomainObjectProvider<T> register(ModelNode self, NodeRegistration<T> registration) {
+		return self.getComponent(RelativeRegistrationService.class).register(registration);
 	}
 }

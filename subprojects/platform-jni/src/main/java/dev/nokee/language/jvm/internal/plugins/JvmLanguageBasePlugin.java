@@ -91,7 +91,7 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 		return new Action<SourceSet>() {
 			@Override
 			public void execute(SourceSet sourceSet) {
-				sources.register(bridgeSourceSet(asSourceDirectorySet(sourceSet), JavaSourceSet.class));
+				ModelNodeUtils.register(sources, bridgeSourceSet(asSourceDirectorySet(sourceSet), JavaSourceSet.class));
 			}
 
 			private SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
@@ -104,7 +104,7 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 		return new Action<SourceSet>() {
 			@Override
 			public void execute(SourceSet sourceSet) {
-				sources.register(bridgeSourceSet(asSourceDirectorySet(sourceSet), GroovySourceSet.class));
+				ModelNodeUtils.register(sources, bridgeSourceSet(asSourceDirectorySet(sourceSet), GroovySourceSet.class));
 			}
 
 			private SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
@@ -117,7 +117,7 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 		return new Action<SourceSet>() {
 			@Override
 			public void execute(SourceSet sourceSet) {
-				sources.register(bridgeSourceSet(asSourceDirectorySet(sourceSet), KotlinSourceSet.class));
+				ModelNodeUtils.register(sources, bridgeSourceSet(asSourceDirectorySet(sourceSet), KotlinSourceSet.class));
 			}
 
 			private SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {

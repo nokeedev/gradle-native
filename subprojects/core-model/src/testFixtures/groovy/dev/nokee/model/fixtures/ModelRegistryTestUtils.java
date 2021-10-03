@@ -16,6 +16,7 @@
 package dev.nokee.model.fixtures;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
@@ -37,7 +38,7 @@ public class ModelRegistryTestUtils {
 	public static <T> T create(DefaultModelRegistry modelRegistry, NodeRegistration<T> registration) {
 		String testHolderName = String.valueOf(count++);
 		modelRegistry.register(ModelRegistration.of(testHolderName, (TestHolder.class)));
-		return modelRegistry.get(path(testHolderName)).register(registration).get();
+		return ModelNodeUtils.register(modelRegistry.get(path(testHolderName)), registration).get();
 	}
 
 	public static DefaultModelRegistry registry(File baseDirectory) {

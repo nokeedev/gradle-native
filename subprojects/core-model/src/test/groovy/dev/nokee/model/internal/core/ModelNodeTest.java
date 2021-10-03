@@ -229,7 +229,7 @@ class ModelNodeTest {
 	void canRegisterNodeRelativeToCurrentNode() {
 		val modelRegistry = mock(ModelRegistry.class);
 		val parentNode = childNode(rootNode(), "parent", builder -> builder.withRegistry(modelRegistry));
-		parentNode.register(NodeRegistration.of("foo", of(MyType.class)));
+		ModelNodeUtils.register(parentNode, NodeRegistration.of("foo", of(MyType.class)));
 		verify(modelRegistry, times(1)).register(ModelRegistration.of("parent.foo", MyType.class));
 	}
 

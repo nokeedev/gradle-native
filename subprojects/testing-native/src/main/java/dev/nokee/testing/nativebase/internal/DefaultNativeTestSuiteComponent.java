@@ -239,9 +239,9 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
 					if (NativeHeaderSet.class.isAssignableFrom(sourceSetType)) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
-						ModelNodes.of(sourceViewOf(this)).register(sourceSet("headers", sourceSetType));
+						ModelNodeUtils.register(ModelNodes.of(sourceViewOf(this)), sourceSet("headers", sourceSetType));
 					} else {
-						ModelNodes.of(sourceViewOf(this)).register(sourceSet(ModelNodes.of(knownSourceSet).getPath().getName(), sourceSetType));
+						ModelNodeUtils.register(ModelNodes.of(sourceViewOf(this)), sourceSet(ModelNodes.of(knownSourceSet).getPath().getName(), sourceSetType));
 					}
 				}
 			});
