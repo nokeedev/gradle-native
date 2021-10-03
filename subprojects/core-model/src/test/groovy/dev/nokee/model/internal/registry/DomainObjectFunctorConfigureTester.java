@@ -18,8 +18,8 @@ package dev.nokee.model.internal.registry;
 import dev.nokee.internal.testing.ClosureAssertions;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelProjections;
+import dev.nokee.model.internal.state.ModelStates;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ public abstract class DomainObjectFunctorConfigureTester<F> extends AbstractDoma
 	@Test
 	void canConfigureProviderUsingClosure() {
 		doAnswer(invocation -> {
-			invocation.getArgument(0, ModelAction.class).execute(ModelNodeUtils.realize(node));
+			invocation.getArgument(0, ModelAction.class).execute(ModelStates.realize(node));
 			return null;
 		})
 			.when(modelConfigurer)

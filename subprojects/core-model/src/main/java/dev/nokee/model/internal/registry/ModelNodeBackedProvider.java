@@ -19,6 +19,7 @@ import com.google.common.base.Preconditions;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ProviderUtils;
 import lombok.EqualsAndHashCode;
@@ -51,7 +52,7 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 	@Override
 	public T get() {
 		// TODO: We should prevent realizing the provider before a certain gate is achieved (maybe not registered)
-		return ModelNodeUtils.get(ModelNodeUtils.realize(node), type);
+		return ModelNodeUtils.get(ModelStates.realize(node), type);
 	}
 
 	@Override
@@ -65,7 +66,7 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 	}
 
 	private Provider<T> getAsProvider() {
-		return ProviderUtils.supplied(() -> ModelNodeUtils.get(ModelNodeUtils.realize(node), type));
+		return ProviderUtils.supplied(() -> ModelNodeUtils.get(ModelStates.realize(node), type));
 	}
 
 	@Override

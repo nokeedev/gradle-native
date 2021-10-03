@@ -17,6 +17,7 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.testing.EqualsTester;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
@@ -47,23 +48,23 @@ public class ModelNodes_StateOfTest {
 	void canCreatePredicateFilterForModelNodeForStateOfInitialized() {
 		val predicate = stateOf(ModelState.Initialized);
 		assertTrue(predicate.test(node()));
-		assertFalse(predicate.test(ModelNodeUtils.register(node())));
-		assertFalse(predicate.test(ModelNodeUtils.realize(node())));
+		assertFalse(predicate.test(ModelStates.register(node())));
+		assertFalse(predicate.test(ModelStates.realize(node())));
 	}
 
 	@Test
 	void canCreatePredicateFilterForModelNodeForStateOfRegistered() {
 		val predicate = stateOf(ModelState.Registered);
 		assertFalse(predicate.test(node()));
-		assertTrue(predicate.test(ModelNodeUtils.register(node())));
-		assertFalse(predicate.test(ModelNodeUtils.realize(node())));
+		assertTrue(predicate.test(ModelStates.register(node())));
+		assertFalse(predicate.test(ModelStates.realize(node())));
 	}
 
 	@Test
 	void canCreatePredicateFilterForModelNodeByStateAtLeastRealized() {
 		val predicate = stateOf(ModelState.Realized);
 		assertFalse(predicate.test(node()));
-		assertFalse(predicate.test(ModelNodeUtils.register(node())));
-		assertTrue(predicate.test(ModelNodeUtils.realize(node())));
+		assertFalse(predicate.test(ModelStates.register(node())));
+		assertTrue(predicate.test(ModelStates.realize(node())));
 	}
 }

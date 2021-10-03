@@ -16,9 +16,9 @@
 package dev.nokee.model.internal.registry;
 
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelProjections;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,13 +52,13 @@ public abstract class DomainObjectFunctorTransformTester<F> extends AbstractDoma
 
 	@Test
 	void doesNotEagerlyRealizeModelNode() {
-		assertThat(ModelNodeUtils.getState(node), lessThan(ModelState.Realized));
+		assertThat(ModelStates.getState(node), lessThan(ModelState.Realized));
 	}
 
 	@Test
 	void realizeModelNodeWhenMappedProviderIsQueried() {
 		subject.getOrNull();
-		assertThat(ModelNodeUtils.getState(node), equalTo(ModelState.Realized));
+		assertThat(ModelStates.getState(node), equalTo(ModelState.Realized));
 	}
 
 	@Test

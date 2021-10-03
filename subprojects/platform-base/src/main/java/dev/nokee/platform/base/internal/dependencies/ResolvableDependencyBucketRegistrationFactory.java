@@ -20,6 +20,7 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactory;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.artifacts.ArtifactView;
@@ -79,7 +80,7 @@ public final class ResolvableDependencyBucketRegistrationFactory implements Node
 	private static ActionUtils.Action<Configuration> realizeNodeBeforeResolve() {
 		val node = ModelNodeContext.getCurrentModelNode();
 		return configuration -> {
-			((ConfigurationInternal) configuration).beforeLocking(it -> ModelNodeUtils.realize(node));
+			((ConfigurationInternal) configuration).beforeLocking(it -> ModelStates.realize(node));
 		};
 	}
 

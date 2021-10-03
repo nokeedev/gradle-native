@@ -16,6 +16,7 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 
@@ -121,7 +122,7 @@ public final class ModelTestActions {
 
 		@Override
 		public void execute(ModelNode node) {
-			values.add(new CaptureNodeTransitionAction.NodeStateTransition(ModelNodeUtils.getPath(node), ModelNodeUtils.getState(node)));
+			values.add(new CaptureNodeTransitionAction.NodeStateTransition(ModelNodeUtils.getPath(node), ModelStates.getState(node)));
 		}
 
 		public static CaptureNodeTransitionAction.NodeStateTransition realized(Object path) {

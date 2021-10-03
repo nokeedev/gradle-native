@@ -19,8 +19,8 @@ package dev.nokee.model.internal.state;
 import dev.nokee.model.internal.core.ModelNode;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.model.internal.core.ModelNodeUtils.getState;
-import static dev.nokee.model.internal.core.ModelNodeUtils.isAtLeast;
+import static dev.nokee.model.internal.state.ModelStates.getState;
+import static dev.nokee.model.internal.state.ModelStates.isAtLeast;
 import static org.junit.jupiter.api.Assertions.*;
 
 public interface ModelStateTester {

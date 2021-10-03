@@ -18,6 +18,7 @@ package dev.nokee.model.internal.core;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -25,7 +26,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public abstract class ModelInitializerAction implements ModelAction {
 	@Override
 	public final void execute(ModelNode node) {
-		if (ModelNodeUtils.getState(node).equals(ModelState.Created)) {
+		if (ModelStates.getState(node).equals(ModelState.Created)) {
 			// NOTE: The contextual node should not be accessed from the action, it's simply for contextualizing the action execution.
 			ModelNodeContext.of(node).execute(() -> execute(new Context(node)));
 		}
@@ -50,7 +51,7 @@ public abstract class ModelInitializerAction implements ModelAction {
 		}
 
 		public Context withProjection(ModelProjection projection) {
-			assert ModelNodeUtils.getState(node) == ModelState.Created : "can only add projection before the node is initialized";
+			assert ModelStates.getState(node) == ModelState.Created : "can only add projection before the node is initialized";
 			node.addComponent(node.getComponent(BindManagedProjectionService.class).bindManagedProjectionWithInstantiator(projection));
 			return this;
 		}

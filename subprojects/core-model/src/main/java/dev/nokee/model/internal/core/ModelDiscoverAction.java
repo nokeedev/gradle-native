@@ -18,6 +18,7 @@ package dev.nokee.model.internal.core;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -26,7 +27,7 @@ public abstract class ModelDiscoverAction implements ModelAction {
 	@Override
 	public final void execute(ModelNode node) {
 		// TODO: Should be discovered
-		if (ModelNodeUtils.getState(node).equals(ModelState.Registered)) {
+		if (ModelStates.getState(node).equals(ModelState.Registered)) {
 			// NOTE: The contextual node should not be accessed from the action, it's simply for contextualizing the action execution.
 			ModelNodeContext.of(node).execute(() -> execute(new Context(node)));
 		}

@@ -20,6 +20,7 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelStateTester;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -81,12 +82,12 @@ public class DefaultModelRegistryTest {
 
 		@Test
 		void rootNodeIsAlwaysRegistered() {
-			assertEquals(ModelState.Registered, ModelNodeUtils.getState(modelLookup.get(root())));
+			assertEquals(ModelState.Registered, ModelStates.getState(modelLookup.get(root())));
 		}
 
 		@Test
 		void registeredNodeAreAtRegisteredState() {
-			assertEquals(ModelState.Registered, ModelNodeUtils.getState(modelLookup.get(register("woot"))),
+			assertEquals(ModelState.Registered, ModelStates.getState(modelLookup.get(register("woot"))),
 				"new node state should be registered");
 		}
 
@@ -104,7 +105,7 @@ public class DefaultModelRegistryTest {
 				assertThrows(IllegalArgumentException.class, () -> modelLookup.get(path("foo")));
 				return null;
 			}).when(action).execute(any());
-			subject.configure(matching(it -> ModelNodeUtils.getState(it).equals(ModelState.Initialized), action));
+			subject.configure(matching(it -> ModelStates.getState(it).equals(ModelState.Initialized), action));
 			register("foo");
 			verify(action, times(1)).execute(any());
 		}
@@ -117,7 +118,7 @@ public class DefaultModelRegistryTest {
 				assertDoesNotThrow(() -> modelLookup.get(path("bar")));
 				return null;
 			}).when(action).execute(any());
-			subject.configure(matching(it -> ModelNodeUtils.getState(it).equals(ModelState.Registered) && ModelNodeUtils.getPath(it).equals(path("bar")), action));
+			subject.configure(matching(it -> ModelStates.getState(it).equals(ModelState.Registered) && ModelNodeUtils.getPath(it).equals(path("bar")), action));
 			register("bar");
 			verify(action, times(1)).execute(any());
 		}

@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 
 import java.util.*;
@@ -33,7 +34,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	public DefaultModelRegistry(Instantiator instantiator) {
 		this.instantiator = instantiator;
-		rootNode = ModelNodeUtils.register(createRootNode());
+		rootNode = ModelStates.register(createRootNode());
 		nodes.put(ModelPath.root(), rootNode);
 	}
 
@@ -70,7 +71,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		}
 
 		registration.getActions().forEach(configurations::add);
-		val node = ModelNodeUtils.register(newNode(registration));
+		val node = ModelStates.register(newNode(registration));
 		return new ModelNodeBackedProvider<>(registration.getDefaultProjectionType(), node);
 	}
 

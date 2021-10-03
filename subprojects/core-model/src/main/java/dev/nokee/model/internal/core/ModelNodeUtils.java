@@ -16,7 +16,6 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 
 import java.util.List;
@@ -25,103 +24,8 @@ import java.util.stream.Stream;
 
 // TODO: Remove "maybe add" custom logic to favour dedup within ModelProjection adding logic
 public final class ModelNodeUtils {
-	private static final Object CREATED_TAG = new ModelState.IsAtLeastCreated();
-	private static final Object REALIZED_TAG = new ModelState.IsAtLeastRealized();
-	private static final Object INITIALIZED_TAG = new ModelState.IsAtLeastInitialized();
-	private static final Object REGISTERED_TAG = new ModelState.IsAtLeastRegistered();
 
 	private ModelNodeUtils() {}
-
-	public static ModelNode create(ModelNode self) {
-		if (!self.hasComponent(ModelState.IsAtLeastCreated.class)) {
-			if (self.hasComponent(ModelState.class)) {
-				self.setComponent(ModelState.class, ModelState.Created);
-			} else {
-				self.addComponent(ModelState.Created);
-			}
-			self.notifyCreated();
-			self.addComponent(CREATED_TAG);
-		}
-		return self;
-	}
-
-	/**
-	 * Realize this node.
-	 *
-	 * @param self  the node to realize, must not be null
-	 * @return this model node, never null
-	 */
-	public static ModelNode realize(ModelNode self) {
-		if (!self.hasComponent(ModelState.IsAtLeastRealized.class)) {
-			register(self);
-			if (!ModelNodeUtils.isAtLeast(self, ModelState.Realized)) {
-				changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(self);
-				self.notifyRealized();
-			}
-			self.addComponent(REALIZED_TAG);
-		}
-		return self;
-	}
-
-	private static void changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(ModelNode self) {
-		if (self.hasComponent(ModelState.class)) {
-			self.setComponent(ModelState.class, ModelState.Realized);
-		} else {
-			self.addComponent(ModelState.Realized);
-		}
-		getParent(self).ifPresent(ModelNodeUtils::realize);
-	}
-
-	public static ModelNode initialize(ModelNode self) {
-		if (!self.hasComponent(ModelState.IsAtLeastInitialized.class)) {
-			create(self);
-			if (self.hasComponent(ModelState.class)) {
-				self.setComponent(ModelState.class, ModelState.Initialized);
-			} else {
-				self.addComponent(ModelState.Initialized);
-			}
-			self.notifyInitialized();
-			self.addComponent(INITIALIZED_TAG);
-		}
-		return self;
-	}
-
-	public static ModelNode register(ModelNode self) {
-		if (!self.hasComponent(ModelState.IsAtLeastRegistered.class)) {
-			initialize(self);
-			if (!isAtLeast(self, ModelState.Registered)) {
-				if (self.hasComponent(ModelState.class)) {
-					self.setComponent(ModelState.class, ModelState.Registered);
-				} else {
-					self.addComponent(ModelState.Registered);
-				}
-				self.notifyRegistered();
-			}
-			self.addComponent(REGISTERED_TAG);
-		}
-		return self;
-	}
-
-	/**
-	 * Checks the state of the specified node is at or later that the specified state.
-	 *
-	 * @param self  the node to compare, must not be null
-	 * @param state  the state to compare
-	 * @return {@literal true} if the state of the node is at or later that the specified state or {@literal false} otherwise.
-	 */
-	public static boolean isAtLeast(ModelNode self, ModelState state) {
-		return getState(self).compareTo(state) >= 0;
-	}
-
-	/**
-	 * Returns the state of the specified node.
-	 *
-	 * @param self  the node to query its state, must not be null
-	 * @return a {@link ModelState} representing the state of this model node, never null.
-	 */
-	public static ModelState getState(ModelNode self) {
-		return self.findComponent(ModelState.class).orElse(ModelState.Created);
-	}
 
 	/**
 	 * Returns the parent node of the specified node, if available.

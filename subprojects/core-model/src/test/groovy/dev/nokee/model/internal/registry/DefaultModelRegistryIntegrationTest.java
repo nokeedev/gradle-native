@@ -18,6 +18,7 @@ package dev.nokee.model.internal.registry;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.provider.Property;
@@ -167,7 +168,7 @@ public class DefaultModelRegistryIntegrationTest {
 		val action = new ModelTestActions.CaptureNodeTransitionAction();
 
 		modelRegistry.register(ModelRegistration.of("i", MyType.class));
-		modelRegistry.configure(matching(node -> ModelNodeUtils.isAtLeast(node, Realized), action));
+		modelRegistry.configure(matching(node -> ModelStates.isAtLeast(node, Realized), action));
 		modelRegistry.register(ModelRegistration.of("j", MyType.class)).get();
 
 		assertThat(action.getAllTransitions(), contains(realized(root()), realized("j")));
@@ -323,7 +324,7 @@ public class DefaultModelRegistryIntegrationTest {
 		modelRegistry.register(NodeRegistration.of("a", of(MyParent.class))
 			.action(self(discover(ctx -> ctx.register(NodeRegistration.of("child", of(MyChild.class))))))
 			.action(self(mutate(of(MyParent.class), MyParent::getChild))));
-		ModelNodeUtils.realize(modelRegistry.get(path("a")));
+		ModelStates.realize(modelRegistry.get(path("a")));
 
 		assertThat(action.getAllTransitions(), contains(registered(root()),
 			created("a"), initialized("a"), registered("a"),
@@ -339,7 +340,7 @@ public class DefaultModelRegistryIntegrationTest {
 		modelRegistry.register(NodeRegistration.of("a", of(MyParent.class))
 			.action(self(discover(ctx -> ctx.register(NodeRegistration.of("child", of(MyChild.class))))))
 			.action(self(mutate(of(MyParent.class), MyParent::getChild))));
-		ModelNodeUtils.realize(modelRegistry.get(path("a.child")));
+		ModelStates.realize(modelRegistry.get(path("a.child")));
 
 		assertThat(action.getAllTransitions(), contains(registered(root()),
 			created("a"), initialized("a"), registered("a"),
@@ -350,7 +351,7 @@ public class DefaultModelRegistryIntegrationTest {
 	interface MyParent {
 		default MyChild getChild() {
 			// When querying descendant node, it's best practice to realize the node.
-			return ModelNodeUtils.get(ModelNodeUtils.realize(ModelNodeUtils.getDescendant(ModelNodes.of(this), "child")), MyChild.class);
+			return ModelNodeUtils.get(ModelStates.realize(ModelNodeUtils.getDescendant(ModelNodes.of(this), "child")), MyChild.class);
 		}
 	}
 
