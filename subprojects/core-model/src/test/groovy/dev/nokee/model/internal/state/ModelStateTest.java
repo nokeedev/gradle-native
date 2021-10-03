@@ -20,7 +20,7 @@ import dev.nokee.model.internal.core.ModelNodeUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 
-class ModelStateTagTest implements ModelStateTester.None {
+class ModelStateTest implements ModelStateTester.None {
 	private final ModelNode subject = new ModelNode();
 
 	@Override

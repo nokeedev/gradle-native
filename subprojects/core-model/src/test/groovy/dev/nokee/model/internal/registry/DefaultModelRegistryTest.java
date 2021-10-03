@@ -18,17 +18,25 @@ package dev.nokee.model.internal.registry;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.state.ModelStateTester;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
+import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.model.internal.core.ModelActions.matching;
+import static dev.nokee.model.internal.core.ModelNodeUtils.getParent;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.core.ModelPath.path;
+import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -67,13 +75,13 @@ public class DefaultModelRegistryTest {
 
 		@Test
 		void canAccessRootNode() {
-			val rootNode = assertDoesNotThrow(() -> modelLookup.get(ModelPath.root()));
-			assertEquals(ModelPath.root(), rootNode.getPath(), "node path should be root path");
+			val rootNode = assertDoesNotThrow(() -> modelLookup.get(root()));
+			assertEquals(root(), rootNode.getPath(), "node path should be root path");
 		}
 
 		@Test
 		void rootNodeIsAlwaysRegistered() {
-			assertEquals(ModelNode.State.Registered, ModelNodeUtils.getState(modelLookup.get(ModelPath.root())));
+			assertEquals(ModelNode.State.Registered, ModelNodeUtils.getState(modelLookup.get(root())));
 		}
 
 		@Test
@@ -116,7 +124,7 @@ public class DefaultModelRegistryTest {
 
 		@Test
 		void rootNodeAlwaysExists() {
-			assertTrue(modelLookup.has(ModelPath.root()), "root node always exists");
+			assertTrue(modelLookup.has(root()), "root node always exists");
 		}
 
 		@Test
@@ -149,6 +157,47 @@ public class DefaultModelRegistryTest {
 		assertThat("relative registration can also be performed from an arbitrary node",
 			subject.get(path("a")).register(NodeRegistration.of("foo", of(MyType.class))),
 			equalTo(modelRegistry.get("a.foo", MyType.class)));
+	}
+
+	@Test
+	void rootEntityHasNoParent() {
+		assertThat(getParent(subject.get(root())), emptyOptional());
+	}
+
+	@Nested
+	class NewEntityParentTest {
+		@BeforeEach
+		void setUp() {
+			modelRegistry.register(ModelRegistration.of("dkij", MyType.class));
+			modelRegistry.register(ModelRegistration.of("dkij.koel", MyType.class));
+		}
+
+		@Test
+		void newEntityHasParent() {
+			assertThat(getParent(subject.get(path("dkij"))), optionalWithValue(is(subject.get(root()))));
+			assertThat(getParent(subject.get(path("dkij.koel"))), optionalWithValue(is(subject.get(path("dkij")))));
+		}
+	}
+
+	@Nested
+	class RootEntityStateTest implements ModelStateTester.Registered {
+		@Override
+		public ModelNode subject() {
+			return subject.get(root());
+		}
+	}
+
+	@Nested
+	class NewEntityStateTest implements ModelStateTester.Registered {
+		@BeforeEach
+		void setUp() {
+			modelRegistry.register(ModelRegistration.of("djtg", MyType.class));
+		}
+
+		@Override
+		public ModelNode subject() {
+			return subject.get(path("djtg"));
+		}
 	}
 
 	interface MyType {}

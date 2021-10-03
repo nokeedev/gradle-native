@@ -58,7 +58,7 @@ public interface ModelStateTester {
 		}
 
 		@Test
-		default void isAtLeastCreated() {
+		default void isAtMostCreated() {
 			assertTrue(isAtLeast(subject(), ModelNode.State.Created));
 
 			assertFalse(isAtLeast(subject(), ModelNode.State.Initialized));
@@ -99,7 +99,7 @@ public interface ModelStateTester {
 		}
 
 		@Test
-		default void isAtLeastCreated() {
+		default void isAtMostCreated() {
 			assertTrue(isAtLeast(subject(), ModelNode.State.Created));
 
 			assertFalse(isAtLeast(subject(), ModelNode.State.Initialized));
@@ -140,7 +140,7 @@ public interface ModelStateTester {
 		}
 
 		@Test
-		default void isAtLeastInitialized() {
+		default void isAtMostInitialized() {
 			assertTrue(isAtLeast(subject(), ModelNode.State.Created));
 			assertTrue(isAtLeast(subject(), ModelNode.State.Initialized));
 
@@ -181,7 +181,7 @@ public interface ModelStateTester {
 		}
 
 		@Test
-		default void isAtLeastRegistered() {
+		default void isAtMostRegistered() {
 			assertTrue(isAtLeast(subject(), ModelNode.State.Created));
 			assertTrue(isAtLeast(subject(), ModelNode.State.Initialized));
 			assertTrue(isAtLeast(subject(), ModelNode.State.Registered));
@@ -222,7 +222,7 @@ public interface ModelStateTester {
 		}
 
 		@Test
-		default void isAtLeastRealized() {
+		default void isAtMostRealized() {
 			assertTrue(isAtLeast(subject(), ModelNode.State.Created));
 			assertTrue(isAtLeast(subject(), ModelNode.State.Initialized));
 			assertTrue(isAtLeast(subject(), ModelNode.State.Registered));

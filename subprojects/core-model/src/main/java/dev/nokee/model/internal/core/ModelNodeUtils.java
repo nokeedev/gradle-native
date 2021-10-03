@@ -31,7 +31,7 @@ public final class ModelNodeUtils {
 
 	private ModelNodeUtils() {}
 
-	static ModelNode create(ModelNode self) {
+	public static ModelNode create(ModelNode self) {
 		if (!self.hasComponent(ModelState.Created.class)) {
 			if (self.hasComponent(ModelNode.State.class)) {
 				self.setComponent(ModelNode.State.class, ModelNode.State.Created);
@@ -52,7 +52,7 @@ public final class ModelNodeUtils {
 	 */
 	public static ModelNode realize(ModelNode self) {
 		if (!self.hasComponent(ModelState.Realized.class)) {
-			ModelNodeUtils.register(self);
+			register(self);
 			if (!ModelNodeUtils.isAtLeast(self, ModelNode.State.Realized)) {
 				changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(self);
 				self.notifyRealized();
@@ -71,9 +71,9 @@ public final class ModelNodeUtils {
 		getParent(self).ifPresent(ModelNodeUtils::realize);
 	}
 
-	static ModelNode initialize(ModelNode self) {
+	public static ModelNode initialize(ModelNode self) {
 		if (!self.hasComponent(ModelState.Initialized.class)) {
-			assert self.getComponent(ModelNode.State.class) == ModelNode.State.Created;
+			create(self);
 			if (self.hasComponent(ModelNode.State.class)) {
 				self.setComponent(ModelNode.State.class, ModelNode.State.Initialized);
 			} else {
@@ -87,6 +87,7 @@ public final class ModelNodeUtils {
 
 	public static ModelNode register(ModelNode self) {
 		if (!self.hasComponent(ModelState.Registered.class)) {
+			initialize(self);
 			if (!isAtLeast(self, ModelNode.State.Registered)) {
 				if (self.hasComponent(ModelNode.State.class)) {
 					self.setComponent(ModelNode.State.class, ModelNode.State.Registered);
@@ -108,7 +109,7 @@ public final class ModelNodeUtils {
 	 * @return {@literal true} if the state of the node is at or later that the specified state or {@literal false} otherwise.
 	 */
 	public static boolean isAtLeast(ModelNode self, ModelNode.State state) {
-		return self.getComponent(ModelNode.State.class).compareTo(state) >= 0;
+		return getState(self).compareTo(state) >= 0;
 	}
 
 	/**
@@ -118,7 +119,7 @@ public final class ModelNodeUtils {
 	 * @return a {@link ModelNode.State} representing the state of this model node, never null.
 	 */
 	public static ModelNode.State getState(ModelNode self) {
-		return self.getComponent(ModelNode.State.class);
+		return self.findComponent(ModelNode.State.class).orElse(ModelNode.State.Created);
 	}
 
 	/**
