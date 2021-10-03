@@ -54,7 +54,7 @@ import static java.util.Objects.requireNonNull;
 public final class ModelNode {
 	private final ModelPath path;
 	private final ModelNodeListener listener;
-	private final Projections projections;
+	private final Instantiator instantiator;
 	private final List<ModelComponent> components = new ArrayList<>();
 
 	public enum State implements ModelComponent {
@@ -69,13 +69,13 @@ public final class ModelNode {
 	public ModelNode() {
 		this.path = null;
 		this.listener = ModelNodeListener.noOpListener();
-		this.projections = null;
+		this.instantiator = null;
 	}
 
 	private ModelNode(ModelPath path, ModelConfigurer configurer, ModelNodeListener listener, ModelLookup modelLookup, ModelRegistry modelRegistry, Instantiator instantiator) {
 		this.path = path;
-		this.projections = new Projections(instantiator);
 		this.listener = listener;
+		this.instantiator = instantiator;
 		addComponent(new DescendantNodes(modelLookup, path));
 		addComponent(new RelativeRegistrationService(path, modelRegistry));
 		addComponent(new RelativeConfigurationService(path, configurer));
@@ -88,13 +88,13 @@ public final class ModelNode {
 
 	void addProjection(ModelProjection projection) {
 		assert getComponent(State.class) == State.Created : "can only add projection before the node is initialized";
-		components.add(projections.add(projection));
+		components.add(bindManagedProjectionWithInstantiator(projection));
 		listener.projectionAdded(this);
 	}
 
 	public void addComponent(ModelComponent component) {
 		if (component instanceof ModelProjection) {
-			components.add(projections.add((ModelProjection) component));
+			components.add(bindManagedProjectionWithInstantiator((ModelProjection) component));
 		} else {
 			components.add(component);
 		}
@@ -153,26 +153,11 @@ public final class ModelNode {
 		return path.toString();
 	}
 
-	private final static class Projections {
-		private final List<ModelProjection> projections = new ArrayList<>();
-		private final Instantiator instantiator;
-
-		public Projections(Instantiator instantiator) {
-			this.instantiator = instantiator;
+	private ModelProjection bindManagedProjectionWithInstantiator(ModelProjection projection) {
+		if (projection instanceof ManagedModelProjection) {
+			return ((ManagedModelProjection<?>) projection).bind(instantiator);
 		}
-
-		public ModelProjection add(ModelProjection projection) {
-			projection = bindManagedProjectionWithInstantiator(projection);
-			projections.add(projection);
-			return projection;
-		}
-
-		private ModelProjection bindManagedProjectionWithInstantiator(ModelProjection projection) {
-			if (projection instanceof ManagedModelProjection) {
-				return ((ManagedModelProjection<?>) projection).bind(instantiator);
-			}
-			return projection;
-		}
+		return projection;
 	}
 
 	/**
