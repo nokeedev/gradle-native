@@ -18,11 +18,10 @@ package dev.nokee.model.internal.core;
 import dev.nokee.model.internal.registry.ModelLookup;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 
-public final class DescendantNodes implements ModelComponent {
+public final class DescendantNodes {
 	private final ModelLookup modelLookup;
 	private final ModelPath path;
 

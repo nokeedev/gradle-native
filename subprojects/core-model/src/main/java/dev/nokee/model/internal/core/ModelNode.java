@@ -54,7 +54,7 @@ public final class ModelNode {
 	private final ModelNodeListener listener;
 	private final List<Object> components = new ArrayList<>();
 
-	public enum State implements ModelComponent {
+	public enum State {
 		Created, // Node instance created, can now add projections
 		Initialized, // All projection added
 		Registered, // Node attached to registry

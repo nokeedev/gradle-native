@@ -19,7 +19,7 @@ package dev.nokee.model.internal.core;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.registry.ModelRegistry;
 
-public final class RelativeRegistrationService implements ModelComponent {
+public final class RelativeRegistrationService {
 	private final ModelPath path;
 	private final ModelRegistry modelRegistry;
 
