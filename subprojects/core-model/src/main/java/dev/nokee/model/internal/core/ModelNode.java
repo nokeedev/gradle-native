@@ -55,7 +55,6 @@ public final class ModelNode {
 	private final ModelPath path;
 	private final ModelNodeListener listener;
 	private final Projections projections;
-	private final ModelConfigurer configurer;
 	private final List<ModelComponent> components = new ArrayList<>();
 
 	public enum State implements ModelComponent {
@@ -71,13 +70,11 @@ public final class ModelNode {
 		this.path = null;
 		this.listener = ModelNodeListener.noOpListener();
 		this.projections = null;
-		this.configurer = null;
 	}
 
 	private ModelNode(ModelPath path, ModelConfigurer configurer, ModelNodeListener listener, ModelLookup modelLookup, ModelRegistry modelRegistry, Instantiator instantiator) {
 		this.path = path;
 		this.projections = new Projections(instantiator);
-		this.configurer = configurer;
 		this.listener = listener;
 		addComponent(new DescendantNodes(modelLookup, path));
 		addComponent(new RelativeRegistrationService(path, modelRegistry));
