@@ -54,7 +54,6 @@ import static java.util.Objects.requireNonNull;
 public final class ModelNode {
 	private final ModelPath path;
 	private final ModelNodeListener listener;
-	private final Instantiator instantiator;
 	private final List<ModelComponent> components = new ArrayList<>();
 
 	public enum State implements ModelComponent {
@@ -69,16 +68,15 @@ public final class ModelNode {
 	public ModelNode() {
 		this.path = null;
 		this.listener = ModelNodeListener.noOpListener();
-		this.instantiator = null;
 	}
 
 	private ModelNode(ModelPath path, ModelConfigurer configurer, ModelNodeListener listener, ModelLookup modelLookup, ModelRegistry modelRegistry, Instantiator instantiator) {
 		this.path = path;
 		this.listener = listener;
-		this.instantiator = instantiator;
 		addComponent(new DescendantNodes(modelLookup, path));
 		addComponent(new RelativeRegistrationService(path, modelRegistry));
 		addComponent(new RelativeConfigurationService(path, configurer));
+		addComponent(new BindManagedProjectionService(instantiator));
 		path.getParent().ifPresent(parentPath -> {
 			addComponent(new ParentNode(modelLookup.get(parentPath)));
 		});
@@ -88,16 +86,12 @@ public final class ModelNode {
 
 	void addProjection(ModelProjection projection) {
 		assert getComponent(State.class) == State.Created : "can only add projection before the node is initialized";
-		components.add(bindManagedProjectionWithInstantiator(projection));
+		components.add(getComponent(BindManagedProjectionService.class).bindManagedProjectionWithInstantiator(projection));
 		listener.projectionAdded(this);
 	}
 
 	public void addComponent(ModelComponent component) {
-		if (component instanceof ModelProjection) {
-			components.add(bindManagedProjectionWithInstantiator((ModelProjection) component));
-		} else {
-			components.add(component);
-		}
+		components.add(component);
 		listener.projectionAdded(this);
 	}
 
@@ -151,13 +145,6 @@ public final class ModelNode {
 	@Override
 	public String toString() {
 		return path.toString();
-	}
-
-	private ModelProjection bindManagedProjectionWithInstantiator(ModelProjection projection) {
-		if (projection instanceof ManagedModelProjection) {
-			return ((ManagedModelProjection<?>) projection).bind(instantiator);
-		}
-		return projection;
 	}
 
 	/**
