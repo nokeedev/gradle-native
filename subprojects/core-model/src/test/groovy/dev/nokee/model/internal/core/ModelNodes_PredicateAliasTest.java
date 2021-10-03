@@ -17,8 +17,8 @@ package dev.nokee.model.internal.core;
 
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.model.internal.core.ModelNode.State.Realized;
-import static dev.nokee.model.internal.core.ModelNode.State.Registered;
+import static dev.nokee.model.internal.state.ModelState.Realized;
+import static dev.nokee.model.internal.state.ModelState.Registered;
 import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;

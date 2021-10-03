@@ -49,21 +49,21 @@ public interface ModelStateTester {
 
 		@Test
 		default void defaultsToCreatedState() {
-			assertEquals(getState(subject()), ModelNode.State.Created);
+			assertEquals(getState(subject()), ModelState.Created);
 		}
 
 		@Test
 		default void doesNotHaveStateComponent() {
-			assertFalse(subject().hasComponent(ModelNode.State.class));
+			assertFalse(subject().hasComponent(ModelState.class));
 		}
 
 		@Test
 		default void isAtMostCreated() {
-			assertTrue(isAtLeast(subject(), ModelNode.State.Created));
+			assertTrue(isAtLeast(subject(), ModelState.Created));
 
-			assertFalse(isAtLeast(subject(), ModelNode.State.Initialized));
-			assertFalse(isAtLeast(subject(), ModelNode.State.Registered));
-			assertFalse(isAtLeast(subject(), ModelNode.State.Realized));
+			assertFalse(isAtLeast(subject(), ModelState.Initialized));
+			assertFalse(isAtLeast(subject(), ModelState.Registered));
+			assertFalse(isAtLeast(subject(), ModelState.Realized));
 		}
 	}
 
@@ -90,21 +90,21 @@ public interface ModelStateTester {
 
 		@Test
 		default void hasCreatedState() {
-			assertEquals(getState(subject()), ModelNode.State.Created);
+			assertEquals(getState(subject()), ModelState.Created);
 		}
 
 		@Test
 		default void hasStateComponent() {
-			assertTrue(subject().hasComponent(ModelNode.State.class));
+			assertTrue(subject().hasComponent(ModelState.class));
 		}
 
 		@Test
 		default void isAtMostCreated() {
-			assertTrue(isAtLeast(subject(), ModelNode.State.Created));
+			assertTrue(isAtLeast(subject(), ModelState.Created));
 
-			assertFalse(isAtLeast(subject(), ModelNode.State.Initialized));
-			assertFalse(isAtLeast(subject(), ModelNode.State.Registered));
-			assertFalse(isAtLeast(subject(), ModelNode.State.Realized));
+			assertFalse(isAtLeast(subject(), ModelState.Initialized));
+			assertFalse(isAtLeast(subject(), ModelState.Registered));
+			assertFalse(isAtLeast(subject(), ModelState.Realized));
 		}
 	}
 
@@ -131,21 +131,21 @@ public interface ModelStateTester {
 
 		@Test
 		default void hasInitializedState() {
-			assertEquals(getState(subject()), ModelNode.State.Initialized);
+			assertEquals(getState(subject()), ModelState.Initialized);
 		}
 
 		@Test
 		default void hasStateComponent() {
-			assertTrue(subject().hasComponent(ModelNode.State.class));
+			assertTrue(subject().hasComponent(ModelState.class));
 		}
 
 		@Test
 		default void isAtMostInitialized() {
-			assertTrue(isAtLeast(subject(), ModelNode.State.Created));
-			assertTrue(isAtLeast(subject(), ModelNode.State.Initialized));
+			assertTrue(isAtLeast(subject(), ModelState.Created));
+			assertTrue(isAtLeast(subject(), ModelState.Initialized));
 
-			assertFalse(isAtLeast(subject(), ModelNode.State.Registered));
-			assertFalse(isAtLeast(subject(), ModelNode.State.Realized));
+			assertFalse(isAtLeast(subject(), ModelState.Registered));
+			assertFalse(isAtLeast(subject(), ModelState.Realized));
 		}
 	}
 
@@ -172,21 +172,21 @@ public interface ModelStateTester {
 
 		@Test
 		default void hasRegisteredState() {
-			assertEquals(getState(subject()), ModelNode.State.Registered);
+			assertEquals(getState(subject()), ModelState.Registered);
 		}
 
 		@Test
 		default void hasStateComponent() {
-			assertTrue(subject().hasComponent(ModelNode.State.class));
+			assertTrue(subject().hasComponent(ModelState.class));
 		}
 
 		@Test
 		default void isAtMostRegistered() {
-			assertTrue(isAtLeast(subject(), ModelNode.State.Created));
-			assertTrue(isAtLeast(subject(), ModelNode.State.Initialized));
-			assertTrue(isAtLeast(subject(), ModelNode.State.Registered));
+			assertTrue(isAtLeast(subject(), ModelState.Created));
+			assertTrue(isAtLeast(subject(), ModelState.Initialized));
+			assertTrue(isAtLeast(subject(), ModelState.Registered));
 
-			assertFalse(isAtLeast(subject(), ModelNode.State.Realized));
+			assertFalse(isAtLeast(subject(), ModelState.Realized));
 		}
 	}
 
@@ -213,20 +213,20 @@ public interface ModelStateTester {
 
 		@Test
 		default void hasRealizedState() {
-			assertEquals(getState(subject()), ModelNode.State.Realized);
+			assertEquals(getState(subject()), ModelState.Realized);
 		}
 
 		@Test
 		default void hasStateComponent() {
-			assertTrue(subject().hasComponent(ModelNode.State.class));
+			assertTrue(subject().hasComponent(ModelState.class));
 		}
 
 		@Test
 		default void isAtMostRealized() {
-			assertTrue(isAtLeast(subject(), ModelNode.State.Created));
-			assertTrue(isAtLeast(subject(), ModelNode.State.Initialized));
-			assertTrue(isAtLeast(subject(), ModelNode.State.Registered));
-			assertTrue(isAtLeast(subject(), ModelNode.State.Realized));
+			assertTrue(isAtLeast(subject(), ModelState.Created));
+			assertTrue(isAtLeast(subject(), ModelState.Initialized));
+			assertTrue(isAtLeast(subject(), ModelState.Registered));
+			assertTrue(isAtLeast(subject(), ModelState.Realized));
 		}
 	}
 }

@@ -19,7 +19,7 @@ import com.google.common.testing.NullPointerTester;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelStateTester;
-import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.state.ModelState;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -81,12 +81,12 @@ public class DefaultModelRegistryTest {
 
 		@Test
 		void rootNodeIsAlwaysRegistered() {
-			assertEquals(ModelNode.State.Registered, ModelNodeUtils.getState(modelLookup.get(root())));
+			assertEquals(ModelState.Registered, ModelNodeUtils.getState(modelLookup.get(root())));
 		}
 
 		@Test
 		void registeredNodeAreAtRegisteredState() {
-			assertEquals(ModelNode.State.Registered, ModelNodeUtils.getState(modelLookup.get(register("woot"))),
+			assertEquals(ModelState.Registered, ModelNodeUtils.getState(modelLookup.get(register("woot"))),
 				"new node state should be registered");
 		}
 
@@ -104,7 +104,7 @@ public class DefaultModelRegistryTest {
 				assertThrows(IllegalArgumentException.class, () -> modelLookup.get(path("foo")));
 				return null;
 			}).when(action).execute(any());
-			subject.configure(matching(it -> ModelNodeUtils.getState(it).equals(ModelNode.State.Initialized), action));
+			subject.configure(matching(it -> ModelNodeUtils.getState(it).equals(ModelState.Initialized), action));
 			register("foo");
 			verify(action, times(1)).execute(any());
 		}
@@ -117,7 +117,7 @@ public class DefaultModelRegistryTest {
 				assertDoesNotThrow(() -> modelLookup.get(path("bar")));
 				return null;
 			}).when(action).execute(any());
-			subject.configure(matching(it -> ModelNodeUtils.getState(it).equals(ModelNode.State.Registered) && ModelNodeUtils.getPath(it).equals(path("bar")), action));
+			subject.configure(matching(it -> ModelNodeUtils.getState(it).equals(ModelState.Registered) && ModelNodeUtils.getPath(it).equals(path("bar")), action));
 			register("bar");
 			verify(action, times(1)).execute(any());
 		}

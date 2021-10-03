@@ -29,7 +29,7 @@ import static dev.nokee.internal.testing.util.ProjectTestUtils.createChildProjec
 import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
-import static dev.nokee.model.internal.core.ModelNode.State.Realized;
+import static dev.nokee.model.internal.state.ModelState.Realized;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescriptionScheme.forComponent;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationRegistry.forProject;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.*;

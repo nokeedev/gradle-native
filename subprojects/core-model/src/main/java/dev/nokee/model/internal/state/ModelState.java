@@ -15,9 +15,17 @@
  */
 package dev.nokee.model.internal.state;
 
-public interface ModelState {
-	final class IsAtLeastCreated {}
-	final class IsAtLeastInitialized {}
-	final class IsAtLeastRegistered {}
-	final class IsAtLeastRealized {}
+public enum ModelState {
+	Created, // Node instance created, can now add projections
+	Initialized, // All projection added
+	Registered, // Node attached to registry
+	// Discovered, // Node discovered, can now register child nodes
+	Realized // Node is in use
+	// Finalized, // Node data should not mutate any more, can now compute additional data on child nodes
+	;
+
+	public static final class IsAtLeastCreated {}
+	public static final class IsAtLeastInitialized {}
+	public static final class IsAtLeastRegistered {}
+	public static final class IsAtLeastRealized {}
 }

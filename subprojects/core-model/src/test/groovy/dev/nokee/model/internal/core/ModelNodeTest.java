@@ -19,6 +19,7 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.junit.jupiter.api.*;
@@ -164,7 +165,7 @@ class ModelNodeTest {
 
 			@Test
 			void stayAsRealizeWhenRegisterIsCalledAfter() {
-				assertEquals(ModelNode.State.Realized, ModelNodeUtils.getState(ModelNodeUtils.register(ModelNodeUtils.realize(node))));
+				assertEquals(ModelState.Realized, ModelNodeUtils.getState(ModelNodeUtils.register(ModelNodeUtils.realize(node))));
 			}
 
 			@AfterEach
@@ -183,7 +184,7 @@ class ModelNodeTest {
 
 			@Test
 			void stateIsRealized() {
-				assertEquals(ModelNode.State.Realized, ModelNodeUtils.getState(node));
+				assertEquals(ModelState.Realized, ModelNodeUtils.getState(node));
 			}
 
 			@Test
@@ -201,8 +202,8 @@ class ModelNodeTest {
 		val childNode = childNode(parentNode);
 		ModelNodeUtils.realize(childNode);
 		assertAll(() -> {
-			assertThat(ModelNodeUtils.getState(parentNode), equalTo(ModelNode.State.Realized));
-			assertThat(ModelNodeUtils.getState(childNode), equalTo(ModelNode.State.Realized));
+			assertThat(ModelNodeUtils.getState(parentNode), equalTo(ModelState.Realized));
+			assertThat(ModelNodeUtils.getState(childNode), equalTo(ModelState.Realized));
 		});
 	}
 

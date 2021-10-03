@@ -16,6 +16,7 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.testing.EqualsTester;
+import dev.nokee.model.internal.state.ModelState;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
@@ -28,22 +29,22 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ModelNodes_StateAtLeastTest {
 	@Test
 	void checkToString() {
-		assertThat(stateAtLeast(ModelNode.State.Registered), hasToString("ModelNodes.stateAtLeast(Registered)"));
+		assertThat(stateAtLeast(ModelState.Registered), hasToString("ModelNodes.stateAtLeast(Registered)"));
 	}
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(stateAtLeast(ModelNode.State.Registered), stateAtLeast(ModelNode.State.Registered))
-			.addEqualityGroup(stateAtLeast(ModelNode.State.Initialized))
-			.addEqualityGroup(stateAtLeast(ModelNode.State.Realized))
+			.addEqualityGroup(stateAtLeast(ModelState.Registered), stateAtLeast(ModelState.Registered))
+			.addEqualityGroup(stateAtLeast(ModelState.Initialized))
+			.addEqualityGroup(stateAtLeast(ModelState.Realized))
 			.testEquals();
 	}
 
 	@Test
 	void canCreatePredicateFilterForModelNodeByStateAtLeastInitialized() {
-		val predicate = stateAtLeast(ModelNode.State.Initialized);
+		val predicate = stateAtLeast(ModelState.Initialized);
 		assertAll(() -> {
 			assertTrue(predicate.test(node()));
 			assertTrue(predicate.test(ModelNodeUtils.register(node())));
@@ -53,7 +54,7 @@ public class ModelNodes_StateAtLeastTest {
 
 	@Test
 	void canCreatePredicateFilterForModelNodeByStateAtLeastRegistered() {
-		val predicate = stateAtLeast(ModelNode.State.Registered);
+		val predicate = stateAtLeast(ModelState.Registered);
 		assertAll(() -> {
 			assertFalse(predicate.test(node()));
 			assertTrue(predicate.test(ModelNodeUtils.register(node())));
@@ -63,7 +64,7 @@ public class ModelNodes_StateAtLeastTest {
 
 	@Test
 	void canCreatePredicateFilterForModelNodeByStateAtLeastRealized() {
-		val predicate = stateAtLeast(ModelNode.State.Realized);
+		val predicate = stateAtLeast(ModelState.Realized);
 		assertAll(() -> {
 			assertFalse(predicate.test(node()));
 			assertFalse(predicate.test(ModelNodeUtils.register(node())));

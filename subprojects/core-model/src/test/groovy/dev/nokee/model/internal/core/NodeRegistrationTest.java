@@ -16,6 +16,7 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.testing.EqualsTester;
+import dev.nokee.model.internal.state.ModelState;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import spock.lang.Subject;
@@ -79,14 +80,14 @@ class NodeRegistrationTest {
 			.addEqualityGroup(NodeRegistration.of("c", of(MyType.class)))
 			.addEqualityGroup(NodeRegistration.of("a", of(MyOtherType.class)))
 			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")))
-			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")).action(self(stateAtLeast(ModelNode.State.Registered)).apply(doSomething())))
+			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")).action(self(stateAtLeast(ModelState.Registered)).apply(doSomething())))
 			.testEquals();
 	}
 
 	@Test
 	void canAddActions() {
-		val registration = NodeRegistration.of("bar", of(MyType.class)).action(self(stateAtLeast(ModelNode.State.Registered)).apply(doSomething())).scope(path("foo"));
-		assertThat(registration.getActions(), hasItem(matching(self(stateAtLeast(ModelNode.State.Registered)).scope(path("foo.bar")), doSomething()))); // other are for projections
+		val registration = NodeRegistration.of("bar", of(MyType.class)).action(self(stateAtLeast(ModelState.Registered)).apply(doSomething())).scope(path("foo"));
+		assertThat(registration.getActions(), hasItem(matching(self(stateAtLeast(ModelState.Registered)).scope(path("foo.bar")), doSomething()))); // other are for projections
 	}
 
 	@Test

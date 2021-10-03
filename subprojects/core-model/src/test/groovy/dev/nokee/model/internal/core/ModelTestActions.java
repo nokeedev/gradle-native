@@ -15,6 +15,7 @@
  */
 package dev.nokee.model.internal.core;
 
+import dev.nokee.model.internal.state.ModelState;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 
@@ -23,8 +24,8 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.nokee.model.internal.core.ModelNode.State.Realized;
-import static dev.nokee.model.internal.core.ModelNode.State.Registered;
+import static dev.nokee.model.internal.state.ModelState.Realized;
+import static dev.nokee.model.internal.state.ModelState.Registered;
 import static java.util.Objects.requireNonNull;
 
 public final class ModelTestActions {
@@ -132,11 +133,11 @@ public final class ModelTestActions {
 		}
 
 		public static CaptureNodeTransitionAction.NodeStateTransition initialized(Object path) {
-			return new CaptureNodeTransitionAction.NodeStateTransition(asPath(path), ModelNode.State.Initialized);
+			return new CaptureNodeTransitionAction.NodeStateTransition(asPath(path), ModelState.Initialized);
 		}
 
 		public static CaptureNodeTransitionAction.NodeStateTransition created(Object path) {
-			return new CaptureNodeTransitionAction.NodeStateTransition(asPath(path), ModelNode.State.Created);
+			return new CaptureNodeTransitionAction.NodeStateTransition(asPath(path), ModelState.Created);
 		}
 
 		private static ModelPath asPath(Object path) {
@@ -151,7 +152,7 @@ public final class ModelTestActions {
 		@Value
 		public static class NodeStateTransition {
 			ModelPath path;
-			ModelNode.State state;
+			ModelState state;
 		}
 	}
 }

@@ -21,10 +21,10 @@ import dev.nokee.ide.xcode.internal.XcodeIdeRequest;
 import dev.nokee.ide.xcode.internal.rules.CreateNativeComponentXcodeIdeProject;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -123,7 +123,7 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
 				val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
 				val action = new CreateNativeComponentXcodeIdeProject(extension, project.getProviders(), project.getObjects(), project.getLayout(), project.getTasks(), ProjectIdentifier.of(project), project.getExtensions().getByType(ModelLookup.class));
-				modelConfigurer.configure(matching(ModelNodes.stateAtLeast(ModelNode.State.Registered).and(withType(getComponentImplementationType()))::test, once(executeAsKnownProjection(getComponentImplementationType(), action))));
+				modelConfigurer.configure(matching(ModelNodes.stateAtLeast(ModelState.Registered).and(withType(getComponentImplementationType()))::test, once(executeAsKnownProjection(getComponentImplementationType(), action))));
 			}
 
 			private ModelType<BaseComponent<?>> getComponentImplementationType() {

@@ -18,6 +18,7 @@ package dev.nokee.model.internal.registry;
 import com.google.common.base.Preconditions;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ProviderUtils;
 import lombok.EqualsAndHashCode;
@@ -60,7 +61,7 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 
 	@Override
 	public void configure(Action<? super T> action) {
-		ModelNodeUtils.applyTo(node, self(stateAtLeast(ModelNode.State.Realized)).apply(executeUsingProjection(type, action)));
+		ModelNodeUtils.applyTo(node, self(stateAtLeast(ModelState.Realized)).apply(executeUsingProjection(type, action)));
 	}
 
 	private Provider<T> getAsProvider() {

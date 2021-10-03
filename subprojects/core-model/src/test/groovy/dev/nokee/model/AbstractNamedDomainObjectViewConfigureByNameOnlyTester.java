@@ -15,8 +15,8 @@
  */
 package dev.nokee.model;
 
-import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.state.ModelState;
 import groovy.lang.MissingMethodException;
 import lombok.val;
 import org.gradle.api.InvalidUserDataException;
@@ -65,7 +65,7 @@ public abstract class AbstractNamedDomainObjectViewConfigureByNameOnlyTester<T> 
 	void configureDoesNotRealizeNode() {
 		element("e2");
 		configure(subject, "e2");
-		assertThat(ModelNodeUtils.getState(node("e2")), lessThan(ModelNode.State.Realized));
+		assertThat(ModelNodeUtils.getState(node("e2")), lessThan(ModelState.Realized));
 	}
 
 	@Test

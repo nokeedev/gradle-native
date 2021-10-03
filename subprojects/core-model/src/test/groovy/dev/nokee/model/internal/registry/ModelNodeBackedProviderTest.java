@@ -18,6 +18,7 @@ package dev.nokee.model.internal.registry;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.state.ModelState;
 import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -66,7 +67,7 @@ public class ModelNodeBackedProviderTest {
 		@Test
 		void realizeNodeWhenProviderIsRealized() {
 			createSubject(MyType.class).get();
-			assertThat(ModelNodeUtils.getState(node), equalTo(ModelNode.State.Realized));
+			assertThat(ModelNodeUtils.getState(node), equalTo(ModelState.Realized));
 		}
 	}
 

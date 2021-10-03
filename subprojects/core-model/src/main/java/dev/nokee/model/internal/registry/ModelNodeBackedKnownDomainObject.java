@@ -19,6 +19,7 @@ import com.google.common.base.Preconditions;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ProviderUtils;
 import lombok.EqualsAndHashCode;
@@ -56,7 +57,7 @@ public class ModelNodeBackedKnownDomainObject<T> implements KnownDomainObject<T>
 
 	@Override
 	public void configure(Action<? super T> action) {
-		ModelNodeUtils.applyTo(node, self(stateAtLeast(ModelNode.State.Realized)).apply(executeUsingProjection(type, action)));
+		ModelNodeUtils.applyTo(node, self(stateAtLeast(ModelState.Realized)).apply(executeUsingProjection(type, action)));
 	}
 
 	private Provider<T> getAsProvider() {
