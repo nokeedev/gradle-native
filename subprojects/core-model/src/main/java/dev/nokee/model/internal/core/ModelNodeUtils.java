@@ -232,4 +232,8 @@ public final class ModelNodeUtils {
 	public static <T> DomainObjectProvider<T> register(ModelNode self, NodeRegistration<T> registration) {
 		return self.getComponent(RelativeRegistrationService.class).register(registration);
 	}
+
+	public static void applyTo(ModelNode self, NodeAction action) {
+		self.getComponent(RelativeConfigurationService.class).applyTo(action);
+	}
 }

@@ -48,8 +48,8 @@ public interface SourceAwareComponent<T extends ComponentSources> extends Compon
 	 * @param action  the configuration action, must not be null
 	 */
 	default void sources(Action<? super T> action) {
-		ModelNodeUtils.getDescendant(ModelNodes.of(this), "sources")
-			.applyTo(self(stateAtLeast(ModelNode.State.Realized)).apply(node -> action.execute((T) ModelNodeUtils.get(node, ComponentSources.class))));
+		ModelNodeUtils.applyTo(ModelNodeUtils.getDescendant(ModelNodes.of(this), "sources"),
+			self(stateAtLeast(ModelNode.State.Realized)).apply(node -> action.execute((T) ModelNodeUtils.get(node, ComponentSources.class))));
 	}
 
 	/**

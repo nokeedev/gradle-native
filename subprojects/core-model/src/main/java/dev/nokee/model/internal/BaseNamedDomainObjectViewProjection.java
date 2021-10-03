@@ -50,7 +50,7 @@ public class BaseNamedDomainObjectViewProjection implements AbstractModelNodeBac
 
 	@Override
 	public <T> void configure(String name, ModelType<T> type, Action<? super T> action) {
-		checkType(name, type).apply(ModelNodeUtils.getDescendant(node, name)).applyTo(self(stateAtLeast(ModelNode.State.Realized)).apply(executeUsingProjection(type, action)));
+		ModelNodeUtils.applyTo(checkType(name, type).apply(ModelNodeUtils.getDescendant(node, name)), self(stateAtLeast(ModelNode.State.Realized)).apply(executeUsingProjection(type, action)));
 	}
 
 //	protected String getTypeDisplayName() {

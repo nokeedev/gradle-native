@@ -56,7 +56,7 @@ public class ModelNodeBackedKnownDomainObject<T> implements KnownDomainObject<T>
 
 	@Override
 	public void configure(Action<? super T> action) {
-		node.applyTo(self(stateAtLeast(ModelNode.State.Realized)).apply(executeUsingProjection(type, action)));
+		ModelNodeUtils.applyTo(node, self(stateAtLeast(ModelNode.State.Realized)).apply(executeUsingProjection(type, action)));
 	}
 
 	private Provider<T> getAsProvider() {

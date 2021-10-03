@@ -81,6 +81,7 @@ public final class ModelNode {
 		this.listener = listener;
 		addComponent(new DescendantNodes(modelLookup, path));
 		addComponent(new RelativeRegistrationService(path, modelRegistry));
+		addComponent(new RelativeConfigurationService(path, configurer));
 		path.getParent().ifPresent(parentPath -> {
 			addComponent(new ParentNode(modelLookup.get(parentPath)));
 		});
@@ -148,10 +149,6 @@ public final class ModelNode {
 	 */
 	public ModelPath getPath() {
 		return path;
-	}
-
-	public void applyTo(NodeAction action) {
-		configurer.configure(action.scope(getPath()));
 	}
 
 	@Override

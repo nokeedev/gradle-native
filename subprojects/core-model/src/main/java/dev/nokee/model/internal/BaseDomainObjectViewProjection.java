@@ -48,12 +48,12 @@ public class BaseDomainObjectViewProjection implements AbstractModelNodeBackedDo
 
 	@Override
 	public <T> void configureEach(ModelType<T> type, Action<? super T> action) {
-		node.applyTo(allDirectDescendants(stateAtLeast(ModelNode.State.Realized).and(withType(type))).apply(executeUsingProjection(type, action)));
+		ModelNodeUtils.applyTo(node, allDirectDescendants(stateAtLeast(ModelNode.State.Realized).and(withType(type))).apply(executeUsingProjection(type, action)));
 	}
 
 	@Override
 	public <T> void configureEach(ModelType<T> type, Spec<? super T> spec, Action<? super T> action) {
-		node.applyTo(allDirectDescendants(stateAtLeast(ModelNode.State.Realized).and(withType(type)).and(isSatisfiedByProjection(type, spec))).apply(executeUsingProjection(type, action)));
+		ModelNodeUtils.applyTo(node, allDirectDescendants(stateAtLeast(ModelNode.State.Realized).and(withType(type)).and(isSatisfiedByProjection(type, spec))).apply(executeUsingProjection(type, action)));
 	}
 
 	private <T> Set<T> get(ModelType<T> type) {
@@ -71,7 +71,7 @@ public class BaseDomainObjectViewProjection implements AbstractModelNodeBackedDo
 
 	@Override
 	public <T> void whenElementKnown(ModelType<T> type, Action<? super KnownDomainObject<T>> action) {
-		node.applyTo(allDirectDescendants(stateAtLeast(ModelNode.State.Registered).and(withType(type))).apply(once(executeAsKnownProjection(type, action))));
+		ModelNodeUtils.applyTo(node, allDirectDescendants(stateAtLeast(ModelNode.State.Registered).and(withType(type))).apply(once(executeAsKnownProjection(type, action))));
 	}
 
 	@Override
