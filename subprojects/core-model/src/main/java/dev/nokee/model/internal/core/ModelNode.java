@@ -52,12 +52,18 @@ import static java.util.Objects.requireNonNull;
 //    Actually, we shouldn't allow attaching configuration (applyTo, applyToSelf).
 //    Instead users should go through the ModelRegistry for that and access a thin layer that gives access to the allowed query and apply methods
 public final class ModelNode {
+	private static long nextId = 0;
+	private final long id = nextId++;
 	private final List<Object> components = new ArrayList<>();
 
 	public ModelNode() {}
 
 	private ModelNode(ModelNodeListener listener) {
 		addComponent(listener);
+	}
+
+	public long getId() {
+		return id;
 	}
 
 	public void addComponent(Object component) {
