@@ -91,6 +91,7 @@ public final class ModelNode {
 		val existingComponent = getComponent(componentType);
 		val index = components.indexOf(existingComponent);
 		components.set(index, component);
+		notifyComponentAdded(component);
 	}
 
 	public Stream<Object> getComponents() {
