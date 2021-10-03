@@ -18,22 +18,14 @@ package dev.nokee.model.internal.core;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.type.ModelType;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class ModelActionWithInputs implements ModelAction {
-	private final Set<ModelPath> alreadyExecuted = new HashSet<>();
-
 	@Override
 	public void execute(ModelNode node) {
 		if (getInputs().stream().allMatch(it -> node.hasComponent(it.getConcreteType()))) {
-			// Guard against duplicated execution
-			// TODO: Find a better way to do this.
-			if (alreadyExecuted.add(ModelNodeUtils.getPath(node))) {
-				execute(node, getInputs().stream().map(it -> node.getComponent(it.getConcreteType())).collect(Collectors.toList()));
-			}
+			execute(node, getInputs().stream().map(it -> node.getComponent(it.getConcreteType())).collect(Collectors.toList()));
 		}
 	}
 
