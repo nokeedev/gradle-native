@@ -25,10 +25,10 @@ import java.util.stream.Stream;
 
 // TODO: Remove "maybe add" custom logic to favour dedup within ModelProjection adding logic
 public final class ModelNodeUtils {
-	private static final ModelComponent CREATED_TAG = new ModelState.Created();
-	private static final ModelComponent REALIZED_TAG = new ModelState.Realized();
-	private static final ModelComponent INITIALIZED_TAG = new ModelState.Initialized();
-	private static final ModelComponent REGISTERED_TAG = new ModelState.Registered();
+	private static final Object CREATED_TAG = new ModelState.Created();
+	private static final Object REALIZED_TAG = new ModelState.Realized();
+	private static final Object INITIALIZED_TAG = new ModelState.Initialized();
+	private static final Object REGISTERED_TAG = new ModelState.Registered();
 
 	private ModelNodeUtils() {}
 

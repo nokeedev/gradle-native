@@ -372,7 +372,7 @@ public class DefaultModelRegistryIntegrationTest {
 		assertThat(result, contains(ModelPath.path("foo.far")));
 	}
 
-	static class MyFooComponent implements ModelComponent {}
+	static class MyFooComponent {}
 
 //	@Test
 //	void canAccessModelNodeOnManagedType() {

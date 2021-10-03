@@ -17,7 +17,7 @@
 package dev.nokee.model.internal.core;
 
 // TODO: Should probably use a non-mutable ModelNode
-public final class ParentNode implements ModelComponent {
+public final class ParentNode {
 	private final ModelNode value;
 
 	public ParentNode(ModelNode value) {

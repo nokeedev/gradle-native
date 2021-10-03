@@ -17,7 +17,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.internal.registry.ModelConfigurer;
 
-public final class RelativeConfigurationService implements ModelComponent {
+public final class RelativeConfigurationService {
 	private final ModelPath path;
 	private final ModelConfigurer configurer;
 
