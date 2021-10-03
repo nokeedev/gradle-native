@@ -21,6 +21,7 @@ import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
 import java.util.*;
@@ -148,7 +149,9 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			for (int i = 0; i < configurations.size(); ++i) {
 				val configuration = configurations.get(i);
 				if (configuration instanceof ModelActionWithInputs) {
-					configuration.execute(node);
+					if (((ModelActionWithInputs) configuration).getInputs().contains(ModelType.typeOf(newComponent))) {
+						configuration.execute(node);
+					}
 				}
 			}
 		}
@@ -156,7 +159,9 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		private void notify(ModelNode node) {
 			for (int i = 0; i < configurations.size(); ++i) {
 				val configuration = configurations.get(i);
-				configuration.execute(node);
+				if (!(configuration instanceof ModelActionWithInputs)) {
+					configuration.execute(node);
+				}
 			}
 		}
 	}
