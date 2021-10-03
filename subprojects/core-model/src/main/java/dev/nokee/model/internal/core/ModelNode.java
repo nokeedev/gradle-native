@@ -17,7 +17,6 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.registry.ManagedModelProjection;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -52,7 +51,6 @@ import static java.util.Objects.requireNonNull;
 //    Actually, we shouldn't allow attaching configuration (applyTo, applyToSelf).
 //    Instead users should go through the ModelRegistry for that and access a thin layer that gives access to the allowed query and apply methods
 public final class ModelNode {
-	private final ModelPath path;
 	private final ModelNodeListener listener;
 	private final List<Object> components = new ArrayList<>();
 
@@ -66,13 +64,12 @@ public final class ModelNode {
 	}
 
 	public ModelNode() {
-		this.path = null;
 		this.listener = ModelNodeListener.noOpListener();
 	}
 
 	private ModelNode(ModelPath path, ModelConfigurer configurer, ModelNodeListener listener, ModelLookup modelLookup, ModelRegistry modelRegistry, Instantiator instantiator) {
-		this.path = path;
 		this.listener = listener;
+		addComponent(path);
 		addComponent(new DescendantNodes(modelLookup, path));
 		addComponent(new RelativeRegistrationService(path, modelRegistry));
 		addComponent(new RelativeConfigurationService(path, configurer));
@@ -133,18 +130,9 @@ public final class ModelNode {
 		listener.realized(this);
 	}
 
-	/**
-	 * Returns the path of this model node.
-	 *
-	 * @return a {@link ModelPath} representing this model node, never null.
-	 */
-	public ModelPath getPath() {
-		return path;
-	}
-
 	@Override
 	public String toString() {
-		return path.toString();
+		return getComponent(ModelPath.class).toString();
 	}
 
 	/**

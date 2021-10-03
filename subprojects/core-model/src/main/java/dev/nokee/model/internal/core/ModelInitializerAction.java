@@ -40,7 +40,7 @@ public abstract class ModelInitializerAction implements ModelAction {
 		}
 
 		public ModelPath getPath() {
-			return node.getPath();
+			return ModelNodeUtils.getPath(node);
 		}
 
 		public Context applyTo(NodeAction action) {

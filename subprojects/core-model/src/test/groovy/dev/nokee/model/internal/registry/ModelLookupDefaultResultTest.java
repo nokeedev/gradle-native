@@ -17,6 +17,7 @@ package dev.nokee.model.internal.registry;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -48,7 +49,7 @@ class ModelLookupDefaultResultTest {
 
 	@Test
 	void canMapTheResult() {
-		assertThat(subject.map(ModelNode::getPath), contains(path("n0"), path("n1"), path("n2")));
+		assertThat(subject.map(ModelNodeUtils::getPath), contains(path("n0"), path("n1"), path("n2")));
 	}
 
 	@Test

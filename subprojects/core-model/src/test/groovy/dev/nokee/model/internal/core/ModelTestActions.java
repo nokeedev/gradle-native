@@ -120,7 +120,7 @@ public final class ModelTestActions {
 
 		@Override
 		public void execute(ModelNode node) {
-			values.add(new CaptureNodeTransitionAction.NodeStateTransition(node.getPath(), ModelNodeUtils.getState(node)));
+			values.add(new CaptureNodeTransitionAction.NodeStateTransition(ModelNodeUtils.getPath(node), ModelNodeUtils.getState(node)));
 		}
 
 		public static CaptureNodeTransitionAction.NodeStateTransition realized(Object path) {

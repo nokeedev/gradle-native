@@ -93,7 +93,7 @@ public class DefaultModelRegistryIntegrationTest {
 	}
 	interface ModelNodeAccessingType {
 		default String getModelPathAsString() {
-			return ModelNodes.of(this).getPath().get();
+			return ModelNodeUtils.getPath(ModelNodes.of(this)).get();
 		}
 	}
 
@@ -197,7 +197,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canRegisterComplexModelSimply() {
 		modelRegistry.register(aComponent("main"));
 		val paths = ImmutableList.<ModelPath>builder();
-		modelRegistry.query(alwaysTrue()::test).map(ModelNode::getPath).forEach(paths::add);
+		modelRegistry.query(alwaysTrue()::test).map(ModelNodeUtils::getPath).forEach(paths::add);
 		assertThat(paths.build(), contains(root(), path("main"), path("main.sources"), path("main.sources.foo"), path("main.sources.bar")));
 	}
 
@@ -224,7 +224,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canIncludeActionInNodeRegistrationThatAppliesOnlyToSelfModelNode() {
 		val modelPaths = new HashSet<ModelPath>();
 		modelRegistry.register(ModelRegistration.of("x", MyType.class));
-		modelRegistry.register(NodeRegistration.of("y", of(MyType.class)).action(self((Predicate<ModelNode>) node -> modelPaths.add(node.getPath())).apply(doSomething())));
+		modelRegistry.register(NodeRegistration.of("y", of(MyType.class)).action(self((Predicate<ModelNode>) node -> modelPaths.add(ModelNodeUtils.getPath(node))).apply(doSomething())));
 		modelRegistry.register(ModelRegistration.of("y.foo", MyType.class));
 		modelRegistry.register(ModelRegistration.of("z", MyType.class));
 		assertThat("action for specific node isn't called for other nodes", modelPaths, hasItems(path("y")));
@@ -234,7 +234,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canIncludeActionInNodeRegistrationThatAppliesOnlyToDescendantModelNode() {
 		val modelPaths = new HashSet<ModelPath>();
 		modelRegistry.register(ModelRegistration.of("a", MyType.class));
-		modelRegistry.register(NodeRegistration.of("b", of(MyType.class)).action(allDirectDescendants(node -> modelPaths.add(node.getPath())).apply(doSomething())));
+		modelRegistry.register(NodeRegistration.of("b", of(MyType.class)).action(allDirectDescendants(node -> modelPaths.add(ModelNodeUtils.getPath(node))).apply(doSomething())));
 		modelRegistry.register(ModelRegistration.of("b.bar", MyType.class));
 		modelRegistry.register(ModelRegistration.of("c", MyType.class));
 		assertThat("action for descendant node isn't called for other nodes", modelPaths, hasItems(path("b.bar")));
@@ -271,10 +271,10 @@ public class DefaultModelRegistryIntegrationTest {
 	void honorsNestedConfigurationActionOrder() {
 		val executionOrder = new ArrayList<String>();
 		modelRegistry.configure(once(n1 -> {
-			executionOrder.add("n1 - " + n1.getPath());
+			executionOrder.add("n1 - " + ModelNodeUtils.getPath(n1));
 			ModelNodeUtils.applyTo(n1, allDirectDescendants().apply(once(n2 -> {
-				executionOrder.add("n2 - " + n2.getPath());
-				ModelNodeUtils.applyTo(n2, allDirectDescendants().apply(once(n3 -> executionOrder.add("n3 - " + n3.getPath()))));
+				executionOrder.add("n2 - " + ModelNodeUtils.getPath(n2));
+				ModelNodeUtils.applyTo(n2, allDirectDescendants().apply(once(n3 -> executionOrder.add("n3 - " + ModelNodeUtils.getPath(n3)))));
 			})));
 		}));
 
@@ -289,8 +289,8 @@ public class DefaultModelRegistryIntegrationTest {
 		val paths = new ArrayList<ModelPath>();
 		registerNode("foo");
 		modelRegistry.configure(matching(ModelSpecs.of(stateOf(Registered)), node -> {
-			paths.add(node.getPath());
-			if (node.getPath().equals(path("foo"))) {
+			paths.add(ModelNodeUtils.getPath(node));
+			if (ModelNodeUtils.getPath(node).equals(path("foo"))) {
 				ModelNodeUtils.register(node, NodeRegistration.of("bar", of(MyType.class)));
 			}
 		}));
@@ -305,8 +305,8 @@ public class DefaultModelRegistryIntegrationTest {
 		registerNode("foo");
 		registerNode("bar");
 		modelRegistry.configure(matching(ModelSpecs.of(stateOf(Registered)), node -> {
-			paths.add(node.getPath());
-			if (node.getPath().equals(path("foo"))) {
+			paths.add(ModelNodeUtils.getPath(node));
+			if (ModelNodeUtils.getPath(node).equals(path("foo"))) {
 				ModelNodeUtils.register(node, NodeRegistration.of("bar", of(MyType.class)));
 			}
 		}));
@@ -360,7 +360,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canExecuteActionWithComponentInputs() {
 		val result = new ArrayList<ModelPath>();
 		modelRegistry.configure(ModelActionWithInputs.of(ModelType.of(MyFooComponent.class), (node, i) -> {
-			result.add(node.getPath());
+			result.add(ModelNodeUtils.getPath(node));
 		}));
 		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo", Object.class), new Object()));
 		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo.bar", Object.class), new Object()));

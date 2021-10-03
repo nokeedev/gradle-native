@@ -89,7 +89,7 @@ class ModelNodeTest {
 
 	@Test
 	void canQueryModelNodePath() {
-		assertEquals(path("po.ta.to"), node("po.ta.to").getPath());
+		assertEquals(path("po.ta.to"), ModelNodeUtils.getPath(node("po.ta.to")));
 	}
 
 	@Test

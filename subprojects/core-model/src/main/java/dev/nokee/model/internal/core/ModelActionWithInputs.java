@@ -31,7 +31,7 @@ public abstract class ModelActionWithInputs implements ModelAction {
 		if (getInputs().stream().allMatch(it -> node.hasComponent(it.getConcreteType()))) {
 			// Guard against duplicated execution
 			// TODO: Find a better way to do this.
-			if (alreadyExecuted.add(node.getPath())) {
+			if (alreadyExecuted.add(ModelNodeUtils.getPath(node))) {
 				execute(node, getInputs().stream().map(it -> node.getComponent(it.getConcreteType())).collect(Collectors.toList()));
 			}
 		}

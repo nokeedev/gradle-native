@@ -132,7 +132,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 		@Override
 		public void registered(ModelNode node) {
-			nodes.put(node.getPath(), node);
+			nodes.put(ModelNodeUtils.getPath(node), node);
 			notify(node);
 		}
 

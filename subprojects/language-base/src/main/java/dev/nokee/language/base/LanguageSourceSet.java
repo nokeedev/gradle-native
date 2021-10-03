@@ -41,7 +41,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @return the name of the source set, never null
 	 */
 	default String getName() {
-		return ModelNodes.of(this).getPath().getName();
+		return ModelNodeUtils.getPath(ModelNodes.of(this)).getName();
 	}
 
 	/**

@@ -96,7 +96,7 @@ public final class ModelActions {
 
 		@Override
 		public void execute(ModelNode node) {
-			if (alreadyExecuted.add(node.getPath())) {
+			if (alreadyExecuted.add(ModelNodeUtils.getPath(node))) {
 				action.execute(node);
 			}
 		}
