@@ -17,6 +17,7 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.jupiter.api.Test;
@@ -65,7 +66,7 @@ class ModelDiscoverActionTest {
 		val captor = new ModelTestActions.CaptureNodeTransitionAction();
 		val node = node("foo", discover(context -> context.applyTo(self().apply(captor))));
 		assertThat(captor.getAllTransitions(), contains(registered("foo")));
-		ModelNodeUtils.realize(node);
+		ModelStates.realize(node);
 		assertThat(captor.getAllTransitions(), contains(registered("foo"), realized("foo")));
 	}
 
@@ -101,10 +102,10 @@ class ModelDiscoverActionTest {
 	interface MyType {}
 
 	private static ModelNode node(ModelAction... action) {
-		return ModelNodeUtils.register(ModelTestUtils.childNode(ModelTestUtils.rootNode(), "test", ImmutableList.copyOf(action), builder -> {}));
+		return ModelStates.register(ModelTestUtils.childNode(ModelTestUtils.rootNode(), "test", ImmutableList.copyOf(action), builder -> {}));
 	}
 
 	private static ModelNode node(String name, ModelAction... action) {
-		return ModelNodeUtils.register(ModelTestUtils.childNode(ModelTestUtils.rootNode(), name, ImmutableList.copyOf(action), builder -> {}));
+		return ModelStates.register(ModelTestUtils.childNode(ModelTestUtils.rootNode(), name, ImmutableList.copyOf(action), builder -> {}));
 	}
 }

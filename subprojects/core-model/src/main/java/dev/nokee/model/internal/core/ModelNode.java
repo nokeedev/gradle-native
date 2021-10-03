@@ -20,6 +20,7 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 
 import java.util.ArrayList;
@@ -56,10 +57,12 @@ public final class ModelNode {
 
 	public ModelNode() {
 		this.listener = ModelNodeListener.noOpListener();
+		addComponent(listener);
 	}
 
 	private ModelNode(ModelNodeListener listener) {
 		this.listener = listener;
+		addComponent(listener);
 	}
 
 	public void addComponent(Object component) {
@@ -71,7 +74,7 @@ public final class ModelNode {
 		return findComponent(type).orElseThrow(RuntimeException::new);
 	}
 
-	<T> Optional<T> findComponent(Class<T> type) {
+	public <T> Optional<T> findComponent(Class<T> type) {
 		return components.stream().filter(type::isInstance).map(type::cast).findFirst();
 	}
 
@@ -79,7 +82,7 @@ public final class ModelNode {
 		return components.stream().anyMatch(type::isInstance);
 	}
 
-	<T> void setComponent(Class<T> componentType, T component) {
+	public <T> void setComponent(Class<T> componentType, T component) {
 		val existingComponent = getComponent(componentType);
 		val index = components.indexOf(existingComponent);
 		components.set(index, component);
@@ -87,22 +90,6 @@ public final class ModelNode {
 
 	public Stream<Object> getComponents() {
 		return components.stream();
-	}
-
-	void notifyCreated() {
-		listener.created(this);
-	}
-
-	void notifyInitialized() {
-		listener.initialized(this);
-	}
-
-	void notifyRegistered() {
-		listener.registered(this);
-	}
-
-	void notifyRealized() {
-		listener.realized(this);
 	}
 
 	@Override
@@ -167,8 +154,8 @@ public final class ModelNode {
 			path.getParent().ifPresent(parentPath -> {
 				entity.addComponent(new ParentNode(lookup.get(parentPath)));
 			});
-			ModelNodeUtils.create(entity);
-			ModelNodeUtils.initialize(entity);
+			ModelStates.create(entity);
+			ModelStates.initialize(entity);
 			return entity;
 		}
 

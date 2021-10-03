@@ -20,6 +20,7 @@ import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ProviderUtils;
 import lombok.EqualsAndHashCode;
@@ -62,7 +63,7 @@ public class ModelNodeBackedKnownDomainObject<T> implements KnownDomainObject<T>
 
 	private Provider<T> getAsProvider() {
 		// TODO: We should prevent realizing the provider before a certain gate is achieved (maybe not registered)
-		return ProviderUtils.supplied(() -> ModelNodeUtils.get(ModelNodeUtils.realize(node), type));
+		return ProviderUtils.supplied(() -> ModelNodeUtils.get(ModelStates.realize(node), type));
 	}
 
 	@Override

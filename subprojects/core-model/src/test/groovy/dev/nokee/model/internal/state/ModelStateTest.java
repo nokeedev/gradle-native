@@ -16,7 +16,6 @@
 package dev.nokee.model.internal.state;
 
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 
@@ -32,7 +31,7 @@ class ModelStateTest implements ModelStateTester.None {
 	class CreateTest implements ModelStateTester.Created {
 		@BeforeEach
 		void transitionNodeToCreated() {
-			ModelNodeUtils.create(subject);
+			ModelStates.create(subject);
 		}
 
 		@Override
@@ -45,7 +44,7 @@ class ModelStateTest implements ModelStateTester.None {
 	class InitializeTest implements ModelStateTester.Initialized {
 		@BeforeEach
 		void transitionNodeToInitialized() {
-			ModelNodeUtils.initialize(subject);
+			ModelStates.initialize(subject);
 		}
 
 		@Override
@@ -58,7 +57,7 @@ class ModelStateTest implements ModelStateTester.None {
 	class RegisterTest implements ModelStateTester.Registered {
 		@BeforeEach
 		void transitionNodeToRegistered() {
-			ModelNodeUtils.register(subject);
+			ModelStates.register(subject);
 		}
 
 		@Override
@@ -71,7 +70,7 @@ class ModelStateTest implements ModelStateTester.None {
 	class RealizedTest implements ModelStateTester.Realized {
 		@BeforeEach
 		void transitionNodeToRealized() {
-			ModelNodeUtils.realize(subject);
+			ModelStates.realize(subject);
 		}
 
 		@Override

@@ -16,6 +16,7 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -158,7 +159,7 @@ public final class ModelNodes {
 
 		@Override
 		public boolean test(ModelNode node) {
-			return ModelNodeUtils.isAtLeast(node, state);
+			return ModelStates.isAtLeast(node, state);
 		}
 
 		@Override
@@ -181,7 +182,7 @@ public final class ModelNodes {
 
 		@Override
 		public boolean test(ModelNode node) {
-			return ModelNodeUtils.getState(node).equals(state);
+			return ModelStates.getState(node).equals(state);
 		}
 
 		@Override

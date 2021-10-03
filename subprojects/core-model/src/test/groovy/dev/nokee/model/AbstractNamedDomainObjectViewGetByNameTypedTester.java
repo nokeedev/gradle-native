@@ -16,8 +16,8 @@
 package dev.nokee.model;
 
 import dev.nokee.model.internal.core.ModelIdentifier;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIf;
@@ -56,14 +56,14 @@ public abstract class AbstractNamedDomainObjectViewGetByNameTypedTester<T> exten
 	void doesNotRealizeNode() {
 		element("e2", getSubElementType());
 		get(subject, "e2", getSubElementType());
-		assertThat(ModelNodeUtils.getState(node("e2")), lessThan(ModelState.Realized));
+		assertThat(ModelStates.getState(node("e2")), lessThan(ModelState.Realized));
 	}
 
 	@Test
 	void canRealizeNodeViaProvider() {
 		element("e3", getSubElementType());
 		get(subject, "e3", getSubElementType()).get();
-		assertThat(ModelNodeUtils.getState(node("e3")), equalTo(ModelState.Realized));
+		assertThat(ModelStates.getState(node("e3")), equalTo(ModelState.Realized));
 	}
 
 	@Test

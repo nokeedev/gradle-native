@@ -17,6 +17,7 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.testing.EqualsTester;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
@@ -47,8 +48,8 @@ public class ModelNodes_StateAtLeastTest {
 		val predicate = stateAtLeast(ModelState.Initialized);
 		assertAll(() -> {
 			assertTrue(predicate.test(node()));
-			assertTrue(predicate.test(ModelNodeUtils.register(node())));
-			assertTrue(predicate.test(ModelNodeUtils.realize(node())));
+			assertTrue(predicate.test(ModelStates.register(node())));
+			assertTrue(predicate.test(ModelStates.realize(node())));
 		});
 	}
 
@@ -57,8 +58,8 @@ public class ModelNodes_StateAtLeastTest {
 		val predicate = stateAtLeast(ModelState.Registered);
 		assertAll(() -> {
 			assertFalse(predicate.test(node()));
-			assertTrue(predicate.test(ModelNodeUtils.register(node())));
-			assertTrue(predicate.test(ModelNodeUtils.realize(node())));
+			assertTrue(predicate.test(ModelStates.register(node())));
+			assertTrue(predicate.test(ModelStates.realize(node())));
 		});
 	}
 
@@ -67,8 +68,8 @@ public class ModelNodes_StateAtLeastTest {
 		val predicate = stateAtLeast(ModelState.Realized);
 		assertAll(() -> {
 			assertFalse(predicate.test(node()));
-			assertFalse(predicate.test(ModelNodeUtils.register(node())));
-			assertTrue(predicate.test(ModelNodeUtils.realize(node())));
+			assertFalse(predicate.test(ModelStates.register(node())));
+			assertTrue(predicate.test(ModelStates.realize(node())));
 		});
 	}
 }

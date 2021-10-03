@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.internal.ComponentName;
 import lombok.val;
 import org.gradle.api.Project;
@@ -43,7 +44,7 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest implements De
 	public ResolvableDependencyBucket createSubject(Project project) {
 		val factory = new ResolvableDependencyBucketRegistrationFactory(forProject(project), ConfigurationNamingScheme.forComponent(ComponentName.of("common")), forComponent(ComponentName.of("common")));
 		val bucket = create(registry(project.getObjects()), factory.create("test"));
-		ModelNodeUtils.realize(ModelNodes.of(bucket));
+		ModelStates.realize(ModelNodes.of(bucket));
 		return bucket;
 	}
 
@@ -81,7 +82,7 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest implements De
 		val factory = new ResolvableDependencyBucketRegistrationFactory(forProject(project));
 		val bucketProvider = registry(project.getObjects()).register(factory.create("test"));
 		ModelNodeUtils.get(ModelNodes.of(bucketProvider), Configuration.class).resolve(); // Force resolve the configuration
-		assertThat(ModelNodeUtils.getState(ModelNodes.of(bucketProvider)), equalTo(Realized));
+		assertThat(ModelStates.getState(ModelNodes.of(bucketProvider)), equalTo(Realized));
 	}
 
 	@Test
@@ -93,6 +94,6 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest implements De
 			using(project.getObjects(), forUsage(Usage.JAVA_API)).execute(bucket.getAsConfiguration());
 		});
 		ModelNodeUtils.get(ModelNodes.of(bucketProvider), Configuration.class).resolve();
-		assertThat(ModelNodeUtils.getState(ModelNodes.of(bucketProvider)), equalTo(Realized));
+		assertThat(ModelStates.getState(ModelNodes.of(bucketProvider)), equalTo(Realized));
 	}
 }

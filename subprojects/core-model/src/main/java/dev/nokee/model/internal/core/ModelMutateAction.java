@@ -16,6 +16,7 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -23,7 +24,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public abstract class ModelMutateAction implements ModelAction {
 	@Override
 	public void execute(ModelNode node) {
-		if (ModelNodeUtils.getState(node).equals(ModelState.Realized)) {
+		if (ModelStates.getState(node).equals(ModelState.Realized)) {
 			ModelNodeContext.of(node).execute(() -> execute(new Context(node)));
 		}
 	}

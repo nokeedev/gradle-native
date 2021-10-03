@@ -20,6 +20,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.junit.jupiter.api.*;
@@ -130,12 +131,12 @@ class ModelNodeTest {
 
 			@Test
 			void callsBackWhenTheNodeIsRegistered() {
-				ModelNodeUtils.register(node);
+				ModelStates.register(node);
 			}
 
 			@Test
 			void callsBackOnlyOnceWhenMultipleRegister() {
-				ModelNodeUtils.register(ModelNodeUtils.register(ModelNodeUtils.register(node)));
+				ModelStates.register(ModelStates.register(ModelStates.register(node)));
 			}
 
 			@AfterEach
@@ -149,23 +150,23 @@ class ModelNodeTest {
 		class Realize {
 			@BeforeEach
 			void resetListenerMock() {
-				ModelNodeUtils.register(node);
+				ModelStates.register(node);
 				Mockito.reset(listener);
 			}
 
 			@Test
 			void callsBackWhenTheNodeIsRealized() {
-				ModelNodeUtils.realize(node);
+				ModelStates.realize(node);
 			}
 
 			@Test
 			void callsBackOnlyOnceWhenMultipleRealize() {
-				ModelNodeUtils.realize(ModelNodeUtils.realize(ModelNodeUtils.realize(node)));
+				ModelStates.realize(ModelStates.realize(ModelStates.realize(node)));
 			}
 
 			@Test
 			void stayAsRealizeWhenRegisterIsCalledAfter() {
-				assertEquals(ModelState.Realized, ModelNodeUtils.getState(ModelNodeUtils.register(ModelNodeUtils.realize(node))));
+				assertEquals(ModelState.Realized, ModelStates.getState(ModelStates.register(ModelStates.realize(node))));
 			}
 
 			@AfterEach
@@ -179,12 +180,12 @@ class ModelNodeTest {
 			@BeforeEach
 			void realizeNode() {
 				Mockito.reset(listener);
-				ModelNodeUtils.realize(node);
+				ModelStates.realize(node);
 			}
 
 			@Test
 			void stateIsRealized() {
-				assertEquals(ModelState.Realized, ModelNodeUtils.getState(node));
+				assertEquals(ModelState.Realized, ModelStates.getState(node));
 			}
 
 			@Test
@@ -200,10 +201,10 @@ class ModelNodeTest {
 	void parentNodesAreRealize() {
 		val parentNode = node();
 		val childNode = childNode(parentNode);
-		ModelNodeUtils.realize(childNode);
+		ModelStates.realize(childNode);
 		assertAll(() -> {
-			assertThat(ModelNodeUtils.getState(parentNode), equalTo(ModelState.Realized));
-			assertThat(ModelNodeUtils.getState(childNode), equalTo(ModelState.Realized));
+			assertThat(ModelStates.getState(parentNode), equalTo(ModelState.Realized));
+			assertThat(ModelStates.getState(childNode), equalTo(ModelState.Realized));
 		});
 	}
 
