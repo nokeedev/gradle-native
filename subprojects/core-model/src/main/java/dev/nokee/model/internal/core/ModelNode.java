@@ -54,7 +54,7 @@ import static java.util.Objects.requireNonNull;
 public final class ModelNode {
 	private final ModelPath path;
 	private final ModelNodeListener listener;
-	private final List<ModelComponent> components = new ArrayList<>();
+	private final List<Object> components = new ArrayList<>();
 
 	public enum State implements ModelComponent {
 		Created, // Node instance created, can now add projections
@@ -90,30 +90,30 @@ public final class ModelNode {
 		listener.projectionAdded(this);
 	}
 
-	public void addComponent(ModelComponent component) {
+	public void addComponent(Object component) {
 		components.add(component);
 		listener.projectionAdded(this);
 	}
 
-	public <T extends ModelComponent> T getComponent(Class<T> type) {
+	public <T> T getComponent(Class<T> type) {
 		return findComponent(type).orElseThrow(RuntimeException::new);
 	}
 
-	<T extends ModelComponent> Optional<T> findComponent(Class<T> type) {
+	<T> Optional<T> findComponent(Class<T> type) {
 		return components.stream().filter(type::isInstance).map(type::cast).findFirst();
 	}
 
-	public boolean hasComponent(Class<? extends ModelComponent> type) {
+	public boolean hasComponent(Class<?> type) {
 		return components.stream().anyMatch(type::isInstance);
 	}
 
-	<T extends ModelComponent> void setComponent(Class<T> componentType, T component) {
+	<T> void setComponent(Class<T> componentType, T component) {
 		val existingComponent = getComponent(componentType);
 		val index = components.indexOf(existingComponent);
 		components.set(index, component);
 	}
 
-	public Stream<ModelComponent> getComponents() {
+	public Stream<Object> getComponents() {
 		return components.stream();
 	}
 
