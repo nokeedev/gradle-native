@@ -71,12 +71,6 @@ public final class ModelNode {
 		this.listener = listener;
 	}
 
-	void addProjection(ModelProjection projection) {
-		assert getComponent(State.class) == State.Created : "can only add projection before the node is initialized";
-		components.add(getComponent(BindManagedProjectionService.class).bindManagedProjectionWithInstantiator(projection));
-		listener.projectionAdded(this);
-	}
-
 	public void addComponent(Object component) {
 		components.add(component);
 		listener.projectionAdded(this);
