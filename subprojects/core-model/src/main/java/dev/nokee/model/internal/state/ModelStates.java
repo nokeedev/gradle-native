@@ -119,18 +119,18 @@ public final class ModelStates {
 	}
 
 	private static void notifyCreated(ModelNode self) {
-		self.getComponent(ModelNodeListener.class).created(self);
+		self.findComponent(ModelNodeListener.class).ifPresent(listener -> listener.created(self));
 	}
 
 	private static void notifyInitialized(ModelNode self) {
-		self.getComponent(ModelNodeListener.class).initialized(self);
+		self.findComponent(ModelNodeListener.class).ifPresent(listener -> listener.initialized(self));
 	}
 
 	private static void notifyRegistered(ModelNode self) {
-		self.getComponent(ModelNodeListener.class).registered(self);
+		self.findComponent(ModelNodeListener.class).ifPresent(listener -> listener.registered(self));
 	}
 
 	private static void notifyRealized(ModelNode self) {
-		self.getComponent(ModelNodeListener.class).realized(self);
+		self.findComponent(ModelNodeListener.class).ifPresent(listener -> listener.realized(self));
 	}
 }
