@@ -79,7 +79,7 @@ class ModelInitializerActionTest {
 	void canApplyActionToNode() {
 		val captor = new ModelTestActions.CaptureNodeTransitionAction();
 		val node = node("foo", initialize(context -> context.applyTo(self().apply(captor))));
-		assertThat(captor.getAllTransitions(), contains(created("foo"), initialized("foo")));
+		assertThat(captor.getAllTransitions(), contains(initialized("foo")));
 	}
 
 	@Test
