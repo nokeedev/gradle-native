@@ -23,10 +23,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static dev.gradleplugins.grava.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
 
 class ModelNodeCallbackTest {
 	private final DefaultModelRegistry registry = new DefaultModelRegistry(objectFactory()::newInstance);
