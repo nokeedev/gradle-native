@@ -15,8 +15,6 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.internal.state.ModelState;
-
 /**
  * A model node state listener.
  */
@@ -29,59 +27,11 @@ public interface ModelNodeListener {
 	static ModelNodeListener noOpListener() {
 		return new ModelNodeListener() {
 			@Override
-			public void created(ModelNode node) {
-				// do nothing
-			}
-
-			@Override
-			public void initialized(ModelNode modelNode) {
-				// do nothing
-			}
-
-			@Override
-			public void registered(ModelNode modelNode) {
-				// do nothing
-			}
-
-			@Override
-			public void realized(ModelNode node) {
-				// do nothing
-			}
-
-			@Override
 			public void projectionAdded(ModelNode node, Object newComponent) {
 				// do nothing
 			}
 		};
 	}
-
-	/**
-	 * When the model node transition to {@link ModelState#Created}.
-	 *
-	 * @param node  the model node that transitioned to the created state
-	 */
-	void created(ModelNode node);
-
-	/**
-	 * When the model node transition to {@link ModelState#Initialized}.
-	 *
-	 * @param node  the model node that transitioned to the initialized state
-	 */
-	void initialized(ModelNode node);
-
-	/**
-	 * When the model node transition to {@link ModelState#Registered}.
-	 *
-	 * @param node  the model node that transitioned to the registered state
-	 */
-	void registered(ModelNode node);
-
-	/**
-	 * When the model node transition to {@link ModelState#Realized}.
-	 *
-	 * @param node  the model node that transitioned to the realized state
-	 */
-	void realized(ModelNode node);
 
 	/**
 	 * When the model node has new projection.

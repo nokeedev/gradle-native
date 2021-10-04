@@ -133,26 +133,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	private final class NodeStateListener implements ModelNodeListener {
 		@Override
-		public void created(ModelNode node) {
-			// TODO: Remove this callback
-		}
-
-		@Override
-		public void initialized(ModelNode node) {
-			// TODO: Remove this callback
-		}
-
-		@Override
-		public void registered(ModelNode node) {
-			// TODO: Remove this callback
-		}
-
-		@Override
-		public void realized(ModelNode node) {
-			// TODO: Remove this callback
-		}
-
-		@Override
 		public void projectionAdded(ModelNode node, Object newComponent) {
 			for (int i = 0; i < configurations.size(); ++i) {
 				val configuration = configurations.get(i);

@@ -16,7 +16,6 @@
 package dev.nokee.model.internal.state;
 
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeListener;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 
 public final class ModelStates {
@@ -34,7 +33,6 @@ public final class ModelStates {
 			} else {
 				self.addComponent(ModelState.Created);
 			}
-			notifyCreated(self);
 			self.addComponent(CREATED_TAG);
 		}
 		return self;
@@ -53,7 +51,6 @@ public final class ModelStates {
 				if (!self.hasComponent(Realizing.class)) {
 					self.addComponent(new Realizing());
 					useRealizingComponentBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(self);
-					notifyRealized(self);
 				}
 			}
 			self.addComponent(REALIZED_TAG);
@@ -80,7 +77,6 @@ public final class ModelStates {
 			} else {
 				self.addComponent(ModelState.Initialized);
 			}
-			notifyInitialized(self);
 			self.addComponent(INITIALIZED_TAG);
 		}
 		return self;
@@ -95,7 +91,6 @@ public final class ModelStates {
 				} else {
 					self.addComponent(ModelState.Registered);
 				}
-				notifyRegistered(self);
 			}
 			self.addComponent(REGISTERED_TAG);
 		}
@@ -121,21 +116,5 @@ public final class ModelStates {
 	 */
 	public static ModelState getState(ModelNode self) {
 		return self.findComponent(ModelState.class).orElse(ModelState.Created);
-	}
-
-	private static void notifyCreated(ModelNode self) {
-		self.findComponent(ModelNodeListener.class).ifPresent(listener -> listener.created(self));
-	}
-
-	private static void notifyInitialized(ModelNode self) {
-		self.findComponent(ModelNodeListener.class).ifPresent(listener -> listener.initialized(self));
-	}
-
-	private static void notifyRegistered(ModelNode self) {
-		self.findComponent(ModelNodeListener.class).ifPresent(listener -> listener.registered(self));
-	}
-
-	private static void notifyRealized(ModelNode self) {
-		self.findComponent(ModelNodeListener.class).ifPresent(listener -> listener.realized(self));
 	}
 }
