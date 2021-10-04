@@ -21,6 +21,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelNodeBackedProvider;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -163,40 +164,54 @@ public final class ModelTestUtils {
 			@Override
 			public void configure(ModelAction action) {
 				actions.add(action);
-				action.execute(nodeProvider.getValue());
+				val node = nodeProvider.getValue();
+				if (node != null) {
+					if (action instanceof HasInputs && ((HasInputs) action).getInputs().stream().allMatch(it -> node.hasComponent(it.getConcreteType()))) {
+						action.execute(node);
+					} else {
+						action.execute(node);
+					}
+				}
 			}
 		});
 		builder.withListener(new ModelNodeListener() {
 			@Override
 			public void created(ModelNode node) {
-				nodeProvider.setValue(node);
-				execute(actions, node);
+				// TODO: Remove this callback
 			}
 
 			@Override
 			public void initialized(ModelNode node) {
-				execute(actions, node);
+				// TODO: Remove this callback
 			}
 
 			@Override
 			public void registered(ModelNode node) {
-				execute(actions, node);
+				// TODO: Remove this callback
 			}
 
 			@Override
 			public void realized(ModelNode node) {
-				execute(actions, node);
+				// TODO: Remove this callback
 			}
 
 			@Override
 			public void projectionAdded(ModelNode node, Object newComponent) {
-				// do nothing for now.
-			}
-
-			private void execute(List<ModelAction> actions, ModelNode node) {
-				val size = actions.size();
+				if (newComponent instanceof ModelState.IsAtLeastCreated) {
+					nodeProvider.setValue(node);
+				}
+				val size = actions.size(); // avoid replaying new actions
 				for (int i = 0; i < size; ++i) {
-					actions.get(i).execute(node);
+					val configuration = actions.get(i);
+					if (configuration instanceof HasInputs) {
+						if (((HasInputs) configuration).getInputs().contains(ModelType.typeOf(newComponent)) && ((HasInputs) configuration).getInputs().stream().allMatch(it -> node.hasComponent(it.getConcreteType()))) {
+							configuration.execute(node);
+						} else if (((HasInputs) configuration).getInputs().isEmpty()) {
+							configuration.execute(node);
+						}
+					} else {
+						configuration.execute(node);
+					}
 				}
 			}
 		});
