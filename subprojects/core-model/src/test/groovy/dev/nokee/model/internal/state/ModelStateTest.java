@@ -95,6 +95,13 @@ class ModelStateTest {
 			inOrder.verify(listener).projectionAdded(subject, ModelState.Created);
 			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastCreated.class));
 		}
+
+		@Test
+		void doesNotChangeStateWhenCreateMultipleTime() {
+			Mockito.reset(listener);
+			ModelStates.create(subject);
+			Mockito.verifyNoInteractions(listener);
+		}
 	}
 
 	@Nested
@@ -114,6 +121,13 @@ class ModelStateTest {
 			val inOrder = Mockito.inOrder(listener);
 			inOrder.verify(listener).projectionAdded(subject, ModelState.Initialized);
 			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastInitialized.class));
+		}
+
+		@Test
+		void doesNotChangeStateWhenInitializeMultipleTime() {
+			Mockito.reset(listener);
+			ModelStates.initialize(subject);
+			Mockito.verifyNoInteractions(listener);
 		}
 	}
 
@@ -135,6 +149,13 @@ class ModelStateTest {
 			inOrder.verify(listener).projectionAdded(subject, ModelState.Registered);
 			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastRegistered.class));
 		}
+
+		@Test
+		void doesNotChangeStateWhenRegisterMultipleTime() {
+			Mockito.reset(listener);
+			ModelStates.register(subject);
+			Mockito.verifyNoInteractions(listener);
+		}
 	}
 
 	@Nested
@@ -154,6 +175,13 @@ class ModelStateTest {
 			val inOrder = Mockito.inOrder(listener);
 			inOrder.verify(listener).projectionAdded(subject, ModelState.Realized);
 			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastRealized.class));
+		}
+
+		@Test
+		void doesNotChangeStateWhenRealizeMultipleTime() {
+			Mockito.reset(listener);
+			ModelStates.realize(subject);
+			Mockito.verifyNoInteractions(listener);
 		}
 	}
 }
