@@ -24,6 +24,10 @@ public enum ModelState {
 	// Finalized, // Node data should not mutate any more, can now compute additional data on child nodes
 	;
 
+	public boolean isAtLeast(ModelState state) {
+		return this.compareTo(state) >= 0;
+	}
+
 	public static final class IsAtLeastCreated {}
 	public static final class IsAtLeastInitialized {}
 	public static final class IsAtLeastRegistered {}
