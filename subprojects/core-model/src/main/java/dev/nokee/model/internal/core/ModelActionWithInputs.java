@@ -21,7 +21,7 @@ import dev.nokee.model.internal.type.ModelType;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class ModelActionWithInputs implements ModelAction {
+public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	@Override
 	public final void execute(ModelNode node) {
 		if (getInputs().stream().allMatch(it -> node.hasComponent(it.getConcreteType()))) {
