@@ -23,10 +23,10 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.Mockito;
 
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
@@ -98,103 +98,6 @@ class ModelNodeTest {
 	void canCheckProjectedTypeCompatibility() {
 		assertTrue(ModelNodeUtils.canBeViewedAs(node(projectionOf(MyType.class)), TYPE));
 		assertFalse(ModelNodeUtils.canBeViewedAs(node(projectionOf(MyType.class)), WRONG_TYPE));
-	}
-
-	@Nested
-	class ModelNodeListenerContractTest {
-		private final ModelNodeListener listener = mock(ModelNodeListener.class);
-		private final ModelNode node = node(listener);
-
-		@Test
-		void callsBackWhenTheNodeIsCreated() {
-			verify(listener, times(1)).created(node);
-		}
-
-		@Test
-		void callsBackCreatedBeforeInitialized() {
-			val inOrder = inOrder(listener);
-			inOrder.verify(listener, times(1)).created(node);
-			inOrder.verify(listener, times(1)).initialized(node);
-		}
-
-		@Test
-		void callsBackWhenTheNodeIsInitialized() {
-			verify(listener, times(1)).initialized(node);
-		}
-
-		@Nested
-		class Register {
-			@BeforeEach
-			void resetListenerMock() {
-				Mockito.reset(listener);
-			}
-
-			@Test
-			void callsBackWhenTheNodeIsRegistered() {
-				ModelStates.register(node);
-			}
-
-			@Test
-			void callsBackOnlyOnceWhenMultipleRegister() {
-				ModelStates.register(ModelStates.register(ModelStates.register(node)));
-			}
-
-			@AfterEach
-			void verifyRegisteredCalledOnlyOnce() {
-				verify(listener).registered(node);
-			}
-		}
-
-
-		@Nested
-		class Realize {
-			@BeforeEach
-			void resetListenerMock() {
-				ModelStates.register(node);
-				Mockito.reset(listener);
-			}
-
-			@Test
-			void callsBackWhenTheNodeIsRealized() {
-				ModelStates.realize(node);
-			}
-
-			@Test
-			void callsBackOnlyOnceWhenMultipleRealize() {
-				ModelStates.realize(ModelStates.realize(ModelStates.realize(node)));
-			}
-
-			@Test
-			void stayAsRealizeWhenRegisterIsCalledAfter() {
-				assertEquals(ModelState.Realized, ModelStates.getState(ModelStates.register(ModelStates.realize(node))));
-			}
-
-			@AfterEach
-			void verifyRegisteredCalledOnlyOnce() {
-				verify(listener).realized(node);
-			}
-		}
-
-		@Nested
-		class DirectRealize {
-			@BeforeEach
-			void realizeNode() {
-				Mockito.reset(listener);
-				ModelStates.realize(node);
-			}
-
-			@Test
-			void stateIsRealized() {
-				assertEquals(ModelState.Realized, ModelStates.getState(node));
-			}
-
-			@Test
-			void callsBackThoughRegisteredFollowedByRealized() {
-				val inOrder = inOrder(listener);
-				inOrder.verify(listener, times(1)).registered(node);
-				inOrder.verify(listener, times(1)).realized(node);
-			}
-		}
 	}
 
 	@Test

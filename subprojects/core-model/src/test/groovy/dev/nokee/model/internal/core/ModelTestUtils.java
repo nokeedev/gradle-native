@@ -176,26 +176,6 @@ public final class ModelTestUtils {
 		});
 		builder.withListener(new ModelNodeListener() {
 			@Override
-			public void created(ModelNode node) {
-				// TODO: Remove this callback
-			}
-
-			@Override
-			public void initialized(ModelNode node) {
-				// TODO: Remove this callback
-			}
-
-			@Override
-			public void registered(ModelNode node) {
-				// TODO: Remove this callback
-			}
-
-			@Override
-			public void realized(ModelNode node) {
-				// TODO: Remove this callback
-			}
-
-			@Override
 			public void projectionAdded(ModelNode node, Object newComponent) {
 				if (newComponent instanceof ModelState.IsAtLeastCreated) {
 					nodeProvider.setValue(node);
