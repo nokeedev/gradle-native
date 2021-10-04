@@ -15,6 +15,7 @@
  */
 package dev.nokee.model.internal.core;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
@@ -23,6 +24,7 @@ import lombok.val;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.specs.Spec;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 import static dev.nokee.model.internal.state.ModelState.Realized;
@@ -47,8 +49,8 @@ public final class ModelNodes {
 		return new AndPredicate(first, second);
 	}
 
-	@EqualsAndHashCode
-	private static final class AndPredicate implements Predicate<ModelNode> {
+	@EqualsAndHashCode(callSuper = false)
+	private static final class AndPredicate extends AbstractModelNodePredicate implements HasInputs {
 		private final Predicate<? super ModelNode> first;
 		private final Predicate<? super ModelNode> second;
 
@@ -60,6 +62,18 @@ public final class ModelNodes {
 		@Override
 		public boolean test(ModelNode node) {
 			return first.test(node) && second.test(node);
+		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			val builder = ImmutableList.<ModelType<?>>builder();
+			if (first instanceof HasInputs) {
+				builder.addAll(((HasInputs) first).getInputs());
+			}
+			if (second instanceof HasInputs) {
+				builder.addAll(((HasInputs) second).getInputs());
+			}
+			return builder.build();
 		}
 
 		@Override
@@ -120,8 +134,8 @@ public final class ModelNodes {
 		return new WithTypePredicate(type);
 	}
 
-	@EqualsAndHashCode
-	private static final class WithTypePredicate implements Predicate<ModelNode> {
+	@EqualsAndHashCode(callSuper = false)
+	private static final class WithTypePredicate extends AbstractModelNodePredicate implements HasInputs {
 		private final ModelType<?> type;
 
 		private WithTypePredicate(ModelType<?> type) {
@@ -131,6 +145,11 @@ public final class ModelNodes {
 		@Override
 		public boolean test(ModelNode node) {
 			return ModelNodeUtils.canBeViewedAs(node, type);
+		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			return ImmutableList.of(ModelType.of(ModelProjection.class));
 		}
 
 		@Override
@@ -149,8 +168,8 @@ public final class ModelNodes {
 		return new StateAtLeastPredicate(state);
 	}
 
-	@EqualsAndHashCode
-	private static final class StateAtLeastPredicate implements Predicate<ModelNode> {
+	@EqualsAndHashCode(callSuper = false)
+	private static final class StateAtLeastPredicate extends AbstractModelNodePredicate implements HasInputs {
 		private final ModelState state;
 
 		private StateAtLeastPredicate(ModelState state) {
@@ -166,6 +185,11 @@ public final class ModelNodes {
 		public String toString() {
 			return "ModelNodes.stateAtLeast(" + state + ")";
 		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			return ImmutableList.of(ModelType.of(ModelState.class));
+		}
 	}
 
 	public static Predicate<ModelNode> stateOf(ModelState state) {
@@ -173,7 +197,7 @@ public final class ModelNodes {
 	}
 
 	@EqualsAndHashCode(callSuper = false)
-	private static final class StateOfPredicate extends AbstractModelNodePredicate {
+	private static final class StateOfPredicate extends AbstractModelNodePredicate implements HasInputs {
 		private final ModelState state;
 
 		private StateOfPredicate(ModelState state) {
@@ -183,6 +207,11 @@ public final class ModelNodes {
 		@Override
 		public boolean test(ModelNode node) {
 			return ModelStates.getState(node).equals(state);
+		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			return ImmutableList.of(ModelType.of(ModelState.class));
 		}
 
 		@Override
@@ -203,7 +232,7 @@ public final class ModelNodes {
 		return new SatisfiedByProjectionSpecAdapter<>(type, spec);
 	}
 
-	private static final class SatisfiedByProjectionSpecAdapter<T> implements Predicate<ModelNode> {
+	private static final class SatisfiedByProjectionSpecAdapter<T> extends AbstractModelNodePredicate implements HasInputs {
 		private final ModelType<T> type;
 		private final Spec<? super T> spec;
 
@@ -215,6 +244,16 @@ public final class ModelNodes {
 		@Override
 		public boolean test(ModelNode node) {
 			return ModelNodeUtils.canBeViewedAs(node, type) && spec.isSatisfiedBy(ModelNodeUtils.get(node, type));
+		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			val builder = ImmutableList.<ModelType<?>>builder();
+			builder.add(ModelType.of(ModelProjection.class));
+			if (spec instanceof HasInputs) {
+				builder.addAll(((HasInputs) spec).getInputs());
+			}
+			return builder.build();
 		}
 
 		@Override
@@ -235,7 +274,7 @@ public final class ModelNodes {
 	}
 
 	@EqualsAndHashCode(callSuper = false)
-	private static final class WithParentPredicate extends AbstractModelNodePredicate {
+	private static final class WithParentPredicate extends AbstractModelNodePredicate implements HasInputs {
 		private final ModelPath parentPath;
 
 		public WithParentPredicate(ModelPath parentPath) {
@@ -249,6 +288,11 @@ public final class ModelNodes {
 		}
 
 		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			return ImmutableList.of(ModelType.of(ModelPath.class));
+		}
+
+		@Override
 		public String toString() {
 			return "ModelNodes.withParent(" + parentPath + ")";
 		}
@@ -259,7 +303,7 @@ public final class ModelNodes {
 	}
 
 	@EqualsAndHashCode(callSuper = false)
-	private static final class DescendantOfPredicate extends AbstractModelNodePredicate {
+	private static final class DescendantOfPredicate extends AbstractModelNodePredicate implements HasInputs {
 		private final ModelPath ancestorPath;
 
 		public DescendantOfPredicate(ModelPath ancestorPath) {
@@ -269,6 +313,11 @@ public final class ModelNodes {
 		@Override
 		public boolean test(ModelNode node) {
 			return ancestorPath.isDescendant(ModelNodeUtils.getPath(node));
+		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			return ImmutableList.of(ModelType.of(ModelPath.class));
 		}
 
 		@Override
@@ -301,7 +350,7 @@ public final class ModelNodes {
 	}
 
 	@EqualsAndHashCode(callSuper = false)
-	private static final class WithPathPredicate extends AbstractModelNodePredicate {
+	private static final class WithPathPredicate extends AbstractModelNodePredicate implements HasInputs {
 		private final ModelPath path;
 
 		public WithPathPredicate(ModelPath path) {
@@ -311,6 +360,11 @@ public final class ModelNodes {
 		@Override
 		public boolean test(ModelNode node) {
 			return ModelNodeUtils.getPath(node).equals(path);
+		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			return ImmutableList.of(ModelType.of(ModelPath.class));
 		}
 
 		@Override
