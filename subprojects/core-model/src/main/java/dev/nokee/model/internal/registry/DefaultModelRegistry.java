@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
@@ -35,8 +36,12 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	public DefaultModelRegistry(Instantiator instantiator) {
 		this.instantiator = instantiator;
+		configurations.add(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.class), (node, path, state) -> {
+			if (state.isAtLeast(ModelState.Registered)) {
+				nodes.put(path, node);
+			}
+		}));
 		rootNode = ModelStates.register(createRootNode());
-		nodes.put(ModelPath.root(), rootNode);
 	}
 
 	private ModelNode createRootNode() {
@@ -117,49 +122,47 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		configurations.add(configuration);
 		val size = nodes.size();
 		for (int i = 0; i < size; i++) {
-			configuration.execute(Iterables.get(nodes.values(), i));
+			val node = Iterables.get(nodes.values(), i);
+			if (configuration instanceof HasInputs && ((HasInputs) configuration).getInputs().stream().allMatch(it -> node.hasComponent(it.getConcreteType()))) {
+				configuration.execute(node);
+			} else {
+				configuration.execute(node);
+			}
 		}
 	}
 
 	private final class NodeStateListener implements ModelNodeListener {
 		@Override
 		public void created(ModelNode node) {
-			notify(node);
+			// TODO: Remove this callback
 		}
 
 		@Override
 		public void initialized(ModelNode node) {
-			notify(node);
+			// TODO: Remove this callback
 		}
 
 		@Override
 		public void registered(ModelNode node) {
-			nodes.put(ModelNodeUtils.getPath(node), node);
-			notify(node);
+			// TODO: Remove this callback
 		}
 
 		@Override
 		public void realized(ModelNode node) {
-			notify(node);
+			// TODO: Remove this callback
 		}
 
 		@Override
 		public void projectionAdded(ModelNode node, Object newComponent) {
-			// Splitting the execution until we reconcile ModelAction with the concept of System and Observer.
 			for (int i = 0; i < configurations.size(); ++i) {
 				val configuration = configurations.get(i);
-				if (configuration instanceof ModelActionWithInputs) {
-					if (((ModelActionWithInputs) configuration).getInputs().contains(ModelType.typeOf(newComponent))) {
+				if (configuration instanceof HasInputs) {
+					if (((HasInputs) configuration).getInputs().contains(ModelType.typeOf(newComponent)) && ((HasInputs) configuration).getInputs().stream().allMatch(it -> node.hasComponent(it.getConcreteType()))) {
+						configuration.execute(node);
+					} else if (((HasInputs) configuration).getInputs().isEmpty()) {
 						configuration.execute(node);
 					}
-				}
-			}
-		}
-
-		private void notify(ModelNode node) {
-			for (int i = 0; i < configurations.size(); ++i) {
-				val configuration = configurations.get(i);
-				if (!(configuration instanceof ModelActionWithInputs)) {
+				} else {
 					configuration.execute(node);
 				}
 			}

@@ -15,8 +15,10 @@
  */
 package dev.nokee.model.internal.core;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 
@@ -113,7 +115,7 @@ public final class ModelTestActions {
 		}
 	}
 
-	public static class CaptureNodeTransitionAction implements ModelAction {
+	public static class CaptureNodeTransitionAction extends ModelActionWithInputs {
 		private final List<NodeStateTransition> values = new ArrayList<>();
 
 		public List<NodeStateTransition> getAllTransitions() {
@@ -121,8 +123,13 @@ public final class ModelTestActions {
 		}
 
 		@Override
-		public void execute(ModelNode node) {
+		public void execute(ModelNode node, List<?> inputs) {
 			values.add(new CaptureNodeTransitionAction.NodeStateTransition(ModelNodeUtils.getPath(node), ModelStates.getState(node)));
+		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			return ImmutableList.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.class));
 		}
 
 		public static CaptureNodeTransitionAction.NodeStateTransition realized(Object path) {

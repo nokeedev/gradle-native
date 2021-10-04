@@ -77,10 +77,10 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 	}
 
 	public static <T extends LanguageSourceSet> ModelAction configureEachSourceSet(ModelType<T> type, Consumer<? super T> action) {
-		return node -> {
+		return ModelActionWithInputs.of(ModelType.of(RelativeConfigurationService.class), (node, configure) -> {
 			assert ModelNodeUtils.canBeViewedAs(node, of(ComponentSources.class)) : "should only apply to ComponentSources";
 			ModelNodeUtils.applyTo(node, allDirectDescendants(mutate(type)).apply(executeUsingProjection(type, action::accept)));
-		};
+		});
 	}
 
 	public static NodePredicate whenComponentSourcesDiscovered() {

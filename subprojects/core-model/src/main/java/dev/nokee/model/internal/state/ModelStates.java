@@ -50,21 +50,26 @@ public final class ModelStates {
 		if (!self.hasComponent(ModelState.IsAtLeastRealized.class)) {
 			register(self);
 			if (!isAtLeast(self, ModelState.Realized)) {
-				changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(self);
-				notifyRealized(self);
+				if (!self.hasComponent(Realizing.class)) {
+					self.addComponent(new Realizing());
+					useRealizingComponentBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(self);
+					notifyRealized(self);
+				}
 			}
 			self.addComponent(REALIZED_TAG);
 		}
 		return self;
 	}
 
-	private static void changeStateToRealizeBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(ModelNode self) {
+	private static final class Realizing {}
+
+	private static void useRealizingComponentBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(ModelNode self) {
+		ModelNodeUtils.getParent(self).ifPresent(ModelStates::realize);
 		if (self.hasComponent(ModelState.class)) {
 			self.setComponent(ModelState.class, ModelState.Realized);
 		} else {
 			self.addComponent(ModelState.Realized);
 		}
-		ModelNodeUtils.getParent(self).ifPresent(ModelStates::realize);
 	}
 
 	public static ModelNode initialize(ModelNode self) {
