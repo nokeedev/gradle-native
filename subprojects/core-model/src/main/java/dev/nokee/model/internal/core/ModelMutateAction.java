@@ -15,18 +15,26 @@
  */
 package dev.nokee.model.internal.core;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 
+import java.util.List;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
-public abstract class ModelMutateAction implements ModelAction {
+public abstract class ModelMutateAction implements ModelAction, HasInputs {
 	@Override
 	public void execute(ModelNode node) {
 		if (ModelStates.getState(node).equals(ModelState.Realized)) {
 			ModelNodeContext.of(node).execute(() -> execute(new Context(node)));
 		}
+	}
+
+	@Override
+	public List<? extends ModelType<?>> getInputs() {
+		return ImmutableList.of(ModelType.of(ModelState.class));
 	}
 
 	public abstract void execute(Context context);

@@ -16,13 +16,16 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableList;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 import org.gradle.api.Action;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -55,7 +58,7 @@ public final class ModelActions {
 	}
 
 	@EqualsAndHashCode
-	private static final class ExecuteUsingProjectionModelAction<T> implements ModelAction {
+	private static final class ExecuteUsingProjectionModelAction<T> implements ModelAction, HasInputs {
 		private final ModelType<T> type;
 		private final Action<? super T> action;
 
@@ -67,6 +70,11 @@ public final class ModelActions {
 		@Override
 		public void execute(ModelNode node) {
 			action.execute(ModelNodeUtils.get(node, type));
+		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			return ImmutableList.of(ModelType.of(ModelProjection.class));
 		}
 
 		@Override
@@ -86,7 +94,7 @@ public final class ModelActions {
 	}
 
 	@EqualsAndHashCode
-	private static final class OnceModelAction implements ModelAction {
+	private static final class OnceModelAction implements ModelAction, HasInputs {
 		private final ModelAction action;
 		@EqualsAndHashCode.Exclude private final Set<ModelPath> alreadyExecuted = new HashSet<>();
 
@@ -99,6 +107,16 @@ public final class ModelActions {
 			if (alreadyExecuted.add(ModelNodeUtils.getPath(node))) {
 				action.execute(node);
 			}
+		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			val builder = ImmutableList.<ModelType<?>>builder();
+			builder.add(ModelType.of(ModelPath.class));
+			if (action instanceof HasInputs) {
+				builder.addAll(((HasInputs) action).getInputs());
+			}
+			return builder.build();
 		}
 
 		@Override
@@ -128,7 +146,7 @@ public final class ModelActions {
 	}
 
 	@EqualsAndHashCode
-	private static final class RegisterModelAction implements ModelAction {
+	private static final class RegisterModelAction implements ModelAction, HasInputs {
 		private final Supplier<NodeRegistration<?>> registration;
 
 		public RegisterModelAction(Supplier<NodeRegistration<?>> registration) {
@@ -138,6 +156,11 @@ public final class ModelActions {
 		@Override
 		public void execute(ModelNode node) {
 			ModelNodeUtils.register(node, registration.get());
+		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			return ImmutableList.of(ModelType.of(RelativeRegistrationService.class));
 		}
 
 		@Override
@@ -158,7 +181,7 @@ public final class ModelActions {
 	}
 
 	@EqualsAndHashCode
-	private static final class MatchingModelAction implements ModelAction {
+	private static final class MatchingModelAction implements ModelAction, HasInputs {
 		private final ModelSpec spec;
 		private final ModelAction action;
 
@@ -172,6 +195,18 @@ public final class ModelActions {
 			if (spec.isSatisfiedBy(node)) {
 				action.execute(node);
 			}
+		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			val builder = ImmutableList.<ModelType<?>>builder();
+			if (spec instanceof HasInputs) {
+				builder.addAll(((HasInputs) spec).getInputs());
+			}
+			if (action instanceof HasInputs) {
+				builder.addAll(((HasInputs) action).getInputs());
+			}
+			return builder.build();
 		}
 
 		@Override
@@ -194,7 +229,7 @@ public final class ModelActions {
 
 	// TODO: Should we also ensure the node is at least registered (or discovered)?
 	@EqualsAndHashCode
-	private static class ExecuteAsKnownProjectionModelAction<T> implements ModelAction {
+	private static class ExecuteAsKnownProjectionModelAction<T> implements ModelAction, HasInputs {
 		private final ModelType<T> type;
 		private final Action<? super KnownDomainObject<T>> action;
 
@@ -206,6 +241,11 @@ public final class ModelActions {
 		@Override
 		public void execute(ModelNode node) {
 			action.execute(new ModelNodeBackedKnownDomainObject<>(type, node));
+		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			return ImmutableList.of(ModelType.of(ModelProjection.class));
 		}
 
 		@Override
