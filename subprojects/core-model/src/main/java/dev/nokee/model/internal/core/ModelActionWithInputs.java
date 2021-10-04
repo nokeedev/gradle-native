@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 public abstract class ModelActionWithInputs implements ModelAction {
 	@Override
-	public void execute(ModelNode node) {
+	public final void execute(ModelNode node) {
 		if (getInputs().stream().allMatch(it -> node.hasComponent(it.getConcreteType()))) {
 			execute(node, getInputs().stream().map(it -> node.getComponent(it.getConcreteType())).collect(Collectors.toList()));
 		}
