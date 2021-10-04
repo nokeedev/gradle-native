@@ -68,7 +68,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	public <T> DomainObjectProvider<T> register(ModelRegistration<T> registration) {
 		// TODO: Should deny creating any model registration for root node
 		if (!registration.getPath().getParent().isPresent() || !nodes.containsKey(registration.getPath().getParent().get())) {
-			throw new IllegalArgumentException("Has to be direct descendant");
+			throw new IllegalArgumentException(String.format("Model %s has to be direct descendant", registration.getPath()));
 		}
 
 		registration.getActions().forEach(configurations::add);
