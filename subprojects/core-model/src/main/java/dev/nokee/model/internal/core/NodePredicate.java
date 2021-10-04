@@ -15,10 +15,13 @@
  */
 package dev.nokee.model.internal.core;
 
+import com.google.common.collect.ImmutableList;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -170,7 +173,7 @@ public abstract class NodePredicate {
 
 	@ToString
 	@EqualsAndHashCode
-	private static final class BasicPredicateSpec implements ModelSpec {
+	private static final class BasicPredicateSpec implements ModelSpec, HasInputs {
 		@Nullable
 		private final ModelPath path;
 
@@ -188,6 +191,15 @@ public abstract class NodePredicate {
 			this.ancestor = ancestor;
 			this.matcher = matcher;
 			this.predicate = matcher;
+		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			if (matcher instanceof HasInputs) {
+				return ((HasInputs) matcher).getInputs();
+			} else {
+				return ImmutableList.of();
+			}
 		}
 
 		@Override

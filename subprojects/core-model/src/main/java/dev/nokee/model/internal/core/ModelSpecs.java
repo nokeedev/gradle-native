@@ -15,8 +15,11 @@
  */
 package dev.nokee.model.internal.core;
 
+import com.google.common.collect.ImmutableList;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 public final class ModelSpecs {
@@ -76,7 +79,7 @@ public final class ModelSpecs {
 	}
 
 	@EqualsAndHashCode
-	private static final class OfPredicateModelSpec implements ModelSpec {
+	private static final class OfPredicateModelSpec implements ModelSpec, HasInputs {
 		private final Predicate<? super ModelNode> predicate;
 
 		public OfPredicateModelSpec(Predicate<? super ModelNode> predicate) {
@@ -86,6 +89,15 @@ public final class ModelSpecs {
 		@Override
 		public boolean isSatisfiedBy(ModelNode node) {
 			return predicate.test(node);
+		}
+
+		@Override
+		public List<? extends ModelType<?>> getInputs() {
+			if (predicate instanceof HasInputs) {
+				return ((HasInputs) predicate).getInputs();
+			} else {
+				return ImmutableList.of();
+			}
 		}
 
 		@Override
