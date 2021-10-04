@@ -17,6 +17,7 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +36,7 @@ class NodePredicate_ApplyTest {
 	@Test
 	void canApplyPredicateToModelActionWhichCanBeScopedToAnyPaths() {
 		val paths = new ArrayList<ModelPath>();
-		val scopedAction = allDirectDescendants().apply(node -> paths.add(ModelNodeUtils.getPath(node))).scope(path("foo"));
+		val scopedAction = allDirectDescendants().apply(ModelActionWithInputs.of(ModelType.of(ModelPath.class), (node, path) -> paths.add(ModelNodeUtils.getPath(node)))).scope(path("foo"));
 		scopedAction.execute(node("foo.bar"));
 		scopedAction.execute(node("bar"));
 

@@ -15,9 +15,12 @@
  */
 package dev.nokee.platform.base;
 
+import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.ModelType;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
@@ -49,7 +52,7 @@ public interface SourceAwareComponent<T extends ComponentSources> extends Compon
 	 */
 	default void sources(Action<? super T> action) {
 		ModelNodeUtils.applyTo(ModelNodeUtils.getDescendant(ModelNodes.of(this), "sources"),
-			self(stateAtLeast(ModelState.Realized)).apply(node -> action.execute((T) ModelNodeUtils.get(node, ComponentSources.class))));
+			 self(stateAtLeast(ModelState.Realized)).apply(ModelActionWithInputs.of(ModelType.of(ModelProjection.class), (node, projection) -> action.execute((T) ModelNodeUtils.get(node, ComponentSources.class)))));
 	}
 
 	/**

@@ -18,8 +18,10 @@ package dev.nokee.model.internal.registry;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.provider.Property;
 import org.junit.jupiter.api.Test;
@@ -271,13 +273,13 @@ public class DefaultModelRegistryIntegrationTest {
 	@Test
 	void honorsNestedConfigurationActionOrder() {
 		val executionOrder = new ArrayList<String>();
-		modelRegistry.configure(once(n1 -> {
+		modelRegistry.configure(once(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(RelativeConfigurationService.class), (n1, path1, configurer1) -> {
 			executionOrder.add("n1 - " + ModelNodeUtils.getPath(n1));
-			ModelNodeUtils.applyTo(n1, allDirectDescendants().apply(once(n2 -> {
+			ModelNodeUtils.applyTo(n1, allDirectDescendants().apply(once(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(RelativeConfigurationService.class), (n2, path2, configurer2) -> {
 				executionOrder.add("n2 - " + ModelNodeUtils.getPath(n2));
-				ModelNodeUtils.applyTo(n2, allDirectDescendants().apply(once(n3 -> executionOrder.add("n3 - " + ModelNodeUtils.getPath(n3)))));
-			})));
-		}));
+				ModelNodeUtils.applyTo(n2, allDirectDescendants().apply(once(ModelActionWithInputs.of(ModelType.of(ModelPath.class), (n3, path3) -> executionOrder.add("n3 - " + ModelNodeUtils.getPath(n3))))));
+			}))));
+		})));
 
 		registerNode("foo");
 		assertThat(executionOrder, contains("n1 - <root>", "n1 - foo", "n2 - foo"));
@@ -289,7 +291,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canRegisterNodeWhileDispatchingConfigurationActions() {
 		val paths = new ArrayList<ModelPath>();
 		registerNode("foo");
-		modelRegistry.configure(matching(ModelSpecs.of(stateOf(Registered)), node -> {
+		modelRegistry.configure(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.IsAtLeastRegistered.class), ModelType.of(RelativeRegistrationService.class),(node, path, stateTag, registry) -> {
 			paths.add(ModelNodeUtils.getPath(node));
 			if (ModelNodeUtils.getPath(node).equals(path("foo"))) {
 				ModelNodeUtils.register(node, NodeRegistration.of("bar", of(MyType.class)));
@@ -305,12 +307,12 @@ public class DefaultModelRegistryIntegrationTest {
 		val paths = new ArrayList<ModelPath>();
 		registerNode("foo");
 		registerNode("bar");
-		modelRegistry.configure(matching(ModelSpecs.of(stateOf(Registered)), node -> {
+		modelRegistry.configure(matching(ModelSpecs.of(stateOf(Registered)), ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(RelativeRegistrationService.class), (node, path, registry) -> {
 			paths.add(ModelNodeUtils.getPath(node));
 			if (ModelNodeUtils.getPath(node).equals(path("foo"))) {
 				ModelNodeUtils.register(node, NodeRegistration.of("bar", of(MyType.class)));
 			}
-		}));
+		})));
 
 		System.out.println("Current paths: " + paths);
 		assertThat(paths, contains(root(), path("foo"), path("foo.bar"), path("bar")));
@@ -360,7 +362,7 @@ public class DefaultModelRegistryIntegrationTest {
 	@Test
 	void canExecuteActionWithComponentInputs() {
 		val result = new ArrayList<ModelPath>();
-		modelRegistry.configure(ModelActionWithInputs.of(ModelType.of(MyFooComponent.class), (node, i) -> {
+		modelRegistry.configure(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(MyFooComponent.class), (node, path, i) -> {
 			result.add(ModelNodeUtils.getPath(node));
 		}));
 		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo", Object.class), new Object()));

@@ -18,9 +18,10 @@ package dev.nokee.model.internal.registry;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.state.ModelStateTester;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStateTester;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -29,7 +30,6 @@ import org.mockito.Mockito;
 
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
-import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelNodeUtils.getParent;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.core.ModelPath.path;
@@ -105,7 +105,11 @@ public class DefaultModelRegistryTest {
 				assertThrows(IllegalArgumentException.class, () -> modelLookup.get(path("foo")));
 				return null;
 			}).when(action).execute(any());
-			subject.configure(matching(it -> ModelStates.getState(it).equals(ModelState.Initialized), action));
+			subject.configure(ModelActionWithInputs.of(ModelType.of(ModelState.class), (node, state) -> {
+				if (state.equals(ModelState.Initialized)) {
+					action.execute(node);
+				}
+			}));
 			register("foo");
 			verify(action, times(1)).execute(any());
 		}
@@ -118,7 +122,11 @@ public class DefaultModelRegistryTest {
 				assertDoesNotThrow(() -> modelLookup.get(path("bar")));
 				return null;
 			}).when(action).execute(any());
-			subject.configure(matching(it -> ModelStates.getState(it).equals(ModelState.Registered) && ModelNodeUtils.getPath(it).equals(path("bar")), action));
+			subject.configure(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.class), (node, path, state) -> {
+				if (state.equals(ModelState.Registered) && path.equals(path("bar"))) {
+					action.execute(node);
+				}
+			}));
 			register("bar");
 			verify(action, times(1)).execute(any());
 		}
