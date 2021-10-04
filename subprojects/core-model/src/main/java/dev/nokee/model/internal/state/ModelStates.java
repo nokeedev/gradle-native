@@ -105,7 +105,7 @@ public final class ModelStates {
 	 * @return {@literal true} if the state of the node is at or later that the specified state or {@literal false} otherwise.
 	 */
 	public static boolean isAtLeast(ModelNode self, ModelState state) {
-		return getState(self).compareTo(state) >= 0;
+		return getState(self).isAtLeast(state);
 	}
 
 	/**

@@ -23,10 +23,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 
-class ModelStateTest implements ModelStateTester.None {
+class ModelStateTest {
 	private final ModelNode subject = new ModelNode();
 	private final ModelNodeListener listener = Mockito.mock(ModelNodeListener.class);
 
@@ -35,9 +37,44 @@ class ModelStateTest implements ModelStateTester.None {
 		subject.addComponent(listener);
 	}
 
-	@Override
-	public ModelNode subject() {
-		return subject;
+	@Test
+	void isAtLeastCreated() {
+		assertTrue(ModelState.Created.isAtLeast(ModelState.Created));
+		assertTrue(ModelState.Initialized.isAtLeast(ModelState.Created));
+		assertTrue(ModelState.Registered.isAtLeast(ModelState.Created));
+		assertTrue(ModelState.Realized.isAtLeast(ModelState.Created));
+	}
+
+	@Test
+	void isAtLeastInitialized() {
+		assertFalse(ModelState.Created.isAtLeast(ModelState.Initialized));
+		assertTrue(ModelState.Initialized.isAtLeast(ModelState.Initialized));
+		assertTrue(ModelState.Registered.isAtLeast(ModelState.Initialized));
+		assertTrue(ModelState.Realized.isAtLeast(ModelState.Initialized));
+	}
+
+	@Test
+	void isAtLeastRegistered() {
+		assertFalse(ModelState.Created.isAtLeast(ModelState.Registered));
+		assertFalse(ModelState.Initialized.isAtLeast(ModelState.Registered));
+		assertTrue(ModelState.Registered.isAtLeast(ModelState.Registered));
+		assertTrue(ModelState.Realized.isAtLeast(ModelState.Registered));
+	}
+
+	@Test
+	void isAtLeastRealized() {
+		assertFalse(ModelState.Created.isAtLeast(ModelState.Realized));
+		assertFalse(ModelState.Initialized.isAtLeast(ModelState.Realized));
+		assertFalse(ModelState.Registered.isAtLeast(ModelState.Realized));
+		assertTrue(ModelState.Realized.isAtLeast(ModelState.Realized));
+	}
+
+	@Nested
+	class NoneTest implements ModelStateTester.None {
+		@Override
+		public ModelNode subject() {
+			return subject;
+		}
 	}
 
 	@Nested
