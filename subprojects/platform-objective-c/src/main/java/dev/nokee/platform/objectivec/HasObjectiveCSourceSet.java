@@ -17,11 +17,11 @@ package dev.nokee.platform.objectivec;
 
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.platform.base.ComponentSources;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
@@ -38,8 +38,8 @@ public interface HasObjectiveCSourceSet {
 	 *
 	 * @return a provider for {@literal objectiveC} source set, never null
 	 */
-	default DomainObjectProvider<ObjectiveCSourceSet> getObjectiveC() {
-		return ((FunctionalSourceSet) this).get("objectiveC", ObjectiveCSourceSet.class);
+	default NamedDomainObjectProvider<ObjectiveCSourceSet> getObjectiveC() {
+		return ((FunctionalSourceSet) this).named("objectiveC", ObjectiveCSourceSet.class);
 	}
 
 	/**

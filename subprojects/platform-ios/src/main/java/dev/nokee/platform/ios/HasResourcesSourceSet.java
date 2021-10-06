@@ -16,11 +16,11 @@
 package dev.nokee.platform.ios;
 
 import dev.nokee.language.base.FunctionalSourceSet;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.platform.base.ComponentSources;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
@@ -37,8 +37,8 @@ public interface HasResourcesSourceSet {
 	 *
 	 * @return a provider for {@literal resources} source set, never null
 	 */
-	default DomainObjectProvider<IosResourceSet> getResources() {
-		return ((FunctionalSourceSet) this).get("resources", IosResourceSet.class);
+	default NamedDomainObjectProvider<IosResourceSet> getResources() {
+		return ((FunctionalSourceSet) this).named("resources", IosResourceSet.class);
 	}
 
 	/**

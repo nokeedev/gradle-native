@@ -17,11 +17,11 @@ package dev.nokee.platform.c;
 
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.c.CSourceSet;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.platform.base.ComponentSources;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
@@ -38,8 +38,8 @@ public interface HasCSourceSet {
 	 *
 	 * @return a provider for {@literal c} source set, never null
 	 */
-	default DomainObjectProvider<CSourceSet> getC() {
-		return ((FunctionalSourceSet) this).get("c", CSourceSet.class);
+	default NamedDomainObjectProvider<CSourceSet> getC() {
+		return ((FunctionalSourceSet) this).named("c", CSourceSet.class);
 	}
 
 	/**
