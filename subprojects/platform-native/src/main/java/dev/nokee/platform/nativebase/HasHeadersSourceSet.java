@@ -17,11 +17,11 @@ package dev.nokee.platform.nativebase;
 
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.platform.base.ComponentSources;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
@@ -38,8 +38,8 @@ public interface HasHeadersSourceSet {
 	 *
 	 * @return a provider for {@literal headers} source set, never null
 	 */
-	default DomainObjectProvider<NativeHeaderSet> getHeaders() {
-		return ((FunctionalSourceSet) this).get("headers", NativeHeaderSet.class);
+	default NamedDomainObjectProvider<NativeHeaderSet> getHeaders() {
+		return ((FunctionalSourceSet) this).named("headers", NativeHeaderSet.class);
 	}
 
 	/**

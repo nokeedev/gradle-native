@@ -22,6 +22,7 @@ import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.type.ModelType;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.internal.metaobject.DynamicObject;
 
 import javax.annotation.Nullable;
@@ -76,6 +77,11 @@ abstract class AbstractModelNodeBackedNamedDomainObjectView<T> extends AbstractM
 	@Override
 	public final <S extends T> DomainObjectProvider<S> get(String name, Class<S> type) {
 		return projection.get(name, of(type));
+	}
+
+	@Override
+	public <S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type) {
+		return projection.get(name, of(type)).asProvider();
 	}
 
 	interface Projection {

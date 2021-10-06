@@ -17,8 +17,8 @@ package dev.nokee.platform.nativebase;
 
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.platform.base.ComponentSources;
+import org.gradle.api.NamedDomainObjectProvider;
 
 /**
  * Represents a component sources that carries an native header set named {@literal public}.
@@ -34,8 +34,8 @@ public interface HasPublicSourceSet {
 	 *
 	 * @return a provider for {@literal public} source set, never null
 	 */
-	default DomainObjectProvider<NativeHeaderSet> getPublic() {
-		return ((FunctionalSourceSet) this).get("public", NativeHeaderSet.class);
+	default NamedDomainObjectProvider<NativeHeaderSet> getPublic() {
+		return ((FunctionalSourceSet) this).named("public", NativeHeaderSet.class);
 	}
 	// Note: Use configure("public", CppHeaderSet) {}  for public headers
 }

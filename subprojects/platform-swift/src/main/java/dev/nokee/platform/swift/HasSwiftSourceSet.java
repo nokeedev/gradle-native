@@ -17,11 +17,11 @@ package dev.nokee.platform.swift;
 
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.platform.base.ComponentSources;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
@@ -38,8 +38,8 @@ public interface HasSwiftSourceSet {
 	 *
 	 * @return a provider for {@literal swift} source set, never null
 	 */
-	default DomainObjectProvider<SwiftSourceSet> getSwift() {
-		return ((FunctionalSourceSet) this).get("swift", SwiftSourceSet.class);
+	default NamedDomainObjectProvider<SwiftSourceSet> getSwift() {
+		return ((FunctionalSourceSet) this).named("swift", SwiftSourceSet.class);
 	}
 
 	/**

@@ -18,6 +18,7 @@ package dev.nokee.model;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.util.ConfigureUtil;
 
 public interface NamedDomainObjectView<T> extends DomainObjectView<T> {
@@ -78,4 +79,6 @@ public interface NamedDomainObjectView<T> extends DomainObjectView<T> {
 	 * @return a provider for the specified name and name.
 	 */
 	<S extends T> DomainObjectProvider<S> get(String name, Class<S> type);
+
+	<S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type);
 }

@@ -17,11 +17,11 @@ package dev.nokee.platform.cpp;
 
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.cpp.CppSourceSet;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.platform.base.ComponentSources;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
@@ -38,8 +38,8 @@ public interface HasCppSourceSet {
 	 *
 	 * @return a provider for {@literal cpp} source set, never null
 	 */
-	default DomainObjectProvider<CppSourceSet> getCpp() {
-		return ((FunctionalSourceSet) this).get("cpp", CppSourceSet.class);
+	default NamedDomainObjectProvider<CppSourceSet> getCpp() {
+		return ((FunctionalSourceSet) this).named("cpp", CppSourceSet.class);
 	}
 
 	/**

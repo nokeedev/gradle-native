@@ -24,6 +24,7 @@ import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ProviderUtils;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
@@ -65,7 +66,7 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 		ModelNodeUtils.applyTo(node, self(stateAtLeast(ModelState.Realized)).apply(executeUsingProjection(type, action)));
 	}
 
-	private Provider<T> getAsProvider() {
+	Provider<T> getAsProvider() {
 		return ProviderUtils.supplied(() -> ModelNodeUtils.get(ModelStates.realize(node), type));
 	}
 
@@ -87,5 +88,10 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 	@Override
 	public ModelNode getNode() {
 		return node;
+	}
+
+	@Override
+	public NamedDomainObjectProvider<T> asProvider() {
+		return new ModelBackedNamedDomainObjectProvider<>(this);
 	}
 }

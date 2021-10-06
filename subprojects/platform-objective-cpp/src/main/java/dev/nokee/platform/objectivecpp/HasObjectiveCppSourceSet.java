@@ -22,6 +22,7 @@ import dev.nokee.platform.base.ComponentSources;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
@@ -38,8 +39,8 @@ public interface HasObjectiveCppSourceSet {
 	 *
 	 * @return a provider for {@literal objectiveCpp} source set, never null
 	 */
-	default DomainObjectProvider<ObjectiveCppSourceSet> getObjectiveCpp() {
-		return ((FunctionalSourceSet) this).get("objectiveCpp", ObjectiveCppSourceSet.class);
+	default NamedDomainObjectProvider<ObjectiveCppSourceSet> getObjectiveCpp() {
+		return ((FunctionalSourceSet) this).named("objectiveCpp", ObjectiveCppSourceSet.class);
 	}
 
 	/**
