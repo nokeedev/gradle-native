@@ -63,6 +63,7 @@ public interface ModelStateTester {
 			assertFalse(isAtLeast(subject(), ModelState.Initialized));
 			assertFalse(isAtLeast(subject(), ModelState.Registered));
 			assertFalse(isAtLeast(subject(), ModelState.Realized));
+			assertFalse(isAtLeast(subject(), ModelState.Finalized));
 		}
 	}
 
@@ -104,6 +105,7 @@ public interface ModelStateTester {
 			assertFalse(isAtLeast(subject(), ModelState.Initialized));
 			assertFalse(isAtLeast(subject(), ModelState.Registered));
 			assertFalse(isAtLeast(subject(), ModelState.Realized));
+			assertFalse(isAtLeast(subject(), ModelState.Finalized));
 		}
 	}
 
@@ -145,6 +147,7 @@ public interface ModelStateTester {
 
 			assertFalse(isAtLeast(subject(), ModelState.Registered));
 			assertFalse(isAtLeast(subject(), ModelState.Realized));
+			assertFalse(isAtLeast(subject(), ModelState.Finalized));
 		}
 	}
 
@@ -186,6 +189,7 @@ public interface ModelStateTester {
 			assertTrue(isAtLeast(subject(), ModelState.Registered));
 
 			assertFalse(isAtLeast(subject(), ModelState.Realized));
+			assertFalse(isAtLeast(subject(), ModelState.Finalized));
 		}
 	}
 
@@ -226,6 +230,54 @@ public interface ModelStateTester {
 			assertTrue(isAtLeast(subject(), ModelState.Initialized));
 			assertTrue(isAtLeast(subject(), ModelState.Registered));
 			assertTrue(isAtLeast(subject(), ModelState.Realized));
+
+			assertFalse(isAtLeast(subject(), ModelState.Finalized));
+		}
+	}
+
+	interface Finalized extends ModelStateTester {
+		@Test
+		default void hasCreatedTagComponent() {
+			assertTrue(subject().hasComponent(ModelState.IsAtLeastCreated.class));
+		}
+
+		@Test
+		default void hasInitializedTagComponent() {
+			assertTrue(subject().hasComponent(ModelState.IsAtLeastInitialized.class));
+		}
+
+		@Test
+		default void hasRegisteredTagComponent() {
+			assertTrue(subject().hasComponent(ModelState.IsAtLeastRegistered.class));
+		}
+
+		@Test
+		default void hasRealizedTagComponent() {
+			assertTrue(subject().hasComponent(ModelState.IsAtLeastRealized.class));
+		}
+
+		@Test
+		default void hasFinalizedTagComponent() {
+			assertTrue(subject().hasComponent(ModelState.IsAtLeastFinalized.class));
+		}
+
+		@Test
+		default void hasRealizedState() {
+			assertEquals(getState(subject()), ModelState.Finalized);
+		}
+
+		@Test
+		default void hasStateComponent() {
+			assertTrue(subject().hasComponent(ModelState.class));
+		}
+
+		@Test
+		default void isAtMostFinalized() {
+			assertTrue(isAtLeast(subject(), ModelState.Created));
+			assertTrue(isAtLeast(subject(), ModelState.Initialized));
+			assertTrue(isAtLeast(subject(), ModelState.Registered));
+			assertTrue(isAtLeast(subject(), ModelState.Realized));
+			assertTrue(isAtLeast(subject(), ModelState.Finalized));
 		}
 	}
 }
