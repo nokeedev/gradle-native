@@ -25,6 +25,7 @@ import lombok.val;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -67,8 +68,23 @@ public final class ModelNode {
 	}
 
 	public void addComponent(Object component) {
-		components.add(component);
-		notifyComponentAdded(component);
+		val index = indexOfComponent(component.getClass());
+		if (index == -1) {
+			components.add(component);
+			notifyComponentAdded(component);
+		} else if (!components.get(index).equals(component)) {
+			components.set(index, component);
+			notifyComponentAdded(component);
+		}
+	}
+
+	private int indexOfComponent(Class<?> componentType) {
+		for (int i = 0; i < components.size(); ++i) {
+			if (components.get(i).getClass().equals(componentType)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	private void notifyComponentAdded(Object newComponent) {
