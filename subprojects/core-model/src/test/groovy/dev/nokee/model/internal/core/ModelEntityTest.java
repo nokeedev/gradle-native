@@ -17,13 +17,10 @@ package dev.nokee.model.internal.core;
 
 import lombok.Value;
 import lombok.val;
-import org.gradle.nativeplatform.test.TestComponent;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.util.stream.Collectors;
+import org.mockito.Mockito;
 
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -35,16 +32,20 @@ class ModelEntityTest {
 	private final ModelNode subject = new ModelNode();
 
 	@Test
-	void hasNoComponents() {
+	void hasNoComponentsOnNewEntity() {
 		assertThat(subject.getComponents().collect(toList()), emptyIterable());
 	}
 
 	@Nested
 	class ExistingComponentTest {
 		private final Object existingComponent = new ModelEntityTest.TestComponent("foo");
+		private final ModelNodeListener listener = Mockito.mock(ModelNodeListener.class);
+
 		@BeforeEach
 		void addComponent() {
 			subject.addComponent(existingComponent);
+			subject.addComponent(listener);
+			Mockito.reset(listener);
 		}
 
 		@Test
@@ -60,6 +61,22 @@ class ModelEntityTest {
 			val newComponent = new ModelEntityTest.TestComponent("bar");
 			subject.addComponent(newComponent);
 			assertThat(subject.getComponents().collect(toList()), allOf(hasItem(newComponent), not(hasItem(existingComponent))));
+			Mockito.verify(listener).projectionAdded(subject, newComponent);
+		}
+
+		@Test
+		void doesNotReplaceComponentWhenAddingSameComponent() {
+			subject.addComponent(existingComponent);
+			assertThat(subject.getComponents().collect(toList()), hasItem(existingComponent));
+			Mockito.verifyNoInteractions(listener);
+		}
+
+		@Test
+		void doesNotReplaceComponentWhenAddingEqualComponent() {
+			val newComponent = new ModelEntityTest.TestComponent("foo");
+			subject.addComponent(newComponent);
+			assertThat(subject.getComponents().collect(toList()), hasItem(existingComponent));
+			Mockito.verifyNoInteractions(listener);
 		}
 	}
 
