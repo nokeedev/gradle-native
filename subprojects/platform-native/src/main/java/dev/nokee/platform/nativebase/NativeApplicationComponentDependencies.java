@@ -32,7 +32,7 @@ public interface NativeApplicationComponentDependencies extends ApplicationCompo
 	 * {@inheritDoc}
 	 */
 	@Override
-	default void implementation(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void implementation(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		implementation(notation, ConfigureUtil.configureUsing(closure));
 	}
 }

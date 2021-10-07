@@ -58,7 +58,7 @@ public interface HasHeadersSourceSet {
 	 * @param closure  the configuration action, must not be null
 	 * @see #getHeaders()
 	 */
-	default void headers(@DelegatesTo(value = NativeHeaderSet.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void headers(@DelegatesTo(value = NativeHeaderSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		headers(configureUsing(closure));
 	}
 }

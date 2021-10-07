@@ -126,8 +126,9 @@ public abstract class DomainElementsDynamicObject extends AbstractDynamicObject 
 		return o instanceof Closure;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static Action<Object> asAction(Object o) {
-		return ConfigureUtil.configureUsing((Closure<Void>) o);
+		return ConfigureUtil.configureUsing((Closure) o);
 	}
 
 	private static ModelType<?> asType(Object o) {

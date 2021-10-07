@@ -53,8 +53,9 @@ public abstract class DomainObjectProviderConfigureUsingClosureTester<T> extends
 	}
 
 	@Test
+	@SuppressWarnings("rawtypes")
 	void throwsExceptionIfConfigurationClosureIsNull() {
-		assertThrows(NullPointerException.class, () -> createSubject().configure((Closure<Void>) null));
+		assertThrows(NullPointerException.class, () -> createSubject().configure((Closure) null));
 	}
 
 	@Test

@@ -58,7 +58,7 @@ public interface HasCppSources {
 	 * @param closure  the configuration closure, must not be null
 	 * @see #getCppSources()
 	 */
-	default void cppSources(@DelegatesTo(value = CppSourceSet.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void cppSources(@DelegatesTo(value = CppSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		cppSources(configureUsing(closure));
 	}
 }

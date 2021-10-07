@@ -69,7 +69,7 @@ public interface JniLibrary extends Variant, DependencyAwareComponent<JavaNative
 	 * @param closure configuration closure for {@link SharedLibraryBinary}.
 	 * @since 0.3
 	 */
-	default void sharedLibrary(@DelegatesTo(value = SharedLibraryBinary.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void sharedLibrary(@DelegatesTo(value = SharedLibraryBinary.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		sharedLibrary(ConfigureUtil.configureUsing(closure));
 	}
 

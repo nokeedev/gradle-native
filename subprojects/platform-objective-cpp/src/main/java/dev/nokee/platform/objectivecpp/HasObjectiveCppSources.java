@@ -58,7 +58,7 @@ public interface HasObjectiveCppSources {
 	 * @param closure  the configuration closure, must not be null
 	 * @see #getObjectiveCppSources()
 	 */
-	default void objectiveCppSources(@DelegatesTo(value = ObjectiveCppSourceSet.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void objectiveCppSources(@DelegatesTo(value = ObjectiveCppSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		objectiveCppSources(ConfigureUtil.configureUsing(closure));
 	}
 }

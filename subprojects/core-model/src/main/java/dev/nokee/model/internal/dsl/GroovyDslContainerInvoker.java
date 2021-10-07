@@ -41,12 +41,12 @@ public class GroovyDslContainerInvoker<TYPE, T extends TYPE> extends AbstractGro
 	}
 
 	@Override
-	protected <S extends T> Object register(String name, Class<S> type, Closure<Void> closure) {
+	protected <S extends T> Object register(String name, Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		return registry.register(name, type, ConfigureUtil.configureUsing(closure));
 	}
 
 	@Override
-	protected <S extends T> void configure(String name, Class<S> type, Closure<Void> closure) {
+	protected <S extends T> void configure(String name, Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		configurer.configure(owner, name, type, ConfigureUtil.configureUsing(closure));
 	}
 }

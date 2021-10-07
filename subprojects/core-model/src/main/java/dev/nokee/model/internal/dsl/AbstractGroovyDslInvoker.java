@@ -62,14 +62,14 @@ public abstract class AbstractGroovyDslInvoker<TYPE, T extends TYPE> {
 		if (arguments.length == 1 && arguments[0] instanceof Class) {
 			return register(methodName, (Class) arguments[0]);
 		} else if (arguments.length == 1 && arguments[0] instanceof Closure && hasEntity(methodName, entityType)) {
-			configure(methodName, entityType, (Closure<Void>) arguments[0]);
+			configure(methodName, entityType, (Closure) arguments[0]);
 			return null;
 		} else if (arguments.length == 2 && arguments[0] instanceof Class && arguments[1] instanceof Closure) {
 			if (hasEntity(methodName, (Class) arguments[0])) {
-				configure(methodName, (Class) arguments[0], (Closure<Void>) arguments[1]);
+				configure(methodName, (Class) arguments[0], (Closure) arguments[1]);
 				return null;
 			}
-			return register(methodName, (Class) arguments[0], (Closure<Void>) arguments[1]);
+			return register(methodName, (Class) arguments[0], (Closure) arguments[1]);
 		}
 		return forwardMissingMethodInvocation(methodName, arguments);
 	}
@@ -80,7 +80,7 @@ public abstract class AbstractGroovyDslInvoker<TYPE, T extends TYPE> {
 
 	protected abstract <S extends T> Object register(String name, Class<S> type);
 
-	protected abstract <S extends T> Object register(String name, Class<S> type, Closure<Void> closure);
+	protected abstract <S extends T> Object register(String name, Class<S> type, @SuppressWarnings("rawtypes") Closure closure);
 
-	protected abstract <S extends T> void configure(String name, Class<S> type, Closure<Void> closure);
+	protected abstract <S extends T> void configure(String name, Class<S> type, @SuppressWarnings("rawtypes") Closure closure);
 }

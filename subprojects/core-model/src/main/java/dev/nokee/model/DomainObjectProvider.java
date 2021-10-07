@@ -32,7 +32,7 @@ public interface DomainObjectProvider<T> {
 
 	void configure(Action<? super T> action);
 
-	default void configure(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void configure(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		configure(ConfigureUtil.configureUsing(requireNonNull(closure)));
 	}
 
