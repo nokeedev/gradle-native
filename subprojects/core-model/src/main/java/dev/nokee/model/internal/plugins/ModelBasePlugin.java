@@ -19,6 +19,7 @@ import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.DomainObjectEventPublisherImpl;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
 import dev.nokee.model.internal.RealizableDomainObjectRealizerImpl;
+import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -40,5 +41,6 @@ public class ModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(ModelRegistry.class, "__NOKEE_modelRegistry", modelRegistry);
 		project.getExtensions().add(ModelLookup.class, "__NOKEE_modelLookup", modelRegistry);
 		project.getExtensions().add(ModelConfigurer.class, "__NOKEE_modelConfigurer", modelRegistry);
+		project.getExtensions().add(ModelPropertyRegistrationFactory.class, "__NOKEE_modelPropertyRegistrationFactory", new ModelPropertyRegistrationFactory(modelRegistry));
 	}
 }
