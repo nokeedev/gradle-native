@@ -16,7 +16,9 @@
 package dev.nokee.model.internal.registry;
 
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.KnownDomainObjectTester;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelProjections;
 import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,9 +33,18 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 
 @Subject(ModelNodeBackedKnownDomainObject.class)
-class ModelNodeBackedKnownDomainObjectTest {
+class ModelNodeBackedKnownDomainObjectTest implements KnownDomainObjectTester<Object> {
+	private final Object myTypeInstance = new Object();
+	private final ModelNode node = node("foo", ModelProjections.ofInstance(myTypeInstance));
+	private final ModelNodeBackedKnownDomainObject<Object> subject = new ModelNodeBackedKnownDomainObject<>(of(Object.class), node);
+
 	private <T> KnownDomainObject<T> knownObject(Class<T> type, ModelNode node) {
 		return new ModelNodeBackedKnownDomainObject<>(of(type), node);
+	}
+
+	@Override
+	public KnownDomainObject<Object> subject() {
+		return subject;
 	}
 
 	@Nested

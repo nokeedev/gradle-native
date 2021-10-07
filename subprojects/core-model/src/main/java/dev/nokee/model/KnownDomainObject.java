@@ -29,10 +29,10 @@ public interface KnownDomainObject<T> {
 
 	Class<T> getType();
 
-	default void configure(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
-		configure(ConfigureUtil.configureUsing(requireNonNull(closure)));
+	default KnownDomainObject<T> configure(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
+		return configure(ConfigureUtil.configureUsing(requireNonNull(closure)));
 	}
-	void configure(Action<? super T> action);
+	KnownDomainObject<T> configure(Action<? super T> action);
 
 	<S> Provider<S> map(Transformer<? extends S, ? super T> transformer);
 	<S> Provider<S> flatMap(Transformer<? extends Provider<? extends S>, ? super T> transformer);
