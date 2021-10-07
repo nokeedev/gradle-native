@@ -16,15 +16,18 @@
 package dev.nokee.platform.base.testers;
 
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.FunctionalSourceSet;
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.platform.base.ComponentSources;
+import dev.nokee.utils.ProviderUtils;
 import groovy.lang.Closure;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.internal.provider.ProviderInternal;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
@@ -36,13 +39,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.internal.testing.ExecuteWith.*;
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.language.base.testing.LanguageSourceSetMatchers.sourceSetOf;
-import static dev.nokee.model.testing.DomainObjectProviderMatchers.providerOf;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public interface ComponentSourcesTester<T extends ComponentSources> {
@@ -80,8 +83,8 @@ public interface ComponentSourcesTester<T extends ComponentSources> {
 	@MethodSource("provideSourceSetUnderTest")
 	default void checkSourceSetTypeSafeAccessorAndConfigurationMethodsPrototypeIntegrity(SourceSetUnderTest sourceSet) throws Throwable {
 		val subject = createSubject();
-		assertThat("accessor should return a provider", sourceSet.typeSafeAccessor(subject).getReturnType(), equalTo(DomainObjectProvider.class));
-		assertThat("accessor provider should provide the public source set type", sourceSet.typeSafeAccessor(subject).invoke().getType(), equalTo(sourceSet.getType()));
+		assertThat("accessor should return a provider", sourceSet.typeSafeAccessor(subject).getReturnType(), equalTo(NamedDomainObjectProvider.class));
+		assertThat("accessor provider should provide the public source set type", sourceSet.typeSafeAccessor(subject).invoke().get(), isA(sourceSet.getType()));
 //		assertThat("configuration method using action should not return anything", sourceSet.configureUsingAction(subject).getReturnType(), equalTo(Void.TYPE));
 //		assertThat("configuration method using closure should not return anything", sourceSet.configureUsingClosure(subject).getReturnType(), equalTo(Void.TYPE));
 	}
@@ -108,7 +111,7 @@ public interface ComponentSourcesTester<T extends ComponentSources> {
 		}
 
 		@SneakyThrows
-		InvokableMethod<DomainObjectProvider<? extends LanguageSourceSet>> typeSafeAccessor(ComponentSources target) {
+		InvokableMethod<NamedDomainObjectProvider<? extends LanguageSourceSet>> typeSafeAccessor(ComponentSources target) {
 			return InvokableMethod.bind(target.getClass().getMethod("get" + StringUtils.capitalize(getName())), target);
 		}
 
