@@ -15,15 +15,22 @@
  */
 package dev.nokee.platform.c.internal.plugins;
 
+import com.google.common.collect.ImmutableList;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.NodeRegistration;
-import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
+import dev.nokee.model.internal.BaseDomainObjectViewProjection;
+import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
+import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.c.CApplication;
 import dev.nokee.platform.c.CApplicationSources;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
@@ -39,14 +46,16 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
-import static dev.nokee.model.internal.core.ModelActions.register;
+import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelNodes.discover;
+import static dev.nokee.model.internal.core.ModelNodes.mutate;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.componentSourcesOf;
+import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.maven;
+import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 
 public class CApplicationPlugin implements Plugin<Project> {
@@ -80,14 +89,105 @@ public class CApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration<CApplication> cApplication(String name, Project project) {
-		return component(name, CApplication.class)
+		return NodeRegistration.of(name, of(CApplication.class))
+			// TODO: Should configure FileCollection on CApplication
+			//   and link FileCollection to source sets
+			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
+				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
 			.withProjection(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
-			.action(self(discover()).apply(register(sources())));
-	}
+			.action(self(discover()).apply(ModelActionWithInputs.of(of(ModelPath.class), (entity, path) -> {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-	private static NodeRegistration<CApplicationSources> sources() {
-		return componentSourcesOf(CApplicationSources.class)
-			.action(self(discover()).apply(register(sourceSet("c", CSourceSet.class))))
-			.action(self(discover()).apply(register(sourceSet("headers", CHeaderSet.class))));
+				// TODO: Should be created using CSourceSetSpec
+				val c = registry.register(ModelRegistration.builder()
+					.withPath(path.child("c"))
+					.withProjection(managed(of(CSourceSet.class)))
+					.withProjection(managed(of(BaseLanguageSourceSetProjection.class)))
+					.build());
+
+				// TODO: Should be created using CHeaderSetSpec
+				val headers = registry.register(ModelRegistration.builder()
+					.withPath(path.child("headers"))
+					.withProjection(managed(of(CHeaderSet.class)))
+					.withProjection(managed(of(BaseLanguageSourceSetProjection.class)))
+					.build());
+
+				// TODO: Should be created as ModelProperty (readonly) with CApplicationSources projection
+				registry.register(ModelRegistration.builder()
+					.withPath(path.child("sources"))
+					.withProjection(managed(of(CApplicationSources.class)))
+					.withProjection(managed(of(BaseDomainObjectViewProjection.class)))
+					.withProjection(managed(of(BaseNamedDomainObjectViewProjection.class)))
+					.build());
+
+				// TODO: Should be created as ModelProperty (readonly) pointing to c source set
+				registry.register(ModelRegistration.builder()
+					.withPath(path.child("sources").child("c"))
+					.action(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.IsAtLeastRealized.class), (e, p, ignored) -> {
+						if (p.equals(path.child("sources").child("c"))) {
+							ModelStates.realize(ModelNodes.of(c));
+						} else if (p.equals(path.child("c"))) {
+							ModelStates.realize(ModelNodes.of(registry.get(path.child("sources").child("c").toString(), CSourceSet.class)));
+						}
+					}))
+					.action(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.IsAtLeastCreated.class), (e, p, ignored) -> {
+						if (p.equals(path.child("sources").child("c"))) {
+							e.addComponent(new ModelProjection() {
+								private final ModelNode delegate = ModelNodes.of(c);
+
+								@Override
+								public <T> boolean canBeViewedAs(ModelType<T> type) {
+									return ModelNodeUtils.canBeViewedAs(delegate, type);
+								}
+
+								@Override
+								public <T> T get(ModelType<T> type) {
+									return ModelNodeUtils.get(delegate, type);
+								}
+
+								@Override
+								public Iterable<String> getTypeDescriptions() {
+									return ImmutableList.of(ModelNodeUtils.getTypeDescription(delegate).orElse("<unknown>"));
+								}
+							});
+						}
+					}))
+					.build());
+
+
+				// TODO: Should be created as ModelProperty (readonly) pointing to headers source set
+				registry.register(ModelRegistration.builder()
+					.withPath(path.child("sources").child("headers"))
+					.action(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.IsAtLeastRealized.class), (e, p, ignored) -> {
+						if (p.equals(path.child("sources").child("headers"))) {
+							ModelStates.realize(ModelNodes.of(headers));
+						} else if (p.equals(path.child("headers"))) {
+							ModelStates.realize(ModelNodes.of(registry.get(path.child("sources").child("headers").toString(), CHeaderSet.class)));
+						}
+					}))
+					.action(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.IsAtLeastCreated.class), (e, p, ignored) -> {
+						if (p.equals(path.child("sources").child("headers"))) {
+							e.addComponent(new ModelProjection() {
+								private final ModelNode delegate = ModelNodes.of(headers);
+
+								@Override
+								public <T> boolean canBeViewedAs(ModelType<T> type) {
+									return ModelNodeUtils.canBeViewedAs(delegate, type);
+								}
+
+								@Override
+								public <T> T get(ModelType<T> type) {
+									return ModelNodeUtils.get(delegate, type);
+								}
+
+								@Override
+								public Iterable<String> getTypeDescriptions() {
+									return ImmutableList.of(ModelNodeUtils.getTypeDescription(delegate).orElse("<unknown>"));
+								}
+							});
+						}
+					}))
+					.build());
+			})));
 	}
 }
