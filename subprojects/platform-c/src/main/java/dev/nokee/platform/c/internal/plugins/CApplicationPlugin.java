@@ -97,6 +97,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 			.withProjection(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
 			.action(self(discover()).apply(ModelActionWithInputs.of(of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 				// TODO: Should be created using CSourceSetSpec
 				val c = registry.register(ModelRegistration.builder()
@@ -120,74 +121,8 @@ public class CApplicationPlugin implements Plugin<Project> {
 					.withProjection(managed(of(BaseNamedDomainObjectViewProjection.class)))
 					.build());
 
-				// TODO: Should be created as ModelProperty (readonly) pointing to c source set
-				registry.register(ModelRegistration.builder()
-					.withPath(path.child("sources").child("c"))
-					.action(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.IsAtLeastRealized.class), (e, p, ignored) -> {
-						if (p.equals(path.child("sources").child("c"))) {
-							ModelStates.realize(ModelNodes.of(c));
-						} else if (p.equals(path.child("c"))) {
-							ModelStates.realize(ModelNodes.of(registry.get(path.child("sources").child("c").toString(), CSourceSet.class)));
-						}
-					}))
-					.action(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.IsAtLeastCreated.class), (e, p, ignored) -> {
-						if (p.equals(path.child("sources").child("c"))) {
-							e.addComponent(new ModelProjection() {
-								private final ModelNode delegate = ModelNodes.of(c);
-
-								@Override
-								public <T> boolean canBeViewedAs(ModelType<T> type) {
-									return ModelNodeUtils.canBeViewedAs(delegate, type);
-								}
-
-								@Override
-								public <T> T get(ModelType<T> type) {
-									return ModelNodeUtils.get(delegate, type);
-								}
-
-								@Override
-								public Iterable<String> getTypeDescriptions() {
-									return ImmutableList.of(ModelNodeUtils.getTypeDescription(delegate).orElse("<unknown>"));
-								}
-							});
-						}
-					}))
-					.build());
-
-
-				// TODO: Should be created as ModelProperty (readonly) pointing to headers source set
-				registry.register(ModelRegistration.builder()
-					.withPath(path.child("sources").child("headers"))
-					.action(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.IsAtLeastRealized.class), (e, p, ignored) -> {
-						if (p.equals(path.child("sources").child("headers"))) {
-							ModelStates.realize(ModelNodes.of(headers));
-						} else if (p.equals(path.child("headers"))) {
-							ModelStates.realize(ModelNodes.of(registry.get(path.child("sources").child("headers").toString(), CHeaderSet.class)));
-						}
-					}))
-					.action(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.IsAtLeastCreated.class), (e, p, ignored) -> {
-						if (p.equals(path.child("sources").child("headers"))) {
-							e.addComponent(new ModelProjection() {
-								private final ModelNode delegate = ModelNodes.of(headers);
-
-								@Override
-								public <T> boolean canBeViewedAs(ModelType<T> type) {
-									return ModelNodeUtils.canBeViewedAs(delegate, type);
-								}
-
-								@Override
-								public <T> T get(ModelType<T> type) {
-									return ModelNodeUtils.get(delegate, type);
-								}
-
-								@Override
-								public Iterable<String> getTypeDescriptions() {
-									return ImmutableList.of(ModelNodeUtils.getTypeDescription(delegate).orElse("<unknown>"));
-								}
-							});
-						}
-					}))
-					.build());
+				registry.register(propertyFactory.create(path.child("sources").child("c"), ModelNodes.of(c)));
+				registry.register(propertyFactory.create(path.child("sources").child("headers"), ModelNodes.of(headers)));
 			})));
 	}
 }
