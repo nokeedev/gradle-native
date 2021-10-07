@@ -28,6 +28,8 @@ import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
+import java.util.Objects;
+
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.self;
@@ -57,8 +59,10 @@ public class ModelNodeBackedKnownDomainObject<T> implements KnownDomainObject<T>
 	}
 
 	@Override
-	public void configure(Action<? super T> action) {
+	public ModelNodeBackedKnownDomainObject<T> configure(Action<? super T> action) {
+		Objects.requireNonNull(action);
 		ModelNodeUtils.applyTo(node, self(stateAtLeast(ModelState.Realized)).apply(executeUsingProjection(type, action)));
+		return this;
 	}
 
 	private Provider<T> getAsProvider() {
@@ -68,11 +72,13 @@ public class ModelNodeBackedKnownDomainObject<T> implements KnownDomainObject<T>
 
 	@Override
 	public <S> Provider<S> map(Transformer<? extends S, ? super T> transformer) {
+		Objects.requireNonNull(transformer);
 		return getAsProvider().map(transformer);
 	}
 
 	@Override
 	public <S> Provider<S> flatMap(Transformer<? extends Provider<? extends S>, ? super T> transformer) {
+		Objects.requireNonNull(transformer);
 		return getAsProvider().flatMap(transformer);
 	}
 
