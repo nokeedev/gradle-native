@@ -24,6 +24,7 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -151,6 +152,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 	}
 
 	public static Action<Project> finalizeModelNodeOf(Object target) {
-		return project -> ModelNodeUtils.finalizeProjections(ModelNodes.of(target));
+		return project -> {
+			ModelNodeUtils.finalizeProjections(ModelNodes.of(target));
+			ModelStates.finalize(ModelNodes.of(target));
+		};
 	}
 }
