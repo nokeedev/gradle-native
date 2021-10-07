@@ -90,7 +90,7 @@ abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn
 	}
 
 	@Override
-	public final void configureEach(Closure<Void> closure) {
+	public final void configureEach(@SuppressWarnings("rawtypes") Closure closure) {
 		projection.configureEach(elementType, configureUsing(closure));
 	}
 
@@ -100,7 +100,7 @@ abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn
 	}
 
 	@Override
-	public final <S extends T> void configureEach(Class<S> type, Closure<Void> closure) {
+	public final <S extends T> void configureEach(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		configureEach(type, configureUsing(closure));
 	}
 
@@ -110,7 +110,7 @@ abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn
 	}
 
 	@Override
-	public final void configureEach(Spec<? super T> spec, Closure<Void> closure) {
+	public final void configureEach(Spec<? super T> spec, @SuppressWarnings("rawtypes") Closure closure) {
 		projection.configureEach(elementType, spec, configureUsing(closure));
 	}
 
@@ -145,7 +145,7 @@ abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn
 	}
 
 	@Override
-	public final void whenElementKnownEx(Closure<Void> closure) {
+	public final void whenElementKnownEx(@SuppressWarnings("rawtypes") Closure closure) {
 		projection.whenElementKnown(elementType, configureUsing(closure));
 	}
 
@@ -155,7 +155,7 @@ abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn
 	}
 
 	@Override
-	public final <S extends T> void whenElementKnownEx(Class<S> type, Closure<Void> closure) {
+	public final <S extends T> void whenElementKnownEx(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		whenElementKnownEx(type, configureUsing(closure));
 	}
 

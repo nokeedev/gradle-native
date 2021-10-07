@@ -59,7 +59,7 @@ abstract class AbstractModelNodeBackedNamedDomainObjectContainer<T> extends Abst
 	}
 
 	@Override
-	public final <U extends T> DomainObjectProvider<U> register(String name, Class<U> type, Closure<Void> closure) {
+	public final <U extends T> DomainObjectProvider<U> register(String name, Class<U> type, @SuppressWarnings("rawtypes") Closure closure) {
 		return register(name, type, configureUsing(closure));
 	}
 

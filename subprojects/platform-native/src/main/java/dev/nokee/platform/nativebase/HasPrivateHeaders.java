@@ -58,7 +58,7 @@ public interface HasPrivateHeaders {
 	 * @param closure  the configuration closure, must not be null
 	 * @see #getPrivateHeaders()
 	 */
-	default void privateHeaders(@DelegatesTo(value = NativeHeaderSet.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void privateHeaders(@DelegatesTo(value = NativeHeaderSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		privateHeaders(configureUsing(closure));
 	}
 }

@@ -55,7 +55,7 @@ abstract class AbstractModelNodeBackedNamedDomainObjectView<T> extends AbstractM
 	}
 
 	@Override
-	public final void configure(String name, Closure<Void> closure) {
+	public final void configure(String name, @SuppressWarnings("rawtypes") Closure closure) {
 		projection.configure(name, elementType, configureUsing(closure));
 	}
 
@@ -65,7 +65,7 @@ abstract class AbstractModelNodeBackedNamedDomainObjectView<T> extends AbstractM
 	}
 
 	@Override
-	public final <S extends T> void configure(String name, Class<S> type, Closure<Void> closure) {
+	public final <S extends T> void configure(String name, Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		configure(name, type, configureUsing(closure));
 	}
 

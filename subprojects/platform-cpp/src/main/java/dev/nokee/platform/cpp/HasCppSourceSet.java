@@ -58,7 +58,7 @@ public interface HasCppSourceSet {
 	 * @param closure  the configuration action, must not be null
 	 * @see #getCpp()
 	 */
-	default void cpp(@DelegatesTo(value = CppSourceSet.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void cpp(@DelegatesTo(value = CppSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		cpp(configureUsing(closure));
 	}
 }

@@ -87,7 +87,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @param closure  the configuration closure, must not be null
 	 * @return this language source set, never null
 	 */
-	default LanguageSourceSet filter(@DelegatesTo(value = PatternFilterable.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default LanguageSourceSet filter(@DelegatesTo(value = PatternFilterable.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		return filter(ConfigureUtil.configureUsing(closure));
 	}
 

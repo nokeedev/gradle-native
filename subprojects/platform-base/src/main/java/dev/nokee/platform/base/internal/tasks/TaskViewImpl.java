@@ -32,17 +32,17 @@ public final class TaskViewImpl<T extends Task> extends AbstractDomainObjectView
 	}
 
 	@Override
-	public void configureEach(Closure<Void> closure) {
+	public void configureEach(@SuppressWarnings("rawtypes") Closure closure) {
 		DomainObjectView.super.configureEach(closure);
 	}
 
 	@Override
-	public <S extends T> void configureEach(Class<S> type, Closure<Void> closure) {
+	public <S extends T> void configureEach(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		DomainObjectView.super.configureEach(type, closure);
 	}
 
 	@Override
-	public void configureEach(Spec<? super T> spec, Closure<Void> closure) {
+	public void configureEach(Spec<? super T> spec, @SuppressWarnings("rawtypes") Closure closure) {
 		DomainObjectView.super.configureEach(spec, closure);
 	}
 

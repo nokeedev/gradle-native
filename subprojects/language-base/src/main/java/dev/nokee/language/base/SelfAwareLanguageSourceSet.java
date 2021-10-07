@@ -33,7 +33,7 @@ public interface SelfAwareLanguageSourceSet<SELF extends LanguageSourceSet> exte
 	}
 
 	@Override
-	default SELF filter(Closure<Void> closure) {
+	default SELF filter(@SuppressWarnings("rawtypes") Closure closure) {
 		LanguageSourceSet.super.filter(closure);
 		return (SELF) this;
 	}

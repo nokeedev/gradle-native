@@ -51,7 +51,7 @@ public abstract class DomainObjectFunctorConfigureTester<F> extends AbstractDoma
 		verify(modelConfigurer, times(1)).configure(any());
 	}
 
-	protected void configure(F functor, Closure<Void> closure) {
+	protected void configure(F functor, @SuppressWarnings("rawtypes") Closure closure) {
 		invoke(functor, "configure", new Class[] {Closure.class}, new Object[] {closure});
 	}
 

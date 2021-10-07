@@ -49,7 +49,7 @@ public interface View<T> {
 	 *
 	 * @param closure The closure to execute on each element for configuration.
 	 */
-	default void configureEach(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void configureEach(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		configureEach(ConfigureUtil.configureUsing(closure));
 	}
 
@@ -77,7 +77,7 @@ public interface View<T> {
 	 * @param <S> the base type of the element to configure.
 	 * @param closure the closure to execute on each element for configuration.
 	 */
-	default <S extends T> void configureEach(Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default <S extends T> void configureEach(Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		configureEach(type, ConfigureUtil.configureUsing(closure));
 	}
 
@@ -101,7 +101,7 @@ public interface View<T> {
 	 * @param closure the closure to execute on each element for configuration.
 	 * @since 0.4
 	 */
-	default void configureEach(Spec<? super T> spec, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void configureEach(Spec<? super T> spec, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		configureEach(spec, ConfigureUtil.configureUsing(closure));
 	}
 

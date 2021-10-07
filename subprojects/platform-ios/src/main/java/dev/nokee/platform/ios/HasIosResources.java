@@ -57,7 +57,7 @@ public interface HasIosResources {
 	 * @param closure  the configuration closure, must not be null
 	 * @see #getResources()
 	 */
-	default void resources(@DelegatesTo(value = IosResourceSet.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void resources(@DelegatesTo(value = IosResourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		resources(configureUsing(closure));
 	}
 }

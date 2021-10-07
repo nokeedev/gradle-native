@@ -60,7 +60,7 @@ public interface SourceAwareComponent<T extends ComponentSources> extends Compon
 	 *
 	 * @param closure  the configuration closure, must not be null
 	 */
-	default void sources(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void sources(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		sources(configureUsing(closure));
 	}
 }

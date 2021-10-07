@@ -25,7 +25,7 @@ public interface DomainObjectContainer<T> extends NamedDomainObjectView<T> {
 
 	<U extends T> DomainObjectProvider<U> register(String name, Class<U> type, Action<? super U> action);
 
-	default <U extends T> DomainObjectProvider<U> register(String name, Class<U> type, @DelegatesTo(type = "U", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default <U extends T> DomainObjectProvider<U> register(String name, Class<U> type, @DelegatesTo(type = "U", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		return register(name, type, ConfigureUtil.configureUsing(closure));
 	}
 

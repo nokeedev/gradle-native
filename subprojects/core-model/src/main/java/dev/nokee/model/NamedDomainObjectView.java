@@ -36,7 +36,7 @@ public interface NamedDomainObjectView<T> extends DomainObjectView<T> {
 	 * @param name  the name of the element to configure.
 	 * @param closure  the configuration closure.
 	 */
-	default void configure(String name, @DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void configure(String name, @DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		configure(name, ConfigureUtil.configureUsing(closure));
 	}
 
@@ -58,7 +58,7 @@ public interface NamedDomainObjectView<T> extends DomainObjectView<T> {
 	 * @param closure The configuration closure.
 	 * @param <S> The type of the element to configure.
 	 */
-	default <S extends T> void configure(String name, Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default <S extends T> void configure(String name, Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		configure(name, type, ConfigureUtil.configureUsing(closure));
 	}
 

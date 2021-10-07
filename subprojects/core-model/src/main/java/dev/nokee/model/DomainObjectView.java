@@ -60,7 +60,7 @@ public interface DomainObjectView<T> {
 	 *
 	 * @param closure The closure to execute on each element for configuration.
 	 */
-	default void configureEach(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void configureEach(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		configureEach(configureUsing(closure));
 	}
 
@@ -88,7 +88,7 @@ public interface DomainObjectView<T> {
 	 * @param <S> the base type of the element to configure.
 	 * @param closure the closure to execute on each element for configuration.
 	 */
-	default <S extends T> void configureEach(Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default <S extends T> void configureEach(Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		configureEach(type, configureUsing(closure));
 	}
 
@@ -112,7 +112,7 @@ public interface DomainObjectView<T> {
 	 * @param closure the closure to execute on each element for configuration.
 	 * @since 0.4
 	 */
-	default void configureEach(Spec<? super T> spec, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void configureEach(Spec<? super T> spec, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		configureEach(spec, configureUsing(closure));
 	}
 
@@ -178,7 +178,7 @@ public interface DomainObjectView<T> {
 	 * @param closure  the closure to execute for each known element of this view
 	 */
 	// TODO: Rename to whenElementKnown once all views have been migrated
-	default void whenElementKnownEx(@DelegatesTo(value = KnownDomainObject.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void whenElementKnownEx(@DelegatesTo(value = KnownDomainObject.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		whenElementKnownEx(ConfigureUtil.configureUsing(closure));
 	}
 
@@ -200,7 +200,7 @@ public interface DomainObjectView<T> {
 	 * @param <S>  the element type to match
 	 */
 	// TODO: Rename to whenElementKnown once all views have been migrated
-	default <S extends T> void whenElementKnownEx(Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default <S extends T> void whenElementKnownEx(Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		whenElementKnownEx(type, ConfigureUtil.configureUsing(closure));
 	}
 }

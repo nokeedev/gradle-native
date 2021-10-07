@@ -58,7 +58,7 @@ public interface HasSwiftSources {
 	 * @param closure  the configuration closure, must not be null
 	 * @see #getSwiftSources()
 	 */
-	default void swiftSources(@DelegatesTo(value = SwiftSourceSet.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void swiftSources(@DelegatesTo(value = SwiftSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		swiftSources(configureUsing(closure));
 	}
 }

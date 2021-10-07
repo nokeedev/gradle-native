@@ -58,7 +58,7 @@ public interface HasCSourceSet {
 	 * @param closure  the configuration action, must not be null
 	 * @see #getC()
 	 */
-	default void c(@DelegatesTo(value = CSourceSet.class, strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void c(@DelegatesTo(value = CSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		c(configureUsing(closure));
 	}
 }

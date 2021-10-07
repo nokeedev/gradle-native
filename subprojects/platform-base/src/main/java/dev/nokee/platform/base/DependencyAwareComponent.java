@@ -48,7 +48,7 @@ public interface DependencyAwareComponent<T extends ComponentDependencies> {
 	 *
 	 * @param closure configuration closure for {@link ComponentDependencies}.
 	 */
-	default void dependencies(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) Closure<Void> closure) {
+	default void dependencies(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		dependencies(ConfigureUtil.configureUsing(closure));
 	}
 }
