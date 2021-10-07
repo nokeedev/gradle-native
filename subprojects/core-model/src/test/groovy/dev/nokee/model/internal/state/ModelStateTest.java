@@ -43,6 +43,7 @@ class ModelStateTest {
 		assertTrue(ModelState.Initialized.isAtLeast(ModelState.Created));
 		assertTrue(ModelState.Registered.isAtLeast(ModelState.Created));
 		assertTrue(ModelState.Realized.isAtLeast(ModelState.Created));
+		assertTrue(ModelState.Finalized.isAtLeast(ModelState.Created));
 	}
 
 	@Test
@@ -51,6 +52,7 @@ class ModelStateTest {
 		assertTrue(ModelState.Initialized.isAtLeast(ModelState.Initialized));
 		assertTrue(ModelState.Registered.isAtLeast(ModelState.Initialized));
 		assertTrue(ModelState.Realized.isAtLeast(ModelState.Initialized));
+		assertTrue(ModelState.Finalized.isAtLeast(ModelState.Initialized));
 	}
 
 	@Test
@@ -59,6 +61,7 @@ class ModelStateTest {
 		assertFalse(ModelState.Initialized.isAtLeast(ModelState.Registered));
 		assertTrue(ModelState.Registered.isAtLeast(ModelState.Registered));
 		assertTrue(ModelState.Realized.isAtLeast(ModelState.Registered));
+		assertTrue(ModelState.Finalized.isAtLeast(ModelState.Registered));
 	}
 
 	@Test
@@ -67,6 +70,16 @@ class ModelStateTest {
 		assertFalse(ModelState.Initialized.isAtLeast(ModelState.Realized));
 		assertFalse(ModelState.Registered.isAtLeast(ModelState.Realized));
 		assertTrue(ModelState.Realized.isAtLeast(ModelState.Realized));
+		assertTrue(ModelState.Finalized.isAtLeast(ModelState.Realized));
+	}
+
+	@Test
+	void isAtLeastFinalized() {
+		assertFalse(ModelState.Created.isAtLeast(ModelState.Finalized));
+		assertFalse(ModelState.Initialized.isAtLeast(ModelState.Finalized));
+		assertFalse(ModelState.Registered.isAtLeast(ModelState.Finalized));
+		assertFalse(ModelState.Realized.isAtLeast(ModelState.Finalized));
+		assertTrue(ModelState.Finalized.isAtLeast(ModelState.Finalized));
 	}
 
 	@Nested
@@ -181,6 +194,33 @@ class ModelStateTest {
 		void doesNotChangeStateWhenRealizeMultipleTime() {
 			Mockito.reset(listener);
 			ModelStates.realize(subject);
+			Mockito.verifyNoInteractions(listener);
+		}
+	}
+
+	@Nested
+	class FinalizedTest implements ModelStateTester.Finalized {
+		@BeforeEach
+		void transitionNodeToRealized() {
+			ModelStates.finalize(subject);
+		}
+
+		@Override
+		public ModelNode subject() {
+			return subject;
+		}
+
+		@Test
+		void changeStateBeforeAddingTag() {
+			val inOrder = Mockito.inOrder(listener);
+			inOrder.verify(listener).projectionAdded(subject, ModelState.Finalized);
+			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastFinalized.class));
+		}
+
+		@Test
+		void doesNotChangeStateWhenFinalizeMultipleTime() {
+			Mockito.reset(listener);
+			ModelStates.finalize(subject);
 			Mockito.verifyNoInteractions(listener);
 		}
 	}

@@ -23,6 +23,7 @@ public final class ModelStates {
 	private static final Object REALIZED_TAG = new ModelState.IsAtLeastRealized();
 	private static final Object INITIALIZED_TAG = new ModelState.IsAtLeastInitialized();
 	private static final Object REGISTERED_TAG = new ModelState.IsAtLeastRegistered();
+	private static final Object FINALIZED_TAG = new ModelState.IsAtLeastFinalized();
 
 	private ModelStates() {}
 
@@ -93,6 +94,21 @@ public final class ModelStates {
 				}
 			}
 			self.addComponent(REGISTERED_TAG);
+		}
+		return self;
+	}
+
+	public static ModelNode finalize(ModelNode self) {
+		if (!self.hasComponent(ModelState.IsAtLeastFinalized.class)) {
+			realize(self);
+			if (!isAtLeast(self, ModelState.Finalized)) {
+				if (self.hasComponent(ModelState.class)) {
+					self.setComponent(ModelState.class, ModelState.Finalized);
+				} else {
+					self.addComponent(ModelState.Finalized);
+				}
+			}
+			self.addComponent(FINALIZED_TAG);
 		}
 		return self;
 	}

@@ -20,8 +20,8 @@ public enum ModelState {
 	Initialized, // All projection added
 	Registered, // Node attached to registry
 	// Discovered, // Node discovered, can now register child nodes
-	Realized // Node is in use
-	// Finalized, // Node data should not mutate any more, can now compute additional data on child nodes
+	Realized, // Node is in use
+	Finalized // Node data should not mutate any more, can now compute additional data on child nodes
 	;
 
 	public boolean isAtLeast(ModelState state) {
@@ -32,4 +32,5 @@ public enum ModelState {
 	public static final class IsAtLeastInitialized {}
 	public static final class IsAtLeastRegistered {}
 	public static final class IsAtLeastRealized {}
+	public static final class IsAtLeastFinalized {}
 }
