@@ -75,19 +75,41 @@ public final class ModelNode {
 		findComponent(ModelNodeListener.class).ifPresent(listener -> listener.projectionAdded(this, newComponent));
 	}
 
+	@Deprecated
 	public <T> T getComponent(Class<T> type) {
 		return findComponent(type).orElseThrow(RuntimeException::new);
 	}
 
+	public <T> T getComponent(ModelComponentType componentType) {
+		return this.<T>findComponent(componentType).orElseThrow(RuntimeException::new);
+	}
+
+	@Deprecated
 	public <T> Optional<T> findComponent(Class<T> type) {
 		return components.values().stream().filter(type::isInstance).map(type::cast).findFirst();
 	}
 
+	public <T> Optional<T> findComponent(ModelComponentType componentType) {
+		@SuppressWarnings("unchecked")
+		val result = (T) components.get(componentType);
+		return Optional.ofNullable(result);
+	}
+
+	@Deprecated
 	public boolean hasComponent(Class<?> type) {
 		return components.values().stream().anyMatch(type::isInstance);
 	}
 
+	public boolean hasComponent(ModelComponentType componentType) {
+		return components.containsKey(componentType);
+	}
+
+	@Deprecated
 	public <T> void setComponent(Class<T> componentTypez, T component) {
+		setComponent(component);
+	}
+
+	public <T> void setComponent(T component) {
 		val componentType = ModelComponentType.ofInstance(component);
 		if (!components.containsKey(componentType)) {
 			throw new RuntimeException();
