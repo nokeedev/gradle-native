@@ -28,6 +28,7 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
@@ -57,8 +58,7 @@ import org.gradle.api.model.ObjectFactory;
 import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelNodes.discover;
-import static dev.nokee.model.internal.core.ModelNodes.mutate;
+import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
@@ -157,6 +157,9 @@ public class CApplicationPlugin implements Plugin<Project> {
 					.withPath(path.child("binaries"))
 					.withProjection(createdUsing(ModelType.of(BinaryView.class), () -> project.getExtensions().getByType(BinaryViewFactory.class).create(identifier)))
 					.build());
+			})))
+			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(of(ModelPath.class), (entity, path) -> {
+				ModelNodeUtils.get(entity, of(DefaultNativeApplicationComponent.class)).finalizeExtension(null);
 			})))
 			;
 	}

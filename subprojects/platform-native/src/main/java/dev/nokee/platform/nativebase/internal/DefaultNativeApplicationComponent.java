@@ -59,6 +59,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	private final Supplier<NativeApplicationComponentVariants> componentVariants;
 	private final BinaryView<Binary> binaries;
 	private final Supplier<VariantViewInternal<DefaultNativeApplicationVariant>> variants;
+	private final boolean isFinalizable;
 
 	@Inject
 	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
@@ -66,8 +67,10 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 		this.taskRegistry = taskRegistry;
 		val dependenciesPath = ModelPath.path("components" + identifier.getPath().child("dependencies").getPath().replace(':', '.'));
 		if (modelLookup.has(dependenciesPath)) {
+			this.isFinalizable = false;
 			this.dependencies = ModelNodeUtils.get(modelLookup.get(dependenciesPath), DefaultNativeApplicationComponentDependencies.class);
 		} else {
+			this.isFinalizable = true;
 			val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(objects, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 			this.dependencies = objects.newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
 		}
@@ -134,6 +137,8 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 
 	@Override
 	public void finalizeValue() {
-		finalizeExtension(null);
+		if (isFinalizable) {
+			finalizeExtension(null);
+		}
 	}
 }
