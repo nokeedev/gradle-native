@@ -29,7 +29,7 @@ public abstract class TypeCompatibilityModelProjectionSupport<M> implements Mode
 		this.type = Objects.requireNonNull(type);
 	}
 
-	protected ModelType<M> getType() {
+	public ModelType<M> getType() {
 		return type;
 	}
 

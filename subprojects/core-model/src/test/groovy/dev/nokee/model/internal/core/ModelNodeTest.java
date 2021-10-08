@@ -23,6 +23,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
+import org.gradle.internal.Cast;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -44,24 +45,33 @@ import static org.mockito.Mockito.*;
 
 class ModelNodeTest {
 	private static final ModelType<MyType> TYPE = of(MyType.class);
+	private static final ModelType<MyType1> TYPE1 = of(MyType1.class);
+	private static final ModelType<MyType2> TYPE2 = of(MyType2.class);
+	private static final ModelType<MyType3> TYPE3 = of(MyType3.class);
 	private static final ModelType<WrongType> WRONG_TYPE = of(WrongType.class);
-	private final ModelProjection projection1 = mock(ModelProjection.class);
-	private final ModelProjection projection2 = mock(ModelProjection.class);
-	private final ModelProjection projection3 = mock(ModelProjection.class);
+	private final ModelProjection projection1 = mockProjectionOf(TYPE1);
+	private final ModelProjection projection2 = mockProjectionOf(TYPE2);
+	private final ModelProjection projection3 = mockProjectionOf(TYPE3);
 	private final ModelNode subject = node("po.ta.to", projection1, projection2, projection3);
+
+	private static ModelProjection mockProjectionOf(ModelType<?> type) {
+		val result = mock(ModelProjection.class);
+		when(result.getType()).thenReturn(Cast.uncheckedCast(type));
+		return result;
+	}
 
 	@ParameterizedTest
 	@EnumSource(Get.class)
 	void returnFirstProjectionMatchingType(GetMethod get) {
-		val expectedInstance = ProjectTestUtils.objectFactory().newInstance(MyType.class);
-		when(projection2.canBeViewedAs(TYPE)).thenReturn(true);
-		when(projection2.get(TYPE)).thenReturn(expectedInstance);
+		val expectedInstance = ProjectTestUtils.objectFactory().newInstance(MyType2.class);
+		when(projection2.canBeViewedAs(TYPE2)).thenReturn(true);
+		when(projection2.get(TYPE2)).thenReturn(expectedInstance);
 
-		val actualInstance = get.invoke(subject, MyType.class);
+		val actualInstance = get.invoke(subject, MyType2.class);
 
 		assertEquals(expectedInstance, actualInstance);
 		verify(projection1, never()).get(any());
-		verify(projection2, times(1)).get(TYPE);
+		verify(projection2, times(1)).get(TYPE2);
 		verify(projection3, never()).get(any());
 	}
 
@@ -175,5 +185,8 @@ class ModelNodeTest {
 	}
 
 	interface MyType {}
+	interface MyType1 {}
+	interface MyType2 {}
+	interface MyType3 {}
 	interface WrongType {}
 }

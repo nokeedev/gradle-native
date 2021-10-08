@@ -25,8 +25,8 @@ import static dev.nokee.model.internal.type.ModelTypeUtils.toUndecoratedType;
 public class ModelComponentType {
 	public static ModelComponentType ofInstance(Object component) {
 		Objects.requireNonNull(component);
-		if (component instanceof TypeCompatibilityModelProjectionSupport) {
-			return projectionOf(((TypeCompatibilityModelProjectionSupport<?>) component).getType().getRawType());
+		if (component instanceof ModelProjection) {
+			return projectionOf(((ModelProjection) component).getType().getRawType());
 		} else {
 			return componentOf(toUndecoratedType(component.getClass()));
 		}
