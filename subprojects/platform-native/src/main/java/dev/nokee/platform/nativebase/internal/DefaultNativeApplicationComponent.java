@@ -15,11 +15,14 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import com.google.common.base.Suppliers;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.Finalizable;
 import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -32,6 +35,7 @@ import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
+import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
@@ -47,12 +51,14 @@ import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
+import java.util.function.Supplier;
 
 public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources>, Finalizable {
 	private final DefaultNativeApplicationComponentDependencies dependencies;
 	private final TaskRegistry taskRegistry;
-	private final NativeApplicationComponentVariants componentVariants;
+	private final Supplier<NativeApplicationComponentVariants> componentVariants;
 	private final BinaryView<Binary> binaries;
+	private final Supplier<VariantViewInternal<DefaultNativeApplicationVariant>> variants;
 
 	@Inject
 	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
@@ -65,7 +71,14 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 			val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(objects, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 			this.dependencies = objects.newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
 		}
-		this.componentVariants = new NativeApplicationComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, modelLookup);
+		val variantsPath = ModelPath.path("components" + identifier.getPath().child("variants").getPath().replace(':', '.'));
+		if (modelLookup.has(variantsPath)) {
+			this.componentVariants = () -> ModelNodeUtils.get(ModelNodes.of(this), ModelType.of(NativeApplicationComponentVariants.class));
+			this.variants = () -> (VariantViewInternal<DefaultNativeApplicationVariant>) ModelNodeUtils.get(modelLookup.get(variantsPath), VariantView.class);
+		} else {
+			this.componentVariants = Suppliers.ofInstance(new NativeApplicationComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, modelLookup));
+			this.variants = Suppliers.ofInstance(componentVariants.get().getVariantCollection().getAsView(DefaultNativeApplicationVariant.class));
+		}
 		this.binaries = binaryViewFactory.create(identifier);
 	}
 
@@ -76,7 +89,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 
 	@Override
 	public Provider<DefaultNativeApplicationVariant> getDevelopmentVariant() {
-		return componentVariants.getDevelopmentVariant();
+		return getComponentVariants().getDevelopmentVariant();
 	}
 
 	@Override
@@ -86,12 +99,20 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 
 	@Override
 	public VariantCollection<DefaultNativeApplicationVariant> getVariantCollection() {
-		return componentVariants.getVariantCollection();
+		return getComponentVariants().getVariantCollection();
+	}
+
+	public VariantViewInternal<DefaultNativeApplicationVariant> getVariants() {
+		return variants.get();
 	}
 
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return componentVariants.getBuildVariants();
+		return getComponentVariants().getBuildVariants();
+	}
+
+	private NativeApplicationComponentVariants getComponentVariants() {
+		return componentVariants.get();
 	}
 
 	public void finalizeExtension(Project project) {
@@ -102,7 +123,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 		getVariants().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
-		componentVariants.calculateVariants();
+		getComponentVariants().calculateVariants();
 	}
 
 	@Override
