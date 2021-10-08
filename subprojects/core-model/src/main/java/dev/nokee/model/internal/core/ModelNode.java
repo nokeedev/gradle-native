@@ -25,11 +25,8 @@ import lombok.val;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * A node in the model.
@@ -68,13 +65,20 @@ public final class ModelNode {
 	}
 
 	public void addComponent(Object component) {
-		val index = indexOfComponent(component.getClass());
-		if (index == -1) {
-			components.add(component);
-			notifyComponentAdded(component);
-		} else if (!components.get(index).equals(component)) {
-			components.set(index, component);
-			notifyComponentAdded(component);
+		if (component instanceof ModelProjection) {
+			if (!components.contains(component)) {
+				components.add(component);
+				notifyComponentAdded(component);
+			}
+		} else {
+			val index = indexOfComponent(component.getClass());
+			if (index == -1) {
+				components.add(component);
+				notifyComponentAdded(component);
+			} else if (!components.get(index).equals(component)) {
+				components.set(index, component);
+				notifyComponentAdded(component);
+			}
 		}
 	}
 
