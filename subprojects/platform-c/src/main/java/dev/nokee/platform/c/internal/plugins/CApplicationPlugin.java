@@ -29,6 +29,7 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -149,6 +150,12 @@ public class CApplicationPlugin implements Plugin<Project> {
 				registry.register(ModelRegistration.builder()
 					.withPath(path.child("variants"))
 					.withProjection(createdUsing(ModelType.of(VariantView.class), () -> ModelNodeUtils.get(entity, ModelType.of(NativeApplicationComponentVariants.class)).getVariantCollection().getAsView(DefaultNativeApplicationVariant.class)))
+					.build());
+
+				// TODO: Should be created as ModelProperty (readonly) with BinaryView<Binary> projection
+				registry.register(ModelRegistration.builder()
+					.withPath(path.child("binaries"))
+					.withProjection(createdUsing(ModelType.of(BinaryView.class), () -> project.getExtensions().getByType(BinaryViewFactory.class).create(identifier)))
 					.build());
 			})))
 			;
