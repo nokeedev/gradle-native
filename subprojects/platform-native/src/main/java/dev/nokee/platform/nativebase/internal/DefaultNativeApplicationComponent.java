@@ -95,11 +95,11 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	}
 
 	public void finalizeExtension(Project project) {
-		getVariantCollection().whenElementKnown(new CreateNativeBinaryLifecycleTaskRule(taskRegistry));
-		getVariantCollection().whenElementKnown(this::createBinaries);
-		getVariantCollection().whenElementKnown(new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
+		getVariants().whenElementKnown(new CreateNativeBinaryLifecycleTaskRule(taskRegistry));
+		getVariants().whenElementKnown(this::createBinaries);
+		getVariants().whenElementKnown(new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
-		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
+		getVariants().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
 		componentVariants.calculateVariants();
