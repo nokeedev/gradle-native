@@ -19,6 +19,8 @@ import dev.nokee.model.internal.type.ModelType;
 
 public interface ModelProjection {
 
+	ModelType<?> getType();
+
 	// TODO: Not sure here
 	<T> boolean canBeViewedAs(ModelType<T> type);
 
