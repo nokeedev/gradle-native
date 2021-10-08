@@ -16,6 +16,7 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.testing.EqualsTester;
+import com.google.common.testing.NullPointerTester;
 import dev.nokee.internal.Factories;
 import org.junit.jupiter.api.Test;
 
@@ -93,4 +94,10 @@ class ModelComponentTypeTest {
 
 	public interface IMyProjection {}
 	public static class MyProjection {}
+
+	@Test
+	@SuppressWarnings("UnstableApiUsage")
+	void checkNulls() {
+		new NullPointerTester().testAllPublicStaticMethods(ModelComponentType.class);
+	}
 }
