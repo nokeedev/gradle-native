@@ -79,7 +79,13 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 			this.componentVariants = Suppliers.ofInstance(new NativeApplicationComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, modelLookup));
 			this.variants = Suppliers.ofInstance(componentVariants.get().getVariantCollection().getAsView(DefaultNativeApplicationVariant.class));
 		}
-		this.binaries = binaryViewFactory.create(identifier);
+
+		val binariesPath = ModelPath.path("components" + identifier.getPath().child("binaries").getPath().replace(':', '.'));
+		if (modelLookup.has(binariesPath)) {
+			this.binaries = (BinaryView<Binary>) ModelNodeUtils.get(modelLookup.get(binariesPath), BinaryView.class);
+		} else {
+			this.binaries = binaryViewFactory.create(identifier);
+		}
 	}
 
 	@Override
