@@ -23,9 +23,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -52,7 +50,7 @@ import java.util.stream.Stream;
 public final class ModelNode {
 	private static long nextId = 0;
 	private final long id = nextId++;
-	private final List<Object> components = new ArrayList<>();
+	private final Map<ModelComponentType, Object> components = new LinkedHashMap<>();
 
 	public ModelNode() {}
 
@@ -65,30 +63,12 @@ public final class ModelNode {
 	}
 
 	public void addComponent(Object component) {
-		if (component instanceof ModelProjection) {
-			if (!components.contains(component)) {
-				components.add(component);
-				notifyComponentAdded(component);
-			}
-		} else {
-			val index = indexOfComponent(component.getClass());
-			if (index == -1) {
-				components.add(component);
-				notifyComponentAdded(component);
-			} else if (!components.get(index).equals(component)) {
-				components.set(index, component);
-				notifyComponentAdded(component);
-			}
+		val componentType = ModelComponentType.ofInstance(component);
+		val oldComponent = components.get(componentType);
+		if (oldComponent == null || !oldComponent.equals(component)) {
+			components.put(componentType, component);
+			notifyComponentAdded(component);
 		}
-	}
-
-	private int indexOfComponent(Class<?> componentType) {
-		for (int i = 0; i < components.size(); ++i) {
-			if (components.get(i).getClass().equals(componentType)) {
-				return i;
-			}
-		}
-		return -1;
 	}
 
 	private void notifyComponentAdded(Object newComponent) {
@@ -100,22 +80,24 @@ public final class ModelNode {
 	}
 
 	public <T> Optional<T> findComponent(Class<T> type) {
-		return components.stream().filter(type::isInstance).map(type::cast).findFirst();
+		return components.values().stream().filter(type::isInstance).map(type::cast).findFirst();
 	}
 
 	public boolean hasComponent(Class<?> type) {
-		return components.stream().anyMatch(type::isInstance);
+		return components.values().stream().anyMatch(type::isInstance);
 	}
 
-	public <T> void setComponent(Class<T> componentType, T component) {
-		val existingComponent = getComponent(componentType);
-		val index = components.indexOf(existingComponent);
-		components.set(index, component);
+	public <T> void setComponent(Class<T> componentTypez, T component) {
+		val componentType = ModelComponentType.ofInstance(component);
+		if (!components.containsKey(componentType)) {
+			throw new RuntimeException();
+		}
+		components.put(componentType, component);
 		notifyComponentAdded(component);
 	}
 
 	public Stream<Object> getComponents() {
-		return components.stream();
+		return components.values().stream();
 	}
 
 	@Override
