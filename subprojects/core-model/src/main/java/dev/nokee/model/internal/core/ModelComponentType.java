@@ -22,7 +22,8 @@ import java.util.Objects;
 
 import static dev.nokee.model.internal.type.ModelTypeUtils.toUndecoratedType;
 
-public class ModelComponentType<T> {
+public abstract class ModelComponentType<T> {
+	public abstract boolean isSupertypeOf(ModelComponentType<?> componentType);
 
 	public static <T> ModelComponentType<? super T> ofInstance(T component) {
 		Objects.requireNonNull(component);
@@ -47,11 +48,27 @@ public class ModelComponentType<T> {
 	@EqualsAndHashCode(callSuper = false)
 	private static class ComponentType<T> extends ModelComponentType<T> {
 		Class<T> value;
+
+		@Override
+		public boolean isSupertypeOf(ModelComponentType<?> componentType) {
+			if (componentType instanceof ComponentType) {
+				return value.isAssignableFrom(((ComponentType<?>) componentType).getValue());
+			}
+			return false;
+		}
 	}
 
 	@Value
 	@EqualsAndHashCode(callSuper = false)
 	private static class ProjectionType<T> extends ModelComponentType<ModelProjection> {
 		Class<T> value;
+
+		@Override
+		public boolean isSupertypeOf(ModelComponentType<?> componentType) {
+			if (componentType instanceof ProjectionType) {
+				return value.isAssignableFrom(((ProjectionType<?>) componentType).getValue());
+			}
+			return false;
+		}
 	}
 }
