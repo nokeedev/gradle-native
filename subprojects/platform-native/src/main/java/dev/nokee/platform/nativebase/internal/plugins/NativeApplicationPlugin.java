@@ -18,7 +18,6 @@ package dev.nokee.platform.nativebase.internal.plugins;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.c.CHeaderSet;
-import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.BaseDomainObjectViewProjection;
@@ -42,7 +41,6 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
-import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.internal.*;
@@ -57,9 +55,7 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelActions.register;
 import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
@@ -68,8 +64,6 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.maven;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.componentSourcesOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 
 public class NativeApplicationPlugin implements Plugin<Project> {
@@ -126,6 +120,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				// TODO: Should be created as ModelProperty (readonly) with CApplicationSources projection
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("sources"))
+					.withComponent(IsModelProperty.tag())
 					.withComponent(managed(of(NativeApplicationSources.class)))
 					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
 					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
@@ -138,18 +133,21 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				val dependencies = project.getObjects().newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("dependencies"))
+					.withComponent(IsModelProperty.tag())
 					.withComponent(ModelProjections.ofInstance(dependencies))
 					.build());
 
 				// TODO: Should be created as ModelProperty (readonly) with VariantView<NativeApplication> projection
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("variants"))
+					.withComponent(IsModelProperty.tag())
 					.withComponent(createdUsing(ModelType.of(VariantView.class), () -> ModelNodeUtils.get(entity, ModelType.of(NativeApplicationComponentVariants.class)).getVariantCollection().getAsView(DefaultNativeApplicationVariant.class)))
 					.build());
 
 				// TODO: Should be created as ModelProperty (readonly) with BinaryView<Binary> projection
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("binaries"))
+					.withComponent(IsModelProperty.tag())
 					.withComponent(createdUsing(ModelType.of(BinaryView.class), () -> project.getExtensions().getByType(BinaryViewFactory.class).create(identifier)))
 					.build());
 			})))
