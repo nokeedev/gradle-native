@@ -37,7 +37,47 @@ class ModelComponentTypeTest {
 			.testEquals();
 	}
 
-	private interface MyType {}
+	@Test
+	void checkComponentTypeAgainstComponentInstance() {
+		assertThat(ofInstance(new MyType()), equalTo(componentOf(MyType.class)));
+	}
+
+	@Test
+	void checkComponentTypeClassInstantiatedUsingObjectFactory() {
+		assertThat(ofInstance(objectFactory().newInstance(MyType.class)), equalTo(componentOf(MyType.class)));
+	}
+
+	@Test
+	void checkComponentTypeInterfaceInstantiatedUsingObjectFactory() {
+		assertThat(ofInstance(objectFactory().newInstance(IMyType.class)), equalTo(componentOf(IMyType.class)));
+	}
+
+	@Test
+	void canTestSuperComponentType() {
+		assertTrue(componentOf(IMyType.class).isSupertypeOf(componentOf(MyType.class)));
+		assertFalse(componentOf(MyType.class).isSupertypeOf(componentOf(IMyType.class)));
+	}
+
+	@Test
+	void canTestSuperProjectionType() {
+		assertTrue(projectionOf(IMyType.class).isSupertypeOf(projectionOf(MyType.class)));
+		assertFalse(projectionOf(MyType.class).isSupertypeOf(projectionOf(IMyType.class)));
+	}
+
+	@Test
+	void projectionTypesCannotBeSuperTypeOfComponentTypes() {
+		assertFalse(projectionOf(IMyType.class).isSupertypeOf(componentOf(MyType.class)));
+		assertFalse(projectionOf(MyType.class).isSupertypeOf(componentOf(IMyType.class)));
+	}
+
+	@Test
+	void componentTypesCannotBeSuperTypeOfProjectionTypes() {
+		assertFalse(componentOf(IMyType.class).isSupertypeOf(projectionOf(MyType.class)));
+		assertFalse(componentOf(MyType.class).isSupertypeOf(projectionOf(IMyType.class)));
+	}
+
+	public interface IMyType {}
+	public static class MyType implements IMyType {}
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
@@ -77,47 +117,7 @@ class ModelComponentTypeTest {
 		);
 	}
 
-	@Test
-	void checkComponentTypeAgainstComponentInstance() {
-		assertThat(ofInstance(new MyProjection()), equalTo(componentOf(MyProjection.class)));
-	}
-
-	@Test
-	void checkComponentTypeClassInstantiatedUsingObjectFactory() {
-		assertThat(ofInstance(objectFactory().newInstance(MyProjection.class)), equalTo(componentOf(MyProjection.class)));
-	}
-
-	@Test
-	void checkComponentTypeInterfaceInstantiatedUsingObjectFactory() {
-		assertThat(ofInstance(objectFactory().newInstance(IMyProjection.class)), equalTo(componentOf(IMyProjection.class)));
-	}
-
-	@Test
-	void canTestSuperComponentType() {
-		assertTrue(componentOf(IMyProjection.class).isSupertypeOf(componentOf(MyProjection.class)));
-		assertFalse(componentOf(MyProjection.class).isSupertypeOf(componentOf(IMyProjection.class)));
-	}
-
-	@Test
-	void canTestSuperProjectionType() {
-		assertTrue(projectionOf(IMyProjection.class).isSupertypeOf(projectionOf(MyProjection.class)));
-		assertFalse(projectionOf(MyProjection.class).isSupertypeOf(projectionOf(IMyProjection.class)));
-	}
-
-	@Test
-	void projectionTypesCannotBeSuperTypeOfComponentTypes() {
-		assertFalse(projectionOf(IMyProjection.class).isSupertypeOf(componentOf(MyProjection.class)));
-		assertFalse(projectionOf(MyProjection.class).isSupertypeOf(componentOf(IMyProjection.class)));
-	}
-
-	@Test
-	void componentTypesCannotBeSuperTypeOfProjectionTypes() {
-		assertFalse(componentOf(IMyProjection.class).isSupertypeOf(projectionOf(MyProjection.class)));
-		assertFalse(componentOf(MyProjection.class).isSupertypeOf(projectionOf(IMyProjection.class)));
-	}
-
-	public interface IMyProjection {}
-	public static class MyProjection implements IMyProjection {}
+	public static class MyProjection {}
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
