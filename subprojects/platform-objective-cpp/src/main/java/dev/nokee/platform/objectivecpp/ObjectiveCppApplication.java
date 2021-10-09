@@ -15,11 +15,9 @@
  */
 package dev.nokee.platform.objectivecpp;
 
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 
 /**
  * Configuration for an application written in Objective-C++, defining the dependencies that make up the application plus other settings.
@@ -33,6 +31,6 @@ public interface ObjectiveCppApplication extends ObjectiveCppApplicationExtensio
 	 * {@inheritDoc}
 	 */
 	default NativeApplicationComponentDependencies getDependencies() {
-		return ModelNodeUtils.get(ModelNodes.of(this), DefaultNativeApplicationComponent.class).getDependencies();
+		return ModelProperties.getProperty(this, "dependencies").as(NativeApplicationComponentDependencies.class).get();
 	}
 }

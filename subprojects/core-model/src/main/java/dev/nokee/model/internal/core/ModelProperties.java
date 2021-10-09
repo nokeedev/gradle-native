@@ -18,8 +18,6 @@ package dev.nokee.model.internal.core;
 import dev.nokee.model.internal.registry.ModelNodeBackedElement;
 import lombok.val;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class ModelProperties {
