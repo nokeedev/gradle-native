@@ -17,6 +17,7 @@ package dev.nokee.platform.nativebase;
 
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.HasImplementationDependencyBucket;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
@@ -30,35 +31,7 @@ import org.gradle.util.ConfigureUtil;
  *
  * @since 0.4
  */
-public interface NativeComponentDependencies extends ComponentDependencies {
-	/**
-	 * Adds an implementation dependency to this component.
-	 * An implementation dependency is not visible to consumers that are compiled against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 */
-	void implementation(Object notation);
-
-	/**
-	 * Adds an implementation dependency to this component.
-	 * An implementation dependency is not visible to consumers that are compiled against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
-	 */
-	void implementation(Object notation, Action<? super ModuleDependency> action);
-
-	/**
-	 * Adds an implementation dependency to this component.
-	 * An implementation dependency is not visible to consumers that are compiled against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 * @param closure The closure to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
-	 */
-	default void implementation(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		implementation(notation, ConfigureUtil.configureUsing(closure));
-	}
-
+public interface NativeComponentDependencies extends ComponentDependencies, HasImplementationDependencyBucket {
 	/**
 	 * Adds an native compile only dependency to this component.
 	 * An compile only dependency is not visible to consumers that are compiled or linked against this component.
@@ -142,13 +115,6 @@ public interface NativeComponentDependencies extends ComponentDependencies {
 	default void runtimeOnly(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		runtimeOnly(notation, ConfigureUtil.configureUsing(closure));
 	}
-
-	/**
-	 * Returns the implementation bucket of dependencies for this component.
-	 *
-	 * @return a {@link DependencyBucket} representing the implementation bucket of dependencies, never null.
-	 */
-	DependencyBucket getImplementation();
 
 	/**
 	 * Returns the runtime only bucket of dependencies for this component.
