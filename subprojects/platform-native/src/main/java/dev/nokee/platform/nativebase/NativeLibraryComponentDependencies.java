@@ -32,14 +32,6 @@ public interface NativeLibraryComponentDependencies extends LibraryComponentDepe
 	 * {@inheritDoc}
 	 */
 	@Override
-	default void api(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		api(notation, ConfigureUtil.configureUsing(closure));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	default void implementation(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		implementation(notation, ConfigureUtil.configureUsing(closure));
 	}

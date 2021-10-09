@@ -28,32 +28,7 @@ import org.gradle.util.ConfigureUtil;
  *
  * @since 0.5
  */
-public interface LibraryComponentDependencies extends ComponentDependencies {
-	/**
-	 * Adds an API dependency to this library. An API dependency is made visible to consumers that are compiled against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 */
-	void api(Object notation);
-
-	/**
-	 * Adds an API dependency to this library. An API dependency is made visible to consumers that are compiled against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
-	 */
-	void api(Object notation, Action<? super ModuleDependency> action);
-
-	/**
-	 * Adds an API dependency to this library. An API dependency is made visible to consumers that are compiled against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 * @param closure The closure to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
-	 */
-	default void api(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		api(notation, ConfigureUtil.configureUsing(closure));
-	}
-
+public interface LibraryComponentDependencies extends ComponentDependencies, HasApiDependencyBucket {
 	/**
 	 * Adds an implementation dependency to this component.
 	 * An implementation dependency is not visible to consumers that are compiled against this component.
@@ -88,11 +63,4 @@ public interface LibraryComponentDependencies extends ComponentDependencies {
 	 * @return a {@link DependencyBucket} representing the implementation bucket of dependencies, never null.
 	 */
 	DependencyBucket getImplementation();
-
-	/**
-	 * Returns the api bucket of dependencies for this component.
-	 *
-	 * @return a {@link DependencyBucket} representing the api bucket of dependencies, never null.
-	 */
-	DependencyBucket getApi();
 }
