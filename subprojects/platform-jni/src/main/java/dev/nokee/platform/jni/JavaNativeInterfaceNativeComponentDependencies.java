@@ -31,7 +31,7 @@ import org.gradle.util.ConfigureUtil;
  *
  * @since 0.5
  */
-public interface JavaNativeInterfaceNativeComponentDependencies extends ComponentDependencies, JniLibraryNativeDependencies {
+public interface JavaNativeInterfaceNativeComponentDependencies extends ComponentDependencies {
 	/**
 	 * Adds an native implementation dependency to this component.
 	 * An implementation dependency is not visible to consumers that are compiled or linked against this component.
