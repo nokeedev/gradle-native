@@ -38,7 +38,9 @@ public interface HasImplementationDependencyBucket {
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 */
-	void implementation(Object notation);
+	default void implementation(Object notation) {
+		getImplementation().addDependency(notation);
+	}
 
 	/**
 	 * Adds an implementation dependency to this component.
@@ -47,7 +49,9 @@ public interface HasImplementationDependencyBucket {
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
-	void implementation(Object notation, Action<? super ModuleDependency> action);
+	default void implementation(Object notation, Action<? super ModuleDependency> action) {
+		getImplementation().addDependency(notation, action);
+	}
 
 	/** @see #implementation(Object, Action) */
 	default void implementation(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {

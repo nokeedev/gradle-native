@@ -51,16 +51,6 @@ public class DefaultJavaNativeInterfaceLibraryComponentDependencies extends Defa
 	}
 
 	@Override
-	public void api(Object notation) {
-		api.addDependency(notation);
-	}
-
-	@Override
-	public void api(Object notation, Action<? super ModuleDependency> action) {
-		api.addDependency(notation, action);
-	}
-
-	@Override
 	public void jvmImplementation(Object notation) {
 		jvmImplementation.addDependency(notation);
 	}

@@ -38,7 +38,9 @@ public interface HasCompileOnlyDependencyBucket {
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 */
-	void compileOnly(Object notation);
+	default void compileOnly(Object notation) {
+		getCompileOnly().addDependency(notation);
+	}
 
 	/**
 	 * Adds a compile only dependency to this component.
@@ -47,7 +49,9 @@ public interface HasCompileOnlyDependencyBucket {
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
-	void compileOnly(Object notation, Action<? super ModuleDependency> action);
+	default void compileOnly(Object notation, Action<? super ModuleDependency> action) {
+		getCompileOnly().addDependency(notation, action);
+	}
 
 	/** @see #compileOnly(Object, Action) */
 	default void compileOnly(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {

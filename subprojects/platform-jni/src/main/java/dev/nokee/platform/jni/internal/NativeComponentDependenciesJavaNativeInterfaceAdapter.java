@@ -72,16 +72,6 @@ public class NativeComponentDependenciesJavaNativeInterfaceAdapter extends BaseC
 	}
 
 	@Override
-	public void compileOnly(Object notation) {
-		getCompileOnly().addDependency(notation);
-	}
-
-	@Override
-	public void compileOnly(Object notation, Action<? super ModuleDependency> action) {
-		getCompileOnly().addDependency(notation, action);
-	}
-
-	@Override
 	public void linkOnly(Object notation) {
 		delegate.nativeLinkOnly(notation);
 	}
