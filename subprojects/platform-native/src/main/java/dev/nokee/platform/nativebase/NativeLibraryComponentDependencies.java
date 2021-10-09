@@ -27,7 +27,7 @@ import org.gradle.util.ConfigureUtil;
  *
  * @since 0.5
  */
-public interface NativeLibraryComponentDependencies extends LibraryComponentDependencies, NativeComponentDependencies, ComponentDependencies, NativeLibraryDependencies {
+public interface NativeLibraryComponentDependencies extends LibraryComponentDependencies, NativeComponentDependencies, ComponentDependencies {
 	/**
 	 * {@inheritDoc}
 	 */
