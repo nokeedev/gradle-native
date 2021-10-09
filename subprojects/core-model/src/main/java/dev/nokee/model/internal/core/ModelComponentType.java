@@ -22,35 +22,36 @@ import java.util.Objects;
 
 import static dev.nokee.model.internal.type.ModelTypeUtils.toUndecoratedType;
 
-public class ModelComponentType {
-	public static ModelComponentType ofInstance(Object component) {
+public class ModelComponentType<T> {
+
+	public static <T> ModelComponentType<? super T> ofInstance(T component) {
 		Objects.requireNonNull(component);
 		if (component instanceof ModelProjection) {
-			return projectionOf(((ModelProjection) component).getType().getRawType());
+			return (ModelComponentType<? super T>) projectionOf(((ModelProjection) component).getType().getRawType());
 		} else {
-			return componentOf(toUndecoratedType(component.getClass()));
+			return (ModelComponentType<? super T>) componentOf(toUndecoratedType(component.getClass()));
 		}
 	}
 
-	public static ModelComponentType componentOf(Class<?> type) {
+	public static <T> ModelComponentType<T> componentOf(Class<T> type) {
 		Objects.requireNonNull(type);
-		return new ComponentType(type);
+		return new ComponentType<>(type);
 	}
 
-	public static ModelComponentType projectionOf(Class<?> type) {
+	public static <T> ModelComponentType<ModelProjection> projectionOf(Class<T> type) {
 		Objects.requireNonNull(type);
-		return new ProjectionType(type);
+		return new ProjectionType<>(type);
 	}
 
 	@Value
 	@EqualsAndHashCode(callSuper = false)
-	private static class ComponentType extends ModelComponentType {
-		Class<?> value;
+	private static class ComponentType<T> extends ModelComponentType<T> {
+		Class<T> value;
 	}
 
 	@Value
 	@EqualsAndHashCode(callSuper = false)
-	private static class ProjectionType extends ModelComponentType {
-		Class<?> value;
+	private static class ProjectionType<T> extends ModelComponentType<ModelProjection> {
+		Class<T> value;
 	}
 }
