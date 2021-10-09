@@ -129,6 +129,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 				// TODO: Should be created as ModelProperty (readonly) with CppApplicationSources projection
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("sources"))
+					.withComponent(IsModelProperty.tag())
 					.withComponent(managed(of(CppApplicationSources.class)))
 					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
 					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
@@ -142,18 +143,21 @@ public class CppApplicationPlugin implements Plugin<Project> {
 				val dependencies = project.getObjects().newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("dependencies"))
+					.withComponent(IsModelProperty.tag())
 					.withComponent(ModelProjections.ofInstance(dependencies))
 					.build());
 
 				// TODO: Should be created as ModelProperty (readonly) with VariantView<NativeApplication> projection
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("variants"))
+					.withComponent(IsModelProperty.tag())
 					.withComponent(createdUsing(ModelType.of(VariantView.class), () -> ModelNodeUtils.get(entity, ModelType.of(NativeApplicationComponentVariants.class)).getVariantCollection().getAsView(DefaultNativeApplicationVariant.class)))
 					.build());
 
 				// TODO: Should be created as ModelProperty (readonly) with BinaryView<Binary> projection
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("binaries"))
+					.withComponent(IsModelProperty.tag())
 					.withComponent(createdUsing(ModelType.of(BinaryView.class), () -> project.getExtensions().getByType(BinaryViewFactory.class).create(identifier)))
 					.build());
 			})))
