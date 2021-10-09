@@ -15,19 +15,36 @@
  */
 package dev.nokee.platform.objectivecpp.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.NodeRegistration;
-import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
+import dev.nokee.model.internal.BaseDomainObjectViewProjection;
+import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
+import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
-import dev.nokee.platform.nativebase.internal.TargetMachineRule;
+import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
+import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
+import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
+import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
+import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
+import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplication;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplicationSources;
@@ -40,16 +57,15 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
-import static dev.nokee.model.internal.core.ModelActions.register;
-import static dev.nokee.model.internal.core.ModelNodes.discover;
+import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
+import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.componentSourcesOf;
+import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
-import static dev.nokee.platform.objectivecpp.internal.ObjectiveCppSourceSetModelHelpers.configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
 
 public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -81,15 +97,68 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration objectiveCppApplication(String name, Project project) {
-		return component(name, ObjectiveCppApplication.class)
+		return NodeRegistration.of(name, of(ObjectiveCppApplication.class))
+			// TODO: Should configure FileCollection on CApplication
+			//   and link FileCollection to source sets
+			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
+				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name)))::accept)))
 			.withComponent(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
-			.action(self(discover()).apply(register(sources())))
-			.action(configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
-	}
+			.withComponent(createdUsing(ModelType.of(NativeApplicationComponentVariants.class), () -> {
+				val component = ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(DefaultNativeApplicationComponent.class));
+				return new NativeApplicationComponentVariants(project.getObjects(), component, project.getDependencies(), project.getConfigurations(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(ModelLookup.class));
+			}))
+			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
-	private static NodeRegistration sources() {
-		return componentSourcesOf(ObjectiveCppApplicationSources.class)
-			.action(self(discover()).apply(register(sourceSet("objectiveCpp", ObjectiveCppSourceSet.class))))
-			.action(self(discover()).apply(register(sourceSet("headers", CppHeaderSet.class))));
+				// TODO: Should be created using ObjectiveCppSourceSetSpec
+				val objectiveCpp = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("objectiveCpp"))
+					.withComponent(managed(of(ObjectiveCppSourceSet.class)))
+					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+					.build());
+
+				// TODO: Should be created using CppHeaderSetSpec
+				val headers = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("headers"))
+					.withComponent(managed(of(CppHeaderSet.class)))
+					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+					.build());
+
+				// TODO: Should be created as ModelProperty (readonly) with CApplicationSources projection
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("sources"))
+					.withComponent(managed(of(ObjectiveCppApplicationSources.class)))
+					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
+					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
+					.build());
+
+				registry.register(propertyFactory.create(path.child("sources").child("objectiveCpp"), ModelNodes.of(objectiveCpp)));
+				registry.register(propertyFactory.create(path.child("sources").child("headers"), ModelNodes.of(headers)));
+
+				val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultNativeApplicationComponent.class, ProjectIdentifier.of(project));
+				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
+				val dependencies = project.getObjects().newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("dependencies"))
+					.withComponent(ModelProjections.ofInstance(dependencies))
+					.build());
+
+				// TODO: Should be created as ModelProperty (readonly) with VariantView<NativeApplication> projection
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("variants"))
+					.withComponent(createdUsing(ModelType.of(VariantView.class), () -> ModelNodeUtils.get(entity, ModelType.of(NativeApplicationComponentVariants.class)).getVariantCollection().getAsView(DefaultNativeApplicationVariant.class)))
+					.build());
+
+				// TODO: Should be created as ModelProperty (readonly) with BinaryView<Binary> projection
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("binaries"))
+					.withComponent(createdUsing(ModelType.of(BinaryView.class), () -> project.getExtensions().getByType(BinaryViewFactory.class).create(identifier)))
+					.build());
+			})))
+			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				ModelNodeUtils.get(entity, of(DefaultNativeApplicationComponent.class)).finalizeExtension(null);
+			})))
+			;
 	}
 }
