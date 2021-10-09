@@ -30,6 +30,9 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
+import static dev.nokee.model.internal.core.ModelComponentReference.ofAny;
 import static java.util.Objects.requireNonNull;
 
 public final class ModelActions {
@@ -73,8 +76,8 @@ public final class ModelActions {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
-			return ImmutableList.of(ModelType.of(ModelProjection.class));
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			return ImmutableList.of(ofAny(projectionOf(type.getConcreteType())));
 		}
 
 		@Override
@@ -110,9 +113,9 @@ public final class ModelActions {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
-			val builder = ImmutableList.<ModelType<?>>builder();
-			builder.add(ModelType.of(ModelPath.class));
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			val builder = ImmutableList.<ModelComponentReference<?>>builder();
+			builder.add(ModelComponentReference.of(ModelPath.class));
 			if (action instanceof HasInputs) {
 				builder.addAll(((HasInputs) action).getInputs());
 			}
@@ -159,8 +162,8 @@ public final class ModelActions {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
-			return ImmutableList.of(ModelType.of(RelativeRegistrationService.class));
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			return ImmutableList.of(ModelComponentReference.of(RelativeRegistrationService.class));
 		}
 
 		@Override
@@ -198,8 +201,8 @@ public final class ModelActions {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
-			val builder = ImmutableList.<ModelType<?>>builder();
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			val builder = ImmutableList.<ModelComponentReference<?>>builder();
 			if (spec instanceof HasInputs) {
 				builder.addAll(((HasInputs) spec).getInputs());
 			}
@@ -244,8 +247,8 @@ public final class ModelActions {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
-			return ImmutableList.of(ModelType.of(ModelProjection.class));
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			return ImmutableList.of(ofAny(projectionOf(type.getConcreteType())));
 		}
 
 		@Override

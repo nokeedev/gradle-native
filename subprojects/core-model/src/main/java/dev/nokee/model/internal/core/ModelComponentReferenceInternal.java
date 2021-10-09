@@ -15,8 +15,7 @@
  */
 package dev.nokee.model.internal.core;
 
-import java.util.List;
-
-public interface HasInputs {
-	List<? extends ModelComponentReference<?>> getInputs();
+public interface ModelComponentReferenceInternal {
+	boolean isSatisfiedBy(ModelComponentTypes componentTypes);
+	boolean isSatisfiedBy(ModelComponentType<?> otherComponentType);
 }

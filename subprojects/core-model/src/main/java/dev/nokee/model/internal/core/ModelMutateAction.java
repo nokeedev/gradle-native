@@ -33,8 +33,8 @@ public abstract class ModelMutateAction implements ModelAction, HasInputs {
 	}
 
 	@Override
-	public List<? extends ModelType<?>> getInputs() {
-		return ImmutableList.of(ModelType.of(ModelState.class));
+	public List<? extends ModelComponentReference<?>> getInputs() {
+		return ImmutableList.of(ModelComponentReference.of(ModelState.class));
 	}
 
 	public abstract void execute(Context context);

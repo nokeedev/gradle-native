@@ -36,7 +36,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	public DefaultModelRegistry(Instantiator instantiator) {
 		this.instantiator = instantiator;
-		configurations.add(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.class), (node, path, state) -> {
+		configurations.add(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
 			if (state.isAtLeast(ModelState.Registered)) {
 				nodes.put(path, node);
 			}
@@ -123,7 +123,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		val size = nodes.size();
 		for (int i = 0; i < size; i++) {
 			val node = Iterables.get(nodes.values(), i);
-			if (configuration instanceof HasInputs && ((HasInputs) configuration).getInputs().stream().allMatch(it -> node.hasComponent(it.getConcreteType()))) {
+			if (configuration instanceof HasInputs && ((HasInputs) configuration).getInputs().stream().allMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(node.getComponentTypes()))) {
 				configuration.execute(node);
 			} else {
 				configuration.execute(node);
@@ -137,7 +137,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			for (int i = 0; i < configurations.size(); ++i) {
 				val configuration = configurations.get(i);
 				if (configuration instanceof HasInputs) {
-					if (((HasInputs) configuration).getInputs().contains(ModelType.typeOf(newComponent)) && ((HasInputs) configuration).getInputs().stream().allMatch(it -> node.hasComponent(it.getConcreteType()))) {
+					if (((HasInputs) configuration).getInputs().stream().anyMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(ModelComponentType.ofInstance(newComponent))) && ((HasInputs) configuration).getInputs().stream().allMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(node.getComponentTypes()))) {
 						configuration.execute(node);
 					} else if (((HasInputs) configuration).getInputs().isEmpty()) {
 						configuration.execute(node);

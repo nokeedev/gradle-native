@@ -166,7 +166,7 @@ public final class ModelTestUtils {
 				actions.add(action);
 				val node = nodeProvider.getValue();
 				if (node != null) {
-					if (action instanceof HasInputs && ((HasInputs) action).getInputs().stream().allMatch(it -> node.hasComponent(it.getConcreteType()))) {
+					if (action instanceof HasInputs && ((HasInputs) action).getInputs().stream().allMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(node.getComponentTypes()))) {
 						action.execute(node);
 					} else {
 						action.execute(node);
@@ -184,7 +184,7 @@ public final class ModelTestUtils {
 				for (int i = 0; i < size; ++i) {
 					val configuration = actions.get(i);
 					if (configuration instanceof HasInputs) {
-						if (((HasInputs) configuration).getInputs().contains(ModelType.typeOf(newComponent)) && ((HasInputs) configuration).getInputs().stream().allMatch(it -> node.hasComponent(it.getConcreteType()))) {
+						if (((HasInputs) configuration).getInputs().stream().anyMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(ModelComponentType.ofInstance(newComponent))) && ((HasInputs) configuration).getInputs().stream().allMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(node.getComponentTypes()))) {
 							configuration.execute(node);
 						} else if (((HasInputs) configuration).getInputs().isEmpty()) {
 							configuration.execute(node);
