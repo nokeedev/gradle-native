@@ -53,42 +53,25 @@ import org.gradle.api.tasks.TaskContainer;
 import javax.inject.Inject;
 import java.util.function.Supplier;
 
-public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources>, Finalizable {
+public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources> {
 	private final DefaultNativeApplicationComponentDependencies dependencies;
 	private final TaskRegistry taskRegistry;
 	private final Supplier<NativeApplicationComponentVariants> componentVariants;
 	private final BinaryView<Binary> binaries;
 	private final Supplier<VariantViewInternal<DefaultNativeApplicationVariant>> variants;
-	private final boolean isFinalizable;
 
 	@Inject
 	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
 		super(identifier, DefaultNativeApplicationVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.taskRegistry = taskRegistry;
 		val dependenciesPath = ModelPath.path("components" + identifier.getPath().child("dependencies").getPath().replace(':', '.'));
-		if (modelLookup.has(dependenciesPath)) {
-			this.isFinalizable = false;
-			this.dependencies = ModelNodeUtils.get(modelLookup.get(dependenciesPath), DefaultNativeApplicationComponentDependencies.class);
-		} else {
-			this.isFinalizable = true;
-			val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(objects, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
-			this.dependencies = objects.newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
-		}
+		this.dependencies = ModelNodeUtils.get(modelLookup.get(dependenciesPath), DefaultNativeApplicationComponentDependencies.class);
 		val variantsPath = ModelPath.path("components" + identifier.getPath().child("variants").getPath().replace(':', '.'));
-		if (modelLookup.has(variantsPath)) {
-			this.componentVariants = () -> ModelNodeUtils.get(ModelNodes.of(this), ModelType.of(NativeApplicationComponentVariants.class));
-			this.variants = () -> (VariantViewInternal<DefaultNativeApplicationVariant>) ModelNodeUtils.get(modelLookup.get(variantsPath), VariantView.class);
-		} else {
-			this.componentVariants = Suppliers.ofInstance(new NativeApplicationComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, modelLookup));
-			this.variants = Suppliers.ofInstance(componentVariants.get().getVariantCollection().getAsView(DefaultNativeApplicationVariant.class));
-		}
+		this.componentVariants = () -> ModelNodeUtils.get(ModelNodes.of(this), ModelType.of(NativeApplicationComponentVariants.class));
+		this.variants = () -> (VariantViewInternal<DefaultNativeApplicationVariant>) ModelNodeUtils.get(modelLookup.get(variantsPath), VariantView.class);
 
 		val binariesPath = ModelPath.path("components" + identifier.getPath().child("binaries").getPath().replace(':', '.'));
-		if (modelLookup.has(binariesPath)) {
-			this.binaries = (BinaryView<Binary>) ModelNodeUtils.get(modelLookup.get(binariesPath), BinaryView.class);
-		} else {
-			this.binaries = binaryViewFactory.create(identifier);
-		}
+		this.binaries = (BinaryView<Binary>) ModelNodeUtils.get(modelLookup.get(binariesPath), BinaryView.class);
 	}
 
 	@Override
@@ -133,12 +116,5 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
 		getComponentVariants().calculateVariants();
-	}
-
-	@Override
-	public void finalizeValue() {
-		if (isFinalizable) {
-			finalizeExtension(null);
-		}
 	}
 }
