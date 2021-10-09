@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.nativebase;
 
-import dev.nokee.platform.base.ApplicationComponentDependencies;
 import dev.nokee.platform.base.ComponentDependencies;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
@@ -27,7 +26,7 @@ import org.gradle.util.ConfigureUtil;
  *
  * @since 0.5
  */
-public interface NativeApplicationComponentDependencies extends ApplicationComponentDependencies, NativeComponentDependencies, ComponentDependencies {
+public interface NativeApplicationComponentDependencies extends NativeComponentDependencies, ComponentDependencies {
 	/**
 	 * {@inheritDoc}
 	 */
