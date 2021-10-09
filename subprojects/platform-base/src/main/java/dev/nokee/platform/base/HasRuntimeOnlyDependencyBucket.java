@@ -38,7 +38,9 @@ public interface HasRuntimeOnlyDependencyBucket {
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 */
-	void runtimeOnly(Object notation);
+	default void runtimeOnly(Object notation) {
+		getRuntimeOnly().addDependency(notation);
+	}
 
 	/**
 	 * Adds a runtime only dependency to this component.
@@ -47,7 +49,9 @@ public interface HasRuntimeOnlyDependencyBucket {
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
-	void runtimeOnly(Object notation, Action<? super ModuleDependency> action);
+	default void runtimeOnly(Object notation, Action<? super ModuleDependency> action) {
+		getRuntimeOnly().addDependency(notation, action);
+	}
 
 	/** @see #runtimeOnly(Object, Action) */
 	default void runtimeOnly(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {

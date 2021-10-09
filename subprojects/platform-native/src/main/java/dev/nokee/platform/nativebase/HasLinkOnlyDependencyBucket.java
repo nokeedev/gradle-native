@@ -39,7 +39,9 @@ public interface HasLinkOnlyDependencyBucket {
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 */
-	void linkOnly(Object notation);
+	default void linkOnly(Object notation) {
+		getLinkOnly().addDependency(notation);
+	}
 
 	/**
 	 * Adds an native link only dependency to this component.
@@ -48,7 +50,9 @@ public interface HasLinkOnlyDependencyBucket {
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
-	void linkOnly(Object notation, Action<? super ModuleDependency> action);
+	default void linkOnly(Object notation, Action<? super ModuleDependency> action) {
+		getLinkOnly().addDependency(notation, action);
+	}
 
 	/** @see #linkOnly(Object, Action) */
 	default void linkOnly(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {

@@ -21,9 +21,7 @@ import dev.nokee.platform.base.internal.dependencies.BaseComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.ComponentDependenciesInternal;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import lombok.Getter;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ModuleDependency;
 
 import javax.inject.Inject;
 
@@ -52,45 +50,5 @@ public class DefaultNativeComponentDependencies extends BaseComponentDependencie
 	}
 
 	private void configureRuntimeOnlyConfiguration(Configuration configuration) {
-	}
-
-	@Override
-	public void implementation(Object notation) {
-		getImplementation().addDependency(notation);
-	}
-
-	@Override
-	public void implementation(Object notation, Action<? super ModuleDependency> action) {
-		getImplementation().addDependency(notation, action);
-	}
-
-	@Override
-	public void compileOnly(Object notation) {
-		getCompileOnly().addDependency(notation);
-	}
-
-	@Override
-	public void compileOnly(Object notation, Action<? super ModuleDependency> action) {
-		getCompileOnly().addDependency(notation, action);
-	}
-
-	@Override
-	public void linkOnly(Object notation) {
-		getLinkOnly().addDependency(notation);
-	}
-
-	@Override
-	public void linkOnly(Object notation, Action<? super ModuleDependency> action) {
-		getLinkOnly().addDependency(notation, action);
-	}
-
-	@Override
-	public void runtimeOnly(Object notation) {
-		getRuntimeOnly().addDependency(notation);
-	}
-
-	@Override
-	public void runtimeOnly(Object notation, Action<? super ModuleDependency> action) {
-		getRuntimeOnly().addDependency(notation, action);
 	}
 }

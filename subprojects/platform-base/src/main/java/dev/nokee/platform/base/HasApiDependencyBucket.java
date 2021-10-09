@@ -37,7 +37,9 @@ public interface HasApiDependencyBucket {
 	 *
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 */
-	void api(Object notation);
+	default void api(Object notation) {
+		getApi().addDependency(notation);
+	}
 
 	/**
 	 * Adds an API dependency to this library. An API dependency is made visible to consumers that are compiled against this component.
@@ -45,7 +47,9 @@ public interface HasApiDependencyBucket {
 	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
 	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
-	void api(Object notation, Action<? super ModuleDependency> action);
+	default void api(Object notation, Action<? super ModuleDependency> action) {
+		getApi().addDependency(notation, action);
+	}
 
 	/** @see #api(Object, Action) */
 	default void api(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
