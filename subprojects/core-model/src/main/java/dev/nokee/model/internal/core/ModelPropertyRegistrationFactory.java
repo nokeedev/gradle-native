@@ -31,17 +31,22 @@ public final class ModelPropertyRegistrationFactory {
 	public ModelRegistration<?> create(ModelPath path, ModelNode entity) {
 		return ModelRegistration.builder()
 			.withPath(path)
-			.action(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.IsAtLeastRealized.class), (e, p, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (e, p, ignored) -> {
 				if (p.equals(path)) {
 					ModelStates.realize(entity);
 				} else if (p.equals(ModelNodeUtils.getPath(entity))) {
 					ModelStates.realize(lookup.get(path));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.IsAtLeastCreated.class), (e, p, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (e, p, ignored) -> {
 				if (p.equals(path)) {
 					e.addComponent(new ModelProjection() {
 						private final ModelNode delegate = entity;
+
+						@Override
+						public ModelType<?> getType() {
+							return ModelNodeUtils.getProjections(entity).findFirst().orElseThrow(RuntimeException::new).getType();
+						}
 
 						@Override
 						public <T> boolean canBeViewedAs(ModelType<T> type) {
