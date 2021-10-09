@@ -15,14 +15,12 @@
  */
 package dev.nokee.platform.swift;
 
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 
 /**
  * Configuration for an application written in Swift, defining the dependencies that make up the application plus other settings.
@@ -36,6 +34,6 @@ public interface SwiftApplication extends SwiftApplicationExtension, DependencyA
 	 * {@inheritDoc}
 	 */
 	default NativeApplicationComponentDependencies getDependencies() {
-		return ModelNodeUtils.get(ModelNodes.of(this), DefaultNativeApplicationComponent.class).getDependencies();
+		return ModelProperties.getProperty(this, "dependencies").as(NativeApplicationComponentDependencies.class).get();
 	}
 }

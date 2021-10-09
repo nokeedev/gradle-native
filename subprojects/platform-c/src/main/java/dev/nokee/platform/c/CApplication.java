@@ -16,12 +16,9 @@
 package dev.nokee.platform.c;
 
 import dev.nokee.language.c.CSourceSet;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 
 /**
  * Configuration for an application written in C, defining the dependencies that make up the application plus other settings.
