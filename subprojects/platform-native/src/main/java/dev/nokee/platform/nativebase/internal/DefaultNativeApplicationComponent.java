@@ -61,7 +61,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	private final Supplier<VariantViewInternal<DefaultNativeApplicationVariant>> variants;
 
 	@Inject
-	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
+	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
 		super(identifier, DefaultNativeApplicationVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.taskRegistry = taskRegistry;
 		val dependenciesPath = ModelPath.path("components" + identifier.getPath().child("dependencies").getPath().replace(':', '.'));
