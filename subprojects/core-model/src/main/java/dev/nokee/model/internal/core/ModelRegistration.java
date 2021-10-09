@@ -15,7 +15,9 @@
  */
 package dev.nokee.model.internal.core;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.Factory;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 
@@ -23,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+import static dev.nokee.model.internal.core.ModelNodes.stateOf;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 
 /**
@@ -92,7 +96,7 @@ public final class ModelRegistration<T> {
 	public static final class Builder<T> {
 		private ModelPath path;
 		private ModelType<? super T> defaultProjectionType = ModelType.untyped();
-		private final List<ModelProjection> projections = new ArrayList<>();
+		private final List<Object> components = new ArrayList<>();
 		private final List<ModelAction> actions = new ArrayList<>();
 
 		public Builder<T> withPath(ModelPath path) {
@@ -107,7 +111,12 @@ public final class ModelRegistration<T> {
 		}
 
 		public Builder<T> withProjection(ModelProjection projection) {
-			projections.add(Objects.requireNonNull(projection));
+			components.add(Objects.requireNonNull(projection));
+			return this;
+		}
+
+		public Builder<T> withComponent(Object component) {
+			components.add(Objects.requireNonNull(component));
 			return this;
 		}
 
@@ -119,23 +128,34 @@ public final class ModelRegistration<T> {
 		// take for granted that whatever projection type is, it will project to <T>
 		@SuppressWarnings("unchecked")
 		public ModelRegistration<T> build() {
-			if (!projections.isEmpty()) {
-				actions.add(0, self().apply(new AddProjectionsAction(projections)).scope(path));
+			if (!components.isEmpty()) {
+				actions.add(0, self(stateOf(ModelState.Created)).apply(new AddComponentsAction(components)).scope(path));
 			}
 			return new ModelRegistration<>(path, (ModelType<T>)defaultProjectionType, actions);
 		}
 
-		@EqualsAndHashCode(callSuper = false)
-		private static final class AddProjectionsAction extends ModelInitializerAction {
-			private final Iterable<ModelProjection> projections;
+		@EqualsAndHashCode
+		private static final class AddComponentsAction implements ModelAction, HasInputs {
+			private final Iterable<Object> components;
 
-			private AddProjectionsAction(Iterable<ModelProjection> projections) {
-				this.projections = projections;
+			private AddComponentsAction(Iterable<Object> components) {
+				this.components = components;
 			}
 
 			@Override
-			public void execute(Context context) {
-				projections.forEach(context::withProjection);
+			public void execute(ModelNode entity) {
+				for (Object component : components) {
+					if (component instanceof ModelProjection) {
+						entity.addComponent(entity.getComponent(componentOf(BindManagedProjectionService.class)).bindManagedProjectionWithInstantiator((ModelProjection) component));
+					} else {
+						entity.addComponent(component);
+					}
+				}
+			}
+
+			@Override
+			public List<? extends ModelComponentReference<?>> getInputs() {
+				return ImmutableList.of(ModelComponentReference.of(BindManagedProjectionService.class));
 			}
 		}
 	}
