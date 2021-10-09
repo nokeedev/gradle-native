@@ -15,38 +15,25 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.common.base.Suppliers;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.model.internal.core.Finalizable;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantCollection;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
-import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
-import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
-import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.base.internal.variants.VariantRepository;
-import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.*;
 import lombok.val;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 
@@ -64,14 +51,11 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
 		super(identifier, DefaultNativeApplicationVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.taskRegistry = taskRegistry;
-		val dependenciesPath = ModelPath.path("components" + identifier.getPath().child("dependencies").getPath().replace(':', '.'));
-		this.dependencies = ModelNodeUtils.get(modelLookup.get(dependenciesPath), DefaultNativeApplicationComponentDependencies.class);
-		val variantsPath = ModelPath.path("components" + identifier.getPath().child("variants").getPath().replace(':', '.'));
+		val path = ModelNodeUtils.getPath(getNode());
+		this.dependencies = ModelNodeUtils.get(modelLookup.get(path.child("dependencies")), DefaultNativeApplicationComponentDependencies.class);
 		this.componentVariants = () -> ModelNodeUtils.get(ModelNodes.of(this), ModelType.of(NativeApplicationComponentVariants.class));
-		this.variants = () -> (VariantViewInternal<DefaultNativeApplicationVariant>) ModelNodeUtils.get(modelLookup.get(variantsPath), VariantView.class);
-
-		val binariesPath = ModelPath.path("components" + identifier.getPath().child("binaries").getPath().replace(':', '.'));
-		this.binaries = (BinaryView<Binary>) ModelNodeUtils.get(modelLookup.get(binariesPath), BinaryView.class);
+		this.variants = () -> (VariantViewInternal<DefaultNativeApplicationVariant>) ModelNodeUtils.get(modelLookup.get(path.child("variants")), VariantView.class);
+		this.binaries = (BinaryView<Binary>) ModelNodeUtils.get(modelLookup.get(path.child("binaries")), BinaryView.class);
 	}
 
 	@Override
