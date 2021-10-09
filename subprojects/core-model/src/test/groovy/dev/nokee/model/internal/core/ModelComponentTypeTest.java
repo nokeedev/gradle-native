@@ -25,7 +25,7 @@ import static dev.nokee.model.internal.core.ModelComponentType.*;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ModelComponentTypeTest {
 	@Test
@@ -92,8 +92,32 @@ class ModelComponentTypeTest {
 		assertThat(ofInstance(objectFactory().newInstance(IMyProjection.class)), equalTo(componentOf(IMyProjection.class)));
 	}
 
+	@Test
+	void canTestSuperComponentType() {
+		assertTrue(componentOf(IMyProjection.class).isSupertypeOf(componentOf(MyProjection.class)));
+		assertFalse(componentOf(MyProjection.class).isSupertypeOf(componentOf(IMyProjection.class)));
+	}
+
+	@Test
+	void canTestSuperProjectionType() {
+		assertTrue(projectionOf(IMyProjection.class).isSupertypeOf(projectionOf(MyProjection.class)));
+		assertFalse(projectionOf(MyProjection.class).isSupertypeOf(projectionOf(IMyProjection.class)));
+	}
+
+	@Test
+	void projectionTypesCannotBeSuperTypeOfComponentTypes() {
+		assertFalse(projectionOf(IMyProjection.class).isSupertypeOf(componentOf(MyProjection.class)));
+		assertFalse(projectionOf(MyProjection.class).isSupertypeOf(componentOf(IMyProjection.class)));
+	}
+
+	@Test
+	void componentTypesCannotBeSuperTypeOfProjectionTypes() {
+		assertFalse(componentOf(IMyProjection.class).isSupertypeOf(projectionOf(MyProjection.class)));
+		assertFalse(componentOf(MyProjection.class).isSupertypeOf(projectionOf(IMyProjection.class)));
+	}
+
 	public interface IMyProjection {}
-	public static class MyProjection {}
+	public static class MyProjection implements IMyProjection {}
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
