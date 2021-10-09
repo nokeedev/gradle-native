@@ -50,7 +50,7 @@ import java.util.stream.Stream;
 public final class ModelNode {
 	private static long nextId = 0;
 	private final long id = nextId++;
-	private final Map<ModelComponentType, Object> components = new LinkedHashMap<>();
+	private final Map<ModelComponentType<?>, Object> components = new LinkedHashMap<>();
 
 	public ModelNode() {}
 
@@ -63,7 +63,7 @@ public final class ModelNode {
 	}
 
 	public void addComponent(Object component) {
-		val componentType = ModelComponentType.ofInstance(component);
+		ModelComponentType<? super Object> componentType = ModelComponentType.ofInstance(component);
 		val oldComponent = components.get(componentType);
 		if (oldComponent == null || !oldComponent.equals(component)) {
 			components.put(componentType, component);
@@ -75,13 +75,17 @@ public final class ModelNode {
 		findComponent(ModelNodeListener.class).ifPresent(listener -> listener.projectionAdded(this, newComponent));
 	}
 
+	public ModelComponentTypes getComponentTypes() {
+		return new ModelComponentTypes(components.keySet());
+	}
+
 	@Deprecated
 	public <T> T getComponent(Class<T> type) {
 		return findComponent(type).orElseThrow(RuntimeException::new);
 	}
 
-	public <T> T getComponent(ModelComponentType componentType) {
-		return this.<T>findComponent(componentType).orElseThrow(RuntimeException::new);
+	public <T> T getComponent(ModelComponentType<T> componentType) {
+		return findComponent(componentType).orElseThrow(RuntimeException::new);
 	}
 
 	@Deprecated
@@ -89,7 +93,7 @@ public final class ModelNode {
 		return components.values().stream().filter(type::isInstance).map(type::cast).findFirst();
 	}
 
-	public <T> Optional<T> findComponent(ModelComponentType componentType) {
+	public <T> Optional<T> findComponent(ModelComponentType<T> componentType) {
 		@SuppressWarnings("unchecked")
 		val result = (T) components.get(componentType);
 		return Optional.ofNullable(result);
@@ -100,7 +104,7 @@ public final class ModelNode {
 		return components.values().stream().anyMatch(type::isInstance);
 	}
 
-	public boolean hasComponent(ModelComponentType componentType) {
+	public boolean hasComponent(ModelComponentType<?> componentType) {
 		return components.containsKey(componentType);
 	}
 

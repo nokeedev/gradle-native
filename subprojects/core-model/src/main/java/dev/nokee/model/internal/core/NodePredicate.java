@@ -16,7 +16,6 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -194,7 +193,7 @@ public abstract class NodePredicate {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
+		public List<? extends ModelComponentReference<?>> getInputs() {
 			if (matcher instanceof HasInputs) {
 				return ((HasInputs) matcher).getInputs();
 			} else {

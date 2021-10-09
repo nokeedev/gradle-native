@@ -16,7 +16,6 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
@@ -92,7 +91,7 @@ public final class ModelSpecs {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
+		public List<? extends ModelComponentReference<?>> getInputs() {
 			if (predicate instanceof HasInputs) {
 				return ((HasInputs) predicate).getInputs();
 			} else {

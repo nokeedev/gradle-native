@@ -37,8 +37,8 @@ public abstract class ModelDiscoverAction implements ModelAction, HasInputs {
 	}
 
 	@Override
-	public List<? extends ModelType<?>> getInputs() {
-		return ImmutableList.of(ModelType.of(ModelState.class));
+	public List<? extends ModelComponentReference<?>> getInputs() {
+		return ImmutableList.of(ModelComponentReference.of(ModelState.class));
 	}
 
 	protected abstract void execute(Context context);

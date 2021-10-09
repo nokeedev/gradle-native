@@ -105,7 +105,7 @@ public class DefaultModelRegistryTest {
 				assertThrows(IllegalArgumentException.class, () -> modelLookup.get(path("foo")));
 				return null;
 			}).when(action).execute(any());
-			subject.configure(ModelActionWithInputs.of(ModelType.of(ModelState.class), (node, state) -> {
+			subject.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.class), (node, state) -> {
 				if (state.equals(ModelState.Initialized)) {
 					action.execute(node);
 				}
@@ -122,7 +122,7 @@ public class DefaultModelRegistryTest {
 				assertDoesNotThrow(() -> modelLookup.get(path("bar")));
 				return null;
 			}).when(action).execute(any());
-			subject.configure(ModelActionWithInputs.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.class), (node, path, state) -> {
+			subject.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
 				if (state.equals(ModelState.Registered) && path.equals(path("bar"))) {
 					action.execute(node);
 				}

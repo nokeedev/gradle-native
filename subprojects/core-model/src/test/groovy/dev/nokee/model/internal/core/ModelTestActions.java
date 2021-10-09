@@ -128,8 +128,8 @@ public final class ModelTestActions {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
-			return ImmutableList.of(ModelType.of(ModelPath.class), ModelType.of(ModelState.class));
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			return ImmutableList.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class));
 		}
 
 		public static CaptureNodeTransitionAction.NodeStateTransition realized(Object path) {

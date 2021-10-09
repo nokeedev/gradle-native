@@ -36,8 +36,8 @@ public abstract class ModelInitializerAction implements ModelAction, HasInputs {
 	}
 
 	@Override
-	public List<? extends ModelType<?>> getInputs() {
-		return ImmutableList.of(ModelType.of(ModelState.class), ModelType.of(BindManagedProjectionService.class));
+	public List<? extends ModelComponentReference<?>> getInputs() {
+		return ImmutableList.of(ModelComponentReference.of(ModelState.class), ModelComponentReference.of(BindManagedProjectionService.class));
 	}
 
 	public abstract void execute(Context context);

@@ -36,6 +36,8 @@ import java.util.function.Consumer;
 import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
 import static dev.nokee.model.internal.BaseNamedDomainObjectView.namedView;
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
+import static dev.nokee.model.internal.core.ModelComponentReference.ofInstance;
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelNodes.discover;
 import static dev.nokee.model.internal.core.ModelNodes.mutate;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
@@ -77,7 +79,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 	}
 
 	public static <T extends LanguageSourceSet> ModelAction configureEachSourceSet(ModelType<T> type, Consumer<? super T> action) {
-		return ModelActionWithInputs.of(ModelType.of(RelativeConfigurationService.class), (node, configure) -> {
+		return ModelActionWithInputs.of(ModelComponentReference.of(RelativeConfigurationService.class), (node, configure) -> {
 			assert ModelNodeUtils.canBeViewedAs(node, of(ComponentSources.class)) : "should only apply to ComponentSources";
 			ModelNodeUtils.applyTo(node, allDirectDescendants(mutate(type)).apply(executeUsingProjection(type, action::accept)));
 		});

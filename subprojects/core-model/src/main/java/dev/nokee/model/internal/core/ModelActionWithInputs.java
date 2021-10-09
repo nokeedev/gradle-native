@@ -24,17 +24,17 @@ import java.util.stream.Collectors;
 public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	@Override
 	public final void execute(ModelNode node) {
-		if (getInputs().stream().allMatch(it -> node.hasComponent(it.getConcreteType()))) {
-			execute(node, getInputs().stream().map(it -> node.getComponent(it.getConcreteType())).collect(Collectors.toList()));
+		if (getInputs().stream().allMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(node.getComponentTypes()))) {
+			execute(node, getInputs().stream().map(it -> it.get(node)).collect(Collectors.toList()));
 		}
 	}
 
 	public abstract void execute(ModelNode node, List<?> inputs);
 
-	public abstract List<? extends ModelType<?>> getInputs();
+	public abstract List<? extends ModelComponentReference<?>> getInputs();
 
 
-	public static <I0> ModelAction of(ModelType<I0> i0, A1<? super I0> action) {
+	public static <I0> ModelAction of(ModelComponentReference<I0> i0, A1<? super I0> action) {
 		return new ModelActionWithInputs() {
 			@Override
 			public void execute(ModelNode node, List<?> inputs) {
@@ -42,7 +42,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 			}
 
 			@Override
-			public List<? extends ModelType<?>> getInputs() {
+			public List<? extends ModelComponentReference<?>> getInputs() {
 				return ImmutableList.of(i0);
 			}
 		};
@@ -52,7 +52,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		void execute(ModelNode node, I0 i0);
 	}
 
-	public static <I0, I1> ModelAction of(ModelType<I0> i0, ModelType<I1> i1, A2<? super I0, ? super I1> action) {
+	public static <I0, I1> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, A2<? super I0, ? super I1> action) {
 		return new ModelActionWithInputs() {
 			@Override
 			public void execute(ModelNode node, List<?> inputs) {
@@ -60,7 +60,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 			}
 
 			@Override
-			public List<? extends ModelType<?>> getInputs() {
+			public List<? extends ModelComponentReference<?>> getInputs() {
 				return ImmutableList.of(i0, i1);
 			}
 		};
@@ -70,7 +70,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		void execute(ModelNode node, I0 i0, I1 i1);
 	}
 
-	public static <I0, I1, I2> ModelAction of(ModelType<I0> i0, ModelType<I1> i1, ModelType<I2> i2, A3<? super I0, ? super I1, ? super I2> action) {
+	public static <I0, I1, I2> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, ModelComponentReference<I2> i2, A3<? super I0, ? super I1, ? super I2> action) {
 		return new ModelActionWithInputs() {
 			@Override
 			public void execute(ModelNode node, List<?> inputs) {
@@ -78,7 +78,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 			}
 
 			@Override
-			public List<? extends ModelType<?>> getInputs() {
+			public List<? extends ModelComponentReference<?>> getInputs() {
 				return ImmutableList.of(i0, i1, i2);
 			}
 		};

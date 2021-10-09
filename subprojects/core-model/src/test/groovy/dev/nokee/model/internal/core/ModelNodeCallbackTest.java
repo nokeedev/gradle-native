@@ -34,7 +34,7 @@ class ModelNodeCallbackTest {
 
 	@BeforeEach
 	void registerListener() {
-		registry.configure(ModelActionWithInputs.of(ModelType.of(MyComponent.class), action));
+		registry.configure(ModelActionWithInputs.of(ModelComponentReference.of(MyComponent.class), action));
 	}
 
 	@Nested

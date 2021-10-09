@@ -27,6 +27,9 @@ import org.gradle.api.specs.Spec;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
+import static dev.nokee.model.internal.core.ModelComponentReference.ofInstance;
 import static dev.nokee.model.internal.state.ModelState.Realized;
 import static dev.nokee.model.internal.state.ModelState.Registered;
 import static java.util.Objects.requireNonNull;
@@ -65,8 +68,8 @@ public final class ModelNodes {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
-			val builder = ImmutableList.<ModelType<?>>builder();
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			val builder = ImmutableList.<ModelComponentReference<?>>builder();
 			if (first instanceof HasInputs) {
 				builder.addAll(((HasInputs) first).getInputs());
 			}
@@ -148,8 +151,8 @@ public final class ModelNodes {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
-			return ImmutableList.of(ModelType.of(ModelProjection.class));
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			return ImmutableList.of(ModelComponentReference.ofAny(projectionOf(type.getConcreteType())));
 		}
 
 		@Override
@@ -187,8 +190,8 @@ public final class ModelNodes {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
-			return ImmutableList.of(ModelType.of(ModelState.class));
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			return ImmutableList.of(ModelComponentReference.of(ModelState.class));
 		}
 	}
 
@@ -210,8 +213,8 @@ public final class ModelNodes {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
-			return ImmutableList.of(ModelType.of(ModelState.class));
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			return ImmutableList.of(ModelComponentReference.of(ModelState.class));
 		}
 
 		@Override
@@ -247,9 +250,9 @@ public final class ModelNodes {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
-			val builder = ImmutableList.<ModelType<?>>builder();
-			builder.add(ModelType.of(ModelProjection.class));
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			val builder = ImmutableList.<ModelComponentReference<?>>builder();
+			builder.add(ModelComponentReference.ofAny(projectionOf(type.getConcreteType())));
 			if (spec instanceof HasInputs) {
 				builder.addAll(((HasInputs) spec).getInputs());
 			}
@@ -288,8 +291,8 @@ public final class ModelNodes {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
-			return ImmutableList.of(ModelType.of(ModelPath.class));
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			return ImmutableList.of(ModelComponentReference.of(ModelPath.class));
 		}
 
 		@Override
@@ -316,8 +319,8 @@ public final class ModelNodes {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
-			return ImmutableList.of(ModelType.of(ModelPath.class));
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			return ImmutableList.of(ModelComponentReference.of(ModelPath.class));
 		}
 
 		@Override
@@ -363,8 +366,8 @@ public final class ModelNodes {
 		}
 
 		@Override
-		public List<? extends ModelType<?>> getInputs() {
-			return ImmutableList.of(ModelType.of(ModelPath.class));
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			return ImmutableList.of(ModelComponentReference.of(ModelPath.class));
 		}
 
 		@Override
