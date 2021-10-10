@@ -22,7 +22,6 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
 import java.util.*;
@@ -45,14 +44,18 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	private ModelNode createRootNode() {
-		return ModelNode.builder()
-			.withPath(ModelPath.root())
-			.withConfigurer(this)
-			.withLookup(this)
-			.withListener(nodeStateListener)
-			.withRegistry(this)
-			.withInstantiator(instantiator)
-			.build();
+		val path = ModelPath.root();
+		val entity = new ModelNode();
+		entity.addComponent(nodeStateListener);
+		entity.addComponent(new DescendantNodes(this, path));
+		entity.addComponent(new RelativeRegistrationService(path, this));
+		entity.addComponent(new RelativeConfigurationService(path, this));
+		entity.addComponent(new BindManagedProjectionService(instantiator));
+		entity.addComponent(path);
+		path.getParent().ifPresent(parentPath -> {
+			entity.addComponent(new ParentNode(this.get(parentPath)));
+		});
+		return entity;
 	}
 
 	@Override
@@ -82,14 +85,18 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	private ModelNode newNode(ModelRegistration<?> registration) {
-		return ModelNode.builder()
-			.withPath(registration.getPath())
-			.withConfigurer(this)
-			.withListener(nodeStateListener)
-			.withLookup(this)
-			.withRegistry(this)
-			.withInstantiator(instantiator)
-			.build();
+		val path = registration.getPath();
+		val entity = new ModelNode();
+		entity.addComponent(nodeStateListener);
+		entity.addComponent(new DescendantNodes(this, path));
+		entity.addComponent(new RelativeRegistrationService(path, this));
+		entity.addComponent(new RelativeConfigurationService(path, this));
+		entity.addComponent(new BindManagedProjectionService(instantiator));
+		entity.addComponent(path);
+		path.getParent().ifPresent(parentPath -> {
+			entity.addComponent(new ParentNode(this.get(parentPath)));
+		});
+		return entity;
 	}
 
 	@Override
