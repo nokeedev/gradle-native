@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelActions.initialize;
@@ -208,10 +209,18 @@ public final class ModelTestUtils {
 
 			@Override
 			public <T> DomainObjectProvider<T> register(ModelRegistration<T> registration) {
-				val childNode = childNode(nodeProvider.getValue(), registration.getPath().getName(), registration.getActions(), builder -> {});
+				val path = registration.getComponents().stream().flatMap(this::findModelPath).findFirst().get();
+				val childNode = childNode(nodeProvider.getValue(), path.getName(), registration.getActions(), builder -> {});
 				registration.getComponents().forEach(childNode::addComponent);
-				children.put(registration.getPath(), childNode);
+				children.put(path, childNode);
 				return new ModelNodeBackedProvider<>(registration.getDefaultProjectionType(), childNode);
+			}
+
+			private Stream<ModelPath> findModelPath(Object component) {
+				if (component instanceof ModelPath) {
+					return Stream.of((ModelPath) component);
+				}
+				return Stream.empty();
 			}
 		});
 		action.accept(builder);

@@ -39,6 +39,10 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		this.bindingService = new BindManagedProjectionService(instantiator);
 		configurations.add(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
 			if (state.equals(ModelState.Created)) {
+				if (!path.equals(ModelPath.root()) && (!path.getParent().isPresent() || !nodes.containsKey(path.getParent().get()))) {
+					throw new IllegalArgumentException(String.format("Model %s has to be direct descendant", path));
+				}
+
 				node.addComponent(new DescendantNodes(this, path));
 				node.addComponent(new RelativeRegistrationService(path, this));
 				node.addComponent(new RelativeConfigurationService(path, this));
@@ -77,18 +81,12 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	@Override
 	public <T> DomainObjectProvider<T> register(ModelRegistration<T> registration) {
-		// TODO: Should deny creating any model registration for root node
-		if (!registration.getPath().getParent().isPresent() || !nodes.containsKey(registration.getPath().getParent().get())) {
-			throw new IllegalArgumentException(String.format("Model %s has to be direct descendant", registration.getPath()));
-		}
-
 		registration.getActions().forEach(configurations::add);
 		val node = ModelStates.register(newNode(registration));
 		return new ModelNodeBackedProvider<>(registration.getDefaultProjectionType(), node);
 	}
 
 	private ModelNode newNode(ModelRegistration<?> registration) {
-		val path = registration.getPath();
 		val entity = new ModelNode();
 		entity.addComponent(nodeStateListener);
 		for (Object component : registration.getComponents()) {
