@@ -38,7 +38,8 @@ class ModelRegistrationTest {
 			val registration = ModelRegistration.of("a.b.c", MyType.class);
 			assertEquals(path("a.b.c"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
-			assertThat(registration.getActions(), iterableWithSize(1)); // for the projections
+			assertThat(registration.getActions(), emptyIterable());
+			assertThat(registration.getComponents(), iterableWithSize(1)); // for the projections
 		});
 	}
 
@@ -75,7 +76,8 @@ class ModelRegistrationTest {
 			val registration = unmanagedInstance(of("foo", MyType.class), alwaysThrow());
 			assertEquals(path("foo"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
-			assertThat(registration.getActions(), iterableWithSize(1)); // for the projections
+			assertThat(registration.getActions(), emptyIterable());
+			assertThat(registration.getComponents(), iterableWithSize(1)); // for the projections
 		});
 	}
 
@@ -85,7 +87,8 @@ class ModelRegistrationTest {
 			val registration = bridgedInstance(of("foo", MyType.class), new MyType());
 			assertEquals(path("foo"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
-			assertThat(registration.getActions(), iterableWithSize(1)); // for the projections
+			assertThat(registration.getActions(), emptyIterable());
+			assertThat(registration.getComponents(), iterableWithSize(1)); // for the projections
 		});
 	}
 

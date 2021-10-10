@@ -38,13 +38,15 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 @EqualsAndHashCode
 public final class ModelRegistration<T> {
 	private final List<ModelAction> actions;
+	private final List<Object> components;
 	private final ModelPath path;
 	@EqualsAndHashCode.Exclude private final ModelType<T> defaultProjectionType;
 
-	private ModelRegistration(ModelPath path, ModelType<T> defaultProjectionType, List<ModelAction> actions) {
+	private ModelRegistration(ModelPath path, ModelType<T> defaultProjectionType, List<ModelAction> actions, List<Object> components) {
 		this.path = path;
 		this.defaultProjectionType = defaultProjectionType;
 		this.actions = actions;
+		this.components = components;
 	}
 
 	public ModelPath getPath() {
@@ -90,6 +92,10 @@ public final class ModelRegistration<T> {
 		return new Builder<>();
 	}
 
+	public List<Object> getComponents() {
+		return Collections.unmodifiableList(components);
+	}
+
 	public List<ModelAction> getActions() {
 		return Collections.unmodifiableList(actions);
 	}
@@ -124,35 +130,7 @@ public final class ModelRegistration<T> {
 		// take for granted that whatever projection type is, it will project to <T>
 		@SuppressWarnings("unchecked")
 		public ModelRegistration<T> build() {
-			if (!components.isEmpty()) {
-				actions.add(0, self(stateOf(ModelState.Created)).apply(new AddComponentsAction(components)).scope(path));
-			}
-			return new ModelRegistration<>(path, (ModelType<T>)defaultProjectionType, actions);
-		}
-
-		@EqualsAndHashCode
-		private static final class AddComponentsAction implements ModelAction, HasInputs {
-			private final Iterable<Object> components;
-
-			private AddComponentsAction(Iterable<Object> components) {
-				this.components = components;
-			}
-
-			@Override
-			public void execute(ModelNode entity) {
-				for (Object component : components) {
-					if (component instanceof ModelProjection) {
-						entity.addComponent(entity.getComponent(componentOf(BindManagedProjectionService.class)).bindManagedProjectionWithInstantiator((ModelProjection) component));
-					} else {
-						entity.addComponent(component);
-					}
-				}
-			}
-
-			@Override
-			public List<? extends ModelComponentReference<?>> getInputs() {
-				return ImmutableList.of(ModelComponentReference.of(BindManagedProjectionService.class));
-			}
+			return new ModelRegistration<>(path, (ModelType<T>)defaultProjectionType, actions, components);
 		}
 	}
 }

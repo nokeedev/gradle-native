@@ -43,4 +43,20 @@ public interface ModelRegistrationTester {
 		}
 		assertThat(subject().getActions(), iterableWithSize(initialSize));
 	}
+
+	@Test
+	default void hasComponents() {
+		assertThat(subject().getComponents(), notNullValue(List.class));
+	}
+
+	@Test
+	default void returnsAnImmutableComponentList() {
+		val initialSize = subject().getComponents().size();
+		try {
+			subject().getComponents().add(new Object());
+		} catch (Throwable ignored) {
+			// Components can either be a list copy or an immutable list
+		}
+		assertThat(subject().getComponents(), iterableWithSize(initialSize));
+	}
 }

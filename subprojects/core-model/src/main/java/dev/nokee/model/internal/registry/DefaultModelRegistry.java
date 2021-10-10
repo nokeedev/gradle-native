@@ -31,10 +31,12 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final Map<ModelPath, ModelNode> nodes = new LinkedHashMap<>();
 	private final List<ModelAction> configurations = new ArrayList<>();
 	private final NodeStateListener nodeStateListener = new NodeStateListener();
+	private final BindManagedProjectionService bindingService;
 	private final ModelNode rootNode;
 
 	public DefaultModelRegistry(Instantiator instantiator) {
 		this.instantiator = instantiator;
+		this.bindingService = new BindManagedProjectionService(instantiator);
 		configurations.add(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
 			if (state.equals(ModelState.Created)) {
 				node.addComponent(new DescendantNodes(this, path));
@@ -89,6 +91,13 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		val path = registration.getPath();
 		val entity = new ModelNode();
 		entity.addComponent(nodeStateListener);
+		for (Object component : registration.getComponents()) {
+			if (component instanceof ModelProjection) {
+				entity.addComponent(bindingService.bindManagedProjectionWithInstantiator((ModelProjection) component));
+			} else {
+				entity.addComponent(component);
+			}
+		}
 		entity.addComponent(path);
 		return entity;
 	}
