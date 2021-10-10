@@ -17,6 +17,7 @@ package dev.nokee.platform.nativebase.internal.dependencies;
 
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ComponentDependenciesInternal;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketName;
@@ -147,6 +148,7 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 		private final NativeComponentDependencies componentDependencies;
 		private boolean hasIncomingHeaders = false;
 		private boolean hasIncomingSwiftModules = false;
+		private VariantIdentifier<?> ownerIdentifier = null;
 		private BuildVariantInternal buildVariant;
 
 		private Builder(NativeComponentDependencies dependencies) {
@@ -160,6 +162,11 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 
 		public Builder withIncomingSwiftModules() {
 			hasIncomingSwiftModules = true;
+			return this;
+		}
+
+		public Builder withOwnerIdentifier(VariantIdentifier<?> owner) {
+			this.ownerIdentifier = owner;
 			return this;
 		}
 
