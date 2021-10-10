@@ -26,11 +26,9 @@ import java.util.Objects;
 
 /**
  * A model registration request.
- *
- * @param <T>  the default projection type, provided for type-safety.
  */
 @EqualsAndHashCode
-public final class ModelRegistration<T> {
+public final class ModelRegistration {
 	private final List<ModelAction> actions;
 	private final List<Object> components;
 
@@ -39,7 +37,7 @@ public final class ModelRegistration<T> {
 		this.components = components;
 	}
 
-	public static <T> ModelRegistration<T> of(String path, Class<T> type) {
+	public static <T> ModelRegistration of(String path, Class<T> type) {
 		return builder()
 			.withComponent(ModelPath.path(path))
 			.withDefaultProjectionType(ModelType.of(type))
@@ -47,7 +45,7 @@ public final class ModelRegistration<T> {
 			.build();
 	}
 
-	public static <T> ModelRegistration<T> bridgedInstance(ModelIdentifier<T> identifier, T instance) {
+	public static <T> ModelRegistration bridgedInstance(ModelIdentifier<T> identifier, T instance) {
 		return builder()
 			.withComponent(identifier.getPath())
 			.withDefaultProjectionType(identifier.getType())
@@ -55,7 +53,7 @@ public final class ModelRegistration<T> {
 			.build();
 	}
 
-	public static <T> ModelRegistration<T> unmanagedInstance(ModelIdentifier<T> identifier, Factory<T> factory) {
+	public static <T> ModelRegistration unmanagedInstance(ModelIdentifier<T> identifier, Factory<T> factory) {
 		return builder()
 			.withComponent(identifier.getPath())
 			.withDefaultProjectionType(identifier.getType())
@@ -103,8 +101,8 @@ public final class ModelRegistration<T> {
 			return this;
 		}
 
-		public ModelRegistration<T> build() {
-			return new ModelRegistration<>(ImmutableList.copyOf(actions), ImmutableList.copyOf(components));
+		public ModelRegistration build() {
+			return new ModelRegistration(ImmutableList.copyOf(actions), ImmutableList.copyOf(components));
 		}
 	}
 }

@@ -205,7 +205,7 @@ public final class ModelTestUtils {
 			}
 
 			@Override
-			public <T> ModelElement register(ModelRegistration<T> registration) {
+			public ModelElement register(ModelRegistration registration) {
 				val path = registration.getComponents().stream().flatMap(this::findModelPath).findFirst().get();
 				val childNode = childNode(nodeProvider.getValue(), path.getName(), registration.getActions(), builder -> {});
 				registration.getComponents().forEach(childNode::addComponent);

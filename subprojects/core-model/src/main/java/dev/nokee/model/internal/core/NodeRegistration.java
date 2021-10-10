@@ -41,7 +41,7 @@ public final class NodeRegistration<T> {
 		projections.add(defaultProjection);
 	}
 
-	ModelRegistration<T> scope(ModelPath path) {
+	ModelRegistration scope(ModelPath path) {
 		val builder = builder()
 			.withComponent(path.child(name))
 			.withDefaultProjectionType(defaultProjectionType);
