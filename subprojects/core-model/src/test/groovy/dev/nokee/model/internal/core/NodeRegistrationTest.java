@@ -40,7 +40,6 @@ class NodeRegistrationTest {
 		val registration = NodeRegistration.of("c", of(MyType.class)).scope(path("a.b"));
 		assertAll(() -> {
 			assertThat(registration.getComponents(), hasItem(path("a.b.c")));
-			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for projections
 		});
@@ -51,7 +50,6 @@ class NodeRegistrationTest {
 		val registration = NodeRegistration.unmanaged("z", of(MyType.class), alwaysThrow()).scope(path("x.y"));
 		assertAll(() -> {
 			assertThat(registration.getComponents(), hasItem(path("x.y.z")));
-			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for projections
 		});
@@ -69,7 +67,6 @@ class NodeRegistrationTest {
 		val registration = NodeRegistration.of("c", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")).scope(path("ab"));
 		assertAll(() -> {
 			assertThat(registration.getComponents(), hasItem(path("ab.c")));
-			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(3)); // for projections
 		});

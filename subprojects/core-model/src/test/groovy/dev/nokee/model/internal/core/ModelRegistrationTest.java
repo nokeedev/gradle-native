@@ -29,7 +29,6 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ModelRegistrationTest {
 	@Test
@@ -37,7 +36,6 @@ class ModelRegistrationTest {
 		assertAll(() -> {
 			val registration = ModelRegistration.of("a.b.c", MyType.class);
 			assertThat(registration.getComponents(), hasItem(path("a.b.c")));
-			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
 		});
@@ -75,7 +73,6 @@ class ModelRegistrationTest {
 		assertAll(() -> {
 			val registration = unmanagedInstance(of("foo", MyType.class), alwaysThrow());
 			assertThat(registration.getComponents(), hasItem(path("foo")));
-			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
 		});
@@ -86,7 +83,6 @@ class ModelRegistrationTest {
 		assertAll(() -> {
 			val registration = bridgedInstance(of("foo", MyType.class), new MyType());
 			assertThat(registration.getComponents(), hasItem(path("foo")));
-			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
 		});
