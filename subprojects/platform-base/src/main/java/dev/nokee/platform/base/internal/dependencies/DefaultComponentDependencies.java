@@ -27,6 +27,8 @@ import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.internal.metaobject.*;
 import org.gradle.util.ConfigureUtil;
 
@@ -37,7 +39,7 @@ import java.util.Map;
 import java.util.Optional;
 
 // DO NOT EXTEND THIS CLASS, extends BaseComponentDependencies
-public class DefaultComponentDependencies implements ComponentDependenciesInternal, MethodMixIn, PropertyMixIn {
+public abstract class DefaultComponentDependencies implements ComponentDependenciesInternal, MethodMixIn, PropertyMixIn, ExtensionAware {
 	private final Map<String, DependencyBucket> bucketIndex = new HashMap<>();
 	private final ContainerElementsDynamicObject elementsDynamicObject = new ContainerElementsDynamicObject();
 	@Getter private final DomainObjectIdentifierInternal ownerIdentifier;
@@ -50,6 +52,7 @@ public class DefaultComponentDependencies implements ComponentDependenciesIntern
 		this.ownerIdentifier = ownerIdentifier;
 		this.factory = factory;
 		this.buckets = objects.domainObjectSet(DependencyBucket.class);
+		buckets.all(bucket -> getExtensions().add(DependencyBucket.class, bucket.getName(), bucket));
 	}
 
 	@Override

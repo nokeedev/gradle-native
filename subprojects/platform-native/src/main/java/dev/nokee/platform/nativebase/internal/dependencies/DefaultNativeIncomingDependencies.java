@@ -23,7 +23,6 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketName;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucket;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.runtime.darwin.internal.DarwinLibraryElements;
-import dev.nokee.runtime.nativebase.internal.ArtifactCompressionState;
 import dev.nokee.utils.ActionUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -36,6 +35,8 @@ import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -143,13 +144,13 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 	}
 
 	public static final class Builder {
-		private final NativeComponentDependencies dependencies;
+		private final NativeComponentDependencies componentDependencies;
 		private boolean hasIncomingHeaders = false;
 		private boolean hasIncomingSwiftModules = false;
 		private BuildVariantInternal buildVariant;
 
 		private Builder(NativeComponentDependencies dependencies) {
-			this.dependencies = dependencies;
+			this.componentDependencies = dependencies;
 		}
 
 		public Builder withIncomingHeaders() {
@@ -168,20 +169,21 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 		}
 
 		public DefaultNativeIncomingDependencies buildUsing(ObjectFactory objects) {
-			ComponentDependenciesInternal dependenciesInternal = (ComponentDependenciesInternal) dependencies;
+			ComponentDependenciesInternal dependenciesInternal = (ComponentDependenciesInternal) componentDependencies;
+			ExtensionContainer dependencies = ((ExtensionAware) componentDependencies).getExtensions();
 
 			Function<String, String> withPrefix = Function.identity();
-			if (dependenciesInternal.getClass().getSimpleName().contains("JavaNativeInterface")) {
+			if (componentDependencies.getClass().getSimpleName().contains("JavaNativeInterface")) {
 				withPrefix = (String it) -> "native" + StringUtils.capitalize(it);
 			}
 
-			val compileOnlyBucket = dependenciesInternal.findByName("compileOnly"); // As we reuse this code in JNI
+			val compileOnlyBucket = Optional.ofNullable((DependencyBucket) dependencies.findByName("compileOnly")); // As we reuse this code in JNI
 			IncomingHeaders incomingHeaders = null;
 			if (hasIncomingHeaders) {
 				val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("headerSearchPaths")),
 					ResolvableDependencyBucket.class, dependenciesInternal.getOwnerIdentifier());
 				val bucket = dependenciesInternal.create("headerSearchPaths",
-					ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingHeaderSearchPathFrom(dependencies.getImplementation()))
+					ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingHeaderSearchPathFrom(componentDependencies.getImplementation()))
 						.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
 						.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
 						.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
@@ -196,7 +198,7 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 				val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("importSwiftModules")),
 					ResolvableDependencyBucket.class, dependenciesInternal.getOwnerIdentifier());
 				val bucket = dependenciesInternal.create("importSwiftModules",
-					ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingSwiftModuleFrom(dependencies.getImplementation()))
+					ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingSwiftModuleFrom(componentDependencies.getImplementation()))
 						.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
 						.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
 						.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
@@ -209,14 +211,14 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 			val linkLibrariesBucketIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("linkLibraries")),
 				ResolvableDependencyBucket.class, dependenciesInternal.getOwnerIdentifier());
 			val linkLibrariesBucket = dependenciesInternal.create("linkLibraries",
-				ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingLinkLibrariesFrom(dependencies.getImplementation(), dependencies.getLinkOnly()))
+				ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingLinkLibrariesFrom(componentDependencies.getImplementation(), componentDependencies.getLinkOnly()))
 					.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
 					.andThen(it -> it.setDescription(linkLibrariesBucketIdentifier.getDisplayName())));
 			val runtimeLibrariesBucketIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("runtimeLibraries")),
 				ResolvableDependencyBucket.class, dependenciesInternal.getOwnerIdentifier());
 			val runtimeLibrariesBucket = dependenciesInternal.create("runtimeLibraries",
-				ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingRuntimeLibrariesFrom(dependencies.getImplementation(), dependencies.getRuntimeOnly()))
+				ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingRuntimeLibrariesFrom(componentDependencies.getImplementation(), componentDependencies.getRuntimeOnly()))
 					.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
 					.andThen(it -> it.setDescription(runtimeLibrariesBucketIdentifier.getDisplayName())));
