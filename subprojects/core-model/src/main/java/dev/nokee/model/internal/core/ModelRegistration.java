@@ -15,9 +15,7 @@
  */
 package dev.nokee.model.internal.core;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.Factory;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 
@@ -26,8 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
-import static dev.nokee.model.internal.core.ModelNodes.stateOf;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 
 /**
@@ -39,18 +35,12 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 public final class ModelRegistration<T> {
 	private final List<ModelAction> actions;
 	private final List<Object> components;
-	private final ModelPath path;
 	@EqualsAndHashCode.Exclude private final ModelType<T> defaultProjectionType;
 
-	private ModelRegistration(ModelPath path, ModelType<T> defaultProjectionType, List<ModelAction> actions, List<Object> components) {
-		this.path = path;
+	private ModelRegistration(ModelType<T> defaultProjectionType, List<ModelAction> actions, List<Object> components) {
 		this.defaultProjectionType = defaultProjectionType;
 		this.actions = actions;
 		this.components = components;
-	}
-
-	public ModelPath getPath() {
-		return path;
 	}
 
 	public ModelType<T> getDefaultProjectionType() {
@@ -101,13 +91,11 @@ public final class ModelRegistration<T> {
 	}
 
 	public static final class Builder<T> {
-		private ModelPath path;
 		private ModelType<? super T> defaultProjectionType = ModelType.untyped();
 		private final List<Object> components = new ArrayList<>();
 		private final List<ModelAction> actions = new ArrayList<>();
 
 		public Builder<T> withPath(ModelPath path) {
-			this.path = path;
 			components.add(path);
 			return this;
 		}
@@ -131,7 +119,7 @@ public final class ModelRegistration<T> {
 		// take for granted that whatever projection type is, it will project to <T>
 		@SuppressWarnings("unchecked")
 		public ModelRegistration<T> build() {
-			return new ModelRegistration<>(path, (ModelType<T>)defaultProjectionType, actions, components);
+			return new ModelRegistration<>((ModelType<T>)defaultProjectionType, actions, components);
 		}
 	}
 }
