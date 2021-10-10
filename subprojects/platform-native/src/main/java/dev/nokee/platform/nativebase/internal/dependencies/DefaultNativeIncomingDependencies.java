@@ -190,8 +190,7 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 			val compileOnlyBucket = Optional.ofNullable((DependencyBucket) dependencies.findByName("compileOnly")); // As we reuse this code in JNI
 			IncomingHeaders incomingHeaders = null;
 			if (hasIncomingHeaders) {
-				val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("headerSearchPaths")),
-					ResolvableDependencyBucket.class, dependenciesInternal.getOwnerIdentifier());
+				val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("headerSearchPaths")), ResolvableDependencyBucket.class, ownerIdentifier);
 				val bucket = dependenciesInternal.create("headerSearchPaths",
 					ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingHeaderSearchPathFrom(componentDependencies.getImplementation()))
 						.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
@@ -205,8 +204,7 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 
 			IncomingSwiftModules incomingSwiftModules = null;
 			if (hasIncomingSwiftModules) {
-				val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("importSwiftModules")),
-					ResolvableDependencyBucket.class, dependenciesInternal.getOwnerIdentifier());
+				val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("importSwiftModules")), ResolvableDependencyBucket.class, ownerIdentifier);
 				val bucket = dependenciesInternal.create("importSwiftModules",
 					ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingSwiftModuleFrom(componentDependencies.getImplementation()))
 						.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
@@ -218,15 +216,13 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 				incomingSwiftModules = new AbsentIncomingSwiftModules(objects);
 			}
 
-			val linkLibrariesBucketIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("linkLibraries")),
-				ResolvableDependencyBucket.class, dependenciesInternal.getOwnerIdentifier());
+			val linkLibrariesBucketIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("linkLibraries")), ResolvableDependencyBucket.class, ownerIdentifier);
 			val linkLibrariesBucket = dependenciesInternal.create("linkLibraries",
 				ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingLinkLibrariesFrom(componentDependencies.getImplementation(), componentDependencies.getLinkOnly()))
 					.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
 					.andThen(it -> it.setDescription(linkLibrariesBucketIdentifier.getDisplayName())));
-			val runtimeLibrariesBucketIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("runtimeLibraries")),
-				ResolvableDependencyBucket.class, dependenciesInternal.getOwnerIdentifier());
+			val runtimeLibrariesBucketIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("runtimeLibraries")), ResolvableDependencyBucket.class, ownerIdentifier);
 			val runtimeLibrariesBucket = dependenciesInternal.create("runtimeLibraries",
 				ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingRuntimeLibrariesFrom(componentDependencies.getImplementation(), componentDependencies.getRuntimeOnly()))
 					.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
