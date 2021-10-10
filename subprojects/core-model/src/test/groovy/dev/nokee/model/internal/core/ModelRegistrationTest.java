@@ -39,7 +39,7 @@ class ModelRegistrationTest {
 			assertEquals(path("a.b.c"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
 			assertThat(registration.getActions(), emptyIterable());
-			assertThat(registration.getComponents(), iterableWithSize(1)); // for the projections
+			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
 		});
 	}
 
@@ -77,7 +77,7 @@ class ModelRegistrationTest {
 			assertEquals(path("foo"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
 			assertThat(registration.getActions(), emptyIterable());
-			assertThat(registration.getComponents(), iterableWithSize(1)); // for the projections
+			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
 		});
 	}
 
@@ -88,7 +88,7 @@ class ModelRegistrationTest {
 			assertEquals(path("foo"), registration.getPath());
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
 			assertThat(registration.getActions(), emptyIterable());
-			assertThat(registration.getComponents(), iterableWithSize(1)); // for the projections
+			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
 		});
 	}
 

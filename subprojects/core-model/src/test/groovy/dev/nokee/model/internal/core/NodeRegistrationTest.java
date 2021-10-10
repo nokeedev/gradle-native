@@ -42,7 +42,7 @@ class NodeRegistrationTest {
 			assertThat(registration.getPath(), equalTo(path("a.b.c")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
 			assertThat(registration.getActions(), emptyIterable());
-			assertThat(registration.getComponents(), iterableWithSize(1)); // for projections
+			assertThat(registration.getComponents(), iterableWithSize(2)); // for projections
 		});
 	}
 
@@ -53,7 +53,7 @@ class NodeRegistrationTest {
 			assertThat(registration.getPath(), equalTo(path("x.y.z")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
 			assertThat(registration.getActions(), emptyIterable());
-			assertThat(registration.getComponents(), iterableWithSize(1)); // for projections
+			assertThat(registration.getComponents(), iterableWithSize(2)); // for projections
 		});
 	}
 
@@ -71,7 +71,7 @@ class NodeRegistrationTest {
 			assertThat(registration.getPath(), equalTo(path("ab.c")));
 			assertThat(registration.getDefaultProjectionType(), equalTo(of(MyType.class)));
 			assertThat(registration.getActions(), emptyIterable());
-			assertThat(registration.getComponents(), iterableWithSize(2)); // for projections
+			assertThat(registration.getComponents(), iterableWithSize(3)); // for projections
 		});
 	}
 

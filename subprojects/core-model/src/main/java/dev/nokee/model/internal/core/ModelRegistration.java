@@ -108,6 +108,7 @@ public final class ModelRegistration<T> {
 
 		public Builder<T> withPath(ModelPath path) {
 			this.path = path;
+			components.add(path);
 			return this;
 		}
 
