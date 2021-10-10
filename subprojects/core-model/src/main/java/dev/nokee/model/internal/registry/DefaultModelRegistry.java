@@ -80,13 +80,13 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	@Override
-	public <T> ModelElement register(ModelRegistration<T> registration) {
+	public ModelElement register(ModelRegistration registration) {
 		registration.getActions().forEach(configurations::add);
 		val node = ModelStates.register(newNode(registration));
 		return new ModelNodeBackedElement(node);
 	}
 
-	private ModelNode newNode(ModelRegistration<?> registration) {
+	private ModelNode newNode(ModelRegistration registration) {
 		val entity = new ModelNode();
 		entity.addComponent(nodeStateListener);
 		for (Object component : registration.getComponents()) {

@@ -28,7 +28,7 @@ public final class ModelPropertyRegistrationFactory {
 		this.lookup = lookup;
 	}
 
-	public ModelRegistration<?> create(ModelPath path, ModelNode entity) {
+	public ModelRegistration create(ModelPath path, ModelNode entity) {
 		return ModelRegistration.builder()
 			.withComponent(path)
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (e, p, ignored) -> {

@@ -26,5 +26,5 @@ public interface ModelRegistry {
 	<T> DomainObjectProvider<T> get(ModelIdentifier<T> identifier);
 
 	<T> ModelElement register(NodeRegistration<T> registration);
-	<T> ModelElement register(ModelRegistration<T> registration);
+	ModelElement register(ModelRegistration registration);
 }
