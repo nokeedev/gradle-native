@@ -37,7 +37,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	public DefaultModelRegistry(Instantiator instantiator) {
 		this.instantiator = instantiator;
 		configurations.add(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
-			if (state.isAtLeast(ModelState.Registered)) {
+			if (state.equals(ModelState.Registered)) {
 				nodes.put(path, node);
 			}
 		}));
