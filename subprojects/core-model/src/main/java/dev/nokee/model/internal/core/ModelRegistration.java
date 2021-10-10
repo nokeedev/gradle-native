@@ -49,7 +49,7 @@ public final class ModelRegistration<T> {
 
 	public static <T> ModelRegistration<T> of(String path, Class<T> type) {
 		return builder()
-			.withPath(ModelPath.path(path))
+			.withComponent(ModelPath.path(path))
 			.withDefaultProjectionType(ModelType.of(type))
 			.withComponent(ModelProjections.managed(ModelType.of(type)))
 			.build();
@@ -57,7 +57,7 @@ public final class ModelRegistration<T> {
 
 	public static <T> ModelRegistration<T> bridgedInstance(ModelIdentifier<T> identifier, T instance) {
 		return builder()
-			.withPath(identifier.getPath())
+			.withComponent(identifier.getPath())
 			.withDefaultProjectionType(identifier.getType())
 			.withComponent(ModelProjections.ofInstance(instance))
 			.build();
@@ -65,7 +65,7 @@ public final class ModelRegistration<T> {
 
 	public static <T> ModelRegistration<T> unmanagedInstance(ModelIdentifier<T> identifier, Factory<T> factory) {
 		return builder()
-			.withPath(identifier.getPath())
+			.withComponent(identifier.getPath())
 			.withDefaultProjectionType(identifier.getType())
 			.withComponent(ModelProjections.createdUsing(identifier.getType(), factory))
 			.build();
@@ -73,7 +73,7 @@ public final class ModelRegistration<T> {
 
 	public static <T> Builder<T> unmanagedInstanceBuilder(ModelIdentifier<T> identifier, Factory<T> factory) {
 		return builder()
-			.withPath(identifier.getPath())
+			.withComponent(identifier.getPath())
 			.withDefaultProjectionType(identifier.getType())
 			.withComponent(ModelProjections.createdUsing(identifier.getType(), factory));
 	}
@@ -94,11 +94,6 @@ public final class ModelRegistration<T> {
 		private ModelType<? super T> defaultProjectionType = ModelType.untyped();
 		private final List<Object> components = new ArrayList<>();
 		private final List<ModelAction> actions = new ArrayList<>();
-
-		public Builder<T> withPath(ModelPath path) {
-			components.add(path);
-			return this;
-		}
 
 		@SuppressWarnings("unchecked") // take the specified information for granted
 		public <S extends T> Builder<S> withDefaultProjectionType(ModelType<S> type) {

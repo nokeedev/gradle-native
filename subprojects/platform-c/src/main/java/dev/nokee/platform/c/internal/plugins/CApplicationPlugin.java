@@ -115,21 +115,21 @@ public class CApplicationPlugin implements Plugin<Project> {
 
 				// TODO: Should be created using CSourceSetSpec
 				val c = registry.register(ModelRegistration.builder()
-					.withPath(path.child("c"))
+					.withComponent(path.child("c"))
 					.withComponent(managed(of(CSourceSet.class)))
 					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 					.build());
 
 				// TODO: Should be created using CHeaderSetSpec
 				val headers = registry.register(ModelRegistration.builder()
-					.withPath(path.child("headers"))
+					.withComponent(path.child("headers"))
 					.withComponent(managed(of(CHeaderSet.class)))
 					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 					.build());
 
 				// TODO: Should be created as ModelProperty (readonly) with CApplicationSources projection
 				registry.register(ModelRegistration.builder()
-					.withPath(path.child("sources"))
+					.withComponent(path.child("sources"))
 					.withComponent(managed(of(CApplicationSources.class)))
 					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
 					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
@@ -142,19 +142,19 @@ public class CApplicationPlugin implements Plugin<Project> {
 				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
 				val dependencies = project.getObjects().newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
 				registry.register(ModelRegistration.builder()
-					.withPath(path.child("dependencies"))
+					.withComponent(path.child("dependencies"))
 					.withComponent(ModelProjections.ofInstance(dependencies))
 					.build());
 
 				// TODO: Should be created as ModelProperty (readonly) with VariantView<NativeApplication> projection
 				registry.register(ModelRegistration.builder()
-					.withPath(path.child("variants"))
+					.withComponent(path.child("variants"))
 					.withComponent(createdUsing(ModelType.of(VariantView.class), () -> ModelNodeUtils.get(entity, ModelType.of(NativeApplicationComponentVariants.class)).getVariantCollection().getAsView(DefaultNativeApplicationVariant.class)))
 					.build());
 
 				// TODO: Should be created as ModelProperty (readonly) with BinaryView<Binary> projection
 				registry.register(ModelRegistration.builder()
-					.withPath(path.child("binaries"))
+					.withComponent(path.child("binaries"))
 					.withComponent(createdUsing(ModelType.of(BinaryView.class), () -> project.getExtensions().getByType(BinaryViewFactory.class).create(identifier)))
 					.build());
 			})))
