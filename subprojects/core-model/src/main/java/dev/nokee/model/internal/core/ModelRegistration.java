@@ -58,15 +58,14 @@ public final class ModelRegistration {
 			.build();
 	}
 
-	public static <T> Builder<T> unmanagedInstanceBuilder(ModelIdentifier<T> identifier, Factory<T> factory) {
+	public static <T> Builder unmanagedInstanceBuilder(ModelIdentifier<T> identifier, Factory<T> factory) {
 		return builder()
 			.withComponent(identifier.getPath())
-			.withDefaultProjectionType(identifier.getType())
 			.withComponent(ModelProjections.createdUsing(identifier.getType(), factory));
 	}
 
-	public static <T> Builder<T> builder() {
-		return new Builder<>();
+	public static Builder builder() {
+		return new Builder();
 	}
 
 	public List<Object> getComponents() {
@@ -77,23 +76,18 @@ public final class ModelRegistration {
 		return actions;
 	}
 
-	public static final class Builder<T> {
+	public static final class Builder {
 		private final List<Object> components = new ArrayList<>();
 		private final List<ModelAction> actions = new ArrayList<>();
 
-		@SuppressWarnings("unchecked") // take the specified information for granted
-		public <S extends T> Builder<S> withDefaultProjectionType(ModelType<S> type) {
-			return (Builder<S>) this;
-		}
-
-		public Builder<T> withComponent(Object component) {
+		public Builder withComponent(Object component) {
 			if (!components.contains(component)) {
 				components.add(Objects.requireNonNull(component));
 			}
 			return this;
 		}
 
-		public Builder<T> action(ModelAction action) {
+		public Builder action(ModelAction action) {
 			actions.add(action);
 			return this;
 		}

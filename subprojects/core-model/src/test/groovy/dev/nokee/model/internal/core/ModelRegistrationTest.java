@@ -59,8 +59,7 @@ class ModelRegistrationTest {
 				ModelRegistration.of("po.ta.to", MyOtherType.class),
 				builder().withComponent(path("po.ta.to")).withComponent(ModelProjections.managed(of(MyOtherType.class))).build())
 			.addEqualityGroup(
-				builder().withComponent(path("po.ta.to")).build(),
-				builder().withComponent(path("po.ta.to")).withDefaultProjectionType(of(MyType.class)).build())
+				builder().withComponent(path("po.ta.to")).build())
 			.addEqualityGroup(
 				builder().withComponent(path("po.ta.to")).withComponent(ModelProjections.ofInstance(new MyType())).build())
 			.addEqualityGroup(
@@ -93,7 +92,6 @@ class ModelRegistrationTest {
 		assertAll(() -> {
 			val registration = ModelRegistration.builder()
 				.withComponent(path("a.b.c"))
-				.withDefaultProjectionType(of(MyType.class))
 				.action(doSomething())
 				.build();
 			assertThat(registration.getActions(), hasItem(doSomething())); // other are projections

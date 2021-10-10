@@ -59,7 +59,7 @@ class NodeRegistrationTest {
 	void whenNodeRegistrationAreScopedTheyAreEqualToAnEquivalentModelRegistration() {
 		assertThat(NodeRegistration.of("a", of(MyType.class)).scope(path("foo")), equalTo(ModelRegistration.of("foo.a", MyType.class)));
 		assertThat(NodeRegistration.of("b", of(MyType.class)).withProjection(ModelProjections.ofInstance("bar")).scope(path("bar")),
-			equalTo(ModelRegistration.builder().withComponent(path("bar.b")).withDefaultProjectionType(of(MyType.class)).withComponent(ModelProjections.managed(of(MyType.class))).withComponent(ModelProjections.ofInstance("bar")).build()));
+			equalTo(ModelRegistration.builder().withComponent(path("bar.b")).withComponent(ModelProjections.managed(of(MyType.class))).withComponent(ModelProjections.ofInstance("bar")).build()));
 	}
 
 	@Test
