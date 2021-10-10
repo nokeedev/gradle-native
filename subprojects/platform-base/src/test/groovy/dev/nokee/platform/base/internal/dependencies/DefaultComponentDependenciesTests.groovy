@@ -170,11 +170,6 @@ class DefaultComponentDependenciesGroovyDslTest extends AbstractComponentDepende
 
 
 	def setup() {
-		dependenciesUnderTest.create(existingBucketName)
-	}
-
-	@Override
-	protected void assertHasDependency(DependencyBucket bucket, String dependency) {
-		assert bucket.asConfiguration.dependencies.any { "${it.group}:${it.name}:${it.version}" == dependency }
+		dependenciesUnderTest.create(existingBucketName, ActionUtils.doNothing())
 	}
 }
