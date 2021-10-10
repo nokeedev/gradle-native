@@ -37,7 +37,7 @@ class CustomDomainObjectViewTypeIntegrationTest extends DomainObjectViewTester<C
 
 			@Override
 			public DomainObjectView<MyType> create(String name) {
-				return modelRegistry.register(view(name, of(CustomViewOfMyType.class))).get();
+				return modelRegistry.register(view(name, of(CustomViewOfMyType.class))).as(CustomViewOfMyType.class).get();
 			}
 
 			@Override

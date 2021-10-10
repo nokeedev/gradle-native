@@ -35,7 +35,7 @@ class ConsumableDependencyBucketRegistrationFactoryIntegrationTest implements De
 	@Override
 	public ConsumableDependencyBucket createSubject(Project project) {
 		val factory = new ConsumableDependencyBucketRegistrationFactory(forProject(project), ConfigurationNamingScheme.forComponent(ComponentName.of("common")), ConfigurationDescriptionScheme.forComponent(ComponentName.of("common")));
-		val bucket = create(registry(project.getObjects()), factory.create("test"));
+		val bucket = create(registry(project.getObjects()), factory.create("test")).as(ConsumableDependencyBucket.class).get();
 		ModelStates.realize(ModelNodes.of(bucket));
 		return bucket;
 	}

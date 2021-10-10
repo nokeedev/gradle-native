@@ -33,7 +33,7 @@ class SwiftApplicationSourcesTest implements ComponentSourcesTester<SwiftApplica
 	public SwiftApplicationSources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (SwiftApplicationSources) create(swiftApplication("main", project)).getSources();
+		val sources = (SwiftApplicationSources) create(swiftApplication("main", project)).as(SwiftApplication.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}

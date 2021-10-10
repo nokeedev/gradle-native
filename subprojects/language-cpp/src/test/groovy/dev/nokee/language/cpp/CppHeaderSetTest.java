@@ -28,11 +28,11 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 class CppHeaderSetTest extends LanguageSourceSetTester<CppHeaderSet> {
 	@Override
 	public CppHeaderSet createSubject() {
-		return create(sourceSet("test", CppHeaderSet.class));
+		return create(sourceSet("test", CppHeaderSet.class)).as(CppHeaderSet.class).get();
 	}
 
 	@Override
 	public CppHeaderSet createSubject(File temporaryDirectory) {
-		return create(registry(temporaryDirectory), sourceSet("test", CppHeaderSet.class));
+		return create(registry(temporaryDirectory), sourceSet("test", CppHeaderSet.class)).as(CppHeaderSet.class).get();
 	}
 }

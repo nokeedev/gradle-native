@@ -35,7 +35,7 @@ class CppApplicationSourcesTest implements ComponentSourcesTester<CppApplication
 	public CppApplicationSources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (CppApplicationSources) create(cppApplication("main", project)).getSources();
+		val sources = (CppApplicationSources) create(cppApplication("main", project)).as(CppApplication.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}

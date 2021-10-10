@@ -55,7 +55,7 @@ public class DefaultModelRegistryIntegrationTest {
 
 	@Test
 	void modelNodeRegistrationGivesAccessToProviderThatResolvesToTheNodeValue() {
-		val provider = modelRegistry.register(ModelRegistration.of("myType", MyType.class));
+		val provider = modelRegistry.register(ModelRegistration.of("myType", MyType.class)).as(MyType.class);
 		assertAll(() -> {
 			assertThat(provider.getIdentifier(), equalTo(of("myType", MyType.class)));
 			assertThat(provider.get(), isA(MyType.class));
@@ -65,32 +65,32 @@ public class DefaultModelRegistryIntegrationTest {
 	@Test
 	void canAccessRegisteredModel() {
 		assertThrows(IllegalStateException.class, () -> modelRegistry.get("foo", MyType.class));
-		val provider = modelRegistry.register(ModelRegistration.of("foo", MyType.class));
+		val provider = modelRegistry.register(ModelRegistration.of("foo", MyType.class)).as(MyType.class);
 		assertEquals(provider, modelRegistry.get("foo", MyType.class));
 	}
 
 	@Test
 	void canRegisterBridgedInstanceModel() {
 		val instance = new UnmanagedType();
-		val provider = modelRegistry.register(bridgedInstance(of("bar", UnmanagedType.class), instance));
+		val provider = modelRegistry.register(bridgedInstance(of("bar", UnmanagedType.class), instance)).as(UnmanagedType.class);
 		assertEquals(instance, provider.get());
 	}
 
 	@Test
 	void canRegisterManagedInstanceModel() {
-		val provider = modelRegistry.register(unmanagedInstance(of("bar", ManagedType.class), () -> ProjectTestUtils.objectFactory().newInstance(ManagedType.class)));
+		val provider = modelRegistry.register(unmanagedInstance(of("bar", ManagedType.class), () -> ProjectTestUtils.objectFactory().newInstance(ManagedType.class))).as(ManagedType.class);
 		assertThat(provider.get(), isA(ManagedType.class));
 	}
 
 	@Test
 	void canRegisterUnmanagedInstanceModel() {
-		val provider = modelRegistry.register(unmanagedInstance(of("bar", UnmanagedType.class), UnmanagedType::new));
+		val provider = modelRegistry.register(unmanagedInstance(of("bar", UnmanagedType.class), UnmanagedType::new)).as(UnmanagedType.class);
 		assertThat(provider.get(), isA(UnmanagedType.class));
 	}
 
 	@Test
 	void canAccessModelNodeOnManagedType() {
-		val provider = modelRegistry.register(unmanagedInstance(of("a", ModelNodeAccessingType.class), () -> ProjectTestUtils.objectFactory().newInstance(ModelNodeAccessingType.class)));
+		val provider = modelRegistry.register(unmanagedInstance(of("a", ModelNodeAccessingType.class), () -> ProjectTestUtils.objectFactory().newInstance(ModelNodeAccessingType.class))).as(ModelNodeAccessingType.class);
 		assertEquals("a", provider.get().getModelPathAsString());
 	}
 	interface ModelNodeAccessingType {
@@ -102,7 +102,7 @@ public class DefaultModelRegistryIntegrationTest {
 	// Values are kept between
 	@Test
 	void valuesArePersistedOnNodeForManagedType() {
-		val provider = modelRegistry.register(ModelRegistration.of("a", ManagedValueType.class));
+		val provider = modelRegistry.register(ModelRegistration.of("a", ManagedValueType.class)).as(ManagedValueType.class);
 		provider.get().getValue().set("foo-value");
 		assertEquals("foo-value", provider.get().getValue().getOrNull());
 	}
@@ -113,7 +113,7 @@ public class DefaultModelRegistryIntegrationTest {
 
 	@Test
 	void valuesArePersistedOnNodeForUnmanagedType() {
-		val provider = modelRegistry.register(ModelRegistration.bridgedInstance(of("a", UnmanagedValueType.class), new UnmanagedValueType()));
+		val provider = modelRegistry.register(ModelRegistration.bridgedInstance(of("a", UnmanagedValueType.class), new UnmanagedValueType())).as(UnmanagedValueType.class);
 		provider.get().setValue("foo-value");
 		assertEquals("foo-value", provider.get().getValue());
 	}
@@ -133,8 +133,8 @@ public class DefaultModelRegistryIntegrationTest {
 	void canConfigureNodesAlreadyRegistered() {
 		val action = new ModelTestActions.CaptureNodeTransitionAction();
 
-		modelRegistry.register(ModelRegistration.of("a", MyType.class));
-		modelRegistry.register(ModelRegistration.of("b", MyType.class));
+		modelRegistry.register(ModelRegistration.of("a", MyType.class)).as(MyType.class);
+		modelRegistry.register(ModelRegistration.of("b", MyType.class)).as(MyType.class);
 		modelRegistry.configure(action);
 
 		assertThat(action.getAllTransitions(),
@@ -146,8 +146,8 @@ public class DefaultModelRegistryIntegrationTest {
 		val action = new ModelTestActions.CaptureNodeTransitionAction();
 
 		modelRegistry.configure(action);
-		modelRegistry.register(ModelRegistration.of("x", MyType.class));
-		modelRegistry.register(ModelRegistration.of("y", MyType.class));
+		modelRegistry.register(ModelRegistration.of("x", MyType.class)).as(MyType.class);
+		modelRegistry.register(ModelRegistration.of("y", MyType.class)).as(MyType.class);
 
 		assertThat(action.getAllTransitions(),
 			contains(registered(root()), created("x"), initialized("x"), registered("x"), created("y"), initialized("y"), registered("y")));
@@ -158,7 +158,7 @@ public class DefaultModelRegistryIntegrationTest {
 		val action = new ModelTestActions.CaptureNodeTransitionAction();
 
 		modelRegistry.configure(action);
-		modelRegistry.register(ModelRegistration.of("x", MyType.class)).get();
+		modelRegistry.register(ModelRegistration.of("x", MyType.class)).as(MyType.class).get();
 
 		assertThat(action.getAllTransitions(),
 			contains(registered(root()), created("x"), initialized("x"), registered("x"), realized(root()), realized("x")));
@@ -170,7 +170,7 @@ public class DefaultModelRegistryIntegrationTest {
 
 		modelRegistry.register(ModelRegistration.of("i", MyType.class));
 		modelRegistry.configure(matching(node -> ModelStates.isAtLeast(node, Realized), action));
-		modelRegistry.register(ModelRegistration.of("j", MyType.class)).get();
+		modelRegistry.register(ModelRegistration.of("j", MyType.class)).as(MyType.class).get();
 
 		assertThat(action.getAllTransitions(), contains(realized(root()), realized("j")));
 	}

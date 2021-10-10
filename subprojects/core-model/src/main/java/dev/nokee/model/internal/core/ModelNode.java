@@ -201,12 +201,12 @@ public final class ModelNode {
 				}
 
 				@Override
-				public <T> DomainObjectProvider<T> register(NodeRegistration<T> registration) {
+				public <T> ModelElement register(NodeRegistration<T> registration) {
 					throw new UnsupportedOperationException("This instance always fails.");
 				}
 
 				@Override
-				public <T> DomainObjectProvider<T> register(ModelRegistration<T> registration) {
+				public <T> ModelElement register(ModelRegistration<T> registration) {
 					throw new UnsupportedOperationException("This instance always fails.");
 				}
 			};

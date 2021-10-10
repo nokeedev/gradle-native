@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Subject(DefaultComponentContainer.class)
 class DefaultComponentContainerTest {
 	private final ModelRegistry modelRegistry = new DefaultModelRegistry(objectFactory()::newInstance);
-	private final ComponentContainer subject = modelRegistry.register(namedContainer("components", of(DefaultComponentContainer.class))).get();
+	private final ComponentContainer subject = modelRegistry.register(namedContainer("components", of(DefaultComponentContainer.class))).as(DefaultComponentContainer.class).get();
 
 	private static <T> DomainObjectFactory<T> alwaysThrow() {
 		return t -> Factories.<T>alwaysThrow().create();

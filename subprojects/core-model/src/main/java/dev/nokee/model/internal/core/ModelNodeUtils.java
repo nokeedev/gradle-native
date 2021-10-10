@@ -15,7 +15,6 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.type.ModelType;
 
 import java.util.List;
@@ -133,7 +132,7 @@ public final class ModelNodeUtils {
 	//  We should return a provider here so the caller can chain a configuration on the object itself when realized.
 	//  We should not return a provider here, it's crossing wires in the implementation. It should return only the ModelNode
 	//  On ModelRegistry, we can return a provider for NodeRegistration which would be a convenience only to bridge with the ModelRegistration API.
-	public static <T> DomainObjectProvider<T> register(ModelNode self, NodeRegistration<T> registration) {
+	public static <T> ModelElement register(ModelNode self, NodeRegistration<T> registration) {
 		return self.getComponent(RelativeRegistrationService.class).register(registration);
 	}
 

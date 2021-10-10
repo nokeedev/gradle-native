@@ -34,7 +34,7 @@ class ObjectiveCLibrarySourcesTest implements ComponentSourcesTester<ObjectiveCL
 	public ObjectiveCLibrarySources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (ObjectiveCLibrarySources) create(objectiveCLibrary("main", project)).getSources();
+		val sources = (ObjectiveCLibrarySources) create(objectiveCLibrary("main", project)).as(ObjectiveCLibrary.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}

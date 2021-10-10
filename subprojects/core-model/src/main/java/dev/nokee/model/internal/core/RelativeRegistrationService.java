@@ -15,7 +15,6 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.registry.ModelRegistry;
 
 public final class RelativeRegistrationService {
@@ -27,7 +26,7 @@ public final class RelativeRegistrationService {
 		this.modelRegistry = modelRegistry;
 	}
 
-	public <T> DomainObjectProvider<T> register(NodeRegistration<T> registration) {
+	public <T> ModelElement register(NodeRegistration<T> registration) {
 		return modelRegistry.register(registration.scope(path));
 	}
 }

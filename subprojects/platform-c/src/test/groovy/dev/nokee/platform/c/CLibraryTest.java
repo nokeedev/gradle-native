@@ -45,7 +45,7 @@ class CLibraryTest implements SourceAwareComponentTester<CLibrary>, BaseNameAwar
 	public CLibrary createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val component = create(registry(project.getObjects()), cLibrary(componentName, project));
+		val component = create(registry(project.getObjects()), cLibrary(componentName, project)).as(CLibrary.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}

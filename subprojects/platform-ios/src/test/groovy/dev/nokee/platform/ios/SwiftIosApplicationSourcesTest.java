@@ -33,7 +33,7 @@ class SwiftIosApplicationSourcesTest implements ComponentSourcesTester<SwiftIosA
 	public SwiftIosApplicationSources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (SwiftIosApplicationSources) create(swiftIosApplication("main", project)).getSources();
+		val sources = (SwiftIosApplicationSources) create(swiftIosApplication("main", project)).as(SwiftIosApplication.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}

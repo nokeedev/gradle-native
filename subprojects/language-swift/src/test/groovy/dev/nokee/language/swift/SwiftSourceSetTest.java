@@ -28,11 +28,11 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 class SwiftSourceSetTest extends LanguageSourceSetTester<SwiftSourceSet> {
 	@Override
 	public SwiftSourceSet createSubject() {
-		return create(sourceSet("test", SwiftSourceSet.class));
+		return create(sourceSet("test", SwiftSourceSet.class)).as(SwiftSourceSet.class).get();
 	}
 
 	@Override
 	public SwiftSourceSet createSubject(File temporaryDirectory) {
-		return create(registry(temporaryDirectory), sourceSet("test", SwiftSourceSet.class));
+		return create(registry(temporaryDirectory), sourceSet("test", SwiftSourceSet.class)).as(SwiftSourceSet.class).get();
 	}
 }

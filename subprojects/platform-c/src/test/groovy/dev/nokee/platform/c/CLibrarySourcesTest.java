@@ -34,7 +34,7 @@ class CLibrarySourcesTest implements ComponentSourcesTester<CLibrarySources> {
 	public CLibrarySources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (CLibrarySources) create(cLibrary("main", project)).getSources();
+		val sources = (CLibrarySources) create(cLibrary("main", project)).as(CLibrary.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}

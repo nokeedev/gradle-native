@@ -43,7 +43,7 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest implements De
 	@Override
 	public ResolvableDependencyBucket createSubject(Project project) {
 		val factory = new ResolvableDependencyBucketRegistrationFactory(forProject(project), ConfigurationNamingScheme.forComponent(ComponentName.of("common")), forComponent(ComponentName.of("common")));
-		val bucket = create(registry(project.getObjects()), factory.create("test"));
+		val bucket = create(registry(project.getObjects()), factory.create("test")).as(ResolvableDependencyBucket.class).get();
 		ModelStates.realize(ModelNodes.of(bucket));
 		return bucket;
 	}
@@ -80,7 +80,7 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest implements De
 	void realizeNodeWhenRealized() {
 		val project = rootProject();
 		val factory = new ResolvableDependencyBucketRegistrationFactory(forProject(project));
-		val bucketProvider = registry(project.getObjects()).register(factory.create("test"));
+		val bucketProvider = registry(project.getObjects()).register(factory.create("test")).as(ResolvableDependencyBucket.class);
 		ModelNodeUtils.get(ModelNodes.of(bucketProvider), Configuration.class).resolve(); // Force resolve the configuration
 		assertThat(ModelStates.getState(ModelNodes.of(bucketProvider)), equalTo(Realized));
 	}
@@ -89,7 +89,7 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest implements De
 	void canFurtherConfigureWhenModelNodeRealized() {
 		val project = rootProject();
 		val factory = new ResolvableDependencyBucketRegistrationFactory(forProject(project));
-		val bucketProvider = registry(project.getObjects()).register(factory.create("test"));
+		val bucketProvider = registry(project.getObjects()).register(factory.create("test")).as(ResolvableDependencyBucket.class);
 		bucketProvider.configure(bucket -> {
 			using(project.getObjects(), forUsage(Usage.JAVA_API)).execute(bucket.getAsConfiguration());
 		});

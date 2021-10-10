@@ -28,11 +28,11 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 class IosResourceSetTest extends LanguageSourceSetTester<IosResourceSet> {
 	@Override
 	public IosResourceSet createSubject() {
-		return create(sourceSet("test", IosResourceSet.class));
+		return create(sourceSet("test", IosResourceSet.class)).as(IosResourceSet.class).get();
 	}
 
 	@Override
 	public IosResourceSet createSubject(File temporaryDirectory) {
-		return create(registry(temporaryDirectory), sourceSet("test", IosResourceSet.class));
+		return create(registry(temporaryDirectory), sourceSet("test", IosResourceSet.class)).as(IosResourceSet.class).get();
 	}
 }

@@ -111,12 +111,12 @@ public abstract class AbstractDomainObjectViewTester<T> {
 	}
 
 	protected final <S> DomainObjectProvider<S> element(String name, Class<S> type) {
-		val result = getModelRegistry().register(ModelRegistration.of("myTypes." + name, type));
+		val result = getModelRegistry().register(ModelRegistration.of("myTypes." + name, type)).as(type);
 		return result;
 	}
 
 	protected final <S> DomainObjectProvider<S> register(String path, Class<S> type) {
-		val result = getModelRegistry().register(ModelRegistration.of(path, type));
+		val result = getModelRegistry().register(ModelRegistration.of(path, type)).as(type);
 		return result;
 	}
 	//endregion
