@@ -76,7 +76,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(NativeApplicationExtension.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration<NativeApplicationExtension> nativeApplication(String name, Project project) {
+	public static NodeRegistration nativeApplication(String name, Project project) {
 		return component(name, NativeApplicationExtension.class)
 			.withProjection(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
 			.action(self(discover()).apply(register(componentSourcesOf(NativeApplicationSources.class))))

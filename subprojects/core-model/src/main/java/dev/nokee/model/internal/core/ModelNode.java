@@ -201,7 +201,7 @@ public final class ModelNode {
 				}
 
 				@Override
-				public <T> ModelElement register(NodeRegistration<T> registration) {
+				public ModelElement register(NodeRegistration registration) {
 					throw new UnsupportedOperationException("This instance always fails.");
 				}
 

@@ -80,14 +80,14 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(ObjectiveCppApplication.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration<ObjectiveCppApplication> objectiveCppApplication(String name, Project project) {
+	public static NodeRegistration objectiveCppApplication(String name, Project project) {
 		return component(name, ObjectiveCppApplication.class)
 			.withProjection(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
 			.action(self(discover()).apply(register(sources())))
 			.action(configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
 	}
 
-	private static NodeRegistration<ObjectiveCppApplicationSources> sources() {
+	private static NodeRegistration sources() {
 		return componentSourcesOf(ObjectiveCppApplicationSources.class)
 			.action(self(discover()).apply(register(sourceSet("objectiveCpp", ObjectiveCppSourceSet.class))))
 			.action(self(discover()).apply(register(sourceSet("headers", CppHeaderSet.class))));

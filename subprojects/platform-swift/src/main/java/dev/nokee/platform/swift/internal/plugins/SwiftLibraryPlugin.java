@@ -80,13 +80,13 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		project.getExtensions().add(SwiftLibrary.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration<SwiftLibrary> swiftLibrary(String name, Project project) {
+	public static NodeRegistration swiftLibrary(String name, Project project) {
 		return component(name, SwiftLibrary.class)
 			.withProjection(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
 			.action(self(discover()).apply(register(sources())));
 	}
 
-	private static NodeRegistration<SwiftLibrarySources> sources() {
+	private static NodeRegistration sources() {
 		return componentSourcesOf(SwiftLibrarySources.class)
 			.action(self(discover()).apply(register(sourceSet("swift", SwiftSourceSet.class))));
 	}

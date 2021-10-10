@@ -45,7 +45,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 		});
 	}
 
-	private static NodeRegistration<DefaultTestSuiteContainer> testSuites() {
+	private static NodeRegistration testSuites() {
 		return namedContainer("testSuites", of(DefaultTestSuiteContainer.class));
 	}
 }

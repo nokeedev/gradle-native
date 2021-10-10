@@ -82,14 +82,14 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		project.getExtensions().add(ObjectiveCppLibrary.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration<ObjectiveCppLibrary> objectiveCppLibrary(String name, Project project) {
+	public static NodeRegistration objectiveCppLibrary(String name, Project project) {
 		return component(name, ObjectiveCppLibrary.class)
 			.withProjection(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
 			.action(self(discover()).apply(register(sources())))
 			.action(configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
 	}
 
-	private static NodeRegistration<ObjectiveCppLibrarySources> sources() {
+	private static NodeRegistration sources() {
 		return componentSourcesOf(ObjectiveCppLibrarySources.class)
 			.action(self(discover()).apply(register(sourceSet("objectiveCpp", ObjectiveCppSourceSet.class))))
 			.action(self(discover()).apply(register(sourceSet("public", CppHeaderSet.class))))

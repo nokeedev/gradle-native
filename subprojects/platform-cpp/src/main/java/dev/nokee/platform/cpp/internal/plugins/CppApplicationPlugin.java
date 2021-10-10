@@ -78,13 +78,13 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(CppApplication.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration<CppApplication> cppApplication(String name, Project project) {
+	public static NodeRegistration cppApplication(String name, Project project) {
 		return component(name, CppApplication.class)
 			.withProjection(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
 			.action(self(discover()).apply(register(sources())));
 	}
 
-	private static NodeRegistration<CppApplicationSources> sources() {
+	private static NodeRegistration sources() {
 		return componentSourcesOf(CppApplicationSources.class)
 			.action(self(discover()).apply(register(sourceSet("cpp", CppSourceSet.class))))
 			.action(self(discover()).apply(register(sourceSet("headers", CppHeaderSet.class))));

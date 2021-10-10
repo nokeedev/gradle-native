@@ -75,7 +75,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	@Override
-	public <T> ModelElement register(NodeRegistration<T> registration) {
+	public ModelElement register(NodeRegistration registration) {
 		return ModelNodeUtils.register(rootNode, registration);
 	}
 

@@ -108,7 +108,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		};
 	}
 
-	public static NodeRegistration<ObjectiveCIosApplication> objectiveCIosApplication(String name, Project project) {
+	public static NodeRegistration objectiveCIosApplication(String name, Project project) {
 		return component(name, ObjectiveCIosApplication.class)
 			.withProjection(ModelProjections.createdUsing(of(DefaultIosApplicationComponent.class), () -> create(name, project)))
 			.action(self(discover()).apply(register(sources())))
@@ -120,7 +120,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		return new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
 	}
 
-	private static NodeRegistration<ObjectiveCIosApplicationSources> sources() {
+	private static NodeRegistration sources() {
 		return ComponentModelBasePlugin.componentSourcesOf(ObjectiveCIosApplicationSources.class)
 			.action(self(discover()).apply(register(sourceSet("objectiveC", ObjectiveCSourceSet.class))))
 			.action(self(discover()).apply(register(sourceSet("headers", CHeaderSet.class))))

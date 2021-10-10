@@ -204,20 +204,20 @@ public class DefaultModelRegistryIntegrationTest {
 	}
 
 	interface MyComponent {
-		static NodeRegistration<MyComponent> aComponent(String name) {
+		static NodeRegistration aComponent(String name) {
 			return NodeRegistration.of(name, of(MyComponent.class))
 				.action(self(stateAtLeast(Registered)).apply(once(register(MyComponentSources.componentSources()))));
 		}
 	}
 	interface MyComponentSources {
-		static NodeRegistration<MyComponentSources> componentSources() {
+		static NodeRegistration componentSources() {
 			return NodeRegistration.of("sources", of(MyComponentSources.class))
 				.action(self(stateAtLeast(Registered)).apply(once(register(MySourceSet.aSourceSet("foo")))))
 				.action(self(stateAtLeast(Registered)).apply(once(register(MySourceSet.aSourceSet("bar")))));
 		}
 	}
 	interface MySourceSet {
-		static NodeRegistration<MySourceSet> aSourceSet(String name) {
+		static NodeRegistration aSourceSet(String name) {
 			return NodeRegistration.of(name, of(MySourceSet.class));
 		}
 	}

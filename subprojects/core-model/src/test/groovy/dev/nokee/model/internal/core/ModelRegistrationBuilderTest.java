@@ -25,7 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 class ModelRegistrationBuilderTest {
-	private final ModelRegistration.Builder<?> subject = builder();
+	private final ModelRegistration.Builder subject = builder();
 
 	@Test
 	void canCreateBuilder() {
@@ -64,10 +64,10 @@ class ModelRegistrationBuilderTest {
 
 	@Nested
 	class DefaultBuildTest implements ModelRegistrationTester {
-		private final ModelRegistration<?> subject = ModelRegistrationBuilderTest.this.subject.build();
+		private final ModelRegistration subject = ModelRegistrationBuilderTest.this.subject.build();
 
 		@Override
-		public ModelRegistration<?> subject() {
+		public ModelRegistration subject() {
 			return subject;
 		}
 
@@ -85,10 +85,10 @@ class ModelRegistrationBuilderTest {
 	@Nested
 	class WithComponentTest implements ModelRegistrationTester {
 		private final Object component = new Object();
-		private final ModelRegistration<?> subject = ModelRegistrationBuilderTest.this.subject.withComponent(component).build();
+		private final ModelRegistration subject = ModelRegistrationBuilderTest.this.subject.withComponent(component).build();
 
 		@Override
-		public ModelRegistration<?> subject() {
+		public ModelRegistration subject() {
 			return subject;
 		}
 
@@ -106,10 +106,10 @@ class ModelRegistrationBuilderTest {
 	@Nested
 	class WithActionTest implements ModelRegistrationTester {
 		private final ModelAction action = Mockito.mock(ModelAction.class);
-		private final ModelRegistration<?> subject = ModelRegistrationBuilderTest.this.subject.action(action).build();
+		private final ModelRegistration subject = ModelRegistrationBuilderTest.this.subject.action(action).build();
 
 		@Override
-		public ModelRegistration<?> subject() {
+		public ModelRegistration subject() {
 			return subject;
 		}
 

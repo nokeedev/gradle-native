@@ -76,13 +76,13 @@ public class CLibraryPlugin implements Plugin<Project> {
 		project.getExtensions().add(CLibrary.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration<CLibrary> cLibrary(String name, Project project) {
+	public static NodeRegistration cLibrary(String name, Project project) {
 		return component(name, CLibrary.class)
 			.withProjection(ModelProjections.createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
 			.action(self(discover()).apply(register(sources())));
 	}
 
-	private static NodeRegistration<CLibrarySources> sources() {
+	private static NodeRegistration sources() {
 		return componentSourcesOf(CLibrarySources.class)
 			.action(self(discover()).apply(register(sourceSet("c", CSourceSet.class))))
 			.action(self(discover()).apply(register(sourceSet("public", CHeaderSet.class))))

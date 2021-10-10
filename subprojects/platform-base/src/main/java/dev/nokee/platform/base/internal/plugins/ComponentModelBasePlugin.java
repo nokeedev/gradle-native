@@ -60,16 +60,16 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(ComponentContainer.class, "components", components);
 	}
 
-	private static NodeRegistration<DefaultComponentContainer> components() {
+	private static NodeRegistration components() {
 		return namedContainer("components", of(DefaultComponentContainer.class));
 	}
 
-	public static <T extends Component> NodeRegistration<T> component(String name, Class<T> type) {
+	public static <T extends Component> NodeRegistration component(String name, Class<T> type) {
 		return NodeRegistration.of(name, of(type))
 			.action(configureSourceSetConventionUsingMavenLayout(ComponentName.of(name)));
 	}
 
-	public static <T extends Component> NodeRegistration<T> component(String name, Class<T> type, Factory<T> factory) {
+	public static <T extends Component> NodeRegistration component(String name, Class<T> type, Factory<T> factory) {
 		return NodeRegistration.unmanaged(name, of(type), factory)
 			.action(configureSourceSetConventionUsingMavenLayout(ComponentName.of(name)));
 	}
@@ -89,7 +89,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		return allDirectDescendants(discover(of(ComponentSources.class)));
 	}
 
-	public static <T extends ComponentSources> NodeRegistration<T> componentSourcesOf(Class<T> sourcesType) {
+	public static <T extends ComponentSources> NodeRegistration componentSourcesOf(Class<T> sourcesType) {
 		return namedView("sources", of(sourcesType));
 	}
 }

@@ -132,7 +132,7 @@ public final class ModelNodeUtils {
 	//  We should return a provider here so the caller can chain a configuration on the object itself when realized.
 	//  We should not return a provider here, it's crossing wires in the implementation. It should return only the ModelNode
 	//  On ModelRegistry, we can return a provider for NodeRegistration which would be a convenience only to bridge with the ModelRegistration API.
-	public static <T> ModelElement register(ModelNode self, NodeRegistration<T> registration) {
+	public static ModelElement register(ModelNode self, NodeRegistration registration) {
 		return self.getComponent(RelativeRegistrationService.class).register(registration);
 	}
 

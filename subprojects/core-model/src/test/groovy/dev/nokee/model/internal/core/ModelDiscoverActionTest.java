@@ -56,9 +56,9 @@ class ModelDiscoverActionTest {
 
 	@Test
 	void returnKnownDomainObjectWhenRegisteringChildNode() {
-		val capturedValue = new MutableObject<KnownDomainObject<MyType>>();
+		val capturedValue = new MutableObject<ModelElement>();
 		val node = node(discover(context -> capturedValue.setValue(context.register(NodeRegistration.of("bar", of(MyType.class))))));
-		assertThat(capturedValue.getValue().getType(), equalTo(MyType.class));
+		assertThat(capturedValue.getValue().as(MyType.class).getType(), equalTo(MyType.class));
 	}
 
 	@Test

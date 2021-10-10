@@ -36,12 +36,12 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
 	}
 
-	public static <T extends LanguageSourceSet> NodeRegistration<T> sourceSet(String name, Class<T> publicType) {
+	public static <T extends LanguageSourceSet> NodeRegistration sourceSet(String name, Class<T> publicType) {
 		return NodeRegistration.of(name, of(publicType))
 			.withProjection(managed(of(BaseLanguageSourceSetProjection.class)));
 	}
 
-	public static <T extends LanguageSourceSet> NodeRegistration<T> bridgeSourceSet(SourceDirectorySet from, Class<T> to) {
+	public static <T extends LanguageSourceSet> NodeRegistration bridgeSourceSet(SourceDirectorySet from, Class<T> to) {
 		return NodeRegistration.of(from.getName(), of(to))
 			.withProjection(managed(of(BridgedLanguageSourceSetProjection.class), from));
 	}
