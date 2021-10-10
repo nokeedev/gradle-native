@@ -45,7 +45,7 @@ public final class NodeRegistration<T> {
 		val builder = builder()
 			.withPath(path.child(name))
 			.withDefaultProjectionType(defaultProjectionType);
-		projections.forEach(builder::withProjection);
+		projections.forEach(builder::withComponent);
 		actionRegistrations.stream().map(it -> it.scope(path.child(name))).forEach(builder::action);
 		return builder.build();
 	}

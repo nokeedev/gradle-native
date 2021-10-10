@@ -59,7 +59,7 @@ public final class ModelRegistration<T> {
 		return builder()
 			.withPath(ModelPath.path(path))
 			.withDefaultProjectionType(ModelType.of(type))
-			.withProjection(ModelProjections.managed(ModelType.of(type)))
+			.withComponent(ModelProjections.managed(ModelType.of(type)))
 			.build();
 	}
 
@@ -67,7 +67,7 @@ public final class ModelRegistration<T> {
 		return builder()
 			.withPath(identifier.getPath())
 			.withDefaultProjectionType(identifier.getType())
-			.withProjection(ModelProjections.ofInstance(instance))
+			.withComponent(ModelProjections.ofInstance(instance))
 			.build();
 	}
 
@@ -75,7 +75,7 @@ public final class ModelRegistration<T> {
 		return builder()
 			.withPath(identifier.getPath())
 			.withDefaultProjectionType(identifier.getType())
-			.withProjection(ModelProjections.createdUsing(identifier.getType(), factory))
+			.withComponent(ModelProjections.createdUsing(identifier.getType(), factory))
 			.build();
 	}
 
@@ -83,7 +83,7 @@ public final class ModelRegistration<T> {
 		return builder()
 			.withPath(identifier.getPath())
 			.withDefaultProjectionType(identifier.getType())
-			.withProjection(ModelProjections.createdUsing(identifier.getType(), factory));
+			.withComponent(ModelProjections.createdUsing(identifier.getType(), factory));
 	}
 
 	public static <T> Builder<T> builder() {
@@ -109,11 +109,6 @@ public final class ModelRegistration<T> {
 		public <S extends T> Builder<S> withDefaultProjectionType(ModelType<S> type) {
 			((Builder<S>) this).defaultProjectionType = type;
 			return (Builder<S>) this;
-		}
-
-		public Builder<T> withProjection(ModelProjection projection) {
-			components.add(Objects.requireNonNull(projection));
-			return this;
 		}
 
 		public Builder<T> withComponent(Object component) {
