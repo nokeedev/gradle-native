@@ -36,7 +36,15 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	public DefaultModelRegistry(Instantiator instantiator) {
 		this.instantiator = instantiator;
 		configurations.add(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
-			if (state.equals(ModelState.Registered)) {
+			if (state.equals(ModelState.Created)) {
+				node.addComponent(new DescendantNodes(this, path));
+				node.addComponent(new RelativeRegistrationService(path, this));
+				node.addComponent(new RelativeConfigurationService(path, this));
+				node.addComponent(new BindManagedProjectionService(instantiator));
+				path.getParent().ifPresent(parentPath -> {
+					node.addComponent(new ParentNode(this.get(parentPath)));
+				});
+			} else if (state.equals(ModelState.Registered)) {
 				nodes.put(path, node);
 			}
 		}));
@@ -47,14 +55,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		val path = ModelPath.root();
 		val entity = new ModelNode();
 		entity.addComponent(nodeStateListener);
-		entity.addComponent(new DescendantNodes(this, path));
-		entity.addComponent(new RelativeRegistrationService(path, this));
-		entity.addComponent(new RelativeConfigurationService(path, this));
-		entity.addComponent(new BindManagedProjectionService(instantiator));
 		entity.addComponent(path);
-		path.getParent().ifPresent(parentPath -> {
-			entity.addComponent(new ParentNode(this.get(parentPath)));
-		});
 		return entity;
 	}
 
@@ -88,14 +89,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		val path = registration.getPath();
 		val entity = new ModelNode();
 		entity.addComponent(nodeStateListener);
-		entity.addComponent(new DescendantNodes(this, path));
-		entity.addComponent(new RelativeRegistrationService(path, this));
-		entity.addComponent(new RelativeConfigurationService(path, this));
-		entity.addComponent(new BindManagedProjectionService(instantiator));
 		entity.addComponent(path);
-		path.getParent().ifPresent(parentPath -> {
-			entity.addComponent(new ParentNode(this.get(parentPath)));
-		});
 		return entity;
 	}
 
