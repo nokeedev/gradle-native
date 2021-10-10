@@ -28,7 +28,6 @@ import java.util.Optional;
 public interface ComponentDependenciesInternal {
 	DomainObjectIdentifierInternal getOwnerIdentifier(); // Only until we finish the refactoring
 	DependencyBucket add(DependencyBucket bucket);
-	DependencyBucket create(String name) throws InvalidUserDataException;
 	DependencyBucket create(String name, Action<Configuration> action) throws InvalidUserDataException;
 	DependencyBucket getByName(String name) throws UnknownDomainObjectException;
 	void add(String bucketName, Object notation);

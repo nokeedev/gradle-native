@@ -58,19 +58,6 @@ abstract class AbstractComponentDependenciesDelegateTest extends Specification {
 		0 * _
 	}
 
-	def "forwards create(String) method to delegate"() {
-		given:
-		def subject = newSubject(delegate)
-		def bucketName = 'foo'
-
-		when:
-		subject.create(bucketName)
-
-		then:
-		1 * delegate.create(bucketName)
-		0 * _
-	}
-
 	def "forwards create(String, Action) method to delegate"() {
 		given:
 		def subject = newSubject(delegate)
