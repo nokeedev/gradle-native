@@ -209,6 +209,7 @@ public final class ModelTestUtils {
 			@Override
 			public <T> DomainObjectProvider<T> register(ModelRegistration<T> registration) {
 				val childNode = childNode(nodeProvider.getValue(), registration.getPath().getName(), registration.getActions(), builder -> {});
+				registration.getComponents().forEach(childNode::addComponent);
 				children.put(registration.getPath(), childNode);
 				return new ModelNodeBackedProvider<>(registration.getDefaultProjectionType(), childNode);
 			}
