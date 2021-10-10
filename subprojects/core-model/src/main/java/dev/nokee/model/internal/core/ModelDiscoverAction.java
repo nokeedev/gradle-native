@@ -59,8 +59,8 @@ public abstract class ModelDiscoverAction implements ModelAction, HasInputs {
 			return this;
 		}
 
-		public <T> KnownDomainObject<T> register(NodeRegistration<T> registration) {
-			return new ModelNodeBackedKnownDomainObject<>(registration.getDefaultProjectionType(), ModelNodes.of(ModelNodeUtils.register(node, registration)));
+		public <T> ModelElement register(NodeRegistration registration) {
+			return ModelNodeUtils.register(node, registration);
 		}
 
 		public <T> KnownDomainObject<T> projectionOf(ModelType<T> type) {

@@ -74,14 +74,14 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		});
 	}
 
-	public static NodeRegistration<SwiftIosApplication> swiftIosApplication(String name, Project project) {
+	public static NodeRegistration swiftIosApplication(String name, Project project) {
 		return component(name, SwiftIosApplication.class)
 			.withProjection(ModelProjections.createdUsing(of(DefaultIosApplicationComponent.class), () -> create(name, project)))
 			.action(self(discover()).apply(register(sources())))
 			.action(configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
 	}
 
-	private static NodeRegistration<SwiftIosApplicationSources> sources() {
+	private static NodeRegistration sources() {
 		return componentSourcesOf(SwiftIosApplicationSources.class)
 			.action(self(discover()).apply(register(sourceSet("swift", SwiftSourceSet.class))))
 			.action(self(discover()).apply(register(sourceSet("resources", IosResourceSet.class))));

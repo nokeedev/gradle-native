@@ -78,13 +78,13 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(SwiftApplication.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration<SwiftApplication> swiftApplication(String name, Project project) {
+	public static NodeRegistration swiftApplication(String name, Project project) {
 		return component(name, SwiftApplication.class)
 			.withProjection(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
 			.action(self(discover()).apply(register(sources())));
 	}
 
-	private static NodeRegistration<SwiftApplicationSources> sources() {
+	private static NodeRegistration sources() {
 		return componentSourcesOf(SwiftApplicationSources.class)
 			.action(self(discover()).apply(register(sourceSet("swift", SwiftSourceSet.class))));
 	}

@@ -100,7 +100,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		});
 	}
 
-	public static NodeRegistration<DefaultUnitTestXCTestTestSuiteComponent> unitTestXCTestTestSuite(String name, Project project) {
+	public static NodeRegistration unitTestXCTestTestSuite(String name, Project project) {
 		return component(name, DefaultUnitTestXCTestTestSuiteComponent.class, () -> {
 			val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
 			return newUnitTestFactory(project).create(identifier);
@@ -118,7 +118,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		};
 	}
 
-	public static NodeRegistration<DefaultUiTestXCTestTestSuiteComponent> uiTestXCTestTestSuite(String name, Project project) {
+	public static NodeRegistration uiTestXCTestTestSuite(String name, Project project) {
 		return component(name, DefaultUiTestXCTestTestSuiteComponent.class, () -> {
 			val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUiTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
 			return newUiTestFactory(project).create(identifier);

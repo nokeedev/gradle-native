@@ -82,14 +82,14 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		project.getExtensions().add(ObjectiveCLibrary.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration<ObjectiveCLibrary> objectiveCLibrary(String name, Project project) {
+	public static NodeRegistration objectiveCLibrary(String name, Project project) {
 		return component(name, ObjectiveCLibrary.class)
 			.withProjection(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
 			.action(self(discover()).apply(register(sources())))
 			.action(configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
 	}
 
-	private static NodeRegistration<ObjectiveCLibrarySources> sources() {
+	private static NodeRegistration sources() {
 		return componentSourcesOf(ObjectiveCLibrarySources.class)
 			.action(self(discover()).apply(register(sourceSet("objectiveC", ObjectiveCSourceSet.class))))
 			.action(self(discover()).apply(register(sourceSet("public", CHeaderSet.class))))

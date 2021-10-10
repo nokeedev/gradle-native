@@ -32,11 +32,11 @@ public class ModelRegistryTestUtils {
 	private static final DefaultModelRegistry TEST_MODEL_REGISTRY = new DefaultModelRegistry(objectFactory()::newInstance);
 	private static int count = 0;
 
-	public static <T> ModelElement create(NodeRegistration<T> registration) {
+	public static ModelElement create(NodeRegistration registration) {
 		return create(TEST_MODEL_REGISTRY, registration);
 	}
 
-	public static <T> ModelElement create(DefaultModelRegistry modelRegistry, NodeRegistration<T> registration) {
+	public static ModelElement create(DefaultModelRegistry modelRegistry, NodeRegistration registration) {
 		String testHolderName = String.valueOf(count++);
 		modelRegistry.register(ModelRegistration.of(testHolderName, (TestHolder.class)));
 		return ModelNodeUtils.register(modelRegistry.get(path(testHolderName)), registration);

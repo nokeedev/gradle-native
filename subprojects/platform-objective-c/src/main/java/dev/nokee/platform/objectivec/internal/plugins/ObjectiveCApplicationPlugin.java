@@ -80,14 +80,14 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(ObjectiveCApplication.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration<ObjectiveCApplication> objectiveCApplication(String name, Project project) {
+	public static NodeRegistration objectiveCApplication(String name, Project project) {
 		return component(name, ObjectiveCApplication.class)
 			.withProjection(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
 			.action(self(discover()).apply(register(sources())))
 			.action(configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
 	}
 
-	private static NodeRegistration<ObjectiveCApplicationSources> sources() {
+	private static NodeRegistration sources() {
 		return ComponentModelBasePlugin.componentSourcesOf(ObjectiveCApplicationSources.class)
 			.action(self(discover()).apply(register(sourceSet("objectiveC", ObjectiveCSourceSet.class))))
 			.action(self(discover()).apply(register(sourceSet("headers", CHeaderSet.class))));

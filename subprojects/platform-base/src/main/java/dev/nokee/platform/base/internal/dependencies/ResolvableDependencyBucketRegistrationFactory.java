@@ -40,7 +40,7 @@ import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescrip
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.asResolvable;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.description;
 
-public final class ResolvableDependencyBucketRegistrationFactory implements NodeRegistrationFactory<ResolvableDependencyBucket> {
+public final class ResolvableDependencyBucketRegistrationFactory implements NodeRegistrationFactory {
 	private final ProjectConfigurationRegistry configurationRegistry;
 	private final ConfigurationNamingScheme namingScheme;
 	private final ConfigurationDescriptionScheme descriptionScheme;
@@ -57,7 +57,7 @@ public final class ResolvableDependencyBucketRegistrationFactory implements Node
 	}
 
 	@Override
-	public NodeRegistration<ResolvableDependencyBucket> create(String name) {
+	public NodeRegistration create(String name) {
 		return NodeRegistration.of(name, of(ResolvableDependencyBucket.class))
 			.action(self(initialize(context -> {
 				context.withProjection(managed(of(IncomingArtifacts.class)));

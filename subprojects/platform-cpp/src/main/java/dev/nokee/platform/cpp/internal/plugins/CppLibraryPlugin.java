@@ -81,13 +81,13 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		project.getExtensions().add(CppLibrary.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration<CppLibrary> cppLibrary(String name, Project project) {
+	public static NodeRegistration cppLibrary(String name, Project project) {
 		return component(name, CppLibrary.class)
 			.withProjection(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
 			.action(self(discover()).apply(once(register(sources()))));
 	}
 
-	private static NodeRegistration<CppLibrarySources> sources() {
+	private static NodeRegistration sources() {
 		return componentSourcesOf(CppLibrarySources.class)
 			.action(self(discover()).apply(register(sourceSet("cpp", CppSourceSet.class))))
 			.action(self(discover()).apply(register(sourceSet("public", CppHeaderSet.class))))

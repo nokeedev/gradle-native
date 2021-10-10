@@ -98,7 +98,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(CApplication.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration<CApplication> cApplication(String name, Project project) {
+	public static NodeRegistration cApplication(String name, Project project) {
 		return NodeRegistration.of(name, of(CApplication.class))
 			// TODO: Should configure FileCollection on CApplication
 			//   and link FileCollection to source sets

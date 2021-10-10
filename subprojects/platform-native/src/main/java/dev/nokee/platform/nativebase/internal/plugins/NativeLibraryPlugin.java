@@ -78,7 +78,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		project.getExtensions().add(NativeLibraryExtension.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration<NativeLibraryExtension> nativeLibrary(String name, Project project) {
+	public static NodeRegistration nativeLibrary(String name, Project project) {
 		return component(name, NativeLibraryExtension.class)
 			.withProjection(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
 			.action(self(discover()).apply(register(componentSourcesOf(NativeLibrarySources.class)

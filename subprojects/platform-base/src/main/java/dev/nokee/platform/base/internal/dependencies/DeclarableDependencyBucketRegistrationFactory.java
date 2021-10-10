@@ -30,7 +30,7 @@ import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescrip
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.asDeclarable;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.description;
 
-public final class DeclarableDependencyBucketRegistrationFactory implements NodeRegistrationFactory<DeclarableDependencyBucket> {
+public final class DeclarableDependencyBucketRegistrationFactory implements NodeRegistrationFactory {
 	private final ProjectConfigurationRegistry configurationRegistry;
 	private final ConfigurationNamingScheme namingScheme;
 	private final ConfigurationDescriptionScheme descriptionScheme;
@@ -42,7 +42,7 @@ public final class DeclarableDependencyBucketRegistrationFactory implements Node
 	}
 
 	@Override
-	public NodeRegistration<DeclarableDependencyBucket> create(String name) {
+	public NodeRegistration create(String name) {
 		return NodeRegistration.of(name, of(DeclarableDependencyBucket.class))
 			.action(self(initialize(context -> {
 				context.withProjection(managed(of(DependencyBucketProjection.class), name));

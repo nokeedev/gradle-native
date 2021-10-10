@@ -29,15 +29,13 @@ import static dev.nokee.model.internal.core.ModelRegistration.builder;
 // The major difference between {@link ModelRegistration} and {@link NodeRegistration} is the fact that ModelRegistration is absolute, e.g. starts from root node where NodeRegistration is relative, e.g. relative to a model node.
 @ToString
 @EqualsAndHashCode
-public final class NodeRegistration<T> {
+public final class NodeRegistration {
 	private final String name;
-	private final ModelType<T> defaultProjectionType;
 	private final List<ModelProjection> projections = new ArrayList<>();
 	private final List<NodeAction> actionRegistrations = new ArrayList<>();
 
-	private NodeRegistration(String name, ModelType<T> defaultProjectionType, ModelProjection defaultProjection) {
+	private NodeRegistration(String name, ModelProjection defaultProjection) {
 		this.name = name;
-		this.defaultProjectionType = defaultProjectionType;
 		projections.add(defaultProjection);
 	}
 
@@ -48,25 +46,21 @@ public final class NodeRegistration<T> {
 		return builder.build();
 	}
 
-	public static <T> NodeRegistration<T> of(String name, ModelType<T> type, Object... parameters) {
-		return new NodeRegistration<>(name, type, ModelProjections.managed(type, parameters));
+	public static <T> NodeRegistration of(String name, ModelType<T> type, Object... parameters) {
+		return new NodeRegistration(name, ModelProjections.managed(type, parameters));
 	}
 
-	public static <T> NodeRegistration<T> unmanaged(String name, ModelType<T> type, Factory<T> factory) {
-		return new NodeRegistration<>(name, type, ModelProjections.createdUsing(type, factory));
+	public static <T> NodeRegistration unmanaged(String name, ModelType<T> type, Factory<T> factory) {
+		return new NodeRegistration(name, ModelProjections.createdUsing(type, factory));
 	}
 
-	public NodeRegistration<T> withProjection(ModelProjection projection) {
+	public NodeRegistration withProjection(ModelProjection projection) {
 		projections.add(projection);
 		return this;
 	}
 
-	public NodeRegistration<T> action(NodeAction action) {
+	public NodeRegistration action(NodeAction action) {
 		actionRegistrations.add(action);
 		return this;
-	}
-
-	public ModelType<T> getDefaultProjectionType() {
-		return defaultProjectionType;
 	}
 }

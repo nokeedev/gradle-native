@@ -200,7 +200,7 @@ public final class ModelTestUtils {
 			}
 
 			@Override
-			public <T> ModelElement register(NodeRegistration<T> registration) {
+			public ModelElement register(NodeRegistration registration) {
 				throw new UnsupportedOperationException();
 			}
 

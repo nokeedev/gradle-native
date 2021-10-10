@@ -134,7 +134,7 @@ public final class ModelActions {
 	 * @param registration  the node to register, must not be null
 	 * @return an action that will register a child node, never null
 	 */
-	public static ModelAction register(NodeRegistration<?> registration) {
+	public static ModelAction register(NodeRegistration registration) {
 		return new RegisterModelAction(Suppliers.ofInstance(requireNonNull(registration)));
 	}
 
@@ -144,15 +144,15 @@ public final class ModelActions {
 	 * @param registrationSupplier  the node registration supplier, must not be null
 	 * @return an action that will register a child node, never null
 	 */
-	public static ModelAction register(Supplier<NodeRegistration<?>> registrationSupplier) {
+	public static ModelAction register(Supplier<NodeRegistration> registrationSupplier) {
 		return new RegisterModelAction(registrationSupplier);
 	}
 
 	@EqualsAndHashCode
 	private static final class RegisterModelAction implements ModelAction, HasInputs {
-		private final Supplier<NodeRegistration<?>> registration;
+		private final Supplier<NodeRegistration> registration;
 
-		public RegisterModelAction(Supplier<NodeRegistration<?>> registration) {
+		public RegisterModelAction(Supplier<NodeRegistration> registration) {
 			this.registration = requireNonNull(registration);
 		}
 

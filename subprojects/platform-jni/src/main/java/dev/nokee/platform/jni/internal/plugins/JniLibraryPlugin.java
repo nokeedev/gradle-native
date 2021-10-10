@@ -491,7 +491,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		return library;
 	}
 
-	public static NodeRegistration<JavaNativeInterfaceLibrary> javaNativeInterfaceLibrary(String name, Project project) {
+	public static NodeRegistration javaNativeInterfaceLibrary(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), JniLibraryComponentInternal.class, ProjectIdentifier.of(project));
 		assert identifier.isMainComponent();
 		return component(name, JavaNativeInterfaceLibrary.class)
@@ -504,7 +504,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			.action(configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
 	}
 
-	private static NodeRegistration<JavaNativeInterfaceLibrarySources> sources() {
+	private static NodeRegistration sources() {
 		return componentSourcesOf(JavaNativeInterfaceLibrarySources.class)
 			.action(self(discover()).apply(register(sourceSet("jni", CHeaderSet.class))))
 			// TODO: ONLY if applying include language plugin

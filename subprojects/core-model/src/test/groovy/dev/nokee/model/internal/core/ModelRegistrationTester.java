@@ -15,7 +15,6 @@
  */
 package dev.nokee.model.internal.core;
 
-import com.google.common.collect.ImmutableList;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -23,10 +22,11 @@ import org.mockito.Mockito;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.iterableWithSize;
+import static org.hamcrest.Matchers.notNullValue;
 
 public interface ModelRegistrationTester {
-	ModelRegistration<?> subject();
+	ModelRegistration subject();
 
 	@Test
 	default void hasActions() {
