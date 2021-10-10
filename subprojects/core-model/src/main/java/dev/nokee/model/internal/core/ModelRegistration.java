@@ -21,11 +21,8 @@ import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
-import static dev.nokee.model.internal.core.NodePredicate.self;
 
 /**
  * A model registration request.
@@ -36,16 +33,10 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 public final class ModelRegistration<T> {
 	private final List<ModelAction> actions;
 	private final List<Object> components;
-	@EqualsAndHashCode.Exclude private final ModelType<T> defaultProjectionType;
 
-	private ModelRegistration(ModelType<T> defaultProjectionType, List<ModelAction> actions, List<Object> components) {
-		this.defaultProjectionType = defaultProjectionType;
+	private ModelRegistration(List<ModelAction> actions, List<Object> components) {
 		this.actions = actions;
 		this.components = components;
-	}
-
-	public ModelType<T> getDefaultProjectionType() {
-		return defaultProjectionType;
 	}
 
 	public static <T> ModelRegistration<T> of(String path, Class<T> type) {
@@ -92,13 +83,11 @@ public final class ModelRegistration<T> {
 	}
 
 	public static final class Builder<T> {
-		private ModelType<? super T> defaultProjectionType = ModelType.untyped();
 		private final List<Object> components = new ArrayList<>();
 		private final List<ModelAction> actions = new ArrayList<>();
 
 		@SuppressWarnings("unchecked") // take the specified information for granted
 		public <S extends T> Builder<S> withDefaultProjectionType(ModelType<S> type) {
-			((Builder<S>) this).defaultProjectionType = type;
 			return (Builder<S>) this;
 		}
 
@@ -114,10 +103,8 @@ public final class ModelRegistration<T> {
 			return this;
 		}
 
-		// take for granted that whatever projection type is, it will project to <T>
-		@SuppressWarnings("unchecked")
 		public ModelRegistration<T> build() {
-			return new ModelRegistration<>((ModelType<T>)defaultProjectionType, ImmutableList.copyOf(actions), ImmutableList.copyOf(components));
+			return new ModelRegistration<>(ImmutableList.copyOf(actions), ImmutableList.copyOf(components));
 		}
 	}
 }
