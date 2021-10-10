@@ -40,6 +40,7 @@ public final class ModelPropertyRegistrationFactory {
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (e, p, ignored) -> {
 				if (p.equals(path)) {
+					e.addComponent(IsModelProperty.tag());
 					e.addComponent(new ModelProjection() {
 						private final ModelNode delegate = entity;
 
