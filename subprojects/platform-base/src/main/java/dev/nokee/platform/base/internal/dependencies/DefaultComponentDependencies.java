@@ -47,11 +47,15 @@ public abstract class DefaultComponentDependencies implements ComponentDependenc
 	}
 
 	@Override
+	public DependencyBucket add(DependencyBucket bucket) {
+		buckets.add(bucket);
+		return bucket;
+	}
+
+	@Override
 	public DependencyBucket create(String name) {
 		val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(name), DeclarableDependencyBucket.class, ownerIdentifier);
-		val bucket = factory.create(identifier);
-		getBuckets().add(bucket);
-		return bucket;
+		return add(factory.create(identifier));
 	}
 
 	@Override
@@ -59,8 +63,7 @@ public abstract class DefaultComponentDependencies implements ComponentDependenc
 		val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(name), DeclarableDependencyBucket.class, ownerIdentifier);
 		val bucket = factory.create(identifier);
 		action.execute(bucket.getAsConfiguration());
-		getBuckets().add(bucket);
-		return bucket;
+		return add(bucket);
 	}
 
 	@Override
