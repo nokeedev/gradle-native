@@ -191,13 +191,14 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 			IncomingHeaders incomingHeaders = null;
 			if (hasIncomingHeaders) {
 				val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("headerSearchPaths")), ResolvableDependencyBucket.class, ownerIdentifier);
-				val bucket = dependenciesInternal.create("headerSearchPaths",
-					ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingHeaderSearchPathFrom(componentDependencies.getImplementation()))
-						.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
-						.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
-						.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
-						.andThen(it -> it.setDescription(identifier.getDisplayName())));
-				incomingHeaders = objects.newInstance(DefaultIncomingHeaders.class, bucket);
+				val bucket = bucketFactory.create(identifier);
+				ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingHeaderSearchPathFrom(componentDependencies.getImplementation()))
+					.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
+					.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
+					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
+					.andThen(it -> it.setDescription(identifier.getDisplayName()))
+					.execute(bucket.getAsConfiguration());
+				incomingHeaders = objects.newInstance(DefaultIncomingHeaders.class, dependenciesInternal.add(bucket));
 			} else {
 				incomingHeaders = new AbsentIncomingHeaders(objects);
 			}
@@ -205,31 +206,34 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 			IncomingSwiftModules incomingSwiftModules = null;
 			if (hasIncomingSwiftModules) {
 				val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("importSwiftModules")), ResolvableDependencyBucket.class, ownerIdentifier);
-				val bucket = dependenciesInternal.create("importSwiftModules",
-					ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingSwiftModuleFrom(componentDependencies.getImplementation()))
-						.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
-						.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
-						.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
-						.andThen(it -> it.setDescription(identifier.getDisplayName())));
-				incomingSwiftModules = objects.newInstance(DefaultIncomingSwiftModules.class, bucket);
+				val bucket = bucketFactory.create(identifier);
+				ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingSwiftModuleFrom(componentDependencies.getImplementation()))
+					.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
+					.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
+					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
+					.andThen(it -> it.setDescription(identifier.getDisplayName()))
+					.execute(bucket.getAsConfiguration());
+				incomingSwiftModules = objects.newInstance(DefaultIncomingSwiftModules.class, dependenciesInternal.add(bucket));
 			} else {
 				incomingSwiftModules = new AbsentIncomingSwiftModules(objects);
 			}
 
 			val linkLibrariesBucketIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("linkLibraries")), ResolvableDependencyBucket.class, ownerIdentifier);
-			val linkLibrariesBucket = dependenciesInternal.create("linkLibraries",
-				ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingLinkLibrariesFrom(componentDependencies.getImplementation(), componentDependencies.getLinkOnly()))
-					.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
-					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
-					.andThen(it -> it.setDescription(linkLibrariesBucketIdentifier.getDisplayName())));
+			val linkLibrariesBucket = bucketFactory.create(linkLibrariesBucketIdentifier);
+			ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingLinkLibrariesFrom(componentDependencies.getImplementation(), componentDependencies.getLinkOnly()))
+				.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
+				.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
+				.andThen(it -> it.setDescription(linkLibrariesBucketIdentifier.getDisplayName()))
+				.execute(linkLibrariesBucket.getAsConfiguration());
 			val runtimeLibrariesBucketIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("runtimeLibraries")), ResolvableDependencyBucket.class, ownerIdentifier);
-			val runtimeLibrariesBucket = dependenciesInternal.create("runtimeLibraries",
-				ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingRuntimeLibrariesFrom(componentDependencies.getImplementation(), componentDependencies.getRuntimeOnly()))
-					.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
-					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
-					.andThen(it -> it.setDescription(runtimeLibrariesBucketIdentifier.getDisplayName())));
+			val runtimeLibrariesBucket = bucketFactory.create(runtimeLibrariesBucketIdentifier);
+			ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingRuntimeLibrariesFrom(componentDependencies.getImplementation(), componentDependencies.getRuntimeOnly()))
+				.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
+				.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
+				.andThen(it -> it.setDescription(runtimeLibrariesBucketIdentifier.getDisplayName()))
+				.execute(runtimeLibrariesBucket.getAsConfiguration());
 
-			return objects.newInstance(DefaultNativeIncomingDependencies.class, incomingHeaders, incomingSwiftModules, linkLibrariesBucket, runtimeLibrariesBucket);
+			return objects.newInstance(DefaultNativeIncomingDependencies.class, incomingHeaders, incomingSwiftModules, dependenciesInternal.add(linkLibrariesBucket), dependenciesInternal.add(runtimeLibrariesBucket));
 		}
 
 		private ActionUtils.Action<Configuration> extendsFrom(DependencyBucket bucket) {
