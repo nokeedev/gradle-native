@@ -22,6 +22,7 @@ import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -90,7 +91,7 @@ public final class ModelRegistration<T> {
 	}
 
 	public List<ModelAction> getActions() {
-		return actions;
+		return Collections.unmodifiableList(actions);
 	}
 
 	public static final class Builder<T> {
