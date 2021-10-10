@@ -37,14 +37,6 @@ public class NativeComponentDependenciesJavaNativeInterfaceAdapter extends BaseC
 	}
 
 	@Override
-	public DependencyBucket create(String name) {
-		if ("headerSearchPaths".equals(name)) {
-			return super.create(name);
-		}
-		return super.create(prefixWithNative(name));
-	}
-
-	@Override
 	public DependencyBucket create(String name, Action<Configuration> action) {
 		if ("headerSearchPaths".equals(name)) {
 			return super.create(name, action);

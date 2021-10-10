@@ -19,6 +19,7 @@ import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.AbstractComponentDependenciesGroovyDslTest
 import dev.nokee.platform.base.DependencyBucket
+import dev.nokee.utils.ActionUtils
 import org.gradle.api.UnknownDomainObjectException
 import org.gradle.api.artifacts.Configuration
 import spock.lang.Specification
@@ -33,19 +34,20 @@ class DefaultComponentDependenciesTest extends Specification {
 
 	def "can create dependency bucket"() {
 		when:
-		dependencies.create('foo')
+		dependencies.create('foo', ActionUtils.doNothing())
 
 		then:
 		1 * factory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('foo'), DeclarableDependencyBucket, ownerIdentifier)) >> Mock(DependencyBucket)
-		0 * _
 	}
 
 	def "can find missing and existing bucket"() {
 		given:
-		factory.create(_) >> Mock(DependencyBucket)
+		def bucket = Mock(DependencyBucket) {
+			getName() >> 'foo'
+		}
 
 		and:
-		def bucket = dependencies.create('foo')
+		dependencies.add(bucket)
 
 		expect:
 		dependencies.findByName('foo').present
@@ -57,10 +59,12 @@ class DefaultComponentDependenciesTest extends Specification {
 
 	def "can get existing bucket"() {
 		given:
-		factory.create(_) >> Mock(DependencyBucket)
+		def bucket = Mock(DependencyBucket) {
+			getName() >> 'foo'
+		}
 
 		and:
-		def bucket = dependencies.create('foo')
+		dependencies.add(bucket)
 
 		expect:
 		dependencies.getByName('foo') == bucket
@@ -89,21 +93,27 @@ class DefaultComponentDependenciesTest extends Specification {
 		}
 
 		and:
-		dependencies.create('implementation')
-		dependencies.create('compileOnly')
+		dependencies.create('implementation', ActionUtils.doNothing())
+		dependencies.create('compileOnly', ActionUtils.doNothing())
 
 		when:
 		dependencies.configureEach {
-			childDependencies.create(it.name)
+			childDependencies.create(it.name, ActionUtils.doNothing())
 		}
 		then:
-		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), DeclarableDependencyBucket, ProjectIdentifier.of('root'))) >> Mock(DependencyBucket)
-		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('compileOnly'), DeclarableDependencyBucket, ProjectIdentifier.of('root'))) >> Mock(DependencyBucket)
+		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), DeclarableDependencyBucket, ProjectIdentifier.of('root'))) >> Mock(DependencyBucket) {
+			getName() >> 'implementation'
+		}
+		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('compileOnly'), DeclarableDependencyBucket, ProjectIdentifier.of('root'))) >> Mock(DependencyBucket) {
+			getName() >> 'compileOnly'
+		}
 
 		when:
-		dependencies.create('runtimeOnly')
+		dependencies.create('runtimeOnly', ActionUtils.doNothing())
 		then:
-		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('runtimeOnly'), DeclarableDependencyBucket, ProjectIdentifier.of('root'))) >> Mock(DependencyBucket)
+		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('runtimeOnly'), DeclarableDependencyBucket, ProjectIdentifier.of('root'))) >> Mock(DependencyBucket) {
+			getName() >> 'runtimeOnly'
+		}
 	}
 
 	def "can extends matching dependencies between buckets"() {
@@ -132,12 +142,12 @@ class DefaultComponentDependenciesTest extends Specification {
 		}
 
 		and:
-		dependencies.create('implementation')
-		dependencies.create('compileOnly')
+		dependencies.create('implementation', ActionUtils.doNothing())
+		dependencies.create('compileOnly', ActionUtils.doNothing())
 
 		and:
-		childDependencies.create('implementation')
-		childDependencies.create('compileOnly')
+		childDependencies.create('implementation', ActionUtils.doNothing())
+		childDependencies.create('compileOnly', ActionUtils.doNothing())
 
 		when:
 		childDependencies.configureEach { childConfig ->
@@ -150,13 +160,13 @@ class DefaultComponentDependenciesTest extends Specification {
 		1 * childConfigurations.compileOnly.extendsFrom(parentConfigurations.compileOnly)
 
 		when:
-		dependencies.create('runtimeOnly')
-		childDependencies.create('runtimeOnly')
+		dependencies.create('runtimeOnly', ActionUtils.doNothing())
+		childDependencies.create('runtimeOnly', ActionUtils.doNothing())
 		then:
 		1 * childConfigurations.runtimeOnly.extendsFrom(parentConfigurations.runtimeOnly)
 
 		when:
-		childDependencies.create('foo')
+		childDependencies.create('foo', ActionUtils.doNothing())
 		then:
 		0 * childConfigurations.foo.extendsFrom(_)
 	}

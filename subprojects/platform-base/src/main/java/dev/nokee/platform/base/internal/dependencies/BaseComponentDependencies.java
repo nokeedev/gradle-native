@@ -46,11 +46,6 @@ public class BaseComponentDependencies implements ComponentDependenciesInternal,
 	}
 
 	@Override
-	public DependencyBucket create(String name) {
-		return delegate.create(name);
-	}
-
-	@Override
 	public DependencyBucket create(String name, Action<Configuration> action) {
 		return delegate.create(name, action);
 	}
