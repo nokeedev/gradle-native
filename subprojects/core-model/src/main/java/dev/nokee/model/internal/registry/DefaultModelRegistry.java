@@ -75,15 +75,15 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	@Override
-	public <T> DomainObjectProvider<T> register(NodeRegistration<T> registration) {
+	public <T> ModelElement register(NodeRegistration<T> registration) {
 		return ModelNodeUtils.register(rootNode, registration);
 	}
 
 	@Override
-	public <T> DomainObjectProvider<T> register(ModelRegistration<T> registration) {
+	public <T> ModelElement register(ModelRegistration<T> registration) {
 		registration.getActions().forEach(configurations::add);
 		val node = ModelStates.register(newNode(registration));
-		return new ModelNodeBackedProvider<>(registration.getDefaultProjectionType(), node);
+		return new ModelNodeBackedElement(node);
 	}
 
 	private ModelNode newNode(ModelRegistration<?> registration) {

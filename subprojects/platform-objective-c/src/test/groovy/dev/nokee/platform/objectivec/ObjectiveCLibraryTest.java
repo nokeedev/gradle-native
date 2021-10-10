@@ -49,7 +49,7 @@ class ObjectiveCLibraryTest implements SourceAwareComponentTester<ObjectiveCLibr
 	public ObjectiveCLibrary createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val component = create(registry(project.getObjects()), objectiveCLibrary(componentName, project));
+		val component = create(registry(project.getObjects()), objectiveCLibrary(componentName, project)).as(ObjectiveCLibrary.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}

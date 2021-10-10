@@ -44,7 +44,7 @@ public class SwiftApplicationTest implements SourceAwareComponentTester<SwiftApp
 	public SwiftApplication createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(testDirectory);
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val component = create(registry(project.getObjects()), swiftApplication(componentName, project));
+		val component = create(registry(project.getObjects()), swiftApplication(componentName, project)).as(SwiftApplication.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize
 		return component;
 	}

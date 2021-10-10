@@ -35,7 +35,7 @@ class CppLibrarySourcesTest implements ComponentSourcesTester<CppLibrarySources>
 	public CppLibrarySources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (CppLibrarySources) create(cppLibrary("main", project)).getSources();
+		val sources = (CppLibrarySources) create(cppLibrary("main", project)).as(CppLibrary.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}

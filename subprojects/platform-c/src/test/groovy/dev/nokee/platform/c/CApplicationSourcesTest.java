@@ -36,7 +36,7 @@ class CApplicationSourcesTest implements ComponentSourcesTester<CApplicationSour
 	public CApplicationSources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (CApplicationSources) create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), cApplication("main", project)).getSources();
+		val sources = (CApplicationSources) create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), cApplication("main", project)).as(CApplication.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}

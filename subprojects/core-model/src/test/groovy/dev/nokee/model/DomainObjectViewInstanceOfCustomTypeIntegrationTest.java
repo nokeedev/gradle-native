@@ -37,8 +37,8 @@ class DomainObjectViewInstanceOfCustomTypeIntegrationTest {
 	@Test
 	@Disabled
 	void canCreateCustomView() {
-		val myTypes = modelRegistry.register(ModelRegistration.of("myTypes", CustomViewOfMyType.class));
-		val myType = modelRegistry.register(ModelRegistration.of("myTypes.foo", MyType.class));
+		val myTypes = modelRegistry.register(ModelRegistration.of("myTypes", CustomViewOfMyType.class)).as(CustomViewOfMyType.class);
+		val myType = modelRegistry.register(ModelRegistration.of("myTypes.foo", MyType.class)).as(MyType.class);
 		val action = (Action<MyType>) Mockito.mock(Action.class);
 		myTypes.get().configureEach(action);
 		Mockito.verify(action, Mockito.never()).execute(isA(MyType.class));

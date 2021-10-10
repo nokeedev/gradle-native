@@ -42,12 +42,12 @@ public class BridgedSourceSetTest extends LanguageSourceSetTester<LanguageSource
 	@Override
 	public LanguageSourceSet createSubject() {
 		return create(bridgeSourceSet(objectFactory().sourceDirectorySet("test", "test"),
-			LanguageSourceSet.class));
+			LanguageSourceSet.class)).as(LanguageSourceSet.class).get();
 	}
 
 	public LanguageSourceSet createSubject(SourceDirectorySet sourceSet) {
 		return create(bridgeSourceSet(sourceSet,
-			LanguageSourceSet.class));
+			LanguageSourceSet.class)).as(LanguageSourceSet.class).get();
 	}
 
 	@Test
@@ -100,6 +100,6 @@ public class BridgedSourceSetTest extends LanguageSourceSetTester<LanguageSource
 	@Override
 	public LanguageSourceSet createSubject(File baseDirectory) {
 		val objectFactory = createRootProject(baseDirectory).getObjects();
-		return create(registry(objectFactory), bridgeSourceSet(objectFactory.sourceDirectorySet("test", "test"), LanguageSourceSet.class));
+		return create(registry(objectFactory), bridgeSourceSet(objectFactory.sourceDirectorySet("test", "test"), LanguageSourceSet.class)).as(LanguageSourceSet.class).get();
 	}
 }

@@ -49,7 +49,7 @@ class ObjectiveCppApplicationTest implements SourceAwareComponentTester<Objectiv
 	public ObjectiveCppApplication createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val component = create(registry(project.getObjects()), objectiveCppApplication(componentName, project));
+		val component = create(registry(project.getObjects()), objectiveCppApplication(componentName, project)).as(ObjectiveCppApplication.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}

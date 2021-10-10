@@ -33,7 +33,7 @@ public class SwiftLibrarySourcesTest implements ComponentSourcesTester<SwiftLibr
 	public SwiftLibrarySources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (SwiftLibrarySources) create(swiftLibrary("main", project)).getSources();
+		val sources = (SwiftLibrarySources) create(swiftLibrary("main", project)).as(SwiftLibrary.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}

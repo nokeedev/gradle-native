@@ -34,7 +34,7 @@ class ObjectiveCApplicationSourcesTest implements ComponentSourcesTester<Objecti
 	public ObjectiveCApplicationSources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (ObjectiveCApplicationSources) create(objectiveCApplication("main", project)).getSources();
+		val sources = (ObjectiveCApplicationSources) create(objectiveCApplication("main", project)).as(ObjectiveCApplication.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}

@@ -34,7 +34,7 @@ class ObjectiveCIosApplicationSourcesTest implements ComponentSourcesTester<Obje
 	public ObjectiveCIosApplicationSources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (ObjectiveCIosApplicationSources) create(objectiveCIosApplication("main", project)).getSources();
+		val sources = (ObjectiveCIosApplicationSources) create(objectiveCIosApplication("main", project)).as(ObjectiveCIosApplication.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}

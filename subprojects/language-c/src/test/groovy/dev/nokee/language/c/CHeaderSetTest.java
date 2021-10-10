@@ -28,11 +28,11 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 class CHeaderSetTest extends LanguageSourceSetTester<CHeaderSet> {
 	@Override
 	public CHeaderSet createSubject() {
-		return create(sourceSet("test", CHeaderSet.class));
+		return create(sourceSet("test", CHeaderSet.class)).as(CHeaderSet.class).get();
 	}
 
 	@Override
 	public CHeaderSet createSubject(File temporaryDirectory) {
-		return create(registry(temporaryDirectory), sourceSet("test", CHeaderSet.class));
+		return create(registry(temporaryDirectory), sourceSet("test", CHeaderSet.class)).as(CHeaderSet.class).get();
 	}
 }

@@ -47,7 +47,7 @@ class CApplicationTest implements SourceAwareComponentTester<CApplication>, Base
 	public CApplication createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val component = create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), cApplication(componentName, project));
+		val component = create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), cApplication(componentName, project)).as(CApplication.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}

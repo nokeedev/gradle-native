@@ -17,10 +17,7 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.registry.ModelNodeBackedProvider;
-import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.registry.*;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
@@ -203,17 +200,17 @@ public final class ModelTestUtils {
 			}
 
 			@Override
-			public <T> DomainObjectProvider<T> register(NodeRegistration<T> registration) {
+			public <T> ModelElement register(NodeRegistration<T> registration) {
 				throw new UnsupportedOperationException();
 			}
 
 			@Override
-			public <T> DomainObjectProvider<T> register(ModelRegistration<T> registration) {
+			public <T> ModelElement register(ModelRegistration<T> registration) {
 				val path = registration.getComponents().stream().flatMap(this::findModelPath).findFirst().get();
 				val childNode = childNode(nodeProvider.getValue(), path.getName(), registration.getActions(), builder -> {});
 				registration.getComponents().forEach(childNode::addComponent);
 				children.put(path, childNode);
-				return new ModelNodeBackedProvider<>(registration.getDefaultProjectionType(), childNode);
+				return new ModelNodeBackedElement(childNode);
 			}
 
 			private Stream<ModelPath> findModelPath(Object component) {

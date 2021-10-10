@@ -44,7 +44,7 @@ public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary
 	public SwiftLibrary createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(testDirectory);
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val component = create(registry(project.getObjects()), swiftLibrary(componentName, project));
+		val component = create(registry(project.getObjects()), swiftLibrary(componentName, project)).as(SwiftLibrary.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize
 		return component;
 	}

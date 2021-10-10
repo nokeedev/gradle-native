@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,25 @@
 package dev.nokee.model.internal.registry;
 
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.ModelElement;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.type.ModelType;
 
-public interface ModelRegistry {
-	default <T> DomainObjectProvider<T> get(String path, Class<T> type) {
-		return get(ModelIdentifier.of(ModelPath.path(path), ModelType.of(type)));
-	}
-	<T> DomainObjectProvider<T> get(ModelIdentifier<T> identifier);
+public final class ModelNodeBackedElement implements ModelElement, ModelNodeAware {
+	private final ModelNode node;
 
-	<T> ModelElement register(NodeRegistration<T> registration);
-	<T> ModelElement register(ModelRegistration<T> registration);
+	public ModelNodeBackedElement(ModelNode node) {
+		this.node = node;
+	}
+
+	@Override
+	public <T> DomainObjectProvider<T> as(ModelType<T> type) {
+		return new ModelNodeBackedProvider<>(type, node);
+	}
+
+	@Override
+	public ModelNode getNode() {
+		return node;
+	}
 }

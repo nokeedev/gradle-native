@@ -49,7 +49,7 @@ class ObjectiveCppLibraryTest implements SourceAwareComponentTester<ObjectiveCpp
 	public ObjectiveCppLibrary createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val component = create(registry(project.getObjects()), objectiveCppLibrary(componentName, project));
+		val component = create(registry(project.getObjects()), objectiveCppLibrary(componentName, project)).as(ObjectiveCppLibrary.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}

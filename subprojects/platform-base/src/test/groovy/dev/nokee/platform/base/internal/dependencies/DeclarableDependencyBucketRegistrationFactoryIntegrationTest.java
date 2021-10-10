@@ -29,7 +29,7 @@ class DeclarableDependencyBucketRegistrationFactoryIntegrationTest implements De
 	@Override
 	public DeclarableDependencyBucket createSubject(Project project) {
 		val factory = new DeclarableDependencyBucketRegistrationFactory(forProject(project), ConfigurationNamingScheme.forComponent(ComponentName.of("common")), ConfigurationDescriptionScheme.forComponent(ComponentName.of("common")));
-		val bucket = create(registry(project.getObjects()), factory.create("test"));
+		val bucket = create(registry(project.getObjects()), factory.create("test")).as(DeclarableDependencyBucket.class).get();
 		ModelStates.realize(ModelNodes.of(bucket));
 		return bucket;
 	}

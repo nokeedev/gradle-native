@@ -36,7 +36,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
 		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
-		val components = modeRegistry.register(testSuites()).get();
+		val components = modeRegistry.register(testSuites()).as(DefaultTestSuiteContainer.class).get();
 		project.getExtensions().add(TestSuiteContainer.class, "testSuites", components);
 
 		project.afterEvaluate(proj -> {

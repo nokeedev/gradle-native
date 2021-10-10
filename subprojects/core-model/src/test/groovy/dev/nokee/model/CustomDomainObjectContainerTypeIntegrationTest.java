@@ -34,7 +34,7 @@ class CustomDomainObjectContainerTypeIntegrationTest extends NamedDomainObjectVi
 
 			@Override
 			public DomainObjectContainer<MyType> create(String name) {
-				return modelRegistry.register(namedContainer(name, of(CustomContainerOfMyType.class))).get();
+				return modelRegistry.register(namedContainer(name, of(CustomContainerOfMyType.class))).as(CustomContainerOfMyType.class).get();
 			}
 
 			@Override
