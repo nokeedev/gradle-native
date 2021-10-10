@@ -22,17 +22,13 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.ExtensionContainer;
-import org.gradle.internal.metaobject.MethodAccess;
-import org.gradle.internal.metaobject.MethodMixIn;
-import org.gradle.internal.metaobject.PropertyAccess;
-import org.gradle.internal.metaobject.PropertyMixIn;
 
 import java.util.Optional;
 
 /**
  * Any custom typed component dependencies should extend this type to benefit from the Groovy DSL mixed in.
  */
-public class BaseComponentDependencies implements ComponentDependenciesInternal, MethodMixIn, PropertyMixIn, ExtensionAware {
+public class BaseComponentDependencies implements ComponentDependenciesInternal, ExtensionAware {
 	private final ComponentDependenciesInternal delegate;
 
 	protected BaseComponentDependencies(ComponentDependenciesInternal delegate) {
@@ -77,16 +73,6 @@ public class BaseComponentDependencies implements ComponentDependenciesInternal,
 	@Override
 	public Optional<DependencyBucket> findByName(String name) {
 		return delegate.findByName(name);
-	}
-
-	@Override
-	public MethodAccess getAdditionalMethods() {
-		return ((DefaultComponentDependencies) delegate).getAdditionalMethods();
-	}
-
-	@Override
-	public PropertyAccess getAdditionalProperties() {
-		return ((DefaultComponentDependencies) delegate).getAdditionalProperties();
 	}
 
 	@Override
