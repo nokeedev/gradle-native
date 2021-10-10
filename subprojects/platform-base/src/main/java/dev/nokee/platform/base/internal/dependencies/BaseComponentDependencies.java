@@ -20,6 +20,8 @@ import dev.nokee.platform.base.DependencyBucket;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.internal.metaobject.MethodAccess;
 import org.gradle.internal.metaobject.MethodMixIn;
 import org.gradle.internal.metaobject.PropertyAccess;
@@ -30,7 +32,7 @@ import java.util.Optional;
 /**
  * Any custom typed component dependencies should extend this type to benefit from the Groovy DSL mixed in.
  */
-public class BaseComponentDependencies implements ComponentDependenciesInternal, MethodMixIn, PropertyMixIn {
+public class BaseComponentDependencies implements ComponentDependenciesInternal, MethodMixIn, PropertyMixIn, ExtensionAware {
 	private final ComponentDependenciesInternal delegate;
 
 	protected BaseComponentDependencies(ComponentDependenciesInternal delegate) {
@@ -85,5 +87,10 @@ public class BaseComponentDependencies implements ComponentDependenciesInternal,
 	@Override
 	public PropertyAccess getAdditionalProperties() {
 		return ((DefaultComponentDependencies) delegate).getAdditionalProperties();
+	}
+
+	@Override
+	public ExtensionContainer getExtensions() {
+		return ((ExtensionAware) delegate).getExtensions();
 	}
 }
