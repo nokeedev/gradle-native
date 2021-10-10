@@ -15,6 +15,7 @@
  */
 package dev.nokee.model.internal.core;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
@@ -83,11 +84,11 @@ public final class ModelRegistration<T> {
 	}
 
 	public List<Object> getComponents() {
-		return Collections.unmodifiableList(components);
+		return components;
 	}
 
 	public List<ModelAction> getActions() {
-		return Collections.unmodifiableList(actions);
+		return actions;
 	}
 
 	public static final class Builder<T> {
@@ -102,7 +103,9 @@ public final class ModelRegistration<T> {
 		}
 
 		public Builder<T> withComponent(Object component) {
-			components.add(Objects.requireNonNull(component));
+			if (!components.contains(component)) {
+				components.add(Objects.requireNonNull(component));
+			}
 			return this;
 		}
 
@@ -114,7 +117,7 @@ public final class ModelRegistration<T> {
 		// take for granted that whatever projection type is, it will project to <T>
 		@SuppressWarnings("unchecked")
 		public ModelRegistration<T> build() {
-			return new ModelRegistration<>((ModelType<T>)defaultProjectionType, actions, components);
+			return new ModelRegistration<>((ModelType<T>)defaultProjectionType, ImmutableList.copyOf(actions), ImmutableList.copyOf(components));
 		}
 	}
 }
