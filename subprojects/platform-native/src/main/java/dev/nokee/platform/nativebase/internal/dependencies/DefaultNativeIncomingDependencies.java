@@ -18,10 +18,7 @@ package dev.nokee.platform.nativebase.internal.dependencies;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.dependencies.ComponentDependenciesInternal;
-import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
-import dev.nokee.platform.base.internal.dependencies.DependencyBucketName;
-import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucket;
+import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.runtime.darwin.internal.DarwinLibraryElements;
 import dev.nokee.utils.ActionUtils;
@@ -149,6 +146,7 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 		private boolean hasIncomingHeaders = false;
 		private boolean hasIncomingSwiftModules = false;
 		private VariantIdentifier<?> ownerIdentifier = null;
+		private DependencyBucketFactory bucketFactory = null;
 		private BuildVariantInternal buildVariant;
 
 		private Builder(NativeComponentDependencies dependencies) {
@@ -167,6 +165,11 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 
 		public Builder withOwnerIdentifier(VariantIdentifier<?> owner) {
 			this.ownerIdentifier = owner;
+			return this;
+		}
+
+		public Builder withBucketFactory(DependencyBucketFactory factory) {
+			this.bucketFactory = factory;
 			return this;
 		}
 
