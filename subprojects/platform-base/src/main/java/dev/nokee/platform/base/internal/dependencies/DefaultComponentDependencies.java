@@ -32,6 +32,7 @@ import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.internal.metaobject.*;
 import org.gradle.util.ConfigureUtil;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,8 +41,7 @@ import java.util.Optional;
 
 // DO NOT EXTEND THIS CLASS, extends BaseComponentDependencies
 public abstract class DefaultComponentDependencies implements ComponentDependenciesInternal, MethodMixIn, PropertyMixIn, ExtensionAware {
-	private final Map<String, DependencyBucket> bucketIndex = new HashMap<>();
-	private final ContainerElementsDynamicObject elementsDynamicObject = new ContainerElementsDynamicObject();
+	private final ContainerElementsDynamicObject elementsDynamicObject;
 	@Getter private final DomainObjectIdentifierInternal ownerIdentifier;
 	private final DependencyBucketFactory factory;
 	@Getter(AccessLevel.PROTECTED) private final DomainObjectSet<DependencyBucket> buckets;
@@ -52,6 +52,7 @@ public abstract class DefaultComponentDependencies implements ComponentDependenc
 		this.ownerIdentifier = ownerIdentifier;
 		this.factory = factory;
 		this.buckets = objects.domainObjectSet(DependencyBucket.class);
+		this.elementsDynamicObject = new ContainerElementsDynamicObject();
 		buckets.all(bucket -> getExtensions().add(DependencyBucket.class, bucket.getName(), bucket));
 	}
 
@@ -59,7 +60,6 @@ public abstract class DefaultComponentDependencies implements ComponentDependenc
 	public DependencyBucket create(String name) {
 		val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(name), DeclarableDependencyBucket.class, ownerIdentifier);
 		val bucket = factory.create(identifier);
-		bucketIndex.put(name, bucket);
 		getBuckets().add(bucket);
 		return bucket;
 	}
@@ -69,16 +69,14 @@ public abstract class DefaultComponentDependencies implements ComponentDependenc
 		val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(name), DeclarableDependencyBucket.class, ownerIdentifier);
 		val bucket = factory.create(identifier);
 		action.execute(bucket.getAsConfiguration());
-		bucketIndex.put(name, bucket);
 		getBuckets().add(bucket);
 		return bucket;
 	}
 
 	@Override
 	public DependencyBucket getByName(String name) {
-		return bucketIndex.computeIfAbsent(name, it -> {
-			throw new UnknownDomainObjectException(String.format("%s with name '%s' not found.", getTypeDisplayName(), name));
-		});
+		return Optional.ofNullable((DependencyBucket) getExtensions().findByName(name))
+			.orElseThrow(() -> new UnknownDomainObjectException(String.format("%s with name '%s' not found.", getTypeDisplayName(), name)));
 	}
 
 	private String getTypeDisplayName() {
@@ -88,13 +86,13 @@ public abstract class DefaultComponentDependencies implements ComponentDependenc
 	@Override
 	public void add(String bucketName, Object notation) {
 		assertBucketExists(bucketName);
-		bucketIndex.get(bucketName).addDependency(notation);
+		((DependencyBucket) getExtensions().getByName(bucketName)).addDependency(notation);
 	}
 
 	@Override
 	public void add(String bucketName, Object notation, Action<? super ModuleDependency> action) {
 		assertBucketExists(bucketName);
-		bucketIndex.get(bucketName).addDependency(notation, action);
+		((DependencyBucket) getExtensions().getByName(bucketName)).addDependency(notation, action);
 	}
 
 	@Override
@@ -104,11 +102,11 @@ public abstract class DefaultComponentDependencies implements ComponentDependenc
 
 	@Override
 	public Optional<DependencyBucket> findByName(String name) {
-		return Optional.ofNullable(bucketIndex.get(name));
+		return Optional.ofNullable((DependencyBucket) getExtensions().findByName(name));
 	}
 
 	private void assertBucketExists(String bucketName) {
-		if (!bucketIndex.containsKey(bucketName)) {
+		if (getExtensions().findByName(bucketName) == null) {
 			throw new IllegalArgumentException(String.format("Dependency bucket named '%s' couldn't be found.", bucketName));
 		}
 	}
@@ -124,6 +122,12 @@ public abstract class DefaultComponentDependencies implements ComponentDependenc
 	}
 
 	private class ContainerElementsDynamicObject extends AbstractDynamicObject {
+		private final Map<String, DependencyBucket> bucketIndex = new HashMap<>();
+
+		ContainerElementsDynamicObject() {
+			buckets.all(bucket -> bucketIndex.put(bucket.getName(), bucket));
+		}
+
 		@Override
 		public String getDisplayName() {
 			return "";
@@ -131,7 +135,7 @@ public abstract class DefaultComponentDependencies implements ComponentDependenc
 
 		@Override
 		public DynamicInvokeResult tryGetProperty(String name) {
-			val bucket = bucketIndex.get(name);
+			@Nullable val bucket = (DependencyBucket) getExtensions().findByName(name);
 			if (bucket == null) {
 				return DynamicInvokeResult.notFound();
 			}
