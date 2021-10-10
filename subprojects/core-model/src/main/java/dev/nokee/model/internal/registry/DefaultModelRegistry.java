@@ -98,7 +98,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 				entity.addComponent(component);
 			}
 		}
-		entity.addComponent(path);
 		return entity;
 	}
 
