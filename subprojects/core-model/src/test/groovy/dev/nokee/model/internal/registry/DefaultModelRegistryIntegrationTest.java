@@ -272,11 +272,11 @@ public class DefaultModelRegistryIntegrationTest {
 	@Test
 	void honorsNestedConfigurationActionOrder() {
 		val executionOrder = new ArrayList<String>();
-		modelRegistry.configure(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(RelativeConfigurationService.class), (n1, path1, configurer1) -> {
+		modelRegistry.configure(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), ModelComponentReference.of(RelativeConfigurationService.class), (n1, path1, state1, configurer1) -> {
 			executionOrder.add("n1 - " + ModelNodeUtils.getPath(n1));
-			ModelNodeUtils.applyTo(n1, allDirectDescendants().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(RelativeConfigurationService.class), (n2, path2, configurer2) -> {
+			ModelNodeUtils.applyTo(n1, allDirectDescendants().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), ModelComponentReference.of(RelativeConfigurationService.class), (n2, path2, state2, configurer2) -> {
 				executionOrder.add("n2 - " + ModelNodeUtils.getPath(n2));
-				ModelNodeUtils.applyTo(n2, allDirectDescendants().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (n3, path3) -> executionOrder.add("n3 - " + ModelNodeUtils.getPath(n3))))));
+				ModelNodeUtils.applyTo(n2, allDirectDescendants().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), (n3, path3, state3) -> executionOrder.add("n3 - " + ModelNodeUtils.getPath(n3))))));
 			}))));
 		})));
 
