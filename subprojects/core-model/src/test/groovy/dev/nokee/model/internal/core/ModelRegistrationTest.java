@@ -36,7 +36,7 @@ class ModelRegistrationTest {
 	void canCreateFromRawPathAndRawType() {
 		assertAll(() -> {
 			val registration = ModelRegistration.of("a.b.c", MyType.class);
-			assertEquals(path("a.b.c"), registration.getPath());
+			assertThat(registration.getComponents(), hasItem(path("a.b.c")));
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
@@ -74,7 +74,7 @@ class ModelRegistrationTest {
 	void canCreateRegistrationForInstance() {
 		assertAll(() -> {
 			val registration = unmanagedInstance(of("foo", MyType.class), alwaysThrow());
-			assertEquals(path("foo"), registration.getPath());
+			assertThat(registration.getComponents(), hasItem(path("foo")));
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
@@ -85,7 +85,7 @@ class ModelRegistrationTest {
 	void canCreateRegistrationForDeferredInstance() {
 		assertAll(() -> {
 			val registration = bridgedInstance(of("foo", MyType.class), new MyType());
-			assertEquals(path("foo"), registration.getPath());
+			assertThat(registration.getComponents(), hasItem(path("foo")));
 			assertEquals(of(MyType.class), registration.getDefaultProjectionType());
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
