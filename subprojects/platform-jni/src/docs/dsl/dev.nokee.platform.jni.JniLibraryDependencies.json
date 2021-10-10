@@ -1,5 +1,0 @@
-{
-	"category": "JNI types",
-	"properties": [],
-	"methods": ["api", "jvmImplementation", "jvmRuntimeOnly", "nativeImplementation", "nativeLinkOnly", "nativeRuntimeOnly"]
-}
