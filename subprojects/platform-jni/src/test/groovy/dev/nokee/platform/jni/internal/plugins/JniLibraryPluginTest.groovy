@@ -969,9 +969,9 @@ abstract class AbstractJniLibraryPluginWithNativeLanguageConfigurationsTest exte
 
 	static List<String> getNativeLanguageConfigurations(String variantName) {
 		if (variantName.isEmpty()) {
-			return ['headerSearchPaths']
+			return ['nativeHeaderSearchPaths']
 		}
-		return ["${variantName}HeaderSearchPaths"]
+		return ["${variantName}NativeHeaderSearchPaths"]
 	}
 }
 
