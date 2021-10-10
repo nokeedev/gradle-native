@@ -104,7 +104,7 @@ public final class XCTestTestSuiteComponentVariants implements ComponentVariants
 			});
 		}
 
-		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
+		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant).withOwnerIdentifier(variantIdentifier);
 		boolean hasSwift = modelLookup.anyMatch(ModelSpecs.of(ModelNodes.withType(of(SwiftSourceSet.class))));
 		if (hasSwift) {
 			incomingDependenciesBuilder.withIncomingSwiftModules();

@@ -105,7 +105,7 @@ public final class IosComponentVariants implements ComponentVariants {
 			});
 		}
 
-		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant);
+		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant).withOwnerIdentifier(variantIdentifier);
 
 		// FIXME!!!!
 		val swiftSources = new ArrayList<KnownDomainObject<SwiftSourceSet>>();
