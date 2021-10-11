@@ -43,6 +43,11 @@ public class ModelNodesTest {
 	}
 
 	@Test
+	void canAccessModelNodeFromModelNodeInstance() {
+		assertThat("model node is accessible on actual model node", of(aModelNodeInstance()), isA(ModelNode.class));
+	}
+
+	@Test
 	void throwsExceptionIfObjectIsNotExtensibleAware() {
 		assertThrows(IllegalArgumentException.class, () -> of(object()), "cannot get model node for non-ExtensibleAware types");
 	}
@@ -84,6 +89,10 @@ public class ModelNodesTest {
 				return node;
 			}
 		};
+	}
+
+	private static Object aModelNodeInstance() {
+		return node("d.g.d");
 	}
 
 	private static Object object() {

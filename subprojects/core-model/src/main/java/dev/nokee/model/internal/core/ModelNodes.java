@@ -114,6 +114,8 @@ public final class ModelNodes {
 				throw objectNotDecoratedWithModelNode(target);
 			}
 			return node;
+		} else if (target instanceof ModelNode) {
+			return (ModelNode) target;
 		}
 		throw objectNotDecoratedWithModelNode(target);
 	}
