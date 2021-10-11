@@ -20,10 +20,13 @@ import lombok.Value;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
+import java.util.stream.Collectors;
+
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -59,6 +62,11 @@ class ModelPropertiesTest {
 	@Test
 	void throwsExceptionIfNoEntityMatchPropertyName() {
 		assertThrows(RuntimeException.class, () -> ModelProperties.getProperty(subject, "propNonExistent"));
+	}
+
+	@Test
+	void canRetrieveProperties() {
+		assertThat(ModelProperties.getProperties(subject).map(ModelElement::getName).collect(Collectors.toList()), contains("propA", "propB"));
 	}
 
 	@Value
