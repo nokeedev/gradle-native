@@ -19,6 +19,7 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.type.ModelType;
 
 public final class ModelNodeBackedElement implements ModelElement, ModelNodeAware {
@@ -26,6 +27,11 @@ public final class ModelNodeBackedElement implements ModelElement, ModelNodeAwar
 
 	public ModelNodeBackedElement(ModelNode node) {
 		this.node = node;
+	}
+
+	@Override
+	public String getName() {
+		return ModelNodeUtils.getPath(node).getName();
 	}
 
 	@Override
