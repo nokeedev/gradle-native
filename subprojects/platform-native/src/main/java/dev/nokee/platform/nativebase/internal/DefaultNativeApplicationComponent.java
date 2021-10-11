@@ -118,8 +118,6 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(NativeApplication.class), entity));
 		}));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
-
-		getComponentVariants().calculateVariants();
 	}
 
 	private static void whenElementKnown(Object target, ModelAction action) {

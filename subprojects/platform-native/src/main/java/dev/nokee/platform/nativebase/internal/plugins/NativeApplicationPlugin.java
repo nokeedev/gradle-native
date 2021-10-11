@@ -15,11 +15,14 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins;
 
+import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.BaseDomainObjectViewProjection;
 import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
@@ -37,27 +40,31 @@ import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
+import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
-import dev.nokee.platform.nativebase.internal.NativeApplicationComponentVariants;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
-import dev.nokee.platform.nativebase.internal.TargetMachineRule;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
+import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.dependencies.*;
+import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.utils.TransformerUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import lombok.var;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
+
+import java.util.function.Consumer;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelNodes.*;
@@ -69,6 +76,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.maven;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
+import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public class NativeApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -160,21 +168,70 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
-				ModelNodeUtils.get(entity, of(DefaultNativeApplicationComponent.class)).finalizeExtension(null);
-				ModelNodeUtils.get(entity, NativeApplicationComponentVariants.class).getVariantCollection().whenElementKnown(knownVariant -> {
-					val variant = registry.register(ModelRegistration.builder()
-						.withComponent(path.child(knownVariant.getIdentifier().getUnambiguousName()))
-						.withComponent(IsVariant.tag())
-						.withComponent(createdUsing(of(NativeApplication.class), knownVariant.map(TransformerUtils.noOpTransformer())::get))
-						.withComponent(knownVariant.getIdentifier())
-						.build());
-					knownVariant.configure(it -> {
-						variant.as(NativeApplication.class).get();
-					});
+				val component = ModelNodeUtils.get(entity, of(DefaultNativeApplicationComponent.class));
+				component.finalizeExtension(null);
+				component.getDevelopmentVariant().set(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get()))); // TODO: VariantView#get should force finalize the component.
 
-					registry.register(propertyFactory.create(path.child("variants").child(knownVariant.getIdentifier().getUnambiguousName()), ModelNodes.of(variant)));
+				component.getBuildVariants().get().forEach(new Consumer<BuildVariantInternal>() {
+					@Override
+					public void accept(BuildVariantInternal buildVariant) {
+						val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeApplicationVariant.class).build();
+						val variant = ModelNodeUtils.register(entity, nativeApplicationVariant(variantIdentifier, component, project));
+
+						onEachVariantDependencies(variant.as(NativeApplication.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
+
+						registry.register(propertyFactory.create(path.child("variants").child(variantIdentifier.getUnambiguousName()), ModelNodes.of(variant)));
+					}
+
+					private void onEachVariantDependencies(DomainObjectProvider<NativeApplication> variant, VariantComponentDependencies<?> dependencies) {
+						dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
+					}
 				});
 			})))
 			;
+	}
+
+
+	public static NodeRegistration nativeApplicationVariant(VariantIdentifier<DefaultNativeApplicationVariant> identifier, DefaultNativeApplicationComponent component, Project project) {
+		val variantDependencies = newDependencies((BuildVariantInternal) identifier.getBuildVariant(), identifier, component, project.getConfigurations(), project.getDependencies(), project.getObjects(), project.getExtensions().getByType(ModelLookup.class));
+		return NodeRegistration.unmanaged(identifier.getUnambiguousName(), of(NativeApplication.class), new Factory<NativeApplication>() {
+			@Override
+			public NativeApplication create() {
+				val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
+				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
+
+				return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, identifier, variantDependencies, project.getObjects(), project.getProviders(), assembleTask, project.getExtensions().getByType(BinaryViewFactory.class));
+			}
+		})
+			.withComponent(IsVariant.tag())
+			.withComponent(identifier)
+			.withComponent(variantDependencies)
+			;
+	}
+
+	private static VariantComponentDependencies<DefaultNativeApplicationComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultNativeApplicationVariant> variantIdentifier, DefaultNativeApplicationComponent component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ObjectFactory objectFactory, ModelLookup modelLookup) {
+		var variantDependencies = component.getDependencies();
+		if (component.getBuildVariants().get().size() > 1) {
+			val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
+			variantDependencies = objectFactory.newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
+			variantDependencies.configureEach(variantBucket -> {
+				component.getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
+					variantBucket.getAsConfiguration().extendsFrom(componentBucket.getAsConfiguration());
+				});
+			});
+		}
+
+		boolean hasSwift = modelLookup.anyMatch(ModelSpecs.of(withType(of(SwiftSourceSet.class))));
+		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant).withOwnerIdentifier(variantIdentifier).withBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
+		if (hasSwift) {
+			incomingDependenciesBuilder.withIncomingSwiftModules();
+		} else {
+			incomingDependenciesBuilder.withIncomingHeaders();
+		}
+
+		val incoming = incomingDependenciesBuilder.buildUsing(objectFactory);
+		NativeOutgoingDependencies outgoing = objectFactory.newInstance(NativeApplicationOutgoingDependencies.class, variantIdentifier, buildVariant, variantDependencies);
+
+		return new VariantComponentDependencies<>(variantDependencies, incoming, outgoing);
 	}
 }
