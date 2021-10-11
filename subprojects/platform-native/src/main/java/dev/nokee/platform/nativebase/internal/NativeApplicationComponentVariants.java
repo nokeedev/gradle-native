@@ -38,6 +38,7 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
@@ -50,7 +51,7 @@ import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK
 public final class NativeApplicationComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<DefaultNativeApplicationVariant> variantCollection;
 	@Getter private final SetProperty<BuildVariantInternal> buildVariants;
-	@Getter private final Provider<DefaultNativeApplicationVariant> developmentVariant;
+	@Getter private final Property<DefaultNativeApplicationVariant> developmentVariant;
 	private final ObjectFactory objectFactory;
 	private final DefaultNativeApplicationComponent component;
 	private final DependencyHandler dependencyHandler;
@@ -65,7 +66,7 @@ public final class NativeApplicationComponentVariants implements ComponentVarian
 		this.modelLookup = modelLookup;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), DefaultNativeApplicationVariant.class, eventPublisher, viewFactory, variantRepository);
 		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
-		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get()));
+		this.developmentVariant = objectFactory.property(DefaultNativeApplicationVariant.class).convention(providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get())));
 		this.objectFactory = objectFactory;
 		this.component = component;
 		this.dependencyHandler = dependencyHandler;
