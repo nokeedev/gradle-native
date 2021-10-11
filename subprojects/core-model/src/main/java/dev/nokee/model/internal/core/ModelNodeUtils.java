@@ -125,7 +125,6 @@ public final class ModelNodeUtils {
 	 * Returns a model provider of the relative registration.
 	 *
 	 * @param registration  registration request relative to this model node
-	 * @param <T>  the default projection type of this registration
 	 * @return a provider to the default projection of this registration.
 	 */
 	// TODO: Should we return a provider here?
