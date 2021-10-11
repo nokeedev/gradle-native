@@ -28,8 +28,7 @@ import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.type.ModelType.untyped;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ModelNodesTest {
 	@Test
@@ -56,6 +55,19 @@ public class ModelNodesTest {
 	void canInjectModelNode() {
 		val node = node("a.b.c");
 		assertEquals(node, of(inject(undecoratedObject(), node)), "should be able to inject model node in ExtensibleAware types");
+	}
+
+	@Test
+	void canInjectTheSameModelNodeMultipleTime() {
+		val node = node("a.b.c");
+		val target = inject(undecoratedObject(), node);
+		assertDoesNotThrow(() -> inject(target, node));
+	}
+
+	@Test
+	void throwsExceptionWhenInjectTheDifferentModelNodes() {
+		val target = inject(undecoratedObject(), node("a.b.c"));
+		assertThrows(RuntimeException.class, () -> inject(target, node("j.k.l")));
 	}
 
 	@Test
