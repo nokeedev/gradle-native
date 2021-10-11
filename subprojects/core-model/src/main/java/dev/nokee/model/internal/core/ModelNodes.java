@@ -124,7 +124,13 @@ public final class ModelNodes {
 		requireNonNull(target);
 		requireNonNull(node);
 		assert target instanceof ExtensionAware;
-		((ExtensionAware) target).getExtensions().add(ModelNode.class, "__NOKEE_modelNode", node);
+		val extensions = ((ExtensionAware) target).getExtensions();
+		val currentNode = extensions.findByName("__NOKEE_modelNode");
+		if (currentNode == null) {
+			((ExtensionAware) target).getExtensions().add(ModelNode.class, "__NOKEE_modelNode", node);
+		} else if (currentNode != node) {
+			throw new IllegalStateException("Injecting a different model node!");
+		}
 		return target;
 	}
 
