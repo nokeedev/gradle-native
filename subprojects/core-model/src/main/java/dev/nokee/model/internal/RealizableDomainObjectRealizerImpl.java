@@ -88,7 +88,7 @@ public final class RealizableDomainObjectRealizerImpl implements RealizableDomai
 			}
 		}
 
-		if (knownIdentifiers.contains(identifier)) {
+		if (knownIdentifiers.contains(identifier) && !realizedIdentifiers.contains(identifier)) {
 			val realizedElement = identifierToCreated.remove(identifier);
 			if (realizedElement == null) {
 				throw new IllegalStateException("Element wasn't created");
