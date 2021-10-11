@@ -155,4 +155,8 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	public DefaultJavaNativeInterfaceNativeComponentDependencies getDependencies() {
 		return dependencies;
 	}
+
+	public boolean isBuildable() {
+		return getSharedLibrary().isBuildable();
+	}
 }
