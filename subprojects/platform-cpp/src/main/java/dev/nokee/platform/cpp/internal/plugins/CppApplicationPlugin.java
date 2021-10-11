@@ -43,10 +43,15 @@ import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.cpp.CppApplication;
 import dev.nokee.platform.cpp.CppApplicationSources;
-import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.NativeApplication;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.NativeApplicationComponentVariants;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
+import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
+import dev.nokee.utils.TransformerUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -151,7 +156,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("variants"))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(ModelType.of(VariantView.class), () -> ModelNodeUtils.get(entity, ModelType.of(NativeApplicationComponentVariants.class)).getVariantCollection().getAsView(DefaultNativeApplicationVariant.class)))
+					.withComponent(createdUsing(of(VariantView.class), () -> new ModelNodeBackedVariantView<>(project.getProviders(), NativeApplication.class)))
 					.build());
 
 				// TODO: Should be created as ModelProperty (readonly) with BinaryView<Binary> projection
@@ -162,7 +167,23 @@ public class CppApplicationPlugin implements Plugin<Project> {
 					.build());
 			})))
 			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+
 				ModelNodeUtils.get(entity, of(DefaultNativeApplicationComponent.class)).finalizeExtension(null);
+				ModelNodeUtils.get(entity, NativeApplicationComponentVariants.class).getVariantCollection().whenElementKnown(knownVariant -> {
+					val variant = registry.register(ModelRegistration.builder()
+						.withComponent(path.child(knownVariant.getIdentifier().getUnambiguousName()))
+						.withComponent(IsVariant.tag())
+						.withComponent(createdUsing(of(NativeApplication.class), knownVariant.map(TransformerUtils.noOpTransformer())::get))
+						.withComponent(knownVariant.getIdentifier())
+						.build());
+					knownVariant.configure(it -> {
+						variant.as(NativeApplication.class).get();
+					});
+
+					registry.register(propertyFactory.create(path.child("variants").child(knownVariant.getIdentifier().getUnambiguousName()), ModelNodes.of(variant)));
+				});
 			})))
 			;
 	}

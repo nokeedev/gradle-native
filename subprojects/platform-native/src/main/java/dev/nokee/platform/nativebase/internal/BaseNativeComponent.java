@@ -19,9 +19,12 @@ import com.google.common.base.Preconditions;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
+import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.core.ModelComponentType;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -40,9 +43,13 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.internal.Cast;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
+
+import java.util.function.Consumer;
 
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
@@ -71,7 +78,14 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	}
 
 	protected void createBinaries(KnownVariant<T> knownVariant) {
-		val variantIdentifier = knownVariant.getIdentifier();
+		doCreateBinaries(knownVariant.getIdentifier(), knownVariant::configure);
+	}
+
+	protected void createBinaries(KnownDomainObject<T> knownVariant) {
+		doCreateBinaries(ModelNodes.of(knownVariant).getComponent(ModelComponentType.componentOf(VariantIdentifier.class)), knownVariant::configure);
+	}
+
+	private void doCreateBinaries(VariantIdentifier<?> variantIdentifier, Consumer<? super Action<? super T>> variantConfigure) {
 		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
 		final TargetMachine targetMachineInternal = buildVariant.getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
 
@@ -92,7 +106,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 			}
 		}
 
-		knownVariant.configure(it -> {
+		variantConfigure.accept((Action<? super T>) it -> {
 			val incomingDependencies = (NativeIncomingDependencies) it.getResolvableDependencies();
 			val objectSourceSets = new NativeLanguageRules(taskRegistry, objects, variantIdentifier).apply(sourceViewOf(this));
 			BaseNativeVariant variantInternal = (BaseNativeVariant)it;

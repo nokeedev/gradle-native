@@ -15,13 +15,22 @@
  */
 package dev.nokee.platform.nativebase.internal.rules;
 
+import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.core.ModelComponentType;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.nativebase.internal.tasks.ObjectsLifecycleTask;
 import org.gradle.api.Action;
+import org.gradle.api.provider.Provider;
+
+import java.util.Set;
 
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 
@@ -34,6 +43,14 @@ public class CreateVariantObjectsLifecycleTaskRule implements Action<KnownVarian
 
 	@Override
 	public void execute(KnownVariant<? extends Variant> knownVariant) {
-		taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of("objects"), ObjectsLifecycleTask.class, knownVariant.getIdentifier())).configure(configureDependsOn(knownVariant.flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS)));
+		doExecute(knownVariant.getIdentifier(), knownVariant.flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS));
+	}
+
+	public void accept(KnownDomainObject<? extends Variant> knownVariant) {
+		doExecute(ModelNodes.of(knownVariant).getComponent(ModelComponentType.componentOf(VariantIdentifier.class)), knownVariant.flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS));
+	}
+
+	private void doExecute(VariantIdentifier<?> variantIdentifier, Provider<Set<? extends SourceCompile>> compileTasksProvider) {
+		taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of("objects"), ObjectsLifecycleTask.class, variantIdentifier)).configure(configureDependsOn(compileTasksProvider));
 	}
 }
