@@ -31,17 +31,17 @@ import static dev.nokee.model.internal.core.ModelRegistration.builder;
 @EqualsAndHashCode
 public final class NodeRegistration {
 	private final String name;
-	private final List<ModelProjection> projections = new ArrayList<>();
+	private final List<Object> components = new ArrayList<>();
 	private final List<NodeAction> actionRegistrations = new ArrayList<>();
 
 	private NodeRegistration(String name, ModelProjection defaultProjection) {
 		this.name = name;
-		projections.add(defaultProjection);
+		components.add(defaultProjection);
 	}
 
 	ModelRegistration scope(ModelPath path) {
 		val builder = builder().withComponent(path.child(name));
-		projections.forEach(builder::withComponent);
+		components.forEach(builder::withComponent);
 		actionRegistrations.stream().map(it -> it.scope(path.child(name))).forEach(builder::action);
 		return builder.build();
 	}
@@ -54,8 +54,8 @@ public final class NodeRegistration {
 		return new NodeRegistration(name, ModelProjections.createdUsing(type, factory));
 	}
 
-	public NodeRegistration withProjection(ModelProjection projection) {
-		projections.add(projection);
+	public NodeRegistration withComponent(Object component) {
+		components.add(component);
 		return this;
 	}
 

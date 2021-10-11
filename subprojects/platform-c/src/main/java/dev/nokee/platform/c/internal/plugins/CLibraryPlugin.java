@@ -78,7 +78,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 
 	public static NodeRegistration cLibrary(String name, Project project) {
 		return component(name, CLibrary.class)
-			.withProjection(ModelProjections.createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
+			.withComponent(ModelProjections.createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
 			.action(self(discover()).apply(register(sources())));
 	}
 

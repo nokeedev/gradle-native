@@ -38,11 +38,11 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 	public static <T extends LanguageSourceSet> NodeRegistration sourceSet(String name, Class<T> publicType) {
 		return NodeRegistration.of(name, of(publicType))
-			.withProjection(managed(of(BaseLanguageSourceSetProjection.class)));
+			.withComponent(managed(of(BaseLanguageSourceSetProjection.class)));
 	}
 
 	public static <T extends LanguageSourceSet> NodeRegistration bridgeSourceSet(SourceDirectorySet from, Class<T> to) {
 		return NodeRegistration.of(from.getName(), of(to))
-			.withProjection(managed(of(BridgedLanguageSourceSetProjection.class), from));
+			.withComponent(managed(of(BridgedLanguageSourceSetProjection.class), from));
 	}
 }

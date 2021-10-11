@@ -76,7 +76,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 
 	public static NodeRegistration swiftIosApplication(String name, Project project) {
 		return component(name, SwiftIosApplication.class)
-			.withProjection(ModelProjections.createdUsing(of(DefaultIosApplicationComponent.class), () -> create(name, project)))
+			.withComponent(ModelProjections.createdUsing(of(DefaultIosApplicationComponent.class), () -> create(name, project)))
 			.action(self(discover()).apply(register(sources())))
 			.action(configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
 	}

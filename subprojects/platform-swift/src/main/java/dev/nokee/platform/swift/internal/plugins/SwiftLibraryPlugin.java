@@ -82,7 +82,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 
 	public static NodeRegistration swiftLibrary(String name, Project project) {
 		return component(name, SwiftLibrary.class)
-			.withProjection(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
+			.withComponent(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
 			.action(self(discover()).apply(register(sources())));
 	}
 

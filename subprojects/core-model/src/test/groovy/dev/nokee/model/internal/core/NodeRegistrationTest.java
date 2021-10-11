@@ -58,13 +58,13 @@ class NodeRegistrationTest {
 	@Test
 	void whenNodeRegistrationAreScopedTheyAreEqualToAnEquivalentModelRegistration() {
 		assertThat(NodeRegistration.of("a", of(MyType.class)).scope(path("foo")), equalTo(ModelRegistration.of("foo.a", MyType.class)));
-		assertThat(NodeRegistration.of("b", of(MyType.class)).withProjection(ModelProjections.ofInstance("bar")).scope(path("bar")),
+		assertThat(NodeRegistration.of("b", of(MyType.class)).withComponent(ModelProjections.ofInstance("bar")).scope(path("bar")),
 			equalTo(ModelRegistration.builder().withComponent(path("bar.b")).withComponent(ModelProjections.managed(of(MyType.class))).withComponent(ModelProjections.ofInstance("bar")).build()));
 	}
 
 	@Test
 	void canAddProjection() {
-		val registration = NodeRegistration.of("c", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")).scope(path("ab"));
+		val registration = NodeRegistration.of("c", of(MyType.class)).withComponent(ModelProjections.ofInstance("foo")).scope(path("ab"));
 		assertAll(() -> {
 			assertThat(registration.getComponents(), hasItem(path("ab.c")));
 			assertThat(registration.getActions(), emptyIterable());
@@ -79,8 +79,8 @@ class NodeRegistrationTest {
 			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)), NodeRegistration.of("a", of(MyType.class)))
 			.addEqualityGroup(NodeRegistration.of("c", of(MyType.class)))
 			.addEqualityGroup(NodeRegistration.of("a", of(MyOtherType.class)))
-			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")))
-			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withProjection(ModelProjections.ofInstance("foo")).action(self(stateAtLeast(ModelState.Registered)).apply(doSomething())))
+			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withComponent(ModelProjections.ofInstance("foo")))
+			.addEqualityGroup(NodeRegistration.of("a", of(MyType.class)).withComponent(ModelProjections.ofInstance("foo")).action(self(stateAtLeast(ModelState.Registered)).apply(doSomething())))
 			.testEquals();
 	}
 
