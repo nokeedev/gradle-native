@@ -22,6 +22,7 @@ import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -65,7 +66,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 	public abstract NativeComponentDependencies getDependencies();
 
-	public VariantViewInternal<T> getVariants() {
+	public VariantView<T> getVariants() {
 		return getVariantCollection().getAsView(variantType);
 	}
 
