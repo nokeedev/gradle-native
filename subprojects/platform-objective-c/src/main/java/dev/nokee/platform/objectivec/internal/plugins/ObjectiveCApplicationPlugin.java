@@ -33,8 +33,7 @@ import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentName;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
@@ -102,6 +101,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 			//   and link FileCollection to source sets
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
 				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
+			.withComponent(IsComponent.tag())
 			.withComponent(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
 			.withComponent(createdUsing(ModelType.of(NativeApplicationComponentVariants.class), () -> {
 				val component = ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(DefaultNativeApplicationComponent.class));
