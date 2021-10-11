@@ -15,8 +15,13 @@
  */
 package dev.nokee.platform.nativebase.internal.rules;
 
+import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.core.ModelComponentType;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -29,6 +34,7 @@ import lombok.Value;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
+import org.gradle.api.provider.Provider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,12 +60,19 @@ public class CreateNativeBinaryLifecycleTaskRule implements Action<KnownVariant<
 
 	@Override
 	public void execute(KnownVariant<? extends Variant> knownVariant) {
-		val variantIdentifier = knownVariant.getIdentifier();
+		doExecute(knownVariant.getIdentifier(), knownVariant.flatMap(TO_DEVELOPMENT_BINARY));
+	}
+
+	public void accept(KnownDomainObject<? extends Variant> knownVariant) {
+		doExecute(ModelNodes.of(knownVariant).getComponent(ModelComponentType.componentOf(VariantIdentifier.class)), knownVariant.flatMap(TO_DEVELOPMENT_BINARY));
+	}
+
+	private void doExecute(VariantIdentifier<?> variantIdentifier, Provider<Binary> binaryProvider) {
 		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
 		if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
 			val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 			val taskConfiguration = TASK_CONFIGURATIONS.computeIfAbsent(linkage, CreateNativeBinaryLifecycleTaskRule::throwUnknownLinkageException);
-			taskRegistry.register(TaskIdentifier.of(taskConfiguration.name, taskConfiguration.taskType, variantIdentifier), configureDependsOn(knownVariant.map(TO_DEVELOPMENT_BINARY)));
+			taskRegistry.register(TaskIdentifier.of(taskConfiguration.name, taskConfiguration.taskType, variantIdentifier), configureDependsOn(binaryProvider));
 		}
 	}
 
