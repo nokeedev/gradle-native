@@ -52,7 +52,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 		val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);
 		val registry = ModelNodeUtils.get(ModelNodes.of(testSuites), NodeRegistrationFactoryRegistry.class);
-		registry.registerFactory(of(NativeTestSuite.class), (NodeRegistrationFactory<? extends DefaultNativeTestSuiteComponent>) name -> nativeTestSuite(name, project));
+		registry.registerFactory(of(NativeTestSuite.class), name -> nativeTestSuite(name, project));
 
 		project.afterEvaluate(proj -> {
 			// TODO: We delay as late as possible to "fake" a finalize action.
