@@ -34,6 +34,7 @@ import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
+import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.tasks.internal.*;
 import dev.nokee.platform.nativebase.ExecutableBinary;
@@ -128,6 +129,11 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	@Override
 	public BinaryView<Binary> getBinaries() {
 		return binaries;
+	}
+
+	@Override
+	public VariantViewInternal<DefaultIosApplicationVariant> getVariants() {
+		return (VariantViewInternal<DefaultIosApplicationVariant>) super.getVariants();
 	}
 
 	@Override

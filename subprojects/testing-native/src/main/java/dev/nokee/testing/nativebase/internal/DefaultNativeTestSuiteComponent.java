@@ -41,6 +41,7 @@ import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
+import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
@@ -158,6 +159,11 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	@Override
 	public BinaryView<Binary> getBinaries() {
 		return binaries;
+	}
+
+	@Override
+	public VariantViewInternal<DefaultNativeTestSuiteVariant> getVariants() {
+		return (VariantViewInternal<DefaultNativeTestSuiteVariant>) super.getVariants();
 	}
 
 	@Override
