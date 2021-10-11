@@ -83,7 +83,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 
 	public static NodeRegistration cppLibrary(String name, Project project) {
 		return component(name, CppLibrary.class)
-			.withProjection(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
+			.withComponent(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
 			.action(self(discover()).apply(once(register(sources()))));
 	}
 

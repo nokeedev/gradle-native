@@ -84,7 +84,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 
 	public static NodeRegistration objectiveCLibrary(String name, Project project) {
 		return component(name, ObjectiveCLibrary.class)
-			.withProjection(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
+			.withComponent(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
 			.action(self(discover()).apply(register(sources())))
 			.action(configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
 	}

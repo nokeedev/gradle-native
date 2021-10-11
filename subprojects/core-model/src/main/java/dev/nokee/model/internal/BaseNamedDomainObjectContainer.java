@@ -41,9 +41,9 @@ public class BaseNamedDomainObjectContainer<T> extends AbstractModelNodeBackedNa
 
 	public static <T> NodeRegistration namedContainer(String name, ModelType<T> viewType) {
 		return NodeRegistration.of(name, viewType, elementTypeParameter(viewType, DomainObjectContainer.class))
-			.withProjection(managed(of(BaseDomainObjectViewProjection.class)))
-			.withProjection(managed(of(BaseNamedDomainObjectViewProjection.class)))
-			.withProjection(managed(of(BaseNamedDomainObjectContainerProjection.class)))
-			.withProjection(ofInstance(new NodeRegistrationFactories()));
+			.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
+			.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
+			.withComponent(managed(of(BaseNamedDomainObjectContainerProjection.class)))
+			.withComponent(ofInstance(new NodeRegistrationFactories()));
 	}
 }

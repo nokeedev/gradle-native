@@ -84,7 +84,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 
 	public static NodeRegistration objectiveCppLibrary(String name, Project project) {
 		return component(name, ObjectiveCppLibrary.class)
-			.withProjection(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
+			.withComponent(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
 			.action(self(discover()).apply(register(sources())))
 			.action(configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
 	}

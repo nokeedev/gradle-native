@@ -110,7 +110,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 
 	public static NodeRegistration objectiveCIosApplication(String name, Project project) {
 		return component(name, ObjectiveCIosApplication.class)
-			.withProjection(ModelProjections.createdUsing(of(DefaultIosApplicationComponent.class), () -> create(name, project)))
+			.withComponent(ModelProjections.createdUsing(of(DefaultIosApplicationComponent.class), () -> create(name, project)))
 			.action(self(discover()).apply(register(sources())))
 			.action(configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
 	}

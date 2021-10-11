@@ -78,7 +78,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 
 	public static NodeRegistration nativeApplication(String name, Project project) {
 		return component(name, NativeApplicationExtension.class)
-			.withProjection(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
+			.withComponent(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
 			.action(self(discover()).apply(register(componentSourcesOf(NativeApplicationSources.class))))
 			.action(self(discover()).apply(register(sourceSet("headers", CHeaderSet.class)))); // TODO: Should be under sources
 	}

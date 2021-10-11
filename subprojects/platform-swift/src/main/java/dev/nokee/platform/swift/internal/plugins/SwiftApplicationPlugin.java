@@ -80,7 +80,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 
 	public static NodeRegistration swiftApplication(String name, Project project) {
 		return component(name, SwiftApplication.class)
-			.withProjection(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
+			.withComponent(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
 			.action(self(discover()).apply(register(sources())));
 	}
 

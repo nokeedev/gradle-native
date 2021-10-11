@@ -82,7 +82,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 
 	public static NodeRegistration objectiveCppApplication(String name, Project project) {
 		return component(name, ObjectiveCppApplication.class)
-			.withProjection(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
+			.withComponent(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
 			.action(self(discover()).apply(register(sources())))
 			.action(configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
 	}

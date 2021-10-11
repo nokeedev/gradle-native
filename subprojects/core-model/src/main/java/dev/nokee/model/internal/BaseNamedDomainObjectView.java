@@ -45,7 +45,7 @@ public class BaseNamedDomainObjectView<T> extends AbstractModelNodeBackedNamedDo
 
 	public static <T> NodeRegistration namedView(String name, ModelType<T> viewType) {
 		return NodeRegistration.of(name, viewType, elementTypeParameter(viewType, NamedDomainObjectView.class))
-			.withProjection(managed(of(BaseDomainObjectViewProjection.class)))
-			.withProjection(managed(of(BaseNamedDomainObjectViewProjection.class)));
+			.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
+			.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)));
 	}
 }

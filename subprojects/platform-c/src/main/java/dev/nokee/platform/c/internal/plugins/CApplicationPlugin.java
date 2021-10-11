@@ -104,8 +104,8 @@ public class CApplicationPlugin implements Plugin<Project> {
 			//   and link FileCollection to source sets
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
 				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
-			.withProjection(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
-			.withProjection(createdUsing(ModelType.of(NativeApplicationComponentVariants.class), () -> {
+			.withComponent(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
+			.withComponent(createdUsing(ModelType.of(NativeApplicationComponentVariants.class), () -> {
 				val component = ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(DefaultNativeApplicationComponent.class));
 				return new NativeApplicationComponentVariants(project.getObjects(), component, project.getDependencies(), project.getConfigurations(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(ModelLookup.class));
 			}))
