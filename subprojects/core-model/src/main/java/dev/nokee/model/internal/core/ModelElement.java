@@ -17,8 +17,9 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.type.ModelType;
+import org.gradle.api.Named;
 
-public interface ModelElement {
+public interface ModelElement extends Named {
 	default <T> DomainObjectProvider<T> as(Class<T> type) {
 		return as(ModelType.of(type));
 	}
