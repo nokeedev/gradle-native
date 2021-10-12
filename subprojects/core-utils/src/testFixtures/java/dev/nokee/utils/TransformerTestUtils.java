@@ -16,21 +16,24 @@
 package dev.nokee.utils;
 
 import lombok.EqualsAndHashCode;
+import org.gradle.api.Transformer;
 
 import javax.annotation.Nullable;
 
+import static dev.nokee.utils.ExecutionArgumentsFactory.create;
+
 public final class TransformerTestUtils {
 
-	public static <T> TransformerUtils.Transformer<T, T> aTransformer() {
+	public static <OUT, IN> TransformerUtils.Transformer<OUT, IN> aTransformer() {
 		return new ATransformer<>();
 	}
 
 	/** @see #aTransformer() */
 	@EqualsAndHashCode
-	private static final class ATransformer<T> implements TransformerUtils.Transformer<T, T> {
+	private static final class ATransformer<OUT, IN> implements TransformerUtils.Transformer<OUT, IN> {
 		@Override
-		public T transform(T t) {
-			return t;
+		public OUT transform(IN t) {
+			return null; // do not depend on the result
 		}
 
 		@Override
@@ -64,6 +67,26 @@ public final class TransformerTestUtils {
 		@Override
 		public String toString() {
 			return "anotherTransformer(" + (what == null ? "" : what) + ")";
+		}
+	}
+
+	public static <OUT, IN> MockTransformer<OUT, IN> mockTransformer() {
+		return new MockTransformer<>();
+	}
+
+	public static final class MockTransformer<OUT, IN> implements Transformer<OUT, IN>, HasExecutionResult<ExecutionArgument<IN>> {
+		final ExecutionResult<ExecutionArgument<IN>> result = new ExecutionResult<>();
+		private Transformer<OUT, IN> answer = it -> null; // force return null, but it's almost certainly wrong
+
+		@Override
+		public OUT transform(IN t) {
+			result.record(create(this, t));
+			return answer.transform(t);
+		}
+
+		public MockTransformer<OUT, IN> whenCalled(Transformer<OUT, IN> answer) {
+			this.answer = answer;
+			return this;
 		}
 	}
 }
