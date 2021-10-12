@@ -33,10 +33,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -170,7 +167,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("binaries"))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(BinaryView.class), () -> project.getExtensions().getByType(BinaryViewFactory.class).create(identifier)))
+					.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(project.getProviders(), () -> ModelStates.finalize(entity))))))
 					.build());
 			})))
 			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
