@@ -16,32 +16,21 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentVariants;
 import dev.nokee.platform.base.internal.VariantCollection;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
-import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
-import lombok.Getter;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 
 public final class NativeApplicationComponentVariants implements ComponentVariants {
 	private final VariantCollection<DefaultNativeApplicationVariant> variantCollection;
-	private final Property<DefaultNativeApplicationVariant> developmentVariant;
 
 	public NativeApplicationComponentVariants(ObjectFactory objectFactory, DefaultNativeApplicationComponent component, ProviderFactory providerFactory, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository) {
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), DefaultNativeApplicationVariant.class, eventPublisher, viewFactory, variantRepository);
-		this.developmentVariant = objectFactory.property(DefaultNativeApplicationVariant.class).convention(providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get())));
 	}
 
 	public VariantCollection<DefaultNativeApplicationVariant> getVariantCollection() {
 		return variantCollection;
-	}
-
-	public Property<DefaultNativeApplicationVariant> getDevelopmentVariant() {
-		return developmentVariant;
 	}
 }

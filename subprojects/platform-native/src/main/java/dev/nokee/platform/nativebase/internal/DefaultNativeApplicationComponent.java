@@ -59,6 +59,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	private final Supplier<NativeApplicationComponentVariants> componentVariants;
 	private final BinaryView<Binary> binaries;
 	private final SetProperty<BuildVariantInternal> buildVariants;
+	private final Property<DefaultNativeApplicationVariant> developmentVariant;
 
 	@Inject
 	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
@@ -69,6 +70,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 		this.componentVariants = () -> ModelNodeUtils.get(ModelNodes.of(this), ModelType.of(NativeApplicationComponentVariants.class));
 		this.binaries = (BinaryView<Binary>) ModelNodeUtils.get(modelLookup.get(path.child("binaries")), BinaryView.class);
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
+		this.developmentVariant = objects.property(DefaultNativeApplicationVariant.class);
 	}
 
 	@Override
@@ -78,7 +80,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 
 	@Override
 	public Property<DefaultNativeApplicationVariant> getDevelopmentVariant() {
-		return getComponentVariants().getDevelopmentVariant();
+		return developmentVariant;
 	}
 
 	@Override
