@@ -90,8 +90,8 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	}
 
 	@Override
-	public ModelNodeBackedVariantView<DefaultNativeApplicationVariant> getVariants() {
-		return (ModelNodeBackedVariantView<DefaultNativeApplicationVariant>) ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
+	public VariantView<DefaultNativeApplicationVariant> getVariants() {
+		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
 
 	@Override
