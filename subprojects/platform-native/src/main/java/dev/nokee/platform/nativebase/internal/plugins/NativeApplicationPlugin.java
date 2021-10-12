@@ -28,14 +28,18 @@ import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
@@ -45,6 +49,7 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
+import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
@@ -64,6 +69,7 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
@@ -157,7 +163,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("binaries"))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(ModelType.of(BinaryView.class), () -> project.getExtensions().getByType(BinaryViewFactory.class).create(identifier)))
+					.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(project.getProviders(), () -> ModelStates.finalize(entity))))))
 					.build());
 			})))
 			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
@@ -199,6 +205,25 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 			.withComponent(IsVariant.tag())
 			.withComponent(identifier)
 			.withComponent(variantDependencies)
+			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, identifier); // TODO: Use input to get variant identifier
+				val executable = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("executable"))
+					.withComponent(binaryIdentifier)
+					.withComponent(createdUsing(of(ExecutableBinary.class), () -> {
+						ModelStates.realize(entity);
+						return project.getExtensions().getByType(BinaryRepository.class).get(binaryIdentifier);
+					}))
+					.build());
+
+				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+				project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (e, p) -> {
+					if (path.getParent().get().child("binaries").equals(p)) {
+						registry.register(propertyFactory.create(p.child(Optional.of(identifier.getUnambiguousName()).filter(it -> !it.isEmpty()).map(it -> it + "Executable").orElse("executable")), ModelNodes.of(executable)));
+					}
+				}));
+			})))
 			;
 	}
 
