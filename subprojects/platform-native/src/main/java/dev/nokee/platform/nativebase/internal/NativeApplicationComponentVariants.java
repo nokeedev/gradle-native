@@ -15,22 +15,9 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.internal.ComponentVariants;
-import dev.nokee.platform.base.internal.VariantCollection;
-import dev.nokee.platform.base.internal.variants.VariantRepository;
-import dev.nokee.platform.base.internal.variants.VariantViewFactory;
-import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.ProviderFactory;
 
 public final class NativeApplicationComponentVariants implements ComponentVariants {
-	private final VariantCollection<DefaultNativeApplicationVariant> variantCollection;
 
-	public NativeApplicationComponentVariants(ObjectFactory objectFactory, DefaultNativeApplicationComponent component, ProviderFactory providerFactory, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository) {
-		this.variantCollection = new VariantCollection<>(component.getIdentifier(), DefaultNativeApplicationVariant.class, eventPublisher, viewFactory, variantRepository);
-	}
-
-	public VariantCollection<DefaultNativeApplicationVariant> getVariantCollection() {
-		return variantCollection;
-	}
+	public NativeApplicationComponentVariants() {}
 }

@@ -56,7 +56,6 @@ import static dev.nokee.model.internal.type.ModelType.of;
 public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources> {
 	private final DefaultNativeApplicationComponentDependencies dependencies;
 	private final TaskRegistry taskRegistry;
-	private final Supplier<NativeApplicationComponentVariants> componentVariants;
 	private final BinaryView<Binary> binaries;
 	private final SetProperty<BuildVariantInternal> buildVariants;
 	private final Property<DefaultNativeApplicationVariant> developmentVariant;
@@ -67,7 +66,6 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 		this.taskRegistry = taskRegistry;
 		val path = ModelNodeUtils.getPath(getNode());
 		this.dependencies = ModelNodeUtils.get(modelLookup.get(path.child("dependencies")), DefaultNativeApplicationComponentDependencies.class);
-		this.componentVariants = () -> ModelNodeUtils.get(ModelNodes.of(this), ModelType.of(NativeApplicationComponentVariants.class));
 		this.binaries = (BinaryView<Binary>) ModelNodeUtils.get(modelLookup.get(path.child("binaries")), BinaryView.class);
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = objects.property(DefaultNativeApplicationVariant.class);
@@ -101,10 +99,6 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
 		return buildVariants;
-	}
-
-	private NativeApplicationComponentVariants getComponentVariants() {
-		return componentVariants.get();
 	}
 
 	public void finalizeExtension(Project project) {
