@@ -30,21 +30,15 @@ import org.gradle.api.provider.SetProperty;
 
 public final class NativeApplicationComponentVariants implements ComponentVariants {
 	private final VariantCollection<DefaultNativeApplicationVariant> variantCollection;
-	private final SetProperty<BuildVariantInternal> buildVariants;
 	private final Property<DefaultNativeApplicationVariant> developmentVariant;
 
 	public NativeApplicationComponentVariants(ObjectFactory objectFactory, DefaultNativeApplicationComponent component, ProviderFactory providerFactory, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository) {
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), DefaultNativeApplicationVariant.class, eventPublisher, viewFactory, variantRepository);
-		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = objectFactory.property(DefaultNativeApplicationVariant.class).convention(providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get())));
 	}
 
 	public VariantCollection<DefaultNativeApplicationVariant> getVariantCollection() {
 		return variantCollection;
-	}
-
-	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return buildVariants;
 	}
 
 	public Property<DefaultNativeApplicationVariant> getDevelopmentVariant() {
