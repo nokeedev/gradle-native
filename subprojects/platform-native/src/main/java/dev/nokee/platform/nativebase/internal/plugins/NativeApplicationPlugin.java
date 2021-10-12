@@ -190,15 +190,12 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 
 	public static NodeRegistration nativeApplicationVariant(VariantIdentifier<DefaultNativeApplicationVariant> identifier, DefaultNativeApplicationComponent component, Project project) {
 		val variantDependencies = newDependencies((BuildVariantInternal) identifier.getBuildVariant(), identifier, component, project.getConfigurations(), project.getDependencies(), project.getObjects(), project.getExtensions().getByType(ModelLookup.class));
-		return NodeRegistration.unmanaged(identifier.getUnambiguousName(), of(NativeApplication.class), new Factory<NativeApplication>() {
-			@Override
-			public NativeApplication create() {
+		return NodeRegistration.unmanaged(identifier.getUnambiguousName(), of(NativeApplication.class), () -> {
 				val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 
 				return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, identifier, variantDependencies, project.getObjects(), project.getProviders(), assembleTask, project.getExtensions().getByType(BinaryViewFactory.class));
-			}
-		})
+			})
 			.withComponent(IsVariant.tag())
 			.withComponent(identifier)
 			.withComponent(variantDependencies)
