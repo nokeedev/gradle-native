@@ -19,7 +19,10 @@ import groovy.lang.Closure;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
 
+import javax.annotation.Nullable;
+
 import static dev.nokee.utils.ExecutionArgumentsFactory.create;
+import static java.util.Objects.requireNonNull;
 
 public final class ClosureTestUtils {
 	public static <R, T> MockClosure<R, T> mockClosure(Class<T> firstArgumentType) {
@@ -79,6 +82,30 @@ public final class ClosureTestUtils {
 		@Override
 		public String toString() {
 			return "doSomething()";
+		}
+	}
+
+	public static <R, T> Closure<R> doSomethingElse(Class<T> firstArgumentType) {
+		return new DoSomethingElseClosure<>(null);
+	}
+
+	@EqualsAndHashCode(callSuper = false)
+	private static final class DoSomethingElseClosure<R, T> extends Closure<R> {
+		@Nullable
+		private final Object what;
+
+		public DoSomethingElseClosure(@Nullable Object what) {
+			super(new Object());
+			this.what = what;
+		}
+
+		protected R doCall(T t) {
+			return null;
+		}
+
+		@Override
+		public String toString() {
+			return "doSomethingElse(" + (what == null ? "" : what) + ")";
 		}
 	}
 
