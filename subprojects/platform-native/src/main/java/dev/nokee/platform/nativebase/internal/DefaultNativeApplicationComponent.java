@@ -86,7 +86,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 
 	@Override
 	public VariantCollection<DefaultNativeApplicationVariant> getVariantCollection() {
-		return getComponentVariants().getVariantCollection();
+		throw new UnsupportedOperationException("Use 'variants' property instead.");
 	}
 
 	@Override
