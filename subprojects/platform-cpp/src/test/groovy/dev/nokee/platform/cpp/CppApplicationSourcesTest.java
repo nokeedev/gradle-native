@@ -18,6 +18,8 @@ package dev.nokee.platform.cpp;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.model.internal.registry.DefaultModelRegistry;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.val;
@@ -35,7 +37,7 @@ class CppApplicationSourcesTest implements ComponentSourcesTester<CppApplication
 	public CppApplicationSources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (CppApplicationSources) create(cppApplication("main", project)).as(CppApplication.class).get().getSources();
+		val sources = (CppApplicationSources) create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), cppApplication("main", project)).as(CppApplication.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}
