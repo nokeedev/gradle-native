@@ -21,6 +21,7 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.state.ModelState;
+import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -35,15 +36,24 @@ import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
+	private static final Runnable NO_OP_REALIZE = () -> {};
+	private final Runnable realize;
 	private final ModelNode entity;
 	private final ProviderFactory providerFactory;
 
 	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory) {
-		this(providerFactory, ModelNodeContext.getCurrentModelNode());
+		this.providerFactory = providerFactory;
+		this.entity = ModelNodeContext.getCurrentModelNode();
+		this.realize = NO_OP_REALIZE;
 	}
 
-	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, ModelNode entity) {
+	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, Runnable realize) {
+		this(providerFactory, realize, ModelNodeContext.getCurrentModelNode());
+	}
+
+	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, Runnable realize, ModelNode entity) {
 		this.providerFactory = providerFactory;
+		this.realize = new RunOnceRunnable(realize);
 		this.entity = entity;
 	}
 
@@ -55,12 +65,32 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 
 	@Override
 	public <T> Provider<Set<T>> getElements(Class<T> elementType) {
-		return providerFactory.provider(() -> ModelProperties.getProperties(entity).map(it -> it.as(elementType).get()).collect(Collectors.toSet()));
+		return providerFactory.provider(() -> {
+			realize.run();
+			return ModelProperties.getProperties(entity).map(it -> it.as(elementType).get()).collect(Collectors.toSet());
+		});
 	}
 
 	@Override
 	public <T> void whenElementKnown(Class<T> elementType, Action<? super KnownDomainObject<T>> action) {
 		applyTo(entity, allDirectDescendants(stateAtLeast(ModelState.Created).and(ModelNodes.withType(of(elementType))))
 			.apply(once(executeAsKnownProjection(of(elementType), action))));
+	}
+
+	private static final class RunOnceRunnable implements Runnable {
+		private Runnable delegate;
+
+		public RunOnceRunnable(Runnable delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public void run() {
+			if (delegate != null) {
+				val runnable = delegate;
+				delegate = null;
+				runnable.run();
+			}
+		}
 	}
 }
