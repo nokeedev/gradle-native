@@ -20,6 +20,7 @@ import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.BaseDomainObjectViewProjection;
@@ -120,7 +121,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 				// TODO: Should be created using ObjectiveCSourceSetSpec
 				val objectiveC = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("objectiveC"))
-					.withComponent(managed(of(CSourceSet.class)))
+					.withComponent(managed(of(ObjectiveCSourceSet.class)))
 					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 					.build());
 
