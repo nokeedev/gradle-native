@@ -166,7 +166,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("variants"))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(VariantView.class), () -> new ModelNodeBackedVariantView<>(project.getProviders(), NativeApplication.class)))
+					.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(NativeApplication.class, new ModelNodeBackedViewStrategy(project.getProviders())))))
 					.build());
 
 				// TODO: Should be created as ModelProperty (readonly) with BinaryView<Binary> projection
