@@ -177,6 +177,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 				val variant = registry.register(ModelRegistration.builder()
 					.withComponent(path.child(knownVariant.getIdentifier().getUnambiguousName()))
 					.withComponent(IsVariant.tag())
+					.withComponent(knownVariant.getIdentifier())
 					.withComponent(createdUsing(ModelType.of(NativeLibrary.class), () -> knownVariant.map(noOpTransformer()).get()))
 					.build());
 				knownVariant.configure(it -> ModelStates.realize(ModelNodes.of(variant)));
