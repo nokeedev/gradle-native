@@ -15,11 +15,9 @@
  */
 package dev.nokee.platform.cpp;
 
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 
 /**
  * Configuration for a library written in C++, defining the dependencies that make up the library plus other settings.
@@ -33,6 +31,6 @@ public interface CppLibrary extends CppLibraryExtension, DependencyAwareComponen
 	 * {@inheritDoc}
 	 */
 	default NativeLibraryComponentDependencies getDependencies() {
-		return ModelNodeUtils.get(ModelNodes.of(this), DefaultNativeLibraryComponent.class).getDependencies();
+		return ModelProperties.getProperty(this, "dependencies").as(NativeLibraryComponentDependencies.class).get();
 	}
 }
