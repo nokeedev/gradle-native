@@ -40,16 +40,18 @@ import javax.inject.Inject;
 
 public class DefaultNativeLibraryVariant extends BaseNativeVariant implements NativeLibrary, VariantInternal, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-	@Getter private final DefaultNativeLibraryComponentDependencies dependencies;
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
 	public DefaultNativeLibraryVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> dependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
 		super(identifier, objects, providers, assembleTask, binaryViewFactory);
-		this.dependencies = dependencies.getDependencies();
 		this.resolvableDependencies = dependencies.getIncoming();
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
+	}
+
+	public DefaultNativeLibraryComponentDependencies getDependencies() {
+		return ModelProperties.getProperty(this, "dependencies").as(DefaultNativeLibraryComponentDependencies.class).get();
 	}
 
 	@Override

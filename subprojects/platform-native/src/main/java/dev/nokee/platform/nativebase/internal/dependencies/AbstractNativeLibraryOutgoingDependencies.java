@@ -30,6 +30,7 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -47,6 +48,8 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 	@Getter private final RegularFileProperty exportedSwiftModule;
 	@Getter private final Property<Binary> exportedBinary;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter private final Configuration linkElements;
+	@Getter private final Configuration runtimeElements;
 
 	protected AbstractNativeLibraryOutgoingDependencies(DomainObjectIdentifierInternal ownerIdentifier, BuildVariantInternal buildVariant, DefaultNativeLibraryComponentDependencies dependencies, ConfigurationContainer configurationContainer, ObjectFactory objects) {
 		this.exportedHeaders = objects.fileCollection();
@@ -59,11 +62,11 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 
 		val identifierLinkElements = DependencyBucketIdentifier.of(DependencyBucketName.of("linkElements"),
 			ConsumableDependencyBucket.class, ownerIdentifier);
-		val linkElements = configurationRegistry.createIfAbsent(identifierLinkElements.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingLinkLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getLinkOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifierLinkElements.getDisplayName()));
+		this.linkElements = configurationRegistry.createIfAbsent(identifierLinkElements.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingLinkLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getLinkOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifierLinkElements.getDisplayName()));
 
 		val identifierRuntimeElements = DependencyBucketIdentifier.of(DependencyBucketName.of("runtimeElements"),
 			ConsumableDependencyBucket.class, ownerIdentifier);
-		val runtimeElements = configurationRegistry.createIfAbsent(identifierRuntimeElements.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getRuntimeOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifierRuntimeElements.getDisplayName()));
+		this.runtimeElements = configurationRegistry.createIfAbsent(identifierRuntimeElements.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getRuntimeOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifierRuntimeElements.getDisplayName()));
 
 		linkElements.getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingLinkLibrary));
 

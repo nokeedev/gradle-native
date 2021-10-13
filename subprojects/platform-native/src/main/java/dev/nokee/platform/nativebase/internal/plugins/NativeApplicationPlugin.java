@@ -232,6 +232,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeElements"), ModelNodes.of(runtimeElements)));
 				registry.register(propertyFactory.create(path.child("dependencies").child("linkLibraries"), ModelNodes.of(linkLibraries)));
 				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeLibraries"), ModelNodes.of(runtimeLibraries)));
+				// TODO: Missing incoming API configuration
 
 				whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.ofAny(projectionOf(Configuration.class)), ModelComponentReference.of(ModelPath.class), (e, ignored, p) -> {
 					((NamedDomainObjectProvider<Configuration>) ModelNodeUtils.get(e, NamedDomainObjectProvider.class)).configure(configuration -> {
