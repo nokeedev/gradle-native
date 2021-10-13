@@ -48,7 +48,7 @@ import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
 
-public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNativeLibraryVariant> implements DependencyAwareComponent<NativeLibraryComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources>, Finalizable {
+public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNativeLibraryVariant> implements DependencyAwareComponent<NativeLibraryComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources> {
 	private final DefaultNativeLibraryComponentDependencies dependencies;
 	private final TaskRegistry taskRegistry;
 	private final NativeLibraryComponentVariants componentVariants;
@@ -103,10 +103,5 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
 		componentVariants.calculateVariants();
-	}
-
-	@Override
-	public void finalizeValue() {
-		finalizeExtension(null);
 	}
 }
