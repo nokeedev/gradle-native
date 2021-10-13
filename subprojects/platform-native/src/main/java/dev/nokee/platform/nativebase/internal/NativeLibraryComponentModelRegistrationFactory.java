@@ -17,9 +17,14 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
+import lombok.val;
 import org.gradle.api.Project;
 
 import java.util.function.BiConsumer;
@@ -55,7 +60,36 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 			.withComponent(IsComponent.tag())
 			.withComponent(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+
 				sourceRegistration.accept(entity, path);
+
+				// TODO: Should be created as ModelProperty (readonly) with VariantView<NativeLibrary> projection
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("dependencies"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(NativeLibraryComponentDependencies.class), () -> {
+						return ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultNativeLibraryComponent.class).getDependencies();
+					}))
+					.build());
+
+				// TODO: Should be created as ModelProperty (readonly) with VariantView<NativeLibrary> projection
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("variants"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(VariantView.class), () -> {
+						return ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultNativeLibraryComponent.class).getVariants();
+					}))
+					.build());
+
+				// TODO: Should be created as ModelProperty (readonly) with BinaryView<Binary> projection
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("binaries"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(BinaryView.class), () -> {
+						return ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultNativeLibraryComponent.class).getBinaries();
+					}))
+					.build());
 			})))
 			;
 	}
