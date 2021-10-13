@@ -15,18 +15,19 @@
  */
 package dev.nokee.platform.c.internal.plugins;
 
+import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.model.internal.BaseDomainObjectViewProjection;
+import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.c.CApplicationSources;
 import dev.nokee.platform.c.CLibrary;
-import dev.nokee.platform.c.CLibrarySources;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
-import dev.nokee.platform.nativebase.internal.TargetLinkageRule;
-import dev.nokee.platform.nativebase.internal.TargetMachineRule;
+import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -37,13 +38,8 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
-import static dev.nokee.model.internal.core.ModelActions.register;
-import static dev.nokee.model.internal.core.ModelNodes.discover;
-import static dev.nokee.model.internal.core.NodePredicate.self;
+import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.componentSourcesOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 
 public class CLibraryPlugin implements Plugin<Project> {
@@ -77,15 +73,43 @@ public class CLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration cLibrary(String name, Project project) {
-		return component(name, CLibrary.class)
-			.withComponent(ModelProjections.createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
-			.action(self(discover()).apply(register(sources())));
-	}
+		return new NativeLibraryComponentModelRegistrationFactory(CLibrary.class, project, (entity, path) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
-	private static NodeRegistration sources() {
-		return componentSourcesOf(CLibrarySources.class)
-			.action(self(discover()).apply(register(sourceSet("c", CSourceSet.class))))
-			.action(self(discover()).apply(register(sourceSet("public", CHeaderSet.class))))
-			.action(self(discover()).apply(register(sourceSet("headers", CHeaderSet.class))));
+			// TODO: Should be created using CSourceSetSpec
+			val c = registry.register(ModelRegistration.builder()
+				.withComponent(path.child("c"))
+				.withComponent(managed(of(CSourceSet.class)))
+				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+				.build());
+
+			// TODO: Should be created using CHeaderSetSpec
+			val publicHeaders = registry.register(ModelRegistration.builder()
+				.withComponent(path.child("public"))
+				.withComponent(managed(of(CHeaderSet.class)))
+				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+				.build());
+
+			// TODO: Should be created using CHeaderSetSpec
+			val privateHeaders = registry.register(ModelRegistration.builder()
+				.withComponent(path.child("headers"))
+				.withComponent(managed(of(CHeaderSet.class)))
+				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+				.build());
+
+			// TODO: Should be created as ModelProperty (readonly) with CApplicationSources projection
+			registry.register(ModelRegistration.builder()
+				.withComponent(path.child("sources"))
+				.withComponent(IsModelProperty.tag())
+				.withComponent(managed(of(CApplicationSources.class)))
+				.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
+				.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
+				.build());
+
+			registry.register(propertyFactory.create(path.child("sources").child("c"), ModelNodes.of(c)));
+			registry.register(propertyFactory.create(path.child("sources").child("public"), ModelNodes.of(publicHeaders)));
+			registry.register(propertyFactory.create(path.child("sources").child("headers"), ModelNodes.of(privateHeaders)));
+		}).create(name);
 	}
 }
