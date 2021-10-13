@@ -80,8 +80,8 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	}
 
 	@Override
-	public VariantViewInternal<DefaultNativeLibraryVariant> getVariants() {
-		return (VariantViewInternal<DefaultNativeLibraryVariant>) super.getVariants();
+	public VariantView<DefaultNativeLibraryVariant> getVariants() {
+		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
 
 	@Override
