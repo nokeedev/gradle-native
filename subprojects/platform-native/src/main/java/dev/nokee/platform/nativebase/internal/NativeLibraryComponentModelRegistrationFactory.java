@@ -22,13 +22,12 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
@@ -36,8 +35,10 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
+import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
+import dev.nokee.utils.TransformerUtils;
 import lombok.val;
 import org.gradle.api.Project;
 
@@ -52,6 +53,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.maven;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.nativeLibraryProjection;
+import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 
 public final class NativeLibraryComponentModelRegistrationFactory {
 	private final Class<? extends Component> componentType;
@@ -95,9 +97,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("variants"))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(VariantView.class), () -> {
-						return ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultNativeLibraryComponent.class).getVariants();
-					}))
+					.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(NativeLibrary.class, new ModelNodeBackedViewStrategy(project.getProviders(), () -> ModelStates.finalize(entity))))))
 					.build());
 
 				// TODO: Should be created as ModelProperty (readonly) with BinaryView<Binary> projection
@@ -109,15 +109,35 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 					}))
 					.build());
 			})))
-			.action(self(stateOf(ModelState.Finalized)).apply(new CalculateNativeApplicationVariantAction()))
+			.action(self(stateOf(ModelState.Finalized)).apply(new CalculateNativeApplicationVariantAction(project)))
 			;
 	}
 
 	private static class CalculateNativeApplicationVariantAction extends ModelActionWithInputs.ModelAction1<ModelPath> {
+		private final Project project;
+
+		private CalculateNativeApplicationVariantAction(Project project) {
+			this.project = project;
+		}
+
 		@Override
 		protected void execute(ModelNode entity, ModelPath path) {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+
 			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeLibraryComponent.class));
 			component.finalizeExtension(null);
+
+			component.getVariantCollection().whenElementKnown(knownVariant -> {
+				val variant = registry.register(ModelRegistration.builder()
+					.withComponent(path.child(knownVariant.getIdentifier().getUnambiguousName()))
+					.withComponent(IsVariant.tag())
+					.withComponent(createdUsing(ModelType.of(NativeLibrary.class), () -> knownVariant.map(noOpTransformer()).get()))
+					.build());
+				knownVariant.configure(it -> ModelStates.realize(ModelNodes.of(variant)));
+
+				registry.register(propertyFactory.create(path.child("variants").child(knownVariant.getIdentifier().getUnambiguousName()), ModelNodes.of(variant)));
+			});
 		}
 	}
 }
