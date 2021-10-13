@@ -15,6 +15,11 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -35,6 +40,7 @@ import javax.inject.Inject;
 public class DefaultNativeApplicationVariant extends BaseNativeVariant implements NativeApplication, VariantInternal {
 	@Getter private final DefaultNativeApplicationComponentDependencies dependencies;
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
+	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
 	public DefaultNativeApplicationVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeApplicationComponentDependencies> dependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
@@ -43,5 +49,10 @@ public class DefaultNativeApplicationVariant extends BaseNativeVariant implement
 		this.resolvableDependencies = dependencies.getIncoming();
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
+	}
+
+	@Override
+	public BinaryView<Binary> getBinaries() {
+		return (BinaryView<Binary>) ModelProperties.getProperty(node, "binaries").as(BinaryView.class).get();
 	}
 }
