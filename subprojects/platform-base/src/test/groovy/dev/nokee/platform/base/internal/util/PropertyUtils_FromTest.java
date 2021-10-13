@@ -25,7 +25,6 @@ import java.io.File;
 import java.util.function.Function;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
-import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
