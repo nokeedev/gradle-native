@@ -26,10 +26,8 @@ import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantCollection;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
@@ -53,18 +51,16 @@ import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNativeLibraryVariant> implements DependencyAwareComponent<NativeLibraryComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources> {
 	private final TaskRegistry taskRegistry;
 	private final Supplier<NativeLibraryComponentVariants> componentVariants;
-	private final BinaryView<Binary> binaries;
 	private final SetProperty<BuildVariantInternal> buildVariants;
 	private final Property<DefaultNativeLibraryVariant> developmentVariant;
 
 	@Inject
-	public DefaultNativeLibraryComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
+	public DefaultNativeLibraryComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, DefaultNativeLibraryVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = objects.property(DefaultNativeLibraryVariant.class);
 		this.taskRegistry = taskRegistry;
 		this.componentVariants = () -> ModelNodeUtils.get(getNode(), NativeLibraryComponentVariants.class);
-		this.binaries = binaryViewFactory.create(identifier);
 	}
 
 	@Override
@@ -84,7 +80,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 	@Override
 	public BinaryView<Binary> getBinaries() {
-		return binaries;
+		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override
@@ -112,8 +108,6 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(NativeLibrary.class), entity));
 		}));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
-
-		componentVariants.get().calculateVariants();
 	}
 
 	private static void whenElementKnown(Object target, ModelAction action) {

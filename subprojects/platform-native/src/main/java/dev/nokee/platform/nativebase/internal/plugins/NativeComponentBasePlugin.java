@@ -78,7 +78,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 	public static Factory<DefaultNativeLibraryComponent> nativeLibraryProjection(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultNativeLibraryComponent.class, ProjectIdentifier.of(project));
-		return () -> new DefaultNativeLibraryComponent(identifier, project.getObjects(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
+		return () -> new DefaultNativeLibraryComponent(identifier, project.getObjects(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
 	}
 
 	public static <T extends Component, PROJECTION> Action<T> configureUsingProjection(Class<PROJECTION> type, BiConsumer<? super T, ? super PROJECTION> action) {
