@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins;
 
+import com.google.common.collect.Iterables;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
@@ -26,11 +27,13 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -53,8 +56,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import lombok.var;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
@@ -64,10 +69,12 @@ import javax.inject.Inject;
 
 import java.util.Optional;
 
-import static dev.nokee.model.internal.core.ModelNodes.discover;
-import static dev.nokee.model.internal.core.ModelNodes.withType;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
+import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
+import static dev.nokee.model.internal.core.ModelNodes.*;
+import static dev.nokee.model.internal.core.ModelProjections.*;
+import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
@@ -196,8 +203,109 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 						}
 					}));
 				}
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("dependencies"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(ofInstance(variantDependencies.getDependencies()))
+					.build());
+
+				val api = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("api"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> variantDependencies.getDependencies().getApi().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> variantDependencies.getDependencies().getApi()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(variantDependencies.getDependencies().getApi().getAsConfiguration().getName())))
+					.build());
+				val implementation = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("implementation"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> variantDependencies.getDependencies().getImplementation().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> variantDependencies.getDependencies().getImplementation()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(variantDependencies.getDependencies().getImplementation().getAsConfiguration().getName())))
+					.build());
+				val compileOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("compileOnly"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> variantDependencies.getDependencies().getCompileOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> variantDependencies.getDependencies().getCompileOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(variantDependencies.getDependencies().getCompileOnly().getAsConfiguration().getName())))
+					.build());
+				val linkOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("linkOnly"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> variantDependencies.getDependencies().getLinkOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> variantDependencies.getDependencies().getLinkOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(variantDependencies.getDependencies().getLinkOnly().getAsConfiguration().getName())))
+					.build());
+				val runtimeOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("runtimeOnly"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> variantDependencies.getDependencies().getRuntimeOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> variantDependencies.getDependencies().getRuntimeOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(variantDependencies.getDependencies().getRuntimeOnly().getAsConfiguration().getName())))
+					.build());
+				val apiElements = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("apiElements"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> ((NativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getApiElements()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(((NativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getApiElements().getName())))
+					.build());
+				val linkElements = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("linkElements"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> ((NativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getLinkElements()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(((NativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getLinkElements().getName())))
+					.build());
+				val runtimeElements = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("runtimeElements"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> ((NativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getRuntimeElements()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(((NativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getRuntimeElements().getName())))
+					.build());
+				val linkLibraries = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("linkLibraries"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> ((DefaultNativeIncomingDependencies) variantDependencies.getIncoming()).getLinkLibrariesBucket().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> ((DefaultNativeIncomingDependencies) variantDependencies.getIncoming()).getLinkLibrariesBucket()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(((DefaultNativeIncomingDependencies) variantDependencies.getIncoming()).getLinkLibrariesBucket().getAsConfiguration().getName())))
+					.build());
+				val runtimeLibraries = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("runtimeLibraries"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> ((DefaultNativeIncomingDependencies) variantDependencies.getIncoming()).getRuntimeLibrariesBucket().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> ((DefaultNativeIncomingDependencies) variantDependencies.getIncoming()).getRuntimeLibrariesBucket()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(((DefaultNativeIncomingDependencies) variantDependencies.getIncoming()).getRuntimeLibrariesBucket().getAsConfiguration().getName())))
+					.build());
+				registry.register(propertyFactory.create(path.child("dependencies").child("api"), ModelNodes.of(api)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("implementation"), ModelNodes.of(implementation)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("compileOnly"), ModelNodes.of(compileOnly)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("linkOnly"), ModelNodes.of(linkOnly)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeOnly"), ModelNodes.of(runtimeOnly)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("apiElements"), ModelNodes.of(apiElements)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("linkElements"), ModelNodes.of(linkElements)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeElements"), ModelNodes.of(runtimeElements)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("linkLibraries"), ModelNodes.of(linkLibraries)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeLibraries"), ModelNodes.of(runtimeLibraries)));
+				// TODO: Missing incoming API configuration
+
+				whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.ofAny(projectionOf(Configuration.class)), ModelComponentReference.of(ModelPath.class), (e, ignored, p) -> {
+					((NamedDomainObjectProvider<Configuration>) ModelNodeUtils.get(e, NamedDomainObjectProvider.class)).configure(configuration -> {
+						val parentConfigurationResult = project.getExtensions().getByType(ModelLookup.class).query(ModelSpecs.of(ModelNodes.withPath(path.getParent().get().child(p.getName()))));
+						Optional.ofNullable(Iterables.getOnlyElement(parentConfigurationResult.get(), null)).ifPresent(parentConfigurationEntity -> {
+							val parentConfiguration = ModelNodeUtils.get(parentConfigurationEntity, Configuration.class);
+							if (!parentConfiguration.getName().equals(configuration.getName())) {
+								configuration.extendsFrom(parentConfiguration);
+							}
+						});
+					});
+				}));
 			})))
 			;
+	}
+
+	private static void whenElementKnown(Object target, ModelAction action) {
+		applyTo(ModelNodes.of(target), allDirectDescendants(stateAtLeast(ModelState.Created)).apply(once(action)));
 	}
 
 	private static VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultNativeLibraryVariant> variantIdentifier, DefaultNativeLibraryComponent component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ObjectFactory objectFactory, ModelLookup modelLookup) {
