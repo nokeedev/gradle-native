@@ -17,6 +17,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.Finalizable;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -47,11 +48,12 @@ import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
+import java.util.function.Supplier;
 
 public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNativeLibraryVariant> implements DependencyAwareComponent<NativeLibraryComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources> {
 	private final DefaultNativeLibraryComponentDependencies dependencies;
 	private final TaskRegistry taskRegistry;
-	private final NativeLibraryComponentVariants componentVariants;
+	private final Supplier<NativeLibraryComponentVariants> componentVariants;
 	private final BinaryView<Binary> binaries;
 
 	@Inject
@@ -60,7 +62,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(objects, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeLibraryComponentDependencies.class, dependencyContainer);
 		this.taskRegistry = taskRegistry;
-		this.componentVariants = new NativeLibraryComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, modelLookup);
+		this.componentVariants = () -> ModelNodeUtils.get(getNode(), NativeLibraryComponentVariants.class);
 		this.binaries = binaryViewFactory.create(identifier);
 	}
 
@@ -71,12 +73,12 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return componentVariants.getBuildVariants();
+		return componentVariants.get().getBuildVariants();
 	}
 
 	@Override
 	public Provider<DefaultNativeLibraryVariant> getDevelopmentVariant() {
-		return componentVariants.getDevelopmentVariant();
+		return componentVariants.get().getDevelopmentVariant();
 	}
 
 	@Override
@@ -91,7 +93,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 	@Override
 	public VariantCollection<DefaultNativeLibraryVariant> getVariantCollection() {
-		return componentVariants.getVariantCollection();
+		return componentVariants.get().getVariantCollection();
 	}
 
 	public void finalizeExtension(Project project) {
@@ -102,6 +104,6 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
-		componentVariants.calculateVariants();
+		componentVariants.get().calculateVariants();
 	}
 }

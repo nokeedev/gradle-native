@@ -16,7 +16,9 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
@@ -25,6 +27,10 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
+import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import lombok.val;
 import org.gradle.api.Project;
@@ -59,6 +65,10 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
 				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
 			.withComponent(IsComponent.tag())
+			.withComponent(createdUsing(of(NativeLibraryComponentVariants.class), () -> {
+				val component = ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultNativeLibraryComponent.class);
+				return new NativeLibraryComponentVariants(project.getObjects(), component, project.getDependencies(), project.getConfigurations(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(ModelLookup.class));
+			}))
 			.withComponent(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
