@@ -15,20 +15,18 @@
  */
 package dev.nokee.platform.swift.internal.plugins;
 
+import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.NodeRegistration;
-import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
+import dev.nokee.model.internal.BaseDomainObjectViewProjection;
+import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
+import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
-import dev.nokee.platform.nativebase.internal.TargetLinkageRule;
-import dev.nokee.platform.nativebase.internal.TargetMachineRule;
+import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
+import dev.nokee.platform.swift.SwiftApplicationSources;
 import dev.nokee.platform.swift.SwiftLibrary;
-import dev.nokee.platform.swift.SwiftLibrarySources;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -40,14 +38,8 @@ import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
-import static dev.nokee.model.internal.core.ModelActions.register;
-import static dev.nokee.model.internal.core.ModelNodes.discover;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.NodePredicate.self;
+import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.componentSourcesOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 
 public class SwiftLibraryPlugin implements Plugin<Project> {
@@ -81,13 +73,27 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration swiftLibrary(String name, Project project) {
-		return component(name, SwiftLibrary.class)
-			.withComponent(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
-			.action(self(discover()).apply(register(sources())));
-	}
+		return new NativeLibraryComponentModelRegistrationFactory(SwiftLibrary.class, project, (entity, path) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
-	private static NodeRegistration sources() {
-		return componentSourcesOf(SwiftLibrarySources.class)
-			.action(self(discover()).apply(register(sourceSet("swift", SwiftSourceSet.class))));
+			// TODO: Should be created using SwiftSourceSetSpec
+			val swift = registry.register(ModelRegistration.builder()
+				.withComponent(path.child("swift"))
+				.withComponent(managed(of(SwiftSourceSet.class)))
+				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+				.build());
+
+			// TODO: Should be created as ModelProperty (readonly) with CApplicationSources projection
+			registry.register(ModelRegistration.builder()
+				.withComponent(path.child("sources"))
+				.withComponent(IsModelProperty.tag())
+				.withComponent(managed(of(SwiftApplicationSources.class)))
+				.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
+				.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
+				.build());
+
+			registry.register(propertyFactory.create(path.child("sources").child("swift"), ModelNodes.of(swift)));
+		}).create(name);
 	}
 }
