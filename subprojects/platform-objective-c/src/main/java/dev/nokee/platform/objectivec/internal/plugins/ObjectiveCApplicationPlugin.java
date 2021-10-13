@@ -18,35 +18,30 @@ package dev.nokee.platform.objectivec.internal.plugins;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.c.CHeaderSet;
-import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.BaseDomainObjectViewProjection;
 import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.variants.VariantRepository;
-import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.NativeApplication;
-import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
+import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
@@ -54,7 +49,6 @@ import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.objectivec.ObjectiveCApplication;
 import dev.nokee.platform.objectivec.ObjectiveCApplicationSources;
-import dev.nokee.utils.TransformerUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -63,7 +57,6 @@ import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
-
 import java.util.function.Consumer;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
@@ -111,7 +104,9 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 			// TODO: Should configure FileCollection on CApplication
 			//   and link FileCollection to source sets
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
-				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
+				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
+			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
+				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
 			.withComponent(IsComponent.tag())
 			.withComponent(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
