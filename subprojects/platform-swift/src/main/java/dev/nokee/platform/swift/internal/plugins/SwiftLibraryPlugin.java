@@ -25,8 +25,8 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.swift.SwiftApplicationSources;
 import dev.nokee.platform.swift.SwiftLibrary;
+import dev.nokee.platform.swift.SwiftLibrarySources;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -88,7 +88,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("sources"))
 				.withComponent(IsModelProperty.tag())
-				.withComponent(managed(of(SwiftApplicationSources.class)))
+				.withComponent(managed(of(SwiftLibrarySources.class)))
 				.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
 				.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
 				.build());

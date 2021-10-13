@@ -28,8 +28,8 @@ import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.objectivec.ObjectiveCApplicationSources;
 import dev.nokee.platform.objectivec.ObjectiveCLibrary;
+import dev.nokee.platform.objectivec.ObjectiveCLibrarySources;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -107,7 +107,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("sources"))
 				.withComponent(IsModelProperty.tag())
-				.withComponent(managed(of(ObjectiveCApplicationSources.class)))
+				.withComponent(managed(of(ObjectiveCLibrarySources.class)))
 				.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
 				.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
 				.build());
