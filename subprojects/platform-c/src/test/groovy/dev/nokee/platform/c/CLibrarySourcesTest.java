@@ -18,6 +18,8 @@ package dev.nokee.platform.c;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.model.internal.registry.DefaultModelRegistry;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.val;
@@ -34,7 +36,7 @@ class CLibrarySourcesTest implements ComponentSourcesTester<CLibrarySources> {
 	public CLibrarySources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (CLibrarySources) create(cLibrary("main", project)).as(CLibrary.class).get().getSources();
+		val sources = (CLibrarySources) create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), cLibrary("main", project)).as(CLibrary.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}
