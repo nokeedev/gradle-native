@@ -89,24 +89,28 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 
 				val implementation = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("implementation"))
+					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
 					.build());
 				val compileOnly = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("compileOnly"))
+					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
 					.build());
 				val linkOnly = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("linkOnly"))
+					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
 					.build());
 				val runtimeOnly = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("runtimeOnly"))
+					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
