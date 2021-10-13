@@ -127,7 +127,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 
-				return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, identifier, variantDependencies, project.getObjects(), project.getProviders(), assembleTask, project.getExtensions().getByType(BinaryViewFactory.class));
+				return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, identifier, variantDependencies.getIncoming(), project.getObjects(), project.getProviders(), assembleTask, project.getExtensions().getByType(BinaryViewFactory.class));
 			})
 			.withComponent(IsVariant.tag())
 			.withComponent(identifier)
