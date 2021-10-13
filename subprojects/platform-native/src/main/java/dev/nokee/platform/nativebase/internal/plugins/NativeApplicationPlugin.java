@@ -223,6 +223,14 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 						registry.register(propertyFactory.create(p.child(Optional.of(identifier.getUnambiguousName()).filter(it -> !it.isEmpty()).map(it -> it + "Executable").orElse("executable")), ModelNodes.of(executable)));
 					}
 				}));
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("binaries"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(project.getProviders())))))
+					.build());
+
+				registry.register(propertyFactory.create(path.child("binaries").child("executable"), ModelNodes.of(executable)));
 			})))
 			;
 	}
