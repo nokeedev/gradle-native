@@ -15,14 +15,12 @@
  */
 package dev.nokee.platform.objectivec.internal.plugins;
 
-import com.google.common.collect.ImmutableMap;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.BaseDomainObjectViewProjection;
 import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -30,18 +28,22 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.platform.base.*;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.nativebase.NativeApplication;
-import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
+import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
-import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
+import dev.nokee.platform.nativebase.internal.rules.CalculateNativeApplicationVariantAction;
 import dev.nokee.platform.objectivec.ObjectiveCApplication;
 import dev.nokee.platform.objectivec.ObjectiveCApplicationSources;
 import lombok.AccessLevel;
@@ -52,7 +54,6 @@ import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
-import java.util.function.Consumer;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelNodes.*;
@@ -62,7 +63,6 @@ import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPlugin.nativeApplicationVariant;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 
 public class ObjectiveCApplicationPlugin implements Plugin<Project> {
@@ -157,33 +157,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 					.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(project.getProviders(), () -> ModelStates.finalize(entity))))))
 					.build());
 			})))
-			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
-				val registry = project.getExtensions().getByType(ModelRegistry.class);
-				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
-
-				val component = ModelNodeUtils.get(entity, of(DefaultNativeApplicationComponent.class));
-				component.finalizeExtension(null);
-				component.getDevelopmentVariant().set(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get()))); // TODO: VariantView#get should force finalize the component.
-
-				val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
-				component.getBuildVariants().get().forEach(new Consumer<BuildVariantInternal>() {
-					@Override
-					public void accept(BuildVariantInternal buildVariant) {
-						val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeApplicationVariant.class).build();
-						val variant = ModelNodeUtils.register(entity, nativeApplicationVariant(variantIdentifier, component, project));
-
-						variants.put(buildVariant, ModelNodes.of(variant));
-						onEachVariantDependencies(variant.as(NativeApplication.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
-
-						registry.register(propertyFactory.create(path.child("variants").child(variantIdentifier.getUnambiguousName()), ModelNodes.of(variant)));
-					}
-
-					private void onEachVariantDependencies(DomainObjectProvider<NativeApplication> variant, VariantComponentDependencies<?> dependencies) {
-						dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
-					}
-				});
-				entity.addComponent(new NativeApplicationComponentVariants(variants.build()));
-			})))
+			.action(self(stateOf(ModelState.Finalized)).apply(new CalculateNativeApplicationVariantAction(project)))
 			;
 	}
 }

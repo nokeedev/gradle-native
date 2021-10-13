@@ -16,6 +16,7 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.type.ModelType;
 
 import java.util.List;
@@ -50,6 +51,22 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 
 	public interface A1<I0> {
 		void execute(ModelNode node, I0 i0);
+	}
+
+	public static abstract class ModelAction1<I0> extends ModelActionWithInputs {
+		private final ModelComponentReference<I0> i0 = ModelComponentReference.of((Class<I0>)new TypeToken<I0>(getClass()) {}.getRawType());
+
+		@Override
+		public final void execute(ModelNode node, List<?> inputs) {
+			execute(node, (I0) inputs.get(0));
+		}
+
+		protected abstract void execute(ModelNode entity, I0 i0);
+
+		@Override
+		public final List<? extends ModelComponentReference<?>> getInputs() {
+			return ImmutableList.of(i0);
+		}
 	}
 
 	public static <I0, I1> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, A2<? super I0, ? super I1> action) {
