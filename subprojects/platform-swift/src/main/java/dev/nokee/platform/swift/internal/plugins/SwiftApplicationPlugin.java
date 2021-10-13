@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.swift.internal.plugins;
 
+import com.google.common.collect.ImmutableMap;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.swift.SwiftSourceSet;
@@ -30,10 +31,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -167,12 +165,14 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 				component.finalizeExtension(null);
 				component.getDevelopmentVariant().set(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get()))); // TODO: VariantView#get should force finalize the component.
 
+				val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 				component.getBuildVariants().get().forEach(new Consumer<BuildVariantInternal>() {
 					@Override
 					public void accept(BuildVariantInternal buildVariant) {
 						val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeApplicationVariant.class).build();
 						val variant = ModelNodeUtils.register(entity, nativeApplicationVariant(variantIdentifier, component, project));
 
+						variants.put(buildVariant, ModelNodes.of(variant));
 						onEachVariantDependencies(variant.as(NativeApplication.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
 
 						registry.register(propertyFactory.create(path.child("variants").child(variantIdentifier.getUnambiguousName()), ModelNodes.of(variant)));
@@ -182,6 +182,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 						dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
 					}
 				});
+				entity.addComponent(new NativeApplicationComponentVariants(variants.build()));
 			})))
 			;
 	}
