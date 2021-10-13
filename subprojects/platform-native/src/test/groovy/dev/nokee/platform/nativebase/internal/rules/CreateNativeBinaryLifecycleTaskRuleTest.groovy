@@ -135,7 +135,7 @@ class CreateNativeBinaryLifecycleTaskRuleTest extends Specification {
 
 		then:
 		1 * taskRegistry.register(_, configureDependsOn(valueMapProvider))
-		1 * value.map(ToDevelopmentBinaryTransformer.TO_DEVELOPMENT_BINARY) >> valueMapProvider // because provider don't have equals
+		1 * value.flatMap(ToDevelopmentBinaryTransformer.TO_DEVELOPMENT_BINARY) >> valueMapProvider // because provider don't have equals
 
 		where:
 		linkage << [TargetLinkages.SHARED, TargetLinkages.STATIC, TargetLinkages.EXECUTABLE]
