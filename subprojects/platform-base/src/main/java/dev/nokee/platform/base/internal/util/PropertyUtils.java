@@ -187,6 +187,7 @@ public final class PropertyUtils {
 	 * @return a consumer of both the owner and property, never null
 	 */
 	public static <SELF> BiConsumer<SELF, FileCollectionProperty> from(Function<? super SELF, ?> mapper) {
+		Objects.requireNonNull(mapper);
 		return (self, files) -> files.from(mapper.apply(self));
 	}
 
