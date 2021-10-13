@@ -48,7 +48,6 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskProvider;
 
 import java.util.Iterator;
@@ -61,7 +60,6 @@ import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK
 
 public final class NativeLibraryComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<DefaultNativeLibraryVariant> variantCollection;
-	@Getter private final SetProperty<BuildVariantInternal> buildVariants;
 	@Getter private final Provider<DefaultNativeLibraryVariant> developmentVariant;
 	private final ObjectFactory objectFactory;
 	private final DefaultNativeLibraryComponent component;
@@ -76,7 +74,6 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 		this.binaryViewFactory = binaryViewFactory;
 		this.modelLookup = modelLookup;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), DefaultNativeLibraryVariant.class, eventPublisher, viewFactory, variantRepository);
-		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get()));
 		this.objectFactory = objectFactory;
 		this.component = component;
@@ -87,7 +84,7 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 	}
 
 	public void calculateVariants() {
-		buildVariants.get().forEach(buildVariant -> {
+		component.getBuildVariants().get().forEach(buildVariant -> {
 			val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeLibraryVariant.class).build();
 
 			val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier));
@@ -101,7 +98,7 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 
 	private VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultNativeLibraryVariant> variantIdentifier) {
 		var variantDependencies = component.getDependencies();
-		if (getBuildVariants().get().size() > 1) {
+		if (component.getBuildVariants().get().size() > 1) {
 			val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
 			variantDependencies = objectFactory.newInstance(DefaultNativeLibraryComponentDependencies.class, dependencyContainer);
 			variantDependencies.configureEach(variantBucket -> {
