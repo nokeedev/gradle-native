@@ -27,9 +27,6 @@ import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
-import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
-import dev.nokee.runtime.nativebase.BinaryLinkage;
 import lombok.Getter;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
@@ -43,11 +40,9 @@ public class DefaultNativeLibraryVariant extends BaseNativeVariant implements Na
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public DefaultNativeLibraryVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeLibraryComponentDependencies> dependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
+	public DefaultNativeLibraryVariant(VariantIdentifier<?> identifier, ResolvableComponentDependencies resolvableDependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
 		super(identifier, objects, providers, assembleTask, binaryViewFactory);
-		this.resolvableDependencies = dependencies.getIncoming();
-
-		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
+		this.resolvableDependencies = resolvableDependencies;
 	}
 
 	public DefaultNativeLibraryComponentDependencies getDependencies() {
