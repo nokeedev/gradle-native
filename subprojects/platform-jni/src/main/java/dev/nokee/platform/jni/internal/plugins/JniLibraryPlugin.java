@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,8 +87,6 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
-import org.gradle.internal.jvm.Jvm;
-import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.language.nativeplatform.internal.toolchains.ToolChainSelector;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
@@ -113,7 +111,10 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.componentSourcesOf;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
+import static dev.nokee.platform.jni.internal.plugins.JvmIncludeRoots.jvmIncludes;
+import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskProperties.includeRoots;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.baseNameConvention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.configureUsingProjection;
 import static dev.nokee.platform.objectivec.internal.ObjectiveCSourceSetModelHelpers.configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
@@ -519,27 +520,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		// TODO: This is an external dependency meaning we should go through the component dependencies.
 		//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
 		//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
-		val jvmIncludes = getJvmIncludes();
 		extension.getBinaries().configureEach(BaseNativeBinary.class, binary -> {
-			binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
-				((AbstractNativeCompileTask) task).getIncludes().from(jvmIncludes);
-			});
-		});
-	}
-
-	private Provider<List<File>> getJvmIncludes() {
-		return getProviders().provider(() -> {
-			List<File> result = new ArrayList<>();
-			result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include"));
-
-			if (OperatingSystem.current().isMacOsX()) {
-				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/darwin"));
-			} else if (OperatingSystem.current().isLinux()) {
-				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/linux"));
-			} else if (OperatingSystem.current().isWindows()) {
-				result.add(new File(Jvm.current().getJavaHome().getAbsolutePath() + "/include/win32"));
-			}
-			return result;
+			binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, includeRoots(from(jvmIncludes())));
 		});
 	}
 
