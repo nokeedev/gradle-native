@@ -150,7 +150,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				val executable = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("executable"))
 					.withComponent(binaryIdentifier)
-					.withComponent(createdUsing(of(ExecutableBinary.class), () -> {
+					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
 						ModelStates.realize(entity);
 						return project.getExtensions().getByType(BinaryRepository.class).get(binaryIdentifier);
 					}))
