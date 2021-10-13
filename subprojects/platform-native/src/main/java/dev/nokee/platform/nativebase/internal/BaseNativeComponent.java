@@ -32,7 +32,6 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.KnownVariant;
-import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
@@ -46,7 +45,6 @@ import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskContainer;
-import org.gradle.internal.Cast;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 
 import java.util.function.Consumer;
@@ -109,7 +107,6 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 		variantConfigure.accept((Action<? super T>) it -> {
 			val incomingDependencies = (NativeIncomingDependencies) it.getResolvableDependencies();
 			val objectSourceSets = new NativeLanguageRules(taskRegistry, objects, variantIdentifier).apply(sourceViewOf(this));
-			BaseNativeVariant variantInternal = (BaseNativeVariant)it;
 			if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
 				val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 				if (linkage.isExecutable()) {
