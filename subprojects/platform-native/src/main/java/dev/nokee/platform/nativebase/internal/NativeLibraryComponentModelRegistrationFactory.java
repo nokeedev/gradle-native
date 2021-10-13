@@ -18,6 +18,8 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
@@ -30,8 +32,7 @@ import org.gradle.api.Project;
 import java.util.function.BiConsumer;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelNodes.discover;
-import static dev.nokee.model.internal.core.ModelNodes.mutate;
+import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
@@ -91,6 +92,15 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 					}))
 					.build());
 			})))
+			.action(self(stateOf(ModelState.Finalized)).apply(new CalculateNativeApplicationVariantAction()))
 			;
+	}
+
+	private static class CalculateNativeApplicationVariantAction extends ModelActionWithInputs.ModelAction1<ModelPath> {
+		@Override
+		protected void execute(ModelNode entity, ModelPath path) {
+			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeLibraryComponent.class));
+			component.finalizeExtension(null);
+		}
 	}
 }
