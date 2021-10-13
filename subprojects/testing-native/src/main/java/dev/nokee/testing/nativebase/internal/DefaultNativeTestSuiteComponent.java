@@ -259,7 +259,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 			}
 			getVariants().configureEach(variant -> {
 				variant.getBinaries().configureEach(ExecutableBinaryInternal.class, binary -> {
-					Provider<List<? extends FileTree>> componentObjects = component.getVariantCollection().filter(it -> ((BuildVariantInternal)it.getBuildVariant()).withoutDimension(BINARY_LINKAGE_COORDINATE_AXIS).equals(variant.getBuildVariant().withoutDimension(BINARY_LINKAGE_COORDINATE_AXIS))).map(it -> {
+					Provider<List<? extends FileTree>> componentObjects = component.getVariants().filter(it -> ((BuildVariantInternal)it.getBuildVariant()).withoutDimension(BINARY_LINKAGE_COORDINATE_AXIS).equals(variant.getBuildVariant().withoutDimension(BINARY_LINKAGE_COORDINATE_AXIS))).map(it -> {
 						ImmutableList.Builder<FileTree> result = ImmutableList.builder();
 						it.stream().flatMap(v -> v.getBinaries().withType(NativeBinary.class).get().stream()).forEach(testedBinary -> {
 							result.addAll(testedBinary.getCompileTasks().withType(NativeSourceCompileTask.class).getElements().map(t -> {
