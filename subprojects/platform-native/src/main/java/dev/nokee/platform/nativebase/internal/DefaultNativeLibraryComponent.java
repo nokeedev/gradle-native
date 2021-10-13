@@ -40,7 +40,6 @@ import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
-import java.util.function.Supplier;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
@@ -50,7 +49,6 @@ import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 
 public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNativeLibraryVariant> implements DependencyAwareComponent<NativeLibraryComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources> {
 	private final TaskRegistry taskRegistry;
-	private final Supplier<NativeLibraryComponentVariants> componentVariants;
 	private final SetProperty<BuildVariantInternal> buildVariants;
 	private final Property<DefaultNativeLibraryVariant> developmentVariant;
 
@@ -60,7 +58,6 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = objects.property(DefaultNativeLibraryVariant.class);
 		this.taskRegistry = taskRegistry;
-		this.componentVariants = () -> ModelNodeUtils.get(getNode(), NativeLibraryComponentVariants.class);
 	}
 
 	@Override
@@ -90,7 +87,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 	@Override
 	public VariantCollection<DefaultNativeLibraryVariant> getVariantCollection() {
-		return componentVariants.get().getVariantCollection();
+		throw new UnsupportedOperationException("Use 'variants' property instead.");
 	}
 
 	public void finalizeExtension(Project project) {

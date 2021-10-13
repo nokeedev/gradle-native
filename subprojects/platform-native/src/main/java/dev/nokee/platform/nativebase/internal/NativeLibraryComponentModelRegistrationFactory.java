@@ -16,12 +16,12 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -31,13 +31,9 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.variants.VariantRepository;
-import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
@@ -87,10 +83,6 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
 				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
 			.withComponent(IsComponent.tag())
-			.withComponent(createdUsing(of(NativeLibraryComponentVariants.class), () -> {
-				val component = ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultNativeLibraryComponent.class);
-				return new NativeLibraryComponentVariants(project.getObjects(), component, project.getDependencies(), project.getConfigurations(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(ModelLookup.class));
-			}))
 			.withComponent(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
@@ -183,6 +175,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 			component.finalizeExtension(null);
 			component.getDevelopmentVariant().convention(project.provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
 
+			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 			component.getBuildVariants().get().forEach(new Consumer<BuildVariantInternal>() {
 				private final ModelLookup modelLookup = project.getExtensions().getByType(ModelLookup.class);
 
@@ -191,6 +184,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 					val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeLibraryVariant.class).build();
 					val variant = ModelNodeUtils.register(entity, nativeLibraryVariant(variantIdentifier, component, project));
 
+					variants.put(buildVariant, ModelNodes.of(variant));
 					onEachVariantDependencies(variant.as(NativeLibrary.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
 
 					registry.register(propertyFactory.create(path.child("variants").child(variantIdentifier.getUnambiguousName()), ModelNodes.of(variant)));
@@ -220,6 +214,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 					return result;
 				}
 			});
+			entity.addComponent(new NativeLibraryComponentVariants(variants.build()));
 		}
 	}
 }
