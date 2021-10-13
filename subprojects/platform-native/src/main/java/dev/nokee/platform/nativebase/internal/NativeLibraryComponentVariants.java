@@ -60,7 +60,6 @@ import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK
 
 public final class NativeLibraryComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<DefaultNativeLibraryVariant> variantCollection;
-	@Getter private final Provider<DefaultNativeLibraryVariant> developmentVariant;
 	private final ObjectFactory objectFactory;
 	private final DefaultNativeLibraryComponent component;
 	private final DependencyHandler dependencyHandler;
@@ -74,7 +73,7 @@ public final class NativeLibraryComponentVariants implements ComponentVariants {
 		this.binaryViewFactory = binaryViewFactory;
 		this.modelLookup = modelLookup;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), DefaultNativeLibraryVariant.class, eventPublisher, viewFactory, variantRepository);
-		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get()));
+		component.getDevelopmentVariant().convention(providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get())));
 		this.objectFactory = objectFactory;
 		this.component = component;
 		this.dependencyHandler = dependencyHandler;
