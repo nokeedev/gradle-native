@@ -48,6 +48,8 @@ import dev.nokee.platform.nativebase.NativeApplicationExtension;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
+import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -135,7 +137,9 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 
-				return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, identifier, variantDependencies.getIncoming(), project.getObjects(), project.getProviders(), assembleTask, project.getExtensions().getByType(BinaryViewFactory.class));
+				val result = project.getObjects().newInstance(DefaultNativeApplicationVariant.class, identifier, variantDependencies.getIncoming(), project.getObjects(), project.getProviders(), assembleTask, project.getExtensions().getByType(BinaryViewFactory.class));
+				result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
+				return result;
 			})
 			.withComponent(IsVariant.tag())
 			.withComponent(identifier)
