@@ -25,8 +25,8 @@ import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.cpp.CppApplicationSources;
 import dev.nokee.platform.cpp.CppLibrary;
+import dev.nokee.platform.cpp.CppLibrarySources;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.AccessLevel;
@@ -102,7 +102,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("sources"))
 				.withComponent(IsModelProperty.tag())
-				.withComponent(managed(of(CppApplicationSources.class)))
+				.withComponent(managed(of(CppLibrarySources.class)))
 				.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
 				.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
 				.build());
