@@ -30,6 +30,7 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -49,8 +50,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import lombok.var;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
@@ -164,6 +167,35 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 					.withComponent(IsModelProperty.tag())
 					.withComponent(ofInstance(variantDependencies.getDependencies()))
 					.build());
+
+				val implementation = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("implementation"))
+					.withComponent(createdUsing(of(Configuration.class), () -> variantDependencies.getDependencies().getImplementation().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> variantDependencies.getDependencies().getImplementation()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(variantDependencies.getDependencies().getImplementation().getAsConfiguration().getName())))
+					.build());
+				val compileOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("compileOnly"))
+					.withComponent(createdUsing(of(Configuration.class), () -> variantDependencies.getDependencies().getCompileOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> variantDependencies.getDependencies().getCompileOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(variantDependencies.getDependencies().getCompileOnly().getAsConfiguration().getName())))
+					.build());
+				val linkOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("linkOnly"))
+					.withComponent(createdUsing(of(Configuration.class), () -> variantDependencies.getDependencies().getLinkOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> variantDependencies.getDependencies().getLinkOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(variantDependencies.getDependencies().getLinkOnly().getAsConfiguration().getName())))
+					.build());
+				val runtimeOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("runtimeOnly"))
+					.withComponent(createdUsing(of(Configuration.class), () -> variantDependencies.getDependencies().getRuntimeOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> variantDependencies.getDependencies().getRuntimeOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(variantDependencies.getDependencies().getRuntimeOnly().getAsConfiguration().getName())))
+					.build());
+				registry.register(propertyFactory.create(path.child("dependencies").child("implementation"), ModelNodes.of(implementation)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("compileOnly"), ModelNodes.of(compileOnly)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("linkOnly"), ModelNodes.of(linkOnly)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeOnly"), ModelNodes.of(runtimeOnly)));
 			})))
 			;
 	}

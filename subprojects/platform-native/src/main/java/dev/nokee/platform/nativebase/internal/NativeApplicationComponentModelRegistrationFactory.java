@@ -35,7 +35,9 @@ import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDepende
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import lombok.val;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -72,6 +74,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 			.withComponent(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 				sourceRegistration.accept(entity, path);
 
@@ -83,6 +86,35 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 					.withComponent(IsModelProperty.tag())
 					.withComponent(ModelProjections.ofInstance(dependencies))
 					.build());
+
+				val implementation = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("implementation"))
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
+					.build());
+				val compileOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("compileOnly"))
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
+					.build());
+				val linkOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("linkOnly"))
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
+					.build());
+				val runtimeOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("runtimeOnly"))
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
+					.build());
+				registry.register(propertyFactory.create(path.child("dependencies").child("implementation"), ModelNodes.of(implementation)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("compileOnly"), ModelNodes.of(compileOnly)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("linkOnly"), ModelNodes.of(linkOnly)));
+				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeOnly"), ModelNodes.of(runtimeOnly)));
 
 				// TODO: Should be created as ModelProperty (readonly) with VariantView<NativeApplication> projection
 				registry.register(ModelRegistration.builder()
