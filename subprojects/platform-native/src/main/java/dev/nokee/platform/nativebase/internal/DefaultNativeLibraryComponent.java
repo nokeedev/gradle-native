@@ -32,7 +32,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 
@@ -44,11 +44,13 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	private final Supplier<NativeLibraryComponentVariants> componentVariants;
 	private final BinaryView<Binary> binaries;
 	private final SetProperty<BuildVariantInternal> buildVariants;
+	private final Property<DefaultNativeLibraryVariant> developmentVariant;
 
 	@Inject
 	public DefaultNativeLibraryComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, DefaultNativeLibraryVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
+		this.developmentVariant = objects.property(DefaultNativeLibraryVariant.class);
 		this.taskRegistry = taskRegistry;
 		this.componentVariants = () -> ModelNodeUtils.get(getNode(), NativeLibraryComponentVariants.class);
 		this.binaries = binaryViewFactory.create(identifier);
@@ -65,8 +67,8 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	}
 
 	@Override
-	public Provider<DefaultNativeLibraryVariant> getDevelopmentVariant() {
-		return componentVariants.get().getDevelopmentVariant();
+	public Property<DefaultNativeLibraryVariant> getDevelopmentVariant() {
+		return developmentVariant;
 	}
 
 	@Override
