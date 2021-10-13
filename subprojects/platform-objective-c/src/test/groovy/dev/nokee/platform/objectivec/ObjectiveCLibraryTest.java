@@ -15,12 +15,14 @@
  */
 package dev.nokee.platform.objectivec;
 
-import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.fixtures.NativeComponentMatchers;
 import dev.nokee.internal.testing.FileSystemWorkspace;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.model.internal.registry.DefaultModelRegistry;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
@@ -36,7 +38,6 @@ import java.io.File;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 import static dev.nokee.platform.objectivec.internal.plugins.ObjectiveCLibraryPlugin.objectiveCLibrary;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -49,7 +50,7 @@ class ObjectiveCLibraryTest implements SourceAwareComponentTester<ObjectiveCLibr
 	public ObjectiveCLibrary createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val component = create(registry(project.getObjects()), objectiveCLibrary(componentName, project)).as(ObjectiveCLibrary.class).get();
+		val component = create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), objectiveCLibrary(componentName, project)).as(ObjectiveCLibrary.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}

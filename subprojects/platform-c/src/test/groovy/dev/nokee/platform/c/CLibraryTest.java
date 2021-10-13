@@ -15,11 +15,13 @@
  */
 package dev.nokee.platform.c;
 
-import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.fixtures.NativeComponentMatchers;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.model.internal.registry.DefaultModelRegistry;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
@@ -34,7 +36,6 @@ import java.io.File;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 import static dev.nokee.platform.c.internal.plugins.CLibraryPlugin.cLibrary;
 
 @Subject(CLibrary.class)
@@ -45,7 +46,7 @@ class CLibraryTest implements SourceAwareComponentTester<CLibrary>, BaseNameAwar
 	public CLibrary createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val component = create(registry(project.getObjects()), cLibrary(componentName, project)).as(CLibrary.class).get();
+		val component = create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), cLibrary(componentName, project)).as(CLibrary.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}

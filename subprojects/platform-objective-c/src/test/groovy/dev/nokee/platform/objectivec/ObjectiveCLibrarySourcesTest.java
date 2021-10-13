@@ -18,6 +18,8 @@ package dev.nokee.platform.objectivec;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.model.internal.registry.DefaultModelRegistry;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.val;
@@ -34,7 +36,7 @@ class ObjectiveCLibrarySourcesTest implements ComponentSourcesTester<ObjectiveCL
 	public ObjectiveCLibrarySources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (ObjectiveCLibrarySources) create(objectiveCLibrary("main", project)).as(ObjectiveCLibrary.class).get().getSources();
+		val sources = (ObjectiveCLibrarySources) create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), objectiveCLibrary("main", project)).as(ObjectiveCLibrary.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}
