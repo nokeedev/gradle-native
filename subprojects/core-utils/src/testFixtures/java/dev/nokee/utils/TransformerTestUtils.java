@@ -33,7 +33,12 @@ public final class TransformerTestUtils {
 	private static final class ATransformer<OUT, IN> implements TransformerUtils.Transformer<OUT, IN> {
 		@Override
 		public OUT transform(IN t) {
-			return null; // do not depend on the result
+			// do not depend on the result of this transformer
+			try {
+				return (OUT) t; // try a sensible return value
+			} catch (ClassCastException ex) {
+				return null; // returning null breaks the Gradle API contract so we can assume the transformer won't be executed
+			}
 		}
 
 		@Override
