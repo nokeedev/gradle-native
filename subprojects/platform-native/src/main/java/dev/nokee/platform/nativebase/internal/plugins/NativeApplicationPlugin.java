@@ -60,8 +60,7 @@ import java.util.Optional;
 
 import static dev.nokee.model.internal.core.ModelNodes.discover;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.core.ModelProjections.*;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
@@ -159,6 +158,12 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 					.build());
 
 				registry.register(propertyFactory.create(path.child("binaries").child("executable"), ModelNodes.of(executable)));
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("dependencies"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(ofInstance(variantDependencies.getDependencies()))
+					.build());
 			})))
 			;
 	}
