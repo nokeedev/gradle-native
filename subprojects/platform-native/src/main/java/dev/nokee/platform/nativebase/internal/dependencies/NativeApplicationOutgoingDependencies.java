@@ -26,6 +26,7 @@ import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFile;
@@ -41,6 +42,7 @@ public class NativeApplicationOutgoingDependencies implements NativeOutgoingDepe
 	@Getter private final RegularFileProperty exportedSwiftModule;
 	@Getter private final Property<Binary> exportedBinary;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter private final Configuration runtimeElements;
 
 	@Inject
 	public NativeApplicationOutgoingDependencies(DomainObjectIdentifierInternal ownerIdentifier, BuildVariantInternal buildVariant, DefaultNativeComponentDependencies dependencies, ConfigurationContainer configurationContainer, ObjectFactory objects) {
@@ -53,7 +55,7 @@ public class NativeApplicationOutgoingDependencies implements NativeOutgoingDepe
 		val configurationRegistry = new ConfigurationBucketRegistryImpl(configurationContainer);
 		val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of("runtimeElements"),
 			ConsumableDependencyBucket.class, ownerIdentifier);
-		val runtimeElements = configurationRegistry.createIfAbsent(identifier.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getRuntimeOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifier.getDisplayName()));
+		this.runtimeElements = configurationRegistry.createIfAbsent(identifier.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getRuntimeOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifier.getDisplayName()));
 
 		runtimeElements.getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary));
 	}

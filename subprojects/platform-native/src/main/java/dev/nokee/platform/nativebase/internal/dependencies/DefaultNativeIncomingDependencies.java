@@ -54,8 +54,8 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 	private static final Logger LOGGER = Logger.getLogger(DefaultNativeIncomingDependencies.class.getCanonicalName());
 	private final IncomingHeaders headers;
 	private final IncomingSwiftModules swiftModules;
-	private final DependencyBucket linkLibrariesBucket;
-	private final DependencyBucket runtimeLibrariesBucket;
+	@Getter private final DependencyBucket linkLibrariesBucket;
+	@Getter private final DependencyBucket runtimeLibrariesBucket;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 
