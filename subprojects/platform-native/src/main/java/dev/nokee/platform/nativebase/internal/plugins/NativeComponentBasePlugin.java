@@ -74,7 +74,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 	public static Factory<DefaultNativeApplicationComponent> nativeApplicationProjection(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultNativeApplicationComponent.class, ProjectIdentifier.of(project));
-		return () -> new DefaultNativeApplicationComponent(identifier, project.getObjects(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelLookup.class));
+		return () -> new DefaultNativeApplicationComponent(identifier, project.getObjects(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
 	}
 
 	public static Factory<DefaultNativeLibraryComponent> nativeLibraryProjection(String name, Project project) {

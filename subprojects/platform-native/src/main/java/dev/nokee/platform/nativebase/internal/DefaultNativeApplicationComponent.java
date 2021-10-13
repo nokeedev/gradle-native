@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.*;
@@ -24,7 +23,10 @@ import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.VariantCollection;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -36,44 +38,33 @@ import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
-import static dev.nokee.model.internal.type.ModelType.of;
 
 public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources> {
-	private final DefaultNativeApplicationComponentDependencies dependencies;
 	private final TaskRegistry taskRegistry;
-	private final BinaryView<Binary> binaries;
 	private final SetProperty<BuildVariantInternal> buildVariants;
 	private final Property<DefaultNativeApplicationVariant> developmentVariant;
 
 	@Inject
-	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
+	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, DefaultNativeApplicationVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.taskRegistry = taskRegistry;
-		val path = ModelNodeUtils.getPath(getNode());
-		this.dependencies = ModelNodeUtils.get(modelLookup.get(path.child("dependencies")), DefaultNativeApplicationComponentDependencies.class);
-		this.binaries = (BinaryView<Binary>) ModelNodeUtils.get(modelLookup.get(path.child("binaries")), BinaryView.class);
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = objects.property(DefaultNativeApplicationVariant.class);
 	}
 
 	@Override
 	public DefaultNativeApplicationComponentDependencies getDependencies() {
-		return dependencies;
+		return ModelProperties.getProperty(this, "dependencies").as(DefaultNativeApplicationComponentDependencies.class).get();
 	}
 
 	@Override
@@ -83,7 +74,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 
 	@Override
 	public BinaryView<Binary> getBinaries() {
-		return binaries;
+		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override
