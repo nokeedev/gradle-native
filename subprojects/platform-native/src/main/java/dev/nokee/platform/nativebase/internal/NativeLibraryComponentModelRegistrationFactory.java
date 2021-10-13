@@ -15,7 +15,12 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import com.google.common.base.Preconditions;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
@@ -24,10 +29,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -36,16 +38,23 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
+import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
-import dev.nokee.utils.TransformerUtils;
+import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
+import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.file.RegularFile;
+import org.gradle.api.provider.Provider;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelNodes.*;
@@ -55,8 +64,10 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.maven;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
+import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.nativeLibraryProjection;
-import static dev.nokee.utils.TransformerUtils.noOpTransformer;
+import static dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin.nativeLibraryVariant;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class NativeLibraryComponentModelRegistrationFactory {
 	private final Class<? extends Component> componentType;
@@ -149,9 +160,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("binaries"))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(BinaryView.class), () -> {
-						return ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultNativeLibraryComponent.class).getBinaries();
-					}))
+					.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(project.getProviders(), () -> ModelStates.finalize(entity))))))
 					.build());
 			})))
 			.action(self(stateOf(ModelState.Finalized)).apply(new CalculateNativeApplicationVariantAction(project)))
@@ -172,17 +181,44 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 
 			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeLibraryComponent.class));
 			component.finalizeExtension(null);
+			component.getDevelopmentVariant().convention(project.provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
 
-			component.getVariantCollection().whenElementKnown(knownVariant -> {
-				val variant = registry.register(ModelRegistration.builder()
-					.withComponent(path.child(knownVariant.getIdentifier().getUnambiguousName()))
-					.withComponent(IsVariant.tag())
-					.withComponent(knownVariant.getIdentifier())
-					.withComponent(createdUsing(ModelType.of(NativeLibrary.class), () -> knownVariant.map(noOpTransformer()).get()))
-					.build());
-				knownVariant.configure(it -> ModelStates.realize(ModelNodes.of(variant)));
+			component.getBuildVariants().get().forEach(new Consumer<BuildVariantInternal>() {
+				private final ModelLookup modelLookup = project.getExtensions().getByType(ModelLookup.class);
 
-				registry.register(propertyFactory.create(path.child("variants").child(knownVariant.getIdentifier().getUnambiguousName()), ModelNodes.of(variant)));
+				@Override
+				public void accept(BuildVariantInternal buildVariant) {
+					val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeLibraryVariant.class).build();
+					val variant = ModelNodeUtils.register(entity, nativeLibraryVariant(variantIdentifier, component, project));
+
+					onEachVariantDependencies(variant.as(NativeLibrary.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
+
+					registry.register(propertyFactory.create(path.child("variants").child(variantIdentifier.getUnambiguousName()), ModelNodes.of(variant)));
+				}
+
+				private void onEachVariantDependencies(DomainObjectProvider<NativeLibrary> variant, VariantComponentDependencies<?> dependencies) {
+					if (NativeLibrary.class.isAssignableFrom(DefaultNativeLibraryVariant.class)) {
+						if (modelLookup.anyMatch(ModelSpecs.of(withType(ModelType.of(SwiftSourceSet.class))))) {
+							dependencies.getOutgoing().getExportedSwiftModule().convention(variant.flatMap(it -> {
+								List<? extends Provider<RegularFile>> result = it.getBinaries().withType(NativeBinary.class).flatMap(binary -> {
+									List<? extends Provider<RegularFile>> modules = binary.getCompileTasks().withType(SwiftCompileTask.class).map(task -> task.getModuleFile()).get();
+									return modules;
+								}).get();
+								return one(result);
+							}));
+						}
+						dependencies.getOutgoing().getExportedHeaders().from(sourceViewOf(component).filter(it -> (it instanceof NativeHeaderSet) && it.getName().equals("public")).map(transformEach(LanguageSourceSet::getSourceDirectories)));
+					}
+					dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
+				}
+
+				private <T> T one(Iterable<T> c) {
+					Iterator<T> iterator = c.iterator();
+					Preconditions.checkArgument(iterator.hasNext(), "collection needs to have one element, was empty");
+					T result = iterator.next();
+					Preconditions.checkArgument(!iterator.hasNext(), "collection needs to only have one element, more than one element found");
+					return result;
+				}
 			});
 		}
 	}
