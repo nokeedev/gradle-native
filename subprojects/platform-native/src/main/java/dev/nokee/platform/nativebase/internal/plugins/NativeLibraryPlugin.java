@@ -28,6 +28,8 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
@@ -149,6 +151,13 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 			.withComponent(variantDependencies)
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("binaries"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(project.getProviders())))))
+					.build());
 
 				if (identifier.getBuildVariant().hasAxisOf(NativeRuntimeBasePlugin.TARGET_LINKAGE_FACTORY.getShared())) {
 					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, identifier); // TODO: Use input to get variant identifier
@@ -161,7 +170,8 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 						}))
 						.build());
 
-					val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+					registry.register(propertyFactory.create(path.child("binaries").child("sharedLibrary"), ModelNodes.of(sharedLibrary)));
+
 					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (e, p) -> {
 						if (path.getParent().get().child("binaries").equals(p)) {
 							registry.register(propertyFactory.create(p.child(Optional.of(identifier.getUnambiguousName()).filter(it -> !it.isEmpty()).map(it -> it + "SharedLibrary").orElse("sharedLibrary")), ModelNodes.of(sharedLibrary)));
@@ -178,7 +188,8 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 						}))
 						.build());
 
-					val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+					registry.register(propertyFactory.create(path.child("binaries").child("staticLibrary"), ModelNodes.of(staticLibrary)));
+
 					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (e, p) -> {
 						if (path.getParent().get().child("binaries").equals(p)) {
 							registry.register(propertyFactory.create(p.child(Optional.of(identifier.getUnambiguousName()).filter(it -> !it.isEmpty()).map(it -> it + "StaticLibrary").orElse("staticLibrary")), ModelNodes.of(staticLibrary)));
