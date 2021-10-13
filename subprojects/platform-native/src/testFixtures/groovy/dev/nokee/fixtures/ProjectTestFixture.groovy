@@ -35,7 +35,7 @@ trait ProjectTestFixture {
 	}
 
 	Set<Task> getTasks() {
-		return projectUnderTest.tasks.findAll { !['help', 'tasks', 'components', 'dependencies', 'dependencyInsight', 'dependentComponents', 'init', 'model', 'outgoingVariants', 'projects', 'properties', 'wrapper', 'buildEnvironment'].contains(it.name) }
+		return projectUnderTest.tasks.findAll { !['help', 'tasks', 'components', 'dependencies', 'dependencyInsight', 'dependentComponents', 'init', 'model', 'outgoingVariants', 'projects', 'properties', 'wrapper', 'buildEnvironment', 'nokeeModel'].contains(it.name) }
 	}
 
 	void evaluateProject(String because) {
