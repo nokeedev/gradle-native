@@ -17,6 +17,7 @@ package dev.nokee.platform.objectivecpp;
 
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
@@ -33,6 +34,6 @@ public interface ObjectiveCppLibrary extends ObjectiveCppLibraryExtension, Depen
 	 * {@inheritDoc}
 	 */
 	default NativeLibraryComponentDependencies getDependencies() {
-		return ModelNodeUtils.get(ModelNodes.of(this), DefaultNativeLibraryComponent.class).getDependencies();
+		return ModelProperties.getProperty(this, "dependencies").as(NativeLibraryComponentDependencies.class).get();
 	}
 }

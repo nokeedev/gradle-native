@@ -17,6 +17,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -25,13 +26,18 @@ import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
+import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
+import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
+import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
-import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import lombok.val;
 import org.gradle.api.Project;
 
@@ -76,12 +82,13 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 				sourceRegistration.accept(entity, path);
 
 				// TODO: Should be created as ModelProperty (readonly) with VariantView<NativeLibrary> projection
+				val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultNativeLibraryComponent.class, ProjectIdentifier.of(project));
+				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
+				val dependencies = project.getObjects().newInstance(DefaultNativeLibraryComponentDependencies.class, dependencyContainer);
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("dependencies"))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(NativeLibraryComponentDependencies.class), () -> {
-						return ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultNativeLibraryComponent.class).getDependencies();
-					}))
+					.withComponent(ModelProjections.ofInstance(dependencies))
 					.build());
 
 				// TODO: Should be created as ModelProperty (readonly) with VariantView<NativeLibrary> projection
