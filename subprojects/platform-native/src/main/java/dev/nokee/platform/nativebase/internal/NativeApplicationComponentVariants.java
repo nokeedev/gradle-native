@@ -15,9 +15,16 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.internal.ComponentVariants;
 
-public final class NativeApplicationComponentVariants implements ComponentVariants {
+import java.util.Map;
 
-	public NativeApplicationComponentVariants() {}
+public final class NativeApplicationComponentVariants implements ComponentVariants {
+	private final Map<BuildVariant, ModelNode> variants;
+
+	public NativeApplicationComponentVariants(Map<BuildVariant, ModelNode> variants) {
+		this.variants = variants;
+	}
 }
