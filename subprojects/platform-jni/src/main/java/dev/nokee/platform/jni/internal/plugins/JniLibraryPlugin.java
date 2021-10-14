@@ -28,15 +28,21 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
 import dev.nokee.model.internal.*;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.*;
@@ -50,11 +56,13 @@ import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
+import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.internal.*;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
+import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.WarnUnbuildableLogger;
 import dev.nokee.platform.nativebase.internal.tasks.ObjectsLifecycleTask;
 import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask;
@@ -64,6 +72,7 @@ import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
+import dev.nokee.utils.TransformerUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -99,31 +108,31 @@ import org.gradle.util.GradleVersion;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static dev.nokee.model.internal.core.ModelNodes.discover;
+import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
+import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
 import static dev.nokee.platform.jni.internal.plugins.JvmIncludeRoots.jvmIncludes;
 import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskProperties.includeRoots;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.baseNameConvention;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.configureUsingProjection;
+import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 import static dev.nokee.platform.objectivec.internal.ObjectiveCSourceSetModelHelpers.configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
 import static dev.nokee.platform.objectivecpp.internal.ObjectiveCppSourceSetModelHelpers.configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
+import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
@@ -182,7 +191,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			}
 		});
 
-		ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getVariants().whenElementKnown(JniLibraryInternal.class, knownVariant -> {
+		ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getVariantCollection().whenElementKnown(knownVariant -> {
 			val eventPublisher = project.getExtensions().getByType(DomainObjectEventPublisher.class);
 			val sharedLibraryBinaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, knownVariant.getIdentifier());
 			eventPublisher.publish(new DomainObjectDiscovered<>(sharedLibraryBinaryIdentifier));
@@ -337,6 +346,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getVariantCollection().realize();
 			});
 		});
+		project.afterEvaluate(finalizeModelNodeOf(extension));
 	}
 
 	private static boolean isNativeLanguagePlugin(Plugin<Project> appliedPlugin) {
@@ -497,12 +507,14 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	public static NodeRegistration javaNativeInterfaceLibrary(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), JniLibraryComponentInternal.class, ProjectIdentifier.of(project));
 		assert identifier.isMainComponent();
-		return component(name, JavaNativeInterfaceLibrary.class)
-			.withComponent(createdUsing(ModelType.of(JavaNativeInterfaceComponentVariants.class), () -> {
+		return NodeRegistration.of(name, of(JavaNativeInterfaceLibrary.class))
+			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class))).apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
+			.withComponent(IsComponent.tag())
+			.withComponent(createdUsing(of(JavaNativeInterfaceComponentVariants.class), () -> {
 				val component = ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), JniLibraryComponentInternal.class);
 				return new JavaNativeInterfaceComponentVariants(project.getObjects(), component, project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelLookup.class));
 			}))
-			.withComponent(createdUsing(ModelType.of(JniLibraryComponentInternal.class), () -> new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects(), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class))))
+			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects(), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class))))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
@@ -543,10 +555,16 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					.build());
 
 				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("variants"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(JniLibrary.class, new ModelNodeBackedViewStrategy(project.getProviders(), () -> ModelStates.finalize(entity))))))
+					.build());
+
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("binaries"))
 					.withComponent(IsModelProperty.tag())
 					.withComponent(createdUsing(of(BinaryView.class), () -> {
-						return ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), JniLibraryComponentInternal.class).getBinaries();
+						return ModelNodeUtils.get(entity, JniLibraryComponentInternal.class).getBinaries();
 					}))
 					.build());
 
@@ -554,15 +572,37 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					.withComponent(path.child("targetMachines"))
 					.withComponent(IsModelProperty.tag())
 					.withComponent(createdUsing(of(SetProperty.class), () -> {
-						return ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), JniLibraryComponentInternal.class).getTargetMachines();
+						return ModelNodeUtils.get(entity, JniLibraryComponentInternal.class).getTargetMachines();
 					}))
 					.build());
+			})))
+			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+				val component = ModelNodeUtils.get(entity, JniLibraryComponentInternal.class);
+				component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(component.getVariants()::get)));
+				component.finalizeValue();
+				component.getVariantCollection().whenElementKnown(knownVariant -> {
+					val variant = registry.register(ModelRegistration.builder()
+						.withComponent(path.child(knownVariant.getIdentifier().getUnambiguousName()))
+						.withComponent(IsVariant.tag())
+						.withComponent(knownVariant.getIdentifier())
+						.withComponent(createdUsing(of(JniLibraryInternal.class), () -> knownVariant.map(noOpTransformer()).get()))
+						.build());
+					knownVariant.configure(it -> {
+						ModelStates.realize(ModelNodes.of(variant));
+					});
+
+					registry.register(propertyFactory.create(path.child("variants").child(knownVariant.getIdentifier().getUnambiguousName()), ModelNodes.of(variant)));
+				});
 			})))
 
 			// TODO: This convention is only good is to support older Gradle style source set
 			//   We could deprecate this behaviour by creating additional source set named objc/objcpp and warn when there's sources in them... that would fail some tests because we don't expect a source set... we could also just remove it...
-			.action(configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)))
-			.action(configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)))
+			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
+				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
+			.action(allDirectDescendants(mutate(of(ObjectiveCppSourceSet.class)))
+				.apply(executeUsingProjection(of(ObjectiveCppSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name)))::accept)))
 			;
 	}
 

@@ -16,7 +16,6 @@
 package dev.nokee.platform.jni.internal;
 
 import com.google.common.collect.Iterables;
-import dev.nokee.model.internal.core.Finalizable;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
@@ -36,7 +35,7 @@ import lombok.Getter;
 import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
@@ -47,12 +46,14 @@ import static dev.nokee.runtime.core.Coordinates.toCoordinateSet;
 import static dev.nokee.utils.TransformerUtils.collect;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 
-public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<JavaNativeInterfaceLibrarySources>, Finalizable {
+public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<JavaNativeInterfaceLibrarySources> {
 	@Getter private final GroupId groupId;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	private final BinaryView<Binary> binaries;
 	private final Supplier<JavaNativeInterfaceComponentVariants> componentVariants;
 	private final SetProperty<BuildVariantInternal> buildVariants;
+	private final Property<JniLibraryInternal> developmentVariant;
+	private final TaskRegistry taskRegistry;
 
 	@Inject
 	public JniLibraryComponentInternal(ComponentIdentifier<?> identifier, GroupId groupId, ObjectFactory objects, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
@@ -60,6 +61,8 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		this.groupId = groupId;
 		this.targetMachines = ConfigureUtils.configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
+		this.developmentVariant = objects.property(JniLibraryInternal.class);
+		this.taskRegistry = taskRegistry;
 		this.componentVariants = () -> ModelNodeUtils.get(getNode(), JavaNativeInterfaceComponentVariants.class);
 		this.binaries = binaryViewFactory.create(identifier);
 
@@ -73,8 +76,6 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		getBuildVariants().convention(getFinalSpace().map(DefaultBuildVariant::fromSpace));
 		getBuildVariants().finalizeValueOnRead();
 		getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
-
-		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 	}
 
 	private static <I extends Iterable<T>, T> Transformer<I, I> assertNonEmpty(String propertyName, String componentName) {
@@ -92,8 +93,8 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	}
 
 	//region Variant-awareness
-	public VariantViewInternal<JniLibraryInternal> getVariants() {
-		return getVariantCollection().getAsView(JniLibraryInternal.class);
+	public VariantView<JniLibraryInternal> getVariants() {
+		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
 	//endregion
 
@@ -102,8 +103,8 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	}
 
 	@Override
-	public Provider<JniLibraryInternal> getDevelopmentVariant() {
-		return componentVariants.get().getDevelopmentVariant();
+	public Property<JniLibraryInternal> getDevelopmentVariant() {
+		return developmentVariant;
 	}
 
 	@Override
@@ -121,8 +122,8 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		return buildVariants;
 	}
 
-	@Override
 	public void finalizeValue() {
+		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 		componentVariants.get().calculateVariants();
 	}
 }
