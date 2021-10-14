@@ -502,7 +502,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				val component = ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), JniLibraryComponentInternal.class);
 				return new JavaNativeInterfaceComponentVariants(project.getObjects(), component, project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelLookup.class));
 			}))
-			.withComponent(createdUsing(ModelType.of(JniLibraryComponentInternal.class), () -> new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class))))
+			.withComponent(createdUsing(ModelType.of(JniLibraryComponentInternal.class), () -> new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects(), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class))))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);

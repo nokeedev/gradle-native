@@ -16,18 +16,13 @@
 package dev.nokee.platform.jni.internal;
 
 import com.google.common.collect.Iterables;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.Finalizable;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.base.internal.variants.VariantRepository;
-import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
@@ -37,20 +32,14 @@ import dev.nokee.runtime.core.Coordinates;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ConfigureUtils;
-import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
-import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
-
 import java.util.function.Supplier;
 
 import static dev.nokee.runtime.core.Coordinates.coordinateTypeOf;
@@ -60,19 +49,13 @@ import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 
 public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<JavaNativeInterfaceLibrarySources>, Finalizable {
 	@Getter private final GroupId groupId;
-	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
-	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
-	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	private final BinaryView<Binary> binaries;
 	private final Supplier<JavaNativeInterfaceComponentVariants> componentVariants;
 
 	@Inject
-	public JniLibraryComponentInternal(ComponentIdentifier<?> identifier, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
+	public JniLibraryComponentInternal(ComponentIdentifier<?> identifier, GroupId groupId, ObjectFactory objects, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
 		super(identifier, objects);
-		this.configurations = configurations;
-		this.dependencyHandler = dependencyHandler;
-		this.providers = providers;
 		this.groupId = groupId;
 		this.targetMachines = ConfigureUtils.configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
 		this.componentVariants = () -> ModelNodeUtils.get(getNode(), JavaNativeInterfaceComponentVariants.class);
