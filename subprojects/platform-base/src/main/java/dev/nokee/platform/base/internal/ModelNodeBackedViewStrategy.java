@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
@@ -27,7 +28,6 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.core.ModelActions.*;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
@@ -67,7 +67,7 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	public <T> Provider<Set<T>> getElements(Class<T> elementType) {
 		return providerFactory.provider(() -> {
 			realize.run();
-			return ModelProperties.getProperties(entity).map(it -> it.as(elementType).get()).collect(Collectors.toSet());
+			return ModelProperties.getProperties(entity).map(it -> it.as(elementType).get()).collect(ImmutableSet.toImmutableSet());
 		});
 	}
 
