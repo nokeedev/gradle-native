@@ -18,7 +18,9 @@ package dev.nokee.language.c.internal.plugins;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.CSourceSetExtensible;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -34,7 +36,12 @@ public class CLanguagePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
-		modelConfigurer.configure(matching(discoveringInstanceOf(CSourceSetExtensible.class),
-			once(register(sourceSet("c", CSourceSet.class)))));
+		modelConfigurer.configure(matching(discoveringInstanceOf(CSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentNode.class), ModelComponentReference.of(ModelPath.class), (entity, parentEntity, path) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+
+			val sourceSet = ModelNodeUtils.register(parentEntity.get(), sourceSet("c", CSourceSet.class));
+			registry.register(propertyFactory.create(path.child("c"), ModelNodes.of(sourceSet)));
+		}))));
 	}
 }
