@@ -245,23 +245,17 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> variantDependencies.getDependencies().getRuntimeOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(variantDependencies.getDependencies().getRuntimeOnly().getAsConfiguration().getName())))
 					.build());
-				val apiElements = registry.register(ModelRegistration.builder()
-					.withComponent(path.child("apiElements"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> ((NativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getApiElements()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(((NativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getApiElements().getName())))
-					.build());
 				val linkElements = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("linkElements"))
 					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> ((NativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getLinkElements()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(((NativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getLinkElements().getName())))
+					.withComponent(createdUsing(of(Configuration.class), () -> ((AbstractNativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getLinkElements()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(((AbstractNativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getLinkElements().getName())))
 					.build());
 				val runtimeElements = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("runtimeElements"))
 					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> ((NativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getRuntimeElements()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(((NativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getRuntimeElements().getName())))
+					.withComponent(createdUsing(of(Configuration.class), () -> ((AbstractNativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getRuntimeElements()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(((AbstractNativeLibraryOutgoingDependencies) variantDependencies.getOutgoing()).getRuntimeElements().getName())))
 					.build());
 				val linkLibraries = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("linkLibraries"))
@@ -282,12 +276,11 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 				registry.register(propertyFactory.create(path.child("dependencies").child("compileOnly"), ModelNodes.of(compileOnly)));
 				registry.register(propertyFactory.create(path.child("dependencies").child("linkOnly"), ModelNodes.of(linkOnly)));
 				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeOnly"), ModelNodes.of(runtimeOnly)));
-				registry.register(propertyFactory.create(path.child("dependencies").child("apiElements"), ModelNodes.of(apiElements)));
 				registry.register(propertyFactory.create(path.child("dependencies").child("linkElements"), ModelNodes.of(linkElements)));
 				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeElements"), ModelNodes.of(runtimeElements)));
 				registry.register(propertyFactory.create(path.child("dependencies").child("linkLibraries"), ModelNodes.of(linkLibraries)));
 				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeLibraries"), ModelNodes.of(runtimeLibraries)));
-				// TODO: Missing incoming API configuration
+				// TODO: Missing incoming and outgoing API configuration
 
 				whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.ofAny(projectionOf(Configuration.class)), ModelComponentReference.of(ModelPath.class), (e, ignored, p) -> {
 					((NamedDomainObjectProvider<Configuration>) ModelNodeUtils.get(e, NamedDomainObjectProvider.class)).configure(configuration -> {
