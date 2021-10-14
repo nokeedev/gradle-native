@@ -15,10 +15,8 @@
  */
 package dev.nokee.platform.jni;
 
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
-import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import org.gradle.api.provider.SetProperty;
@@ -38,7 +36,7 @@ public interface JavaNativeInterfaceLibrary extends JniLibraryExtension, Depende
 	 * @since 0.1
 	 */
 	default JavaNativeInterfaceLibraryComponentDependencies getDependencies() {
-		return ModelNodeUtils.get(ModelNodes.of(this), JniLibraryComponentInternal.class).getDependencies();
+		return ModelProperties.getProperty(this, "dependencies").as(JavaNativeInterfaceLibraryComponentDependencies.class).get();
 	}
 
 	/**
@@ -46,6 +44,6 @@ public interface JavaNativeInterfaceLibrary extends JniLibraryExtension, Depende
 	 */
 	@Override
 	default SetProperty<TargetMachine> getTargetMachines() {
-		return ModelNodeUtils.get(ModelNodes.of(this), JniLibraryComponentInternal.class).getTargetMachines();
+		return ModelProperties.getProperty(this, "targetMachines").as(SetProperty.class).get();
 	}
 }
