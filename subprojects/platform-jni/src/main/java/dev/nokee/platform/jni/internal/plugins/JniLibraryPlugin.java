@@ -32,9 +32,11 @@ import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
+import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.*;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
@@ -114,6 +116,9 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
+import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
+import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
@@ -191,24 +196,25 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			}
 		});
 
-		ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getVariantCollection().whenElementKnown(knownVariant -> {
+		whenElementKnown(extension, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(JniLibrary.class)), (entity, variantIdentifier, variantProjection) -> {
+			val knownVariant = new ModelNodeBackedKnownDomainObject<>(ModelType.of(JniLibraryInternal.class), entity);
 			val eventPublisher = project.getExtensions().getByType(DomainObjectEventPublisher.class);
-			val sharedLibraryBinaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, knownVariant.getIdentifier());
+			val sharedLibraryBinaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, variantIdentifier);
 			eventPublisher.publish(new DomainObjectDiscovered<>(sharedLibraryBinaryIdentifier));
 
 			if (project.getPluginManager().hasPlugin("java") && extension.getTargetMachines().get().size() == 1) {
-				val jniJarIdentifier = BinaryIdentifier.of(BinaryName.of("jniJar"), DefaultJvmJarBinary.class, knownVariant.getIdentifier());
+				val jniJarIdentifier = BinaryIdentifier.of(BinaryName.of("jniJar"), DefaultJvmJarBinary.class, variantIdentifier);
 				eventPublisher.publish(new DomainObjectDiscovered<>(jniJarIdentifier));
 				knownVariant.configure(variant -> {
 					variant.addJniJarBinary(createJvmBinary(project));
 				});
 			} else {
-				val jniJarIdentifier = BinaryIdentifier.of(BinaryName.of("jniJar"), DefaultJniJarBinary.class, knownVariant.getIdentifier());
+				val jniJarIdentifier = BinaryIdentifier.of(BinaryName.of("jniJar"), DefaultJniJarBinary.class, variantIdentifier);
 				eventPublisher.publish(new DomainObjectDiscovered<>(jniJarIdentifier));
 				knownVariant.configure(JniLibraryInternal::registerJniJarBinary);
 
 				if (project.getPluginManager().hasPlugin("java")) {
-					val jvmJarIdentifier = BinaryIdentifier.of(BinaryName.of("jvmJar"), DefaultJvmJarBinary.class, knownVariant.getIdentifier());
+					val jvmJarIdentifier = BinaryIdentifier.of(BinaryName.of("jvmJar"), DefaultJvmJarBinary.class, variantIdentifier);
 					eventPublisher.publish(new DomainObjectDiscovered<>(jvmJarIdentifier));
 					knownVariant.configure(variant -> {
 						variant.addJvmJarBinary(createJvmBinary(project));
@@ -221,7 +227,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 //						//   Only JNI Jar? or an empty JVM Jar and JNI Jar?... Hmmm....
 //					}
 			}
-		});
+		}));
 
 		extension.getVariants().configureEach(JniLibraryInternal.class, variant -> {
 			// Build all language source set
@@ -245,9 +251,9 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			val projection = ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class);
 
 			ModelNodeUtils.finalizeProjections(ModelNodes.of(extension));
-			projection.getVariantCollection().whenElementKnown(knownVariant -> {
-				val buildVariant = knownVariant.getBuildVariant();
-				val variantIdentifier = knownVariant.getIdentifier();
+			whenElementKnown(extension, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(JniLibrary.class)), (entity, variantIdentifier, variantProjection) -> {
+				val knownVariant = new ModelNodeBackedKnownDomainObject<>(of(JniLibraryInternal.class), entity);
+				val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
 				val targetMachine = buildVariant.getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
 
 				if (project.getPlugins().stream().anyMatch(appliedPlugin -> isNativeLanguagePlugin(appliedPlugin))) {
@@ -287,7 +293,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					TaskProvider<Jar> jarTask = taskRegistry.register(TaskIdentifier.of(TaskName.of(JavaPlugin.JAR_TASK_NAME), Jar.class, variantIdentifier), task -> {
 						configureJarTaskUsing(knownVariant, unbuildableMainComponentLogger).execute(task);
 
-						val archiveBaseName = BaseNameUtils.from(knownVariant.getIdentifier()).getAsString() + knownVariant.getIdentifier().getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("");
+						val archiveBaseName = BaseNameUtils.from(variantIdentifier).getAsString() + variantIdentifier.getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("");
 						task.getArchiveBaseName().set(archiveBaseName);
 					});
 
@@ -314,27 +320,27 @@ public class JniLibraryPlugin implements Plugin<Project> {
 						it.dependsOn(knownVariant.map(l -> l.getJar().getJarTask()));
 					});
 				}
-			});
+			}));
 		});
 
 		project.afterEvaluate(proj -> {
 			// Ensure the variants are resolved so all tasks are registered.
 			getTasks().named("tasks", task -> {
 				task.dependsOn((Callable) () -> {
-					ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getVariantCollection().realize();
+					ModelNodeUtils.get(ModelNodes.of(extension), JavaNativeInterfaceComponentVariants.class).getVariantCollection().realize();
 					return emptyList();
 				});
 			});
 			// Ensure the variants are resolved so all configurations and dependencies are registered.
 			getTasks().named("dependencies", task -> {
 				task.dependsOn((Callable) () -> {
-					ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getVariantCollection().realize();
+					ModelNodeUtils.get(ModelNodes.of(extension), JavaNativeInterfaceComponentVariants.class).getVariantCollection().realize();
 					return emptyList();
 				});
 			});
 			getTasks().named("outgoingVariants", task -> {
 				task.dependsOn((Callable) () -> {
-					ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getVariantCollection().realize();
+					ModelNodeUtils.get(ModelNodes.of(extension), JavaNativeInterfaceComponentVariants.class).getVariantCollection().realize();
 					return emptyList();
 				});
 			});
@@ -343,10 +349,14 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(proj -> {
 			// The previous trick doesn't work for dependencyInsight task and vice-versa.
 			project.getConfigurations().addRule("Java Native Interface (JNI) variants are resolved only when needed.", it -> {
-				ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getVariantCollection().realize();
+				ModelNodeUtils.get(ModelNodes.of(extension), JavaNativeInterfaceComponentVariants.class).getVariantCollection().realize();
 			});
 		});
 		project.afterEvaluate(finalizeModelNodeOf(extension));
+	}
+
+	private static void whenElementKnown(Object target, ModelAction action) {
+		applyTo(ModelNodes.of(target), allDirectDescendants(stateAtLeast(ModelState.Created)).apply(once(action)));
 	}
 
 	private static boolean isNativeLanguagePlugin(Plugin<Project> appliedPlugin) {
@@ -393,7 +403,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		}
 	}
 
-	private Action<Jar> configureJarTaskUsing(KnownVariant<JniLibraryInternal> library, WarnUnbuildableLogger logger) {
+	private Action<Jar> configureJarTaskUsing(KnownDomainObject<JniLibraryInternal> library, WarnUnbuildableLogger logger) {
 		val runnableLogger = onlyOnce(logger::warn);
 		return task -> {
 			MissingFileDiagnostic diagnostic = new MissingFileDiagnostic();
@@ -582,7 +592,9 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				val component = ModelNodeUtils.get(entity, JniLibraryComponentInternal.class);
 				component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(component.getVariants()::get)));
 				component.finalizeValue();
-				component.getVariantCollection().whenElementKnown(knownVariant -> {
+
+				val variants = ModelNodeUtils.get(entity, JavaNativeInterfaceComponentVariants.class);
+				variants.getVariantCollection().whenElementKnown(knownVariant -> {
 					val variant = registry.register(ModelRegistration.builder()
 						.withComponent(path.child(knownVariant.getIdentifier().getUnambiguousName()))
 						.withComponent(IsVariant.tag())
