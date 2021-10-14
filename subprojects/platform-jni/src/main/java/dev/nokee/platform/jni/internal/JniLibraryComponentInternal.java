@@ -68,7 +68,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	private final Supplier<JavaNativeInterfaceComponentVariants> componentVariants;
 
 	@Inject
-	public JniLibraryComponentInternal(ComponentIdentifier<?> identifier, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
+	public JniLibraryComponentInternal(ComponentIdentifier<?> identifier, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
 		super(identifier, objects);
 		this.configurations = configurations;
 		this.dependencyHandler = dependencyHandler;
