@@ -18,6 +18,7 @@ package dev.nokee.platform.jni.internal.plugins;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.CLanguagePlugin;
@@ -29,12 +30,12 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
-import dev.nokee.model.internal.DomainObjectDiscovered;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.*;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -48,6 +49,7 @@ import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
+import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.internal.*;
@@ -81,6 +83,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -107,6 +110,8 @@ import java.util.stream.Collectors;
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
 import static dev.nokee.model.internal.core.ModelActions.register;
 import static dev.nokee.model.internal.core.ModelNodes.discover;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
@@ -497,19 +502,67 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		assert identifier.isMainComponent();
 		return component(name, JavaNativeInterfaceLibrary.class)
 			.withComponent(ModelProjections.createdUsing(ModelType.of(JniLibraryComponentInternal.class), () -> new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelLookup.class))))
-			.action(self(discover()).apply(register(sources())))
+			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+
+				// TODO: Should be created using CHeaderSetSpec
+				val jni = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("jni"))
+					.withComponent(managed(of(CHeaderSet.class)))
+					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+					.build());
+
+				// TODO: Should be created using CHeaderSetSpec
+				// TODO: ONLY if applying include language plugin
+				val headers = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("headers"))
+					.withComponent(managed(of(CHeaderSet.class)))
+					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+					.build());
+
+				// TODO: Should be created as ModelProperty (readonly) with JavaNativeInterfaceLibrarySources projection
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("sources"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(managed(of(JavaNativeInterfaceLibrarySources.class)))
+					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
+					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
+					.build());
+
+				registry.register(propertyFactory.create(path.child("sources").child("jni"), ModelNodes.of(jni)));
+				registry.register(propertyFactory.create(path.child("sources").child("headers"), ModelNodes.of(headers)));
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("dependencies"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(JavaNativeInterfaceLibraryComponentDependencies.class), () -> {
+						return ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), JniLibraryComponentInternal.class).getDependencies();
+					}))
+					.build());
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("binaries"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(BinaryView.class), () -> {
+						return ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), JniLibraryComponentInternal.class).getBinaries();
+					}))
+					.build());
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("targetMachines"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(SetProperty.class), () -> {
+						return ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), JniLibraryComponentInternal.class).getTargetMachines();
+					}))
+					.build());
+			})))
 
 			// TODO: This convention is only good is to support older Gradle style source set
 			//   We could deprecate this behaviour by creating additional source set named objc/objcpp and warn when there's sources in them... that would fail some tests because we don't expect a source set... we could also just remove it...
 			.action(configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)))
-			.action(configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
-	}
-
-	private static NodeRegistration sources() {
-		return componentSourcesOf(JavaNativeInterfaceLibrarySources.class)
-			.action(self(discover()).apply(register(sourceSet("jni", CHeaderSet.class))))
-			// TODO: ONLY if applying include language plugin
-			.action(self(discover()).apply(register(sourceSet("headers", CHeaderSet.class))));
+			.action(configureObjectiveCppSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)))
+			;
 	}
 
 	private static boolean isGradleVersionGreaterOrEqualsTo6Dot3() {
