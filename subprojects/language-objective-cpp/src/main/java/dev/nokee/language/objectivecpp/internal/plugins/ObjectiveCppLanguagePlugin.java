@@ -18,14 +18,17 @@ package dev.nokee.language.objectivecpp.internal.plugins;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetExtensible;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import static dev.nokee.language.base.internal.SourceSetExtensible.discoveringInstanceOf;
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
-import static dev.nokee.model.internal.core.ModelActions.*;
+import static dev.nokee.model.internal.core.ModelActions.matching;
+import static dev.nokee.model.internal.core.ModelActions.once;
 
 public class ObjectiveCppLanguagePlugin implements Plugin<Project> {
 	@Override
@@ -34,7 +37,12 @@ public class ObjectiveCppLanguagePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
-		modelConfigurer.configure(matching(discoveringInstanceOf(ObjectiveCppSourceSetExtensible.class),
-			once(register(sourceSet("objectiveCpp", ObjectiveCppSourceSet.class)))));
+		modelConfigurer.configure(matching(discoveringInstanceOf(ObjectiveCppSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentNode.class), ModelComponentReference.of(ModelPath.class), (entity, parentEntity, path) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+
+			val sourceSet = ModelNodeUtils.register(parentEntity.get(), sourceSet("objectiveCpp", ObjectiveCppSourceSet.class));
+			registry.register(propertyFactory.create(path.child("objectiveCpp"), ModelNodes.of(sourceSet)));
+		}))));
 	}
 }
