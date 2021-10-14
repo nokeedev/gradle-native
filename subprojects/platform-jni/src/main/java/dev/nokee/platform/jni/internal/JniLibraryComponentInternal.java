@@ -52,12 +52,14 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	private final BinaryView<Binary> binaries;
 	private final Supplier<JavaNativeInterfaceComponentVariants> componentVariants;
+	private final SetProperty<BuildVariantInternal> buildVariants;
 
 	@Inject
 	public JniLibraryComponentInternal(ComponentIdentifier<?> identifier, GroupId groupId, ObjectFactory objects, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
 		super(identifier, objects);
 		this.groupId = groupId;
 		this.targetMachines = ConfigureUtils.configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
+		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
 		this.componentVariants = () -> ModelNodeUtils.get(getNode(), JavaNativeInterfaceComponentVariants.class);
 		this.binaries = binaryViewFactory.create(identifier);
 
@@ -116,7 +118,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return componentVariants.get().getBuildVariants();
+		return buildVariants;
 	}
 
 	@Override

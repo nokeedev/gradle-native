@@ -45,7 +45,6 @@ import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 import static dev.nokee.model.internal.core.ModelNodes.withType;
@@ -54,7 +53,6 @@ import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINA
 
 public final class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<JniLibraryInternal> variantCollection;
-	@Getter private final SetProperty<BuildVariantInternal> buildVariants;
 	@Getter private final Provider<JniLibraryInternal> developmentVariant;
 	private final ObjectFactory objectFactory;
 	private final JniLibraryComponentInternal component;
@@ -73,7 +71,6 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 		this.taskViewFactory = taskViewFactory;
 		this.modelLookup = modelLookup;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), JniLibraryInternal.class, eventPublisher, viewFactory, variantRepository);
-		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(getVariantCollection()::get));
 		this.objectFactory = objectFactory;
 		this.component = component;
@@ -84,7 +81,7 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 	}
 
 	public void calculateVariants() {
-		buildVariants.get().forEach(buildVariant -> {
+		component.getBuildVariants().get().forEach(buildVariant -> {
 			val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(JniLibraryInternal.class).build();
 
 			val dependencies = newDependencies(buildVariant, component, variantIdentifier);
