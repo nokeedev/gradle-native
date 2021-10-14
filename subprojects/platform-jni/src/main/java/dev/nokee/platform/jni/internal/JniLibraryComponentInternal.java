@@ -18,6 +18,7 @@ package dev.nokee.platform.jni.internal;
 import com.google.common.collect.Iterables;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.Finalizable;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.*;
@@ -50,6 +51,8 @@ import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
 
+import java.util.function.Supplier;
+
 import static dev.nokee.runtime.core.Coordinates.coordinateTypeOf;
 import static dev.nokee.runtime.core.Coordinates.toCoordinateSet;
 import static dev.nokee.utils.TransformerUtils.collect;
@@ -62,7 +65,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	private final BinaryView<Binary> binaries;
-	private final JavaNativeInterfaceComponentVariants componentVariants;
+	private final Supplier<JavaNativeInterfaceComponentVariants> componentVariants;
 
 	@Inject
 	public JniLibraryComponentInternal(ComponentIdentifier<?> identifier, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ProviderFactory providers, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
@@ -72,7 +75,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		this.providers = providers;
 		this.groupId = groupId;
 		this.targetMachines = ConfigureUtils.configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
-		this.componentVariants = new JavaNativeInterfaceComponentVariants(objects, this, configurations, dependencyHandler, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, taskViewFactory, modelLookup);
+		this.componentVariants = () -> ModelNodeUtils.get(getNode(), JavaNativeInterfaceComponentVariants.class);
 		this.binaries = binaryViewFactory.create(identifier);
 
 		// Order here doesn't align with general native
@@ -115,7 +118,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 
 	@Override
 	public Provider<JniLibraryInternal> getDevelopmentVariant() {
-		return componentVariants.getDevelopmentVariant();
+		return componentVariants.get().getDevelopmentVariant();
 	}
 
 	@Override
@@ -125,16 +128,16 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 
 	@Override
 	public VariantCollection<JniLibraryInternal> getVariantCollection() {
-		return componentVariants.getVariantCollection();
+		return componentVariants.get().getVariantCollection();
 	}
 
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return componentVariants.getBuildVariants();
+		return componentVariants.get().getBuildVariants();
 	}
 
 	@Override
 	public void finalizeValue() {
-		componentVariants.calculateVariants();
+		componentVariants.get().calculateVariants();
 	}
 }
