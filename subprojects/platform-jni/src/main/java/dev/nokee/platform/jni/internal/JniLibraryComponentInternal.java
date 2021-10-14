@@ -16,15 +16,17 @@
 package dev.nokee.platform.jni.internal;
 
 import com.google.common.collect.Iterables;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
+import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.Coordinates;
@@ -41,6 +43,11 @@ import org.gradle.api.provider.SetProperty;
 import javax.inject.Inject;
 import java.util.function.Supplier;
 
+import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
+import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
+import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
+import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.runtime.core.Coordinates.coordinateTypeOf;
 import static dev.nokee.runtime.core.Coordinates.toCoordinateSet;
 import static dev.nokee.utils.TransformerUtils.collect;
@@ -114,7 +121,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 
 	@Override
 	public VariantCollection<JniLibraryInternal> getVariantCollection() {
-		return componentVariants.get().getVariantCollection();
+		throw new UnsupportedOperationException("Use 'variants' property instead.");
 	}
 
 	@Override
@@ -123,7 +130,13 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	}
 
 	public void finalizeValue() {
-		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(JniLibrary.class)), (entity, variantIdentifier, variantProjection) -> {
+			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(JniLibrary.class), entity));
+		}));
 		componentVariants.get().calculateVariants();
+	}
+
+	private static void whenElementKnown(Object target, ModelAction action) {
+		applyTo(ModelNodes.of(target), allDirectDescendants(stateAtLeast(ModelState.Created)).apply(once(action)));
 	}
 }
