@@ -37,13 +37,11 @@ import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
-import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
@@ -53,7 +51,6 @@ import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINA
 
 public final class JavaNativeInterfaceComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<JniLibraryInternal> variantCollection;
-	@Getter private final Provider<JniLibraryInternal> developmentVariant;
 	private final ObjectFactory objectFactory;
 	private final JniLibraryComponentInternal component;
 	private final ConfigurationContainer configurationContainer;
@@ -71,7 +68,6 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 		this.taskViewFactory = taskViewFactory;
 		this.modelLookup = modelLookup;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), JniLibraryInternal.class, eventPublisher, viewFactory, variantRepository);
-		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(getVariantCollection()::get));
 		this.objectFactory = objectFactory;
 		this.component = component;
 		this.configurationContainer = configurationContainer;
