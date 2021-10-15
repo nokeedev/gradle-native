@@ -43,9 +43,7 @@ import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
-import dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent;
-import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
-import dev.nokee.testing.xctest.internal.DefaultXCTestTestSuiteVariant;
+import dev.nokee.testing.xctest.internal.*;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Plugin;
@@ -111,6 +109,10 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
 				return newUnitTestFactory(project).create(identifier);
 			})
+			.withComponent(createdUsing(of(XCTestTestSuiteComponentVariants.class), () -> {
+				val component = ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), BaseXCTestTestSuiteComponent.class);
+				return new XCTestTestSuiteComponentVariants(project.getObjects(), component, project.getDependencies(), project.getConfigurations(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(ModelLookup.class));
+			}))
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
 				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
@@ -187,6 +189,10 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUiTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
 			return newUiTestFactory(project).create(identifier);
 		})
+			.withComponent(createdUsing(of(XCTestTestSuiteComponentVariants.class), () -> {
+				val component = ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), BaseXCTestTestSuiteComponent.class);
+				return new XCTestTestSuiteComponentVariants(project.getObjects(), component, project.getDependencies(), project.getConfigurations(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(ModelLookup.class));
+			}))
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
 				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
