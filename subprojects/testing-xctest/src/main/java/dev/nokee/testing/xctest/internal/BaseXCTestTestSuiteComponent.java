@@ -90,7 +90,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	@Getter private final Property<String> productBundleIdentifier;
 	private final SetProperty<BuildVariantInternal> buildVariants;
 
-	public BaseXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
+	public BaseXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, DefaultXCTestTestSuiteVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.providers = providers;
 		this.layout = layout;
