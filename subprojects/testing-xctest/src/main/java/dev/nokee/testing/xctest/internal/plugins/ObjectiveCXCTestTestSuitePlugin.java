@@ -18,7 +18,6 @@ package dev.nokee.testing.xctest.internal.plugins;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.c.CHeaderSet;
-import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.internal.BaseDomainObjectViewProjection;
@@ -29,9 +28,10 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
@@ -40,10 +40,12 @@ import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
+import dev.nokee.testing.xctest.internal.DefaultXCTestTestSuiteVariant;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Plugin;
@@ -53,19 +55,16 @@ import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelActions.register;
 import static dev.nokee.model.internal.core.ModelNodes.*;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.componentSourcesOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
-import static dev.nokee.platform.objectivec.internal.ObjectiveCSourceSetModelHelpers.configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
+import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 
 public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	private final ObjectFactory objects;
@@ -143,12 +142,44 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 				registry.register(propertyFactory.create(path.child("sources").child("objectiveC"), ModelNodes.of(objectiveC)));
 				registry.register(propertyFactory.create(path.child("sources").child("headers"), ModelNodes.of(headers)));
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("binaries"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(BinaryView.class), () -> ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultUnitTestXCTestTestSuiteComponent.class).getBinaries()))
+					.build());
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("variants"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(DefaultXCTestTestSuiteVariant.class, new ModelNodeBackedViewStrategy(project.getProviders(), () -> ModelStates.finalize(entity))))))
+					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(IsVariant.class), (e, p, ignored) -> {
+						if (p.isDirectDescendant(path)) {
+							registry.register(propertyFactory.create(path.child("variants").child(p.getName()), entity));
+						}
+					}))
+					.build());
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("dependencies"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(DefaultNativeComponentDependencies.class), () -> ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultUnitTestXCTestTestSuiteComponent.class).getDependencies()))
+					.build());
 			})))
 			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
 				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
 			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val component = ModelNodeUtils.get(entity, DefaultUnitTestXCTestTestSuiteComponent.class);
 				component.finalizeExtension(project);
+				component.getVariantCollection().whenElementKnown(knownVariant -> {
+					registry.register(ModelRegistration.builder()
+						.withComponent(path.child(knownVariant.getIdentifier().getUnambiguousName()))
+						.withComponent(knownVariant.getIdentifier())
+						.withComponent(IsVariant.tag())
+						.withComponent(createdUsing(of(DefaultXCTestTestSuiteVariant.class), () -> knownVariant.map(noOpTransformer()).get()))
+						.build());
+				});
 				component.getVariantCollection().realize(); // Force realization, for now
 			})))
 			;
@@ -196,12 +227,44 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 				registry.register(propertyFactory.create(path.child("sources").child("objectiveC"), ModelNodes.of(objectiveC)));
 				registry.register(propertyFactory.create(path.child("sources").child("headers"), ModelNodes.of(headers)));
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("binaries"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(BinaryView.class), () -> ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultUiTestXCTestTestSuiteComponent.class).getBinaries()))
+					.build());
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("variants"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(VariantView.class), () -> ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultUiTestXCTestTestSuiteComponent.class).getVariants()))
+					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(IsVariant.class), (e, p, ignored) -> {
+						if (p.isDirectDescendant(path)) {
+							registry.register(propertyFactory.create(path.child("variants").child(p.getName()), entity));
+						}
+					}))
+					.build());
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("dependencies"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(DefaultNativeComponentDependencies.class), () -> ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultUiTestXCTestTestSuiteComponent.class).getDependencies()))
+					.build());
 			})))
 			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
 				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
 			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val component = ModelNodeUtils.get(entity, DefaultUiTestXCTestTestSuiteComponent.class);
 				component.finalizeExtension(project);
+				component.getVariantCollection().whenElementKnown(knownVariant -> {
+					registry.register(ModelRegistration.builder()
+						.withComponent(path.child(knownVariant.getIdentifier().getUnambiguousName()))
+						.withComponent(knownVariant.getIdentifier())
+						.withComponent(IsVariant.tag())
+						.withComponent(createdUsing(of(DefaultXCTestTestSuiteVariant.class), () -> knownVariant.map(noOpTransformer()).get()))
+						.build());
+				});
 				component.getVariantCollection().realize(); // Force realization, for now
 			})))
 
