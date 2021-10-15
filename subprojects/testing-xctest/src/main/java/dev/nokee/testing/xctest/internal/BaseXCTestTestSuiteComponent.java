@@ -21,30 +21,19 @@ import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
-import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
-import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
-import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.base.internal.variants.KnownVariant;
-import dev.nokee.platform.base.internal.variants.VariantRepository;
-import dev.nokee.platform.base.internal.variants.VariantViewFactory;
-import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.*;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.Coordinates;
@@ -53,10 +42,7 @@ import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.utils.Cast;
 import lombok.Getter;
-import lombok.val;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -66,8 +52,6 @@ import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.GUtil;
-
-import java.util.function.Supplier;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
@@ -82,26 +66,26 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	@Getter private final Property<GroupId> groupId;
 	@Getter private final Property<BaseNativeComponent<?>> testedComponent;
 	private final TaskRegistry taskRegistry;
-	private final Supplier<XCTestTestSuiteComponentVariants> componentVariants;
 	private final BinaryView<Binary> binaries;
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;
 	@Getter private final Property<String> moduleName;
 	@Getter private final Property<String> productBundleIdentifier;
 	private final SetProperty<BuildVariantInternal> buildVariants;
+	private final Property<DefaultXCTestTestSuiteVariant> developmentVariant;
 
 	public BaseXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, DefaultXCTestTestSuiteVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.providers = providers;
 		this.layout = layout;
 		this.taskRegistry = taskRegistry;
-		this.componentVariants = () -> ModelNodeUtils.get(getNode(), XCTestTestSuiteComponentVariants.class);
 		this.binaries = binaryViewFactory.create(identifier);
 		this.groupId = objects.property(GroupId.class);
 		this.testedComponent = Cast.uncheckedCastBecauseOfTypeErasure(objects.property(BaseNativeComponent.class));
 		this.moduleName = configureDisplayName(objects.property(String.class), "moduleName");
 		this.productBundleIdentifier = configureDisplayName(objects.property(String.class), "productBundleIdentifier");
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
+		this.developmentVariant = objects.property(DefaultXCTestTestSuiteVariant.class).convention(providers.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariants().get())));
 
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetLinkages.BUNDLE)));
 		getDimensions().add(CoordinateSet.of(Coordinates.of(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())));
@@ -124,7 +108,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 
 	@Override
 	public Provider<DefaultXCTestTestSuiteVariant> getDevelopmentVariant() {
-		return componentVariants.get().getDevelopmentVariant();
+		return developmentVariant;
 	}
 
 	@Override
@@ -139,7 +123,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 
 	@Override
 	public VariantCollection<DefaultXCTestTestSuiteVariant> getVariantCollection() {
-		return componentVariants.get().getVariantCollection();
+		throw new UnsupportedOperationException("Use 'variants' property instead.");
 	}
 
 	protected void onEachVariant(KnownDomainObject<DefaultXCTestTestSuiteVariant> variant) {
@@ -204,8 +188,6 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultXCTestTestSuiteVariant.class), entity));
 		}));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
-
-		componentVariants.get().calculateVariants();
 	}
 
 	private static void whenElementKnown(Object target, ModelAction action) {
