@@ -15,16 +15,19 @@
  */
 package dev.nokee.testing.xctest.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.model.DomainObjectFactory;
+import dev.nokee.model.internal.BaseDomainObjectViewProjection;
+import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.NodeRegistration;
-import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.GroupId;
@@ -50,10 +53,15 @@ import org.gradle.util.GUtil;
 import javax.inject.Inject;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
+import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.register;
 import static dev.nokee.model.internal.core.ModelNodes.discover;
+import static dev.nokee.model.internal.core.ModelNodes.mutate;
+import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.componentSourcesOf;
 import static dev.nokee.platform.objectivec.internal.ObjectiveCSourceSetModelHelpers.configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
@@ -101,15 +109,45 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration unitTestXCTestTestSuite(String name, Project project) {
-		return component(name, DefaultUnitTestXCTestTestSuiteComponent.class, () -> {
-			val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
-			return newUnitTestFactory(project).create(identifier);
-		})
-			.action(configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)))
-			.action(self(discover()).apply(register(
-				componentSourcesOf(NativeApplicationSources.class)
-					.action(self(discover()).apply(register(sourceSet("objectiveC", ObjectiveCSourceSet.class))))
-					.action(self(discover()).apply(register(sourceSet("headers", CHeaderSet.class)))))));
+		return NodeRegistration.unmanaged(name, of(DefaultUnitTestXCTestTestSuiteComponent.class), () -> {
+				val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
+				return newUnitTestFactory(project).create(identifier);
+			})
+			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
+				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
+			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+
+				// TODO: Should be created using CSourceSetSpec
+				val objectiveC = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("objectiveC"))
+					.withComponent(managed(of(ObjectiveCSourceSet.class)))
+					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+					.build());
+
+				// TODO: Should be created using CHeaderSetSpec
+				val headers = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("headers"))
+					.withComponent(managed(of(CHeaderSet.class)))
+					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+					.build());
+
+				// TODO: Should be created as ModelProperty (readonly) with CApplicationSources projection
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("sources"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(managed(of(NativeApplicationSources.class)))
+					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
+					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
+					.build());
+
+				registry.register(propertyFactory.create(path.child("sources").child("objectiveC"), ModelNodes.of(objectiveC)));
+				registry.register(propertyFactory.create(path.child("sources").child("headers"), ModelNodes.of(headers)));
+			})))
+			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
+				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
+			;
 	}
 
 	private static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTestFactory(Project project) {
@@ -119,15 +157,45 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration uiTestXCTestTestSuite(String name, Project project) {
-		return component(name, DefaultUiTestXCTestTestSuiteComponent.class, () -> {
+		return NodeRegistration.unmanaged(name, of(DefaultUiTestXCTestTestSuiteComponent.class), () -> {
 			val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUiTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
 			return newUiTestFactory(project).create(identifier);
 		})
-			.action(configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)))
-			.action(self(discover()).apply(register(
-				componentSourcesOf(NativeApplicationSources.class)
-					.action(self(discover()).apply(register(sourceSet("objectiveC", ObjectiveCSourceSet.class))))
-					.action(self(discover()).apply(register(sourceSet("headers", CHeaderSet.class)))))));
+			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
+				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
+			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+
+				// TODO: Should be created using CSourceSetSpec
+				val objectiveC = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("objectiveC"))
+					.withComponent(managed(of(ObjectiveCSourceSet.class)))
+					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+					.build());
+
+				// TODO: Should be created using CHeaderSetSpec
+				val headers = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("headers"))
+					.withComponent(managed(of(CHeaderSet.class)))
+					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+					.build());
+
+				// TODO: Should be created as ModelProperty (readonly) with CApplicationSources projection
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("sources"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(managed(of(NativeApplicationSources.class)))
+					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
+					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
+					.build());
+
+				registry.register(propertyFactory.create(path.child("sources").child("objectiveC"), ModelNodes.of(objectiveC)));
+				registry.register(propertyFactory.create(path.child("sources").child("headers"), ModelNodes.of(headers)));
+			})))
+			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
+				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
+			;
 	}
 
 	private static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(Project project) {
