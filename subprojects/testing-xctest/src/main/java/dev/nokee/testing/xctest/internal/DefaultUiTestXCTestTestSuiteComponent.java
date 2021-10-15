@@ -41,6 +41,7 @@ import dev.nokee.platform.ios.tasks.internal.ProcessPropertyListTask;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
+import dev.nokee.platform.nativebase.tasks.LinkBundle;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
@@ -51,6 +52,7 @@ import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -83,6 +85,15 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 
 		String moduleName = BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase();
 
+		variant.configure(testSuite -> {
+			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
+				binary.getLinkTask().configure(task -> {
+					// TODO: Filter for matching build variant
+					task.dependsOn(getTestedComponent().flatMap(testedComponent -> testedComponent.getVariants().map(it -> it.getDevelopmentBinary())));
+				});
+			});
+		});
+
 		// XCTest UI Testing
 		val processUiTestPropertyListTask = taskRegistry.register("processUiTestPropertyList", ProcessPropertyListTask.class, task -> {
 			task.getIdentifier().set(providers.provider(() -> getGroupId().get().get().get() + "." + moduleName));
@@ -94,7 +105,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 		TaskProvider<CreateIosXCTestBundleTask> createUiTestXCTestBundle = taskRegistry.register("createUiTestXCTestBundle", CreateIosXCTestBundleTask.class, task -> {
 			task.getXCTestBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.xctest"));
 			task.getSources().from(processUiTestPropertyListTask.flatMap(it -> it.getOutputFile()));
-			task.getSources().from(variant.flatMap(testSuite -> testSuite.getBinaries().withType(BundleBinary.class).getElements().map(binaries -> binaries.stream().map(binary -> binary.getLinkTask().get().getLinkedFile()).collect(Collectors.toList()))));
+			task.getSources().from(variant.flatMap(testSuite -> testSuite.getBinaries().withType(BundleBinary.class).getElements().map(binaries -> binaries.stream().map(binary -> binary.getLinkTask().flatMap(LinkBundle::getLinkedFile)).collect(Collectors.toList()))));
 		});
 
 		Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> CommandLineTool.of(new File("/usr/bin/codesign")));
@@ -105,9 +116,16 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 			task.getCodeSignatureTool().disallowChanges();
 		});
 
+		TaskProvider<Sync> prepareXctRunner = taskRegistry.register("prepareUiTestXctRunner", Sync.class, task -> {
+			task.from(getXCTRunner());
+			task.rename("XCTRunner", moduleName + "-Runner");
+			task.setDestinationDir(task.getTemporaryDir());
+		});
+
 		TaskProvider<CreateIosApplicationBundleTask> createUiTestApplicationBundleTask = taskRegistry.register("createUiTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
 			task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.app"));
-			task.getSources().from(getXCTRunner());
+			task.getSources().from(prepareXctRunner.map(it -> it.getDestinationDir()));
+			task.getSources().from(processUiTestPropertyListTask.flatMap(it -> it.getOutputFile()));
 			task.getPlugIns().from(signUiTestXCTestBundle.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle));
 			task.getFrameworks().from(getXCTestFrameworks());
 			task.getSwiftSupportRequired().set(false);
