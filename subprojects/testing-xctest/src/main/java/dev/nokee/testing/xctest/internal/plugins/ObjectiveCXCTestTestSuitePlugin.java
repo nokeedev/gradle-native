@@ -28,6 +28,7 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.GroupId;
@@ -55,8 +56,7 @@ import javax.inject.Inject;
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.register;
-import static dev.nokee.model.internal.core.ModelNodes.discover;
-import static dev.nokee.model.internal.core.ModelNodes.mutate;
+import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
@@ -64,6 +64,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.componentSourcesOf;
+import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 import static dev.nokee.platform.objectivec.internal.ObjectiveCSourceSetModelHelpers.configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
 
 public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
@@ -90,10 +91,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				component.getBaseName().set(GUtil.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
 				component.getModuleName().set(GUtil.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
 				component.getProductBundleIdentifier().set(project.getGroup().toString() + "." + GUtil.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
-				component.finalizeExtension(project);
-				component.getVariantCollection().realize(); // Force realization, for now
 			});
 			val unitTestComponent = unitTestComponentProvider.get();
+			project.afterEvaluate(finalizeModelNodeOf(unitTestComponentProvider));
 
 			val uiTestComponentProvider = testSuites.register("uiTest", DefaultUiTestXCTestTestSuiteComponent.class, component -> {
 				component.getTestedComponent().value(application).disallowChanges();
@@ -101,10 +101,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				component.getBaseName().set(GUtil.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
 				component.getModuleName().set(GUtil.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
 				component.getProductBundleIdentifier().set(project.getGroup().toString() + "." + GUtil.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
-				component.finalizeExtension(project);
-				component.getVariantCollection().realize(); // Force realization, for now
 			});
 			val uiTestComponent = uiTestComponentProvider.get();
+			project.afterEvaluate(finalizeModelNodeOf(uiTestComponent));
 		});
 	}
 
@@ -147,6 +146,11 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			})))
 			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
 				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
+			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val component = ModelNodeUtils.get(entity, DefaultUnitTestXCTestTestSuiteComponent.class);
+				component.finalizeExtension(project);
+				component.getVariantCollection().realize(); // Force realization, for now
+			})))
 			;
 	}
 
@@ -195,6 +199,12 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			})))
 			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
 				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
+			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val component = ModelNodeUtils.get(entity, DefaultUiTestXCTestTestSuiteComponent.class);
+				component.finalizeExtension(project);
+				component.getVariantCollection().realize(); // Force realization, for now
+			})))
+
 			;
 	}
 
