@@ -178,7 +178,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						.withComponent(createdUsing(of(DefaultXCTestTestSuiteVariant.class), () -> knownVariant.map(noOpTransformer()).get()))
 						.build());
 				});
-				component.getVariantCollection().realize(); // Force realization, for now
+				component.getVariants().get(); // Force realization, for now
 			})))
 			;
 	}
@@ -262,7 +262,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						.withComponent(createdUsing(of(DefaultXCTestTestSuiteVariant.class), () -> knownVariant.map(noOpTransformer()).get()))
 						.build());
 				});
-				component.getVariantCollection().realize(); // Force realization, for now
+				component.getVariants().get(); // Force realization, for now
 			})))
 
 			;
