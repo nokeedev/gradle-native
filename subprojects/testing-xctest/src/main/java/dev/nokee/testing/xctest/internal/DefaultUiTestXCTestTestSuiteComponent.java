@@ -17,15 +17,15 @@ package dev.nokee.testing.xctest.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
+import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.core.ModelComponentType;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.BaseNameUtils;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.BinaryName;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -62,6 +62,8 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+
 public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component {
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
@@ -79,11 +81,11 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 	}
 
 	@Override
-	protected void onEachVariant(KnownVariant<DefaultXCTestTestSuiteVariant> variant) {
+	protected void onEachVariant(KnownDomainObject<DefaultXCTestTestSuiteVariant> variant) {
 		super.onEachVariant(variant);
-		val variantIdentifier = variant.getIdentifier();
+		val variantIdentifier = ModelNodes.of(variant).getComponent(componentOf(VariantIdentifier.class));
 
-		String moduleName = BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase();
+		String moduleName = BaseNameUtils.from(variantIdentifier).getAsCamelCase();
 
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
@@ -131,7 +133,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 			task.getSwiftSupportRequired().set(false);
 		});
 
-		val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("launcherApplicationBundle"), IosApplicationBundleInternal.class, variant.getIdentifier());
+		val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("launcherApplicationBundle"), IosApplicationBundleInternal.class, variantIdentifier);
 		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifierApplicationBundle));
 		val launcherApplicationBundle = new IosApplicationBundleInternal(createUiTestApplicationBundleTask);
 		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifierApplicationBundle, launcherApplicationBundle));
@@ -143,7 +145,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 			task.getCodeSignatureTool().disallowChanges();
 		});
 
-		val binaryIdentifierSignedApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedLauncherApplicationBundle"), SignedIosApplicationBundleInternal.class, variant.getIdentifier());
+		val binaryIdentifierSignedApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedLauncherApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
 		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifierSignedApplicationBundle));
 		val signedLauncherApplicationBundle = new SignedIosApplicationBundleInternal(signTask);
 		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifierSignedApplicationBundle, signedLauncherApplicationBundle));
@@ -151,7 +153,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
-				((BundleBinaryInternal)binary).getBaseName().set(BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase());
+				((BundleBinaryInternal)binary).getBaseName().set(BaseNameUtils.from(variantIdentifier).getAsCamelCase());
 			});
 		});
 

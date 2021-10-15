@@ -17,15 +17,14 @@ package dev.nokee.testing.xctest.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
+import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.BaseNameUtils;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.BinaryName;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -58,6 +57,8 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+
 public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component {
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
@@ -75,11 +76,11 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 	}
 
 	@Override
-	protected void onEachVariant(KnownVariant<DefaultXCTestTestSuiteVariant> variant) {
+	protected void onEachVariant(KnownDomainObject<DefaultXCTestTestSuiteVariant> variant) {
 		super.onEachVariant(variant);
-		val variantIdentifier = variant.getIdentifier();
+		val variantIdentifier = ModelNodes.of(variant).getComponent(componentOf(VariantIdentifier.class));
 
-		String moduleName = BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase();
+		String moduleName = BaseNameUtils.from(variantIdentifier).getAsCamelCase();
 
 		// XCTest Unit Testing
 		val processUnitTestPropertyListTask = taskRegistry.register("processUnitTestPropertyList", ProcessPropertyListTask.class, task -> {
@@ -102,7 +103,7 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 			task.getCodeSignatureTool().disallowChanges();
 		});
 
-		val binaryIdentifierXCTestBundle = BinaryIdentifier.of(BinaryName.of("unitTestXCTestBundle"), IosXCTestBundle.class, variant.getIdentifier());
+		val binaryIdentifierXCTestBundle = BinaryIdentifier.of(BinaryName.of("unitTestXCTestBundle"), IosXCTestBundle.class, variantIdentifier);
 		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifierXCTestBundle));
 		val xcTestBundle = new IosXCTestBundle(createUnitTestXCTestBundle);
 		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifierXCTestBundle, xcTestBundle));
@@ -125,14 +126,14 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 			task.getCodeSignatureTool().disallowChanges();
 		});
 
-		val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variant.getIdentifier());
+		val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
 		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifierApplicationBundle));
 		val signedApplicationBundle = new SignedIosApplicationBundleInternal(signTask);
 		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifierApplicationBundle, signedApplicationBundle));
 
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
-				((BundleBinaryInternal)binary).getBaseName().set(BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase());
+				((BundleBinaryInternal)binary).getBaseName().set(BaseNameUtils.from(variantIdentifier).getAsCamelCase());
 			});
 		});
 
