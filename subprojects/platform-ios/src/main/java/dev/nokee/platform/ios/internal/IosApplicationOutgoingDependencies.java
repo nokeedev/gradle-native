@@ -20,6 +20,7 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
+import dev.nokee.platform.nativebase.internal.HasOutputFile;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependencies;
 import lombok.AccessLevel;
@@ -60,6 +61,8 @@ public class IosApplicationOutgoingDependencies implements NativeOutgoingDepende
 	private Provider<FileSystemLocation> getOutgoingRuntimeLibrary(Binary binary) {
 		if (binary instanceof SignedIosApplicationBundleInternal) {
 			return ((SignedIosApplicationBundleInternal) binary).getApplicationBundleLocation();
+		} else if (binary instanceof HasOutputFile) {
+			return ((HasOutputFile) binary).getOutputFile().map(it -> it);
 		}
 		throw new IllegalArgumentException("Unsupported binary to export");
 	}

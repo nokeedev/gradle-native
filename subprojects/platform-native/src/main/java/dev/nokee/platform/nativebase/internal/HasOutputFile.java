@@ -19,5 +19,5 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
 
 public interface HasOutputFile {
-	Provider<RegularFile> getOutputFile();
+	Provider<RegularFile> getOutputFile(); // should be a regular file
 }

@@ -16,12 +16,14 @@
 package dev.nokee.testing.xctest.internal;
 
 import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.nativebase.internal.HasOutputFile;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import org.gradle.api.file.FileSystemLocation;
+import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskProvider;
 
-public final class IosXCTestBundle implements Binary {
+public final class IosXCTestBundle implements Binary, HasOutputFile {
 	private final TaskProvider<CreateIosXCTestBundleTask> createTask;
 
 	IosXCTestBundle(TaskProvider<CreateIosXCTestBundleTask> createTask) {
@@ -30,5 +32,11 @@ public final class IosXCTestBundle implements Binary {
 
 	public Provider<FileSystemLocation> getXCTestBundleLocation() {
 		return createTask.flatMap(CreateIosXCTestBundleTask::getXCTestBundle);
+	}
+
+	@Override
+	public Provider<RegularFile> getOutputFile() {
+		return createTask.flatMap(task ->
+			task.getProject().getObjects().fileProperty().fileProvider(task.getXCTestBundle().map(it -> it.getAsFile())));
 	}
 }
