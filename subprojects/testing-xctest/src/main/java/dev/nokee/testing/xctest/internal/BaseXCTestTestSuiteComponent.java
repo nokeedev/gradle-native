@@ -19,11 +19,10 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -66,6 +65,8 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.GUtil;
 
+import java.util.function.Supplier;
+
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent.getSdkPlatformPath;
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
@@ -75,7 +76,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	@Getter private final Property<GroupId> groupId;
 	@Getter private final Property<BaseNativeComponent<?>> testedComponent;
 	private final TaskRegistry taskRegistry;
-	private final XCTestTestSuiteComponentVariants componentVariants;
+	private final Supplier<XCTestTestSuiteComponentVariants> componentVariants;
 	private final BinaryView<Binary> binaries;
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;
@@ -88,7 +89,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 		this.providers = providers;
 		this.layout = layout;
 		this.taskRegistry = taskRegistry;
-		this.componentVariants = new XCTestTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, modelLookup);
+		this.componentVariants = () -> ModelNodeUtils.get(getNode(), XCTestTestSuiteComponentVariants.class);
 		this.binaries = binaryViewFactory.create(identifier);
 		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(objects, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
 		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
@@ -119,7 +120,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 
 	@Override
 	public Provider<DefaultXCTestTestSuiteVariant> getDevelopmentVariant() {
-		return componentVariants.getDevelopmentVariant();
+		return componentVariants.get().getDevelopmentVariant();
 	}
 
 	@Override
@@ -128,13 +129,13 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 	}
 
 	@Override
-	public VariantViewInternal<DefaultXCTestTestSuiteVariant> getVariants() {
-		return (VariantViewInternal<DefaultXCTestTestSuiteVariant>) super.getVariants();
+	public VariantView<DefaultXCTestTestSuiteVariant> getVariants() {
+		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
 
 	@Override
 	public VariantCollection<DefaultXCTestTestSuiteVariant> getVariantCollection() {
-		return componentVariants.getVariantCollection();
+		return componentVariants.get().getVariantCollection();
 	}
 
 	protected void onEachVariant(KnownVariant<DefaultXCTestTestSuiteVariant> variant) {
@@ -192,7 +193,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
-		componentVariants.calculateVariants();
+		componentVariants.get().calculateVariants();
 	}
 
 	@Override
