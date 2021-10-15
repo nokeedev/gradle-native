@@ -79,7 +79,6 @@ import static dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteCo
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
 public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCTestTestSuiteVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, TestSuiteComponent {
-	private final DefaultNativeComponentDependencies dependencies;
 	@Getter private final Property<GroupId> groupId;
 	@Getter private final Property<BaseNativeComponent<?>> testedComponent;
 	private final TaskRegistry taskRegistry;
@@ -98,8 +97,6 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 		this.taskRegistry = taskRegistry;
 		this.componentVariants = () -> ModelNodeUtils.get(getNode(), XCTestTestSuiteComponentVariants.class);
 		this.binaries = binaryViewFactory.create(identifier);
-		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(objects, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
-		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.groupId = objects.property(GroupId.class);
 		this.testedComponent = Cast.uncheckedCastBecauseOfTypeErasure(objects.property(BaseNativeComponent.class));
 		this.moduleName = configureDisplayName(objects.property(String.class), "moduleName");
@@ -117,7 +114,7 @@ public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCT
 
 	@Override
 	public DefaultNativeComponentDependencies getDependencies() {
-		return dependencies;
+		return ModelProperties.getProperty(this, "dependencies").as(DefaultNativeComponentDependencies.class).get();
 	}
 
 	@Override
