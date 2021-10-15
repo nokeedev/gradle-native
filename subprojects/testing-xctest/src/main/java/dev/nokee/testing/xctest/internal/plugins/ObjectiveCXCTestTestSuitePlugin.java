@@ -33,6 +33,9 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
+import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
+import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
+import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
@@ -41,6 +44,7 @@ import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.xctest.internal.*;
@@ -55,8 +59,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelNodes.*;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.core.ModelProjections.*;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -153,10 +156,14 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), DefaultXCTestTestSuiteVariant.class));
 
+				val componentIdentifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
+				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, componentIdentifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
+				val dependencies = project.getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
+
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("dependencies"))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(DefaultNativeComponentDependencies.class), () -> ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultUnitTestXCTestTestSuiteComponent.class).getDependencies()))
+					.withComponent(ofInstance(dependencies))
 					.build());
 			})))
 			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
@@ -233,10 +240,14 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), DefaultXCTestTestSuiteVariant.class));
 
+				val componentIdentifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
+				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, componentIdentifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
+				val dependencies = project.getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
+
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("dependencies"))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(DefaultNativeComponentDependencies.class), () -> ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultUiTestXCTestTestSuiteComponent.class).getDependencies()))
+					.withComponent(ofInstance(dependencies))
 					.build());
 			})))
 			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
