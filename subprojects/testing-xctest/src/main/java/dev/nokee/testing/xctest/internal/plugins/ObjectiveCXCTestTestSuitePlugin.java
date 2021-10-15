@@ -149,16 +149,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					.withComponent(createdUsing(of(BinaryView.class), () -> ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultUnitTestXCTestTestSuiteComponent.class).getBinaries()))
 					.build());
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("variants"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(DefaultXCTestTestSuiteVariant.class, new ModelNodeBackedViewStrategy(project.getProviders(), () -> ModelStates.finalize(entity))))))
-					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(IsVariant.class), (e, p, ignored) -> {
-						if (p.isDirectDescendant(path)) {
-							registry.register(propertyFactory.create(path.child("variants").child(p.getName()), entity));
-						}
-					}))
-					.build());
+				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), DefaultXCTestTestSuiteVariant.class));
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("dependencies"))
@@ -234,16 +225,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					.withComponent(createdUsing(of(BinaryView.class), () -> ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultUiTestXCTestTestSuiteComponent.class).getBinaries()))
 					.build());
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("variants"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(VariantView.class), () -> ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultUiTestXCTestTestSuiteComponent.class).getVariants()))
-					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(IsVariant.class), (e, p, ignored) -> {
-						if (p.isDirectDescendant(path)) {
-							registry.register(propertyFactory.create(path.child("variants").child(p.getName()), entity));
-						}
-					}))
-					.build());
+				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), DefaultXCTestTestSuiteVariant.class));
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("dependencies"))

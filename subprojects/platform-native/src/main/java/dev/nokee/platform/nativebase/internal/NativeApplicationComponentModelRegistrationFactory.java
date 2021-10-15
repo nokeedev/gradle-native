@@ -120,12 +120,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 				registry.register(propertyFactory.create(path.child("dependencies").child("linkOnly"), ModelNodes.of(linkOnly)));
 				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeOnly"), ModelNodes.of(runtimeOnly)));
 
-				// TODO: Should be created as ModelProperty (readonly) with VariantView<NativeApplication> projection
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("variants"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(NativeApplication.class, new ModelNodeBackedViewStrategy(project.getProviders(), () -> ModelStates.finalize(entity))))))
-					.build());
+				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), NativeApplication.class));
 
 				// TODO: Should be created as ModelProperty (readonly) with BinaryView<Binary> projection
 				registry.register(ModelRegistration.builder()
@@ -147,9 +142,6 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 
 		@Override
 		protected void execute(ModelNode entity, ModelPath path) {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
-
 			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeApplicationComponent.class));
 			component.finalizeExtension(null);
 			component.getDevelopmentVariant().set(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get()))); // TODO: VariantView#get should force finalize the component.
@@ -163,8 +155,6 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 
 					variants.put(buildVariant, ModelNodes.of(variant));
 					onEachVariantDependencies(variant.as(NativeApplication.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
-
-					registry.register(propertyFactory.create(path.child("variants").child(variantIdentifier.getUnambiguousName()), ModelNodes.of(variant)));
 				}
 
 				private void onEachVariantDependencies(DomainObjectProvider<NativeApplication> variant, VariantComponentDependencies<?> dependencies) {
