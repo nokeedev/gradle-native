@@ -15,13 +15,18 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
+import dev.nokee.model.internal.BaseDomainObjectViewProjection;
+import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -51,15 +56,18 @@ import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
+import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.register;
 import static dev.nokee.model.internal.core.ModelNodes.discover;
+import static dev.nokee.model.internal.core.ModelNodes.mutate;
+import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.component;
+import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.platform.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
-import static dev.nokee.platform.objectivec.internal.ObjectiveCSourceSetModelHelpers.configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout;
 
 public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -109,21 +117,56 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration objectiveCIosApplication(String name, Project project) {
-		return component(name, ObjectiveCIosApplication.class)
+		return NodeRegistration.of(name, of(ObjectiveCIosApplication.class))
+			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
+				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
+			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
+				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
+			.withComponent(IsComponent.tag())
 			.withComponent(ModelProjections.createdUsing(of(DefaultIosApplicationComponent.class), () -> create(name, project)))
-			.action(self(discover()).apply(register(sources())))
-			.action(configureObjectiveCSourceSetConventionUsingMavenAndGradleCoreNativeLayout(ComponentName.of(name)));
+			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+
+				// TODO: Should be created using CSourceSetSpec
+				val objectiveC = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("objectiveC"))
+					.withComponent(managed(of(ObjectiveCSourceSet.class)))
+					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+					.build());
+
+				// TODO: Should be created using CHeaderSetSpec
+				val headers = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("headers"))
+					.withComponent(managed(of(CHeaderSet.class)))
+					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+					.build());
+
+				// TODO: Should be created using IosResourceSpec
+				val iosResources = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("resources"))
+					.withComponent(managed(of(IosResourceSet.class)))
+					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+					.build());
+
+				// TODO: Should be created as ModelProperty (readonly) with CApplicationSources projection
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("sources"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(managed(of(ObjectiveCIosApplicationSources.class)))
+					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
+					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
+					.build());
+
+				registry.register(propertyFactory.create(path.child("sources").child("objectiveC"), ModelNodes.of(objectiveC)));
+				registry.register(propertyFactory.create(path.child("sources").child("headers"), ModelNodes.of(headers)));
+				registry.register(propertyFactory.create(path.child("sources").child("resources"), ModelNodes.of(iosResources)));
+			})))
+			;
 	}
 
 	public static DefaultIosApplicationComponent create(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
 		return new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
-	}
-
-	private static NodeRegistration sources() {
-		return ComponentModelBasePlugin.componentSourcesOf(ObjectiveCIosApplicationSources.class)
-			.action(self(discover()).apply(register(sourceSet("objectiveC", ObjectiveCSourceSet.class))))
-			.action(self(discover()).apply(register(sourceSet("headers", CHeaderSet.class))))
-			.action(self(discover()).apply(register(sourceSet("resources", IosResourceSet.class))));
 	}
 }
