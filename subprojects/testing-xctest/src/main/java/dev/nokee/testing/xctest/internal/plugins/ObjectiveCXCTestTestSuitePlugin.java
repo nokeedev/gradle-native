@@ -221,7 +221,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					variants.put(buildVariant, ModelNodes.of(variant));
 					onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
 				});
-				entity.addComponent(new XCTestTestSuiteComponentVariants(variants.build()));
+				entity.addComponent(new Variants(variants.build()));
 			})))
 			;
 	}
@@ -335,7 +335,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					variants.put(buildVariant, ModelNodes.of(variant));
 					onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
 				});
-				entity.addComponent(new XCTestTestSuiteComponentVariants(variants.build()));
+				entity.addComponent(new Variants(variants.build()));
 				component.getVariants().get(); // Force realization, for now
 			})))
 

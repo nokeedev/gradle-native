@@ -21,10 +21,10 @@ import dev.nokee.platform.base.internal.ComponentVariants;
 
 import java.util.Map;
 
-public final class XCTestTestSuiteComponentVariants implements ComponentVariants {
+public final class Variants implements ComponentVariants {
 	private final Map<BuildVariant, ModelNode> variants;
 
-	public XCTestTestSuiteComponentVariants(Map<BuildVariant, ModelNode> variants) {
+	public Variants(Map<BuildVariant, ModelNode> variants) {
 		this.variants = variants;
 	}
 }
