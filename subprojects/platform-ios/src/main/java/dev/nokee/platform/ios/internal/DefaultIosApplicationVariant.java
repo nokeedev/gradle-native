@@ -37,14 +37,12 @@ import org.gradle.api.tasks.TaskProvider;
 import javax.inject.Inject;
 
 public class DefaultIosApplicationVariant extends BaseNativeVariant implements IosApplication, VariantInternal {
-	private final DefaultNativeComponentDependencies dependencies;
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 	@Getter private final Property<String> productBundleIdentifier;
 
 	@Inject
 	public DefaultIosApplicationVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<DefaultNativeComponentDependencies> dependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
 		super(identifier, objects, providers, assembleTask, binaryViewFactory);
-		this.dependencies = dependencies.getDependencies();
 		this.resolvableDependencies = dependencies.getIncoming();
 		this.productBundleIdentifier = objects.property(String.class);
 
@@ -53,7 +51,7 @@ public class DefaultIosApplicationVariant extends BaseNativeVariant implements I
 
 	@Override
 	public DefaultNativeComponentDependencies getDependencies() {
-		return dependencies;
+		return ModelProperties.getProperty(this, "dependencies").as(DefaultNativeComponentDependencies.class).get();
 	}
 
 	@Override
