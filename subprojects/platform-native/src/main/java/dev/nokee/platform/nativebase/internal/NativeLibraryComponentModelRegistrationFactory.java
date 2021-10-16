@@ -204,7 +204,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 					return result;
 				}
 			});
-			entity.addComponent(new NativeLibraryComponentVariants(variants.build()));
+			entity.addComponent(new Variants(variants.build()));
 		}
 	}
 }

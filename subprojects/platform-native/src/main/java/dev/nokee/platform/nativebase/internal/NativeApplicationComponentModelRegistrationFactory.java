@@ -161,7 +161,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 					dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
 				}
 			});
-			entity.addComponent(new NativeApplicationComponentVariants(variants.build()));
+			entity.addComponent(new Variants(variants.build()));
 		}
 	}
 }
