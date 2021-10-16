@@ -15,10 +15,12 @@
  */
 package dev.nokee.platform.ios;
 
-import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.fixtures.NativeComponentMatchers;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.model.internal.registry.DefaultModelRegistry;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
@@ -33,7 +35,6 @@ import java.io.File;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 import static dev.nokee.platform.ios.internal.plugins.SwiftIosApplicationPlugin.swiftIosApplication;
 
 @Subject(SwiftIosApplication.class)
@@ -44,7 +45,7 @@ class SwiftIosApplicationTest implements SourceAwareComponentTester<SwiftIosAppl
 	public SwiftIosApplication createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val component = create(registry(project.getObjects()), swiftIosApplication(componentName, project)).as(SwiftIosApplication.class).get();
+		val component = create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), swiftIosApplication(componentName, project)).as(SwiftIosApplication.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}
