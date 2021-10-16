@@ -17,6 +17,9 @@ package dev.nokee.testing.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
+import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.SwiftSourceSet;
@@ -26,6 +29,7 @@ import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
@@ -81,9 +85,11 @@ import java.util.concurrent.Callable;
 import static com.google.common.base.Predicates.instanceOf;
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
 import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.*;
+import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
@@ -233,22 +239,33 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 				return it + StringUtils.capitalize(getIdentifier().getName().get());
 			}));
 
-			sourceViewOf(component).whenElementKnownEx(LanguageSourceSet.class, knownSourceSet -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			whenElementKnown(component, ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (entity, a, b, c) -> {
 				// TODO: should have a way to report the public type of the "main" projection
 				//   The known and provider should use the public type of the projection... instead of the "assumed type"
 				//   BUT should it... seems a bit hacky... check what Software Model did.
-				val sourceSetType = ModelNodeUtils.get(ModelNodes.of(knownSourceSet), LanguageSourceSet.class).getClass();
+				val sourceSetType = ModelNodeUtils.get(entity, LanguageSourceSet.class).getClass();
 				// If source set don't already exists on test suite
 				if (!modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(getNode())).and(withType(of(sourceSetType)))))) {
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
 					if (NativeHeaderSet.class.isAssignableFrom(sourceSetType)) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
-						ModelNodeUtils.register(ModelNodes.of(sourceViewOf(this)), sourceSet("headers", sourceSetType));
+						registry.register(ModelRegistration.builder()
+							.withComponent(getNode().getComponent(componentOf(ModelPath.class)).child("headers"))
+							.withComponent(IsLanguageSourceSet.tag())
+							.withComponent(managed(of(sourceSetType)))
+							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+							.build());
 					} else {
-						ModelNodeUtils.register(ModelNodes.of(sourceViewOf(this)), sourceSet(ModelNodeUtils.getPath(ModelNodes.of(knownSourceSet)).getName(), sourceSetType));
+						registry.register(ModelRegistration.builder()
+							.withComponent(getNode().getComponent(componentOf(ModelPath.class)).child(ModelNodeUtils.getPath(entity).getName()))
+							.withComponent(IsLanguageSourceSet.tag())
+							.withComponent(managed(of(sourceSetType)))
+							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+							.build());
 					}
 				}
-			});
+			}));
 			if (component instanceof BaseNativeComponent) {
 				val testedComponentDependencies = ((BaseNativeComponent<?>) component).getDependencies();
 				getDependencies().getImplementation().getAsConfiguration().extendsFrom(testedComponentDependencies.getImplementation().getAsConfiguration());
