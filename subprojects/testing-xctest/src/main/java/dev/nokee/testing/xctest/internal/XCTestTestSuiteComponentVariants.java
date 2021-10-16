@@ -15,8 +15,16 @@
  */
 package dev.nokee.testing.xctest.internal;
 
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.internal.ComponentVariants;
 
+import java.util.Map;
+
 public final class XCTestTestSuiteComponentVariants implements ComponentVariants {
-	public XCTestTestSuiteComponentVariants() {}
+	private final Map<BuildVariant, ModelNode> variants;
+
+	public XCTestTestSuiteComponentVariants(Map<BuildVariant, ModelNode> variants) {
+		this.variants = variants;
+	}
 }
