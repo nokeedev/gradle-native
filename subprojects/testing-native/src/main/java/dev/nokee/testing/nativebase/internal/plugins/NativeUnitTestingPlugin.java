@@ -16,6 +16,7 @@
 package dev.nokee.testing.nativebase.internal.plugins;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
@@ -32,6 +33,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -54,18 +56,24 @@ import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
 import lombok.val;
 import lombok.var;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
 
+import java.util.Optional;
+
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
+import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
+import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.*;
-import static dev.nokee.model.internal.core.ModelProjections.managed;
-import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
+import static dev.nokee.model.internal.core.ModelProjections.*;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -124,6 +132,40 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 					.withComponent(path.child("dependencies"))
 					.withComponent(IsModelProperty.tag())
 					.withComponent(ofInstance(dependencies))
+					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsDependencyBucket.class), ModelComponentReference.ofAny(projectionOf(Configuration.class)), (e, p, ignored1, ignored2, projection) -> {
+						if (path.isDirectDescendant(p)) {
+							registry.register(propertyFactory.create(path.child("dependencies").child(p.getName()), e));
+						}
+					}))
+					.build());
+
+				val implementation = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("implementation"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
+					.build());
+				val compileOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("compileOnly"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
+					.build());
+				val linkOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("linkOnly"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
+					.build());
+				val runtimeOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("runtimeOnly"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
 					.build());
 
 				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), NativeTestSuiteVariant.class));
@@ -160,13 +202,66 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.withComponent(variantIdentifier)
 			.withComponent(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+
+				val dependencies = variantDependencies.getDependencies();
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("dependencies"))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(ofInstance(variantDependencies.getDependencies()))
+					.withComponent(ofInstance(dependencies))
+					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsDependencyBucket.class), ModelComponentReference.ofAny(projectionOf(Configuration.class)), (e, p, ignored1, ignored2, projection) -> {
+						if (path.isDirectDescendant(p)) {
+							registry.register(propertyFactory.create(path.child("dependencies").child(p.getName()), e));
+						}
+					}))
 					.build());
+
+				val implementation = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("implementation"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
+					.build());
+				val compileOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("compileOnly"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
+					.build());
+				val linkOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("linkOnly"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
+					.build());
+				val runtimeOnly = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("runtimeOnly"))
+					.withComponent(IsDependencyBucket.tag())
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
+					.build());
+
+				whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.ofAny(projectionOf(Configuration.class)), ModelComponentReference.of(ModelPath.class), (e, ignored, p) -> {
+					((NamedDomainObjectProvider<Configuration>) ModelNodeUtils.get(e, NamedDomainObjectProvider.class)).configure(configuration -> {
+						val parentConfigurationResult = project.getExtensions().getByType(ModelLookup.class).query(ModelSpecs.of(ModelNodes.withPath(path.getParent().get().child(p.getName()))));
+						Optional.ofNullable(Iterables.getOnlyElement(parentConfigurationResult.get(), null)).ifPresent(parentConfigurationEntity -> {
+							val parentConfiguration = ModelNodeUtils.get(parentConfigurationEntity, Configuration.class);
+							if (!parentConfiguration.getName().equals(configuration.getName())) {
+								configuration.extendsFrom(parentConfiguration);
+							}
+						});
+					});
+				}));
 			})))
 			;
+	}
+
+	private static void whenElementKnown(Object target, ModelAction action) {
+		applyTo(ModelNodes.of(target), allDirectDescendants(stateAtLeast(ModelState.Created)).apply(once(action)));
 	}
 
 	private static VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultNativeTestSuiteVariant> variantIdentifier, DefaultNativeTestSuiteComponent component, ObjectFactory objectFactory, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ModelLookup modelLookup) {
@@ -174,11 +269,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		if (component.getBuildVariants().get().size() > 1) {
 			val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
 			variantDependencies = objectFactory.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
-			variantDependencies.configureEach(variantBucket -> {
-				component.getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
-					variantBucket.getAsConfiguration().extendsFrom(componentBucket.getAsConfiguration());
-				});
-			});
 		}
 
 		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant).withOwnerIdentifier(variantIdentifier).withBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
