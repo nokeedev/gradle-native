@@ -30,15 +30,10 @@ import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
-import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
-import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
-import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
-import dev.nokee.platform.base.internal.variants.VariantViewInternal;
 import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.tasks.internal.*;
 import dev.nokee.platform.nativebase.ExecutableBinary;
@@ -46,7 +41,6 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
@@ -76,7 +70,6 @@ import org.gradle.nativeplatform.toolchain.Swiftc;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.List;
-import java.util.function.Supplier;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
@@ -92,7 +85,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final DependencyHandler dependencyHandler;
 	private final DomainObjectEventPublisher eventPublisher;
 	private final TaskRegistry taskRegistry;
-	private final Supplier<IosComponentVariants> componentVariants;
 	private final BinaryView<Binary> binaries;
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
@@ -119,7 +111,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetBuildTypes.named("Default"))));
 		getDimensions().add(CoordinateSet.of(Coordinates.of(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())));
 		this.taskRegistry = taskRegistry;
-		this.componentVariants = () -> ModelNodeUtils.get(getNode(), IosComponentVariants.class);
 		this.binaries = binaryViewFactory.create(identifier);
 		this.moduleName = objects.property(String.class).convention(getBaseName());
 	}
@@ -151,7 +142,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	@Override
 	public VariantCollection<DefaultIosApplicationVariant> getVariantCollection() {
-		return componentVariants.get().getVariantCollection();
+		throw new UnsupportedOperationException("Use 'variants' property instead.");
 	}
 
 	protected void onEachVariant(KnownDomainObject<DefaultIosApplicationVariant> variant) {
