@@ -104,4 +104,22 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	public interface A3<I0, I1, I2> {
 		void execute(ModelNode node, I0 i0, I1 i1, I2 i2);
 	}
+
+	public static <I0, I1, I2, I3> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, ModelComponentReference<I2> i2, ModelComponentReference<I3> i3, A4<? super I0, ? super I1, ? super I2, ? super I3> action) {
+		return new ModelActionWithInputs() {
+			@Override
+			public void execute(ModelNode node, List<?> inputs) {
+				action.execute(node, (I0) inputs.get(0), (I1) inputs.get(1), (I2) inputs.get(2), (I3) inputs.get(3));
+			}
+
+			@Override
+			public List<? extends ModelComponentReference<?>> getInputs() {
+				return ImmutableList.of(i0, i1, i2, i3);
+			}
+		};
+	}
+
+	public interface A4<I0, I1, I2, I3> {
+		void execute(ModelNode node, I0 i0, I1 i1, I2 i2, I3 i3);
+	}
 }
