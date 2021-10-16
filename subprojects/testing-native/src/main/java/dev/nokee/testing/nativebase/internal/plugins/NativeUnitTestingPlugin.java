@@ -17,6 +17,7 @@ package dev.nokee.testing.nativebase.internal.plugins;
 
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
@@ -61,6 +62,7 @@ import org.gradle.api.model.ObjectFactory;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
@@ -100,6 +102,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			// TODO: Choose a better component sources
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("sources"))
@@ -107,6 +110,11 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 					.withComponent(managed(of(ObjectiveCApplicationSources.class)))
 					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
 					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
+					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (e, p, ignored1, ignored2, projection) -> {
+						if (path.isDirectDescendant(p)) {
+							registry.register(propertyFactory.create(path.child("sources").child(p.getName()), e));
+						}
+					}))
 					.build());
 
 				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
@@ -123,7 +131,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val component = ModelNodeUtils.get(entity, DefaultNativeTestSuiteComponent.class);
-				component.finalizeExtension(null);
+				component.finalizeExtension(project);
 				component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
 
 				val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
