@@ -39,9 +39,7 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskProvider;
 
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -49,8 +47,6 @@ import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK
 
 public final class NativeTestSuiteComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<DefaultNativeTestSuiteVariant> variantCollection;
-	@Getter private final SetProperty<BuildVariantInternal> buildVariants;
-	@Getter private final Provider<DefaultNativeTestSuiteVariant> developmentVariant;
 	private final ObjectFactory objectFactory;
 	private final DefaultNativeTestSuiteComponent component;
 	private final DependencyHandler dependencyHandler;
@@ -64,8 +60,7 @@ public final class NativeTestSuiteComponentVariants implements ComponentVariants
 		this.binaryViewFactory = binaryViewFactory;
 		this.modelLookup = modelLookup;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), DefaultNativeTestSuiteVariant.class, eventPublisher, viewFactory, variantRepository);
-		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
-		this.developmentVariant = providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get()));
+		component.getDevelopmentVariant().convention(providerFactory.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariantCollection().get())));
 		this.objectFactory = objectFactory;
 		this.component = component;
 		this.dependencyHandler = dependencyHandler;
@@ -75,7 +70,7 @@ public final class NativeTestSuiteComponentVariants implements ComponentVariants
 	}
 
 	public void calculateVariants() {
-		getBuildVariants().get().forEach(buildVariant -> {
+		component.getBuildVariants().get().forEach(buildVariant -> {
 			val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeTestSuiteVariant.class).build();
 
 			val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier));
@@ -89,7 +84,7 @@ public final class NativeTestSuiteComponentVariants implements ComponentVariants
 
 	private VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultNativeTestSuiteVariant> variantIdentifier) {
 		var variantDependencies = component.getDependencies();
-		if (getBuildVariants().get().size() > 1) {
+		if (component.getBuildVariants().get().size() > 1) {
 			val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
 			variantDependencies = objectFactory.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 			variantDependencies.configureEach(variantBucket -> {

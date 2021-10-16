@@ -86,6 +86,7 @@ import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Predicates.instanceOf;
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
@@ -104,8 +105,10 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final TaskRegistry taskRegistry;
 	private final TaskContainer tasks;
 	private final ModelLookup modelLookup;
-	private final NativeTestSuiteComponentVariants componentVariants;
+	private final Supplier<NativeTestSuiteComponentVariants> componentVariants;
 	private final BinaryView<Binary> binaries;
+	private final SetProperty<BuildVariantInternal> buildVariants;
+	private final Property<DefaultNativeTestSuiteVariant> developmentVariant;
 
 	@Inject
 	public DefaultNativeTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
@@ -114,6 +117,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.providers = providers;
 		this.tasks = tasks;
 		this.modelLookup = modelLookup;
+		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
+		this.developmentVariant = objects.property(DefaultNativeTestSuiteVariant.class);
 
 		this.testedComponent = Cast.uncheckedCast(objects.property(BaseComponent.class));
 
@@ -131,7 +136,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.getBaseName().convention(BaseNameUtils.from(identifier).getAsString());
 
 		this.taskRegistry = taskRegistry;
-		this.componentVariants = new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, modelLookup);
+		this.componentVariants = () -> new NativeTestSuiteComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, modelLookup);
 		this.binaries = binaryViewFactory.create(identifier);
 
 		this.getBuildVariants().convention(getFinalSpace().map(DefaultBuildVariant::fromSpace));
@@ -146,12 +151,12 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return componentVariants.getBuildVariants();
+		return buildVariants;
 	}
 
 	@Override
-	public Provider<DefaultNativeTestSuiteVariant> getDevelopmentVariant() {
-		return componentVariants.getDevelopmentVariant();
+	public Property<DefaultNativeTestSuiteVariant> getDevelopmentVariant() {
+		return developmentVariant;
 	}
 
 	@Override
@@ -166,7 +171,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 	@Override
 	public VariantCollection<DefaultNativeTestSuiteVariant> getVariantCollection() {
-		return componentVariants.getVariantCollection();
+		return componentVariants.get().getVariantCollection();
 	}
 
 	@Override
@@ -188,7 +193,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
-		componentVariants.calculateVariants();
+		componentVariants.get().calculateVariants();
 
 		// HACK: This should really be solve using the variant whenElementKnown API
 		getBuildVariants().get().forEach(buildVariant -> {
