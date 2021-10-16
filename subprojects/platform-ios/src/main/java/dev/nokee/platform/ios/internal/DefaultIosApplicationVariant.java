@@ -15,6 +15,9 @@
  */
 package dev.nokee.platform.ios.internal;
 
+import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -51,5 +54,10 @@ public class DefaultIosApplicationVariant extends BaseNativeVariant implements I
 	@Override
 	public DefaultNativeComponentDependencies getDependencies() {
 		return dependencies;
+	}
+
+	@Override
+	public BinaryView<Binary> getBinaries() {
+		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 }

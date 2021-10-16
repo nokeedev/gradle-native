@@ -85,7 +85,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final DependencyHandler dependencyHandler;
 	private final DomainObjectEventPublisher eventPublisher;
 	private final TaskRegistry taskRegistry;
-	private final BinaryView<Binary> binaries;
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;
@@ -111,7 +110,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetBuildTypes.named("Default"))));
 		getDimensions().add(CoordinateSet.of(Coordinates.of(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())));
 		this.taskRegistry = taskRegistry;
-		this.binaries = binaryViewFactory.create(identifier);
 		this.moduleName = objects.property(String.class).convention(getBaseName());
 	}
 
@@ -132,7 +130,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	@Override
 	public BinaryView<Binary> getBinaries() {
-		return binaries;
+		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override
