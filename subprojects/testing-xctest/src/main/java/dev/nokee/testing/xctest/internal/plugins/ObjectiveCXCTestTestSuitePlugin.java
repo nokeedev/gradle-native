@@ -15,6 +15,7 @@
  */
 package dev.nokee.testing.xctest.internal.plugins;
 
+import com.google.common.collect.ImmutableMap;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.c.CHeaderSet;
@@ -31,6 +32,7 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -48,10 +50,7 @@ import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
-import dev.nokee.testing.xctest.internal.BaseXCTestTestSuiteComponent;
-import dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent;
-import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
-import dev.nokee.testing.xctest.internal.DefaultXCTestTestSuiteVariant;
+import dev.nokee.testing.xctest.internal.*;
 import lombok.val;
 import lombok.var;
 import org.apache.commons.lang3.StringUtils;
@@ -214,12 +213,15 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				val component = ModelNodeUtils.get(entity, DefaultUnitTestXCTestTestSuiteComponent.class);
 				component.finalizeExtension(project);
 
+				val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 				component.getBuildVariants().get().forEach(buildVariant -> {
 					val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultXCTestTestSuiteVariant.class).build();
 
 					val variant = ModelNodeUtils.register(entity, xcTestTestSuiteVariant(variantIdentifier, component, project));
+					variants.put(buildVariant, ModelNodes.of(variant));
 					onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
 				});
+				entity.addComponent(new XCTestTestSuiteComponentVariants(variants.build()));
 			})))
 			;
 	}
@@ -325,12 +327,15 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				val component = ModelNodeUtils.get(entity, DefaultUiTestXCTestTestSuiteComponent.class);
 				component.finalizeExtension(project);
 
+				val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 				component.getBuildVariants().get().forEach(buildVariant -> {
 					val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultXCTestTestSuiteVariant.class).build();
 
 					val variant = ModelNodeUtils.register(entity, xcTestTestSuiteVariant(variantIdentifier, component, project));
+					variants.put(buildVariant, ModelNodes.of(variant));
 					onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
 				});
+				entity.addComponent(new XCTestTestSuiteComponentVariants(variants.build()));
 				component.getVariants().get(); // Force realization, for now
 			})))
 
