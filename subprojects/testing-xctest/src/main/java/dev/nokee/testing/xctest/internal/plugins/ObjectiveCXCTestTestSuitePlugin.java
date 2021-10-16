@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
@@ -135,6 +136,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				// TODO: Should be created using CSourceSetSpec
 				val objectiveC = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("objectiveC"))
+					.withComponent(IsLanguageSourceSet.tag())
 					.withComponent(managed(of(ObjectiveCSourceSet.class)))
 					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 					.build());
@@ -142,6 +144,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				// TODO: Should be created using CHeaderSetSpec
 				val headers = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("headers"))
+					.withComponent(IsLanguageSourceSet.tag())
 					.withComponent(managed(of(CHeaderSet.class)))
 					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 					.build());
@@ -251,6 +254,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				// TODO: Should be created using CSourceSetSpec
 				val objectiveC = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("objectiveC"))
+					.withComponent(IsLanguageSourceSet.tag())
 					.withComponent(managed(of(ObjectiveCSourceSet.class)))
 					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 					.build());
@@ -258,6 +262,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				// TODO: Should be created using CHeaderSetSpec
 				val headers = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("headers"))
+					.withComponent(IsLanguageSourceSet.tag())
 					.withComponent(managed(of(CHeaderSet.class)))
 					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 					.build());

@@ -16,6 +16,7 @@
 package dev.nokee.platform.objectivecpp.internal.plugins;
 
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
@@ -87,6 +88,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 			// TODO: Should be created using ObjectiveCppSourceSetSpec
 			val objectiveCpp = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("objectiveCpp"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(ObjectiveCppSourceSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());
@@ -94,6 +96,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 			// TODO: Should be created using CppHeaderSetSpec
 			val headers = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("headers"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CppHeaderSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());

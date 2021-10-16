@@ -16,6 +16,7 @@
 package dev.nokee.platform.swift.internal.plugins;
 
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.BaseDomainObjectViewProjection;
@@ -80,6 +81,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 			// TODO: Should be created using SwiftSourceSetSpec
 			val swift = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("swift"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(SwiftSourceSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());

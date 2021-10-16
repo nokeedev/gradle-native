@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.CLanguagePlugin;
@@ -527,6 +528,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				// TODO: Should be created using CHeaderSetSpec
 				val jni = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("jni"))
+					.withComponent(IsLanguageSourceSet.tag())
 					.withComponent(managed(of(CHeaderSet.class)))
 					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 					.build());
@@ -535,6 +537,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				// TODO: ONLY if applying include language plugin
 				val headers = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("headers"))
+					.withComponent(IsLanguageSourceSet.tag())
 					.withComponent(managed(of(CHeaderSet.class)))
 					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 					.build());
