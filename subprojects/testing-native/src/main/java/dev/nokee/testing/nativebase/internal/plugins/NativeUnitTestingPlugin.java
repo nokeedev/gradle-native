@@ -25,6 +25,8 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -42,8 +44,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelNodes.discover;
-import static dev.nokee.model.internal.core.ModelNodes.mutate;
+import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
@@ -63,7 +64,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		project.afterEvaluate(proj -> {
 			// TODO: We delay as late as possible to "fake" a finalize action.
 			testSuites.configureEach(DefaultNativeTestSuiteComponent.class, it -> {
-				it.finalizeExtension(proj);
+				ModelStates.finalize(it.getNode());
 			});
 		});
 	}
@@ -88,6 +89,10 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
 					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
 					.build());
+			})))
+			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val component = ModelNodeUtils.get(entity, DefaultNativeTestSuiteComponent.class);
+				component.finalizeExtension(null);
 			})))
 			;
 	}
