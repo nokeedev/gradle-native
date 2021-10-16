@@ -24,6 +24,7 @@ import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.Binary;
@@ -97,7 +98,6 @@ import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.toList;
 
 public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite, SourceAwareComponent<ComponentSources> {
-	private final DefaultNativeComponentDependencies dependencies;
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
 	@Getter Property<BaseComponent<?>> testedComponent;
@@ -115,8 +115,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.tasks = tasks;
 		this.modelLookup = modelLookup;
 
-		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(objects, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
-		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.testedComponent = Cast.uncheckedCast(objects.property(BaseComponent.class));
 
 		getDimensions().addAll(providers.provider(() -> {
@@ -143,7 +141,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 	@Override
 	public DefaultNativeComponentDependencies getDependencies() {
-		return dependencies;
+		return ModelProperties.getProperty(this, "dependencies").as(DefaultNativeComponentDependencies.class).get();
 	}
 
 	@Override
