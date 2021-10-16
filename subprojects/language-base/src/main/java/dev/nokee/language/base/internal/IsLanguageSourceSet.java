@@ -15,10 +15,14 @@
  */
 package dev.nokee.language.base.internal;
 
-public final class IsLanguageSourceSet {
-	private static final IsLanguageSourceSet INSTANCE = new IsLanguageSourceSet();
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Value;
 
-	private IsLanguageSourceSet() {}
+@Value
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class IsLanguageSourceSet {
+	private static final IsLanguageSourceSet INSTANCE = new IsLanguageSourceSet();
 
 	public static IsLanguageSourceSet tag() {
 		return INSTANCE;
