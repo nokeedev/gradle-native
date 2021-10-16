@@ -29,6 +29,8 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
+import dev.nokee.platform.base.internal.ComponentVariantsPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
@@ -43,8 +45,11 @@ import dev.nokee.platform.objectivec.ObjectiveCApplicationSources;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.nativebase.NativeTestSuite;
+import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
+import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
 import dev.nokee.testing.nativebase.internal.NativeTestSuiteComponentVariants;
+import dev.nokee.utils.TransformerUtils;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -108,10 +113,22 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 					.withComponent(IsModelProperty.tag())
 					.withComponent(ofInstance(dependencies))
 					.build());
+
+				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), NativeTestSuiteVariant.class));
 			})))
 			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val component = ModelNodeUtils.get(entity, DefaultNativeTestSuiteComponent.class);
 				component.finalizeExtension(null);
+
+				component.getVariantCollection().whenElementKnown(knownVariant -> {
+					val variant = registry.register(ModelRegistration.builder()
+						.withComponent(path.child(knownVariant.getIdentifier().getUnambiguousName()))
+						.withComponent(IsVariant.tag())
+						.withComponent(createdUsing(of(DefaultNativeTestSuiteVariant.class), () -> knownVariant.map(TransformerUtils.noOpTransformer()).get()))
+						.build());
+					knownVariant.configure(it -> ModelStates.realize(ModelNodes.of(variant)));
+				});
 			})))
 			;
 	}
