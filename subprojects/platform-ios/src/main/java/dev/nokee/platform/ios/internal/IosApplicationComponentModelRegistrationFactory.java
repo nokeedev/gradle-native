@@ -19,6 +19,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.Component;
@@ -65,6 +66,10 @@ public final class IosApplicationComponentModelRegistrationFactory {
 		return NodeRegistration.of(name, of(componentType))
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
 				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
+			.withComponent(createdUsing(of(IosComponentVariants.class), () -> {
+				val component = ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), DefaultIosApplicationComponent.class);
+				return new IosComponentVariants(project.getObjects(), component, project.getDependencies(), project.getConfigurations(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(ModelLookup.class));
+			}))
 			.withComponent(IsComponent.tag())
 			.withComponent(createdUsing(of(DefaultIosApplicationComponent.class), () -> create(name, project)))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {

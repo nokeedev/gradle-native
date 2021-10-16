@@ -15,10 +15,11 @@
  */
 package dev.nokee.platform.ios.internal;
 
-import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelSpecs;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -38,19 +39,14 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskProvider;
 
-import java.util.ArrayList;
-
+import static dev.nokee.model.internal.type.ModelType.of;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public final class IosComponentVariants implements ComponentVariants {
 	@Getter private final VariantCollection<DefaultIosApplicationVariant> variantCollection;
-	@Getter private final SetProperty<BuildVariantInternal> buildVariants;
-	@Getter private final Provider<DefaultIosApplicationVariant> developmentVariant;
 	private final ObjectFactory objectFactory;
 	private final DefaultIosApplicationComponent component;
 	private final DependencyHandler dependencyHandler;
@@ -58,14 +54,13 @@ public final class IosComponentVariants implements ComponentVariants {
 	private final ProviderFactory providerFactory;
 	private final TaskRegistry taskRegistry;
 	private final BinaryViewFactory binaryViewFactory;
-	private final FunctionalSourceSet sourceView;
+	private final ModelLookup modelLookup;
 
-	public IosComponentVariants(ObjectFactory objectFactory, DefaultIosApplicationComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, FunctionalSourceSet sourceView) {
+	public IosComponentVariants(ObjectFactory objectFactory, DefaultIosApplicationComponent component, DependencyHandler dependencyHandler, ConfigurationContainer configurationContainer, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, ModelLookup modelLookup) {
 		this.binaryViewFactory = binaryViewFactory;
-		this.sourceView = sourceView;
+		this.modelLookup = modelLookup;
 		this.variantCollection = new VariantCollection<>(component.getIdentifier(), DefaultIosApplicationVariant.class, eventPublisher, viewFactory, variantRepository);
-		this.buildVariants = objectFactory.setProperty(BuildVariantInternal.class);
-		this.developmentVariant = providerFactory.provider(new DevelopmentVariantConvention<>(() -> getVariantCollection().get()));
+		component.getDevelopmentVariant().convention(providerFactory.provider(new DevelopmentVariantConvention<>(() -> getVariantCollection().get())));
 		this.objectFactory = objectFactory;
 		this.component = component;
 		this.dependencyHandler = dependencyHandler;
@@ -75,7 +70,7 @@ public final class IosComponentVariants implements ComponentVariants {
 	}
 
 	public void calculateVariants() {
-		getBuildVariants().get().forEach(buildVariant -> {
+		component.getBuildVariants().get().forEach(buildVariant -> {
 			val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultIosApplicationVariant.class).build();
 
 			val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier));
@@ -95,7 +90,7 @@ public final class IosComponentVariants implements ComponentVariants {
 
 	private VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultIosApplicationVariant> variantIdentifier) {
 		var variantDependencies = component.getDependencies();
-		if (getBuildVariants().get().size() > 1) {
+		if (component.getBuildVariants().get().size() > 1) {
 			val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
 			variantDependencies = objectFactory.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 			variantDependencies.configureEach(variantBucket -> {
@@ -107,10 +102,7 @@ public final class IosComponentVariants implements ComponentVariants {
 
 		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant).withOwnerIdentifier(variantIdentifier).withBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
 
-		// FIXME!!!!
-		val swiftSources = new ArrayList<KnownDomainObject<SwiftSourceSet>>();
-		sourceView.whenElementKnownEx(SwiftSourceSet.class, swiftSources::add);
-		boolean hasSwift = !swiftSources.isEmpty();
+		boolean hasSwift = modelLookup.anyMatch(ModelSpecs.of(ModelNodes.withType(of(SwiftSourceSet.class))));
 		if (hasSwift) {
 			incomingDependenciesBuilder.withIncomingSwiftModules();
 		} else {

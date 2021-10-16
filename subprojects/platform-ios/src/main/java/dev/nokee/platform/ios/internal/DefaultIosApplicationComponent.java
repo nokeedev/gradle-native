@@ -23,6 +23,7 @@ import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.Finalizable;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
@@ -72,6 +73,7 @@ import org.gradle.nativeplatform.toolchain.Swiftc;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
@@ -81,13 +83,15 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final DependencyHandler dependencyHandler;
 	private final DomainObjectEventPublisher eventPublisher;
 	private final TaskRegistry taskRegistry;
-	private final IosComponentVariants componentVariants;
+	private final Supplier<IosComponentVariants> componentVariants;
 	private final BinaryView<Binary> binaries;
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;
 	private final ConfigurationContainer configurations;
 	@Getter private final Property<String> moduleName;
+	private final Property<DefaultIosApplicationVariant> developmentVariant;
+	private final SetProperty<BuildVariantInternal> buildVariants;
 
 	@Inject
 	public DefaultIosApplicationComponent(ComponentIdentifier<DefaultIosApplicationComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
@@ -99,12 +103,14 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		this.dependencyHandler = dependencyHandler;
 		this.eventPublisher = eventPublisher;
 		this.groupId = objects.property(GroupId.class);
+		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
+		this.developmentVariant = objects.property(DefaultIosApplicationVariant.class);
 
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetLinkages.EXECUTABLE)));
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetBuildTypes.named("Default"))));
 		getDimensions().add(CoordinateSet.of(Coordinates.of(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())));
 		this.taskRegistry = taskRegistry;
-		this.componentVariants = new IosComponentVariants(objects, this, dependencyHandler, configurations, providers, taskRegistry, eventPublisher, viewFactory, variantRepository, binaryViewFactory, sourceViewOf(this));
+		this.componentVariants = () -> ModelNodeUtils.get(getNode(), IosComponentVariants.class);
 		this.binaries = binaryViewFactory.create(identifier);
 		this.moduleName = objects.property(String.class).convention(getBaseName());
 	}
@@ -116,12 +122,12 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return componentVariants.getBuildVariants();
+		return buildVariants;
 	}
 
 	@Override
-	public Provider<DefaultIosApplicationVariant> getDevelopmentVariant() {
-		return componentVariants.getDevelopmentVariant();
+	public Property<DefaultIosApplicationVariant> getDevelopmentVariant() {
+		return developmentVariant;
 	}
 
 	@Override
@@ -136,7 +142,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	@Override
 	public VariantCollection<DefaultIosApplicationVariant> getVariantCollection() {
-		return componentVariants.getVariantCollection();
+		return componentVariants.get().getVariantCollection();
 	}
 
 	protected void onEachVariant(KnownVariant<DefaultIosApplicationVariant> variant) {
@@ -267,6 +273,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
-		componentVariants.calculateVariants();
+		componentVariants.get().calculateVariants();
 	}
 }
