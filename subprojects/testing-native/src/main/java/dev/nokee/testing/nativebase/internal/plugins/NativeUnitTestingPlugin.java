@@ -92,7 +92,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 	private static NodeRegistration nativeTestSuite(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultNativeTestSuiteComponent.class, ProjectIdentifier.of(project));
-		return NodeRegistration.unmanaged(name, of(DefaultNativeTestSuiteComponent.class), () -> new DefaultNativeTestSuiteComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelLookup.class)))
+		return NodeRegistration.unmanaged(name, of(DefaultNativeTestSuiteComponent.class), () -> new DefaultNativeTestSuiteComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelLookup.class)))
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
 				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
 			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
