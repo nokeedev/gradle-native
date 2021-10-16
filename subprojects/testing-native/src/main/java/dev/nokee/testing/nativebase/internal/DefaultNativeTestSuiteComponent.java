@@ -27,10 +27,7 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.ComponentSources;
-import dev.nokee.platform.base.SourceAwareComponent;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -165,8 +162,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	@Override
-	public VariantViewInternal<DefaultNativeTestSuiteVariant> getVariants() {
-		return (VariantViewInternal<DefaultNativeTestSuiteVariant>) super.getVariants();
+	public VariantView<DefaultNativeTestSuiteVariant> getVariants() {
+		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
 
 	@Override
