@@ -19,12 +19,14 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
+import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.model.internal.core.Finalizable;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -55,6 +57,7 @@ import dev.nokee.runtime.core.Coordinates;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
+import dev.nokee.utils.Cast;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.artifacts.Configuration;
@@ -75,6 +78,12 @@ import java.io.File;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
+import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
+import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
+import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
@@ -136,8 +145,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	@Override
-	public VariantViewInternal<DefaultIosApplicationVariant> getVariants() {
-		return (VariantViewInternal<DefaultIosApplicationVariant>) super.getVariants();
+	public VariantView<DefaultIosApplicationVariant> getVariants() {
+		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
 
 	@Override
@@ -145,7 +154,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		return componentVariants.get().getVariantCollection();
 	}
 
-	protected void onEachVariant(KnownVariant<DefaultIosApplicationVariant> variant) {
+	protected void onEachVariant(KnownDomainObject<DefaultIosApplicationVariant> variant) {
+		val variantIdentifier = ModelNodes.of(variant).getComponent(componentOf(VariantIdentifier.class));
 		// Create iOS application specific tasks
 		Configuration interfaceBuilderToolConfiguration = configurations.create("interfaceBuilderTool");
 		interfaceBuilderToolConfiguration.getDependencies().add(dependencyHandler.create("dev.nokee.tool:ibtool:latest.release"));
@@ -154,7 +164,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		Provider<CommandLineTool> assetCompilerTool = providers.provider(() -> CommandLineTool.of(new File("/usr/bin/actool")));
 		Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> CommandLineTool.of(new File("/usr/bin/codesign")));
 
-		String moduleName = BaseNameUtils.from(variant.getIdentifier()).getAsCamelCase();
+		String moduleName = BaseNameUtils.from(variantIdentifier).getAsCamelCase();
 		Provider<String> identifier = providers.provider(() -> getGroupId().get().get().map(it -> it + "." + moduleName).orElse(moduleName));
 		val resources = sourceViewOf(this).get("resources", IosResourceSet.class).get();
 
@@ -210,7 +220,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			task.getSources().from(assetCatalogCompileTaskTask.flatMap(AssetCatalogCompileTask::getDestinationDirectory));
 			task.getSources().from(processPropertyListTask.flatMap(ProcessPropertyListTask::getOutputFile));
 		});
-		val applicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("applicationBundle"), IosApplicationBundleInternal.class, variant.getIdentifier());
+		val applicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("applicationBundle"), IosApplicationBundleInternal.class, variantIdentifier);
 		eventPublisher.publish(new DomainObjectDiscovered<>(applicationBundleIdentifier));
 		val applicationBundle = new IosApplicationBundleInternal(createApplicationBundleTask);
 		eventPublisher.publish(new DomainObjectCreated<>(applicationBundleIdentifier, applicationBundle));
@@ -222,7 +232,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		});
 
 
-		val signedApplicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variant.getIdentifier());
+		val signedApplicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
 		eventPublisher.publish(new DomainObjectDiscovered<>(signedApplicationBundleIdentifier));
 		val signedApplicationBundle = new SignedIosApplicationBundleInternal(signApplicationBundleTask);
 		eventPublisher.publish(new DomainObjectCreated<>(signedApplicationBundleIdentifier, signedApplicationBundle));
@@ -266,13 +276,25 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	public void finalizeValue() {
-		getVariantCollection().whenElementKnown(this::onEachVariant);
-		getVariantCollection().whenElementKnown(this::createBinaries);
-		getVariantCollection().whenElementKnown(new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultIosApplicationVariant.class)), (entity, variantIdentifier, variantProjection) -> {
+			onEachVariant(new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultIosApplicationVariant.class), entity));
+		}));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultIosApplicationVariant.class)), (entity, variantIdentifier, variantProjection) -> {
+			createBinaries((KnownDomainObject<DefaultIosApplicationVariant>) Cast.uncheckedCast("", new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultIosApplicationVariant.class), entity)));
+		}));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultIosApplicationVariant.class)), (entity, variantIdentifier, variantProjection) -> {
+			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultIosApplicationVariant.class), entity));
+		}));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
-		getVariantCollection().whenElementKnown(new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultIosApplicationVariant.class)), (entity, variantIdentifier, variantProjection) -> {
+			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultIosApplicationVariant.class), entity));
+		}));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
 		componentVariants.get().calculateVariants();
+	}
+
+	private static void whenElementKnown(Object target, ModelAction action) {
+		applyTo(ModelNodes.of(target), allDirectDescendants(stateAtLeast(ModelState.Created)).apply(once(action)));
 	}
 }
