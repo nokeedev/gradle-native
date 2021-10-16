@@ -259,25 +259,14 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
 				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
 			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
-				val registry = project.getExtensions().getByType(ModelRegistry.class);
-				val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
 				val component = ModelNodeUtils.get(entity, DefaultUiTestXCTestTestSuiteComponent.class);
 				component.finalizeExtension(project);
 
 				component.getBuildVariants().get().forEach(buildVariant -> {
 					val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultXCTestTestSuiteVariant.class).build();
 
-					val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier));
-
-					val dependencies = newDependencies(buildVariant, variantIdentifier, component, project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(ModelLookup.class));
-					val variant = registry.register(ModelRegistration.builder()
-						.withComponent(path.child(variantIdentifier.getUnambiguousName()))
-						.withComponent(variantIdentifier)
-						.withComponent(IsVariant.tag())
-						.withComponent(createdUsing(of(DefaultXCTestTestSuiteVariant.class), () -> project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, variantIdentifier, dependencies, project.getObjects(), project.getProviders(), assembleTask, project.getExtensions().getByType(BinaryViewFactory.class))))
-						.build());
-
-					onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), dependencies);
+					val variant = ModelNodeUtils.register(entity, xcTestTestSuiteVariant(variantIdentifier, component, project));
+					onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
 				});
 				component.getVariants().get(); // Force realization, for now
 			})))
@@ -289,6 +278,21 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		return identifier -> {
 			return new DefaultUiTestXCTestTestSuiteComponent((ComponentIdentifier<?>)identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
 		};
+	}
+
+	private static NodeRegistration xcTestTestSuiteVariant(VariantIdentifier<DefaultXCTestTestSuiteVariant> variantIdentifier, BaseXCTestTestSuiteComponent component, Project project) {
+		val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
+		val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier));
+		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
+
+		val dependencies = newDependencies(buildVariant, variantIdentifier, component, project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(ModelLookup.class));
+		return NodeRegistration.unmanaged(variantIdentifier.getUnambiguousName(), of(DefaultXCTestTestSuiteVariant.class), () -> {
+			return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, variantIdentifier, dependencies, project.getObjects(), project.getProviders(), assembleTask, project.getExtensions().getByType(BinaryViewFactory.class));
+		})
+			.withComponent(variantIdentifier)
+			.withComponent(IsVariant.tag())
+			.withComponent(dependencies)
+		;
 	}
 
 	private static VariantComponentDependencies<DefaultNativeComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultXCTestTestSuiteVariant> variantIdentifier, BaseXCTestTestSuiteComponent component, ObjectFactory objectFactory, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ModelLookup modelLookup) {
