@@ -26,10 +26,15 @@ import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
+import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
+import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
+import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import lombok.val;
 import org.gradle.api.Project;
 
@@ -37,6 +42,8 @@ import java.util.function.BiConsumer;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelNodes.*;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -59,12 +66,22 @@ public final class IosApplicationComponentModelRegistrationFactory {
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
 				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
 			.withComponent(IsComponent.tag())
-			.withComponent(ModelProjections.createdUsing(of(DefaultIosApplicationComponent.class), () -> create(name, project)))
+			.withComponent(createdUsing(of(DefaultIosApplicationComponent.class), () -> create(name, project)))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 				sourceRegistration.accept(entity, path);
+
+				val componentIdentifier = ComponentIdentifier.of(ComponentName.of(name), DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
+				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, componentIdentifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
+				val dependencies = project.getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("dependencies"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(ofInstance(dependencies))
+					.build());
 			})))
 			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val component = ModelNodeUtils.get(entity, DefaultIosApplicationComponent.class);

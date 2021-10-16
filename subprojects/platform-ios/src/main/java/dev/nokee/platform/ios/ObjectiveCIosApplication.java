@@ -15,10 +15,8 @@
  */
 package dev.nokee.platform.ios;
 
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
-import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.nativebase.HasPrivateHeaders;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.objectivec.HasObjectiveCSources;
@@ -28,6 +26,6 @@ public interface ObjectiveCIosApplication extends ObjectiveCIosApplicationExtens
 	 * {@inheritDoc}
 	 */
 	default NativeComponentDependencies getDependencies() {
-		return ModelNodeUtils.get(ModelNodes.of(this), DefaultIosApplicationComponent.class).getDependencies();
+		return ModelProperties.getProperty(this, "dependencies").as(NativeComponentDependencies.class).get();
 	}
 }

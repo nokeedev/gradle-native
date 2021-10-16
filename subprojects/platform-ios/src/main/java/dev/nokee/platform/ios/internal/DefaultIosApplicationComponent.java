@@ -23,6 +23,7 @@ import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.Finalizable;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -76,7 +77,6 @@ import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceV
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
 public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources> {
-	private final DefaultNativeComponentDependencies dependencies;
 	@Getter private final Property<GroupId> groupId;
 	private final DependencyHandler dependencyHandler;
 	private final DomainObjectEventPublisher eventPublisher;
@@ -98,8 +98,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		this.configurations = configurations;
 		this.dependencyHandler = dependencyHandler;
 		this.eventPublisher = eventPublisher;
-		val dependencyContainer = objects.newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(objects, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurations), dependencyHandler)));
-		this.dependencies = objects.newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 		this.groupId = objects.property(GroupId.class);
 
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetLinkages.EXECUTABLE)));
@@ -113,7 +111,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	@Override
 	public DefaultNativeComponentDependencies getDependencies() {
-		return dependencies;
+		return ModelProperties.getProperty(this, "dependencies").as(DefaultNativeComponentDependencies.class).get();
 	}
 
 	@Override
