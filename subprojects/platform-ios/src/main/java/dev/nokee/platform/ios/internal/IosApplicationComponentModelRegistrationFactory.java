@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.ios.internal;
 
+import com.google.common.collect.ImmutableMap;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.DomainObjectProvider;
@@ -25,6 +26,7 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -106,13 +108,16 @@ public final class IosApplicationComponentModelRegistrationFactory {
 				val component = ModelNodeUtils.get(entity, DefaultIosApplicationComponent.class);
 				component.getDevelopmentVariant().convention(project.getProviders().provider(new DevelopmentVariantConvention<>(() -> component.getVariants().get())));
 				component.finalizeValue();
+
+				val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 				component.getBuildVariants().get().forEach(buildVariant -> {
 					val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultIosApplicationVariant.class).build();
 
 					val variant = ModelNodeUtils.register(entity, iosApplicationVariant(variantIdentifier, component, project));
-
+					variants.put(buildVariant, ModelNodes.of(variant));
 					onEachVariantDependencies(variant.as(DefaultIosApplicationVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
 				});
+				entity.addComponent(new Variants(variants.build()));
 			})))
 			;
 	}
