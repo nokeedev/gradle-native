@@ -18,6 +18,7 @@ package dev.nokee.platform.base.internal;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
@@ -48,7 +49,7 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 			.withComponent(path)
 			.withComponent(IsModelProperty.tag())
 			.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providerFactory, () -> ModelStates.finalize(modelLookup.get(ownerPath)))))))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(elementType)), (e, p, ignored, projection) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(elementType)), (e, p, ignored1, ignored2, projection) -> {
 				if (ownerPath.isDirectDescendant(p)) {
 					registry.register(propertyFactory.create(path.child(p.getName()), e));
 				}
