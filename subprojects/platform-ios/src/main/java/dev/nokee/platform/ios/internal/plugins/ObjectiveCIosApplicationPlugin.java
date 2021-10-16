@@ -27,6 +27,7 @@ import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -58,8 +59,7 @@ import java.util.function.BiConsumer;
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.register;
-import static dev.nokee.model.internal.core.ModelNodes.discover;
-import static dev.nokee.model.internal.core.ModelNodes.mutate;
+import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
@@ -161,6 +161,10 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 				registry.register(propertyFactory.create(path.child("sources").child("objectiveC"), ModelNodes.of(objectiveC)));
 				registry.register(propertyFactory.create(path.child("sources").child("headers"), ModelNodes.of(headers)));
 				registry.register(propertyFactory.create(path.child("sources").child("resources"), ModelNodes.of(iosResources)));
+			})))
+			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val component = ModelNodeUtils.get(entity, DefaultIosApplicationComponent.class);
+				component.finalizeValue();
 			})))
 			;
 	}

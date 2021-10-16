@@ -24,6 +24,7 @@ import dev.nokee.model.internal.BaseDomainObjectViewProjection;
 import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.GroupId;
@@ -43,8 +44,7 @@ import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.gradle.util.GUtil;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelNodes.discover;
-import static dev.nokee.model.internal.core.ModelNodes.mutate;
+import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
@@ -117,6 +117,10 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 
 				registry.register(propertyFactory.create(path.child("sources").child("swift"), ModelNodes.of(swift)));
 				registry.register(propertyFactory.create(path.child("sources").child("resources"), ModelNodes.of(iosResources)));
+			})))
+			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val component = ModelNodeUtils.get(entity, DefaultIosApplicationComponent.class);
+				component.finalizeValue();
 			})))
 			;
 	}

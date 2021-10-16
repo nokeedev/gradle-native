@@ -75,7 +75,7 @@ import java.util.List;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
-public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources>, Finalizable {
+public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources> {
 	private final DefaultNativeComponentDependencies dependencies;
 	@Getter private final Property<GroupId> groupId;
 	private final DependencyHandler dependencyHandler;
@@ -261,7 +261,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		});
 	}
 
-	@Override
 	public void finalizeValue() {
 		getVariantCollection().whenElementKnown(this::onEachVariant);
 		getVariantCollection().whenElementKnown(this::createBinaries);
