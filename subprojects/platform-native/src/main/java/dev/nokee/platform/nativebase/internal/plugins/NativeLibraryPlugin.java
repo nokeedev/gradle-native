@@ -17,6 +17,7 @@ package dev.nokee.platform.nativebase.internal.plugins;
 
 import com.google.common.collect.Iterables;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
@@ -118,6 +119,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 			// TODO: Should be created using CHeaderSetSpec
 			val publicHeaders = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("public"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CHeaderSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());
@@ -125,6 +127,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 			// TODO: Should be created using CHeaderSetSpec
 			val privateHeaders = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("headers"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CHeaderSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());

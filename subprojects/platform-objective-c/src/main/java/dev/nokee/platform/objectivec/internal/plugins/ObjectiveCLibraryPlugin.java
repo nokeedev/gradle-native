@@ -16,6 +16,7 @@
 package dev.nokee.platform.objectivec.internal.plugins;
 
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
@@ -85,6 +86,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 			// TODO: Should be created using ObjectiveCSourceSetSpec
 			val objectiveC = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("objectiveC"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(ObjectiveCSourceSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());
@@ -92,6 +94,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 			// TODO: Should be created using CHeaderSetSpec
 			val publicHeaders = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("public"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CHeaderSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());
@@ -99,6 +102,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 			// TODO: Should be created using CHeaderSetSpec
 			val privateHeaders = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("headers"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CHeaderSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());

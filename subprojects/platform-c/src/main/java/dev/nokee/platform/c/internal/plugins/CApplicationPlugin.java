@@ -16,6 +16,7 @@
 package dev.nokee.platform.c.internal.plugins;
 
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
@@ -83,6 +84,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 			// TODO: Should be created using CSourceSetSpec
 			val c = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("c"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CSourceSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());
@@ -90,6 +92,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 			// TODO: Should be created using CHeaderSetSpec
 			val headers = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("headers"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CHeaderSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());

@@ -16,6 +16,7 @@
 package dev.nokee.platform.ios.internal.plugins;
 
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
@@ -116,6 +117,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 			// TODO: Should be created using CSourceSetSpec
 			val objectiveC = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("objectiveC"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(ObjectiveCSourceSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());
@@ -123,6 +125,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 			// TODO: Should be created using CHeaderSetSpec
 			val headers = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("headers"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CHeaderSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());
@@ -130,6 +133,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 			// TODO: Should be created using IosResourceSpec
 			val iosResources = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("resources"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(IosResourceSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());

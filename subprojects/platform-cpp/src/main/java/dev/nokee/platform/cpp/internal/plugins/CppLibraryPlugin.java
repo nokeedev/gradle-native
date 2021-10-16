@@ -16,6 +16,7 @@
 package dev.nokee.platform.cpp.internal.plugins;
 
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
@@ -80,6 +81,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 			// TODO: Should be created using CppSourceSetSpec
 			val cpp = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("cpp"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CppSourceSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());
@@ -87,6 +89,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 			// TODO: Should be created using CppHeaderSetSpec
 			val publicHeaders = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("public"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CppHeaderSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());
@@ -94,6 +97,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 			// TODO: Should be created using CppHeaderSetSpec
 			val privateHeaders = registry.register(ModelRegistration.builder()
 				.withComponent(path.child("headers"))
+				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CppHeaderSet.class)))
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());
