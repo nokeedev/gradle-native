@@ -22,10 +22,9 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
@@ -36,6 +35,7 @@ import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
+import dev.nokee.utils.TransformerUtils;
 import lombok.val;
 import org.gradle.api.Project;
 
@@ -50,6 +50,7 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.maven;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
+import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 
 public final class IosApplicationComponentModelRegistrationFactory {
 	private final Class<? extends Component> componentType;
@@ -87,10 +88,22 @@ public final class IosApplicationComponentModelRegistrationFactory {
 					.withComponent(IsModelProperty.tag())
 					.withComponent(ofInstance(dependencies))
 					.build());
+
+				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), DefaultIosApplicationVariant.class));
 			})))
 			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val component = ModelNodeUtils.get(entity, DefaultIosApplicationComponent.class);
 				component.finalizeValue();
+				component.getVariantCollection().whenElementKnown(knownVariant -> {
+					val variant = registry.register(ModelRegistration.builder()
+						.withComponent(path.child(knownVariant.getIdentifier().getUnambiguousName()))
+						.withComponent(knownVariant.getIdentifier())
+						.withComponent(IsVariant.tag())
+						.withComponent(createdUsing(of(DefaultIosApplicationVariant.class), () -> knownVariant.map(noOpTransformer()).get()))
+						.build());
+					knownVariant.configure(it -> ModelStates.realize(ModelNodes.of(variant)));
+				});
 			})))
 			;
 	}
