@@ -22,8 +22,11 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
@@ -66,9 +69,12 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCppLanguageBasePlugin.class);
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.path("components")).getComponent(ModelComponentType.componentOf(NodeRegistrationFactories.class)).registerFactory(ModelType.of(ObjectiveCppApplicationSpec.class), name -> objectiveCppApplication(name, project));
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(ObjectiveCppApplication.class), name -> objectiveCppApplication(name, project));
-		val componentProvider = components.register("main", ObjectiveCppApplication.class, configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		val componentElement = components.register("main", ObjectiveCppApplicationSpec.class);
+		val componentProvider = componentElement.as(ObjectiveCppApplication.class);
+		componentElement.as(DefaultNativeApplicationComponent.class).configure(it ->
+			baseNameConvention(project.getName()).andThen(configureBuildVariants()).accept(componentProvider.get(), it));
 		val extension = componentProvider.get();
 
 		// Other configurations
@@ -78,6 +84,8 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 
 		project.getExtensions().add(ObjectiveCppApplication.class, EXTENSION_NAME, extension);
 	}
+
+	public interface ObjectiveCppApplicationSpec extends ComponentSpec {}
 
 	public static NodeRegistration objectiveCppApplication(String name, Project project) {
 		return new NativeApplicationComponentModelRegistrationFactory(ObjectiveCppApplication.class, project, (entity, path) -> {

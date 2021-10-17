@@ -20,8 +20,11 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
@@ -41,7 +44,8 @@ import org.gradle.util.GUtil;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.ios.internal.plugins.ObjectiveCIosApplicationPlugin.configureBuildVariants;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
+import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.baseNameConvention;
+import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 
 public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -54,11 +58,12 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
-
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.path("components")).getComponent(ModelComponentType.componentOf(NodeRegistrationFactories.class)).registerFactory(ModelType.of(SwiftIosApplicationSpec.class), name -> swiftIosApplication(name, project));
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		val registry = ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class);
-		registry.registerFactory(of(SwiftIosApplication.class), name -> swiftIosApplication(name, project));
-		val componentProvider = components.register("main", SwiftIosApplication.class, configureUsingProjection(DefaultIosApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen((t, projection) -> ((DefaultIosApplicationComponent) projection).getGroupId().set(GroupId.of(project::getGroup))).andThen(configureBuildVariants())));
+		val componentElement = components.register("main", SwiftIosApplicationSpec.class);
+		val componentProvider = componentElement.as(SwiftIosApplication.class);
+		componentElement.as(DefaultIosApplicationComponent.class).configure(it ->
+			baseNameConvention(GUtil.toCamelCase(project.getName())).andThen((t, projection) -> ((DefaultIosApplicationComponent) projection).getGroupId().set(GroupId.of(project::getGroup))).andThen(configureBuildVariants()).accept(componentProvider.get(), it));
 		project.getExtensions().add(SwiftIosApplication.class, EXTENSION_NAME, componentProvider.get());
 
 		// Other configurations
@@ -70,6 +75,8 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 			task.getSwiftSupportRequired().set(true);
 		});
 	}
+
+	public interface SwiftIosApplicationSpec extends ComponentSpec {}
 
 	public static NodeRegistration swiftIosApplication(String name, Project project) {
 		return new IosApplicationComponentModelRegistrationFactory(SwiftIosApplication.class, project, (entity, path) -> {

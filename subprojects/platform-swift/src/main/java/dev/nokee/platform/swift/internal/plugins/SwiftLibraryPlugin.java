@@ -20,8 +20,11 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -58,9 +61,12 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.path("components")).getComponent(ModelComponentType.componentOf(NodeRegistrationFactories.class)).registerFactory(ModelType.of(SwiftLibrarySpec.class), name -> swiftLibrary(name, project));
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(SwiftLibrary.class), name -> swiftLibrary(name, project));
-		val componentProvider = components.register("main", SwiftLibrary.class, configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen(configureBuildVariants())));
+		val componentElement = components.register("main", SwiftLibrarySpec.class);
+		val componentProvider = componentElement.as(SwiftLibrary.class);
+		componentElement.as(DefaultNativeLibraryComponent.class).configure(it ->
+			baseNameConvention(GUtil.toCamelCase(project.getName())).andThen(configureBuildVariants()).accept(componentProvider.get(), it));
 		val extension = componentProvider.get();
 
 		// Other configurations
@@ -71,6 +77,8 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 
 		project.getExtensions().add(SwiftLibrary.class, EXTENSION_NAME, extension);
 	}
+
+	public interface SwiftLibrarySpec extends ComponentSpec {}
 
 	public static NodeRegistration swiftLibrary(String name, Project project) {
 		return new NativeLibraryComponentModelRegistrationFactory(SwiftLibrary.class, project, (entity, path) -> {

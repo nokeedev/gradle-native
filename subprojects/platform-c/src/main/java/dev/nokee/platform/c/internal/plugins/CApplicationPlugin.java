@@ -22,8 +22,11 @@ import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.c.CApplication;
 import dev.nokee.platform.c.CApplicationSources;
@@ -61,10 +64,12 @@ public class CApplicationPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.path("components")).getComponent(ModelComponentType.componentOf(NodeRegistrationFactories.class)).registerFactory(ModelType.of(CApplicationSpec.class), name -> cApplication(name, project));
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(CApplication.class),
-			name -> cApplication(name, project));
-		val componentProvider = components.register("main", CApplication.class, configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		val componentElement = components.register("main", CApplicationSpec.class);
+		val componentProvider = componentElement.as(CApplication.class);
+		componentElement.as(DefaultNativeApplicationComponent.class).configure(it ->
+			baseNameConvention(project.getName()).andThen(configureBuildVariants()).accept(componentProvider.get(), it));
 		val extension = componentProvider.get();
 
 		// Other configurations
@@ -74,6 +79,8 @@ public class CApplicationPlugin implements Plugin<Project> {
 
 		project.getExtensions().add(CApplication.class, EXTENSION_NAME, extension);
 	}
+
+	public interface CApplicationSpec extends ComponentSpec {}
 
 	public static NodeRegistration cApplication(String name, Project project) {
 		return new NativeApplicationComponentModelRegistrationFactory(CApplication.class, project, (entity, path) -> {

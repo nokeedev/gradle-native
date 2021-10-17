@@ -22,8 +22,11 @@ import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.cpp.CppApplication;
 import dev.nokee.platform.cpp.CppApplicationSources;
@@ -61,9 +64,12 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CppLanguageBasePlugin.class);
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.path("components")).getComponent(ModelComponentType.componentOf(NodeRegistrationFactories.class)).registerFactory(ModelType.of(CppApplicationSpec.class), name -> cppApplication(name, project));
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(CppApplication.class), name -> cppApplication(name, project));
-		val componentProvider = components.register("main", CppApplication.class, configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		val componentElement = components.register("main", CppApplicationSpec.class);
+		val componentProvider = componentElement.as(CppApplication.class);
+		componentElement.as(DefaultNativeApplicationComponent.class).configure(it ->
+			baseNameConvention(project.getName()).andThen(configureBuildVariants()).accept(componentProvider.get(), it));
 		val extension = componentProvider.get();
 
 		// Other configurations
@@ -73,6 +79,8 @@ public class CppApplicationPlugin implements Plugin<Project> {
 
 		project.getExtensions().add(CppApplication.class, EXTENSION_NAME, extension);
 	}
+
+	public interface CppApplicationSpec extends ComponentSpec {}
 
 	public static NodeRegistration cppApplication(String name, Project project) {
 		return new NativeApplicationComponentModelRegistrationFactory(CppApplication.class, project, (entity, path) -> {

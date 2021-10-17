@@ -22,8 +22,11 @@ import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.cpp.CppLibrary;
 import dev.nokee.platform.cpp.CppLibrarySources;
@@ -58,9 +61,12 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CppLanguageBasePlugin.class);
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.path("components")).getComponent(ModelComponentType.componentOf(NodeRegistrationFactories.class)).registerFactory(ModelType.of(CppLibrarySpec.class), name -> cppLibrary(name, project));
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(CppLibrary.class), name -> cppLibrary(name, project));
-		val componentProvider = components.register("main", CppLibrary.class, configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		val componentElement = components.register("main", CppLibrarySpec.class);
+		val componentProvider = componentElement.as(CppLibrary.class);
+		componentElement.as(DefaultNativeLibraryComponent.class).configure(it ->
+			baseNameConvention(project.getName()).andThen(configureBuildVariants()).accept(componentProvider.get(), it));
 		val extension = componentProvider.get();
 
 		// Other configurations
@@ -71,6 +77,8 @@ public class CppLibraryPlugin implements Plugin<Project> {
 
 		project.getExtensions().add(CppLibrary.class, EXTENSION_NAME, extension);
 	}
+
+	public interface CppLibrarySpec extends ComponentSpec {}
 
 	public static NodeRegistration cppLibrary(String name, Project project) {
 		return new NativeLibraryComponentModelRegistrationFactory(CppLibrary.class, project, (entity, path) -> {

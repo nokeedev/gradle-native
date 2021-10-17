@@ -15,8 +15,5 @@
  */
 package dev.nokee.platform.base;
 
-import dev.nokee.model.internal.core.ModelElement;
-
-public interface ComponentContainer extends View<Component> {
-	ModelElement register(String name, Class<? extends ComponentSpec> type);
+public interface ComponentSpec {
 }

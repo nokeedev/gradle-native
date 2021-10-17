@@ -22,8 +22,11 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.ios.IosResourceSet;
@@ -55,7 +58,8 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.platform.nativebase.internal.NativePlatformFactory.platformNameFor;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
+import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.baseNameConvention;
+import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 
 public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -70,15 +74,19 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.path("components")).getComponent(ModelComponentType.componentOf(NodeRegistrationFactories.class)).registerFactory(ModelType.of(ObjectiveCIosApplicationSpec.class), name -> objectiveCIosApplication(name, project));
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		val registry = ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class);
-		registry.registerFactory(of(ObjectiveCIosApplication.class), name -> objectiveCIosApplication(name, project));
-		val componentProvider = components.register("main", ObjectiveCIosApplication.class, configureUsingProjection(DefaultIosApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen((t, projection) -> ((DefaultIosApplicationComponent) projection).getGroupId().set(GroupId.of(project::getGroup))).andThen(configureBuildVariants())));
+		val componentElement = components.register("main", ObjectiveCIosApplicationSpec.class);
+		val componentProvider = componentElement.as(ObjectiveCIosApplication.class);
+		componentElement.as(DefaultIosApplicationComponent.class).configure(it ->
+			baseNameConvention(GUtil.toCamelCase(project.getName())).andThen((t, projection) -> ((DefaultIosApplicationComponent) projection).getGroupId().set(GroupId.of(project::getGroup))).andThen(configureBuildVariants()).accept(componentProvider.get(), it));
 		project.getExtensions().add(ObjectiveCIosApplication.class, EXTENSION_NAME, componentProvider.get());
 
 		// Other configurations
 		project.afterEvaluate(finalizeModelNodeOf(componentProvider));
 	}
+
+	public interface ObjectiveCIosApplicationSpec extends ComponentSpec {}
 
 	public static class ToolChainMetadataRules extends RuleSource {
 		@Mutate

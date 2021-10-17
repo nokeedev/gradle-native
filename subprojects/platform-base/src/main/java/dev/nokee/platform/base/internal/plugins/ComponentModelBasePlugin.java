@@ -15,35 +15,37 @@
  */
 package dev.nokee.platform.base.internal.plugins;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Streams;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentSources;
-import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
-import dev.nokee.platform.base.internal.ComponentVariantsPropertyRegistrationFactory;
-import dev.nokee.platform.base.internal.components.DefaultComponentContainer;
+import dev.nokee.platform.base.internal.*;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
 import static dev.nokee.model.internal.BaseNamedDomainObjectView.namedView;
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelComponentReference.ofInstance;
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodes.discover;
 import static dev.nokee.model.internal.core.ModelNodes.mutate;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.maven;
@@ -59,16 +61,42 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(TaskBasePlugin.class);
 		project.getPluginManager().apply(VariantBasePlugin.class);
 
-		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
-		val components = modeRegistry.register(components()).as(DefaultComponentContainer.class).get();
-		project.getExtensions().add(ComponentContainer.class, "components", components);
+		val modelRegistry = project.getExtensions().getByType(ModelRegistry.class);
+		val components = modelRegistry.register(components(project));
+		project.getExtensions().add(ComponentContainer.class, "components", components.as(ComponentContainer.class).get());
 
 		project.getExtensions().add(ComponentVariantsPropertyRegistrationFactory.class, "__nokee_componentVariantsPropertyFactory", new ComponentVariantsPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 		project.getExtensions().add(ComponentSourcesPropertyRegistrationFactory.class, "__nokee_componentSourcesPropertyFactory", new ComponentSourcesPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelConfigurer.class)));
 	}
 
-	private static NodeRegistration components() {
-		return namedContainer("components", of(DefaultComponentContainer.class));
+	private static ModelRegistration components(Project project) {
+		val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
+		val path = ModelPath.path("components");
+		val ownerPath = ModelPath.root();
+		val registry = project.getExtensions().getByType(ModelRegistry.class);
+		val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+		val factories = new NodeRegistrationFactories();
+		return ModelRegistration.builder()
+			.withComponent(path)
+			.withComponent(IsModelProperty.class)
+			.withComponent(createdUsing(of(ComponentContainer.class), () -> new ComponentContainerAdapter(new ViewAdapter<>(Component.class, new ModelNodeBackedViewStrategy(project.getProviders())), (name, type) -> {
+				return registry.register(factories.get(ModelType.of(type)).create(name));
+			})))
+			.withComponent(factories)
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, pp, ignored) -> {
+				if (path.equals(pp)) {
+					modelConfigurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (e, p, ignored1, ignored2, projection) -> {
+						if (ownerPath.isDescendant(p)) {
+							val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(ownerPath)))
+								.filter(it -> !it.isEmpty())
+								.map(StringUtils::capitalize)
+								.collect(Collectors.joining()));
+							registry.register(propertyFactory.create(path.child(elementName), e));
+						}
+					}));
+				}
+			}))
+			.build();
 	}
 
 	public static <T extends Component> NodeRegistration component(String name, Class<T> type) {

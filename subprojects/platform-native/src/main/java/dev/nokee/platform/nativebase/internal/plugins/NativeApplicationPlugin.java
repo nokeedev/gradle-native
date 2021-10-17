@@ -28,10 +28,8 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -90,9 +88,12 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.path("components")).getComponent(ModelComponentType.componentOf(NodeRegistrationFactories.class)).registerFactory(ModelType.of(NativeApplicationSpec.class), name -> nativeApplication(name, project));
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(NativeApplicationExtension.class), name -> nativeApplication(name, project));
-		val componentProvider = components.register("main", NativeApplicationExtension.class, configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		val componentElement = components.register("main", NativeApplicationSpec.class);
+		val componentProvider = componentElement.as(NativeApplicationExtension.class);
+		componentElement.as(DefaultNativeApplicationComponent.class).configure(it ->
+			baseNameConvention(project.getName()).andThen(configureBuildVariants()).accept(componentProvider.get(), it));
 		val extension = componentProvider.get();
 
 		// Other configurations
@@ -102,6 +103,8 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 
 		project.getExtensions().add(NativeApplicationExtension.class, EXTENSION_NAME, extension);
 	}
+
+	public interface NativeApplicationSpec extends ComponentSpec {}
 
 	public static NodeRegistration nativeApplication(String name, Project project) {
 		return new NativeApplicationComponentModelRegistrationFactory(NativeApplicationExtension.class, project, (entity, path) -> {

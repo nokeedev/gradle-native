@@ -46,6 +46,7 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.*;
@@ -475,10 +476,12 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 
 		// TODO: Use the ComponentContainer instead of ModelRegistry
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.path("components")).getComponent(ModelComponentType.componentOf(NodeRegistrationFactories.class)).registerFactory(ModelType.of(JavaNativeInterfaceLibrarySpec.class), name -> javaNativeInterfaceLibrary(name, project));
 		val components = project.getExtensions().getByType(ComponentContainer.class);
-		val registry = ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class);
-		registry.registerFactory(of(JavaNativeInterfaceLibrary.class), name -> javaNativeInterfaceLibrary(name, project));
-		val componentProvider = components.register("main", JavaNativeInterfaceLibrary.class, configureUsingProjection(JniLibraryComponentInternal.class, baseNameConvention(project.getName())));
+		val componentElement = components.register("main", JavaNativeInterfaceLibrarySpec.class);
+		val componentProvider = componentElement.as(JavaNativeInterfaceLibrary.class);
+		componentElement.as(JniLibraryComponentInternal.class).configure(it ->
+			baseNameConvention(project.getName()).accept(componentProvider.get(), it));
 		val library = componentProvider.get();
 
 		val dependencies = library.getDependencies();
@@ -511,6 +514,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getExtensions().add(JavaNativeInterfaceLibrary.class, "library", library);
 		return library;
 	}
+
+	public interface JavaNativeInterfaceLibrarySpec extends ComponentSpec {}
 
 	public static NodeRegistration javaNativeInterfaceLibrary(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), JniLibraryComponentInternal.class, ProjectIdentifier.of(project));
