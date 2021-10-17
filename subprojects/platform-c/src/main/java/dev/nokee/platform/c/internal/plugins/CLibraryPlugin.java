@@ -20,6 +20,7 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
+import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -31,9 +32,12 @@ import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFact
 import dev.nokee.platform.c.CLibrary;
 import dev.nokee.platform.c.CLibrarySources;
 import dev.nokee.platform.c.HasCSourceSet;
+import dev.nokee.platform.nativebase.HasHeadersSourceSet;
+import dev.nokee.platform.nativebase.HasPublicSourceSet;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -135,6 +139,36 @@ public class CLibraryPlugin implements Plugin<Project> {
 		@Override
 		public void cSources(@SuppressWarnings("rawtypes") Closure closure) {
 			cSources(configureUsing(closure));
+		}
+
+		@Override
+		public NativeHeaderSet getPrivateHeaders() {
+			return ((HasHeadersSourceSet) sourceViewOf(this)).getHeaders().get();
+		}
+
+		@Override
+		public void privateHeaders(Action<? super NativeHeaderSet> action) {
+			((HasHeadersSourceSet) sourceViewOf(this)).getHeaders().configure(action);
+		}
+
+		@Override
+		public void privateHeaders(@SuppressWarnings("rawtypes") Closure closure) {
+			privateHeaders(configureUsing(closure));
+		}
+
+		@Override
+		public NativeHeaderSet getPublicHeaders() {
+			return ((HasPublicSourceSet) sourceViewOf(this)).getPublic().get();
+		}
+
+		@Override
+		public void publicHeaders(Action<? super NativeHeaderSet> action) {
+			((HasPublicSourceSet) sourceViewOf(this)).getPublic().configure(action);
+		}
+
+		@Override
+		public void publicHeaders(@SuppressWarnings("rawtypes") Closure closure) {
+			publicHeaders(configureUsing(closure));
 		}
 	}
 }

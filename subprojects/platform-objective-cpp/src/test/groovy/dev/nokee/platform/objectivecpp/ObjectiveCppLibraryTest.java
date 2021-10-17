@@ -18,6 +18,8 @@ package dev.nokee.platform.objectivecpp;
 import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
+import dev.nokee.language.nativebase.HasPrivateHeadersTester;
+import dev.nokee.language.nativebase.HasPublicHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivecpp.HasObjectiveCppSourcesTester;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
@@ -43,7 +45,7 @@ import static dev.nokee.platform.objectivecpp.internal.plugins.ObjectiveCppLibra
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCppLibraryTest implements SourceAwareComponentTester<ObjectiveCppLibrary>, HasBaseNameTester, ComponentTester<ObjectiveCppLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, HasObjectiveCppSourcesTester {
+class ObjectiveCppLibraryTest implements SourceAwareComponentTester<ObjectiveCppLibrary>, HasBaseNameTester, ComponentTester<ObjectiveCppLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, HasObjectiveCppSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
 	private final ObjectiveCppLibrary subject = createSubject("pago");
 	@Getter @TempDir File testDirectory;
 

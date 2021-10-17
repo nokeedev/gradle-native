@@ -19,6 +19,8 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.HasCppSourcesTester;
+import dev.nokee.language.nativebase.HasPrivateHeadersTester;
+import dev.nokee.language.nativebase.HasPublicHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -41,7 +43,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.cpp.internal.plugins.CppLibraryPlugin.cppLibrary;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CppLibraryTest implements SourceAwareComponentTester<CppLibrary>, HasBaseNameTester, ComponentTester<CppLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, HasCppSourcesTester {
+class CppLibraryTest implements SourceAwareComponentTester<CppLibrary>, HasBaseNameTester, ComponentTester<CppLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, HasCppSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
 	private final CppLibrary subject = createSubject("gori");
 	@Getter @TempDir File testDirectory;
 

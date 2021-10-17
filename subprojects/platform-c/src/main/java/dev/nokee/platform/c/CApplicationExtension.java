@@ -16,6 +16,7 @@
 package dev.nokee.platform.c;
 
 import dev.nokee.language.c.HasCSources;
+import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.SourceAwareComponent;

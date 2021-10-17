@@ -18,6 +18,7 @@ package dev.nokee.platform.objectivecpp.internal.plugins;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
@@ -29,6 +30,7 @@ import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
+import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
@@ -58,6 +60,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
+import static org.gradle.util.ConfigureUtil.configureUsing;
 
 public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -132,6 +135,21 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		@Override
 		public void objectiveCppSources(@SuppressWarnings("rawtypes") Closure closure) {
 			objectiveCppSources(ConfigureUtil.configureUsing(closure));
+		}
+
+		@Override
+		public NativeHeaderSet getPrivateHeaders() {
+			return ((HasHeadersSourceSet) sourceViewOf(this)).getHeaders().get();
+		}
+
+		@Override
+		public void privateHeaders(Action<? super NativeHeaderSet> action) {
+			((HasHeadersSourceSet) sourceViewOf(this)).getHeaders().configure(action);
+		}
+
+		@Override
+		public void privateHeaders(@SuppressWarnings("rawtypes") Closure closure) {
+			privateHeaders(configureUsing(closure));
 		}
 	}
 }

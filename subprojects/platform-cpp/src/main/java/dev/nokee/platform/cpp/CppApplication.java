@@ -16,6 +16,7 @@
 package dev.nokee.platform.cpp;
 
 import dev.nokee.language.cpp.HasCppSources;
+import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;

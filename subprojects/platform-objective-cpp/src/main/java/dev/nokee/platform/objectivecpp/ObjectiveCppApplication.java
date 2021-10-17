@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.objectivecpp;
 
+import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.objectivecpp.HasObjectiveCppSources;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;

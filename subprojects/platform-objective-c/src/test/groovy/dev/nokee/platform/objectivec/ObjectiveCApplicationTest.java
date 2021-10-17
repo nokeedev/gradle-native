@@ -18,6 +18,7 @@ package dev.nokee.platform.objectivec;
 import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
+import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivec.HasObjectiveCSourcesTester;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
@@ -43,7 +44,7 @@ import static dev.nokee.platform.objectivec.internal.plugins.ObjectiveCApplicati
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCApplicationTest implements SourceAwareComponentTester<ObjectiveCApplication>, HasBaseNameTester, ComponentTester<ObjectiveCApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, HasObjectiveCSourcesTester {
+class ObjectiveCApplicationTest implements SourceAwareComponentTester<ObjectiveCApplication>, HasBaseNameTester, ComponentTester<ObjectiveCApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, HasObjectiveCSourcesTester, HasPrivateHeadersTester {
 	private final ObjectiveCApplication subject = createSubject("jiro");
 	@Getter @TempDir File testDirectory;
 

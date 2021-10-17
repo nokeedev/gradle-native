@@ -17,7 +17,7 @@ package dev.nokee.platform.ios;
 
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
-import dev.nokee.platform.nativebase.HasPrivateHeaders;
+import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.language.objectivec.HasObjectiveCSources;
 

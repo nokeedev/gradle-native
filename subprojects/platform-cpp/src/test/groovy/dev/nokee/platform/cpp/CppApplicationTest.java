@@ -19,6 +19,7 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.HasCppSourcesTester;
+import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -41,7 +42,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.cpp.internal.plugins.CppApplicationPlugin.cppApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, HasBaseNameTester, ComponentTester<CppApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, HasCppSourcesTester {
+class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, HasBaseNameTester, ComponentTester<CppApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, HasCppSourcesTester, HasPrivateHeadersTester {
 	private final CppApplication subject = createSubject("sari");
 	@Getter @TempDir File testDirectory;
 
