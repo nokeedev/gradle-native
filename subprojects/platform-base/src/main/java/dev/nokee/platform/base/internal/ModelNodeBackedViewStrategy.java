@@ -67,7 +67,7 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	public <T> Provider<Set<T>> getElements(Class<T> elementType) {
 		return providerFactory.provider(() -> {
 			realize.run();
-			return ModelProperties.getProperties(entity).map(it -> it.as(elementType).get()).collect(ImmutableSet.toImmutableSet());
+			return ModelProperties.getProperties(entity).filter(it -> it.instanceOf(elementType)).map(it -> it.as(elementType).get()).collect(ImmutableSet.toImmutableSet());
 		});
 	}
 
