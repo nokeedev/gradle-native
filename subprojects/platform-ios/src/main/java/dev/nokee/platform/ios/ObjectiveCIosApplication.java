@@ -21,7 +21,7 @@ import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.language.objectivec.HasObjectiveCSources;
 
-public interface ObjectiveCIosApplication extends ObjectiveCIosApplicationExtension, Component, DependencyAwareComponent<NativeComponentDependencies>, VariantAwareComponent<IosApplication>, BinaryAwareComponent, SourceAwareComponent<ObjectiveCIosApplicationSources>, HasObjectiveCSources, HasPrivateHeaders, HasIosResources, HasBaseName {
+public interface ObjectiveCIosApplication extends Component, DependencyAwareComponent<NativeComponentDependencies>, VariantAwareComponent<IosApplication>, BinaryAwareComponent, SourceAwareComponent<ObjectiveCIosApplicationSources>, HasObjectiveCSources, HasPrivateHeaders, HasIosResources, HasBaseName {
 	/**
 	 * {@inheritDoc}
 	 */

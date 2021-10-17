@@ -15,14 +15,14 @@
  */
 package dev.nokee.platform.ios.internal.plugins
 
-import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.fixtures.AbstractBinaryPluginTest
 import dev.nokee.fixtures.AbstractPluginTest
 import dev.nokee.fixtures.AbstractTaskPluginTest
 import dev.nokee.fixtures.AbstractVariantPluginTest
+import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.ios.IosApplication
-import dev.nokee.platform.ios.ObjectiveCIosApplicationExtension
+import dev.nokee.platform.ios.ObjectiveCIosApplication
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal
 import dev.nokee.platform.ios.tasks.internal.AssetCatalogCompileTask
@@ -55,7 +55,7 @@ trait ObjectiveCIosApplicationPluginTestFixture {
 	}
 
 	Class getExtensionType() {
-		return ObjectiveCIosApplicationExtension
+		return ObjectiveCIosApplication
 	}
 
 	Class getDependenciesType() {
@@ -87,7 +87,7 @@ class ObjectiveCIosApplicationPluginLayoutTest extends AbstractPluginTest implem
 
 	@Override
 	Class getExtensionType() {
-		return ObjectiveCIosApplicationExtension
+		return ObjectiveCIosApplication
 	}
 }
 
