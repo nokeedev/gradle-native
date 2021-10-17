@@ -27,11 +27,14 @@ import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.cpp.CppLibrary;
 import dev.nokee.platform.cpp.CppLibrarySources;
+import dev.nokee.platform.cpp.HasCppSourceSet;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
+import groovy.lang.Closure;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
@@ -40,7 +43,9 @@ import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
+import static org.gradle.util.ConfigureUtil.configureUsing;
 
 public class CppLibraryPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "library";
@@ -105,5 +110,19 @@ public class CppLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultCppLibrary implements CppLibrary {
+		@Override
+		public CppSourceSet getCppSources() {
+			return ((HasCppSourceSet) sourceViewOf(this)).getCpp().get();
+		}
+
+		@Override
+		public void cppSources(Action<? super CppSourceSet> action) {
+			((HasCppSourceSet) sourceViewOf(this)).getCpp().configure(action);
+		}
+
+		@Override
+		public void cppSources(@SuppressWarnings("rawtypes") Closure closure) {
+			cppSources(configureUsing(closure));
+		}
 	}
 }

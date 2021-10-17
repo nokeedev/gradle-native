@@ -600,8 +600,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			;
 	}
 
-	public static abstract class DefaultJavaNativeInterfaceLibrary implements JavaNativeInterfaceLibrary {
-	}
+	public static abstract class DefaultJavaNativeInterfaceLibrary implements JavaNativeInterfaceLibrary {}
 
 	private static boolean isGradleVersionGreaterOrEqualsTo6Dot3() {
 		return GradleVersion.current().compareTo(GradleVersion.version("6.3")) >= 0;
