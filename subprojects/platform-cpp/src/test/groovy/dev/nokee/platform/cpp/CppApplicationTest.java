@@ -40,7 +40,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.cpp.internal.plugins.CppApplicationPlugin.cppApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, HasBaseNameTester, ComponentTester<CppApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies> {
+class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, HasBaseNameTester, ComponentTester<CppApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, HasCppSourcesTester {
 	private final CppApplication subject = createSubject("sari");
 	@Getter @TempDir File testDirectory;
 

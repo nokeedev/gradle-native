@@ -40,7 +40,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.c.internal.plugins.CLibraryPlugin.cLibrary;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CLibraryTest implements SourceAwareComponentTester<CLibrary>, HasBaseNameTester, ComponentTester<CLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies> {
+class CLibraryTest implements SourceAwareComponentTester<CLibrary>, HasBaseNameTester, ComponentTester<CLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, HasCSourcesTester {
 	private final CLibrary subject = createSubject("ledk");
 	@Getter @TempDir File testDirectory;
 

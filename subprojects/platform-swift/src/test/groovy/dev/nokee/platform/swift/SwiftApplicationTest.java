@@ -39,7 +39,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.swift.internal.plugins.SwiftApplicationPlugin.swiftApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class SwiftApplicationTest implements SourceAwareComponentTester<SwiftApplication>, HasBaseNameTester, ComponentTester<SwiftApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies> {
+public class SwiftApplicationTest implements SourceAwareComponentTester<SwiftApplication>, HasBaseNameTester, ComponentTester<SwiftApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, HasSwiftSourcesTester {
 	private final SwiftApplication subject = createSubject("cefu");
 	@Getter @TempDir File testDirectory;
 

@@ -42,7 +42,7 @@ import static dev.nokee.platform.objectivec.internal.plugins.ObjectiveCLibraryPl
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCLibraryTest implements SourceAwareComponentTester<ObjectiveCLibrary>, HasBaseNameTester, ComponentTester<ObjectiveCLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies> {
+class ObjectiveCLibraryTest implements SourceAwareComponentTester<ObjectiveCLibrary>, HasBaseNameTester, ComponentTester<ObjectiveCLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, HasObjectiveCSourcesTester {
 	private final ObjectiveCLibrary subject = createSubject("weqi");
 	@Getter @TempDir File testDirectory;
 
