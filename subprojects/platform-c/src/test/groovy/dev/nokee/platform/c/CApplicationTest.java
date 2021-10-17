@@ -40,7 +40,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.c.internal.plugins.CApplicationPlugin.cApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CApplicationTest implements SourceAwareComponentTester<CApplication>, HasBaseNameTester, ComponentTester<CApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies> {
+class CApplicationTest implements SourceAwareComponentTester<CApplication>, HasBaseNameTester, ComponentTester<CApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, HasCSourcesTester {
 	private final CApplication subject = createSubject("kdrj");
 	@Getter @TempDir File testDirectory;
 

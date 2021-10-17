@@ -40,7 +40,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.cpp.internal.plugins.CppLibraryPlugin.cppLibrary;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CppLibraryTest implements SourceAwareComponentTester<CppLibrary>, HasBaseNameTester, ComponentTester<CppLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies> {
+class CppLibraryTest implements SourceAwareComponentTester<CppLibrary>, HasBaseNameTester, ComponentTester<CppLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, HasCppSourcesTester {
 	private final CppLibrary subject = createSubject("gori");
 	@Getter @TempDir File testDirectory;
 

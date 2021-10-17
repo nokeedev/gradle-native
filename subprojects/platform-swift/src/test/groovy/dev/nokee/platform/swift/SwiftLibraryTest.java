@@ -39,7 +39,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.swift.internal.plugins.SwiftLibraryPlugin.swiftLibrary;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary>, HasBaseNameTester, ComponentTester<SwiftLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies> {
+public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary>, HasBaseNameTester, ComponentTester<SwiftLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, HasSwiftSourcesTester {
 	private final SwiftLibrary subject = createSubject("peso");
 	@Getter @TempDir File testDirectory;
 
