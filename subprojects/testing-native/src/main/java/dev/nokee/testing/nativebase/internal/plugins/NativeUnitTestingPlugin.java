@@ -17,19 +17,14 @@ package dev.nokee.testing.nativebase.internal.plugins;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.BaseDomainObjectViewProjection;
-import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -45,8 +40,6 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.base.internal.variants.VariantRepository;
-import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.objectivec.ObjectiveCApplicationSources;
@@ -58,7 +51,6 @@ import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
 import lombok.val;
 import lombok.var;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -68,7 +60,6 @@ import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.once;
@@ -76,8 +67,8 @@ import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.*;
-import static dev.nokee.model.internal.core.ModelProjections.*;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -116,26 +107,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("sources"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(managed(of(ObjectiveCApplicationSources.class)))
-					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
-					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
-					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, pp, ignored) -> {
-						if (path.child("sources").equals(pp)) {
-							project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (e, p, ignored1, ignored2, projection) -> {
-								if (path.isDescendant(p)) {
-									val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(path)))
-										.filter(it -> !it.isEmpty())
-										.map(StringUtils::capitalize)
-										.collect(Collectors.joining()));
-									registry.register(propertyFactory.create(path.child("sources").child(elementName), e));
-								}
-							}));
-						}
-					}))
-					.build());
+				registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCApplicationSources.class));
 
 				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
 				val dependencies = project.getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);

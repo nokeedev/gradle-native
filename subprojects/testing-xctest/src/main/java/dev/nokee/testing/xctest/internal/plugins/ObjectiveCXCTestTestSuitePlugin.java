@@ -17,7 +17,6 @@ package dev.nokee.testing.xctest.internal.plugins;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
@@ -26,12 +25,9 @@ import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.BaseDomainObjectViewProjection;
-import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -54,7 +50,10 @@ import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
-import dev.nokee.testing.xctest.internal.*;
+import dev.nokee.testing.xctest.internal.BaseXCTestTestSuiteComponent;
+import dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent;
+import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
+import dev.nokee.testing.xctest.internal.DefaultXCTestTestSuiteVariant;
 import lombok.val;
 import lombok.var;
 import org.apache.commons.lang3.StringUtils;
@@ -68,9 +67,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
-
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.once;
@@ -152,27 +149,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 					.build());
 
-				// TODO: Should be created as ModelProperty (readonly) with CApplicationSources projection
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("sources"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(managed(of(NativeApplicationSources.class)))
-					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
-					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
-					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, pp, ignored) -> {
-						if (path.child("sources").equals(pp)) {
-							project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (e, p, ignored1, ignored2, projection) -> {
-								if (path.isDescendant(p)) {
-									val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(path)))
-										.filter(it -> !it.isEmpty())
-										.map(StringUtils::capitalize)
-										.collect(Collectors.joining()));
-									registry.register(propertyFactory.create(path.child("sources").child(elementName), e));
-								}
-							}));
-						}
-					}))
-					.build());
+				registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), NativeApplicationSources.class));
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("binaries"))
@@ -280,27 +257,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 					.build());
 
-				// TODO: Should be created as ModelProperty (readonly) with CApplicationSources projection
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("sources"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(managed(of(NativeApplicationSources.class)))
-					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
-					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
-					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, pp, ignored) -> {
-						if (path.child("sources").equals(pp)) {
-							project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (e, p, ignored1, ignored2, projection) -> {
-								if (path.isDescendant(p)) {
-									val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(path)))
-										.filter(it -> !it.isEmpty())
-										.map(StringUtils::capitalize)
-										.collect(Collectors.joining()));
-									registry.register(propertyFactory.create(path.child("sources").child(elementName), e));
-								}
-							}));
-						}
-					}))
-					.build());
+				registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), NativeApplicationSources.class));
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("binaries"))

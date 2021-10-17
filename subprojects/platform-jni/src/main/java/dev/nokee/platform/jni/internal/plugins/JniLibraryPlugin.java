@@ -17,8 +17,6 @@ package dev.nokee.platform.jni.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
@@ -36,9 +34,10 @@ import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.*;
+import dev.nokee.model.internal.DomainObjectDiscovered;
+import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -77,7 +76,6 @@ import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -527,7 +525,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects(), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class))))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
-				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 				// TODO: Should be created using CHeaderSetSpec
 				registry.register(ModelRegistration.builder()
@@ -546,27 +543,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 					.build());
 
-				// TODO: Should be created as ModelProperty (readonly) with JavaNativeInterfaceLibrarySources projection
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("sources"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(managed(of(JavaNativeInterfaceLibrarySources.class)))
-					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
-					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
-					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, pp, ignored) -> {
-						if (path.child("sources").equals(pp)) {
-							project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (e, p, ignored1, ignored2, projection) -> {
-								if (path.isDescendant(p)) {
-									val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(path)))
-										.filter(it -> !it.isEmpty())
-										.map(StringUtils::capitalize)
-										.collect(Collectors.joining()));
-									registry.register(propertyFactory.create(path.child("sources").child(elementName), e));
-								}
-							}));
-						}
-					}))
-					.build());
+				registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), JavaNativeInterfaceLibrarySources.class));
 
 				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
 				val dependencies = project.getObjects().newInstance(DefaultJavaNativeInterfaceLibraryComponentDependencies.class, dependencyContainer);

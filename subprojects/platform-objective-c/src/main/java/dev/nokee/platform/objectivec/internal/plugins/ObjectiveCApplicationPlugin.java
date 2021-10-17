@@ -15,23 +15,17 @@
  */
 package dev.nokee.platform.objectivec.internal.plugins;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
-import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
-import dev.nokee.model.internal.BaseDomainObjectViewProjection;
-import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentName;
+import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
@@ -42,17 +36,13 @@ import dev.nokee.platform.objectivec.ObjectiveCApplicationSources;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-import java.util.stream.Collectors;
-
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodes.mutate;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
@@ -92,7 +82,6 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 	public static NodeRegistration objectiveCApplication(String name, Project project) {
 		return new NativeApplicationComponentModelRegistrationFactory(ObjectiveCApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 			// TODO: Should be created using ObjectiveCSourceSetSpec
 			registry.register(ModelRegistration.builder()
@@ -110,27 +99,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());
 
-			// TODO: Should be created as ModelProperty (readonly) with ObjectiveCApplicationSources projection
-			registry.register(ModelRegistration.builder()
-				.withComponent(path.child("sources"))
-				.withComponent(IsModelProperty.tag())
-				.withComponent(managed(of(ObjectiveCApplicationSources.class)))
-				.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
-				.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
-				.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, pp, ignored) -> {
-					if (path.child("sources").equals(pp)) {
-						project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (e, p, ignored1, ignored2, projection) -> {
-							if (path.isDescendant(p)) {
-								val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(path)))
-									.filter(it -> !it.isEmpty())
-									.map(StringUtils::capitalize)
-									.collect(Collectors.joining()));
-								registry.register(propertyFactory.create(path.child("sources").child(elementName), e));
-							}
-						}));
-					}
-				}))
-				.build());
+			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCApplicationSources.class));
 		}).create(name).action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
 			.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)));
 	}

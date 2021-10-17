@@ -15,20 +15,14 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
-import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.model.internal.BaseDomainObjectViewProjection;
-import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.ios.IosResourceSet;
@@ -39,15 +33,11 @@ import dev.nokee.platform.ios.internal.IosApplicationComponentModelRegistrationF
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.gradle.util.GUtil;
 
-import java.util.stream.Collectors;
-
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.ios.internal.plugins.ObjectiveCIosApplicationPlugin.configureBuildVariants;
@@ -84,7 +74,6 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	public static NodeRegistration swiftIosApplication(String name, Project project) {
 		return new IosApplicationComponentModelRegistrationFactory(SwiftIosApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 			// TODO: Should be created using SwiftSourceSetSpec
 			registry.register(ModelRegistration.builder()
@@ -102,27 +91,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());
 
-			// TODO: Should be created as ModelProperty (readonly) with CApplicationSources projection
-			registry.register(ModelRegistration.builder()
-				.withComponent(path.child("sources"))
-				.withComponent(IsModelProperty.tag())
-				.withComponent(managed(of(SwiftIosApplicationSources.class)))
-				.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
-				.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
-				.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, pp, ignored) -> {
-					if (path.child("sources").equals(pp)) {
-						project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (e, p, ignored1, ignored2, projection) -> {
-							if (path.isDescendant(p)) {
-								val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(path)))
-									.filter(it -> !it.isEmpty())
-									.map(StringUtils::capitalize)
-									.collect(Collectors.joining()));
-								registry.register(propertyFactory.create(path.child("sources").child(elementName), e));
-							}
-						}));
-					}
-				}))
-				.build());
+			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), SwiftIosApplicationSources.class));
 		}).create(name);
 	}
 }

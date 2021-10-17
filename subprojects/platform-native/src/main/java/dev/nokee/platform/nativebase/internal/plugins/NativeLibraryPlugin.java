@@ -16,16 +16,12 @@
 package dev.nokee.platform.nativebase.internal.plugins;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
-import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.model.internal.BaseDomainObjectViewProjection;
-import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -46,7 +42,6 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
 import dev.nokee.platform.nativebase.NativeLibrarySources;
@@ -59,7 +54,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import lombok.var;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -67,12 +61,9 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.language.nativeplatform.internal.DefaultNativeComponent;
 
 import javax.inject.Inject;
-
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
@@ -118,7 +109,6 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 	public static NodeRegistration nativeLibrary(String name, Project project) {
 		return new NativeLibraryComponentModelRegistrationFactory(NativeLibraryExtension.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 			// TODO: Should be created using CHeaderSetSpec
 			registry.register(ModelRegistration.builder()
@@ -136,27 +126,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());
 
-			// TODO: Should be created as ModelProperty (readonly) with CApplicationSources projection
-			registry.register(ModelRegistration.builder()
-				.withComponent(path.child("sources"))
-				.withComponent(IsModelProperty.tag())
-				.withComponent(managed(of(NativeLibrarySources.class)))
-				.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
-				.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
-				.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, pp, ignored) -> {
-					if (path.child("sources").equals(pp)) {
-						project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (e, p, ignored1, ignored2, projection) -> {
-							if (path.isDescendant(p)) {
-								val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(path)))
-									.filter(it -> !it.isEmpty())
-									.map(StringUtils::capitalize)
-									.collect(Collectors.joining()));
-								registry.register(propertyFactory.create(path.child("sources").child(elementName), e));
-							}
-						}));
-					}
-				}))
-				.build());
+			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), NativeLibrarySources.class));
 		}).create(name);
 	}
 

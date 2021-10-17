@@ -15,27 +15,16 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
-import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
-import dev.nokee.model.internal.BaseDomainObjectViewProjection;
-import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.DefaultBuildVariant;
-import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
@@ -46,7 +35,6 @@ import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.model.Mutate;
@@ -58,10 +46,8 @@ import org.gradle.util.GUtil;
 
 import java.util.Arrays;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodes.mutate;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
@@ -121,7 +107,6 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	public static NodeRegistration objectiveCIosApplication(String name, Project project) {
 		return new IosApplicationComponentModelRegistrationFactory(ObjectiveCIosApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 			// TODO: Should be created using CSourceSetSpec
 			registry.register(ModelRegistration.builder()
@@ -147,27 +132,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
 				.build());
 
-			// TODO: Should be created as ModelProperty (readonly) with CApplicationSources projection
-			registry.register(ModelRegistration.builder()
-				.withComponent(path.child("sources"))
-				.withComponent(IsModelProperty.tag())
-				.withComponent(managed(of(ObjectiveCIosApplicationSources.class)))
-				.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
-				.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
-				.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, pp, ignored) -> {
-					if (path.child("sources").equals(pp)) {
-						project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (e, p, ignored1, ignored2, projection) -> {
-							if (path.isDescendant(p)) {
-								val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(path)))
-									.filter(it -> !it.isEmpty())
-									.map(StringUtils::capitalize)
-									.collect(Collectors.joining()));
-								registry.register(propertyFactory.create(path.child("sources").child(elementName), e));
-							}
-						}));
-					}
-				}))
-				.build());
+			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCIosApplicationSources.class));
 		})
 			.create(name)
 			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
