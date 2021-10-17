@@ -15,31 +15,31 @@
  */
 package dev.nokee.platform.swift;
 
-import dev.nokee.fixtures.NativeComponentMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
+import dev.nokee.platform.base.testers.HasBaseNameTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
-import org.hamcrest.Matcher;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.util.stream.Stream;
 
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.swift.internal.plugins.SwiftLibraryPlugin.swiftLibrary;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary>, BaseNameAwareComponentTester, ComponentTester<SwiftLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies> {
+public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary>, HasBaseNameTester, ComponentTester<SwiftLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies> {
 	private final SwiftLibrary subject = createSubject("peso");
 	@Getter @TempDir File testDirectory;
 
@@ -53,11 +53,6 @@ public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary
 	}
 
 	@Override
-	public Matcher<Component> hasArtifactBaseNameOf(String name) {
-		return NativeComponentMatchers.hasArtifactBaseNameOf(name);
-	}
-
-	@Override
 	public Stream<SourcesUnderTest> provideSourceSetUnderTest() {
 		return Stream.of(new SourcesUnderTest("swift", SwiftSourceSet.class, "swiftSources"));
 	}
@@ -65,5 +60,11 @@ public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary
 	@Override
 	public SwiftLibrary subject() {
 		return subject;
+	}
+
+	@Test
+	void hasBaseNameConventionAsComponentName() {
+		subject().getBaseName().set((String) null);
+		assertThat(subject().getBaseName(), providerOf("peso"));
 	}
 }

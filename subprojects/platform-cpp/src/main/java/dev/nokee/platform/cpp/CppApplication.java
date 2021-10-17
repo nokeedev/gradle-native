@@ -26,7 +26,7 @@ import dev.nokee.platform.nativebase.*;
  *
  * @since 0.5
  */
-public interface CppApplication extends CppApplicationExtension, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CppApplicationSources>, HasPrivateHeaders, HasCppSources, BaseNameAwareComponent {
+public interface CppApplication extends CppApplicationExtension, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CppApplicationSources>, HasPrivateHeaders, HasCppSources, HasBaseName {
 	/**
 	 * {@inheritDoc}
 	 */
