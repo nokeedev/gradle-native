@@ -30,6 +30,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.binaries.BinaryConfigurer;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -41,6 +42,7 @@ import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.variants.VariantRepository;
 import dev.nokee.platform.base.internal.variants.VariantViewFactory;
+import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
 import lombok.val;
@@ -228,6 +230,28 @@ public final class IosApplicationComponentModelRegistrationFactory {
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
 					.build());
 
+				registry.register(ModelRegistration.builder()
+					.withComponent(path.child("binaries"))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(project.getProviders())))))
+					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.ofAny(projectionOf(Binary.class)), (e, p, ignored1, ignored2, projection) -> {
+						if (path.isDirectDescendant(p)) {
+							registry.register(propertyFactory.create(path.child("binaries").child(p.getName()), e));
+						}
+					}))
+					.build());
+
+				val executableIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, identifier);
+				val executable = registry.register(ModelRegistration.builder()
+					.withComponent(path.child("executable"))
+					.withComponent(IsBinary.tag())
+					.withComponent(executableIdentifier)
+					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
+						return project.getExtensions().getByType(BinaryRepository.class).get(executableIdentifier);
+					}))
+					.build());
+				project.getExtensions().getByType(BinaryConfigurer.class).configure(executableIdentifier, binary -> ModelStates.realize(ModelNodes.of(executable)));
+
 				val applicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("applicationBundle"), IosApplicationBundleInternal.class, identifier);
 				val applicationBundle = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("applicationBundle"))
@@ -237,27 +261,18 @@ public final class IosApplicationComponentModelRegistrationFactory {
 						return project.getExtensions().getByType(BinaryRepository.class).get(applicationBundleIdentifier);
 					}))
 					.build());
+				project.getExtensions().getByType(BinaryConfigurer.class).configure(applicationBundleIdentifier, binary -> ModelStates.realize(ModelNodes.of(applicationBundle)));
 
 				val signedApplicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, identifier);
 				val signedApplicationBundle = registry.register(ModelRegistration.builder()
-					.withComponent(path.child("applicationBundle"))
+					.withComponent(path.child("signedApplicationBundle"))
 					.withComponent(IsBinary.tag())
-					.withComponent(applicationBundleIdentifier)
+					.withComponent(signedApplicationBundleIdentifier)
 					.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> {
 						return project.getExtensions().getByType(BinaryRepository.class).get(signedApplicationBundleIdentifier);
 					}))
 					.build());
-
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("binaries"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(project.getProviders())))))
-					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.ofAny(projectionOf(Configuration.class)), (e, p, ignored1, ignored2, projection) -> {
-						if (path.isDirectDescendant(p)) {
-							registry.register(propertyFactory.create(path.child("binaries").child(p.getName()), e));
-						}
-					}))
-					.build());
+				project.getExtensions().getByType(BinaryConfigurer.class).configure(signedApplicationBundleIdentifier, binary -> ModelStates.realize(ModelNodes.of(signedApplicationBundle)));
 
 				whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.ofAny(projectionOf(Configuration.class)), ModelComponentReference.of(ModelPath.class), (e, ignored, p) -> {
 					((NamedDomainObjectProvider<Configuration>) ModelNodeUtils.get(e, NamedDomainObjectProvider.class)).configure(configuration -> {
