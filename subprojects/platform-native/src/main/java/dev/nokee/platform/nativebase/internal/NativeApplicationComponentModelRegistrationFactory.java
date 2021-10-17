@@ -129,6 +129,9 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 					.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(project.getProviders(), () -> ModelStates.finalize(entity))))))
 					.build());
 			})))
+			.action(self(stateOf(ModelState.Realized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+				ModelNodeUtils.get(entity, BaseComponent.class).getBaseName().convention(path.getName());
+			})))
 			.action(self(stateOf(ModelState.Finalized)).apply(new CalculateNativeApplicationVariantAction(project)))
 			;
 	}
