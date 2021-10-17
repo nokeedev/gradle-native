@@ -88,7 +88,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 			// TODO: Should be created using CSourceSetSpec
-			val c = registry.register(ModelRegistration.builder()
+			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("c"))
 				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CSourceSet.class)))
@@ -96,7 +96,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 				.build());
 
 			// TODO: Should be created using CHeaderSetSpec
-			val publicHeaders = registry.register(ModelRegistration.builder()
+			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("public"))
 				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CHeaderSet.class)))
@@ -104,7 +104,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 				.build());
 
 			// TODO: Should be created using CHeaderSetSpec
-			val privateHeaders = registry.register(ModelRegistration.builder()
+			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("headers"))
 				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CHeaderSet.class)))

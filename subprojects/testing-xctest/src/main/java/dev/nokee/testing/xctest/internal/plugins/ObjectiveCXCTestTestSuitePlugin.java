@@ -265,7 +265,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 				// TODO: Should be created using CSourceSetSpec
-				val objectiveC = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("objectiveC"))
 					.withComponent(IsLanguageSourceSet.tag())
 					.withComponent(managed(of(ObjectiveCSourceSet.class)))
@@ -273,7 +273,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					.build());
 
 				// TODO: Should be created using CHeaderSetSpec
-				val headers = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("headers"))
 					.withComponent(IsLanguageSourceSet.tag())
 					.withComponent(managed(of(CHeaderSet.class)))

@@ -93,7 +93,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 			// TODO: Should be created using ObjectiveCppSourceSetSpec
-			val objectiveCpp = registry.register(ModelRegistration.builder()
+			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("objectiveCpp"))
 				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(ObjectiveCppSourceSet.class)))
@@ -101,7 +101,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 				.build());
 
 			// TODO: Should be created using CppHeaderSetSpec
-			val publicHeaders = registry.register(ModelRegistration.builder()
+			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("public"))
 				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CppHeaderSet.class)))
@@ -109,7 +109,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 				.build());
 
 			// TODO: Should be created using CppHeaderSetSpec
-			val privateHeaders = registry.register(ModelRegistration.builder()
+			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("headers"))
 				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CppHeaderSet.class)))

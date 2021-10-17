@@ -530,7 +530,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 				// TODO: Should be created using CHeaderSetSpec
-				val jni = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("jni"))
 					.withComponent(IsLanguageSourceSet.tag())
 					.withComponent(managed(of(CHeaderSet.class)))
@@ -539,7 +539,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 				// TODO: Should be created using CHeaderSetSpec
 				// TODO: ONLY if applying include language plugin
-				val headers = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("headers"))
 					.withComponent(IsLanguageSourceSet.tag())
 					.withComponent(managed(of(CHeaderSet.class)))

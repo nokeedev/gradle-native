@@ -87,7 +87,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 			// TODO: Should be created using SwiftSourceSetSpec
-			val swift = registry.register(ModelRegistration.builder()
+			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("swift"))
 				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(SwiftSourceSet.class)))
@@ -95,7 +95,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 				.build());
 
 			// TODO: Should be created using IosResourceSpec
-			val iosResources = registry.register(ModelRegistration.builder()
+			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("resources"))
 				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(IosResourceSet.class)))

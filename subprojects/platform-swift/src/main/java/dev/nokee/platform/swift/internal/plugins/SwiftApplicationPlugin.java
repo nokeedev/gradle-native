@@ -90,7 +90,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 			// TODO: Should be created using SwiftSourceSetSpec
-			val swift = registry.register(ModelRegistration.builder()
+			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("swift"))
 				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(SwiftSourceSet.class)))

@@ -88,7 +88,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 			// TODO: Should be created using CppSourceSetSpec
-			val cpp = registry.register(ModelRegistration.builder()
+			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("cpp"))
 				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CppSourceSet.class)))
@@ -96,7 +96,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 				.build());
 
 			// TODO: Should be created using CppHeaderSetSpec
-			val publicHeaders = registry.register(ModelRegistration.builder()
+			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("public"))
 				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CppHeaderSet.class)))
@@ -104,7 +104,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 				.build());
 
 			// TODO: Should be created using CppHeaderSetSpec
-			val privateHeaders = registry.register(ModelRegistration.builder()
+			registry.register(ModelRegistration.builder()
 				.withComponent(path.child("headers"))
 				.withComponent(IsLanguageSourceSet.tag())
 				.withComponent(managed(of(CppHeaderSet.class)))
