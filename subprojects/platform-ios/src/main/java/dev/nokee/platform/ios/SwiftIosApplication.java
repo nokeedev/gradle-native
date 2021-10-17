@@ -15,12 +15,12 @@
  */
 package dev.nokee.platform.ios;
 
+import dev.nokee.language.swift.HasSwiftSources;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.language.swift.HasSwiftSources;
 
-public interface SwiftIosApplication extends SwiftIosApplicationExtension, DependencyAwareComponent<NativeComponentDependencies>, VariantAwareComponent<IosApplication>, BinaryAwareComponent, SourceAwareComponent<SwiftIosApplicationSources>, HasSwiftSources, HasIosResources, HasBaseName {
+public interface SwiftIosApplication extends SwiftIosApplicationExtension, Component, DependencyAwareComponent<NativeComponentDependencies>, VariantAwareComponent<IosApplication>, BinaryAwareComponent, SourceAwareComponent<SwiftIosApplicationSources>, HasSwiftSources, HasIosResources, HasBaseName {
 	/**
 	 * {@inheritDoc}
 	 */

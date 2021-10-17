@@ -29,7 +29,7 @@ import dev.nokee.platform.nativebase.*;
  *
  * @since 0.5
  */
-public interface CLibrary extends CLibraryExtension, DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CLibrarySources>, HasPrivateHeaders, HasPublicHeaders, HasCSources, HasBaseName {
+public interface CLibrary extends CLibraryExtension, Component, DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CLibrarySources>, HasPrivateHeaders, HasPublicHeaders, HasCSources, HasBaseName {
 	/**
 	 * {@inheritDoc}
 	 */
