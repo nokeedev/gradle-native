@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.cpp;
+package dev.nokee.language.cpp;
 
-import dev.nokee.language.cpp.CppSourceSet;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
@@ -23,7 +22,6 @@ import org.gradle.api.Action;
 /**
  * Represents a component that carries C++ sources.
  *
- * @see HasCppSourceSet
  * @since 0.5
  */
 public interface HasCppSources {

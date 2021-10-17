@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.swift;
 
+import dev.nokee.language.swift.HasSwiftSources;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;

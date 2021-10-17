@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.objectivec;
 
+import dev.nokee.language.objectivec.HasObjectiveCSources;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.SourceAwareComponent;
