@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase;
+package dev.nokee.language.nativebase;
 
-import dev.nokee.language.nativebase.NativeHeaderSet;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 
-import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static org.gradle.util.ConfigureUtil.configureUsing;
-
 /**
  * Represents a component that carries private headers.
  *
- * @see HasHeadersSourceSet
  * @since 0.5
  */
 public interface HasPrivateHeaders {
@@ -38,9 +33,7 @@ public interface HasPrivateHeaders {
 	 * @return a source set containing the private headers of this component, never null
 	 * @see NativeHeaderSet
 	 */
-	default NativeHeaderSet getPrivateHeaders() {
-		return ((HasHeadersSourceSet) sourceViewOf(this)).getHeaders().get();
-	}
+	NativeHeaderSet getPrivateHeaders();
 
 	/**
 	 * Configures the private headers of this component using the specified configuration action.
@@ -48,17 +41,8 @@ public interface HasPrivateHeaders {
 	 * @param action  the configuration action, must not be null
 	 * @see #getPrivateHeaders()
 	 */
-	default void privateHeaders(Action<? super NativeHeaderSet> action) {
-		((HasHeadersSourceSet) sourceViewOf(this)).getHeaders().configure(action);
-	}
+	void privateHeaders(Action<? super NativeHeaderSet> action);
 
-	/**
-	 * Configures the private headers of this component using the specified configuration closure.
-	 *
-	 * @param closure  the configuration closure, must not be null
-	 * @see #getPrivateHeaders()
-	 */
-	default void privateHeaders(@DelegatesTo(value = NativeHeaderSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		privateHeaders(configureUsing(closure));
-	}
+	/** @see #privateHeaders(Action) */
+	void privateHeaders(@DelegatesTo(value = NativeHeaderSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

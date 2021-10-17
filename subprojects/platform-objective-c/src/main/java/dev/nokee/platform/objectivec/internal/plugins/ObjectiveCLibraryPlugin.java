@@ -18,6 +18,7 @@ package dev.nokee.platform.objectivec.internal.plugins;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
@@ -26,6 +27,8 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
+import dev.nokee.platform.nativebase.HasHeadersSourceSet;
+import dev.nokee.platform.nativebase.HasPublicSourceSet;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.objectivec.HasObjectiveCSourceSet;
@@ -129,6 +132,36 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		@Override
 		public void objectiveCSources(@SuppressWarnings("rawtypes") Closure closure) {
 			objectiveCSources(configureUsing(closure));
+		}
+
+		@Override
+		public NativeHeaderSet getPrivateHeaders() {
+			return ((HasHeadersSourceSet) sourceViewOf(this)).getHeaders().get();
+		}
+
+		@Override
+		public void privateHeaders(Action<? super NativeHeaderSet> action) {
+			((HasHeadersSourceSet) sourceViewOf(this)).getHeaders().configure(action);
+		}
+
+		@Override
+		public void privateHeaders(@SuppressWarnings("rawtypes") Closure closure) {
+			privateHeaders(configureUsing(closure));
+		}
+
+		@Override
+		public NativeHeaderSet getPublicHeaders() {
+			return ((HasPublicSourceSet) sourceViewOf(this)).getPublic().get();
+		}
+
+		@Override
+		public void publicHeaders(Action<? super NativeHeaderSet> action) {
+			((HasPublicSourceSet) sourceViewOf(this)).getPublic().configure(action);
+		}
+
+		@Override
+		public void publicHeaders(@SuppressWarnings("rawtypes") Closure closure) {
+			publicHeaders(configureUsing(closure));
 		}
 	}
 }

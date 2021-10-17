@@ -18,6 +18,7 @@ package dev.nokee.platform.objectivec.internal.plugins;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
@@ -26,6 +27,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
+import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
@@ -124,6 +126,21 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 		@Override
 		public void objectiveCSources(@SuppressWarnings("rawtypes") Closure closure) {
 			objectiveCSources(configureUsing(closure));
+		}
+
+		@Override
+		public NativeHeaderSet getPrivateHeaders() {
+			return ((HasHeadersSourceSet) sourceViewOf(this)).getHeaders().get();
+		}
+
+		@Override
+		public void privateHeaders(Action<? super NativeHeaderSet> action) {
+			((HasHeadersSourceSet) sourceViewOf(this)).getHeaders().configure(action);
+		}
+
+		@Override
+		public void privateHeaders(@SuppressWarnings("rawtypes") Closure closure) {
+			privateHeaders(configureUsing(closure));
 		}
 	}
 }

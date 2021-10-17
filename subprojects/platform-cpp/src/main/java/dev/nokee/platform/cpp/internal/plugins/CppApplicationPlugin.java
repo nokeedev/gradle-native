@@ -20,6 +20,7 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
+import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -28,6 +29,7 @@ import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFact
 import dev.nokee.platform.cpp.CppApplication;
 import dev.nokee.platform.cpp.CppApplicationSources;
 import dev.nokee.platform.cpp.HasCppSourceSet;
+import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
@@ -119,6 +121,21 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		@Override
 		public void cppSources(@SuppressWarnings("rawtypes") Closure closure) {
 			cppSources(configureUsing(closure));
+		}
+
+		@Override
+		public NativeHeaderSet getPrivateHeaders() {
+			return ((HasHeadersSourceSet) sourceViewOf(this)).getHeaders().get();
+		}
+
+		@Override
+		public void privateHeaders(Action<? super NativeHeaderSet> action) {
+			((HasHeadersSourceSet) sourceViewOf(this)).getHeaders().configure(action);
+		}
+
+		@Override
+		public void privateHeaders(@SuppressWarnings("rawtypes") Closure closure) {
+			privateHeaders(configureUsing(closure));
 		}
 	}
 }

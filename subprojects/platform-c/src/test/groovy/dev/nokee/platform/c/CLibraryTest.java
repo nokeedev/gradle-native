@@ -19,7 +19,7 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.HasCSourcesTester;
-import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.language.nativebase.*;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.testers.ComponentTester;
@@ -41,7 +41,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.c.internal.plugins.CLibraryPlugin.cLibrary;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CLibraryTest implements SourceAwareComponentTester<CLibrary>, HasBaseNameTester, ComponentTester<CLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, HasCSourcesTester {
+class CLibraryTest implements SourceAwareComponentTester<CLibrary>, HasBaseNameTester, ComponentTester<CLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, HasCSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
 	private final CLibrary subject = createSubject("ledk");
 	@Getter @TempDir File testDirectory;
 
