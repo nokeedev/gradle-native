@@ -20,9 +20,6 @@ import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 
-import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static org.gradle.util.ConfigureUtil.configureUsing;
-
 /**
  * Represents a component that carries Objective-C sources.
  *
@@ -39,9 +36,7 @@ public interface HasObjectiveCSources {
 	 * @see ObjectiveCSourceSet
 	 * @since 0.5
 	 */
-	default ObjectiveCSourceSet getObjectiveCSources() {
-		return ((HasObjectiveCSourceSet) sourceViewOf(this)).getObjectiveC().get();
-	}
+	ObjectiveCSourceSet getObjectiveCSources();
 
 	/**
 	 * Configures the Objective-C sources of this component using the specified configuration action.
@@ -49,17 +44,8 @@ public interface HasObjectiveCSources {
 	 * @param action  the configuration action, must not be null
 	 * @see #getObjectiveCSources()
 	 */
-	default void objectiveCSources(Action<? super ObjectiveCSourceSet> action) {
-		((HasObjectiveCSourceSet) sourceViewOf(this)).getObjectiveC().configure(action);
-	}
+	void objectiveCSources(Action<? super ObjectiveCSourceSet> action);
 
-	/**
-	 * Configures the Objective-C sources of this component using the specified configuration closure.
-	 *
-	 * @param closure  the configuration closure, must not be null
-	 * @see #getObjectiveCSources()
-	 */
-	default void objectiveCSources(@DelegatesTo(value = ObjectiveCSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		objectiveCSources(configureUsing(closure));
-	}
+	/** @see #objectiveCSources(Action) */
+	void objectiveCSources(@DelegatesTo(value = ObjectiveCSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

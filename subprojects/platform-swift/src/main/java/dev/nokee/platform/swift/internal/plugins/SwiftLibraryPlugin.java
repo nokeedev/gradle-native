@@ -28,11 +28,14 @@ import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
+import dev.nokee.platform.swift.HasSwiftSourceSet;
 import dev.nokee.platform.swift.SwiftLibrary;
 import dev.nokee.platform.swift.SwiftLibrarySources;
+import groovy.lang.Closure;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
@@ -43,7 +46,9 @@ import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
+import static org.gradle.util.ConfigureUtil.configureUsing;
 
 public class SwiftLibraryPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "library";
@@ -97,5 +102,19 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultSwiftLibrary implements SwiftLibrary {
+		@Override
+		public SwiftSourceSet getSwiftSources() {
+			return ((HasSwiftSourceSet) sourceViewOf(this)).getSwift().get();
+		}
+
+		@Override
+		public void swiftSources(Action<? super SwiftSourceSet> action) {
+			((HasSwiftSourceSet) sourceViewOf(this)).getSwift().configure(action);
+		}
+
+		@Override
+		public void swiftSources(@SuppressWarnings("rawtypes") Closure closure) {
+			swiftSources(configureUsing(closure));
+		}
 	}
 }

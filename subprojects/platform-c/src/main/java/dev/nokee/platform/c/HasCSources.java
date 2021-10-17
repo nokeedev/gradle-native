@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,6 @@ import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 
-import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static org.gradle.util.ConfigureUtil.configureUsing;
-
 /**
  * Represents a component that carries C sources.
  *
@@ -38,9 +35,7 @@ public interface HasCSources {
 	 * @return a source set containing the C sources of this component, never null
 	 * @see CSourceSet
 	 */
-	default CSourceSet getCSources() {
-		return ((HasCSourceSet) sourceViewOf(this)).getC().get();
-	}
+	CSourceSet getCSources();
 
 	/**
 	 * Configures the C sources of this component using the specified configuration action.
@@ -48,17 +43,8 @@ public interface HasCSources {
 	 * @param action  the configuration action, must not be null
 	 * @see #getCSources()
 	 */
-	default void cSources(Action<? super CSourceSet> action) {
-		((HasCSourceSet) sourceViewOf(this)).getC().configure(action);
-	}
+	void cSources(Action<? super CSourceSet> action);
 
-	/**
-	 * Configures the C sources of this component using the specified configuration closure.
-	 *
-	 * @param closure  the configuration closure, must not be null
-	 * @see #getCSources()
-	 */
-	default void cSources(@DelegatesTo(value = CSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		cSources(configureUsing(closure));
-	}
+	/** @see #cSources(Action) */
+	void cSources(@DelegatesTo(value = CSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

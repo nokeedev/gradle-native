@@ -34,14 +34,19 @@ import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelReg
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
+import dev.nokee.platform.objectivecpp.HasObjectiveCppSourceSet;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplication;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplicationSources;
+import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
 
@@ -51,6 +56,7 @@ import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
+import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 
 public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
@@ -113,5 +119,19 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultObjectiveCppApplication implements ObjectiveCppApplication {
+		@Override
+		public ObjectiveCppSourceSet getObjectiveCppSources() {
+			return ((HasObjectiveCppSourceSet) sourceViewOf(this)).getObjectiveCpp().get();
+		}
+
+		@Override
+		public void objectiveCppSources(Action<? super ObjectiveCppSourceSet> action) {
+			((HasObjectiveCppSourceSet) sourceViewOf(this)).getObjectiveCpp().configure(action);
+		}
+
+		@Override
+		public void objectiveCppSources(@SuppressWarnings("rawtypes") Closure closure) {
+			objectiveCppSources(ConfigureUtil.configureUsing(closure));
+		}
 	}
 }

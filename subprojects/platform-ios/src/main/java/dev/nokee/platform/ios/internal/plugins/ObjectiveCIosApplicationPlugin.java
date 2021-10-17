@@ -34,10 +34,13 @@ import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationSources;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.IosApplicationComponentModelRegistrationFactory;
+import dev.nokee.platform.objectivec.HasObjectiveCSourceSet;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
+import groovy.lang.Closure;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.model.Mutate;
@@ -56,10 +59,12 @@ import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
+import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.platform.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.baseNameConvention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
+import static org.gradle.util.ConfigureUtil.configureUsing;
 
 public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -149,5 +154,19 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication {
+		@Override
+		public ObjectiveCSourceSet getObjectiveCSources() {
+			return ((HasObjectiveCSourceSet) sourceViewOf(this)).getObjectiveC().get();
+		}
+
+		@Override
+		public void objectiveCSources(Action<? super ObjectiveCSourceSet> action) {
+			((HasObjectiveCSourceSet) sourceViewOf(this)).getObjectiveC().configure(action);
+		}
+
+		@Override
+		public void objectiveCSources(@SuppressWarnings("rawtypes") Closure closure) {
+			objectiveCSources(configureUsing(closure));
+		}
 	}
 }
