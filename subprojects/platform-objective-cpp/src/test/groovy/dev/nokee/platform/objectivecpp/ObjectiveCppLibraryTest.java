@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.objectivecpp;
 
-import dev.nokee.fixtures.NativeComponentMatchers;
 import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
@@ -23,28 +22,27 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
+import dev.nokee.platform.base.testers.HasBaseNameTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
-import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.util.stream.Stream;
 
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.objectivecpp.internal.plugins.ObjectiveCppLibraryPlugin.objectiveCppLibrary;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCppLibraryTest implements SourceAwareComponentTester<ObjectiveCppLibrary>, BaseNameAwareComponentTester, ComponentTester<ObjectiveCppLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies> {
+class ObjectiveCppLibraryTest implements SourceAwareComponentTester<ObjectiveCppLibrary>, HasBaseNameTester, ComponentTester<ObjectiveCppLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies> {
 	private final ObjectiveCppLibrary subject = createSubject("pago");
 	@Getter @TempDir File testDirectory;
 
@@ -55,11 +53,6 @@ class ObjectiveCppLibraryTest implements SourceAwareComponentTester<ObjectiveCpp
 		val component = create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), objectiveCppLibrary(componentName, project)).as(ObjectiveCppLibrary.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
-	}
-
-	@Override
-	public Matcher<Component> hasArtifactBaseNameOf(String name) {
-		return NativeComponentMatchers.hasArtifactBaseNameOf(name);
 	}
 
 	@Override
@@ -82,5 +75,11 @@ class ObjectiveCppLibraryTest implements SourceAwareComponentTester<ObjectiveCpp
 	@Override
 	public ObjectiveCppLibrary subject() {
 		return subject;
+	}
+
+	@Test
+	void hasBaseNameConventionAsComponentName() {
+		subject().getBaseName().set((String) null);
+		assertThat(subject().getBaseName(), providerOf("pago"));
 	}
 }

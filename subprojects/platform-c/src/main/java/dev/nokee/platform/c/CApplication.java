@@ -27,7 +27,7 @@ import dev.nokee.platform.nativebase.*;
  *
  * @since 0.5
  */
-public interface CApplication extends CApplicationExtension, Component, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CApplicationSources>, HasPrivateHeaders, HasCSources, BaseNameAwareComponent {
+public interface CApplication extends CApplicationExtension, Component, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CApplicationSources>, HasPrivateHeaders, HasCSources, HasBaseName {
 	/**
 	 * {@inheritDoc}
 	 */

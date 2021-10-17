@@ -15,32 +15,32 @@
  */
 package dev.nokee.platform.c;
 
-import dev.nokee.fixtures.NativeComponentMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
+import dev.nokee.platform.base.testers.HasBaseNameTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
-import org.hamcrest.Matcher;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.util.stream.Stream;
 
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.c.internal.plugins.CApplicationPlugin.cApplication;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-class CApplicationTest implements SourceAwareComponentTester<CApplication>, BaseNameAwareComponentTester, ComponentTester<CApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies> {
+class CApplicationTest implements SourceAwareComponentTester<CApplication>, HasBaseNameTester, ComponentTester<CApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies> {
 	private final CApplication subject = createSubject("kdrj");
 	@Getter @TempDir File testDirectory;
 
@@ -54,11 +54,6 @@ class CApplicationTest implements SourceAwareComponentTester<CApplication>, Base
 	}
 
 	@Override
-	public Matcher<Component> hasArtifactBaseNameOf(String name) {
-		return NativeComponentMatchers.hasArtifactBaseNameOf(name);
-	}
-
-	@Override
 	public Stream<SourcesUnderTest> provideSourceSetUnderTest() {
 		return Stream.of(
 			new SourcesUnderTest("c", CSourceSet.class, "cSources"),
@@ -68,5 +63,11 @@ class CApplicationTest implements SourceAwareComponentTester<CApplication>, Base
 	@Override
 	public CApplication subject() {
 		return subject;
+	}
+
+	@Test
+	void hasBaseNameConventionAsComponentName() {
+		subject().getBaseName().set((String) null);
+		assertThat(subject().getBaseName(), providerOf("kdrj"));
 	}
 }

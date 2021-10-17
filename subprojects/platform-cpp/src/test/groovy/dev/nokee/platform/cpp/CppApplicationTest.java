@@ -15,32 +15,32 @@
  */
 package dev.nokee.platform.cpp;
 
-import dev.nokee.fixtures.NativeComponentMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
+import dev.nokee.platform.base.testers.HasBaseNameTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
-import org.hamcrest.Matcher;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.util.stream.Stream;
 
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.cpp.internal.plugins.CppApplicationPlugin.cppApplication;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, BaseNameAwareComponentTester, ComponentTester<CppApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies> {
+class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, HasBaseNameTester, ComponentTester<CppApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies> {
 	private final CppApplication subject = createSubject("sari");
 	@Getter @TempDir File testDirectory;
 
@@ -54,11 +54,6 @@ class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, 
 	}
 
 	@Override
-	public Matcher<Component> hasArtifactBaseNameOf(String name) {
-		return NativeComponentMatchers.hasArtifactBaseNameOf(name);
-	}
-
-	@Override
 	public Stream<SourcesUnderTest> provideSourceSetUnderTest() {
 		return Stream.of(
 			new SourcesUnderTest("cpp", CppSourceSet.class, "cppSources"),
@@ -68,5 +63,11 @@ class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, 
 	@Override
 	public CppApplication subject() {
 		return subject;
+	}
+
+	@Test
+	void hasBaseNameConventionAsComponentName() {
+		subject().getBaseName().set((String) null);
+		assertThat(subject().getBaseName(), providerOf("sari"));
 	}
 }
