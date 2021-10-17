@@ -105,7 +105,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration objectiveCIosApplication(String name, Project project) {
-		return new IosApplicationComponentModelRegistrationFactory(ObjectiveCIosApplication.class, project, (entity, path) -> {
+		return new IosApplicationComponentModelRegistrationFactory(ObjectiveCIosApplication.class, DefaultObjectiveCIosApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			// TODO: Should be created using CSourceSetSpec
@@ -138,5 +138,8 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
 				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
 			;
+	}
+
+	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication {
 	}
 }

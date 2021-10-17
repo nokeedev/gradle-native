@@ -104,7 +104,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration nativeApplication(String name, Project project) {
-		return new NativeApplicationComponentModelRegistrationFactory(NativeApplicationExtension.class, project, (entity, path) -> {
+		return new NativeApplicationComponentModelRegistrationFactory(NativeApplicationExtension.class, DefaultNativeApplicationExtension.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			// TODO: Should be created using CHeaderSetSpec
@@ -236,6 +236,9 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				}));
 			})))
 			;
+	}
+
+	public static abstract class DefaultNativeApplicationExtension implements NativeApplicationExtension {
 	}
 
 	private static void whenElementKnown(Object target, ModelAction action) {

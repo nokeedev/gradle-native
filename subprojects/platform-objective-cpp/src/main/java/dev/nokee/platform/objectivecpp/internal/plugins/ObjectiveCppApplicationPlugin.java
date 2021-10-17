@@ -80,7 +80,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration objectiveCppApplication(String name, Project project) {
-		return new NativeApplicationComponentModelRegistrationFactory(ObjectiveCppApplication.class, project, (entity, path) -> {
+		return new NativeApplicationComponentModelRegistrationFactory(ObjectiveCppApplication.class, DefaultObjectiveCppApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			// TODO: Should be created using ObjectiveCppSourceSetSpec
@@ -102,5 +102,8 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCppApplicationSources.class));
 		}).create(name).action(allDirectDescendants(mutate(of(ObjectiveCppSourceSet.class)))
 			.apply(executeUsingProjection(of(ObjectiveCppSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name)))::accept)));
+	}
+
+	public static abstract class DefaultObjectiveCppApplication implements ObjectiveCppApplication {
 	}
 }
