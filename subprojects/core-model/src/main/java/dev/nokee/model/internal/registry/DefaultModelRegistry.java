@@ -81,7 +81,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	@Override
 	public ModelElement register(ModelRegistration registration) {
-		registration.getActions().forEach(configurations::add);
+		registration.getActions().forEach(this::configure);
 		val node = ModelStates.register(newNode(registration));
 		return new ModelNodeBackedElement(node);
 	}

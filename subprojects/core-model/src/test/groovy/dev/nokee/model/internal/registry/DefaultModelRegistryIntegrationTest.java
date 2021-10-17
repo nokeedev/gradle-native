@@ -21,6 +21,7 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.Value;
 import lombok.val;
 import org.gradle.api.provider.Property;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,7 @@ import java.util.function.Predicate;
 
 import static com.google.common.base.Predicates.alwaysTrue;
 import static dev.nokee.model.internal.core.ModelActions.*;
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
 import static dev.nokee.model.internal.state.ModelState.Realized;
 import static dev.nokee.model.internal.state.ModelState.Registered;
@@ -367,13 +369,14 @@ public class DefaultModelRegistryIntegrationTest {
 		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo", Object.class), new Object()));
 		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo.bar", Object.class), new Object()));
 		modelRegistry.register(ModelRegistration.unmanagedInstanceBuilder(ModelIdentifier.of("foo.far", Object.class), Object::new).action(entity -> {
-			if (!entity.hasComponent(MyFooComponent.class)) {
+			if (entity.hasComponent(componentOf(ModelPath.class)) && ModelNodeUtils.getPath(entity).equals(ModelPath.path("foo.far"))) {
 				entity.addComponent(new MyFooComponent());
 			}
 		}).build());
 		assertThat(result, contains(ModelPath.path("foo.far")));
 	}
 
+	@Value
 	static class MyFooComponent {}
 
 //	@Test
