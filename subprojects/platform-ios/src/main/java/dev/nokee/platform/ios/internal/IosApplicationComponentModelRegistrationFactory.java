@@ -69,18 +69,20 @@ import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSuppli
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public final class IosApplicationComponentModelRegistrationFactory {
-	private final Class<? extends Component> componentType;
+	private final Class<Component> componentType;
+	private final Class<? extends Component> implementationComponentType;
 	private final BiConsumer<? super ModelNode, ? super ModelPath> sourceRegistration;
 	private final Project project;
 
-	public IosApplicationComponentModelRegistrationFactory(Class<? extends Component> componentType, Project project, BiConsumer<? super ModelNode, ? super ModelPath> sourceRegistration) {
-		this.componentType = componentType;
+	public <T extends Component> IosApplicationComponentModelRegistrationFactory(Class<? super T> componentType, Class<T> implementationComponentType, Project project, BiConsumer<? super ModelNode, ? super ModelPath> sourceRegistration) {
+		this.componentType = (Class<Component>) componentType;
+		this.implementationComponentType = implementationComponentType;
 		this.sourceRegistration = sourceRegistration;
 		this.project = project;
 	}
 
 	public NodeRegistration create(String name) {
-		return NodeRegistration.of(name, of(componentType))
+		return NodeRegistration.unmanaged(name, of(componentType), () -> project.getObjects().newInstance(implementationComponentType))
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
 				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
 			.withComponent(IsComponent.tag())

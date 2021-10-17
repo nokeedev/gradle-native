@@ -81,7 +81,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 	public interface CppLibrarySpec extends ComponentSpec {}
 
 	public static NodeRegistration cppLibrary(String name, Project project) {
-		return new NativeLibraryComponentModelRegistrationFactory(CppLibrary.class, project, (entity, path) -> {
+		return new NativeLibraryComponentModelRegistrationFactory(CppLibrary.class, DefaultCppLibrary.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			// TODO: Should be created using CppSourceSetSpec
@@ -110,5 +110,8 @@ public class CppLibraryPlugin implements Plugin<Project> {
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), CppLibrarySources.class));
 		}).create(name);
+	}
+
+	public static abstract class DefaultCppLibrary implements CppLibrary {
 	}
 }

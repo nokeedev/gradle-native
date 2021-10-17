@@ -86,7 +86,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 	public interface ObjectiveCppLibrarySpec extends ComponentSpec {}
 
 	public static NodeRegistration objectiveCppLibrary(String name, Project project) {
-		return new NativeLibraryComponentModelRegistrationFactory(ObjectiveCppLibrary.class, project, (entity, path) -> {
+		return new NativeLibraryComponentModelRegistrationFactory(ObjectiveCppLibrary.class, DefaultObjectiveCppLibrary.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			// TODO: Should be created using ObjectiveCppSourceSetSpec
@@ -116,5 +116,8 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCppLibrarySources.class));
 		}).create(name).action(allDirectDescendants(mutate(of(ObjectiveCppSourceSet.class)))
 			.apply(executeUsingProjection(of(ObjectiveCppSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name)))::accept)));
+	}
+
+	public static abstract class DefaultObjectiveCppLibrary implements ObjectiveCppLibrary {
 	}
 }

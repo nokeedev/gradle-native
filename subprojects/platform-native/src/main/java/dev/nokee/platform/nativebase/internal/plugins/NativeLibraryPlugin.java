@@ -109,7 +109,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 	public interface NativeLibrarySpec extends ComponentSpec {}
 
 	public static NodeRegistration nativeLibrary(String name, Project project) {
-		return new NativeLibraryComponentModelRegistrationFactory(NativeLibraryExtension.class, project, (entity, path) -> {
+		return new NativeLibraryComponentModelRegistrationFactory(NativeLibraryExtension.class, DefaultNativeLibraryExtension.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			// TODO: Should be created using CHeaderSetSpec
@@ -130,6 +130,9 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), NativeLibrarySources.class));
 		}).create(name);
+	}
+
+	public static abstract class DefaultNativeLibraryExtension implements NativeLibraryExtension {
 	}
 
 	public static NodeRegistration nativeLibraryVariant(VariantIdentifier<DefaultNativeLibraryVariant> identifier, DefaultNativeLibraryComponent component, Project project) {

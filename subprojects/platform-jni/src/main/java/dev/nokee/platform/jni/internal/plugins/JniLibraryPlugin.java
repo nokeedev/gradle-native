@@ -520,7 +520,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	public static NodeRegistration javaNativeInterfaceLibrary(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), JniLibraryComponentInternal.class, ProjectIdentifier.of(project));
 		assert identifier.isMainComponent();
-		return NodeRegistration.of(name, of(JavaNativeInterfaceLibrary.class))
+		return NodeRegistration.unmanaged(name, of(JavaNativeInterfaceLibrary.class), () -> project.getObjects().newInstance(DefaultJavaNativeInterfaceLibrary.class))
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class))).apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
 			.withComponent(IsComponent.tag())
 			.withComponent(createdUsing(of(JavaNativeInterfaceComponentVariants.class), () -> {
@@ -603,6 +603,9 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			.action(allDirectDescendants(mutate(of(ObjectiveCppSourceSet.class)))
 				.apply(executeUsingProjection(of(ObjectiveCppSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name)))::accept)))
 			;
+	}
+
+	public static abstract class DefaultJavaNativeInterfaceLibrary implements JavaNativeInterfaceLibrary {
 	}
 
 	private static boolean isGradleVersionGreaterOrEqualsTo6Dot3() {

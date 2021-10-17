@@ -86,7 +86,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 	public interface ObjectiveCLibrarySpec extends ComponentSpec {}
 
 	public static NodeRegistration objectiveCLibrary(String name, Project project) {
-		return new NativeLibraryComponentModelRegistrationFactory(ObjectiveCLibrary.class, project, (entity, path) -> {
+		return new NativeLibraryComponentModelRegistrationFactory(ObjectiveCLibrary.class, DefaultObjectiveCLibrary.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			// TODO: Should be created using ObjectiveCSourceSetSpec
@@ -116,5 +116,8 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCLibrarySources.class));
 		}).create(name).action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
 			.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)));
+	}
+
+	public static abstract class DefaultObjectiveCLibrary implements ObjectiveCLibrary {
 	}
 }
