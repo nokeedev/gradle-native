@@ -42,7 +42,7 @@ import static dev.nokee.platform.objectivecpp.internal.plugins.ObjectiveCppAppli
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCppApplicationTest implements SourceAwareComponentTester<ObjectiveCppApplication>, HasBaseNameTester, ComponentTester<ObjectiveCppApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies> {
+class ObjectiveCppApplicationTest implements SourceAwareComponentTester<ObjectiveCppApplication>, HasBaseNameTester, ComponentTester<ObjectiveCppApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, HasObjectiveCppSourcesTester {
 	private final ObjectiveCppApplication subject = createSubject("bacu");
 	@Getter @TempDir File testDirectory;
 

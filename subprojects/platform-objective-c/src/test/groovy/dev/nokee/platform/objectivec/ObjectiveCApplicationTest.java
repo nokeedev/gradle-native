@@ -42,7 +42,7 @@ import static dev.nokee.platform.objectivec.internal.plugins.ObjectiveCApplicati
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCApplicationTest implements SourceAwareComponentTester<ObjectiveCApplication>, HasBaseNameTester, ComponentTester<ObjectiveCApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies> {
+class ObjectiveCApplicationTest implements SourceAwareComponentTester<ObjectiveCApplication>, HasBaseNameTester, ComponentTester<ObjectiveCApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, HasObjectiveCSourcesTester {
 	private final ObjectiveCApplication subject = createSubject("jiro");
 	@Getter @TempDir File testDirectory;
 
