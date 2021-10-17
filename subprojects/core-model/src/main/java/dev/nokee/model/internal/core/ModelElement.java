@@ -24,4 +24,6 @@ public interface ModelElement extends Named {
 		return as(ModelType.of(type));
 	}
 	<T> DomainObjectProvider<T> as(ModelType<T> type);
+
+	boolean instanceOf(Class<?> type);
 }
