@@ -17,6 +17,7 @@ package dev.nokee.testing.xctest.internal.plugins;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Streams;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
@@ -30,6 +31,7 @@ import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -68,6 +70,7 @@ import org.gradle.util.GUtil;
 import javax.inject.Inject;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.once;
@@ -156,10 +159,20 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					.withComponent(managed(of(NativeApplicationSources.class)))
 					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
 					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
+					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, pp, ignored) -> {
+						if (path.child("sources").equals(pp)) {
+							project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (e, p, ignored1, ignored2, projection) -> {
+								if (path.isDescendant(p)) {
+									val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(path)))
+										.filter(it -> !it.isEmpty())
+										.map(StringUtils::capitalize)
+										.collect(Collectors.joining()));
+									registry.register(propertyFactory.create(path.child("sources").child(elementName), e));
+								}
+							}));
+						}
+					}))
 					.build());
-
-				registry.register(propertyFactory.create(path.child("sources").child("objectiveC"), ModelNodes.of(objectiveC)));
-				registry.register(propertyFactory.create(path.child("sources").child("headers"), ModelNodes.of(headers)));
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("binaries"))
@@ -274,10 +287,20 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					.withComponent(managed(of(NativeApplicationSources.class)))
 					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
 					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
+					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, pp, ignored) -> {
+						if (path.child("sources").equals(pp)) {
+							project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (e, p, ignored1, ignored2, projection) -> {
+								if (path.isDescendant(p)) {
+									val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(path)))
+										.filter(it -> !it.isEmpty())
+										.map(StringUtils::capitalize)
+										.collect(Collectors.joining()));
+									registry.register(propertyFactory.create(path.child("sources").child(elementName), e));
+								}
+							}));
+						}
+					}))
 					.build());
-
-				registry.register(propertyFactory.create(path.child("sources").child("objectiveC"), ModelNodes.of(objectiveC)));
-				registry.register(propertyFactory.create(path.child("sources").child("headers"), ModelNodes.of(headers)));
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("binaries"))

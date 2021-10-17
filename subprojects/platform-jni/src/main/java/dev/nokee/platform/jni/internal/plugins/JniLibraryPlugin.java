@@ -17,6 +17,8 @@ package dev.nokee.platform.jni.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Streams;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
@@ -36,6 +38,7 @@ import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlug
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.*;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -74,6 +77,7 @@ import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -549,10 +553,20 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					.withComponent(managed(of(JavaNativeInterfaceLibrarySources.class)))
 					.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
 					.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
+					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, pp, ignored) -> {
+						if (path.child("sources").equals(pp)) {
+							project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (e, p, ignored1, ignored2, projection) -> {
+								if (path.isDescendant(p)) {
+									val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(path)))
+										.filter(it -> !it.isEmpty())
+										.map(StringUtils::capitalize)
+										.collect(Collectors.joining()));
+									registry.register(propertyFactory.create(path.child("sources").child(elementName), e));
+								}
+							}));
+						}
+					}))
 					.build());
-
-				registry.register(propertyFactory.create(path.child("sources").child("jni"), ModelNodes.of(jni)));
-				registry.register(propertyFactory.create(path.child("sources").child("headers"), ModelNodes.of(headers)));
 
 				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
 				val dependencies = project.getObjects().newInstance(DefaultJavaNativeInterfaceLibraryComponentDependencies.class, dependencyContainer);
