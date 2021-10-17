@@ -28,6 +28,12 @@ gradlePlugin {
 	}
 }
 
+test {
+	dependencies {
+		implementation testFixtures(project(':platformBase'))
+	}
+}
+
 functionalTest {
 	dependencies {
 		pluginUnderTestMetadata project(':platformNative')

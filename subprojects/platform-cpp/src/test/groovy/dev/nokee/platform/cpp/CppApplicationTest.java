@@ -24,7 +24,10 @@ import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
+import dev.nokee.platform.base.testers.ComponentTester;
+import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -37,7 +40,8 @@ import java.util.stream.Stream;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.cpp.internal.plugins.CppApplicationPlugin.cppApplication;
 
-class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, BaseNameAwareComponentTester {
+class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, BaseNameAwareComponentTester, ComponentTester<CppApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies> {
+	private final CppApplication subject = createSubject("sari");
 	@Getter @TempDir File testDirectory;
 
 	@Override
@@ -59,5 +63,10 @@ class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, 
 		return Stream.of(
 			new SourcesUnderTest("cpp", CppSourceSet.class, "cppSources"),
 			new SourcesUnderTest("headers", NativeHeaderSet.class, "privateHeaders"));
+	}
+
+	@Override
+	public CppApplication subject() {
+		return subject;
 	}
 }

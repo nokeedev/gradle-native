@@ -25,7 +25,10 @@ import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
+import dev.nokee.platform.base.testers.ComponentTester;
+import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -41,7 +44,8 @@ import static dev.nokee.platform.objectivec.internal.plugins.ObjectiveCLibraryPl
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCLibraryTest implements SourceAwareComponentTester<ObjectiveCLibrary>, BaseNameAwareComponentTester {
+class ObjectiveCLibraryTest implements SourceAwareComponentTester<ObjectiveCLibrary>, BaseNameAwareComponentTester, ComponentTester<ObjectiveCLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies> {
+	private final ObjectiveCLibrary subject = createSubject("weqi");
 	@Getter @TempDir File testDirectory;
 
 	@Override
@@ -73,5 +77,10 @@ class ObjectiveCLibraryTest implements SourceAwareComponentTester<ObjectiveCLibr
 			hasItem(a.file("src/main/objc")));
 		assertThat(createSubject("test").getObjectiveCSources().getSourceDirectories(),
 			hasItem(a.file("src/test/objc")));
+	}
+
+	@Override
+	public ObjectiveCLibrary subject() {
+		return subject;
 	}
 }
