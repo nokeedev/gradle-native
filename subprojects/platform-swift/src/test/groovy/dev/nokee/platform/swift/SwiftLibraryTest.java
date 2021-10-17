@@ -23,7 +23,10 @@ import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
+import dev.nokee.platform.base.testers.ComponentTester;
+import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -36,7 +39,8 @@ import java.util.stream.Stream;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.swift.internal.plugins.SwiftLibraryPlugin.swiftLibrary;
 
-public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary>, BaseNameAwareComponentTester {
+public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary>, BaseNameAwareComponentTester, ComponentTester<SwiftLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies> {
+	private final SwiftLibrary subject = createSubject("peso");
 	@Getter @TempDir File testDirectory;
 
 	@Override
@@ -56,5 +60,10 @@ public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary
 	@Override
 	public Stream<SourcesUnderTest> provideSourceSetUnderTest() {
 		return Stream.of(new SourcesUnderTest("swift", SwiftSourceSet.class, "swiftSources"));
+	}
+
+	@Override
+	public SwiftLibrary subject() {
+		return subject;
 	}
 }

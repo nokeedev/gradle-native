@@ -25,7 +25,10 @@ import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
+import dev.nokee.platform.base.testers.ComponentTester;
+import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -41,7 +44,8 @@ import static dev.nokee.platform.objectivec.internal.plugins.ObjectiveCApplicati
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCApplicationTest implements SourceAwareComponentTester<ObjectiveCApplication>, BaseNameAwareComponentTester {
+class ObjectiveCApplicationTest implements SourceAwareComponentTester<ObjectiveCApplication>, BaseNameAwareComponentTester, ComponentTester<ObjectiveCApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies> {
+	private final ObjectiveCApplication subject = createSubject("jiro");
 	@Getter @TempDir File testDirectory;
 
 	@Override
@@ -72,5 +76,10 @@ class ObjectiveCApplicationTest implements SourceAwareComponentTester<ObjectiveC
 			hasItem(a.file("src/main/objc")));
 		assertThat(createSubject("test").getObjectiveCSources().getSourceDirectories(),
 			hasItem(a.file("src/test/objc")));
+	}
+
+	@Override
+	public ObjectiveCApplication subject() {
+		return subject;
 	}
 }

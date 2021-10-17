@@ -24,7 +24,10 @@ import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
+import dev.nokee.platform.base.testers.ComponentTester;
+import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -37,7 +40,8 @@ import java.util.stream.Stream;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.c.internal.plugins.CLibraryPlugin.cLibrary;
 
-class CLibraryTest implements SourceAwareComponentTester<CLibrary>, BaseNameAwareComponentTester {
+class CLibraryTest implements SourceAwareComponentTester<CLibrary>, BaseNameAwareComponentTester, ComponentTester<CLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies> {
+	private final CLibrary subject = createSubject("ledk");
 	@Getter @TempDir File testDirectory;
 
 	@Override
@@ -60,5 +64,10 @@ class CLibraryTest implements SourceAwareComponentTester<CLibrary>, BaseNameAwar
 			new SourcesUnderTest("c", CSourceSet.class, "cSources"),
 			new SourcesUnderTest("headers", NativeHeaderSet.class, "privateHeaders"),
 			new SourcesUnderTest("public", NativeHeaderSet.class, "publicHeaders"));
+	}
+
+	@Override
+	public CLibrary subject() {
+		return subject;
 	}
 }

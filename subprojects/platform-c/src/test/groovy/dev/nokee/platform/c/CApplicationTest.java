@@ -24,7 +24,10 @@ import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
+import dev.nokee.platform.base.testers.ComponentTester;
+import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -37,7 +40,8 @@ import java.util.stream.Stream;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.c.internal.plugins.CApplicationPlugin.cApplication;
 
-class CApplicationTest implements SourceAwareComponentTester<CApplication>, BaseNameAwareComponentTester {
+class CApplicationTest implements SourceAwareComponentTester<CApplication>, BaseNameAwareComponentTester, ComponentTester<CApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies> {
+	private final CApplication subject = createSubject("kdrj");
 	@Getter @TempDir File testDirectory;
 
 	@Override
@@ -59,5 +63,10 @@ class CApplicationTest implements SourceAwareComponentTester<CApplication>, Base
 		return Stream.of(
 			new SourcesUnderTest("c", CSourceSet.class, "cSources"),
 			new SourcesUnderTest("headers", NativeHeaderSet.class, "privateHeaders"));
+	}
+
+	@Override
+	public CApplication subject() {
+		return subject;
 	}
 }

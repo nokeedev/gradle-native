@@ -21,6 +21,7 @@ dependencies {
 	testImplementation testFixtures(project(':coreUtils'))
 
 	testFixturesApi testFixtures(project(':languageNative'))
+	testFixturesApi testFixtures(project(':coreUtils'))
 	testFixturesCompileOnly gradleApi(minimumGradleVersion)
 	testFixturesImplementation gradleFixtures()
 	testFixturesImplementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.release"
