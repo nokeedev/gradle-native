@@ -76,7 +76,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration cApplication(String name, Project project) {
-		return new NativeApplicationComponentModelRegistrationFactory(CApplication.class, project, (entity, path) -> {
+		return new NativeApplicationComponentModelRegistrationFactory(CApplication.class, DefaultCApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			// TODO: Should be created using CSourceSetSpec
@@ -97,5 +97,8 @@ public class CApplicationPlugin implements Plugin<Project> {
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), CApplicationSources.class));
 		}).create(name);
+	}
+
+	public static abstract class DefaultCApplication implements CApplication {
 	}
 }

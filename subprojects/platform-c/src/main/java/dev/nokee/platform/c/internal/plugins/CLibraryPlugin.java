@@ -73,7 +73,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration cLibrary(String name, Project project) {
-		return new NativeLibraryComponentModelRegistrationFactory(CLibrary.class, project, (entity, path) -> {
+		return new NativeLibraryComponentModelRegistrationFactory(CLibrary.class, DefaultCLibrary.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			// TODO: Should be created using CSourceSetSpec
@@ -102,5 +102,8 @@ public class CLibraryPlugin implements Plugin<Project> {
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), CLibrarySources.class));
 		}).create(name);
+	}
+
+	public static abstract class DefaultCLibrary implements CLibrary {
 	}
 }

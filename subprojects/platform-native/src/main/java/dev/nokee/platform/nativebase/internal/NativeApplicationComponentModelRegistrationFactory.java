@@ -54,18 +54,20 @@ import static dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPl
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.nativeApplicationProjection;
 
 public final class NativeApplicationComponentModelRegistrationFactory {
-	private final Class<? extends Component> componentType;
+	private final Class<Component> componentType;
+	private final Class<? extends Component> implementationComponentType;
 	private final BiConsumer<? super ModelNode, ? super ModelPath> sourceRegistration;
 	private final Project project;
 
-	public NativeApplicationComponentModelRegistrationFactory(Class<? extends Component> componentType, Project project, BiConsumer<? super ModelNode, ? super ModelPath> sourceRegistration) {
-		this.componentType = componentType;
+	public <T extends Component> NativeApplicationComponentModelRegistrationFactory(Class<? super T> componentType, Class<T> implementationComponentType, Project project, BiConsumer<? super ModelNode, ? super ModelPath> sourceRegistration) {
+		this.componentType = (Class<Component>) componentType;
+		this.implementationComponentType = implementationComponentType;
 		this.sourceRegistration = sourceRegistration;
 		this.project = project;
 	}
 
 	public NodeRegistration create(String name) {
-		return NodeRegistration.of(name, of(componentType))
+		return NodeRegistration.unmanaged(name, of(componentType), () -> project.getObjects().newInstance(implementationComponentType))
 			// TODO: Should configure FileCollection on CApplication
 			//   and link FileCollection to source sets
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))

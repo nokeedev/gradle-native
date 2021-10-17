@@ -75,7 +75,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration cppApplication(String name, Project project) {
-		return new NativeApplicationComponentModelRegistrationFactory(CppApplication.class, project, (entity, path) -> {
+		return new NativeApplicationComponentModelRegistrationFactory(CppApplication.class, DefaultCppApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			// TODO: Should be created using CppSourceSetSpec
@@ -96,5 +96,8 @@ public class CppApplicationPlugin implements Plugin<Project> {
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), CppApplicationSources.class));
 		}).create(name);
+	}
+
+	public static abstract class DefaultCppApplication implements CppApplication {
 	}
 }

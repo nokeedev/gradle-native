@@ -80,7 +80,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration objectiveCApplication(String name, Project project) {
-		return new NativeApplicationComponentModelRegistrationFactory(ObjectiveCApplication.class, project, (entity, path) -> {
+		return new NativeApplicationComponentModelRegistrationFactory(ObjectiveCApplication.class, DefaultObjectiveCApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			// TODO: Should be created using ObjectiveCSourceSetSpec
@@ -102,5 +102,8 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCApplicationSources.class));
 		}).create(name).action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
 			.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)));
+	}
+
+	public static abstract class DefaultObjectiveCApplication implements ObjectiveCApplication {
 	}
 }

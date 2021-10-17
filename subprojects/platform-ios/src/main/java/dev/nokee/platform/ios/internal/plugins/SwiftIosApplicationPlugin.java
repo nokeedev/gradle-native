@@ -72,7 +72,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration swiftIosApplication(String name, Project project) {
-		return new IosApplicationComponentModelRegistrationFactory(SwiftIosApplication.class, project, (entity, path) -> {
+		return new IosApplicationComponentModelRegistrationFactory(SwiftIosApplication.class, DefaultSwiftIosApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			// TODO: Should be created using SwiftSourceSetSpec
@@ -93,5 +93,8 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), SwiftIosApplicationSources.class));
 		}).create(name);
+	}
+
+	public static abstract class DefaultSwiftIosApplication implements SwiftIosApplication {
 	}
 }
