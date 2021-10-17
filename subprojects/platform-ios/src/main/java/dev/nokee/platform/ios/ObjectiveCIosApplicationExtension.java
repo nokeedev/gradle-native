@@ -19,7 +19,7 @@ import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.nativebase.HasPrivateHeaders;
+import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.language.objectivec.HasObjectiveCSources;
 

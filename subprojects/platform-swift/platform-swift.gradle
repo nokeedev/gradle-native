@@ -32,6 +32,7 @@ test {
 		implementation testFixtures(project(':platformBase'))
 		implementation testFixtures(project(':platformNative'))
 		implementation testFixtures(project(':coreModel'))
+		implementation testFixtures(project(':languageSwift'))
 		implementation gradleTestKit()
 	}
 }

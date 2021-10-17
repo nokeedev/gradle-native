@@ -16,6 +16,8 @@
 package dev.nokee.platform.cpp;
 
 import dev.nokee.language.cpp.HasCppSources;
+import dev.nokee.language.nativebase.HasPrivateHeaders;
+import dev.nokee.language.nativebase.HasPublicHeaders;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.SourceAwareComponent;

@@ -19,6 +19,8 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.HasCSourcesTester;
+import dev.nokee.language.nativebase.HasPrivateHeaders;
+import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -41,7 +43,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.c.internal.plugins.CApplicationPlugin.cApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CApplicationTest implements SourceAwareComponentTester<CApplication>, HasBaseNameTester, ComponentTester<CApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, HasCSourcesTester {
+class CApplicationTest implements SourceAwareComponentTester<CApplication>, HasBaseNameTester, ComponentTester<CApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, HasCSourcesTester, HasPrivateHeadersTester {
 	private final CApplication subject = createSubject("kdrj");
 	@Getter @TempDir File testDirectory;
 

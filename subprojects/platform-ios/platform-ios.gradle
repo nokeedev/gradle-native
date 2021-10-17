@@ -42,6 +42,8 @@ test {
 		implementation testFixtures(project(':languageBase'))
 		implementation testFixtures(project(':platformBase'))
 		implementation testFixtures(project(':coreModel'))
+		implementation testFixtures(project(':languageObjectiveC'))
+		implementation testFixtures(project(':languageSwift'))
 	}
 }
 

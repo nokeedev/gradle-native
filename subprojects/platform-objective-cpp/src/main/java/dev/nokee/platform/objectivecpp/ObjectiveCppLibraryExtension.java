@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.objectivecpp;
 
+import dev.nokee.language.nativebase.HasPrivateHeaders;
+import dev.nokee.language.nativebase.HasPublicHeaders;
 import dev.nokee.language.objectivecpp.HasObjectiveCppSources;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
