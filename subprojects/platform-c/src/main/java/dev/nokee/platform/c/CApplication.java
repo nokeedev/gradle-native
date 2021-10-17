@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.c;
 
+import dev.nokee.language.c.HasCSources;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;

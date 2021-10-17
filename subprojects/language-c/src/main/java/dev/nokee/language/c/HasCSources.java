@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.c;
+package dev.nokee.language.c;
 
-import dev.nokee.language.c.CSourceSet;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
@@ -23,7 +22,6 @@ import org.gradle.api.Action;
 /**
  * Represents a component that carries C sources.
  *
- * @see HasCSourceSet
  * @since 0.5
  */
 public interface HasCSources {

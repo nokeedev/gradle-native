@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.swift;
+package dev.nokee.language.objectivecpp;
 
-import dev.nokee.platform.base.testers.ConfigureMethodTester;
+import dev.nokee.internal.testing.testers.ConfigureMethodTester;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public interface HasSwiftSourcesTester {
-	HasSwiftSources subject();
+public interface HasObjectiveCppSourcesTester {
+	HasObjectiveCppSources subject();
 
 	@Test
-	default void hasSwiftSources() {
-		assertNotNull(subject().getSwiftSources());
+	default void hasObjectiveCppSources() {
+		assertNotNull(subject().getObjectiveCppSources());
 	}
 
 	@Test
-	default void canConfigureSwiftSources() {
-		ConfigureMethodTester.of(subject(), HasSwiftSources::getSwiftSources)
-			.testAction(HasSwiftSources::swiftSources)
-			.testClosure(HasSwiftSources::swiftSources);
+	default void canConfigureObjectiveCppSources() {
+		ConfigureMethodTester.of(subject(), HasObjectiveCppSources::getObjectiveCppSources)
+			.testAction(HasObjectiveCppSources::objectiveCppSources)
+			.testClosure(HasObjectiveCppSources::objectiveCppSources);
 	}
 }

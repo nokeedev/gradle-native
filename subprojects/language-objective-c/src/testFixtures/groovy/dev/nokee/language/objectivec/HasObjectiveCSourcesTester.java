@@ -13,31 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.c;
+package dev.nokee.language.objectivec;
 
-import dev.nokee.platform.base.testers.ConfigureMethodTester;
+import dev.nokee.internal.testing.testers.ConfigureMethodTester;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public interface HasCSourcesTester {
-	HasCSources subject();
+public interface HasObjectiveCSourcesTester {
+	HasObjectiveCSources subject();
 
 	@Test
-	default void hasCSources() {
-		assertNotNull(subject().getCSources());
+	default void hasObjectiveCSources() {
+		assertNotNull(subject().getObjectiveCSources());
 	}
 
 	@Test
-	default void canConfigureCSources() {
-		ConfigureMethodTester.of(subject(), HasCSources::getCSources)
-			.testAction(HasCSources::cSources)
-			.testClosure(HasCSources::cSources);
-	}
-
-	@Test
-	default void canAccessCSourcesAsGroovyProperty() {
-		assertEquals(subject().getCSources(), HasCSourcesGroovyDslHelper.getCSourcesAsGroovyProperty(subject()));
+	default void canConfigureObjectiveCSources() {
+		ConfigureMethodTester.of(subject(), HasObjectiveCSources::getObjectiveCSources)
+			.testAction(HasObjectiveCSources::objectiveCSources)
+			.testClosure(HasObjectiveCSources::objectiveCSources);
 	}
 }

@@ -13,16 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.c
+package dev.nokee.language.swift;
 
-import dev.nokee.language.c.CSourceSet
-import groovy.transform.PackageScope
-import org.junit.jupiter.api.Test
+import dev.nokee.internal.testing.testers.ConfigureMethodTester;
+import org.junit.jupiter.api.Test;
 
-@PackageScope
-class HasCSourcesGroovyDslHelper {
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public interface HasSwiftSourcesTester {
+	HasSwiftSources subject();
+
 	@Test
-	static CSourceSet getCSourcesAsGroovyProperty(HasCSources subject) {
-		return subject.cSources
+	default void hasSwiftSources() {
+		assertNotNull(subject().getSwiftSources());
+	}
+
+	@Test
+	default void canConfigureSwiftSources() {
+		ConfigureMethodTester.of(subject(), HasSwiftSources::getSwiftSources)
+			.testAction(HasSwiftSources::swiftSources)
+			.testClosure(HasSwiftSources::swiftSources);
 	}
 }

@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.testers;
 
 import com.google.common.reflect.TypeToken;
+import dev.nokee.internal.testing.testers.ConfigureMethodTester;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import org.junit.jupiter.api.Test;
