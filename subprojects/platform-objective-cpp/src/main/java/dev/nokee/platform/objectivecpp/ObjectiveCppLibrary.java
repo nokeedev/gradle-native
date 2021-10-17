@@ -29,7 +29,7 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
  *
  * @since 0.5
  */
-public interface ObjectiveCppLibrary extends ObjectiveCppLibraryExtension, DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<ObjectiveCppLibrarySources>, HasPrivateHeaders, HasPublicHeaders, HasObjectiveCppSources, BaseNameAwareComponent {
+public interface ObjectiveCppLibrary extends ObjectiveCppLibraryExtension, Component, DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<ObjectiveCppLibrarySources>, HasPrivateHeaders, HasPublicHeaders, HasObjectiveCppSources, BaseNameAwareComponent {
 	/**
 	 * {@inheritDoc}
 	 */

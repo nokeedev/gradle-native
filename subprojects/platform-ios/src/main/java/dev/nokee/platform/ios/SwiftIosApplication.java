@@ -20,7 +20,7 @@ import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.swift.HasSwiftSources;
 
-public interface SwiftIosApplication extends SwiftIosApplicationExtension, DependencyAwareComponent<NativeComponentDependencies>, VariantAwareComponent<IosApplication>, BinaryAwareComponent, SourceAwareComponent<SwiftIosApplicationSources>, HasSwiftSources, HasIosResources, BaseNameAwareComponent {
+public interface SwiftIosApplication extends SwiftIosApplicationExtension, Component, DependencyAwareComponent<NativeComponentDependencies>, VariantAwareComponent<IosApplication>, BinaryAwareComponent, SourceAwareComponent<SwiftIosApplicationSources>, HasSwiftSources, HasIosResources, BaseNameAwareComponent {
 	/**
 	 * {@inheritDoc}
 	 */
