@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.swift;
 
+import dev.nokee.language.swift.HasSwiftSources;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.SourceAwareComponent;

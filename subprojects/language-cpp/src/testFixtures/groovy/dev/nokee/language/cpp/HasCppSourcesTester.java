@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.objectivecpp;
+package dev.nokee.language.cpp;
 
-import dev.nokee.platform.base.testers.ConfigureMethodTester;
+import dev.nokee.internal.testing.testers.ConfigureMethodTester;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public interface HasObjectiveCppSourcesTester {
-	HasObjectiveCppSources subject();
+public interface HasCppSourcesTester {
+	HasCppSources subject();
 
 	@Test
-	default void hasObjectiveCppSources() {
-		assertNotNull(subject().getObjectiveCppSources());
+	default void hasCppSources() {
+		assertNotNull(subject().getCppSources());
 	}
 
 	@Test
-	default void canConfigureObjectiveCppSources() {
-		ConfigureMethodTester.of(subject(), HasObjectiveCppSources::getObjectiveCppSources)
-			.testAction(HasObjectiveCppSources::objectiveCppSources)
-			.testClosure(HasObjectiveCppSources::objectiveCppSources);
+	default void canConfigureCppSources() {
+		ConfigureMethodTester.of(subject(), HasCppSources::getCppSources)
+			.testAction(HasCppSources::cppSources)
+			.testClosure(HasCppSources::cppSources);
 	}
 }

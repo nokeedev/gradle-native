@@ -13,25 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.cpp;
+package dev.nokee.language.c
 
-import dev.nokee.platform.base.testers.ConfigureMethodTester;
-import org.junit.jupiter.api.Test;
+import groovy.transform.PackageScope
+import org.junit.jupiter.api.Test
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-public interface HasCppSourcesTester {
-	HasCppSources subject();
-
+@PackageScope
+class HasCSourcesGroovyDslHelper {
 	@Test
-	default void hasCppSources() {
-		assertNotNull(subject().getCppSources());
-	}
-
-	@Test
-	default void canConfigureCppSources() {
-		ConfigureMethodTester.of(subject(), HasCppSources::getCppSources)
-			.testAction(HasCppSources::cppSources)
-			.testClosure(HasCppSources::cppSources);
+	static CSourceSet getCSourcesAsGroovyProperty(HasCSources subject) {
+		return subject.cSources
 	}
 }

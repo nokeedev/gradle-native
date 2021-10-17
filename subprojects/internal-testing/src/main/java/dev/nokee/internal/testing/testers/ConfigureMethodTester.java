@@ -1,17 +1,32 @@
-package dev.nokee.platform.base.testers;
+/*
+ * Copyright 2021 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package dev.nokee.internal.testing.testers;
 
 import dev.nokee.utils.ActionTestUtils;
 import dev.nokee.utils.ClosureTestUtils;
+import dev.nokee.utils.FunctionalInterfaceMatchers;
 import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
+import org.hamcrest.Matchers;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
@@ -32,7 +47,7 @@ public final class ConfigureMethodTester<T, U> {
 		val action = ActionTestUtils.mockAction();
 		methodUnderTest.accept(subject, action);
 		assertThat("can configure element using action",
-			action, calledOnceWith(singleArgumentOf(elementToConfigure())));
+			action, FunctionalInterfaceMatchers.calledOnceWith(FunctionalInterfaceMatchers.singleArgumentOf(elementToConfigure())));
 		return this;
 	}
 
@@ -41,9 +56,9 @@ public final class ConfigureMethodTester<T, U> {
 		methodUnderTest.accept(subject, closure);
 		assertAll("can configure element using closure",
 			() -> assertThat("closure is called once with element to configure as first argument",
-				closure, calledOnceWith(singleArgumentOf(elementToConfigure()))),
+				closure, FunctionalInterfaceMatchers.calledOnceWith(FunctionalInterfaceMatchers.singleArgumentOf(elementToConfigure()))),
 			() -> assertThat("closure is called once with delegate of element to configure and delegate first strategy",
-				closure, calledOnceWith(allOf(delegateOf(elementToConfigure()), delegateFirstStrategy())))
+				closure, FunctionalInterfaceMatchers.calledOnceWith(Matchers.allOf(FunctionalInterfaceMatchers.delegateOf(elementToConfigure()), FunctionalInterfaceMatchers.delegateFirstStrategy())))
 		);
 		return this;
 	}
