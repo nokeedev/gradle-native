@@ -31,8 +31,11 @@ import dev.nokee.platform.ios.SwiftIosApplicationSources;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.IosApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
+import dev.nokee.platform.swift.HasSwiftSourceSet;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
+import groovy.lang.Closure;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
@@ -40,8 +43,10 @@ import org.gradle.util.GUtil;
 
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.ios.internal.plugins.ObjectiveCIosApplicationPlugin.configureBuildVariants;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
+import static org.gradle.util.ConfigureUtil.configureUsing;
 
 public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -96,5 +101,19 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultSwiftIosApplication implements SwiftIosApplication {
+		@Override
+		public SwiftSourceSet getSwiftSources() {
+			return ((HasSwiftSourceSet) sourceViewOf(this)).getSwift().get();
+		}
+
+		@Override
+		public void swiftSources(Action<? super SwiftSourceSet> action) {
+			((HasSwiftSourceSet) sourceViewOf(this)).getSwift().configure(action);
+		}
+
+		@Override
+		public void swiftSources(@SuppressWarnings("rawtypes") Closure closure) {
+			swiftSources(configureUsing(closure));
+		}
 	}
 }

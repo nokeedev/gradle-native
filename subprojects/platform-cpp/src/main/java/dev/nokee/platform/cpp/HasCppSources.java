@@ -20,9 +20,6 @@ import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 
-import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static org.gradle.util.ConfigureUtil.configureUsing;
-
 /**
  * Represents a component that carries C++ sources.
  *
@@ -38,9 +35,7 @@ public interface HasCppSources {
 	 * @return a source set containing the C++ sources of this component, never null
 	 * @see CppSourceSet
 	 */
-	default CppSourceSet getCppSources() {
-		return ((HasCppSourceSet) sourceViewOf(this)).getCpp().get();
-	}
+	CppSourceSet getCppSources();
 
 	/**
 	 * Configures the C++ sources of this component using the specified configuration action.
@@ -48,17 +43,8 @@ public interface HasCppSources {
 	 * @param action  the configuration action, must not be null
 	 * @see #getCppSources()
 	 */
-	default void cppSources(Action<? super CppSourceSet> action) {
-		((HasCppSourceSet) sourceViewOf(this)).getCpp().configure(action);
-	}
+	void cppSources(Action<? super CppSourceSet> action);
 
-	/**
-	 * Configures the C++ sources of this component using the specified configuration closure.
-	 *
-	 * @param closure  the configuration closure, must not be null
-	 * @see #getCppSources()
-	 */
-	default void cppSources(@DelegatesTo(value = CppSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		cppSources(configureUsing(closure));
-	}
+	/** @see #cppSources(Action) */
+	void cppSources(@DelegatesTo(value = CppSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

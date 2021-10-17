@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.c;
 
-import dev.nokee.language.c.CSourceSet;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;
@@ -33,10 +32,5 @@ public interface CApplication extends CApplicationExtension, DependencyAwareComp
 	 */
 	default NativeApplicationComponentDependencies getDependencies() {
 		return ModelProperties.getProperty(this, "dependencies").as(NativeApplicationComponentDependencies.class).get();
-	}
-
-	// For Groovy DSL
-	default CSourceSet getcSources() {
-		return getCSources();
 	}
 }
