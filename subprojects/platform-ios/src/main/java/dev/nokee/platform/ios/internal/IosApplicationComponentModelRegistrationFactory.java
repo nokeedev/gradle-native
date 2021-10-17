@@ -152,7 +152,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val component = ModelNodeUtils.get(entity, DefaultIosApplicationComponent.class);
-				component.getDevelopmentVariant().convention(project.getProviders().provider(new DevelopmentVariantConvention<>(() -> component.getVariants().get())));
 				component.finalizeValue();
 
 				val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
@@ -303,6 +302,8 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 	private static DefaultIosApplicationComponent create(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultIosApplicationComponent.class, ProjectIdentifier.of(project));
-		return new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
+		val result = new DefaultIosApplicationComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
+		result.getDevelopmentVariant().convention(project.getProviders().provider(new DevelopmentVariantConvention<>(() -> result.getVariants().get())));
+		return result;
 	}
 }
