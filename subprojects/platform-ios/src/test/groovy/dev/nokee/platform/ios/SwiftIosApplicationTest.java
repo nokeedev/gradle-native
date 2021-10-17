@@ -23,7 +23,10 @@ import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
+import dev.nokee.platform.base.testers.ComponentTester;
+import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -36,7 +39,8 @@ import java.util.stream.Stream;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.ios.internal.plugins.SwiftIosApplicationPlugin.swiftIosApplication;
 
-class SwiftIosApplicationTest implements SourceAwareComponentTester<SwiftIosApplication>, BaseNameAwareComponentTester {
+class SwiftIosApplicationTest implements SourceAwareComponentTester<SwiftIosApplication>, BaseNameAwareComponentTester, ComponentTester<SwiftIosApplication>, DependencyAwareComponentTester<NativeComponentDependencies> {
+	private final SwiftIosApplication subject = createSubject("foma");
 	@Getter @TempDir File testDirectory;
 
 	@Override
@@ -56,5 +60,10 @@ class SwiftIosApplicationTest implements SourceAwareComponentTester<SwiftIosAppl
 	@Override
 	public Stream<SourcesUnderTest> provideSourceSetUnderTest() {
 		return Stream.of(new SourcesUnderTest("swift", SwiftSourceSet.class, "swiftSources"), new SourcesUnderTest("resources", IosResourceSet.class, "resources"));
+	}
+
+	@Override
+	public SwiftIosApplication subject() {
+		return subject;
 	}
 }

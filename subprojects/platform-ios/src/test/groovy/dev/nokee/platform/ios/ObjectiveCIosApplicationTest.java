@@ -25,7 +25,10 @@ import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
+import dev.nokee.platform.base.testers.ComponentTester;
+import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -41,7 +44,8 @@ import static dev.nokee.platform.ios.internal.plugins.ObjectiveCIosApplicationPl
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCIosApplicationTest implements SourceAwareComponentTester<ObjectiveCIosApplication>, BaseNameAwareComponentTester {
+class ObjectiveCIosApplicationTest implements SourceAwareComponentTester<ObjectiveCIosApplication>, BaseNameAwareComponentTester, ComponentTester<ObjectiveCIosApplication>, DependencyAwareComponentTester<NativeComponentDependencies> {
+	private final ObjectiveCIosApplication subject = createSubject("bovi");
 	@Getter @TempDir File testDirectory;
 
 	@Override
@@ -70,5 +74,10 @@ class ObjectiveCIosApplicationTest implements SourceAwareComponentTester<Objecti
 			hasItem(a.file("src/main/objc")));
 		assertThat(createSubject("test").getObjectiveCSources().getSourceDirectories(),
 			hasItem(a.file("src/test/objc")));
+	}
+
+	@Override
+	public ObjectiveCIosApplication subject() {
+		return subject;
 	}
 }

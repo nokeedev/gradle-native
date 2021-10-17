@@ -24,7 +24,10 @@ import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.testers.BaseNameAwareComponentTester;
+import dev.nokee.platform.base.testers.ComponentTester;
+import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
 import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -37,7 +40,8 @@ import java.util.stream.Stream;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.cpp.internal.plugins.CppLibraryPlugin.cppLibrary;
 
-class CppLibraryTest implements SourceAwareComponentTester<CppLibrary>, BaseNameAwareComponentTester {
+class CppLibraryTest implements SourceAwareComponentTester<CppLibrary>, BaseNameAwareComponentTester, ComponentTester<CppLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies> {
+	private final CppLibrary subject = createSubject("gori");
 	@Getter @TempDir File testDirectory;
 
 	@Override
@@ -60,5 +64,10 @@ class CppLibraryTest implements SourceAwareComponentTester<CppLibrary>, BaseName
 			new SourcesUnderTest("cpp", CppSourceSet.class, "cppSources"),
 			new SourcesUnderTest("headers", NativeHeaderSet.class, "privateHeaders"),
 			new SourcesUnderTest("public", NativeHeaderSet.class, "publicHeaders"));
+	}
+
+	@Override
+	public CppLibrary subject() {
+		return subject;
 	}
 }
