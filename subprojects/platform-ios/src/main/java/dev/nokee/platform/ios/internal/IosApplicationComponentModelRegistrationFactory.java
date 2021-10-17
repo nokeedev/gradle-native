@@ -140,8 +140,8 @@ public final class IosApplicationComponentModelRegistrationFactory {
 					.withComponent(path.child("binaries"))
 					.withComponent(IsModelProperty.tag())
 					.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(project.getProviders(), () -> ModelStates.finalize(entity))))))
-					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.ofAny(projectionOf(Configuration.class)), (e, p, ignored1, ignored2, projection) -> {
-						if (path.isDirectDescendant(p)) {
+					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.ofAny(projectionOf(Binary.class)), (e, p, ignored1, ignored2, projection) -> {
+						if (path.isDescendant(p)) {
 							registry.register(propertyFactory.create(path.child("binaries").child(p.getName()), e));
 						}
 					}))
