@@ -22,7 +22,6 @@ import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -30,7 +29,6 @@ import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Subject(ObjectiveCLanguagePlugin.class)
 class ObjectiveCLanguagePluginTest {
 	@Test
 	void appliesCppLanguageBasePlugin() {

@@ -18,7 +18,6 @@ package dev.nokee.platform.base.internal.dependencies;
 import com.google.common.testing.EqualsTester;
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;
@@ -29,7 +28,6 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Subject(ProjectConfigurationActions.class)
 class ProjectConfigurationActions_ExtendsFromTest {
 	@Test
 	void canConfigureExtendsFromSingleConfiguration() {

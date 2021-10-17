@@ -18,7 +18,6 @@ package dev.nokee.model.internal.core;
 import com.google.common.testing.EqualsTester;
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static com.google.common.base.Predicates.alwaysFalse;
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
@@ -36,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
-@Subject(NodePredicate.class)
 class NodePredicate_SelfTest {
 	@Test
 	void canCreateSpecMatchingSelf() {

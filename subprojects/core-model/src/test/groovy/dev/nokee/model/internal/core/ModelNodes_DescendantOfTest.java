@@ -17,7 +17,6 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
 import static dev.nokee.model.internal.core.ModelPath.path;
@@ -29,7 +28,6 @@ import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Subject(ModelNodes.class)
 class ModelNodes_DescendantOfTest {
 	@Test
 	void canDetectDirectDescendantNode() {

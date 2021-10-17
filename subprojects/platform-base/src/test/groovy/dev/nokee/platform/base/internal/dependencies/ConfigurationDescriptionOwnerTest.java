@@ -19,7 +19,6 @@ import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.platform.base.internal.ComponentName;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createChildProject;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
@@ -29,7 +28,6 @@ import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescrip
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 
-@Subject(ConfigurationDescription.Owner.class)
 class ConfigurationDescriptionOwnerTest {
 	@Test
 	void thisProjectOwner() {

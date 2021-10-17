@@ -18,14 +18,13 @@ package dev.nokee.utils;
 import com.google.common.testing.EqualsTester;
 import org.gradle.api.Action;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
-import static dev.nokee.utils.ActionUtils.*;
+import static dev.nokee.utils.ActionUtils.doNothing;
+import static dev.nokee.utils.ActionUtils.doesSomething;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-@Subject(ActionUtils.class)
 class ActionUtils_DoNothingTest {
 	@Test
 	void doesNothingForAnyObjectInput() {

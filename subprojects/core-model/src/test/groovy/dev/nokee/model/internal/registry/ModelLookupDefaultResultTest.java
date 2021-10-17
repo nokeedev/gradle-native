@@ -21,7 +21,6 @@ import dev.nokee.model.internal.core.ModelNodeUtils;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import spock.lang.Subject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,6 @@ import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 
-@Subject(ModelLookupDefaultResult.class)
 class ModelLookupDefaultResultTest {
 	private final ModelNode n0 = node("n0");
 	private final ModelNode n1 = node("n1");

@@ -15,15 +15,13 @@
  */
 package dev.nokee.language.base;
 
-import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.internal.testing.FileSystemWorkspace;
-import dev.nokee.language.base.internal.BridgedLanguageSourceSetProjection;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.testers.LanguageSourceSetTester;
 import lombok.val;
 import org.gradle.api.file.SourceDirectorySet;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import spock.lang.Subject;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +35,6 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
-@Subject(BridgedLanguageSourceSetProjection.class)
 public class BridgedSourceSetTest extends LanguageSourceSetTester<LanguageSourceSet> {
 	@Override
 	public LanguageSourceSet createSubject() {

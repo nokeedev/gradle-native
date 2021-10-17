@@ -19,7 +19,6 @@ import com.google.common.testing.EqualsTester;
 import lombok.val;
 import org.gradle.internal.Cast;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.internal.Factories.constant;
 import static dev.nokee.internal.Factories.memoize;
@@ -28,7 +27,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
 import static org.mockito.Mockito.*;
 
-@Subject(Factories.class)
 class Factories_MemoizeTest {
 	@Test
 	void callsDelegateFactoryOnlyOnce() {

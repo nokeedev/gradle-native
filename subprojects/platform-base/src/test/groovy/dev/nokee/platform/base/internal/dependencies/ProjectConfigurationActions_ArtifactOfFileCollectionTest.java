@@ -26,7 +26,6 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.bundling.Zip;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import spock.lang.Subject;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -41,7 +40,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Subject(ProjectConfigurationActions.class)
 class ProjectConfigurationActions_ArtifactOfFileCollectionTest {
 	private final TaskContainer taskContainer = rootProject().getTasks();
 	@TempDir Path testDirectory;

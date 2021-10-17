@@ -22,7 +22,6 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import spock.lang.Subject;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,7 +35,6 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.io.FileMatchers.aFileNamed;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Subject(ProjectConfigurationActions.class)
 class ProjectConfigurationActions_ArtifactIfExistsTest {
 	@TempDir Path testDirectory;
 

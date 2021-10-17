@@ -16,13 +16,11 @@
 package dev.nokee.model.internal.type;
 
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelType.typeOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Subject(ModelType.class)
 class ModelType_TypeOfTest {
 	@Test
 	void canCreateModelTypeOfInstance() {

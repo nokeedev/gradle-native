@@ -17,7 +17,6 @@ package dev.nokee.model.internal.core;
 
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,6 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Subject(ModelNodeContext.class)
 class ModelNodeContext_RunnableTest {
 	private final ModelNode node = node("x.y.z");
 	private final ModelNodeContext subject = ModelNodeContext.of(node);

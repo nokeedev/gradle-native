@@ -18,7 +18,6 @@ package dev.nokee.internal;
 import com.google.common.testing.EqualsTester;
 import org.gradle.internal.Cast;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.internal.Factories.asSupplier;
 import static dev.nokee.internal.Factories.constant;
@@ -27,7 +26,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
 import static org.mockito.Mockito.*;
 
-@Subject(Factories.class)
 class Factories_AsSupplierTest {
 	@Test
 	void callsFactoryOnGet() {

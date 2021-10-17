@@ -20,7 +20,6 @@ import dev.nokee.model.KnownDomainObject;
 import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import java.util.ArrayList;
 
@@ -29,7 +28,6 @@ import static dev.nokee.model.internal.core.ModelActions.initialize;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
-import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.created;
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.initialized;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -37,7 +35,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Subject(ModelInitializerAction.class)
 class ModelInitializerActionTest {
 	@Test
 	void executesOnlyIfNodeStateIsCreated() {

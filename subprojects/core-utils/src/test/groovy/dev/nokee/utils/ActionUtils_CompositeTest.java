@@ -18,7 +18,6 @@ package dev.nokee.utils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +28,6 @@ import static dev.nokee.utils.ActionUtils.doNothing;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@Subject(ActionUtils.class)
 class ActionUtils_CompositeTest {
 	@Test
 	void canComposeActionsUsingVarargs() {

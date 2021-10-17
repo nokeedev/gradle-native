@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.testing.EqualsTester;
 import org.gradle.api.Transformer;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import java.util.List;
 import java.util.Set;
@@ -35,7 +34,6 @@ import static java.util.Collections.emptySet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@Subject(TransformerUtils.class)
 class TransformerUtils_TransformEachTest {
 	@Test
 	void canTransformElementsOneToOne() {

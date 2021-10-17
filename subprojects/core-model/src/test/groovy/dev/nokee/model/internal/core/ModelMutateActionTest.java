@@ -20,12 +20,12 @@ import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import java.util.ArrayList;
 
 import static dev.nokee.internal.testing.ExecuteWith.*;
-import static dev.nokee.model.internal.core.ModelActions.*;
+import static dev.nokee.model.internal.core.ModelActions.initialize;
+import static dev.nokee.model.internal.core.ModelActions.mutate;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.realized;
@@ -36,7 +36,6 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Subject(ModelMutateAction.class)
 class ModelMutateActionTest {
 	@Test
 	void executesOnlyIfNodeStateIsRealized() {

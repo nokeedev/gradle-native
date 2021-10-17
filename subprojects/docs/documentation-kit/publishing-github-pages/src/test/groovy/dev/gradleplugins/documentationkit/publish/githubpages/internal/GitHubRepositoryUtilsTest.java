@@ -33,7 +33,6 @@ import static org.hamcrest.io.FileMatchers.aFileNamed;
 import static org.hamcrest.io.FileMatchers.anExistingFile;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Subject(GitHubRepositoryUtils.class)
 class GitHubRepositoryUtilsTest {
 	GitFileRepository repo;
 	@TempDir

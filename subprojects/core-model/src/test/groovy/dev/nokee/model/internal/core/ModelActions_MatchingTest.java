@@ -18,7 +18,6 @@ package dev.nokee.model.internal.core;
 import com.google.common.testing.EqualsTester;
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelSpecs.satisfyAll;
@@ -30,7 +29,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 import static org.mockito.Mockito.*;
 
-@Subject(ModelActions.class)
 class ModelActions_MatchingTest {
 	@Test
 	void executesActionIfPredicateIsTrue() {

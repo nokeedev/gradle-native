@@ -18,9 +18,7 @@ package dev.nokee.platform.base.internal.dependencies;
 import com.google.common.testing.NullPointerTester;
 import org.gradle.api.attributes.Attribute;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
-@Subject(ProjectConfigurationActions.class)
 class ProjectConfigurationActions_NullTest {
 	@Test
 	@SuppressWarnings("UnstableApiUsage")

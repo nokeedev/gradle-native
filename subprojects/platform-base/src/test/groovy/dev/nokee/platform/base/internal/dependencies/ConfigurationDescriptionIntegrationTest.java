@@ -18,7 +18,6 @@ package dev.nokee.platform.base.internal.dependencies;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import java.util.function.Supplier;
 
@@ -32,7 +31,6 @@ import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescrip
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-@Subject(ConfigurationDescription.class)
 class ConfigurationDescriptionIntegrationTest {
 	@Test
 	void descriptionOfConfigurationOwnedByProject() {

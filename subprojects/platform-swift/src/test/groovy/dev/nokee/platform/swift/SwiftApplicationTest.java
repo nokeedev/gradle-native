@@ -29,7 +29,6 @@ import lombok.Getter;
 import lombok.val;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.io.TempDir;
-import spock.lang.Subject;
 
 import java.io.File;
 import java.util.stream.Stream;
@@ -37,7 +36,6 @@ import java.util.stream.Stream;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.swift.internal.plugins.SwiftApplicationPlugin.swiftApplication;
 
-@Subject(SwiftApplication.class)
 public class SwiftApplicationTest implements SourceAwareComponentTester<SwiftApplication>, BaseNameAwareComponentTester {
 	@Getter @TempDir File testDirectory;
 

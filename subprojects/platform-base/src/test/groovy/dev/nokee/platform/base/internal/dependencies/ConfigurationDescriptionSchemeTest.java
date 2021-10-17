@@ -16,7 +16,6 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.platform.base.internal.ComponentName.ofMain;
@@ -27,7 +26,6 @@ import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescrip
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-@Subject(ConfigurationDescriptionScheme.class)
 class ConfigurationDescriptionSchemeTest {
 	@Test
 	void canCreateDescriptionSchemeOwnedByProject() {

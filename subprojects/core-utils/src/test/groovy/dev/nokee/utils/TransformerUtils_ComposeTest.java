@@ -17,7 +17,6 @@ package dev.nokee.utils;
 
 import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.utils.TransformerTestUtils.aTransformer;
 import static dev.nokee.utils.TransformerTestUtils.anotherTransformer;
@@ -26,7 +25,6 @@ import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@Subject(TransformerUtils.class)
 class TransformerUtils_ComposeTest {
 	@Test
 	void canComposeTransformers() {

@@ -21,7 +21,6 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import java.util.function.BiConsumer;
 
@@ -33,7 +32,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
 
-@Subject(ProjectConfigurationActions.class)
 class ProjectConfigurationActions_UsingObjectFactoryTest {
 	@Test
 	void canUseObjectFactoryInDelegateConfigurationAction() {

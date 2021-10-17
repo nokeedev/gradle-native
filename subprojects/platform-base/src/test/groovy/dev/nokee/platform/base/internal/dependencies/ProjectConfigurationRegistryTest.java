@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
-import spock.lang.Subject;
 
 import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
@@ -39,7 +38,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-@Subject(ProjectConfigurationRegistry.class)
 class ProjectConfigurationRegistryTest {
 	private static final Action<Configuration> DO_SOMETHING = t -> {};
 

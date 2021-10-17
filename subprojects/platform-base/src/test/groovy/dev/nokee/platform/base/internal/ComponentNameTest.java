@@ -18,7 +18,6 @@ package dev.nokee.platform.base.internal;
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.platform.base.internal.ComponentName.of;
 import static dev.nokee.platform.base.internal.ComponentName.ofMain;
@@ -27,7 +26,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Subject(ComponentName.class)
 class ComponentNameTest {
 	@Test
 	@SuppressWarnings("UnstableApiUsage")

@@ -23,7 +23,6 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.gradle.internal.Cast;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import java.util.function.Supplier;
 
@@ -33,7 +32,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 import static org.mockito.Mockito.*;
 
-@Subject(SupplyingModelProjection.class)
 class SupplyingModelProjectionTest extends TypeCompatibilityModelProjectionSupportTest {
 	private static final ModelType<MyType> TYPE = ModelType.of(MyType.class);
 	private static final MyType INSTANCE = new MyType();

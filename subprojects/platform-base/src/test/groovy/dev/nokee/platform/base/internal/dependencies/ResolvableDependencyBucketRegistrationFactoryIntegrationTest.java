@@ -24,7 +24,6 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createChildProject;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
@@ -32,13 +31,12 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 import static dev.nokee.model.internal.state.ModelState.Realized;
 import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescriptionScheme.forComponent;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationRegistry.forProject;
 import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.*;
+import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationRegistry.forProject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 
-@Subject(ResolvableDependencyBucketRegistrationFactory.class)
 class ResolvableDependencyBucketRegistrationFactoryIntegrationTest implements DependencyBucketTester<ResolvableDependencyBucket> {
 	@Override
 	public ResolvableDependencyBucket createSubject(Project project) {

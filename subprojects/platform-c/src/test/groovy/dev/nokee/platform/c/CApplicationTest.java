@@ -15,8 +15,8 @@
  */
 package dev.nokee.platform.c;
 
-import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.fixtures.NativeComponentMatchers;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
@@ -30,16 +30,13 @@ import lombok.Getter;
 import lombok.val;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.io.TempDir;
-import spock.lang.Subject;
 
 import java.io.File;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 import static dev.nokee.platform.c.internal.plugins.CApplicationPlugin.cApplication;
 
-@Subject(CApplication.class)
 class CApplicationTest implements SourceAwareComponentTester<CApplication>, BaseNameAwareComponentTester {
 	@Getter @TempDir File testDirectory;
 

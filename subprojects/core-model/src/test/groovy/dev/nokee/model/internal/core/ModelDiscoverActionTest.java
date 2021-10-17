@@ -21,7 +21,6 @@ import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import java.util.ArrayList;
 
@@ -40,7 +39,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Subject(ModelDiscoverAction.class)
 class ModelDiscoverActionTest {
 	@Test
 	void executesOnlyIfNodeStateIsRegistered() {

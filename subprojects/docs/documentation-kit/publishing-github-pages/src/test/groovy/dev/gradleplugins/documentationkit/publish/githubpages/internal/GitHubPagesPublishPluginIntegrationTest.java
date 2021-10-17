@@ -20,7 +20,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 
-@Subject(GitHubPagesPublishPlugin.class)
 class GitHubPagesPublishPluginIntegrationTest {
 	private final Project project = ProjectBuilder.builder().build();
 

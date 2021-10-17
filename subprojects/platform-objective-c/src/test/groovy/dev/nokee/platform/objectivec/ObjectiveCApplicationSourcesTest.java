@@ -23,14 +23,12 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.val;
-import spock.lang.Subject;
 
 import java.util.stream.Stream;
 
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.objectivec.internal.plugins.ObjectiveCApplicationPlugin.objectiveCApplication;
 
-@Subject(ObjectiveCApplicationSources.class)
 class ObjectiveCApplicationSourcesTest implements ComponentSourcesTester<ObjectiveCApplicationSources> {
 	@Override
 	public ObjectiveCApplicationSources createSubject() {

@@ -21,7 +21,6 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static dev.nokee.scripts.testing.DefaultImporterMatchers.hasDefaultImportFor;
@@ -29,7 +28,6 @@ import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Subject(ObjectiveCppLanguageBasePlugin.class)
 class ObjectiveCppLanguageBasePluginTest {
 	@Test
 	void appliesLanguageBasePlugin() {

@@ -32,7 +32,6 @@ import lombok.val;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import spock.lang.Subject;
 
 import java.io.File;
 import java.util.stream.Stream;
@@ -42,7 +41,6 @@ import static dev.nokee.platform.objectivecpp.internal.plugins.ObjectiveCppAppli
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-@Subject(ObjectiveCppApplication.class)
 class ObjectiveCppApplicationTest implements SourceAwareComponentTester<ObjectiveCppApplication>, BaseNameAwareComponentTester {
 	@Getter @TempDir File testDirectory;
 

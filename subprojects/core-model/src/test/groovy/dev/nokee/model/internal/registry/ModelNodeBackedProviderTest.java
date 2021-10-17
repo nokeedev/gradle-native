@@ -22,7 +22,6 @@ import dev.nokee.model.internal.state.ModelStates;
 import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import java.util.function.Function;
 
@@ -33,7 +32,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
 
-@Subject(ModelNodeBackedProvider.class)
 public class ModelNodeBackedProviderTest {
 	private <T> DomainObjectProvider<T> provider(Class<T> type, ModelNode node) {
 		return new ModelNodeBackedProvider<>(of(type), node);

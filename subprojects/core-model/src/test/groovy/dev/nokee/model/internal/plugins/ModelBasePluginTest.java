@@ -26,12 +26,10 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Subject(ModelBasePlugin.class)
 class ModelBasePluginTest {
 	private final Project project = ProjectTestUtils.rootProject();
 

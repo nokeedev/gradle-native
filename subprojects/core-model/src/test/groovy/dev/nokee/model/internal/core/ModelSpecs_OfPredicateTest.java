@@ -17,7 +17,6 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static com.google.common.base.Predicates.alwaysTrue;
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
@@ -30,7 +29,6 @@ import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Subject(ModelSpecs.class)
 class ModelSpecs_OfPredicateTest {
 	private final ModelSpec subject = of(withPath(path("po.ta.to")));
 

@@ -22,7 +22,6 @@ import dev.nokee.model.internal.core.ModelProjections;
 import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import java.util.function.Function;
 
@@ -32,7 +31,6 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 
-@Subject(ModelNodeBackedKnownDomainObject.class)
 class ModelNodeBackedKnownDomainObjectTest implements KnownDomainObjectTester<Object> {
 	private final Object myTypeInstance = new Object();
 	private final ModelNode node = node("foo", ModelProjections.ofInstance(myTypeInstance));

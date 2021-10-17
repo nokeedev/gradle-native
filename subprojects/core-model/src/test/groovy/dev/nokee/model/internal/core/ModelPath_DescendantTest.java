@@ -16,14 +16,12 @@
 package dev.nokee.model.internal.core;
 
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Subject(ModelPath.class)
 class ModelPath_DescendantTest {
 	@Test
 	void directDescendantAreDetectedAsDescendant() {

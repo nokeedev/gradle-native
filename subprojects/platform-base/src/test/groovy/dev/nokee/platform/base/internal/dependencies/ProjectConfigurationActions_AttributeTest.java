@@ -23,7 +23,6 @@ import org.gradle.api.Named;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Attribute;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;
@@ -33,7 +32,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Subject(ProjectConfigurationActions.class)
 class ProjectConfigurationActions_AttributeTest {
 	private static final Attribute<Named> ATTRIBUTE = Attribute.of("com.example.attribute", Named.class);
 

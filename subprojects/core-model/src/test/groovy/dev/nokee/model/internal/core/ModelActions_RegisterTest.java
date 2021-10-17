@@ -19,7 +19,6 @@ import com.google.common.testing.EqualsTester;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.model.internal.core.ModelActions.register;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
@@ -28,7 +27,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 import static org.mockito.Mockito.*;
 
-@Subject(ModelActions.class)
 class ModelActions_RegisterTest {
 	@Test
 	void registerNodeOnExecutingNode() {

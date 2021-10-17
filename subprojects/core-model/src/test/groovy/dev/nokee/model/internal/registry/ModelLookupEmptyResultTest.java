@@ -16,7 +16,6 @@
 package dev.nokee.model.internal.registry;
 
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import java.util.function.Function;
 
@@ -25,7 +24,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-@Subject(ModelLookupEmptyResult.class)
 class ModelLookupEmptyResultTest {
 	private final ModelLookup.Result subject = ModelLookupEmptyResult.INSTANCE;
 

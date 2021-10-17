@@ -19,7 +19,6 @@ import com.google.common.testing.EqualsTester;
 import dev.nokee.model.internal.state.ModelState;
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import spock.lang.Subject;
 
 import static dev.nokee.internal.Factories.alwaysThrow;
 import static dev.nokee.model.internal.core.ModelActions.matching;
@@ -33,7 +32,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-@Subject(NodeRegistration.class)
 class NodeRegistrationTest {
 	@Test
 	void canCreateRegistrationOfManagedType() {
