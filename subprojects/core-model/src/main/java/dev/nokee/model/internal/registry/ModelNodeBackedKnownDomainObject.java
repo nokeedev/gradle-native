@@ -31,6 +31,7 @@ import org.gradle.api.provider.Provider;
 import java.util.Objects;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
+import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 
@@ -61,7 +62,7 @@ public class ModelNodeBackedKnownDomainObject<T> implements KnownDomainObject<T>
 	@Override
 	public ModelNodeBackedKnownDomainObject<T> configure(Action<? super T> action) {
 		Objects.requireNonNull(action);
-		ModelNodeUtils.applyTo(node, self(stateAtLeast(ModelState.Realized)).apply(executeUsingProjection(type, action)));
+		ModelNodeUtils.applyTo(node, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
 		return this;
 	}
 
