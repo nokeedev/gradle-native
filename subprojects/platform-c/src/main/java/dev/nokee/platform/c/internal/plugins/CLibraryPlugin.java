@@ -27,6 +27,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.c.CLibrary;
 import dev.nokee.platform.c.CLibrarySources;
@@ -116,7 +117,11 @@ public class CLibraryPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultCLibrary implements CLibrary, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedVariantAwareComponentMixIn<NativeLibrary> {
+	public static abstract class DefaultCLibrary implements CLibrary
+		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
+		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
+		, ModelBackedSourceAwareComponentMixIn<CLibrarySources>
+	{
 		@Override
 		public CSourceSet getCSources() {
 			return ((HasCSourceSet) sourceViewOf(this)).getC().get();

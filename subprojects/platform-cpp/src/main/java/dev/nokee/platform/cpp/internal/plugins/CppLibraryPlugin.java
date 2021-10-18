@@ -27,6 +27,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.cpp.CppLibrary;
 import dev.nokee.platform.cpp.CppLibrarySources;
@@ -116,7 +117,11 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultCppLibrary implements CppLibrary, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedVariantAwareComponentMixIn<NativeLibrary> {
+	public static abstract class DefaultCppLibrary implements CppLibrary
+		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
+		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
+		, ModelBackedSourceAwareComponentMixIn<CppLibrarySources>
+	{
 		@Override
 		public CppSourceSet getCppSources() {
 			return ((HasCppSourceSet) sourceViewOf(this)).getCpp().get();

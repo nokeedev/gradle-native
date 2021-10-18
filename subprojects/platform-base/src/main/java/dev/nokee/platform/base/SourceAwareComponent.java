@@ -15,19 +15,9 @@
  */
 package dev.nokee.platform.base;
 
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.state.ModelState;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
-
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
-import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
-import static dev.nokee.model.internal.core.NodePredicate.self;
-import static org.gradle.util.ConfigureUtil.configureUsing;
 
 /**
  * A component with sources.
@@ -41,26 +31,15 @@ public interface SourceAwareComponent<T extends ComponentSources> {
 	 *
 	 * @return the component sources of this component, never null
 	 */
-	default T getSources() {
-		return (T) ModelNodeUtils.get(ModelNodeUtils.getDescendant(ModelNodes.of(this), "sources"), ComponentSources.class);
-	}
+	T getSources();
 
 	/**
 	 * Configures the component sources using the specified configuration action.
 	 *
 	 * @param action  the configuration action, must not be null
 	 */
-	default void sources(Action<? super T> action) {
-		ModelNodeUtils.applyTo(ModelNodeUtils.getDescendant(ModelNodes.of(this), "sources"),
-			 self(stateAtLeast(ModelState.Realized)).apply(ModelActionWithInputs.of(ModelComponentReference.ofAny(projectionOf(ComponentSources.class)), (node, projection) -> action.execute((T) ModelNodeUtils.get(node, ComponentSources.class)))));
-	}
+	void sources(Action<? super T> action);
 
-	/**
-	 * Configures the component sources using the specified configuration closure.
-	 *
-	 * @param closure  the configuration closure, must not be null
-	 */
-	default void sources(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		sources(configureUsing(closure));
-	}
+	/** @see #sources(Action) */
+	void sources(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }
