@@ -130,7 +130,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultNativeLibraryExtension implements NativeLibraryExtension, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<NativeLibrarySources>, ModelBackedVariantAwareComponentMixIn<NativeLibrary> {
+	public static abstract class DefaultNativeLibraryExtension implements NativeLibraryExtension, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<NativeLibrarySources>, ModelBackedVariantAwareComponentMixIn<NativeLibrary>, ModelBackedBinaryAwareComponentMixIn {
 	}
 
 	public static NodeRegistration nativeLibraryVariant(VariantIdentifier<DefaultNativeLibraryVariant> identifier, DefaultNativeLibraryComponent component, Project project) {

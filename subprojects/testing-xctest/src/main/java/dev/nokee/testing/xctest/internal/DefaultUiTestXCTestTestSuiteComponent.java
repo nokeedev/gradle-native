@@ -21,20 +21,14 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.base.internal.variants.KnownVariant;
-import dev.nokee.platform.base.internal.variants.VariantRepository;
-import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
@@ -48,8 +42,6 @@ import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Task;
-import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
@@ -66,7 +58,7 @@ import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
-public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant> {
+public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>, ModelBackedBinaryAwareComponentMixIn {
 	private final ProviderFactory providers;
 	private final TaskRegistry taskRegistry;
 	private final ProjectLayout layout;

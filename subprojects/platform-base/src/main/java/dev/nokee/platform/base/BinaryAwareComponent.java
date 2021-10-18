@@ -15,9 +15,9 @@
  */
 package dev.nokee.platform.base;
 
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.platform.base.internal.BaseComponent;
+import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
+import org.gradle.api.Action;
 
 /**
  * A component with binaries.
@@ -30,7 +30,15 @@ public interface BinaryAwareComponent {
 	 *
 	 * @return a {@link BinaryView} for configuring each binary, never null.
 	 */
-	default BinaryView<Binary> getBinaries() {
-		return ModelNodeUtils.get(ModelNodes.of(this), BaseComponent.class).getBinaries();
-	}
+	BinaryView<Binary> getBinaries();
+
+	/**
+	 * Configure the binaries of this component.
+	 *
+	 * @param action configuration action for {@link ComponentBinaries}.
+	 */
+	void binaries(Action<? super BinaryView<Binary>> action);
+
+	/** @see #binaries(Action) */
+	void binaries(@DelegatesTo(value = BinaryView.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

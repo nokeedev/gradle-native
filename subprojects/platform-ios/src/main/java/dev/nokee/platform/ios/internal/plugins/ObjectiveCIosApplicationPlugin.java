@@ -159,7 +159,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 			;
 	}
 
-	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>, ModelBackedSourceAwareComponentMixIn<ObjectiveCIosApplicationSources>, ModelBackedVariantAwareComponentMixIn<IosApplication> {
+	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>, ModelBackedSourceAwareComponentMixIn<ObjectiveCIosApplicationSources>, ModelBackedVariantAwareComponentMixIn<IosApplication>, ModelBackedBinaryAwareComponentMixIn {
 		@Override
 		public ObjectiveCSourceSet getObjectiveCSources() {
 			return ((HasObjectiveCSourceSet) sourceViewOf(this)).getObjectiveC().get();

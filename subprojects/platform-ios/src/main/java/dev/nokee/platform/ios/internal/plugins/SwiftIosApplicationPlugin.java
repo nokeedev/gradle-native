@@ -111,7 +111,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultSwiftIosApplication implements SwiftIosApplication, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>, ModelBackedSourceAwareComponentMixIn<SwiftIosApplicationSources>, ModelBackedVariantAwareComponentMixIn<IosApplication> {
+	public static abstract class DefaultSwiftIosApplication implements SwiftIosApplication, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>, ModelBackedSourceAwareComponentMixIn<SwiftIosApplicationSources>, ModelBackedVariantAwareComponentMixIn<IosApplication>, ModelBackedBinaryAwareComponentMixIn {
 		@Override
 		public SwiftSourceSet getSwiftSources() {
 			return ((HasSwiftSourceSet) sourceViewOf(this)).getSwift().get();

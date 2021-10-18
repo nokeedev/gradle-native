@@ -123,7 +123,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 			.apply(executeUsingProjection(of(ObjectiveCppSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name)))::accept)));
 	}
 
-	public static abstract class DefaultObjectiveCppApplication implements ObjectiveCppApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>, ModelBackedSourceAwareComponentMixIn<ObjectiveCppApplicationSources>, ModelBackedVariantAwareComponentMixIn<NativeApplication> {
+	public static abstract class DefaultObjectiveCppApplication implements ObjectiveCppApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>, ModelBackedSourceAwareComponentMixIn<ObjectiveCppApplicationSources>, ModelBackedVariantAwareComponentMixIn<NativeApplication>, ModelBackedBinaryAwareComponentMixIn {
 		@Override
 		public ObjectiveCppSourceSet getObjectiveCppSources() {
 			return ((HasObjectiveCppSourceSet) sourceViewOf(this)).getObjectiveCpp().get();

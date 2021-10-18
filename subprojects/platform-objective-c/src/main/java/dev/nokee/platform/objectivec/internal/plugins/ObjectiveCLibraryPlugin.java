@@ -128,7 +128,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 			.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)));
 	}
 
-	public static abstract class DefaultObjectiveCLibrary implements ObjectiveCLibrary, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<ObjectiveCLibrarySources>, ModelBackedVariantAwareComponentMixIn<NativeLibrary> {
+	public static abstract class DefaultObjectiveCLibrary implements ObjectiveCLibrary, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<ObjectiveCLibrarySources>, ModelBackedVariantAwareComponentMixIn<NativeLibrary>, ModelBackedBinaryAwareComponentMixIn {
 		@Override
 		public ObjectiveCSourceSet getObjectiveCSources() {
 			return ((HasObjectiveCSourceSet) sourceViewOf(this)).getObjectiveC().get();

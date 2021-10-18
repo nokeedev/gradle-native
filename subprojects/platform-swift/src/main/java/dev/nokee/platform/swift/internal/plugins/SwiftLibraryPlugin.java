@@ -26,10 +26,7 @@ import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
@@ -108,7 +105,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultSwiftLibrary implements SwiftLibrary, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<SwiftLibrarySources>, ModelBackedVariantAwareComponentMixIn<NativeLibrary> {
+	public static abstract class DefaultSwiftLibrary implements SwiftLibrary, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<SwiftLibrarySources>, ModelBackedVariantAwareComponentMixIn<NativeLibrary>, ModelBackedBinaryAwareComponentMixIn {
 		@Override
 		public SwiftSourceSet getSwiftSources() {
 			return ((HasSwiftSourceSet) sourceViewOf(this)).getSwift().get();

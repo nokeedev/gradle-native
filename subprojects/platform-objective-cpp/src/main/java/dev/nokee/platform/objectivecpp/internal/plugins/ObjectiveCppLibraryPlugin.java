@@ -126,7 +126,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 			.apply(executeUsingProjection(of(ObjectiveCppSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name)))::accept)));
 	}
 
-	public static abstract class DefaultObjectiveCppLibrary implements ObjectiveCppLibrary, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<ObjectiveCppLibrarySources>, ModelBackedVariantAwareComponentMixIn<NativeLibrary> {
+	public static abstract class DefaultObjectiveCppLibrary implements ObjectiveCppLibrary, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<ObjectiveCppLibrarySources>, ModelBackedVariantAwareComponentMixIn<NativeLibrary>, ModelBackedBinaryAwareComponentMixIn {
 		@Override
 		public ObjectiveCppSourceSet getObjectiveCppSources() {
 			return ((HasObjectiveCppSourceSet) sourceViewOf(this)).getObjectiveCpp().get();

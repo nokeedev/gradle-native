@@ -19,6 +19,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
@@ -37,7 +38,7 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements IosApplication, VariantInternal, ModelNodeAware, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies> {
+public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements IosApplication, VariantInternal, ModelNodeAware, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>, ModelBackedBinaryAwareComponentMixIn {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 	@Getter private final ResolvableComponentDependencies resolvableDependencies;
 

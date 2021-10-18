@@ -608,7 +608,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			;
 	}
 
-	public static abstract class DefaultJavaNativeInterfaceLibrary implements JavaNativeInterfaceLibrary, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources>, ModelBackedVariantAwareComponentMixIn<JniLibrary> {
+	public static abstract class DefaultJavaNativeInterfaceLibrary implements JavaNativeInterfaceLibrary, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources>, ModelBackedVariantAwareComponentMixIn<JniLibrary>, ModelBackedBinaryAwareComponentMixIn {
 	}
 
 	private static boolean isGradleVersionGreaterOrEqualsTo6Dot3() {
