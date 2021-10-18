@@ -21,11 +21,11 @@ import dev.nokee.language.swift.HasSwiftSourcesTester;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.testers.ComponentTester;
-import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
-import dev.nokee.platform.base.testers.HasBaseNameTester;
-import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.testers.*;
+import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
+import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -40,7 +40,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.swift.internal.plugins.SwiftApplicationPlugin.swiftApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class SwiftApplicationTest implements SourceAwareComponentTester<SwiftApplication>, HasBaseNameTester, ComponentTester<SwiftApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, HasSwiftSourcesTester {
+public class SwiftApplicationTest implements SourceAwareComponentTester<SwiftApplication>, HasBaseNameTester, ComponentTester<SwiftApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>>, HasSwiftSourcesTester {
 	private final SwiftApplication subject = createSubject("cefu");
 	@Getter @TempDir File testDirectory;
 

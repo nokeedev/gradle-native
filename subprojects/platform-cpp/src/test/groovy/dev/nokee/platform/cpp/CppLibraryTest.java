@@ -24,10 +24,9 @@ import dev.nokee.language.nativebase.HasPublicHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.testers.ComponentTester;
-import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
-import dev.nokee.platform.base.testers.HasBaseNameTester;
-import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.testers.*;
+import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
@@ -43,7 +42,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.cpp.internal.plugins.CppLibraryPlugin.cppLibrary;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CppLibraryTest implements SourceAwareComponentTester<CppLibrary>, HasBaseNameTester, ComponentTester<CppLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, HasCppSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
+class CppLibraryTest implements SourceAwareComponentTester<CppLibrary>, HasBaseNameTester, ComponentTester<CppLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, VariantAwareComponentTester<VariantView<NativeLibrary>>, HasCppSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
 	private final CppLibrary subject = createSubject("gori");
 	@Getter @TempDir File testDirectory;
 
