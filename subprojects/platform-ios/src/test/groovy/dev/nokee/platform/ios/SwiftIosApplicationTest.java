@@ -17,6 +17,7 @@ package dev.nokee.platform.ios;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
+import dev.nokee.language.swift.HasSwiftSourcesTester;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -40,7 +41,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.ios.internal.plugins.SwiftIosApplicationPlugin.swiftIosApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class SwiftIosApplicationTest implements SourceAwareComponentTester<SwiftIosApplication>, HasBaseNameTester, ComponentTester<SwiftIosApplication>, DependencyAwareComponentTester<NativeComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>>, BinaryAwareComponentTester<BinaryView<Binary>> {
+class SwiftIosApplicationTest implements SourceAwareComponentTester<SwiftIosApplication>, HasBaseNameTester, ComponentTester<SwiftIosApplication>, DependencyAwareComponentTester<NativeComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>>, BinaryAwareComponentTester<BinaryView<Binary>>, HasSwiftSourcesTester {
 	private final SwiftIosApplication subject = createSubject("foma");
 	@Getter @TempDir File testDirectory;
 
