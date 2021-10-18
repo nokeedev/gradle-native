@@ -21,7 +21,7 @@ package dev.nokee.platform.base;
  * @param <T> type of the elements in this view
  * @since 0.2
  */
-public interface VariantView<T extends Variant> extends View<T> {
+public interface VariantView<T extends Variant> extends View<T>, ComponentVariants {
 	/**
 	 * Returns a variant view containing the objects in this view of the given type.
 	 * The returned collection is live, so that when matching objects are later added to this view, they are also visible in the filtered variant view.
