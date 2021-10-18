@@ -25,6 +25,8 @@ import dev.nokee.language.objectivec.HasObjectiveCSourcesTester;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeLibrary;
@@ -44,7 +46,7 @@ import static dev.nokee.platform.objectivec.internal.plugins.ObjectiveCLibraryPl
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCLibraryTest implements SourceAwareComponentTester<ObjectiveCLibrary>, HasBaseNameTester, ComponentTester<ObjectiveCLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, VariantAwareComponentTester<VariantView<NativeLibrary>>, HasObjectiveCSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
+class ObjectiveCLibraryTest implements SourceAwareComponentTester<ObjectiveCLibrary>, HasBaseNameTester, ComponentTester<ObjectiveCLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, VariantAwareComponentTester<VariantView<NativeLibrary>>, BinaryAwareComponentTester<BinaryView<Binary>>, HasObjectiveCSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
 	private final ObjectiveCLibrary subject = createSubject("weqi");
 	@Getter @TempDir File testDirectory;
 
