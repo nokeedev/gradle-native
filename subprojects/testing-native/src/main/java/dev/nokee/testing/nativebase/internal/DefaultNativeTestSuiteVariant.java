@@ -18,6 +18,7 @@ package dev.nokee.testing.nativebase.internal;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
@@ -38,7 +39,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
-public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements NativeTestSuiteVariant, VariantInternal, ModelNodeAware, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies> {
+public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements NativeTestSuiteVariant, VariantInternal, ModelNodeAware, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>, ModelBackedBinaryAwareComponentMixIn {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
