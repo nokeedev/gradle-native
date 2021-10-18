@@ -24,16 +24,19 @@ import org.gradle.api.Action;
 
 public interface ModelBackedDependencyAwareComponentMixIn<T extends ComponentDependencies> extends DependencyAwareComponent<T> {
 	@Override
+	@SuppressWarnings("unchecked")
 	default T getDependencies() {
 		return ModelProperties.getProperty(this, "dependencies").as((Class<T>) new TypeToken<T>(getClass()) {}.getRawType()).get();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	default void dependencies(Action<? super T> action) {
 		ModelProperties.getProperty(this, "dependencies").as((Class<T>) new TypeToken<T>(getClass()) {}.getRawType()).configure(action);
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	default void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
 		ModelProperties.getProperty(this, "dependencies").as((Class<T>) new TypeToken<T>(getClass()) {}.getRawType()).configure(closure);
 	}

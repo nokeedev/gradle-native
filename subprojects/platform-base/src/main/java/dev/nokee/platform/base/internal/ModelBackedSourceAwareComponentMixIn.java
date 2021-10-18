@@ -24,16 +24,19 @@ import org.gradle.api.Action;
 
 public interface ModelBackedSourceAwareComponentMixIn<T extends ComponentSources> extends SourceAwareComponent<T> {
 	@Override
+	@SuppressWarnings("unchecked")
 	default T getSources() {
 		return ModelProperties.getProperty(this, "sources").as((Class<T>) new TypeToken<T>(getClass()) {}.getRawType()).get();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	default void sources(Action<? super T> action) {
 		ModelProperties.getProperty(this, "sources").as((Class<T>) new TypeToken<T>(getClass()) {}.getRawType()).configure(action);
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	default void sources(@SuppressWarnings("rawtypes") Closure closure) {
 		ModelProperties.getProperty(this, "sources").as((Class<T>) new TypeToken<T>(getClass()) {}.getRawType()).configure(closure);
 	}
