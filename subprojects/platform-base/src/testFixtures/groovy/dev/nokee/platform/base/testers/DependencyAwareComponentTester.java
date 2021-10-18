@@ -29,9 +29,4 @@ public interface DependencyAwareComponentTester<T extends ComponentDependencies>
 			.testAction(DependencyAwareComponent::dependencies)
 			.testClosure(DependencyAwareComponent::dependencies);
 	}
-
-//	@Test
-//	default void hasExtensibleComponentDependencies() {
-//		assertThat(subject().getDependencies(), isA(ExtensionAware.class));
-//	}
 }
