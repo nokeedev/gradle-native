@@ -30,6 +30,7 @@ import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.c.CApplication;
 import dev.nokee.platform.c.CApplicationSources;
 import dev.nokee.platform.c.HasCSourceSet;
@@ -115,7 +116,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultCApplication implements CApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies> {
+	public static abstract class DefaultCApplication implements CApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>, ModelBackedSourceAwareComponentMixIn<CApplicationSources> {
 		@Override
 		public CSourceSet getCSources() {
 			return ((HasCSourceSet) sourceViewOf(this)).getC().get();

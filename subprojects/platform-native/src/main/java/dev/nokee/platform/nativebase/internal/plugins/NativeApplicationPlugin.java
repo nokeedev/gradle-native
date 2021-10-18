@@ -242,7 +242,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 			;
 	}
 
-	public static abstract class DefaultNativeApplicationExtension implements NativeApplicationExtension, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies> {
+	public static abstract class DefaultNativeApplicationExtension implements NativeApplicationExtension, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>, ModelBackedSourceAwareComponentMixIn<NativeApplicationSources> {
 	}
 
 	private static void whenElementKnown(Object target, ModelAction action) {

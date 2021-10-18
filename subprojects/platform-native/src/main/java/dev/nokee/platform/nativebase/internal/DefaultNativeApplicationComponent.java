@@ -23,10 +23,7 @@ import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.VariantCollection;
-import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -52,7 +49,7 @@ import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 
-public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent, Component, SourceAwareComponent<ComponentSources> {
+public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent, Component, ModelBackedSourceAwareComponentMixIn<ComponentSources> {
 	private final TaskRegistry taskRegistry;
 	private final SetProperty<BuildVariantInternal> buildVariants;
 	private final Property<DefaultNativeApplicationVariant> developmentVariant;

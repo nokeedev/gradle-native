@@ -31,6 +31,7 @@ import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
@@ -122,7 +123,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 			.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)));
 	}
 
-	public static abstract class DefaultObjectiveCApplication implements ObjectiveCApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies> {
+	public static abstract class DefaultObjectiveCApplication implements ObjectiveCApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>, ModelBackedSourceAwareComponentMixIn<ObjectiveCApplicationSources> {
 		@Override
 		public ObjectiveCSourceSet getObjectiveCSources() {
 			return ((HasObjectiveCSourceSet) sourceViewOf(this)).getObjectiveC().get();

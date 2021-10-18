@@ -30,6 +30,7 @@ import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.cpp.CppApplication;
 import dev.nokee.platform.cpp.CppApplicationSources;
 import dev.nokee.platform.cpp.HasCppSourceSet;
@@ -115,7 +116,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultCppApplication implements CppApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies> {
+	public static abstract class DefaultCppApplication implements CppApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>, ModelBackedSourceAwareComponentMixIn<CppApplicationSources> {
 		@Override
 		public CppSourceSet getCppSources() {
 			return ((HasCppSourceSet) sourceViewOf(this)).getCpp().get();
