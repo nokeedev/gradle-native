@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.ComponentVariants;
 
 import java.util.Map;
 
