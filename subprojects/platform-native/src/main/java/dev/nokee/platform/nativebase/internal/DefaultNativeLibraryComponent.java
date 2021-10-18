@@ -33,11 +33,14 @@ import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.*;
 import dev.nokee.utils.Cast;
+import groovy.lang.Closure;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
 
@@ -63,6 +66,16 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	@Override
 	public DefaultNativeLibraryComponentDependencies getDependencies() {
 		return ModelProperties.getProperty(this, "dependencies").as(DefaultNativeLibraryComponentDependencies.class).get();
+	}
+
+	@Override
+	public void dependencies(Action<? super NativeLibraryComponentDependencies> action) {
+		action.execute(getDependencies());
+	}
+
+	@Override
+	public void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
+		dependencies(ConfigureUtil.configureUsing(closure));
 	}
 
 	@Override

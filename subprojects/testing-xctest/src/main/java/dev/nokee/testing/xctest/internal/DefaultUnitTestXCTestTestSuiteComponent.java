@@ -39,6 +39,7 @@ import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.ios.tasks.internal.ProcessPropertyListTask;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.BundleBinary;
+import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
@@ -59,7 +60,7 @@ import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
-public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component {
+public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies> {
 	private final ProviderFactory providers;
 	private final TaskRegistry taskRegistry;
 	private final ProjectLayout layout;

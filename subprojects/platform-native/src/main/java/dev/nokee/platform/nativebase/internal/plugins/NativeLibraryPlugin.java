@@ -40,6 +40,7 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.nativebase.NativeLibrary;
+import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
 import dev.nokee.platform.nativebase.NativeLibrarySources;
 import dev.nokee.platform.nativebase.internal.*;
@@ -132,7 +133,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultNativeLibraryExtension implements NativeLibraryExtension {
+	public static abstract class DefaultNativeLibraryExtension implements NativeLibraryExtension, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies> {
 	}
 
 	public static NodeRegistration nativeLibraryVariant(VariantIdentifier<DefaultNativeLibraryVariant> identifier, DefaultNativeLibraryComponent component, Project project) {

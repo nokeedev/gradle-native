@@ -17,9 +17,11 @@ package dev.nokee.platform.c;
 
 import dev.nokee.language.c.HasCSources;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
-import dev.nokee.platform.nativebase.*;
+import dev.nokee.platform.nativebase.NativeApplication;
+import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
+import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
+import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 
 /**
  * Configuration for an application written in C, defining the dependencies that make up the application plus other settings.
@@ -29,10 +31,4 @@ import dev.nokee.platform.nativebase.*;
  * @since 0.5
  */
 public interface CApplication extends Component, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CApplicationSources>, HasPrivateHeaders, HasCSources, HasBaseName {
-	/**
-	 * {@inheritDoc}
-	 */
-	default NativeApplicationComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(NativeApplicationComponentDependencies.class).get();
-	}
 }

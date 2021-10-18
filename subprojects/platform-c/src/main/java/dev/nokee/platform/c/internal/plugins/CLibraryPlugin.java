@@ -29,11 +29,13 @@ import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentSpec;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.c.CLibrary;
 import dev.nokee.platform.c.CLibrarySources;
 import dev.nokee.platform.c.HasCSourceSet;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 import dev.nokee.platform.nativebase.HasPublicSourceSet;
+import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import groovy.lang.Closure;
@@ -121,7 +123,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultCLibrary implements CLibrary {
+	public static abstract class DefaultCLibrary implements CLibrary, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies> {
 		@Override
 		public CSourceSet getCSources() {
 			return ((HasCSourceSet) sourceViewOf(this)).getC().get();

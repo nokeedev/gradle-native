@@ -36,6 +36,7 @@ import dev.nokee.platform.ios.ObjectiveCIosApplicationSources;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.IosApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
+import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.objectivec.HasObjectiveCSourceSet;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
@@ -155,7 +156,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 			;
 	}
 
-	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication {
+	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies> {
 		@Override
 		public ObjectiveCSourceSet getObjectiveCSources() {
 			return ((HasObjectiveCSourceSet) sourceViewOf(this)).getObjectiveC().get();

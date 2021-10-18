@@ -15,16 +15,9 @@
  */
 package dev.nokee.platform.ios;
 
-import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.language.swift.HasSwiftSources;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.language.swift.HasSwiftSources;
 
 public interface SwiftIosApplication extends Component, DependencyAwareComponent<NativeComponentDependencies>, VariantAwareComponent<IosApplication>, BinaryAwareComponent, SourceAwareComponent<SwiftIosApplicationSources>, HasSwiftSources, HasIosResources, HasBaseName {
-	/**
-	 * {@inheritDoc}
-	 */
-	default NativeComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(NativeComponentDependencies.class).get();
-	}
 }

@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.SwiftSourceSet;
@@ -39,10 +38,9 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.base.internal.variants.VariantRepository;
-import dev.nokee.platform.base.internal.variants.VariantViewFactory;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
+import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
@@ -58,12 +56,12 @@ import dev.nokee.runtime.core.Coordinates;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.nativebase.NativeTestSuite;
+import groovy.lang.Closure;
 import lombok.Getter;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.model.ObjectFactory;
@@ -77,13 +75,13 @@ import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
 import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
+import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.google.common.base.Predicates.instanceOf;
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
@@ -144,6 +142,16 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	@Override
 	public DefaultNativeComponentDependencies getDependencies() {
 		return ModelProperties.getProperty(this, "dependencies").as(DefaultNativeComponentDependencies.class).get();
+	}
+
+	@Override
+	public void dependencies(Action<? super NativeComponentDependencies> action) {
+		action.execute(getDependencies());
+	}
+
+	@Override
+	public void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
+		dependencies(ConfigureUtil.configureUsing(closure));
 	}
 
 	@Override
