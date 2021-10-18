@@ -25,7 +25,9 @@ import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
+import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.SwiftIosApplication;
 import dev.nokee.platform.ios.SwiftIosApplicationSources;
@@ -102,7 +104,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultSwiftIosApplication implements SwiftIosApplication, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies> {
+	public static abstract class DefaultSwiftIosApplication implements SwiftIosApplication, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>, ModelBackedVariantAwareComponentMixIn<IosApplication> {
 		@Override
 		public SwiftSourceSet getSwiftSources() {
 			return ((HasSwiftSourceSet) sourceViewOf(this)).getSwift().get();

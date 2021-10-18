@@ -27,6 +27,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
+import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationSources;
@@ -148,7 +149,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 			;
 	}
 
-	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies> {
+	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>, ModelBackedVariantAwareComponentMixIn<IosApplication> {
 		@Override
 		public ObjectiveCSourceSet getObjectiveCSources() {
 			return ((HasObjectiveCSourceSet) sourceViewOf(this)).getObjectiveC().get();

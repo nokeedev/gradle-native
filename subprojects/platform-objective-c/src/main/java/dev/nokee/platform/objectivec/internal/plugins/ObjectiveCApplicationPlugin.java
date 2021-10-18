@@ -28,7 +28,9 @@ import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
+import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
@@ -39,7 +41,6 @@ import dev.nokee.platform.objectivec.HasObjectiveCSourceSet;
 import dev.nokee.platform.objectivec.ObjectiveCApplication;
 import dev.nokee.platform.objectivec.ObjectiveCApplicationSources;
 import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -114,7 +115,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 			.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)));
 	}
 
-	public static abstract class DefaultObjectiveCApplication implements ObjectiveCApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies> {
+	public static abstract class DefaultObjectiveCApplication implements ObjectiveCApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>, ModelBackedVariantAwareComponentMixIn<NativeApplication> {
 		@Override
 		public ObjectiveCSourceSet getObjectiveCSources() {
 			return ((HasObjectiveCSourceSet) sourceViewOf(this)).getObjectiveC().get();

@@ -24,6 +24,8 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
@@ -34,7 +36,6 @@ import dev.nokee.platform.swift.HasSwiftSourceSet;
 import dev.nokee.platform.swift.SwiftApplication;
 import dev.nokee.platform.swift.SwiftApplicationSources;
 import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -42,7 +43,6 @@ import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.language.swift.internal.DefaultSwiftApplication;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.gradle.util.GUtil;
 
@@ -99,7 +99,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultSwiftApplication implements SwiftApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies> {
+	public static abstract class DefaultSwiftApplication implements SwiftApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>, ModelBackedVariantAwareComponentMixIn<NativeApplication> {
 		@Override
 		public SwiftSourceSet getSwiftSources() {
 			return ((HasSwiftSourceSet) sourceViewOf(this)).getSwift().get();
