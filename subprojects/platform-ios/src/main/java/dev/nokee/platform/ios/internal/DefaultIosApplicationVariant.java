@@ -21,14 +21,15 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
+import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import lombok.Getter;
 import org.gradle.api.Task;
@@ -41,7 +42,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
-public class DefaultIosApplicationVariant extends BaseNativeVariant implements IosApplication, VariantInternal, ModelNodeAware {
+public class DefaultIosApplicationVariant extends BaseNativeVariant implements IosApplication, VariantInternal, ModelNodeAware, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies> {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 	@Getter private final Property<String> productBundleIdentifier;
 
@@ -55,11 +56,6 @@ public class DefaultIosApplicationVariant extends BaseNativeVariant implements I
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
 		return node.getComponent(componentOf(VariantComponentDependencies.class)).getIncoming();
-	}
-
-	@Override
-	public DefaultNativeComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(DefaultNativeComponentDependencies.class).get();
 	}
 
 	@Override

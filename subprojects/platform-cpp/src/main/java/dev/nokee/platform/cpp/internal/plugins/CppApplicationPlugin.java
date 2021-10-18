@@ -26,17 +26,18 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.cpp.CppApplication;
 import dev.nokee.platform.cpp.CppApplicationSources;
 import dev.nokee.platform.cpp.HasCppSourceSet;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
+import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -44,7 +45,6 @@ import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.language.cpp.internal.DefaultCppApplication;
 
 import javax.inject.Inject;
 
@@ -107,7 +107,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultCppApplication implements CppApplication {
+	public static abstract class DefaultCppApplication implements CppApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies> {
 		@Override
 		public CppSourceSet getCppSources() {
 			return ((HasCppSourceSet) sourceViewOf(this)).getCpp().get();

@@ -42,6 +42,7 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.nativebase.NativeApplication;
+import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.internal.*;
@@ -238,7 +239,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 			;
 	}
 
-	public static abstract class DefaultNativeApplicationExtension implements NativeApplicationExtension {
+	public static abstract class DefaultNativeApplicationExtension implements NativeApplicationExtension, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies> {
 	}
 
 	private static void whenElementKnown(Object target, ModelAction action) {

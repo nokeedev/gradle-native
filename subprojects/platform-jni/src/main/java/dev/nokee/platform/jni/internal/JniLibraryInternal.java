@@ -26,12 +26,14 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
+import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import groovy.lang.Closure;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -46,6 +48,7 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
+import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
 
@@ -157,5 +160,15 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Override
 	public DefaultJavaNativeInterfaceNativeComponentDependencies getDependencies() {
 		return dependencies;
+	}
+
+	@Override
+	public void dependencies(Action<? super JavaNativeInterfaceNativeComponentDependencies> action) {
+		action.execute(dependencies);
+	}
+
+	@Override
+	public void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
+		dependencies(ConfigureUtil.configureUsing(closure));
 	}
 }

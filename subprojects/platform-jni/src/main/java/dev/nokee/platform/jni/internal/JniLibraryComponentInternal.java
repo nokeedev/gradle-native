@@ -33,12 +33,15 @@ import dev.nokee.runtime.core.Coordinates;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ConfigureUtils;
+import groovy.lang.Closure;
 import lombok.Getter;
+import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
+import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
 import java.util.function.Supplier;
@@ -97,6 +100,16 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	@Override
 	public DefaultJavaNativeInterfaceLibraryComponentDependencies getDependencies() {
 		return ModelProperties.getProperty(this, "dependencies").as(DefaultJavaNativeInterfaceLibraryComponentDependencies.class).get();
+	}
+
+	@Override
+	public void dependencies(Action<? super JavaNativeInterfaceLibraryComponentDependencies> action) {
+		action.execute(getDependencies());
+	}
+
+	@Override
+	public void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
+		dependencies(ConfigureUtil.configureUsing(closure));
 	}
 
 	//region Variant-awareness
