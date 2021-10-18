@@ -15,23 +15,33 @@
  */
 package dev.nokee.platform.base;
 
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.platform.base.internal.BaseComponent;
+import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
+import groovy.transform.stc.ClosureParams;
+import groovy.transform.stc.SimpleType;
+import org.gradle.api.Action;
 
 /**
  * A component with variants.
  *
- * @param <T> type of each variant
+ * @param <T> type of the component dependencies
  * @since 0.4
  */
 public interface VariantAwareComponent<T extends Variant> {
 	/**
 	 * Configure the variants of this component.
 	 *
-	 * @return a {@link VariantView} for configuring each variant of type {@code <T>}, never null.
+	 * @return a {@link ComponentVariants}, never null.
 	 */
-	default VariantView<T> getVariants() {
-		return (VariantView<T>) ModelNodeUtils.get(ModelNodes.of(this), BaseComponent.class).getVariants();
-	}
+	VariantView<T> getVariants();
+
+	/**
+	 * Configures the component variants using the specified configuration action.
+	 *
+	 * @param action  the configuration action, must not be null
+	 */
+	void variants(Action<? super VariantView<T>> action);
+
+	/** @see #variants(Action) */
+	void variants(@ClosureParams(value = SimpleType.class, options = "dev.nokee.platform.base.VariantView") @DelegatesTo(value = VariantView.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }
