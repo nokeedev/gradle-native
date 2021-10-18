@@ -47,6 +47,7 @@ import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentSpec;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.*;
@@ -62,6 +63,7 @@ import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.internal.*;
+import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
@@ -606,7 +608,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			;
 	}
 
-	public static abstract class DefaultJavaNativeInterfaceLibrary implements JavaNativeInterfaceLibrary, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources> {
+	public static abstract class DefaultJavaNativeInterfaceLibrary implements JavaNativeInterfaceLibrary, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources>, ModelBackedVariantAwareComponentMixIn<JniLibrary> {
 	}
 
 	private static boolean isGradleVersionGreaterOrEqualsTo6Dot3() {

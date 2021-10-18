@@ -25,6 +25,7 @@ import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -65,7 +66,7 @@ import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
-public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies> {
+public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant> {
 	private final ProviderFactory providers;
 	private final TaskRegistry taskRegistry;
 	private final ProjectLayout layout;

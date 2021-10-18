@@ -28,14 +28,17 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentSpec;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
+import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationSources;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.IosApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
+import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.objectivec.HasObjectiveCSourceSet;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
@@ -156,7 +159,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 			;
 	}
 
-	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>, ModelBackedSourceAwareComponentMixIn<ObjectiveCIosApplicationSources> {
+	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>, ModelBackedSourceAwareComponentMixIn<ObjectiveCIosApplicationSources>, ModelBackedVariantAwareComponentMixIn<IosApplication> {
 		@Override
 		public ObjectiveCSourceSet getObjectiveCSources() {
 			return ((HasObjectiveCSourceSet) sourceViewOf(this)).getObjectiveC().get();

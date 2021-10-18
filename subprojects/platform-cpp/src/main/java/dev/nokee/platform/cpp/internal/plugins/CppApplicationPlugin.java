@@ -28,13 +28,16 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentSpec;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.cpp.CppApplication;
 import dev.nokee.platform.cpp.CppApplicationSources;
 import dev.nokee.platform.cpp.HasCppSourceSet;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
+import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
@@ -116,7 +119,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultCppApplication implements CppApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>, ModelBackedSourceAwareComponentMixIn<CppApplicationSources> {
+	public static abstract class DefaultCppApplication implements CppApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>, ModelBackedSourceAwareComponentMixIn<CppApplicationSources>, ModelBackedVariantAwareComponentMixIn<NativeApplication> {
 		@Override
 		public CppSourceSet getCppSources() {
 			return ((HasCppSourceSet) sourceViewOf(this)).getCpp().get();

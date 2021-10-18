@@ -28,15 +28,15 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentSpec;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.c.CLibrary;
 import dev.nokee.platform.c.CLibrarySources;
 import dev.nokee.platform.c.HasCSourceSet;
-import dev.nokee.platform.nativebase.HasHeadersSourceSet;
-import dev.nokee.platform.nativebase.HasPublicSourceSet;
-import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
+import dev.nokee.platform.nativebase.*;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import groovy.lang.Closure;
@@ -124,7 +124,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultCLibrary implements CLibrary, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<CLibrarySources> {
+	public static abstract class DefaultCLibrary implements CLibrary, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<CLibrarySources>, ModelBackedVariantAwareComponentMixIn<NativeLibrary> {
 		@Override
 		public CSourceSet getCSources() {
 			return ((HasCSourceSet) sourceViewOf(this)).getC().get();

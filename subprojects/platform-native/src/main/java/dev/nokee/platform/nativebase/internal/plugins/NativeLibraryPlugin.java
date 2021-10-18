@@ -39,10 +39,7 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.nativebase.NativeLibrary;
-import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.NativeLibraryExtension;
-import dev.nokee.platform.nativebase.NativeLibrarySources;
+import dev.nokee.platform.nativebase.*;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
@@ -133,7 +130,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultNativeLibraryExtension implements NativeLibraryExtension, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<NativeLibrarySources> {
+	public static abstract class DefaultNativeLibraryExtension implements NativeLibraryExtension, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<NativeLibrarySources>, ModelBackedVariantAwareComponentMixIn<NativeLibrary> {
 	}
 
 	public static NodeRegistration nativeLibraryVariant(VariantIdentifier<DefaultNativeLibraryVariant> identifier, DefaultNativeLibraryComponent component, Project project) {

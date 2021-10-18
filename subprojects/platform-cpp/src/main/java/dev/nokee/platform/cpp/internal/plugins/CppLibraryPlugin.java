@@ -28,15 +28,15 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentSpec;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.cpp.CppLibrary;
 import dev.nokee.platform.cpp.CppLibrarySources;
 import dev.nokee.platform.cpp.HasCppSourceSet;
-import dev.nokee.platform.nativebase.HasHeadersSourceSet;
-import dev.nokee.platform.nativebase.HasPublicSourceSet;
-import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
+import dev.nokee.platform.nativebase.*;
 import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import groovy.lang.Closure;
@@ -123,7 +123,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		}).create(name);
 	}
 
-	public static abstract class DefaultCppLibrary implements CppLibrary, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<CppLibrarySources> {
+	public static abstract class DefaultCppLibrary implements CppLibrary, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>, ModelBackedSourceAwareComponentMixIn<CppLibrarySources>, ModelBackedVariantAwareComponentMixIn<NativeLibrary> {
 		@Override
 		public CppSourceSet getCppSources() {
 			return ((HasCppSourceSet) sourceViewOf(this)).getCpp().get();
