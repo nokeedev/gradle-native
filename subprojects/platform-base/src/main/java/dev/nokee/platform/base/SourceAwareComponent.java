@@ -15,14 +15,15 @@
  */
 package dev.nokee.platform.base;
 
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.type.ModelType;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.self;
@@ -34,7 +35,7 @@ import static org.gradle.util.ConfigureUtil.configureUsing;
  * @param <T>  the component sources type
  * @since 0.5
  */
-public interface SourceAwareComponent<T extends ComponentSources> extends Component {
+public interface SourceAwareComponent<T extends ComponentSources> {
 	/**
 	 * Returns the component sources of this component.
 	 *
