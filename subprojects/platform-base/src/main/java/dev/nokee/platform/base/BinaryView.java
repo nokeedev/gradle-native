@@ -15,15 +15,13 @@
  */
 package dev.nokee.platform.base;
 
-import org.gradle.api.Action;
-
 /**
  * A view of the binaries that are created and configured as they are required.
  *
  * @param <T> type of the elements in this view
  * @since 0.3
  */
-public interface BinaryView<T extends Binary> extends View<T> {
+public interface BinaryView<T extends Binary> extends View<T>, ComponentBinaries {
 	/**
 	 * Returns a binary view containing the objects in this view of the given type.
 	 * The returned view is live, so that when matching objects are later added to this view, they are also visible in the filtered binary view.
