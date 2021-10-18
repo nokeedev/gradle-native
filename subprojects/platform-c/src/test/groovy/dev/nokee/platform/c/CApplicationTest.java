@@ -24,10 +24,9 @@ import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.testers.ComponentTester;
-import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
-import dev.nokee.platform.base.testers.HasBaseNameTester;
-import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.testers.*;
+import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
@@ -43,7 +42,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.c.internal.plugins.CApplicationPlugin.cApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CApplicationTest implements SourceAwareComponentTester<CApplication>, HasBaseNameTester, ComponentTester<CApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, HasCSourcesTester, HasPrivateHeadersTester {
+class CApplicationTest implements SourceAwareComponentTester<CApplication>, HasBaseNameTester, ComponentTester<CApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>>, HasCSourcesTester, HasPrivateHeadersTester {
 	private final CApplication subject = createSubject("kdrj");
 	@Getter @TempDir File testDirectory;
 

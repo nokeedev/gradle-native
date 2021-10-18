@@ -25,10 +25,9 @@ import dev.nokee.language.objectivecpp.HasObjectiveCppSourcesTester;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.testers.ComponentTester;
-import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
-import dev.nokee.platform.base.testers.HasBaseNameTester;
-import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.testers.*;
+import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
@@ -45,7 +44,7 @@ import static dev.nokee.platform.objectivecpp.internal.plugins.ObjectiveCppLibra
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCppLibraryTest implements SourceAwareComponentTester<ObjectiveCppLibrary>, HasBaseNameTester, ComponentTester<ObjectiveCppLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, HasObjectiveCppSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
+class ObjectiveCppLibraryTest implements SourceAwareComponentTester<ObjectiveCppLibrary>, HasBaseNameTester, ComponentTester<ObjectiveCppLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, VariantAwareComponentTester<VariantView<NativeLibrary>>, HasObjectiveCppSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
 	private final ObjectiveCppLibrary subject = createSubject("pago");
 	@Getter @TempDir File testDirectory;
 

@@ -20,10 +20,9 @@ import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.testers.ComponentTester;
-import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
-import dev.nokee.platform.base.testers.HasBaseNameTester;
-import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.testers.*;
+import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
@@ -39,7 +38,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.ios.internal.plugins.SwiftIosApplicationPlugin.swiftIosApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class SwiftIosApplicationTest implements SourceAwareComponentTester<SwiftIosApplication>, HasBaseNameTester, ComponentTester<SwiftIosApplication>, DependencyAwareComponentTester<NativeComponentDependencies> {
+class SwiftIosApplicationTest implements SourceAwareComponentTester<SwiftIosApplication>, HasBaseNameTester, ComponentTester<SwiftIosApplication>, DependencyAwareComponentTester<NativeComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>> {
 	private final SwiftIosApplication subject = createSubject("foma");
 	@Getter @TempDir File testDirectory;
 
