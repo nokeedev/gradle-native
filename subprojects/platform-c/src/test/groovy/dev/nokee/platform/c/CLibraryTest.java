@@ -22,6 +22,8 @@ import dev.nokee.language.c.HasCSourcesTester;
 import dev.nokee.language.nativebase.*;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -41,7 +43,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.c.internal.plugins.CLibraryPlugin.cLibrary;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CLibraryTest implements SourceAwareComponentTester<CLibrary>, HasBaseNameTester, ComponentTester<CLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, VariantAwareComponentTester<VariantView<NativeLibrary>>, HasCSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
+class CLibraryTest implements SourceAwareComponentTester<CLibrary>, HasBaseNameTester, ComponentTester<CLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, VariantAwareComponentTester<VariantView<NativeLibrary>>, BinaryAwareComponentTester<BinaryView<Binary>>, HasCSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
 	private final CLibrary subject = createSubject("ledk");
 	@Getter @TempDir File testDirectory;
 

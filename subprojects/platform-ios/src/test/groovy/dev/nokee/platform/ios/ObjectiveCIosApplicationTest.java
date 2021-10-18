@@ -24,6 +24,8 @@ import dev.nokee.language.objectivec.HasObjectiveCSourcesTester;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -43,7 +45,7 @@ import static dev.nokee.platform.ios.internal.plugins.ObjectiveCIosApplicationPl
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCIosApplicationTest implements SourceAwareComponentTester<ObjectiveCIosApplication>, HasBaseNameTester, ComponentTester<ObjectiveCIosApplication>, DependencyAwareComponentTester<NativeComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>>, HasObjectiveCSourcesTester, HasPrivateHeadersTester {
+class ObjectiveCIosApplicationTest implements SourceAwareComponentTester<ObjectiveCIosApplication>, HasBaseNameTester, ComponentTester<ObjectiveCIosApplication>, DependencyAwareComponentTester<NativeComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>>, BinaryAwareComponentTester<BinaryView<Binary>>, HasObjectiveCSourcesTester, HasPrivateHeadersTester {
 	private final ObjectiveCIosApplication subject = createSubject("bovi");
 	@Getter @TempDir File testDirectory;
 

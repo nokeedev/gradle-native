@@ -21,6 +21,8 @@ import dev.nokee.language.swift.HasSwiftSourcesTester;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeLibrary;
@@ -39,7 +41,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.swift.internal.plugins.SwiftLibraryPlugin.swiftLibrary;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary>, HasBaseNameTester, ComponentTester<SwiftLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, VariantAwareComponentTester<VariantView<NativeLibrary>>, HasSwiftSourcesTester {
+public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary>, HasBaseNameTester, ComponentTester<SwiftLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, VariantAwareComponentTester<VariantView<NativeLibrary>>, BinaryAwareComponentTester<BinaryView<Binary>>, HasSwiftSourcesTester {
 	private final SwiftLibrary subject = createSubject("peso");
 	@Getter @TempDir File testDirectory;
 

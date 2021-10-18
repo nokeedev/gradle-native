@@ -23,6 +23,8 @@ import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -41,7 +43,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.cpp.internal.plugins.CppApplicationPlugin.cppApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, HasBaseNameTester, ComponentTester<CppApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>>, HasCppSourcesTester, HasPrivateHeadersTester {
+class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, HasBaseNameTester, ComponentTester<CppApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>>, BinaryAwareComponentTester<BinaryView<Binary>>, HasCppSourcesTester, HasPrivateHeadersTester {
 	private final CppApplication subject = createSubject("sari");
 	@Getter @TempDir File testDirectory;
 
