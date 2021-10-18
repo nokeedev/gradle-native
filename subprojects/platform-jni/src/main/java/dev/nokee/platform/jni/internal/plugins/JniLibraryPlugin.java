@@ -605,6 +605,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<JniLibrary>
 		, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources>
+		, ModelBackedBinaryAwareComponentMixIn
 	{
 	}
 

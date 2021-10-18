@@ -123,6 +123,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
 		, ModelBackedSourceAwareComponentMixIn<ObjectiveCLibrarySources>
+		, ModelBackedBinaryAwareComponentMixIn
 	{
 		@Override
 		public ObjectiveCSourceSet getObjectiveCSources() {

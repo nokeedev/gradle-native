@@ -22,10 +22,7 @@ import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
@@ -104,6 +101,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
 		, ModelBackedSourceAwareComponentMixIn<SwiftApplicationSources>
+		, ModelBackedBinaryAwareComponentMixIn
 	{
 		@Override
 		public SwiftSourceSet getSwiftSources() {

@@ -153,6 +153,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<IosApplication>
 		, ModelBackedSourceAwareComponentMixIn<ObjectiveCIosApplicationSources>
+		, ModelBackedBinaryAwareComponentMixIn
 	{
 		@Override
 		public ObjectiveCSourceSet getObjectiveCSources() {

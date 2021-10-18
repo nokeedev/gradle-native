@@ -25,10 +25,7 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.cpp.CppApplication;
 import dev.nokee.platform.cpp.CppApplicationSources;
 import dev.nokee.platform.cpp.HasCppSourceSet;
@@ -114,6 +111,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
 		, ModelBackedSourceAwareComponentMixIn<CppApplicationSources>
+		, ModelBackedBinaryAwareComponentMixIn
 	{
 		@Override
 		public CppSourceSet getCppSources() {

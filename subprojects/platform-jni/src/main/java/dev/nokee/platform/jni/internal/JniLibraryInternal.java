@@ -54,7 +54,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
-public class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal {
+public class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelBackedBinaryAwareComponentMixIn {
 	private final DefaultJavaNativeInterfaceNativeComponentDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;

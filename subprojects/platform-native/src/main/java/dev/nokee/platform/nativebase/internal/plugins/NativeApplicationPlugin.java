@@ -243,6 +243,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
 		, ModelBackedSourceAwareComponentMixIn<NativeApplicationSources>
+		, ModelBackedBinaryAwareComponentMixIn
 	{
 	}
 

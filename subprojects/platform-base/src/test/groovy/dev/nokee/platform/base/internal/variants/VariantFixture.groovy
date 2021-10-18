@@ -22,6 +22,7 @@ import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
 import dev.nokee.platform.base.internal.VariantIdentifier
 import org.apache.commons.lang3.RandomStringUtils
+import org.gradle.api.Action
 import org.gradle.api.provider.Provider
 
 trait VariantFixture {
@@ -73,6 +74,16 @@ trait VariantFixture {
 		}
 
 		@Override
+		void binaries(Action<? super BinaryView<Binary>> action) {
+			throw new UnsupportedOperationException()
+		}
+
+		@Override
+		void binaries(Closure closure) {
+			throw new UnsupportedOperationException()
+		}
+
+		@Override
 		Provider<Binary> getDevelopmentBinary() {
 			throw new UnsupportedOperationException()
 		}
@@ -91,6 +102,16 @@ trait VariantFixture {
 	static class VariantImpl implements Variant {
 		@Override
         BinaryView<Binary> getBinaries() {
+			throw new UnsupportedOperationException()
+		}
+
+		@Override
+		void binaries(Action<? super BinaryView<Binary>> action) {
+			throw new UnsupportedOperationException()
+		}
+
+		@Override
+		void binaries(Closure closure) {
 			throw new UnsupportedOperationException()
 		}
 

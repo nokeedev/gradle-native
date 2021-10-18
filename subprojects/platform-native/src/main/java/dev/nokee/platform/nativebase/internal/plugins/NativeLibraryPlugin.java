@@ -135,6 +135,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
 		, ModelBackedSourceAwareComponentMixIn<NativeLibrarySources>
+		, ModelBackedBinaryAwareComponentMixIn
 	{
 	}
 
