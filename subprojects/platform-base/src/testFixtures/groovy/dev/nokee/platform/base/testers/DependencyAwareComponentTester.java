@@ -18,7 +18,6 @@ package dev.nokee.platform.base.testers;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
-import org.gradle.api.plugins.ExtensionAware;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -44,9 +43,4 @@ public interface DependencyAwareComponentTester<T extends ComponentDependencies>
 			.testAction(DependencyAwareComponent::dependencies)
 			.testClosure(DependencyAwareComponent::dependencies);
 	}
-
-//	@Test
-//	default void hasExtensibleComponentDependencies() {
-//		assertThat(subject().getDependencies(), isA(ExtensionAware.class));
-//	}
 }
