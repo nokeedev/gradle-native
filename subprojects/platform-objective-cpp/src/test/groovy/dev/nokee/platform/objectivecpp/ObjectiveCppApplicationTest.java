@@ -24,6 +24,8 @@ import dev.nokee.language.objectivecpp.HasObjectiveCppSourcesTester;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -43,7 +45,7 @@ import static dev.nokee.platform.objectivecpp.internal.plugins.ObjectiveCppAppli
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCppApplicationTest implements SourceAwareComponentTester<ObjectiveCppApplication>, HasBaseNameTester, ComponentTester<ObjectiveCppApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>>, HasObjectiveCppSourcesTester, HasPrivateHeadersTester {
+class ObjectiveCppApplicationTest implements SourceAwareComponentTester<ObjectiveCppApplication>, HasBaseNameTester, ComponentTester<ObjectiveCppApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>>, BinaryAwareComponentTester<BinaryView<Binary>>, HasObjectiveCppSourcesTester, HasPrivateHeadersTester {
 	private final ObjectiveCppApplication subject = createSubject("bacu");
 	@Getter @TempDir File testDirectory;
 
