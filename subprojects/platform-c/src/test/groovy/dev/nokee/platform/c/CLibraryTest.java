@@ -22,10 +22,10 @@ import dev.nokee.language.c.HasCSourcesTester;
 import dev.nokee.language.nativebase.*;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.testers.ComponentTester;
-import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
-import dev.nokee.platform.base.testers.HasBaseNameTester;
-import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.testers.*;
+import dev.nokee.platform.nativebase.NativeApplication;
+import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
@@ -41,7 +41,7 @@ import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.c.internal.plugins.CLibraryPlugin.cLibrary;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CLibraryTest implements SourceAwareComponentTester<CLibrary>, HasBaseNameTester, ComponentTester<CLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, HasCSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
+class CLibraryTest implements SourceAwareComponentTester<CLibrary>, HasBaseNameTester, ComponentTester<CLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, VariantAwareComponentTester<VariantView<NativeLibrary>>, HasCSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
 	private final CLibrary subject = createSubject("ledk");
 	@Getter @TempDir File testDirectory;
 
