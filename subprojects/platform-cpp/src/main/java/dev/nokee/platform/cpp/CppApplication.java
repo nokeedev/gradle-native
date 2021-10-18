@@ -17,7 +17,6 @@ package dev.nokee.platform.cpp;
 
 import dev.nokee.language.cpp.HasCppSources;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
@@ -32,10 +31,4 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
  * @since 0.5
  */
 public interface CppApplication extends CppApplicationExtension, Component, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CppApplicationSources>, HasPrivateHeaders, HasCppSources, HasBaseName {
-	/**
-	 * {@inheritDoc}
-	 */
-	default NativeApplicationComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(NativeApplicationComponentDependencies.class).get();
-	}
 }

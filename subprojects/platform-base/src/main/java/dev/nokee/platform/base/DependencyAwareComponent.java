@@ -18,7 +18,6 @@ package dev.nokee.platform.base;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
-import org.gradle.util.ConfigureUtil;
 
 /**
  * A component with dependency buckets.
@@ -39,17 +38,9 @@ public interface DependencyAwareComponent<T extends ComponentDependencies> {
 	 *
 	 * @param action configuration action for {@link ComponentDependencies}.
 	 */
-	default void dependencies(Action<? super T> action) {
-		action.execute(getDependencies());
-	}
+	void dependencies(Action<? super T> action);
 
-	/**
-	 * Configure the dependencies of this component.
-	 *
-	 * @param closure configuration closure for {@link ComponentDependencies}.
-	 */
-	default void dependencies(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		dependencies(ConfigureUtil.configureUsing(closure));
-	}
+	/** @see #dependencies(Action) */
+	void dependencies(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }
 

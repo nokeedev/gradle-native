@@ -27,7 +27,9 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
+import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
@@ -113,7 +115,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 			.apply(executeUsingProjection(of(ObjectiveCppSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name)))::accept)));
 	}
 
-	public static abstract class DefaultObjectiveCppApplication implements ObjectiveCppApplication {
+	public static abstract class DefaultObjectiveCppApplication implements ObjectiveCppApplication, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies> {
 		@Override
 		public ObjectiveCppSourceSet getObjectiveCppSources() {
 			return ((HasObjectiveCppSourceSet) sourceViewOf(this)).getObjectiveCpp().get();

@@ -16,7 +16,6 @@
 package dev.nokee.platform.swift;
 
 import dev.nokee.language.swift.HasSwiftSources;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;
 
@@ -28,10 +27,4 @@ import dev.nokee.platform.nativebase.*;
  * @since 0.5
  */
 public interface SwiftLibrary extends SwiftLibraryExtension, Component, DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<SwiftLibrarySources>, HasSwiftSources, HasBaseName {
-	/**
-	 * {@inheritDoc}
-	 */
-	default NativeLibraryComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(NativeLibraryComponentDependencies.class).get();
-	}
 }

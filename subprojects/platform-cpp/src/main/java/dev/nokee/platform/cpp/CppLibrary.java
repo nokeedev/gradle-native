@@ -18,7 +18,6 @@ package dev.nokee.platform.cpp;
 import dev.nokee.language.cpp.HasCppSources;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.nativebase.HasPublicHeaders;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;
 
@@ -30,10 +29,4 @@ import dev.nokee.platform.nativebase.*;
  * @since 0.5
  */
 public interface CppLibrary extends CppLibraryExtension, Component, DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CppLibrarySources>, HasPrivateHeaders, HasPublicHeaders, HasCppSources, HasBaseName {
-	/**
-	 * {@inheritDoc}
-	 */
-	default NativeLibraryComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(NativeLibraryComponentDependencies.class).get();
-	}
 }

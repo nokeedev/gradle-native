@@ -17,15 +17,8 @@ package dev.nokee.platform.ios;
 
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.objectivec.HasObjectiveCSources;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 
 public interface ObjectiveCIosApplication extends ObjectiveCIosApplicationExtension, Component, DependencyAwareComponent<NativeComponentDependencies>, VariantAwareComponent<IosApplication>, BinaryAwareComponent, SourceAwareComponent<ObjectiveCIosApplicationSources>, HasObjectiveCSources, HasPrivateHeaders, HasIosResources, HasBaseName {
-	/**
-	 * {@inheritDoc}
-	 */
-	default NativeComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(NativeComponentDependencies.class).get();
-	}
 }

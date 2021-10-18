@@ -21,6 +21,7 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -37,7 +38,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
-public class DefaultNativeApplicationVariant extends BaseNativeVariant implements NativeApplication, VariantInternal, ModelNodeAware {
+public class DefaultNativeApplicationVariant extends BaseNativeVariant implements NativeApplication, VariantInternal, ModelNodeAware, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies> {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
@@ -47,10 +48,6 @@ public class DefaultNativeApplicationVariant extends BaseNativeVariant implement
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
 		return node.getComponent(componentOf(VariantComponentDependencies.class)).getIncoming();
-	}
-
-	public NativeApplicationComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(NativeApplicationComponentDependencies.class).get();
 	}
 
 	@Override

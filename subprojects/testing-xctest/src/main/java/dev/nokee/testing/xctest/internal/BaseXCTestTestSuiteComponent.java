@@ -62,7 +62,7 @@ import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdk
 import static dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent.getSdkPlatformPath;
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
-public class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCTestTestSuiteVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, TestSuiteComponent {
+public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCTestTestSuiteVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, TestSuiteComponent {
 	@Getter private final Property<GroupId> groupId;
 	@Getter private final Property<BaseNativeComponent<?>> testedComponent;
 	private final TaskRegistry taskRegistry;

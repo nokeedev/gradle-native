@@ -15,14 +15,7 @@
  */
 package dev.nokee.platform.nativebase;
 
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 
 public interface NativeApplicationExtension extends Component, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<NativeApplicationSources>, HasBaseName {
-	/**
-	 * {@inheritDoc}
-	 */
-	default NativeApplicationComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(NativeApplicationComponentDependencies.class).get();
-	}
 }
