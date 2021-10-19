@@ -15,7 +15,10 @@
  */
 package dev.nokee.platform.ios.internal;
 
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -36,8 +39,6 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-import java.util.function.Supplier;
-
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
 public class DefaultIosApplicationVariant extends BaseNativeVariant implements IosApplication, VariantInternal, ModelNodeAware {
@@ -45,7 +46,7 @@ public class DefaultIosApplicationVariant extends BaseNativeVariant implements I
 	@Getter private final Property<String> productBundleIdentifier;
 
 	@Inject
-	public DefaultIosApplicationVariant(VariantIdentifier<?> identifier, ResolvableComponentDependencies resolvableDependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
+	public DefaultIosApplicationVariant(VariantIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
 		super(identifier, objects, providers, assembleTask, binaryViewFactory);
 		this.productBundleIdentifier = objects.property(String.class);
 
