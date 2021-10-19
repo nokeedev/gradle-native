@@ -163,39 +163,30 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, componentIdentifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
 				val dependencies = project.getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("dependencies"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(ofInstance(dependencies))
-					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsDependencyBucket.class), ModelComponentReference.ofAny(projectionOf(Configuration.class)), (e, p, ignored1, ignored2, projection) -> {
-						if (path.isDirectDescendant(p)) {
-							registry.register(propertyFactory.create(path.child("dependencies").child(p.getName()), e));
-						}
-					}))
-					.build());
+				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
 
-				val implementation = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("implementation"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
 					.build());
-				val compileOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("compileOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
 					.build());
-				val linkOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("linkOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
 					.build());
-				val runtimeOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("runtimeOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
@@ -271,39 +262,30 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, componentIdentifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
 				val dependencies = project.getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("dependencies"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(ofInstance(dependencies))
-					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsDependencyBucket.class), ModelComponentReference.ofAny(projectionOf(Configuration.class)), (e, p, ignored1, ignored2, projection) -> {
-						if (path.isDirectDescendant(p)) {
-							registry.register(propertyFactory.create(path.child("dependencies").child(p.getName()), e));
-						}
-					}))
-					.build());
+				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
 
-				val implementation = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("implementation"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
 					.build());
-				val compileOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("compileOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
 					.build());
-				val linkOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("linkOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
 					.build());
-				val runtimeOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("runtimeOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
@@ -355,39 +337,30 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 				val dependencies = variantDependencies.getDependencies();
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("dependencies"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(ofInstance(dependencies))
-					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsDependencyBucket.class), ModelComponentReference.ofAny(projectionOf(Configuration.class)), (e, p, ignored1, ignored2, projection) -> {
-						if (path.isDirectDescendant(p)) {
-							registry.register(propertyFactory.create(path.child("dependencies").child(p.getName()), e));
-						}
-					}))
-					.build());
+				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
 
-				val implementation = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("implementation"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
 					.build());
-				val compileOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("compileOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
 					.build());
-				val linkOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("linkOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
 					.build());
-				val runtimeOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("runtimeOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))

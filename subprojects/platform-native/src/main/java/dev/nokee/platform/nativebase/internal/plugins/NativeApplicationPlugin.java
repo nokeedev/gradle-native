@@ -161,67 +161,57 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 
 				registry.register(propertyFactory.create(path.child("binaries").child("executable"), ModelNodes.of(executable)));
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("dependencies"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(ofInstance(variantDependencies.getDependencies()))
-					.build());
+				val dependencies = variantDependencies.getDependencies();
+				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
 
-				val implementation = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("implementation"))
 					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> variantDependencies.getDependencies().getImplementation().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> variantDependencies.getDependencies().getImplementation()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(variantDependencies.getDependencies().getImplementation().getAsConfiguration().getName())))
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
 					.build());
-				val compileOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("compileOnly"))
 					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> variantDependencies.getDependencies().getCompileOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> variantDependencies.getDependencies().getCompileOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(variantDependencies.getDependencies().getCompileOnly().getAsConfiguration().getName())))
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
 					.build());
-				val linkOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("linkOnly"))
 					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> variantDependencies.getDependencies().getLinkOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> variantDependencies.getDependencies().getLinkOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(variantDependencies.getDependencies().getLinkOnly().getAsConfiguration().getName())))
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
 					.build());
-				val runtimeOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("runtimeOnly"))
 					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> variantDependencies.getDependencies().getRuntimeOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> variantDependencies.getDependencies().getRuntimeOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(variantDependencies.getDependencies().getRuntimeOnly().getAsConfiguration().getName())))
+					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
+					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
+					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
 					.build());
-				val runtimeElements = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("runtimeElements"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> ((NativeApplicationOutgoingDependencies) variantDependencies.getOutgoing()).getRuntimeElements()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(((NativeApplicationOutgoingDependencies) variantDependencies.getOutgoing()).getRuntimeElements().getName())))
 					.build());
-				val linkLibraries = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("linkLibraries"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> ((DefaultNativeIncomingDependencies) variantDependencies.getIncoming()).getLinkLibrariesBucket().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> ((DefaultNativeIncomingDependencies) variantDependencies.getIncoming()).getLinkLibrariesBucket()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(((DefaultNativeIncomingDependencies) variantDependencies.getIncoming()).getLinkLibrariesBucket().getAsConfiguration().getName())))
 					.build());
-				val runtimeLibraries = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("runtimeLibraries"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> ((DefaultNativeIncomingDependencies) variantDependencies.getIncoming()).getRuntimeLibrariesBucket().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> ((DefaultNativeIncomingDependencies) variantDependencies.getIncoming()).getRuntimeLibrariesBucket()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(((DefaultNativeIncomingDependencies) variantDependencies.getIncoming()).getRuntimeLibrariesBucket().getAsConfiguration().getName())))
 					.build());
-				registry.register(propertyFactory.create(path.child("dependencies").child("implementation"), ModelNodes.of(implementation)));
-				registry.register(propertyFactory.create(path.child("dependencies").child("compileOnly"), ModelNodes.of(compileOnly)));
-				registry.register(propertyFactory.create(path.child("dependencies").child("linkOnly"), ModelNodes.of(linkOnly)));
-				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeOnly"), ModelNodes.of(runtimeOnly)));
-				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeElements"), ModelNodes.of(runtimeElements)));
-				registry.register(propertyFactory.create(path.child("dependencies").child("linkLibraries"), ModelNodes.of(linkLibraries)));
-				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeLibraries"), ModelNodes.of(runtimeLibraries)));
 				// TODO: Missing incoming API configuration
 
 				whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.ofAny(projectionOf(Configuration.class)), ModelComponentReference.of(ModelPath.class), (e, ignored, p) -> {

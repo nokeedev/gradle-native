@@ -83,44 +83,36 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 				val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultNativeApplicationComponent.class, ProjectIdentifier.of(project));
 				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
 				val dependencies = project.getObjects().newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("dependencies"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(ModelProjections.ofInstance(dependencies))
-					.build());
+				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
 
-				val implementation = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("implementation"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
 					.build());
-				val compileOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("compileOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
 					.build());
-				val linkOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("linkOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
 					.build());
-				val runtimeOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("runtimeOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
 					.build());
-				registry.register(propertyFactory.create(path.child("dependencies").child("implementation"), ModelNodes.of(implementation)));
-				registry.register(propertyFactory.create(path.child("dependencies").child("compileOnly"), ModelNodes.of(compileOnly)));
-				registry.register(propertyFactory.create(path.child("dependencies").child("linkOnly"), ModelNodes.of(linkOnly)));
-				registry.register(propertyFactory.create(path.child("dependencies").child("runtimeOnly"), ModelNodes.of(runtimeOnly)));
 
 				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), NativeApplication.class));
 
