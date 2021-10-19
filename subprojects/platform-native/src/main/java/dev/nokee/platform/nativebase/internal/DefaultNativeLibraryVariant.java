@@ -27,7 +27,6 @@ import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
-import lombok.Getter;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
@@ -37,12 +36,16 @@ import javax.inject.Inject;
 
 public class DefaultNativeLibraryVariant extends BaseNativeVariant implements NativeLibrary, VariantInternal, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-	@Getter private final ResolvableComponentDependencies resolvableDependencies;
+	private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
 	public DefaultNativeLibraryVariant(VariantIdentifier<?> identifier, ResolvableComponentDependencies resolvableDependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
 		super(identifier, objects, providers, assembleTask, binaryViewFactory);
 		this.resolvableDependencies = resolvableDependencies;
+	}
+
+	public ResolvableComponentDependencies getResolvableDependencies() {
+		return resolvableDependencies;
 	}
 
 	public DefaultNativeLibraryComponentDependencies getDependencies() {

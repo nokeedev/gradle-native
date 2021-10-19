@@ -32,7 +32,6 @@ import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.utils.ConfigureUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -67,7 +66,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	private SharedLibraryBinaryInternal sharedLibraryBinary;
 	@Getter private final Property<String> resourcePath;
 	@Getter private final ConfigurableFileCollection nativeRuntimeFiles;
-	@Getter private final ResolvableComponentDependencies resolvableDependencies;
+	private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
 	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, FunctionalSourceSet parentSources, GroupId groupId, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, TaskProvider<Task> assembleTask, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory) {
@@ -88,6 +87,10 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 		getResourcePath().convention(getProviders().provider(() -> getResourcePath(groupId)));
 		getDevelopmentBinary().convention(providers.provider(this::getJar));
+	}
+
+	public ResolvableComponentDependencies getResolvableDependencies() {
+		return resolvableDependencies;
 	}
 
 	private String getResourcePath(GroupId groupId) {
