@@ -179,7 +179,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 		val variantDependencies = newDependencies((BuildVariantInternal) variantIdentifier.getBuildVariant(), variantIdentifier, component, project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(ModelLookup.class));
 		return NodeRegistration.unmanaged(variantIdentifier.getUnambiguousName(), of(DefaultNativeTestSuiteVariant.class), () -> {
-			return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class, variantIdentifier, variantDependencies, project.getObjects(), project.getProviders(), assembleTask, project.getExtensions().getByType(BinaryViewFactory.class));
+			return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class, variantIdentifier, project.getObjects(), project.getProviders(), assembleTask, project.getExtensions().getByType(BinaryViewFactory.class));
 		})
 			.withComponent(IsVariant.tag())
 			.withComponent(variantDependencies)

@@ -345,7 +345,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 		val variantDependencies = newDependencies(buildVariant, variantIdentifier, component, project.getObjects(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(ModelLookup.class));
 		return NodeRegistration.unmanaged(variantIdentifier.getUnambiguousName(), of(DefaultXCTestTestSuiteVariant.class), () -> {
-			return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, variantIdentifier, variantDependencies.getIncoming(), project.getObjects(), project.getProviders(), assembleTask, project.getExtensions().getByType(BinaryViewFactory.class));
+			return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, variantIdentifier, project.getObjects(), project.getProviders(), assembleTask, project.getExtensions().getByType(BinaryViewFactory.class));
 		})
 			.withComponent(variantIdentifier)
 			.withComponent(IsVariant.tag())
