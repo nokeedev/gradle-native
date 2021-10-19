@@ -27,6 +27,7 @@ class ModelBasePluginWellBehavedPluginTest {
 	@TestFactory
 	Stream<DynamicTest> checkWellBehavedPlugin() {
 		return new WellBehavedPluginTester()
+			.qualifiedPluginId("dev.nokee.model-base")
 			.pluginClass(ModelBasePlugin.class)
 			.stream().map(TestCaseUtils::toJUnit5DynamicTest);
 	}
