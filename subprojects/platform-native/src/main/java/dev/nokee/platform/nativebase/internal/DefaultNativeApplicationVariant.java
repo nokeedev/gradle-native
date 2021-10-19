@@ -16,6 +16,7 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
@@ -33,7 +34,7 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-public class DefaultNativeApplicationVariant extends BaseNativeVariant implements NativeApplication, VariantInternal {
+public class DefaultNativeApplicationVariant extends BaseNativeVariant implements NativeApplication, VariantInternal, ModelNodeAware {
 	private final ResolvableComponentDependencies resolvableDependencies;
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
@@ -48,11 +49,16 @@ public class DefaultNativeApplicationVariant extends BaseNativeVariant implement
 	}
 
 	public NativeApplicationComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(node, "dependencies").as(NativeApplicationComponentDependencies.class).get();
+		return ModelProperties.getProperty(this, "dependencies").as(NativeApplicationComponentDependencies.class).get();
 	}
 
 	@Override
 	public BinaryView<Binary> getBinaries() {
-		return (BinaryView<Binary>) ModelProperties.getProperty(node, "binaries").as(BinaryView.class).get();
+		return (BinaryView<Binary>) ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
+	}
+
+	@Override
+	public ModelNode getNode() {
+		return node;
 	}
 }
