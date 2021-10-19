@@ -40,8 +40,8 @@ public final class ModelNodeBackedElement implements ModelElement, ModelNodeAwar
 	}
 
 	@Override
-	public boolean instanceOf(Class<?> type) {
-		return ModelNodeUtils.canBeViewedAs(node, ModelType.of(type));
+	public boolean instanceOf(ModelType<?> type) {
+		return ModelNodeUtils.canBeViewedAs(node, type);
 	}
 
 	@Override
