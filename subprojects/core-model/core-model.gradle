@@ -26,3 +26,12 @@ publishing {
 		}
 	}
 }
+
+gradlePlugin {
+	plugins {
+		modelBase {
+			id = 'dev.nokee.model-base'
+			implementationClass = 'dev.nokee.model.internal.plugins.ModelBasePlugin'
+		}
+	}
+}
