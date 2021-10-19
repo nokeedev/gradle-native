@@ -40,7 +40,7 @@ import javax.inject.Inject;
 
 public class DefaultIosApplicationVariant extends BaseNativeVariant implements IosApplication, VariantInternal, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-	@Getter private final ResolvableComponentDependencies resolvableDependencies;
+	private final ResolvableComponentDependencies resolvableDependencies;
 	@Getter private final Property<String> productBundleIdentifier;
 
 	@Inject
@@ -50,6 +50,10 @@ public class DefaultIosApplicationVariant extends BaseNativeVariant implements I
 		this.productBundleIdentifier = objects.property(String.class);
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
+	}
+
+	public ResolvableComponentDependencies getResolvableDependencies() {
+		return resolvableDependencies;
 	}
 
 	@Override
