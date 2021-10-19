@@ -63,8 +63,9 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 	}
 
 	@Override
-	public void configure(Action<? super T> action) {
+	public DomainObjectProvider<T> configure(Action<? super T> action) {
 		ModelNodeUtils.applyTo(node, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
+		return this;
 	}
 
 	Provider<T> getAsProvider() {
