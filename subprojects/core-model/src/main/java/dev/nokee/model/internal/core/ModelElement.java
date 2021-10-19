@@ -17,6 +17,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.type.ModelType;
+import org.gradle.api.Action;
 import org.gradle.api.Named;
 
 public interface ModelElement extends Named {
@@ -29,4 +30,6 @@ public interface ModelElement extends Named {
 		return instanceOf(ModelType.of(type));
 	}
 	boolean instanceOf(ModelType<?> type);
+
+	<T> ModelElement configure(Class<T> type, Action<? super T> action);
 }

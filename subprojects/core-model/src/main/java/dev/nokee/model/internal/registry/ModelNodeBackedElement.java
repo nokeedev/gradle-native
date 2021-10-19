@@ -21,6 +21,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.type.ModelType;
+import org.gradle.api.Action;
 
 public final class ModelNodeBackedElement implements ModelElement, ModelNodeAware {
 	private final ModelNode node;
@@ -42,6 +43,12 @@ public final class ModelNodeBackedElement implements ModelElement, ModelNodeAwar
 	@Override
 	public boolean instanceOf(ModelType<?> type) {
 		return ModelNodeUtils.canBeViewedAs(node, type);
+	}
+
+	@Override
+	public <T> ModelElement configure(Class<T> type, Action<? super T> action) {
+		as(type).configure(action);
+		return this;
 	}
 
 	@Override
