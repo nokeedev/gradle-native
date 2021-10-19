@@ -30,10 +30,10 @@ public interface DomainObjectProvider<T> {
 
 	Class<T> getType();
 
-	void configure(Action<? super T> action);
+	DomainObjectProvider<T> configure(Action<? super T> action);
 
-	default void configure(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		configure(ConfigureUtil.configureUsing(requireNonNull(closure)));
+	default DomainObjectProvider<T> configure(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
+		return configure(ConfigureUtil.configureUsing(requireNonNull(closure)));
 	}
 
 	T get();

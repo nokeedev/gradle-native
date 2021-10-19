@@ -47,8 +47,9 @@ public abstract class AbstractDomainObjectProvider<TYPE, T extends TYPE> impleme
 	}
 
 	@Override
-	public void configure(Action<? super T> action) {
+	public DomainObjectProvider<T> configure(Action<? super T> action) {
 		configurer.configure(identifier, requireNonNull(action));
+		return this;
 	}
 
 	@Override
