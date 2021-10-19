@@ -27,6 +27,7 @@ import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
@@ -34,18 +35,18 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+
 public class DefaultNativeLibraryVariant extends BaseNativeVariant implements NativeLibrary, VariantInternal, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-	private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
 	public DefaultNativeLibraryVariant(VariantIdentifier<?> identifier, ResolvableComponentDependencies resolvableDependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
 		super(identifier, objects, providers, assembleTask, binaryViewFactory);
-		this.resolvableDependencies = resolvableDependencies;
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
-		return resolvableDependencies;
+		return node.getComponent(componentOf(VariantComponentDependencies.class)).getIncoming();
 	}
 
 	public DefaultNativeLibraryComponentDependencies getDependencies() {
