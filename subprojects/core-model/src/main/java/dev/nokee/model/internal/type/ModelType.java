@@ -94,6 +94,16 @@ public final class ModelType<T> {
 	}
 
 	/**
+	 * Creates a type representation for the specified type.
+	 *
+	 * @param type  a type
+	 * @return a type representation of the specified type, never null.
+	 */
+	public static ModelType<?> of(Type type) {
+		return new ModelType<>(TypeToken.of(type));
+	}
+
+	/**
 	 * Creates a type representation for the specified instance.
 	 *
 	 * @param instance  a instance

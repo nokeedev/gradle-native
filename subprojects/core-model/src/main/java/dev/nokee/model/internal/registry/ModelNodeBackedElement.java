@@ -15,13 +15,18 @@
  */
 package dev.nokee.model.internal.registry;
 
+import com.google.common.collect.MoreCollectors;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.val;
 import org.gradle.api.Action;
+
+import java.lang.reflect.Type;
+import java.util.Objects;
 
 public final class ModelNodeBackedElement implements ModelElement, ModelNodeAware {
 	private final ModelNode node;
@@ -37,16 +42,29 @@ public final class ModelNodeBackedElement implements ModelElement, ModelNodeAwar
 
 	@Override
 	public <T> DomainObjectProvider<T> as(ModelType<T> type) {
-		return new ModelNodeBackedProvider<>(type, node);
+		Objects.requireNonNull(type);
+		val result = ModelNodeUtils.getProjections(node).filter(it -> it.canBeViewedAs(type)).collect(MoreCollectors.toOptional()).orElseThrow(() -> new ClassCastException());
+		return new ModelNodeBackedProvider<>((ModelType<T>) result.getType(), node);
+	}
+
+	public <T> T asType(Class<T> type) {
+		if (DomainObjectProvider.class.isAssignableFrom(type)) {
+			return type.cast(this);
+		} else {
+			throw new UnsupportedOperationException("Use 'DomainObjectProvider#as(type)' instead.");
+		}
 	}
 
 	@Override
-	public boolean instanceOf(ModelType<?> type) {
-		return ModelNodeUtils.canBeViewedAs(node, type);
+	public boolean instanceOf(Type type) {
+		Objects.requireNonNull(type);
+		return ModelNodeUtils.canBeViewedAs(node, ModelType.of(type));
 	}
 
 	@Override
 	public <T> ModelElement configure(Class<T> type, Action<? super T> action) {
+		Objects.requireNonNull(type);
+		Objects.requireNonNull(action);
 		as(type).configure(action);
 		return this;
 	}
