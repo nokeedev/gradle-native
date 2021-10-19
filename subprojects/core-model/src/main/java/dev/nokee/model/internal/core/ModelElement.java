@@ -20,16 +20,15 @@ import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 
+import java.lang.reflect.Type;
+
 public interface ModelElement extends Named {
 	default <T> DomainObjectProvider<T> as(Class<T> type) {
 		return as(ModelType.of(type));
 	}
 	<T> DomainObjectProvider<T> as(ModelType<T> type);
 
-	default boolean instanceOf(Class<?> type) {
-		return instanceOf(ModelType.of(type));
-	}
-	boolean instanceOf(ModelType<?> type);
+	boolean instanceOf(Type type);
 
 	<T> ModelElement configure(Class<T> type, Action<? super T> action);
 }
