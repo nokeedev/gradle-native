@@ -15,6 +15,9 @@
  */
 package dev.nokee.testing.nativebase.internal;
 
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -31,7 +34,8 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements NativeTestSuiteVariant, VariantInternal {
+public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements NativeTestSuiteVariant, VariantInternal, ModelNodeAware {
+	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 	private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
@@ -44,5 +48,10 @@ public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements 
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
 		return resolvableDependencies;
+	}
+
+	@Override
+	public ModelNode getNode() {
+		return node;
 	}
 }
