@@ -27,6 +27,7 @@ import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
@@ -34,20 +35,20 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+
 public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements IosApplication, VariantInternal, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-	private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
 	public DefaultXCTestTestSuiteVariant(VariantIdentifier<?> identifier, ResolvableComponentDependencies resolvableDependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
 		super(identifier, objects, providers, assembleTask, binaryViewFactory);
-		this.resolvableDependencies = resolvableDependencies;
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
-		return resolvableDependencies;
+		return node.getComponent(componentOf(VariantComponentDependencies.class)).getIncoming();
 	}
 
 	@Override

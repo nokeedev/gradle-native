@@ -15,10 +15,7 @@
  */
 package dev.nokee.platform.ios.internal;
 
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -29,6 +26,7 @@ import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import lombok.Getter;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
@@ -38,22 +36,24 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
+import java.util.function.Supplier;
+
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+
 public class DefaultIosApplicationVariant extends BaseNativeVariant implements IosApplication, VariantInternal, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-	private final ResolvableComponentDependencies resolvableDependencies;
 	@Getter private final Property<String> productBundleIdentifier;
 
 	@Inject
 	public DefaultIosApplicationVariant(VariantIdentifier<?> identifier, ResolvableComponentDependencies resolvableDependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
 		super(identifier, objects, providers, assembleTask, binaryViewFactory);
-		this.resolvableDependencies = resolvableDependencies;
 		this.productBundleIdentifier = objects.property(String.class);
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
-		return resolvableDependencies;
+		return node.getComponent(componentOf(VariantComponentDependencies.class)).getIncoming();
 	}
 
 	@Override

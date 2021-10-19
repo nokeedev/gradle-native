@@ -34,20 +34,20 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+
 public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements NativeTestSuiteVariant, VariantInternal, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-	private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
 	public DefaultNativeTestSuiteVariant(VariantIdentifier<?> identifier, VariantComponentDependencies<?> variantDependencies, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
 		super(identifier, objects, providers, assembleTask, binaryViewFactory);
-		this.resolvableDependencies = variantDependencies.getIncoming();
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
-		return resolvableDependencies;
+		return node.getComponent(componentOf(VariantComponentDependencies.class)).getIncoming();
 	}
 
 	@Override
