@@ -105,12 +105,11 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final TaskRegistry taskRegistry;
 	private final TaskContainer tasks;
 	private final ModelLookup modelLookup;
-	private final BinaryView<Binary> binaries;
 	private final SetProperty<BuildVariantInternal> buildVariants;
 	private final Property<DefaultNativeTestSuiteVariant> developmentVariant;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
+	public DefaultNativeTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
 		super(identifier, DefaultNativeTestSuiteVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.objects = objects;
 		this.providers = providers;
@@ -135,7 +134,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.getBaseName().convention(BaseNameUtils.from(identifier).getAsString());
 
 		this.taskRegistry = taskRegistry;
-		this.binaries = binaryViewFactory.create(identifier);
 
 		this.getBuildVariants().convention(getFinalSpace().map(DefaultBuildVariant::fromSpace));
 		this.getBuildVariants().finalizeValueOnRead();
@@ -169,7 +167,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 	@Override
 	public BinaryView<Binary> getBinaries() {
-		return binaries;
+		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override
@@ -214,7 +212,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 			// TODO: The variant should have give access to the testTask
 			val runTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("run"), RunTestExecutable.class, variantIdentifier), task -> {
 				// TODO: Use a provider of the variant here
-				task.dependsOn((Callable) () -> getVariants().get().stream().filter(it -> it.getBuildVariant().equals(buildVariant)).findFirst().get().getDevelopmentBinary());
+				task.dependsOn((Callable) () -> getVariants().filter(it -> it.getBuildVariant().equals(buildVariant)).flatMap(it -> it.get(0).getDevelopmentBinary()));
 				task.setOutputDir(task.getTemporaryDir());
 				task.commandLine(new Object() {
 					@Override

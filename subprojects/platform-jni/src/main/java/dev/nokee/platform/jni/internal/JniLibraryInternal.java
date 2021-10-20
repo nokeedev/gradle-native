@@ -19,6 +19,8 @@ import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
@@ -54,7 +56,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
-public class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelBackedBinaryAwareComponentMixIn {
+public class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal {
 	private final DefaultJavaNativeInterfaceNativeComponentDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
@@ -170,5 +172,15 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Override
 	public void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
 		dependencies(ConfigureUtil.configureUsing(closure));
+	}
+
+	@Override
+	public void binaries(Action<? super BinaryView<Binary>> action) {
+		action.execute(getBinaries());
+	}
+
+	@Override
+	public void binaries(@SuppressWarnings("rawtypes") Closure closure) {
+		binaries(ConfigureUtil.configureUsing(closure));
 	}
 }

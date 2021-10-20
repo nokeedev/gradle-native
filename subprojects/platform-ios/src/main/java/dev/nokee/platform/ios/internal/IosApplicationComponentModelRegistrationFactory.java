@@ -89,7 +89,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 			.withComponent(createdUsing(of(DefaultIosApplicationComponent.class), () -> create(name, project)))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
-				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 				sourceRegistration.accept(entity, path);
 
@@ -99,28 +98,28 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
 
-				val implementation = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("implementation"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
 					.build());
-				val compileOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("compileOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
 					.build());
-				val linkOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("linkOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
 					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
 					.build());
-				val runtimeOnly = registry.register(ModelRegistration.builder()
+				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("runtimeOnly"))
 					.withComponent(IsDependencyBucket.tag())
 					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
@@ -128,16 +127,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
 					.build());
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("binaries"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(project.getProviders(), () -> ModelStates.finalize(entity))))))
-					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.ofAny(projectionOf(Binary.class)), (e, p, ignored1, ignored2, projection) -> {
-						if (path.isDescendant(p)) {
-							registry.register(propertyFactory.create(path.child("binaries").child(p.getName()), e));
-						}
-					}))
-					.build());
+				registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
 
 				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), DefaultIosApplicationVariant.class));
 			})))
@@ -180,7 +170,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 			.withComponent(variantDependencies)
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
-				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 				val dependencies = variantDependencies.getDependencies();
 
 				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
@@ -214,16 +203,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
 					.build());
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("binaries"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(project.getProviders())))))
-					.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.ofAny(projectionOf(Binary.class)), (e, p, ignored1, ignored2, projection) -> {
-						if (path.isDirectDescendant(p)) {
-							registry.register(propertyFactory.create(path.child("binaries").child(p.getName()), e));
-						}
-					}))
-					.build());
+				registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
 
 				val executableIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, identifier);
 				val executable = registry.register(ModelRegistration.builder()

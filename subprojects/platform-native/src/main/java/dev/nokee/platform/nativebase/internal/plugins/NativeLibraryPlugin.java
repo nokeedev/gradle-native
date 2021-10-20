@@ -34,6 +34,7 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.binaries.BinaryConfigurer;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -154,50 +155,35 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 			.withComponent(variantDependencies)
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
-				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("binaries"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(project.getProviders())))))
-					.build());
+				registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
 
 				if (identifier.getBuildVariant().hasAxisOf(NativeRuntimeBasePlugin.TARGET_LINKAGE_FACTORY.getShared())) {
 					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, identifier); // TODO: Use input to get variant identifier
-					val sharedLibrary = registry.register(ModelRegistration.builder()
+					val binaryEntity = registry.register(ModelRegistration.builder()
 						.withComponent(path.child("sharedLibrary"))
+						.withComponent(IsBinary.tag())
 						.withComponent(binaryIdentifier)
 						.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
 							ModelStates.realize(entity);
 							return project.getExtensions().getByType(BinaryRepository.class).get(binaryIdentifier);
 						}))
 						.build());
-
-					registry.register(propertyFactory.create(path.child("binaries").child("sharedLibrary"), ModelNodes.of(sharedLibrary)));
-
-					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (e, p) -> {
-						if (path.getParent().get().child("binaries").equals(p)) {
-							registry.register(propertyFactory.create(p.child(Optional.of(identifier.getUnambiguousName()).filter(it -> !it.isEmpty()).map(it -> it + "SharedLibrary").orElse("sharedLibrary")), ModelNodes.of(sharedLibrary)));
-						}
-					}));
+					project.getExtensions().getByType(BinaryConfigurer.class)
+						.configure(binaryIdentifier, binary -> ModelStates.realize(ModelNodes.of(binaryEntity)));
 				} else {
 					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("staticLibrary"), StaticLibraryBinaryInternal.class, identifier); // TODO: Use input to get variant identifier
-					val staticLibrary = registry.register(ModelRegistration.builder()
+					val binaryEntity = registry.register(ModelRegistration.builder()
 						.withComponent(path.child("staticLibrary"))
+						.withComponent(IsBinary.tag())
 						.withComponent(binaryIdentifier)
 						.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {
 							ModelStates.realize(entity);
 							return project.getExtensions().getByType(BinaryRepository.class).get(binaryIdentifier);
 						}))
 						.build());
-
-					registry.register(propertyFactory.create(path.child("binaries").child("staticLibrary"), ModelNodes.of(staticLibrary)));
-
-					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (e, p) -> {
-						if (path.getParent().get().child("binaries").equals(p)) {
-							registry.register(propertyFactory.create(p.child(Optional.of(identifier.getUnambiguousName()).filter(it -> !it.isEmpty()).map(it -> it + "StaticLibrary").orElse("staticLibrary")), ModelNodes.of(staticLibrary)));
-						}
-					}));
+					project.getExtensions().getByType(BinaryConfigurer.class)
+						.configure(binaryIdentifier, binary -> ModelStates.realize(ModelNodes.of(binaryEntity)));
 				}
 
 				val dependencies = variantDependencies.getDependencies();
