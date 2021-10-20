@@ -100,16 +100,17 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 	}
 
 	private VariantComponentDependencies newDependencies(BuildVariantInternal buildVariant, JniLibraryComponentInternal component, VariantIdentifier<JniLibraryInternal> variantIdentifier) {
-		DefaultJavaNativeInterfaceNativeComponentDependencies variantDependencies = component.getDependencies();
-		if (component.getBuildVariants().get().size() > 1) {
-			val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
-			variantDependencies = objectFactory.newInstance(DefaultJavaNativeInterfaceNativeComponentDependencies.class, dependencyContainer);
-			variantDependencies.configureEach(variantBucket -> {
-				component.getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
-					variantBucket.getAsConfiguration().extendsFrom(componentBucket.getAsConfiguration());
-				});
+		val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
+		val variantDependencies = objectFactory.newInstance(DefaultJavaNativeInterfaceNativeComponentDependencies.class, dependencyContainer);
+		variantDependencies.configureEach(variantBucket -> {
+			component.getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
+				val configuration = variantBucket.getAsConfiguration();
+				val parentConfiguration = componentBucket.getAsConfiguration();
+				if (!parentConfiguration.getName().equals(configuration.getName())) {
+					configuration.extendsFrom(parentConfiguration);
+				}
 			});
-		}
+		});
 
 		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(new NativeComponentDependenciesJavaNativeInterfaceAdapter(variantDependencies)).withVariant(buildVariant).withOwnerIdentifier(variantIdentifier).withBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
 		boolean hasSwift = modelLookup.anyMatch(ModelSpecs.of(withType(of(SwiftSourceSet.class))));
