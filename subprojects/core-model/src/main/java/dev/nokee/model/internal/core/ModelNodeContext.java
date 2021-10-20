@@ -66,7 +66,7 @@ public final class ModelNodeContext {
 	}
 
 	public static ModelNode getCurrentModelNode() {
-		return requireNonNull(MODEL_NODE_INFO.get(), "no mode node context");
+		return requireNonNull(MODEL_NODE_INFO.get(), "no model node context");
 	}
 
 	public static <T> T injectCurrentModelNodeIfAllowed(T target) {
