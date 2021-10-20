@@ -64,8 +64,8 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 	private final ProjectLayout layout;
 	private final DomainObjectEventPublisher eventPublisher;
 
-	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
-		super(identifier, objects, providers, tasks, layout, eventPublisher, binaryViewFactory, taskRegistry, taskViewFactory);
+	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
+		super(identifier, objects, providers, tasks, layout, eventPublisher, taskRegistry, taskViewFactory);
 		this.providers = providers;
 		this.taskRegistry = taskRegistry;
 		this.layout = layout;

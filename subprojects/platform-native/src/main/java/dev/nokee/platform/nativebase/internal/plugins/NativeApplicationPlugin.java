@@ -33,6 +33,7 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.binaries.BinaryConfigurer;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
@@ -137,29 +138,19 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, identifier); // TODO: Use input to get variant identifier
-				val executable = registry.register(ModelRegistration.builder()
+				val binaryEntity = registry.register(ModelRegistration.builder()
 					.withComponent(path.child("executable"))
+					.withComponent(IsBinary.tag())
 					.withComponent(binaryIdentifier)
 					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
 						ModelStates.realize(entity);
 						return project.getExtensions().getByType(BinaryRepository.class).get(binaryIdentifier);
 					}))
 					.build());
+				project.getExtensions().getByType(BinaryConfigurer.class)
+					.configure(binaryIdentifier, binary -> ModelStates.realize(ModelNodes.of(binaryEntity)));
 
-				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
-				project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (e, p) -> {
-					if (path.getParent().get().child("binaries").equals(p)) {
-						registry.register(propertyFactory.create(p.child(Optional.of(identifier.getUnambiguousName()).filter(it -> !it.isEmpty()).map(it -> it + "Executable").orElse("executable")), ModelNodes.of(executable)));
-					}
-				}));
-
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("binaries"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(project.getProviders())))))
-					.build());
-
-				registry.register(propertyFactory.create(path.child("binaries").child("executable"), ModelNodes.of(executable)));
+				registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
 
 				val dependencies = variantDependencies.getDependencies();
 				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));

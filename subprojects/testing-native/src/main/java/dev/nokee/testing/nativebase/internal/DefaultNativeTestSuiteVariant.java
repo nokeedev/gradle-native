@@ -18,6 +18,9 @@ package dev.nokee.testing.nativebase.internal;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -51,6 +54,11 @@ public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements 
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
 		return node.getComponent(componentOf(VariantComponentDependencies.class)).getIncoming();
+	}
+
+	@Override
+	public BinaryView<Binary> getBinaries() {
+		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override
