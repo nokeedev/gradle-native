@@ -22,9 +22,9 @@ import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.c.CLibrary;
 import dev.nokee.platform.c.CLibrarySources;
@@ -68,9 +68,8 @@ public class CLibraryPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
-		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(CLibrary.class), name -> cLibrary(name, project));
-		val componentProvider = components.register("main", CLibrary.class, configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(cLibrary("main", project)).as(CLibrary.class);
+		componentProvider.configure(configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
 		val extension = componentProvider.get();
 
 		// Other configurations
@@ -82,7 +81,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 		project.getExtensions().add(CLibrary.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration cLibrary(String name, Project project) {
+	public static ModelRegistration cLibrary(String name, Project project) {
 		return new NativeLibraryComponentModelRegistrationFactory(CLibrary.class, DefaultCLibrary.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -111,7 +110,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), CLibrarySources.class));
-		}).create(name);
+		}).create(ComponentIdentifier.of(ComponentName.of(name), CLibrary.class, ProjectIdentifier.of(project)));
 	}
 
 	public static abstract class DefaultCLibrary implements CLibrary

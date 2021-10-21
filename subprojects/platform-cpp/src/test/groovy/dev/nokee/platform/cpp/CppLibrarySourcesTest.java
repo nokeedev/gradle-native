@@ -18,7 +18,6 @@ package dev.nokee.platform.cpp;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
-import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -26,7 +25,6 @@ import lombok.val;
 
 import java.util.stream.Stream;
 
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.cpp.internal.plugins.CppLibraryPlugin.cppLibrary;
 
 class CppLibrarySourcesTest implements ComponentSourcesTester<CppLibrarySources> {
@@ -35,7 +33,7 @@ class CppLibrarySourcesTest implements ComponentSourcesTester<CppLibrarySources>
 	public CppLibrarySources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (CppLibrarySources) create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), cppLibrary("main", project)).as(CppLibrary.class).get().getSources();
+		val sources = project.getExtensions().getByType(ModelRegistry.class).register(cppLibrary("main", project)).as(CppLibrary.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}
