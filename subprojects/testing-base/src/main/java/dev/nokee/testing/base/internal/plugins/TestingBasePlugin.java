@@ -16,13 +16,18 @@
 package dev.nokee.testing.base.internal.plugins;
 
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.DefaultTestSuiteContainer;
+import dev.nokee.testing.base.internal.IsTestComponent;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -38,6 +43,13 @@ public class TestingBasePlugin implements Plugin<Project> {
 		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
 		val components = modeRegistry.register(testSuites()).as(DefaultTestSuiteContainer.class).get();
 		project.getExtensions().add(TestSuiteContainer.class, "testSuites", components);
+
+		val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsTestComponent.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(TestSuiteComponent.class)), (e, p, ignored1, ignored2, projection) -> {
+			if (ModelPath.root().isDirectDescendant(p)) {
+				modeRegistry.register(propertyFactory.create(ModelPath.path("testSuites").child(p.getName()), e));
+			}
+		}));
 
 		project.afterEvaluate(proj -> {
 			// Force realize all test suite... until we solve the differing problem.
