@@ -53,7 +53,12 @@ import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
-public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>, ModelBackedBinaryAwareComponentMixIn {
+public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component
+	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>
+	, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
+	, ModelBackedBinaryAwareComponentMixIn
+	, ModelBackedTaskAwareComponentMixIn
+{
 	private final ProviderFactory providers;
 	private final TaskRegistry taskRegistry;
 	private final ProjectLayout layout;

@@ -23,7 +23,7 @@ import org.gradle.api.Task;
  * @param <T> type of the tasks in this view
  * @since 0.3
  */
-public interface TaskView<T extends Task> extends View<T> {
+public interface TaskView<T extends Task> extends View<T>, ComponentTasks {
 	/**
 	 * Returns a task view containing the objects in this view of the given type.
 	 * The returned view is live, so that when matching objects are later added to this view, they are also visible in the filtered task view.

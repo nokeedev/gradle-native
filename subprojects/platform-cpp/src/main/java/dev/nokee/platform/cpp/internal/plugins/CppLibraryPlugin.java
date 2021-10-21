@@ -118,6 +118,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
 		, ModelBackedSourceAwareComponentMixIn<CppLibrarySources>
 		, ModelBackedBinaryAwareComponentMixIn
+		, ModelBackedTaskAwareComponentMixIn
 	{
 		@Override
 		public CppSourceSet getCppSources() {

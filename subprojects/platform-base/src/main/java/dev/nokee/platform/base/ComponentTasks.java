@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase;
-
-import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.TaskAwareComponent;
-import dev.nokee.platform.base.Variant;
+package dev.nokee.platform.base;
 
 /**
- * A native library component that is built for a specific target platform.
+ * The tasks for a component.
  *
- * @since 0.4
+ * @since 0.5
  */
-public interface NativeLibrary extends Variant, DependencyAwareComponent<NativeLibraryComponentDependencies>, BinaryAwareComponent, TaskAwareComponent {
+public interface ComponentTasks {
 }

@@ -26,6 +26,7 @@ import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeLibrary;
@@ -33,6 +34,7 @@ import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -44,7 +46,17 @@ import static dev.nokee.platform.objectivecpp.internal.plugins.ObjectiveCppLibra
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCppLibraryTest implements SourceAwareComponentTester<ObjectiveCppLibrary>, HasBaseNameTester, ComponentTester<ObjectiveCppLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, VariantAwareComponentTester<VariantView<NativeLibrary>>, BinaryAwareComponentTester<BinaryView<Binary>>, HasObjectiveCppSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
+class ObjectiveCppLibraryTest implements ComponentTester<ObjectiveCppLibrary>
+	, SourceAwareComponentTester<ObjectiveCppLibrary>
+	, HasBaseNameTester
+	, DependencyAwareComponentTester<NativeLibraryComponentDependencies>
+	, VariantAwareComponentTester<VariantView<NativeLibrary>>
+	, BinaryAwareComponentTester<BinaryView<Binary>>
+	, TaskAwareComponentTester<TaskView<Task>>
+	, HasObjectiveCppSourcesTester
+	, HasPrivateHeadersTester
+	, HasPublicHeadersTester
+{
 	private final ObjectiveCppLibrary subject = createSubject("pago");
 	@Getter @TempDir File testDirectory;
 

@@ -24,6 +24,7 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -31,6 +32,7 @@ import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -41,7 +43,16 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.platform.cpp.internal.plugins.CppApplicationPlugin.cppApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CppApplicationTest implements SourceAwareComponentTester<CppApplication>, HasBaseNameTester, ComponentTester<CppApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>>, BinaryAwareComponentTester<BinaryView<Binary>>, HasCppSourcesTester, HasPrivateHeadersTester {
+class CppApplicationTest implements ComponentTester<CppApplication>
+	, SourceAwareComponentTester<CppApplication>
+	, HasBaseNameTester
+	, DependencyAwareComponentTester<NativeApplicationComponentDependencies>
+	, VariantAwareComponentTester<VariantView<NativeApplication>>
+	, BinaryAwareComponentTester<BinaryView<Binary>>
+	, TaskAwareComponentTester<TaskView<Task>>
+	, HasCppSourcesTester
+	, HasPrivateHeadersTester
+{
 	private final CppApplication subject = createSubject("sari");
 	@Getter @TempDir File testDirectory;
 

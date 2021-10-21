@@ -24,6 +24,7 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -31,6 +32,7 @@ import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -41,7 +43,16 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.platform.c.internal.plugins.CApplicationPlugin.cApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CApplicationTest implements SourceAwareComponentTester<CApplication>, HasBaseNameTester, ComponentTester<CApplication>, DependencyAwareComponentTester<NativeApplicationComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>>, BinaryAwareComponentTester<BinaryView<Binary>>, HasCSourcesTester, HasPrivateHeadersTester {
+class CApplicationTest implements ComponentTester<CApplication>
+	, SourceAwareComponentTester<CApplication>
+	, HasBaseNameTester
+	, DependencyAwareComponentTester<NativeApplicationComponentDependencies>
+	, VariantAwareComponentTester<VariantView<NativeApplication>>
+	, BinaryAwareComponentTester<BinaryView<Binary>>
+	, TaskAwareComponentTester<TaskView<Task>>
+	, HasCSourcesTester
+	, HasPrivateHeadersTester
+{
 	private final CApplication subject = createSubject("kdrj");
 	@Getter @TempDir File testDirectory;
 

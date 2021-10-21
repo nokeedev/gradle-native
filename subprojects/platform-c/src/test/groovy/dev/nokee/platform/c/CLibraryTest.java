@@ -25,6 +25,7 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeLibrary;
@@ -32,6 +33,7 @@ import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -42,7 +44,17 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.platform.c.internal.plugins.CLibraryPlugin.cLibrary;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CLibraryTest implements SourceAwareComponentTester<CLibrary>, HasBaseNameTester, ComponentTester<CLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, VariantAwareComponentTester<VariantView<NativeLibrary>>, BinaryAwareComponentTester<BinaryView<Binary>>, HasCSourcesTester, HasPrivateHeadersTester, HasPublicHeadersTester {
+class CLibraryTest implements ComponentTester<CLibrary>
+	, SourceAwareComponentTester<CLibrary>
+	, HasBaseNameTester
+	, DependencyAwareComponentTester<NativeLibraryComponentDependencies>
+	, VariantAwareComponentTester<VariantView<NativeLibrary>>
+	, BinaryAwareComponentTester<BinaryView<Binary>>
+	, TaskAwareComponentTester<TaskView<Task>>
+	, HasCSourcesTester
+	, HasPrivateHeadersTester
+	, HasPublicHeadersTester
+{
 	private final CLibrary subject = createSubject("ledk");
 	@Getter @TempDir File testDirectory;
 
