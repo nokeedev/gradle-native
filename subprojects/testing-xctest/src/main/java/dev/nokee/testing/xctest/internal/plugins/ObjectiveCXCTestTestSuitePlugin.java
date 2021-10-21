@@ -54,6 +54,7 @@ import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.testing.base.TestSuiteContainer;
+import dev.nokee.testing.base.internal.IsTestComponent;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.xctest.internal.*;
 import lombok.val;
@@ -99,8 +100,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			BaseNativeComponent<?> application = ModelNodeUtils.get(ModelNodes.of(project.getExtensions().getByType(ObjectiveCIosApplication.class)), BaseNativeComponent.class);
 			val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);
 			val registry = ModelNodeUtils.get(ModelNodes.of(testSuites), NodeRegistrationFactoryRegistry.class);
-			registry.registerFactory(of(DefaultUnitTestXCTestTestSuiteComponent.class), (NodeRegistrationFactory) name -> unitTestXCTestTestSuite(name, project));
-			registry.registerFactory(of(DefaultUiTestXCTestTestSuiteComponent.class), (NodeRegistrationFactory) name -> uiTestXCTestTestSuite(name, project));
+			registry.registerFactory(of(DefaultUnitTestXCTestTestSuiteComponent.class), (ModelRegistrationFactory) name -> unitTestXCTestTestSuite(name, project));
+			registry.registerFactory(of(DefaultUiTestXCTestTestSuiteComponent.class), (ModelRegistrationFactory) name -> uiTestXCTestTestSuite(name, project));
 
 			val unitTestComponentProvider = testSuites.register("unitTest", DefaultUnitTestXCTestTestSuiteComponent.class, component -> {
 				component.getTestedComponent().value(application).disallowChanges();
@@ -124,113 +125,135 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		});
 	}
 
-	public static NodeRegistration unitTestXCTestTestSuite(String name, Project project) {
-		return NodeRegistration.unmanaged(name, of(DefaultUnitTestXCTestTestSuiteComponent.class), () -> {
-				val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
+	public static ModelRegistration unitTestXCTestTestSuite(String name, Project project) {
+		val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
+		val entityPath = ModelPath.path(name);
+		return ModelRegistration.builder()
+			.withComponent(entityPath)
+			.withComponent(identifier)
+			.withComponent(createdUsing(of(DefaultUnitTestXCTestTestSuiteComponent.class), () -> {
 				return newUnitTestFactory(project).create(identifier);
-			})
+			}))
 			.withComponent(IsComponent.tag())
-			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
-				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
-			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
-				val registry = project.getExtensions().getByType(ModelRegistry.class);
-				val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+			.withComponent(IsTestComponent.tag())
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+				if (entityPath.isDescendant(path)) {
+					withConventionOf(maven(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
+				private boolean alreadyExecuted = false;
 
-				// TODO: Should be created using CSourceSetSpec
-				val objectiveC = registry.register(ModelRegistration.builder()
-					.withComponent(path.child("objectiveC"))
-					.withComponent(IsLanguageSourceSet.tag())
-					.withComponent(managed(of(ObjectiveCSourceSet.class)))
-					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-					.build());
+				@Override
+				public void execute(ModelNode entity, ModelPath path, ModelState state) {
+					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
+						alreadyExecuted = true;
+						val registry = project.getExtensions().getByType(ModelRegistry.class);
+						val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
-				// TODO: Should be created using CHeaderSetSpec
-				val headers = registry.register(ModelRegistration.builder()
-					.withComponent(path.child("headers"))
-					.withComponent(IsLanguageSourceSet.tag())
-					.withComponent(managed(of(CHeaderSet.class)))
-					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-					.build());
+						// TODO: Should be created using CSourceSetSpec
+						val objectiveC = registry.register(ModelRegistration.builder()
+							.withComponent(path.child("objectiveC"))
+							.withComponent(IsLanguageSourceSet.tag())
+							.withComponent(managed(of(ObjectiveCSourceSet.class)))
+							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+							.build());
 
-				registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), NativeApplicationSources.class));
+						// TODO: Should be created using CHeaderSetSpec
+						val headers = registry.register(ModelRegistration.builder()
+							.withComponent(path.child("headers"))
+							.withComponent(IsLanguageSourceSet.tag())
+							.withComponent(managed(of(CHeaderSet.class)))
+							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+							.build());
 
-				registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
+						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), NativeApplicationSources.class));
 
-				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), DefaultXCTestTestSuiteVariant.class));
+						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
 
-				val componentIdentifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
-				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, componentIdentifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
-				val dependencies = project.getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
+						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), DefaultXCTestTestSuiteVariant.class));
 
-				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
+						val componentIdentifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
+						val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, componentIdentifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
+						val dependencies = project.getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("implementation"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
-					.build());
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("compileOnly"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
-					.build());
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("linkOnly"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
-					.build());
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("runtimeOnly"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
-					.build());
-			})))
-			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
-				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
-			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
-				val registry = project.getExtensions().getByType(ModelRegistry.class);
-				val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
-				val component = ModelNodeUtils.get(entity, DefaultUnitTestXCTestTestSuiteComponent.class);
-				component.finalizeExtension(project);
+						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
 
-				val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
-				component.getBuildVariants().get().forEach(buildVariant -> {
-					val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultXCTestTestSuiteVariant.class).build();
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("implementation"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
+							.build());
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("compileOnly"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
+							.build());
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("linkOnly"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
+							.build());
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("runtimeOnly"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
+							.build());
+					}
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(ObjectiveCSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+				if (entityPath.isDescendant(path)) {
+					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
+				if (entityPath.equals(path)) {
+					val registry = project.getExtensions().getByType(ModelRegistry.class);
+					val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
+					val component = ModelNodeUtils.get(entity, DefaultUnitTestXCTestTestSuiteComponent.class);
+					component.finalizeExtension(project);
 
-					val variant = ModelNodeUtils.register(entity, xcTestTestSuiteVariant(variantIdentifier, component, project));
-					variants.put(buildVariant, ModelNodes.of(variant));
-					onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
+					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
+					component.getBuildVariants().get().forEach(buildVariant -> {
+						val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultXCTestTestSuiteVariant.class).build();
 
-					val binaryRepository = project.getExtensions().getByType(BinaryRepository.class);
-					val binaryConfigurer = project.getExtensions().getByType(BinaryConfigurer.class);
-					val binaryIdentifierXCTestBundle = BinaryIdentifier.of(BinaryName.of("unitTestXCTestBundle"), IosXCTestBundle.class, variantIdentifier);
-					val xcTestBundleEntity = registry.register(ModelRegistration.builder()
-						.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("unitTestXCTestBundle"))
-						.withComponent(IsBinary.tag())
-						.withComponent(binaryIdentifierXCTestBundle)
-						.withComponent(createdUsing(of(IosXCTestBundle.class), () -> binaryRepository.get(binaryIdentifierXCTestBundle)))
-						.build());
-					binaryConfigurer.configure(binaryIdentifierXCTestBundle, binary -> ModelStates.realize(ModelNodes.of(xcTestBundleEntity)));
+						val variant = ModelNodeUtils.register(entity, xcTestTestSuiteVariant(variantIdentifier, component, project));
+						variants.put(buildVariant, ModelNodes.of(variant));
+						onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
 
-					val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
-					val applicationBundleEntity = registry.register(ModelRegistration.builder()
-						.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("signedApplicationBundle"))
-						.withComponent(IsBinary.tag())
-						.withComponent(binaryIdentifierApplicationBundle)
-						.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> binaryRepository.get(binaryIdentifierApplicationBundle)))
-						.build());
-					binaryConfigurer.configure(binaryIdentifierApplicationBundle, binary -> ModelStates.realize(ModelNodes.of(applicationBundleEntity)));
-				});
-				entity.addComponent(new Variants(variants.build()));
-			})))
+						val binaryRepository = project.getExtensions().getByType(BinaryRepository.class);
+						val binaryConfigurer = project.getExtensions().getByType(BinaryConfigurer.class);
+						val binaryIdentifierXCTestBundle = BinaryIdentifier.of(BinaryName.of("unitTestXCTestBundle"), IosXCTestBundle.class, variantIdentifier);
+						val xcTestBundleEntity = registry.register(ModelRegistration.builder()
+							.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("unitTestXCTestBundle"))
+							.withComponent(IsBinary.tag())
+							.withComponent(binaryIdentifierXCTestBundle)
+							.withComponent(createdUsing(of(IosXCTestBundle.class), () -> binaryRepository.get(binaryIdentifierXCTestBundle)))
+							.build());
+						binaryConfigurer.configure(binaryIdentifierXCTestBundle, binary -> ModelStates.realize(ModelNodes.of(xcTestBundleEntity)));
+
+						val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
+						val applicationBundleEntity = registry.register(ModelRegistration.builder()
+							.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("signedApplicationBundle"))
+							.withComponent(IsBinary.tag())
+							.withComponent(binaryIdentifierApplicationBundle)
+							.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> binaryRepository.get(binaryIdentifierApplicationBundle)))
+							.build());
+						binaryConfigurer.configure(binaryIdentifierApplicationBundle, binary -> ModelStates.realize(ModelNodes.of(applicationBundleEntity)));
+					});
+					entity.addComponent(new Variants(variants.build()));
+				}
+			}))
+			.build()
 			;
 	}
 
@@ -240,113 +263,134 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		};
 	}
 
-	public static NodeRegistration uiTestXCTestTestSuite(String name, Project project) {
-		return NodeRegistration.unmanaged(name, of(DefaultUiTestXCTestTestSuiteComponent.class), () -> {
-			val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUiTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
-			return newUiTestFactory(project).create(identifier);
-		})
+	public static ModelRegistration uiTestXCTestTestSuite(String name, Project project) {
+		val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUiTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
+		val entityPath = ModelPath.path(name);
+		return ModelRegistration.builder()
+			.withComponent(entityPath)
+			.withComponent(identifier)
 			.withComponent(IsComponent.tag())
-			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
-				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
-			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
-				val registry = project.getExtensions().getByType(ModelRegistry.class);
+			.withComponent(IsTestComponent.tag())
+			.withComponent(createdUsing(of(DefaultUiTestXCTestTestSuiteComponent.class), () -> {
+				return newUiTestFactory(project).create(identifier);
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+				if (entityPath.isDescendant(path)) {
+					withConventionOf(maven(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
+				private boolean alreadyExecuted = false;
 
-				// TODO: Should be created using CSourceSetSpec
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("objectiveC"))
-					.withComponent(IsLanguageSourceSet.tag())
-					.withComponent(managed(of(ObjectiveCSourceSet.class)))
-					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-					.build());
+				@Override
+				public void execute(ModelNode entity, ModelPath path, ModelState state) {
+					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
+						alreadyExecuted = true;
+						val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-				// TODO: Should be created using CHeaderSetSpec
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("headers"))
-					.withComponent(IsLanguageSourceSet.tag())
-					.withComponent(managed(of(CHeaderSet.class)))
-					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-					.build());
+						// TODO: Should be created using CSourceSetSpec
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("objectiveC"))
+							.withComponent(IsLanguageSourceSet.tag())
+							.withComponent(managed(of(ObjectiveCSourceSet.class)))
+							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+							.build());
 
-				registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), NativeApplicationSources.class));
+						// TODO: Should be created using CHeaderSetSpec
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("headers"))
+							.withComponent(IsLanguageSourceSet.tag())
+							.withComponent(managed(of(CHeaderSet.class)))
+							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+							.build());
 
-				registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
+						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), NativeApplicationSources.class));
 
-				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), DefaultXCTestTestSuiteVariant.class));
+						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
 
-				val componentIdentifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
-				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, componentIdentifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
-				val dependencies = project.getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
+						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), DefaultXCTestTestSuiteVariant.class));
 
-				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
+						val componentIdentifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
+						val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, componentIdentifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
+						val dependencies = project.getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("implementation"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
-					.build());
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("compileOnly"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
-					.build());
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("linkOnly"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
-					.build());
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("runtimeOnly"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
-					.build());
-			})))
-			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
-				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
-			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
-				val component = ModelNodeUtils.get(entity, DefaultUiTestXCTestTestSuiteComponent.class);
-				component.finalizeExtension(project);
+						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
 
-				val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
-				component.getBuildVariants().get().forEach(buildVariant -> {
-					val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultXCTestTestSuiteVariant.class).build();
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("implementation"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
+							.build());
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("compileOnly"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
+							.build());
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("linkOnly"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
+							.build());
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("runtimeOnly"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
+							.build());
+					}
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(ObjectiveCSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+				if (entityPath.isDescendant(path)) {
+					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
+				if (entityPath.equals(path)) {
+					val component = ModelNodeUtils.get(entity, DefaultUiTestXCTestTestSuiteComponent.class);
+					component.finalizeExtension(project);
 
-					val variant = ModelNodeUtils.register(entity, xcTestTestSuiteVariant(variantIdentifier, component, project));
-					variants.put(buildVariant, ModelNodes.of(variant));
-					onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
+					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
+					component.getBuildVariants().get().forEach(buildVariant -> {
+						val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultXCTestTestSuiteVariant.class).build();
 
-					val registry = project.getExtensions().getByType(ModelRegistry.class);
-					val binaryRepository = project.getExtensions().getByType(BinaryRepository.class);
-					val binaryConfigurer = project.getExtensions().getByType(BinaryConfigurer.class);
-					val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("launcherApplicationBundle"), IosApplicationBundleInternal.class, variantIdentifier);
-					val launcherApplicationBundleEntity = registry.register(ModelRegistration.builder()
-						.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("unitTestXCTestBundle"))
-						.withComponent(IsBinary.tag())
-						.withComponent(binaryIdentifierApplicationBundle)
-						.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> binaryRepository.get(binaryIdentifierApplicationBundle)))
-						.build());
-					binaryConfigurer.configure(binaryIdentifierApplicationBundle, binary -> ModelStates.realize(ModelNodes.of(launcherApplicationBundleEntity)));
+						val variant = ModelNodeUtils.register(entity, xcTestTestSuiteVariant(variantIdentifier, component, project));
+						variants.put(buildVariant, ModelNodes.of(variant));
+						onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
 
-					val binaryIdentifierSignedApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedLauncherApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
-					val signedLauncherApplicationBundleEntity = registry.register(ModelRegistration.builder()
-						.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("signedLauncherApplicationBundle"))
-						.withComponent(IsBinary.tag())
-						.withComponent(binaryIdentifierSignedApplicationBundle)
-						.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> binaryRepository.get(binaryIdentifierSignedApplicationBundle)))
-						.build());
-					binaryConfigurer.configure(binaryIdentifierSignedApplicationBundle, binary -> ModelStates.realize(ModelNodes.of(signedLauncherApplicationBundleEntity)));
-				});
-				entity.addComponent(new Variants(variants.build()));
-				component.getVariants().get(); // Force realization, for now
-			})))
+						val registry = project.getExtensions().getByType(ModelRegistry.class);
+						val binaryRepository = project.getExtensions().getByType(BinaryRepository.class);
+						val binaryConfigurer = project.getExtensions().getByType(BinaryConfigurer.class);
+						val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("launcherApplicationBundle"), IosApplicationBundleInternal.class, variantIdentifier);
+						val launcherApplicationBundleEntity = registry.register(ModelRegistration.builder()
+							.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("unitTestXCTestBundle"))
+							.withComponent(IsBinary.tag())
+							.withComponent(binaryIdentifierApplicationBundle)
+							.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> binaryRepository.get(binaryIdentifierApplicationBundle)))
+							.build());
+						binaryConfigurer.configure(binaryIdentifierApplicationBundle, binary -> ModelStates.realize(ModelNodes.of(launcherApplicationBundleEntity)));
 
+						val binaryIdentifierSignedApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedLauncherApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
+						val signedLauncherApplicationBundleEntity = registry.register(ModelRegistration.builder()
+							.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("signedLauncherApplicationBundle"))
+							.withComponent(IsBinary.tag())
+							.withComponent(binaryIdentifierSignedApplicationBundle)
+							.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> binaryRepository.get(binaryIdentifierSignedApplicationBundle)))
+							.build());
+						binaryConfigurer.configure(binaryIdentifierSignedApplicationBundle, binary -> ModelStates.realize(ModelNodes.of(signedLauncherApplicationBundleEntity)));
+					});
+					entity.addComponent(new Variants(variants.build()));
+					component.getVariants().get(); // Force realization, for now
+				}
+			}))
+			.build()
 			;
 	}
 
