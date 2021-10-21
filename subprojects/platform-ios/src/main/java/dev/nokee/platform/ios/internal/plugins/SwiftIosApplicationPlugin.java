@@ -63,7 +63,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		val registry = ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class);
-		registry.registerFactory(of(SwiftIosApplication.class), name -> swiftIosApplication(name, project));
+		registry.registerFactory(of(SwiftIosApplication.class), (NodeRegistrationFactory) name -> swiftIosApplication(name, project));
 		val componentProvider = components.register("main", SwiftIosApplication.class, configureUsingProjection(DefaultIosApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen((t, projection) -> ((DefaultIosApplicationComponent) projection).getGroupId().set(GroupId.of(project::getGroup))).andThen(configureBuildVariants())));
 		project.getExtensions().add(SwiftIosApplication.class, EXTENSION_NAME, componentProvider.get());
 

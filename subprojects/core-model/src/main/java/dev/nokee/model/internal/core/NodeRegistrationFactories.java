@@ -23,15 +23,20 @@ import java.util.Map;
 import java.util.Set;
 
 public final class NodeRegistrationFactories implements NodeRegistrationFactoryRegistry, NodeRegistrationFactoryLookup {
-	private final Map<ModelType<?>, NodeRegistrationFactory> factories = new HashMap<>();
+	private final Map<ModelType<?>, Object> factories = new HashMap<>();
 
 	@Override
-	public <T> NodeRegistrationFactory get(ModelType<T> type) {
+	public <T> Object get(ModelType<T> type) {
 		return factories.get(type);
 	}
 
 	@Override
 	public <T> void registerFactory(ModelType<T> type, NodeRegistrationFactory factory) {
+		factories.put(type, factory);
+	}
+
+	@Override
+	public <T> void registerFactory(ModelType<T> type, ModelRegistrationFactory factory) {
 		factories.put(type, factory);
 	}
 

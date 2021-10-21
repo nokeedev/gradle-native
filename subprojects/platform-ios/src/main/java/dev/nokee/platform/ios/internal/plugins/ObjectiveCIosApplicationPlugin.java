@@ -81,7 +81,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		val registry = ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class);
-		registry.registerFactory(of(ObjectiveCIosApplication.class), name -> objectiveCIosApplication(name, project));
+		registry.registerFactory(of(ObjectiveCIosApplication.class), (NodeRegistrationFactory) name -> objectiveCIosApplication(name, project));
 		val componentProvider = components.register("main", ObjectiveCIosApplication.class, configureUsingProjection(DefaultIosApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen((t, projection) -> ((DefaultIosApplicationComponent) projection).getGroupId().set(GroupId.of(project::getGroup))).andThen(configureBuildVariants())));
 		project.getExtensions().add(ObjectiveCIosApplication.class, EXTENSION_NAME, componentProvider.get());
 

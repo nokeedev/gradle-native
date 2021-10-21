@@ -478,7 +478,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		// TODO: Use the ComponentContainer instead of ModelRegistry
 		val components = project.getExtensions().getByType(ComponentContainer.class);
 		val registry = ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class);
-		registry.registerFactory(of(JavaNativeInterfaceLibrary.class), name -> javaNativeInterfaceLibrary(name, project));
+		registry.registerFactory(of(JavaNativeInterfaceLibrary.class), (NodeRegistrationFactory) name -> javaNativeInterfaceLibrary(name, project));
 		val componentProvider = components.register("main", JavaNativeInterfaceLibrary.class, configureUsingProjection(JniLibraryComponentInternal.class, baseNameConvention(project.getName())));
 		val library = componentProvider.get();
 
