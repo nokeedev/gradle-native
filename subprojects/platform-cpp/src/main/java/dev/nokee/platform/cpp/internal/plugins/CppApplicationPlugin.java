@@ -22,9 +22,9 @@ import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.cpp.CppApplication;
 import dev.nokee.platform.cpp.CppApplicationSources;
@@ -70,9 +70,8 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CppLanguageBasePlugin.class);
-		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(CppApplication.class), name -> cppApplication(name, project));
-		val componentProvider = components.register("main", CppApplication.class, configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(cppApplication("main", project)).as(CppApplication.class);
+		componentProvider.configure(configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
 		val extension = componentProvider.get();
 
 		// Other configurations
@@ -83,7 +82,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(CppApplication.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration cppApplication(String name, Project project) {
+	public static ModelRegistration cppApplication(String name, Project project) {
 		return new NativeApplicationComponentModelRegistrationFactory(CppApplication.class, DefaultCppApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -104,7 +103,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), CppApplicationSources.class));
-		}).create(name);
+		}).create(ComponentIdentifier.of(ComponentName.of(name), CppApplication.class, ProjectIdentifier.of(project)));
 	}
 
 	public static abstract class DefaultCppApplication implements CppApplication

@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.objectivec.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
@@ -22,8 +23,11 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
@@ -74,9 +78,8 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
-		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(ObjectiveCApplication.class), name -> objectiveCApplication(name, project));
-		val componentProvider = components.register("main", ObjectiveCApplication.class, configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCApplication("main", project)).as(ObjectiveCApplication.class);
+		componentProvider.configure(configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
 		val extension = componentProvider.get();
 
 		// Other configurations
@@ -87,7 +90,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(ObjectiveCApplication.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration objectiveCApplication(String name, Project project) {
+	public static ModelRegistration objectiveCApplication(String name, Project project) {
 		return new NativeApplicationComponentModelRegistrationFactory(ObjectiveCApplication.class, DefaultObjectiveCApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -108,8 +111,13 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCApplicationSources.class));
-		}).create(name).action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
-			.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)));
+
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(ObjectiveCSourceSet.class)), (e, p, ignored, projection) -> {
+				if (path.isDescendant(p)) {
+					withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name))).accept(ModelNodeUtils.get(e, LanguageSourceSet.class));
+				}
+			}));
+		}).create(ComponentIdentifier.of(ComponentName.of(name), ObjectiveCApplication.class, ProjectIdentifier.of(project)));
 	}
 
 	public static abstract class DefaultObjectiveCApplication implements ObjectiveCApplication

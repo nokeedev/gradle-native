@@ -19,10 +19,8 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.HasCSourcesTester;
-import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
-import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -40,7 +38,6 @@ import java.io.File;
 import java.util.stream.Stream;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.c.internal.plugins.CApplicationPlugin.cApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -52,7 +49,7 @@ class CApplicationTest implements SourceAwareComponentTester<CApplication>, HasB
 	public CApplication createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val component = create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), cApplication(componentName, project)).as(CApplication.class).get();
+		val component = project.getExtensions().getByType(ModelRegistry.class).register(cApplication(componentName, project)).as(CApplication.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}

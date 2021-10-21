@@ -23,6 +23,7 @@ import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentContainer;
@@ -58,6 +59,13 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
 		val components = modeRegistry.register(components()).as(DefaultComponentContainer.class).get();
 		project.getExtensions().add(ComponentContainer.class, "components", components);
+
+		val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsComponent.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(Component.class)), (e, p, ignored1, ignored2, projection) -> {
+			if (ModelPath.root().isDirectDescendant(p)) {
+				modeRegistry.register(propertyFactory.create(ModelPath.path("components").child(p.getName()), e));
+			}
+		}));
 
 		project.getExtensions().add(ComponentVariantsPropertyRegistrationFactory.class, "__nokee_componentVariantsPropertyFactory", new ComponentVariantsPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 		project.getExtensions().add(ComponentSourcesPropertyRegistrationFactory.class, "__nokee_componentSourcesPropertyFactory", new ComponentSourcesPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelConfigurer.class)));

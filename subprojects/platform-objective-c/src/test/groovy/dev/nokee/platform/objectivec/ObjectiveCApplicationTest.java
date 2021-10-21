@@ -22,7 +22,6 @@ import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivec.HasObjectiveCSourcesTester;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
-import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -40,7 +39,6 @@ import java.io.File;
 import java.util.stream.Stream;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.objectivec.internal.plugins.ObjectiveCApplicationPlugin.objectiveCApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -53,7 +51,7 @@ class ObjectiveCApplicationTest implements SourceAwareComponentTester<ObjectiveC
 	public ObjectiveCApplication createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val component = create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), objectiveCApplication(componentName, project)).as(ObjectiveCApplication.class).get();
+		val component = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCApplication(componentName, project)).as(ObjectiveCApplication.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}

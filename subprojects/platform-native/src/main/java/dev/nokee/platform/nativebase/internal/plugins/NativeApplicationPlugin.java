@@ -22,6 +22,7 @@ import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -92,9 +93,8 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
-		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(NativeApplicationExtension.class), name -> nativeApplication(name, project));
-		val componentProvider = components.register("main", NativeApplicationExtension.class, configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(nativeApplication("main", project)).as(NativeApplicationExtension.class);
+		componentProvider.configure(configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
 		val extension = componentProvider.get();
 
 		// Other configurations
@@ -105,7 +105,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(NativeApplicationExtension.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration nativeApplication(String name, Project project) {
+	public static ModelRegistration nativeApplication(String name, Project project) {
 		return new NativeApplicationComponentModelRegistrationFactory(NativeApplicationExtension.class, DefaultNativeApplicationExtension.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -118,7 +118,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), NativeApplicationSources.class));
-		}).create(name);
+		}).create(ComponentIdentifier.of(ComponentName.of(name), NativeApplicationExtension.class, ProjectIdentifier.of(project)));
 	}
 
 

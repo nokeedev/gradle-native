@@ -22,6 +22,7 @@ import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
@@ -70,10 +71,8 @@ public class CApplicationPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
-		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(CApplication.class),
-			name -> cApplication(name, project));
-		val componentProvider = components.register("main", CApplication.class, configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(cApplication("main", project)).as(CApplication.class);
+		componentProvider.configure(configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
 		val extension = componentProvider.get();
 
 		// Other configurations
@@ -84,7 +83,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(CApplication.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration cApplication(String name, Project project) {
+	public static ModelRegistration cApplication(String name, Project project) {
 		return new NativeApplicationComponentModelRegistrationFactory(CApplication.class, DefaultCApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -105,7 +104,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), CApplicationSources.class));
-		}).create(name);
+		}).create(ComponentIdentifier.of(ComponentName.of(name), CApplication.class, ProjectIdentifier.of(project)));
 	}
 
 	public static abstract class DefaultCApplication implements CApplication
