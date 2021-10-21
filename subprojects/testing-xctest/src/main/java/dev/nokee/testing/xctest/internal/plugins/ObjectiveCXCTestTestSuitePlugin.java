@@ -129,6 +129,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUnitTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
 				return newUnitTestFactory(project).create(identifier);
 			})
+			.withComponent(IsComponent.tag())
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
 				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
@@ -244,6 +245,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultUiTestXCTestTestSuiteComponent.class, ProjectIdentifier.of(project));
 			return newUiTestFactory(project).create(identifier);
 		})
+			.withComponent(IsComponent.tag())
 			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
 				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
 			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
