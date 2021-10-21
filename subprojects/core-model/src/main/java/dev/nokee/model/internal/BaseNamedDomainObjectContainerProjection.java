@@ -17,10 +17,7 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.NodeRegistration;
-import dev.nokee.model.internal.core.NodeRegistrationFactoryLookup;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.Action;
@@ -44,7 +41,12 @@ public class BaseNamedDomainObjectContainerProjection implements AbstractModelNo
 	public <U> DomainObjectProvider<U> register(String name, ModelType<U> type) {
 		val registrationFactoryLookup = ModelNodeUtils.get(node, NodeRegistrationFactoryLookup.class);
 		if (registrationFactoryLookup.getSupportedTypes().contains(type)) {
-			return ModelNodeUtils.register(node, registrationFactoryLookup.get(type).create(name)).as(type);
+			val factory = registrationFactoryLookup.get(type);
+			if (factory instanceof NodeRegistrationFactory) {
+				return ModelNodeUtils.register(node, ((NodeRegistrationFactory) factory).create(name)).as(type);
+			} else {
+				return node.getComponent(RelativeRegistrationService.class).modelRegistry.register(((ModelRegistrationFactory) factory).create(name)).as(type);
+			}
 		}
 		if (instantiator.getCreatableTypes().contains(type.getRawType())) {
 			return ModelNodeUtils.register(node, NodeRegistration.unmanaged(name, ModelType.of(toImplementationType(type.getConcreteType())), () -> instantiator.newInstance(new NameAwareDomainObjectIdentifier() {

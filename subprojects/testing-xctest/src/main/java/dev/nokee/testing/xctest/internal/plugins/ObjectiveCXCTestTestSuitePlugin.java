@@ -99,8 +99,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			BaseNativeComponent<?> application = ModelNodeUtils.get(ModelNodes.of(project.getExtensions().getByType(ObjectiveCIosApplication.class)), BaseNativeComponent.class);
 			val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);
 			val registry = ModelNodeUtils.get(ModelNodes.of(testSuites), NodeRegistrationFactoryRegistry.class);
-			registry.registerFactory(of(DefaultUnitTestXCTestTestSuiteComponent.class), name -> unitTestXCTestTestSuite(name, project));
-			registry.registerFactory(of(DefaultUiTestXCTestTestSuiteComponent.class), name -> uiTestXCTestTestSuite(name, project));
+			registry.registerFactory(of(DefaultUnitTestXCTestTestSuiteComponent.class), (NodeRegistrationFactory) name -> unitTestXCTestTestSuite(name, project));
+			registry.registerFactory(of(DefaultUiTestXCTestTestSuiteComponent.class), (NodeRegistrationFactory) name -> uiTestXCTestTestSuite(name, project));
 
 			val unitTestComponentProvider = testSuites.register("unitTest", DefaultUnitTestXCTestTestSuiteComponent.class, component -> {
 				component.getTestedComponent().value(application).disallowChanges();

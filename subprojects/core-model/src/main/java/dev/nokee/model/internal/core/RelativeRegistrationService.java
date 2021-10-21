@@ -19,7 +19,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 
 public final class RelativeRegistrationService {
 	private final ModelPath path;
-	private final ModelRegistry modelRegistry;
+	public final ModelRegistry modelRegistry; // public only as a hack for TestSuiteContainer
 
 	public RelativeRegistrationService(ModelPath path, ModelRegistry modelRegistry) {
 		this.path = path;
